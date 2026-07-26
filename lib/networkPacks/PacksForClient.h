@@ -1287,6 +1287,22 @@ struct DLL_LINKAGE SetScriptVariable : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE SetQuestHint : public CPackForClient
+{
+	ObjectInstanceID object;
+	MetaString hint;
+
+	SetQuestHint() = default;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & object;
+		h & hint;
+	}
+};
+
 struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 {
 	enum VisitMode

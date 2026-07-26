@@ -21,11 +21,14 @@
 #include "../../../lib/json/JsonNode.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
+#include "../../../lib/mapObjects/Quest.h"
+#include "../../../lib/mapObjects/army/CArmedInstance.h"
 #include "../../../lib/mapObjects/army/CCreatureSet.h"
 #include "../../../lib/mapObjects/army/CStackBasicDescriptor.h"
 #include "../../../lib/modding/ModScope.h"
 #include "../../../lib/networkPacks/ArtifactLocation.h"
 #include "../../../lib/networkPacks/PacksForClient.h"
+#include "../../../lib/networkPacks/StackLocation.h"
 
 #include <vstd/RNG.h>
 
@@ -45,6 +48,31 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		{{"target", "Map object to remove."}}, {},
 		"Permanently removes a map object from the adventure map. The object disappears for every player; "
 		"if it was a town or a hero, ownership and garrison are lost as well. There is no undo.");
+	R.function<&AdventureServerProxy::finishQuestOrRemoveObject>("finishQuestOrRemoveObject",
+		{{"target", "The quest source (or plain event/pandora) that just finished its business."}}, {},
+		"Ends the current interaction with the given object. A seer hut's active quest is marked complete and "
+		"cleared, without removing the hut itself; a quest guard is removed from the map; any other object "
+		"(a plain scripted event/pandora) is removed like removeObject.");
+	R.function<&AdventureServerProxy::markQuestProposed>("markQuestProposed",
+		{
+			{"target", "The quest source (seer hut / quest guard) to mark."},
+			{"player", "Player who has now seen the quest proposed."}
+		}, {},
+		"Internal plumbing for registerQuest: remembers that a player has already been offered this quest, "
+		"so a later visit shows the progression text instead of the proposal text again.");
+	R.function<&AdventureServerProxy::addToQuestLog>("addToQuestLog",
+		{
+			{"target", "The quest source (seer hut / quest guard) to add."},
+			{"player", "Player whose quest log gains the entry."}
+		}, {},
+		"Adds the object's active quest to a player's in-game quest log. Calling it again for a quest already "
+		"in the log does nothing.");
+	R.function<&AdventureServerProxy::setQuestHintText>("setQuestHintText",
+		{
+			{"target", "The quest source (seer hut / quest guard) whose hint changes."},
+			{"text", "New hover / quest-log text for the object's active quest."}
+		}, {},
+		"Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.");
 	R.function<&AdventureServerProxy::random>("random",
 		{
 			{"lower", "Smallest value that may be returned."},
@@ -186,6 +214,23 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Pops up a message box for one player. This call does not wait for the player to react - the script continues "
 		"immediately and the box is shown at the next opportunity. Use it for notifications, not for questions.");
+	R.function<&AdventureServerProxy::spawnDialog>("spawnDialog",
+		{
+			{"player",     "Player who must answer the dialog."},
+			{"text",       "The dialog text, built with MetaString."},
+			{"mode",       "0 shows a plain acknowledge box; any other value shows a yes/no question."},
+			{"components", "Optional icons shown under the text."}
+		}, {},
+		"Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and "
+		"registers the query whose reply resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.");
+	R.function<&AdventureServerProxy::spawnCombat>("spawnCombat",
+		{
+			{"host", "The visited event/pandora whose garrison is replaced with the opposing army."},
+			{"hero", "Hero that fights the army."},
+			{"army", "List of {count, creatureKey} pairs describing the opposing army."}
+		}, {},
+		"Internal plumbing for the startCombat helper: replaces the host object's garrison with the given "
+		"creatures and starts a battle against the visiting hero. Scripts should call startCombat instead.");
 }
 
 void AdventureServerProxy::setMapVariable(IGameEventCallback & object, const std::string & name, const JsonNode & value)
@@ -196,6 +241,49 @@ void AdventureServerProxy::setMapVariable(IGameEventCallback & object, const std
 void AdventureServerProxy::removeObject(IGameEventCallback & object, const CGObjectInstance & target)
 {
 	object.removeObject(&target, target.getOwner());
+}
+
+void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object, const CGObjectInstance & target)
+{
+	if(dynamic_cast<const QuestGate *>(&target))
+	{
+		// desired behavior not yet decided; refuse rather than guess at removing a passage gate
+		logScript->warn("finishQuestOrRemoveObject: Quest Gate '%s' is not yet supported, ignoring", target.getObjectName());
+		return;
+	}
+	if(dynamic_cast<const QuestGuard *>(&target))
+	{
+		object.removeObject(&target, target.getOwner());
+		return;
+	}
+	if(dynamic_cast<const SeerHut *>(&target))
+	{
+		// switches the seer hut to its "empty" state (no active quest) rather than removing the hut itself
+		object.setObjPropertyValue(target.id, ObjProperty::SEERHUT_COMPLETE, true);
+		return;
+	}
+	object.removeObject(&target, target.getOwner());
+}
+
+void AdventureServerProxy::markQuestProposed(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player)
+{
+	object.setObjPropertyID(target.id, ObjProperty::SEERHUT_VISITED, player);
+}
+
+void AdventureServerProxy::addToQuestLog(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player)
+{
+	const auto * questSource = dynamic_cast<const IQuestSource *>(&target);
+	if(!questSource)
+	{
+		logScript->error("addToQuestLog: object '%s' is not a quest source", target.getObjectName());
+		return;
+	}
+	object.addQuest(player, questSource->getQuestIdentity());
+}
+
+void AdventureServerProxy::setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text)
+{
+	object.setQuestHintText(target.id, text.toMetaString());
 }
 
 int AdventureServerProxy::random(IGameEventCallback & object, int lower, int upper)
@@ -329,6 +417,53 @@ void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor 
 		iw.type = static_cast<EInfoWindowMode>(*windowType);
 
 	object.showInfoDialog(&iw);
+}
+
+void AdventureServerProxy::spawnDialog(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
+	int mode, const std::optional<std::vector<LuaComponent>> & components)
+{
+	// mode 0 is an acknowledge-only reward box; anything else is a yes/no question.
+	BlockingDialog bd(mode != 0, false);
+	bd.player = player;
+	bd.text = text.toMetaString();
+	if(components)
+		for(const auto & component : *components)
+			bd.components.push_back(component.toComponent());
+
+	object.showScriptDialog(&bd);
+}
+
+void AdventureServerProxy::spawnCombat(IGameEventCallback & object, const CGObjectInstance & host, const CGHeroInstance & hero, const JsonNode & army)
+{
+	// The visited event/pandora is reused as the opposing army: its own garrison is discarded and the
+	// event's creatures are placed into it, then the hero fights it in place.
+	const auto * armedHost = dynamic_cast<const CArmedInstance *>(&host);
+	if(!armedHost)
+	{
+		logScript->error("startCombat: host object '%s' can not hold an army", host.getObjectName());
+		return;
+	}
+
+	for(int guard = 0; guard < GameConstants::ARMY_SIZE && !armedHost->Slots().empty(); ++guard)
+		object.eraseStack(StackLocation(armedHost->id, armedHost->Slots().begin()->first), true);
+
+	int slotIndex = 0;
+	for(const auto & slot : army.Vector())
+	{
+		if(slotIndex >= GameConstants::ARMY_SIZE)
+			break;
+
+		const auto & entry = slot.Vector();
+		if(entry.size() >= 2 && entry[0].Integer() > 0)
+		{
+			CreatureID creature = CreatureID::decode(entry[1].String());
+			if(creature.hasValue())
+				object.insertNewStack(StackLocation(armedHost->id, SlotID(slotIndex)), creature.toCreature(), entry[0].Integer());
+		}
+		++slotIndex;
+	}
+
+	object.startBattle(&hero, armedHost);
 }
 
 }

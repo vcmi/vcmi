@@ -1123,6 +1123,20 @@ void GameStatePackVisitor::visitSetScriptVariable(SetScriptVariable & pack)
 	gs.getMap().getScriptVariables().set(pack.scope, pack.name, pack.value);
 }
 
+void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
+{
+	auto * questSource = dynamic_cast<QuestSource *>(gs.getObjInstance(pack.object));
+	if(!questSource)
+	{
+		logNetwork->error("SetQuestHint: object %d is not a quest source!", pack.object.getNum());
+		return;
+	}
+	if(!questSource->getActiveQuest())
+		return; // no active quest to attach the hint to
+
+	questSource->getQuest().scriptHintText = pack.hint;
+}
+
 void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.id);

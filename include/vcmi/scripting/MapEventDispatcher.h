@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include <string>
-
 class IGameEventCallback;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -29,10 +27,15 @@ class DLL_LINKAGE MapEventDispatcher
 public:
 	virtual ~MapEventDispatcher() = default;
 
-	virtual void onObjectVisit(IGameEventCallback & server, const std::string & handler,
-		const CGObjectInstance * object, const CGHeroInstance * hero) = 0;
-	virtual void onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player) = 0;
-	virtual void onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town) = 0;
+	/// Fires a handler. Returns an opaque coroutine handle if the script paused on a blocking action
+	/// (the caller must keep a LuaScriptQuery alive to resume it), or std::nullopt if it ran to completion.
+	virtual std::optional<int> onObjectVisit(IGameEventCallback & server, const std::string & handler, const CGObjectInstance * object, const CGHeroInstance * hero) = 0;
+	virtual std::optional<int> onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player) = 0;
+	virtual std::optional<int> onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town) = 0;
+
+	/// Resumes a paused coroutine with the player's reply (nullopt for non-dialog children such as combat).
+	/// Returns true if the coroutine finished (its query may now be removed), false if it paused again.
+	virtual bool resumeCoroutine(IGameEventCallback & server, int coroutineHandle, std::optional<int> answer) = 0;
 };
 
 }

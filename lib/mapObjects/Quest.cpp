@@ -60,7 +60,7 @@ struct MissionKindEntry
 const std::array<MissionKindEntry, 16> missionKinds = {{
 	{ EQuestMission::NONE,                   "empty",          nullptr },
 	{ EQuestMission::HOTA_MULTI_PLACEHOLDER, "hotaINVALID",    nullptr }, // only used for h3m parsing
-	{ EQuestMission::HOTA_SCRIPTED,          "scripted",       nullptr },
+	{ EQuestMission::HOTA_SCRIPTED,          "scripted",       [](const Quest & q){ return q.scriptEventID >= 0; } },
 	{ EQuestMission::KEYMASTER,              "keymaster",      [](const Quest & q){ return !q.mission.requiredKeys.empty(); } },
 	{ EQuestMission::LEVEL,                  "heroLevel",      [](const Quest & q){ return q.mission.heroLevel > 0; } },
 	{ EQuestMission::PRIMARY_SKILL,          "primarySkill",   [](const Quest & q){ return std::any_of(q.mission.primary.begin(), q.mission.primary.end(), [](si32 s){ return s != 0; }); } },
@@ -260,9 +260,12 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 	else
 		ms.appendRawString("\n\n");
 
-	std::string questState = missionState(3);
-
-	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), questState, textOption).get());
+	if(missionKind == EQuestMission::HOTA_SCRIPTED)
+	{
+		ms.appendRawString(scriptHintText.toString());
+	}
+	else
+		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(3), textOption).get());
 
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
@@ -271,8 +274,11 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 
 void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
-	std::string questState = missionState(4);
-	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), questState, textOption).get());
+	if(missionKind == EQuestMission::HOTA_SCRIPTED)
+		ms.appendRawString(scriptHintText.toString());
+	else
+		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(4), textOption).get());
+
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
 }
@@ -549,7 +555,9 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 		Quest & q = *qp;
 		q.defineQuestName();
 
-		if(q.mission == Rewardable::Limiter{})
+		// A HOTA_SCRIPTED quest is intentionally limiter-less (its condition is Lua-evaluated), so an
+		// empty limiter must not be read as "nothing to do" here like it is for every other mission kind.
+		if(q.mission == Rewardable::Limiter{} && q.missionKind != EQuestMission::HOTA_SCRIPTED)
 			q.isCompleted = true;
 
 		if(q.missionKind == EQuestMission::NONE)

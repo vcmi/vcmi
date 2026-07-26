@@ -56,6 +56,15 @@ public:
 	bool isCompleted = false;
 	std::set<PlayerColor> activeForPlayers;
 
+	/// HotA scripted quest: id of the questEvents handler this quest's condition/reward logic
+	/// lives in (the engine only dispatches the visit; the script owns the actual quest logic).
+	/// -1 for every non-scripted mission kind.
+	si32 scriptEventID = -1;
+
+	/// HotA scripted quest: hint text last set by the script via AdventureServer:setQuestHint,
+	/// shown in the quest log / hover in place of the (non-existent) templated "scripted" text.
+	MetaString scriptHintText;
+
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
 	// needed for messages / hover text
@@ -115,6 +124,11 @@ public:
 		h & firstVisitText;
 		h & nextVisitText;
 		h & completedText;
+		if(h.hasFeature(Handler::Version::HOTA_SCRIPT_QUESTS))
+		{
+			h & scriptEventID;
+			h & scriptHintText;
+		}
 		// legacy "text was customized" flags; now derived on the fly from text
 		// emptiness in initObj. Kept on the wire for save compatibility.
 		bool isCustomFirst = !firstVisitText.empty();

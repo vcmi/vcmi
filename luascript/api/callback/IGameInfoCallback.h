@@ -42,6 +42,7 @@ public:
 	static bool playerIsHuman(const GameCb & object, PlayerColor player);
 	static bool playerDefeated(const GameCb & object, PlayerColor player);
 	static bool playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction);
+	static bool wasQuestProposed(const GameCb & object, const CGObjectInstance & target, PlayerColor player);
 };
 
 }

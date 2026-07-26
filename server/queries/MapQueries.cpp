@@ -14,9 +14,12 @@
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
 #include "../../lib/callback/IGameInfoCallback.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner, TYPE)
@@ -395,4 +398,48 @@ void CHeroMovementQuery::onAdding(PlayerColor color)
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
 	gh->sendAndApply(pb);
+}
+
+LuaScriptQuery::LuaScriptQuery(CGameHandler * owner, PlayerColor player):
+	CQuery(owner, TYPE)
+{
+	addPlayer(player);
+}
+
+void LuaScriptQuery::setCoroutine(int handle)
+{
+	coroutineHandle = handle;
+}
+
+void LuaScriptQuery::setPendingAnswer(std::optional<int32_t> answer)
+{
+	pendingAnswer = answer;
+}
+
+void LuaScriptQuery::setVisitingHero(ObjectInstanceID hero)
+{
+	visitingHero = hero;
+}
+
+void LuaScriptQuery::onExposure(QueryPtr topQuery)
+{
+	auto * dispatcher = gh->gameState().getMapEventDispatcher();
+
+	// If the hero lost a scripted combat it no longer exists; abandon the coroutine rather than resume
+	// a handler whose captured hero is gone.
+	bool heroGone = visitingHero.hasValue() && gh->gameInfo().getHero(visitingHero) == nullptr;
+
+	if(!dispatcher || heroGone)
+	{
+		owner->popIfTop(*this);
+		return;
+	}
+
+	// Resuming may spawn a new child query (another blocking action); in that case the coroutine is
+	// not finished and this query stays on the stack under the freshly-added child.
+	bool finished = dispatcher->resumeCoroutine(*gh, coroutineHandle, pendingAnswer);
+	pendingAnswer.reset();
+
+	if(finished)
+		owner->popIfTop(*this);
 }

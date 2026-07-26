@@ -556,6 +556,14 @@ Quest TinyH3MBuilder::missionDifficulty(uint8_t difficultyMask)
 	return q;
 }
 
+Quest TinyH3MBuilder::missionScripted(uint32_t scriptEventID)
+{
+	Quest q;
+	q.kind = EQuestMission::HOTA_SCRIPTED;
+	q.scriptEventID = scriptEventID;
+	return q;
+}
+
 SeerReward TinyH3MBuilder::rewardNothing()
 {
 	return {};
@@ -1216,7 +1224,8 @@ void TinyH3MBuilder::writeQuestBody(TinyH3MWriter & w, const Quest & quest) cons
 	// every other kind writes its own missionId byte directly.
 	const bool isHotaMission = quest.kind == EQuestMission::HOTA_HERO_CLASS
 		|| quest.kind == EQuestMission::HOTA_REACH_DATE
-		|| quest.kind == EQuestMission::HOTA_GAME_DIFFICULTY;
+		|| quest.kind == EQuestMission::HOTA_GAME_DIFFICULTY
+		|| quest.kind == EQuestMission::HOTA_SCRIPTED;
 	w.writeInt8(static_cast<int8_t>(isHotaMission ? EQuestMission::HOTA_MULTI_PLACEHOLDER : quest.kind));
 
 	switch(quest.kind)
@@ -1290,6 +1299,12 @@ void TinyH3MBuilder::writeQuestBody(TinyH3MWriter & w, const Quest & quest) cons
 		case EQuestMission::HOTA_GAME_DIFFICULTY:
 			w.writeUInt32(2);                      // missionSubID
 			w.writeUInt32(quest.difficultyMask);
+			break;
+
+		case EQuestMission::HOTA_SCRIPTED:
+			w.writeUInt32(3);                      // missionSubID
+			w.writeUInt32(quest.scriptEventID);
+			w.writeBool(false);                    // unknown trailing bool, meaning TBD
 			break;
 
 		default:

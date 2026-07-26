@@ -29,7 +29,7 @@ struct HotaScriptConversionResult
 /// Converts the HotA (Horn of the Abyss) event-scripting bytecode embedded in a
 /// H3M map into equivalent Lua source. Pure recursive-descent emission: each
 /// helper consumes one node from the reader and returns its Lua text.
-class HotaScriptConverter
+class DLL_LINKAGE HotaScriptConverter
 {
 public:
 	/// Reads a map text field and returns the stable identifier it was registered under.

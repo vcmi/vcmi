@@ -29,10 +29,12 @@ public:
 	LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env, CMap & map);
 	~LuaMapEventDispatcher();
 
-	void onObjectVisit(IGameEventCallback & server, const std::string & handler,
+	std::optional<int> onObjectVisit(IGameEventCallback & server, const std::string & handler,
 		const CGObjectInstance * object, const CGHeroInstance * hero) override;
-	void onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player) override;
-	void onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town) override;
+	std::optional<int> onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player) override;
+	std::optional<int> onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town) override;
+
+	bool resumeCoroutine(IGameEventCallback & server, int coroutineHandle, std::optional<int> answer) override;
 
 private:
 	std::shared_ptr<const LuaScriptInstance> script;

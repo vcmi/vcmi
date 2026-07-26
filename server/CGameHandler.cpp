@@ -57,10 +57,12 @@
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/HotaScriptConverter.h"
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGPandoraBox.h"
+#include "../lib/mapObjects/Quest.h"
 #include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -1188,6 +1190,24 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 	sendAndApply(*iw);
 }
 
+void CGameHandler::showScriptDialog(BlockingDialog * iw)
+{
+	// The dialog sits above the paused script's query; its reply is stashed there and consumed when
+	// the script query is exposed and resumes the coroutine.
+	auto scriptQuery = std::dynamic_pointer_cast<LuaScriptQuery>(queries->topQuery(iw->player));
+	if(!scriptQuery)
+	{
+		logGlobal->error("showScriptDialog called without an active script query for player %s", iw->player.toString());
+		return;
+	}
+
+	auto dialogQuery = std::make_shared<CGenericQuery>(this, iw->player,
+		[scriptQuery](std::optional<int32_t> reply){ scriptQuery->setPendingAnswer(reply); });
+	queries->addQuery(dialogQuery);
+	iw->queryID = dialogQuery->queryID;
+	sendAndApply(*iw);
+}
+
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
@@ -1202,6 +1222,14 @@ void CGameHandler::setScriptVariable(const std::string & scope, const std::strin
 	pack.scope = scope;
 	pack.name = name;
 	pack.value = value;
+	sendAndApply(pack);
+}
+
+void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
+{
+	SetQuestHint pack;
+	pack.object = obj;
+	pack.hint = hint;
 	sendAndApply(pack);
 }
 
@@ -3602,10 +3630,30 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	hv.starting = true;
 	sendAndApply(hv);
 
-	const auto * scriptedObject = dynamic_cast<const CGPandoraBox *>(visitedObject);
+	std::string scriptHandler;
+	if(const auto * scriptedObject = dynamic_cast<const CGPandoraBox *>(visitedObject))
+		scriptHandler = scriptedObject->heroVisitScriptHandler;
+	else if(const auto * questSource = dynamic_cast<const QuestSource *>(visitedObject))
+	{
+		const Quest * activeQuest = questSource->getActiveQuest();
+		if(activeQuest && activeQuest->missionKind == EQuestMission::HOTA_SCRIPTED)
+			scriptHandler = HotaScriptConverter::eventHandlerName("questEvents", activeQuest->scriptEventID);
+	}
+
 	auto * dispatcher = gameState().getMapEventDispatcher();
-	if(scriptedObject && !scriptedObject->heroVisitScriptHandler.empty() && dispatcher)
-		dispatcher->onObjectVisit(*this, scriptedObject->heroVisitScriptHandler, visitedObject, h);
+	if(!scriptHandler.empty() && dispatcher)
+	{
+		// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
+		// resumptions and stays on the stack (blocking the visit from ending) until the script finishes.
+		auto scriptQuery = std::make_shared<LuaScriptQuery>(this, h->getOwner());
+		scriptQuery->setVisitingHero(h->id);
+		queries->addQuery(scriptQuery);
+		auto handle = dispatcher->onObjectVisit(*this, scriptHandler, visitedObject, h);
+		if(handle)
+			scriptQuery->setCoroutine(*handle);
+		else
+			queries->popIfTop(scriptQuery);
+	}
 	else
 		visitedObject->onHeroVisit(*this, h);
 

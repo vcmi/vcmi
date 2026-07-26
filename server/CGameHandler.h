@@ -110,6 +110,7 @@ public:
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
+	void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);
@@ -118,6 +119,7 @@ public:
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
+	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;

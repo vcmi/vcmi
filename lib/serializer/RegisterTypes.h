@@ -305,4 +305,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyQueryState>(265);
 	s.template registerType<LobbyModsCheck>(266);
 	s.template registerType<SetScriptVariable>(267);
+	s.template registerType<SetQuestHint>(268);
 }

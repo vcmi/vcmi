@@ -39,6 +39,10 @@ public:
 
 	static void setMapVariable(IGameEventCallback & object, const std::string & name, const JsonNode & value);
 	static void removeObject(IGameEventCallback & object, const CGObjectInstance & target);
+	static void finishQuestOrRemoveObject(IGameEventCallback & object, const CGObjectInstance & target);
+	static void markQuestProposed(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player);
+	static void addToQuestLog(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player);
+	static void setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text);
 	static int random(IGameEventCallback & object, int lower, int upper);
 
 	static void giveExperience(IGameEventCallback & object, const CGHeroInstance & hero, int64_t amount);
@@ -61,6 +65,10 @@ public:
 
 	static void showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
 		const std::optional<std::vector<LuaComponent>> & components, const std::optional<int> & soundID, const std::optional<int> & windowType);
+
+	static void spawnDialog(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
+		int mode, const std::optional<std::vector<LuaComponent>> & components);
+	static void spawnCombat(IGameEventCallback & object, const CGObjectInstance & host, const CGHeroInstance & hero, const JsonNode & army);
 };
 
 }

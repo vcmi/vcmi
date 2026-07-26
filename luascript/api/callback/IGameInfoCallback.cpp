@@ -23,6 +23,8 @@
 #include "../../../lib/constants/Enumerations.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/mapObjects/CGObjectInstance.h"
+#include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapping/MapDifficulty.h"
 #include "../../../lib/modding/ModScope.h"
@@ -81,6 +83,14 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		},
 		{"True when the player began the map with the given town faction."},
 		"Tells whether the player's starting town faction matches the given one.");
+	R.function<&IGameInfoCallbackProxy::wasQuestProposed>("wasQuestProposed",
+		{
+			{"target", "The quest source (seer hut / quest guard) to check."},
+			{"player", "Player to check."}
+		},
+		{"True once the player has already been offered the object's active quest."},
+		"Tells whether a player has already seen the object's current quest proposed, so a script can show "
+		"the progression text instead of the proposal text on a repeat visit.");
 }
 
 JsonNode IGameInfoCallbackProxy::getMapVariable(const GameCb & object, const std::string & name)
@@ -119,6 +129,13 @@ bool IGameInfoCallbackProxy::playerStartingFaction(const GameCb & object, Player
 	const auto & players = object.getStartInfo()->playerInfos;
 	auto it = players.find(player);
 	return it != players.end() && it->second.castle == faction;
+}
+
+bool IGameInfoCallbackProxy::wasQuestProposed(const GameCb & object, const CGObjectInstance & target, PlayerColor player)
+{
+	const auto * questSource = dynamic_cast<const QuestSource *>(&target);
+	const Quest * activeQuest = questSource ? questSource->getActiveQuest() : nullptr;
+	return activeQuest && activeQuest->isKnownTo(player);
 }
 
 }

@@ -48,6 +48,7 @@ struct Quest
 	std::vector<HeroClassID>                     heroClasses;              // HOTA_HERO_CLASS
 	uint32_t                                     reachDateDay = 0;         // HOTA_REACH_DATE: resulting mission.daysPassed
 	uint8_t                                      difficultyMask = 0;       // HOTA_GAME_DIFFICULTY: allowed-difficulty bitmask (1..31)
+	uint32_t                                     scriptEventID = 0;        // HOTA_SCRIPTED: questEvents handler id
 
 	/// Day-of-game past which the quest can no longer be completed. -1 (default) = no timeout.
 	int32_t                                      lastDay = -1;
@@ -227,6 +228,7 @@ public:
 	static Quest missionHeroClass(std::vector<HeroClassID> classes);
 	static Quest missionReachDate(uint32_t daysPassed);
 	static Quest missionDifficulty(uint8_t difficultyMask);
+	static Quest missionScripted(uint32_t scriptEventID);
 
 	// ---- seer-hut reward factories --------------------------------------
 

@@ -49,8 +49,10 @@ public:
 	void showInfoDialog(InfoWindow * iw) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
+	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
+	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures, bool forceRemoval) override;
@@ -78,7 +80,7 @@ public:
 	void giveCreatures(const CGHeroInstance *, const CCreatureSet &) override {}
 	void giveCreatures(const CArmedInstance *, const CGHeroInstance *, const CCreatureSet &, bool) override {}
 	bool changeStackType(const StackLocation &, const CCreature *) override { return false; }
-	bool insertNewStack(const StackLocation &, const CCreature *, TQuantity) override { return false; }
+	bool insertNewStack(const StackLocation & sl, const CCreature * c, TQuantity count) override;
 	bool swapStacks(const StackLocation &, const StackLocation &) override { return false; }
 	bool addToSlot(const StackLocation &, const CCreature *, TQuantity) override { return false; }
 	void tryJoiningArmy(const CArmedInstance *, const CArmedInstance *, bool, bool) override {}

@@ -223,6 +223,32 @@ local function grantResources(server, player, amounts)
 	end
 end
 
+-- HotA scripted quest (a seer hut / quest guard whose condition and reward are script-driven
+-- instead of the engine's built-in mission types). Evaluated fresh on every visit: shows the
+-- completion message and runs the reward once the condition holds, otherwise the proposal (first
+-- time) or progression (repeat visits) message, tracked per player via markQuestProposed.
+local function registerQuest(game, server, player, object, opts)
+	if opts.condition() then
+		server:showMessage(player, opts.completion, {})
+		opts.reward()
+	elseif game:wasQuestProposed(object, player) then
+		server:showMessage(player, opts.progression, {})
+	else
+		server:markQuestProposed(object, player)
+		server:setQuestHintText(object, opts.hint)
+		server:addToQuestLog(object, player)
+		server:showMessage(player, opts.proposal, {})
+	end
+end
+
+-- Updates a scripted quest's quest-log / hover hint text, optionally adding it to the player's
+-- quest log (HotA's SET_QUEST_HINT action). `images` has no engine equivalent for a quest-log
+-- hint yet and is intentionally unused.
+local function setQuestHint(server, player, object, text, images, showInLog)
+	server:setQuestHintText(object, text)
+	if showInLog then server:addToQuestLog(object, player) end
+end
+
 )lua";
 }
 
@@ -401,14 +427,14 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string reward = loadActions(indent + 2);
 				reader.readBool(); // always 1
 
-				result += pad + "server:registerQuest{\n";
+				result += pad + "registerQuest(game, server, player, " + eventSubject(currentBucket) + ", {\n";
 				result += inner + "proposal = " + proposal + ",\n";
 				result += inner + "progression = " + progression + ",\n";
 				result += inner + "completion = " + completion + ",\n";
 				result += inner + "hint = " + hint + ",\n";
 				result += inner + "condition = function() return " + condition + " end,\n";
 				result += inner + "reward = function()\n" + reward + inner + "end,\n";
-				result += pad + "}\n";
+				result += pad + "})\n";
 				break;
 			}
 			case HotaScriptActions::CONDITIONAL:
@@ -456,7 +482,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int numberOfImages = reader.readInt32();
 				std::string images = loadImageList(numberOfImages);
 				bool showInLog = reader.readBool();
-				result += pad + "server:setQuestHint(" + text + ", toComponents({" + images + "}), " + boolStr(showInLog) + ")\n";
+				result += pad + "setQuestHint(server, player, " + eventSubject(currentBucket) + ", " + text + ", toComponents({" + images + "}), " + boolStr(showInLog) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_QUESTION:

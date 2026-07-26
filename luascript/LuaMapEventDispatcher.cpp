@@ -46,23 +46,44 @@ LuaMapEventDispatcher::LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInst
 
 LuaMapEventDispatcher::~LuaMapEventDispatcher() = default;
 
-void LuaMapEventDispatcher::onObjectVisit(IGameEventCallback & server, const std::string & handler,
+// The coroutine runtime returns 0 when a handler ran to completion, or a positive handle when it
+// paused on a blocking action and must be resumed later.
+static std::optional<int> asHandle(int result)
+{
+	return result == 0 ? std::nullopt : std::optional<int>(result);
+}
+
+std::optional<int> LuaMapEventDispatcher::onObjectVisit(IGameEventCallback & server, const std::string & handler,
 	const CGObjectInstance * object, const CGHeroInstance * hero)
 {
-	if(context->hasFunction(handler))
-		context->callMethod<void>(handler, JsonNode(), env->game(), &server, object, hero);
+	if(!context->hasFunction(handler))
+		return std::nullopt;
+
+	// The visited object doubles as the combat host if the handler calls startCombat.
+	return asHandle(context->callRuntime<int>("run", handler, hero->getOwner(), object, env->game(), &server, object, hero));
 }
 
-void LuaMapEventDispatcher::onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player)
+std::optional<int> LuaMapEventDispatcher::onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player)
 {
-	if(context->hasFunction(handler))
-		context->callMethod<void>(handler, JsonNode(), env->game(), &server, player);
+	if(!context->hasFunction(handler))
+		return std::nullopt;
+
+	// Player turn events carry no object, so there is no combat host.
+	return asHandle(context->callRuntime<int>("run", handler, player, static_cast<const CGObjectInstance *>(nullptr), env->game(), &server, player));
 }
 
-void LuaMapEventDispatcher::onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town)
+std::optional<int> LuaMapEventDispatcher::onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town)
 {
-	if(context->hasFunction(handler))
-		context->callMethod<void>(handler, JsonNode(), env->game(), &server, town);
+	if(!context->hasFunction(handler))
+		return std::nullopt;
+
+	// Town turn events do not host combat.
+	return asHandle(context->callRuntime<int>("run", handler, town->getOwner(), static_cast<const CGObjectInstance *>(nullptr), env->game(), &server, town));
+}
+
+bool LuaMapEventDispatcher::resumeCoroutine(IGameEventCallback & server, int coroutineHandle, std::optional<int> answer)
+{
+	return context->callRuntime<int>("resume", coroutineHandle, answer) == 0;
 }
 
 }

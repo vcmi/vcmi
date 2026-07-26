@@ -2821,9 +2821,8 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 			if(missionSubID == 3)
 			{
 				missionId = EQuestMission::HOTA_SCRIPTED;
-				int32_t scriptID = reader->readUInt32();
-				bool unknown = reader->readBool();
-				logGlobal->warn("Map '%s': Seer Hut at %s: Scripted quest (%d/%d) is not implemented!", mapName, position.toString(), scriptID, unknown);
+				quest.scriptEventID = reader->readUInt32();
+				reader->readBool(); // TBD: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
 				break;
 			}
 			break;
