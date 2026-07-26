@@ -97,9 +97,10 @@ void BuyArmy::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
-	if(town->getVisitingHero() && !town->getGarrisonHero())
+	const auto * visitingHero = town->getVisitingHero();
+	if(visitingHero && visitingHero->getOwner() == aiGw->playerID && !town->getGarrisonHero())
 	{
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
+		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(visitingHero, aiGw->cc.get()));
 	}
 }
 
