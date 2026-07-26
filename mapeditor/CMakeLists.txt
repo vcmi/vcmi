@@ -56,6 +56,7 @@ set(editor_SRCS
 		campaigneditor/campaignview.cpp
 		androidfilepicker.cpp
 		editorfiledialog.cpp
+		maplayerselectiondialog.cpp
 )
 if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_SRCS
@@ -126,6 +127,7 @@ set(editor_HEADERS
 		inspector/WidgetInitializationException.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
+		maplayerselectiondialog.h
 		helper.h
 		campaigneditor/campaigneditor.h
 		campaigneditor/campaignproperties.h
@@ -156,6 +158,7 @@ set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
+		maplayerselectiondialog.ui
 		mapsettings/mapsettings.ui
 		mapsettings/generalsettings.ui
 		mapsettings/heroessettings.ui

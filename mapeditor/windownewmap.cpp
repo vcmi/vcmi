@@ -29,6 +29,7 @@
 #include "ui_windownewmap.h"
 #include "mainwindow.h"
 #include "generatorprogress.h"
+#include "maplayerselectiondialog.h"
 
 WindowNewMap::WindowNewMap(QWidget *parent) :
 	QDialog(parent),
@@ -37,6 +38,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	ui->setupUi(this);
 
 	Helper::decorateDialog(this);
+
+	setFixedSize(this->width(), this->height());
 
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -72,6 +75,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	}
 
 	show();
+
+	initDefaultMapLayers();
 
 	if (!useLoaded)
 	{
@@ -217,16 +222,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
-	map->mapLayers.clear();
-	for(int i = 0; i < options.getLevels(); i++)
-	{
-		if(i == 0)
-			map->mapLayers.push_back(MapLayerId::SURFACE);
-		else if(i == 1)
-			map->mapLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			map->mapLayers.push_back(MapLayerId::UNKNOWN);
-	}
+	map->mapLayers = options.getLevelMapLayers();
 	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
@@ -243,6 +239,22 @@ std::pair<int, int> getSelectedMapSize(QComboBox* comboBox, const std::map<int, 
 	}
 
 	return { 0, 0 };
+}
+
+void WindowNewMap::initDefaultMapLayers()
+{
+	std::vector<MapLayerId> layers;
+	for(int i = 0; i < ui->spinBoxLevels->value(); i++)
+		layers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
+	mapGenOptions.setLevelMapLayers(layers);
+}
+
+void WindowNewMap::on_btnMapLayers_clicked()
+{
+	auto layers = mapGenOptions.getLevelMapLayers();
+	MapLayerSelectionDialog dlg(ui->spinBoxLevels->value(), layers, this);
+	if(dlg.exec() == QDialog::Accepted)
+		mapGenOptions.setLevelMapLayers(dlg.getSelectedLayers());
 }
 
 void WindowNewMap::on_okButton_clicked()
@@ -343,11 +355,15 @@ void WindowNewMap::on_sizeCombo_activated(int index)
 
 void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	if(value > 2)
+	if(value > 2 && !layerWarningShown)
+	{
 		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+		layerWarningShown = true;
+	}
 
 	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
+	initDefaultMapLayers();
 }
 
 

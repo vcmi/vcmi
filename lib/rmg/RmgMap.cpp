@@ -129,7 +129,7 @@ void RmgMap::addModificators()
 {
 	bool hasObjectDistributor = false;
 	bool hasHeroPlacer = false;
-	bool hasRockFiller = false;
+	std::set<int> rockFillerLevels;
 
 	for(auto & z : getZones())
 	{
@@ -174,10 +174,11 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
-			if (!hasRockFiller)
+			int level = zone->getPos().z;
+			if (!rockFillerLevels.contains(level))
 			{
 				zone->addModificator<RockFiller>();
-				hasRockFiller = true;
+				rockFillerLevels.insert(level);
 			}
 		}
 		
