@@ -613,6 +613,7 @@ void Nullkiller::makeTurn()
 	resetState();
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
+	bool resourcesTradedThisTurn = false;
 
 	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
@@ -773,7 +774,12 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		hasAnySuccess |= ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
+		if(!resourcesTradedThisTurn)
+		{
+			resourcesTradedThisTurn = ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
+			hasAnySuccess |= resourcesTradedThisTurn;
+		}
+
 		if(!hasAnySuccess)
 		{
 			if(hasUnlockedHeroWithMovement())
