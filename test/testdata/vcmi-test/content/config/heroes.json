@@ -1,0 +1,48 @@
+{
+	// Minimalist heroes whose only distinction is a spellScalingPercentage specialty:
+	// the cast spell's effect grows +10% for every N hero levels, N = target creature level.
+	"shieldSpecialist" : {
+		"class" : "cleric",
+		"army" : [ { "creature" : "pikeman", "min" : 1, "max" : 1 } ],
+		"skills" : [],
+		"texts" : {
+			"name" : "Shield Specialist",
+			"biography" : "Test hero specializing in Shield.",
+			"specialty" : { "name" : "Shield", "description" : "Shield scales with level", "tooltip" : "Shield scales with level" }
+		},
+		"specialty" : { "spellScalingPercentage" : "shield", "spellScalingVal" : 10 }
+	},
+	"airShieldSpecialist" : {
+		"class" : "cleric",
+		"army" : [ { "creature" : "pikeman", "min" : 1, "max" : 1 } ],
+		"skills" : [],
+		"texts" : {
+			"name" : "Air Shield Specialist",
+			"biography" : "Test hero specializing in Air Shield.",
+			"specialty" : { "name" : "Air Shield", "description" : "Air Shield scales with level", "tooltip" : "Air Shield scales with level" }
+		},
+		"specialty" : { "spellScalingPercentage" : "airShield", "spellScalingVal" : 10 }
+	},
+	"frenzySpecialist" : {
+		"class" : "cleric",
+		"army" : [ { "creature" : "pikeman", "min" : 1, "max" : 1 } ],
+		"skills" : [],
+		"texts" : {
+			"name" : "Frenzy Specialist",
+			"biography" : "Test hero specializing in Frenzy.",
+			"specialty" : { "name" : "Frenzy", "description" : "Frenzy scales with level", "tooltip" : "Frenzy scales with level" }
+		},
+		"specialty" : { "spellScalingPercentage" : "frenzy", "spellScalingVal" : 10 }
+	},
+	"forgetfulnessSpecialist" : {
+		"class" : "cleric",
+		"army" : [ { "creature" : "pikeman", "min" : 1, "max" : 1 } ],
+		"skills" : [],
+		"texts" : {
+			"name" : "Forgetfulness Specialist",
+			"biography" : "Test hero specializing in Forgetfulness.",
+			"specialty" : { "name" : "Forgetfulness", "description" : "Forgetfulness scales with level", "tooltip" : "Forgetfulness scales with level" }
+		},
+		"specialty" : { "spellScalingPercentage" : "forgetfulness", "spellScalingVal" : 10 }
+	}
+}

@@ -67,5 +67,5 @@ A non-empty residual `sqldiff` after apply is **expected** — differences in co
 
 ## Troubleshooting
 
-- Lobby crashes on start due to `boost::filesystem::status: Permission denied [system:13]: "config"`. Solution: `cd /home/lobby` (or any other directory writeable by `lobby` user)
+- Lobby crashes on start due to `boost::filesystem::status: Permission denied [system:13]: "config"`. Solution: `cd /home/lobby` (or any other directory writable by `lobby` user)
 - Lobby shut downs after logout from server: ensure that `vcmilobby` was started via `nohup`

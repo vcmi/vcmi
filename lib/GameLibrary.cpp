@@ -35,6 +35,8 @@
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
+#include "filesystem/CFilesystemLoader.h"
+#include "filesystem/AdapterLoaders.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
@@ -145,6 +147,13 @@ void GameLibrary::loadFilesystem(bool extractArchives)
 void GameLibrary::loadModFilesystem(bool useTestPreset)
 {
 	CStopWatch loadTime;
+	// Test preset discovers the vcmi-test fixtures mod from test/testdata/ instead of the
+	// shipped Mods/ directory, so it is never scanned or shipped by the game itself.
+	if(useTestPreset)
+	{
+		auto loader = std::make_unique<CFilesystemLoader>("MODS/", "test/testdata/", 64);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("initial"))->addLoader(std::move(loader), false);
+	}
 	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());

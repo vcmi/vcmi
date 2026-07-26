@@ -42,6 +42,7 @@ public:
 	static si16 getTurnsRemain(const Bonus & b);
 	static bool isHidden(const Bonus & b);
 	static si32 getParametersAsNumber(const Bonus & b);
+	static std::vector<int32_t> getParametersAsVector(const Bonus & b);
 };
 
 class BonusListProxy : public CopyableWrapper<BonusList, BonusListProxy>

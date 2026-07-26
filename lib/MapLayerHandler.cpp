@@ -14,6 +14,7 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
+#include "modding/IdentifierStorage.h"
 
 MapLayerTypeHandler::MapLayerTypeHandler()
 {
@@ -36,6 +37,11 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(
 	info->icon            = json["icon"].String();
 
 	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+
+	LIBRARY->identifiers()->requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
+	{
+		info->defaultTerrain = TerrainId(terrainIndex);
+	});
 
 	return info;
 }
@@ -80,5 +86,6 @@ void MapLayerType::registerIcons(const IconRegistar & cb) const
 MapLayerType::MapLayerType():
 	identifier("empty"),
 	modScope("core"),
-	id(MapLayerId::UNKNOWN)
+	id(MapLayerId::UNKNOWN),
+	defaultTerrain(ETerrainId::WATER)
 {}

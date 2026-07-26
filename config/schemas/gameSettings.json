@@ -59,6 +59,7 @@
 				"skillPerHero" :                  { "type" : "number" },
 				"specialtyCreatureGrowth" :       { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"specialtySpellScaling" :         { "type" : "number" },
 				"baseScoutingRange" :             { "type" : "number" },
 				"levelupTotalSkillsAmount" :      { "type" : "number" },
 				"levelupUpgradedSkillsAmount" :   { "type" : "number" }

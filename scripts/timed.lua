@@ -31,6 +31,75 @@ function Script:convertBonuses(mechanics)
 	return converted
 end
 
+--- Shifts every buffered bonus value by a per-target-tier amount (weakness/slayer-style).
+function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
+	local peculiar = hero:getBonuses(function(b)
+		return b:getType() == "SPECIAL_PECULIAR_ENCHANT" and b:getSubtype() == spellKey
+	end)
+	if peculiar:size() == 0 then return end
+
+	local bonus = peculiar:getBonus(1)
+	local levels = bonus:getParametersAsVector()
+	local power = 0
+	if #levels > 0 then
+		-- explicit per-tier values from addInfo array (sign included), clamping (tier - 1) into bounds
+		local idx = math.max(1, math.min(#levels, tier))
+		power = levels[idx]
+	else
+		if tier <= 2 then power = 3
+		elseif tier <= 4 then power = 2
+		elseif tier <= 6 then power = 1
+		end
+		if mechanics:isNegative() then power = -power end
+	end
+	if power ~= 0 then
+		for _, nb in pairs(buffer) do
+			nb.val = (nb.val or 0) + power
+		end
+	end
+end
+
+--- Adds a flat amount to every buffered bonus value (Aenain-style).
+function Script:applyAddValueEnchant(mechanics, hero, buffer, tier, spellKey)
+	local addVal = hero:getBonuses(function(b)
+		return b:getType() == "SPECIAL_ADD_VALUE_ENCHANT" and b:getSubtype() == spellKey
+	end)
+	if addVal:size() == 0 then return end
+
+	local addAmount = addVal:getBonus(1):getParametersAsNumber()
+	for _, nb in pairs(buffer) do
+		nb.val = (nb.val or 0) + addAmount
+	end
+end
+
+--- Overwrites every buffered bonus value with a fixed amount (Daremyth-style).
+function Script:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)
+	local fixedVal = hero:getBonuses(function(b)
+		return b:getType() == "SPECIAL_FIXED_VALUE_ENCHANT" and b:getSubtype() == spellKey
+	end)
+	if fixedVal:size() == 0 then return end
+
+	local fixedAmount = fixedVal:getBonus(1):getParametersAsNumber()
+	for _, nb in pairs(buffer) do
+		nb.val = fixedAmount
+	end
+end
+
+--- Scales every buffered bonus value by a per-target-tier percentage (Solmyr-style
+--- SPECIAL_SPELL_SCALING, matching CGHeroInstance::getSpellBonus but for buff/debuff vals).
+function Script:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
+	local scaling = hero:getBonuses(function(b)
+		return b:getType() == "SPECIAL_SPELL_SCALING" and b:getSubtype() == spellKey
+	end)
+	if scaling:size() == 0 then return end
+
+	local percent = scaling:getBonus(1):getVal() * math.floor(hero:getLevel() / tier)
+	if percent == 0 then return end
+	for _, nb in pairs(buffer) do
+		nb.val = math.floor((nb.val or 0) * (100 + percent) / 100)
+	end
+end
+
 function Script:applyHeroSpecialty(mechanics, buffer, unit)
 	local hero = mechanics:getHeroCaster()
 	if not hero then return end
@@ -38,45 +107,10 @@ function Script:applyHeroSpecialty(mechanics, buffer, unit)
 	local spellKey = mechanics:getSpell():getJsonKey()
 	local tier = math.max(unit:creatureLevel(), 1)
 
-	local peculiar = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_PECULIAR_ENCHANT" and b:getSubtype() == spellKey
-	end)
-	if peculiar:size() > 0 then
-		local mode = peculiar:getBonus(1):getParametersAsNumber()
-		local power = 0
-		if mode == 0 then
-			if tier <= 2 then power = 3
-			elseif tier <= 4 then power = 2
-			elseif tier <= 6 then power = 1
-			end
-		end
-		if mechanics:isNegative() then power = -power end
-		if power ~= 0 then
-			for _, nb in pairs(buffer) do
-				nb.val = (nb.val or 0) + power
-			end
-		end
-	end
-
-	local addVal = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_ADD_VALUE_ENCHANT" and b:getSubtype() == spellKey
-	end)
-	if addVal:size() > 0 then
-		local addAmount = addVal:getBonus(1):getParametersAsNumber()
-		for _, nb in pairs(buffer) do
-			nb.val = (nb.val or 0) + addAmount
-		end
-	end
-
-	local fixedVal = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_FIXED_VALUE_ENCHANT" and b:getSubtype() == spellKey
-	end)
-	if fixedVal:size() > 0 then
-		local fixedAmount = fixedVal:getBonus(1):getParametersAsNumber()
-		for _, nb in pairs(buffer) do
-			nb.val = fixedAmount
-		end
-	end
+	self:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
+	self:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
+	self:applyAddValueEnchant(mechanics, hero, buffer, tier, spellKey)
+	self:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)
 end
 
 function Script:describeEffect(server, battle, unit, bonuses)

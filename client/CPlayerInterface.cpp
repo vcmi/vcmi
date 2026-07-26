@@ -862,7 +862,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 	{
 		isAutoFightOn = false;
 		unregisterBattleInterface(autofightingAI);
-
+		waitForAllDialogs();		//eagle eye skill can pop up multiple dialogs before the battle
 		if(!battleInt)
 		{
 			bool allowManualReplay = queryID != QueryID::NONE && !isAutoFightEndBattle;
@@ -2062,7 +2062,7 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && GAME->map().hasOngoingAnimations();
-	bool quickCombatOngoing = isAutoFightOn && !battleInt;
+	bool quickCombatWithoutDialogs = isAutoFightOn && !battleInt && !showingDialog->isBusy();
 	bool waitingForQueuedDialogInputToSettle = false;
 	bool waitingForQueuedDialogResolution =
 		!showingDialog->isBusy() &&
@@ -2080,7 +2080,7 @@ bool CPlayerInterface::capturedAllEvents()
 		}
 	}
 
-	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing || waitingForQueuedDialogResolution || waitingForQueuedDialogInputToSettle)
+	if (ignoreEvents || needToLockAdventureMap || quickCombatWithoutDialogs || waitingForQueuedDialogResolution || waitingForQueuedDialogInputToSettle)
 	{
 		if(!delayQueuedDialogsUntilInputSettles)
 			ENGINE->input().ignoreEventsUntilInput();

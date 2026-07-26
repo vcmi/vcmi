@@ -607,10 +607,8 @@ void ApplyClientNetPackVisitor::visitChangeSpells(ChangeSpells & pack)
 	if(!hero)
 		return;
 
-	if(hero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE) <= 0)
-		return;
-
-	showEagleEyeLearnedSpellsDialog(cl, pack.hid, pack.spells, hero->tempOwner);
+	if (pack.eagleEyeBonus)
+		showEagleEyeLearnedSpellsDialog(cl, pack.hid, pack.spells, hero->tempOwner);
 }
 
 void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)

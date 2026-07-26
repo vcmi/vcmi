@@ -28,6 +28,7 @@ CMapGenOptions::CMapGenOptions()
 	customizedPlayers(false)
 {
 	initPlayersMap();
+	resetLevelMapLayers();
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -60,6 +61,23 @@ int CMapGenOptions::getLevels() const
 void CMapGenOptions::setLevels(int value)
 {
 	levels = value;
+	syncLevelMapLayersSize();
+}
+
+void CMapGenOptions::syncLevelMapLayersSize()
+{
+	if(levelMapLayers.size() > static_cast<size_t>(levels))
+		levelMapLayers.resize(levels);
+	else
+		while(levelMapLayers.size() < static_cast<size_t>(levels))
+			levelMapLayers.push_back(getDefaultLayerForLevel(static_cast<int>(levelMapLayers.size())));
+}
+
+void CMapGenOptions::resetLevelMapLayers()
+{
+	levelMapLayers.clear();
+	for (int i = 0; i < levels; i++)
+		levelMapLayers.push_back(getDefaultLayerForLevel(i));
 }
 
 si8 CMapGenOptions::getHumanOrCpuPlayerCount() const
@@ -429,6 +447,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 			setWidth(sizes.first.x);
 			setHeight(sizes.first.y);
 			setLevels(sizes.first.z);
+			resetLevelMapLayers();
 		}
 
 		si8 maxPlayerCount = getMaxPlayersCount(false);
@@ -486,7 +505,16 @@ void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & tea
 
 void CMapGenOptions::finalize(vstd::RNG & rand)
 {
-	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getLevels() >= 2 ? "WITH" : "NO");
+	{
+		std::string layersStr;
+		for(size_t i = 0; i < levelMapLayers.size(); i++)
+		{
+			if(i > 0)
+				layersStr += "/";
+			layersStr += MapLayerId::encode(levelMapLayers[i].getNum());
+		}
+		logGlobal->info("RMG map: %dx%d, %s", getWidth(), getHeight(), layersStr.c_str());
+	}
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getHumanOrCpuPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
@@ -851,9 +879,37 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeIdArray("roads", enabledRoads);
+	if(!handler.saving && handler.getCurrent()["levelMapLayers"].isNull())
+	{
+		// Old settings without levelMapLayers — keep constructor defaults
+	}
+	else
+	{
+		handler.enterArray("levelMapLayers").serializeArray(levelMapLayers);
+	}
 	if (!handler.saving)
 	{
 		// Player settings won't be saved
 		resetPlayersMap();
 	}
+}
+
+MapLayerId CMapGenOptions::getDefaultLayerForLevel(int levelIndex)
+{
+	if (levelIndex == 0)
+		return MapLayerId::SURFACE;
+	if (levelIndex == 1)
+		return MapLayerId::UNDERGROUND;
+	return MapLayerId::UNKNOWN;
+}
+
+void CMapGenOptions::setLevelMapLayers(const std::vector<MapLayerId> & value)
+{
+	levelMapLayers = value;
+	syncLevelMapLayersSize();
+}
+
+const std::vector<MapLayerId> & CMapGenOptions::getLevelMapLayers() const
+{
+	return levelMapLayers;
 }

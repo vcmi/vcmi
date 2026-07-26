@@ -136,7 +136,20 @@ In order to make functional hero you also need:
 		// Shortcut for defining specialty in secondary skill, using standard H3 rules
 		// Can be combined with bonuses-based specialty if desired
 		"secondary" : "offence",
-		
+
+		// Shortcut for a spell specialty that scales the spell's effect (damage, heal or buff/debuff magnitude) with hero level per target creature level (Solmyr-style)
+		"spellScalingPercentage" : "chainLightning",
+		// Optional, only applicable to spellScalingPercentage
+		// Overrides the percentage gained per step; default from specialtySpellScaling game setting
+		"spellScalingVal" : 3,
+
+		// Shortcut for an enchant spell specialty that strengthens the placed bonus by a fixed per-tier amount (weakness/slayer-style)
+		"spellFixedAdditive" : "weakness",
+		// Optional, only applicable to spellFixedAdditive
+		// Per-tier bonus values, one per creature tier starting at tier 1; last element is reused for higher tiers
+		// Omit for the standard 3/3/2/2/1/1/0 bracket (strengthened in the spell's own direction)
+		"spellFixedValues" : [ -3, -3, -2, -2, -1, -1, 0 ],
+
 		// Optional, only applicable to creature specialties
 		// Overrides creature level to specific value for purposes of computing growth of h3-like creature specialty
 		"creatureLevel" : 5

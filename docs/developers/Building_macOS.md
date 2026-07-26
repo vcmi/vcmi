@@ -68,7 +68,7 @@ The following walkthrough lists only the bare minimum of required CMake options.
 4. If you picked Makefiles or Ninja, pick desired *build type* - either of `Debug` / `RelWithDebInfo` / `Release` / `MinSizeRel` - and pass it in `CMAKE_BUILD_TYPE` option, example: `-D CMAKE_BUILD_TYPE=Debug`. If you use don't pass this option, `RelWithDebInfo` will be used.
 5. Next step depends on the dependency manager you have picked:
     - Conan: pass `--toolchain conan-generated/conan_toolchain.cmake` (or via `CMAKE_TOOLCHAIN_FILE` variable) where **conan-generated** must be replaced with your directory choice
-    - Homebrew: if you installed any non-default formula (the one that has `@` like `qt@5`), you need to pass `-D "CMAKE_PREFIX_PATH="` variable. Multiple values must be separated with `;` (semicolon), exmaple: `-D "CMAKE_PREFIX_PATH=$(brew --prefix qt@5);$(brew --prefix ffmpeg@4)"`
+    - Homebrew: if you installed any non-default formula (the one that has `@` like `qt@5`), you need to pass `-D "CMAKE_PREFIX_PATH="` variable. Multiple values must be separated with `;` (semicolon), example: `-D "CMAKE_PREFIX_PATH=$(brew --prefix qt@5);$(brew --prefix ffmpeg@4)"`
 6. Now press Return
 
 ## Building project

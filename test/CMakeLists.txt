@@ -35,7 +35,7 @@ set(test_SRCS
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
 
-		game/CGameStateTest.cpp
+		game/BattleSpellCastTest.cpp
 		game/HeroRecruitmentTest.cpp
 
 		json/JsonTests.cpp

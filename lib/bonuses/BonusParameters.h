@@ -89,6 +89,11 @@ public:
 		return toCustom<std::vector<int32_t>>();
 	}
 
+	bool isVector() const
+	{
+		return std::holds_alternative<std::vector<int32_t>>(data_);
+	}
+
 	template<typename CustomType>
 	const CustomType & toCustom() const
 	{
