@@ -1,6 +1,6 @@
 #!/bin/bash
 # Install nginx and the three redirect vhosts (wiki / slack / bugs).
-# These currently sit on vcmi-web (DO) alongside builds; this directory exists
+# These currently sit on vcmi-web alongside builds; this directory exists
 # as a separate unit so they can be migrated independently if needed.
 set -euo pipefail
 

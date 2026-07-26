@@ -37,7 +37,7 @@ All operational scripts live in [`scripts/builds/`](scripts/builds/). Copy the d
    cd /root/builds
    ./prepare.sh
    UPLOADER_PUBKEY='ssh-ed25519 AAAA... root@vcmi-web' \
-   BUILDS_VOLUME_DEV=/dev/disk/by-id/scsi-0DO_Volume_<vol-name> \
+   BUILDS_VOLUME_DEV=/dev/disk/by-id/scsi-0HC_Volume_<volume-id> \
        ./setup.sh
    mount /home/downloader     # if BUILDS_VOLUME_DEV was set
    ```
@@ -48,9 +48,9 @@ All operational scripts live in [`scripts/builds/`](scripts/builds/). Copy the d
 
 ## Migration
 
-If both source and target are DO droplets, detach the builds volume in the DO panel, attach it to the new droplet, and re-run Setup on the new server (Setup is idempotent). The rest of this section covers cross-provider moves (DO → Hetzner and similar), where the volume can't follow.
+If the new server can take over the existing builds volume (same provider, volume detach/reattach supported), move it across and re-run Setup on the new server (Setup is idempotent). The rest of this section covers moves where the volume can't follow.
 
-Cross-provider requires copying ~50 GB of static content over the network — takes hours, but a single rsync handles it:
+Copying ~50 GB of static content over the network takes hours, but a single rsync handles it:
 
 1. Provision the new server (per Setup above — `prepare.sh` + `setup.sh`). This creates the `downloader` user with the right uid so file ownership lands correctly after rsync.
 2. Stop the cron job on the old server so files don't shift during the copy:

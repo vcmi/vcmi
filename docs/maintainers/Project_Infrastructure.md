@@ -65,26 +65,19 @@ This section dedicated to explain specific configurations of our servers for any
 
 ### VPS configuration
 
-All our services are currently hosted by Hetzner, with only some backups remaining on our old hoster, Digital Ocean (DO). Login is via public key, currently granted to:
+All our services are currently hosted by Hetzner. Login is via public key, currently granted to:
 
 - Ivan Savenko
 
-| VPS | Location | Specifications | Services |
-| --- | -------- | -------------- | -------- |
-| `vcmi-lobby` | Hetzner Server | 4 Gb / 2 CPU / 40 Gb / €4 (+20%) | Multiplayer lobby (lobby.vcmi.eu or beholder.vcmi.eu - deprecated) as well as [API endpoint](https://api.vcmi.eu/) |
-| `vcmi-web` | Hetzner Server | 8 Gb / 4 CPU / 80 Gb / €6.5 (+20%) + €5.72 | All our web-based services not related to lobby |
-| `vcmi-web (DO)` | DO Snapshot | 512 Mb / 1 CPU / 10 Gb / $1 | Build uploading |
-| `vcmi-weblate` | DO Snapshot | 4 Gb / 2 CPU / 50 Gb / $1 | [Weblate](https://weblate.vcmi.eu/). Migrated to Hetzner |
-| `vcmi-forum` | DO Snapshot | 2 Gb / 1 CPU / 25 Gb / $1 | Note: 25 Gb droplet - ssd can be expanded, or we can downscale entire droplet to 1 Gb config |
-| `vcmi-artifactory` | DO Snapshot | 4 Gb / 2 CPU / 80 Gb / $1 | [Conan Artifactory server](https://artifactory.vcmi.eu/) |
-| `vcmi-main` | DO Snapshot | ??? / $1 | Contains old bugtracker, forum, and wiki |
-| `vcmi-second` | DO Snapshot | ??? / $1 | Contains old MP lobby and builds uploader |
+| VPS | Specifications | Services |
+| --- | -------------- | -------- |
+| `vcmi-lobby` | 4 Gb / 2 CPU / 40 Gb / €4 (+20%) | Multiplayer lobby (lobby.vcmi.eu or beholder.vcmi.eu - deprecated) as well as [API endpoint](https://api.vcmi.eu/) |
+| `vcmi-web` | 8 Gb / 4 CPU / 80 Gb / €6.5 (+20%) + €5.72 | All our web-based services not related to lobby |
 
 Notes:
 
 - `vcmi-web` runs Ubuntu 26.04
-- `vcmi-lobby` runs Ubuntu 24.04
-- All DO snapshots Ubuntu 24.04
+- `vcmi-lobby` runs Ubuntu 24.04, can be upgraded when we need to deploy new lobby
 - VPS with deployed and tested services have backups enabled (+20% costs)
 - In addition, we have separate 100 Gb volume for builds (€5.72 / month), currently attached to `vcmi-web`
 
@@ -92,7 +85,7 @@ Notes:
 
 - SSH authentication by public key only.
 - No one except core developers should ever know real server IPs.
-- Droplet hostname should never be valid host. Otherwise it's exposed in [reverse DNS](https://en.wikipedia.org/wiki/Reverse_DNS).
+- VPS hostname should never be valid host. Otherwise it's exposed in [reverse DNS](https://en.wikipedia.org/wiki/Reverse_DNS).
 
 ## Domain names/
 
@@ -107,7 +100,7 @@ Notes:
 | [forum.vcmi.eu](https://forum.vcmi.eu) | Discourse forum | `vcmi-web` | - |
 | [bugs.vcmi.eu](https://bugs.vcmi.eu) | Bug tracker | `vcmi-web` | Redirects to [Github Issues](https://github.com/vcmi/vcmi/issues) |
 | [slack.vcmi.eu](https://slack.vcmi.eu) | Slack invite page | `vcmi-web` | Redirects to [main page](https://vcmi.eu/) |
-| [weblate.vcmi.eu](https://weblate.vcmi.eu) | Weblate translation service | `vcmi-web (Hetzner)` | - |
+| [weblate.vcmi.eu](https://weblate.vcmi.eu) | Weblate translation service | `vcmi-web` | - |
 | [wiki.vcmi.eu](https://wiki.vcmi.eu) | Wiki | `vcmi-web` | Redirects to [main page](https://vcmi.eu/) |
 | [vcmi.download](https://vcmi.download) | Main page redirect | CNAME | No content, redirects to [main page](https://vcmi.eu/) |
 | [builds.vcmi.download](https://builds.vcmi.download) | Public downloads | `vcmi-web` | Redirects to [download.vcmi.eu](https://download.vcmi.eu) |

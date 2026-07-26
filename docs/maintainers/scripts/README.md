@@ -8,10 +8,10 @@ target server and run the scripts from there.
 | Directory | Service | Host |
 | --------- | ------- | ---- |
 | `lobby/` | Multiplayer lobby + `api.vcmi.eu` | `vcmi-lobby` |
-| `weblate/` | Weblate translation server | `vcmi-web (Hetzner)` |
+| `weblate/` | Weblate translation server | `vcmi-web` |
 | `discourse/` | Forum | `vcmi-forum` |
-| `builds/` | Daily builds upload/download + nginx | `vcmi-web (DO)` |
-| `web/` | Redirect vhosts (`wiki.vcmi.eu`, `slack.vcmi.eu`, `bugs.vcmi.eu`) | `vcmi-web (DO)` |
+| `builds/` | Daily builds upload/download + nginx | `vcmi-web` |
+| `web/` | Redirect vhosts (`wiki.vcmi.eu`, `slack.vcmi.eu`, `bugs.vcmi.eu`) | `vcmi-web` |
 
 ## Per-service scripts
 
