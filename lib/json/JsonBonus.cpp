@@ -138,6 +138,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::SPECIAL_SPELL_LEV:
+		case BonusType::SPECIAL_SPELL_SCALING:
 		case BonusType::SPECIFIC_SPELL_DAMAGE:
 		case BonusType::SPECIFIC_SPELL_RANGE:
 		case BonusType::SPELL:
@@ -234,7 +235,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
 		case BonusType::ENCHANTER:
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SLAYER:
 		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
 		case BonusType::FULL_MAP_SCOUTING:
@@ -296,6 +297,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = loadedData;
 			break;
 		}
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
 		{
 			std::vector<int32_t> loadedData;

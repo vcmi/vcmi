@@ -661,7 +661,8 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		{
 			if(source && q == source->getQuestIdentity())
 			{
-				if(q.getQuest(aiNk->cc.get())->checkQuest(hero))
+				const auto * quest = source->getActiveQuest();
+				if(quest && quest->checkQuest(hero))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest

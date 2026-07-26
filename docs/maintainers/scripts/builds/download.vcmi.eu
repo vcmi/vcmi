@@ -9,7 +9,6 @@ server {
 
         server_name download.vcmi.eu;
 
-        ssl on;
         ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
         ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;
         ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;

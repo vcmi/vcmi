@@ -397,6 +397,7 @@
 			"noneOf" : {
 				"core:creature.firstAidTent" : "absolute",
 				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
@@ -450,6 +451,7 @@
 			"noneOf" : {
 				"core:creature.firstAidTent" : "absolute",
 				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
@@ -909,6 +911,13 @@
 		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"misfortune" : {
@@ -954,6 +963,13 @@
 		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"haste" : {
@@ -1074,6 +1090,7 @@
 				"effects" : {
 					"slayer" : {
 						"type" : "SLAYER",
+						"val" : 8,
 						"duration" : "N_TURNS"
 					}
 				}
@@ -1081,34 +1098,41 @@
 			"none":{
 				"effects" : {
 					"slayer" : {
-						"val" : 0
+						"addInfo" : 0
 					}
 				}
 			},
 			"basic":{
 				"effects" : {
 					"slayer" : {
-						"val" : 1
+						"addInfo" : 1
 					}
 				}
 			},
 			"advanced":{
 				"effects" : {
 					"slayer" : {
-						"val" : 2
+						"addInfo" : 2
 					}
 				}
 			},
 			"expert":{
 				"effects" : {
 					"slayer" : {
-						"val" : 3
+						"addInfo" : 3
 					}
 				}
 			}
 		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"frenzy" : {
@@ -1346,21 +1370,21 @@
 			"none":{
 				"effects" : {
 					"forgetful" : {
-						"val" : 0
+						"val" : 50
 					}
 				}
 			},
 			"basic":{
 				"effects" : {
 					"forgetful" : {
-						"val" : 1
+						"val" : 50
 					}
 				}
 			},
 			"advanced":{
 				"effects" : {
 					"forgetful" : {
-						"val" : 2
+						"val" : 100
 					}
 				}
 			},
@@ -1368,7 +1392,7 @@
 				"range" : "X",
 				"effects" : {
 					"forgetful" : {
-						"val" : 3
+						"val" : 100
 					}
 				}
 			}

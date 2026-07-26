@@ -14,6 +14,9 @@
 namespace NK2AI
 {
 
+float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount);
+float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest);
+
 class BuildingInfo;
 class Nullkiller;
 struct HitMapInfo;

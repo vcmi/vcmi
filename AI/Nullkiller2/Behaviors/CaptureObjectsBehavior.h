@@ -76,6 +76,7 @@ namespace Goals
 
 	private:
 		bool objectMatchesFilter(const CGObjectInstance * obj) const;
+		void addVisibleEnemyTowns(std::vector<const CGObjectInstance *> & objects, const Nullkiller * aiNk) const;
 		void decomposeObjects(
 			Goals::TGoalVec & result,
 			const std::vector<const CGObjectInstance *> & objs,

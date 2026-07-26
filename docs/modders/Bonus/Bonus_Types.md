@@ -346,10 +346,17 @@ Internal bonus, do not use
 
 ### SPECIAL_SPELL_LEV
 
-Gives additional bonus to effect of specific spell based on level of creature it is cast on
+Gives additional bonus to effect of specific spell based on level of creature it is cast on. Applies to `damage`, `heal` and `demonSummon` effects. Uses multiply-first rounding (`floor(val * heroLevel / targetLevel)`) and is kept only for backward compatibility - prefer [SPECIAL_SPELL_SCALING](#special_spell_scaling), or the `spellScalingPercentage` hero specialty shortcut, for new content.
 
 - subtype: identifier of affected spell
-- val: bonus to spell effect, percentage, divided by target creature level
+- val: bonus to spell effect, percentage; expected to be combined with the `TIMES_HERO_LEVEL` updater
+
+### SPECIAL_SPELL_SCALING
+
+Same purpose as [SPECIAL_SPELL_LEV](#special_spell_lev), but with H3-correct rounding (`val * floor(heroLevel / targetLevel)`) and no hero-level updater - the hero level scaling is applied internally. Applies to `damage` and `heal` effects, and to buff/debuff magnitudes placed by `timed` effects (Shield, Frenzy, Forgetfulness, ...). Usually configured through the `spellScalingPercentage` hero specialty shortcut.
+
+- subtype: identifier of affected spell
+- val: bonus to spell effect per step, percentage
 
 ### SPELL_DAMAGE
 
@@ -367,10 +374,10 @@ For `damage`, `heal` and `demonSummon` spell effects, increases spell power by s
 
 ### SPECIAL_PECULIAR_ENCHANT
 
-Gives creature under effect of this spell additional bonus, which is hardcoded and depends on the creature tier.
+Gives creature under effect of this spell an additional bonus that depends on the creature tier.
 
 - subtype: affected spell identifier, ie. `spell.haste`
-- addInfo: must be set to 0, or 1 for Slayer specialty
+- addInfo: per-level bonus values, as an array indexed by creature level; the last element is reused for levels beyond its length. If not set, defaults to `3/3/2/2/1/1/0` tier bracket (H3-style specialty).
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
@@ -1157,7 +1164,7 @@ Affected unit will deal increased damage to creatures with KING bonus
 
 Affected unit has its ranged attack power reduced (Forgetfulness)
 
-- val: if 0 or 1, damage is reduced by 50%. If greater than 1 then creature can not use ranged attacks
+- val: percentage by which ranged damage is reduced. A value of 100 disables ranged attacks entirely
 
 ### NOT_ACTIVE
 

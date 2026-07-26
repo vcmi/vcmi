@@ -129,14 +129,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"resurrection" : {
-					"subtype" : "spell.resurrection",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "resurrection"
 		}
 	},
 	"jaegar":
@@ -180,14 +173,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"resurrection" : {
-					"subtype" : "spell.resurrection",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "resurrection"
 		}
 	},
 	"geon":
@@ -217,14 +203,7 @@
 			{ "skill" : "scouting", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"meteorShower" : {
-					"subtype" : "spell.meteorShower",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "meteorShower"
 		}
 	},
 	"sephinroth":
@@ -260,13 +239,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	}
 }

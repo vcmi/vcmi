@@ -1,0 +1,41 @@
+templates:
+  - templates/postgres.template.yml
+  - templates/redis.template.yml
+  - templates/web.template.yml
+  - templates/web.ratelimited.template.yml
+  - templates/web.socketed.template.yml
+params:
+  db_default_text_search_config: pg_catalog.english
+  db_shared_buffers: 128MB
+env:
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US.UTF-8
+  DISCOURSE_HOSTNAME: forum.vcmi.eu
+  DISCOURSE_DEVELOPER_EMAILS: ${DISCOURSE_DEVELOPER_EMAILS}
+
+  ## SMTP mail server used to validate new accounts and send notifications
+  DISCOURSE_SMTP_ADDRESS: smtp.eu.mailgun.org
+  DISCOURSE_SMTP_PORT: 587
+  DISCOURSE_SMTP_USER_NAME: ${DISCOURSE_SMTP_USER_NAME}
+  DISCOURSE_SMTP_PASSWORD: ${DISCOURSE_SMTP_PASSWORD}
+  #DISCOURSE_SMTP_DOMAIN: discourse.example.com    # (required by some providers)
+  #DISCOURSE_NOTIFICATION_EMAIL: nobody@discourse.example.com    # (address to send notifications from)
+  DISCOURSE_SMTP_ENABLE_START_TLS: true           # (optional, default true)
+
+volumes:
+  - volume:
+      host: "/var/discourse/shared/standalone"
+      guest: "/shared"
+  - volume:
+      host: "/var/discourse/shared/standalone/log/var-log"
+      guest: "/var/log"
+hooks:
+  after_code:
+    - exec:
+        cd: "$home/plugins"
+        cmd:
+          - git clone https://github.com/discourse/docker_manager.git
+run:
+  - exec: echo "Beginning of custom commands"
+  - exec: echo "End of custom commands"

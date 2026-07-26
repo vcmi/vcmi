@@ -34,6 +34,8 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		"True if the hero's gender is male.");
 	R.function<&HeroInstanceProxy::isFemale>("isFemale", {},
 		"True if the hero's gender is female.");
+	R.function<&HeroInstanceProxy::getLevel>("getLevel", {},
+		"Returns the hero's current experience level.");
 }
 
 bool HeroInstanceProxy::isMale(const CGHeroInstance & hero)
@@ -44,6 +46,11 @@ bool HeroInstanceProxy::isMale(const CGHeroInstance & hero)
 bool HeroInstanceProxy::isFemale(const CGHeroInstance & hero)
 {
 	return hero.gender == EHeroGender::FEMALE;
+}
+
+int HeroInstanceProxy::getLevel(const CGHeroInstance & hero)
+{
+	return hero.level;
 }
 
 }

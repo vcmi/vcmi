@@ -319,14 +319,16 @@ Where:
 
 If unit has [SPECIFIC_SPELL_POWER](../bonus/Bonus_Types.md#specific_spell_power) bonus for corresponding spell, game will use value of the bonus instead
 
-Power of `damage`, `heal`, `summon`, and `demonSummon` effects cast by hero can also be affected by following bonuses:
+Power of `damage`, `heal` and `demonSummon` effects cast by hero can also be affected by following bonuses:
 
-- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell, scaled down by target level (Solmyr / Deemer)
-
-Following bonuses will only affect `damage`, `heal` and `demonSummon` effects
-
-- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for specific spell school (Sorcery)
+- [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) bonus for the spell, scaled by target level (Solmyr / Deemer). Usually configured via the `spellScalingPercentage` hero specialty shortcut
+- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell - legacy variant of the above with incorrect rounding, kept only for backward compatibility
+- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for spell school of the spell, or for any spell school (Sorcery)
 - [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
+
+Magnitude of a buff or debuff placed by a `timed` effect cast by hero is affected by [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) for the spell (e.g. Shield, Frenzy, Forgetfulness). This is the only spell-power bonus that reaches `timed` effects - [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) and [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) do not.
+
+Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell only.
 
 ## Smart target modifier
 
@@ -679,7 +681,7 @@ Duration of effect is:
 
 Value of all bonuses can be affected by following bonuses:
 
-- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified by 1-3 according to level of target unit
+- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified according to level of target unit, using per-tier values from addInfo
 - [SPECIAL_ADD_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_add_value_enchant): value from addInfo is added to val of bonus
 - [SPECIAL_FIXED_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_fixed_value_enchant): value from addInfo replaces val of bonus
 
@@ -871,7 +873,7 @@ Effect moves hero to a location of owned or allied town.
 Parameters:
 
 - `movementPointsRequired` - amount of movement points that hero must have to cast this spell
-- `movementPointsTaken` - amount of movement points that will be taken on sucessful cast of the spell. If hero does not have enough movement points, they will be reduced to zero after cast
+- `movementPointsTaken` - amount of movement points that will be taken on successful cast of the spell. If hero does not have enough movement points, they will be reduced to zero after cast
 - `allowTownSelection` - if set to true, player will be able to select town to teleport to among all friendly non-occupied towns.
 - `skipOccupiedTowns` - if set to true, hero will teleport to nearest non-occupied town, ignoring any closer towns that are occupied by a visiting hero. No effect if `allowTownSelection` is set.
 

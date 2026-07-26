@@ -42,14 +42,118 @@ If you are modder and wish to add your mod, please contact VCMI Team on Discord.
 
 [![Horn of the Abyss translation status](https://weblate.vcmi.eu/widget/horn-of-the-abyss/multi-auto.svg)](https://weblate.vcmi.eu/engage/horn-of-the-abyss/)
 
-### In the Wake of Gods
+### VCMI extras
 
-[![In the Wake of Gods translation status](https://weblate.vcmi.eu/widget/wake-of-gods/multi-auto.svg)](https://weblate.vcmi.eu/engage/wake-of-gods/)
+[![VCMI extras translation status](https://weblate.vcmi.eu/widget/vcmi-extras/multi-auto.svg)](https://weblate.vcmi.eu/engage/vcmi-extras/)
+
+### In The Wake of Gods
+
+[![In The Wake of Gods translation status](https://weblate.vcmi.eu/widget/wake-of-gods/multi-auto.svg)](https://weblate.vcmi.eu/engage/wake-of-gods/)
+
+### Pavilion
+
+[![Pavilion translation status](https://weblate.vcmi.eu/widget/new-pavilion/multi-auto.svg)](https://weblate.vcmi.eu/engage/new-pavilion/)
 
 ### Tides of War
 
 [![Tides of War translation status](https://weblate.vcmi.eu/widget/tides-of-war/multi-auto.svg)](https://weblate.vcmi.eu/engage/tides-of-war/)
 
-### Pavilion Town
+### Tears of Ashan
 
-[![Pavilion Town translation status](https://weblate.vcmi.eu/widget/new-pavilion/multi-auto.svg)](https://weblate.vcmi.eu/engage/new-pavilion/)
+[![Tears of Ashan translation status](https://weblate.vcmi.eu/widget/tears-of-ashan/multi-auto.svg)](https://weblate.vcmi.eu/engage/tears-of-ashan/)
+
+### Ruins
+
+[![Ruins translation status](https://weblate.vcmi.eu/widget/ruins-town/multi-auto.svg)](https://weblate.vcmi.eu/engage/ruins-town/)
+
+### New terrains
+
+[![New terrains translation status](https://weblate.vcmi.eu/widget/newtown-terrains/multi-auto.svg)](https://weblate.vcmi.eu/engage/newtown-terrains/)
+
+### Forge town
+
+[![Forge town translation status](https://weblate.vcmi.eu/widget/forge/multi-auto.svg)](https://weblate.vcmi.eu/engage/forge/)
+
+### Heroes III HD Edition Remastered
+
+[![Heroes III HD Edition Remastered translation status](https://weblate.vcmi.eu/widget/HD-remastered/multi-auto.svg)](https://weblate.vcmi.eu/engage/HD-remastered/)
+
+### Heavenly Forge 2000
+
+[![Heavenly Forge 2000 translation status](https://weblate.vcmi.eu/widget/forge2k/multi-auto.svg)](https://weblate.vcmi.eu/engage/forge2k/)
+
+### An's Expansion
+
+[![An's Expansion translation status](https://weblate.vcmi.eu/widget/an-expansion/multi-auto.svg)](https://weblate.vcmi.eu/engage/an-expansion/)
+
+### Haven
+
+[![Haven translation status](https://weblate.vcmi.eu/widget/haven-town/multi-auto.svg)](https://weblate.vcmi.eu/engage/haven-town/)
+
+### Old New Spells
+
+[![Old New Spells translation status](https://weblate.vcmi.eu/widget/new-old-spells-plus/multi-auto.svg)](https://weblate.vcmi.eu/engage/new-old-spells-plus/)
+
+### Preserve
+
+[![Preserve translation status](https://weblate.vcmi.eu/widget/preserve-town/multi-auto.svg)](https://weblate.vcmi.eu/engage/preserve-town/)
+
+### Refugee Town
+
+[![Refugee Town translation status](https://weblate.vcmi.eu/widget/refugee-town/multi-auto.svg)](https://weblate.vcmi.eu/engage/refugee-town/)
+
+### Market of Time
+
+[![Market of Time translation status](https://weblate.vcmi.eu/widget/market-of-time/multi-auto.svg)](https://weblate.vcmi.eu/engage/market-of-time/)
+
+### Tartarus
+
+[![Tartarus translation status](https://weblate.vcmi.eu/widget/tartarus/multi-auto.svg)](https://weblate.vcmi.eu/engage/tartarus/)
+
+### New-style Interface
+
+[![New-style Interface translation status](https://weblate.vcmi.eu/widget/new-interface-mod/multi-auto.svg)](https://weblate.vcmi.eu/engage/new-interface-mod/)
+
+### Asphalt terrain
+
+[![Asphalt terrain translation status](https://weblate.vcmi.eu/widget/asphalt-terrain/multi-auto.svg)](https://weblate.vcmi.eu/engage/asphalt-terrain/)
+
+### Antagarich Burning
+
+[![Antagarich Burning translation status](https://weblate.vcmi.eu/widget/ab-bad-ending-assets/multi-auto.svg)](https://weblate.vcmi.eu/engage/ab-bad-ending-assets/)
+
+### Alternative town screens
+
+[![Alternative town screens translation status](https://weblate.vcmi.eu/widget/alternate-townscreens/multi-auto.svg)](https://weblate.vcmi.eu/engage/alternate-townscreens/)
+
+### Hirki Plus Patch (H.P.P.)
+
+[![Hirki Plus Patch translation status](https://weblate.vcmi.eu/widget/hirki-plus-patch/multi-auto.svg)](https://weblate.vcmi.eu/engage/hirki-plus-patch/)
+
+### Small ERA II mods
+
+[![Small ERA II mods translation status](https://weblate.vcmi.eu/widget/small-era-mods/multi-auto.svg)](https://weblate.vcmi.eu/engage/small-era-mods/)
+
+### New Monsters Pack
+
+[![New Monsters Pack translation status](https://weblate.vcmi.eu/widget/new-monsters-pack/multi-auto.svg)](https://weblate.vcmi.eu/engage/new-monsters-pack/)
+
+### the lost tales
+
+[![the lost tales translation status](https://weblate.vcmi.eu/widget/the-lost-tales/multi-auto.svg)](https://weblate.vcmi.eu/engage/the-lost-tales/)
+
+### H3Landscape
+
+[![H3Landscape translation status](https://weblate.vcmi.eu/widget/h3landscape/multi-auto.svg)](https://weblate.vcmi.eu/engage/h3landscape/)
+
+### Improved towns screens
+
+[![Improved towns screens translation status](https://weblate.vcmi.eu/widget/lotrd-townscreens/multi-auto.svg)](https://weblate.vcmi.eu/engage/lotrd-townscreens/)
+
+### Sylvan
+
+[![Sylvan translation status](https://weblate.vcmi.eu/widget/sylvan-town/multi-auto.svg)](https://weblate.vcmi.eu/engage/sylvan-town/)
+
+### Reinforcements
+
+[![Reinforcements translation status](https://weblate.vcmi.eu/widget/reinforcements/multi-auto.svg)](https://weblate.vcmi.eu/engage/reinforcements/)

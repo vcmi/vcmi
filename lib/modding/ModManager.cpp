@@ -513,6 +513,10 @@ ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset)
 	syncDemoModState();
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
+	// Force-activate the test fixtures mod regardless of any persisted preset or its
+	// keepDisabled flag; the preset file lives in the user config dir and survives runs.
+	if(useTestPreset && !vstd::contains(desiredModList, "vcmi-test"))
+		desiredModList.push_back("vcmi-test");
 	ModDependenciesResolver newResolver(desiredModList, *modsStorage);
 	updatePreset(newResolver);
 }
