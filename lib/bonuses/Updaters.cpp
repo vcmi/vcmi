@@ -96,11 +96,13 @@ std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus
 {
 	if(context.getNodeType() == BonusNodeType::HERO)
 	{
-		// FIXME: current logic is (val * hero level) / stack level
-		// However H3 logic is val * (hero level / stack level)
-		// Probably needs creation of temporary limiter & passing hero level into it, to perform all math in one place
-		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
-		newBonus->updater = divideStackLevel;
+		// keep base val intact and defer all math to the divide step, so it can compute
+		// val * (hero level / stack level) - matching H3 rounding, unlike a pre-multiply
+		int level = dynamic_cast<const CGHeroInstance &>(context).level;
+		auto newBonus = std::make_shared<Bonus>(*b);
+		auto divider = std::make_shared<DivideStackLevelUpdater>(*divideStackLevel);
+		divider->heroLevel = level;
+		newBonus->updater = divider;
 		return newBonus;
 	}
 	return b;
@@ -231,6 +233,15 @@ JsonNode TimesStackLevelUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const
 {
+	if (heroLevel > 0)
+	{
+		// hero specialty: val * floor(heroLevel / stackLevel), matching H3 rounding
+		auto newBonus = std::make_shared<Bonus>(*b);
+		newBonus->val *= heroLevel / std::max(1, level);
+		newBonus->updater = nullptr; // prevent double-apply
+		return newBonus;
+	}
+
 	if (level == 0)
 		return b; // e.g. war machines & other special units
 

@@ -14,6 +14,8 @@
 #include "TinyH3MWriter.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/entities/hero/CHero.h"
+#include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/texts/CLegacyConfigParser.h"
 #include "../../lib/mapping/MapFeaturesH3M.h"
 #include "../../lib/mapping/MapFormatSettings.h"
@@ -213,9 +215,10 @@ TinyH3MBuilder & TinyH3MBuilder::hero(const int3 & pos, HeroTypeID type, PlayerC
 {
 	ObjectSpec spec;
 	spec.id            = Obj::HERO;
-	// readMap derives the hero's class subID from this slot; HERO objects use the hero-type
-	// number directly.
-	spec.subid         = MapObjectSubID(type.getNum());
+	// The HERO object template is keyed by hero *class* (Heroes.txt ships one row per
+	// class, subid 0..17). The hero's actual identity is written separately in the
+	// object body (writeHeroBody / CMapLoaderH3M::readHero) and is what the loader uses.
+	spec.subid         = MapObjectSubID(type.toHeroType()->heroClass->getIndex());
 	spec.position      = pos;
 	spec.owner         = owner;
 	spec.heroType      = type;

@@ -542,6 +542,8 @@
 			"specialtySecondarySkillGrowth" : 5,
 			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
 			"specialtyCreatureGrowth" : 5,
+			/// Default percentage per step for damage/heal spell specialties ( "spellScalingPercentage" : "spellName" )
+			"specialtySpellScaling" : 3,
 
 			/// Maximum amount of skills that can be offered to hero on levelup
 			"levelupTotalSkillsAmount" : 2,

@@ -15,6 +15,7 @@
 #include "Unit.h"
 
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusParameters.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../IGameSettings.h"
@@ -164,21 +165,11 @@ int DamageCalculator::getActorAttackSlayer() const
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
-		const auto spLevel = slayerEffect->val;
-		bool isAffected = spLevel >= slayerAffected;
-
-		if(isAffected)
-		{
-			SpellID spell(SpellID::SLAYER);
-			int attackBonus = spell.toEntity(LIBRARY)->getLevelPower(spLevel);
-			if(info.attacker->hasBonusOfType(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(spell)))
-			{
-				ui8 attackerTier = info.attacker->unitType()->getLevel();
-				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
-				attackBonus += specialtyBonus;
-			}
-			return attackBonus;
-		}
+		// addInfo - spell mastery level
+		// val - attack bonus
+		int spLevel = slayerEffect->parameters ? slayerEffect->parameters->toNumber() : 0;
+		if(spLevel >= slayerAffected)
+			return slayerEffect->val;
 	}
 	return 0;
 }
@@ -420,19 +411,17 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 {
 	if(info.shooting)
 	{
-		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
-		//get list first, total value of 0 also counts
+		//value is a shooting-damage reduction percentage; 100 fully disables shooting (handled in canShoot)
 		TConstBonusListPtr forgetfulList = info.attacker->getBonusesOfType(BonusType::FORGETFULL);
 
 		if(!forgetfulList->empty())
 		{
 			int forgetful = forgetfulList->valOfBonuses(Selector::all);
 
-			//none of basic level
-			if(forgetful == 0 || forgetful == 1)
-				return 0.5;
-			else
-				logGlobal->warn("Attempt to calculate shooting damage with adv+ FORGETFULL effect");
+			if(forgetful >= 100)
+				logGlobal->warn("Attempt to calculate shooting damage with fully disabling FORGETFULL effect");
+
+			return std::min(forgetful, 100) / 100.0;
 		}
 	}
 	return 0.0;

@@ -137,13 +137,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"weakness" : {
-					"addInfo" : 0,
-					"subtype" : "spell.weakness",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "weakness"
 		}
 	},
 	"rosic":
@@ -218,13 +212,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	},
 	"styg":

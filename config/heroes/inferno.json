@@ -142,14 +142,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"inferno" : {
-					"subtype" : "spell.inferno",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "inferno"
 		}
 	},
 	"axsis":
@@ -179,13 +172,7 @@
 			{ "skill" : "ballistics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"weakness" : {
-					"addInfo" : 0,
-					"subtype" : "spell.weakness",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "weakness"
 		}
 	},
 	"calid":
@@ -221,13 +208,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"bloodlust" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bloodlust",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "bloodlust"
 		}
 	},
 	"zydar":
@@ -257,14 +238,7 @@
 			{ "skill" : "leadership", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"fireball" : {
-					"subtype" : "spell.fireball",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "fireball"
 		}
 	}
 }

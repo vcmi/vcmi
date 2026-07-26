@@ -42,6 +42,8 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 
 	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const;
 	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSpellScalingSpecialty(SpellID spellID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSpellFixedSpecialty(SpellID spellID, const std::vector<int32_t> & values) const;
 
 public:
 	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount
