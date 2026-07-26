@@ -29,6 +29,7 @@ public:
 	static void registerMethods(MethodRegistrar & R);
 
 	static int getOwner(const CGObjectInstance & object);
+	static std::string getInstanceName(const CGObjectInstance & object);
 };
 
 }

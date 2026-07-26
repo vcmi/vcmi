@@ -41,6 +41,7 @@
 #include "adventure/Calendar.h"
 #include "adventure/HeroInstance.h"
 #include "adventure/MapObject.h"
+#include "adventure/MapScriptInit.h"
 #include "adventure/TownInstance.h"
 #include "library/HeroType.h"
 #include "callback/AdventureServer.h"
@@ -94,6 +95,7 @@ Registry::Registry()
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
 	registerLuaName<CBattleInfoCallback>("Battle");
 	registerPrivate<MapObjectProxy>();
+	registerPrivate<MapScriptInitProxy>();
 	registerPrivate<TownInstanceProxy>();
 	registerLuaName<battle::UnitInfo>("UnitInfo");
 	// JsonNode fields accept any Lua value (string / number / table / …) and are funneled

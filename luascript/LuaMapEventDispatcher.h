@@ -13,6 +13,7 @@
 #include <vcmi/scripting/MapEventDispatcher.h>
 
 class Environment;
+class CMap;
 
 namespace scripting
 {
@@ -24,7 +25,8 @@ class LuaContext;
 class LuaMapEventDispatcher final : public MapEventDispatcher
 {
 public:
-	LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env);
+	/// Creates the script context and runs init method, if present to bind handlers to map objects.
+	LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env, CMap & map);
 	~LuaMapEventDispatcher();
 
 	void onObjectVisit(IGameEventCallback & server, const std::string & handler,

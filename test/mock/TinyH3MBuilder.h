@@ -106,6 +106,11 @@ public:
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
 
+	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
+	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
+	TinyH3MBuilder & withScript(std::string lua) { mapScript = std::move(lua); return *this; }
+	const std::string & script() const { return mapScript; }
+
 	/// HotA sub-format version. Ignored unless the format is EMapFormat::HOTA.
 	/// Only versions 0..3 are emittable; higher values throw at build() time.
 	TinyH3MBuilder & hotaVersion(uint32_t version);
@@ -163,6 +168,9 @@ public:
 
 	/// Resource pile. amount=0 means "use default".
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
+
+	/// Empty Pandora's Box. Non-HOTA formats only.
+	TinyH3MBuilder & pandora(const int3 & pos);
 
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
@@ -333,6 +341,7 @@ private:
 	bool           twoLevel = false;
 	std::string    mapName = "TinyH3M test map";
 	std::string    mapDescription;
+	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
 
 	std::array<bool, 8> playerEnabled{};

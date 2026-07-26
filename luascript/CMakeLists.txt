@@ -14,6 +14,7 @@ set(lualib_SRCS
 		api/adventure/Calendar.cpp
 		api/adventure/HeroInstance.cpp
 		api/adventure/MapObject.cpp
+		api/adventure/MapScriptInit.cpp
 		api/adventure/TownInstance.cpp
 		api/adventure/StackInstance.cpp
 
@@ -66,6 +67,7 @@ set(lualib_HDRS
 		api/adventure/Calendar.h
 		api/adventure/HeroInstance.h
 		api/adventure/MapObject.h
+		api/adventure/MapScriptInit.h
 		api/adventure/TownInstance.h
 		api/adventure/StackInstance.h
 

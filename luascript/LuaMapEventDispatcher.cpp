@@ -14,6 +14,8 @@
 #include "LuaContext.h"
 #include "LuaScriptInstance.h"
 
+#include "api/adventure/MapScriptInit.h"
+
 #include <vcmi/Environment.h>
 
 #include "../lib/callback/IGameEventCallback.h"
@@ -26,11 +28,20 @@
 namespace scripting
 {
 
-LuaMapEventDispatcher::LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env)
+static const std::string INIT = "init";
+
+LuaMapEventDispatcher::LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env, CMap & map)
 	: script(std::move(script))
 	, env(env)
 	, context(this->script->createContext(env))
 {
+	context->initialize(); // runs the script chunk so its handler table becomes available
+
+	if(context->hasFunction(INIT))
+	{
+		api::MapScriptInit setup(map);
+		context->callMethod<void>(INIT, JsonNode(), &setup);
+	}
 }
 
 LuaMapEventDispatcher::~LuaMapEventDispatcher() = default;

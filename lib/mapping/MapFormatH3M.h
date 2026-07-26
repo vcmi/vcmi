@@ -130,6 +130,9 @@ private:
 	 */
 	void readHotaScripts();
 
+	/// Loads a sibling `<mapName>.lua` file, if present, as the map's script
+	void readSiblingScript();
+
 	/// Writes generated Lua to <cache>/extracted/mapScripts/<mapName>.lua for debugging.
 	void dumpMapScript(const std::string & luaSource);
 

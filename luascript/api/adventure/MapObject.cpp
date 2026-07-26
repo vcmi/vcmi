@@ -21,11 +21,19 @@ void MapObjectProxy::registerMethods(MethodRegistrar & R)
 	R.function<&MapObjectProxy::getOwner>("getOwner",
 		{"Player color index that owns this object (neutral index when unowned)."},
 		"Returns the owner of this map object.");
+	R.function<&MapObjectProxy::getInstanceName>("getInstanceName",
+		{"The object's unique instance name, as set in the map editor or auto-generated."},
+		"Returns the map-unique instance name identifying this object.");
 }
 
 int MapObjectProxy::getOwner(const CGObjectInstance & object)
 {
 	return object.getOwner().getNum();
+}
+
+std::string MapObjectProxy::getInstanceName(const CGObjectInstance & object)
+{
+	return object.instanceName;
 }
 
 }

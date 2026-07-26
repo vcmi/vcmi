@@ -98,6 +98,7 @@ void CMapLoaderH3M::init()
 	readObjectTemplates();
 	readObjects();
 	readEvents();
+	readSiblingScript();
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
@@ -785,6 +786,17 @@ void CMapLoaderH3M::readHotaScripts()
 	map->scriptVariableDefinitions = std::move(result.variables);
 
 	dumpMapScript(map->scriptSource);
+}
+
+void CMapLoaderH3M::readSiblingScript()
+{
+	ScriptPath scriptPath = ScriptPath::builtinTODO(mapName);
+	auto * loader = CResourceHandler::get(modName);
+	if(!loader->existsResource(scriptPath))
+		return;
+
+	auto rawData = loader->load(scriptPath)->readAll();
+	map->scriptSource = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
 }
 
 void CMapLoaderH3M::dumpMapScript(const std::string & luaSource)
