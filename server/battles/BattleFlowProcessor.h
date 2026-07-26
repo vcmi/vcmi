@@ -45,7 +45,6 @@ class BattleFlowProcessor : boost::noncopyable
 	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
 	void summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
-	void tryLearnEnemySpellsPreBattle(const CBattleInfoCallback & battle, BattleSide side);
 	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);
