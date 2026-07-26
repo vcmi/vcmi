@@ -233,6 +233,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	void repairHeroAssignments();
 	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
 	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;
@@ -240,4 +241,6 @@ private:
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
+
+	friend class CGameState;
 };
