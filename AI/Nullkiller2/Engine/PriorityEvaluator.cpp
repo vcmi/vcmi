@@ -688,7 +688,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 				{
 					const spells::Spell * spell = LIBRARY->spells()->getById(spellID);
 
-					if(hero->canLearnSpell(spell) && !hero->spellbookContainsSpell(spellID))
+					if(hero->canLearnSpell(spell, true))
 					{
 						rewardValue += std::sqrt(spell->getLevel()) / 4.0f;
 					}
