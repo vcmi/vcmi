@@ -71,6 +71,15 @@ class BattleStacksController
 	/// units already given a removal fade-out, so a second removal call-in doesn't restart it
 	std::set<uint32_t> fadingStacks;
 
+	/// values shown for a stack while its hit animation is staged but has not played yet
+	struct DisplayedStackSnapshot
+	{
+		int32_t count;
+		int64_t availableHealth;
+		std::shared_ptr<IImage> amountBox;
+	};
+	std::map<uint32_t, DisplayedStackSnapshot> displayedStackSnapshot;
+
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
@@ -86,6 +95,12 @@ class BattleStacksController
 	bool stackNeedsAmountBox(const CStack * stack) const;
 	void showStackAmountBox(Canvas & canvas, const CStack * stack);
 	BattleHex getStackCurrentPosition(const CStack * stack) const;
+
+	void lockStackAmountBox(const CStack * stack);
+	void unlockStackAmountBox(uint32_t stackID);
+	int32_t getDisplayedStackAmount(const CStack * stack) const;
+	int64_t getDisplayedStackHealth(const CStack * stack) const;
+	std::shared_ptr<IImage> getDisplayedStackAmountBox(const CStack * stack);
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
