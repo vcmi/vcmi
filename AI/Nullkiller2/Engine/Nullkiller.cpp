@@ -82,13 +82,14 @@ void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * ai
 	cc = cbInput;
 	aiGw = aiGwInput;
 	playerID = aiGwInput->playerID;
+	memory->resetOneWayPortalState();
 
 	settings = std::make_unique<Settings>(cc->getStartInfo()->difficulty);
 
 	PathfinderOptions pathfinderOptions(*cc);
 	pathfinderOptions.useTeleportTwoWay = true;
-	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();
-	pathfinderOptions.useTeleportOneWayRandom = settings->isOneWayMonolithUsageAllowed();
+	pathfinderOptions.useTeleportOneWay = false;
+	pathfinderOptions.useTeleportOneWayRandom = false;
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cc.get(), pathfinderOptions);
 
@@ -582,8 +583,7 @@ void Nullkiller::makeTurn()
 		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
 		// decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
-		if(!isOpenMap())
-			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		const auto evaluationContexts = buildEvaluationContexts(tasks);
 		TTaskVec selectedTasks;

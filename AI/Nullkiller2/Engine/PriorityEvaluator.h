@@ -77,6 +77,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isArmyUpgrade;
 	bool isHero;
 	bool isEnemy;
+	bool isOneWayPortalProbe;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // powerRatio = heroPower / totalPower. The ratio of a hero's army strength to the total power of all creatures available to the AI
 
@@ -111,6 +112,7 @@ public:
 		INSTAKILL,
 		INSTADEFEND,
 		KILL,
+		ONE_WAY_PORTAL_PROBE,
 		ESCAPE,
 		EXPLORE_AND_GATHER, // Includes guarded resources/artifacts/portals
 		DEFEND,
