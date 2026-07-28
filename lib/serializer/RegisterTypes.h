@@ -41,6 +41,7 @@
 #include "../networkPacks/PacksForServer.h"
 #include "../networkPacks/SaveLocalState.h"
 #include "../networkPacks/SetRewardableConfiguration.h"
+#include "../networkPacks/SetScriptVariable.h"
 #include "../networkPacks/SetStackEffect.h"
 
 /// This method defines all types that are part of Serializeable hieararchy and can be serialized as their base type

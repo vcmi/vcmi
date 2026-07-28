@@ -15,6 +15,7 @@
 
 #include "../constants/EntityIdentifiers.h"
 #include "../texts/TextIdentifier.h"
+#include "mapping/CMap.h"
 
 enum class HotaScriptActions : int32_t
 {
@@ -268,15 +269,10 @@ HotaScriptConverter::HotaScriptConverter(MapReaderH3M & reader, std::string mapN
 {
 }
 
-HotaScriptConversionResult HotaScriptConverter::convert()
+void HotaScriptConverter::readScript()
 {
-	bool eventsSystemActive = reader.readBool();
-	if(!eventsSystemActive)
-		return {};
-
 	// Event bodies reference variables by id and are read before the declarations, so
 	// buffer them and prepend the `Vars` id->name table once the declarations are known.
-	std::string events;
 	events += loadEventList("heroEvents");
 	events += loadEventList("playerEvents");
 	events += loadEventList("townEvents");
@@ -288,27 +284,28 @@ HotaScriptConversionResult HotaScriptConverter::convert()
 	reader.readInt32(); // next town event ID
 	reader.readInt32(); // next quest event ID
 
-	std::string variablesTable = loadVariables();
+	variablesTable = loadVariables();
 
 	loadEventMap(); // hero events
 	loadEventMap(); // player events
 	loadEventMap(); // town events
 	loadEventMap(); // quest events
 	loadEventMap(); // variables
+}
 
+void HotaScriptConverter::convert(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId)
+{
 	std::string source;
 	source += "-- generated from " + mapName + ".h3m HotA event system\n";
 	source += "local Map = {}\n\n";
 	source += helpersPrelude();
+	source += loadQuestReferences(map, questIdentifierToId);
 	source += variablesTable;
 	source += events;
 	source += "\nreturn Map\n";
 
-	HotaScriptConversionResult result;
-	result.luaSource = std::move(source);
-	result.variables = std::move(variables);
-	result.referencedObjects = std::move(referencedObjects);
-	return result;
+	map->scriptSource = std::move(source);
+	map->scriptVariableDefinitions = std::move(variables);
 }
 
 std::string HotaScriptConverter::loadEventList(const std::string & bucket)
@@ -917,3 +914,28 @@ std::string HotaScriptConverter::loadExpressionInternal()
 			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
 	}
 }
+
+std::string HotaScriptConverter::loadQuestReferences(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId)
+{
+	if(referencedObjects.empty())
+		return {};
+
+	std::string table = "local questObjects = {\n";
+	for(uint32_t identifier : referencedObjects)
+	{
+		ObjectInstanceID objectID = questIdentifierToId.at(identifier);
+		std::string name = map->objects.at(objectID.getNum())->instanceName;
+
+		char hex[9];
+		std::snprintf(hex, sizeof(hex), "%08x", identifier);
+		if(name.empty())
+			logGlobal->warn("Map '%s': script references unknown object identifier %d", mapName, identifier);
+
+		// unresolved ids map to "" so predicates read them as "no such object" rather than erroring
+		table += std::string("\t[\"") + hex + "\"] = \"" + name + "\",\n";
+	}
+	table += "}\n\n";
+
+	return table;
+}
+

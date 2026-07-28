@@ -43,8 +43,7 @@ struct DLL_LINKAGE GrowthInfo
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader, public scripting::ApiRawPointer<CGTownInstance>
 {
 public:
-	// Disambiguate the scripting tag: CGTownInstance is ApiRawPointer both directly and via
-	// CGObjectInstance, so the inherited ScriptingApiName typedef would otherwise be ambiguous.
+	// Disambiguate the scripting tag: CGTownInstance is ApiRawPointer both directly and via CGObjectInstance
 	using ScriptingApiName = CGTownInstance;
 
 private:

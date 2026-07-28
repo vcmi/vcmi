@@ -10,33 +10,17 @@
 
 #pragma once
 
-#include <cstdint>
-#include <functional>
-#include <set>
-#include <string>
-
 #include "../scripting/ScriptVariablesStorage.h"
+#include "../constants/EntityIdentifiers.h"
 
 class MapReaderH3M;
 class TextIdentifier;
-
-/// Result of converting a map's event system: the generated Lua source plus the variable
-/// declarations the engine uses to seed and persist the map's script variables.
-struct HotaScriptConversionResult
-{
-	std::string luaSource;
-	std::vector<ScriptVariableDeclaration> variables;
-
-	/// H3M per-object identifiers the script references (owns-town / defeated-object predicates and
-	/// creatures-to-hire). The loader resolves these to object instance names after the map's objects
-	/// are read and prepends the `questObjects` lookup table to the script.
-	std::set<uint32_t> referencedObjects;
-};
+class CMap;
 
 /// Converts the HotA (Horn of the Abyss) event-scripting bytecode embedded in a
 /// H3M map into equivalent Lua source. Pure recursive-descent emission: each
 /// helper consumes one node from the reader and returns its Lua text.
-class DLL_LINKAGE HotaScriptConverter
+class HotaScriptConverter
 {
 public:
 	/// Reads a map text field and returns the stable identifier it was registered under.
@@ -44,13 +28,16 @@ public:
 
 	HotaScriptConverter(MapReaderH3M & reader, std::string mapName, LocalizeCallback localizeString);
 
+	void readScript();
+
+
 	/// Consumes the whole HotA event-system block. The result is empty when the map has
 	/// no active event system.
-	HotaScriptConversionResult convert();
+	void convert(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId);
 
 	/// Stable key of the Lua handler for an event bucket + id. Shared by the converter (which emits
 	/// the handler table key) and the H3M loader (which tags objects/events with the handler to fire).
-	static std::string eventHandlerName(const std::string & bucket, int eventID);
+	std::string eventHandlerName(const std::string & bucket, int eventID);
 
 private:
 	MapReaderH3M & reader;
@@ -68,6 +55,9 @@ private:
 	// H3M object identifiers referenced by object-identity predicates, resolved to names by the loader
 	std::set<uint32_t> referencedObjects;
 
+	std::string events;
+	std::string variablesTable;
+
 	std::string loadEventList(const std::string & bucket);
 	std::string loadVariables(); // reads declarations, returns the `Vars` id->name Lua table
 	void loadEventMap();
@@ -80,6 +70,8 @@ private:
 
 	std::string loadImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns its identifier as a quoted Lua literal
+
+	std::string loadQuestReferences(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId);
 
 	/// Records an H3M object identifier and returns the Lua expression that looks up its runtime
 	/// object name in the loader-populated `questObjects` table.

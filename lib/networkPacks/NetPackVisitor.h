@@ -15,6 +15,7 @@
 #include "PacksForLobby.h"
 #include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
+#include "SetScriptVariable.h"
 #include "SetStackEffect.h"
 
 class ICPackVisitor

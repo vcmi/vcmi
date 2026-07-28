@@ -659,6 +659,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForLobby.h
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
+	networkPacks/SetScriptVariable.h
 	networkPacks/SetStackEffect.h
 	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h

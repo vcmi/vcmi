@@ -36,7 +36,7 @@ struct DLL_LINKAGE ScriptVariableDeclaration
 /// different mods cannot clash on a variable name.
 class DLL_LINKAGE ScriptVariablesStorage
 {
-	std::map<std::string, std::map<std::string, JsonNode>> variables; // scope -> name -> value
+	JsonNode variables; // scope -> name -> value
 
 public:
 	/// Returns the stored value, or a null JsonNode when the variable is unset.

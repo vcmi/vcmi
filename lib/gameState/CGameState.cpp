@@ -384,12 +384,10 @@ void CGameState::initCampaign()
 
 void CGameState::initScriptVariables()
 {
-	// seed each declared variable with its initial value under the map's mod scope;
-	// campaign import (below) may override those flagged to carry over between scenarios
 	for(const auto & declaration : map->scriptVariableDefinitions)
 		map->getScriptVariables().set(ModScope::scopeMap(), declaration.name, declaration.initialValue);
 
-	if(scenarioOps->campState)
+	if(scenarioOps->campState) // campaigns might override initial value
 		scenarioOps->campState->seedPersistentVariables(*map);
 }
 

@@ -20,7 +20,6 @@
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
 #include "../bonuses/Bonus.h"
-#include "../json/JsonNode.h"
 #include "../gameState/EVictoryLossCheckResult.h"
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
@@ -1266,24 +1265,6 @@ struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 		h & id;
 		h & what;
 		h & identifier;
-	}
-};
-
-struct DLL_LINKAGE SetScriptVariable : public CPackForClient
-{
-	std::string scope;
-	std::string name;
-	JsonNode value;
-
-	SetScriptVariable() = default;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & scope;
-		h & name;
-		h & value;
 	}
 };
 

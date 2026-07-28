@@ -1126,13 +1126,8 @@ void GameStatePackVisitor::visitSetScriptVariable(SetScriptVariable & pack)
 void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
 {
 	auto * questSource = dynamic_cast<QuestSource *>(gs.getObjInstance(pack.object));
-	if(!questSource)
-	{
-		logNetwork->error("SetQuestHint: object %d is not a quest source!", pack.object.getNum());
-		return;
-	}
-	if(!questSource->getActiveQuest())
-		return; // no active quest to attach the hint to
+	if(!questSource || !questSource->getActiveQuest())
+		throw std::runtime_error("SetQuestHint: object is not a quest source!");
 
 	questSource->getQuest().scriptHintText = pack.hint;
 }

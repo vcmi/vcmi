@@ -59,7 +59,7 @@ public:
 	/// HotA scripted quest: id of the questEvents handler this quest's condition/reward logic
 	/// lives in (the engine only dispatches the visit; the script owns the actual quest logic).
 	/// -1 for every non-scripted mission kind.
-	si32 scriptEventID = -1;
+	std::string scriptHandler;
 
 	/// HotA scripted quest: hint text last set by the script via AdventureServer:setQuestHint,
 	/// shown in the quest log / hover in place of the (non-existent) templated "scripted" text.
@@ -124,9 +124,9 @@ public:
 		h & firstVisitText;
 		h & nextVisitText;
 		h & completedText;
-		if(h.hasFeature(Handler::Version::HOTA_SCRIPT_QUESTS))
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
 		{
-			h & scriptEventID;
+			h & scriptHandler;
 			h & scriptHintText;
 		}
 		// legacy "text was customized" flags; now derived on the fly from text

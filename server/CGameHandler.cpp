@@ -3642,7 +3642,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	{
 		const Quest * activeQuest = questSource->getActiveQuest();
 		if(activeQuest && activeQuest->missionKind == EQuestMission::HOTA_SCRIPTED)
-			scriptHandler = HotaScriptConverter::eventHandlerName("questEvents", activeQuest->scriptEventID);
+			scriptHandler = activeQuest->scriptHandler;
 	}
 
 	auto * dispatcher = gameState().getMapEventDispatcher();

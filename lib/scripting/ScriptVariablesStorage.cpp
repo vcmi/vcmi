@@ -13,17 +13,7 @@
 
 const JsonNode & ScriptVariablesStorage::get(const std::string & scope, const std::string & name) const
 {
-	static const JsonNode nullNode;
-
-	auto scopeIt = variables.find(scope);
-	if(scopeIt == variables.end())
-		return nullNode;
-
-	auto valueIt = scopeIt->second.find(name);
-	if(valueIt == scopeIt->second.end())
-		return nullNode;
-
-	return valueIt->second;
+	return variables[scope][name];
 }
 
 void ScriptVariablesStorage::set(const std::string & scope, const std::string & name, JsonNode value)
@@ -33,13 +23,10 @@ void ScriptVariablesStorage::set(const std::string & scope, const std::string & 
 
 bool ScriptVariablesStorage::has(const std::string & scope, const std::string & name) const
 {
-	auto scopeIt = variables.find(scope);
-	return scopeIt != variables.end() && scopeIt->second.count(name) != 0;
+	return !get(scope, name).isNull();
 }
 
 void ScriptVariablesStorage::erase(const std::string & scope, const std::string & name)
 {
-	auto scopeIt = variables.find(scope);
-	if(scopeIt != variables.end())
-		scopeIt->second.erase(name);
+	variables[scope].Struct().erase(name);
 }

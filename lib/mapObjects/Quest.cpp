@@ -60,7 +60,7 @@ struct MissionKindEntry
 const std::array<MissionKindEntry, 16> missionKinds = {{
 	{ EQuestMission::NONE,                   "empty",          nullptr },
 	{ EQuestMission::HOTA_MULTI_PLACEHOLDER, "hotaINVALID",    nullptr }, // only used for h3m parsing
-	{ EQuestMission::HOTA_SCRIPTED,          "scripted",       [](const Quest & q){ return q.scriptEventID >= 0; } },
+	{ EQuestMission::HOTA_SCRIPTED,          "scripted",       [](const Quest & q){ return !q.scriptHandler.empty(); } },
 	{ EQuestMission::KEYMASTER,              "keymaster",      [](const Quest & q){ return !q.mission.requiredKeys.empty(); } },
 	{ EQuestMission::LEVEL,                  "heroLevel",      [](const Quest & q){ return q.mission.heroLevel > 0; } },
 	{ EQuestMission::PRIMARY_SKILL,          "primarySkill",   [](const Quest & q){ return std::any_of(q.mission.primary.begin(), q.mission.primary.end(), [](si32 s){ return s != 0; }); } },
@@ -261,9 +261,7 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 		ms.appendRawString("\n\n");
 
 	if(missionKind == EQuestMission::HOTA_SCRIPTED)
-	{
 		ms.appendRawString(scriptHintText.toString());
-	}
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(3), textOption).get());
 

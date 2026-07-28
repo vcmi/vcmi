@@ -55,8 +55,7 @@ protected:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject, public scripting::ApiRawPointer<CGHeroInstance>
 {
 public:
-	// Disambiguate the scripting tag: CGHeroInstance is ApiRawPointer both directly and via
-	// CGObjectInstance, so the inherited ScriptingApiName typedef would otherwise be ambiguous.
+	// Disambiguate the scripting tag: CGHeroInstance is ApiRawPointer both directly and via CGObjectInstance
 	using ScriptingApiName = CGHeroInstance;
 
 private:

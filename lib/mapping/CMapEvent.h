@@ -58,7 +58,7 @@ public:
 		h & firstOccurrence;
 		h & nextOccurrence;
 		h & deletedObjectsInstances;
-		if(h.version >= Handler::Version::HOTA_SCRIPT_EVENTS)
+		if(h.version >= Handler::Version::SCRIPT_VARIABLES)
 			h & scriptHandler;
 	}
 

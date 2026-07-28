@@ -99,7 +99,6 @@ void CMapLoaderH3M::init()
 	readObjects();
 	readEvents();
 	readSiblingScript();
-	finalizeScriptObjectTable();
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
@@ -776,18 +775,14 @@ void CMapLoaderH3M::readHotaScripts()
 	if(!features.levelHOTA9)
 		return;
 
-	HotaScriptConverter converter(*reader, mapName,
-		[this](const TextIdentifier & identifier){ return readLocalizedString(identifier); });
-
-	HotaScriptConversionResult result = converter.convert();
-	if(result.luaSource.empty())
+	bool eventsSystemActive = reader->readBool();
+	if(!eventsSystemActive)
 		return;
 
-	map->scriptSource = result.luaSource;
-	map->scriptVariableDefinitions = std::move(result.variables);
-	scriptReferencedObjects = std::move(result.referencedObjects);
+	scriptConverter = std::make_unique<HotaScriptConverter>(*reader, mapName,
+		[this](const TextIdentifier & identifier){ return readLocalizedString(identifier); });
 
-	dumpMapScript(map->scriptSource);
+	scriptConverter->readScript();
 }
 
 void CMapLoaderH3M::readSiblingScript()
@@ -799,68 +794,7 @@ void CMapLoaderH3M::readSiblingScript()
 
 	auto rawData = loader->load(scriptPath)->readAll();
 	map->scriptSource = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
-	scriptReferencedObjects.clear(); // the external script does not use the generated lookup table
-}
-
-void CMapLoaderH3M::finalizeScriptObjectTable()
-{
-	if(scriptReferencedObjects.empty())
-		return;
-
-	std::string table = "local questObjects = {\n";
-	for(uint32_t identifier : scriptReferencedObjects)
-	{
-		std::string name;
-
-		auto it = questIdentifierToId.find(identifier);
-		if(it != questIdentifierToId.end())
-			name = map->objects.at(it->second.getNum())->instanceName;
-		else
-		{
-			// towns keep their H3M identifier on the object itself, not in questIdentifierToId
-			for(const auto & object : map->objects)
-			{
-				const auto * town = dynamic_cast<const CGTownInstance *>(object.get());
-				if(town && town->identifier == identifier)
-				{
-					name = town->instanceName;
-					break;
-				}
-			}
-		}
-
-		char hex[9];
-		std::snprintf(hex, sizeof(hex), "%08x", identifier);
-		if(name.empty())
-			logGlobal->warn("Map '%s': script references unknown object identifier %d", mapName, identifier);
-
-		// unresolved ids map to "" so predicates read them as "no such object" rather than erroring
-		table += std::string("\t[\"") + hex + "\"] = \"" + name + "\",\n";
-	}
-	table += "}\n\n";
-
-	map->scriptSource = table + map->scriptSource;
-}
-
-void CMapLoaderH3M::dumpMapScript(const std::string & luaSource)
-{
-	// Debug aid: write the generated Lua next to other extracted resources so
-	// the converter can be eyeballed against real HotA maps. Not used by the engine yet.
-	std::string safeName;
-	for(char c : mapName)
-		safeName += (std::isalnum(static_cast<unsigned char>(c)) || c == '.' || c == '-' || c == '_') ? c : '_';
-
-	try
-	{
-		auto directory = VCMIDirs::get().userExtractedPath() / "mapScripts";
-		boost::filesystem::create_directories(directory);
-		std::ofstream out((directory / (safeName + ".lua")).string(), std::ios::binary | std::ios::trunc);
-		out << luaSource;
-	}
-	catch(const std::exception & e)
-	{
-		logGlobal->warn("Map %s: failed to dump generated script: %s", mapName, e.what());
-	}
+	scriptConverter.reset();
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()
@@ -1289,7 +1223,7 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		{
 			int32_t eventID = reader->readInt32();
 			reader->readBool(); // synchronize objects - not used yet
-			object->heroVisitScriptHandler = HotaScriptConverter::eventHandlerName("heroEvents", eventID);
+			object->heroVisitScriptHandler = scriptConverter->eventHandlerName("heroEvents", eventID);
 		}
 	}
 }
@@ -2864,7 +2798,7 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 			if(missionSubID == 3)
 			{
 				missionId = EQuestMission::HOTA_SCRIPTED;
-				quest.scriptEventID = reader->readUInt32();
+				quest.scriptHandler = scriptConverter->eventHandlerName("questEvents", reader->readUInt32());
 				reader->readBool(); // TBD: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
 				break;
 			}
@@ -2887,7 +2821,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 {
 	auto object = std::make_shared<CGTownInstance>(map->cb);
 	if(features.levelAB)
+	{
 		object->identifier = reader->readUInt32();
+		questIdentifierToId[object->identifier] = idToBeGiven;
+	}
 
 	setOwnerAndValidate(position, object.get(), reader->readPlayer());
 
@@ -3080,7 +3017,7 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 		{
 			int32_t eventID = reader->readInt32();
 			reader->readBool(); // synchronize objects - not used yet
-			event.scriptHandler = HotaScriptConverter::eventHandlerName(scriptBucket, eventID);
+			event.scriptHandler = scriptConverter->eventHandlerName(scriptBucket, eventID);
 		}
 	}
 }
@@ -3164,4 +3101,7 @@ void CMapLoaderH3M::afterRead()
 
 	for (auto & quest : questsToResolve)
 		quest.first->mission.destroyedObjects.push_back(questIdentifierToId.at(quest.second));
+
+	if (scriptConverter)
+		scriptConverter->convert(map, questIdentifierToId);
 }
