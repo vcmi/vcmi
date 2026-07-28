@@ -13,8 +13,6 @@
 #include "HeroPoolProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../queries/MapQueries.h"
-#include "../queries/QueriesProcessor.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
@@ -62,13 +60,8 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 
 		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
 		{
-			auto scriptQuery = std::make_shared<LuaScriptQuery>(gameHandler, color);
-			gameHandler->queries->addQuery(scriptQuery);
-			auto handle = dispatcher->onPlayerTurnStart(*gameHandler, event.scriptHandler, color);
-			if(handle)
-				scriptQuery->setCoroutine(*handle);
-			else
-				gameHandler->queries->popIfTop(scriptQuery);
+			gameHandler->runScriptedEvent(color, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onPlayerTurnStart(*gameHandler, event.scriptHandler, color); });
 			continue;
 		}
 
@@ -112,13 +105,8 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 
 		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
 		{
-			auto scriptQuery = std::make_shared<LuaScriptQuery>(gameHandler, player);
-			gameHandler->queries->addQuery(scriptQuery);
-			auto handle = dispatcher->onTownTurnStart(*gameHandler, event.scriptHandler, town);
-			if(handle)
-				scriptQuery->setCoroutine(*handle);
-			else
-				gameHandler->queries->popIfTop(scriptQuery);
+			gameHandler->runScriptedEvent(player, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onTownTurnStart(*gameHandler, event.scriptHandler, town); });
 			continue;
 		}
 

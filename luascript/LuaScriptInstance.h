@@ -43,9 +43,11 @@ public:
 		const std::string & baseScope, const ScriptPath & basePath,
 		const std::vector<std::pair<std::string, std::string>> & patches);
 
-	/// Builds a single-layer script directly from source text, for scripts generated at runtime
-	/// (e.g. a map's converted event system) that have no backing resource file.
-	LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText);
+	/// Builds a script whose base layer is source text generated at runtime (e.g. a map's converted
+	/// event system, which has no backing resource file), with optional engine-provided layers stacked
+	/// over it. builtinLayers are SCRIPTS/<name>.lua files loaded from the built-in scope.
+	LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
+		const std::vector<std::string> & builtinLayers = {});
 
 	virtual ~LuaScriptInstance();
 

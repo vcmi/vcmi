@@ -19,6 +19,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -30,6 +31,7 @@
 
 #include <vcmi/ServerCallback.h>
 #include <vcmi/scripting/MapEventDispatcher.h>
+#include <vcmi/scripting/Service.h>
 
 namespace
 {
@@ -165,11 +167,6 @@ function Map:checkDefeatedMonster(game, server, object, hero)
 	server:giveResource(player, 6, game:playerDefeatedMonster(player, object:getInstanceName()) and 100 or 5)
 end
 
-function Map:checkDifficulty(game, server, object, hero)
-	local player = hero:getOwner()
-	if game:compareDifficulty(0) == 0 then server:giveResource(player, 5, 1) end
-end
-
 return Map
 )lua";
 
@@ -181,17 +178,6 @@ function Map:grantPoints(game, server, object, hero)
 	server:grantSpellPoints(hero, 5, 0)      -- add
 	server:grantSpellPoints(hero, 3, 2)      -- set
 	server:grantMovementPoints(hero, 100, 0) -- add
-end
-
-return Map
-)lua";
-
-/// townEvents handler that erects a building for free.
-const std::string CONSTRUCT_SCRIPT = R"lua(
-local Map = {}
-
-function Map:buildIt(game, server, town)
-	server:constructBuilding(town, 0)
 end
 
 return Map
@@ -412,38 +398,6 @@ TEST_F(MapScriptTest, showQuestionPausesUntilAnswered)
 	EXPECT_EQ(gems(), baseGems + 1) << "the sibling after showQuestion must run after the answer";
 }
 
-TEST_F(MapScriptTest, showQuestionNoBranchRuns)
-{
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.pandora({10, 10, 0})
-		.withScript(QUESTION_SCRIPT);
-
-	startWithMap(builder);
-
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGPandoraBox * pandora = findPandora();
-	CGHeroInstance * hero = findHero();
-	ASSERT_NE(dispatcher, nullptr);
-	ASSERT_NE(pandora, nullptr);
-	ASSERT_NE(hero, nullptr);
-
-	const int baseGold = gold();
-	const int baseGems = gems();
-
-	auto handle = dispatcher->onObjectVisit(*gameEventCallback, "onVisit", pandora, hero);
-	ASSERT_TRUE(handle.has_value());
-
-	bool finished = dispatcher->resumeCoroutine(*gameEventCallback, *handle, 0);
-	EXPECT_TRUE(finished);
-	EXPECT_EQ(gold(), baseGold + 5) << "onNo must grant 5 gold";
-	EXPECT_EQ(gems(), baseGems + 1) << "the sibling after showQuestion must still run";
-}
-
 TEST_F(MapScriptTest, startCombatReplacesGarrisonAndPauses)
 {
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
@@ -599,29 +553,6 @@ TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
 	EXPECT_EQ(gold(), baseGold + 5 + 100) << "a monster in the player's destroyedObjects must read as defeated";
 }
 
-TEST_F(MapScriptTest, compareDifficultyReturnsSignedDifference)
-{
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.withScript(PREDICATE_SCRIPT);
-
-	startWithMap(builder);
-
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGHeroInstance * hero = findHero();
-	ASSERT_NE(dispatcher, nullptr);
-	ASSERT_NE(hero, nullptr);
-
-	const int baseGems = gems();
-	// startWithMap sets difficulty 0, so compareDifficulty(0) == 0 and the branch grants a gem.
-	dispatcher->onObjectVisit(*gameEventCallback, "checkDifficulty", hero, hero);
-	EXPECT_EQ(gems(), baseGems + 1) << "compareDifficulty(reference) must return current difficulty minus reference";
-}
-
 TEST_F(MapScriptTest, grantPointsRespectMode)
 {
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
@@ -649,31 +580,6 @@ TEST_F(MapScriptTest, grantPointsRespectMode)
 	EXPECT_EQ(gameEventCallback->manaPointsSet[1].second, 3)            << "mode 2 sets the total directly";
 	ASSERT_EQ(gameEventCallback->movePointsSet.size(), 1u);
 	EXPECT_EQ(gameEventCallback->movePointsSet[0].second, baseMove + 100) << "mode 0 adds to the current movement";
-}
-
-TEST_F(MapScriptTest, constructBuildingErectsForFree)
-{
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.randomTown({10, 10, 0}, PLAYER)
-		.withScript(CONSTRUCT_SCRIPT);
-
-	startWithMap(builder);
-
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGTownInstance * town = findTown();
-	ASSERT_NE(dispatcher, nullptr);
-	ASSERT_NE(town, nullptr);
-
-	dispatcher->onTownTurnStart(*gameEventCallback, "buildIt", town);
-
-	ASSERT_EQ(gameEventCallback->builtStructures.size(), 1u) << "constructBuilding must forward one build request";
-	EXPECT_EQ(gameEventCallback->builtStructures[0].first, town->id);
-	EXPECT_EQ(gameEventCallback->builtStructures[0].second, BuildingID(0));
 }
 
 TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)

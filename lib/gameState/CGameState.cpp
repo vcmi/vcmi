@@ -204,7 +204,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	logGlobal->debug("Initialization:");
 
 	initScriptVariables();
-	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this);
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, true);
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)
@@ -1743,6 +1743,9 @@ void CGameState::loadGame(CLoadFile & file)
 	file.load(dummyStartInfo);
 	file.load(dummyActiveMods);
 	file.load(*this);
+
+	// Runtime-only object, not serialized; rebuild from the loaded script source.
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);
 }
 
 const scripting::Pool & CGameState::getScriptContextPool() const

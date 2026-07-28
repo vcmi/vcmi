@@ -33,7 +33,7 @@ public:
 
 	/// Consumes the whole HotA event-system block. The result is empty when the map has
 	/// no active event system.
-	void convert(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId);
+	void convert(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId);
 
 	/// Stable key of the Lua handler for an event bucket + id. Shared by the converter (which emits
 	/// the handler table key) and the H3M loader (which tags objects/events with the handler to fire).
@@ -71,7 +71,7 @@ private:
 	std::string loadImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns its identifier as a quoted Lua literal
 
-	std::string loadQuestReferences(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId);
+	std::string loadQuestReferences(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId);
 
 	/// Records an H3M object identifier and returns the Lua expression that looks up its runtime
 	/// object name in the loader-populated `questObjects` table.

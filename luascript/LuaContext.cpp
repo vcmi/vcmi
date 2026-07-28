@@ -36,87 +36,6 @@
 namespace scripting
 {
 
-// Drives event handlers as coroutines so blocking actions (showQuestion / showRewardsMessage /
-// startCombat) can pause the script and resume once the player has replied. The chunk receives the
-// script's own table (Map) as its only argument and returns a {run, resume} driver.
-// Handlers keep receiving the raw server through a thin wrapper whose three blocking methods spawn a
-// server-side query and yield; everything else forwards to the real server proxy.
-static const std::string COROUTINE_PREAMBLE = R"lua(
-local Map = ...
-local threads = {}
-local nextId = 0
-
-local function wrapServer(raw, player, host)
-	local server = {}
-	function server:showQuestion(opts)
-		local components = {}
-		if opts.images then
-			for _, image in ipairs(opts.images) do
-				components[#components + 1] = {type = image[1], subType = image[2], value = image[3]}
-			end
-		end
-		raw:spawnDialog(player, opts.text, opts.mode or 1, components)
-		local answer = coroutine.yield()
-		if answer == 1 then
-			if opts.onYes then opts.onYes() end
-		elseif answer == 0 then
-			if opts.onNo then opts.onNo() end
-		else
-			if opts.onCancel then opts.onCancel() end
-		end
-	end
-	function server:showRewardsMessage(messagePlayer, text, reward)
-		raw:spawnDialog(messagePlayer, text, 0, {})
-		coroutine.yield()
-		if reward then reward() end
-	end
-	function server:startCombat(hero, slots)
-		-- Reuses the visited event/pandora (an armed instance) as the opposing army: its garrison is
-		-- replaced with the event's creatures and a battle starts. The coroutine pauses until it ends.
-		raw:spawnCombat(host, hero, slots)
-		coroutine.yield()
-	end
-	-- Forward every other call to the real server proxy, rebinding self to the raw userdata.
-	return setmetatable(server, {__index = function(_, key)
-		local field = raw[key]
-		if type(field) == "function" then
-			return function(_, ...) return field(raw, ...) end
-		end
-		return field
-	end})
-end
-
-local function step(id, answer)
-	local co = threads[id]
-	if not co then return 0 end
-	local ok, err = coroutine.resume(co, answer)
-	if not ok then
-		threads[id] = nil
-		error(err)
-	end
-	if coroutine.status(co) == "dead" then
-		threads[id] = nil
-		return 0
-	end
-	return id
-end
-
-return {
-	run = function(handlerName, player, host, game, raw, extra1, extra2)
-		local server = wrapServer(raw, player, host)
-		nextId = nextId + 1
-		local id = nextId
-		threads[id] = coroutine.create(function()
-			Map[handlerName](Map, game, server, extra1, extra2)
-		end)
-		return step(id, nil)
-	end,
-	resume = function(id, answer)
-		return step(id, answer)
-	end,
-}
-)lua";
-
 int LuaContext::luaError(lua_State * L)
 {
 	int level = luaL_optinteger(L, 2, 1);
@@ -231,7 +150,6 @@ LuaContext::LuaContext(const LuaScriptInstance * source, const Environment * env
 
 LuaContext::~LuaContext()
 {
-	runtime.reset();
 	modules.reset();
 	scriptTable.reset();
 	lua_close(L);
@@ -341,25 +259,6 @@ void LuaContext::initialize()
 
 	if(head)
 		scriptTable = head;
-
-	if(scriptTable)
-	{
-		// Build the coroutine driver, closing over the script table so resumable handlers can be run.
-		if(luaL_loadbuffer(L, COROUTINE_PREAMBLE.c_str(), COROUTINE_PREAMBLE.size(), "=coroutine-runtime") != 0)
-		{
-			logMod->error("Failed to compile coroutine runtime: %s", toStringRaw(-1));
-			lua_settop(L, 0);
-			return;
-		}
-		scriptTable->push();
-		if(lua_pcall(L, 1, 1, 0) != 0)
-		{
-			logMod->error("Failed to build coroutine runtime: %s", toStringRaw(-1));
-			lua_settop(L, 0);
-			return;
-		}
-		runtime = std::make_shared<LuaReference>(L); // pops the returned table into the registry
-	}
 }
 
 bool LuaContext::loadLayerChunk(const std::string & sourceText, const std::string & identifier)

@@ -13,6 +13,7 @@
 #include "LuaScriptInstance.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/modding/ModScope.h"
 
 namespace scripting
 {
@@ -29,7 +30,8 @@ LuaScriptInstance::LuaScriptInstance(const LuaModule & host,
 		loadLayer(scope, path);
 }
 
-LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText)
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
+	const std::vector<std::string> & builtinLayers)
 	: host(host)
 	, baseModScope(baseScope)
 	, baselSourcePath(":map")
@@ -38,6 +40,9 @@ LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string &
 	layer.sourceText = std::move(sourceText);
 	layer.identifier = baseModScope + baselSourcePath;
 	layers.push_back(std::move(layer));
+
+	for(const auto & name : builtinLayers)
+		loadLayer(ModScope::scopeBuiltin(), name);
 }
 
 LuaScriptInstance::~LuaScriptInstance() = default;

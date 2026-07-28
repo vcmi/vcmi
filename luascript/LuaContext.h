@@ -42,10 +42,9 @@ public:
 	template<typename ReturnType, typename... Args>
 	ReturnType callMethod(const std::string & name, const JsonNode & params, Args&&... args);
 
-	/// Calls a function from the coroutine runtime table (see the injected preamble); no self is passed.
-	/// Used to drive resumable handlers ("run"/"resume"). Returns 0 when the coroutine finished.
+	/// Calls a plain (non-OOP) function on the script table; unlike callMethod no self is passed.
 	template<typename ReturnType, typename... Args>
-	ReturnType callRuntime(const std::string & name, Args&&... args);
+	ReturnType callFunction(const std::string & name, Args&&... args);
 
 private:
 	std::mutex mutex;
@@ -57,7 +56,6 @@ private:
 
 	std::shared_ptr<LuaReference> modules;
 	std::shared_ptr<LuaReference> scriptTable;
-	std::shared_ptr<LuaReference> runtime; //coroutine driver table {run, resume}, closes over scriptTable
 
 	/// Calls the named function from the given table reference. When `self` is non-null it is pushed as
 	/// a first argument whose metatable resolves missing keys through `ref` (OOP dispatch); when null the
@@ -105,9 +103,9 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 }
 
 template<typename ReturnType, typename... Args>
-ReturnType LuaContext::callRuntime(const std::string & name, Args&&... args)
+ReturnType LuaContext::callFunction(const std::string & name, Args&&... args)
 {
-	return callImpl<ReturnType>(runtime, nullptr, name, std::forward<Args>(args)...);
+	return callImpl<ReturnType>(scriptTable, nullptr, name, std::forward<Args>(args)...);
 }
 
 template<typename ReturnType, typename... Args>

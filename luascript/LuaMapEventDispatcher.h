@@ -25,8 +25,9 @@ class LuaContext;
 class LuaMapEventDispatcher final : public MapEventDispatcher
 {
 public:
-	/// Creates the script context and runs init method, if present to bind handlers to map objects.
-	LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env, CMap & map);
+	/// Creates the script context. When runInit is set, runs the script's init method (if present) to
+	/// bind handlers to map objects; on a rebuild after load those bindings come from the save instead.
+	LuaMapEventDispatcher(std::shared_ptr<const LuaScriptInstance> script, const Environment * env, CMap & map, bool runInit);
 	~LuaMapEventDispatcher();
 
 	std::optional<int> onObjectVisit(IGameEventCallback & server, const std::string & handler,

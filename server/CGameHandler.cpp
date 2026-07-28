@@ -1208,6 +1208,26 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 	sendAndApply(*iw);
 }
 
+void CGameHandler::runScriptedEvent(PlayerColor player, ObjectInstanceID visitingHero,
+	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
+{
+	auto * dispatcher = gameState().getMapEventDispatcher();
+	assert(dispatcher);
+
+	// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
+	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
+	auto scriptQuery = std::make_shared<LuaScriptQuery>(this, player);
+	if(visitingHero.hasValue())
+		scriptQuery->setVisitingHero(visitingHero);
+	queries->addQuery(scriptQuery);
+
+	auto handle = dispatch(*dispatcher);
+	if(handle)
+		scriptQuery->setCoroutine(*handle);
+	else
+		queries->popIfTop(scriptQuery);
+}
+
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
@@ -3645,20 +3665,9 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 			scriptHandler = activeQuest->scriptHandler;
 	}
 
-	auto * dispatcher = gameState().getMapEventDispatcher();
-	if(!scriptHandler.empty() && dispatcher)
-	{
-		// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
-		// resumptions and stays on the stack (blocking the visit from ending) until the script finishes.
-		auto scriptQuery = std::make_shared<LuaScriptQuery>(this, h->getOwner());
-		scriptQuery->setVisitingHero(h->id);
-		queries->addQuery(scriptQuery);
-		auto handle = dispatcher->onObjectVisit(*this, scriptHandler, visitedObject, h);
-		if(handle)
-			scriptQuery->setCoroutine(*handle);
-		else
-			queries->popIfTop(scriptQuery);
-	}
+	if(!scriptHandler.empty() && gameState().getMapEventDispatcher())
+		runScriptedEvent(h->getOwner(), h->id,
+			[&](scripting::MapEventDispatcher & dispatcher){ return dispatcher.onObjectVisit(*this, scriptHandler, visitedObject, h); });
 	else
 		visitedObject->onHeroVisit(*this, h);
 

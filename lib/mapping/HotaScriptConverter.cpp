@@ -108,7 +108,7 @@ static std::string boolStr(bool value)
 }
 
 /// Renders a string as a quoted Lua literal, escaping backslashes and double quotes.
-std::string luaString(const std::string & value)
+static std::string luaString(const std::string & value)
 {
 	std::string result = "\"";
 	for(char c : value)
@@ -123,7 +123,7 @@ std::string luaString(const std::string & value)
 
 /// Reference to a script variable by its HotA unique id, resolved to a name through the
 /// generated `Vars` table so scripts read as named access.
-std::string varRef(int uniqueID)
+static std::string varRef(int uniqueID)
 {
 	return "Vars[" + std::to_string(uniqueID) + "]";
 }
@@ -293,7 +293,7 @@ void HotaScriptConverter::readScript()
 	loadEventMap(); // variables
 }
 
-void HotaScriptConverter::convert(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId)
+void HotaScriptConverter::convert(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId)
 {
 	std::string source;
 	source += "-- generated from " + mapName + ".h3m HotA event system\n";
@@ -517,7 +517,6 @@ std::string HotaScriptConverter::loadActions(int indent)
 
 				result += pad + "server:showQuestion{\n";
 				result += inner + "text = " + text + ",\n";
-				result += inner + "mode = " + num(mode) + ",\n";
 				result += inner + "images = {" + images + "},\n";
 				result += inner + "onYes = function()\n" + onYes + inner + "end,\n";
 				result += inner + "onNo = function()\n" + onNo + inner + "end,\n";
@@ -915,7 +914,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 	}
 }
 
-std::string HotaScriptConverter::loadQuestReferences(CMap * map, std::map<si32, ObjectInstanceID> questIdentifierToId)
+std::string HotaScriptConverter::loadQuestReferences(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId)
 {
 	if(referencedObjects.empty())
 		return {};
