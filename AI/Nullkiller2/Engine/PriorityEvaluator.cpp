@@ -658,7 +658,6 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::GARDEN_OF_REVELATION:
 	case Obj::MARLETTO_TOWER:
 	case Obj::MERCENARY_CAMP:
-	case Obj::TREE_OF_KNOWLEDGE:
 		return 1;
 	case Obj::LEARNING_STONE:
 		return 1.0f / std::sqrt(hero->level);
@@ -720,6 +719,8 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 					totalValue += value;
 				}
 			}
+
+			totalValue += info.reward.heroLevel * 4.0f;
 		}
 
 		return totalValue;

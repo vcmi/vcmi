@@ -722,15 +722,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
-	{
-		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT)
-			return false;
-
-		TResources myRes = aiNk->getFreeResources();
-		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
-			return false;
 		break;
-	}
 	case Obj::MAGIC_WELL:
 		return hero->mana < hero->manaLimit();
 	case Obj::PRISON:
