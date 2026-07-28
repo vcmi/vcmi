@@ -80,6 +80,26 @@ bool executeSpecialAction(
 }
 }
 
+bool Goals::shouldSkipCompletedChainNode(
+	size_t nodeIndex,
+	size_t nodeCount,
+	const int3 & heroPosition,
+	const int3 & nodePosition,
+	const int3 & followingNodePosition,
+	ObjectInstanceID heroWhirlpool,
+	ObjectInstanceID nodeWhirlpool)
+{
+	if(nodeIndex > 0 && heroPosition == nodePosition)
+		return true;
+
+	const bool hasFollowingNode = nodeIndex + 1 < nodeCount;
+	const bool positionChanged = heroPosition != followingNodePosition;
+	return hasFollowingNode
+		&& positionChanged
+		&& heroWhirlpool.hasValue()
+		&& heroWhirlpool == nodeWhirlpool;
+}
+
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
 {
@@ -261,7 +281,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTranslated(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable.");
 					}
 
 					if(targetNode->turns != 0)
@@ -273,7 +293,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable this turn.");
 					}
 				}
 
@@ -290,10 +310,21 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
 				auto targetWhirlpool = findWhirlpool(node->coord);
+				const int3 followingNodePosition = i + 1 < chainPath.nodes.size()
+					? chainPath.nodes[i + 1].coord
+					: int3(-1);
 
-				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
+				if(shouldSkipCompletedChainNode(
+					i,
+					chainPath.nodes.size(),
+					hero->visitablePos(),
+					node->coord,
+					followingNodePosition,
+					sourceWhirlpool,
+					targetWhirlpool))
 				{
-					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
+					if(hero->visitablePos() != node->coord)
+						logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
 					continue;
 				}
 
@@ -303,6 +334,15 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						if(moveHeroToTile(aiGw, hero, node->coord))
 						{
+							if(hero->visitablePos() != node->coord)
+							{
+								logAi->debug(
+									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
+									hero->getNameTranslated(),
+									node->coord.toString());
+								return;
+							}
+
 							continue;
 						}
 					}
@@ -345,7 +385,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
 			
 			// no exception means we were not able to reach the tile

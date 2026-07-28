@@ -29,6 +29,8 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
+class CCallback;
+class IClient;
 class SeerHut;
 class QuestGuard;
 
@@ -141,6 +143,12 @@ public:
 		}
 		return out;
 	}
+
+	/// Reveal the complete map for one player.
+	void revealMap(PlayerColor player);
+
+	/// Create a player callback over this fixture's game state.
+	std::shared_ptr<CCallback> makeCallback(PlayerColor player, IClient * client = nullptr) const;
 
 	/// Top up a player's stockpile (scenarios start with empty resources).
 	void grantResources(PlayerColor player, GameResID which, int amount);

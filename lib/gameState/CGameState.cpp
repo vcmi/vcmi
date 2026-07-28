@@ -288,6 +288,10 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 void CGameState::updateOnLoad(const StartInfo & si)
 {
 	assert(services);
+	// A save can contain a town that points to a hero assigned elsewhere. Remove stale town links before use.
+	for(auto * town : map->getObjects<CGTownInstance>())
+		town->repairHeroAssignments();
+
 	scenarioOps->playerInfos = si.playerInfos;
 	for(auto & i : si.playerInfos)
 	{

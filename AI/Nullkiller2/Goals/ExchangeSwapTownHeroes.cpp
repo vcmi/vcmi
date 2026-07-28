@@ -58,6 +58,16 @@ bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) co
 
 void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 {
+	const auto ensureOwnedHero = [aiGw](const CGHeroInstance * candidateHero)
+	{
+		if(candidateHero && candidateHero->getOwner() != aiGw->playerID)
+			throw cannotFulfillGoalException("Can not exchange a hero owned by another player.");
+	};
+
+	ensureOwnedHero(getGarrisonHero());
+	ensureOwnedHero(town->getGarrisonHero());
+	ensureOwnedHero(town->getVisitingHero());
+
 	if(!getGarrisonHero())
 	{
 		auto currentGarrisonHero = town->getGarrisonHero();

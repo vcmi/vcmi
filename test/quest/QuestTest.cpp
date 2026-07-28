@@ -12,6 +12,7 @@
 #include "QuestTest.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 
@@ -90,6 +91,22 @@ CGHeroInstance * QuestTest::findHeroByOwner(PlayerColor owner) const
 			return hero;
 	}
 	return nullptr;
+}
+
+void QuestTest::revealMap(PlayerColor player)
+{
+	auto * team = gameState->getPlayerTeam(player);
+	ASSERT_NE(team, nullptr);
+
+	for(int z = 0; z < map->levels(); ++z)
+		for(int x = 0; x < map->width; ++x)
+			for(int y = 0; y < map->height; ++y)
+				team->fogOfWarMap[int3(x, y, z)] = 1;
+}
+
+std::shared_ptr<CCallback> QuestTest::makeCallback(PlayerColor player, IClient * client) const
+{
+	return std::make_shared<CCallback>(gameState, std::optional<PlayerColor>{ player }, client);
 }
 
 void QuestTest::grantResources(PlayerColor player, GameResID which, int amount)

@@ -785,8 +785,32 @@ void AIGateway::makeTurn()
 
 		for (const auto *h : cc->getHeroesInfo())
 		{
-			if (h->movementPointsRemaining())
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
+			if(!h->movementPointsRemaining())
+				continue;
+
+			const auto lockReason = nullkiller->getHeroLockedReason(h);
+			if(lockReason != HeroLockedReason::NOT_LOCKED)
+			{
+				logAi->debug(
+					"Hero %s ends the turn with %d MP because it is locked for %s.",
+					h->getNameTranslated(),
+					h->movementPointsRemaining(),
+					heroLockReasonName(lockReason));
+			}
+			else if(h->isGarrisoned())
+			{
+				logAi->debug(
+					"Hero %s ends the turn with %d MP because it is garrisoned.",
+					h->getNameTranslated(),
+					h->movementPointsRemaining());
+			}
+			else
+			{
+				logAi->warn(
+					"Unlocked hero %s ends the turn with %d MP.",
+					h->getNameTranslated(),
+					h->movementPointsRemaining());
+			}
 		}
 
 		endTurn();
@@ -1069,7 +1093,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTranslated(), dst.toString());
-			return true;
+			throw cannotFulfillGoalException("Hero cannot reach target tile.");
 		}
 		int i = (int)path.nodes.size() - 1;
 

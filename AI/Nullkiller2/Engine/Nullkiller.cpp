@@ -35,13 +35,41 @@ namespace NK2AI
 
 using namespace Goals;
 
+namespace
+{
+constexpr size_t MAX_FAILED_PATHS_PER_HERO = 2;
+}
+
+const char * heroLockReasonName(HeroLockedReason reason)
+{
+	switch(reason)
+	{
+	case HeroLockedReason::STARTUP:
+		return "startup";
+	case HeroLockedReason::DEFENCE:
+		return "defence";
+	case HeroLockedReason::HERO_CHAIN:
+		return "hero chain";
+	case HeroLockedReason::NOT_LOCKED:
+		return "not locked";
+	}
+
+	return "unknown reason";
+}
+
 // while we play vcmieagles graph can be shared
 std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
 Nullkiller::Nullkiller()
 	: activeHero(nullptr)
+	, activeHeroID(ObjectInstanceID::NONE)
+	, targetTile(int3(-1))
+	, activePathHero(nullptr)
+	, activePathHeroID(ObjectInstanceID::NONE)
+	, activePathDestination(int3(-1))
 	, scanDepth(ScanDepth::MAIN_FULL)
 	, useHeroChain(true)
+	, lastTaskFailureHadPath(false)
 	, memory(std::make_unique<AIMemory>())
 {
 
@@ -260,6 +288,8 @@ void Nullkiller::resetState()
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
 	lockedHeroes.clear();
+	failedHeroPaths.clear();
+	resetTaskExecutionContext();
 	dangerHitMap->resetHitmap();
 	useHeroChain = true;
 	objectClusterizer->reset();
@@ -286,8 +316,7 @@ void Nullkiller::updateState()
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
 
-	activeHero = nullptr;
-	setTargetObject(-1);
+	resetTaskExecutionContext();
 	decomposer->reset();
 
 	buildAnalyzer->update();
@@ -379,7 +408,7 @@ const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance
 
 	const auto evaluateHero = [&](const CGHeroInstance * hero)
 	{
-		if(!hero)
+		if(!hero || hero->getOwner() != playerID)
 			return;
 
 		const int coveredThreats = Goals::countTownThreatsCoveredByDefender(*town, *hero, threats, safeAttackRatio);
@@ -415,7 +444,7 @@ void Nullkiller::reserveRequiredTownDefenders()
 			continue;
 
 		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
-		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
+		lockHero(defender, HeroLockedReason::DEFENCE);
 	}
 }
 
@@ -429,6 +458,13 @@ void Nullkiller::lockHero(const CGHeroInstance * hero, HeroLockedReason lockReas
 	if(!hero)
 		return;
 
+	if(getHeroLockedReason(hero) == lockReason)
+		return;
+
+	logAi->debug(
+		"Locking hero %s for %s.",
+		hero->getNameTranslated(),
+		heroLockReasonName(lockReason));
 	lockedHeroes[hero] = lockReason;
 }
 
@@ -436,6 +472,9 @@ void Nullkiller::unlockHero(const CGHeroInstance * hero)
 {
 	if(!hero)
 		return;
+
+	if(getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED)
+		logAi->debug("Unlocking hero %s.", hero->getNameTranslated());
 
 	lockedHeroes.erase(hero);
 }
@@ -503,6 +542,18 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path, const CGHeroInstance *
 
 	for(const auto & node : path.nodes)
 	{
+		if(isPathKnownToFail(node))
+		{
+#if NK2AI_TRACE_LEVEL >= 1
+			logAi->trace(
+				"Hero %s already failed to reach %s this turn. Discarding %s",
+				node.targetHero->getObjectName(),
+				node.coord.toString(),
+				path.toString());
+#endif
+			return true;
+		}
+
 		auto lockReason = getHeroLockedReason(node.targetHero);
 
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
@@ -534,6 +585,7 @@ void Nullkiller::makeTurn()
 	resetState();
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
+	bool resourcesTradedThisTurn = false;
 
 	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
@@ -587,12 +639,24 @@ void Nullkiller::makeTurn()
 			return a->priority > b->priority;
 		});
 
+		bool hasAnySuccess = false;
 		if(selectedTasks.empty())
 		{
-			selectedTasks.push_back(taskptr(Goals::Invalid()));
+			if(hasUnlockedHeroWithMovement() && scanDepth != ScanDepth::ALL_FULL)
+			{
+				logAi->info(
+					"Pass %d: No worthwhile tasks found while unlocked heroes can still move. Increasing to ScanDepth::ALL_FULL",
+					pass);
+				scanDepth = ScanDepth::ALL_FULL;
+				useHeroChain = false;
+				hasAnySuccess = true;
+			}
+			else
+			{
+				logAi->debug("Pass %d: No worthwhile tasks found.", pass);
+			}
 		}
 
-		bool hasAnySuccess = false;
 		for(size_t selectedTaskIndex = 0; selectedTaskIndex < selectedTasks.size(); ++selectedTaskIndex)
 		{
 			const auto & selectedTask = selectedTasks[selectedTaskIndex];
@@ -628,16 +692,10 @@ void Nullkiller::makeTurn()
 
 			if(selectedTask->priority <= 0)
 			{
-				auto heroes = cc->getHeroesInfo();
-				const auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-					{
-						return h->movementPointsRemaining() > 100;
-					});
-
-				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+				if(hasUnlockedHeroWithMovement() && scanDepth != ScanDepth::ALL_FULL)
 				{
 					logAi->info(
-						"Pass %d: Heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
+						"Pass %d: Unlocked heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
 						pass,
 						taskDescription,
 						selectedTask->priority);
@@ -662,7 +720,9 @@ void Nullkiller::makeTurn()
 			{
 				if(!executeTask(selectedTask))
 				{
-					lockTaskHeroes(selectedTask, HeroLockedReason::HERO_CHAIN);
+					if(!lastTaskFailureHadPath)
+						lockTaskHeroes(selectedTask, HeroLockedReason::HERO_CHAIN);
+
 					const bool hasRemainingTasks = selectedTaskIndex + 1 < selectedTasks.size();
 					const auto failureAction = chooseTaskFailureAction(hasAnySuccess, hasRemainingTasks, hasUnlockedHeroWithMovement());
 
@@ -685,10 +745,19 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		hasAnySuccess |= ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
+		if(!resourcesTradedThisTurn)
+		{
+			resourcesTradedThisTurn = ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
+			hasAnySuccess |= resourcesTradedThisTurn;
+		}
+
 		if(!hasAnySuccess)
 		{
-			logAi->trace("Nothing was done this turn pass. Ending turn.");
+			if(hasUnlockedHeroWithMovement())
+				logAi->debug("Pass %d: No worthwhile task was found at full scan depth. AI turn is complete.", pass);
+			else
+				logAi->debug("Pass %d: No unlocked mobile hero remains. AI turn is complete.", pass);
+
 			tracePlayerStatus(false);
 			return;
 		}
@@ -812,10 +881,73 @@ bool Nullkiller::hasUnlockedHeroWithMovement() const
 		});
 }
 
+void Nullkiller::resetTaskExecutionContext()
+{
+	activePathHero = nullptr;
+	activePathHeroID = ObjectInstanceID::NONE;
+	activePathDestination = int3(-1);
+	setActive(nullptr, int3(-1));
+	setTargetObject(-1);
+	lastTaskFailureHadPath = false;
+}
+
+bool Nullkiller::rememberActivePathFailure()
+{
+	if(!activePathHeroID.hasValue() || !activePathDestination.isValid())
+		return false;
+
+	const auto alreadyRemembered = vstd::contains_if(
+		failedHeroPaths,
+		[this](const FailedHeroPath & failedPath)
+		{
+			return failedPath.hero == activePathHeroID && failedPath.destination == activePathDestination;
+		});
+
+	if(!alreadyRemembered)
+		failedHeroPaths.push_back({ activePathHeroID, activePathDestination });
+
+	const size_t heroFailureCount = std::count_if(
+		failedHeroPaths.begin(),
+		failedHeroPaths.end(),
+		[this](const FailedHeroPath & failedPath)
+		{
+			return failedPath.hero == activePathHeroID;
+		});
+
+	if(heroFailureCount >= MAX_FAILED_PATHS_PER_HERO)
+	{
+		lockHero(activePathHero, HeroLockedReason::HERO_CHAIN);
+		logAi->warn(
+			"Hero %d failed %zu different paths. Excluding it from further tasks this turn.",
+			activePathHeroID.getNum(),
+			heroFailureCount);
+	}
+
+	logAi->debug(
+		"Rejecting failed path for hero %d to %s for the rest of this turn.",
+		activePathHeroID.getNum(),
+		activePathDestination.toString());
+	return true;
+}
+
+bool Nullkiller::isPathKnownToFail(const AIPathNodeInfo & node) const
+{
+	if(!node.targetHero)
+		return false;
+
+	return vstd::contains_if(
+		failedHeroPaths,
+		[&node](const FailedHeroPath & failedPath)
+		{
+			return failedPath.hero == node.targetHero->id && failedPath.destination == node.coord;
+		});
+}
+
 bool Nullkiller::executeTask(const Goals::TTask & task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
+	resetTaskExecutionContext();
 
 	makingTurnInterruption.interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
@@ -831,6 +963,7 @@ bool Nullkiller::executeTask(const Goals::TTask & task)
 	}
 	catch(cannotFulfillGoalException & e)
 	{
+		lastTaskFailureHadPath = rememberActivePathFailure();
 		invalidatePathfinderData();
 		logAi->error("Failed to realize subgoal of type %s.", taskDescr);
 		logAi->error("The error message was: %s", e.what());

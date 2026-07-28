@@ -47,7 +47,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		buildAnalyzer.update();
 
 		// if we favor getResourcesRequiredNow is better on short term, if we favor getTotalResourcesRequired is better on long term
-		TResources missingNow = buildAnalyzer.getMissingResourcesNow(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+		TResources missingNow = buildAnalyzer.getMissingResourcesNow(ARMY_GOLD_RATIO_PER_TURN);
 		if(missingNow.empty())
 			break;
 
@@ -55,7 +55,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		// We don't want to sell something that's necessary later on, though that could make short term a bit harder sometimes
 		// TODO: Mircea: Consider allowing the sale of just a few resources even if necessary long term if critical short term
 		// to buy a capitol for example
-		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_TURN);
 
 		logAi->info(
 			"ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s",
