@@ -123,7 +123,7 @@ private:
 	EvaluationContext buildEvaluationContext(const Goals::TSubgoal & goal) const;
 	static float evaluateMovement(float score, float movementCost);
 	static float evaluateArmyLossRatio(float score, float armyLossRatio, HeroRole heroRole);
-	static float evaluateSkillReward(float score, float skillReward, float armyInvolvement, float armyLossRatio);
+	static float evaluateSkillReward(float score, float skillReward, float armyLossRatio);
 	static float evaluateConquestValue(float score, float conquestValue, float armyInvolvement);
 };
 
