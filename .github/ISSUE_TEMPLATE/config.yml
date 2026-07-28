@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Help with playing VCMI
+    url: https://discord.gg/chBT42V
+    about: For installation problems or questions about gameplay or mods, please ask on Discord instead of opening an issue.
+  - name: Forums
+    url: https://forum.vcmi.eu/
+    about: General discussion about VCMI and Heroes III.
+  - name: Translations
+    url: https://hosted.weblate.org/engage/vcmi/
+    about: Corrections and improvements to translations are made on Weblate, not via issues or pull requests.
+  - name: Bugs in mods
+    url: https://discord.gg/chBT42V
+    about: Mods are maintained by their own authors. Please report mod bugs to the mod author.

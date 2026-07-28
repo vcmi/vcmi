@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe your proposal**
-Give us as many as possible details about your idea.
+Give us as many details as possible about your idea.
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
