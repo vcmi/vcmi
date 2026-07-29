@@ -42,6 +42,7 @@ set(test_SRCS
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
+		map/CMapObjectRemovalTest.cpp
 		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
 		map/TinyH3MBuilderTest.cpp
