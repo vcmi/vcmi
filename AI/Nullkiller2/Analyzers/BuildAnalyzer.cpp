@@ -209,7 +209,10 @@ std::string BuildingInfo::toString() const
 
 float BuildAnalyzer::calculateGoldPressure(TResource lockedGold, float armyCostGold, float economyDevelopmentCost, float freeGold, float dailyIncomeGold)
 {
-	auto pressure = (lockedGold + armyCostGold + economyDevelopmentCost) / (1 + 2 * freeGold + dailyIncomeGold * static_cast<float>(LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK)));
+	const auto daysPerWeek = static_cast<float>(LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK));
+	const auto pressureCost = lockedGold + armyCostGold + economyDevelopmentCost;
+	const auto pressureIncome = 1 + 2 * freeGold + dailyIncomeGold * daysPerWeek;
+	auto pressure = pressureCost / pressureIncome;
 
 #if NK2AI_TRACE_LEVEL >= 1
 	logAi->trace("Gold pressure: %f", pressure);
