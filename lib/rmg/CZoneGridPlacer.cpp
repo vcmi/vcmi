@@ -41,13 +41,141 @@ std::array<int3, 6> hexNeighbourDirs(int row)
 }
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid, bool hubFirst)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid, bool hubFirst, bool saPolish)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, scaleForceBetweenZones(std::move(scaleForceBetweenZones))
 	, hexGrid(hexGrid)
 	, hubFirst(hubFirst)
+	, saPolish(saPolish)
 {
+}
+
+int CZoneGridPlacer::cellDistance(const int3 & a, const int3 & b) const
+{
+	if (hexGrid)
+	{
+		// odd-r offset -> cube coordinates, then cube distance
+		auto toCube = [](const int3 & c)
+		{
+			const int x = c.x - (c.y - (c.y & 1)) / 2;
+			const int z = c.y;
+			return int3(x, -x - z, z);
+		};
+		const int3 ca = toCube(a);
+		const int3 cb = toCube(b);
+		return (std::abs(ca.x - cb.x) + std::abs(ca.y - cb.y) + std::abs(ca.z - cb.z)) / 2;
+	}
+	// square grid: orthogonal adjacency, so Manhattan distance
+	return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+}
+
+void CZoneGridPlacer::annealGridLevel(GridType & grid, size_t gridSize, int level, vstd::RNG * rand) const
+{
+	std::vector<std::shared_ptr<Zone>> zonesHere;
+	std::vector<int3> emptyCells;
+	std::map<TRmgTemplateZoneId, int3> pos;
+	forEachInGrid(gridSize, [&](size_t x, size_t y)
+	{
+		const int3 cell(static_cast<si32>(x), static_cast<si32>(y), level);
+		if (grid[x][y])
+		{
+			zonesHere.push_back(grid[x][y]);
+			pos[grid[x][y]->getId()] = cell;
+		}
+		else
+			emptyCells.push_back(cell);
+	});
+	if (zonesHere.size() < 3)
+		return;
+
+	// cost of one zone's same-level edges: 0 if a connected zone is adjacent, else grows with distance
+	auto zoneCost = [&](const std::shared_ptr<Zone> & z) -> float
+	{
+		float cost = 0;
+		const int3 zc = pos.at(z->getId());
+		for (const auto & conn : z->getConnections())
+		{
+			if (conn.getConnectionType() == rmg::EConnectionType::REPULSIVE ||
+				conn.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
+				continue;
+			if (conn.getZoneA() == conn.getZoneB())
+				continue;
+			auto it = pos.find(conn.getOtherZoneId(z->getId()));
+			if (it == pos.end())
+				continue; // connected zone lives on another level - handled elsewhere
+			cost += static_cast<float>(std::max(0, cellDistance(zc, it->second) - 1));
+		}
+		return cost;
+	};
+
+	float current = 0;
+	for (const auto & z : zonesHere)
+		current += zoneCost(z);
+	current *= 0.5f; // each edge counted from both endpoints
+
+	auto best = pos;
+	float bestCost = current;
+
+	const int iterations = std::max<int>(2000, 300 * static_cast<int>(zonesHere.size()));
+	float temperature = 3.0f;
+	const float cooling = std::pow(0.02f / temperature, 1.0f / iterations); // anneal down to ~0.02
+
+	for (int i = 0; i < iterations; ++i, temperature *= cooling)
+	{
+		if (!emptyCells.empty() && rand->nextInt(0, 4) == 0)
+		{
+			// move a zone into an empty cell
+			const auto & z = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
+			const int ei = rand->nextInt(0, static_cast<int>(emptyCells.size()) - 1);
+			const int3 oldCell = pos[z->getId()];
+			const float before = zoneCost(z);
+			pos[z->getId()] = emptyCells[ei];
+			const float delta = zoneCost(z) - before;
+			if (delta <= 0 || rand->nextDouble(0, 1) < std::exp(-delta / temperature))
+			{
+				emptyCells[ei] = oldCell;
+				current += delta;
+			}
+			else
+				pos[z->getId()] = oldCell;
+		}
+		else
+		{
+			// swap two zones' cells
+			const auto & za = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
+			const auto & zb = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
+			if (za == zb)
+				continue;
+			const int3 ca = pos[za->getId()];
+			const int3 cb = pos[zb->getId()];
+			const float before = zoneCost(za) + zoneCost(zb);
+			pos[za->getId()] = cb;
+			pos[zb->getId()] = ca;
+			const float delta = (zoneCost(za) + zoneCost(zb)) - before;
+			if (delta <= 0 || rand->nextDouble(0, 1) < std::exp(-delta / temperature))
+				current += delta;
+			else
+			{
+				pos[za->getId()] = ca;
+				pos[zb->getId()] = cb;
+			}
+		}
+
+		if (current < bestCost)
+		{
+			bestCost = current;
+			best = pos;
+		}
+	}
+
+	// commit the best assignment found
+	forEachInGrid(gridSize, [&](size_t x, size_t y) { grid[x][y].reset(); });
+	for (const auto & z : zonesHere)
+	{
+		const int3 cell = best.at(z->getId());
+		grid[cell.x][cell.y] = z;
+	}
 }
 
 namespace
@@ -610,5 +738,9 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 	}
 
 	logInitialGrid(grids, gridSizes, mapLevels);
+	if (saPolish)
+		for (int level = 0; level < mapLevels; ++level)
+			if (grids[level])
+				annealGridLevel(*grids[level], gridSizes[level], level, rand);
 	setInitialZoneCenters(grids, gridSizes, mapLevels, rand);
 }

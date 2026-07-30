@@ -53,6 +53,7 @@ public:
 		bool singleThread;
 		bool zonePlacementHexGrid;
 		bool zonePlacementHubFirst;
+		bool zonePlacementSaPolish;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
