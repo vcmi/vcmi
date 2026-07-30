@@ -51,7 +51,7 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 		config.zonePlacementAttempts, config.zonePlacementScoreDirect, config.zonePlacementScoreGate, config.zonePlacementScoreMonolith,
 		config.zonePlacementHexGrid, config.zonePlacementHubFirst, config.zonePlacementSaPolish,
 		config.zonePlacementCrossAlignWeight, config.zonePlacementCapacityBalance, config.zonePlacementCapacityIterations,
-		config.zonePlacementCapacityGain);
+		config.zonePlacementCapacityGain, config.zonePlacementRandomOrientation);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -105,6 +105,7 @@ void CMapGenerator::loadConfig()
 	config.zonePlacementCapacityIterations = randomMapJson["zonePlacement"]["capacityIterations"].Integer();
 	config.zonePlacementCapacityGain = randomMapJson["zonePlacement"]["capacityGain"].Float();
 	config.zonePlacementMaxGateDistance = randomMapJson["zonePlacement"]["maxGateDistance"].Integer();
+	config.zonePlacementRandomOrientation = randomMapJson["zonePlacement"]["randomOrientation"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const

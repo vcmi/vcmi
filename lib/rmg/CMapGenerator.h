@@ -63,6 +63,7 @@ public:
 		int zonePlacementCapacityIterations;
 		float zonePlacementCapacityGain;
 		int zonePlacementMaxGateDistance;
+		bool zonePlacementRandomOrientation;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
