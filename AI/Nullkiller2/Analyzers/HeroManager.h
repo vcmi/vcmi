@@ -48,6 +48,7 @@ private:
 	const Nullkiller * aiNk;
 	std::map<HeroPtr, HeroRole> heroToRoleMap; // can get out of sync with cc->getHeroesInfo() and include lost heroes
 	std::map<ObjectInstanceID, float> knownFightingStrength;
+	int initialTownCount = -1;
 
 public:
 	HeroManager(CCallback * cc, const Nullkiller * aiNk) : cc(cc), aiNk(aiNk) {}
