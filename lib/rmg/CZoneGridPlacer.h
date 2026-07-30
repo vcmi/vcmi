@@ -25,7 +25,7 @@ public:
 	using DistanceMap = std::map<int, std::map<int, size_t>>;
 	using ScaleForceFn = std::function<float(const std::shared_ptr<Zone> &, const std::shared_ptr<Zone> &)>;
 
-	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid = false, bool hubFirst = false, bool saPolish = false);
+	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f);
 
 	void placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const;
 
@@ -108,9 +108,15 @@ private:
 	/// Grid distance between two cells: hex (cube) distance on a hex grid, Manhattan on a square grid.
 	/// Connected zones are "adjacent" (satisfied) when this equals 1.
 	int cellDistance(const int3 & a, const int3 & b) const;
-	/// Simulated-annealing polish of one level's grid: swaps zone<->cell assignments to bring more
-	/// connected zones into adjacent cells. Operates in place on the grid.
-	void annealGridLevel(GridType & grid, size_t gridSize, int level, vstd::RNG * rand) const;
+	/// Deterministic normalized (0..1) center of a grid cell, matching setInitialZoneCenters (minus jitter).
+	/// Used to measure cross-level partner alignment in the same continuous space where gates get placed.
+	std::pair<double, double> normalizedCellCenter(const int3 & cell, size_t gridSize) const;
+	/// Simulated-annealing polish of the whole placement (all levels jointly). Swaps zone<->cell
+	/// assignments within each level to bring connected same-level zones into adjacent cells, while a
+	/// cross-level term (crossAlignWeight) rewards cross-level partners sharing the same normalized cell.
+	/// Doing cross-level alignment discretely lets it be satisfied by rearrangement instead of a continuous
+	/// force that drags zones off their same-level neighbours. Operates in place on the grids.
+	void annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const;
 
 	const RmgMap & map;
 	const DistanceMap & distancesBetweenZones;
@@ -118,4 +124,5 @@ private:
 	bool hexGrid;  // seed zones on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
 	bool hubFirst; // place zones in descending-degree order, highest-degree hub first at the grid centre
 	bool saPolish; // simulated-annealing pass to improve connected-zone adjacency after construction
+	float crossAlignWeight; // SA reward for cross-level partners sharing a normalized cell (0 = ignore cross-level)
 };
