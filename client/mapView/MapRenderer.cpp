@@ -341,11 +341,9 @@ MapRendererFow::MapRendererFow()
 	}
 }
 
-void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const NeighborTilesInfo & neighborInfo)
 {
 	assert(!context.isVisible(coordinates));
-
-	const NeighborTilesInfo neighborInfo(context, coordinates);
 
 	int retBitmapID = neighborInfo.getBitmapID(); // >=0 -> partial hide, <0 - full hide
 	if(retBitmapID < 0)
@@ -367,12 +365,11 @@ void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, 
 	}
 }
 
-uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates, const NeighborTilesInfo & neighborInfo)
 {
 	if (context.showSpellRange(coordinates))
 		return 0xff - 2;
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
 	int retBitmapID = neighborInfo.getBitmapID();
 	if(retBitmapID < 0)
 		return 0xff - 1;
@@ -724,6 +721,23 @@ void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target,
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
 }
 
+void MapRendererPath::prepareFrame(IMapRendererContext & context)
+{
+	cachedPath = context.currentPath();
+	cachedPathTiles.clear();
+
+	if(!cachedPath)
+		return;
+
+	cachedPathTiles.reserve(cachedPath->nodes.size());
+	for(const auto & node : cachedPath->nodes)
+		cachedPathTiles.push_back(node.coord);
+
+	// note: int3 has no operator> / <= / >=, so std::ranges::sort and
+	// std::ranges::binary_search cannot be used here - they require totally_ordered
+	std::sort(cachedPathTiles.begin(), cachedPathTiles.end());
+}
+
 size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & coordinates)
 {
 	const auto & functor = [&](const CGPathNode & node)
@@ -731,8 +745,13 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 		return node.coord == coordinates;
 	};
 
-	const auto * path = context.currentPath();
+	const auto * path = cachedPath;
 	if(!path)
+		return std::numeric_limits<size_t>::max();
+
+	// Nearly every tile of the view is off the path; reject those without touching the
+	// node list. Tiles that pass still go through the same search as before.
+	if(!std::binary_search(cachedPathTiles.begin(), cachedPathTiles.end(), coordinates))
 		return std::numeric_limits<size_t>::max();
 
 	const auto & iter = std::ranges::find_if(path->nodes, functor);
@@ -765,6 +784,11 @@ uint8_t MapRendererPath::checksum(IMapRendererContext & context, const int3 & co
 	return selectImage(context, coordinates) & 0xff;
 }
 
+void MapRenderer::prepareFrame(IMapRendererContext & context)
+{
+	rendererPath.prepareFrame(context);
+}
+
 MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	// computes basic checksum to determine whether tile needs an update
@@ -778,11 +802,18 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 		return result;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const bool visible = context.isVisible(coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	// Neighbour visibility is only consulted for tiles that are hidden themselves.
+	// Building it costs eight visibility queries, so it is skipped entirely for the
+	// common case of a visible tile - where the old code built and then discarded it.
+	std::optional<NeighborTilesInfo> neighborInfo;
+	if(!visible)
+		neighborInfo.emplace(context, coordinates);
+
+	if(!visible && neighborInfo->areAllHidden())
 	{
-		result[7] = rendererFow.checksum(context, coordinates);
+		result[7] = rendererFow.checksum(context, coordinates, *neighborInfo);
 	}
 	else
 	{
@@ -795,8 +826,8 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 		result[5] = rendererPath.checksum(context, coordinates);
 		result[6] = rendererOverlay.checksum(context, coordinates);
 
-		if(!context.isVisible(coordinates))
-			result[7] = rendererFow.checksum(context, coordinates);
+		if(!visible)
+			result[7] = rendererFow.checksum(context, coordinates, *neighborInfo);
 	}
 	return result;
 }
@@ -809,11 +840,15 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 		return;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const bool visible = context.isVisible(coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	std::optional<NeighborTilesInfo> neighborInfo;
+	if(!visible)
+		neighborInfo.emplace(context, coordinates);
+
+	if(!visible && neighborInfo->areAllHidden())
 	{
-		rendererFow.renderTile(context, target, coordinates);
+		rendererFow.renderTile(context, target, coordinates, *neighborInfo);
 	}
 	else
 	{
@@ -829,7 +864,7 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 		rendererPath.renderTile(context, target, coordinates);
 		rendererOverlay.renderTile(context, target, coordinates);
 
-		if(!context.isVisible(coordinates))
-			rendererFow.renderTile(context, target, coordinates);
+		if(!visible)
+			rendererFow.renderTile(context, target, coordinates, *neighborInfo);
 	}
 }
