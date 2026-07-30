@@ -165,6 +165,9 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 		tilesUpToDate = newCache;
 	}
 
+	// Refresh whatever the renderer can resolve once instead of per tile
+	mapRenderer->prepareFrame(*context);
+
 	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		for(int x = dimensions.left(); x < dimensions.right(); ++x)
 			updateTile(context, {x, y, model->getLevel()});
