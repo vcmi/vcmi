@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/int3.h"
+#include "../../lib/Point.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 class ObjectInstanceID;
@@ -73,6 +74,24 @@ class MapRendererObjects
 	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 	mutable std::map<ImagePath, std::shared_ptr<IImage>> images;
 
+	/// Everything the checksum needs to know about one object in one animation group:
+	/// whether it animates at all, and how large its sprite is.
+	struct ObjectChecksumInfo
+	{
+		bool baseAnimated = false;
+		bool flagAnimated = false;
+		Point baseDimensions = Point(0, 0);
+		Point flagDimensions = Point(0, 0);
+	};
+
+	/// Memo for the above, valid for a single update pass only: the answer costs a string-keyed
+	/// animation lookup plus an image, and is asked once per tile the object covers, every frame.
+	/// Cleared by prepareFrame(), and nothing it depends on can change within a pass.
+	/// Keyed by object and animation group, packed into one integer.
+	std::unordered_map<uint64_t, ObjectChecksumInfo> checksumInfoCache;
+
+	const ObjectChecksumInfo & getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex);
+
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
@@ -88,6 +107,9 @@ class MapRendererObjects
 	/// transparency of the second, always-on-top copy of the active hero
 	static constexpr double activeHeroTransparency = 0.5;
 public:
+	/// Must be called once per update pass before any checksum() call
+	void prepareFrame();
+
 	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
