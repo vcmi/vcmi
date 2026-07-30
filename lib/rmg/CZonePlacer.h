@@ -23,6 +23,7 @@ class CZoneGraph;
 class CMap;
 class RmgMap;
 class Zone;
+class Point2D;
 
 typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneVector;
 typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
@@ -33,7 +34,8 @@ typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 class CZonePlacer
 {
 public:
-	explicit CZonePlacer(RmgMap & map, bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f);
+	explicit CZonePlacer(RmgMap & map, bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f,
+		bool capacityBalance = false, int capacityIterations = 30, float capacityGain = 1.0f);
 	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
 	float getDistance(float distance) const; //additional scaling without 0 division
@@ -53,6 +55,12 @@ private:
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
 	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
 
+	// One level's tile assignment with capacity balancing: iterate a per-zone additive weight so each
+	// zone's claimed tile count converges to its target (proportional to size, a linear area weight),
+	// then paint the tiles. Keeps the Penrose vertices (organic borders) and the zone centers (adjacency).
+	void assignTilesCapacityBalanced(int level, int width, int height,
+		const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const;
+
 private:
 	int width;
 	int height;
@@ -69,6 +77,9 @@ private:
 	bool hubFirst;             // place zones highest-degree first, hub at grid centre
 	bool saPolish;             // anneal the grid assignment to improve connected-zone adjacency
 	float crossAlignWeight;    // SA reward for cross-level partners sharing a normalized cell
+	bool capacityBalance;      // balance per-zone Voronoi weights so claimed area matches target (area~size)
+	int capacityIterations;    // number of weight-balancing passes
+	float capacityGain;        // step size for the weight update (fraction-of-area error -> normalized dist^2)
 
 	//remember best solution
 	float bestTotalDistance;

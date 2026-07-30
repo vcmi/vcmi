@@ -55,6 +55,9 @@ public:
 		bool zonePlacementHubFirst;
 		bool zonePlacementSaPolish;
 		float zonePlacementCrossAlignWeight;
+		bool zonePlacementCapacityBalance;
+		int zonePlacementCapacityIterations;
+		float zonePlacementCapacityGain;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);

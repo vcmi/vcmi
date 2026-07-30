@@ -48,7 +48,8 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map, config.zonePlacementHexGrid, config.zonePlacementHubFirst,
-		config.zonePlacementSaPolish, config.zonePlacementCrossAlignWeight);
+		config.zonePlacementSaPolish, config.zonePlacementCrossAlignWeight, config.zonePlacementCapacityBalance,
+		config.zonePlacementCapacityIterations, config.zonePlacementCapacityGain);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -94,6 +95,9 @@ void CMapGenerator::loadConfig()
 	config.zonePlacementHubFirst = randomMapJson["zonePlacement"]["hubFirst"].Bool();
 	config.zonePlacementSaPolish = randomMapJson["zonePlacement"]["saPolish"].Bool();
 	config.zonePlacementCrossAlignWeight = randomMapJson["zonePlacement"]["crossAlignWeight"].Float();
+	config.zonePlacementCapacityBalance = randomMapJson["zonePlacement"]["capacityBalance"].Bool();
+	config.zonePlacementCapacityIterations = randomMapJson["zonePlacement"]["capacityIterations"].Integer();
+	config.zonePlacementCapacityGain = randomMapJson["zonePlacement"]["capacityGain"].Float();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
