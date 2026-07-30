@@ -12,6 +12,7 @@
 
 #include "../../lib/Point.h"
 #include "../render/IScreenHandler.h"
+#include "../render/DirtyRegionTracker.h"
 
 struct SDL_Texture;
 struct SDL_Window;
@@ -47,6 +48,21 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Window * mainWindow = nullptr;
 	SDL_Texture * screenTexture = nullptr;
 	SDL_Surface * screen = nullptr;
+
+	/// Which parts of `screen` were written this frame, so that only those have to be
+	/// uploaded into screenTexture
+	DirtyRegionTracker dirtyRegions;
+
+	/// Copy of the last uploaded pixels, only used by validateDirtyRegions
+	std::vector<uint8_t> validationShadow;
+
+	/// Uploads either the whole surface or just the tracked dirty regions into screenTexture
+	void uploadDirtyRegions(SDL_Surface * source);
+
+	/// Diagnostic: compares `source` against the previously uploaded pixels and reports
+	/// any change that the dirty region list failed to cover. Enabled by the
+	/// video/partialScreenUpdateValidation setting.
+	void validateDirtyRegions(SDL_Surface * source, const std::vector<Rect> & regions);
 
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
 	ColorScheme colorScheme = ColorScheme::NONE;

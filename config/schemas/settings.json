@@ -232,7 +232,9 @@
 				"allowPortrait",
 				"asyncUpscaling",
 				"useHdTextures",
-				"assetCacheSize"
+				"assetCacheSize",
+				"partialScreenUpdate",
+				"partialScreenUpdateValidation"
 			],
 			"properties" : {
 				"resolution" : {
@@ -334,6 +336,18 @@
 				"asyncUpscaling" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				// Upload only the changed parts of the screen to the GPU each frame
+				// instead of the whole framebuffer. Disable if graphical artifacts appear.
+				"partialScreenUpdate" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				// Diagnostic. Compares each frame against the previously uploaded pixels
+				// and logs any change the dirty region tracking failed to report. Slow.
+				"partialScreenUpdateValidation" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				// Memory budget in MiB for keeping decoded images and .def files cached.
 				// 0 selects a value derived from the amount of system RAM.

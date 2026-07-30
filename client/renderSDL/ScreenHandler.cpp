@@ -41,6 +41,8 @@
 
 #include <SDL.h>
 
+#include <cstring>
+
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
 
@@ -431,6 +433,10 @@ void ScreenHandler::initializeScreenBuffers()
 	//No blending for screen itself. Required for proper cursor rendering.
 	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
 
+	dirtyRegions.setSurfaceSize(Point(screen->w, screen->h));
+	if(settings["video"]["partialScreenUpdate"].Bool())
+		ScreenDirtyRegions::setTarget(screen, &dirtyRegions);
+
 	screenTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, logicalSize.x, logicalSize.y);
 
 	if(nullptr == screenTexture)
@@ -611,6 +617,7 @@ void ScreenHandler::destroyScreenBuffers()
 {
 	if(nullptr != screen)
 	{
+		ScreenDirtyRegions::setTarget(nullptr, nullptr);
 		SDL_FreeSurface(screen);
 		screen = nullptr;
 	}
@@ -659,21 +666,126 @@ Canvas ScreenHandler::getScreenCanvas() const
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 }
 
+void ScreenHandler::validateDirtyRegions(SDL_Surface * source, const std::vector<Rect> & regions)
+{
+	const size_t rowBytes = static_cast<size_t>(source->w) * source->format->BytesPerPixel;
+	const size_t totalBytes = rowBytes * source->h;
+	const auto * pixels = static_cast<const uint8_t *>(source->pixels);
+
+	if(validationShadow.size() != totalBytes)
+	{
+		// First frame at this size - nothing to compare against yet
+		validationShadow.resize(totalBytes);
+		for(int y = 0; y < source->h; ++y)
+			std::memcpy(validationShadow.data() + y * rowBytes, pixels + static_cast<size_t>(y) * source->pitch, rowBytes);
+		return;
+	}
+
+	const int bytesPerPixel = source->format->BytesPerPixel;
+	Rect missed;
+	int missedPixels = 0;
+
+	for(int y = 0; y < source->h; ++y)
+	{
+		const uint8_t * currentRow = pixels + static_cast<size_t>(y) * source->pitch;
+		uint8_t * shadowRow = validationShadow.data() + static_cast<size_t>(y) * rowBytes;
+
+		if(std::memcmp(currentRow, shadowRow, rowBytes) != 0)
+		{
+			for(int x = 0; x < source->w; ++x)
+			{
+				if(std::memcmp(currentRow + x * bytesPerPixel, shadowRow + x * bytesPerPixel, bytesPerPixel) == 0)
+					continue;
+
+				const bool covered = std::ranges::any_of(regions, [x, y](const Rect & region){
+					return region.x <= x && x < region.x + region.w && region.y <= y && y < region.y + region.h;
+				});
+
+				if(!covered)
+				{
+					Rect pixel(x, y, 1, 1);
+					missed = missedPixels == 0 ? pixel : missed.include(pixel);
+					++missedPixels;
+				}
+			}
+
+			std::memcpy(shadowRow, currentRow, rowBytes);
+		}
+	}
+
+	if(missedPixels > 0)
+	{
+		logGlobal->error("Partial screen update missed %d pixels, bounding box %dx%d at (%d, %d)",
+			missedPixels, missed.w, missed.h, missed.x, missed.y);
+	}
+}
+
+void ScreenHandler::uploadDirtyRegions(SDL_Surface * source)
+{
+	// With tracking disabled nothing ever reports a dirty area, so the tracker stays
+	// empty and would wrongly skip the upload - fall back to uploading everything.
+	if(!settings["video"]["partialScreenUpdate"].Bool())
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, source->pixels, source->pitch);
+		return;
+	}
+
+	if(dirtyRegions.isEmpty())
+	{
+		// Nothing was drawn this frame - the texture still holds the previous image
+		return;
+	}
+
+	// Must be resolved before isFullUpdate() is queried: building the region list is
+	// what decides whether the dirty area is large enough to warrant a full upload.
+	const auto & regions = dirtyRegions.getRegions();
+
+	// regions may legitimately be empty here only when a full update was chosen;
+	// uploading everything is the safe interpretation in any other case too.
+	if(dirtyRegions.isFullUpdate() || regions.empty())
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, source->pixels, source->pitch);
+		return;
+	}
+
+	const int bytesPerPixel = source->format->BytesPerPixel;
+
+	for(const auto & region : regions)
+	{
+		SDL_Rect targetRect = CSDL_Ext::toSDL(region);
+		const auto * pixels = static_cast<const uint8_t *>(source->pixels)
+			+ static_cast<size_t>(region.y) * source->pitch
+			+ static_cast<size_t>(region.x) * bytesPerPixel;
+
+		SDL_UpdateTexture(screenTexture, &targetRect, pixels, source->pitch);
+	}
+
+	if(settings["video"]["partialScreenUpdateValidation"].Bool())
+		validateDirtyRegions(source, regions);
+}
+
 void ScreenHandler::updateScreenTexture()
 {
 	if(colorScheme == ColorScheme::NONE)
 	{
-		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		uploadDirtyRegions(screen);
+		dirtyRegions.clear();
 		return;
 	}
+
+	// A color scheme rewrites every pixel of a full-surface copy, so partial upload
+	// would gain nothing here.
+	dirtyRegions.markFull();
 
 	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
 	if(colorScheme == ColorScheme::GRAYSCALE)
 		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
 	else if(colorScheme == ColorScheme::H2_SCHEME)
 		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
-	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
+	uploadDirtyRegions(screenScheme);
 	SDL_FreeSurface(screenScheme);
+
+	dirtyRegions.clear();
 }
 
 void ScreenHandler::presentScreenTexture()

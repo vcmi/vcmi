@@ -48,6 +48,12 @@ class Canvas
 	Point transformPos(const Point & input);
 	Point transformSize(const Point & input);
 
+	/// Reports a written area (in surface coordinates) to the screen dirty region
+	/// tracker. No-op unless this canvas draws onto the screen framebuffer.
+	void markDirty(const Rect & surfaceArea) const;
+	/// Same, for the canvas' entire render area
+	void markDirtyAll() const;
+
 public:
 	Canvas & operator = (const Canvas & other) = delete;
 	Canvas & operator = (Canvas && other) = delete;
