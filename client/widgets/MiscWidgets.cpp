@@ -378,10 +378,11 @@ CHeroTooltip::CHeroTooltip(Point pos, const InfoAboutHero &hero):
 	init(hero);
 }
 
+// delegates rather than building InfoAboutHero twice - once for the army part and once for the
+// hero part. Each one queries the bonus system for luck, morale and all four primary skills
 CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
-	CArmyTooltip(pos, InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED))
+	CHeroTooltip(pos, InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED))
 {
-	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
 CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero)

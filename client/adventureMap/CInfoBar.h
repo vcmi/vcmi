@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/networkPacks/Component.h"
 
 class CGHeroInstance;
@@ -139,7 +140,20 @@ private:
 		EMPTY, HERO, TOWN, DATE, GAME, AITURN, COMPONENT
 	};
 
+	/// Everything VisibleHeroInfo is built from. Kept so that a hero selection which changes
+	/// nothing visible - the common case, since hero movement raises one per step - can reuse
+	/// the widget tree already on screen instead of rebuilding it
+	struct HeroInfoSource
+	{
+		ObjectInstanceID hero;
+		InfoAboutHero info;
+		bool creatureManagement = false;
+
+		bool operator==(const HeroInfoSource & other) const = default;
+	};
+
 	std::shared_ptr<CVisibleInfo> visibleInfo;
+	std::optional<HeroInfoSource> visibleHeroInfoSource;
 	EState state;
 	uint32_t timerCounter;
 	bool shouldPopAll = false;
