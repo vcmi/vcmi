@@ -754,13 +754,20 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 		order.push_back(pair.second);
 	if (hubFirst)
 	{
-		std::ranges::stable_sort(order, [](const std::shared_ptr<Zone> & a, const std::shared_ptr<Zone> & b)
+		// Break equal-degree ties randomly (rather than by id) so the hub - and the whole construction
+		// order - varies between placement attempts. The attempts loop keeps the best-scoring layout, so
+		// a template with several equally-connected candidates (e.g. Grond's five degree-4 zones) settles
+		// on a merit-chosen centre that differs by seed, instead of always the lowest-id zone.
+		std::map<TRmgTemplateZoneId, int> tieBreak;
+		for (const auto & zone : order)
+			tieBreak[zone->getId()] = rand->nextInt(0, std::numeric_limits<int>::max() - 1);
+		std::ranges::stable_sort(order, [&tieBreak](const std::shared_ptr<Zone> & a, const std::shared_ptr<Zone> & b)
 		{
 			const int da = zoneDegree(a);
 			const int db = zoneDegree(b);
 			if (da != db)
 				return da > db;
-			return a->getId() < b->getId();
+			return tieBreak.at(a->getId()) < tieBreak.at(b->getId());
 		});
 	}
 
