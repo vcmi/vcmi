@@ -29,7 +29,8 @@
 
 #include <limits>
 
-CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight,
+CZonePlacer::CZonePlacer(RmgMap & map,
+	int placementAttempts, int scoreDirect, int scoreGate, int scoreMonolith, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight,
 	bool capacityBalance, int capacityIterations, float capacityGain)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
@@ -43,6 +44,11 @@ CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst, bool saPolis
 	capacityBalance(capacityBalance),
 	capacityIterations(capacityIterations),
 	capacityGain(capacityGain),
+	attractionReachScore(1.5f),
+	placementAttempts(placementAttempts),
+	scoreDirect(scoreDirect),
+	scoreGate(scoreGate),
+	scoreMonolith(scoreMonolith),
 	bestTotalDistance(1e10),
 	bestTotalOverlap(1e10),
 	map(map)
@@ -176,10 +182,17 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
 
-	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
-
-	//0. set zone sizes and surface / underground level
-	prepareZones(zones, zonesVector, mapLevels, rand);
+	// Snapshot the pristine per-zone state (original, un-prescaled sizes and centers) so every
+	// attempt starts identically. prepareZones prescales sizes in place, so each attempt must
+	// restore the original size before prescaling again - otherwise sizes compound across attempts.
+	// Independent attempts also keep this parallelizable later.
+	std::map<std::shared_ptr<Zone>, float3> pristineCenter;
+	std::map<std::shared_ptr<Zone>, int> pristineSize;
+	for(const auto & zone : zones)
+	{
+		pristineCenter[zone.second] = zone.second->getCenter();
+		pristineSize[zone.second] = zone.second->getSize();
+	}
 
 	CZoneGridPlacer gridPlacer(
 		map,
@@ -189,97 +202,133 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 			return scaleForceBetweenZones(zoneA, zoneB);
 		},
 		hexGrid, hubFirst, saPolish, crossAlignWeight);
-	gridPlacer.placeOnGrid(zones, rand);
 
-	std::map<std::shared_ptr<Zone>, float3> bestSolution;
+	// Winning layout across all attempts (positions and per-attempt prescaled sizes).
+	std::map<std::shared_ptr<Zone>, float3> winningCenters;
+	std::map<std::shared_ptr<Zone>, int> winningSizes;
+	float winningScore = std::numeric_limits<float>::max();
 
-	TForceVector forces;
-	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
-	TDistanceVector distances;
-	TDistanceVector overlaps;
-
-	auto evaluateSolution = [this, zones, &distances, &overlaps, &bestSolution]() -> bool
+	const int attempts = std::max(1, placementAttempts);
+	for(int attempt = 0; attempt < attempts; ++attempt)
 	{
-		bool improvement = false;
-
-		float totalDistance = 0;
-		float totalOverlap = 0;
-		for (const auto& zone : distances) //find most misplaced zone
+		//restore pristine state and reset per-attempt accumulators
+		for(const auto & zone : zones)
 		{
-			totalDistance += zone.second;
-			float overlap = overlaps[zone.first];
-			totalOverlap += overlap;
+			zone.second->setCenter(pristineCenter[zone.second]);
+			zone.second->setSize(pristineSize[zone.second]);
 		}
+		bestTotalDistance = 1e10;
+		bestTotalOverlap = 1e10;
+		lastSwappedZones.clear();
 
-		//check fitness function
-		if ((totalDistance + 1) * (totalOverlap + 1) < (bestTotalDistance + 1) * (bestTotalOverlap + 1))
+		//re-roll the initial layout: zone order drives level split and grid placement
+		RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
+		prepareZones(zones, zonesVector, mapLevels, rand);
+		gridPlacer.placeOnGrid(zones, rand);
+
+		std::map<std::shared_ptr<Zone>, float3> bestSolution;
+
+		TForceVector forces;
+		TForceVector totalForces; //  both attraction and pushback, overcomplicated?
+		TDistanceVector distances;
+		TDistanceVector overlaps;
+
+		auto evaluateSolution = [this, zones, &distances, &overlaps, &bestSolution]() -> bool
 		{
-			//multiplication is better for auto-scaling, but stops working if one factor is 0
-			improvement = true;
-		}
+			bool improvement = false;
 
-		//Save best solution
-		if (improvement)
-		{
-			bestTotalDistance = totalDistance;
-			bestTotalOverlap = totalOverlap;
+			float totalDistance = 0;
+			float totalOverlap = 0;
+			for (const auto& zone : distances) //find most misplaced zone
+			{
+				totalDistance += zone.second;
+				float overlap = overlaps[zone.first];
+				totalOverlap += overlap;
+			}
 
-			for (const auto& zone : zones)
-				bestSolution[zone.second] = zone.second->getCenter();
-		}
+			//check fitness function
+			if ((totalDistance + 1) * (totalOverlap + 1) < (bestTotalDistance + 1) * (bestTotalOverlap + 1))
+			{
+				//multiplication is better for auto-scaling, but stops working if one factor is 0
+				improvement = true;
+			}
+
+			//Save best solution
+			if (improvement)
+			{
+				bestTotalDistance = totalDistance;
+				bestTotalOverlap = totalOverlap;
+
+				for (const auto& zone : zones)
+					bestSolution[zone.second] = zone.second->getCenter();
+			}
 
 #ifdef ZONE_PLACEMENT_LOG
-		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
+			logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
 #endif
 
-		return improvement;
-	};
+			return improvement;
+		};
 
-	 //Start with low stiffness. Bigger graphs need more time and more flexibility
-	for (stifness = stiffnessConstant / zones.size(); stifness <= stiffnessConstant;)
-	{
-		//1. attract connected zones
-		attractConnectedZones(zones, forces, distances);
-		for(const auto & zone : forces)
+		 //Start with low stiffness. Bigger graphs need more time and more flexibility
+		for (stifness = stiffnessConstant / zones.size(); stifness <= stiffnessConstant;)
 		{
-			zone.first->setCenter (zone.first->getCenter() + zone.second);
-			totalForces[zone.first] = zone.second; //override
+			//1. attract connected zones
+			attractConnectedZones(zones, forces, distances);
+			for(const auto & zone : forces)
+			{
+				zone.first->setCenter (zone.first->getCenter() + zone.second);
+				totalForces[zone.first] = zone.second; //override
+			}
+
+			//2. separate overlapping zones
+			separateOverlappingZones(zones, forces, overlaps);
+			for(const auto & zone : forces)
+			{
+				zone.first->setCenter (zone.first->getCenter() + zone.second);
+				totalForces[zone.first] += zone.second; //accumulate
+			}
+
+			bool improved = evaluateSolution();
+
+			if (!improved)
+			{
+				//3. now perform drastic movement of zone that is completely not linked
+				//TODO: Don't do this is fitness was improved
+				moveOneZone(zones, totalForces, distances, overlaps);
+
+				improved |= evaluateSolution();
+			}
+
+			if (!improved)
+			{
+				//Only cool down if we didn't see any improvement
+				stifness *= stiffnessIncreaseFactor;
+			}
+
 		}
 
-		//2. separate overlapping zones
-		separateOverlappingZones(zones, forces, overlaps);
-		for(const auto & zone : forces)
+		ConnectivityCounts counts = classifyConnections(zones, bestSolution);
+		float score = static_cast<float>(counts.direct * scoreDirect + counts.gates * scoreGate + counts.monoliths * scoreMonolith);
+		logGlobal->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness distance %2.4f overlap %2.4f",
+			attempt + 1, attempts, static_cast<int>(score), counts.direct, counts.gates, counts.monoliths, bestTotalDistance, bestTotalOverlap);
+
+		if(score < winningScore)
 		{
-			zone.first->setCenter (zone.first->getCenter() + zone.second);
-			totalForces[zone.first] += zone.second; //accumulate
+			winningScore = score;
+			winningCenters = bestSolution;
+			winningSizes.clear();
+			for(const auto & zone : zones)
+				winningSizes[zone.second] = zone.second->getSize();
 		}
-
-		bool improved = evaluateSolution();
-
-		if (!improved)
-		{
-			//3. now perform drastic movement of zone that is completely not linked
-			//TODO: Don't do this is fitness was improved
-			moveOneZone(zones, totalForces, distances, overlaps);
-
-			improved |= evaluateSolution();
-		}
-
-		if (!improved)
-		{
-			//Only cool down if we didn't see any improvement
-			stifness *= stiffnessIncreaseFactor;
-		}
-
 	}
 
-	logGlobal->trace("Best fitness reached: total distance %2.4f, total overlap %2.4f", bestTotalDistance, bestTotalOverlap);
-	for(const auto & zone : zones) //finalize zone positions
+	logGlobal->info("Best zone placement score: %d", static_cast<int>(winningScore));
+	for(const auto & zone : zones) //apply the winning layout
 	{
-		zone.second->setPos (cords (bestSolution[zone.second]));
-#ifdef ZONE_PLACEMENT_LOG
-		logGlobal->trace("Placed zone %d at relative position %s and coordinates %s", zone.first, zone.second->getCenter().toString(), zone.second->getPos().toString());
-#endif
+		zone.second->setSize(winningSizes[zone.second]);
+		zone.second->setCenter(winningCenters[zone.second]);
+		zone.second->setPos(cords(winningCenters[zone.second]));
 	}
 }
 
@@ -486,17 +535,13 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 			auto otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
 			float3 otherZoneCenter = otherZone->getCenter();
 			auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
-			
-			forceVector += (otherZoneCenter - pos) * distance * gravityConstant * scaleForceBetweenZones(zone.second, otherZone); //positive value
+			float scale = scaleForceBetweenZones(zone.second, otherZone);
 
-			//Attract zone centers always
+			//zones on different levels can overlap completely
+			float minDistance = (pos.z != otherZoneCenter.z) ? 0.f
+				: (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
 
-			float minDistance = 0;
-
-			if (pos.z != otherZoneCenter.z)
-				minDistance = 0; //zones on different levels can overlap completely
-			else
-				minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
+			forceVector += (otherZoneCenter - pos) * distance * gravityConstant * scale; //positive value
 
 			if (distance > minDistance)
 				totalDistance += (distance - minDistance);
@@ -585,6 +630,57 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 		forces[zone.second] = forceVector;
 	}
+}
+
+CZonePlacer::ConnectivityCounts CZonePlacer::classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const
+{
+	//Predict, from geometry alone, how each connection would be realized. This is the signal
+	//placement can actually influence; the real outcome is decided later by ConnectionsPlacer.
+	ConnectivityCounts counts;
+	std::set<int> seen;
+	for(const auto & zonePair : zones)
+	{
+		for(const auto & connection : zonePair.second->getConnections())
+		{
+			switch(connection.getConnectionType())
+			{
+				//virtual connections never need a passage
+				case rmg::EConnectionType::REPULSIVE:
+				case rmg::EConnectionType::FORCE_PORTAL:
+					continue;
+			}
+			if(connection.getZoneA() == connection.getZoneB())
+				continue; //self-connection is an intended portal, not a failure
+			if(!seen.insert(connection.getId()).second)
+				continue; //count each undirected connection once
+
+			auto otherIt = zones.find(connection.getOtherZoneId(zonePair.first));
+			if(otherIt == zones.end())
+				continue; //e.g. water zone, not part of tessellation
+
+			auto selfPos = solution.find(zonePair.second);
+			auto otherPos = solution.find(otherIt->second);
+			if(selfPos == solution.end() || otherPos == solution.end())
+				continue;
+
+			float touching = (zonePair.second->getSize() + otherIt->second->getSize()) / mapSize;
+			auto distance = static_cast<float>(selfPos->second.dist2d(otherPos->second));
+
+			if(selfPos->second.z != otherPos->second.z)
+			{
+				//cross-level: a subterranean gate needs the footprints to overlap in XY
+				if(distance <= touching)
+					counts.gates++;
+				else
+					counts.monoliths++;
+			}
+			else if(distance <= touching * attractionReachScore)
+				counts.direct++; //adjacent / overlapping -> a direct guarded passage is achievable
+			else
+				counts.monoliths++;
+		}
+	}
+	return counts;
 }
 
 void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDistanceVector& distances, TDistanceVector& overlaps)
@@ -700,7 +796,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			}
 
 			auto otherZone = zones[con.getOtherZoneId(misplacedZone->getId())];
-			float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
+			float3 otherCenter = otherZone->getCenter();
+
+			float distance = static_cast<float>(otherCenter.dist2dSQ(ourCenter));
 			if (distance > maxDistance)
 			{
 				maxDistance = distance;

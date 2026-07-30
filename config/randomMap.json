@@ -49,15 +49,22 @@
   // Experimental zone-placement improvements (see CZonePlacer). Toggle to compare against baseline.
   "zonePlacement" :
   {
-    "hexGrid" : true,           // seed the initial layout on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
-    "hubFirst" : true,          // place zones highest-degree first, seeding each level's hub at the grid centre
-    "saPolish" : true,          // simulated-annealing pass that swaps grid cells to improve connected-zone adjacency
+    "hexGrid" : true,            // seed the initial layout on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
+    "hubFirst" : true,           // place zones highest-degree first, seeding each level's hub at the grid centre
+    "saPolish" : true,           // simulated-annealing pass that swaps grid cells to improve connected-zone adjacency
     "crossAlignWeight" : 6.0,    // during saPolish, reward for cross-level partners sharing a normalized cell (0 = ignore; aligns gates discretely so couplingStrength can be lowered)
 
     // Capacity-constrained tessellation: iterate a per-zone Voronoi weight so each zone's claimed area
     // converges to its target (proportional to size, a linear area weight), instead of whatever the raw Penrose partition gives.
     "capacityBalance" : true,
     "capacityIterations" : 100,  // number of weight-balancing passes
-    "capacityGain" : 0.2         // weight step per pass (fraction-of-area error -> normalized dist^2)
+    "capacityGain" : 0.2,        // weight step per pass (fraction-of-area error -> normalized dist^2)
+
+    // Relax the layout this many times and keep the one with the lowest weighted connection score.
+    // Score = direct * scoreDirect + subterranean gates * scoreSubterraneanGate + monoliths * scoreMonolith (lower is better).
+    "attempts" : 8,
+    "scoreDirect" : 1,
+    "scoreSubterraneanGate" : 2,
+    "scoreMonolith" : 10
   }
 }

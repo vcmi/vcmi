@@ -51,6 +51,10 @@ public:
 		std::vector<int> questRewardValues;
 		int seerHutValue;
 		bool singleThread;
+		int zonePlacementAttempts;
+		int zonePlacementScoreDirect;
+		int zonePlacementScoreGate;
+		int zonePlacementScoreMonolith;
 		bool zonePlacementHexGrid;
 		bool zonePlacementHubFirst;
 		bool zonePlacementSaPolish;
@@ -88,7 +92,7 @@ private:
 	Config config;
 	std::unique_ptr<RmgMap> map;
 	std::shared_ptr<CZonePlacer> placer;
-	
+
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
