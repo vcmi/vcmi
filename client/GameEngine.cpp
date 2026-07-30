@@ -93,7 +93,7 @@ GameEngine::GameEngine()
 
 void GameEngine::handleEvents()
 {
-	events().dispatchTimer(framerate().getElapsedMilliseconds());
+	events().dispatchTimer(framerate().consumeElapsedMilliseconds());
 
 	//player interface may want special event handling
 	if(engineUser->capturedAllEvents())
