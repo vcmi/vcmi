@@ -29,12 +29,23 @@ void forEachInGrid(const size_t gridSize, Fn && fn)
 		for (size_t y = 0; y < gridSize; ++y)
 			fn(x, y);
 }
+
+constexpr double HEX_ROW_HEIGHT = 0.86602540378443864; // sqrt(3)/2 - vertical spacing between hex rows
+
+// odd-r offset hex neighbours: odd rows are shifted +0.5 in x, so the 6 neighbour offsets depend on row parity
+std::array<int3, 6> hexNeighbourDirs(int row)
+{
+	if (row & 1)
+		return {{ {+1, 0, 0}, {+1, -1, 0}, {0, -1, 0}, {-1, 0, 0}, {0, +1, 0}, {+1, +1, 0} }};
+	return {{ {+1, 0, 0}, {0, -1, 0}, {-1, -1, 0}, {-1, 0, 0}, {-1, +1, 0}, {0, +1, 0} }};
+}
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, scaleForceBetweenZones(std::move(scaleForceBetweenZones))
+	, hexGrid(hexGrid)
 {
 }
 
@@ -328,14 +339,27 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithAnchors(
 
 		if (anchorPos.z == level)
 		{
-			for (const int3 & d : anchorNeighborDirs)
+			if (hexGrid)
 			{
-				const int3 cell = anchorPos + d;
-				if (!isWithinGrid(cell, gridSize))
-					continue;
-				const ui32 dSq = d.dist2dSQ(origin2d);
-				const float w = (dSq == 1) ? anchorOrthogonalWeight : anchorDiagonalWeight;
-				candidateScores[{cell.x, cell.y}] += w;
+				// every hex neighbour is a true edge neighbour - equal weight, no diagonal contact
+				for (const int3 & d : hexNeighbourDirs(anchorPos.y))
+				{
+					const int3 cell = anchorPos + d;
+					if (isWithinGrid(cell, gridSize))
+						candidateScores[{cell.x, cell.y}] += anchorOrthogonalWeight;
+				}
+			}
+			else
+			{
+				for (const int3 & d : anchorNeighborDirs)
+				{
+					const int3 cell = anchorPos + d;
+					if (!isWithinGrid(cell, gridSize))
+						continue;
+					const ui32 dSq = d.dist2dSQ(origin2d);
+					const float w = (dSq == 1) ? anchorOrthogonalWeight : anchorDiagonalWeight;
+					candidateScores[{cell.x, cell.y}] += w;
+				}
 			}
 		}
 		else
@@ -474,12 +498,24 @@ void CZoneGridPlacer::setInitialZoneCenters(
 
 		const auto & grid = *grids[level];
 		size_t gridSize = gridSizes[level];
+		const bool hex = hexGrid;
 
-		forEachInGrid(gridSize, [&grid, &rand, gridSize, level](size_t x, size_t y)
+		forEachInGrid(gridSize, [&grid, &rand, gridSize, level, hex](size_t x, size_t y)
 		{
 			auto zone = grid[x][y];
 			if (!zone)
 				return;
+
+			if (hex)
+			{
+				// odd-r hex packing: odd rows shifted +0.5 in x, rows spaced by sqrt(3)/2.
+				// Common denominator for x and y preserves the hexagonal aspect (equidistant neighbours).
+				const double rawX = (x + rand->nextDouble(0.25, 0.75)) + 0.5 * (y & 1);
+				const double rawY = (y + rand->nextDouble(0.25, 0.75)) * HEX_ROW_HEIGHT;
+				const double denom = gridSize + 1.0;
+				zone->setCenter(float3(static_cast<float>(rawX / denom), static_cast<float>(rawY / denom), level));
+				return;
+			}
 
 			// i.e. for grid size 5 we get range (0.25 - 4.75)
 			auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);

@@ -25,7 +25,7 @@ public:
 	using DistanceMap = std::map<int, std::map<int, size_t>>;
 	using ScaleForceFn = std::function<float(const std::shared_ptr<Zone> &, const std::shared_ptr<Zone> &)>;
 
-	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones);
+	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid = false);
 
 	void placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const;
 
@@ -108,4 +108,5 @@ private:
 	const RmgMap & map;
 	const DistanceMap & distancesBetweenZones;
 	ScaleForceFn scaleForceBetweenZones;
+	bool hexGrid; // seed zones on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
 };
