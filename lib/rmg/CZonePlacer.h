@@ -34,7 +34,9 @@ typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 class CZonePlacer
 {
 public:
-	explicit CZonePlacer(RmgMap & map, bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f,
+	explicit CZonePlacer(RmgMap & map,
+		int placementAttempts = 1, int scoreDirect = 1, int scoreGate = 2, int scoreMonolith = 10,
+		bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f,
 		bool capacityBalance = false, int capacityIterations = 30, float capacityGain = 1.0f);
 	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
@@ -54,6 +56,10 @@ private:
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
 	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
+
+	// Predicted connectivity of a finished layout, used to pick the best of several placement attempts.
+	struct ConnectivityCounts { int direct = 0; int gates = 0; int monoliths = 0; };
+	ConnectivityCounts classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const;
 
 	// One level's tile assignment with capacity balancing: iterate a per-zone additive weight so each
 	// zone's claimed tile count converges to its target (proportional to size, a linear area weight),
@@ -80,6 +86,15 @@ private:
 	bool capacityBalance;      // balance per-zone Voronoi weights so claimed area matches target (area~size)
 	int capacityIterations;    // number of weight-balancing passes
 	float capacityGain;        // step size for the weight update (fraction-of-area error -> normalized dist^2)
+
+	// How far a same-level pair may sit and still be predicted "connectable" (multiple of touching distance)
+	float attractionReachScore;
+
+	// Restart placement this many times, keep the layout scoring best by these weights (all from randomMap.json)
+	int placementAttempts;
+	int scoreDirect;   // weight of a connection predicted to become a direct passage
+	int scoreGate;     // weight of a connection predicted to become a subterranean gate
+	int scoreMonolith; // weight of a connection predicted to fall back to a monolith
 
 	//remember best solution
 	float bestTotalDistance;
