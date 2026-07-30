@@ -67,6 +67,12 @@
     // must share a column, as before).
     "maxGateDistance" : 16,
 
+    // Reorient the finished layout by a random rotation (0/90/180/270) plus optional horizontal and
+    // vertical flips (16 combinations). These are isometries on a square map, so the layout quality and
+    // connection score are unchanged - only the facing differs. Without this a fixed template graph
+    // (placed deterministically by hubFirst) always produces the same, unrotated, unflipped map.
+    "randomOrientation" : true,
+
     // Relax the layout this many times and keep the one with the lowest weighted connection score.
     // Score = direct * scoreDirect + subterranean gates * scoreSubterraneanGate + monoliths * scoreMonolith (lower is better).
     "attempts" : 8,

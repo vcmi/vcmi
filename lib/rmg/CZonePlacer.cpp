@@ -31,7 +31,7 @@
 
 CZonePlacer::CZonePlacer(RmgMap & map,
 	int placementAttempts, int scoreDirect, int scoreGate, int scoreMonolith, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight,
-	bool capacityBalance, int capacityIterations, float capacityGain)
+	bool capacityBalance, int capacityIterations, float capacityGain, bool randomOrientation)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
 	stiffnessConstant(3e-3f),
@@ -44,6 +44,7 @@ CZonePlacer::CZonePlacer(RmgMap & map,
 	capacityBalance(capacityBalance),
 	capacityIterations(capacityIterations),
 	capacityGain(capacityGain),
+	randomOrientation(randomOrientation),
 	attractionReachScore(1.5f),
 	placementAttempts(placementAttempts),
 	scoreDirect(scoreDirect),
@@ -329,6 +330,51 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		zone.second->setSize(winningSizes[zone.second]);
 		zone.second->setCenter(winningCenters[zone.second]);
 		zone.second->setPos(cords(winningCenters[zone.second]));
+	}
+
+	if(randomOrientation)
+		applyRandomOrientation(zones, rand);
+}
+
+std::pair<float, float> CZonePlacer::orientNormalized(float x, float y) const
+{
+	// Dihedral symmetry about (0.5, 0.5) in normalized space; maps [0,1]^2 onto itself.
+	switch(orientRotation)
+	{
+		case 1: { const float t = x; x = y;         y = 1.f - t; break; } // 90
+		case 2: {                    x = 1.f - x;    y = 1.f - y; break; } // 180
+		case 3: { const float t = x; x = 1.f - y;    y = t;       break; } // 270
+	}
+	if(orientFlipH)
+		x = 1.f - x;
+	if(orientFlipV)
+		y = 1.f - y;
+	return {x, y};
+}
+
+void CZonePlacer::applyRandomOrientation(const TZoneMap & zones, vstd::RNG * rand)
+{
+	// Roll one of 4 rotations plus independent horizontal/vertical flips (4x2x2 = 16 combinations).
+	// On a square map every combination is an isometry about the map center. A non-square map cannot
+	// rotate 90/270 without distorting aspect, so restrict it to 0/180 there.
+	const bool square = map.getMapGenOptions().getWidth() == map.getMapGenOptions().getHeight();
+	orientRotation = square ? rand->nextInt(0, 3) : rand->nextInt(0, 1) * 2;
+	orientFlipH = rand->nextInt(0, 1) == 1;
+	orientFlipV = rand->nextInt(0, 1) == 1;
+	if(orientRotation == 0 && !orientFlipH && !orientFlipV)
+		return; //identity
+
+	// Reorient center/pos (they feed the tessellation); assignZones replays the same isometry onto the
+	// Penrose vertices so footprints - and thus cross-level gate overlaps - transform with the zones
+	// instead of being reshuffled against a fixed vertex field. Diagnostic snapshots (grid cells,
+	// placement centers) are left as-is: their consumers compare zones relatively, which any isometry preserves.
+	for(const auto & zonePair : zones)
+	{
+		const auto & zone = zonePair.second;
+		const auto [nx, ny] = orientNormalized(zone->getCenter().x, zone->getCenter().y);
+		const float3 newCenter(nx, ny, zone->getCenter().z);
+		zone->setCenter(newCenter);
+		zone->setPos(cords(newCenter));
 	}
 }
 
@@ -932,6 +978,20 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		//Create different tiling for each level
 
 		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
+
+		// Replay the orientation rolled in applyRandomOrientation onto the vertex field, so oriented zones
+		// claim the rotated-equivalent vertices. Keeps the tessellation an exact isometry of the un-oriented
+		// one, preserving cross-level overlaps that would otherwise be reshuffled into monoliths.
+		if(orientRotation != 0 || orientFlipH || orientFlipV)
+		{
+			std::set<Point2D> oriented;
+			for(const auto & v : vertices)
+			{
+				const auto [nx, ny] = orientNormalized(v.x(), v.y());
+				oriented.insert(Point2D(nx, ny));
+			}
+			vertices = std::move(oriented);
+		}
 
 		if(capacityBalance)
 		{
