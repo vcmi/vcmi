@@ -33,7 +33,7 @@
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
+ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool showHeroesSeparately) const
 {
 	const TerrainTile * tile = GAME->interface()->cb->getTile(pos, false);
 
@@ -52,7 +52,7 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 			if(player == PlayerColor::NEUTRAL)
 				return graphics->neutralColor;
 
-			if (settings["adventure"]["minimapShowHeroes"].Bool() && obj->ID == MapObjectID::HERO)
+			if (showHeroesSeparately && obj->ID == MapObjectID::HERO)
 				continue;
 
 			if (player.isValidPlayer())
@@ -66,19 +66,20 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 		return tile->getTerrain()->minimapUnblocked;
 }
 
-void CMinimapInstance::refreshTile(const int3 &tile)
+void CMinimapInstance::refreshTile(const int3 &tile, bool showHeroesSeparately)
 {
 	if (level == tile.z)
-		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile));
+		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile, showHeroesSeparately));
 }
 
 void CMinimapInstance::redrawMinimap()
 {
 	int3 mapSizes = GAME->interface()->cb->getMapSize();
+	const bool showHeroesSeparately = settings["adventure"]["minimapShowHeroes"].Bool();
 
 	for (int y = 0; y < mapSizes.y; ++y)
 		for (int x = 0; x < mapSizes.x; ++x)
-			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level)));
+			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level), showHeroesSeparately));
 }
 
 CMinimapInstance::CMinimapInstance(const Point & position, const Point & dimensions, int Level):
@@ -187,9 +188,44 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 	moveAdvMapSelection(cursorPosition);
 }
 
+void CMinimap::drawBackgroundAroundMap(Canvas & to) const
+{
+	const Rect & widget = aiShield->pos;
+
+	// the map is centered inside the widget, so at most one axis actually has a border
+	const int leftWidth = pos.x - widget.x;
+	const int rightWidth = widget.right() - pos.right();
+	const int topHeight = pos.y - widget.y;
+	const int bottomHeight = widget.bottom() - pos.bottom();
+
+	if(topHeight > 0)
+		to.drawColor(Rect(widget.x, widget.y, widget.w, topHeight), Colors::BLACK);
+
+	if(bottomHeight > 0)
+		to.drawColor(Rect(widget.x, pos.bottom(), widget.w, bottomHeight), Colors::BLACK);
+
+	if(leftWidth > 0)
+		to.drawColor(Rect(widget.x, pos.y, leftWidth, pos.h), Colors::BLACK);
+
+	if(rightWidth > 0)
+		to.drawColor(Rect(pos.right(), pos.y, rightWidth, pos.h), Colors::BLACK);
+}
+
 void CMinimap::showAll(Canvas & to)
 {
 	CanvasClipRectGuard guard(to, aiShield->pos);
+
+	// The radar rectangle and the hero icons are positioned in minimap coordinates but are not
+	// bounded by the minimap: a Canvas sub-rectangle only offsets drawing, the clip rect above is
+	// what actually limits them. On a map that does not fill the widget they are therefore allowed
+	// to extend past the map and onto the background around it, which is intended - but it means
+	// that background has to be repainted here before they are drawn again, or the previous
+	// frame's pixels stay behind. Repainting it locally keeps this to a few small fills; leaving
+	// it to the parent would redraw the whole adventure map on every single view movement.
+	// The area behind the minimap is solid black in the adventure map background.
+	if(minimap)
+		drawBackgroundAroundMap(to);
+
 	CIntObject::showAll(to);
 
 	if(minimap)
@@ -249,10 +285,7 @@ void CMinimap::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 		update();
 	}
 	else
-	{
-		setRedrawParent(true); // needed for non square map to redraw black background when viewarea rectangle is moved
 		redraw();
-	}
 }
 
 void CMinimap::setAIRadar(bool on)
@@ -290,8 +323,10 @@ void CMinimap::updateTiles(const FowTilesType & positions)
 {
 	if(minimap)
 	{
+		const bool showHeroesSeparately = settings["adventure"]["minimapShowHeroes"].Bool();
+
 		for (auto const & tile : positions)
-			minimap->refreshTile(tile);
+			minimap->refreshTile(tile, showHeroesSeparately);
 	}
 
 	redraw();
