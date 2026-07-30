@@ -41,12 +41,32 @@ std::array<int3, 6> hexNeighbourDirs(int row)
 }
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid, bool hubFirst)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, scaleForceBetweenZones(std::move(scaleForceBetweenZones))
 	, hexGrid(hexGrid)
+	, hubFirst(hubFirst)
 {
+}
+
+namespace
+{
+// Number of real (non-virtual, non-self) connections - a zone's degree in the connection graph.
+int zoneDegree(const std::shared_ptr<Zone> & zone)
+{
+	int degree = 0;
+	for (const auto & conn : zone->getConnections())
+	{
+		if (conn.getConnectionType() == rmg::EConnectionType::REPULSIVE ||
+			conn.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
+			continue;
+		if (conn.getZoneA() == conn.getZoneB())
+			continue;
+		degree++;
+	}
+	return degree;
+}
 }
 
 CZoneGridPlacer::GridType & CZoneGridPlacer::getGridForLevel(std::vector<std::unique_ptr<GridType>> & grids, int level) const
@@ -254,6 +274,17 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithoutAnchors(
 	{
 		size_t x = 0;
 		size_t y = 0;
+
+		if (hubFirst)
+		{
+			// first zone on the level is the highest-degree hub - seed it centrally where the most
+			// neighbours are reachable, and grow the rest outward around it
+			x = gridSize / 2;
+			y = gridSize / 2;
+			decision.bestPos = int3(x, y, level);
+			decision.foundPos = true;
+			return decision;
+		}
 
 		switch (zone->getType())
 		{
@@ -538,9 +569,27 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 	std::vector<bool> levelHasZones(mapLevels, false);
 	std::map<TRmgTemplateZoneId, int3> placedPositions;
 
+	// Build the processing order. hubFirst places highest-degree zones first, so each level's hub
+	// lands (centred) before its neighbours and every later zone finds its higher-degree anchors
+	// already placed. Otherwise keep the original id order.
+	std::vector<std::shared_ptr<Zone>> order;
+	order.reserve(zones.size());
 	for (const auto & pair : zones)
+		order.push_back(pair.second);
+	if (hubFirst)
 	{
-		auto zone = pair.second;
+		std::ranges::stable_sort(order, [](const std::shared_ptr<Zone> & a, const std::shared_ptr<Zone> & b)
+		{
+			const int da = zoneDegree(a);
+			const int db = zoneDegree(b);
+			if (da != db)
+				return da > db;
+			return a->getId() < b->getId();
+		});
+	}
+
+	for (const auto & zone : order)
+	{
 		const int level = zone->getCenter().z;
 		auto & grid = getGridForLevel(grids, level);
 		const size_t gridSize = gridSizes[level];

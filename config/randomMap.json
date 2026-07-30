@@ -49,6 +49,7 @@
   // Experimental zone-placement improvements (see CZonePlacer). Toggle to compare against baseline.
   "zonePlacement" :
   {
-    "hexGrid" : true            // seed the initial layout on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
+    "hexGrid" : true,           // seed the initial layout on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
+    "hubFirst" : true           // place zones highest-degree first, seeding each level's hub at the grid centre
   }
 }
