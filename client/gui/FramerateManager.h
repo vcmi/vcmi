@@ -25,6 +25,9 @@ class FramerateManager
 	/// index of last measured from in lastFrameTimes array
 	ui32 lastFrameIndex;
 
+	/// time not yet handed out by consumeElapsedMilliseconds
+	Duration elapsedSinceConsumed = Duration::zero();
+
 	bool vsyncEnabled;
 
 public:
@@ -36,6 +39,9 @@ public:
 
 	/// returns duration of last frame in seconds
 	ui32 getElapsedMilliseconds() const;
+
+	/// whole milliseconds elapsed since the last call, carrying the remainder over
+	ui32 consumeElapsedMilliseconds();
 
 	/// returns current estimation of frame rate
 	ui32 getFramerate() const;
