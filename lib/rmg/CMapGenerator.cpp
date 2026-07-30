@@ -47,7 +47,7 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 	loadConfig();
 	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
-	placer = std::make_shared<CZonePlacer>(*map);
+	placer = std::make_shared<CZonePlacer>(*map, config.zonePlacementHexGrid);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -89,6 +89,7 @@ void CMapGenerator::loadConfig()
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
+	config.zonePlacementHexGrid = randomMapJson["zonePlacement"]["hexGrid"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
