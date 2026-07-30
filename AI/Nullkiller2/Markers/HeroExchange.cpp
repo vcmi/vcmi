@@ -33,6 +33,8 @@ std::string HeroExchange::toString() const
 uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) const
 {
 	assert(exchangePath.targetHero && exchangePath.heroArmy);
+	if(reinforcementArmyStrengthOverride > 0)
+		return reinforcementArmyStrengthOverride;
 
 	return aiNk->armyManager->howManyReinforcementsCanGet(
 		hero,

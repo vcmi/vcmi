@@ -35,6 +35,7 @@ namespace Goals
 
 	private:
 		TGoalVec deliverArmyToHero(const Nullkiller * aiNk, const CGHeroInstance * receiverHero) const;
+		TGoalVec collectArmyFromNearbyScouts(const Nullkiller * aiNk, const CGHeroInstance * receiverHero) const;
 		TGoalVec upgradeArmy(const Nullkiller * aiNk, const CGTownInstance * upgrader) const;
 	};
 }

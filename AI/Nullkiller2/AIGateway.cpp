@@ -271,10 +271,22 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			}
 			else
 			{
+				const auto firstHeroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(firstHero);
+				const auto secondHeroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(secondHero);
 				if(nullkiller->isActive(firstHero))
-					transferFrom2to1(secondHero, firstHero);
+				{
+					if(firstHeroRole == HeroRole::MAIN && secondHeroRole == HeroRole::SCOUT && nullkiller->heroManager->isMeaningfulArmyCarrier(secondHero))
+						transferFrom2to1(firstHero, secondHero);
+					else
+						transferFrom2to1(secondHero, firstHero);
+				}
 				else
-					transferFrom2to1(firstHero, secondHero);
+				{
+					if(secondHeroRole == HeroRole::MAIN && firstHeroRole == HeroRole::SCOUT && nullkiller->heroManager->isMeaningfulArmyCarrier(firstHero))
+						transferFrom2to1(secondHero, firstHero);
+					else
+						transferFrom2to1(firstHero, secondHero);
+				}
 			}
 
 			answerQuery(query, 0);
