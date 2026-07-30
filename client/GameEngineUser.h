@@ -28,4 +28,7 @@ public:
 
 	/// Returns true if all input events should be captured and ignored
 	virtual bool capturedAllEvents() = 0;
+
+	/// Returns false if the next frame could only reproduce the current one, so it may be skipped
+	virtual bool wantsFrameRendered() = 0;
 };
