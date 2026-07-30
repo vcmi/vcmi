@@ -192,7 +192,7 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 		return -1;
 
 	int channel;
-	MixChunkPtr chunkPtr = getSoundChunk(sound);
+	MixChunkPtr chunkPtr;
 	Mix_Chunk * chunk = nullptr;
 	if (!useCache)
 	{
