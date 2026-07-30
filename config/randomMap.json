@@ -50,6 +50,7 @@
   "zonePlacement" :
   {
     "hexGrid" : true,           // seed the initial layout on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
-    "hubFirst" : true           // place zones highest-degree first, seeding each level's hub at the grid centre
+    "hubFirst" : true,          // place zones highest-degree first, seeding each level's hub at the grid centre
+    "saPolish" : true           // simulated-annealing pass that swaps grid cells to improve connected-zone adjacency
   }
 }
