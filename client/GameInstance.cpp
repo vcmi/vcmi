@@ -103,6 +103,16 @@ bool GameInstance::capturedAllEvents()
 		return false;
 }
 
+bool GameInstance::wantsFrameRendered()
+{
+	// between two steps of a walking hero nothing moves, and rendering it only delays the
+	// netpacks that would start the next step
+	if (interfaceInstance && mapInstance && interfaceInstance->isHeroMoving())
+		return mapInstance->hasOngoingAnimations();
+
+	return true;
+}
+
 void GameInstance::onShutdownRequested(bool ask)
 {
 	if(!ENGINE)

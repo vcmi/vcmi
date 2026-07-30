@@ -19,16 +19,20 @@ FramerateManager::FramerateManager(int targetFrameRate)
 	, lastFrameIndex(0)
 	, lastFrameTimes({})
 	, lastTimePoint(Clock::now())
+	, lastRenderedTimePoint(Clock::now())
 	, vsyncEnabled(settings["video"]["vsync"].Bool())
 {
 	std::ranges::fill(lastFrameTimes, targetFrameTime);
 }
 
-void FramerateManager::framerateDelay()
+void FramerateManager::framerateDelay(bool frameRendered)
 {
 	Duration timeSpentBusy = Clock::now() - lastTimePoint;
 
-	if(!vsyncEnabled && timeSpentBusy < targetFrameTime)
+	// vsync paces rendered frames inside SDL_RenderPresent, which a skipped frame never reaches
+	const bool pacedByVsync = vsyncEnabled && frameRendered;
+
+	if(!pacedByVsync && timeSpentBusy < targetFrameTime)
 	{
 		// if FPS is higher than it should be, then wait some time
 		std::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
@@ -42,9 +46,19 @@ void FramerateManager::framerateDelay()
 		timeElapsed = std::chrono::milliseconds(100);
 
 	lastTimePoint = currentTicks;
-	lastFrameIndex = (lastFrameIndex + 1) % lastFrameTimes.size();
-	lastFrameTimes[lastFrameIndex] = timeElapsed;
 	elapsedSinceConsumed += timeElapsed;
+
+	if(!frameRendered)
+		return;
+
+	// framerate is measured between drawn frames, so that skipped ones do not inflate it
+	Duration sinceRendered = currentTicks - lastRenderedTimePoint;
+	if(sinceRendered > std::chrono::milliseconds(100))
+		sinceRendered = std::chrono::milliseconds(100);
+
+	lastRenderedTimePoint = currentTicks;
+	lastFrameIndex = (lastFrameIndex + 1) % lastFrameTimes.size();
+	lastFrameTimes[lastFrameIndex] = sinceRendered;
 }
 
 ui32 FramerateManager::getElapsedMilliseconds() const

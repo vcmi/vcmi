@@ -21,11 +21,12 @@ class FramerateManager
 
 	Duration targetFrameTime;
 	TimePoint lastTimePoint;
+	TimePoint lastRenderedTimePoint;
 
 	/// index of last measured from in lastFrameTimes array
 	ui32 lastFrameIndex;
 
-	/// time not yet handed out by consumeElapsedMilliseconds
+	/// time not yet handed out by consumeElapsedMilliseconds, including skipped frames
 	Duration elapsedSinceConsumed = Duration::zero();
 
 	bool vsyncEnabled;
@@ -33,14 +34,15 @@ class FramerateManager
 public:
 	FramerateManager(int targetFramerate);
 
-	/// must be called every frame
+	/// must be called every iteration of the main loop, whether or not a frame was drawn
 	/// updates framerate calculations and executes sleep to maintain target frame rate
-	void framerateDelay();
+	void framerateDelay(bool frameRendered);
 
 	/// returns duration of last frame in seconds
 	ui32 getElapsedMilliseconds() const;
 
-	/// whole milliseconds elapsed since the last call, carrying the remainder over
+	/// whole milliseconds elapsed since the last call, carrying the remainder over. Covers frames
+	/// that were not rendered, so animations advance by real time rather than by frames drawn
 	ui32 consumeElapsedMilliseconds();
 
 	/// returns current estimation of frame rate

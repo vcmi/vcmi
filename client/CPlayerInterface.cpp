@@ -171,6 +171,11 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	adventureInt->onCurrentPlayerChanged(playerID);
 }
 
+bool CPlayerInterface::isHeroMoving() const
+{
+	return movementController->isHeroMoving();
+}
+
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
 {
 	return pathfinderCache->getPathsInfo(h);

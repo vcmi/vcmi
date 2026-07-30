@@ -233,6 +233,9 @@ public: // public interface for use by client via GAME->interface() access
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 	void invalidatePaths() override;
 
+	/// True while a hero walks a path, including the pauses between single steps
+	bool isHeroMoving() const;
+
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
 
