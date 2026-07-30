@@ -114,9 +114,20 @@ void GameEngine::fakeMouseMove()
 	for (;;)
 	{
 		input().fetchEvents();
-		updateFrame();
-		screenHandlerInstance->presentScreenTexture();
-		framerate().framerateDelay(); // holds a constant FPS
+
+		// A frame with nothing new to show would still hold interfaceMutex, which is the lock the
+		// network thread needs to produce the next one. The time bound is only a safety net.
+		const auto now = std::chrono::steady_clock::now();
+		const bool renderFrame = engineUser->wantsFrameRendered() || now - lastFrameRendered > maxFrameSkipDuration;
+
+		if(renderFrame)
+		{
+			lastFrameRendered = now;
+			updateFrame();
+			screenHandlerInstance->presentScreenTexture();
+		}
+
+		framerate().framerateDelay(renderFrame); // holds a constant FPS
 	}
 }
 
