@@ -24,6 +24,8 @@ struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 	DLL_LINKAGE ArmyDescriptor();
 
 	DLL_LINKAGE int getStrength() const;
+
+	bool operator==(const ArmyDescriptor & other) const = default;
 };
 
 struct DLL_LINKAGE InfoAboutArmy
@@ -37,6 +39,8 @@ struct DLL_LINKAGE InfoAboutArmy
 	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
 
 	void initFromArmy(const CArmedInstance *Army, bool detailed);
+
+	bool operator==(const InfoAboutArmy & other) const = default;
 };
 
 struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
@@ -49,6 +53,8 @@ public:
 	{
 		std::vector<si32> primskills;
 		si32 mana, manaLimit, luck, morale;
+
+		bool operator==(const Details & other) const = default;
 	};
 
 	std::optional<Details> details;
@@ -71,6 +77,10 @@ public:
 
 	void initFromHero(const CGHeroInstance *h, EInfoLevel infoLevel);
 	int32_t getIconIndex() const;
+
+	/// Defaulted on purpose: UI code compares the value it last rendered against a freshly built
+	/// one, so adding a member above extends that check automatically
+	bool operator==(const InfoAboutHero & other) const = default;
 };
 
 /// Struct which holds a int information about a town

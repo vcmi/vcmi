@@ -60,7 +60,7 @@ void CStackBasicDescriptor::setCount(TQuantity newCount)
 	count = newCount;
 }
 
-bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
+DLL_LINKAGE bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
 {
 	return l.typeID == r.typeID && l.count == r.count;
 }

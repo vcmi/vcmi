@@ -265,6 +265,7 @@ void CInfoBar::reset()
 {
 	OBJECT_CONSTRUCTION;
 	state = EState::EMPTY;
+	visibleHeroInfoSource.reset();
 	visibleInfo = std::make_shared<EmptyVisibleInfo>();
 }
 
@@ -528,12 +529,26 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 	if(!hero)
 	{
 		reset();
+		redraw();
+		return;
 	}
-	else
-	{
-		state = EState::HERO;
-		visibleInfo = std::make_shared<VisibleHeroInfo>(hero);
-	}
+
+	// VisibleHeroInfo is built purely from the data gathered here, so when none of it changed the
+	// tree on screen is the one we would build - and hero movement raises one of these per step.
+	const HeroInfoSource source{
+		hero->id,
+		InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED),
+		settings["gameTweaks"]["infoBarCreatureManagement"].Bool()
+	};
+
+	// state is part of the condition because the infobar may have been showing something else
+	// entirely - a town, picked up resources - while the hero data stayed the same
+	if(state == EState::HERO && visibleInfo && visibleHeroInfoSource == source)
+		return;
+
+	state = EState::HERO;
+	visibleHeroInfoSource = source;
+	visibleInfo = std::make_shared<VisibleHeroInfo>(hero);
 	redraw();
 }
 
