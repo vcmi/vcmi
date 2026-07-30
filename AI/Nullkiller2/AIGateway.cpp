@@ -33,6 +33,7 @@
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CPlayerState.h"
 
+#include "AIUtility.h"
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
@@ -1217,13 +1218,15 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 			bool isConnected = false;
 			bool isNextObjectTeleport = false;
+			bool isNextObjectPassable = false;
 			// Check there is node after next one; otherwise transit is pointless
 			if(i - 2 >= 0)
 			{
 				isConnected = CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i - 2].coord, false));
 				isNextObjectTeleport = CGTeleport::isTeleport(nextObjectTop);
+				isNextObjectPassable = nextObject && isObjectPassable(nullkiller.get(), nextObject);
 			}
-			if(isConnected || isNextObjectTeleport)
+			if(isConnected || isNextObjectTeleport || isNextObjectPassable)
 			{
 				// Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);

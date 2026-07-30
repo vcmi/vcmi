@@ -969,7 +969,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(h->movementPointsRemaining() < cost && dst != h->pos && movementMode == EMovementMode::STANDARD)
 		return complainRet("Hero doesn't have any movement points left!");
 
-	if (transit && !canFly && !(canWalkOnSea && t.isWater()) && !CGTeleport::isTeleport(objectToVisit))
+	const bool transitOverPassableObject = objectToVisit && objectToVisit->passableFor(h);
+	if (transit && !canFly && !(canWalkOnSea && t.isWater()) && !CGTeleport::isTeleport(objectToVisit) && !transitOverPassableObject)
 		return complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
@@ -1093,6 +1094,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		if (transit)
 		{
 			if (CGTeleport::isTeleport(objectToVisit))
+				visitDest = DONT_VISIT_DEST;
+			if(transitOverPassableObject)
 				visitDest = DONT_VISIT_DEST;
 
 			if (canFly || (canWalkOnSea && t.isWater()))

@@ -895,6 +895,11 @@ void CGSignBottle::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInst
 		gameEvents.removeObject(this, h->getOwner());
 }
 
+bool CGSignBottle::passableFor(PlayerColor) const
+{
+	return ID == Obj::SIGN;
+}
+
 void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeStruct("text", message);

@@ -201,6 +201,9 @@ bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 // Pathfinder internal helper
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
+	if(obj->ID == Obj::SIGN)
+		return true;
+
 	if((obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
 		&& objectRelations != PlayerRelations::ENEMIES)
 		return true;
@@ -730,7 +733,6 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:
-	case Obj::SIGN:
 		return false;
 	}
 
