@@ -637,17 +637,28 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		if(selection) // select the last component; they are indexed in range [1, size]
 			sel = components.size();
 		{
-				std::unique_lock mxLock(nullkiller->aiStateMutex);
+			std::unique_lock mxLock(nullkiller->aiStateMutex);
 
-				// TODO: Find better way to understand it is Chest of Treasures
-				if(heroPtr.isVerified()
-					&& components.size() == 2
-					&& components.front().type == ComponentType::RESOURCE
-					&& (nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) != HeroRole::MAIN
-						|| nullkiller->buildAnalyzer->isGoldPressureOverMax()))
-				{
-					sel = 1;
-				}
+			// TODO: Find better way to understand it is Chest of Treasures
+			const bool isTreasureChestDialog = heroPtr.isVerified()
+										&& components.size() == 2
+										&& components.front().type == ComponentType::RESOURCE;
+
+			if(isTreasureChestDialog && (nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) != HeroRole::MAIN
+					|| nullkiller->getFreeResources()[GameResID::GOLD] < 1000))
+			{
+				sel = 1;
+			}
+
+			if(isTreasureChestDialog)
+			{
+				const auto & selectedComponent = components[sel - 1];
+				logAi->warn("Treasure chest reward selected by %s: %s, choice %d, gold %d",
+					heroPtr.nameOrDefault(),
+					selectedComponent.type == ComponentType::RESOURCE ? "gold" : "experience",
+					sel,
+					nullkiller->getFreeResources()[GameResID::GOLD]);
+			}
 		}
 
 		answerQuery(askID, sel);
