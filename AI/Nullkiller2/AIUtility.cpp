@@ -729,6 +729,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	case Obj::MAGIC_WELL:
 		return hero->mana < hero->manaLimit();
 	case Obj::PRISON:
+		// TODO: support freeing a hero slot in prison goal decomposition. There is already findWeakHeroToDismiss()
 		return !aiNk->heroManager->heroCapReached();
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
