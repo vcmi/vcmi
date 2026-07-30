@@ -137,6 +137,62 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 	cachedLevel = model->getLevel();
 }
 
+void MapViewCache::renderCachedTiles(Canvas & target)
+{
+	const Rect tilesRect = model->getTilesTotalRect();
+	const Point tileSize = model->getSingleTileSize();
+	const int width = tilesRect.w;
+	const int height = tilesRect.h;
+
+	if(width <= 0 || height <= 0)
+		return;
+
+	// Screen position of the tile in the top left corner of the visible window.
+	// Always within one tile of the origin, since the view may be scrolled by a
+	// fraction of a tile.
+	const Point origin = model->getTargetTileArea(int3(tilesRect.x, tilesRect.y, model->getLevel())).topLeft();
+
+	// Position of that same tile inside the cache, which stores tiles wrapped around
+	// on both axes (tile x lives at slot x modulo width).
+	const int firstSlotX = ((tilesRect.x % width) + width) % width;
+	const int firstSlotY = ((tilesRect.y % height) + height) % height;
+
+	// Because of the wrapping, the visible window is split into at most two horizontal
+	// and two vertical bands within the cache - so at most four rectangles, each of
+	// which is contiguous both in the cache and on screen.
+	const std::array<std::pair<int, int>, 2> columns = {{ // {first slot, slot count}
+		{firstSlotX, width - firstSlotX},
+		{0, firstSlotX}
+	}};
+	const std::array<std::pair<int, int>, 2> rows = {{
+		{firstSlotY, height - firstSlotY},
+		{0, firstSlotY}
+	}};
+
+	int offsetX = 0;
+	for(const auto & column : columns)
+	{
+		int offsetY = 0;
+		for(const auto & row : rows)
+		{
+			if(column.second > 0 && row.second > 0)
+			{
+				Rect cacheArea(
+					column.first * tileSize.x,
+					row.first * tileSize.y,
+					column.second * tileSize.x,
+					row.second * tileSize.y);
+
+				Point targetPosition = origin + Point(offsetX * tileSize.x, offsetY * tileSize.y);
+
+				target.draw(Canvas(*terrain, cacheArea), targetPosition);
+			}
+			offsetY += row.second;
+		}
+		offsetX += column.second;
+	}
+}
+
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
@@ -148,24 +204,37 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 	Rect dimensions = model->getTilesTotalRect();
 
-	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
+	if(lazyUpdate)
 	{
-		for(int x = dimensions.left(); x < dimensions.right(); ++x)
+		// Only the handful of tiles that actually changed need repainting
+		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		{
-			int cacheX = (terrainChecksum.shape()[0] + x) % terrainChecksum.shape()[0];
-			int cacheY = (terrainChecksum.shape()[1] + y) % terrainChecksum.shape()[1];
-			int3 tile(x, y, model->getLevel());
+			for(int x = dimensions.left(); x < dimensions.right(); ++x)
+			{
+				int cacheX = (terrainChecksum.shape()[0] + x) % terrainChecksum.shape()[0];
+				int cacheY = (terrainChecksum.shape()[1] + y) % terrainChecksum.shape()[1];
+				int3 tile(x, y, model->getLevel());
 
-			if(lazyUpdate && tilesUpToDate[cacheX][cacheY])
-				continue;
+				if(tilesUpToDate[cacheX][cacheY])
+					continue;
 
-			Canvas source = getTile(tile);
-			Rect targetRect = model->getTargetTileArea(tile);
-			target.draw(source, targetRect.topLeft());
+				Canvas source = getTile(tile);
+				Rect targetRect = model->getTargetTileArea(tile);
+				target.draw(source, targetRect.topLeft());
 
-			if (!fullRedraw)
-				tilesUpToDate[cacheX][cacheY] = true;
+				if (!fullRedraw)
+					tilesUpToDate[cacheX][cacheY] = true;
+			}
 		}
+	}
+	else
+	{
+		// Every tile has to be repainted - copy the whole cached window at once
+		// instead of issuing one blit per tile.
+		renderCachedTiles(target);
+
+		if (!fullRedraw)
+			std::fill_n(tilesUpToDate.data(), tilesUpToDate.num_elements(), true);
 	}
 
 	if(context->showImageOverlay())
