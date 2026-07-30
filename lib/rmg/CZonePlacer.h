@@ -33,7 +33,7 @@ typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 class CZonePlacer
 {
 public:
-	explicit CZonePlacer(RmgMap & map, bool hexGrid = false);
+	explicit CZonePlacer(RmgMap & map, bool hexGrid = false, bool hubFirst = false);
 	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
 	float getDistance(float distance) const; //additional scaling without 0 division
@@ -66,6 +66,7 @@ private:
 
 	// Experimental placement improvements, toggled from randomMap.json ("zonePlacement")
 	bool hexGrid;              // seed the initial layout on a hex (6-neighbour) grid instead of square
+	bool hubFirst;             // place zones highest-degree first, hub at grid centre
 
 	//remember best solution
 	float bestTotalDistance;

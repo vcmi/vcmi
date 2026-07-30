@@ -52,6 +52,7 @@ public:
 		int seerHutValue;
 		bool singleThread;
 		bool zonePlacementHexGrid;
+		bool zonePlacementHubFirst;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);

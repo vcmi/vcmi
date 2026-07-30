@@ -29,13 +29,14 @@
 
 #include <limits>
 
-CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid)
+CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
 	stiffnessConstant(3e-3f),
 	stifness(0),
 	stiffnessIncreaseFactor(1.03f),
 	hexGrid(hexGrid),
+	hubFirst(hubFirst),
 	bestTotalDistance(1e10),
 	bestTotalOverlap(1e10),
 	map(map)
@@ -181,7 +182,7 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		{
 			return scaleForceBetweenZones(zoneA, zoneB);
 		},
-		hexGrid);
+		hexGrid, hubFirst);
 	gridPlacer.placeOnGrid(zones, rand);
 
 	std::map<std::shared_ptr<Zone>, float3> bestSolution;
