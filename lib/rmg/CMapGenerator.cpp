@@ -104,6 +104,7 @@ void CMapGenerator::loadConfig()
 	config.zonePlacementCapacityBalance = randomMapJson["zonePlacement"]["capacityBalance"].Bool();
 	config.zonePlacementCapacityIterations = randomMapJson["zonePlacement"]["capacityIterations"].Integer();
 	config.zonePlacementCapacityGain = randomMapJson["zonePlacement"]["capacityGain"].Float();
+	config.zonePlacementMaxGateDistance = randomMapJson["zonePlacement"]["maxGateDistance"].Integer();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -532,6 +533,38 @@ int CMapGenerator::getNextMonlithIndex()
 			}
 		}
 	}
+}
+
+bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
+{
+	std::lock_guard<std::mutex> lock(gateReservationMutex);
+
+	// Squared 2D distance between the two ends of this pair (z is ignored - gates pair across levels).
+	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
+
+	// Admissible only if, for every already-reserved gate on the opposite level, both new gates stay
+	// strictly farther away than (a) their own partner and (b) that gate's committed partner. This keeps
+	// each gate's nearest opposite-level gate equal to its intended partner, so postInit pairs them
+	// correctly. Ties (equal distances) are rejected, since postInit breaks them by placement order.
+	auto conflicts = [&](const int3 & pos)
+	{
+		for(const auto & g : reservedGates)
+		{
+			if(g.pos.z == pos.z)
+				continue; // same level never pairs
+			const int d = static_cast<int>(g.pos.dist2dSQ(pos));
+			if(d <= pairSqr || d <= g.pairingDistanceSqr)
+				return true;
+		}
+		return false;
+	};
+
+	if(conflicts(posA) || conflicts(posB))
+		return false;
+
+	reservedGates.push_back({posA, pairSqr});
+	reservedGates.push_back({posB, pairSqr});
+	return true;
 }
 
 std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const

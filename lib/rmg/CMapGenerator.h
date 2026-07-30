@@ -62,6 +62,7 @@ public:
 		bool zonePlacementCapacityBalance;
 		int zonePlacementCapacityIterations;
 		float zonePlacementCapacityGain;
+		int zonePlacementMaxGateDistance;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
@@ -74,6 +75,14 @@ public:
 	std::unique_ptr<CMap> generate();
 
 	int getNextMonlithIndex();
+
+	/// Reserve a subterranean gate pair at the given tiles (on different levels). In-game gates pair by
+	/// nearest 2D distance (CGSubterraneanGate::postInit), so a pair placed off a shared column must stay
+	/// each other's nearest gate. Validates the candidate against all previously reserved gates and, if it
+	/// would keep every gate paired with its intended partner, commits it and returns true. Thread-safe;
+	/// called from the parallel connection-placement phase. posA/posB are final map positions.
+	bool reserveGatePair(const int3 & posA, const int3 & posB);
+
 	int getPrisonsRemaining() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
@@ -96,6 +105,13 @@ private:
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
+
+	// Subterranean gate pairing registry (see reserveGatePair). Each entry is a placed gate and the squared
+	// 2D distance to its committed partner; used to guarantee off-column gate pairs keep the intended pairing.
+	struct ReservedGate { int3 pos; int pairingDistanceSqr; };
+	std::vector<ReservedGate> reservedGates;
+	std::mutex gateReservationMutex;
+
 	std::vector<ArtifactID> questArtifacts;
 
 	/// Generation methods

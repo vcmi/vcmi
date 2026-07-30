@@ -321,12 +321,11 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				}
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-
 				success = true;
 			}
 		}
 	}
-	
+
 	//2. connect via water
 	bool waterMode = map.getMapGenOptions().getWaterContent() != EWaterContent::NONE;
 	if(waterMode && zone.isUnderground() == otherZone->isUnderground())
@@ -341,7 +340,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			}
 		}
 	}
-	
+
 	if(success)
 		dCompleted.push_back(connection);
 }
@@ -353,7 +352,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	auto & otherZone = map.getZones().at(otherZoneId);
 
 	bool allowRoad = shouldGenerateRoad(connection);
-	
+
 	//3. place subterrain gates
 	if(zone.isUnderground() != otherZone->isUnderground())
 	{
@@ -363,25 +362,49 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 
 		std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
 		auto commonArea = zone.areaPossible().get() * (otherZone->areaPossible().get() + zShift);
+		const int maxGateDistance = generator.getConfig().zonePlacementMaxGateDistance;
+
+		assert(zone.getModificator<ObjectManager>());
+		auto & manager = *zone.getModificator<ObjectManager>();
+
+		assert(otherZone->getModificator<ObjectManager>());
+		auto & managerOther = *otherZone->getModificator<ObjectManager>();
+
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
+		auto gate1 = factory->create(map.mapInstance->cb, nullptr);
+		auto gate2 = factory->create(map.mapInstance->cb, nullptr);
+		rmg::Object rmgGate1(gate1);
+		rmg::Object rmgGate2(gate2);
+		rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
+		rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
+		bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
+		bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
+		const int minDist = 3;
+
+		// Positions are chosen (placeAndConnectObject only searches - it does not mark tiles) before this
+		// runs. Reserve the pairing so off-column gates stay each other's nearest gate, then place for real.
+		auto commitGates = [&](rmg::Path & path1, rmg::Path & path2) -> bool
+		{
+			if(maxGateDistance > 0 && !generator.reserveGatePair(rmgGate1.getVisitablePosition(), rmgGate2.getVisitablePosition()))
+				return false;
+
+			manager.placeObject(rmgGate1, guarded1, true, allowRoad);
+			managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
+
+			replaceWithCurvedPath(path1, zone, rmgGate1.getVisitablePosition());
+			replaceWithCurvedPath(path2, *otherZone, rmgGate2.getVisitablePosition());
+
+			zone.connectPath(path1);
+			otherZone->connectPath(path2);
+
+			assert(otherZone->getModificator<ConnectionsPlacer>());
+			otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
+			return true;
+		};
+
+		// 3a. Preferred: both gates in a shared column (identical XY on both levels).
 		if(!commonArea.empty())
 		{
-			assert(zone.getModificator<ObjectManager>());
-			auto & manager = *zone.getModificator<ObjectManager>();
-			
-			assert(otherZone->getModificator<ObjectManager>());
-			auto & managerOther = *otherZone->getModificator<ObjectManager>();
-			
-			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create(map.mapInstance->cb, nullptr);
-			auto gate2 = factory->create(map.mapInstance->cb, nullptr);
-			rmg::Object rmgGate1(gate1);
-			rmg::Object rmgGate2(gate2);
-			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
-			rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
-			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
-			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
-			int minDist = 3;
-			
 			rmg::Path path2(otherZone->area().get());
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
@@ -391,7 +414,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				float otherDist = otherTi.getNearestObjectDistance();
 				if(dist < minDist || otherDist < minDist)
 					return -1.f;
-				
+
 				//This could fail is accessibleArea is below the map
 				rmg::Area toPlace(rmgGate1.getArea());
 				toPlace.unite(toPlace.getBorderOutside()); // Add a bit of extra space around
@@ -400,38 +423,80 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 					return !map.isOnMap(tile);
 				});
 				toPlace.translate(-zShift);
-				
+
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
-				
+
 				return path2.valid() ? (dist * otherDist) : -1.f;
 			}, guarded1, true, ObjectManager::OptimizeType::DISTANCE);
-			
+
 			if(path1.valid() && path2.valid())
+				success = commitGates(path1, path2);
+		}
+
+		// 3b. Fallback: gates need not share a column. Place them on the nearest suitable tiles in each
+		// zone, at most maxGateDistance apart, as long as they stay each other's nearest gate. This rescues
+		// cross-level connections whose zones never overlapped in XY (previously an immediate monolith).
+		if(!success && maxGateDistance > 0)
+		{
+			const int maxDistSqr = maxGateDistance * maxGateDistance;
+			const rmg::Area otherPossible = otherZone->areaPossible().get();
+
+			// 2D disk offsets within maxGateDistance, used to gather gate2 candidates around gate1's column.
+			std::vector<int3> disk;
+			for(int dy = -maxGateDistance; dy <= maxGateDistance; ++dy)
+				for(int dx = -maxGateDistance; dx <= maxGateDistance; ++dx)
+					if(dx * dx + dy * dy <= maxDistSqr)
+						disk.emplace_back(dx, dy, 0);
+
+			// Restrict gate1 candidates to this zone's tiles within reach of the other zone's projection.
+			rmg::Area otherProjected(otherPossible);
+			otherProjected.translate(zShift);
+			rmg::Area gate1Search = zone.areaPossible().get().getSubarea([&otherProjected, maxDistSqr](const int3 & t)
 			{
-				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
-				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
+				return otherProjected.distanceSqr(t) <= maxDistSqr;
+			});
 
-				replaceWithCurvedPath(path1, zone, rmgGate1.getVisitablePosition());
-				replaceWithCurvedPath(path2, *otherZone, rmgGate2.getVisitablePosition());
+			if(!gate1Search.empty())
+			{
+				rmg::Path path2(otherZone->area().get());
+				rmg::Path path1 = manager.placeAndConnectObject(gate1Search, rmgGate1, [this, &otherPossible, &disk, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2](const int3 & tile)
+				{
+					float dist = map.getTileInfo(tile).getNearestObjectDistance();
+					if(dist < minDist)
+						return -1.f;
 
-				zone.connectPath(path1);
-				otherZone->connectPath(path2);
-				
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-				
-				success = true;
+					// Gather the other zone's possible tiles within maxGateDistance of gate1's column point.
+					const int3 anchor = tile - zShift;
+					rmg::Area gate2Search;
+					for(const auto & off : disk)
+					{
+						const int3 t = anchor + off;
+						if(otherPossible.contains(t))
+							gate2Search.add(t);
+					}
+					if(gate2Search.empty())
+						return -1.f;
+
+					path2 = managerOther.placeAndConnectObject(gate2Search, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
+					if(!path2.valid())
+						return -1.f;
+
+					float otherDist = map.getTileInfo(rmgGate2.getVisitablePosition()).getNearestObjectDistance();
+					return dist * otherDist;
+				}, guarded1, true, ObjectManager::OptimizeType::DISTANCE);
+
+				if(path1.valid() && path2.valid())
+					success = commitGates(path1, path2);
 			}
 		}
 	}
-	
+
 	//4. place monoliths/portals
 	if(!success)
 	{
 		placeMonolithConnection(connection);
 	}
 }
-
 void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & connection)
 {
 	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
