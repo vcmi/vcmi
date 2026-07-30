@@ -19,6 +19,8 @@ class CAnimation;
 class IImage;
 class Canvas;
 class IMapRendererContext;
+struct CGPath;
+struct NeighborTilesInfo;
 enum class EImageBlitMode : uint8_t;
 
 class MapTileStorage
@@ -111,13 +113,22 @@ class MapRendererFow
 public:
 	MapRendererFow();
 
-	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	/// Both take the neighbour visibility that the caller has already computed - it costs
+	/// eight visibility queries and the caller needs it anyway to reach this point.
+	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates, const NeighborTilesInfo & neighborInfo);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const NeighborTilesInfo & neighborInfo);
 };
 
 class MapRendererPath
 {
 	std::shared_ptr<CAnimation> pathNodes;
+
+	/// Frame-scoped snapshot of the hero path, refreshed by prepareFrame(). Resolving it costs
+	/// three lookups plus a linear scan, otherwise repeated for every visible tile every frame.
+	const CGPath * cachedPath = nullptr;
+	/// Sorted coordinates of cachedPath, for rejecting the vast majority of tiles in
+	/// logarithmic time instead of scanning the whole node list
+	std::vector<int3> cachedPathTiles;
 
 	size_t selectImageReachability(bool reachableToday, size_t imageIndex);
 	size_t selectImageCross(bool reachableToday, const int3 & curr);
@@ -126,6 +137,9 @@ class MapRendererPath
 
 public:
 	MapRendererPath();
+
+	/// Must be called once per frame before any checksum() or renderTile() call
+	void prepareFrame(IMapRendererContext & context);
 
 	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
 	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
@@ -161,6 +175,10 @@ class MapRenderer
 
 public:
 	using TileChecksum = std::array<uint8_t, 8>;
+
+	/// Refreshes state that is constant for the whole frame. Must be called before the
+	/// per-tile getTileChecksum() / renderTile() calls of that frame.
+	void prepareFrame(IMapRendererContext & context);
 
 	TileChecksum getTileChecksum(IMapRendererContext & context, const int3 & coordinates);
 
