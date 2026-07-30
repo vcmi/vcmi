@@ -24,7 +24,13 @@
 #include "callback/EditorCallback.h"
 #include "campaign/CampaignHandler.h"
 #include "mapping/CMap.h"
+#include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
+#include "rmg/CMapGenerator.h"
+#include "rmg/CMapGenOptions.h"
+#include "rmg/CRmgTemplate.h"
+#include "rmg/CRmgTemplateStorage.h"
+#include "rmg/ConnectionReport.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
 #include "../luascript/LuaModule.h"
@@ -43,6 +49,98 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 
 	logGlobal->info("Lua API documentation export complete");
 	logGlobal->info("Generated files can be found in " + outPath.string() + " directory");
+}
+
+// Temporary debug tool: generate maps with a fixed template and report how connections were realized.
+// Toggles/attempts come from config/randomMap.json (the calling script rewrites it between runs).
+static void runRmgBenchmark(int mapCount, int baseSeed, int mapSize, int mapLevels, const std::string & templateName)
+{
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	LIBRARY->initializeLibrary();
+
+	auto toLower = [](std::string s) { for(auto & c : s) c = std::tolower(static_cast<unsigned char>(c)); return s; };
+	const std::string wanted = toLower(templateName);
+
+	const CRmgTemplate * tmpl = nullptr;
+	for(const auto * t : LIBRARY->tplh->getTemplates())
+		if(toLower(t->getName()) == wanted)
+			tmpl = t;
+
+	if(!tmpl)
+	{
+		logGlobal->error("RMG benchmark: template %s not found", templateName);
+		printf("RMG_BENCH_SUMMARY error=template-not-found\n");
+		fflush(stdout);
+		return;
+	}
+
+	const int players = std::clamp(tmpl->getPlayers().maxValue(), 2, static_cast<int>(PlayerColor::PLAYER_LIMIT_I));
+	logGlobal->info("RMG benchmark: template %s, %d players, %dx%d, %d level(s)", tmpl->getName(), players, mapSize, mapSize, mapLevels);
+
+	int totalConns = 0, totalDirect = 0, totalWide = 0, totalWater = 0, totalGates = 0, totalMonoliths = 0, totalCrossMono = 0, failures = 0;
+	int totalNaDist = 0, totalNaOrth = 0, totalNaDiag = 0, totalNaOther = 0, totalNoGuard = 0, totalTerrain = 0;
+	double sumSizeMin = 0, sumSizeMax = 0; //averaged smallest/largest actual-vs-expected zone-size ratio per map
+	int sizeSamples = 0;
+
+	for(int i = 0; i < mapCount; ++i)
+	{
+		CMapGenOptions opt;
+		opt.setMapTemplate(tmpl);
+		opt.setWidth(mapSize);
+		opt.setHeight(mapSize);
+		opt.setLevels(mapLevels);
+		opt.setWaterContent(EWaterContent::NONE); //no water zone, so connections resolve cleanly as direct/gate/monolith
+		opt.setHumanOrCpuPlayerCount(players);
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
+		for(int p = 1; p < players; ++p)
+			opt.setPlayerTypeForStandardPlayer(PlayerColor(p), EPlayerType::AI);
+
+		try
+		{
+			EditorCallback cb(nullptr); //lightweight callback the map editor also uses for headless RMG
+			CMapGenerator gen(opt, &cb, baseSeed + i);
+			auto generatedMap = gen.generate();
+			auto t = gen.getConnectionReport().totals();
+			totalConns += t.total;
+			totalDirect += t.direct;
+			totalWide += t.wide;
+			totalWater += t.water;
+			totalGates += t.subterraneanGates;
+			totalMonoliths += t.monoliths;
+			totalCrossMono += t.crossLevelMonoliths;
+			totalNaDist += t.naDistant;
+			totalNaOrth += t.naOrthogonal;
+			totalNaDiag += t.naDiagonal;
+			totalNaOther += t.naOther;
+			totalNoGuard += t.noGuard;
+			totalTerrain += t.terrain;
+			double sizeMin = 0, sizeMax = 0;
+			if(gen.zoneSizeDeviation(sizeMin, sizeMax))
+			{
+				sumSizeMin += sizeMin;
+				sumSizeMax += sizeMax;
+				sizeSamples++;
+			}
+			logGlobal->info("RMG_BENCH_MAP seed=%d direct=%d gates=%d monoliths=%d crossMono=%d naDist=%d naOrth=%d naDiag=%d noGuard=%d sizeMin=%.2f sizeMax=%.2f",
+				baseSeed + i, t.direct, t.subterraneanGates, t.monoliths, t.crossLevelMonoliths, t.naDistant, t.naOrthogonal, t.naDiagonal, t.noGuard, sizeMin, sizeMax);
+		}
+		catch(const std::exception & e)
+		{
+			failures++;
+			logGlobal->error("RMG_BENCH_MAP seed=%d FAILED: %s", baseSeed + i, e.what());
+		}
+	}
+
+	const double avgSizeMin = sizeSamples ? sumSizeMin / sizeSamples : 0.0;
+	const double avgSizeMax = sizeSamples ? sumSizeMax / sizeSamples : 0.0;
+
+	// Single machine-parseable line on stdout for the driver script
+	printf("RMG_BENCH_SUMMARY maps=%d failures=%d connections=%d direct=%d wide=%d water=%d gates=%d monoliths=%d crossMono=%d"
+		" naDist=%d naOrth=%d naDiag=%d naOther=%d noGuard=%d terrain=%d sizeMin=%.3f sizeMax=%.3f\n",
+		mapCount, failures, totalConns, totalDirect, totalWide, totalWater, totalGates, totalMonoliths, totalCrossMono,
+		totalNaDist, totalNaOrth, totalNaDiag, totalNaOther, totalNoGuard, totalTerrain, avgSizeMin, avgSizeMax);
+	fflush(stdout);
 }
 
 static void generateTranslations(const std::string & modID)
@@ -235,6 +333,12 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("translate-mod", boost::program_options::value<std::string>(), "Export translations for specified mod")
 	("export-lua-docs", boost::program_options::value<std::string>(), "Export Lua scripting API documentation to specified directory")
+	("rmg-benchmark", "DEBUG: generate maps with the 8XM8 template and report connection outcomes")
+	("rmg-maps", boost::program_options::value<int>(), "number of maps for --rmg-benchmark (default 20)")
+	("rmg-seed", boost::program_options::value<int>(), "base random seed for --rmg-benchmark (default time)")
+	("rmg-size", boost::program_options::value<int>(), "map width/height in tiles for --rmg-benchmark (default 144)")
+	("rmg-levels", boost::program_options::value<int>(), "map levels for --rmg-benchmark (default 2)")
+	("rmg-template", boost::program_options::value<std::string>(), "template name for --rmg-benchmark, case-insensitive (default 8XM8)")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
@@ -275,6 +379,17 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	if(options.count("export-lua-docs"))
 	{
 		exportLuaApiDocs(options["export-lua-docs"].as<std::string>());
+		exit(0);
+	}
+
+	if(options.count("rmg-benchmark"))
+	{
+		int maps = options.count("rmg-maps") ? options["rmg-maps"].as<int>() : 20;
+		int seed = options.count("rmg-seed") ? options["rmg-seed"].as<int>() : static_cast<int>(std::time(nullptr));
+		int size = options.count("rmg-size") ? options["rmg-size"].as<int>() : CMapHeader::MAP_SIZE_XLARGE;
+		int levels = options.count("rmg-levels") ? options["rmg-levels"].as<int>() : 2;
+		std::string tmplName = options.count("rmg-template") ? options["rmg-template"].as<std::string>() : "8XM8";
+		runRmgBenchmark(maps, seed, size, levels, tmplName);
 		exit(0);
 	}
 

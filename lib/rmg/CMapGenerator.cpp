@@ -30,6 +30,7 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "ConnectionReport.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
@@ -52,6 +53,64 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 		config.zonePlacementHexGrid, config.zonePlacementHubFirst, config.zonePlacementSaPolish,
 		config.zonePlacementCrossAlignWeight, config.zonePlacementCapacityBalance, config.zonePlacementCapacityIterations,
 		config.zonePlacementCapacityGain, config.zonePlacementRandomOrientation);
+	connectionReport = std::make_unique<rmg::ConnectionReport>();
+}
+
+rmg::ConnectionReport & CMapGenerator::getConnectionReport()
+{
+	return *connectionReport;
+}
+
+void CMapGenerator::captureZoneSizeDeviation()
+{
+	// Zone "size" is a linear area weight: a zone should claim tiles in proportion to its size (a size-30
+	// zone twice the area of a size-15 one). Distribute each level's actually-claimed tiles by that share
+	// to get the expected tiles, then compare to the actual. Must run before generate() clears the zones.
+	struct Entry { double size; double actual; int level; };
+	std::vector<Entry> entries;
+	std::map<int, double> sumSize;
+	std::map<int, double> levelTiles;
+	for(const auto & [id, zone] : map->getZones())
+	{
+		const double size = static_cast<double>(zone->getSize());
+		if(size <= 0)
+			continue;
+		const double actual = static_cast<double>(zone->area()->getTilesVector().size());
+		const int level = zone->getCenter().z;
+		sumSize[level] += size;
+		levelTiles[level] += actual;
+		entries.push_back({size, actual, level});
+	}
+	sizeDeviationValid = false;
+	if(entries.empty())
+		return;
+
+	double minRatio = std::numeric_limits<double>::infinity();
+	double maxRatio = 0.0;
+	for(const auto & e : entries)
+	{
+		const double denom = sumSize[e.level];
+		const double expected = denom > 0 ? levelTiles[e.level] * e.size / denom : 0.0;
+		if(expected <= 0)
+			continue;
+		const double ratio = e.actual / expected;
+		minRatio = std::min(minRatio, ratio);
+		maxRatio = std::max(maxRatio, ratio);
+	}
+	if(std::isfinite(minRatio) == 0)
+		return;
+	sizeDeviationMin = minRatio;
+	sizeDeviationMax = maxRatio;
+	sizeDeviationValid = true;
+}
+
+bool CMapGenerator::zoneSizeDeviation(double & minRatio, double & maxRatio) const
+{
+	if(!sizeDeviationValid)
+		return false;
+	minRatio = sizeDeviationMin;
+	maxRatio = sizeDeviationMax;
+	return true;
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -150,6 +209,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		Load::Progress::step(3);
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
+		captureZoneSizeDeviation(); //debug metric: record final vs intended zone sizes before zones are torn down
 		map->getZones().clear();
 
 		// undo manager keeps pointers to object that might be removed during gameplay. Remove them to prevent any hanging pointer after gameplay
@@ -450,6 +510,8 @@ void CMapGenerator::fillZones()
 		//Wait for all the tasks
 		pool.wait();
 	}
+
+	connectionReport->dump();
 
 	for (const auto& it : map->getZones())
 	{

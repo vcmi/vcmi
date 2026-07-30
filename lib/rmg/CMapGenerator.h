@@ -23,6 +23,11 @@ class Zone;
 class CZonePlacer;
 class IGameInfoCallback;
 
+namespace rmg
+{
+class ConnectionReport;
+}
+
 using JsonVector = std::vector<JsonNode>;
 
 /// The map generator creates a map randomly.
@@ -93,6 +98,14 @@ public:
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
 
+	rmg::ConnectionReport & getConnectionReport();
+
+	/// Debug metric: how far zones ended up from their intended (template-proportional) tile share.
+	/// For each zone ratio = actualTiles / expectedTiles (expected = level tiles * size^2 / sum size^2);
+	/// returns the smallest and largest ratio across all zones (1.0 = exactly as intended). false if
+	/// unavailable. Captured during generate() before the zones are torn down, so call after generate().
+	bool zoneSizeDeviation(double & minRatio, double & maxRatio) const;
+
 	int getRandomSeed() const;
 	
 private:
@@ -102,6 +115,13 @@ private:
 	Config config;
 	std::unique_ptr<RmgMap> map;
 	std::shared_ptr<CZonePlacer> placer;
+	std::unique_ptr<rmg::ConnectionReport> connectionReport;
+
+	// Zone-size deviation captured during generate() (before the zones are cleared); read by zoneSizeDeviation().
+	bool sizeDeviationValid = false;
+	double sizeDeviationMin = 0.0;
+	double sizeDeviationMax = 0.0;
+	void captureZoneSizeDeviation();
 
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	

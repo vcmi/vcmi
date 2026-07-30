@@ -223,6 +223,7 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 	{
 		const int3 cell = best.at(z->getId());
 		(*grids[cell.z])[cell.x][cell.y] = z;
+		z->setGridPosition(cell);
 	}
 }
 
@@ -789,6 +790,7 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 
 		grid[decision.bestPos.x][decision.bestPos.y] = zone;
 		placedPositions[zone->getId()] = decision.bestPos;
+		zone->setGridPosition(decision.bestPos);
 		levelHasZones[level] = true;
 	}
 

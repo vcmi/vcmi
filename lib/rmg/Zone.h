@@ -82,6 +82,16 @@ public:
 	int3 getPos() const;
 	void setPos(const int3 &pos);
 	void moveToCenterOfMass();
+
+	// Cell this zone got on the initial placement grid (x, y, level); negative if unset.
+	// Snapshot of discrete placement, used to diagnose why a connection could not be made direct.
+	int3 getGridPosition() const;
+	void setGridPosition(const int3 & cell);
+
+	// Normalized zone center right after force-directed placement, before tiling reshapes it.
+	// Snapshot used to tell whether connected zones were near each other before tiling.
+	float3 getPlacementCenter() const;
+	void setPlacementCenter(const float3 & c);
 	
 	ThreadSafeProxy<rmg::Area> area(); 
 	ThreadSafeProxy<const rmg::Area> area() const;
@@ -141,7 +151,9 @@ protected:
 	
 	//placement info
 	int3 pos;
+	int3 gridPosition{-1, -1, -1};
 	float3 center;
+	float3 placementCenter{-1, -1, -1};
 	rmg::Area dArea; //irregular area assigned to zone
 	rmg::Area dAreaPossible;
 	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to

@@ -204,9 +204,10 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		},
 		hexGrid, hubFirst, saPolish, crossAlignWeight);
 
-	// Winning layout across all attempts (positions and per-attempt prescaled sizes).
+	// Winning layout across all attempts (positions, per-attempt prescaled sizes, grid cells).
 	std::map<std::shared_ptr<Zone>, float3> winningCenters;
 	std::map<std::shared_ptr<Zone>, int> winningSizes;
+	std::map<std::shared_ptr<Zone>, int3> winningGrid;
 	float winningScore = std::numeric_limits<float>::max();
 
 	const int attempts = std::max(1, placementAttempts);
@@ -319,8 +320,12 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 			winningScore = score;
 			winningCenters = bestSolution;
 			winningSizes.clear();
+			winningGrid.clear();
 			for(const auto & zone : zones)
+			{
 				winningSizes[zone.second] = zone.second->getSize();
+				winningGrid[zone.second] = zone.second->getGridPosition();
+			}
 		}
 	}
 
@@ -328,8 +333,10 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	for(const auto & zone : zones) //apply the winning layout
 	{
 		zone.second->setSize(winningSizes[zone.second]);
+		zone.second->setGridPosition(winningGrid[zone.second]);
 		zone.second->setCenter(winningCenters[zone.second]);
 		zone.second->setPos(cords(winningCenters[zone.second]));
+		zone.second->setPlacementCenter(winningCenters[zone.second]); //snapshot before tiling reshapes the zone
 	}
 
 	if(randomOrientation)

@@ -11,6 +11,7 @@
 #pragma once
 #include "../Zone.h"
 #include "../RmgArea.h"
+#include "../ConnectionReport.h"
 
 class ConnectionsPlacer: public Modificator
 {
@@ -33,6 +34,12 @@ public:
 protected:
 	void collectNeighbourZones();
 	std::pair<Zone::Lock, Zone::Lock> lockZones(std::shared_ptr<Zone> otherZone);
+
+	/// Classifies where the initial placement grid put this zone relative to another - see ConnectionReport
+	rmg::ConnectionReport::GridRelation gridRelation(const Zone & otherZone) const;
+
+	/// Logs detailed geometry for a cross-level connection that degraded into a monolith
+	void logGateFailure(const rmg::ZoneConnection & connection, const Zone & otherZone, rmg::ConnectionReport::GateFailure reason, int fullOverlapTiles, int possibleOverlapTiles) const;
 
 protected:
 	std::vector<rmg::ZoneConnection> dConnections;
