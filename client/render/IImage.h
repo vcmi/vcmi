@@ -114,6 +114,10 @@ class ISharedImage
 {
 public:
 	virtual Point dimensions() const = 0;
+
+	/// Estimated memory footprint of the underlying pixel data, for cache accounting
+	virtual size_t bytesUsed() const = 0;
+
 	virtual void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
 	virtual Rect contentRect() const = 0;

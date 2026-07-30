@@ -92,6 +92,7 @@ set(vcmiclientcommon_SRCS
 	netlag/NetworkLagCompensator.cpp
 	netlag/PackRollbackGeneratorVisitor.cpp
 
+	render/AssetCache.cpp
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -329,6 +330,7 @@ set(vcmiclientcommon_HEADERS
 	netlag/NetworkLagReplyPrediction.h
 	netlag/PackRollbackGeneratorVisitor.h
 
+	render/AssetCache.h
 	render/AssetGenerator.h
 	render/CAnimation.h
 	render/CBitmapHandler.h

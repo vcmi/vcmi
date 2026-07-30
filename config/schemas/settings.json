@@ -231,7 +231,8 @@
 				"downscalingFilter",
 				"allowPortrait",
 				"asyncUpscaling",
-				"useHdTextures"
+				"useHdTextures",
+				"assetCacheSize"
 			],
 			"properties" : {
 				"resolution" : {
@@ -333,6 +334,12 @@
 				"asyncUpscaling" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				// Memory budget in MiB for keeping decoded images and .def files cached.
+				// 0 selects a value derived from the amount of system RAM.
+				"assetCacheSize" : {
+					"type" : "number",
+					"default" : 0
 				},
 				"useHdTextures" : {
 					"type" : "boolean",

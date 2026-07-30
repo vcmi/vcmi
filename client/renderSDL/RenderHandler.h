@@ -11,6 +11,7 @@
 
 #include "../render/IRenderHandler.h"
 #include "../render/CDefFile.h"
+#include "../render/AssetCache.h"
 
 class EntityService;
 
@@ -28,6 +29,14 @@ class RenderHandler final : public IRenderHandler
 	std::map<AnimationPath, std::weak_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
+
+	/// The maps above only keep an asset findable while somebody else still holds it.
+	/// These caches hold an additional strong reference to recently used assets so
+	/// they are not destroyed - and re-read from disk on the next frame - the instant
+	/// their last user goes away. See AssetCache.h for the full rationale.
+	MemoryBudgetedCache<AnimationPath, CDefFile> retainedAnimationFiles;
+	MemoryBudgetedCache<SharedImageLocator, ScalableImageShared> retainedImages;
+
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 	std::shared_ptr<AssetGenerator> assetGenerator;
 	std::shared_ptr<HdImageLoader> hdImageLoader;

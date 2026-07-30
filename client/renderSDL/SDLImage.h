@@ -58,6 +58,7 @@ public:
 
 	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;
+	size_t bytesUsed() const override;
 	bool isTransparent(const Point & coords) const override;
 	Rect contentRect() const override;
 

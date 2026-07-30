@@ -43,16 +43,21 @@ private:
 
 	std::unique_ptr<ui8[]>       data;
 	std::unique_ptr<SDL_Color[]> palette;
+	size_t dataSize = 0;
 
 public:
 	CDefFile(const AnimationPath & Name);
 	~CDefFile();
+
+	/// Estimated memory footprint of this def file, for cache accounting
 
 	//load frame as SDL_Surface
 	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;
 	bool hasFrame(size_t frame, size_t group) const;
 	std::string getName(size_t frame, size_t group) const;
 	SSpriteDef getFrameInfo(size_t frame, size_t group) const;
+
+	size_t bytesUsed() const;
 
 	const std::map<size_t, size_t> getEntries() const;
 };

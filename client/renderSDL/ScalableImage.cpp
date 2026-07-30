@@ -234,6 +234,37 @@ Point ScalableImageShared::dimensions() const
 	return scaled[1].body[0]->dimensions();
 }
 
+size_t ScalableImageShared::bytesUsed() const
+{
+	// The same ISharedImage can appear in several slots (e.g. an unflipped variant
+	// is stored at every index that does not need flipping), so count each distinct
+	// instance once.
+	std::set<const ISharedImage *> counted;
+	size_t result = sizeof(ScalableImageShared);
+
+	const auto & account = [&counted, &result](const ImageType & image)
+	{
+		if(image && counted.insert(image.get()).second)
+			result += image->bytesUsed();
+	};
+
+	for(const auto & scaledImage : scaled)
+	{
+		for(const auto & image : scaledImage.shadow)
+			account(image);
+		for(const auto & image : scaledImage.body)
+			account(image);
+		for(const auto & image : scaledImage.overlay)
+			account(image);
+		for(const auto & image : scaledImage.bodyGrayscale)
+			account(image);
+		for(const auto & image : scaledImage.playerColored)
+			account(image);
+	}
+
+	return result;
+}
+
 void ScalableImageShared::exportBitmap(const boost::filesystem::path & path, const ScalableImageParameters & parameters) const
 {
 	scaled[1].body[0]->exportBitmap(path, parameters.palette);

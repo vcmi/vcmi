@@ -47,9 +47,26 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/ResourceTypeService.h>
 
+/// Share of the asset cache budget given to decoded/upscaled images rather than to
+/// raw .def files. Images are both far bigger and far more expensive to rebuild
+/// (decode plus xBRZ upscale), while a .def is comparatively cheap to re-parse.
+static constexpr double imageCacheBudgetShare = 0.75;
+
 RenderHandler::RenderHandler()
-	:assetGenerator(std::make_unique<AssetGenerator>())
+	:retainedAnimationFiles(0)
+	,retainedImages(0)
+	,assetGenerator(std::make_unique<AssetGenerator>())
 {
+	const size_t budget = AssetCache::getRetentionBudget(settings["video"]["assetCacheSize"].Integer());
+
+	const size_t imageBudget = static_cast<size_t>(budget * imageCacheBudgetShare);
+	retainedImages.setBudget(imageBudget);
+	retainedAnimationFiles.setBudget(budget - imageBudget);
+
+	logGlobal->info("Asset cache budget: %d MiB total (%d MiB images, %d MiB def files)",
+		static_cast<int>(budget / 1024 / 1024),
+		static_cast<int>(imageBudget / 1024 / 1024),
+		static_cast<int>((budget - imageBudget) / 1024 / 1024));
 }
 
 RenderHandler::~RenderHandler() = default;
@@ -58,16 +75,23 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
+	std::shared_ptr<CDefFile> cached;
 	{
 		std::lock_guard lock(animationCacheMutex);
 		auto it = animationFiles.find(actualPath);
 
 		if (it != animationFiles.end())
-		{
-			auto locked = it->second.lock();
-			if (locked)
-				return locked;
-		}
+			cached = it->second.lock();
+	}
+
+	if (cached)
+	{
+		// Refresh LRU position so a def that is in active use is not evicted.
+		// Done outside animationCacheMutex: an eviction triggered from here frees
+		// assets, and that should not block other threads entering this function.
+		if (!retainedAnimationFiles.touch(actualPath, cached->bytesUsed()))
+			retainedAnimationFiles.retain(actualPath, cached, cached->bytesUsed());
+		return cached;
 	}
 
 	if (!CResourceHandler::get()->existsResource(actualPath))
@@ -85,7 +109,9 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 
 		animationFiles[actualPath] = result;
 	}
-	
+
+	retainedAnimationFiles.retain(actualPath, result, result->bytesUsed());
+
 	return result;
 }
 
@@ -237,13 +263,20 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 	{
 		auto locked = it->second.lock();
 		if (locked)
+		{
+			// Cost is refreshed on every hit because scaled/player-colored variants
+			// are generated lazily, so an image grows after it was first cached.
+			if (!retainedImages.touch(locator, locked->bytesUsed()))
+				retainedImages.retain(locator, locked, locked->bytesUsed());
 			return locked;
+		}
 	}
 
 	auto sdlImage = loadImageFromFileUncached(locator);
 	auto scaledImage = std::make_shared<ScalableImageShared>(locator, sdlImage);
 
 	storeCachedImage(locator, scaledImage);
+	retainedImages.retain(locator, scaledImage, scaledImage->bytesUsed());
 	return scaledImage;
 }
 

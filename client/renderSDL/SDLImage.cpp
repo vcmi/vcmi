@@ -390,6 +390,25 @@ const SDL_Palette * SDLImageShared::getPalette() const
 	return surf->format->palette;
 }
 
+size_t SDLImageShared::bytesUsed() const
+{
+	if(surf == nullptr)
+		return sizeof(SDLImageShared);
+
+	// SDL surfaces can be shared between several SDLImageShared instances (see the
+	// refcount bump in the SDL_Surface constructor), so divide the pixel data by
+	// the number of holders to avoid counting the same allocation repeatedly.
+	size_t pixelBytes = static_cast<size_t>(surf->h) * surf->pitch;
+	if(surf->refcount > 1)
+		pixelBytes /= surf->refcount;
+
+	size_t paletteBytes = 0;
+	if(surf->format != nullptr && surf->format->palette != nullptr)
+		paletteBytes = static_cast<size_t>(surf->format->palette->ncolors) * sizeof(SDL_Color);
+
+	return pixelBytes + paletteBytes + sizeof(SDLImageShared);
+}
+
 Point SDLImageShared::dimensions() const
 {
 	if(upscalingInProgress)

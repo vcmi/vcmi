@@ -86,6 +86,10 @@ public:
 	ScalableImageShared(const SharedImageLocator & locator, const std::shared_ptr<const ISharedImage> & baseImage);
 
 	Point dimensions() const;
+
+	/// Estimated memory footprint of all scaled/flipped/colored variants, for cache accounting
+	size_t bytesUsed() const;
+
 	void exportBitmap(const boost::filesystem::path & path, const ScalableImageParameters & parameters) const;
 	bool isTransparent(const Point & coords) const;
 	Rect contentRect() const;
