@@ -29,7 +29,8 @@
 
 #include <limits>
 
-CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight)
+CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight,
+	bool capacityBalance, int capacityIterations, float capacityGain)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
 	stiffnessConstant(3e-3f),
@@ -39,6 +40,9 @@ CZonePlacer::CZonePlacer(RmgMap & map, bool hexGrid, bool hubFirst, bool saPolis
 	hubFirst(hubFirst),
 	saPolish(saPolish),
 	crossAlignWeight(crossAlignWeight),
+	capacityBalance(capacityBalance),
+	capacityIterations(capacityIterations),
+	capacityGain(capacityGain),
 	bestTotalDistance(1e10),
 	bestTotalOverlap(1e10),
 	map(map)
@@ -831,41 +835,52 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 
 		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
 
-		// Assign zones to closest Penrose vertex
-		std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
-
-		for (const auto & vertex : vertices)
+		if(capacityBalance)
 		{
-			distances.clear();
+			std::vector<std::shared_ptr<Zone>> levelZones;
+			levelZones.reserve(zonesOnLevel[level].size());
 			for(const auto & zone : zonesOnLevel[level])
-			{
-				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
-			}
-			auto closestZone = std::ranges::min_element(distances, compareByDistance)->first;
-
-			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
+				levelZones.push_back(zone.second);
+			assignTilesCapacityBalanced(level, width, height, levelZones, vertices);
 		}
-
-		//Assign actual tiles to each zone
-		pos.z = level;
-		for (pos.x = 0; pos.x < width; pos.x++)
+		else
 		{
-			for (pos.y = 0; pos.y < height; pos.y++)
+			// Assign zones to closest Penrose vertex
+			std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
+
+			for (const auto & vertex : vertices)
 			{
 				distances.clear();
-				for(const auto & zoneVertex : vertexMapping)
+				for(const auto & zone : zonesOnLevel[level])
 				{
-					auto zone = zoneVertex.first;
-					for (const auto & vertex : zoneVertex.second)
-					{
-						distances.emplace_back(zone, metric(pos, vertex));
-					}
+					distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
 				}
+				auto closestZone = std::ranges::min_element(distances, compareByDistance)->first;
 
-				//Tile closest to vertex belongs to zone
-				auto closestZone = std::ranges::min_element(distances, simpleCompareByDistance)->first;
-				closestZone->area()->add(pos);
-				map.setZoneID(pos, closestZone->getId());
+				vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
+			}
+
+			//Assign actual tiles to each zone
+			pos.z = level;
+			for (pos.x = 0; pos.x < width; pos.x++)
+			{
+				for (pos.y = 0; pos.y < height; pos.y++)
+				{
+					distances.clear();
+					for(const auto & zoneVertex : vertexMapping)
+					{
+						auto zone = zoneVertex.first;
+						for (const auto & vertex : zoneVertex.second)
+						{
+							distances.emplace_back(zone, metric(pos, vertex));
+						}
+					}
+
+					//Tile closest to vertex belongs to zone
+					auto closestZone = std::ranges::min_element(distances, simpleCompareByDistance)->first;
+					closestZone->area()->add(pos);
+					map.setZoneID(pos, closestZone->getId());
+				}
 			}
 		}
 
@@ -907,6 +922,158 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		}
 	}
 	logGlobal->info("Finished zone colouring");
+}
+
+void CZonePlacer::assignTilesCapacityBalanced(int level, int width, int height,
+	const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const
+{
+	const size_t numZones = levelZones.size();
+	if(numZones == 0 || vertices.empty())
+		return;
+
+	// Penrose vertices in both tile and normalized [0,1] coordinates.
+	std::vector<int3> vertexTile;
+	std::vector<float3> vertexNorm;
+	vertexTile.reserve(vertices.size());
+	vertexNorm.reserve(vertices.size());
+	for(const auto & v : vertices)
+	{
+		vertexTile.emplace_back(static_cast<si32>(v.x() * width), static_cast<si32>(v.y() * height), level);
+		vertexNorm.emplace_back(v.x(), v.y(), static_cast<float>(level));
+	}
+	const size_t numVertices = vertexTile.size();
+
+	// Each zone's target share of the level, proportional to size (size is a linear area weight:
+	// a size-30 zone should claim twice the tiles of a size-15 one).
+	std::vector<double> target(numZones, 0.0);
+	double sumSize = 0;
+	for(size_t z = 0; z < numZones; ++z)
+	{
+		const double s = static_cast<double>(levelZones[z]->getSize());
+		target[z] = s;
+		sumSize += s;
+	}
+	if(sumSize <= 0)
+		return;
+	for(auto & t : target)
+		t /= sumSize;
+
+	// Nearest Penrose vertex for every tile. Independent of weights, so precompute once; each vertex
+	// then owns a fixed block of tiles and a zone's area is just the sum over the vertices it holds.
+	std::vector<int> nearestVertex(static_cast<size_t>(width) * height, 0);
+	std::vector<double> vertexTileCount(numVertices, 0.0);
+	int3 pos(0, 0, level);
+	for(pos.x = 0; pos.x < width; ++pos.x)
+	{
+		for(pos.y = 0; pos.y < height; ++pos.y)
+		{
+			float best = std::numeric_limits<float>::infinity();
+			int bestVertex = 0;
+			for(size_t v = 0; v < numVertices; ++v)
+			{
+				const float d = static_cast<float>(pos.dist2dSQ(vertexTile[v]));
+				if(d < best)
+				{
+					best = d;
+					bestVertex = static_cast<int>(v);
+				}
+			}
+			nearestVertex[static_cast<size_t>(pos.x) * height + pos.y] = bestVertex;
+			vertexTileCount[bestVertex] += 1.0;
+		}
+	}
+	const double totalTiles = static_cast<double>(width) * height;
+
+	// Precompute the normalized vertex<->center distances (constant across passes).
+	std::vector<std::vector<double>> vertexZoneDist(numVertices, std::vector<double>(numZones, 0.0));
+	for(size_t v = 0; v < numVertices; ++v)
+		for(size_t z = 0; z < numZones; ++z)
+			vertexZoneDist[v][z] = vertexNorm[v].dist2dSQ(levelZones[z]->getCenter());
+
+	// Balance: assign every vertex to the zone with the smallest power distance (dist^2 - weight),
+	// measure each zone's claimed area, and raise the weight of under-sized zones for the next pass.
+	// The update oscillates near the optimum, so keep the assignment with the smallest total area error.
+	std::vector<double> weight(numZones, 0.0);
+	std::vector<int> vertexZone(numVertices, 0);
+	std::vector<int> bestVertexZone(numVertices, 0);
+	double bestError = std::numeric_limits<double>::infinity();
+	for(int iter = 0; iter < capacityIterations; ++iter)
+	{
+		std::vector<double> area(numZones, 0.0);
+		for(size_t v = 0; v < numVertices; ++v)
+		{
+			double best = std::numeric_limits<double>::infinity();
+			int bestZone = 0;
+			for(size_t z = 0; z < numZones; ++z)
+			{
+				const double d = vertexZoneDist[v][z] - weight[z];
+				if(d < best)
+				{
+					best = d;
+					bestZone = static_cast<int>(z);
+				}
+			}
+			vertexZone[v] = bestZone;
+			area[bestZone] += vertexTileCount[v];
+		}
+
+		double error = 0;
+		bool allNonEmpty = true;
+		for(size_t z = 0; z < numZones; ++z)
+		{
+			error += std::abs(target[z] - area[z] / totalTiles);
+			if(area[z] <= 0)
+				allNonEmpty = false;
+		}
+		if(allNonEmpty && error < bestError)
+		{
+			bestError = error;
+			bestVertexZone = vertexZone;
+		}
+		for(size_t z = 0; z < numZones; ++z)
+			weight[z] += capacityGain * (target[z] - area[z] / totalTiles);
+	}
+
+	// If no pass ever filled every zone, fall back to the last assignment; the guard below repairs gaps.
+	if(bestError == std::numeric_limits<double>::infinity())
+		bestVertexZone = vertexZone;
+	vertexZone = bestVertexZone;
+
+	// Safety: guarantee no zone is empty (the Penrose step throws otherwise). Give any empty zone the
+	// tile-bearing vertex nearest its center, stealing it from whichever zone currently holds it.
+	std::vector<double> ownedTiles(numZones, 0.0);
+	for(size_t v = 0; v < numVertices; ++v)
+		ownedTiles[vertexZone[v]] += vertexTileCount[v];
+	for(size_t z = 0; z < numZones; ++z)
+	{
+		if(ownedTiles[z] > 0)
+			continue;
+		int chosen = -1;
+		double bestDist = std::numeric_limits<double>::infinity();
+		for(size_t v = 0; v < numVertices; ++v)
+		{
+			if(vertexTileCount[v] <= 0)
+				continue;
+			if(vertexZoneDist[v][z] < bestDist)
+			{
+				bestDist = vertexZoneDist[v][z];
+				chosen = static_cast<int>(v);
+			}
+		}
+		if(chosen >= 0)
+			vertexZone[chosen] = static_cast<int>(z);
+	}
+
+	// Paint tiles using the final vertex->zone assignment.
+	for(pos.x = 0; pos.x < width; ++pos.x)
+	{
+		for(pos.y = 0; pos.y < height; ++pos.y)
+		{
+			const auto & zone = levelZones[vertexZone[nearestVertex[static_cast<size_t>(pos.x) * height + pos.y]]];
+			zone->area()->add(pos);
+			map.setZoneID(pos, zone->getId());
+		}
+	}
 }
 
 void CZonePlacer::RemoveRoadsForWideConnections()
