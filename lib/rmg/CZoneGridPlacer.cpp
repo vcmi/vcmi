@@ -41,13 +41,14 @@ std::array<int3, 6> hexNeighbourDirs(int row)
 }
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid, bool hubFirst, bool saPolish)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid, bool hubFirst, bool saPolish, float crossAlignWeight)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, scaleForceBetweenZones(std::move(scaleForceBetweenZones))
 	, hexGrid(hexGrid)
 	, hubFirst(hubFirst)
 	, saPolish(saPolish)
+	, crossAlignWeight(crossAlignWeight)
 {
 }
 
@@ -70,30 +71,56 @@ int CZoneGridPlacer::cellDistance(const int3 & a, const int3 & b) const
 	return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
-void CZoneGridPlacer::annealGridLevel(GridType & grid, size_t gridSize, int level, vstd::RNG * rand) const
+std::pair<double, double> CZoneGridPlacer::normalizedCellCenter(const int3 & cell, size_t gridSize) const
 {
-	std::vector<std::shared_ptr<Zone>> zonesHere;
-	std::vector<int3> emptyCells;
-	std::map<TRmgTemplateZoneId, int3> pos;
-	forEachInGrid(gridSize, [&](size_t x, size_t y)
+	if (hexGrid)
 	{
-		const int3 cell(static_cast<si32>(x), static_cast<si32>(y), level);
-		if (grid[x][y])
+		const double rawX = (cell.x + 0.5) + 0.5 * (cell.y & 1);
+		const double rawY = (cell.y + 0.5) * HEX_ROW_HEIGHT;
+		const double denom = gridSize + 1.0;
+		return {rawX / denom, rawY / denom};
+	}
+	return {(cell.x + 0.5) / gridSize, (cell.y + 0.5) / gridSize};
+}
+
+void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const
+{
+	// Gather the current placement across all levels into a flat working state. Every zone's level is
+	// fixed (a surface zone stays on the surface); only its cell within that level's grid can change.
+	std::vector<std::shared_ptr<Zone>> zonesAll;
+	std::vector<std::vector<std::shared_ptr<Zone>>> zonesByLevel(mapLevels);
+	std::vector<std::vector<int3>> emptyByLevel(mapLevels);
+	std::map<TRmgTemplateZoneId, int3> pos;
+	for (int level = 0; level < mapLevels; ++level)
+	{
+		if (!grids[level])
+			continue;
+		const size_t gridSize = gridSizes[level];
+		auto & grid = *grids[level];
+		forEachInGrid(gridSize, [&](size_t x, size_t y)
 		{
-			zonesHere.push_back(grid[x][y]);
-			pos[grid[x][y]->getId()] = cell;
-		}
-		else
-			emptyCells.push_back(cell);
-	});
-	if (zonesHere.size() < 3)
+			const int3 cell(static_cast<si32>(x), static_cast<si32>(y), level);
+			if (grid[x][y])
+			{
+				zonesAll.push_back(grid[x][y]);
+				zonesByLevel[level].push_back(grid[x][y]);
+				pos[grid[x][y]->getId()] = cell;
+			}
+			else
+				emptyByLevel[level].push_back(cell);
+		});
+	}
+	if (zonesAll.size() < 3)
 		return;
 
-	// cost of one zone's same-level edges: 0 if a connected zone is adjacent, else grows with distance
+	// Cost of one zone's edges. Same-level edges: 0 when the connected zone is adjacent, else grows with
+	// grid distance. Cross-level edges: crossAlignWeight times the normalized-center distance to the
+	// partner, symmetric in both endpoints so the incremental delta stays consistent with the total.
 	auto zoneCost = [&](const std::shared_ptr<Zone> & z) -> float
 	{
 		float cost = 0;
 		const int3 zc = pos.at(z->getId());
+		const auto zCenter = normalizedCellCenter(zc, gridSizes[zc.z]);
 		for (const auto & conn : z->getConnections())
 		{
 			if (conn.getConnectionType() == rmg::EConnectionType::REPULSIVE ||
@@ -103,38 +130,50 @@ void CZoneGridPlacer::annealGridLevel(GridType & grid, size_t gridSize, int leve
 				continue;
 			auto it = pos.find(conn.getOtherZoneId(z->getId()));
 			if (it == pos.end())
-				continue; // connected zone lives on another level - handled elsewhere
-			cost += static_cast<float>(std::max(0, cellDistance(zc, it->second) - 1));
+				continue;
+			const int3 oc = it->second;
+			if (oc.z == zc.z)
+				cost += static_cast<float>(std::max(0, cellDistance(zc, oc) - 1));
+			else if (crossAlignWeight > 0)
+			{
+				const auto oCenter = normalizedCellCenter(oc, gridSizes[oc.z]);
+				cost += crossAlignWeight * static_cast<float>(std::hypot(zCenter.first - oCenter.first, zCenter.second - oCenter.second));
+			}
 		}
 		return cost;
 	};
 
 	float current = 0;
-	for (const auto & z : zonesHere)
+	for (const auto & z : zonesAll)
 		current += zoneCost(z);
 	current *= 0.5f; // each edge counted from both endpoints
 
 	auto best = pos;
 	float bestCost = current;
 
-	const int iterations = std::max<int>(2000, 300 * static_cast<int>(zonesHere.size()));
+	const int iterations = std::max<int>(2000, 300 * static_cast<int>(zonesAll.size()));
 	float temperature = 3.0f;
 	const float cooling = std::pow(0.02f / temperature, 1.0f / iterations); // anneal down to ~0.02
 
 	for (int i = 0; i < iterations; ++i, temperature *= cooling)
 	{
-		if (!emptyCells.empty() && rand->nextInt(0, 4) == 0)
+		// Pick a zone; every move keeps it on its own level, so cross-level partners are only ever
+		// realigned by rearranging same-level assignments - never by pulling a zone to another level.
+		const auto & z = zonesAll[rand->nextInt(0, static_cast<int>(zonesAll.size()) - 1)];
+		const int level = pos[z->getId()].z;
+		auto & empties = emptyByLevel[level];
+
+		if (!empties.empty() && rand->nextInt(0, 4) == 0)
 		{
-			// move a zone into an empty cell
-			const auto & z = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
-			const int ei = rand->nextInt(0, static_cast<int>(emptyCells.size()) - 1);
+			// move a zone into an empty cell on its level
+			const int ei = rand->nextInt(0, static_cast<int>(empties.size()) - 1);
 			const int3 oldCell = pos[z->getId()];
 			const float before = zoneCost(z);
-			pos[z->getId()] = emptyCells[ei];
+			pos[z->getId()] = empties[ei];
 			const float delta = zoneCost(z) - before;
 			if (delta <= 0 || rand->nextDouble(0, 1) < std::exp(-delta / temperature))
 			{
-				emptyCells[ei] = oldCell;
+				empties[ei] = oldCell;
 				current += delta;
 			}
 			else
@@ -142,9 +181,12 @@ void CZoneGridPlacer::annealGridLevel(GridType & grid, size_t gridSize, int leve
 		}
 		else
 		{
-			// swap two zones' cells
-			const auto & za = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
-			const auto & zb = zonesHere[rand->nextInt(0, static_cast<int>(zonesHere.size()) - 1)];
+			// swap two zones' cells on the same level
+			const auto & peers = zonesByLevel[level];
+			if (peers.size() < 2)
+				continue;
+			const auto & za = z;
+			const auto & zb = peers[rand->nextInt(0, static_cast<int>(peers.size()) - 1)];
 			if (za == zb)
 				continue;
 			const int3 ca = pos[za->getId()];
@@ -169,12 +211,18 @@ void CZoneGridPlacer::annealGridLevel(GridType & grid, size_t gridSize, int leve
 		}
 	}
 
-	// commit the best assignment found
-	forEachInGrid(gridSize, [&](size_t x, size_t y) { grid[x][y].reset(); });
-	for (const auto & z : zonesHere)
+	// commit the best assignment found, per level
+	for (int level = 0; level < mapLevels; ++level)
+	{
+		if (!grids[level])
+			continue;
+		auto & grid = *grids[level];
+		forEachInGrid(gridSizes[level], [&](size_t x, size_t y) { grid[x][y].reset(); });
+	}
+	for (const auto & z : zonesAll)
 	{
 		const int3 cell = best.at(z->getId());
-		grid[cell.x][cell.y] = z;
+		(*grids[cell.z])[cell.x][cell.y] = z;
 	}
 }
 
@@ -739,8 +787,6 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 
 	logInitialGrid(grids, gridSizes, mapLevels);
 	if (saPolish)
-		for (int level = 0; level < mapLevels; ++level)
-			if (grids[level])
-				annealGridLevel(*grids[level], gridSizes[level], level, rand);
+		annealGrids(grids, gridSizes, mapLevels, rand);
 	setInitialZoneCenters(grids, gridSizes, mapLevels, rand);
 }

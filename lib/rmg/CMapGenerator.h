@@ -54,6 +54,7 @@ public:
 		bool zonePlacementHexGrid;
 		bool zonePlacementHubFirst;
 		bool zonePlacementSaPolish;
+		float zonePlacementCrossAlignWeight;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
