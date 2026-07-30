@@ -479,7 +479,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 		if(!commonArea.empty())
 		{
 			rmg::Path path2(otherZone->area().get());
-			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
+			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
 				auto ti = map.getTileInfo(tile);
 				auto otherTi = map.getTileInfo(tile - zShift);
@@ -532,7 +532,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			if(!gate1Search.empty())
 			{
 				rmg::Path path2(otherZone->area().get());
-				rmg::Path path1 = manager.placeAndConnectObject(gate1Search, rmgGate1, [this, &otherPossible, &disk, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2](const int3 & tile)
+				rmg::Path path1 = manager.placeAndConnectObject(gate1Search, rmgGate1, [this, &otherPossible, &disk, &path2, &zShift, guarded2, &managerOther, &rmgGate2](const int3 & tile)
 				{
 					float dist = map.getTileInfo(tile).getNearestObjectDistance();
 					if(dist < minDist)
