@@ -566,6 +566,48 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 		renderObject(context, target, coordinates, activeHero, activeHeroTransparency);
 }
 
+void MapRendererObjects::prepareFrame()
+{
+	checksumInfoCache.clear();
+}
+
+const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex)
+{
+	const uint64_t key = (static_cast<uint64_t>(object->id.getNum()) << 32) | groupIndex;
+
+	auto it = checksumInfoCache.find(key);
+	if(it != checksumInfoCache.end())
+		return it->second;
+
+	ObjectChecksumInfo info;
+
+	// The image index depends on the animation clock, which does not advance during a
+	// single pass, so the image - and therefore its size - is fixed for the whole pass.
+	const auto & base = getBaseAnimation(object);
+	if(base && base->size(groupIndex) > 1)
+	{
+		const auto & image = base->getImage(context.objectImageIndex(object->id, base->size(groupIndex)), groupIndex);
+		if(image)
+		{
+			info.baseAnimated = true;
+			info.baseDimensions = image->dimensions();
+		}
+	}
+
+	const auto & flag = getFlagAnimation(object);
+	if(flag && flag->size(groupIndex) > 1)
+	{
+		const auto & image = flag->getImage(context.objectImageIndex(object->id, flag->size(groupIndex)), groupIndex);
+		if(image)
+		{
+			info.flagAnimated = true;
+			info.flagDimensions = image->dimensions();
+		}
+	}
+
+	return checksumInfoCache.emplace(key, info).first->second;
+}
+
 uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	for(const auto & objectID : context.getObjects(coordinates))
@@ -579,27 +621,15 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 			continue;
 		}
 
-		size_t groupIndex = context.objectGroupIndex(objectInstance->id);
-		Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
+		const size_t groupIndex = context.objectGroupIndex(objectInstance->id);
+		const Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
+		const auto & info = getChecksumInfo(context, objectInstance, groupIndex);
 
-		auto base = getBaseAnimation(objectInstance);
-		auto flag = getFlagAnimation(objectInstance);
+		if(info.baseAnimated && offsetPixels.x < info.baseDimensions.x && offsetPixels.y < info.baseDimensions.y)
+			return context.objectImageIndex(objectID, 250);
 
-		if (base && base->size(groupIndex) > 1)
-		{
-			auto imageIndex = context.objectImageIndex(objectID, base->size(groupIndex));
-			auto image = base->getImage(imageIndex, groupIndex);
-			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
-				return context.objectImageIndex(objectID, 250);
-		}
-
-		if (flag && flag->size(groupIndex) > 1)
-		{
-			auto imageIndex = context.objectImageIndex(objectID, flag->size(groupIndex));
-			auto image = flag->getImage(imageIndex, groupIndex);
-			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
-				return context.objectImageIndex(objectID, 250);
-		}
+		if(info.flagAnimated && offsetPixels.x < info.flagDimensions.x && offsetPixels.y < info.flagDimensions.y)
+			return context.objectImageIndex(objectID, 250);
 	}
 	return 0xff-1;
 }
@@ -798,6 +828,7 @@ uint8_t MapRendererPath::checksum(IMapRendererContext & context, const int3 & co
 void MapRenderer::prepareFrame(IMapRendererContext & context)
 {
 	rendererPath.prepareFrame(context);
+	rendererObjects.prepareFrame();
 }
 
 MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & context, const int3 & coordinates)
