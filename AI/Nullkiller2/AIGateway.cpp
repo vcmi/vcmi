@@ -1027,6 +1027,9 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 
 bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
+	if(!heroPtr.isVerified())
+		throw cannotFulfillGoalException("Hero was lost!");
+
 	if(heroPtr->isGarrisoned() && heroPtr->getVisitedTown())
 	{
 		cc->swapGarrisonHero(heroPtr->getVisitedTown());
