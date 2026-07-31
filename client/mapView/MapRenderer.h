@@ -99,6 +99,15 @@ class MapRendererObjects
 	/// can change, since the pass runs synchronously while holding the interface lock.
 	std::map<std::pair<int, size_t>, ObjectChecksumInfo> checksumInfoCache;
 
+	/// The base, flag and overlay images an object contributes this pass, in draw order.
+	/// Resolving them costs three string-keyed animation lookups plus a frame lookup, and
+	/// the same object is asked once per tile it covers - which for a large object is most
+	/// of the cost of drawing it. Cleared by prepareFrame(), so it cannot outlive a pass.
+	using ObjectImages = std::array<std::shared_ptr<IImage>, 3>;
+	std::unordered_map<int32_t, ObjectImages> renderImageCache;
+
+	const ObjectImages & getObjectImages(IMapRendererContext & context, const CGObjectInstance * object);
+
 	const ObjectChecksumInfo & getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex);
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);

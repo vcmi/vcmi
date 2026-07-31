@@ -548,9 +548,9 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
+	// only the images are shared across tiles - transparency and offset stay per-tile
+	for(const auto & image : getObjectImages(context, instance))
+		renderImage(context, target, coordinates, instance, image);
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -573,6 +573,24 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 void MapRendererObjects::prepareFrame()
 {
 	checksumInfoCache.clear();
+	renderImageCache.clear();
+}
+
+const MapRendererObjects::ObjectImages & MapRendererObjects::getObjectImages(IMapRendererContext & context, const CGObjectInstance * object)
+{
+	auto it = renderImageCache.find(object->id.getNum());
+	if(it != renderImageCache.end())
+		return it->second;
+
+	// Which image each layer resolves to is fixed for the whole pass: the animation clock
+	// does not advance inside one, and no object can change while it runs under the lock.
+	ObjectImages images = {
+		getImageToRender(context, object, getBaseAnimation(object)),
+		getImageToRender(context, object, getFlagAnimation(object)),
+		getImageToRender(context, object, getOverlayAnimation(object))
+	};
+
+	return renderImageCache.emplace(object->id.getNum(), std::move(images)).first->second;
 }
 
 const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex)
