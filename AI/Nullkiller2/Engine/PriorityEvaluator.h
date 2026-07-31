@@ -54,6 +54,8 @@ struct DLL_EXPORT EvaluationContext
 	uint64_t danger;
 	float closestWayRatio;
 	float armyLossRatio;
+	uint64_t armyLoss;
+	uint64_t targetObjectArmyLoss;
 	float armyReward;
 	uint64_t armyGrowth;
 	int32_t goldReward;
