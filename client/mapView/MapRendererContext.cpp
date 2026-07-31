@@ -325,7 +325,12 @@ size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, 
 	// usign objectID for frameCounter to add pseudo-random element per-object.
 	// Without it, animation of multiple visible objects of the same type will always be in sync
 	size_t baseFrameTime = 180;
-	size_t frameCounter = animationTime / baseFrameTime + objectID.getNum();
+
+	// Offsetting the clock as well as the frame staggers *when* each object advances. With
+	// only the frame offset every animated object ticks on the very same frame, so the whole
+	// visible map goes dirty at once every 180 ms instead of a few tiles at a time.
+	size_t timeOffset = objectID.getNum() * 97 % baseFrameTime;
+	size_t frameCounter = (animationTime + timeOffset) / baseFrameTime + objectID.getNum();
 	size_t frameIndex = frameCounter % groupSize;
 	return frameIndex;
 }
