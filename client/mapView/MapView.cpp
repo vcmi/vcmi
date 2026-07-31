@@ -23,7 +23,9 @@
 #include "../GameInstance.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/Colors.h"
 #include "../render/IImage.h"
+#include "../render/IScreenHandler.h"
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/callback/CCallback.h"
@@ -46,10 +48,11 @@ std::shared_ptr<MapViewModel> BasicMapView::createModel(const Point & dimensions
 	return result;
 }
 
-BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
+BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool useGpuLayer)
 	: model(createModel(dimensions))
-	, tilesCache(new MapViewCache(model))
+	, tilesCache(new MapViewCache(model, useGpuLayer))
 	, controller(new MapViewController(model, tilesCache))
+	, gpuLayerEligible(useGpuLayer)
 	, needFullUpdate(false)
 {
 	OBJECT_CONSTRUCTION;
@@ -60,12 +63,35 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
+	if(gpuLayerEligible && ENGINE->screenHandler().isGpuMapRenderingEnabled())
+	{
+		renderGpu(fullUpdate);
+
+		// the map is composited from its own GPU layer, so the software screen only has to
+		// stop covering it - and only when something may have painted over the hole
+		if(fullUpdate || !gpuHolePunched)
+		{
+			target.drawColor(pos, ColorRGBA(0, 0, 0, 0));
+			gpuHolePunched = true;
+		}
+		return;
+	}
+
 	Canvas targetClipped(target, pos);
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 
 	MapOverlayLogVisualizer r(targetClipped, model);
 	logVisual->visualize(r);
+}
+
+void BasicMapView::renderGpu(bool fullUpdate)
+{
+	Canvas layer = ENGINE->screenHandler().getMapLayerCanvas();
+	Canvas targetClipped(layer, pos);
+
+	tilesCache->update(controller->getContext());
+	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
 void BasicMapView::tick(uint32_t msPassed)
@@ -102,7 +128,7 @@ void MapView::show(Canvas & to)
 }
 
 MapView::MapView(const Point & offset, const Point & dimensions)
-	: BasicMapView(offset, dimensions)
+	: BasicMapView(offset, dimensions, true)
 {
 	OBJECT_CONSTRUCTION;
 	actions = std::make_shared<MapViewActions>(*this, model);
@@ -220,7 +246,7 @@ void MapView::onViewMapActivated()
 }
 
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)
-	: BasicMapView(offset, dimensions)
+	: BasicMapView(offset, dimensions, false)
 {
 	controller->activatePuzzleMapContext(tileToCenter);
 	controller->setViewCenter(tileToCenter);

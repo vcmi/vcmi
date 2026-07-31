@@ -11,6 +11,8 @@
 
 #include "../../lib/Point.h"
 
+struct SDL_Texture;
+
 class ObjectInstanceID;
 
 class IImage;
@@ -46,10 +48,29 @@ class MapViewCache
 
 	std::shared_ptr<MapViewModel> model;
 
+	/// Whether this cache may allocate GPU render targets
+	bool useGpuLayer;
+
 	std::unique_ptr<Canvas> terrain;
 	std::unique_ptr<Canvas> terrainTransition;
 	std::unique_ptr<Canvas> intermediate;
 	std::unique_ptr<MapRenderer> mapRenderer;
+
+	/// GPU render targets backing the canvases above. Null while rendering in software
+	SDL_Texture * terrainTexture = nullptr;
+	SDL_Texture * terrainTransitionTexture = nullptr;
+	SDL_Texture * intermediateTexture = nullptr;
+
+	/// Creates a render target of the given logical size, or null if the GPU path is off
+	SDL_Texture * createRenderTarget(const Point & size) const;
+
+	/// Canvas of the given logical size, drawing onto a fresh render target when the GPU
+	/// path is available and onto a plain surface otherwise
+	std::unique_ptr<Canvas> createCanvas(const Point & size, SDL_Texture *& texture) const;
+
+	/// Allocates the canvases on first use. Deferred out of the constructor because that
+	/// runs on the network thread, where creating a texture would steal the GL context
+	void ensureCanvases();
 
 	std::shared_ptr<CAnimation> iconsStorage;
 
@@ -64,7 +85,9 @@ class MapViewCache
 	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 
 public:
-	explicit MapViewCache(const std::shared_ptr<MapViewModel> & model);
+	/// useGpuLayer must match how the owning view presents itself: a view drawn into the
+	/// software screen cannot read from a GPU-backed cache
+	MapViewCache(const std::shared_ptr<MapViewModel> & model, bool useGpuLayer);
 	~MapViewCache();
 
 	/// invalidates cache of specified object

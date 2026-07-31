@@ -22,26 +22,72 @@
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
+#include "../CMT.h"
 #include "../GameEngine.h"
+#include "../render/IScreenHandler.h"
 #include "../widgets/TextControls.h"
+
+#include <SDL_render.h>
 
 #include "../../lib/int3.h"
 
-MapViewCache::~MapViewCache() = default;
+MapViewCache::~MapViewCache()
+{
+	for(SDL_Texture * texture : {terrainTexture, terrainTransitionTexture, intermediateTexture})
+		if(texture)
+			SDL_DestroyTexture(texture);
+}
 
-MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
+SDL_Texture * MapViewCache::createRenderTarget(const Point & size) const
+{
+	if(!useGpuLayer || !ENGINE->screenHandler().isGpuMapRenderingEnabled())
+		return nullptr;
+
+	const Point pixels = size * ENGINE->screenHandler().getScalingFactor();
+	SDL_Texture * result = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, pixels.x, pixels.y);
+
+	if(result)
+		logGlobal->info("Created map cache render target %dx%d", pixels.x, pixels.y);
+	else
+		logGlobal->error("Failed to create %dx%d map cache render target: %s", pixels.x, pixels.y, SDL_GetError());
+
+	return result;
+}
+
+MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model, bool useGpuLayer)
 	: model(model)
+	, useGpuLayer(useGpuLayer)
 	, cachedLevel(0)
 	, overlayWasVisible(false)
 	, mapRenderer(new MapRenderer())
 	, iconsStorage(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
-	, intermediate(new Canvas(Point(32, 32), CanvasScalingPolicy::AUTO))
-	, terrain(new Canvas(model->getCacheDimensionsPixels(), CanvasScalingPolicy::AUTO))
-	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions(), CanvasScalingPolicy::AUTO))
 {
 	Point visibleSize = model->getTilesVisibleDimensions();
 	terrainChecksum.resize(boost::extents[visibleSize.x][visibleSize.y]);
 	tilesUpToDate.resize(boost::extents[visibleSize.x][visibleSize.y]);
+}
+
+std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size, SDL_Texture *& texture) const
+{
+	texture = createRenderTarget(size);
+
+	if(texture)
+		return std::make_unique<Canvas>(Canvas::createFromRenderTarget(texture, size, CanvasScalingPolicy::AUTO));
+
+	// no render target means the GPU path is unavailable for this canvas
+	return std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
+}
+
+void MapViewCache::ensureCanvases()
+{
+	if(terrain)
+		return;
+
+	// Must run on the rendering thread: this object is constructed while handling a
+	// netpack, and creating a texture there would move the GL context off the GUI thread
+	intermediate = createCanvas(Point(32, 32), intermediateTexture);
+	terrain = createCanvas(model->getCacheDimensionsPixels(), terrainTexture);
+	terrainTransition = createCanvas(model->getPixelsVisibleDimensions(), terrainTransitionTexture);
 }
 
 Canvas MapViewCache::getTile(const int3 & coordinates)
@@ -110,6 +156,8 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 {
+	ensureCanvases();
+
 	Rect dimensions = model->getTilesTotalRect();
 	bool mapResized = cachedSize != model->getSingleTileSize();
 
@@ -198,6 +246,8 @@ void MapViewCache::renderCachedTiles(Canvas & target)
 
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
+	ensureCanvases();
+
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
 	bool textOverlayVisible = context->showTextOverlay();
 	bool overlayVisible = context->showImageOverlay() || textOverlayVisible;
@@ -259,7 +309,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(textOverlayVisible)
+	if(textOverlayVisible && !target.isRenderTarget())
 	{
 		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 

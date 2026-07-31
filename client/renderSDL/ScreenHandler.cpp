@@ -45,6 +45,7 @@
 
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
+uint32_t mainRendererGeneration = 1;
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -446,6 +447,9 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
+	if(settings["video"]["gpuMapRendering"].Bool())
+		initializeMapTexture(logicalSize);
+
 	clearScreen();
 }
 
@@ -627,6 +631,42 @@ void ScreenHandler::destroyScreenBuffers()
 		SDL_DestroyTexture(screenTexture);
 		screenTexture = nullptr;
 	}
+
+	if(nullptr != mapTexture)
+	{
+		SDL_DestroyTexture(mapTexture);
+		mapTexture = nullptr;
+	}
+}
+
+void ScreenHandler::initializeMapTexture(const Point & logicalSize)
+{
+	SDL_RendererInfo info;
+	if(SDL_GetRendererInfo(mainRenderer, &info) != 0 || (info.flags & SDL_RENDERER_TARGETTEXTURE) == 0)
+	{
+		logGlobal->warn("GPU map rendering requested but the renderer has no render target support - falling back to software");
+		return;
+	}
+
+	mapTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+
+	if(nullptr == mapTexture)
+	{
+		logGlobal->warn("Unable to create map render target: %s - falling back to software", SDL_GetError());
+		return;
+	}
+
+	// the map layer is drawn first and the software screen is blended over it, so the
+	// screen texture must stop being opaque for the map to show through its transparent hole
+	SDL_SetTextureBlendMode(mapTexture, SDL_BLENDMODE_NONE);
+	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
+
+	SDL_SetRenderTarget(mainRenderer, mapTexture);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderTarget(mainRenderer, nullptr);
+
+	logGlobal->info("GPU map rendering enabled, using driver '%s'", info.name);
 }
 
 void ScreenHandler::destroyWindow()
@@ -635,6 +675,8 @@ void ScreenHandler::destroyWindow()
 	{
 		SDL_DestroyRenderer(mainRenderer);
 		mainRenderer = nullptr;
+		// every texture created from the old renderer is now dangling
+		++mainRendererGeneration;
 	}
 
 	if(nullptr != mainWindow)
@@ -664,6 +706,11 @@ void ScreenHandler::clearScreen()
 Canvas ScreenHandler::getScreenCanvas() const
 {
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+}
+
+Canvas ScreenHandler::getMapLayerCanvas() const
+{
+	return Canvas::createFromRenderTarget(mapTexture, getLogicalResolution(), CanvasScalingPolicy::AUTO);
 }
 
 void ScreenHandler::validateDirtyRegions(SDL_Surface * source, const std::vector<Rect> & regions)
@@ -788,9 +835,21 @@ void ScreenHandler::updateScreenTexture()
 	dirtyRegions.clear();
 }
 
+bool ScreenHandler::isGpuMapRenderingEnabled() const
+{
+	return mapTexture != nullptr;
+}
+
 void ScreenHandler::presentScreenTexture()
 {
+	// the map layer may still be bound from rendering it
+	SDL_SetRenderTarget(mainRenderer, nullptr);
+
 	SDL_RenderClear(mainRenderer);
+
+	if(nullptr != mapTexture)
+		SDL_RenderCopy(mainRenderer, mapTexture, nullptr, nullptr);
+
 	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);

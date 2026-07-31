@@ -234,7 +234,8 @@
 				"useHdTextures",
 				"assetCacheSize",
 				"partialScreenUpdate",
-				"partialScreenUpdateValidation"
+				"partialScreenUpdateValidation",
+				"gpuMapRendering"
 			],
 			"properties" : {
 				"resolution" : {
@@ -340,6 +341,13 @@
 				// Upload only the changed parts of the screen to the GPU each frame
 				// instead of the whole framebuffer. Disable if graphical artifacts appear.
 				"partialScreenUpdate" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				// Draw the adventure map with the GPU instead of blitting it into the
+				// software framebuffer. Falls back to software if the driver cannot
+				// provide a render target.
+				"gpuMapRendering" : {
 					"type" : "boolean",
 					"default" : true
 				},

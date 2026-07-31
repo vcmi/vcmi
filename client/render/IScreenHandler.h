@@ -62,4 +62,13 @@ public:
 	virtual bool hasFocus() = 0;
 
 	virtual void setColorScheme(ColorScheme scheme) = 0;
+
+	// New methods go below this line: inserting a virtual anywhere above shifts every
+	// later vtable slot, which silently misdispatches any translation unit not rebuilt.
+
+	/// True when the adventure map is drawn by the GPU instead of into the screen surface
+	virtual bool isGpuMapRenderingEnabled() const = 0;
+
+	/// Canvas drawing into the GPU map layer. Only valid while GPU map rendering is active.
+	virtual Canvas getMapLayerCanvas() const = 0;
 };

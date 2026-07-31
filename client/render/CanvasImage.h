@@ -28,6 +28,9 @@ public:
 
 	//no-op methods
 
+	/// canvas-backed images have no GPU copy, so callers must fall back to the surface path
+	bool drawTexture(SDL_Renderer *, const Point &, const Rect *, int) const override { return false; };
+
 	bool isTransparent(const Point & coords) const override{ return false;};
 	void setAlpha(uint8_t value) override{};
 	void playerColored(const PlayerColor & player) override{};

@@ -18,6 +18,7 @@ class CDefFile;
 
 struct SDL_Surface;
 struct SDL_Palette;
+struct SDL_Texture;
 
 /*
  * Wrapper around SDL_Surface
@@ -36,6 +37,15 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	std::atomic_bool upscalingInProgress = false;
 	bool asyncUpscale = true;
 
+	/// GPU copy of surf, built on first use by getTexture()
+	mutable SDL_Texture * texture = nullptr;
+	/// Palette the texture was built with, and the renderer generation it belongs to
+	mutable SDL_Palette * texturePalette = nullptr;
+	mutable uint32_t textureGeneration = 0;
+
+	/// Frees the cached texture unless the renderer that owned it is already gone
+	void dropTexture() const;
+
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
@@ -53,8 +63,14 @@ public:
 	/// Creates image at specified scaling factor from source image
 	static std::shared_ptr<SDLImageShared> createScaled(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm);
 
+	/// Returns a GPU texture holding this image, or nullptr if one cannot be created.
+	/// Owned by this image; never destroy the returned pointer.
+	SDL_Texture * getTexture(SDL_Palette * palette) const;
+
 	void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
+	bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
+	bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 
 	void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const override;
 	Point dimensions() const override;

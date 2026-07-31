@@ -280,46 +280,54 @@ Rect ScalableImageShared::contentRect() const
 	return scaled[1].body[0]->contentRect();
 }
 
+const ScalableImageShared::ImageType & ScalableImageShared::selectFlipped(FlippedImages & images, const ScalableImageParameters & parameters)
+{
+	int index = 0;
+
+	if (parameters.flipVertical)
+	{
+		if (!images[index|1])
+			images[index|1] = images[index]->verticalFlip();
+
+		index |= 1;
+	}
+
+	if (parameters.flipHorizontal)
+	{
+		if (!images[index|2])
+			images[index|2] = images[index]->horizontalFlip();
+
+		index |= 2;
+	}
+
+	return images[index];
+}
+
+bool ScalableImageShared::anyVariantLoading(int scalingFactor, const ScalableImageParameters & parameters) const
+{
+	const auto & variant = scaled.at(scalingFactor);
+
+	const auto isLoading = [](const ImageType & image){ return image && image->isLoading(); };
+
+	if (parameters.player != PlayerColor::CANNOT_DETERMINE && isLoading(variant.playerColored.at(1 + parameters.player.getNum())))
+		return true;
+
+	return isLoading(variant.shadow.at(0)) || isLoading(variant.body.at(0)) || isLoading(variant.overlay.at(0)) || isLoading(variant.bodyGrayscale.at(0));
+}
+
 void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
-	const auto & getFlippedImage = [&](FlippedImages & images){
-		int index = 0;
-		if (parameters.flipVertical)
-		{
-			if (!images[index|1])
-				images[index|1] = images[index]->verticalFlip();
-
-			index |= 1;
-		}
-
-		if (parameters.flipHorizontal)
-		{
-			if (!images[index|2])
-				images[index|2] = images[index]->horizontalFlip();
-
-			index |= 2;
-		}
-
-		return images[index];
-	};
-
-	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
-	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
-	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
-	bool grayscaleLoading = scaled.at(scalingFactor).bodyGrayscale.at(0) && scaled.at(scalingFactor).bodyGrayscale.at(0)->isLoading();
-	bool playerLoading = parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()) && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum())->isLoading();
-
-	if (shadowLoading || bodyLoading || overlayLoading || playerLoading || grayscaleLoading)
+	if (anyVariantLoading(scalingFactor, parameters))
 	{
-		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+		selectFlipped(scaled[1].body, parameters)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
-			getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
+			selectFlipped(scaled[1].body, parameters)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
 		return;
 	}
 
 	if (scaled.at(scalingFactor).shadow.at(0))
-		getFlippedImage(scaled.at(scalingFactor).shadow)->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
+		selectFlipped(scaled.at(scalingFactor).shadow, parameters)->draw(where, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
 
 	if (parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()))
 	{
@@ -328,14 +336,51 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	else
 	{
 		if (scaled.at(scalingFactor).body.at(0))
-			getFlippedImage(scaled.at(scalingFactor).body)->draw(where, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+			selectFlipped(scaled.at(scalingFactor).body, parameters)->draw(where, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
-			getFlippedImage(scaled.at(scalingFactor).bodyGrayscale)->draw(where, parameters.palette, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
+			selectFlipped(scaled.at(scalingFactor).bodyGrayscale, parameters)->draw(where, parameters.palette, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
 	}
 
 	if (scaled.at(scalingFactor).overlay.at(0))
-		getFlippedImage(scaled.at(scalingFactor).overlay)->draw(where, parameters.palette, dest, src, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255, locator.layer);
+		selectFlipped(scaled.at(scalingFactor).overlay, parameters)->draw(where, parameters.palette, dest, src, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255, locator.layer);
+}
+
+bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
+{
+	if (anyVariantLoading(scalingFactor, parameters))
+	{
+		// upscaling is still running - stretch the 1x image, which the GPU does for free
+		bool drawn = selectFlipped(scaled[1].body, parameters)->scaledDrawTexture(renderer, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+
+		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
+			drawn &= selectFlipped(scaled[1].body, parameters)->scaledDrawTexture(renderer, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
+
+		return drawn;
+	}
+
+	bool drawn = true;
+
+	if (scaled.at(scalingFactor).shadow.at(0))
+		drawn &= selectFlipped(scaled.at(scalingFactor).shadow, parameters)->drawTexture(renderer, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
+
+	if (parameters.player != PlayerColor::CANNOT_DETERMINE && scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum()))
+	{
+		drawn &= scaled.at(scalingFactor).playerColored.at(1+parameters.player.getNum())->drawTexture(renderer, parameters.palette, dest, src, Colors::WHITE_TRUE, parameters.alphaValue, locator.layer);
+	}
+	else
+	{
+		if (scaled.at(scalingFactor).body.at(0))
+			drawn &= selectFlipped(scaled.at(scalingFactor).body, parameters)->drawTexture(renderer, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
+
+		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
+			drawn &= selectFlipped(scaled.at(scalingFactor).bodyGrayscale, parameters)->drawTexture(renderer, parameters.palette, dest, src, parameters.effectColorMultiplier, parameters.alphaValue, locator.layer);
+	}
+
+	if (scaled.at(scalingFactor).overlay.at(0))
+		drawn &= selectFlipped(scaled.at(scalingFactor).overlay, parameters)->drawTexture(renderer, parameters.palette, dest, src, parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255, locator.layer);
+
+	return drawn;
 }
 
 const SDL_Palette * ScalableImageShared::getPalette() const
@@ -400,6 +445,15 @@ void ScalableImageInstance::draw(SDL_Surface * where, const Point & pos, const R
 		scaledImage->draw(where, pos, src, scalingFactor);
 	else
 		image->draw(where, pos, src, parameters, scalingFactor);
+}
+
+bool ScalableImageInstance::drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const
+{
+	// a rescaled instance only exists as a surface, so it has no GPU path
+	if (scaledImage)
+		return false;
+
+	return image->drawTexture(renderer, pos, src, parameters, scalingFactor);
 }
 
 void ScalableImageInstance::setOverlayColor(const ColorRGBA & color)

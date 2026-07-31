@@ -9,8 +9,13 @@
  */
 #pragma once
 
+#include <cstdint>
+
 struct SDL_Renderer;
 extern SDL_Renderer * mainRenderer;
+
+/// Bumped whenever mainRenderer is recreated, so that cached textures know they are stale
+extern uint32_t mainRendererGeneration;
 
 /// Notify user about encountered fatal error and terminate the game
 /// Defined in clientapp EntryPoint

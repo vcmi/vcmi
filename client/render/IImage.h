@@ -18,6 +18,7 @@ class ColorRGBA;
 
 struct SDL_Surface;
 struct SDL_Palette;
+struct SDL_Renderer;
 class ColorFilter;
 class ISharedImage;
 
@@ -104,6 +105,13 @@ public:
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
 	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
+	// New methods go below this line: inserting a virtual above shifts every later
+	// vtable slot, which silently misdispatches translation units that were not rebuilt.
+
+	/// Same as draw(), but onto the renderer's current target instead of a surface.
+	/// Returns false if this image cannot be drawn that way and the caller must fall back.
+	virtual bool drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const = 0;
+
 	virtual ~IImage() = default;
 };
 
@@ -141,4 +149,9 @@ public:
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
+	// New methods go below this line, see the note in IImage above
+
+	/// Same as draw(), but onto the renderer's current target. False if no texture is available.
+	virtual bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
+	virtual bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 };

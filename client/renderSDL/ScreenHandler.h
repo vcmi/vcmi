@@ -49,6 +49,10 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Texture * screenTexture = nullptr;
 	SDL_Surface * screen = nullptr;
 
+	/// Render target the adventure map is drawn into, composited under screenTexture.
+	/// Null unless GPU map rendering is both requested and supported by the driver.
+	SDL_Texture * mapTexture = nullptr;
+
 	/// Which parts of `screen` were written this frame, so that only those have to be
 	/// uploaded into screenTexture
 	DirtyRegionTracker dirtyRegions;
@@ -96,6 +100,9 @@ class ScreenHandler final : public IScreenHandler
 	void initializeScreenBuffers();
 	void destroyScreenBuffers();
 
+	/// Creates the map render target, or leaves it null if the driver cannot provide one
+	void initializeMapTexture(const Point & logicalSize);
+
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
 	void updateWindowState();
 
@@ -136,6 +143,9 @@ public:
 	Canvas getScreenCanvas() const final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
+
+	bool isGpuMapRenderingEnabled() const final;
+	Canvas getMapLayerCanvas() const final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
