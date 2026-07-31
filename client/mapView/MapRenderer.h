@@ -29,6 +29,13 @@ class MapTileStorage
 	using TerrainAnimation = std::array<std::shared_ptr<CAnimation>, 4>;
 	std::vector<TerrainAnimation> animations;
 
+	/// Memo for groupCount(), which walks CAnimation::size() - a map lookup each. Depends only on
+	/// the loaded animations, so it is computed once per key. -1 means "not yet known".
+	using GroupCounts = std::array<std::vector<int>, 4>;
+	std::vector<GroupCounts> groupCounts;
+
+	int computeGroupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex) const;
+
 public:
 	explicit MapTileStorage(size_t capacity);
 	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
