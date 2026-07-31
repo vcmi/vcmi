@@ -104,7 +104,7 @@ MapTileStorage::MapTileStorage(size_t capacity)
 {
 }
 
-void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode)
+void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode, bool preloadAllFrames)
 {
 	for(auto & rotation : groupCounts[index])
 		rotation.clear();
@@ -128,6 +128,21 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 
 	if (terrainAnimations[3])
 		terrainAnimations[3]->horizontalFlip();
+
+	if (!preloadAllFrames)
+		return;
+
+	// Runs while the map is being set up, off the rendering thread, so that the cost is
+	// paid once behind the loading screen rather than by gameplay frames.
+	for(const auto & animation : terrainAnimations)
+	{
+		if (!animation)
+			continue;
+
+		for(size_t group = 0; animation->size(group) > 0; ++group)
+			for(size_t frame = 0; frame < animation->size(group); ++frame)
+				animation->getImage(frame, group);
+	}
 }
 
 std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex)
@@ -167,7 +182,7 @@ MapRendererTerrain::MapRendererTerrain()
 {
 	logGlobal->debug("Loading map terrains");
 	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
-		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
+		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE, !terrain->paletteAnimation.empty());
 	logGlobal->debug("Done loading map terrains");
 }
 
@@ -206,7 +221,7 @@ MapRendererRiver::MapRendererRiver()
 {
 	logGlobal->debug("Loading map rivers");
 	for(const auto & river : LIBRARY->riverTypeHandler->objects)
-		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
+		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY, !river->paletteAnimation.empty());
 	logGlobal->debug("Done loading map rivers");
 }
 
