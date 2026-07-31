@@ -20,6 +20,7 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../spells/CSpell.h"
@@ -29,6 +30,7 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
+#include "../CCreatureHandler.h"
 
 
 const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
@@ -111,6 +113,16 @@ const CGObjectInstance * CGameInfoCallback::tryGetObj(const ObjectInstanceID obj
 		return nullptr;
 
 	return ret;
+}
+
+std::optional<RewardableObjectInfo> CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object, const CGHeroInstance * hero) const
+{
+	const auto * rewardable = dynamic_cast<const CRewardableObject *>(object);
+	const auto player = getPlayerID();
+	if(!rewardable || !player)
+		return std::nullopt;
+
+	return rewardable->getVisibleInfo(*player, hero);
 }
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const
