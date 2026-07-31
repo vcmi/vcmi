@@ -97,6 +97,13 @@ class MapRendererObjects
 	/// Keyed by object and animation group, packed into one integer.
 	std::unordered_map<uint64_t, ObjectChecksumInfo> checksumInfoCache;
 
+	/// The base, flag and overlay images an object contributes this pass, in draw order. Resolving
+	/// them costs four lookups and is asked once per tile it covers. Cleared by prepareFrame().
+	using ObjectImages = std::array<std::shared_ptr<IImage>, 3>;
+	std::unordered_map<int32_t, ObjectImages> renderImageCache;
+
+	const ObjectImages & getObjectImages(IMapRendererContext & context, const CGObjectInstance * object);
+
 	const ObjectChecksumInfo & getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex);
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
