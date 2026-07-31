@@ -100,11 +100,15 @@ struct NeighborTilesInfo
 
 MapTileStorage::MapTileStorage(size_t capacity)
 	: animations(capacity)
+	, groupCounts(capacity)
 {
 }
 
 void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode)
 {
+	for(auto & rotation : groupCounts[index])
+		rotation.clear();
+
 	auto & terrainAnimations = animations[index];
 
 	for(auto & entry : terrainAnimations)
@@ -135,7 +139,7 @@ std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIn
 		return nullptr;
 }
 
-int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+int MapTileStorage::computeGroupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex) const
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
@@ -143,6 +147,19 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 			if(animation->size(i) <= imageIndex)
 				return i;
 	return 1;
+}
+
+int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+{
+	auto & cached = groupCounts[fileIndex][rotationIndex];
+
+	if (cached.size() <= imageIndex)
+		cached.resize(imageIndex + 1, -1);
+
+	if (cached[imageIndex] < 0)
+		cached[imageIndex] = computeGroupCount(fileIndex, rotationIndex, imageIndex);
+
+	return cached[imageIndex];
 }
 
 MapRendererTerrain::MapRendererTerrain()
