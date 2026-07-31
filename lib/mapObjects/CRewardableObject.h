@@ -17,6 +17,8 @@
 /// Inherits from CArmedInstance for proper transfer of armies
 class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::Interface
 {
+	friend class CGameInfoCallback;
+
 protected:
 
 	bool onceVisitableObjectCleared = false;

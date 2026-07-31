@@ -293,6 +293,15 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 	const int3 pos = obj->visitablePos();
 
+	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
+	InfoAboutRewardableObject rewardableInfo;
+	if(rewardableObject
+		&& rewardableObject->configuration.visitMode == Rewardable::VISIT_ONCE
+		&& aiNk->cc->getRewardableObjectInfo(obj, rewardableInfo)
+		&& rewardableInfo.scouted
+		&& rewardableInfo.cleared)
+		return false;
+
 	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(aiNk->memory->alreadyVisited, obj->id))
 		|| obj->wasVisited(aiNk->playerID))
 	{

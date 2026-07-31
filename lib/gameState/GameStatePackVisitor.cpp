@@ -1168,6 +1168,12 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	{
 		obj->setProperty(pack.what, pack.identifier);
 	}
+
+	if(pack.what == ObjProperty::REWARD_CLEARED && !pack.identifier.getNum())
+	{
+		for(auto & team : gs.teams)
+			team.second.scoutedObjects.erase(pack.id);
+	}
 }
 
 void GameStatePackVisitor::visitHeroLevelUp(HeroLevelUp & pack)

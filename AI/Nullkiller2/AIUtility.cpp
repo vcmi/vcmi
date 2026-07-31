@@ -737,6 +737,17 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		return false;
 	}
 
+	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
+	InfoAboutRewardableObject rewardableInfo;
+	if(rewardableObject
+		&& rewardableObject->configuration.visitMode == Rewardable::VISIT_ONCE
+		&& aiNk->cc->getRewardableObjectInfo(obj, rewardableInfo, hero)
+		&& rewardableInfo.scouted
+		&& rewardableInfo.cleared)
+	{
+		return false;
+	}
+
 	if(obj->wasVisited(hero))
 		return false;
 
