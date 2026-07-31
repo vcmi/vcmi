@@ -53,6 +53,8 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
 
+#include <widgets/GraphicalPrimitiveCanvas.h>
+
 class ScenarioTabConfigurable : public InterfaceObjectConfigurable
 {
 public:
@@ -251,7 +253,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		}
 	}
 
-	int positionsToShow = 18;
+	int positionsToShow = enableUiEnhancements ? 17 : 18;
 	std::string tabTitle;
 	std::string tabTitleDelete;
 	switch(tabType)
@@ -265,7 +267,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		tabTitleDelete = "{red|" + LIBRARY->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::saveGame:
-		positionsToShow = 16;
+		positionsToShow = enableUiEnhancements ? 15 : 16;
 		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[231] + "}";
 		break;
 	case ESelectionScreen::campaignList:
@@ -289,6 +291,29 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		auto sortByDate = std::make_shared<CButton>(Point(371 - (ENGINE->isRoeData() ? 36 : 0), 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
+
+		Rect searchWidgetArea(22, 115, 366, 26);
+		Rect searchTextInputArea(87, 115, 301, 26);
+
+		searchWidgetBackground = std::make_shared<FilledTexturePlayerColored>(searchWidgetArea);
+		searchWidgetBackground->setPlayerColor(PlayerColor(1));
+
+		searchBoxLabel = std::make_shared<CLabel>(55, 129, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "Filter:");
+		searchInputRectangle = std::make_shared<TransparentFilledRectangle>(searchTextInputArea, ColorRGBA(0, 0, 0, 128));
+
+		searchInput = std::make_shared<CTextInput>(searchTextInputArea, FONT_SMALL, ETextAlignment::CENTER, true);
+		searchInput->setCallback([this](const std::string & text) {
+									 std::shared_ptr<ElementInfo> selectedMap = getSelectedMapInfo();
+									 bool hideSelectedElement = !selectedMap || !isSubstringCI(getSelectedMapInfo()->name, text);
+									 filter(-1, hideSelectedElement);
+									 if (!hideSelectedElement)
+									 {
+										 auto it = find(curItems.begin(), curItems.end(), selectedMap);
+										 if (it != curItems.end())
+											 selectAbs(it - curItems.begin());
+									 }
+								 });
+
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
@@ -344,10 +369,10 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	}
 
 	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
+		listItems.push_back(std::make_shared<ListItem>(Point(30, (enableUiEnhancements ? 154 : 129) + i * 25)));
 
 	labelTabTitle = std::make_shared<CLabel>(205 - (ENGINE->isRoeData() ? 18 : 0), 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
-	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 54 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 54 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(24);
 	slider->setInertiaEnabled(true);
 
@@ -674,7 +699,10 @@ void SelectionTab::filter(int size, bool selectFirst)
 			}
 
 			if(fileInFolder)
-				curItems.push_back(elem);
+			{
+				if (!enableUiEnhancements || isSubstringCI(elem->name, searchInput->getText()))
+					curItems.push_back(elem);
+			}
 		}
 	}
 
@@ -857,9 +885,10 @@ int SelectionTab::getLine(const Point & clickPos) const
 	else
 		maxPosY = 564;
 
-	if(clickPos.y > 115 && clickPos.y < maxPosY && clickPos.x > 22 && clickPos.x < 371)
+	int startingPos = enableUiEnhancements ? 140 : 115;
+	if(clickPos.y > startingPos && clickPos.y < maxPosY && clickPos.x > 22 && clickPos.x < 371)
 	{
-		line = (clickPos.y - 115) / 25; //which line
+		line = (clickPos.y - startingPos) / 25; //which line
 	}
 
 	return line;
@@ -922,7 +951,7 @@ void SelectionTab::selectNewestFile()
 
 std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
 {
-	return curItems.empty() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
+	return selectionPos >= curItems.size() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
 }
 
 void SelectionTab::rememberCurrentSelection()
@@ -965,6 +994,12 @@ void SelectionTab::restoreLastSelection()
 	case ESelectionScreen::saveGame:
 		selectFileName(settings["general"]["lastSave"].String());
 	}
+}
+
+bool SelectionTab::isSubstringCI(const std::string & fullstring, const std::string & substring)
+{
+	return std::search(fullstring.begin(), fullstring.end(), substring.begin(), substring.end(),
+					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 
 bool SelectionTab::isMapSupported(const CMapInfo & info)
