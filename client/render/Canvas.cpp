@@ -186,6 +186,9 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 	SDL_SetTextureBlendMode(image.renderTarget, static_cast<SDL_BlendMode>(blendMode));
 	SDL_SetTextureAlphaMod(image.renderTarget, alpha);
 
+	// matches SDL_BlitScaled on the surface path; see the note in SDLImageShared
+	SDL_SetTextureScaleMode(image.renderTarget, SDL_ScaleModeNearest);
+
 	if(SDL_RenderCopy(mainRenderer, image.renderTarget, &source, &target) != 0)
 		logGpuIssueOnce(std::string("SDL_RenderCopy failed: ") + SDL_GetError());
 

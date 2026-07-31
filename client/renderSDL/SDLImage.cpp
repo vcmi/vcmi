@@ -255,6 +255,12 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 	SDL_SetTextureColorMod(source, colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
 	SDL_SetTextureAlphaMod(source, alpha);
 
+	// The renderer-wide scale quality hint is meant for fitting the finished screen to the
+	// window. Sprites must not inherit it: the surface path scales them with SDL_BlitScaled,
+	// which is nearest, and a smoothed stand-in would visibly differ from the xBRZ image that
+	// replaces it once upscaling finishes.
+	SDL_SetTextureScaleMode(source, SDL_ScaleModeNearest);
+
 	// Unlike the surface path this cannot test Amask: SDL_CreateTextureFromSurface turns a
 	// paletted surface's color key into real alpha, so only a truly opaque image may skip blending
 	if(alpha != SDL_ALPHA_OPAQUE || mode != EImageBlitMode::OPAQUE)
