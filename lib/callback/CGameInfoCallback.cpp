@@ -16,6 +16,7 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../spells/CSpell.h"
@@ -123,6 +124,26 @@ const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId,
 	}
 
 	return ret;
+}
+
+bool CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object, RewardableObjectInfo & out, const CGHeroInstance * hero) const
+{
+	out = {};
+
+	const auto * rewardable = dynamic_cast<const CRewardableObject *>(object);
+	if(!rewardable)
+		return false;
+
+	auto player = getPlayerID();
+	out.scouted = !player.has_value() || rewardable->wasScouted(*player);
+
+	if(out.scouted)
+	{
+		if(const auto * armed = dynamic_cast<const CArmedInstance *>(object))
+			out.guardStrength = armed->getArmyStrength();
+	}
+
+	return true;
 }
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const
