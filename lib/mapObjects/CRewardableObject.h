@@ -12,6 +12,30 @@
 #include "army/CArmedInstance.h"
 
 #include "../rewardable/Interface.h"
+#include "constants/EntityIdentifiers.h"
+
+struct DLL_LINKAGE GuardState
+{
+	bool guarded = false;
+	boost::container::small_vector<CStackBasicDescriptor, 8> composition;
+	bool compositionKnown() const
+	{
+		return !composition.empty();
+	}
+};
+
+struct DLL_LINKAGE RewardableObjectInfo
+{
+	bool scouted = false;
+	/// std::nullopt means the player cannot know yet, including for guarded objects.
+	std::optional<bool> rewardAvailable;
+	bool rewardValueKnown = false;
+	bool guarded = false;
+	uint64_t guardStrength = 0;
+
+	/// Player-visible reward values available to the context hero.
+	std::vector<Rewardable::Reward> rewards;
+};
 
 /// Base class that can handle granting rewards to visiting heroes.
 /// Inherits from CArmedInstance for proper transfer of armies
@@ -20,7 +44,7 @@ class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::
 protected:
 
 	bool onceVisitableObjectCleared = false;
-	
+
 	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 
 	/// Handles the answer to either of the questions a rewardable object asks. Returns true if
@@ -34,21 +58,22 @@ protected:
 
 	const IObjectInterface * getObject() const override;
 	void markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
-	
+
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
-	
+
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-	
+
 	MetaString getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
 	MetaString getScoutedDescriptionMessage(const CGHeroInstance * hero) const;
 	MetaString getGenericDescriptionMessage() const;
 	MetaString getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 
-	/// Returns true if this object is currently guarded
+	/// Returns true if this object currently has live guard stacks
 	bool isGuarded() const;
+
 public:
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
@@ -57,7 +82,12 @@ public:
 
 	/// Returns true if object was scouted by player and he is aware of its internal state
 	bool wasScouted(PlayerColor player) const;
-	
+	bool wasObjectTypeVisitedByTeam(PlayerColor player) const;
+
+	/// Returns player-known guard state
+	std::optional<GuardState> getGuardState(PlayerColor player) const;
+	RewardableObjectInfo getVisibleInfo(PlayerColor player, const CGHeroInstance * hero) const;
+
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const override;
 
@@ -78,11 +108,11 @@ public:
 	bool isCoastVisitable() const override;
 
 	void initializeGuards();
-	
+
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	CRewardableObject(IGameInfoCallback *cb);
-	
+
 	MetaString getHoverText(PlayerColor player) const override;
 	MetaString getHoverText(const CGHeroInstance * hero) const override;
 

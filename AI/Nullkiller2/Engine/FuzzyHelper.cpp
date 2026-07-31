@@ -130,6 +130,9 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	}
 	default:
 	{
+		if(const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(obj))
+			return rewardableInfo->guardStrength;
+
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		if (a)
 			return a->estimateCombatValue();

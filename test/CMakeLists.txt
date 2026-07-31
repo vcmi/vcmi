@@ -56,6 +56,7 @@ set(test_SRCS
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
+		map/CRewardableObjectTest.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
 		map/PlayerFactionsTest.cpp
