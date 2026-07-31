@@ -15,6 +15,12 @@ struct SThievesGuildInfo;
 class ITranslator;
 class Player;
 
+struct DLL_LINKAGE RewardableObjectInfo
+{
+	bool scouted = false;
+	uint64_t guardStrength = 0;
+};
+
 class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback
 {
 protected:
@@ -73,6 +79,7 @@ public:
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
+	bool getRewardableObjectInfo(const CGObjectInstance * object, RewardableObjectInfo & out, const CGHeroInstance * hero = nullptr) const;
 
 	//map
 

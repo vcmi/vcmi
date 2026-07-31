@@ -54,6 +54,7 @@ public:
 
 	/// Returns true if object was scouted by player and he is aware of its internal state
 	bool wasScouted(PlayerColor player) const;
+	bool wasObjectTypeVisitedByTeam(PlayerColor player) const;
 	
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const override;
