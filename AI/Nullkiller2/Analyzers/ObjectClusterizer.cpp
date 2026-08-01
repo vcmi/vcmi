@@ -292,6 +292,11 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 	}
 
 	const int3 pos = obj->visitablePos();
+	auto playerRelations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
+	const bool isCreatureGenerator = obj->ID == Obj::CREATURE_GENERATOR1
+		|| obj->ID == Obj::CREATURE_GENERATOR2
+		|| obj->ID == Obj::CREATURE_GENERATOR3
+		|| obj->ID == Obj::CREATURE_GENERATOR4;
 
 	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
 	InfoAboutRewardableObject rewardableInfo;
@@ -302,13 +307,11 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 		&& rewardableInfo.cleared)
 		return false;
 
-	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(aiNk->memory->alreadyVisited, obj->id))
+	if((!isCreatureGenerator && vstd::contains(aiNk->memory->alreadyVisited, obj->id))
 		|| obj->wasVisited(aiNk->playerID))
 	{
 		return false;
 	}
-
-	auto playerRelations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
 	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(aiNk->playerID, obj))
 	{
