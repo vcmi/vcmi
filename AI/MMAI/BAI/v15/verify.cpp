@@ -30,7 +30,7 @@
 #include "schema/base.h"
 #include "vcmi/spells/Caster.h"
 
-#include "common.h"
+#include "AI/MMAI/common.h"
 #include "schema/v15/types.h"
 #include <algorithm>
 #include <string>

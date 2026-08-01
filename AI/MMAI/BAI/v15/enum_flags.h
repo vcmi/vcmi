@@ -8,7 +8,7 @@
  *
  */
 
-#include "common.h"
+#include "AI/MMAI/common.h"
 
 namespace MMAI::BAI::V15
 {

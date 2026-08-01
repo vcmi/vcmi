@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "common.h" // IWYU pragma: keep
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 #include "BAI/v15/graph/nodes/base.h"
 #include "battle/BattleSide.h"

@@ -19,7 +19,7 @@
 
 #include "BAI/v15/render.h"
 #include "BAI/v15/verify.h"
-#include "common.h"
+#include "AI/MMAI/common.h"
 #include "schema/base.h"
 #include "schema/v15/types.h"
 

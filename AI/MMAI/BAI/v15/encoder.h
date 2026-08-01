@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "common.h" // IWYU pragma: keep
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 #include "schema/v15/types.h"
 #include "vstd/CLoggerBase.h"

@@ -24,7 +24,7 @@
 #include "BAI/fallback/scripted_model.h"
 #include "BAI/v13/BAI.h"
 
-#include "common.h"
+#include "AI/MMAI/common.h"
 
 namespace MMAI::BAI
 {
