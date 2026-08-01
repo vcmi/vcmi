@@ -32,6 +32,9 @@
 #include "AdventureOptions.h"
 #include "AdventureState.h"
 
+#include "../replay/GameplayReplayer.h"
+#include "../replay/ReplaySelectionWindow.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CCallback.h"
@@ -103,7 +106,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionQuickSaveLoad(),  [this]() { this->quickLoadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
-		{ EShortcut::ADVENTURE_REPLAY_TURN,      optionInMapView(),      [this]() { this->replayTurn(); } },
+		{ EShortcut::ADVENTURE_REPLAY_TURN,      optionReplayTurn(),     [this]() { this->replayTurn(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
@@ -415,7 +418,14 @@ void AdventureMapShortcuts::digGrail()
 
 void AdventureMapShortcuts::replayTurn()
 {
-	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented"));
+	// while a replay is running the very same shortcut ends it again
+	if(GAME->server().isReplayActive())
+	{
+		GAME->server().replayer().requestStop();
+		return;
+	}
+
+	ReplaySelection::showSelectionDialog();
 }
 
 void AdventureMapShortcuts::viewPuzzleMap()
@@ -712,6 +722,12 @@ bool AdventureMapShortcuts::optionSpellcasting()
 bool AdventureMapShortcuts::optionInMapView()
 {
 	return state == EAdventureState::MAKING_TURN;
+}
+
+bool AdventureMapShortcuts::optionReplayTurn()
+{
+	// enabled during own turn to start a replay, and during a replay to interrupt it
+	return state == EAdventureState::MAKING_TURN || GAME->server().isReplayActive();
 }
 
 bool AdventureMapShortcuts::optionInWorldView()

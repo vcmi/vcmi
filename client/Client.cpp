@@ -350,6 +350,45 @@ void CClient::handlePack(CPackForClient & pack)
 	logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 }
 
+void CClient::applyPackSilently(CPackForClient & pack)
+{
+	std::unique_lock lock(CGameState::mutex);
+	gameState().apply(pack);
+}
+
+ClientSession CClient::swapSession(ClientSession replacement)
+{
+	ClientSession previous;
+
+	std::swap(previous.gamestate, gamestate);
+	std::swap(previous.playerint, playerint);
+	std::swap(previous.battleints, battleints);
+	std::swap(previous.additionalBattleInts, additionalBattleInts);
+	std::swap(previous.battleCallbacks, battleCallbacks);
+	std::swap(previous.playerEnvironments, playerEnvironments);
+	std::swap(previous.advInterfaceReadySent, advInterfaceReadySent);
+
+	gamestate = std::move(replacement.gamestate);
+	playerint = std::move(replacement.playerint);
+	battleints = std::move(replacement.battleints);
+	additionalBattleInts = std::move(replacement.additionalBattleInts);
+	battleCallbacks = std::move(replacement.battleCallbacks);
+	playerEnvironments = std::move(replacement.playerEnvironments);
+	advInterfaceReadySent = std::move(replacement.advInterfaceReadySent);
+
+	return previous;
+}
+
+void CClient::installObserverInterface(PlayerColor color)
+{
+	assert(gamestate);
+
+	playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
+
+	auto interfacePtr = std::make_shared<CPlayerInterface>(color);
+	installNewPlayerInterface(interfacePtr, color);
+}
+
 std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return playerint[player]->makeSurrenderRetreatDecision(battleID, battleState);
@@ -357,6 +396,12 @@ std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor pl
 
 int CClient::sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize)
 {
+	if(observerMode)
+	{
+		logNetwork->trace("Dropped request \"%s\" - a replay is in progress", typeid(request).name());
+		return 0;
+	}
+
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 

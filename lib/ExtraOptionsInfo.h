@@ -14,6 +14,8 @@ struct DLL_LINKAGE ExtraOptionsInfo
 {
 	bool cheatsAllowed = true;
 	bool unlimitedReplay = false;
+	/// if set, client stores every received netpack on disk so the whole game can be replayed later
+	bool recordGame = false;
 
 	bool operator == (const ExtraOptionsInfo & other) const;
 
@@ -22,5 +24,9 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	{
 		h & cheatsAllowed;
 		h & unlimitedReplay;
+		if(h.hasFeature(Handler::Version::GAME_REPLAY_RECORDING))
+			h & recordGame;
+		else
+			recordGame = false;
 	}
 };

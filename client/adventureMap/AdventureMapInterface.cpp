@@ -82,6 +82,8 @@ AdventureMapInterface::AdventureMapInterface():
 
 void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
+	mapViewCenter = int3(visibleArea.center().x, visibleArea.center().y, mapLevel);
+
 	shortcuts->onMapViewMoved(visibleArea, mapLevel);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
 	widget->onMapViewMoved(visibleArea, mapLevel);
@@ -295,6 +297,11 @@ void AdventureMapInterface::centerOnTile(int3 on)
 void AdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 {
 	widget->getMapView()->onCenteredObject(obj);
+}
+
+int3 AdventureMapInterface::getMapViewCenter() const
+{
+	return mapViewCenter;
 }
 
 void AdventureMapInterface::keyPressed(EShortcut key)

@@ -1719,6 +1719,73 @@ void CGameState::saveGame(CSaveFile & file) const
 	file.save(*this);
 }
 
+namespace
+{
+	class GameStateMemoryWriter final : public IBinaryWriter
+	{
+	public:
+		std::vector<std::byte> data;
+
+		int write(const std::byte * source, unsigned size) final
+		{
+			data.insert(data.end(), source, source + size);
+			return size;
+		}
+	};
+
+	class GameStateMemoryReader final : public IBinaryReader
+	{
+		const std::vector<std::byte> & data;
+		size_t position = 0;
+
+	public:
+		explicit GameStateMemoryReader(const std::vector<std::byte> & data)
+			: data(data)
+		{
+		}
+
+		int read(std::byte * target, unsigned size) final
+		{
+			if(position + size > data.size())
+				throw std::runtime_error("Gamestate snapshot ended unexpectedly!");
+
+			std::copy_n(data.begin() + position, size, target);
+			position += size;
+			return size;
+		}
+	};
+}
+
+std::vector<std::byte> CGameState::saveToMemory()
+{
+	// a snapshot is stored inside the replay log itself, so the log must not be part of it.
+	// Swapping keeps the serialized layout identical - an empty log is written instead.
+	ReplayLog logBackup;
+	std::swap(logBackup, replayLog);
+
+	GameStateMemoryWriter writer;
+	BinarySerializer serializer(&writer);
+	serializer.version = ESerializationVersion::CURRENT;
+	serializer & *this;
+
+	std::swap(logBackup, replayLog);
+
+	return std::move(writer.data);
+}
+
+void CGameState::loadFromMemory(const std::vector<std::byte> & data)
+{
+	// battles are not part of serialize(), so leftovers of the discarded state have to go explicitly
+	currentBattles.clear();
+
+	GameStateMemoryReader reader(data);
+	BinaryDeserializer deserializer(&reader);
+	deserializer.version = ESerializationVersion::CURRENT;
+	deserializer.loadingGamestate = true;
+	deserializer.cb = this;
+	deserializer & *this;
+}
+
 void CGameState::loadGame(CLoadFile & file)
 {
 	logGlobal->info("Loading game state...");

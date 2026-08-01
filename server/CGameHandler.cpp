@@ -580,6 +580,8 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 
 	for (const auto & elem : gameState().players)
 		turnOrder->addPlayer(elem.first);
+
+	configureReplayLog();
 }
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
@@ -1710,6 +1712,14 @@ void CGameHandler::load(const StartInfo &info)
 
 	gs->preInit(LIBRARY);
 	gs->updateOnLoad(info);
+
+	configureReplayLog();
+}
+
+void CGameHandler::configureReplayLog()
+{
+	const int roundsKept = settings["server"]["replayRoundsKept"].Integer();
+	gs->replayLog.configure(gs->getStartInfo()->extraOptionsInfo.recordGame, std::max(0, roundsKept));
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)

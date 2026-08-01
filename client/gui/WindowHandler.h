@@ -20,6 +20,9 @@ class WindowHandler
 	/// Temporary list of recently popped windows
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
+	/// Widget drawn on top of every window and outside of the stack, e.g. the replay abort button
+	std::shared_ptr<IShowActivatable> overlay;
+
 	bool totalRedrawRequested = false;
 
 	/// returns top windows
@@ -73,6 +76,15 @@ public:
 
 	/// erases all currently existing windows from the stack
 	void clear();
+
+	/// installs a widget that is drawn on top of all windows, pass nullptr to remove it
+	void setOverlay(std::shared_ptr<IShowActivatable> newOverlay);
+
+	/// removes all windows from the stack without destroying them, so that they can be put back later
+	std::vector<std::shared_ptr<IShowActivatable>> detachAll();
+
+	/// replaces current stack with a previously detached one
+	void attachAll(std::vector<std::shared_ptr<IShowActivatable>> windows);
 
 	/// returns all existing windows of selected type
 	template <typename T>

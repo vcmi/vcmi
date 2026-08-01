@@ -214,6 +214,15 @@ private:
 		T * internalPtr = data.get();
 		save(internalPtr);
 	}
+	/// raw blob of bytes, e.g. a gamestate snapshot - written in bulk instead of byte by byte
+	void save(const std::vector<std::byte> & data)
+	{
+		uint32_t length = data.size();
+		*this & length;
+		if(length != 0)
+			writer->write(data.data(), length);
+	}
+
 	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
 	void save(const std::vector<T> & data)
 	{

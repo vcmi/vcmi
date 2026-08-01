@@ -110,6 +110,9 @@ void WindowHandler::totalRedrawImpl()
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
+
+	if(overlay)
+		overlay->showAll(target);
 }
 
 void WindowHandler::simpleRedraw()
@@ -128,6 +131,9 @@ void WindowHandler::simpleRedrawImpl()
 
 	if(!windowsStack.empty())
 		windowsStack.back()->show(target); //blit active interface/window
+
+	if(overlay)
+		overlay->showAll(target);
 }
 
 void WindowHandler::onScreenResize()
@@ -155,4 +161,40 @@ void WindowHandler::clear()
 
 	windowsStack.clear();
 	disposed.clear();
+}
+
+void WindowHandler::setOverlay(std::shared_ptr<IShowActivatable> newOverlay)
+{
+	if(overlay)
+		overlay->deactivate();
+
+	overlay = std::move(newOverlay);
+
+	if(overlay)
+		overlay->activate();
+
+	totalRedraw();
+}
+
+std::vector<std::shared_ptr<IShowActivatable>> WindowHandler::detachAll()
+{
+	if(!windowsStack.empty())
+		windowsStack.back()->deactivate();
+
+	auto result = std::move(windowsStack);
+	windowsStack.clear();
+	disposed.clear();
+	return result;
+}
+
+void WindowHandler::attachAll(std::vector<std::shared_ptr<IShowActivatable>> windows)
+{
+	clear();
+
+	windowsStack = std::move(windows);
+
+	if(!windowsStack.empty())
+		windowsStack.back()->activate();
+
+	totalRedraw();
 }

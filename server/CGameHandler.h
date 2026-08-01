@@ -261,6 +261,9 @@ public:
 		h & *statistics;
 	}
 
+	/// applies replay recording options of this game to the log kept inside the gamestate
+	void configureReplayLog();
+
 	void sendAndApply(CPackForClient & pack) override;
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);

@@ -27,6 +27,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../CServerHandler.h"
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CursorHandler.h"
@@ -139,7 +140,8 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	{
 		ENGINE->sound().setCallback(battleIntroSoundChannel, onIntroPlayed);
 
-		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+		// a replay is watched, not played - the intro is always skipped there
+		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool() || GAME->server().isReplayActive())
 			openingEnd();
 	}
 	else // failed to play sound
