@@ -828,6 +828,11 @@ Affected unit will deal full damage when shooting over walls in sieges. Does not
 
 Affected unit can use ranged attack even when blocked by enemy unit, like with Bow of the Sharpshooter relic
 
+- subtype: `bonusSubtype.freeShootingNoPenalty` (default) - unit may also shoot at units standing next to it, like with Bow of the Sharpshooter relic
+- subtype: `bonusSubtype.freeShootingExceptAdjacent` - units standing next to affected unit can only be attacked in melee, like HotA Steel Elves
+
+If unit has both variants of this bonus, `bonusSubtype.freeShootingNoPenalty` takes priority. Bonus with no subtype set behaves as `bonusSubtype.freeShootingNoPenalty`.
+
 ### BLOCKS_RETALIATION
 
 Affected unit will never receive retaliations when attacking

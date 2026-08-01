@@ -178,6 +178,10 @@
 
 	"FREE_SHOOTING":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.freeShootingNoPenalty" : null,
+			"bonusSubtype.freeShootingExceptAdjacent" : null,
+		}
 	},
 	
 	"FULL_MAP_DARKNESS":

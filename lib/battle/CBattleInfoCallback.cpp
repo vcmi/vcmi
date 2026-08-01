@@ -53,6 +53,16 @@ static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(con
 	}
 }
 
+/// Checks whether unit with free shooting may target units standing next to it. Unrestricted free
+/// shooting, e.g. Bow of the Sharpshooter, takes priority over restricted one, e.g. Steel Elves
+static bool canShootAdjacentUnits(const battle::Unit * attacker)
+{
+	static const auto restricted = Selector::typeSubtype(BonusType::FREE_SHOOTING, BonusCustomSubtype::freeShootingExceptAdjacent);
+	static const auto unrestricted = Selector::type()(BonusType::FREE_SHOOTING).And(restricted.Not());
+
+	return !attacker->hasBonus(restricted) || attacker->hasBonus(unrestricted);
+}
+
 static bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
 {
 	if(!middleHex.isValid())
@@ -1077,6 +1087,10 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 	{
 		if(battleCanShoot(attacker))
 		{
+			// e.g. Steel Elves - unit shoots freely while blocked, but adjacent units can only be attacked in melee
+			if(defender && !canShootAdjacentUnits(attacker) && isMeleeAttackPossible(attacker, defender))
+				return false;
+
 			auto limitedRangeBonus = attacker->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 			if(limitedRangeBonus == nullptr)
 			{

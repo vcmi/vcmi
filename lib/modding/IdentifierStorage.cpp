@@ -53,6 +53,8 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityEnemyHero", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", -1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementTeleporting", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "freeShootingNoPenalty", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "freeShootingExceptAdjacent", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel1", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel2", 2);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel3", 3);

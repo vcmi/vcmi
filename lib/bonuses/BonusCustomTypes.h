@@ -56,6 +56,9 @@ public:
 	static const BonusCustomSubtype movementFlying; // -1
 	static const BonusCustomSubtype movementTeleporting; // 1
 
+	static const BonusCustomSubtype freeShootingNoPenalty; // 0
+	static const BonusCustomSubtype freeShootingExceptAdjacent; // 1
+
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
 };
