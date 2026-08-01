@@ -8,7 +8,9 @@
  *
  */
 
-#include "AI/MMAI/common.h"
+#pragma once
+
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 namespace MMAI::BAI::V15
 {

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 namespace MMAI::BAI::V15::Graph
 {
 inline int permille(int v, int max)

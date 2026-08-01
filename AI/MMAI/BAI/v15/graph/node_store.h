@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "StdInc.h" // IWYU pragma: keep
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 #include "BAI/logger.h"
 #include "BAI/v15/state.h"
 #include "callback/CBattleGameInterface.h"

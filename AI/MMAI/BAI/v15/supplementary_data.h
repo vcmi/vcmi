@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 #include "BAI/v15/attack_log.h"
 #include "BAI/v15/graph/graph.h"
 #include "schema/v15/types.h"

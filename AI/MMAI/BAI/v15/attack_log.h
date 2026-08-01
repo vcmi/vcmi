@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/nodes/unit.h"
 #include "networkPacks/PacksForClientBattle.h"
 #include "schema/v15/types.h"

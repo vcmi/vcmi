@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "StdInc.h" // IWYU pragma: keep
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 #include "BAI/v15/graph/edges/hex_becomes_shoot_target_after_action.h"
 #include "BAI/v15/graph/edges/unit_becomes_shoot_target_after_action.h"

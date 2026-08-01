@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 #include "battle/CBattleInfoEssentials.h"
 #include "battle/CPlayerBattleCallback.h"
 #include "networkPacks/PacksForClientBattle.h"

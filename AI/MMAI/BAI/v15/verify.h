@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
 #include "BAI/v15/state.h"
 
 namespace MMAI::BAI::V15
