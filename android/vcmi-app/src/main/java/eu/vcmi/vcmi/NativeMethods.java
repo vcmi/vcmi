@@ -54,6 +54,12 @@ public class NativeMethods
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    public static int getKeyboardHeight()
+    {
+        return VcmiSDLActivity.getKeyboardHeight();
+    }
+
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static void showProgress()
     {
         internalProgressDisplay(true);

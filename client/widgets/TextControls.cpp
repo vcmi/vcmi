@@ -473,8 +473,15 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		//assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		ENGINE->input().startTextInput(pos);
 		setText(consoleText);
+
+		// after setText, so the reported area is the one the entered text is drawn in.
+		// the status bar is the bottom-most element, so claim everything below it as well -
+		// that keeps the whole bar clear of the on-screen keyboard whatever its own height is
+		Rect inputArea = background ? background->pos : pos;
+		inputArea.h = std::max(inputArea.h, ENGINE->screenDimensions().y - inputArea.y);
+
+		ENGINE->input().startTextInput(inputArea);
 	}
 	else
 	{

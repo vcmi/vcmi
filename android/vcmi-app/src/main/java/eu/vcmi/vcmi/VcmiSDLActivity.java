@@ -14,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import org.libsdl.app.SDLActivity;
 
 import java.lang.reflect.Method;
@@ -31,6 +34,9 @@ public class VcmiSDLActivity extends SDLActivity
     final Messenger mClientMessenger = new Messenger(
             new IncomingServerMessageHandler(
                     new OnServerRegisteredCallback()));
+    /// height the on-screen keyboard covers, read by the engine to keep the text field visible
+    private static volatile int keyboardHeight = 0;
+
     Messenger mServiceMessenger = null;
     boolean mIsServerServiceBound;
     private View mProgressBar;
@@ -115,6 +121,8 @@ public class VcmiSDLActivity extends SDLActivity
         setContentView(outerLayout);
 
         VcmiSDLActivity.this.setWindowStyle(true); // set fullscreen
+
+        trackKeyboardHeight();
     }
 
     @Override
@@ -142,6 +150,29 @@ public class VcmiSDLActivity extends SDLActivity
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus)
             scheduleInputFocusRestore();
+    }
+
+    public static int getKeyboardHeight()
+    {
+        return keyboardHeight;
+    }
+
+    /**
+     * The game renders into a surface of its own, so android never moves the text field out of the
+     * way - the engine does it and only needs to know how much of the screen is covered.
+     */
+    private void trackKeyboardHeight()
+    {
+        if (mSurface == null)
+        {
+            return;
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mSurface, (view, insets) ->
+        {
+            keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            return insets;
+        });
     }
 
     private void scheduleInputFocusRestore()

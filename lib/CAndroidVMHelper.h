@@ -37,6 +37,8 @@ public:
 
 	std::string callStaticStringMethod(const std::string & cls, const std::string & method, bool classloaded = false);
 
+	int callStaticIntMethod(const std::string & cls, const std::string & method, bool classloaded = false);
+
 	void callCustomMethod(const std::string & cls, const std::string & method, const std::string & signature,
 						  std::function<void(JNIEnv *, jclass, jmethodID)> fun, bool classloaded = false);
 

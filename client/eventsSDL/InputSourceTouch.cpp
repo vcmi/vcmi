@@ -83,7 +83,11 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			};
 
 			ENGINE->input().moveCursorPosition(moveDistance);
-			ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x * scalingFactor, ENGINE->getCursorPosition().y * scalingFactor);
+
+			// the cursor is drawn after the panned screen, so it needs the pan taken back out
+			Point cursorOnScreen = ENGINE->getCursorPosition();
+			cursorOnScreen.y -= ENGINE->screenHandler().getScreenPanOffset();
+			ENGINE->cursor().cursorMove(cursorOnScreen.x * scalingFactor, cursorOnScreen.y * scalingFactor);
 
 			break;
 		}
@@ -303,7 +307,12 @@ void InputSourceTouch::handleUpdate()
 
 Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger)
 {
-	return convertTouchToMouse(tfinger.x, tfinger.y);
+	Point position = convertTouchToMouse(tfinger.x, tfinger.y);
+
+	// the screen may be panned up for the on-screen keyboard - the finger points at what is drawn there
+	position.y += ENGINE->screenHandler().getScreenPanOffset();
+
+	return position;
 }
 
 Point InputSourceTouch::convertTouchToMouse(float x, float y)

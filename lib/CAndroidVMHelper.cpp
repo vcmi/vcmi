@@ -79,6 +79,15 @@ std::string CAndroidVMHelper::callStaticStringMethod(const std::string & cls, co
 	return std::string(env->GetStringUTFChars(jres, nullptr));
 }
 
+int CAndroidVMHelper::callStaticIntMethod(const std::string & cls, const std::string & method,
+										  bool classloaded)
+{
+	auto env = get();
+	auto javaHelper = findClass(cls, classloaded);
+	auto methodId = env->GetStaticMethodID(javaHelper, method.c_str(), "()I");
+	return env->CallStaticIntMethod(javaHelper, methodId);
+}
+
 void CAndroidVMHelper::callCustomMethod(const std::string & cls, const std::string & method,
 										const std::string & signature,
 										std::function<void(JNIEnv *, jclass, jmethodID)> fun, bool classloaded)

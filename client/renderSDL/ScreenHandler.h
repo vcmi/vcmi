@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
+#include "../../lib/Rect.h"
 #include "../render/IScreenHandler.h"
 
 struct SDL_Texture;
@@ -50,6 +51,10 @@ class ScreenHandler final : public IScreenHandler
 
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
 	ColorScheme colorScheme = ColorScheme::NONE;
+
+	/// Rect of the text field currently being edited, in window coordinates
+	Rect textInputArea;
+
 
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
@@ -120,6 +125,8 @@ public:
 	Canvas getScreenCanvas() const final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
+	void setTextInputArea(const Rect & area) final;
+	int getScreenPanOffset() const final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;

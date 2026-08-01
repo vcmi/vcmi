@@ -37,6 +37,14 @@ public:
 	/// Presents screen texture on the screen
 	virtual void presentScreenTexture() = 0;
 
+	/// Area that must stay visible while the on-screen keyboard is open, in logical coordinates.
+	/// Empty rect disables it
+	virtual void setTextInputArea(const Rect & area) = 0;
+
+	/// How far the screen is currently moved up to keep that area clear of the keyboard,
+	/// in logical coordinates. Input positions have to be corrected by it
+	virtual int getScreenPanOffset() const = 0;
+
 	/// Returns list of resolutions supported by current screen
 	virtual std::vector<Point> getSupportedResolutions() const = 0;
 

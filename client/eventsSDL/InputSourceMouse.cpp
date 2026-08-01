@@ -37,7 +37,9 @@ InputSourceMouse::InputSourceMouse()
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
+	// the screen may be panned up for the on-screen keyboard - the finger points at what is drawn there
 	Point newPosition = Point(motion.x, motion.y) / ENGINE->screenHandler().getScalingFactor();
+	newPosition.y += ENGINE->screenHandler().getScreenPanOffset();
 	motionAccumulatedX += static_cast<float>(-motion.xrel) / ENGINE->screenHandler().getScalingFactor();
 	motionAccumulatedY += static_cast<float>(-motion.yrel) / ENGINE->screenHandler().getScalingFactor();
 	Point distance = Point(motionAccumulatedX, motionAccumulatedY);

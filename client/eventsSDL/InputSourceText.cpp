@@ -45,6 +45,7 @@ void InputSourceText::startTextInput(const Rect & whereInput)
 		SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
 
 		SDL_SetTextInputRect(&textInputRect);
+		ENGINE->screenHandler().setTextInputArea(whereInput);
 
 		if (SDL_IsTextInputActive() == SDL_FALSE)
 		{
@@ -57,6 +58,8 @@ void InputSourceText::stopTextInput()
 {
 	ENGINE->dispatchMainThread([]()
 	{
+		ENGINE->screenHandler().setTextInputArea(Rect());
+
 		if (SDL_IsTextInputActive() == SDL_TRUE)
 		{
 			SDL_StopTextInput();

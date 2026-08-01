@@ -676,10 +676,70 @@ void ScreenHandler::updateScreenTexture()
 	SDL_FreeSurface(screenScheme);
 }
 
+void ScreenHandler::setTextInputArea(const Rect & area)
+{
+	textInputArea = area;
+}
+
+/// Android draws the on-screen keyboard over the game, so shift the whole screen up by as much
+/// as the keyboard covers of the active text field - the same thing adjustPan does for normal apps
+int ScreenHandler::getScreenPanOffset() const
+{
+#ifdef VCMI_ANDROID
+	if(textInputArea.h == 0)
+		return 0;
+
+	CAndroidVMHelper vmHelper;
+	int keyboardHeight = vmHelper.callStaticIntMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getKeyboardHeight");
+
+	if(keyboardHeight <= 0)
+		return 0;
+
+	int windowWidth = 0;
+	int windowHeight = 0;
+	SDL_GetRendererOutputSize(mainRenderer, &windowWidth, &windowHeight);
+
+	if(windowHeight <= 0)
+		return 0;
+
+	// the keyboard is measured in window pixels, everything below works in logical ones
+	Point logicalSize = getLogicalResolution();
+	int keyboardCovers = keyboardHeight * logicalSize.y / windowHeight;
+	// a little air, so the field does not sit flush against the keyboard
+	static constexpr int keyboardMargin = 8;
+
+	int coveredFromY = logicalSize.y - keyboardCovers;
+	int overlap = textInputArea.y + textInputArea.h - coveredFromY;
+
+	// already far enough above the keyboard
+	if(overlap + keyboardMargin <= 0)
+		return 0;
+
+	// upper bound is the screen, not the visible part - otherwise the margin gets capped away
+	// for fields that sit low and the field would end up flush against the keyboard after all
+	return std::min(overlap + keyboardMargin, logicalSize.y);
+#else
+	return 0;
+#endif
+}
+
 void ScreenHandler::presentScreenTexture()
 {
 	SDL_RenderClear(mainRenderer);
-	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+
+	// render coordinates are the logical ones scaled by the upscaling filter
+	int panOffset = getScreenPanOffset() * getScalingFactor();
+
+	if(panOffset > 0)
+	{
+		SDL_Rect destination{0, -panOffset, screen->w, screen->h};
+		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, &destination);
+	}
+	else
+	{
+		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	}
+
 	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
