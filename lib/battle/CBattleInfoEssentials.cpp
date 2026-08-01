@@ -333,14 +333,15 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 
 	//cannot flee after casting spell in X first turns as attacker
 	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
-		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1)
+		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1
+		&& !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_AFTER_SPELLCAST))
 		return false;
 
 	//we are besieged defender
 	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
 	{
 		const auto * town = battleGetDefendedTown();
-		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
+		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL) && !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_FROM_SIEGE))
 			return false;
 	}
 
@@ -412,9 +413,21 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(side == BattleSide::NONE)
 		return false;
+	const CGHeroInstance * myHero = battleGetFightingHero(side);
+	if(!myHero)
+		return false;
+
+	//we are besieged defender - escape tunnel allows fleeing, but not surrendering
 	bool iAmSiegeDefender = (side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
-	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
-	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side));
+	if(iAmSiegeDefender && !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_FROM_SIEGE))
+		return false;
+
+	//enemy must have a hero to negotiate with
+	if(!battleHasHero(otherSide(side)) && !myHero->hasBonusOfType(BonusType::SURRENDER_WITHOUT_ENEMY_HERO))
+		return false;
+
+	//remaining conditions are the same as for fleeing
+	return battleCanFlee(player);
 }
 
 bool CBattleInfoEssentials::battleHasHero(BattleSide side) const

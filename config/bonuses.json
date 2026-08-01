@@ -579,7 +579,27 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
+
+	"SURRENDER_WITHOUT_ENEMY_HERO":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"BATTLE_ESCAPE_FROM_SIEGE":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"BATTLE_ESCAPE_AFTER_SPELLCAST":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"DIPLOMACY_ARMY_STRENGTH_MULTIPLIER":
+	{
+		"blockDescriptionPropagation": true
+	},
+
 	"DEITYOFFIRE":
 	{
 		"blockDescriptionPropagation": true

@@ -207,6 +207,10 @@ class JsonNode;
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE) /*skill-agnostic eagle eye spell level limit to learn enemy hero spells at battle start*/\
 	BONUS_NAME(SURRENDER_MARKETPLACE_ACCESS) /*Allows hero to open marketplace when unable to pay surrender cost*/ \
 	BONUS_NAME(SPECIAL_SPELL_SCALING) /*like SPECIAL_SPELL_LEV but with H3-correct per-target-level rounding; subtype = spell, val = percent per step*/\
+	BONUS_NAME(SURRENDER_WITHOUT_ENEMY_HERO) /*Allows hero to surrender in battles against armies without a hero, e.g. neutral monsters*/\
+	BONUS_NAME(BATTLE_ESCAPE_FROM_SIEGE) /*Allows hero to retreat or surrender while defending a town, like escape tunnel does*/\
+	BONUS_NAME(BATTLE_ESCAPE_AFTER_SPELLCAST) /*Allows attacking hero to retreat or surrender even after casting a spell in first combat rounds*/\
+	BONUS_NAME(DIPLOMACY_ARMY_STRENGTH_MULTIPLIER) /*Scales army strength as seen by neutral creatures deciding to join or flee, and by Thieves Guild; val - multiplier in percent*/\
 
 	/* end of list */
 
