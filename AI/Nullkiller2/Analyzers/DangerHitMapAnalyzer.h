@@ -74,7 +74,7 @@ public:
 
 	void updateHitMap();
 	void calculateTileOwners();
-	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
+	bool enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
 	const HitMapNode & getObjectThreat(const CGObjectInstance * obj) const;
 	const HitMapNode & getTileThreat(const int3 & tile) const;
 	std::set<const CGObjectInstance *> getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
