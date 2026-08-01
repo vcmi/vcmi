@@ -9,11 +9,10 @@
  */
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "schema/v15/types.h"
 #include "vstd/CLoggerBase.h"
-#include <chrono>
-#include <map>
-#include <span>
 
 namespace MMAI::BAI::V15::Encoder
 {

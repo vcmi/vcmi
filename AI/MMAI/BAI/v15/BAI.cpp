@@ -8,18 +8,15 @@
  *
  */
 
-#include "StdInc.h"
 #include "AI/BattleAI/BattleEvaluator.h"
 #include "BAI/v15/graph/nodes/action.h"
 #include "battle/BattleAction.h"
 #include "battle/BattleStateInfoForRetreat.h"
 #include "battle/CBattleInfoEssentials.h"
 #include "callback/CBattleCallback.h"
-#include "schema/v15/constants.h"
 
 #include "BAI/v15/BAI.h"
 #include "BAI/v15/render.h"
-#include "BAI/v15/supplementary_data.h"
 #include "BAI/v15/verify.h"
 #include "common.h"
 #include "schema/base.h"

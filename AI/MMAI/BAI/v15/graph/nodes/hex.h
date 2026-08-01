@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/nodes/base.h"
 #include "battle/AccessibilityInfo.h"
 #include "battle/BattleHex.h"
@@ -17,11 +19,6 @@
 #include "schema/v15/constants.h"
 #include "schema/v15/graph.h"
 #include "schema/v15/types.h"
-
-#include <array>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace MMAI::BAI::V15::Graph::Nodes
 {

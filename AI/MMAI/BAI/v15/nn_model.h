@@ -10,9 +10,11 @@
 
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/factory.h"
 #include "schema/base.h"
-#include "schema/v15/types.h"
+#include "schema/v15/graph.h"
 
 #include <onnxruntime_cxx_api.h>
 

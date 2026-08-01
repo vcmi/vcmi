@@ -1,8 +1,9 @@
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/element.h"
 #include "schema/v15/graph.h"
-#include <sstream>
 
 namespace MMAI::BAI::V15::Graph::Edges
 {

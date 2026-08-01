@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/nodes/base.h"
 #include "battle/BattleSide.h"
 #include "schema/v15/constants.h"

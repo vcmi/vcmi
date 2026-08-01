@@ -1,12 +1,13 @@
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "CStack.h"
 #include "battle/AccessibilityInfo.h"
 #include "battle/BattleHex.h"
 #include "battle/CObstacleInstance.h"
 #include "battle/CPlayerBattleCallback.h"
 #include "constants/Enumerations.h"
-#include <memory>
 
 namespace MMAI::BAI::V15
 {

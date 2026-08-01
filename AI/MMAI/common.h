@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include "StdInc.h"
+#include "StdInc.h" // IWYU pragma: keep
+
 #include "CThreadHelper.h"
 #include <filesystem>
 

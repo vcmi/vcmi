@@ -8,7 +8,7 @@
  *
  */
 
-#include "StdInc.h" // IWYU pragma: keep
+#include "BAI/v15/state.h"
 
 #include "BAI/v15/fastbfs.h"
 #include "BAI/v15/graph/edges/action_ends_at_hex.h"
@@ -34,20 +34,10 @@
 #include "entities/building/TownFortifications.h"
 #include "networkPacks/PacksForClientBattle.h"
 
-#include "BAI/v15/state.h"
-#include "common.h"
 #include "schema/v15/types.h"
 #include "spells/CSpellHandler.h"
 #include "spells/ISpellMechanics.h"
 #include "spells/ProxyCaster.h"
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <tuple>
-#include <unordered_map>
 
 namespace MMAI::BAI::V15
 {

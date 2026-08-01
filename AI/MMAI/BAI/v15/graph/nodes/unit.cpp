@@ -12,9 +12,6 @@
 #include "bonuses/BonusParameters.h"
 #include "spells/CSpellHandler.h"
 
-#include <cmath>
-#include <iostream>
-#include <stdexcept>
 
 namespace MMAI::BAI::V15::Graph::Nodes
 {

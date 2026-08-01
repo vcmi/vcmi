@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "CCreatureHandler.h"
 #include "CStack.h"
 

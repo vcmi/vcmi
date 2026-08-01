@@ -8,9 +8,6 @@
  *
  */
 
-#include "StdInc.h"
-
-#include "common.h"
 #include "nn_model.h"
 #include "schema/base.h"
 #include "schema/v15/constants.h"

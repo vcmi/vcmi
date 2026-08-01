@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/edges/base.h"
 #include "BAI/v15/graph/nodes/action.h"
 #include "BAI/v15/graph/nodes/global.h"

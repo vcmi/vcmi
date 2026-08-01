@@ -8,9 +8,8 @@
  *
  */
 
-#include "StdInc.h"
-
 #include "BAI/v15/supplementary_data.h"
+
 #include "schema/v15/types.h"
 
 namespace MMAI::BAI::V15

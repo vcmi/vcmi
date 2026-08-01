@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.h" // IWYU pragma: keep
+
 #include "BAI/v15/graph/edges/base.h"
 #include "BAI/v15/graph/nodes/unit.h"
 #include "schema/v15/constants.h"

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "common.h" // IWYU pragma: keep
 
 #include "BAI/v15/encoder.h"
 #include "schema/v15/graph.h"
