@@ -1,5 +1,5 @@
 /*
- * render.h, part of VCMI engine
+ * verify.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
