@@ -9,6 +9,7 @@
  */
 
 #include "BAI/v15/graph/nodes/player.h"
+
 #include "BAI/v15/graph/util.h"
 
 #include "AI/MMAI/common.h"

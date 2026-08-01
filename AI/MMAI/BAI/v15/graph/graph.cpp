@@ -9,6 +9,7 @@
  */
 
 #include "BAI/v15/graph/graph.h"
+
 #include "BAI/v15/fastbfs.h"
 #include "schema/v15/graph.h"
 #include <stdexcept>

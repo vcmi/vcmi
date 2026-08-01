@@ -9,6 +9,7 @@
  */
 
 #include "BAI/v15/render.h"
+
 #include "BAI/v15/graph/edges/generic.h"
 #include "BAI/v15/graph/edges/unit_melee_dmg_unit.h"
 #include "BAI/v15/graph/nodes/hex.h"

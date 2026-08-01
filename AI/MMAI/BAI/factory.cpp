@@ -9,6 +9,7 @@
  */
 
 #include "factory.h"
+
 #include "callback/CBattleGameInterface.h"
 #include "filesystem/Filesystem.h"
 #include <onnxruntime_c_api.h>

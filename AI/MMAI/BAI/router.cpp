@@ -8,6 +8,8 @@
  *
  */
 
+#include "BAI/router.h"
+
 #include "StdInc.h"
 #include "callback/CBattleCallback.h"
 #include "callback/IGameInfoCallback.h"
@@ -20,7 +22,6 @@
 
 #include "BAI/factory.h"
 #include "BAI/fallback/scripted_model.h"
-#include "BAI/router.h"
 #include "BAI/v13/BAI.h"
 
 #include "common.h"

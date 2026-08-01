@@ -8,6 +8,8 @@
  *
  */
 
+#include "BAI/v15/BAI.h"
+
 #include "AI/BattleAI/BattleEvaluator.h"
 #include "BAI/v15/graph/nodes/action.h"
 #include "battle/BattleAction.h"
@@ -15,7 +17,6 @@
 #include "battle/CBattleInfoEssentials.h"
 #include "callback/CBattleCallback.h"
 
-#include "BAI/v15/BAI.h"
 #include "BAI/v15/render.h"
 #include "BAI/v15/verify.h"
 #include "common.h"

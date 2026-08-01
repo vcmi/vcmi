@@ -8,6 +8,8 @@
  *
  */
 
+#include "verify.h"
+
 #include "BAI/v15/graph/edges/generic.h"
 #include "BAI/v15/graph/edges/hex_adjacent_hex.h"
 #include "BAI/v15/graph/edges/unit_acts_before_unit.h"
@@ -30,7 +32,6 @@
 
 #include "common.h"
 #include "schema/v15/types.h"
-#include "verify.h"
 #include <algorithm>
 #include <string>
 #include <vector>

@@ -9,6 +9,7 @@
  */
 
 #include "BAI/v15/graph/nodes/global.h"
+
 #include "battle/BattleSide.h"
 #include "schema/v15/types.h"
 

@@ -9,6 +9,7 @@
  */
 
 #include "BAI/v15/graph/edges/unit_shoot_dmg_unit.h"
+
 #include "BAI/v15/graph/util.h"
 
 namespace MMAI::BAI::V15::Graph::Edges

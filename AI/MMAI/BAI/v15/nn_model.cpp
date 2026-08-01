@@ -9,6 +9,7 @@
  */
 
 #include "nn_model.h"
+
 #include "schema/base.h"
 #include "schema/v15/constants.h"
 #include "schema/v15/graph.h"
