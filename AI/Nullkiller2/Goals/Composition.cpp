@@ -88,7 +88,7 @@ Composition & Composition::addNext(TSubgoal goal)
 	if(goal->goalType == COMPOSITION)
 	{
 		Composition & other = dynamic_cast<Composition &>(*goal);
-		
+
 		vstd::concatenate(subtasks, other.subtasks);
 	}
 	else
@@ -109,6 +109,41 @@ bool Composition::isElementar() const
 	return subtasks.back().front()->isElementar();
 }
 
+const CGHeroInstance * Composition::getHero() const
+{
+	const CGHeroInstance * result = nullptr;
+
+	for(auto sequence : subtasks)
+	{
+		for(auto task : sequence)
+		{
+			const auto * taskHero = task->isElementar() ? taskptr(*task)->getHero() : task->hero;
+			if(!taskHero)
+				continue;
+			if(result && result != taskHero)
+				return nullptr;
+
+			result = taskHero;
+		}
+	}
+
+	return result;
+}
+
+bool Composition::containsGoalType(EGoals goalType) const
+{
+	for(auto sequence : subtasks)
+	{
+		for(auto task : sequence)
+		{
+			if(task->goalType == goalType)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 int Composition::getHeroExchangeCount() const
 {
 	auto result = 0;
@@ -116,11 +151,9 @@ int Composition::getHeroExchangeCount() const
 	for(auto task : subtasks.back())
 	{
 		if(task->isElementar())
-		{
 			result += taskptr(*task)->getHeroExchangeCount();
-		}
 	}
-	
+
 	return result;
 }
 
@@ -132,8 +165,7 @@ std::vector<ObjectInstanceID> Composition::getAffectedObjects() const
 	{
 		for(auto task : sequence)
 		{
-			if(task->isElementar())
-				vstd::concatenate(affectedObjects, task->asTask()->getAffectedObjects());
+			vstd::concatenate(affectedObjects, task->getAffectedObjects());
 		}
 	}
 
@@ -148,7 +180,7 @@ bool Composition::isObjectAffected(ObjectInstanceID id) const
 	{
 		for(auto task : sequence)
 		{
-			if(task->isElementar() && task->asTask()->isObjectAffected(id))
+			if(task->isObjectAffected(id))
 				return true;
 		}
 	}

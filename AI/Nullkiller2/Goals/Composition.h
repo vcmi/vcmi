@@ -34,6 +34,8 @@ namespace Goals
 		Composition & addNextSequence(const TGoalVec & taskSequence);
 		TGoalVec decompose(const Nullkiller * aiNk) const override;
 		bool isElementar() const override;
+		const CGHeroInstance * getHero() const override;
+		bool containsGoalType(EGoals goalType) const;
 		int getHeroExchangeCount() const override;
 
 		std::vector<ObjectInstanceID> getAffectedObjects() const override;

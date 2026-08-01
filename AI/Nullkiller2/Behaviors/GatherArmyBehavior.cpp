@@ -158,7 +158,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		if(isSafe)
 		{
 			Composition composition;
-			ExecuteHeroChain exchangePath(path, receiverHero);
+			ExecuteHeroChain exchangePath(path, receiverHero, false);
 			exchangePath.closestWayRatio = 1;
 			composition.addNext(heroExchange);
 

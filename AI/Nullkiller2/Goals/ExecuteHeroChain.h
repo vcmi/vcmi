@@ -21,11 +21,15 @@ namespace Goals
 	private:
 		AIPath chainPath;
 		std::string targetName;
+		bool affectsTargetObject;
 
 	public:
 		float closestWayRatio;
 
-		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
+		ExecuteHeroChain(
+			const AIPath & path,
+			const CGObjectInstance * obj = nullptr,
+			bool affectsTargetObject = true);
 
 		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;

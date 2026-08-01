@@ -80,8 +80,11 @@ bool executeSpecialAction(
 }
 }
 
-ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
-	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
+ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj, bool affectsTargetObject)
+	: ElementarGoal(Goals::EXECUTE_HERO_CHAIN),
+		chainPath(path),
+		affectsTargetObject(affectsTargetObject),
+		closestWayRatio(1)
 {
 	hero = path.targetHero;
 	tile = path.targetTile();
@@ -115,7 +118,7 @@ std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
 {
 	std::vector<ObjectInstanceID> affectedObjects = { chainPath.targetHero->id };
 
-	if(objid != -1)
+	if(affectsTargetObject && objid != -1)
 		affectedObjects.push_back(ObjectInstanceID(objid));
 
 	for(auto & node : chainPath.nodes)
@@ -131,7 +134,7 @@ std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
 
 bool ExecuteHeroChain::isObjectAffected(ObjectInstanceID id) const
 {
-	if(chainPath.targetHero->id == id || objid == id.getNum())
+	if(chainPath.targetHero->id == id || (affectsTargetObject && objid == id.getNum()))
 		return true;
 
 	for(auto & node : chainPath.nodes)
