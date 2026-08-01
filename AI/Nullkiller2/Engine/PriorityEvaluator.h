@@ -83,6 +83,9 @@ struct DLL_EXPORT EvaluationContext
 	bool canBeKilledByEnemy;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // powerRatio = heroPower / totalPower. The ratio of a hero's army strength to the total power of all creatures available to the AI
+	float routeAnchorBonus;
+	float routeAnchorMovementCost;
+	std::string routeAnchorName;
 
 	EvaluationContext(const Nullkiller * aiNk);
 

@@ -22,6 +22,10 @@ namespace Goals
 		AIPath chainPath;
 		std::string targetName;
 		bool affectsTargetObject;
+		ObjectInstanceID routeAnchor = ObjectInstanceID(-1);
+		float routeAnchorBonus = 0;
+		float routeAnchorMovementCost = 0;
+		std::string routeAnchorName;
 
 	public:
 		float closestWayRatio;
@@ -35,6 +39,11 @@ namespace Goals
 		std::string toString() const override;
 		bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }
+		void setRouteAnchorBonus(const CGObjectInstance * anchor, float bonus, float anchorMovementCost);
+		float getRouteAnchorBonus() const { return routeAnchorBonus; }
+		float getRouteAnchorMovementCost() const { return routeAnchorMovementCost; }
+		const std::string & getRouteAnchorName() const { return routeAnchorName; }
+		ObjectInstanceID getRouteAnchor() const { return routeAnchor; }
 
 		int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
 
