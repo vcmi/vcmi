@@ -13,6 +13,7 @@
 #include "StdInc.h" // IWYU pragma: keep
 
 #include "CThreadHelper.h"
+#include <source_location>
 
 namespace MMAI
 {
