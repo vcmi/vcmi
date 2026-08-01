@@ -13,7 +13,6 @@
 #include "StdInc.h" // IWYU pragma: keep
 
 #include "CThreadHelper.h"
-#include <filesystem>
 
 namespace MMAI
 {
@@ -26,7 +25,7 @@ inline void ASSERT(bool cond, std::string_view msg, const std::source_location &
 	if(!cond)
 	{
 		throw std::runtime_error(
-			std::string("Assertion failed in ") + std::filesystem::path(loc.file_name()).filename().string() + ":" + std::to_string(loc.line()) + ": "
+			std::string("Assertion failed in ") + boost::filesystem::path(loc.file_name()).filename().string() + ":" + std::to_string(loc.line()) + ": "
 			+ std::string(msg)
 		);
 	}
