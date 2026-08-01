@@ -660,6 +660,10 @@ const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumIn
 
 uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
+	// objects covering one tile no longer advance their animation at the same moment, so
+	// every animated one has to feed the checksum instead of just the first
+	uint8_t result = 0xff-1;
+
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
@@ -675,13 +679,14 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 		const Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
 		const auto & info = getChecksumInfo(context, objectInstance, groupIndex);
 
-		if(info.baseAnimated && offsetPixels.x < info.baseDimensions.x && offsetPixels.y < info.baseDimensions.y)
-			return context.objectImageIndex(objectID, 250);
+		const bool baseVisible = info.baseAnimated && offsetPixels.x < info.baseDimensions.x && offsetPixels.y < info.baseDimensions.y;
+		const bool flagVisible = info.flagAnimated && offsetPixels.x < info.flagDimensions.x && offsetPixels.y < info.flagDimensions.y;
 
-		if(info.flagAnimated && offsetPixels.x < info.flagDimensions.x && offsetPixels.y < info.flagDimensions.y)
-			return context.objectImageIndex(objectID, 250);
+		// odd multiplier, so a frame advancing by one always changes the result
+		if(baseVisible || flagVisible)
+			result = result * 31 + context.objectImageIndex(objectID, 250);
 	}
-	return 0xff-1;
+	return result;
 }
 
 MapRendererOverlay::MapRendererOverlay()
