@@ -209,6 +209,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	, currentMapSizeFilter(0)
 	, showRandom(false)
 	, deleteMode(false)
+	, positionsToShow(0)
 	, enableUiEnhancements(settings["general"]["enableUiEnhancements"].Bool())
 	, campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 {
@@ -253,7 +254,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		}
 	}
 
-	int positionsToShow = enableUiEnhancements ? 17 : 18;
+	positionsToShow = enableUiEnhancements ? 17 : 18;
 	std::string tabTitle;
 	std::string tabTitleDelete;
 	switch(tabType)
@@ -298,13 +299,13 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		searchWidgetBackground = std::make_shared<FilledTexturePlayerColored>(searchWidgetArea);
 		searchWidgetBackground->setPlayerColor(PlayerColor(1));
 
-		searchBoxLabel = std::make_shared<CLabel>(55, 129, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "Filter:");
+		searchBoxLabel = std::make_shared<CLabel>(55, 128, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "Filter:");
 		searchInputRectangle = std::make_shared<TransparentFilledRectangle>(searchTextInputArea, ColorRGBA(0, 0, 0, 128));
 
 		searchInput = std::make_shared<CTextInput>(searchTextInputArea, FONT_SMALL, ETextAlignment::CENTER, true);
 		searchInput->setCallback([this](const std::string & text) {
 									 std::shared_ptr<ElementInfo> selectedMap = getSelectedMapInfo();
-									 bool hideSelectedElement = !selectedMap || !isSubstringCI(getSelectedMapInfo()->name, text);
+									 bool hideSelectedElement = !selectedMap || !checkNameFilter(getSelectedMapInfo()->name);
 									 filter(-1, hideSelectedElement);
 									 if (!hideSelectedElement)
 									 {
@@ -689,18 +690,17 @@ void SelectionTab::filter(int size, bool selectFirst)
 				}			
 			}
 
-			auto folder = std::make_shared<ElementInfo>();
-			folder->isFolder = true;
-			folder->folderName = folderName;
-			folder->isAutoSaveFolder = boost::starts_with(baseFolder, "Autosave/") && folderName != "Autosave";
-			auto itemIt = std::ranges::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
-			if (itemIt == curItems.end() && folderName != "") {
-				curItems.push_back(folder);
-			}
+			if (!enableUiEnhancements || checkNameFilter(elem->name)) {
+				auto folder = std::make_shared<ElementInfo>();
+				folder->isFolder = true;
+				folder->folderName = folderName;
+				folder->isAutoSaveFolder = boost::starts_with(baseFolder, "Autosave/") && folderName != "Autosave";
+				auto itemIt = std::ranges::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
+				if (itemIt == curItems.end() && folderName != "") {
+					curItems.push_back(folder);
+				}
 
-			if(fileInFolder)
-			{
-				if (!enableUiEnhancements || isSubstringCI(elem->name, searchInput->getText()))
+				if(fileInFolder)
 					curItems.push_back(elem);
 			}
 		}
@@ -820,6 +820,9 @@ void SelectionTab::select(int position)
 		auto filename = *CResourceHandler::get()->getResourceName(ResourcePath(curItems[py]->fileURI, EResType::SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
+
+	if (curItems.size() <= positionsToShow)
+		slider->scrollToMin();
 
 	updateListItems();
 	redraw();
@@ -996,9 +999,10 @@ void SelectionTab::restoreLastSelection()
 	}
 }
 
-bool SelectionTab::isSubstringCI(const std::string & fullstring, const std::string & substring)
+bool SelectionTab::checkNameFilter(const std::string & fullstring) const
 {
-	return std::search(fullstring.begin(), fullstring.end(), substring.begin(), substring.end(),
+	std::string filter = searchInput->getText();
+	return std::search(fullstring.begin(), fullstring.end(), filter.begin(), filter.end(),
 					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 

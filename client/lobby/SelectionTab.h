@@ -119,7 +119,7 @@ public:
 	void setRequiredHumanPlayers(size_t players);
 	void rememberCurrentSelection();
 	void restoreLastSelection();
-	bool isSubstringCI(const std::string & fullString, const std::string & substring);
+	bool checkNameFilter(const std::string & fullstring) const;
 
 private:
 	std::shared_ptr<CPicture> background;
@@ -132,6 +132,7 @@ private:
 	std::shared_ptr<TransparentFilledRectangle> searchInputRectangle;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
+	int positionsToShow;
 
 	std::shared_ptr<CButton> buttonDeleteMode;
 	std::shared_ptr<ScenarioTabConfigurable> scenarioTabConfigurable;
