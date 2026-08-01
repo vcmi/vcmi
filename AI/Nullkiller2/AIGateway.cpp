@@ -149,6 +149,8 @@ void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
+	status.recordMovementResult(details);
+
 	const auto hero = cc->getHero(details.id);
 	if(!hero)
 		validateObject(ObjectIdRef(details.id, cc.get())); //enemy hero may have left visible area
@@ -1271,6 +1273,20 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 		}
 	};
 
+	auto throwOnFailedMovement = [&]() -> void
+	{
+		auto movementResult = status.getLastMovementResult(heroPtr->id);
+		if(movementResult && movementResult->result == TryMoveHero::FAILED)
+		{
+			logAi->warn(
+				"Movement request for hero %s from %s to %s failed.",
+				heroPtr->getNameTextID(),
+				movementResult->start.toString(),
+				movementResult->end.toString());
+			throw cannotFulfillGoalException("Hero movement request failed.");
+		}
+	};
+
 	logAi->debug("Moving hero %s to tile %s", heroPtr->getNameTextID(), dst.toString());
 	int3 startHpos = heroPtr->visitablePos();
 	bool ret = false;
@@ -1278,8 +1294,10 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
+		status.clearLastMovementResult(heroPtr->id);
 		cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+		throwOnFailedMovement();
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
@@ -1343,6 +1361,7 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 				}
 			}
 
+			status.clearLastMovementResult(heroPtr->id);
 			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit, layer);
 		};
 
@@ -1356,10 +1375,12 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 			destinationTeleport = exitId;
 			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
+			status.clearLastMovementResult(heroPtr->id);
 			cc->moveHero(*heroPtr, heroPtr->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
+			throwOnFailedMovement();
 		};
 
 		auto doChannelProbing = [&]() -> void
@@ -1398,6 +1419,16 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 			const auto & nextNode = path.nodes[i - 1];
 			int3 nextCoord = nextNode.coord;
 
+			if(currentCoord != heroPtr->visitablePos())
+			{
+				logAi->warn(
+					"Stopping stale movement path for hero %s: expected current tile %s, actual tile is %s.",
+					heroPtr->getNameTextID(),
+					currentCoord.toString(),
+					heroPtr->visitablePos().toString());
+				throw cannotFulfillGoalException("Hero movement path diverged.");
+			}
+
 			auto currentObject = getObj(currentCoord, currentCoord == heroPtr->visitablePos());
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
@@ -1422,6 +1453,17 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 					: HeroMovementResult::PROGRESSED;
 			}
 
+			if(heroPtr->movementPointsRemaining() <= 0)
+			{
+				logAi->debug(
+					"Stopping movement path for hero %s before moving to %s: no movement points left.",
+					heroPtr->getNameTextID(),
+					nextCoord.toString());
+				return startHpos == heroPtr->visitablePos()
+					? HeroMovementResult::BLOCKED
+					: HeroMovementResult::PROGRESSED;
+			}
+
 			if(nextCoord == heroPtr->visitablePos())
 				continue;
 
@@ -1440,6 +1482,14 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 				doMovement(nextCoord, false, nextNode.layer);
 
 			afterMovementCheck();
+			throwOnFailedMovement();
+
+			auto movementResult = status.getLastMovementResult(heroPtr->id);
+			if(movementResult && movementResult->result == TryMoveHero::BLOCKING_VISIT)
+			{
+				i--;
+				break;
+			}
 
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
@@ -1808,6 +1858,29 @@ ObjectInstanceID AIStatus::getCurrentVisitedObject()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	return objectsBeingVisited.empty() ? ObjectInstanceID::NONE : objectsBeingVisited.back();
+}
+
+void AIStatus::clearLastMovementResult(ObjectInstanceID heroID)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	lastMovementResults.erase(heroID);
+}
+
+void AIStatus::recordMovementResult(const TryMoveHero & details)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	lastMovementResults[details.id] = details;
+	cv.notify_all();
+}
+
+std::optional<TryMoveHero> AIStatus::getLastMovementResult(ObjectInstanceID heroID)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	auto result = lastMovementResults.find(heroID);
+	if(result == lastMovementResults.end())
+		return std::nullopt;
+
+	return result->second;
 }
 
 void AIStatus::setMove(bool ongoing)

@@ -17,6 +17,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
@@ -42,6 +43,7 @@ class AIStatus
 	std::map<QuestionID, std::string> remainingQuestions;
 	std::map<int, QuestionID> requestToQuestionID; //IDs of answer-requests sent to server => question ids (so we can match answer confirmation from server to the question)
 	std::vector<ObjectInstanceID> objectsBeingVisited;
+	std::map<ObjectInstanceID, TryMoveHero> lastMovementResults;
 	bool ongoingHeroMovement;
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
@@ -66,6 +68,9 @@ public:
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
 	ObjectInstanceID getCurrentVisitedObject();
+	void clearLastMovementResult(ObjectInstanceID heroID);
+	void recordMovementResult(const TryMoveHero & details);
+	std::optional<TryMoveHero> getLastMovementResult(ObjectInstanceID heroID);
 };
 
 // The gateway is responsible for AI events handling. Copied from VCAI.h and refined a bit
