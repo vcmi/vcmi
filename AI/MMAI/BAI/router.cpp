@@ -22,7 +22,7 @@
 
 #include "BAI/factory.h"
 #include "BAI/fallback/scripted_model.h"
-#include "BAI/v13/BAI.h"
+#include "BAI/v13/BAI_v13.h"
 
 #include "AI/MMAI/common.h"
 

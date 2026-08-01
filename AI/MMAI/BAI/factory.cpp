@@ -14,10 +14,10 @@
 #include "filesystem/Filesystem.h"
 #include <onnxruntime_c_api.h>
 
-#include "BAI/v13/BAI.h"
-#include "BAI/v13/nn_model.h"
-#include "BAI/v15/BAI.h"
-#include "BAI/v15/nn_model.h"
+#include "BAI/v13/BAI_v13.h"
+#include "BAI/v13/nn_model_v13.h"
+#include "BAI/v15/BAI_v15.h"
+#include "BAI/v15/nn_model_v15.h"
 
 namespace MMAI::BAI
 {
