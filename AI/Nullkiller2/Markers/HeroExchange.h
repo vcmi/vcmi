@@ -36,3 +36,4 @@ namespace NK2AI::Goals
 		uint64_t getArtifactExchangeValue() const;
 	};
 }
+

@@ -13,12 +13,40 @@
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 #include "../Analyzers/ArmyManager.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/mapping/TerrainTile.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
+
+static uint64_t getArtifactValueForExchange(const CGHeroInstance * target, const CArtifactInstance * artifact)
+{
+	if(!target || !artifact)
+		return 0;
+
+	if(target->hasArt(artifact->getTypeId()))
+		return 0;
+
+	if(artifact->getType()->getPossibleSlots().count(target->bearerType()) == 0)
+		return 0;
+
+	const auto artifactScore = getArtifactScoreForHero(target, artifact);
+	if(artifactScore <= 0)
+		return 0;
+
+	int64_t bestCurrentScore = 0;
+
+	for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
+	{
+		const auto * otherSlot = target->getSlot(slot);
+		if(otherSlot && otherSlot->getArt())
+			vstd::amax(bestCurrentScore, getArtifactScoreForHero(target, otherSlot->getArt()));
+	}
+
+	return artifactScore > bestCurrentScore ? artifactScore : 0;
+}
 
 bool HeroExchange::operator==(const HeroExchange & other) const
 {
@@ -41,6 +69,30 @@ uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) con
 		hero,
 		exchangePath.heroArmy,
 		aiNk->cc->getTile(exchangePath.targetTile())->getTerrainID());
+}
+
+uint64_t HeroExchange::getArtifactExchangeValue() const
+{
+	const auto * source = exchangePath.targetHero;
+	if(!hero || !source)
+		return 0;
+
+	uint64_t result = 0;
+	const auto addArtifactValue = [&](const ArtSlotInfo & slot)
+	{
+		if(slot.locked || !slot.getArt())
+			return;
+
+		result += getArtifactValueForExchange(hero, slot.getArt());
+	};
+
+	for(const auto & worn : source->artifactsWorn)
+		addArtifactValue(worn.second);
+
+	for(const auto & backpackSlot : source->artifactsInBackpack)
+		addArtifactValue(backpackSlot);
+
+	return result;
 }
 
 }
