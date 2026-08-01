@@ -71,6 +71,20 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 			return;
 		}
 
+		const auto * hero = gh.gameInfo().getHero(pack.hid);
+		if(!hero)
+		{
+			result = true;
+			return;
+		}
+
+		// Batched movement may contain a stale tail after a valid step stops the hero.
+		if(hero->pos != dest || hero->movementPointsRemaining() <= 0)
+		{
+			result = true;
+			return;
+		}
+
 		// player got some query he has to reply to first for example, from triggered event
 		// ignore remaining path (if any), but handle this as success - since at least part of path was legal & was applied
 		auto query = gh.queries->topQuery(pack.player);

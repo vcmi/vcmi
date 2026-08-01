@@ -98,6 +98,7 @@ set(test_SRCS
 
 		texts/TextOperationsTest.cpp
 
+		server/MoveHeroBatchTest.cpp
 		server/queries/QueriesProcessorTest.cpp
 
 		mock/BattleFake.cpp
