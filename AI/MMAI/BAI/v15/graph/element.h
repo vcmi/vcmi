@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "BAI/v15/encoder.h"
 #include "common.h"
+
+#include "BAI/v15/encoder.h"
 #include "schema/v15/graph.h"
 
 namespace MMAI::BAI::V15::Graph

@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
-#include "./graph.h"
 #include "encoding.h"
+#include "graph.h"
 #include "schema/base.h"
 
 namespace MMAI::Schema::V15
