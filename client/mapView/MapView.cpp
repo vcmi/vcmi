@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "MapView.h"
 
+#include "IMapRendererContext.h"
 #include "MapViewActions.h"
 #include "MapViewCache.h"
 #include "MapViewController.h"
@@ -73,6 +74,15 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 		{
 			target.drawColor(pos, ColorRGBA(0, 0, 0, 0));
 			gpuHolePunched = true;
+		}
+
+		// text has no GPU path, so the labels go onto the software screen, which is
+		// composited above the map layer. Clearing them again needs the hole repunched.
+		if(controller->getContext()->showTextOverlay())
+		{
+			Canvas targetClipped(target, pos);
+			tilesCache->renderTextOverlay(controller->getContext(), targetClipped);
+			gpuHolePunched = false;
 		}
 		return;
 	}

@@ -99,6 +99,10 @@ public:
 	/// renders updated terrain cache onto provided canvas
 	void render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw);
 
+	/// Draws the object name labels. Text has no GPU path, so a view using the GPU layer
+	/// must call this separately with a surface-backed target
+	void renderTextOverlay(const std::shared_ptr<IMapRendererContext> & context, Canvas & target);
+
 	/// creates snapshot of current view and stores it into internal canvas
 	/// used for view transition, e.g. Dimension Door spell or teleporters (Subterra gates / Monolith)
 	void createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context);

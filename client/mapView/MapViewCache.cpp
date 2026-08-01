@@ -309,42 +309,47 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
+	// on the GPU path the caller draws it onto the software screen instead
 	if(textOverlayVisible && !target.isRenderTarget())
-	{
-		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
-
-		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
-		{
-			for(int x = dimensions.left(); x < dimensions.right(); ++x)
-			{
-				int3 tile(x, y, model->getLevel());
-				auto overlay = context->overlayText(tile);
-
-				if(!overlay.text.empty())
-				{
-					Rect targetRect = model->getTargetTileArea(tile);
-					Point position = targetRect.center();
-					if (x % 2 == 0)
-						position.y += targetRect.h / 4;
-					else
-						position.y -= targetRect.h / 4;
-
-					Point dimensions(font->getStringWidth(overlay.text), font->getLineHeight());
-					Rect textRect = Rect(position - dimensions / 2, dimensions).resize(2);
-
-					target.drawColor(textRect, overlay.color);
-					target.drawBorder(textRect, Colors::BRIGHT_YELLOW);
-					target.drawText(position, EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay.text);
-				}
-			}
-		}
-	}
+		renderTextOverlay(context, target);
 
 	if(!vstd::isAlmostZero(context->viewTransitionProgress()))
 		target.drawTransparent(*terrainTransition, Point(0, 0), 1.0 - context->viewTransitionProgress());
 
 	cachedPosition = model->getMapViewCenter();
 	overlayWasVisible = overlayVisible;
+}
+
+void MapViewCache::renderTextOverlay(const std::shared_ptr<IMapRendererContext> & context, Canvas & target)
+{
+	const Rect dimensions = model->getTilesTotalRect();
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
+
+	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
+	{
+		for(int x = dimensions.left(); x < dimensions.right(); ++x)
+		{
+			int3 tile(x, y, model->getLevel());
+			auto overlay = context->overlayText(tile);
+
+			if(!overlay.text.empty())
+			{
+				Rect targetRect = model->getTargetTileArea(tile);
+				Point position = targetRect.center();
+				if (x % 2 == 0)
+					position.y += targetRect.h / 4;
+				else
+					position.y -= targetRect.h / 4;
+
+				Point textSize(font->getStringWidth(overlay.text), font->getLineHeight());
+				Rect textRect = Rect(position - textSize / 2, textSize).resize(2);
+
+				target.drawColor(textRect, overlay.color);
+				target.drawBorder(textRect, Colors::BRIGHT_YELLOW);
+				target.drawText(position, EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay.text);
+			}
+		}
+	}
 }
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)
