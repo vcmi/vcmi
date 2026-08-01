@@ -13,7 +13,6 @@
 #include "StdInc.h" // IWYU pragma: keep
 
 #include "CThreadHelper.h"
-#include <source_location>
 
 namespace MMAI
 {
@@ -21,16 +20,30 @@ namespace MMAI
 // https://en.cppreference.com/w/cpp/utility/to_underlying
 #define EI(enum_value) static_cast<int>(enum_value)
 
-inline void ASSERT(bool cond, std::string_view msg, const std::source_location & loc = std::source_location::current())
+inline void assertImpl(
+	bool cond,
+	std::string_view msg,
+	const char * file,
+	int line,
+	const char * function)
 {
 	if(!cond)
 	{
 		throw std::runtime_error(
-			std::string("Assertion failed in ") + boost::filesystem::path(loc.file_name()).filename().string() + ":" + std::to_string(loc.line()) + ": "
+			std::string("Assertion failed in ")
+			+ boost::filesystem::path(file).filename().string()
+			+ ":"
+			+ std::to_string(line)
+			+ " in "
+			+ function
+			+ ": "
 			+ std::string(msg)
 		);
 	}
 }
+
+#define ASSERT(condition, message) \
+	::MMAI::assertImpl((condition), (message), __FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
