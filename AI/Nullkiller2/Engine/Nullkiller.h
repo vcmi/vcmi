@@ -151,6 +151,7 @@ private:
 	void resetState();
 	void updateState();
 	void reserveRequiredTownDefenders();
+	bool executeEndTurnBuildingPass(int passIndex);
 	const CGHeroInstance * findRequiredTownDefender(const CGTownInstance * town) const;
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;

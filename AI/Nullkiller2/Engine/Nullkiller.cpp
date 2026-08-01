@@ -690,7 +690,8 @@ void Nullkiller::makeTurn()
 		hasAnySuccess |= ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
 		if(!hasAnySuccess)
 		{
-			logAi->trace("Nothing was done this turn pass. Ending turn.");
+			const bool builtAtEnd = executeEndTurnBuildingPass(pass);
+			logAi->trace(builtAtEnd ? "Only end-turn building was done this pass. Ending turn." : "Nothing was done this turn pass. Ending turn.");
 			tracePlayerStatus(false);
 			return;
 		}
@@ -699,7 +700,10 @@ void Nullkiller::makeTurn()
 			AIGateway::pickBestArtifacts(cc, heroInfo);
 
 		if(pass == settings->getMaxPass())
+		{
+			executeEndTurnBuildingPass(pass);
 			logAi->warn("MaxPass reached. Terminating AI turn.");
+		}
 	}
 }
 
@@ -716,7 +720,8 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 		decompose(tempResults, sptr(RecruitHeroBehavior()), 1);
 		// TODO: Mircea: Should merge recruiting from DefenseBehavior
 		decompose(tempResults, sptr(BuyArmyBehavior()), 1);
-		decompose(tempResults, sptr(BuildingBehavior()), 1);
+		if(cc->getCalendar().getCurrentDay() == 1)
+			decompose(tempResults, sptr(BuildingBehavior()), 1);
 
 		bestPrioPassTask = choseBestTask(tempResults);
 
@@ -749,6 +754,37 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 		}
 	}
 	return true;
+}
+
+bool Nullkiller::executeEndTurnBuildingPass(const int passIndex)
+{
+	bool hasAnySuccess = false;
+	Goals::TGoalVec buildingTasks;
+
+	updateState();
+
+	for(int i = 1; i <= settings->getMaxPriorityPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	{
+		buildingTasks.clear();
+		decompose(buildingTasks, sptr(BuildingBehavior()), 1);
+
+		auto buildTask = choseBestTask(buildingTasks);
+		if(buildTask->priority <= 0)
+			break;
+
+		logAi->info("Pass %d: endTurnBuildPass %d: Performing task %s with prio: %d", passIndex, i, buildTask->toString(), buildTask->priority);
+
+		if(!executeTask(buildTask))
+		{
+			logAi->warn("Building task failed during end-turn building pass.");
+			break;
+		}
+
+		hasAnySuccess = true;
+		updateState();
+	}
+
+	return hasAnySuccess;
 }
 
 bool Nullkiller::areAffectedObjectsPresent(const Goals::TTask & task) const
