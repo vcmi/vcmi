@@ -215,9 +215,13 @@ Unit affected by this bonus will be transformed into creature other than Skeleto
 
 - subtype: type of creature to which this unit should be converted
 
-### NONEVIL_ALIGNMENT_MIX
+### ALIGNMENT_MIX
 
-Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale (Angelic Alliance effect)
+Allows mixing of creatures of different factions in affected armies without penalty to morale. All mixable alignments count as a single one, so such army also receives the morale bonus for troops of one alignment
+
+- subtype: alignment that still can not be mixed with the others - `alignmentGood`, `alignmentEvil` or `alignmentNeutral`. If not set, creatures of all alignments can be mixed (Temple of Loyalty effect). Angelic Alliance uses `alignmentEvil`
+
+Replaces `NONEVIL_ALIGNMENT_MIX`, which is still accepted and converted to this bonus with `alignmentEvil` subtype.
 
 ### SURRENDER_DISCOUNT
 

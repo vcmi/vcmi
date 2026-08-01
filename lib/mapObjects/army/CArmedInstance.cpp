@@ -45,9 +45,19 @@ CArmedInstance::CArmedInstance(IGameInfoCallback * cb)
 CArmedInstance::CArmedInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic)
 	: CGObjectInstance(cb)
 	, CBonusSystemNode(nodeType, isHypothetic)
-	, nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)) // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+	, alignmentMix(this, Selector::type()(BonusType::ALIGNMENT_MIX)) // Take troop-mixing freedom of Angelic Alliance or Temple of Loyalty into account.
 	, battle(nullptr)
 {
+}
+
+bool CArmedInstance::canMixAlignment(EAlignment alignment) const
+{
+	//bonus without subtype allows to mix any alignment, subtype marks the single alignment that is left out
+	for(const auto & bonus : *getBonusesOfType(BonusType::ALIGNMENT_MIX))
+		if(!bonus->subtype.hasValue() || bonus->subtype.getNum() != static_cast<int32_t>(alignment))
+			return true;
+
+	return false;
 }
 
 void CArmedInstance::updateMoraleBonusFromArmy()
@@ -81,13 +91,14 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	if(nonEvilAlignmentMix.hasBonus())
+	if(alignmentMix.hasBonus())
 	{
+		//alignments that can be mixed count as a single one, e.g. all but evil for Angelic Alliance, or all of them for Temple of Loyalty
 		size_t mixableFactions = 0;
 
 		for(auto f : factions)
 		{
-			if(LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
+			if(canMixAlignment(LIBRARY->factions()->getById(f)->getAlignment()))
 				mixableFactions++;
 		}
 		if(mixableFactions > 0)

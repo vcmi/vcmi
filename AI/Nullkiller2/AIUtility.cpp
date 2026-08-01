@@ -494,7 +494,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 	// SPELL
 	// BATTLE_CAN_FLEE
 	// BLOCK_ALL_MAGIC
-	// NONEVIL_ALIGNMENT_MIX
+	// ALIGNMENT_MIX
 	// OPENING_BATTLE_SPELL
 	// IMPROVED_NECROMANCY
 	// HP_REGENERATION

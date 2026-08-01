@@ -195,6 +195,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELLS_OF_LEVEL: // spell level
 		case BonusType::CREATURE_GROWTH: // creature level
 		case BonusType::ON_COMBAT_EVENT:
+		case BonusType::ALIGNMENT_MIX: // alignment
 		{
 			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
 			{

@@ -131,6 +131,17 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		return true;
 	}
 
+	// NONEVIL_ALIGNMENT_MIX is deprecated in 1.8 - it is ALIGNMENT_MIX that names the alignment kept separate
+	if(withoutScope(ability["type"].String()) == "NONEVIL_ALIGNMENT_MIX")
+	{
+		logMod->warn("Bonus NONEVIL_ALIGNMENT_MIX is deprecated. Use ALIGNMENT_MIX with 'alignmentEvil' subtype instead");
+
+		migrated = ability;
+		migrated["type"].String() = "ALIGNMENT_MIX";
+		migrated["subtype"].String() = "alignmentEvil";
+		return true;
+	}
+
 	std::string_view script = lookup(retiredAbilities, withoutScope(ability["type"].String()));
 
 	if(script.empty())

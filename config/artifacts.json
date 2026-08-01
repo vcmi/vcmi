@@ -1923,7 +1923,8 @@
 	{
 		"bonuses" : {
 			"alignmentMix" : {
-				"type" : "NONEVIL_ALIGNMENT_MIX",
+				"type" : "ALIGNMENT_MIX",
+				"subtype" : "alignmentEvil",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
