@@ -312,7 +312,7 @@ namespace
 				assert(a->target && battle.battleCanShoot(acstack, a->target->cstack.getPosition()));
 				return BattleAction::makeShotAttack(acstack, &a->target->cstack);
 			default:
-				throw std::runtime_error("Unexpected action type: " + std::to_string(static_cast<int>(a->actionType)));
+				throwf("Unexpected action type: {}", EI(a->actionType));
 		}
 	}
 }

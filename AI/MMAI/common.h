@@ -13,6 +13,7 @@
 #include "StdInc.h" // IWYU pragma: keep
 
 #include "CThreadHelper.h"
+#include <format>
 
 namespace MMAI
 {
@@ -46,6 +47,12 @@ inline void assertImpl(
 	::MMAI::assertImpl((condition), (message), __FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
+
+template<class... Args>
+[[noreturn]] void throwf(std::format_string<Args...> format, Args&&... args)
+{
+    throw std::runtime_error(std::format(format, std::forward<Args>(args)...));
+}
 
 // constexpr version of EI with proper underlying type conversion
 // underlying_type_t requires C++23, but Global.h uses it already

@@ -198,7 +198,7 @@ namespace
 						case S15::CombatResult::NONE:
 							break;
 						default:
-							throw std::runtime_error("Unexpected CombatResult: " + std::to_string(v));
+							throwf("Unexpected CombatResult: {}", v);
 							break;
 					}
 					break;
@@ -227,7 +227,7 @@ namespace
 								: vassert(v, 0, "GLOBAL.HAS_BRIDGE_CORPSE: no fort");
 					break;
 				default:
-					throw std::runtime_error("Unexpected GLOBAL attr: " + std::to_string(EU(a)));
+					throwf("Unexpected GLOBAL attr: {}", EI(a));
 			}
 		}
 	}
@@ -267,7 +267,7 @@ namespace
 						// Not verifying those.
 						break;
 					default:
-						throw std::runtime_error("Unexpected PLAYER attr: " + std::to_string(EU(a)));
+						throwf("Unexpected PLAYER attr: {}", EI(a));
 				}
 			}
 		}
@@ -452,7 +452,7 @@ namespace
 						);
 						break;
 					default:
-						throw std::runtime_error("Unexpected UNIT attr: " + std::to_string(EU(a)));
+						throwf("Unexpected UNIT attr: {}", EI(a));
 				}
 			}
 		}
@@ -589,7 +589,7 @@ namespace
 						break;
 					}
 					default:
-						throw std::runtime_error("Unexpected HEX attr: " + std::to_string(EU(a)));
+						throwf("Unexpected HEX attr: {}", EI(a));
 				}
 			}
 		}
@@ -668,7 +668,7 @@ namespace
 						vassert(v, &actor == ctx.astack, "ACTION.ACTION_TYPE[IS_ACTIVE]: not active");
 						break;
 					default:
-						throw std::runtime_error("Unexpected Action attr: " + std::to_string(EU(a)));
+						throwf("Unexpected Action attr: {}", EI(a));
 						break;
 				}
 			}
@@ -1180,7 +1180,7 @@ void Verify(const State * state) // NOLINT(readability-function-cognitive-comple
 				Verify_EDGE_HEX_BECOMES_SHOOT_TARGET_AFTER_ACTION(ctx);
 				break;
 			default:
-				throw std::runtime_error("Unexpected ElementType: " + std::to_string(i));
+				throwf("Unexpected ElementType: {}", i);
 				break;
 		}
 		static_assert(static_cast<int>(S15::Graph::ElementType::_count) == 35);

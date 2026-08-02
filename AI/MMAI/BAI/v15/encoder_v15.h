@@ -64,7 +64,7 @@ int Encode(const std::array<int, EncTraits::attr_count> & attrs, std::span<float
 				out[i] = static_cast<float>(v);
 				break;
 			default:
-				throw std::runtime_error("Unexpected Encoding: " + std::to_string(static_cast<int>(e)));
+				throwf("Unexpected Encoding: {}", EI(e));
 		}
 
 		i += n;

@@ -92,7 +92,7 @@ public:
 				ss << "(SHOOT)";
 				break;
 			default:
-				throw std::runtime_error("Unexpected action type: " + std::to_string(type));
+				throwf("Unexpected action type: {}", type);
 		}
 
 		ss << ",by=" << by->name();
@@ -130,7 +130,7 @@ public:
 				ASSERT(target != nullptr, "SHOOT with no valid targets");
 				return "Attack Stack(" + stackstr(target) + ") from " + endhex->name();
 			default:
-				throw std::runtime_error("Unexpected action type: " + std::to_string(EU(actionType)));
+				throwf("Unexpected action type: {}", EI(actionType));
 		}
 	}
 

@@ -358,7 +358,7 @@ private:
 			case ET::NODE_ACTION:
 				return std::forward<F>(f)(getStore<Nodes::Action>());
 			default:
-				throw std::runtime_error("Unexpected node element type: " + std::to_string(EU(t)));
+				throwf("Unexpected node element type: {}", std::to_string(EU(t)));
 		}
 	}
 
@@ -492,7 +492,7 @@ private:
 				static_assert(std::get<2>(detail::GetEdgeType(ET::EDGE_HEX_BECOMES_SHOOT_TARGET_AFTER_ACTION)).second == ET::NODE_ACTION);
 				return std::forward<F>(f)(getStore<Edges::Hex_BecomesShootTargetAfter_Action>());
 			default:
-				throw std::runtime_error("Unexpected edge element type: " + std::to_string(EU(t)));
+				throwf("Unexpected edge element type: {}", EI(t));
 		}
 		static_assert(static_cast<int>(S15::Graph::ElementType::_count) == 35);
 	}

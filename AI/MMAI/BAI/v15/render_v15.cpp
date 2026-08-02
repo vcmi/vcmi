@@ -641,7 +641,7 @@ std::string Render(const State * state, const ActionPtr & action)
 					case Col::DIV:
 						break;
 					default:
-						throw std::runtime_error("unexpected column: " + std::to_string(EU(column)));
+						throwf("unexpected column: {}", EI(column));
 				}
 
 				if(unit == aunit && !ended)

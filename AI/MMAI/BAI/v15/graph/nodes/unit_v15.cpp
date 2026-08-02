@@ -243,7 +243,7 @@ int Unit::GetValue(const CCreature * creature, bool isClone, bool isSummon)
 	const auto & it = CREATURE_VALUES.find(creature->getIndex());
 
 	if(it == CREATURE_VALUES.end())
-		throw std::runtime_error("GetValue: no value for creature with ID=" + std::to_string(creature->getIndex()));
+		throwf("GetValue: no value for creature with ID={}", creature->getIndex());
 
 	auto v = it->second;
 

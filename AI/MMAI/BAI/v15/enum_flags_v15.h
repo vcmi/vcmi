@@ -36,13 +36,13 @@ struct EnumFlags
 	void require(T v)
 	{
 		if(!isSet(v))
-			throw std::runtime_error("Required flag is not set: " + std::to_string(EU(v)));
+			throwf("Required flag is not set: ", EI(v));
 	}
 
 	void reject(T v)
 	{
 		if(isSet(v))
-			throw std::runtime_error("Rejected flag is set: " + std::to_string(EU(v)));
+			throwf("Rejected flag is set: ", EI(v));
 	}
 
 	void requireExclusive(T v)
