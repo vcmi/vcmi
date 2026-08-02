@@ -46,14 +46,12 @@ public:
 
 	int attr(Attribute a) const
 	{
-		// ASSERT(guardflags.test(EU(a)), std::string(EncTraits::name) + ": attribute not set: " + std::to_string(EU(a)));
 		assert(guardflags.test(EU(a)));
 		return attrs.at(EU(a));
 	}
 
 	void setattr(Attribute a, int value)
 	{
-		// ASSERT(!guardflags.test(EU(a)), std::string(EncTraits::name) + ": attribute already set: " + std::to_string(EU(a)));
 		assert(!guardflags.test(EU(a)));
 		guardflags.set(EU(a));
 		attrs.at(EU(a)) = value;

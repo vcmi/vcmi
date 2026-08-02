@@ -218,7 +218,7 @@ namespace
 
 	TowerFlags GetSiegeTowers(const CPlayerBattleCallback & battle)
 	{
-		TowerFlags res; // {upper, middle, lower}
+		TowerFlags res; // upper, middle, lower
 
 		auto has = [&battle](EWallPart part)
 		{
@@ -238,7 +238,7 @@ namespace
 
 	CorpseFlags GetSiegeCorpses(const CPlayerBattleCallback & battle)
 	{
-		CorpseFlags res; // {gate, bridge}
+		CorpseFlags res; // gate, bridge
 
 		if(battle.battleGetFortifications().wallsHealth == 0)
 			return res;
@@ -336,9 +336,9 @@ namespace
 		int calcAvailableHealth() const
 		{
 			// excplicitly cast to int otherwise unsigned int arithmetic may cause UB
-			int n = static_cast<int>(cstate->getCount());
-			int hpOne = static_cast<int>(cstack->getMaxHealth());
-			int hp1st = static_cast<int>(cstate->getFirstHPleft());
+			auto n = static_cast<int>(cstate->getCount());
+			auto hpOne = static_cast<int>(cstack->getMaxHealth());
+			auto hp1st = static_cast<int>(cstate->getFirstHPleft());
 			return (std::max(0, (n - 1)) * hpOne) + hp1st;
 		}
 
@@ -355,10 +355,10 @@ namespace
 	// Executes a single attack (without retaliation logic)
 	// Applies damage to defender and to attacker (if fire shield)
 	// Mutates the given states.
-	void ApplyAttack(UnitStates & states, const CPlayerBattleCallback & battle, bool ranged)
+	void ApplyAttack(const UnitStates & states, const CPlayerBattleCallback & battle, bool ranged)
 	{
-		auto & A_state = states.a.cstate;
-		auto & B_state = states.b.cstate;
+		const auto & A_state = states.a.cstate;
+		const auto & B_state = states.b.cstate;
 
 		auto A_bai = BattleAttackInfo(A_state.get(), B_state.get(), 0, ranged);
 		auto estimation = std::make_shared<DamageEstimation>(DamageCalculator(battle, A_bai).calculateDmgRange());
@@ -407,7 +407,7 @@ namespace
 		// 3. Handle DEATH_STARE (must come last; uses attacker qty left after fire shield)
 		if(B_state->alive() && B_isLiving && A_state->hasBonusOfType(BonusType::DEATH_STARE))
 		{
-			int staredeaths = static_cast<int>(std::round(CalcDeathStare(battle, A_state.get(), B_state.get(), ranged)));
+			auto staredeaths = static_cast<int>(std::round(CalcDeathStare(battle, A_state.get(), B_state.get(), ranged)));
 
 			while(staredeaths > 0 && B_state->alive())
 			{
@@ -429,15 +429,15 @@ namespace
 	/*
 	 * VCMI's damage estimation helper does not take into account stuff such as:
 	 * 	- Base mechanics:
-	 * 	 	* HAS_ADDITIONAL_ATTACK // tested
-	 * 	 	* DEATH_STARE 			// tested
-	 * 	 	* FIRE_SHIELD 			// tested (incl. attacker dying from it)
-	 * 	 	* LIFE_DRAIN 			// tested
+	 * 	 	* HAS_ADDITIONAL_ATTACK - tested
+	 * 	 	* DEATH_STARE 			- tested
+	 * 	 	* FIRE_SHIELD 			- tested (incl. attacker dying from it)
+	 * 	 	* LIFE_DRAIN 			- tested
 	 *	- Mod mechanics:
-	 * 		* RANGED_RATALIATION 	// tested
-	 * 		* FIRST_STRIKE 			// tested
-	 * 		* SOUL_STEAL 			// not tested
-	 * 		* FEROCITY 				// tested
+	 * 		* RANGED_RATALIATION 	- tested
+	 * 		* FIRST_STRIKE 			- tested
+	 * 		* SOUL_STEAL 			- not tested
+	 * 		* FEROCITY 				- tested
 	 *
 	 * This is an attempt to reimplement it here.
 	 *
@@ -1173,33 +1173,6 @@ namespace
 			}
 		}
 	}
-
-	/*
-	 * XXX: RETREAT is not handled for now
-	 *      It has no `by` nor `endHex` which violates many assumptions in
-	 * 		the code (which were intentionally made for the sake of simplicity).
-	 *
-	 * void AddRetreatAction(
-	 * 	Graph::Graph & G,
-	 * 	EnumFlags<AT> & atFlags)
-	 * {
-	 * 	// This must be the very last action added
-	 * 	// All other actions types must have been added by now
-	 * 	for (int i = 0; i < EU(AT::_count); ++i)
-	 * 		if (i != EU(AT::RETREAT))
-	 * 			atFlags.require(AT(i));
-	 *
-	 * 	atFlags.set(AT::RETREAT);
-	 *
-	 * 	G.add(N::Action::Create({
-	 * 		.actionType=AT::RETREAT,
-	 * 		.by=nullptr,
-	 * 		.target=nullptr,
-	 * 		.endsAt={},
-	 * 		.flags={}
-	 * 	}));
-	 * }
-	 */
 
 	void AddMoveAndDefendActions(Graph::Graph & G, EnumFlags<AT> & atFlags)
 	{

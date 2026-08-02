@@ -23,7 +23,7 @@ namespace MMAI
 inline void assertImpl(
 	bool cond,
 	std::string_view msg,
-	const char * file,
+	std::string_view file,
 	int line,
 	const char * function)
 {
@@ -31,7 +31,7 @@ inline void assertImpl(
 	{
 		throw std::runtime_error(
 			std::string("Assertion failed in ")
-			+ boost::filesystem::path(file).filename().string()
+			+ boost::filesystem::path(std::string(file)).filename().string()
 			+ ":"
 			+ std::to_string(line)
 			+ " in "

@@ -21,9 +21,6 @@
 
 namespace MMAI::Schema::V15
 {
-// Control actions (not part of the regular action space)
-constexpr Action ACTION_RESET = -1;
-constexpr Action ACTION_RENDER_ANSI = -2;
 
 // Convenience definitions which do not need to be exported
 namespace X
@@ -194,25 +191,7 @@ struct EncodingTraits<Graph::NodeAttributes::Action> : detail::EncodingTraitsBas
 };
 
 /*
- * The macro is useful for generic edges which have no attributes.
- *
- * GENERIC_EDGE_ENCODING_TRAITS(Foo, BAR) expands to:
- *
- *     using E4E_Foo = std::tuple<Graph::EdgeAttributes::Foo, Encoding, int, int, double>;
- *     namespace X {
- *         using E4E_Foo = std::tuple<Graph::EdgeAttributes::Foo, Encoding, int, int, double>;
- *     }
- *     using EdgeEncoding_Foo = std::array<X::E4E_Foo, EI(Graph::EdgeAttributes::Foo::_count)>;
- *     template <>
- *     struct EncodingTraits<EdgeEncoding_Foo>
- *     {
- *         using attr_type = Graph::EdgeAttributes::Foo;
- *         static constexpr auto element_type = Graph::ElementType::BAR;
- *         static constexpr std::string_view name = "BAR";
- *         static constexpr std::size_t attr_count = 0;
- *         static constexpr EdgeEncoding_##edge_type encoding = {};
- *         static constexpr std::size_t encoded_size = 0;
- *     };
+ * The macro is used for generic edges which have no attributes.
  */
 
 #define GENERIC_EDGE_ENCODING_TRAITS(attr_type, elem_type)                                                                 \

@@ -64,7 +64,6 @@ namespace
 		// Build graph
 		for(const auto & edge : G->getAll<E::Unit_ActsBefore_Unit>())
 		{
-			// auto [src, dst] = edge->endpoints();
 			const auto & src = edge->srcNode;
 			const auto & dst = edge->dstNode;
 			const int w = edge->attr(EA::Unit_ActsBefore_Unit::TIMES);
@@ -178,11 +177,11 @@ std::string Render(const State * state, const ActionPtr & action)
 
 	for(const auto & e : G->getAll<E::Action_EndsAt_Hex>())
 	{
-		const auto & action = e->srcNode;
+		const auto & eaction = e->srcNode;
 		const auto & hex = e->dstNode;
-		if(!action->isActive)
+		if(!eaction->isActive)
 			continue;
-		auto [_, inserted] = hexActiveActions[hex].insert(action);
+		auto [_, inserted] = hexActiveActions[hex].insert(eaction);
 		ASSERT(inserted, "duplicate active action on hex");
 	}
 

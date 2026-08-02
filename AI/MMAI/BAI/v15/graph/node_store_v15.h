@@ -104,7 +104,7 @@ public:
 		// Insertion fails when there is a duplicate in *any* unique index
 		auto [_, inserted] = container.push_back(std::move(node));
 		if(!inserted)
-			throw std::runtime_error(std::string(NodeType::encoding_traits::name) + ": insertion failed. Duplicate index?");
+			throw std::runtime_error(static_cast<std::string>(NodeType::encoding_traits::name) + ": insertion failed. Duplicate index?");
 	}
 
 	std::shared_ptr<const NodeType> getById(std::size_t ind, bool strict) const
@@ -167,12 +167,7 @@ public:
 
 		auto identity_it = identity_idx.find(node);
 		if(identity_it == identity_idx.end())
-		{
-			// std::cout << "ERROR - NODE NOT FOUND: " << node->name() << " " << node << ". ALL NODES:\n";
-			// for (const auto & n : entries())
-			//     std::cout << n->name() << " " << n.get() << "\n";
 			throw std::runtime_error("getId: node not found: " + node->name());
-		}
 
 		const auto & ordinal_idx = container.template get<detail::by_ordinal_id>();
 		auto ordinal_it = container.template project<detail::by_ordinal_id>(identity_it);

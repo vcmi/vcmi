@@ -290,7 +290,7 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 	{
 		_activeStack(bid, astack);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception & e) // NOSONAR
 	{
 		logger.error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
 		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
@@ -725,7 +725,7 @@ std::string BAI::renderANSI() const
 			std::cout << "Disaster render:\n";
 			std::cout << Render(state.get(), state->action.get()) << "\n";
 		}
-		catch(std::exception & e2)
+		catch(std::exception & e2) // NOSONAR
 		{
 			std::cerr << "(failed: " << e2.what() << ")\n";
 		}

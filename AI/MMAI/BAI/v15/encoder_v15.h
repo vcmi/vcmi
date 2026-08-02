@@ -21,7 +21,7 @@ inline void Warn(Schema::V15::Encoding e, const std::string_view attrname, int a
 	// Warn at most once every 600s
 	auto now = std::chrono::steady_clock::now();
 	static thread_local std::map<std::string_view, std::map<int, std::chrono::steady_clock::time_point>> warns;
-	auto & warned_at = warns[attrname][a];
+	const auto & warned_at = warns[attrname][a];
 
 	if(std::chrono::duration_cast<std::chrono::seconds>(now - warned_at) > std::chrono::seconds(600))
 	{

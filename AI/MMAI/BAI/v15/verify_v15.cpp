@@ -92,7 +92,7 @@ namespace
 			}
 
 			allstacks.emplace(cstack);
-			distances.emplace(cstack, battle.getReachability(cstack).distances);
+			distances.try_emplace(cstack, battle.getReachability(cstack).distances);
 
 			for(const auto & bh : cstack->getHexes())
 				bhexstacks.emplace(bh.toInt(), cstack);
@@ -177,13 +177,13 @@ namespace
 		using A = N::Global::A;
 		for(int i = 0; i < EU(A::_count); ++i)
 		{
-			auto a = A(i);
+			auto a = static_cast<A>(i);
 			auto v = global->attr(a);
 
 			switch(a)
 			{
 				case A::BATTLE_WINNER:
-					switch(S15::CombatResult(v))
+					switch(static_cast<S15::CombatResult>(v))
 					{
 
 						case S15::CombatResult::LEFT_WINS:
@@ -243,12 +243,12 @@ namespace
 		{
 			for(int i = 0; i < EU(A::_count); ++i)
 			{
-				auto a = A(i);
+				auto a = static_cast<A>(i);
 				auto v = player->attr(a);
 
 				static_assert(EU(S::Side::LEFT) == EU(BattleSide::LEFT_SIDE));
 				static_assert(EU(S::Side::RIGHT) == EU(BattleSide::RIGHT_SIDE));
-				const auto cplayer = ctx.battle.sideToPlayer(BattleSide(player->attr(A::BATTLE_SIDE)));
+				const auto cplayer = ctx.battle.sideToPlayer(static_cast<BattleSide>(player->attr(A::BATTLE_SIDE)));
 
 				switch(a)
 				{
@@ -290,7 +290,7 @@ namespace
 		{
 			for(int i = 0; i < EU(A::_count); ++i)
 			{
-				auto a = A(i);
+				auto a = static_cast<A>(i);
 				auto v = unit->attr(a);
 
 				const auto & cstack = unit->cstack;
@@ -483,7 +483,7 @@ namespace
 
 			for(int i = 0; i < EU(A::_count); ++i)
 			{
-				auto a = A(i);
+				auto a = static_cast<A>(i);
 				auto v = hex->attr(a);
 
 				const auto & bhex = hex->bhex;
@@ -501,7 +501,6 @@ namespace
 						break;
 					case A::IS_PASSABLE:
 					{
-						// TODO: handle gate and bridge (complicated llogic)
 						if(bhex == BattleHex::GATE_OUTER || bhex == BattleHex::GATE_INNER || bhex == BattleHex::GATE_BRIDGE)
 							break;
 						vassert(v, access == EAccessibility::ACCESSIBLE, "HEX.IS_PASSABLE", hex->name());
@@ -509,7 +508,6 @@ namespace
 					}
 					case A::IS_STOPPING:
 					{
-						// TODO: handle gate and bridge (complicated llogic)
 						if(bhex == BattleHex::GATE_OUTER || bhex == BattleHex::GATE_INNER || bhex == BattleHex::GATE_BRIDGE)
 							break;
 
@@ -519,30 +517,6 @@ namespace
 					}
 					case A::IS_DAMAGING_L:
 					{
-						// auto ldmg = hexobstacle([&ctx, &bhex](const std::shared_ptr<const CObstacleInstance> & o)
-						// {
-						// 	if(o->obstacleType == CObstacleInstance::MOAT)
-						// 	{
-						// 		if (bhex == BattleHex::GATE_BRIDGE)
-						// 		{
-						// 			const auto gs = ctx.battle.battleGetGateState();
-						// 			return gs == EGateState::CLOSED || gs == EGateState::BLOCKED;
-						// 		}
-						// 		return true;
-						// 	}
-						// 	if(!o->triggersEffects())
-						// 		return false;
-						// 	auto s = SpellID(o->ID);
-						// 	if(s == SpellID::FIRE_WALL)
-						// 		return true;
-						// 	if(s != SpellID::LAND_MINE)
-						// 		return false;
-						// 	ASSERT(o->obstacleType == CObstacleInstance::EObstacleType::SPELL_CREATED, "expected spell created obstacle");
-						// 	const auto * so = dynamic_cast<const SpellCreatedObstacle *>(o.get());
-						// 	return so->casterSide != BattleSide::LEFT_SIDE;
-						// });
-						// vassert(v, ldmg, "HEX.IS_DAMAGING_L: no obstacle triggers a damaging effect", hex->name());
-						// XXX: too complicated to check
 						break;
 					}
 					case A::IS_DAMAGING_R:
@@ -650,7 +624,7 @@ namespace
 
 			for(int i = 0; i < EU(A::_count); ++i)
 			{
-				auto a = A(i);
+				auto a = static_cast<A>(i);
 				auto v = action->attr(a);
 
 				switch(a)
@@ -658,9 +632,6 @@ namespace
 					case A::ACTION_TYPE:
 						switch(AT(v))
 						{
-							// case AT::RETREAT:
-							//     expect(actor == nullptr, "ACTION.ACTION_TYPE[RETREAT]: actor must be nullptr");
-							//     break;
 							case AT::WAIT:
 								expect(!actor.waited(), "ACTION.ACTION_TYPE[WAIT]: already waited");
 								break;
@@ -892,9 +863,6 @@ namespace
 
 			if(numBlockers == 1)
 				expect(actor == *blockers.begin(), "EDGE_UNIT_BECOMES_SHOOT_THREAT_AFTER_ACTION: shooter is blocked by another unit");
-
-			// TODO: not a threat if it's sleeping
-			// bool willActsBefore = ...
 
 			const auto attackableHexes = shooter.getAttackableHexes(&actor->cstack);
 			const bool actorWillBlockShooter = attackableHexes.contains(action->endsAt.at(0)->bhex);
