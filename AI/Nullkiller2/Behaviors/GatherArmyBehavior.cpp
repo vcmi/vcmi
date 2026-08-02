@@ -380,6 +380,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 					{
 						Composition recruitHero;
 						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(upgrader, hero));
+						tasks.push_back(sptr(recruitHero));
 					}
 				}
 			}
