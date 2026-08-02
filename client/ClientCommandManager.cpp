@@ -393,7 +393,7 @@ void ClientCommandManager::handleGetTextCommand()
 
 		boost::filesystem::create_directories(filePath.parent_path());
 
-		std::ofstream file(filePath.c_str());
+		std::ofstream file(filePath.c_str(), std::ios::binary);
 		auto text = CResourceHandler::get()->load(filename)->readAll();
 
 		file.write((char*)text.first.get(), text.second);
