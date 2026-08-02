@@ -134,6 +134,11 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 	}
 	else if(currentLevel == 0) // gained new skill
 	{
+		// Explicitly set skills are mutually exclusive with the (NONE, -1) "use hero type
+		// default skills" marker. Leaving the marker in place makes the hero serialize as
+		// having default skills, silently discarding every skill set here - see
+		// serializeJsonOptions().
+		vstd::erase_if(secSkills, [](const std::pair<SecondarySkill, ui8> & pair) { return pair.first == SecondarySkill::NONE; });
 		secSkills.emplace_back(which, newLevelClamped);
 	}
 	else
