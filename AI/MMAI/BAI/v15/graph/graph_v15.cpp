@@ -308,7 +308,7 @@ void Graph::verify() const
 {
 	for(int i = 0; i < EU(ET::_count); ++i)
 	{
-		auto et = ET(i);
+		auto et = static_cast<ET>(i);
 		switch(et)
 		{
 			case ET::NODE_GLOBAL:

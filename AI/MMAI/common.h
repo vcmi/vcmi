@@ -22,30 +22,18 @@ namespace MMAI
 // https://en.cppreference.com/w/cpp/utility/to_underlying
 #define EI(enum_value) static_cast<int>(enum_value)
 
-inline void assertImpl(
-	bool cond,
-	std::string_view msg,
-	std::string_view file,
-	int line,
-	std::string_view function)
+inline void assertImpl(bool cond, std::string_view msg, std::string_view file, int line, std::string_view function)
 {
 	if(!cond)
 	{
 		throw std::runtime_error(
-			std::string("Assertion failed in ")
-			+ boost::filesystem::path(std::string(file)).filename().string()
-			+ ":"
-			+ std::to_string(line)
-			+ " in "
-			+ std::string(function)
-			+ ": "
-			+ std::string(msg)
+			std::string("Assertion failed in ") + boost::filesystem::path(std::string(file)).filename().string() + ":" + std::to_string(line) + " in "
+			+ std::string(function) + ": " + std::string(msg)
 		);
 	}
 }
 
-#define ASSERT(condition, message) \
-	::MMAI::assertImpl((condition), (message), __FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
+#define ASSERT(condition, message) ::MMAI::assertImpl((condition), (message), __FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 

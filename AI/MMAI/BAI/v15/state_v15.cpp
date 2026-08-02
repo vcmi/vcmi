@@ -1958,7 +1958,7 @@ namespace
 }
 
 State::State(int version, const std::string & colorname, const CPlayerBattleCallback & battle)
-	: version_(version), battle(battle), colorname(colorname), side(battle.battleGetMySide()), startStats(CalcGlobalStats(battle)), lastStats(startStats)
+	: version_(version), battle(battle), startStats(CalcGlobalStats(battle)), lastStats(startStats), colorname(colorname), side(battle.battleGetMySide())
 {
 }
 

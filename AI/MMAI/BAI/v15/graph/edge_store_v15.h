@@ -105,7 +105,7 @@ public:
 		if(ind >= idx.size())
 		{
 			if(strict)
-				throw std::runtime_error(std::string(EdgeType::encoding_traits::name) + ": getById: not found: " + std::to_string(ind));
+				throwf("%1%: getById: not found: %2%", EdgeType::encoding_traits::name, ind);
 			return nullptr;
 		}
 		return idx[ind];

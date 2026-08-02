@@ -23,7 +23,6 @@
 #include "bonuses/BonusParameters.h"
 #include "spells/CSpellHandler.h"
 
-
 namespace MMAI::BAI::V15::Graph::Nodes
 {
 

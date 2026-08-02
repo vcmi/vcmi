@@ -14,6 +14,7 @@
 
 #include "BAI/logger.h"
 #include "BAI/v15/state_v15.h"
+#include "TacticsHandler.h"
 #include "callback/CBattleGameInterface.h"
 
 namespace MMAI::BAI::V15
@@ -23,11 +24,17 @@ class BAI : public CBattleGameInterface
 	using ActionPtr = std::shared_ptr<const Graph::Nodes::Action>;
 
 public:
-	BAI(Schema::IModel * model, int version, const std::shared_ptr<Environment> & env, const std::shared_ptr<CBattleCallback> & cb, bool enableSpellsUsage);
+	BAI(Schema::IModel * model,
+		int version,
+		const std::shared_ptr<Environment> & env,
+		const std::shared_ptr<CBattleCallback> & cb,
+		bool enableSpells,
+		bool enableTactics);
 
 	void activeStack(const BattleID & bid, const CStack * stack) override;
 	void battleNewRound(const BattleID & bid) override;
 	void yourTacticPhase(const BattleID & bid, int distance) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 
 	void battleStacksAttacked(
 		const BattleID & bid,
@@ -61,7 +68,8 @@ public:
 	const std::shared_ptr<Environment> env;
 	const std::shared_ptr<CBattleCallback> cb;
 
-	bool enableSpellsUsage = false;
+	bool enableSpells = false;
+	bool enableTactics = false;
 
 	// consecutive invalid actions counter
 	int errcounter = 0;
@@ -75,11 +83,15 @@ public:
 	std::vector<Schema::Action> allactions; // DEBUG ONLY
 	std::shared_ptr<CPlayerBattleCallback> battle = nullptr;
 
+	std::shared_ptr<TacticsHandler> tacticsHandler;
+
 	std::string renderANSI() const;
 	std::shared_ptr<BattleAction> buildBattleAction(const ActionPtr & a, const CStack * acstack) const;
 	std::shared_ptr<BattleAction> maybeBuildAutoAction(const CStack * stack, const BattleID & bid) const;
 	bool maybeCastSpell(const CStack * stack, const BattleID & bid);
 	void _activeStack(const BattleID & bid, const CStack * stack);
+	bool guardVip(const BattleID & bid, const CStack * guard, const CStack * vip);
+	void tacticMove(const BattleID & bid, const CStack * cstack, const BattleHex & bh);
 
 	std::optional<BattleAction> maybeFleeOrSurrender(const BattleID & bid);
 };

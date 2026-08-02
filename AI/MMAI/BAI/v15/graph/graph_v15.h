@@ -8,8 +8,6 @@
  *
  */
 
-
-
 #pragma once
 
 #include "AI/MMAI/common.h" // IWYU pragma: keep
@@ -155,7 +153,6 @@ public:
 	requires detail::is_stored_element<T>
 	void add(std::shared_ptr<const T> elem)
 	{
-		// std::cout << "DEBUG: Add: " << elem->name() << " " << elem.get() << "\n";
 		assert(elem);
 		getMutableStore<T>().add(std::move(elem));
 	}

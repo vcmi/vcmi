@@ -13,13 +13,15 @@
 #include "AI/BattleAI/BattleEvaluator.h"
 #include "BAI/v15/graph/nodes/action_v15.h"
 #include "battle/BattleAction.h"
+#include "battle/BattleHex.h"
 #include "battle/BattleStateInfoForRetreat.h"
 #include "battle/CBattleInfoEssentials.h"
+#include "battle/ReachabilityInfo.h"
 #include "callback/CBattleCallback.h"
 
+#include "AI/MMAI/common.h"
 #include "BAI/v15/render_v15.h"
 #include "BAI/v15/verify_v15.h"
-#include "AI/MMAI/common.h"
 #include "schema/base.h"
 #include "schema/v15/types.h"
 
@@ -29,11 +31,25 @@ namespace MMAI::BAI::V15
 namespace N = Graph::Nodes;
 
 using PA = S15::Graph::NodeAttributes::Player;
+using UA = S15::Graph::NodeAttributes::Unit;
 using ActionPtr = std::shared_ptr<const N::Action>;
 using AT = S15::ActionType;
 
-BAI::BAI(Schema::IModel * model, int version, const std::shared_ptr<Environment> & env, const std::shared_ptr<CBattleCallback> & cb, bool enableSpellsUsage)
-	: model(model), version(version), logger(cb->getPlayerID()->toString()), env(env), cb(cb), enableSpellsUsage(enableSpellsUsage)
+BAI::BAI(
+	Schema::IModel * model,
+	int version,
+	const std::shared_ptr<Environment> & env,
+	const std::shared_ptr<CBattleCallback> & cb,
+	bool enableSpells,
+	bool enableTactics
+)
+	: model(model)
+	, version(version)
+	, logger(cb->getPlayerID()->toString())
+	, env(env)
+	, cb(cb)
+	, enableSpells(enableSpells)
+	, enableTactics(enableTactics)
 {
 }
 
@@ -76,7 +92,7 @@ void BAI::battleStart(
 )
 {
 	battle = cb->getBattle(bid);
-
+	tacticsHandler = std::make_shared<TacticsHandler>(cb, bid, TacticsHandler::Settings{.enabled = enableTactics});
 	state = initState(battle.get());
 	getActionTotalMs = 0;
 	getActionTotalCalls = 0;
@@ -138,17 +154,17 @@ void BAI::battleTriggerEffect(const BattleID & bid, const BattleTriggerEffect & 
 void BAI::battleNewRound(const BattleID & bid)
 {
 	++roundcounter;
-	logger.debug("rounds: %d", roundcounter);
+	logger.debug("round: %d", roundcounter);
 };
 
 void BAI::yourTacticPhase(const BattleID & bid, int distance)
 {
-	cb->battleMakeTacticAction(bid, BattleAction::makeEndOFTacticPhase(battle->battleGetTacticsSide()));
+	tacticsHandler->onTacticsStarted();
 }
 
 bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 {
-	if(!enableSpellsUsage)
+	if(!enableSpells)
 		return false;
 
 	const auto * hero = battle->battleGetMyHero();
@@ -406,6 +422,11 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	cb->battleMakeUnitAction(bid, ba);
 }
 
+void BAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
+{
+	tacticsHandler->onStackMoved(stack);
+}
+
 std::string BAI::renderANSI() const
 {
 	const auto str = Render(state.get(), lastAction);
@@ -422,7 +443,7 @@ std::string BAI::renderANSI() const
 			std::cout << "Disaster render:\n";
 			std::cout << Render(state.get(), lastAction) << "\n";
 		}
-		catch(std::exception & e2)
+		catch(std::exception & e2) // NOSONAR
 		{
 			std::cerr << "(failed: " << e2.what() << ")\n";
 		}
