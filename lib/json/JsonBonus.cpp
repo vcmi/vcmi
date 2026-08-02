@@ -301,8 +301,10 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
 		{
 			std::vector<int32_t> loadedData;
-			for(const auto & sequence : value.Vector())
-				loadedData.push_back(sequence.Integer());
+			if (value.isVector()) {
+				for(const auto & sequence : value.Vector())
+					loadedData.push_back(sequence.Integer());
+			}
 			var = loadedData;
 			break;
 		}
