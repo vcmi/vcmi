@@ -26,7 +26,7 @@ inline void assertImpl(
 	std::string_view msg,
 	std::string_view file,
 	int line,
-	const char * function)
+	std::string_view function)
 {
 	if(!cond)
 	{
@@ -36,7 +36,7 @@ inline void assertImpl(
 			+ ":"
 			+ std::to_string(line)
 			+ " in "
-			+ function
+			+ std::string(function)
 			+ ": "
 			+ std::string(msg)
 		);

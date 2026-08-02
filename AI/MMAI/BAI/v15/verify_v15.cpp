@@ -44,13 +44,6 @@ namespace S15 = S::V15;
 namespace N = Graph::Nodes;
 namespace E = Graph::Edges;
 
-// using UnitPtr = std::shared_ptr<const N::Unit>;
-// using HexPtr = std::shared_ptr<const N::Hex>;
-// using ActionPtr = std::shared_ptr<const N::Action>;
-// using TowerFlags = N::Global::TowerFlags;
-// using CorpseFlags = N::Global::CorpseFlags;
-// using ET = S15::Graph::ElementType;
-
 namespace
 {
 	struct Context
@@ -458,7 +451,8 @@ namespace
 		}
 	}
 
-	void Verify_NODE_HEX(const Context & ctx) // NOLINT(readability-function-cognitive-complexity)
+	// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+	void Verify_NODE_HEX(const Context & ctx) // NOSONAR
 	{
 		const auto & nodes = ctx.G.getAll<N::Hex>();
 
@@ -630,7 +624,7 @@ namespace
 				switch(a)
 				{
 					case A::ACTION_TYPE:
-						switch(AT(v))
+						switch(static_cast<AT>(v))
 						{
 							case AT::WAIT:
 								expect(!actor.waited(), "ACTION.ACTION_TYPE[WAIT]: already waited");
@@ -832,8 +826,7 @@ namespace
 				}
 			);
 
-			// TODO: not a threat if it's sleeping
-			// bool willActsBefore = ...
+			// XXX: if unit is sleeping, maybe it should not be considered a threat?
 
 			expect(isThreat, "EDGE_UNIT_BECOMES_MELEE_THREAT_AFTER_ACTION: unit cannot reach any hex adjacent to action destination");
 		}
@@ -1032,9 +1025,9 @@ void Verify(const State * state) // NOLINT(readability-function-cognitive-comple
 	for(int i = 0; i < EU(S15::Graph::ElementType::_count); ++i)
 	{
 		using ET = S15::Graph::ElementType;
-		const auto et = ET(i);
+		const auto et = static_cast<ET>(i);
 
-		switch(et)
+		switch(et) // NOSONAR
 		{
 			case ET::NODE_GLOBAL:
 				Verify_NODE_GLOBAL(ctx);
@@ -1140,7 +1133,6 @@ void Verify(const State * state) // NOLINT(readability-function-cognitive-comple
 				for(const auto & edge : ctx.G.getAll<E::Unit_IsMeleedBy_Action>())
 				{
 					if(!edge->isPrimaryTarget)
-						// TODO: verify non-primary targets (e.g. dragon breath 2nd hex)
 						continue;
 
 					expect(edge->srcNode == edge->dstNode->target, "EDGE_UNIT_IS_MELEED_BY_ACTION: target mismatch: " + edge->name());
@@ -1161,7 +1153,6 @@ void Verify(const State * state) // NOLINT(readability-function-cognitive-comple
 					);
 
 					if(!edge->isPrimaryTarget)
-						// TODO: verify non-primary targets (e.g. magog fireball)
 						continue;
 
 					expect(edge->srcNode == edge->dstNode->target, "EDGE_UNIT_IS_SHOT_BY_ACTION: target mismatch: " + edge->name());

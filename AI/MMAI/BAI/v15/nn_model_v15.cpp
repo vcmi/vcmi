@@ -405,15 +405,15 @@ std::vector<const char *> NNModel::readInputNames()
 	/*
 	 * Model inputs:
 	 *   x_<node type> tensors, one for each node_order entry
-	 *        dtype=float, shape=[N_node, node_attr_size]
+	 *        dtype: float, shape: [N_node, node_attr_size]
 	 *   edge_index_flat
-	 *        dtype=int64, shape=[2, E*]
+	 *        dtype: int64, shape: [2, E*]
 	 *   edge_attr_flat
-	 *        dtype=float, shape=[E*, max edge attr size]
+	 *        dtype: float, shape: [E*, max edge attr size]
 	 *   edge_lengths
-	 *        dtype=int32, shape=[edge_order.size()]
+	 *        dtype: int32, shape: [edge_order.size()]
 	 *   active_action_ids
-	 *        dtype=int64, shape=[A]
+	 *        dtype: int64, shape: [A]
 	 */
 	std::vector<const char *> res;
 	auto count = container->session->GetInputCount();

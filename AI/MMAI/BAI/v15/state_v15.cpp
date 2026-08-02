@@ -63,7 +63,7 @@ namespace
 		{
 			size_t tmp = 0;
 			std::cout << "  " << std::setw(5);
-			switch(ET(i))
+			switch(static_cast<ET>(i)) // NOSONAR
 			{
 				case ET::NODE_GLOBAL:
 					tmp = G.size<N::Global>();
@@ -252,7 +252,7 @@ namespace
 				res.hasGateCorpse = true;
 			if(cstack->coversPos(BattleHex::GATE_BRIDGE))
 				res.hasBridgeCorpse = true;
-		};
+		}
 
 		return res;
 	}
@@ -529,8 +529,9 @@ namespace
 
 		const auto states0 = UnitStates{.a = CUnitStateWrapper(&attacker, attacker.acquireState()), .b = CUnitStateWrapper(&defender, defender.acquireState())};
 		auto states = states0;
+		auto num_positions = positions.size();
 
-		for(int i = 0; i < positions.size(); ++i)
+		for(int i = 0; i < num_positions; ++i)
 		{
 			bool shouldSwitch = positions.at(i);
 			states = shouldSwitch ? UnitStates{.a = states.b, .b = states.a} : UnitStates{.a = states.a, .b = states.b};
@@ -931,7 +932,7 @@ namespace
 	{
 		G.getFlags().require(ET::NODE_ACTION);
 		for(int i = 0; i < EU(AT::_count); ++i)
-			atFlags.require(AT(i));
+			atFlags.require(static_cast<AT>(i));
 
 		G.setFlag(ET::EDGE_GLOBAL_TO_ACTION);
 
@@ -1631,10 +1632,10 @@ namespace
 
 		for(int i = 0; i < EU(ET::_count); ++i)
 		{
-			if(ignore.contains(ET(i)))
+			if(ignore.contains(static_cast<ET>(i)))
 				continue;
 
-			switch(ET(i))
+			switch(static_cast<ET>(i))
 			{
 				case ET::EDGE_ACTION_BY_UNIT:
 					cloneEdgesWithSrcAction.template operator()<E::Action_By_Unit>();
@@ -1831,10 +1832,10 @@ namespace
 				G.add(amove2);
 				CloneActionEdges(G, amove, amove2, {ET::EDGE_ACTION_ENDS_AT_HEX});
 
-				for(const auto & hex : G.getAllEdgesDstBySrc<E::Unit_Occupies_Hex>(amove->by))
+				for(const auto & occupied : G.getAllEdgesDstBySrc<E::Unit_Occupies_Hex>(amove->by))
 				{
 					bool isRear = hex->bhex != amove->by->cstack.getPosition();
-					G.add(E::Action_EndsAt_Hex::Create(amove2, hex, isRear));
+					G.add(E::Action_EndsAt_Hex::Create(amove2, occupied, isRear));
 				}
 			}
 		}
@@ -1944,7 +1945,7 @@ namespace
 				assert(move->by->cstack.getPosition() == move->endsAt.at(0)->bhex);
 				defendmoves.try_emplace(move->by, move);
 			}
-		};
+		}
 
 		for(const auto & unit : G.getAll<N::Unit>())
 		{
@@ -2046,9 +2047,9 @@ void State::onActiveStack(const CStack * acstack, int round, S15::CombatResult r
 
 	auto atFlags = EnumFlags<S15::ActionType>();
 	AddMoveAndDefendActions(*G, atFlags); // + edges: ActionByUnit, ActionEndsAtHex
-	// AddMoveActionEdges_Action_By_Unit() // already added
+	// AddMoveActionEdges_Action_By_Unit not needed (already added)
 	AddMoveActionEdges_Action_Blocks_Unit(*G, atFlags, battle);
-	// AddMoveActionEdges_Action_EndsAt_Hex() // already added
+	// AddMoveActionEdges_Action_EndsAt_Hex not needed (already added)
 	AddMoveActionEdges_Unit_BecomesMeleeThreatAfter_Action(*G, atFlags);
 	AddMoveActionEdges_Unit_BecomesShootThreatAfter_Action(*G, atFlags, battle);
 
@@ -2056,7 +2057,7 @@ void State::onActiveStack(const CStack * acstack, int round, S15::CombatResult r
 	AddMoveActionEdges_UnitAndHex_BecomesShootTargetAfter_Action(*G, atFlags, battle);
 
 	AddOtherActions(*G, atFlags, battle);
-	// AddRetreatAction(*G, atFlags); // XXX: retreats intentionally disabled
+	// AddRetreatAction not needed (retreats intentionally disabled)
 
 	AddEdges_Global_To_Action(*G, atFlags, battle);
 

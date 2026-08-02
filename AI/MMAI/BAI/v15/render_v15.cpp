@@ -124,7 +124,7 @@ namespace
 // This intentionally uses the IState interface to ensure that
 // the schema is properly exposing all needed informaton
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-std::string Render(const State * state, const ActionPtr & action)
+std::string Render(const State * state, const ActionPtr & action) // NOSONAR
 {
 	const auto & alogs = state->attackLogs;
 	const auto * G = state->G.get();
@@ -493,7 +493,7 @@ std::string Render(const State * state, const ActionPtr & action)
 		_count
 	};
 
-	// {Attribute, name, colwidth}
+	// Attribute, name, colwidth
 	const auto rowdefs = std::vector<std::pair<Col, std::string>>{
 		{Col::ALIAS,     "Stack #"         },
 		{Col::DIV,       ""                },

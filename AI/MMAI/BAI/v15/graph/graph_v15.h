@@ -369,7 +369,7 @@ private:
 	template<typename F>
 	decltype(auto) withEdgeStore(ET t, F && f) const
 	{
-		switch(t)
+		switch(t) // NOSONAR
 		{
 			case ET::EDGE_GLOBAL_TO_PLAYER:
 				static_assert(std::get<2>(detail::GetEdgeType(ET::EDGE_GLOBAL_TO_PLAYER)).first == ET::NODE_GLOBAL);

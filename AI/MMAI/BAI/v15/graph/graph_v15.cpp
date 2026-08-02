@@ -264,7 +264,7 @@ int64_t Graph::getNodeIndex(const S15::Graph::INode * inode) const
 			// Downcast INode* to the real node, e.g. Nodes::Player*
 			const auto * node = dynamic_cast<const Node *>(inode);
 			if(!node)
-				throwf("Node type does not match element type: {}", EI(inode->getType()));
+				throwf("Node type does not match element type: {}", EI(inode->getType())); // NOSONAR: inode is never null
 
 			return store.getId(node);
 		}
@@ -283,7 +283,7 @@ int64_t Graph::getEdgeIndex(const S15::Graph::IEdge * iedge) const
 			// Downcast INode* to the real node, e.g. Nodes::Player*
 			const auto * edge = dynamic_cast<const Edge *>(iedge);
 			if(!edge)
-				throwf("Node type does not match element type: {}", EI(iedge->getType()));
+				throwf("Node type does not match element type: {}", EI(iedge->getType())); // NOSONAR: iedge is never null
 
 			return store.getId(edge);
 		}

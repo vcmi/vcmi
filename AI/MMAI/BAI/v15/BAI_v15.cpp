@@ -288,9 +288,6 @@ namespace
 	{
 		switch(a->actionType)
 		{
-			// case AT::RETREAT:
-			// 	assert(battle.battleCanFlee());
-			// 	return BattleAction::makeRetreat(battle.battleGetMySide());
 			case AT::WAIT:
 				assert(a->by && &a->by->cstack == acstack);
 				assert(!acstack->waitedThisTurn);
@@ -323,7 +320,7 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 	{
 		_activeStack(bid, astack);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception & e) // NOSONAR
 	{
 		logger.error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
 		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
@@ -417,7 +414,7 @@ std::string BAI::renderANSI() const
 	{
 		Verify(state.get());
 	}
-	catch(const std::exception & e)
+	catch(const std::exception & e) // NOSONAR
 	{
 		try
 		{

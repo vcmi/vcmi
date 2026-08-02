@@ -24,7 +24,7 @@ ReachabilityInfo::Parameters::Parameters(BattleSide perspective, const battle::U
 }
 
 ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, const BattleHex & StartPosition):
-	ReachabilityInfo::Parameters::Parameters(static_cast<BattleSide>(Stack->unitSide()), Stack, StartPosition, Stack->getHexes(StartPosition))
+	ReachabilityInfo::Parameters::Parameters(Stack->unitSide(), Stack, StartPosition, Stack->getHexes(StartPosition))
 {
 }
 
