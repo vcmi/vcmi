@@ -109,7 +109,6 @@ bool Composition::isElementar() const
 	return subtasks.back().front()->isElementar();
 }
 
-<<<<<<< HEAD
 const CGHeroInstance * Composition::getHero() const
 {
 	const CGHeroInstance * result = nullptr;
@@ -131,8 +130,6 @@ const CGHeroInstance * Composition::getHero() const
 	return result;
 }
 
-=======
->>>>>>> 803f1ff36 (Replan after unlocking a cluster)
 bool Composition::containsGoalType(EGoals goalType) const
 {
 	for(auto sequence : subtasks)

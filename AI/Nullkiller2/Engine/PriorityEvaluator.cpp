@@ -11,6 +11,7 @@
 #include <limits>
 
 #include "Nullkiller.h"
+#include "../AIUtility.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
@@ -66,6 +67,12 @@ float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue,
 	return std::min(baseMaxArmyLoss + conquestPressure, 0.75f);
 }
 
+static std::string firstHeroWord(const CGHeroInstance * hero)
+{
+	auto name = hero->getNameTranslated();
+	return name.substr(0, name.find(' '));
+}
+
 static float computeResourceRequirementStrength(const Nullkiller * aiNk, GameResID resType, TResource missingAmount, TResource dailyIncome, float noIncomeBaseStrength)
 {
 	assert(missingAmount > 0);
@@ -104,6 +111,8 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	goldCost(0),
 	armyReward(0),
 	armyLossRatio(0),
+	armyLoss(0),
+	targetObjectArmyLoss(0),
 	heroRole(HeroRole::SCOUT),
 	turn(0),
 	strategicalValue(0),
@@ -118,13 +127,17 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	threatTurns(INT_MAX),
 	involvesSailing(false),
 	requiresBattle(false),
+	targetRequiresBattle(false),
 	isTradeBuilding(false),
 	isExchange(false),
 	isArmyUpgrade(false),
 	isHero(false),
 	isEnemy(false),
+	canBeKilledByEnemy(false),
 	explorePriority(0),
-	powerRatio(0)
+	powerRatio(0),
+	routeAnchorBonus(0),
+	routeAnchorMovementCost(0)
 {
 }
 
@@ -191,28 +204,23 @@ int32_t getResourcesGoldReward(const TResources & res)
 	return result;
 }
 
-uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, bool checkGold)
+static bool canAddDwellingCreature(const CCreatureSet * army, const CCreature * creature, TQuantity count)
 {
-	auto dwelling = dynamic_cast<const CGDwelling *>(target);
-	uint64_t score = 0;
+	if(!army || army->getSlotFor(creature).validSlot())
+		return true;
 
-	for(auto & creLevel : dwelling->creatures)
+	const auto newStackValue = (creature->getFullRecruitCost() * count).marketValue();
+	for(const auto & stack : army->Slots())
 	{
-		if(creLevel.first && creLevel.second.size())
-		{
-			auto creature = creLevel.second.back().toCreature();
-			auto creaturesAreFree = creature->getLevel() == 1;
-			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
-				continue;
-
-			score += creature->getAIValue() * creLevel.first;
-		}
+		const auto stackValue = (stack.second->getCreatureID().toCreature()->getFullRecruitCost() * stack.second->getCount()).marketValue();
+		if(newStackValue > stackValue)
+			return true;
 	}
 
-	return score;
+	return false;
 }
 
-uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, PlayerColor myColor)
+uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, const CCreatureSet * army, PlayerColor myColor)
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
@@ -225,6 +233,9 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 		if(creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
+			if(!canAddDwellingCreature(army, creature, creature->getGrowth()))
+				continue;
+
 			score += creature->getAIValue() * creature->getGrowth();
 
 			// Increase priority towards the end of the week if units are lost afterwards
@@ -290,7 +301,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyValue(aiNk->cc.get(), target, checkGold);
+		return aiNk->armyManager->howManyReinforcementsCanBuy(army, dynamic_cast<const CGDwelling *>(target), aiNk->getFreeResources());
 	case Obj::SPELL_SCROLL:
 		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getScrollSpellID());
 	case Obj::ARTIFACT:
@@ -370,7 +381,7 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyGrowth(aiNk->cc.get(), target, hero->getOwner());
+		return getDwellingArmyGrowth(aiNk->cc.get(), target, army, hero->getOwner());
 	case Obj::ARTIFACT:
 		// it is not supported now because hero will not sit in town on 7th day but later parts of legion may be counted as army growth as well.
 		return 0;
@@ -673,6 +684,10 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 		return 8;
 	case Obj::WITCH_HUT:
 		return evaluateWitchHutSkillScore(target, hero, role);
+	case Obj::TREASURE_CHEST:
+		// Chests are valued as gold; if gold is not critical, SCOUTs leave XP for MAIN heroes
+		// if they are around. When not - take gold
+		return 0;
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
@@ -720,7 +735,28 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 				}
 			}
 
+			if(role == HeroRole::SCOUT)
+			{
+				TResources cost = info.reward.resources;
+				cost.amin(0);
+				cost = -cost;
+
+				if(cost.nonZero())
+				{
+					const auto freeRes = aiNk->getFreeResources();
+
+					for(TResources::nziterator it(cost); it.valid(); it++)
+					{
+						const int multiplier = it->resType == GameResID::GOLD ? 10 : 3; // to upgrade a scout there has to be a lot of free resources
+						if(freeRes[it->resType] < it->resVal * multiplier)
+							return totalValue; // not rich enough to give reward for SCOUT
+					}
+				}
+			}
+
 			totalValue += info.reward.heroLevel * 4.0f;
+			totalValue += info.reward.heroExperience / 1000.0f;
+			totalValue += info.reward.movePoints / 1000.0f;
 		}
 
 		return totalValue;
@@ -829,13 +865,20 @@ public:
 		const auto giverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.exchangePath.targetHero);
 		// It's allowed for SCOUTs to receive from other SCOUTs, so all army gets in one place before delivery to main
 
-		// TODO: Mircea: See how we can get some kind of balance between MAINs in terms of army delivery
-		// See: GatherArmyBehavior::deliverArmyToHero
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
-		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->getArmyStrength();
+		const uint64_t artifactExchangeValue = heroExchange.getArtifactExchangeValue();
+		const uint64_t exchangeValue = additionalArmyStrength + artifactExchangeValue;
+		const auto receiverArmyStrength = heroExchange.hero->getArmyStrength();
+		const float additionalArmyRatio = receiverArmyStrength > 0 ? static_cast<float>(exchangeValue) / receiverArmyStrength : 0.0f;
+		const bool deliversArmyToMain = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero) == HeroRole::MAIN
+			&& evaluationContext.evaluator.aiNk->heroManager->isMeaningfulArmyCarrier(heroExchange.exchangePath.targetHero);
+		const bool boostDeliveryToMain = deliversArmyToMain
+			&& heroExchange.exchangePath.turn() < evaluationContext.evaluator.aiNk->settings->getScoutHeroTurnDistanceLimit();
 
 		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
-		evaluationContext.armyGrowth = additionalArmyStrength;
+		evaluationContext.armyGrowth = exchangeValue;
+		if(boostDeliveryToMain)
+			evaluationContext.armyGrowth *= 5;
 		evaluationContext.movementCost = heroExchange.exchangePath.movementCost();
 		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
 		evaluationContext.heroRole = giverHeroRole;
@@ -881,11 +924,11 @@ public:
 					case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 					case Obj::MONOLITH_TWO_WAY:
 					case Obj::SUBTERRANEAN_GATE:
-						evaluationContext.explorePriority = 1;
-						break;
+					case Obj::BOAT:
+					case Obj::WHIRLPOOL:
 					case Obj::REDWOOD_OBSERVATORY:
 					case Obj::PILLAR_OF_FIRE:
-						evaluationContext.explorePriority = 2;
+						evaluationContext.explorePriority = 1;
 						break;
 					default:
 						logAi->warn("ExplorePointEvaluator buildEvaluationContext unknown exploration point %d", obj->ID.num);
@@ -893,8 +936,13 @@ public:
 			}
 
 			const TerrainTile * tile = evaluationContext.evaluator.aiNk->cc->getTile(task->tile, false);
-			if(tile && tile->roadType != RoadId::NO_ROAD)
-				evaluationContext.explorePriority = 1;
+			if(tile)
+			{
+				if(tile->roadType == RoadId::NO_ROAD)
+					evaluationContext.explorePriority = 1;
+				else
+					evaluationContext.explorePriority = 2;
+			}
 		}
 		if(evaluationContext.explorePriority == 0)
 		{
@@ -1044,12 +1092,20 @@ public:
 
 		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		const AIPath & path = chain.getPath();
+		if(chain.getRouteAnchorBonus() > evaluationContext.routeAnchorBonus)
+		{
+			evaluationContext.routeAnchorBonus = chain.getRouteAnchorBonus();
+			evaluationContext.routeAnchorMovementCost = chain.getRouteAnchorMovementCost();
+		}
 
 		if (vstd::isAlmostZero(path.movementCost()))
 			return;
 
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
+		vstd::amax(evaluationContext.armyLoss, path.armyLoss);
+		vstd::amax(evaluationContext.targetObjectArmyLoss, path.targetObjectArmyLoss);
 		evaluationContext.requiresBattle = evaluationContext.requiresBattle || path.requiresBattle();
+		evaluationContext.targetRequiresBattle = evaluationContext.targetRequiresBattle || path.targetObjectArmyLoss > 0;
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
@@ -1125,6 +1181,7 @@ public:
 
 		if (target)
 		{
+			// TODO: Move rewardable scoring to player-visible object info; direct rewardable reads leak cleared/scouted state.
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
 			evaluationContext.armyGrowth += evaluationContext.evaluator.getArmyGrowth(target, hero, army);
@@ -1145,6 +1202,7 @@ public:
 
 		vstd::amax(evaluationContext.armyLossRatio, (float)path.getTotalArmyLoss() / (float)army->getArmyStrength());
 		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
+		evaluationContext.canBeKilledByEnemy = evaluationContext.canBeKilledByEnemy || aiNk->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path);
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
 };
@@ -1164,6 +1222,17 @@ public:
 
 		auto hero = clusterGoal.hero;
 		auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero);
+		const auto & pathToCenter = clusterGoal.getPathToCenter();
+
+		evaluationContext.movementCost += pathToCenter.movementCost();
+		evaluationContext.movementCostByRole[role] += pathToCenter.movementCost();
+		evaluationContext.requiresBattle = evaluationContext.requiresBattle || pathToCenter.requiresBattle();
+		evaluationContext.targetRequiresBattle = evaluationContext.targetRequiresBattle || pathToCenter.targetObjectArmyLoss > 0;
+		vstd::amax(evaluationContext.danger, pathToCenter.getTotalDanger());
+		vstd::amax(evaluationContext.armyLoss, pathToCenter.armyLoss);
+		vstd::amax(evaluationContext.targetObjectArmyLoss, pathToCenter.targetObjectArmyLoss);
+		vstd::amax(evaluationContext.armyLossRatio, static_cast<float>(pathToCenter.getTotalArmyLoss()) / static_cast<float>(hero->getArmyStrength()));
+		vstd::amax(evaluationContext.turn, pathToCenter.turn());
 
 		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects;
 		objects.reserve(cluster->objects.size());
@@ -1445,10 +1514,10 @@ float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLoss
 	return score;
 }
 
-float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyInvolvement, const float armyLossRatio)
+float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyLossRatio)
 {
-	// Encourage stronger heroes
-	return score + skillReward * armyInvolvement * (1 - armyLossRatio) * 0.05;
+	// Keep skill rewards bounded and loss-aware.
+	return score + skillReward * 1000.0f * std::max(0.0f, 1.0f - armyLossRatio);
 }
 
 float PriorityEvaluator::evaluateConquestValue(float score, const float conquestValue, const float armyInvolvement)
@@ -1626,6 +1695,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
+				if(evaluationContext.heroRole == SCOUT && evaluationContext.canBeKilledByEnemy)
+					return 0;
 
 				if(priorityTier == EXPLORE_AND_GATHER && evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio)
 					return 0;
@@ -1660,37 +1731,116 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//    && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio))
 				// 	return 0;
 
-				const auto requiresBattle = evaluationContext.requiresBattle || evaluationContext.armyLossRatio > 0;
+				const bool hasAnyBattle = evaluationContext.requiresBattle || evaluationContext.armyLossRatio > 0;
+				const bool targetRequiresBattle = evaluationContext.targetRequiresBattle;
+				const bool meaningfulArmyCarrier = task->hero && aiNk->heroManager->isMeaningfulArmyCarrier(task->hero);
+
+				const bool targetIsOnWater = targetObject && aiNk->cc->getTile(targetObject->visitablePos(), false)->isWater();
+				const bool weakSailingScoutCollector = task->hero
+					&& evaluationContext.heroRole == SCOUT
+					&& task->hero->inBoat()
+					&& !meaningfulArmyCarrier
+					&& targetObject
+					&& targetIsOnWater
+					&& evaluationContext.involvesSailing
+					&& !hasAnyBattle
+					&& !targetRequiresBattle;
+
+				const bool isTreasureChest = targetObject && targetObject->ID == Obj::TREASURE_CHEST;
+				const bool isRewardable = targetObject && dynamic_cast<const Rewardable::Interface *>(targetObject);
+
+				const auto mainReachableWithinOneTurn = [&]() -> bool
+				{
+					if(!task->hero)
+						return false;
+
+					const auto paths = aiNk->getPathsInfo(task->hero);
+					if(!paths)
+						return false;
+
+					for(const auto * hero : aiNk->cc->getHeroesInfo())
+					{
+						if(hero == task->hero)
+							continue;
+						if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) != HeroRole::MAIN)
+							continue;
+
+						const auto pathNode = paths->getPathInfo(hero->visitablePos());
+						if(pathNode->reachable() && pathNode->turns <= 1)
+							return true;
+					}
+
+					return false;
+				};
+
 				score += evaluationContext.strategicalValue * 1000;
 				if(evaluationContext.explorePriority > 0)
 				{
-					score = 600.0f / evaluationContext.explorePriority;
+					if(!targetObject
+						&& !hasAnyBattle
+						&& !evaluationContext.isExchange
+						&& evaluationContext.heroRole != MAIN
+						&& meaningfulArmyCarrier
+						&& mainReachableWithinOneTurn())
+					{
+						return 0;
+					}
+
+					score += 100.0f / evaluationContext.explorePriority;
 
 					// Encourage exploration for MAIN that requires battles, so SCOUTs can continue exploring
-					if(evaluationContext.heroRole == MAIN && requiresBattle)
+					if(evaluationContext.heroRole == MAIN && hasAnyBattle)
 						score *= 2;
 				}
 
 				if(evaluationContext.goldReward > 0)
 				{
-					// try to balance other resources vs gold, especially 2500 gold treasures
-					score += evaluationContext.goldReward > 500 ? evaluationContext.goldReward / 2.0f : evaluationContext.goldReward * 2.0f;
-
-					if(evaluationContext.heroRole == MAIN)
+					const auto freeResources = aiNk->getFreeResources();
+					const auto missingNow = aiNk->buildAnalyzer->getMissingResourcesNow();
+					const auto isCriticalRewardResource = [&](GameResID resType) -> bool
 					{
-						bool scoutCanReachResourceThisTurn = false;
-						if(!requiresBattle && targetResourceType.has_value())
-						{
-							const auto targetTile = targetObject->visitablePos();
+						if(missingNow[resType] <= 0)
+							return false;
 
-							// Only same-turn SCOUT pickup is certain enough to make MAIN abandon this target.
+						if(resType == GameResID::GOLD)
+						{
+							if(isTreasureChest)
+								return freeResources[resType] < 1000;
+
+							return freeResources[resType] < 1000 || aiNk->buildAnalyzer->isGoldPressureOverMax();
+						}
+
+						return freeResources[resType] == 0;
+					};
+					if(targetObject && (evaluationContext.heroRole == MAIN || meaningfulArmyCarrier || isTreasureChest))
+					{
+							bool scoutCanReachThisTurn = false;
+							bool mainCanReachSoon = false;
+							const auto targetTile = targetObject->visitablePos();
 							for(const auto * hero : aiNk->cc->getHeroesInfo())
 							{
 								if(hero == task->hero)
 									continue;
-								if(aiNk->getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED)
-									continue;
-								if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) != HeroRole::SCOUT)
+							if(aiNk->getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED)
+								continue;
+							if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) != HeroRole::SCOUT)
+								continue;
+
+							auto paths = aiNk->getPathsInfo(hero);
+							if(!paths)
+								continue;
+
+							auto pathNode = paths->getPathInfo(targetTile);
+							if(pathNode->reachable() && pathNode->turns == 0)
+							{
+								scoutCanReachThisTurn = true;
+									break;
+								}
+							}
+
+							for(const auto * hero : aiNk->cc->getHeroesInfo())
+							{
+								if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) != HeroRole::MAIN)
 									continue;
 
 								auto paths = aiNk->getPathsInfo(hero);
@@ -1698,73 +1848,110 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 									continue;
 
 								auto pathNode = paths->getPathInfo(targetTile);
-								if(pathNode->reachable() && pathNode->turns == 0)
+								if(pathNode->reachable() && pathNode->turns < 3)
 								{
-									scoutCanReachResourceThisTurn = true;
+									mainCanReachSoon = true;
 									break;
+								}
+							}
+							bool targetGivesCriticalResource = targetResourceType.has_value() && isCriticalRewardResource(*targetResourceType);
+
+						if(!targetGivesCriticalResource && (isWeeklyRevisitable(aiNk->playerID, targetObject) || isTreasureChest))
+						{
+							auto rewardable = dynamic_cast<const Rewardable::Interface *>(targetObject);
+							if(rewardable)
+							{
+								for(int index : rewardable->getAvailableRewards(task->hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+								{
+									for(TResources::nziterator it(rewardable->configuration.info[index].reward.resources); it.valid(); it++)
+									{
+										if(isCriticalRewardResource(it->resType))
+										{
+											targetGivesCriticalResource = true;
+											break;
+										}
+									}
+
+									if(targetGivesCriticalResource)
+										break;
 								}
 							}
 						}
 
-						if(scoutCanReachResourceThisTurn)
-						{
-							logAi->trace(
-								"priorityTier %d, MAIN yields %s at %s because a SCOUT can reach it this turn",
-								priorityTier,
-								targetObject->getObjectName(),
-								targetObject->visitablePos().toString());
-							return 0;
-						}
+						// try to balance other resources vs gold, especially 2500 gold treasures
+						float multiplier = targetGivesCriticalResource ? 3.0f : 1.0f;
+						score += evaluationContext.goldReward > 500 ? evaluationContext.goldReward / 2.0f * multiplier : evaluationContext.goldReward * 2.0f * multiplier;
 
-						if(requiresBattle)
-							// Encourage MAIN to fight for crypts and similar
-							score *= 2;
-						else if(targetResourceType.has_value()
-							&& aiNk->buildAnalyzer->getMissingResourcesNow()[*targetResourceType] > 0
-							&& ((*targetResourceType == GameResID::GOLD
-								&& aiNk->getFreeResources()[*targetResourceType] < GameConstants::HERO_GOLD_COST
-								&& aiNk->buildAnalyzer->isGoldPressureOverMax())
-								|| (*targetResourceType != GameResID::GOLD && aiNk->getFreeResources()[*targetResourceType] == 0)))
-							// Critical no-battle resources are still worth MAIN movement if waiting blocks builds or hero hiring.
-							score *= 2;
+						if(evaluationContext.heroRole != MAIN)
+						{
+							if(!targetGivesCriticalResource)
+							{
+								const auto targetTile = targetObject->visitablePos();
+								const auto & threatNode = aiNk->dangerHitMap->getTileThreat(targetTile);
+								const bool enemyCanReachSoon = threatNode.fastestDanger.turn < 2;
+								const auto closestTownOwner = aiNk->dangerHitMap->getTileOwner(targetTile);
+								const bool enemyTownIsCloser = closestTownOwner.isValidPlayer()
+									&& aiNk->cc->getPlayerRelations(aiNk->playerID, closestTownOwner) == PlayerRelations::ENEMIES;
+
+								if(!mainCanReachSoon || (enemyCanReachSoon || enemyTownIsCloser))
+									score *= 4;
+								if(isTreasureChest && mainCanReachSoon && !weakSailingScoutCollector)
+									return 0;
+							}
+							else
+							{
+								score *= 5;
+							}
+						}
 						else
-							// Discourage MAIN to waste time picking resources if they don't require a fight
-							score *= 0.33;
+						// MAIN hero
+						{
+							if(targetRequiresBattle || (evaluationContext.involvesSailing && isRewardable) || (targetGivesCriticalResource && !scoutCanReachThisTurn))
+							{
+								// Encourage MAIN to fight for crypts and similar + sailing rewardables + critical no-battle resources (still worth MAIN movement)
+								score *= 2;
+							}
+							else if(scoutCanReachThisTurn && !isTreasureChest)
+								return 0;
+							else if(meaningfulArmyCarrier && isWeeklyRevisitable(aiNk->playerID, targetObject))
+								score *= 0.1;
+							else
+							{
+								if(isTreasureChest)
+									score *= 3;
+								else
+									score *= 0.33;
+							}
+						}
 					}
 				}
 
 				if(evaluationContext.skillReward > 0)
 				{
-					if(evaluationContext.heroRole == MAIN)
-					{
-						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
-
-						// Encourage skill increases before battles
-						if(!requiresBattle)
-							score *= 3;
-					}
+					if(targetObject && !hasAnyBattle)
+						score += evaluationContext.skillReward * (evaluationContext.heroRole == MAIN ? 1000.0f : 200.0f);
 					else
-						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
-						// TODO: Mircea: Ease the restriction after 1 month or a bit more, because MAINs had enough time to grow, avoiding a SPAM of role shifts for each upgrade a SCOUT gets
-						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
-						// MAINs grow and fight, SCOUTs do the groundwork.
-						score = std::max(1.0f, score / 1000.0f);
+						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
+					score *= evaluationContext.heroRole == SCOUT ? 0.2f : 2.0f;
 				}
 
-				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10.0f;
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 2.0f;
 				// workshop (free lvl 1 units for Tower) and similar dwellings receive both armyReward and armyGrowth in evaluationContext
 				// For that reason only getDwellingArmyGrowth gets amplified towards day 7 if units are lost after
 				// Hero exchange and army upgrade are using this too
 				score += evaluationContext.armyGrowth;
 
 				if(evaluationContext.goldCost > 0)
-					// Will be outside the if, just temporary for debugging
 					score -= evaluationContext.goldCost / 4.0f; // don't include the full cost of School of Magic or others because those locations are beneficial
+				if(evaluationContext.routeAnchorBonus > 0)
+					score += evaluationContext.routeAnchorBonus;
+				if(weakSailingScoutCollector)
+					score += 4000;
 				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
 
 				score *= evaluationContext.closestWayRatio;
-				score = evaluateMovement(score, evaluationContext.movementCost);
-
+				if(!(evaluationContext.explorePriority > 0 && !targetObject && evaluationContext.movementCost < 1.0f))
+					score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
 			case DEFEND: //Defend whatever if nothing else is to do
@@ -1791,7 +1978,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
-				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
+				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
 
@@ -1847,8 +2034,11 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		result = score;
 		//TODO: Figure out the root cause for why evaluationContext.closestWayRatio has become -nan(ind).
-		if (std::isnan(result))
+		if(std::isnan(result))
+		{
+			logGlobal->error("\n\n\nevaluationContext.closestWayRatio has become NaN\n\n");
 			return 0;
+		}
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
