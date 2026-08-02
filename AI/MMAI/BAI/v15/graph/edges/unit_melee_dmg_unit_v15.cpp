@@ -22,9 +22,9 @@ Unit_MeleeDmg_Unit::Unit_MeleeDmg_Unit(
 )
 	: detail::Unit_MeleeDmg_Unit_Base(srcNode, dstNode)
 {
-	int netValue = args.vdiffAttacker - args.vdiffDefender;
-	int attackerHp = static_cast<int>(srcNode->cstack.getTotalHealth());
-	int defenderHp = static_cast<int>(dstNode->cstack.getTotalHealth());
+	auto netValue = args.vdiffAttacker - args.vdiffDefender;
+	auto attackerHp = static_cast<int>(srcNode->cstack.getTotalHealth());
+	auto defenderHp = static_cast<int>(dstNode->cstack.getTotalHealth());
 
 	setattr(A::ESTIMATED_ATTACKER_HPDIFF_REL_SELF, permille(args.hpdiffAttacker, attackerHp));
 	setattr(A::ESTIMATED_ATTACKER_HPDIFF_REL_BF, permille(args.hpdiffAttacker, args.battlefieldHp));

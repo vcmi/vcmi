@@ -278,7 +278,7 @@ std::string Render(const State * state, const ActionPtr & action)
 	{
 		const auto & hex = G->getById<N::Hex>(i);
 		const auto & unit = G->getOneEdgeSrcByDst<E::Unit_Occupies_Hex>(hex, false);
-		auto sym = std::string("?");
+		std::string sym = "?";
 
 		int y = i / 15;
 		int x = i % 15;

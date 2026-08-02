@@ -12,13 +12,13 @@
 #include "ReachabilityInfo.h"
 #include "Unit.h"
 
-ReachabilityInfo::Parameters::Parameters(BattleSide perspective, const battle::Unit * Stack, const BattleHex & StartPosition, const BattleHexArray & knownAccessible):
+ReachabilityInfo::Parameters::Parameters(BattleSide perspective, const battle::Unit * Stack, const BattleHex & StartPosition, const BattleHexArray & accessibleHexes):
 	perspective(perspective),
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),
 	flying(Stack->hasBonusOfType(BonusType::FLYING)),
-	knownAccessible(&knownAccessible)
+	knownAccessible(&accessibleHexes)
 {
 	destructibleEnemyTurns.fill(-1);
 }

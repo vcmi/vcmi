@@ -62,7 +62,7 @@ void Encoder::Encode(const EncoderInput & in, BS & out)
 		// Warn at most once every 600s
 		auto now = clock::now();
 		static thread_local std::map<std::string, std::map<int, clock::time_point>> warns;
-		auto & warned_at = warns[std::string(in.attrname)][EI(in.a)];
+		const auto & warned_at = warns[std::string(in.attrname)][EI(in.a)];
 
 		if(std::chrono::duration_cast<std::chrono::seconds>(now - warned_at) > std::chrono::seconds(600))
 		{

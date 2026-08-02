@@ -256,7 +256,7 @@ int64_t Graph::getNodeIndex(const S15::Graph::INode * inode) const
 {
 	return withNodeStore(
 		inode->getType(),
-		[&](const auto & store)
+		[&inode](const auto & store)
 		{
 			using Store = std::decay_t<decltype(store)>;
 			using Node = typename Store::node_type;
@@ -275,7 +275,7 @@ int64_t Graph::getEdgeIndex(const S15::Graph::IEdge * iedge) const
 {
 	return withEdgeStore(
 		iedge->getType(),
-		[&](const auto & store)
+		[&iedge](const auto & store)
 		{
 			using Store = std::decay_t<decltype(store)>;
 			using Edge = typename Store::edge_type;

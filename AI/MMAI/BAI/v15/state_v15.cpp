@@ -470,8 +470,8 @@ namespace
 											  .Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
 			static const auto selMelee = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll)
 											 .Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
-			static const auto strRanged = std::string("firstStrikeSelectorRanged");
-			static const auto strMelee = std::string("firstStrikeSelectorMelee");
+			static const std::string strRanged = "firstStrikeSelectorRanged";
+			static const std::string strMelee = "firstStrikeSelectorMelee";
 
 			return isRangedAttack ? defender.hasBonus(selRanged, strRanged) : defender.hasBonus(selMelee, strMelee);
 		};

@@ -453,7 +453,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 				expect(!hex->stack, "cstack is nullptr, but hex->stack is present");
 			}
 
-			switch(attr)
+			switch(attr) // NOSONAR
 			{
 				case HA::Y_COORD:
 					expect(v == y, "HEX.Y_COORD: %d != %d", v, y);
@@ -1361,7 +1361,7 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 	for(int i : divcolids)
 		colwidths.at(i) = 2; // divider col
 
-	// {Attribute, name, colwidth}
+	// Attribute, name, colwidth
 	const auto rowdefs = std::vector<RowDef>{
 		RowDef{SA::FLAGS1,    "Stack #"         }, // stack alias (1..7, S or M)
 		RowDef{SA::SIDE,      ""                }, // divider row

@@ -139,11 +139,8 @@ namespace
 					d += 0.2;
 					break;
 				case BonusType::SPELL_LIKE_ATTACK:
-					switch(bonus->subtype.as<SpellID>())
-					{
-						case SpellID::DEATH_CLOUD:
-							d += 0.2;
-					}
+					if (bonus->subtype.as<SpellID>() == SpellID::DEATH_CLOUD)
+						d += 0.2;
 					break;
 				case BonusType::SPELL_AFTER_ATTACK:
 					switch(bonus->subtype.as<SpellID>())

@@ -259,8 +259,8 @@ int Unit::GetValue(const CCreature * creature, bool isClone, bool isSummon)
 Unit::Unit(const Args & args)
 	: cstack(args.cstack)
 	, alias(CalculateAlias(args.cstack))
-	, isActive(args.isActive)
 	, distances(args.distances)
+	, isActive(args.isActive)
 	, isFlying(args.isFlying) // cache to prevent repeated bonus checks
 	, speed(args.speed) // cache to prevent repeated bonus checks
 	, valueOne(GetValue(cstack.unitType(), cstack.isClone(), cstack.unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER))

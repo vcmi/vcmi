@@ -70,7 +70,7 @@ public:
 	std::string name() const override
 	{
 		// XXX: for action type, prefer explicit cast to int over EU() because enum type is uint8_t (char)
-		int type = static_cast<int>(actionType);
+		auto type = static_cast<int>(actionType);
 
 		std::stringstream ss;
 		ss << detail::Action_Base::name() << "(type=" << type;
