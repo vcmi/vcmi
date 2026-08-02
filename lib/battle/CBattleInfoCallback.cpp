@@ -2388,6 +2388,11 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 	for(const auto * unit : battleAliveUnits(side))
 		ret += unit->getRawSurrenderCost();
 
+	//H3 - hero pays half of the recruit cost of his remaining army
+	double costDivisor = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_SURRENDER_COST_DIVISOR);
+	if(costDivisor > 0)
+		ret = static_cast<int>(ret / costDivisor);
+
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		discount += h->valOfBonuses(BonusType::SURRENDER_DISCOUNT);
 

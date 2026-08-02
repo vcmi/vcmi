@@ -621,6 +621,8 @@
 			"areaShotCanTargetEmptyHex" : false,
 			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
 			"noSpellHitAndRunRounds" : 0,
+			// Cost of surrendering is recruit cost of hero army divided by this value, before any discounts are applied
+			"surrenderCostDivisor" : 2.0,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
