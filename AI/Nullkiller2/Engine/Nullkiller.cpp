@@ -26,6 +26,7 @@
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/StayAtTownBehavior.h"
+#include "../Goals/Composition.h"
 #include "../Goals/Invalid.h"
 #include "Goals/RecruitHero.h"
 #include "ResourceTrader.h"
@@ -682,6 +683,9 @@ void Nullkiller::makeTurn()
 					return;
 				}
 				hasAnySuccess = true;
+				if(const auto * composition = dynamic_cast<const Composition *>(selectedTask.get());
+					composition && composition->containsGoalType(Goals::UNLOCK_CLUSTER))
+					break;
 				if(selectedTask->getHeroExchangeCount() > 1)
 					break;
 			}
