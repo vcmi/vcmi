@@ -248,6 +248,11 @@ TODO
 	// see description of corresponding battle effect(s)
 	"power": 10,
 
+	// Optional. How many times hero can cast this spell in one battle.
+	// Zero or unset for no limit. Has no effect on adventure map spells,
+	// use "castsPerDay" in "adventureEffect" for those
+	"castsPerBattle": 0,
+
 	//Mandatory, flags structure //TODO
 	// modifiers make sense for creature target
 	"targetModifier":
@@ -762,6 +767,7 @@ Parameters:
 - `type` - the type of spell effect used for this spell, or `generic` if a custom mechanic is not used.
 - `castsPerDay` - Optional. Defines how many times a hero can cast this spell per day; set to zero or omit for unlimited use.
 - `castsPerDayXL` - Optional. An alternative cast-per-day limit that is only active on maps that are at least XL+U in size. If this value is not set or is set to zero, the game will use the value of the `castsPerDay` variable.
+- `cooldown` - Optional. For how many days casts of this spell are counted. Zero or one means that casts are only counted for the current day, which is the default. Use together with `castsPerDay` to define a cooldown - for example `"castsPerDay" : 1` with `"cooldown" : 7` allows one cast per week.
 - `bonuses` - A list of bonuses that will be given to the hero when this spell is cast successfully. When used with effects that can fail (e.g. Summon Boat), the bonuses will only apply to a successful cast.
 
 Example:

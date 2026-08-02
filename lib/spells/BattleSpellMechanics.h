@@ -91,6 +91,11 @@ private:
 	Target transformSpellTarget(const Target & aimPoint) const;
 
 	bool canCastAtTarget(const battle::Unit * target) const;
+
+	/// Checks whether hero has already cast this spell as many times as allowed in one battle
+	bool castsLimitExceeded(const CGHeroInstance * castingHero) const;
+	/// Remembers that hero has cast this spell, if spell has limited number of casts per battle
+	void countCast(ServerCallback * server) const;
 };
 
 }

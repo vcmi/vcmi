@@ -22,6 +22,8 @@ class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::no
 		std::vector<std::shared_ptr<Bonus>> bonuses;
 		int castsPerDay;
 		int castsPerDayXL;
+		/// for how many days casts of this spell are counted. Zero or one - casts are counted for current day only
+		int cooldown;
 	};
 
 	std::array<LevelOptions, GameConstants::SPELL_SCHOOL_LEVELS> levelOptions;

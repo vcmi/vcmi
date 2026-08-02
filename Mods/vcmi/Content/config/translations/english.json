@@ -348,6 +348,7 @@
 	"vcmi.battle.surrender.marketplaceFailed": "Even after visiting the Marketplace, you do not have enough gold to purchase safe passage.",
 	"vcmi.battle.surrender.tryMarketplace": "You do not have enough gold to purchase safe passage.\n\nVisit the Marketplace to exchange resources for gold?",
 	"vcmi.battle.escapeImpossibleCritical": "{No Escape}\n\nThere is no fleeing this fight — were your hero to fall, your entire cause would fall with him.",
+	"vcmi.battle.spellCastLimit": "%s is not skilled enough to cast this spell again in this battle.",
 	"vcmi.battle.action.attack": "Use melee attack",
 	"vcmi.battle.action.attackLongWeapon": "Use Long Weapon attack",
 	"vcmi.battle.action.genie": "Cast random beneficial spell",

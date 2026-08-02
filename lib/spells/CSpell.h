@@ -86,6 +86,8 @@ public:
 	{
 		si32 cost = 0;
 		si32 power = 0;
+		/// how many times hero can cast this spell in one battle. Zero for no limit
+		si32 castsPerBattle = 0;
 
 		bool smartTarget = true;
 		bool clearTarget = false;

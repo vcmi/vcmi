@@ -17,6 +17,7 @@
 #include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
@@ -174,6 +175,31 @@ void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & 
 	effects->forEachEffect(getEffectLevel(), callback);
 }
 
+bool BattleSpellMechanics::castsLimitExceeded(const CGHeroInstance * castingHero) const
+{
+	int castsLimit = owner->getLevelInfo(getRangeLevel()).castsPerBattle;
+
+	if(castsLimit <= 0)
+		return false;
+
+	auto selector = Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id))
+		.And(Selector::type()(BonusType::SPELL_CAST_COUNTER))
+		.And(CSelector([](const Bonus * bonus) { return (bonus->duration & BonusDuration::ONE_BATTLE) != 0; }));
+
+	return castingHero->valOfBonuses(selector) >= castsLimit;
+}
+
+void BattleSpellMechanics::countCast(ServerCallback * server) const
+{
+	if(owner->getLevelInfo(getRangeLevel()).castsPerBattle <= 0)
+		return;
+
+	GiveBonus gb;
+	gb.id = ObjectInstanceID(caster->getCasterUnitId());
+	gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::SPELL_CAST_COUNTER, BonusSource::SPELL_EFFECT, 1, BonusSourceID(owner->id));
+	server->apply(gb);
+}
+
 bool BattleSpellMechanics::canBeCast(Problem & problem) const
 {
 	auto genProblem = battle()->battleCanCastSpell(caster, mode);
@@ -199,6 +225,13 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
 			else if(castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
 				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
+			else if(castsLimitExceeded(castingHero))
+			{
+				MetaString message = MetaString::createFromTextID("vcmi.battle.spellCastLimit");
+				message.replaceTextID(caster->getCasterNameTextID());
+				problem.add(std::move(message));
+				return false;
+			}
 		}
 		break;
 	}
@@ -428,6 +461,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	if(sc.activeCast)
 	{
+		if(mode == Mode::HERO)
+			countCast(server);
+
 		caster->spendMana(server, spellCost);
 
 		if(sc.manaGained > 0)

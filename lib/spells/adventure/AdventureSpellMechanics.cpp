@@ -59,6 +59,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s)
 		levelOptions[level].effect = createAdventureEffect(s, config);
 		levelOptions[level].castsPerDay = config["castsPerDay"].Integer();
 		levelOptions[level].castsPerDayXL = config["castsPerDayXL"].Integer();
+		levelOptions[level].cooldown = config["cooldown"].Integer();
 
 		for(const auto & [name, bonusNode] : s->getLevelInfo(level).effects.Struct())
 		{
@@ -188,9 +189,19 @@ void AdventureSpellMechanics::giveBonuses(SpellCastEnvironment * env, const Adve
 		env->apply(gb);
 	}
 
+	const int cooldown = getLevel(parameters.caster).cooldown;
+
 	GiveBonus gb;
 	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::SPELL_CAST_COUNTER, BonusSource::SPELL_EFFECT, 1, BonusSourceID(owner->id));
+
+	// spell with a cooldown - cast is remembered for several days instead of until end of this day
+	if(cooldown > 1)
+	{
+		gb.bonus.duration = BonusDuration::N_DAYS;
+		gb.bonus.turnsRemain = cooldown;
+	}
+
 	env->apply(gb);
 }
 

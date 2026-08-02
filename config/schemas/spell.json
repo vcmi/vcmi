@@ -83,6 +83,7 @@
 				},
 				"castsPerDay" : { "type" : "number" },
 				"castsPerDayXL" : { "type" : "number" },
+				"cooldown" : { "type" : "number" },
 				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }}
 			},
 			"allOf" : [
@@ -92,6 +93,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"rangeX" : { "type" : "number" },
@@ -113,6 +115,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"rangeX" : { "type" : "number" },
@@ -130,6 +133,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"useExistingBoat" : { "type" : "boolean" },
@@ -144,6 +148,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"movementPointsRequired" : { "type" : "number" },
@@ -160,6 +165,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"allowTownSelection" : { "type" : "boolean" },
@@ -177,6 +183,7 @@
 						"properties" : {
 							"castsPerDay" : {},
 							"castsPerDayXL" : {},
+							"cooldown" : {},
 							"bonuses" : {},
 							"type" : {},
 							"showTerrain" : { "type" : "boolean" },
@@ -219,6 +226,10 @@
 				},
 				"power" : {
 					"type" : "number"
+				},
+				"castsPerBattle" : {
+					"type" : "number",
+					"description" : "How many times hero can cast this spell in one battle. Zero or unset for no limit"
 				},
 				"range" : {
 					"type" : "string",
