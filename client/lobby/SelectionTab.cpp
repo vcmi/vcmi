@@ -773,7 +773,7 @@ void SelectionTab::select(int position)
 	if(inputName && inputName->isActive())
 	{
 		auto filename = *CResourceHandler::get()->getResourceName(ResourcePath(curItems[py]->fileURI, EResType::SAVEGAME));
-		inputName->setText(filename.stem().string());
+		inputName->setText(TextOperations::filesystemPathToUtf8(filename.stem()));
 	}
 
 	updateListItems();
