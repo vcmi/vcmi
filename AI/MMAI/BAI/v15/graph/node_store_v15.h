@@ -18,70 +18,73 @@
 #include <boost/multi_index/random_access_index.hpp>
 #include <boost/multi_index_container.hpp>
 
+namespace MMAI::BAI::V15::Graph
+{
+
 namespace detail
 {
-// Tags for boost multi_index
-// This allows to access them by name
-// (only random_access index is accessed by index: 0)
-struct by_ordinal_id;
-struct by_ptr_identity;
-struct by_extra_index;
+	// Tags for boost multi_index
+	// This allows to access them by name
+	// (only random_access index is accessed by index: 0)
+	struct by_ordinal_id;
+	struct by_ptr_identity;
+	struct by_extra_index;
 
-// Helper template with partial specialization
-template<typename T>
-struct MultiIndexContainerHelper;
+	// Helper template with partial specialization
+	template<typename T>
+	struct MultiIndexContainerHelper;
 
-// The elements are stored as std::shared_ptr<T>, but we need
-// to be able to look them up by raw T* address to (nedeed by IGraph)
-// => define an extractor which converts stored shared_ptr<T> to T*
-template<typename T>
-struct RawNodePtrKey
-{
-	using result_type = const T *;
-	const T * operator()(const std::shared_ptr<const T> & ptr) const noexcept
+	// The elements are stored as std::shared_ptr<T>, but we need
+	// to be able to look them up by raw T* address to (nedeed by IGraph)
+	// => define an extractor which converts stored shared_ptr<T> to T*
+	template<typename T>
+	struct RawNodePtrKey
 	{
-		return ptr.get();
-	}
-};
+		using result_type = const T *;
+		const T * operator()(const std::shared_ptr<const T> & ptr) const noexcept
+		{
+			return ptr.get();
+		}
+	};
 
-// Specialization without extra index (e.g. Global nodes)
-template<typename T>
-requires std::is_same_v<typename T::extra_index_type, void>
-struct MultiIndexContainerHelper<T>
-{
-	using type = boost::multi_index::multi_index_container<
-		std::shared_ptr<const T>,
-		boost::multi_index::indexed_by<
-			boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
-			boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawNodePtrKey<T>>>>;
-};
+	// Specialization without extra index (e.g. Global nodes)
+	template<typename T>
+	requires std::is_same_v<typename T::extra_index_type, void>
+	struct MultiIndexContainerHelper<T>
+	{
+		using type = boost::multi_index::multi_index_container<
+			std::shared_ptr<const T>,
+			boost::multi_index::indexed_by<
+				boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
+				boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawNodePtrKey<T>>>>;
+	};
 
-// Specialization with extra index
-// To define an extra index, declare a block in the class's public section:
-//
-//     struct extra_index_type {
-//         using result_type = int16_t;
-//         result_type operator()(const std::shared_ptr<Hex> & hex) const {
-//             return hex->bhex.toInt();
-//         }
-//     };
-template<typename T>
-requires(!std::is_same_v<typename T::extra_index_type, void>)
-struct MultiIndexContainerHelper<T>
-{
-	using type = boost::multi_index::multi_index_container<
-		std::shared_ptr<const T>,
-		boost::multi_index::indexed_by<
-			boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
+	// Specialization with extra index
+	// To define an extra index, declare a block in the class's public section:
+	//
+	//     struct extra_index_type {
+	//         using result_type = int16_t;
+	//         result_type operator()(const std::shared_ptr<Hex> & hex) const {
+	//             return hex->bhex.toInt();
+	//         }
+	//     };
+	template<typename T>
+	requires(!std::is_same_v<typename T::extra_index_type, void>)
+	struct MultiIndexContainerHelper<T>
+	{
+		using type = boost::multi_index::multi_index_container<
+			std::shared_ptr<const T>,
+			boost::multi_index::indexed_by<
+				boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
 
-			boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawNodePtrKey<T>>,
+				boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawNodePtrKey<T>>,
 
-			boost::multi_index::hashed_unique<boost::multi_index::tag<by_extra_index>, typename T::extra_index_type>>>;
-};
+				boost::multi_index::hashed_unique<boost::multi_index::tag<by_extra_index>, typename T::extra_index_type>>>;
+	};
 
-// Then expose the alias
-template<typename T>
-using MultiIndexNodeContainer = typename MultiIndexContainerHelper<T>::type;
+	// Then expose the alias
+	template<typename T>
+	using MultiIndexNodeContainer = typename MultiIndexContainerHelper<T>::type;
 }
 
 template<typename NodeType>
@@ -182,3 +185,5 @@ public:
 private:
 	detail::MultiIndexNodeContainer<NodeType> container;
 };
+
+}

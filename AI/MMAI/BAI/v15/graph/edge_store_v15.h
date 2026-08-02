@@ -19,59 +19,62 @@
 #include <boost/multi_index/random_access_index.hpp>
 #include <boost/multi_index_container.hpp>
 
+namespace MMAI::BAI::V15::Graph
+{
+
 namespace detail
 {
-struct by_ordinal_id;
-struct by_ptr_identity;
-struct by_src_dst_nodes;
-struct by_src_node;
-struct by_dst_node;
+	struct by_ordinal_id;
+	struct by_ptr_identity;
+	struct by_src_dst_nodes;
+	struct by_src_node;
+	struct by_dst_node;
 
-template<typename EdgeType>
-struct SrcKey
-{
-	using result_type = std::shared_ptr<const typename EdgeType::src_node_type>;
-	result_type operator()(const std::shared_ptr<const EdgeType> & edge) const
+	template<typename EdgeType>
+	struct SrcKey
 	{
-		return edge->srcNode;
-	}
-};
+		using result_type = std::shared_ptr<const typename EdgeType::src_node_type>;
+		result_type operator()(const std::shared_ptr<const EdgeType> & edge) const
+		{
+			return edge->srcNode;
+		}
+	};
 
-template<typename EdgeType>
-struct DstKey
-{
-	using result_type = std::shared_ptr<const typename EdgeType::dst_node_type>;
-	result_type operator()(const std::shared_ptr<const EdgeType> & edge) const
+	template<typename EdgeType>
+	struct DstKey
 	{
-		return edge->dstNode;
-	}
-};
+		using result_type = std::shared_ptr<const typename EdgeType::dst_node_type>;
+		result_type operator()(const std::shared_ptr<const EdgeType> & edge) const
+		{
+			return edge->dstNode;
+		}
+	};
 
-// See comment in NodeStore::RawNodePtrKey
-template<typename T>
-struct RawEdgePtrKey
-{
-	using result_type = const T *;
-	const T * operator()(const std::shared_ptr<const T> & ptr) const noexcept
+	// See comment in NodeStore::RawNodePtrKey
+	template<typename T>
+	struct RawEdgePtrKey
 	{
-		return ptr.get();
-	}
-};
+		using result_type = const T *;
+		const T * operator()(const std::shared_ptr<const T> & ptr) const noexcept
+		{
+			return ptr.get();
+		}
+	};
 
-template<typename T>
-using MultiIndexEdgeContainer = boost::multi_index::multi_index_container<
-	std::shared_ptr<const T>,
-	boost::multi_index::indexed_by<
-		boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
+	template<typename T>
+	using MultiIndexEdgeContainer = boost::multi_index::multi_index_container<
+		std::shared_ptr<const T>,
+		boost::multi_index::indexed_by<
+			boost::multi_index::random_access<boost::multi_index::tag<by_ordinal_id>>,
 
-		boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawEdgePtrKey<T>>,
+			boost::multi_index::hashed_unique<boost::multi_index::tag<by_ptr_identity>, RawEdgePtrKey<T>>,
 
-		boost::multi_index::
-			hashed_unique<boost::multi_index::tag<by_src_dst_nodes>, boost::multi_index::composite_key<std::shared_ptr<const T>, SrcKey<T>, DstKey<T>>>,
+			boost::multi_index::
+				hashed_unique<boost::multi_index::tag<by_src_dst_nodes>, boost::multi_index::composite_key<std::shared_ptr<const T>, SrcKey<T>, DstKey<T>>>,
 
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<by_src_node>, SrcKey<T>>,
+			boost::multi_index::hashed_non_unique<boost::multi_index::tag<by_src_node>, SrcKey<T>>,
 
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<by_dst_node>, DstKey<T>>>>;
+			boost::multi_index::hashed_non_unique<boost::multi_index::tag<by_dst_node>, DstKey<T>>>>;
 }
 
 template<typename EdgeType>
@@ -247,3 +250,5 @@ public:
 private:
 	detail::MultiIndexEdgeContainer<EdgeType> container;
 };
+
+}
