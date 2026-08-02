@@ -93,7 +93,7 @@ public:
 		// Insertion fails when there is a duplicate in *any* unique index
 		auto [_, inserted] = container.push_back(std::move(edge));
 		if(!inserted)
-			throwf("{}: add: insertion failed. Duplicate index?", EdgeType::encoding_traits::name);
+			throwf("%1%: add: insertion failed. Duplicate index?", EdgeType::encoding_traits::name);
 	}
 
 	std::shared_ptr<const EdgeType> getById(std::size_t ind, bool strict) const
@@ -115,7 +115,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getByIdentity: not found: {}", EdgeType::encoding_traits::name, edge->name());
+				throwf("%1%: getByIdentity: not found: %2%", EdgeType::encoding_traits::name, edge->name());
 			return nullptr;
 		}
 		return *it;
@@ -132,7 +132,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getBySrcDst: not found: [{}->{}]", EdgeType::encoding_traits::name, src->name(), dst->name());
+				throwf("%1%: getBySrcDst: not found: [%2%->%3%]", EdgeType::encoding_traits::name, src->name(), dst->name());
 			return nullptr;
 		}
 		return *it;
@@ -145,7 +145,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getOneBySrc: none found: {}", EdgeType::encoding_traits::name, src->name());
+				throwf("%1%: getOneBySrc: none found: %2%", EdgeType::encoding_traits::name, src->name());
 			return nullptr;
 		}
 		return *it;
@@ -184,7 +184,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getOneByDst: none found: {}", EdgeType::encoding_traits::name, dst->name());
+				throwf("%1%: getOneByDst: none found: %2%", EdgeType::encoding_traits::name, dst->name());
 			return nullptr;
 		}
 		return *it;
@@ -232,7 +232,7 @@ public:
 
 		auto identity_it = identity_idx.find(edge);
 		if(identity_it == identity_idx.end())
-			throwf("{}: getId: not found", EdgeType::encoding_traits::name);
+			throwf("%1%: getId: not found", EdgeType::encoding_traits::name);
 
 		const auto & ordinal_idx = container.template get<detail::by_ordinal_id>();
 		auto ordinal_it = container.template project<detail::by_ordinal_id>(identity_it);

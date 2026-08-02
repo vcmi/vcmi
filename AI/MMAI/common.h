@@ -13,7 +13,8 @@
 #include "StdInc.h" // IWYU pragma: keep
 
 #include "CThreadHelper.h"
-#include <format>
+
+#include <boost/format.hpp>
 
 namespace MMAI
 {
@@ -49,9 +50,11 @@ inline void assertImpl(
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
 template<class... Args>
-[[noreturn]] void throwf(std::format_string<Args...> format, Args&&... args)
+[[noreturn]] void throwf(std::string_view format, Args &&... args)
 {
-    throw std::runtime_error(std::format(format, std::forward<Args>(args)...));
+	boost::format formatter{std::string(format)};
+	((formatter % std::forward<Args>(args)), ...);
+	throw std::runtime_error(formatter.str());
 }
 
 // constexpr version of EI with proper underlying type conversion

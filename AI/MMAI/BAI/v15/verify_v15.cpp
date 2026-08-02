@@ -191,7 +191,7 @@ namespace
 						case S15::CombatResult::NONE:
 							break;
 						default:
-							throwf("Unexpected CombatResult: {}", v);
+							throwf("Unexpected CombatResult: %1%", v);
 							break;
 					}
 					break;
@@ -220,7 +220,7 @@ namespace
 								: vassert(v, 0, "GLOBAL.HAS_BRIDGE_CORPSE: no fort");
 					break;
 				default:
-					throwf("Unexpected GLOBAL attr: {}", EI(a));
+					throwf("Unexpected GLOBAL attr: %1%", EI(a));
 			}
 		}
 	}
@@ -260,7 +260,7 @@ namespace
 						// Not verifying those.
 						break;
 					default:
-						throwf("Unexpected PLAYER attr: {}", EI(a));
+						throwf("Unexpected PLAYER attr: %1%", EI(a));
 				}
 			}
 		}
@@ -445,7 +445,7 @@ namespace
 						);
 						break;
 					default:
-						throwf("Unexpected UNIT attr: {}", EI(a));
+						throwf("Unexpected UNIT attr: %1%", EI(a));
 				}
 			}
 		}
@@ -583,7 +583,7 @@ namespace
 						break;
 					}
 					default:
-						throwf("Unexpected HEX attr: {}", EI(a));
+						throwf("Unexpected HEX attr: %1%", EI(a));
 				}
 			}
 		}
@@ -662,7 +662,7 @@ namespace
 						vassert(v, &actor == ctx.astack, "ACTION.ACTION_TYPE[IS_ACTIVE]: not active");
 						break;
 					default:
-						throwf("Unexpected Action attr: {}", EI(a));
+						throwf("Unexpected Action attr: %1%", EI(a));
 						break;
 				}
 			}
@@ -1171,7 +1171,7 @@ void Verify(const State * state) // NOLINT(readability-function-cognitive-comple
 				Verify_EDGE_HEX_BECOMES_SHOOT_TARGET_AFTER_ACTION(ctx);
 				break;
 			default:
-				throwf("Unexpected ElementType: {}", i);
+				throwf("Unexpected ElementType: %1%", i);
 				break;
 		}
 		static_assert(static_cast<int>(S15::Graph::ElementType::_count) == 35);

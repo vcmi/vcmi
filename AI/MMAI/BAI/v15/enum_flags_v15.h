@@ -36,13 +36,13 @@ struct EnumFlags
 	void require(T v)
 	{
 		if(!isSet(v))
-			throwf("Required flag is not set: ", EI(v));
+			throwf("Required flag is not set: %1%", EI(v));
 	}
 
 	void reject(T v)
 	{
 		if(isSet(v))
-			throwf("Rejected flag is set: ", EI(v));
+			throwf("Rejected flag is set: %1%", EI(v));
 	}
 
 	void requireExclusive(T v)

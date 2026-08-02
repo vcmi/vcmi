@@ -641,7 +641,7 @@ std::string Render(const State * state, const ActionPtr & action) // NOSONAR
 					case Col::DIV:
 						break;
 					default:
-						throwf("unexpected column: {}", EI(column));
+						throwf("unexpected column: %1%", EI(column));
 				}
 
 				if(unit == aunit && !ended)

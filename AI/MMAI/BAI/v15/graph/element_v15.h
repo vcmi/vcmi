@@ -65,7 +65,7 @@ public:
 	void verify() const
 	{
 		if(!guardflags.all())
-			throwf("{}: verify: {}", EncTraits::name, guardflags.to_string());
+			throwf("%1%: verify: %2%", EncTraits::name, guardflags.to_string());
 	}
 
 	std::array<int, EncTraits::attr_count> attrs = {};

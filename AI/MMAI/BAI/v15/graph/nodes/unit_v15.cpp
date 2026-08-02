@@ -243,7 +243,7 @@ int Unit::GetValue(const CCreature * creature, bool isClone, bool isSummon)
 	const auto & it = CREATURE_VALUES.find(creature->getIndex());
 
 	if(it == CREATURE_VALUES.end())
-		throwf("GetValue: no value for creature with ID={}", creature->getIndex());
+		throwf("GetValue: no value for creature with ID=%1%", creature->getIndex());
 
 	auto v = it->second;
 

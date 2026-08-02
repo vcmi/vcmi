@@ -309,7 +309,7 @@ namespace
 				assert(a->target && battle.battleCanShoot(acstack, a->target->cstack.getPosition()));
 				return BattleAction::makeShotAttack(acstack, &a->target->cstack);
 			default:
-				throwf("Unexpected action type: {}", EI(a->actionType));
+				throwf("Unexpected action type: %1%", EI(a->actionType));
 		}
 	}
 }

@@ -206,7 +206,7 @@ namespace
 					std::cout << tmp << " EDGE_HEX_BECOMES_SHOOT_TARGET_AFTER_ACTION\n";
 					break;
 				default:
-					throwf("Unexpected element type: {}", i);
+					throwf("Unexpected element type: %1%", i);
 			}
 			static_assert(static_cast<int>(ET::_count) == 35);
 			total += tmp;
@@ -1741,7 +1741,7 @@ namespace
 				case ET::EDGE_HEX_OCCUPIED_BY_UNIT:
 					break;
 				default:
-					throwf("Unexpected edge type: {}", i);
+					throwf("Unexpected edge type: %1%", i);
 			}
 			static_assert(static_cast<int>(ET::_count) == 35);
 		}

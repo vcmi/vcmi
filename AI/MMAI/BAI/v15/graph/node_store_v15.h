@@ -104,7 +104,7 @@ public:
 		// Insertion fails when there is a duplicate in *any* unique index
 		auto [_, inserted] = container.push_back(std::move(node));
 		if(!inserted)
-			throwf("{}: insertion failed. Duplicate index?", NodeType::encoding_traits::name);
+			throwf("%1%: insertion failed. Duplicate index?", NodeType::encoding_traits::name);
 	}
 
 	std::shared_ptr<const NodeType> getById(std::size_t ind, bool strict) const
@@ -113,7 +113,7 @@ public:
 		if(ind >= idx.size())
 		{
 			if(strict)
-				throwf("{}: getById: not found: {}", NodeType::encoding_traits::name, std::to_string(ind));
+				throwf("%1%: getById: not found: %2%", NodeType::encoding_traits::name, std::to_string(ind));
 			return nullptr;
 		}
 		return idx[ind];
@@ -126,7 +126,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getByIdentity: not found: {}", NodeType::encoding_traits::name, node->name());
+				throwf("%1%: getByIdentity: not found: %2%", NodeType::encoding_traits::name, node->name());
 			return nullptr;
 		}
 		return *it;
@@ -145,7 +145,7 @@ public:
 		if(it == idx.end())
 		{
 			if(strict)
-				throwf("{}: getByExtraIndex: not found", NodeType::encoding_traits::name);
+				throwf("%1%: getByExtraIndex: not found", NodeType::encoding_traits::name);
 			return nullptr;
 		}
 		return *it;
@@ -167,7 +167,7 @@ public:
 
 		auto identity_it = identity_idx.find(node);
 		if(identity_it == identity_idx.end())
-			throwf("getId: node not found: {}", node->name());
+			throwf("getId: node not found: %1%", node->name());
 
 		const auto & ordinal_idx = container.template get<detail::by_ordinal_id>();
 		auto ordinal_it = container.template project<detail::by_ordinal_id>(identity_it);

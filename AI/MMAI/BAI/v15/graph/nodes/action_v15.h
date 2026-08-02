@@ -92,7 +92,7 @@ public:
 				ss << "(SHOOT)";
 				break;
 			default:
-				throwf("Unexpected action type: {}", type);
+				throwf("Unexpected action type: %1%", type);
 		}
 
 		ss << ",by=" << by->name();
@@ -130,7 +130,7 @@ public:
 				ASSERT(target != nullptr, "SHOOT with no valid targets");
 				return "Attack Stack(" + stackstr(target) + ") from " + endhex->name();
 			default:
-				throwf("Unexpected action type: {}", EI(actionType));
+				throwf("Unexpected action type: %1%", EI(actionType));
 		}
 	}
 
