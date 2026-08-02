@@ -181,12 +181,24 @@ void CCreaturesSelling::updateSubtitles() const
 			heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
 }
 
+/// resources that given market can trade. Empty if market has no limitations and all resources can be traded
+static std::vector<GameResID> getTradeableResources(const IMarket * market)
+{
+	std::vector<GameResID> result;
+
+	if(market->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
+		for(const auto & item : market->availableItemsIds(EMarketMode::RESOURCE_RESOURCE))
+			result.push_back(item.as<GameResID>());
+
+	return result;
+}
+
 CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
 	const TradePanelBase::UpdateSlotsFunctor & updSlotsCallback)
 {
 	OBJECT_CONSTRUCTION;
 
-	offerTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, updSlotsCallback);
+	offerTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, updSlotsCallback, getTradeableResources(market));
 	offerTradePanel->moveTo(pos.topLeft() + Point(327, 182));
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[168]));
 }
@@ -197,7 +209,7 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 	OBJECT_CONSTRUCTION;
 	assert(this->tradeInterface);
 
-	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this));
+	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this), getTradeableResources(market));
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[270]));
 }
 

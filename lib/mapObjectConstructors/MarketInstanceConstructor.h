@@ -21,6 +21,10 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 	std::set<EMarketMode> marketModes;
 	JsonNode predefinedOffer;
 	int marketEfficiency;
+	/// resources that this market can trade. If empty, all resources can be traded
+	std::vector<GameResID> tradeableResources;
+	/// if set, this many units of any resource are exchanged for one unit of another, ignoring their price
+	int resourceExchangeRate = 0;
 
 	void initTypeData(const JsonNode & config) override;
 public:
@@ -33,4 +37,6 @@ public:
 
 	std::string getSpeechTranslated() const;
 	int getMarketEfficiency() const;
+	const std::vector<GameResID> & getTradeableResources() const;
+	int getResourceExchangeRate() const;
 };

@@ -15,6 +15,7 @@
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
 #include "../json/JsonUtils.h"
+#include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
@@ -58,7 +59,16 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	}
 
 	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
+	resourceExchangeRate = input["rate"].Integer();
 	predefinedOffer = input["offer"];
+
+	for(const auto & element : input["resources"].Vector())
+	{
+		LIBRARY->identifiers()->requestIdentifier("resource", element, [this](si32 identifier)
+		{
+			tradeableResources.emplace_back(identifier);
+		});
+	}
 }
 
 bool MarketInstanceConstructor::hasDescription() const
@@ -114,4 +124,14 @@ std::string MarketInstanceConstructor::getSpeechTranslated() const
 int MarketInstanceConstructor::getMarketEfficiency() const
 {
 	return marketEfficiency;
+}
+
+const std::vector<GameResID> & MarketInstanceConstructor::getTradeableResources() const
+{
+	return tradeableResources;
+}
+
+int MarketInstanceConstructor::getResourceExchangeRate() const
+{
+	return resourceExchangeRate;
 }

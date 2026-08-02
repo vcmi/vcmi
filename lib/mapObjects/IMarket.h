@@ -38,6 +38,9 @@ public:
 	virtual int availableUnits(const EMarketMode mode, const int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<TradeItemBuy> availableItemsIds(const EMarketMode mode) const;
 	virtual std::set<EMarketMode> availableModes() const = 0;
+	/// how many units of any resource are exchanged for one unit of another, ignoring their price, e.g. Warlock's Lab
+	/// zero if market uses regular rate, based on resource prices and market efficiency
+	virtual int getResourceExchangeRate() const;
 	CArtifactSet * getArtifactsStorage() const;
 	virtual bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 

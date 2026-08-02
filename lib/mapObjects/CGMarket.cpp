@@ -68,6 +68,22 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
+std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
+{
+	const auto & tradeableResources = getMarketHandler()->getTradeableResources();
+
+	// market that trades only some of the resources, e.g. Warlock's Lab
+	if(!tradeableResources.empty() && mode == EMarketMode::RESOURCE_RESOURCE)
+		return std::vector<TradeItemBuy>(tradeableResources.begin(), tradeableResources.end());
+
+	return IMarket::availableItemsIds(mode);
+}
+
+int CGMarket::getResourceExchangeRate() const
+{
+	return getMarketHandler()->getResourceExchangeRate();
+}
+
 std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
 {
 	const auto & baseHandler = getObjectHandler();
