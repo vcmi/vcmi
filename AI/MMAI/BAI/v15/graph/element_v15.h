@@ -59,7 +59,7 @@ public:
 
 	std::string name() const override
 	{
-		return EncTraits::name;
+		return std::string(EncTraits::name);
 	}
 
 	void verify() const
