@@ -254,7 +254,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				n.targetHero = hero;
 				n.parentIndex = -1;
 				n.specialAction = node.specialAction;
-				
+
 				if(node.linkDanger > 0)
 				{
 					auto additionalLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, strength, node.linkDanger);
@@ -339,7 +339,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 			current = currentNode.previous;
 		}
-		
+
 		if(tilesToPass.empty())
 			continue;
 
@@ -388,7 +388,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 					break;
 				}
 			}
-			
+
 			if(path.nodes.size() > 1)
 				continue;
 

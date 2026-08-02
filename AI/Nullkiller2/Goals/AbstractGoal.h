@@ -188,7 +188,7 @@ namespace Goals
 		{
 			throw std::runtime_error("Abstract goal is not a task");
 		}
-		
+
 		bool operator!=(const AbstractGoal & g) const
 		{
 			return !(*this == g);
