@@ -135,7 +135,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 
 	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
 	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
-	if(!topBattleQuery && army2->getOwner().isValidPlayer())
+	if(!topBattleQuery && battle->getSide(BattleSide::DEFENDER).color.isValidPlayer())
 	{
 		auto defenderQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color);
 		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
