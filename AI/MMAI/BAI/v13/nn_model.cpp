@@ -129,7 +129,7 @@ namespace
 		~ScopedTimer()
 		{
 			auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
-			logAi->info("%s: %lld ms", name, dt);
+			logAi->trace("%s: %lld ms", name, dt);
 		}
 	};
 
