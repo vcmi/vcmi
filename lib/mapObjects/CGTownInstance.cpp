@@ -865,11 +865,16 @@ bool CGTownInstance::armedGarrison() const
 int CGTownInstance::getTownLevel() const
 {
 	// count all buildings that are not upgrades
+	// H3 counts Town Hall as a structure, but not Village Hall
+	// Fort/Citadel/Castle are not considered structures for arrow tower damage
 	int level = 0;
 
 	for(const auto & bid : builtBuildings)
-	{
-		if(getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
+	{	
+		if(bid == BuildingID::VILLAGE_HALL || bid == BuildingID::FORT)
+			continue;
+		const auto & building = ;
+		if(bid == BuildingID::TOWN_HALL || getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
 	}
 	return level;
