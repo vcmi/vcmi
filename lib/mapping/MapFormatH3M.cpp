@@ -2315,7 +2315,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & map
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
-	readQuest(guard->addQuest(), mapPosition);
+	if (guard)
+		readQuest(guard->addQuest(), mapPosition);
 	return guard;
 }
 
