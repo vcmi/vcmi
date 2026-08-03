@@ -429,9 +429,9 @@ DamageRange CGTownInstance::getTowerDamageRange() const
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 6;
 	// extra damage, for each building in town
-	static constexpr int extraDamage = 1;
+	static constexpr int extraDamage = 2;
 
-	const int minDamage = baseDamage + extraDamage * getTownLevel();
+	const int minDamage = baseDamage + extraDamage * (getTownLevel() / 2);
 
 	return {
 		minDamage,
