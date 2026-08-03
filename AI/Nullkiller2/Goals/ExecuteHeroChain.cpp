@@ -35,7 +35,7 @@ bool recoverStaleDimensionDoorAction(
 	{
 		logAi->error("Hero %s was lost trying to execute Dimension Door. Exit hero chain.", heroPtr.nameOrDefault());
 
-		return false;
+		throw cannotFulfillGoalException("Hero was lost!");
 	}
 
 	logAi->debug(
@@ -178,7 +178,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		{
 			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
-			return;
+			throw cannotFulfillGoalException("Hero was lost!");
 		}
 
 		if(node->parentIndex >= i)
@@ -216,7 +216,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.nameOrDefault());
 
-						return;
+						throw cannotFulfillGoalException("Hero was lost!");
 					}
 
 					// hero can be already on the target tile after move in specialAction->execute()
@@ -312,7 +312,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						{
 							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
-							return;
+							throw cannotFulfillGoalException("Hero was lost!");
 						}
 
 						if(hero->movementPointsRemaining() > 0)
@@ -358,7 +358,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			{
 				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.nameOrDefault(), node->coord.toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero was lost!");
 			}
 		}
 	}
