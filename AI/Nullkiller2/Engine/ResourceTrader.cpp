@@ -57,7 +57,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		// to buy a capitol for example
 		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
 
-		logAi->info(
+		logAi->trace(
 			"ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s",
 			freeResources.toString(),
 			freeAfterMissingTotal.toString(),
@@ -180,7 +180,7 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	cc.trade(market.getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
-	logAi->info("ResourceTrader: Traded %d of %s for %d receivedPerUnit of %s", givenMultiplied, mostExpendable, receivedPerUnit, mostWanted);
+	logAi->trace("ResourceTrader: Traded %d of %s for %d receivedPerUnit of %s", givenMultiplied, mostExpendable, receivedPerUnit, mostWanted);
 	return true;
 }
 }
