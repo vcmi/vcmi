@@ -870,10 +870,10 @@ int CGTownInstance::getTownLevel() const
 	int level = 0;
 
 	for(const auto & bid : builtBuildings)
-	{
-		const auto & building = getTown()->buildings.at(bid);
-		if(building->subId == BuildingSubID::VILLAGE_HALL || building->subId == BuildingSubID::FORT)
+	{	
+		if(bid == BuildingID::VILLAGE_HALL || bid == BuildingID::FORT)
 			continue;
+		const auto & building = getTown()->buildings.at(bid);
 		if(building->upgrade == BuildingID::NONE || building->upgrade == BuildingID::VILLAGE_HALL)
 			level++;
 	}
