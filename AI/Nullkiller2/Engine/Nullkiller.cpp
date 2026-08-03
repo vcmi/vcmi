@@ -661,6 +661,9 @@ void Nullkiller::makeTurn()
 			}
 			else
 			{
+				for(const auto * hero : getTaskHeroes(selectedTask))
+					logAi->info("Hero %s selected task: %s", hero->getNameTranslated(), selectedTask->toString());
+
 				if(!executeTask(selectedTask))
 				{
 					lockTaskHeroes(selectedTask, HeroLockedReason::HERO_CHAIN);
