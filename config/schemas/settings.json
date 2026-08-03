@@ -552,6 +552,10 @@
 					"type": "boolean",
 					"default": true
 				},
+				"enableAutocombatTactics" : {
+					"type": "boolean",
+					"default": true
+				},
 				"endWithAutocombat" : {
 					"type": "boolean",
 					"default": false
