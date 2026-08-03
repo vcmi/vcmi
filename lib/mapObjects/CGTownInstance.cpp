@@ -873,7 +873,6 @@ int CGTownInstance::getTownLevel() const
 	{	
 		if(bid == BuildingID::VILLAGE_HALL || bid == BuildingID::FORT)
 			continue;
-		const auto & building = ;
 		if(bid == BuildingID::TOWN_HALL || getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
 	}
