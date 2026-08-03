@@ -126,8 +126,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isDefend(false),
 	threatTurns(INT_MAX),
 	involvesSailing(false),
-	requiresBattle(false),
-	targetRequiresBattle(false),
+	pathRequiresBattle(false),
 	isTradeBuilding(false),
 	isExchange(false),
 	isArmyUpgrade(false),
@@ -1104,8 +1103,7 @@ public:
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
 		vstd::amax(evaluationContext.armyLoss, path.armyLoss);
 		vstd::amax(evaluationContext.targetObjectArmyLoss, path.targetObjectArmyLoss);
-		evaluationContext.requiresBattle = evaluationContext.requiresBattle || path.requiresBattle();
-		evaluationContext.targetRequiresBattle = evaluationContext.targetRequiresBattle || path.targetObjectArmyLoss > 0;
+		evaluationContext.pathRequiresBattle |= path.requiresBattle();
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
@@ -1226,8 +1224,7 @@ public:
 
 		evaluationContext.movementCost += pathToCenter.movementCost();
 		evaluationContext.movementCostByRole[role] += pathToCenter.movementCost();
-		evaluationContext.requiresBattle = evaluationContext.requiresBattle || pathToCenter.requiresBattle();
-		evaluationContext.targetRequiresBattle = evaluationContext.targetRequiresBattle || pathToCenter.targetObjectArmyLoss > 0;
+		evaluationContext.pathRequiresBattle |= pathToCenter.requiresBattle();
 		vstd::amax(evaluationContext.danger, pathToCenter.getTotalDanger());
 		vstd::amax(evaluationContext.armyLoss, pathToCenter.armyLoss);
 		vstd::amax(evaluationContext.targetObjectArmyLoss, pathToCenter.targetObjectArmyLoss);
@@ -1731,8 +1728,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//    && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio))
 				// 	return 0;
 
-				const bool hasAnyBattle = evaluationContext.requiresBattle || evaluationContext.armyLossRatio > 0;
-				const bool targetRequiresBattle = evaluationContext.targetRequiresBattle;
+				const bool hasAnyBattle = evaluationContext.pathRequiresBattle || evaluationContext.armyLossRatio > 0;
+				const bool targetRequiresBattle = evaluationContext.targetObjectArmyLoss > 0;
 				const bool meaningfulArmyCarrier = task->hero && aiNk->heroManager->isMeaningfulArmyCarrier(task->hero);
 
 				const bool targetIsOnWater = targetObject && aiNk->cc->getTile(targetObject->visitablePos(), false)->isWater();
