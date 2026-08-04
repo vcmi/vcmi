@@ -2311,17 +2311,21 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPos
 	return std::make_shared<CGObjectInstance>(map->cb);
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto guard = std::make_shared<QuestGuard>(map->cb);
-	readQuest(guard->addQuest(), mapPosition);
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
+	if (guard)
+		readQuest(guard->addQuest(), mapPosition);
 	return guard;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto gate = std::make_shared<QuestGate>(map->cb);
-	readQuest(gate->addQuest(), mapPosition);
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto gate = std::dynamic_pointer_cast<QuestSource>(object);
+	if (gate)
+		readQuest(gate->addQuest(), mapPosition);
 	return gate;
 }
 
@@ -2811,7 +2815,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readDwellingRandom(mapPosition, objectTemplate);
 
 		case Obj::QUEST_GUARD:
-			return readQuestGuard(mapPosition);
+			return readQuestGuard(mapPosition, objectTemplate);
 
 		case Obj::SHIPYARD:
 			return readShipyard(mapPosition, objectTemplate);
@@ -2860,7 +2864,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
-				return readQuestGate(mapPosition);
+				return readQuestGate(mapPosition, objectTemplate);
 			if (subid == 1001) // HotA hacks - Grave
 				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
