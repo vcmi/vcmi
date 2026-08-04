@@ -107,18 +107,14 @@ static std::string boolStr(bool value)
 	return value ? "true" : "false";
 }
 
-/// Renders a string as a quoted Lua literal, escaping backslashes and double quotes.
+/// Renders a string as a quoted Lua literal. Only used for editor-supplied variable names, which
+/// are expected to be plain identifiers - anything needing escaping means a malformed map.
 static std::string luaString(const std::string & value)
 {
-	std::string result = "\"";
-	for(char c : value)
-	{
-		if(c == '\\' || c == '"')
-			result += '\\';
-		result += c;
-	}
-	result += '"';
-	return result;
+	if(value.find_first_of("\\\"\n\r") != std::string::npos)
+		throw std::runtime_error("Script variable name contains unsupported characters: " + value);
+
+	return '"' + value + '"';
 }
 
 /// Reference to a script variable by its HotA unique id, resolved to a name through the
@@ -131,7 +127,7 @@ static std::string varRef(int uniqueID)
 /// Renders a content identifier (artifact, spell, creature, skill, faction, hero, resource)
 /// as a quoted Lua string holding its JSON key
 template<typename IdentifierType>
-std::string entityKey(IdentifierType identifier)
+static std::string entityKey(IdentifierType identifier)
 {
 	return '"' + IdentifierType::encode(identifier.getNum()) + '"';
 }
@@ -145,7 +141,7 @@ static std::string bucketName(int eventType)
 		case 1: return "playerEvents";
 		case 2: return "townEvents";
 		case 3: return "questEvents";
-		default: return "heroEvents";
+		default: throw std::runtime_error("Unknown event bucket code:" + std::to_string(eventType));
 	}
 }
 
@@ -156,43 +152,31 @@ std::string HotaScriptConverter::eventHandlerName(const std::string & bucket, in
 	return bucket + "_" + std::to_string(eventID);
 }
 
-/// Parameter list of a generated event handler; the engine dispatcher supplies these.
-static std::string handlerParams(const std::string & bucket)
+/// Shape of a generated event handler, decided by the bucket it belongs to.
+struct BucketTraits
 {
-	if(bucket == "townEvents")
-		return "(game, server, town)";
-	if(bucket == "playerEvents")
-		return "(game, server, player)";
-	return "(game, server, object, hero)"; // heroEvents, questEvents
-}
+	/// Parameter list without parentheses; the engine dispatcher supplies these, and EXECUTE_EVENT
+	/// forwards them verbatim - two buckets can only call each other when their lists match
+	std::string args;
+	/// Statement establishing `player` for player sentinels and player-scoped calls,
+	/// empty when the handler already receives it as a parameter
+	std::string playerLocal;
+	/// Name of the removable object in scope, used by the object-removing actions
+	std::string subject;
+};
 
-/// Handler parameter list without the enclosing parentheses, for forwarding calls.
-static std::string handlerArgs(const std::string & bucket)
+static const BucketTraits & bucketTraits(const std::string & bucket)
 {
-	if(bucket == "townEvents")
-		return "game, server, town";
-	if(bucket == "playerEvents")
-		return "game, server, player";
-	return "game, server, object, hero";
-}
+	static const BucketTraits town{"game, server, town", "\tlocal player = town:getOwner()\n", "town"};
+	// player events carry no object, so `subject` has nothing to name for them
+	static const BucketTraits player{"game, server, player", "", "object"};
+	static const BucketTraits object{"game, server, object, hero", "\tlocal player = hero:getOwner()\n", "object"};
 
-/// Establishes the event's own player as a local so player sentinels and player-scoped calls
-/// can resolve it. Player events already receive it as a parameter.
-static std::string playerLocal(const std::string & bucket)
-{
 	if(bucket == "townEvents")
-		return "\tlocal player = town:getOwner()\n";
+		return town;
 	if(bucket == "playerEvents")
-		return {};
-	return "\tlocal player = hero:getOwner()\n";
-}
-
-/// Name of the removable subject in a handler's scope, used by the object-removing actions.
-static std::string eventSubject(const std::string & bucket)
-{
-	if(bucket == "townEvents")
-		return "town";
-	return "object"; // heroEvents, questEvents, playerEvents (player events carry no object)
+		return player;
+	return object; // heroEvents, questEvents
 }
 
 /// Free helpers shared by every generated handler: player-sentinel resolution, HotA image
@@ -323,8 +307,8 @@ std::string HotaScriptConverter::loadEventList(const std::string & bucket)
 		std::string eventName = reader.readBaseString(); // internal name, not shown to players
 
 		result += "-- \"" + eventName + "\" (" + bucket + " id " + std::to_string(eventID) + ")\n";
-		result += "function Map:" + eventHandlerName(bucket, eventID) + handlerParams(bucket) + "\n";
-		result += playerLocal(bucket);
+		result += "function Map:" + eventHandlerName(bucket, eventID) + "(" + bucketTraits(bucket).args + ")\n";
+		result += bucketTraits(bucket).playerLocal;
 		result += body;
 		result += "end\n\n";
 	}
@@ -343,7 +327,7 @@ std::string HotaScriptConverter::loadVariables()
 		int uniqueID = reader.readInt32();
 		std::string variableID = reader.readBaseString();
 
-		ScriptVariableDeclaration & declaration = variables.emplace_back();
+		ScriptVariableDefinition & declaration = variables.emplace_back();
 		// storage is keyed by name; synthesize a stable name when the editor left it blank
 		declaration.name = variableID.empty() ? "var" + std::to_string(uniqueID) : variableID;
 		declaration.persistInCampaign = reader.readBool();
@@ -363,10 +347,15 @@ void HotaScriptConverter::loadEventMap()
 		reader.readInt32(); // UID of map object bound to an event
 }
 
+std::runtime_error HotaScriptConverter::unsupported(const std::string & message) const
+{
+	return std::runtime_error("Map '" + mapName + "', " + currentBucket + " id " + std::to_string(currentEventID) + ": " + message);
+}
+
 std::string HotaScriptConverter::localizedText(const std::string & role)
 {
 	TextIdentifier identifier(currentBucket, static_cast<size_t>(currentEventID), role, static_cast<size_t>(stringCounter++));
-	return '"' + localizeString(identifier) + '"';
+	return "{append = {\"" + localizeString(identifier) + "\"}}";
 }
 
 std::string HotaScriptConverter::loadImageList(int count)
@@ -404,7 +393,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string text = localizedText("message");
 				int numberOfImages = reader.readInt32();
 				std::string images = loadImageList(numberOfImages);
-				result += pad + "server:showMessage(player, {append = {" + text + "}}, toComponents({" + images + "}))\n";
+				result += pad + "server:showMessage(player, " + text + ", toComponents({" + images + "}))\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
@@ -416,12 +405,13 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
 			{
-				result += pad + "server:finishQuestOrRemoveObject(" + eventSubject(currentBucket) + ")\n";
+				result += pad + "server:finishQuestOrRemoveObject(" + bucketTraits(currentBucket).subject + ")\n";
 				break;
 			}
 			case HotaScriptActions::DISABLE_EVENT:
 			{
-				result += pad + "server:removeObject(" + eventSubject(currentBucket) + ")\n";
+				// In HotA an event lives on its map object, so disabling it means removing that object
+				result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
 				break;
 			}
 			case HotaScriptActions::QUEST_ACTION:
@@ -434,7 +424,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string reward = loadActions(indent + 2);
 				reader.readBool(); // always 1
 
-				result += pad + "registerQuest(game, server, player, " + eventSubject(currentBucket) + ", {\n";
+				result += pad + "registerQuest(game, server, player, " + bucketTraits(currentBucket).subject + ", {\n";
 				result += inner + "proposal = " + proposal + ",\n";
 				result += inner + "progression = " + progression + ",\n";
 				result += inner + "completion = " + completion + ",\n";
@@ -489,7 +479,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int numberOfImages = reader.readInt32();
 				std::string images = loadImageList(numberOfImages);
 				bool showInLog = reader.readBool();
-				result += pad + "setQuestHint(server, player, " + eventSubject(currentBucket) + ", " + text + ", toComponents({" + images + "}), " + boolStr(showInLog) + ")\n";
+				result += pad + "setQuestHint(server, player, " + bucketTraits(currentBucket).subject + ", " + text + ", toComponents({" + images + "}), " + boolStr(showInLog) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_QUESTION:
@@ -637,7 +627,10 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				int unknown = reader.readInt32(); // TBD: possibly factory 8th dwelling marker
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantCreaturesToHire(town, " + num(static_cast<int>(level)) + ", " + amount + ") -- unknown=" + num(unknown) + "\n";
+				if(unknown != -1)
+					throw unsupported("CREATURES_TO_HIRE with unknown field set to " + num(unknown));
+
+				result += pad + "server:grantCreaturesToHire(town, " + num(static_cast<int>(level)) + ", " + amount + ")\n";
 				break;
 			}
 			case HotaScriptActions::CONSTRUCT_BUILDING:
@@ -646,14 +639,27 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int unknownA = reader.readInt16(); // faction ID?
 				int unknownB = reader.readInt16(); // faction building ID?
 				reader.readBool(); // showMessage flag
-				result += pad + "server:constructBuilding(town, " + num(building.getNum()) + ") -- faction fields " + num(unknownA) + "/" + num(unknownB) + "\n";
+				// the building was read without faction context, so a set faction field would mean the emitted
+				// building id is the wrong one - refuse rather than erect something else
+				if(unknownA != -1 || unknownB != -1)
+					throw unsupported("CONSTRUCT_BUILDING with faction fields set to " + num(unknownA) + "/" + num(unknownB));
+
+				result += pad + "server:constructBuilding(town, " + num(building.getNum()) + ")\n";
 				break;
 			}
 			case HotaScriptActions::EXECUTE_EVENT:
 			{
 				int eventType = reader.readInt32();
 				int eventID = reader.readInt32();
-				result += pad + "Map:" + eventHandlerName(bucketName(eventType), eventID) + "(" + handlerArgs(currentBucket) + ")\n";
+				std::string targetBucket = bucketName(eventType);
+
+				// The call forwards the caller's locals, so the target handler must take the same
+				// parameters - a town handler invoked from a hero event would bind `object` to `town`
+				const std::string & args = bucketTraits(currentBucket).args;
+				if(bucketTraits(targetBucket).args != args)
+					throw unsupported("EXECUTE_EVENT targeting " + targetBucket + ", which takes different parameters");
+
+				result += pad + "Map:" + eventHandlerName(targetBucket, eventID) + "(" + args + ")\n";
 				break;
 			}
 			case HotaScriptActions::RESOURCES:
@@ -667,7 +673,11 @@ std::string HotaScriptConverter::loadActions(int indent)
 					amounts += loadExpression();
 				}
 				reader.readBool(); // showMessage flag
-				result += pad + "grantResources(server, player, {" + amounts + "}) -- mode " + num(mode) + "\n";
+				// mode may scale or redirect the grant; handing out the raw amounts would be wrong
+				if(mode != 0)
+					throw unsupported("RESOURCES with mode " + num(mode));
+
+				result += pad + "grantResources(server, player, {" + amounts + "})\n";
 				break;
 			}
 			case HotaScriptActions::PRIMARY_SKILL:
@@ -922,15 +932,13 @@ std::string HotaScriptConverter::loadQuestReferences(CMap * map, const std::map<
 	std::string table = "local questObjects = {\n";
 	for(uint32_t identifier : referencedObjects)
 	{
+		// an identifier with no object behind it means a malformed map - the script would reference
+		// something that was never placed, so fail the load rather than emit a broken lookup table
 		ObjectInstanceID objectID = questIdentifierToId.at(identifier);
 		std::string name = map->objects.at(objectID.getNum())->instanceName;
 
 		char hex[9];
 		std::snprintf(hex, sizeof(hex), "%08x", identifier);
-		if(name.empty())
-			logGlobal->warn("Map '%s': script references unknown object identifier %d", mapName, identifier);
-
-		// unresolved ids map to "" so predicates read them as "no such object" rather than erroring
 		table += std::string("\t[\"") + hex + "\"] = \"" + name + "\",\n";
 	}
 	table += "}\n\n";

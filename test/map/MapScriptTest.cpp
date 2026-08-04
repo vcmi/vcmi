@@ -39,7 +39,7 @@ const PlayerColor PLAYER = PlayerColor(0);
 
 /// A map script whose init binds the handler `onVisit` to every Pandora's Box on the map,
 /// discovering them by iterating the map objects and matching their instance-name prefix.
-const std::string ATTACH_SCRIPT = R"lua(
+constexpr auto ATTACH_SCRIPT = R"lua(
 local Map = {}
 
 function Map:init(setup)
@@ -58,7 +58,7 @@ return Map
 
 /// init that attaches to a name that does not exist - attachEventScript throws, init fails, but the
 /// game must still load and no handler is bound.
-const std::string BAD_NAME_SCRIPT = R"lua(
+constexpr auto BAD_NAME_SCRIPT = R"lua(
 local Map = {}
 function Map:init(setup)
 	setup:attachEventScript("onVisit", "doesNotExist")
@@ -69,7 +69,7 @@ return Map
 /// Handler that pauses on a yes/no question: the branch grants gold (100 on yes, 5 on no), and a
 /// sibling statement after the question grants 1 gem. The gem grant proves the sibling runs only
 /// after the player answers - i.e. the blocking action really paused the coroutine.
-const std::string QUESTION_SCRIPT = R"lua(
+constexpr auto QUESTION_SCRIPT = R"lua(
 local Map = {}
 
 function Map:init(setup)
@@ -97,7 +97,7 @@ return Map
 
 /// Handler that fights the visited pandora: startCombat replaces the box's garrison with 10 pikemen and
 /// pauses; the post-combat resource grant must wait until the battle resolves.
-const std::string COMBAT_SCRIPT = R"lua(
+constexpr auto COMBAT_SCRIPT = R"lua(
 local Map = {}
 
 function Map:init(setup)
@@ -123,7 +123,7 @@ return Map
 /// the converter's helpersPrelude) does, but calls the primitives directly so the test doesn't depend
 /// on the converter's generated text: first visit shows the proposal and marks/logs the quest, a
 /// repeat visit shows progression instead.
-const std::string SEER_HUT_QUEST_SCRIPT = R"lua(
+constexpr auto SEER_HUT_QUEST_SCRIPT = R"lua(
 local Map = {}
 
 function Map:questEvents_7(game, server, object, hero)
@@ -141,7 +141,7 @@ return Map
 )lua";
 
 /// questEvents handler that immediately finishes the quest.
-const std::string SEER_HUT_FINISH_SCRIPT = R"lua(
+constexpr auto SEER_HUT_FINISH_SCRIPT = R"lua(
 local Map = {}
 
 function Map:questEvents_7(game, server, object, hero)
@@ -154,7 +154,7 @@ return Map
 /// Object-identity predicates. Each handler is fired with the object of interest as `object`, so the
 /// object's own instance name feeds the predicate - exercising getObjectByName resolution end to end.
 /// Grants 100 gold on the true branch, 5 on the false branch (gems for the difficulty check).
-const std::string PREDICATE_SCRIPT = R"lua(
+constexpr auto PREDICATE_SCRIPT = R"lua(
 local Map = {}
 
 function Map:checkOwnsTown(game, server, object, hero)
@@ -171,7 +171,7 @@ return Map
 )lua";
 
 /// Spell/movement-point grants in each of the three modes. Fired with the hero as `object`.
-const std::string GRANT_POINTS_SCRIPT = R"lua(
+constexpr auto GRANT_POINTS_SCRIPT = R"lua(
 local Map = {}
 
 function Map:grantPoints(game, server, object, hero)
@@ -184,7 +184,7 @@ return Map
 )lua";
 
 /// townEvents handler that grows the tier-0 hire pool of the town it runs on.
-const std::string HIRE_SCRIPT = R"lua(
+constexpr auto HIRE_SCRIPT = R"lua(
 local Map = {}
 
 function Map:hire(game, server, town)
@@ -233,6 +233,20 @@ public:
 	{
 		EXPECT_EQ(map, nullptr);
 		map = loadedMap;
+	}
+
+	/// Minimal playable map every test starts from: one active player with a hero, plus the script.
+	/// Tests add the object under test on top.
+	static TinyH3M::TinyH3MBuilder baseMap(EMapFormat format, const std::string & script)
+	{
+		TinyH3M::TinyH3MBuilder builder(format);
+		builder
+			.size(36, false)
+			.name("MapScriptTest")
+			.playerActive(PLAYER)
+			.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+			.withScript(script);
+		return builder;
 	}
 
 	void startWithMap(TinyH3M::TinyH3MBuilder builder)
@@ -325,14 +339,8 @@ protected:
 
 TEST_F(MapScriptTest, initBindsHandlerToPandoraByInstanceName)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.pandora({10, 10, 0})
-		.withScript(ATTACH_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, ATTACH_SCRIPT);
+	builder.pandora({10, 10, 0});
 
 	startWithMap(builder);
 
@@ -344,14 +352,8 @@ TEST_F(MapScriptTest, initBindsHandlerToPandoraByInstanceName)
 
 TEST_F(MapScriptTest, attachToUnknownObjectLeavesGameLoadable)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.pandora({10, 10, 0})
-		.withScript(BAD_NAME_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, BAD_NAME_SCRIPT);
+	builder.pandora({10, 10, 0});
 
 	startWithMap(builder);
 
@@ -363,14 +365,8 @@ TEST_F(MapScriptTest, attachToUnknownObjectLeavesGameLoadable)
 
 TEST_F(MapScriptTest, showQuestionPausesUntilAnswered)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.pandora({10, 10, 0})
-		.withScript(QUESTION_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, QUESTION_SCRIPT);
+	builder.pandora({10, 10, 0});
 
 	startWithMap(builder);
 
@@ -400,14 +396,8 @@ TEST_F(MapScriptTest, showQuestionPausesUntilAnswered)
 
 TEST_F(MapScriptTest, startCombatReplacesGarrisonAndPauses)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.pandora({10, 10, 0})
-		.withScript(COMBAT_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, COMBAT_SCRIPT);
+	builder.pandora({10, 10, 0});
 
 	startWithMap(builder);
 
@@ -434,14 +424,8 @@ TEST_F(MapScriptTest, startCombatReplacesGarrisonAndPauses)
 
 TEST_F(MapScriptTest, seerHutScriptedQuestTracksProposalThenProgression)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7))
-		.withScript(SEER_HUT_QUEST_SCRIPT);
+	auto builder = baseMap(EMapFormat::HOTA, SEER_HUT_QUEST_SCRIPT);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
 
 	startWithMap(builder);
 
@@ -464,20 +448,14 @@ TEST_F(MapScriptTest, seerHutScriptedQuestTracksProposalThenProgression)
 
 	// Repeat visit: already proposed -> progression branch, no duplicate log entry.
 	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
-	EXPECT_EQ(gameState->players.at(PLAYER).quests.size(), 1u) << "addQuest is idempotent, no duplicate entries";
+	EXPECT_EQ(gameState->players.at(PLAYER).quests.size(), 1u) << "a repeat visit must not add a duplicate quest log entry";
 	ASSERT_EQ(gameEventCallback->infoWindows.size(), 2u);
 }
 
 TEST_F(MapScriptTest, finishQuestOrRemoveObjectEmptiesSeerHutWithoutRemovingIt)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7))
-		.withScript(SEER_HUT_FINISH_SCRIPT);
+	auto builder = baseMap(EMapFormat::HOTA, SEER_HUT_FINISH_SCRIPT);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
 
 	startWithMap(builder);
 
@@ -497,14 +475,8 @@ TEST_F(MapScriptTest, finishQuestOrRemoveObjectEmptiesSeerHutWithoutRemovingIt)
 
 TEST_F(MapScriptTest, playerOwnsTownResolvesObjectByName)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.randomTown({10, 10, 0}, PLAYER)
-		.withScript(PREDICATE_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, PREDICATE_SCRIPT);
+	builder.randomTown({10, 10, 0}, PLAYER);
 
 	startWithMap(builder);
 
@@ -523,14 +495,8 @@ TEST_F(MapScriptTest, playerOwnsTownResolvesObjectByName)
 
 TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.monster({10, 10, 0}, CreatureID(0), 10)
-		.withScript(PREDICATE_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, PREDICATE_SCRIPT);
+	builder.monster({10, 10, 0}, CreatureID(0), 10);
 
 	startWithMap(builder);
 
@@ -555,13 +521,7 @@ TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
 
 TEST_F(MapScriptTest, grantPointsRespectMode)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.withScript(GRANT_POINTS_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, GRANT_POINTS_SCRIPT);
 
 	startWithMap(builder);
 
@@ -584,14 +544,8 @@ TEST_F(MapScriptTest, grantPointsRespectMode)
 
 TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("MapScriptTest")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.randomTown({10, 10, 0}, PLAYER)
-		.withScript(HIRE_SCRIPT);
+	auto builder = baseMap(EMapFormat::SOD, HIRE_SCRIPT);
+	builder.randomTown({10, 10, 0}, PLAYER);
 
 	startWithMap(builder);
 

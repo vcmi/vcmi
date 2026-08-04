@@ -170,7 +170,7 @@ public:
 	/// Resource pile. amount=0 means "use default".
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
 
-	/// Empty Pandora's Box. Non-HOTA formats only.
+	/// Empty Pandora's Box - no message, guards or rewards.
 	TinyH3MBuilder & pandora(const int3 & pos);
 
 	/// Specific artifact pickup.

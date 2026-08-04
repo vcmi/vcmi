@@ -288,7 +288,6 @@ int ServerCallbackProxy::rngInt(lua_State * L)
 	return 1;
 }
 
-
 void ServerCallbackProxy::moveUnit(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit, BattleHex destination, bool isTeleport)
 {
 	BattleStackMoved pack;

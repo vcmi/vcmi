@@ -60,7 +60,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 
 		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
 		{
-			gameHandler->runScriptedEvent(color, {},
+			gameHandler->runScriptedEvent(*dispatcher, color, {},
 				[&](scripting::MapEventDispatcher & d){ return d.onPlayerTurnStart(*gameHandler, event.scriptHandler, color); });
 			continue;
 		}
@@ -105,7 +105,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 
 		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
 		{
-			gameHandler->runScriptedEvent(player, {},
+			gameHandler->runScriptedEvent(*dispatcher, player, {},
 				[&](scripting::MapEventDispatcher & d){ return d.onTownTurnStart(*gameHandler, event.scriptHandler, town); });
 			continue;
 		}

@@ -44,7 +44,7 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		{"Total experience points of the hero."},
 		"Returns the hero's total experience points.");
 	R.method<&CGHeroInstance::getPrimSkillLevel>("getPrimarySkill",
-		{{"skill", "Primary skill JSON key (\"attack\", \"defence\", \"spellpower\", \"knowledge\")."}},
+		{{"skill", "Primary skill JSON key (`attack`, `defence`, `spellpower`, `knowledge`)."}},
 		{"Current value of the primary skill."},
 		"Returns the value of one of the hero's primary skills.");
 	R.method<&CGHeroInstance::getSecSkillLevel>("getSecondarySkill",

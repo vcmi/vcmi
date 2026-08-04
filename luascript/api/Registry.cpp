@@ -86,6 +86,10 @@ Registry::Registry()
 	registerPrivate<ServerCallbackProxy>();
 	registerPrivate<AdventureServerProxy>();
 
+	registerPrivate<MapObjectProxy>();
+	registerPrivate<MapScriptInitProxy>();
+	registerPrivate<TownInstanceProxy>();
+
 	registerSerializable<Enums>();
 	registerSerializable<LuaMetaString>();
 	registerSerializable<LuaComponent>();
@@ -94,9 +98,6 @@ Registry::Registry()
 
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
 	registerLuaName<CBattleInfoCallback>("Battle");
-	registerPrivate<MapObjectProxy>();
-	registerPrivate<MapScriptInitProxy>();
-	registerPrivate<TownInstanceProxy>();
 	registerLuaName<battle::UnitInfo>("UnitInfo");
 	// JsonNode fields accept any Lua value (string / number / table / …) and are funneled
 	// through JsonUtils::parseBonus — surface that openness rather than `userdata`.

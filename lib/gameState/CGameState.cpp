@@ -204,6 +204,8 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	logGlobal->debug("Initialization:");
 
 	initScriptVariables();
+	// script `init` runs from here, so it sees the map before object randomization and hero placement -
+	// it can only bind handlers by instance name, not inspect object contents
 	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, true);
 	initGlobalBonuses();
 	initPlayerStates();

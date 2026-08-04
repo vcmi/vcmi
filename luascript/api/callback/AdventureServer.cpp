@@ -50,10 +50,9 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		"Permanently removes a map object from the adventure map. The object disappears for every player; "
 		"if it was a town or a hero, ownership and garrison are lost as well. There is no undo.");
 	R.function<&AdventureServerProxy::finishQuestOrRemoveObject>("finishQuestOrRemoveObject",
-		{{"target", "The quest source (or plain event/pandora) that just finished its business."}}, {},
+		{{"target", "The quest source that just finished its business."}}, {},
 		"Ends the current interaction with the given object. A seer hut's active quest is marked complete and "
-		"cleared, without removing the hut itself; a quest guard is removed from the map; any other object "
-		"(a plain scripted event/pandora) is removed like removeObject.");
+		"cleared, without removing the hut itself; a quest guard is removed from the map");
 	R.function<&AdventureServerProxy::markQuestProposed>("markQuestProposed",
 		{
 			{"target", "The quest source (seer hut / quest guard) to mark."},
@@ -91,7 +90,7 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.method<&IGameEventCallback::giveResource>("giveResource",
 		{
 			{"player",   "Player whose treasury changes."},
-			{"resource", "Resource to change, given as its JSON key (\"wood\", \"ore\", \"mercury\", \"sulfur\", \"crystal\", \"gems\", \"gold\")."},
+			{"resource", "Resource to change, given as its JSON key (`wood`, `ore`, `mercury`, `sulfur`, `crystal`, `gems`, `gold`)."},
 			{"amount",   "How much to add. Use a negative number to take resources away; the treasury is clamped at zero and never goes negative."}
 		}, {},
 		"Adds or removes a single resource for one player.");
@@ -118,7 +117,7 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.function<&AdventureServerProxy::grantPrimarySkill>("grantPrimarySkill",
 		{
 			{"hero",   "Hero whose skill changes."},
-			{"skill",  "Primary skill to change, given as its JSON key (\"attack\", \"defence\", \"spellpower\", \"knowledge\")."},
+			{"skill",  "Primary skill to change, given as its JSON key (`attack`, `defence`, `spellpower`, `knowledge`)."},
 			{"amount", "How many points to add. Use a negative number to reduce the skill; it is clamped at zero and never goes negative."}
 		}, {},
 		"Permanently raises or lowers one of a hero's four primary skills.");
@@ -169,7 +168,7 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.function<&AdventureServerProxy::grantWarMachine>("grantWarMachine",
 		{
 			{"hero",    "Hero that receives the war machine."},
-			{"machine", "War machine to give, given as its artifact JSON key (\"ballista\", \"ammoCart\", \"firstAidTent\")."}
+			{"machine", "War machine to give, given as its artifact JSON key (`ballista`, `ammoCart`, `firstAidTent`)."}
 		}, {},
 		"Gives a war machine to a hero, placing it in its dedicated equipment slot. Has no effect if the hero already "
 		"carries a war machine in that slot.");

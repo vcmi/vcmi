@@ -50,7 +50,7 @@ private:
 	int stringCounter = 0;
 
 	// declarations collected while parsing, used to seed and persist the engine-side variables
-	std::vector<ScriptVariableDeclaration> variables;
+	std::vector<ScriptVariableDefinition> variables;
 
 	// H3M object identifiers referenced by object-identity predicates, resolved to names by the loader
 	std::set<uint32_t> referencedObjects;
@@ -68,8 +68,11 @@ private:
 	std::string loadExpression(); ///< single Lua numeric expression
 	std::string loadExpressionInternal();
 
+	/// Error for a field whose meaning is not known yet, naming the map and the event being converted
+	std::runtime_error unsupported(const std::string & message) const;
+
 	std::string loadImageList(int count);
-	std::string localizedText(const std::string & role); ///< reads a text field, returns its identifier as a quoted Lua literal
+	std::string localizedText(const std::string & role); ///< reads a text field, returns a Lua MetaString table holding its identifier
 
 	std::string loadQuestReferences(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId);
 

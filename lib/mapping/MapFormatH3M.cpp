@@ -17,8 +17,6 @@
 #include "MapReaderH3M.h"
 #include "MapFormatSettings.h"
 
-#include "../VCMIDirs.h"
-
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
@@ -792,9 +790,10 @@ void CMapLoaderH3M::readSiblingScript()
 	if(!loader->existsResource(scriptPath))
 		return;
 
+	logGlobal->info("Map '%s': using sibling script file, replacing script converted from map data", mapName);
+
 	auto rawData = loader->load(scriptPath)->readAll();
 	map->scriptSource = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
-	scriptConverter.reset();
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()

@@ -25,8 +25,3 @@ bool ScriptVariablesStorage::has(const std::string & scope, const std::string & 
 {
 	return !get(scope, name).isNull();
 }
-
-void ScriptVariablesStorage::erase(const std::string & scope, const std::string & name)
-{
-	variables[scope].Struct().erase(name);
-}

@@ -43,9 +43,8 @@ public:
 		const std::string & baseScope, const ScriptPath & basePath,
 		const std::vector<std::pair<std::string, std::string>> & patches);
 
-	/// Builds a script whose base layer is source text generated at runtime (e.g. a map's converted
-	/// event system, which has no backing resource file), with optional engine-provided layers stacked
-	/// over it. builtinLayers are SCRIPTS/<name>.lua files loaded from the built-in scope.
+	/// Builds a script whose base layer is source text generated at runtime
+	/// with optional engine-provided layers stacked over it
 	LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
 		const std::vector<std::string> & builtinLayers = {});
 
@@ -57,11 +56,11 @@ public:
 
 	std::shared_ptr<LuaContext> createContext(const Environment * ENV) const;
 
-	std::string getIdentifier() const override { return baseModScope + baselSourcePath; }
+	std::string getIdentifier() const override { return baseModScope + baseSourcePath; }
 
 private:
 	std::string baseModScope;
-	std::string baselSourcePath;
+	std::string baseSourcePath;
 	void loadLayer(const std::string & modScope, const ScriptPath & sourcePath);
 	void loadLayer(const std::string & modScope, const std::string & sourcePath);
 };

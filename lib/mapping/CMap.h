@@ -20,7 +20,6 @@
 #include "../networkPacks/TradeItem.h"
 #include "../scripting/IScriptVariablesHost.h"
 #include "../scripting/ScriptVariablesStorage.h"
-#include "../serializer/ESerializationVersion.h"
 
 class CArtifactInstance;
 class CArtifactSet;
@@ -88,7 +87,7 @@ public:
 	/// Live values of script variables owned by this map, namespaced by mod scope.
 	ScriptVariablesStorage scriptVariables;
 	/// Declarations (name, initial value, campaign flags) used to seed scriptVariables at game start.
-	std::vector<ScriptVariableDeclaration> scriptVariableDefinitions;
+	std::vector<ScriptVariableDefinition> scriptVariableDefinitions;
 	/// Generated Lua source for the map's event scripts (empty if the map has no event system).
 	std::string scriptSource;
 
@@ -349,7 +348,7 @@ public:
 		h & *gameSettings;
 		h & uidCounter;
 
-		if(h.hasFeature(ESerializationVersion::SCRIPT_VARIABLES))
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
 		{
 			h & scriptVariables;
 			h & scriptVariableDefinitions;

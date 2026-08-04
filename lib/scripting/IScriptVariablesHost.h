@@ -12,9 +12,8 @@
 
 class ScriptVariablesStorage;
 
-/// Interface for objects that own a ScriptVariablesStorage. Implemented by CMap; later by any
-/// map object that needs to carry script variables. The Lua bindings target this interface so
-/// a single binding-group works for every host type.
+/// Interface for objects that own a ScriptVariablesStorage.
+/// The Lua bindings target this interface so a single binding-group works for every host type.
 class DLL_LINKAGE IScriptVariablesHost
 {
 public:

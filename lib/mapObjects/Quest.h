@@ -56,13 +56,10 @@ public:
 	bool isCompleted = false;
 	std::set<PlayerColor> activeForPlayers;
 
-	/// HotA scripted quest: id of the questEvents handler this quest's condition/reward logic
-	/// lives in (the engine only dispatches the visit; the script owns the actual quest logic).
-	/// -1 for every non-scripted mission kind.
+	/// HotA scripted quest: id of the questEvents handler this quest's condition/reward logic lives in
 	std::string scriptHandler;
 
-	/// HotA scripted quest: hint text last set by the script via AdventureServer:setQuestHint,
-	/// shown in the quest log / hover in place of the (non-existent) templated "scripted" text.
+	/// HotA scripted quest: hint text last set by the script, shown in the quest log and on hover
 	MetaString scriptHintText;
 
 	// following fields are used only for kill creature/hero missions, the original

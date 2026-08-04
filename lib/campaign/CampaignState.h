@@ -16,7 +16,6 @@
 #include "../filesystem/ResourcePath.h"
 #include "../gameState/HighScore.h"
 #include "../scripting/ScriptVariablesStorage.h"
-#include "../serializer/ESerializationVersion.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -262,9 +261,6 @@ class DLL_LINKAGE CampaignState : public Campaign
 public:
 	CampaignState() = default;
 
-	ScriptVariablesStorage & getPersistentScriptVariables() { return persistentScriptVariables; }
-	const ScriptVariablesStorage & getPersistentScriptVariables() const { return persistentScriptVariables; }
-
 	/// Copies persist-flagged script variables of the given map into the campaign state.
 	void savePersistentVariables(const CMap & map);
 	/// Seeds import-flagged script variables of the given map from the campaign state.
@@ -332,7 +328,7 @@ public:
 		h & mapTranslations;
 		h & highscoreParameters;
 
-		if(h.hasFeature(ESerializationVersion::SCRIPT_VARIABLES))
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
 			h & persistentScriptVariables;
 	}
 };

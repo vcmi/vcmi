@@ -983,7 +983,7 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				break;
 
 			case Obj::PANDORAS_BOX:
-				// Empty box: no message/guards, no rewards. Mirror of readBoxContent (non-HOTA path).
+				// Mirror of readBoxContent, readPandora and readBoxHotaContent
 				w.writeBool(false);                                    // hasMessage (=> no guards / no skip)
 				w.writeUInt32(0);                                      // heroExperience
 				w.writeInt32(0);                                       // manaDiff
@@ -998,6 +998,17 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.writeUInt8(0);                                       // gained spells count
 				w.writeUInt8(0);                                       // gained creatures count
 				w.skipZero(8);                                         // reserved
+
+				if(features.levelHOTA5)
+				{
+					w.skipZero(1);                                     // readPandora: unknown, always 0
+					w.writeInt32(0);                                   // movement mode: 0 = give
+					w.writeInt32(0);                                   // movement amount
+				}
+				if(features.levelHOTA6)
+					w.writeInt32(31);                                  // allowed difficulties; reader rejects 0
+				if(features.levelHOTA9)
+					w.writeBool(false);                                // does not use the event system
 				break;
 
 			case Obj::ARTIFACT:

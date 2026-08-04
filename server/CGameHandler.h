@@ -132,8 +132,8 @@ public:
 
 	/// Runs a converted map-event handler under a LuaScriptQuery so blocking script actions can pause and
 	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
-	/// handle (empty when the handler finished without pausing). Requires an active map event dispatcher.
-	void runScriptedEvent(PlayerColor player, ObjectInstanceID visitingHero,
+	/// handle (empty when the handler finished without pausing).
+	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 		const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch);
 	void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;

@@ -188,13 +188,13 @@ bool IGameInfoCallbackProxy::heroOwner(const GameCb & object, HeroTypeID hero, P
 
 bool IGameInfoCallbackProxy::playerOwnsTown(const GameCb & object, PlayerColor player, const std::string & objectName)
 {
-	const auto * town = dynamic_cast<const CGTownInstance *>(objectByName(object, objectName));
+	const auto * town = dynamic_cast<const CGTownInstance *>(getObjectByName(object, objectName));
 	return town && town->getOwner() == player;
 }
 
 bool IGameInfoCallbackProxy::playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName)
 {
-	const CGObjectInstance * target = objectByName(object, objectName);
+	const CGObjectInstance * target = getObjectByName(object, objectName);
 	const auto * state = object.getPlayerState(player, false);
 	return target && state && state->destroyedObjects.count(target->id) != 0;
 }
@@ -211,11 +211,6 @@ int IGameInfoCallbackProxy::compareDifficulty(const GameCb & object, int referen
 }
 
 const CGObjectInstance * IGameInfoCallbackProxy::getObjectByName(const GameCb & object, const std::string & objectName)
-{
-	return objectByName(object, objectName);
-}
-
-const CGObjectInstance * IGameInfoCallbackProxy::objectByName(const GameCb & object, const std::string & objectName)
 {
 	if(objectName.empty())
 		return nullptr;

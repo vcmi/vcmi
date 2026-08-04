@@ -21,7 +21,11 @@ class DLL_LINKAGE Calendar final : public scripting::ApiCopyable<Calendar>
 	const IGameSettings * gameSettings = nullptr;
 	int day = 0;
 
+	/// Throws if this Calendar was default-constructed and so has no settings to interpret `day` with
+	const IGameSettings & settings() const;
+
 public:
+	/// Only exists to satisfy the scripting tag - every accessor throws until a real Calendar is assigned
 	Calendar() = default;
 	Calendar(const IGameSettings & settings, int day);
 

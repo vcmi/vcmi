@@ -1208,12 +1208,9 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 	sendAndApply(*iw);
 }
 
-void CGameHandler::runScriptedEvent(PlayerColor player, ObjectInstanceID visitingHero,
+void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
 {
-	auto * dispatcher = gameState().getMapEventDispatcher();
-	assert(dispatcher);
-
 	// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
 	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
 	auto scriptQuery = std::make_shared<LuaScriptQuery>(this, player);
@@ -1221,7 +1218,7 @@ void CGameHandler::runScriptedEvent(PlayerColor player, ObjectInstanceID visitin
 		scriptQuery->setVisitingHero(visitingHero);
 	queries->addQuery(scriptQuery);
 
-	auto handle = dispatch(*dispatcher);
+	auto handle = dispatch(dispatcher);
 	if(handle)
 		scriptQuery->setCoroutine(*handle);
 	else
@@ -3665,9 +3662,10 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 			scriptHandler = activeQuest->scriptHandler;
 	}
 
-	if(!scriptHandler.empty() && gameState().getMapEventDispatcher())
-		runScriptedEvent(h->getOwner(), h->id,
-			[&](scripting::MapEventDispatcher & dispatcher){ return dispatcher.onObjectVisit(*this, scriptHandler, visitedObject, h); });
+	auto * dispatcher = gameState().getMapEventDispatcher();
+	if(!scriptHandler.empty() && dispatcher)
+		runScriptedEvent(*dispatcher, h->getOwner(), h->id,
+			[&](scripting::MapEventDispatcher & d){ return d.onObjectVisit(*this, scriptHandler, visitedObject, h); });
 	else
 		visitedObject->onHeroVisit(*this, h);
 

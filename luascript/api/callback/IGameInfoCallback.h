@@ -48,11 +48,8 @@ public:
 	static bool playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName);
 	static bool playerDefeatedHero(const GameCb & object, PlayerColor player, const std::string & objectName);
 	static int compareDifficulty(const GameCb & object, int reference);
-	static const CGObjectInstance * getObjectByName(const GameCb & object, const std::string & objectName);
-
-private:
 	/// Resolves a map object by its instance name, or nullptr when the name is empty or unknown.
-	static const CGObjectInstance * objectByName(const GameCb & object, const std::string & objectName);
+	static const CGObjectInstance * getObjectByName(const GameCb & object, const std::string & objectName);
 };
 
 }

@@ -12,9 +12,9 @@
 
 #include "../json/JsonNode.h"
 
-/// Declaration of a script variable: its name, initial value and campaign carry-over flags.
+/// Definition of a script variable: its name, initial value and campaign carry-over flags.
 /// Metadata only - live values are held in ScriptVariablesStorage.
-struct DLL_LINKAGE ScriptVariableDeclaration
+struct DLL_LINKAGE ScriptVariableDefinition
 {
 	std::string name;
 	JsonNode initialValue;
@@ -43,7 +43,6 @@ public:
 	const JsonNode & get(const std::string & scope, const std::string & name) const;
 	void set(const std::string & scope, const std::string & name, JsonNode value);
 	bool has(const std::string & scope, const std::string & name) const;
-	void erase(const std::string & scope, const std::string & name);
 
 	template<typename Handler>
 	void serialize(Handler & h)

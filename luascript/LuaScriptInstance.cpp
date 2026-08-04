@@ -23,7 +23,7 @@ LuaScriptInstance::LuaScriptInstance(const LuaModule & host,
 	const std::vector<std::pair<std::string, std::string>> & patches)
 	: host(host)
 	, baseModScope(baseScope)
-	, baselSourcePath(basePath.getName())
+	, baseSourcePath(basePath.getName())
 {
 	loadLayer(baseScope, basePath);
 	for (const auto & [scope, path] : patches)
@@ -34,11 +34,11 @@ LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string &
 	const std::vector<std::string> & builtinLayers)
 	: host(host)
 	, baseModScope(baseScope)
-	, baselSourcePath(":map")
+	, baseSourcePath(":map")
 {
 	Layer layer;
 	layer.sourceText = std::move(sourceText);
-	layer.identifier = baseModScope + baselSourcePath;
+	layer.identifier = baseModScope + baseSourcePath;
 	layers.push_back(std::move(layer));
 
 	for(const auto & name : builtinLayers)
