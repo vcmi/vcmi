@@ -40,7 +40,7 @@ Optional icon name shown next to the bonus in the UI. Overrides generic icon for
 
 ### type
 
-Bonus type name (e.g. "PRIMARY_SKILL", "FIRE_IMMUNITY"). See Bonus types documentation.
+Bonus type name (e.g. PRIMARY_SKILL, FIRE_IMMUNITY). See Bonus types documentation.
 
 - type: `any`
 

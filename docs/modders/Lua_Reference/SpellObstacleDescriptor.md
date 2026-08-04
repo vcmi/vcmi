@@ -104,6 +104,12 @@ Looping animation shown while the obstacle is on the battlefield.
 
 - type: `string`
 
+### removalAnimation
+
+Animation played when the obstacle is removed (expires or is dispelled). Falls back to appearAnimation if empty.
+
+- type: `string`
+
 ### customSize
 
 Optional list of BattleHex values defining a multi-hex footprint.

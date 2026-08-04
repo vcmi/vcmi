@@ -1,6 +1,6 @@
 # Services
 
-The static game-content catalogue, bound to the global `LIBRARY`. Looks up artifacts, creatures, factions, hero classes/types, secondary skills and spells by their config name (the same string used in JSON definitions).
+The static game-content catalogue, bound to the global `LIBRARY`. Looks up artifacts, creatures, factions, hero classes/types, resources, secondary skills and spells by their config name (the same string used in JSON definitions).
 
 ### getArtifactByName
 
@@ -41,6 +41,14 @@ Looks up a hero type by its JSON key. Returns nil if not found.
 - param `name`: `string` — JSON key of the hero type (e.g. `core:orrin`).
 
 - returns [`HeroType`](HeroType.md)
+
+### getResourceByName
+
+Looks up a resource by its JSON key. Returns nil if not found.
+
+- param `name`: `string` — JSON key of the resource (e.g. `core:gold`).
+
+- returns [`ResourceType`](ResourceType.md)
 
 ### getSpellByName
 
