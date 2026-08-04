@@ -47,12 +47,16 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	int damageMultiplier = 1;
 	if (stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		static const auto bonusSelector =
+		static const auto heroAttackSelector =
 			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
 															  Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
 					Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
-
-		damageMultiplier += stack->valOfBonuses(bonusSelector);
+		static const auto damageOffsetSelector = Selector::type()(BonusType::SIEGE_WEAPON_DAMAGE_OFFSET);
+		
+		int damageOffsetVal = stack->valOfBonuses(damageOffsetSelector);
+		damageMultiplier = (damageOffsetVal > 0) ? damageOffsetVal : 1;
+		
+		damageMultiplier += stack->valOfBonuses(heroAttackSelector);
 	}
 
 	auto attack = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";

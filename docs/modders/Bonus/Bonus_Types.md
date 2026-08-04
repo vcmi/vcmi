@@ -902,6 +902,12 @@ Hero can control war machine affected by this bonus
 - subtype: creature identifier of affected war machine
 - val: chance to control unit, percentage
 
+### SIEGE_WEAPON_DAMAGE_OFFSET
+
+Adjusts the hero Attack skill scaling factor used in war machine damage calculations. The formula is `baseDamage * (heroAttack + damageOffset)`. The minimum effective offset is 1. If the cumulative total of these bonuses is less than 1, it defaults to 1 (matching standard Heroes III behavior).
+
+- val: the damage offset value
+
 ### CHANGES_SPELL_COST_FOR_ALLY
 
 Affected units will decrease spell cost for their hero (Mage). If multiple units have this bonus only best value will be used

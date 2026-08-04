@@ -207,6 +207,7 @@ class JsonNode;
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE) /*skill-agnostic eagle eye spell level limit to learn enemy hero spells at battle start*/\
 	BONUS_NAME(SURRENDER_MARKETPLACE_ACCESS) /*Allows hero to open marketplace when unable to pay surrender cost*/ \
 	BONUS_NAME(SPECIAL_SPELL_SCALING) /*like SPECIAL_SPELL_LEV but with H3-correct per-target-level rounding; subtype = spell, val = percent per step*/\
+	BONUS_NAME(SIEGE_WEAPON_DAMAGE_OFFSET) /*adjusts the damage formula for war machines to baseDamage * (heroAttack + val)*/\
 
 	/* end of list */
 

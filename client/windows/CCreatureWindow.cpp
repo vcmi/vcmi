@@ -639,12 +639,15 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	int dmgMultiply = 1;
 	if (battleStack != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		static const auto bonusSelector =
+		static const auto heroAttackSelector =
 			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
 			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
 			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
-
-		dmgMultiply += battleStack->valOfBonuses(bonusSelector);
+		static const auto damageOffsetSelector = Selector::type()(BonusType::SIEGE_WEAPON_DAMAGE_OFFSET);
+		
+	 	int damageOffsetVal = battleStack->valOfBonuses(damageOffsetSelector);
+		dmgMultiply = (damageOffsetVal > 0) ? damageOffsetVal : 1;
+		dmgMultiply += battleStack->valOfBonuses(heroAttackSelector);
 	}
 
 	static const std::array<std::string, 8> iconNames = {
