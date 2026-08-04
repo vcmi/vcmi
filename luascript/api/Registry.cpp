@@ -44,6 +44,7 @@
 #include "adventure/MapScriptInit.h"
 #include "adventure/TownInstance.h"
 #include "library/HeroType.h"
+#include "library/ResourceType.h"
 #include "callback/AdventureServer.h"
 #include "callback/ServerCallback.h"
 #include "library/Services.h"
@@ -65,6 +66,7 @@ Registry::Registry()
 	registerPrivate<FactionProxy>();
 	registerPrivate<HeroClassProxy>();
 	registerPrivate<HeroTypeProxy>();
+	registerPrivate<ResourceTypeProxy>();
 	registerPrivate<SkillProxy>();
 	registerPrivate<SpellProxy>();
 	registerPrivate<SpellSchoolProxy>();
@@ -115,6 +117,9 @@ Registry::Registry()
 	registerLuaName<EWallPart>("WallPart");
 	registerLuaName<BattleSide>("BattleSide");
 	registerLuaName<EMapDifficulty>("Difficulty");
+	registerLuaName<PrimarySkill>("PrimarySkill");
+	registerLuaName<PlayerColor>("PlayerColor");
+	registerLuaName<EPlayerStatus>("PlayerStatus");
 
 	// EWallState has no enum group of its own and is exposed as integer to Lua
 	registerLuaName<EWallState>("integer");

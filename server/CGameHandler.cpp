@@ -21,6 +21,7 @@
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
+#include "queries/LuaScriptQuery.h"
 #include "queries/MapQueries.h"
 #include "queries/VisitQueries.h"
 
@@ -3652,16 +3653,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	hv.starting = true;
 	sendAndApply(hv);
 
-	std::string scriptHandler;
-	if(const auto * scriptedObject = dynamic_cast<const CGPandoraBox *>(visitedObject))
-		scriptHandler = scriptedObject->heroVisitScriptHandler;
-	else if(const auto * questSource = dynamic_cast<const QuestSource *>(visitedObject))
-	{
-		const Quest * activeQuest = questSource->getActiveQuest();
-		if(activeQuest && activeQuest->missionKind == EQuestMission::HOTA_SCRIPTED)
-			scriptHandler = activeQuest->scriptHandler;
-	}
-
+	std::string scriptHandler = visitedObject->getVisitScriptHandler();
 	auto * dispatcher = gameState().getMapEventDispatcher();
 	if(!scriptHandler.empty() && dispatcher)
 		runScriptedEvent(*dispatcher, h->getOwner(), h->id,

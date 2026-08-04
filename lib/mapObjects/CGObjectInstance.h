@@ -85,6 +85,9 @@ public:
 	/// Visibility of this object to `player`, used as the fog-of-war gate.
 	virtual bool isVisibleFor(PlayerColor player) const;
 
+	/// Map-script handler to run instead of onHeroVisit, or empty when this object has none.
+	virtual std::string getVisitScriptHandler() const { return {}; }
+
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	const std::set<int3> & getBlockedOffsets() const; //returns set of relative positions blocked by this object
 

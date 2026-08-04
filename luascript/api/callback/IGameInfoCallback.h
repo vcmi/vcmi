@@ -18,6 +18,10 @@
 #include <vcmi/scripting/Service.h>
 
 class CGObjectInstance;
+class CGHeroInstance;
+class Faction;
+class HeroType;
+class ResourceType;
 class JsonNode;
 enum class EMapDifficulty : uint8_t;
 
@@ -40,14 +44,12 @@ public:
 	static Calendar getCalendar(const GameCb & object);
 	static EMapDifficulty getDifficulty(const GameCb & object);
 	static bool playerIsHuman(const GameCb & object, PlayerColor player);
-	static bool playerDefeated(const GameCb & object, PlayerColor player);
-	static bool playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction);
+	static EPlayerStatus getPlayerStatus(const GameCb & object, PlayerColor player);
+	static int getResource(const GameCb & object, PlayerColor player, const ResourceType & resource);
+	static const Faction * getPlayerFaction(const GameCb & object, PlayerColor player);
 	static bool wasQuestProposed(const GameCb & object, const CGObjectInstance & target, PlayerColor player);
-	static bool heroOwner(const GameCb & object, HeroTypeID hero, PlayerColor player);
-	static bool playerOwnsTown(const GameCb & object, PlayerColor player, const std::string & objectName);
-	static bool playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName);
-	static bool playerDefeatedHero(const GameCb & object, PlayerColor player, const std::string & objectName);
-	static int compareDifficulty(const GameCb & object, int reference);
+	static const CGHeroInstance * getHeroByType(const GameCb & object, const HeroType & heroType);
+	static bool playerDestroyedObject(const GameCb & object, PlayerColor player, const CGObjectInstance & target);
 	/// Resolves a map object by its instance name, or nullptr when the name is empty or unknown.
 	static const CGObjectInstance * getObjectByName(const GameCb & object, const std::string & objectName);
 };

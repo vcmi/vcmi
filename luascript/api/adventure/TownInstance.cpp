@@ -20,14 +20,6 @@ void TownInstanceProxy::registerMethods(MethodRegistrar & R)
 {
 	R.method<&CGObjectInstance::getOwner, CGTownInstance>("getOwner", {},
 		"Returns the player color that owns this town, or the neutral player when it is unowned.");
-	R.function<&TownInstanceProxy::isNeutral>("isNeutral",
-		{"True when the town has no owner."},
-		"Returns whether the town is currently neutral (owned by no player).");
-}
-
-bool TownInstanceProxy::isNeutral(const CGTownInstance & town)
-{
-	return town.getOwner() == PlayerColor::NEUTRAL;
 }
 
 }

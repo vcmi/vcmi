@@ -17,6 +17,11 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 
 class JsonNode;
+class Artifact;
+class Creature;
+class ResourceType;
+class Skill;
+namespace spells { class Spell; }
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
@@ -47,18 +52,19 @@ public:
 	static int random(IGameEventCallback & object, int lower, int upper);
 
 	static void giveExperience(IGameEventCallback & object, const CGHeroInstance & hero, int64_t amount);
+	static void giveResource(IGameEventCallback & object, PlayerColor player, const ResourceType & resource, int amount);
 	static void setOwner(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor owner);
-	static void grantSpell(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell);
-	static void takeSpell(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell);
+	static void grantSpell(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell);
+	static void takeSpell(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell);
 	static void grantPrimarySkill(IGameEventCallback & object, const CGHeroInstance & hero, PrimarySkill skill, int amount);
-	static void grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, SecondarySkill skill, int level);
-	static void grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact);
-	static void grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell);
-	static void takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact);
-	static void grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count);
-	static void takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count);
-	static void grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine);
-	static void takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine);
+	static void grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, const Skill & skill, int level);
+	static void grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & artifact);
+	static void grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell);
+	static void takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & artifact);
+	static void grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count);
+	static void takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count);
+	static void grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & machine);
+	static void takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & machine);
 	static void grantSpellbook(IGameEventCallback & object, const CGHeroInstance & hero);
 	static void takeSpellbook(IGameEventCallback & object, const CGHeroInstance & hero);
 	static void grantMorale(IGameEventCallback & object, const CGHeroInstance & hero, int amount);

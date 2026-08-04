@@ -48,7 +48,7 @@ std::unique_ptr<MapEventDispatcher> LuaModule::createMapScriptDispatcher(CGameSt
 		return nullptr;
 
 	auto instance = std::make_shared<LuaScriptInstance>(*this, ModScope::scopeMap(), gs.getMap().scriptSource, std::vector<std::string>{"mapEventRuntime"});
-	return std::make_unique<LuaMapEventDispatcher>(instance, gs.getScriptingEnvironment(), gs.getMap(), runInit);
+	return std::make_unique<LuaMapEventDispatcher>(instance, &gs.getScriptingEnvironment(), gs.getMap(), runInit);
 }
 
 void LuaModule::exportDocs(const boost::filesystem::path & outDir) const

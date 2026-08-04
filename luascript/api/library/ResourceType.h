@@ -1,5 +1,5 @@
 /*
- * TownInstance.h, part of VCMI engine
+ * api/ResourceType.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,21 +10,21 @@
 
 #pragma once
 
+#include <vcmi/ResourceType.h>
+
 #include "../../LuaWrapper.h"
 #include "../MethodRegistrar.h"
-
-#include "../../../lib/mapObjects/CGTownInstance.h"
 
 namespace scripting::api
 {
 
-class TownInstanceProxy : public RawPointerWrapper<const CGTownInstance, TownInstanceProxy>
+class ResourceTypeProxy : public RawPointerWrapper<const ResourceType, ResourceTypeProxy>
 {
-
 public:
-	static constexpr std::string_view luaName = "TownInstance";
+	static constexpr std::string_view luaName = "ResourceType";
 	static constexpr std::string_view luaDescription =
-		"A town on the adventure map. Provides its owner and whether it is currently neutral.";
+		"A resource definition (wood, ore, gold, ...). Obtained from Services:getResourceByName and "
+		"passed to the calls that add or read a player's resources.";
 
 	static void registerMethods(MethodRegistrar & R);
 };

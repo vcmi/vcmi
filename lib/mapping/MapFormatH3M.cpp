@@ -1221,7 +1221,7 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			reader->readBool(); // synchronize objects - not used yet
+			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
 			object->heroVisitScriptHandler = scriptConverter->eventHandlerName("heroEvents", eventID);
 		}
 	}
@@ -2798,7 +2798,7 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 			{
 				missionId = EQuestMission::HOTA_SCRIPTED;
 				quest.scriptHandler = scriptConverter->eventHandlerName("questEvents", reader->readUInt32());
-				reader->readBool(); // TBD: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
+				reader->readBool(); // TODO: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
 				break;
 			}
 			break;
@@ -3015,7 +3015,7 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			reader->readBool(); // synchronize objects - not used yet
+			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
 			event.scriptHandler = scriptConverter->eventHandlerName(scriptBucket, eventID);
 		}
 	}

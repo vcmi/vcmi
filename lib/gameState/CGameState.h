@@ -190,7 +190,8 @@ public:
 	Calendar getCalendar() const override;
 
 	const scripting::Pool & getScriptContextPool() const final;
-	const Environment * getScriptingEnvironment() const { return scriptingEnvironment.get(); }
+	const Environment & getScriptingEnvironment() const { return *scriptingEnvironment; }
+	/// Null when the map has no event script - callers must check.
 	scripting::MapEventDispatcher * getMapEventDispatcher() const { return mapEventDispatcher.get(); }
 
 	void saveGame(CSaveFile & file) const;

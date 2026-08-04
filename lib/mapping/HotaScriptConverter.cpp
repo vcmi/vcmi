@@ -13,6 +13,7 @@
 
 #include "MapReaderH3M.h"
 
+#include "../GameConstants.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../texts/TextIdentifier.h"
 #include "mapping/CMap.h"
@@ -124,12 +125,35 @@ static std::string varRef(int uniqueID)
 	return "Vars[" + std::to_string(uniqueID) + "]";
 }
 
-/// Renders a content identifier (artifact, spell, creature, skill, faction, hero, resource)
-/// as a quoted Lua string holding its JSON key
+/// Renders a content identifier as a quoted Lua string holding its JSON key
 template<typename IdentifierType>
 static std::string entityKey(IdentifierType identifier)
 {
 	return '"' + IdentifierType::encode(identifier.getNum()) + '"';
+}
+
+/// Player colours are exposed as an enum group; HotA stores them as raw indices.
+static std::string playerRef(PlayerColor player)
+{
+	// HotA's negative "current player" sentinels have no colour name of their own
+	if(!player.isValidPlayer())
+		return num(player.getNum());
+
+	return "ENUM.PlayerColor." + PlayerColor::encode(player.getNum());
+}
+
+/// Primary skills are exposed as an enum group rather than a content catalogue.
+static std::string primarySkillRef(PrimarySkill skill)
+{
+	return "ENUM.PrimarySkill." + PrimarySkill::encode(skill.getNum());
+}
+
+/// Resolves a content identifier through the Services catalogue, which is what the bindings expect.
+/// `lookup` is the Services method name, e.g. `getCreatureByName`.
+template<typename IdentifierType>
+static std::string entityRef(const std::string & lookup, IdentifierType identifier)
+{
+	return "LIBRARY:" + lookup + "(" + entityKey(identifier) + ")";
 }
 
 /// EXECUTE_EVENT stores the target bucket as an integer in map order.
@@ -180,11 +204,16 @@ static const BucketTraits & bucketTraits(const std::string & bucket)
 }
 
 /// Free helpers shared by every generated handler: player-sentinel resolution, HotA image
-/// triples to engine Component tables, and the resource-set loop.
+/// triples to engine Component tables, the resource-set loop and the object-identity predicates.
 static std::string helpersPrelude()
 {
-	return R"lua(-- HotA event helpers
+	// HotA addresses resources by index while the bindings take a resource handle, so the generated
+	// script carries the engine's resource order to translate between the two.
+	std::string resourceOrder;
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+		resourceOrder += (i == 0 ? "" : ", ") + entityKey(GameResID(i));
 
+	return "-- HotA event helpers\n\nlocal RESOURCES = {" + resourceOrder + "}\n" + R"lua(
 -- HotA player sentinels: negative values mean "the event's own player".
 local function resolvePlayer(player, eventPlayer)
 	if player < 0 then return eventPlayer end
@@ -200,12 +229,41 @@ local function toComponents(images)
 	return result
 end
 
--- Adds a whole resource set to a player; index 0..6 matches the engine resource order.
+-- Adds a whole resource set to a player; the amounts follow the engine resource order.
 local function grantResources(server, player, amounts)
-	for index = 0, 6 do
-		local amount = amounts[index + 1]
-		if amount and amount ~= 0 then server:giveResource(player, index, amount) end
+	for index, key in ipairs(RESOURCES) do
+		local amount = amounts[index]
+		if amount and amount ~= 0 then server:giveResource(player, LIBRARY:getResourceByName(key), amount) end
 	end
+end
+
+-- HotA object-identity predicates. The engine only offers the lookups; the comparison lives here.
+local function heroOwner(game, heroType, player)
+	local hero = game:getHeroByType(heroType)
+	return hero ~= nil and hero:getOwner() == player
+end
+
+local function playerOwnsTown(game, player, objectName)
+	local town = game:getObjectByName(objectName)
+	return town ~= nil and town:getOwner() == player
+end
+
+local function playerDefeated(game, player)
+	return game:getPlayerStatus(player) == ENUM.PlayerStatus.loser
+end
+
+local function playerStartingFaction(game, player, faction)
+	return game:getPlayerFaction(player) == faction
+end
+
+local function playerDestroyedObject(game, player, objectName)
+	local target = game:getObjectByName(objectName)
+	return target ~= nil and game:playerDestroyedObject(player, target)
+end
+
+-- Negative if the current difficulty is easier than the reference, zero if equal, positive if harder.
+local function compareDifficulty(game, reference)
+	return game:getDifficulty() - reference
 end
 
 -- HotA scripted quest (a seer hut / quest guard whose condition and reward are script-driven
@@ -227,8 +285,8 @@ local function registerQuest(game, server, player, object, opts)
 end
 
 -- Updates a scripted quest's quest-log / hover hint text, optionally adding it to the player's
--- quest log (HotA's SET_QUEST_HINT action). `images` has no engine equivalent for a quest-log
--- hint yet and is intentionally unused.
+-- quest log (HotA's SET_QUEST_HINT action).
+-- TODO: `images` is ignored - a quest-log hint has no engine-side component list yet.
 local function setQuestHint(server, player, object, text, images, showInLog)
 	server:setQuestHintText(object, text)
 	if showInLog then server:addToQuestLog(object, player) end
@@ -405,7 +463,11 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
 			{
-				result += pad + "server:finishQuestOrRemoveObject(" + bucketTraits(currentBucket).subject + ")\n";
+				// only a quest bucket runs on a quest source; elsewhere the action just removes the object
+				if(currentBucket == "questEvents")
+					result += pad + "server:finishQuestOrRemoveObject(object)\n";
+				else
+					result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
 				break;
 			}
 			case HotaScriptActions::DISABLE_EVENT:
@@ -522,11 +584,11 @@ std::string HotaScriptConverter::loadActions(int indent)
 				SpellID scrollSpell = reader.readSpell32();
 				reader.readBool(); // showMessage flag - always shown by the granting call
 				if(take)
-					result += pad + "server:takeArtifact(hero, " + entityKey(artifact) + ")\n";
+					result += pad + "server:takeArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")\n";
 				else if(scrollSpell.getNum() >= 0)
-					result += pad + "server:grantScroll(hero, " + entityKey(scrollSpell) + ")\n";
+					result += pad + "server:grantScroll(hero, " + entityRef("getSpellByName", scrollSpell) + ")\n";
 				else
-					result += pad + "server:grantArtifact(hero, " + entityKey(artifact) + ")\n";
+					result += pad + "server:grantArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")\n";
 				break;
 			}
 			case HotaScriptActions::WAR_MACHINE:
@@ -535,14 +597,14 @@ std::string HotaScriptConverter::loadActions(int indent)
 				ArtifactID machine = reader.readArtifact32();
 				reader.skipUnused(4); // garbage padding
 				reader.readBool(); // showMessage flag
-				result += pad + "server:" + (take ? "takeWarMachine" : "grantWarMachine") + "(hero, " + entityKey(machine) + ")\n";
+				result += pad + "server:" + (take ? "takeWarMachine" : "grantWarMachine") + "(hero, " + entityRef("getArtifactByName", machine) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SPELL:
 			{
 				SpellID spell = reader.readSpell32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantSpell(hero, " + entityKey(spell) + ")\n";
+				result += pad + "server:grantSpell(hero, " + entityRef("getSpellByName", spell) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SPELLBOOK:
@@ -559,7 +621,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				CreatureID creature = reader.readCreature32();
 				std::string count = loadExpression();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:" + (take ? "takeCreatures" : "grantCreatures") + "(hero, " + entityKey(creature) + ", " + count + ")\n";
+				result += pad + "server:" + (take ? "takeCreatures" : "grantCreatures") + "(hero, " + entityRef("getCreatureByName", creature) + ", " + count + ")\n";
 				break;
 			}
 			case HotaScriptActions::START_COMBAT:
@@ -581,7 +643,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int mastery = reader.readInt32();
 				SecondarySkill skill = reader.readSkill32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantSecondarySkill(hero, " + entityKey(skill) + ", " + num(mastery) + ")\n";
+				result += pad + "server:grantSecondarySkill(hero, " + entityRef("getSecondarySkillByName", skill) + ", " + num(mastery) + ")\n";
 				break;
 			}
 			case HotaScriptActions::MORALE:
@@ -625,7 +687,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				uint32_t level = reader.readUInt32(); // creature tier 0-7 within the town this script runs on
 				std::string amount = loadExpression();
-				int unknown = reader.readInt32(); // TBD: possibly factory 8th dwelling marker
+				int unknown = reader.readInt32(); // TODO: meaning unknown, possibly factory 8th dwelling marker
 				reader.readBool(); // showMessage flag
 				if(unknown != -1)
 					throw unsupported("CREATURES_TO_HIRE with unknown field set to " + num(unknown));
@@ -685,7 +747,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				PrimarySkill skill(reader.readInt32());
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantPrimarySkill(hero, " + entityKey(skill) + ", " + amount + ")\n";
+				result += pad + "server:grantPrimarySkill(hero, " + primarySkillRef(skill) + ", " + amount + ")\n";
 				break;
 			}
 			case HotaScriptActions::MODIFY_VARIABLE:
@@ -779,12 +841,12 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			reader.readSpell32(); // scroll spell - carried in a separate slot, not needed for the check
-			return "hero:hasArtifact(" + entityKey(artifact) + ")";
+			return "hero:hasArtifact(" + entityRef("getArtifactByName", artifact) + ")";
 		}
 		case HotaScriptCondition::CURRENT_PLAYER:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			return "(player == " + num(conditionPlayer.getNum()) + ")";
+			return "(player == " + playerRef(conditionPlayer) + ")";
 		}
 		case HotaScriptCondition::HERO_OWNER:
 		{
@@ -792,20 +854,20 @@ std::string HotaScriptConverter::loadConditionInternal()
 			// TODO: the -2 ("current hero") sentinel is treated as the event's own player by
 			// resolvePlayer; verify whether HotA means the hero's owner or something else here.
 			PlayerColor conditionPlayer = reader.readPlayer32(); // -2 = current hero, -1 = current player
-			return "game:heroOwner(" + entityKey(hero) + ", resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
+			return "heroOwner(game, " + entityRef("getHeroTypeByName", hero) + ", resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
 		}
 		case HotaScriptCondition::HERO_SECONDARY_SKILL:
 		{
 			SecondarySkill skill = reader.readSkill32();
 			int mastery = reader.readInt32();
-			return "(hero:getSecondarySkill(" + entityKey(skill) + ") >= " + num(mastery) + ")";
+			return "(hero:getSecondarySkill(" + entityRef("getSecondarySkillByName", skill) + ") >= " + num(mastery) + ")";
 		}
 		case HotaScriptCondition::TOWN_IS_NEUTRAL:
-			return "town:isNeutral()";
+			return "(town:getOwner() == ENUM.PlayerColor.neutral)";
 		case HotaScriptCondition::PLAYER_DEFEATED:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			return "game:playerDefeated(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
+			return "playerDefeated(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
 		}
 		case HotaScriptCondition::PLAYER_IS_HUMAN:
 		{
@@ -816,25 +878,25 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			FactionID faction = reader.readFaction32();
-			return "game:playerStartingFaction(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + entityKey(faction) + ")";
+			return "playerStartingFaction(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + entityRef("getFactionByName", faction) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
-			return "game:playerDefeatedMonster(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
+			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
-			return "game:playerDefeatedHero(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
+			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_OWNS_TOWN:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
-			return "game:playerOwnsTown(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
+			return "playerOwnsTown(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		default:
 			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));
@@ -885,17 +947,17 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		{
 			PlayerColor resourcePlayer = reader.readPlayer(); // special value for current player
 			GameResID resource = reader.readGameResID32();
-			return "game:getResource(resolvePlayer(" + num(resourcePlayer.getNum()) + ", player), " + entityKey(resource) + ")";
+			return "game:getResource(resolvePlayer(" + num(resourcePlayer.getNum()) + ", player), " + entityRef("getResourceByName", resource) + ")";
 		}
 		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
 		{
 			CreatureID creature = reader.readCreature32();
-			return "hero:creatureCountInArmy(" + entityKey(creature) + ")";
+			return "hero:creatureCountInArmy(" + entityRef("getCreatureByName", creature) + ")";
 		}
 		case HotaScriptExpression::CURRENT_DIFFICULTY:
 			return "game:getDifficulty()";
 		case HotaScriptExpression::COMPARE_DIFFICULTY:
-			return "game:compareDifficulty(" + num(reader.readInt32()) + ")";
+			return "compareDifficulty(game, " + num(reader.readInt32()) + ")";
 		case HotaScriptExpression::CURRENT_DATE:
 			return "game:getCalendar():getCurrentDay()";
 		case HotaScriptExpression::HERO_EXPERIENCE:
@@ -905,7 +967,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		case HotaScriptExpression::HERO_PRIMARY_SKILL:
 		{
 			PrimarySkill skill(reader.readInt32());
-			return "hero:getPrimarySkill(" + entityKey(skill) + ")";
+			return "hero:getPrimarySkill(" + primarySkillRef(skill) + ")";
 		}
 		case HotaScriptExpression::RANDOM_NUMBER:
 		{
@@ -917,7 +979,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			reader.readSpell32(); // scroll spell slot, unused for the count
-			return "hero:ownedArtifacts(" + entityKey(artifact) + ")";
+			return "hero:ownedArtifacts(" + entityRef("getArtifactByName", artifact) + ")";
 		}
 		default:
 			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));

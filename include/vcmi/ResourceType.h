@@ -11,10 +11,11 @@
 #pragma once
 
 #include "Entity.h"
+#include "scripting/ApiTags.h"
 
 class GameResID;
 
-class DLL_LINKAGE ResourceType : public EntityT<GameResID>
+class DLL_LINKAGE ResourceType : public EntityT<GameResID>, public scripting::ApiRawPointer<ResourceType>
 {
 	virtual int getPrice() const = 0;
 };

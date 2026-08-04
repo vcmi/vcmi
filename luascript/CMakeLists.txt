@@ -36,6 +36,7 @@ set(lualib_SRCS
 		api/library/HeroClass.cpp
 		api/library/HeroType.cpp
 		api/library/Services.cpp
+		api/library/ResourceType.cpp
 		api/library/Skill.cpp
 		api/library/Spell.cpp
 		api/library/SpellSchool.cpp
@@ -88,6 +89,7 @@ set(lualib_HDRS
 		api/library/HeroClass.h
 		api/library/HeroType.h
 		api/library/Services.h
+		api/library/ResourceType.h
 		api/library/Skill.h
 		api/library/Spell.h
 		api/library/SpellSchool.h

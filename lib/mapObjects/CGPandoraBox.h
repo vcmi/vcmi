@@ -27,6 +27,8 @@ public:
 	/// Name of the map-script handler to run when a hero visits, replacing the default reward. Empty if none.
 	std::string heroVisitScriptHandler;
 
+	std::string getVisitScriptHandler() const override { return heroVisitScriptHandler; }
+
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;

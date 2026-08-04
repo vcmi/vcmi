@@ -86,10 +86,10 @@ function Map:onVisit(game, server, object, hero)
 		text = {append = {"question"}},
 		mode = 1,
 		images = {},
-		onYes = function() server:giveResource(player, 6, 100) end,
-		onNo  = function() server:giveResource(player, 6, 5) end,
+		onYes = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 100) end,
+		onNo  = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 5) end,
 	}
-	server:giveResource(player, 5, 1) -- sibling after the question; must run only after the answer
+	server:giveResource(player, LIBRARY:getResourceByName("gems"), 1) -- sibling after the question; must run only after the answer
 end
 
 return Map
@@ -113,7 +113,7 @@ function Map:onVisit(game, server, object, hero)
 	server:startCombat(hero, {
 		{10, "core:pikeman"}, {0, ""}, {0, ""}, {0, ""}, {0, ""}, {0, ""}, {0, ""}
 	})
-	server:giveResource(player, 6, 777) -- post-combat; must not run until the battle resolves
+	server:giveResource(player, LIBRARY:getResourceByName("gold"), 777) -- post-combat; must not run until the battle resolves
 end
 
 return Map
@@ -159,12 +159,15 @@ local Map = {}
 
 function Map:checkOwnsTown(game, server, object, hero)
 	local player = hero:getOwner()
-	server:giveResource(player, 6, game:playerOwnsTown(player, object:getInstanceName()) and 100 or 5)
+	local town = game:getObjectByName(object:getInstanceName())
+	local owns = town ~= nil and town:getOwner() == player
+	server:giveResource(player, LIBRARY:getResourceByName("gold"), owns and 100 or 5)
 end
 
 function Map:checkDefeatedMonster(game, server, object, hero)
 	local player = hero:getOwner()
-	server:giveResource(player, 6, game:playerDefeatedMonster(player, object:getInstanceName()) and 100 or 5)
+	local killed = game:playerDestroyedObject(player, object)
+	server:giveResource(player, LIBRARY:getResourceByName("gold"), killed and 100 or 5)
 end
 
 return Map

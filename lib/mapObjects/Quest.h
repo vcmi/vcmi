@@ -210,6 +210,8 @@ public:
 	// kept here for the cross-DLL client KeymasterPopup caller.
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
+	std::string getVisitScriptHandler() const override;
+
 	const IQuestSource * asQuestSource() const override { return this; }
 	const Quest * getActiveQuest() const override { return isEmpty() ? nullptr : &getQuest(); }
 	bool requiresQuestToPass() const override { return false; }

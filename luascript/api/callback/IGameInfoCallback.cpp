@@ -11,12 +11,16 @@
 
 #include "IGameInfoCallback.h"
 
+#include <vcmi/Faction.h>
+#include <vcmi/HeroType.h>
 #include <vcmi/Player.h>
+#include <vcmi/ResourceType.h>
 
 #include "../../LuaCallWrapper.h"
 
 #include "../adventure/HeroInstance.h"
 
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
@@ -44,11 +48,12 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"verbose",  "Pass true to log a warning when the object isn't found."}
 		}, {},
 		"Returns the map object by its identifier, or nil if not found.");
-	R.method<&GameCb::getResource>("getResource",
+	R.function<&IGameInfoCallbackProxy::getResource>("getResource",
 		{
-			{"player",   "Player color index whose treasury is queried."},
-			{"resource", "Resource JSON key (e.g. \"wood\", \"gold\")."}
-		}, {},
+			{"player",   "Player whose treasury is queried."},
+			{"resource", "Resource to read, as returned by Services:getResourceByName."}
+		},
+		{"Amount of that resource the player currently owns."},
 		"Returns the amount of the given resource owned by the player.");
 	R.function<&IGameInfoCallbackProxy::getCalendar>("getCalendar",
 		{"Calendar for the current in-game date."},
@@ -73,17 +78,14 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		{{"player", "Player color index to check."}},
 		{"True when that player is controlled by a human, false for an AI or an unused color."},
 		"Tells whether the given player is controlled by a human.");
-	R.function<&IGameInfoCallbackProxy::playerDefeated>("playerDefeated",
-		{{"player", "Player color index to check."}},
-		{"True when that player has been defeated and is out of the game."},
-		"Tells whether the given player has already lost the game.");
-	R.function<&IGameInfoCallbackProxy::playerStartingFaction>("playerStartingFaction",
-		{
-			{"player",  "Player color index to check."},
-			{"faction", "Town faction JSON key to compare against."}
-		},
-		{"True when the player began the map with the given town faction."},
-		"Tells whether the player's starting town faction matches the given one.");
+	R.function<&IGameInfoCallbackProxy::getPlayerStatus>("getPlayerStatus",
+		{{"player", "Player whose status is queried."}},
+		{"Current status; compare against ENUM.PlayerStatus."},
+		"Returns whether the player is still playing, has won, or has been defeated.");
+	R.function<&IGameInfoCallbackProxy::getPlayerFaction>("getPlayerFaction",
+		{{"player", "Player whose starting faction is queried."}},
+		{"The town faction the player began the map with, or nil when the player has none."},
+		"Returns the town faction a player started the map with.");
 	R.function<&IGameInfoCallbackProxy::wasQuestProposed>("wasQuestProposed",
 		{
 			{"target", "The quest source (seer hut / quest guard) to check."},
@@ -92,38 +94,17 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		{"True once the player has already been offered the object's active quest."},
 		"Tells whether a player has already seen the object's current quest proposed, so a script can show "
 		"the progression text instead of the proposal text on a repeat visit.");
-	R.function<&IGameInfoCallbackProxy::heroOwner>("heroOwner",
+	R.function<&IGameInfoCallbackProxy::getHeroByType>("getHeroByType",
+		{{"heroType", "Hero type to look for, as returned by Services:getHeroTypeByName."}},
+		{"The hero of that type currently on the map, or nil when no such hero exists."},
+		"Finds the hero of the given type placed on the map.");
+	R.function<&IGameInfoCallbackProxy::playerDestroyedObject>("playerDestroyedObject",
 		{
-			{"hero",   "Hero type JSON key to look for on the map."},
-			{"player", "Player color index to compare ownership against."}
+			{"player", "Player to check."},
+			{"target", "Map object to check, e.g. a wandering monster or a hero."}
 		},
-		{"True when a hero of that type is present on the map and owned by the given player."},
-		"Tells whether the hero of the given type is currently owned by the given player.");
-	R.function<&IGameInfoCallbackProxy::playerOwnsTown>("playerOwnsTown",
-		{
-			{"player",     "Player color index to check."},
-			{"objectName", "Instance name of the town, as resolved through the questObjects table."}
-		},
-		{"True when the named town exists and belongs to the given player."},
-		"Tells whether the given player owns the named town.");
-	R.function<&IGameInfoCallbackProxy::playerDefeatedMonster>("playerDefeatedMonster",
-		{
-			{"player",     "Player color index to check."},
-			{"objectName", "Instance name of the monster, as resolved through the questObjects table."}
-		},
-		{"True when the given player has destroyed the named monster."},
-		"Tells whether the given player has defeated the named wandering monster.");
-	R.function<&IGameInfoCallbackProxy::playerDefeatedHero>("playerDefeatedHero",
-		{
-			{"player",     "Player color index to check."},
-			{"objectName", "Instance name of the hero, as resolved through the questObjects table."}
-		},
-		{"True when the given player has destroyed the named hero."},
-		"Tells whether the given player has defeated the named hero.");
-	R.function<&IGameInfoCallbackProxy::compareDifficulty>("compareDifficulty",
-		{{"reference", "Difficulty level to compare against (0 = easiest)."}},
-		{"The current difficulty minus the reference: negative if easier, zero if equal, positive if harder."},
-		"Compares the current game difficulty against a reference level, returning their signed difference.");
+		{"True when that player destroyed the object."},
+		"Tells whether the given player destroyed the given map object.");
 	R.function<&IGameInfoCallbackProxy::getObjectByName>("getObjectByName",
 		{{"objectName", "Instance name of the object, as resolved through the questObjects table."}},
 		{"The map object with that instance name, or nil when the name is empty or unknown."},
@@ -156,16 +137,24 @@ bool IGameInfoCallbackProxy::playerIsHuman(const GameCb & object, PlayerColor pl
 	return state && state->isHuman();
 }
 
-bool IGameInfoCallbackProxy::playerDefeated(const GameCb & object, PlayerColor player)
+EPlayerStatus IGameInfoCallbackProxy::getPlayerStatus(const GameCb & object, PlayerColor player)
 {
-	return object.getPlayerStatus(player, false) == EPlayerStatus::LOSER;
+	return object.getPlayerStatus(player, false);
 }
 
-bool IGameInfoCallbackProxy::playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction)
+int IGameInfoCallbackProxy::getResource(const GameCb & object, PlayerColor player, const ResourceType & resource)
+{
+	return object.getResource(player, resource.getId());
+}
+
+const Faction * IGameInfoCallbackProxy::getPlayerFaction(const GameCb & object, PlayerColor player)
 {
 	const auto & players = object.getStartInfo()->playerInfos;
 	auto it = players.find(player);
-	return it != players.end() && it->second.castle == faction;
+	if(it == players.end() || !it->second.castle.hasValue())
+		return nullptr;
+
+	return it->second.castle.toEntity(LIBRARY);
 }
 
 bool IGameInfoCallbackProxy::wasQuestProposed(const GameCb & object, const CGObjectInstance & target, PlayerColor player)
@@ -175,39 +164,21 @@ bool IGameInfoCallbackProxy::wasQuestProposed(const GameCb & object, const CGObj
 	return activeQuest && activeQuest->isKnownTo(player);
 }
 
-bool IGameInfoCallbackProxy::heroOwner(const GameCb & object, HeroTypeID hero, PlayerColor player)
+const CGHeroInstance * IGameInfoCallbackProxy::getHeroByType(const GameCb & object, const HeroType & heroType)
 {
 	for(const auto & mapObject : object.gameState().getMap().objects)
 	{
 		const auto * heroObject = dynamic_cast<const CGHeroInstance *>(mapObject.get());
-		if(heroObject && heroObject->getHeroTypeID() == hero)
-			return heroObject->getOwner() == player;
+		if(heroObject && heroObject->getHeroTypeID() == heroType.getId())
+			return heroObject;
 	}
-	return false;
+	return nullptr;
 }
 
-bool IGameInfoCallbackProxy::playerOwnsTown(const GameCb & object, PlayerColor player, const std::string & objectName)
+bool IGameInfoCallbackProxy::playerDestroyedObject(const GameCb & object, PlayerColor player, const CGObjectInstance & target)
 {
-	const auto * town = dynamic_cast<const CGTownInstance *>(getObjectByName(object, objectName));
-	return town && town->getOwner() == player;
-}
-
-bool IGameInfoCallbackProxy::playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName)
-{
-	const CGObjectInstance * target = getObjectByName(object, objectName);
 	const auto * state = object.getPlayerState(player, false);
-	return target && state && state->destroyedObjects.count(target->id) != 0;
-}
-
-bool IGameInfoCallbackProxy::playerDefeatedHero(const GameCb & object, PlayerColor player, const std::string & objectName)
-{
-	// destroyedObjects is object-type agnostic; a defeated hero and a defeated monster are the same lookup
-	return playerDefeatedMonster(object, player, objectName);
-}
-
-int IGameInfoCallbackProxy::compareDifficulty(const GameCb & object, int reference)
-{
-	return static_cast<int>(object.getStartInfo()->difficulty) - reference;
+	return state && state->destroyedObjects.count(target.id) != 0;
 }
 
 const CGObjectInstance * IGameInfoCallbackProxy::getObjectByName(const GameCb & object, const std::string & objectName)

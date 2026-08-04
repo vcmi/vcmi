@@ -12,9 +12,16 @@
 #include "AdventureServer.h"
 
 #include "../../LuaCallWrapper.h"
+#include "../../LuaStack.h"
 
 #include "../LuaComponent.h"
 #include "../LuaMetaString.h"
+
+#include <vcmi/Artifact.h>
+#include <vcmi/Creature.h>
+#include <vcmi/ResourceType.h>
+#include <vcmi/Skill.h>
+#include <vcmi/spells/Spell.h>
 
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/constants/Enumerations.h"
@@ -50,9 +57,10 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		"Permanently removes a map object from the adventure map. The object disappears for every player; "
 		"if it was a town or a hero, ownership and garrison are lost as well. There is no undo.");
 	R.function<&AdventureServerProxy::finishQuestOrRemoveObject>("finishQuestOrRemoveObject",
-		{{"target", "The quest source that just finished its business."}}, {},
-		"Ends the current interaction with the given object. A seer hut's active quest is marked complete and "
-		"cleared, without removing the hut itself; a quest guard is removed from the map");
+		{{"target", "The quest source (seer hut / quest guard) that just finished its quest."}}, {},
+		"Ends the current quest of the given object. A seer hut's active quest is marked complete and cleared, "
+		"without removing the hut itself; a quest guard is removed from the map. Errors when the object is not "
+		"a quest source - use removeObject for plain events and pandoras.");
 	R.function<&AdventureServerProxy::markQuestProposed>("markQuestProposed",
 		{
 			{"target", "The quest source (seer hut / quest guard) to mark."},
@@ -87,10 +95,10 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 			{"amount", "Experience points to add. The hero levels up automatically if the total crosses a level threshold."}
 		}, {},
 		"Awards experience points to a hero, triggering any level-ups (and the level-up dialog for a human player) that result.");
-	R.method<&IGameEventCallback::giveResource>("giveResource",
+	R.function<&AdventureServerProxy::giveResource>("giveResource",
 		{
 			{"player",   "Player whose treasury changes."},
-			{"resource", "Resource to change, given as its JSON key (`wood`, `ore`, `mercury`, `sulfur`, `crystal`, `gems`, `gold`)."},
+			{"resource", "Resource to change, as returned by Services:getResourceByName."},
 			{"amount",   "How much to add. Use a negative number to take resources away; the treasury is clamped at zero and never goes negative."}
 		}, {},
 		"Adds or removes a single resource for one player.");
@@ -104,27 +112,27 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.function<&AdventureServerProxy::grantSpell>("grantSpell",
 		{
 			{"hero",  "Hero that learns the spell."},
-			{"spell", "Spell to teach, given as its JSON key."}
+			{"spell", "Spell to teach, as returned by Services:getSpellByName."}
 		}, {},
 		"Teaches a spell to a hero, writing it into the hero's spellbook. The hero needs a spellbook for the spell to be "
 		"usable in combat. Teaching a spell the hero already knows does nothing.");
 	R.function<&AdventureServerProxy::takeSpell>("takeSpell",
 		{
 			{"hero",  "Hero that forgets the spell."},
-			{"spell", "Spell to remove, given as its JSON key."}
+			{"spell", "Spell to remove, as returned by Services:getSpellByName."}
 		}, {},
 		"Removes a spell from a hero's spellbook. Does nothing if the hero did not know the spell.");
 	R.function<&AdventureServerProxy::grantPrimarySkill>("grantPrimarySkill",
 		{
 			{"hero",   "Hero whose skill changes."},
-			{"skill",  "Primary skill to change, given as its JSON key (`attack`, `defence`, `spellpower`, `knowledge`)."},
+			{"skill",  "Primary skill to change; use ENUM.PrimarySkill."},
 			{"amount", "How many points to add. Use a negative number to reduce the skill; it is clamped at zero and never goes negative."}
 		}, {},
 		"Permanently raises or lowers one of a hero's four primary skills.");
 	R.function<&AdventureServerProxy::grantSecondarySkill>("grantSecondarySkill",
 		{
 			{"hero",  "Hero that learns or improves the skill."},
-			{"skill", "Secondary skill to grant, given as its JSON key."},
+			{"skill", "Secondary skill to grant, as returned by Services:getSecondarySkillByName."},
 			{"level", "Mastery to move to: 1 = basic, 2 = advanced, 3 = expert."}
 		}, {},
 		"Teaches a secondary skill to a hero, or raises it to the given mastery. If the hero already knows the skill at an "
@@ -132,21 +140,21 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.function<&AdventureServerProxy::grantArtifact>("grantArtifact",
 		{
 			{"hero",     "Hero that receives the artifact."},
-			{"artifact", "Artifact to give, given as its JSON key."}
+			{"artifact", "Artifact to give, as returned by Services:getArtifactByName."}
 		}, {},
 		"Gives an artifact to a hero. It is equipped in a matching free slot, or placed in the backpack when no suitable "
 		"slot is free. The hero gains the artifact's bonuses only while it is equipped.");
 	R.function<&AdventureServerProxy::grantScroll>("grantScroll",
 		{
 			{"hero",  "Hero that receives the scroll."},
-			{"spell", "Spell written on the scroll, given as its JSON key."}
+			{"spell", "Spell written on the scroll, as returned by Services:getSpellByName."}
 		}, {},
 		"Gives a spell scroll to a hero. While the scroll is carried the hero may cast that spell even without a spellbook. "
 		"The scroll occupies an artifact slot like any other artifact.");
 	R.function<&AdventureServerProxy::takeArtifact>("takeArtifact",
 		{
 			{"hero",     "Hero that loses the artifact."},
-			{"artifact", "Artifact to remove, given as its JSON key."}
+			{"artifact", "Artifact to remove, as returned by Services:getArtifactByName."}
 		}, {},
 		"Removes an artifact from a hero, whether it is equipped or sitting in the backpack. If the artifact is a part of an "
 		"assembled combination artifact, the combination is taken apart first and the remaining parts stay with the hero. "
@@ -154,28 +162,28 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 	R.function<&AdventureServerProxy::grantCreatures>("grantCreatures",
 		{
 			{"hero",     "Hero whose army grows."},
-			{"creature", "Creature to add, given as its JSON key."},
+			{"creature", "Creature to add, as returned by Services:getCreatureByName."},
 			{"count",    "How many creatures to add. They join an existing stack of the same creature, or take a new army slot; if the army is full of other creatures the new ones are lost."}
 		}, {},
 		"Adds creatures to a hero's army.");
 	R.function<&AdventureServerProxy::takeCreatures>("takeCreatures",
 		{
 			{"hero",     "Hero whose army shrinks."},
-			{"creature", "Creature to remove, given as its JSON key."},
+			{"creature", "Creature to remove, as returned by Services:getCreatureByName."},
 			{"count",    "How many to remove. If the hero has fewer, all of them are removed. Emptied stacks disappear."}
 		}, {},
 		"Removes creatures of one type from a hero's army.");
 	R.function<&AdventureServerProxy::grantWarMachine>("grantWarMachine",
 		{
 			{"hero",    "Hero that receives the war machine."},
-			{"machine", "War machine to give, given as its artifact JSON key (`ballista`, `ammoCart`, `firstAidTent`)."}
+			{"machine", "War machine to give, as returned by Services:getArtifactByName."}
 		}, {},
 		"Gives a war machine to a hero, placing it in its dedicated equipment slot. Has no effect if the hero already "
 		"carries a war machine in that slot.");
 	R.function<&AdventureServerProxy::takeWarMachine>("takeWarMachine",
 		{
 			{"hero",    "Hero that loses the war machine."},
-			{"machine", "War machine to remove, given as its artifact JSON key."}
+			{"machine", "War machine to remove, as returned by Services:getArtifactByName."}
 		}, {},
 		"Removes a war machine from a hero. Does nothing if the hero did not carry it.");
 	R.function<&AdventureServerProxy::grantSpellbook>("grantSpellbook",
@@ -274,7 +282,7 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 {
 	if(dynamic_cast<const QuestGate *>(&target))
 	{
-		// desired behavior not yet decided; refuse rather than guess at removing a passage gate
+		// TODO: decide what finishing a quest means for a passage gate; refuse rather than guess
 		logScript->warn("finishQuestOrRemoveObject: Quest Gate '%s' is not yet supported, ignoring", target.getObjectName());
 		return;
 	}
@@ -289,7 +297,8 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 		object.setObjPropertyValue(target.id, ObjProperty::SEERHUT_COMPLETE, true);
 		return;
 	}
-	object.removeObject(&target, target.getOwner());
+
+	throw LuaApiException("finishQuestOrRemoveObject: object '" + target.getObjectName() + "' is not a quest source");
 }
 
 void AdventureServerProxy::markQuestProposed(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player)
@@ -328,14 +337,19 @@ void AdventureServerProxy::setOwner(IGameEventCallback & object, const CGObjectI
 	object.setOwner(&target, owner);
 }
 
-void AdventureServerProxy::grantSpell(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell)
+void AdventureServerProxy::giveResource(IGameEventCallback & object, PlayerColor player, const ResourceType & resource, int amount)
 {
-	object.changeSpells(&hero, true, {spell});
+	object.giveResource(player, resource.getId(), amount);
 }
 
-void AdventureServerProxy::takeSpell(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell)
+void AdventureServerProxy::grantSpell(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell)
 {
-	object.changeSpells(&hero, false, {spell});
+	object.changeSpells(&hero, true, {spell.getId()});
+}
+
+void AdventureServerProxy::takeSpell(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell)
+{
+	object.changeSpells(&hero, false, {spell.getId()});
 }
 
 void AdventureServerProxy::grantPrimarySkill(IGameEventCallback & object, const CGHeroInstance & hero, PrimarySkill skill, int amount)
@@ -343,19 +357,19 @@ void AdventureServerProxy::grantPrimarySkill(IGameEventCallback & object, const 
 	object.changePrimSkill(&hero, skill, amount, ChangeValueMode::RELATIVE);
 }
 
-void AdventureServerProxy::grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, SecondarySkill skill, int level)
+void AdventureServerProxy::grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, const Skill & skill, int level)
 {
-	object.changeSecSkill(&hero, skill, level, ChangeValueMode::RELATIVE);
+	object.changeSecSkill(&hero, skill.getId(), level, ChangeValueMode::RELATIVE);
 }
 
-void AdventureServerProxy::grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact)
+void AdventureServerProxy::grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & artifact)
 {
-	object.giveHeroNewArtifact(&hero, artifact, ArtifactPosition::FIRST_AVAILABLE);
+	object.giveHeroNewArtifact(&hero, artifact.getId(), ArtifactPosition::FIRST_AVAILABLE);
 }
 
-void AdventureServerProxy::grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell)
+void AdventureServerProxy::grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, const spells::Spell & spell)
 {
-	object.giveHeroNewScroll(&hero, spell, ArtifactPosition::FIRST_AVAILABLE);
+	object.giveHeroNewScroll(&hero, spell.getId(), ArtifactPosition::FIRST_AVAILABLE);
 }
 
 namespace
@@ -378,31 +392,31 @@ void removeHeroArtifact(IGameEventCallback & object, const CGHeroInstance & hero
 }
 }
 
-void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact)
+void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & artifact)
 {
-	removeHeroArtifact(object, hero, artifact);
+	removeHeroArtifact(object, hero, artifact.getId());
 }
 
-void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count)
+void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
 	CCreatureSet army;
-	army.addToSlot(army.getFreeSlot(), creature, count);
+	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
 	object.giveCreatures(&hero, army);
 }
 
-void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count)
+void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
-	object.takeCreatures(hero.id, {CStackBasicDescriptor(creature, count)});
+	object.takeCreatures(hero.id, {CStackBasicDescriptor(creature.getId(), count)});
 }
 
-void AdventureServerProxy::grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine)
+void AdventureServerProxy::grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & machine)
 {
-	object.giveHeroNewArtifact(&hero, machine, ArtifactPosition::FIRST_AVAILABLE);
+	object.giveHeroNewArtifact(&hero, machine.getId(), ArtifactPosition::FIRST_AVAILABLE);
 }
 
-void AdventureServerProxy::takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine)
+void AdventureServerProxy::takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & machine)
 {
-	removeHeroArtifact(object, hero, machine);
+	removeHeroArtifact(object, hero, machine.getId());
 }
 
 void AdventureServerProxy::grantSpellbook(IGameEventCallback & object, const CGHeroInstance & hero)

@@ -383,6 +383,15 @@ void Quest::serializeJson(JsonSerializeFormat & handler, const std::string & fie
 
 }
 
+std::string QuestSource::getVisitScriptHandler() const
+{
+	const Quest * activeQuest = getActiveQuest();
+	if(activeQuest && activeQuest->missionKind == EQuestMission::HOTA_SCRIPTED)
+		return activeQuest->scriptHandler;
+
+	return {};
+}
+
 bool QuestSource::checkQuest(const CGHeroInstance* h) const
 {
 	return getQuest().checkQuest(h);
