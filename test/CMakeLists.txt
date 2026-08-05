@@ -28,6 +28,7 @@ set(test_SRCS
 		combatScripts/CombatScriptHandlerTest.cpp
 		combatScripts/CombatEventDispatchTest.cpp
 		combatScripts/AttachCombatScriptTest.cpp
+		combatScripts/TransmutationScriptTest.cpp
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp

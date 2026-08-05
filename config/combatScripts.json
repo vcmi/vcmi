@@ -1,2 +1,6 @@
 {
+	"transmutation" : {
+		"type" : "lua",
+		"script" : "transmutation"
+	}
 }

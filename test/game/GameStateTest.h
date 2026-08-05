@@ -75,6 +75,7 @@ public:
 	}
 
 	// Unused battle-specific overrides - implement as needed in derived classes
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int) override { return false; }
 	void apply(BattleLogMessage &) override {}
 	void apply(BattleStackMoved &) override {}
 	void apply(BattleUnitsChanged &) override {}

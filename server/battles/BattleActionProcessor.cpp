@@ -1427,21 +1427,20 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 	if(!attacker->alive()) // can be already dead, e.g. from retaliation
 		return;
 
-	// attacker's own combat event (e.g. HotA runes) must fire even if the attack wiped out the defender
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
-
-	if(!defender->alive())
-		return;
-
-	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
-
-	if(!defender->alive())
+	if(defender->alive())
 	{
-		//don't try death stare or acid breath on dead stack (crash!)
-		return;
+		attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
+		processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
 	}
 
+	if(defender->alive())
+		handleAfterAttackAbilities(battle, ranged, attacker, defender);
+
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
+}
+
+void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+{
 	if(attacker->hasBonusOfType(BonusType::DEATH_STARE))
 		handleDeathStare(battle, ranged, attacker, defender);
 

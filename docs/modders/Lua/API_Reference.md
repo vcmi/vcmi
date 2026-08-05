@@ -103,6 +103,7 @@ These classes represent objects present during combat. Read-only by scripts, can
 - `:getDefense()`
 - `:isAlive()`
 - `:isClone()`
+- `:isLiving()`
 - `:isSummoned()`
 - `:getOwner()`
 - `:getSlot()`

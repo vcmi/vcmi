@@ -194,7 +194,7 @@ Parameters:
 Functions:
 
 - `onBeforeAttack` - called before `unit` attacks `other`
-- `onAfterAttack` - called after `unit` attacked `other`
+- `onAfterAttack` - called after `unit` attacked `other` and every ability triggered by that attack has resolved. Fires even if the attack killed `other`, so a script may safely replace or remove it
 - `onBeforeAttacked` - called before `unit` is attacked by `other`
 - `onAfterAttacked` - called after `unit` was attacked by `other`
 - `onWait` - called when `unit` waits
@@ -202,3 +202,10 @@ Functions:
 - `onBeforeMove` - called before `unit` starts movement
 - `onAfterMove` - called after `unit` ends movement
 - `onUnitSpellcast` - called after `unit` casts a spell
+
+#### Built-in scripts
+
+- `transmutation` - replaces the attacked stack with a stack of another creature, as the WoG werewolf ability does. Parameters:
+    - `chance` - percentage chance to trigger on each attack
+    - `creature` - creature the victim turns into. Defaults to the attacker's own creature
+    - `transmuteBy` - `"health"` keeps the total health of the victim, `"count"` keeps its creature count

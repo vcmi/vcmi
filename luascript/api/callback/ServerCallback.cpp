@@ -149,11 +149,36 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		},
 		{"integer", "Random integer in [low, high]."},
 		"Returns a server-side random integer in the inclusive range [low, high].");
+	R.function<&ServerCallbackProxy::rollCombatAbility>("rollCombatAbility",
+		{
+			{"battle",           "Battle the acting unit fights in."},
+			{"actor",            "Unit whose ability is being rolled."},
+			{"percentageChance", "Chance to succeed, in percent."}
+		},
+		{"True if the ability triggers."},
+		"Rolls a chance-based combat ability. Use this rather than `rngInt` for abilities that "
+		"trigger with a percentage chance - it draws from the per-army biased sequence");
+	R.function<&ServerCallbackProxy::refreshBattleUnits>("refreshBattleUnits",
+		{{"battle", "Battle whose units were changed."}}, {},
+		"Makes the client play back pending unit changes. Needed after adding or removing units "
+		"outside of an attack, which otherwise produce no animation.");
 }
 
 bool ServerCallbackProxy::describeChanges(ServerCallback & object)
 {
 	return object.describeChanges();
+}
+
+bool ServerCallbackProxy::rollCombatAbility(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance)
+{
+	return object.rollCombatAbility(battle, actor, percentageChance);
+}
+
+void ServerCallbackProxy::refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle)
+{
+	StacksInjured pack;
+	pack.battleID = battle.getBattle()->getBattleID();
+	object.apply(pack);
 }
 
 void ServerCallbackProxy::removeUnitBonuses(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit, const BonusList & bonusList)

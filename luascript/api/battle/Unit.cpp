@@ -64,6 +64,8 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"True if the unit is absolutely immune to the given spell.");
 	R.method<&Unit::isSummoned>("isSummoned", {},
 		"True if the stack was summoned during battle (e.g. by Summon Elementals).");
+	R.method<&ACreature::isLiving, Unit>("isLiving", {},
+		"True if the stack is a living creature - not undead, not a golem-like non-living unit.");
 	R.method<&IUnitInfo::unitOwner, Unit>("getOwner", {},
 		"Returns the player color controlling this unit.");
 	R.method<&IUnitInfo::unitSlot, Unit>("getSlot", {},

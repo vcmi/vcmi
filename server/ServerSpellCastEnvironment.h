@@ -23,6 +23,7 @@ public:
 	bool describeChanges() const override;
 
 	vstd::RNG * getRNG() override;
+	bool rollCombatAbility(const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance) override;
 
 	void apply(CPackForClient & pack) override;
 
