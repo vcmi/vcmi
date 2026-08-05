@@ -2,5 +2,9 @@
 	"transmutation" : {
 		"type" : "lua",
 		"script" : "transmutation"
+	},
+	"summonGuardians" : {
+		"type" : "lua",
+		"script" : "summonGuardians"
 	}
 }

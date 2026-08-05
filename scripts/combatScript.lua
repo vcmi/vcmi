@@ -48,4 +48,8 @@ end
 function Script:onUnitSpellcast(server, battle, unit, other)
 end
 
+--- Called once for every unit present when the battle starts, after tactics are over.
+function Script:onBattleStart(server, battle, unit, other)
+end
+
 return Script

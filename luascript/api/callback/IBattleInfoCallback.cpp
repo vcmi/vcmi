@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "IBattleInfoCallback.h"
+#include <vcmi/Creature.h>
 #include <vcmi/Entity.h>
 
 #include "../Enums.h"
@@ -54,6 +55,16 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"hex",  "Hex to test for reachability."}
 		}, {},
 		"True if the given hex is reachable by the given unit either on current turn or on any future turns.");
+	R.function<&IBattleInfoCallbackProxy::isAccessibleForNewUnit>("isAccessibleForNewUnit",
+		{
+			{"hex",      "Hex the unit would be placed on. For a double-wide creature this is its front hex."},
+			{"creature", "Creature that would be placed there."},
+			{"side",     "Battle side the unit would belong to, which decides where its second hex goes."}
+		}, {},
+		"True if a unit of the given creature could be placed on the given hex. Use before summoning "
+		"a unit; unlike `isAccessibleForUnit` it needs no existing unit to ask about.");
+	R.function<&IBattleInfoCallbackProxy::getFieldWidth>("getFieldWidth", {},
+		"Returns the number of hex columns on the battlefield, including the two edge columns that units cannot stand on.");
 	R.function<&IBattleInfoCallbackProxy::hasPenaltyOnLine>("hasPenaltyOnLine",
 		{
 			{"from",      "Origin hex of the ranged attack."},
@@ -108,6 +119,19 @@ bool IBattleInfoCallbackProxy::isAccessibleForUnit(const IBattleInfoCallback & o
 	if(!cb)
 		return false;
 	return cb->getAccessibility(&unit).accessible(hex, &unit);
+}
+
+bool IBattleInfoCallbackProxy::isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
+	if(!cb)
+		return false;
+	return cb->getAccessibility().accessible(hex, creature.isDoubleWide(), side);
+}
+
+int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
+{
+	return GameConstants::BFIELD_WIDTH;
 }
 
 bool IBattleInfoCallbackProxy::hasPenaltyOnLine(const IBattleInfoCallback & object, BattleHex from, BattleHex dest, bool checkWall, bool checkMoat)

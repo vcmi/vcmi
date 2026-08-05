@@ -91,6 +91,8 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the initial number of creatures this stack had at battle start.");
 	R.function<&UnitProxy::getHexes>("getHexes", {},
 		"Returns the list of hexes currently occupied by the unit.");
+	R.function<&UnitProxy::getSurroundingHexes>("getSurroundingHexes", {},
+		"Returns the hexes adjacent to the unit - six for a single-hex unit, eight for a double-wide one.");
 	R.function<&UnitProxy::copy>("copy", {},
 		"Returns a copy of the unit's state allowing copying or changing this unit via server calls.");
 	R.method<&Unit::creatureLevel>("creatureLevel", {},
@@ -107,6 +109,11 @@ const Creature * UnitProxy::getCreature(const Unit & unit)
 BattleHexArray UnitProxy::getHexes(const Unit & unit)
 {
 	return unit.getHexes();
+}
+
+BattleHexArray UnitProxy::getSurroundingHexes(const Unit & unit)
+{
+	return unit.getSurroundingHexes();
 }
 
 bool UnitProxy::hasAbsoluteImmunity(const Unit & unit, const spells::Spell & spell)

@@ -202,6 +202,7 @@ Functions:
 - `onBeforeMove` - called before `unit` starts movement
 - `onAfterMove` - called after `unit` ends movement
 - `onUnitSpellcast` - called after `unit` casts a spell
+- `onBattleStart` - called once for every unit present when the battle starts, after tactics are over. `other` is nil
 
 #### Built-in scripts
 
@@ -209,3 +210,6 @@ Functions:
     - `chance` - percentage chance to trigger on each attack
     - `creature` - creature the victim turns into. Defaults to the attacker's own creature
     - `transmuteBy` - `"health"` keeps the total health of the victim, `"count"` keeps its creature count
+- `summonGuardians` - surrounds its bearer with summoned guardians when the battle starts. Parameters:
+    - `creature` - creature to summon as guardian
+    - `percentage` - size of each guardian stack, in percent of the guarded stack

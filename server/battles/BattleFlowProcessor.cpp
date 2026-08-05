@@ -236,6 +236,7 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 	{
 		trySummonGuardians(battle, stack);
 		stackEnchantedTrigger(battle, stack);
+		owner->processBattleEventTriggers(battle, CombatEventType::BATTLE_START, stack, nullptr);
 	}
 
 	castOpeningSpells(battle);
