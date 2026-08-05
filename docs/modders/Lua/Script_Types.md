@@ -174,7 +174,7 @@ VCMI guarantees the following:
 
 - every event is delivered to every script attached to the unit it happened to. Events that a script does not implement resolve to the no-op inherited from `combatScript`
 - `eventParameters` stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
-- nesting is limited: changes made by a script may cause further combat events, but past a small depth further triggers are skipped
+- a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by unit actions
 
 #### Available functions
 

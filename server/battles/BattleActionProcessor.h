@@ -90,9 +90,6 @@ class BattleActionProcessor : boost::noncopyable
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
 	void removeBonuses(const CBattleInfoCallback & battle, const CStack * stack, BonusList bonuses);
 
-	/// Depth of nested combat event triggers - effects fired by a trigger can cause further triggers
-	int combatEventDepth = 0;
-
 	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary);
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);

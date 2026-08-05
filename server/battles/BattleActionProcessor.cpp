@@ -16,7 +16,6 @@
 
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
-#include "../../lib/ScopeGuard.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -1758,18 +1757,9 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 
 void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
 {
-	// effects triggered here can cause further combat events, e.g. a script that damages a unit
-	static constexpr int maxCombatEventDepth = 5;
-
-	if (combatEventDepth >= maxCombatEventDepth)
-	{
-		logGlobal->warn("Combat event trigger recursion limit reached, skipping event %d", static_cast<int>(event));
-		return;
-	}
-
-	combatEventDepth += 1;
-	auto onExit = vstd::makeScopeGuard([this](){ combatEventDepth -= 1; });
-
+	// Combat events are only fired from battle actions, and neither the script API nor the spell
+	// cast below can start one - both only emit netpacks. Adding a binding that re-enters this
+	// class (making a unit attack or move) would make this recursive and need a depth guard.
 	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
 	for (const auto & bonus : *bonuses)
 	{
