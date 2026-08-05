@@ -175,6 +175,7 @@ if(ENABLE_NULLKILLER2_AI)
 
 	list(APPEND test_HEADERS
 		nullkiller2/Nulkiller2TestUtils.h
+		nullkiller2/NullkillerTest.h
 	)
 endif()
 
