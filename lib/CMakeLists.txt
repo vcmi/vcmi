@@ -295,6 +295,8 @@ set(lib_MAIN_SRCS
 	spells/adventure/TownPortalEffect.cpp
 	spells/adventure/ViewWorldEffect.cpp
 
+	combatScripts/CombatScriptHandler.cpp
+
 	spells/effects/Effect.cpp
 	spells/effects/Effects.cpp
 	spells/effects/LocationEffect.cpp
@@ -766,6 +768,10 @@ set(lib_MAIN_HEADERS
 	spells/adventure/SummonBoatEffect.h
 	spells/adventure/TownPortalEffect.h
 	spells/adventure/ViewWorldEffect.h
+
+	combatScripts/CombatScriptHandler.h
+	combatScripts/CombatScriptService.h
+	combatScripts/ICombatEventScript.h
 
 	spells/effects/Effect.h
 	spells/effects/Effects.h

@@ -339,6 +339,20 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			}
 			break;
 		}
+		case BonusType::COMBAT_EVENT_TRIGGER:
+		{
+			var = BonusParameters(BonusParametersCombatScript());
+			auto & loadedData = result->toCustom<BonusParametersCombatScript>();
+
+			loadedData.eventParameters = value["eventParameters"];
+
+			// json built by a script is scoped to the whole game, so scripts can refer to any mod
+			LIBRARY->identifiers()->requestIdentifier( "combatScript", value["eventScript"], [&loadedData](int32_t identifier)
+			{
+				loadedData.eventScript = CombatScriptID(identifier);
+			});
+			break;
+		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}

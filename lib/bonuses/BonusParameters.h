@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../json/JsonNode.h"
 #include "../serializer/Serializeable.h"
 
 #include "Bonus.h"
@@ -54,10 +55,26 @@ struct BonusParametersOnCombatEvent
 	}
 };
 
+struct BonusParametersCombatScript
+{
+	CombatScriptID eventScript;
+	/// Read-only payload that initializes the script on every call. Scripts that need mutable
+	/// state must track it themselves, e.g. via a separate bonus.
+	JsonNode eventParameters;
+
+	template <class H>
+	void serialize(H& h)
+	{
+		h & eventScript;
+		h & eventParameters;
+	}
+};
+
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent>;
+	// new alternatives must be appended - variant index is part of the save format
+	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent, BonusParametersCombatScript>;
 
 	BonusParameters() = default;
 

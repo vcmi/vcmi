@@ -20,6 +20,7 @@ class LuaSpellEffectFactory;
 namespace scripting
 {
 
+class LuaCombatScriptFactory;
 class LuaScriptInstance;
 
 /// Top-level Lua scripting service; owns script factories and creates script pools.
@@ -29,7 +30,7 @@ public:
 	LuaModule();
 	~LuaModule();
 
-	void installScripting(spells::effects::SpellEffectService * spellEffects) override;
+	void installScripting(spells::effects::SpellEffectService * spellEffects, CombatScriptService * combatScripts) override;
 
 	std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const override;
 
@@ -42,5 +43,6 @@ private:
 	using ScriptMap = std::map<std::string, ScriptPtr>;
 
 	std::shared_ptr<spells::effects::LuaSpellEffectFactory> luaSpellEffects;
+	std::shared_ptr<LuaCombatScriptFactory> luaCombatScripts;
 };
 }

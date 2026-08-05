@@ -25,6 +25,10 @@ set(test_SRCS
 
 		bonus/BonusSystemTest.cpp
 
+		combatScripts/CombatScriptHandlerTest.cpp
+		combatScripts/CombatEventDispatchTest.cpp
+		combatScripts/AttachCombatScriptTest.cpp
+
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/CFactionTest.cpp

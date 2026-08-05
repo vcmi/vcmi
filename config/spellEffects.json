@@ -247,6 +247,22 @@
 			"additionalProperties" : false
 		}
 	},
+	"attachCombatScript" : {
+		"type" : "lua",
+		"script" : "attachCombatScript",
+		"patches" : [],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"eventScript" : { "type" : "string" },
+				"eventParameters" : { "type" : "object" }
+			},
+			"additionalProperties" : false
+		}
+	},
 	"timed" : {
 		"type" : "lua",
 		"script" : "timed",

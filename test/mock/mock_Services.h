@@ -34,6 +34,7 @@ public:
 
 	MOCK_CONST_METHOD0(spellEffects, const spells::effects::SpellEffectService *());
 	MOCK_CONST_METHOD0(spellSchools, const spells::SchoolService *());
+	MOCK_CONST_METHOD0(combatScripts, const CombatScriptService *());
 };
 
 

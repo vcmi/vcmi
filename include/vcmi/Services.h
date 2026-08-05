@@ -24,6 +24,7 @@ class JsonNode;
 class BattleFieldService;
 class ObstacleService;
 class IGameSettings;
+class CombatScriptService;
 
 namespace spells
 {
@@ -60,4 +61,5 @@ public:
 	virtual const IGameSettings * engineSettings() const = 0;
 	virtual const spells::effects::SpellEffectService * spellEffects() const = 0;
 	virtual const spells::SchoolService * spellSchools() const = 0;
+	virtual const CombatScriptService * combatScripts() const = 0;
 };

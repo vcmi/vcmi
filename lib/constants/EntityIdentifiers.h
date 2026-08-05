@@ -1069,6 +1069,14 @@ public:
 	static const SpellEffectID NONE;
 };
 
+class DLL_LINKAGE CombatScriptID : public StaticIdentifier<CombatScriptID>
+{
+public:
+	using StaticIdentifier<CombatScriptID>::StaticIdentifier;
+
+	static const CombatScriptID NONE;
+};
+
 
 class GameResIDBase : public IdentifierBase
 {

@@ -1,0 +1,6 @@
+{
+	"testSpikes" : {
+		"type" : "lua",
+		"script" : "testSpikes"
+	}
+}

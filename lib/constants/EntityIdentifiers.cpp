@@ -80,6 +80,7 @@ const SpellSchool SpellSchool::EARTH(2);
 const SpellSchool SpellSchool::WATER(3);
 
 const SpellEffectID SpellEffectID::NONE(-1);
+const CombatScriptID CombatScriptID::NONE(-1);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);

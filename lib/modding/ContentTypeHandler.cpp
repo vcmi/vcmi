@@ -43,6 +43,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../spells/SpellSchoolHandler.h"
 #include "../spells/effects/SpellEffectHandler.h"
+#include "../combatScripts/CombatScriptHandler.h"
 #include "../GameLibrary.h"
 
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
@@ -256,6 +257,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
 	handlers.insert(std::make_pair("spellEffects", ContentTypeHandler(LIBRARY->spellEffectHandler.get(), "SpellEffect")));
+	handlers.insert(std::make_pair("combatScripts", ContentTypeHandler(LIBRARY->combatScriptHandler.get(), "CombatScript")));
 	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));

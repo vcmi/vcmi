@@ -12,6 +12,7 @@
 #include <vcmi/Services.h>
 
 class CConsoleHandler;
+class CombatScriptHandler;
 class CArtHandler;
 class CHeroHandler;
 class CHeroClassHandler;
@@ -74,6 +75,7 @@ public:
 	const IGameSettings * engineSettings() const override;
 	const spells::effects::SpellEffectService * spellEffects() const override;
 	const spells::SchoolService * spellSchools() const override;
+	const CombatScriptService * combatScripts() const override;
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 
@@ -85,6 +87,7 @@ public:
 	std::unique_ptr<CSpellHandler> spellh;
 	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
 	std::unique_ptr<spells::effects::SpellEffectHandler> spellEffectHandler;
+	std::unique_ptr<CombatScriptHandler> combatScriptHandler;
 	std::unique_ptr<CSkillHandler> skillh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;

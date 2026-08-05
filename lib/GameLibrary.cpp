@@ -43,6 +43,7 @@
 #include "mapping/CMapEditManager.h"
 #include "spells/CSpellHandler.h"
 #include "spells/effects/SpellEffectHandler.h"
+#include "combatScripts/CombatScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "GameSettings.h"
@@ -111,6 +112,11 @@ const CIdentifierStorage * GameLibrary::identifiers() const
 const spells::effects::SpellEffectService * GameLibrary::spellEffects() const
 {
 	return spellEffectHandler.get();
+}
+
+const CombatScriptService * GameLibrary::combatScripts() const
+{
+	return combatScriptHandler.get();
 }
 
 const BattleFieldService * GameLibrary::battlefields() const
@@ -230,6 +236,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(spellEffectHandler);
+	createHandler(combatScriptHandler);
 	createHandler(skillh);
 	createHandler(terviewh);
 	createHandler(campaignRegions);
@@ -239,7 +246,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(mapLayerHandler);
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
-	scriptHandler->installScripting(spellEffectHandler.get());
+	scriptHandler->installScripting(spellEffectHandler.get(), combatScriptHandler.get());
 	modh->load();
 	modh->afterLoad();
 

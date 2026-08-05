@@ -83,6 +83,33 @@ Example:
 }
 ```
 
+### COMBAT_EVENT_TRIGGER
+
+Runs a [combat script](../Lua/Script_Types.md#combat-script) when an event happens with affected unit.
+
+Unlike `ON_COMBAT_EVENT` this bonus has no subtype - the script is called on every combat event,
+and reacts only to those it implements. Prefer this bonus over `ON_COMBAT_EVENT` for anything
+that predefined bonus or spell actions can not express.
+
+- `eventScript`: identifier of combat script to run
+- `eventParameters`: optional, arbitrary json used to initialize the script on every call, the same
+  way spell effect parameters initialize a spell effect script. Read-only - a script that needs to
+  remember something between events must store it itself, for example in a bonus of its own.
+
+Example:
+
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "spikes",
+        "eventParameters" : {
+            "damage" : 10
+        }
+    }
+}
+```
+
 ## Player bonuses
 
 Intended to be setup as global effect, AI cheat etc.

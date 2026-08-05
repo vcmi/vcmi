@@ -15,12 +15,16 @@
 #include "../CGameHandler.h"
 
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/bonuses/BonusParameters.h"
+#include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -1080,7 +1084,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	// only primary target
 	if(defender && defender->alive())
-		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
+		applyBattleEffects(battle, bat,	attackerState, fireShield, defender, healInfo, distance, false);
 
 	//multiple-hex normal attack
 	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
@@ -1755,6 +1759,18 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 
 void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
 {
+	// effects triggered here can cause further combat events, e.g. a script that damages a unit
+	static constexpr int maxCombatEventDepth = 5;
+
+	if (combatEventDepth >= maxCombatEventDepth)
+	{
+		logGlobal->warn("Combat event trigger recursion limit reached, skipping event %d", static_cast<int>(event));
+		return;
+	}
+
+	combatEventDepth += 1;
+	auto onExit = vstd::makeScopeGuard([this](){ combatEventDepth -= 1; });
+
 	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
 	for (const auto & bonus : *bonuses)
 	{
@@ -1796,5 +1812,20 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 			}
 		}
 
+	}
+
+	// scripts subscribe to every event and no-op on those they do not implement, so no subtype here
+	for (const auto & bonus : *target->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	{
+		if (!bonus->parameters)
+			continue;
+
+		const auto & parameters = bonus->parameters->toCustom<BonusParametersCombatScript>();
+		auto script = LIBRARY->combatScripts()->get(parameters.eventScript);
+
+		if (!script)
+			continue; // mod providing the script is gone
+
+		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters.eventParameters);
 	}
 }

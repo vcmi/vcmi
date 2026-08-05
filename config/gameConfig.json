@@ -107,6 +107,10 @@
 	[
 		"config/spellEffects.json"
 	],
+	"combatScripts" :
+	[
+		"config/combatScripts.json"
+	],
 	"skills" :
 	[
 		"config/skills.json"

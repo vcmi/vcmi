@@ -1,0 +1,26 @@
+{
+	// Exercises the attachCombatScript granter: grants a COMBAT_EVENT_TRIGGER bonus
+	// running the testSpikes combat script on every target.
+	"testSpikes" : {
+		"targetType" : "CREATURE",
+		"animation" : {
+			"affect" : [ "C13SPE0" ]
+		},
+		"levels" : {
+			"base" : {
+				"range" : "0",
+				"targetModifier" : { "smart" : true },
+				"effects" : {
+					"attachSpikes" : {
+						"type" : "attachCombatScript",
+						"eventScript" : "testSpikes",
+						"eventParameters" : { "damage" : 10 }
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive" : true
+		}
+	}
+}

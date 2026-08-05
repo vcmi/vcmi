@@ -21,6 +21,8 @@ namespace spells::effects
     class SpellEffectService;
 }
 
+class CombatScriptService;
+
 namespace scripting
 {
 
@@ -56,7 +58,7 @@ class DLL_LINKAGE Service
 public:
 	virtual ~Service() = default;
 
-	virtual void installScripting(spells::effects::SpellEffectService * spellEffects) = 0;
+	virtual void installScripting(spells::effects::SpellEffectService * spellEffects, CombatScriptService * combatScripts) = 0;
 
 	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
 
