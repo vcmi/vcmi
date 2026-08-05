@@ -12,11 +12,11 @@
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/AIUtility.h"
 
-#include "quest/QuestTest.h"
+#include "nullkiller2/NullkillerTest.h"
 
 #include "lib/CPlayerState.h"
-#include "lib/callback/CCallback.h"
 #include "lib/gameState/CGameState.h"
+#include "lib/gameState/QuestInfo.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapObjects/Quest.h"
 
@@ -41,14 +41,7 @@ TinyH3M::TinyH3MBuilder makeQuestlessSeerMap()
 	return builder;
 }
 
-class Nullkiller2_AIUtility : public QuestTest
-{
-protected:
-	std::shared_ptr<CCallback> makeCallback() const
-	{
-		return std::make_shared<CCallback>(gameState, std::optional<PlayerColor>{PLAYER}, nullptr);
-	}
-};
+class Nullkiller2_AIUtility : public NullkillerTest {};
 }
 
 TEST_F(Nullkiller2_AIUtility, trackedSeerWithoutActiveQuestIsNotVisitable)
@@ -60,9 +53,9 @@ TEST_F(Nullkiller2_AIUtility, trackedSeerWithoutActiveQuestIsNotVisitable)
 	ASSERT_NE(hero, nullptr);
 	ASSERT_EQ(seer->getActiveQuest(), nullptr);
 
-	gameState->players.at(PLAYER).quests.push_back(seer->getQuestIdentity());
+	gameState()->players.at(PLAYER).quests.push_back(seer->getQuestIdentity());
 
-	const auto callback = makeCallback();
+	const auto callback = makeCallback(PLAYER);
 	auto gateway = std::make_unique<NK2AI::AIGateway>();
 	gateway->initGameInterface(std::shared_ptr<Environment>(), callback);
 
