@@ -14,6 +14,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/Unit.h"
 #include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/CombatEventPayload.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -84,7 +85,7 @@ public:
 					affected.push_back(entry.first);
 			}));
 
-		script->run(&serverMock, *battleFake, event, &bearer, nullptr, parameters(massive));
+		script->run(&serverMock, *battleFake, event, &bearer, nullptr, parameters(massive), CombatEventPayload());
 		return affected;
 	}
 
@@ -150,7 +151,7 @@ TEST_F(EnchantedScriptTest, GrantedBonusUsesConfiguredDuration)
 				granted.insert(granted.end(), entry.second.begin(), entry.second.end());
 		}));
 
-	script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &bearer, nullptr, parameters(false));
+	script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &bearer, nullptr, parameters(false), CombatEventPayload());
 
 	ASSERT_FALSE(granted.empty());
 	for(const auto & bonus : granted)

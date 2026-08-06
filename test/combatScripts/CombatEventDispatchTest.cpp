@@ -16,6 +16,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/CombatEventPayload.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -82,7 +83,7 @@ TEST_F(CombatEventDispatchTest, ImplementedEventRunsScript)
 	JsonNode parameters;
 	parameters["damage"].Integer() = unitHP;
 
-	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACKED, &victim, &attacker, parameters);
+	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACKED, &victim, &attacker, parameters, CombatEventPayload());
 
 	EXPECT_EQ(attackerState->getCount(), unitAmount - 1);
 }
@@ -96,7 +97,7 @@ TEST_F(CombatEventDispatchTest, UnimplementedEventIsNoOp)
 	parameters["damage"].Integer() = 100;
 
 	// serverMock is strict, so any mutation attempted by the script fails the test
-	script->run(&serverMock, *battleFake, CombatEventType::WAIT, &victim, &attacker, parameters);
+	script->run(&serverMock, *battleFake, CombatEventType::WAIT, &victim, &attacker, parameters, CombatEventPayload());
 }
 
 }

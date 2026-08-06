@@ -1149,6 +1149,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
+	// soul steal still heals here; the flag and log below go away when it becomes a script too
 	if (healInfo.healedHealthPoints > 0)
 		bat.flags |= BattleAttack::LIFE_DRAIN;
 
@@ -1172,12 +1173,32 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
 
-	// drain life effect (as well as log entry) must be applied after the attack
 	if(healInfo.healedHealthPoints > 0)
 	{
 		addGenericDrainedLifeLog(blm, attackerState, defender, healInfo.healedHealthPoints);
 		addGenericResurrectedLog(blm, attackerState, defender, healInfo.resurrectedCount);
 	}
+
+	// sent before the triggers below so that anything they log lands after the attack description
+	gameHandler->sendAndApply(blm);
+
+	{
+		// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
+		// fire shield, which may kill the attacker
+		CombatEventPayload payload;
+		for(const BattleStackAttacked & bsa : bat.bsa)
+		{
+			AttackedTarget entry;
+			entry.unit = battle.battleGetUnitByID(bsa.stackAttacked);
+			entry.damage = bsa.damageAmount;
+			entry.killed = bsa.killedAmount;
+			payload.targets.push_back(entry);
+		}
+		processBattleEventTriggers(battle, CombatEventType::ATTACK_RESOLVED, attacker, defender, payload);
+	}
+
+	BattleLogMessage fireShieldLog;
+	fireShieldLog.battleID = battle.getBattle()->getBattleID();
 
 	if(!fireShield.empty())
 	{
@@ -1226,13 +1247,14 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 				text.appendLocalString(EMetaText::GENERAL_TXT, 376);
 				text.replaceName(SpellID(SpellID::FIRE_SHIELD));
 				text.replaceNumber(totalDamage);
-				blm.lines.push_back(std::move(text));
+				fireShieldLog.lines.push_back(std::move(text));
 			}
-			addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
+			addGenericKilledLog(fireShieldLog, attacker, bsa.killedAmount, false);
 		}
 	}
 
-	gameHandler->sendAndApply(blm);
+	if(!fireShieldLog.lines.empty())
+		gameHandler->sendAndApply(fireShieldLog);
 
 	if(defender)
 		handleAfterAttackCasting(battle, ranged, attacker, defender);
@@ -1578,13 +1600,6 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	//life drain handling
-	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving() && attackerState->getTotalHealth() != attackerState->getAvailableHealth())
-	{
-		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
-		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
-	}
-
 	//soul steal handling
 	if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL) && def->isLiving())
 	{
@@ -1755,7 +1770,7 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	return makeBattleActionImpl(battle, ba);
 }
 
-void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
+void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary, const CombatEventPayload & payload)
 {
 	// Combat events are only fired from battle actions, and neither the script API nor the spell
 	// cast below can start one - both only emit netpacks. Adding a binding that re-enters this
@@ -1815,6 +1830,6 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 		if (!script)
 			continue; // mod providing the script is gone
 
-		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters.eventParameters);
+		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters.eventParameters, payload);
 	}
 }

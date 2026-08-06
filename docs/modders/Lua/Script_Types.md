@@ -190,6 +190,7 @@ Parameters:
 - `battle` - state of the battle this event happened in. See [Battle](Api_Reference.md#battle).
 - `unit` - the unit carrying the bonus, which this event happened to. See [Unit](Api_Reference.md#unit).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
+- `payload` - data specific to this event, empty for events that carry none. `onAttackResolved` fills `payload.targets` with one entry per unit hit, each holding the `unit` itself, the `damage` dealt to it and how many of its creatures were `killed`.
 
 Functions:
 
@@ -204,6 +205,7 @@ Functions:
 - `onUnitSpellcast` - called after `unit` casts a spell
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over. `other` is nil
 - `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil
+- `onAttackResolved` - called on the attacker once its attack is fully resolved, before any reaction of the defender such as fire shield. Receives a `payload`, see below
 
 #### Built-in scripts
 
@@ -214,6 +216,8 @@ Functions:
 - `summonGuardians` - surrounds its bearer with summoned guardians when the battle starts. Parameters:
     - `creature` - creature to summon as guardian
     - `percentage` - size of each guardian stack, in percent of the guarded stack
+- `lifeDrain` - restores part of the damage its bearer dealt back to it as health, resurrecting fallen creatures of the stack. Only damage dealt to living targets counts. Parameters:
+    - `percentage` - share of the dealt damage restored to the attacker
 - `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
     - `spell` - spell whose effects are applied
     - `level` - mastery level the effects are applied at

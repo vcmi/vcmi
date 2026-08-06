@@ -802,6 +802,11 @@ void ApplyClientNetPackVisitor::visitBattleLogMessage(BattleLogMessage & pack)
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleLogMessage, pack.battleID, pack.lines);
 }
 
+void ApplyClientNetPackVisitor::visitBattleAnimationPlayed(BattleAnimationPlayed & pack)
+{
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleAnimationPlayed, pack.battleID, pack);
+}
+
 void ApplyClientNetPackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleTriggerEffect, pack.battleID, pack);

@@ -38,6 +38,7 @@
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/battle/CUnitState.h"
 #include "../../../lib/battle/CBattleInfoCallback.h"
+#include "../../../lib/battle/Destination.h"
 #include "../../../lib/spells/CSpellHandler.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/texts/MetaString.h"
@@ -177,6 +178,17 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		"magic resistance and magic mirror are not rolled, countering effects are not removed, and "
 		"no spell animation or battle log entry is produced. Use it for abilities that behave as "
 		"if the spell were already in effect.");
+	R.function<&ServerCallbackProxy::showBattleAnimation>("showBattleAnimation",
+		{
+			{"battle",       "Battle the animation is played in."},
+			{"target",       "Units and hexes the animation is played on, one copy each."},
+			{"animation",    "Resource name of the animation to play, e.g. `SP06_`."},
+			{"sound",        "Resource name of the sound to play alongside it, or an empty string for none."},
+			{"transparency", "Opacity of the animation, from 0 for invisible to 1 for opaque."}
+		}, {},
+		"Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a "
+		"visual to a change the script made itself. The animation plays after whatever is currently "
+		"animating has finished, rather than overlapping it.");
 	R.function<&ServerCallbackProxy::refreshBattleUnits>("refreshBattleUnits",
 		{{"battle", "Battle whose units were changed."}}, {},
 		"Makes the client play back pending unit changes. Needed after adding or removing units "
@@ -213,6 +225,25 @@ void ServerCallbackProxy::applySpellEffects(ServerCallback & object, const IBatt
 			destinations.emplace_back(unit);
 
 	cast.applyEffects(&object, destinations, false, ignoreImmunity);
+}
+
+void ServerCallbackProxy::showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency)
+{
+	BattleAnimationPlayed pack;
+	pack.battleID = battle.getBattle()->getBattleID();
+	pack.animation = AnimationPath::builtin(animation);
+	pack.sound = sound.empty() ? AudioPath() : AudioPath::builtin(sound);
+	pack.transparency = static_cast<float>(transparency);
+
+	for(const auto & destination : target)
+	{
+		BattleAnimationPlayed::Target entry;
+		entry.unitID = destination.unitValue ? destination.unitValue->unitId() : -1;
+		entry.tile = destination.hexValue;
+		pack.targets.push_back(entry);
+	}
+
+	object.apply(static_cast<CPackForClient &>(pack));
 }
 
 void ServerCallbackProxy::refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle)

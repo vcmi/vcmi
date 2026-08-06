@@ -930,6 +930,13 @@ void CPlayerInterface::battleStacksEffectsSet(const BattleID & battleID, const S
 
 	battleInt->battleStacksEffectsSet(sse);
 }
+void CPlayerInterface::battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->effectsController->battleAnimationPlayed(pack);
+}
 void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

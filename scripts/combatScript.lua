@@ -57,4 +57,10 @@ end
 function Script:onRoundStart(server, battle, unit, other)
 end
 
+--- Called on the attacker once its attack is fully resolved, before any reaction of the defender
+--- such as fire shield. `payload.targets` lists every unit hit, each entry carrying the `damage`
+--- dealt to it, how many of its creatures were `killed`, and whether it is `living`.
+function Script:onAttackResolved(server, battle, unit, other, payload)
+end
+
 return Script

@@ -14,6 +14,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/Unit.h"
 #include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/CombatEventPayload.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -99,7 +100,7 @@ TEST_F(TransmutationScriptTest, ReplacesVictimOnSuccessfulRoll)
 		.WillRepeatedly(Invoke([&packs](BattleUnitsChanged & pack){ packs.push_back(pack); }));
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 
-	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters());
+	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters(), CombatEventPayload());
 
 	ASSERT_EQ(packs.size(), 2u);
 
@@ -129,7 +130,7 @@ TEST_F(TransmutationScriptTest, FailedRollChangesNothing)
 	EXPECT_CALL(serverMock, rollCombatAbility(_, _, Eq(chance))).WillOnce(Return(false));
 
 	// serverMock is strict, so any mutation attempted by the script fails the test
-	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters());
+	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters(), CombatEventPayload());
 }
 
 TEST_F(TransmutationScriptTest, ImmuneVictimIsNotRolledFor)
@@ -139,7 +140,7 @@ TEST_F(TransmutationScriptTest, ImmuneVictimIsNotRolledFor)
 	victim.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::TRANSMUTATION_IMMUNITY, BonusSource::CREATURE_ABILITY, 1, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters());
+	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACK, &attacker, &victim, parameters(), CombatEventPayload());
 }
 
 }

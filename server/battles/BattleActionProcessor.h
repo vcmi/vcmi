@@ -9,6 +9,8 @@
  */
 #pragma once
 #include "bonuses/Bonus.h"
+#include "combatScripts/CombatEventPayload.h"
+#include "json/JsonNode.h"
 
 struct BattleLogMessage;
 struct BattleAttack;
@@ -93,7 +95,7 @@ class BattleActionProcessor : boost::noncopyable
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
-	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary);
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary, const CombatEventPayload & payload = CombatEventPayload());
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);

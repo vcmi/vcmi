@@ -22,7 +22,7 @@
 
 struct CObstacleInstance;
 
-namespace battle { class Unit; class UnitInfo; }
+namespace battle { class Unit; class UnitInfo; class Destination; }
 namespace spells { class Spell; }
 
 namespace scripting::api
@@ -58,6 +58,7 @@ public:
 	static bool rollCombatAbility(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance);
 	static void applySpellEffects(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & caster, const spells::Spell & spell, const std::vector<const battle::Unit *> & target, int spellLevel, int effectDuration, bool ignoreImmunity);
 	static void refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle);
+	static void showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency);
 	static int rngInt(lua_State * L); // args: low, high; returns: int in [low, high]
 	static int healUnit(lua_State * L);
 	static int changeUnit(lua_State * L); // args: battle, unitState, [healthDelta=0]

@@ -348,7 +348,7 @@ public:
 
 	/// Create animation positioned at certain hex(es)
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex               , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
 
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,     int effects = 0, bool reversed = false);
 	 ~EffectAnimation();

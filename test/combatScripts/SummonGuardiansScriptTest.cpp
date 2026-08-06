@@ -14,6 +14,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/Unit.h"
 #include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/CombatEventPayload.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -92,7 +93,7 @@ public:
 			}));
 		EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(AnyNumber());
 
-		script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &guarded, nullptr, parameters());
+		script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &guarded, nullptr, parameters(), CombatEventPayload());
 		return placements;
 	}
 
@@ -163,7 +164,7 @@ TEST_F(SummonGuardiansScriptTest, StackSizeIsPercentageOfGuardedUnitAndAtLeastOn
 		}));
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(AnyNumber());
 
-	script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &guarded, nullptr, parameters());
+	script->run(&serverMock, *battleFake, CombatEventType::BATTLE_START, &guarded, nullptr, parameters(), CombatEventPayload());
 
 	ASSERT_FALSE(added.empty());
 	for(const auto & info : added)

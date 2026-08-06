@@ -12,6 +12,7 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/combatScripts/CombatEventPayload.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"

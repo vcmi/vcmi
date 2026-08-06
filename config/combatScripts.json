@@ -10,5 +10,9 @@
 	"enchanted" : {
 		"type" : "lua",
 		"script" : "enchanted"
+	},
+	"lifeDrain" : {
+		"type" : "lua",
+		"script" : "lifeDrain"
 	}
 }

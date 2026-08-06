@@ -16,6 +16,7 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleUnitTurnReason.h"
+#include "../filesystem/ResourcePath.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
 
@@ -507,6 +508,44 @@ struct DLL_LINKAGE BattleTriggerEffect : public CPackForClient
 		h & effect;
 		h & val;
 		h & additionalInfo;
+		assert(battleID != BattleID::NONE);
+	}
+
+protected:
+	void visitTyped(ICPackVisitor & visitor) override;
+};
+
+/// Plays a one-shot animation with an optional sound on the battlefield. Presentation only -
+/// changes no game state, so anything that needs a visual for a change it made itself can send it.
+struct DLL_LINKAGE BattleAnimationPlayed : public CPackForClient
+{
+	/// Where one copy of the animation is played. Mirrors battle::Destination - a unit is carried
+	/// by id so that playback follows it if it moved since the pack was sent.
+	struct DLL_LINKAGE Target
+	{
+		int32_t unitID = -1;
+		BattleHex tile;
+
+		template <typename Handler> void serialize(Handler & h)
+		{
+			h & unitID;
+			h & tile;
+		}
+	};
+
+	BattleID battleID = BattleID::NONE;
+	AnimationPath animation;
+	AudioPath sound;
+	std::vector<Target> targets;
+	float transparency = 1.0f;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & battleID;
+		h & animation;
+		h & sound;
+		h & targets;
+		h & transparency;
 		assert(battleID != BattleID::NONE);
 	}
 

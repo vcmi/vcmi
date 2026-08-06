@@ -19,6 +19,7 @@ struct BattleResult;
 struct BattleSpellCast;
 struct SetStackEffect;
 struct BattleTriggerEffect;
+struct BattleAnimationPlayed;
 struct CatapultAttack;
 
 class ObstacleChanges;
@@ -47,6 +48,7 @@ public:
 	virtual void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte){}; //called for various one-shot effects
+	virtual void battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack){}; //called to play a standalone animation
 	virtual void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
 	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units){};

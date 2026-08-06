@@ -938,8 +938,8 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName.getName());
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, float transparencyFactor, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparencyFactor, reversed)
 {
 	battlehexes = hexes;
 }

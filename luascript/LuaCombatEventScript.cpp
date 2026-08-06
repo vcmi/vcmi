@@ -41,6 +41,7 @@ static std::string methodName(CombatEventType event)
 		case CombatEventType::UNIT_SPELLCAST:  return "onUnitSpellcast";
 		case CombatEventType::BATTLE_START:    return "onBattleStart";
 		case CombatEventType::ROUND_START:     return "onRoundStart";
+		case CombatEventType::ATTACK_RESOLVED: return "onAttackResolved";
 		case CombatEventType::INVALID:         break;
 	}
 
@@ -79,7 +80,7 @@ LuaCombatEventScript::LuaCombatEventScript(const LuaScriptInstance * script)
 
 LuaCombatEventScript::~LuaCombatEventScript() = default;
 
-void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters) const
+void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters, const CombatEventPayload & payload) const
 {
 	//TODO: find a way to avoid dynamic casting
 	auto genericContext = battle.getScriptContextPool().getContext(script);
@@ -87,7 +88,7 @@ void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallbac
 	if(!luaContext)
 		throw std::runtime_error("Failed to execute Lua combat script! Context not available!");
 
-	luaContext->callMethod<void>(methodName(event), parameters, server, &battle, self, other);
+	luaContext->callMethod<void>(methodName(event), parameters, server, &battle, self, other, payload);
 }
 
 }

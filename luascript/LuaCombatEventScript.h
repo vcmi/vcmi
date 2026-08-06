@@ -47,7 +47,7 @@ public:
 	LuaCombatEventScript(const LuaScriptInstance * script);
 	virtual ~LuaCombatEventScript();
 
-	void run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters) const override;
+	void run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters, const CombatEventPayload & payload) const override;
 
 private:
 	const LuaScriptInstance * script;

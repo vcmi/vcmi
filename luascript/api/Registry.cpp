@@ -13,6 +13,7 @@
 #include "SerializableRegistar.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/Destination.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
@@ -101,6 +102,7 @@ Registry::Registry()
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
 	registerLuaName<CBattleInfoCallback>("Battle");
 	registerLuaName<battle::UnitInfo>("UnitInfo");
+	registerLuaName<battle::Destination>("Destination");
 	// JsonNode fields accept any Lua value (string / number / table / …) and are funneled
 	// through JsonUtils::parseBonus — surface that openness rather than `userdata`.
 	registerLuaName<JsonNode>("any");
