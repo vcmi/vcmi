@@ -1918,8 +1918,9 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 		boost::erase_all(name, "{");
     	boost::erase_all(name, "}");
 
-		if(auto score = TextOperations::textSearchSimilarityScore(text, name)) // Keep only relevant items
-			rankedItems.emplace_back(score.value(), item);
+		auto score = TextOperations::textSearchSimilarityScore(text, name); // Keep only relevant items
+		if (TextOperations::isRelevantScore(name, score))
+			rankedItems.emplace_back(score, item);
 	}
 
 	// Sort: Lower score is better match
