@@ -24,6 +24,7 @@
 #include "../battle/Obstacle.h"
 #include "../battle/Unit.h"
 #include "../library/Bonus.h"
+#include "../library/Spell.h"
 
 #include "../../LuaStack.h"
 #include "../../../lib/battle/SiegeInfo.h"
@@ -36,6 +37,9 @@
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/battle/CUnitState.h"
+#include "../../../lib/battle/CBattleInfoCallback.h"
+#include "../../../lib/spells/CSpellHandler.h"
+#include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/texts/MetaString.h"
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "modding/IdentifierStorage.h"
@@ -158,6 +162,21 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		{"True if the ability triggers."},
 		"Rolls a chance-based combat ability. Use this rather than `rngInt` for abilities that "
 		"trigger with a percentage chance - it draws from the per-army biased sequence");
+	R.function<&ServerCallbackProxy::applySpellEffects>("applySpellEffects",
+		{
+			{"battle",         "Battle the spell is applied in."},
+			{"caster",         "Unit acting as the caster. Its stats scale the effects."},
+			{"spell",          "Spell whose effects are applied."},
+			{"target",         "Units to affect."},
+			{"spellLevel",     "Mastery level the effects are applied at."},
+			{"effectDuration", "How many turns timed effects of the spell last."},
+			{"ignoreImmunity", "Pass true to affect units that are immune to the spell."}
+		}, {},
+		"Applies the effects of a spell to the given units, and nothing else. Unlike casting the "
+		"spell, the target list is used as given rather than expanded through the spell's range, "
+		"magic resistance and magic mirror are not rolled, countering effects are not removed, and "
+		"no spell animation or battle log entry is produced. Use it for abilities that behave as "
+		"if the spell were already in effect.");
 	R.function<&ServerCallbackProxy::refreshBattleUnits>("refreshBattleUnits",
 		{{"battle", "Battle whose units were changed."}}, {},
 		"Makes the client play back pending unit changes. Needed after adding or removing units "
@@ -172,6 +191,28 @@ bool ServerCallbackProxy::describeChanges(ServerCallback & object)
 bool ServerCallbackProxy::rollCombatAbility(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance)
 {
 	return object.rollCombatAbility(battle, actor, percentageChance);
+}
+
+void ServerCallbackProxy::applySpellEffects(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & caster, const spells::Spell & spell, const std::vector<const battle::Unit *> & target, int spellLevel, int effectDuration, bool ignoreImmunity)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&battle);
+	if(!cb)
+		throw std::runtime_error("Attempt to apply spell effects outside of a battle!");
+
+	const CSpell * spellObject = spell.getId().toSpell();
+	if(!spellObject)
+		throw std::runtime_error("Attempt to apply effects of an unknown spell!");
+
+	spells::BattleCast cast(cb, &caster, spells::Mode::PASSIVE, spellObject);
+	cast.setSpellLevel(spellLevel);
+	cast.setEffectDuration(effectDuration);
+
+	spells::Target destinations;
+	for(const auto * unit : target)
+		if(unit)
+			destinations.emplace_back(unit);
+
+	cast.applyEffects(&object, destinations, false, ignoreImmunity);
 }
 
 void ServerCallbackProxy::refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle)

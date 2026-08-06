@@ -30,6 +30,7 @@ set(test_SRCS
 		combatScripts/AttachCombatScriptTest.cpp
 		combatScripts/TransmutationScriptTest.cpp
 		combatScripts/SummonGuardiansScriptTest.cpp
+		combatScripts/EnchantedScriptTest.cpp
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp

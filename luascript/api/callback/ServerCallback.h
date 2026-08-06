@@ -23,6 +23,7 @@
 struct CObstacleInstance;
 
 namespace battle { class Unit; class UnitInfo; }
+namespace spells { class Spell; }
 
 namespace scripting::api
 {
@@ -55,6 +56,7 @@ public:
 	static void addObstacle(ServerCallback & object, const IBattleInfoCallback & battle, const SpellObstacleDescriptor & descriptor);
 	static void catapultAttack(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit * attacker, EWallPart attackedPart, int32_t damageDealt);
 	static bool rollCombatAbility(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance);
+	static void applySpellEffects(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & caster, const spells::Spell & spell, const std::vector<const battle::Unit *> & target, int spellLevel, int effectDuration, bool ignoreImmunity);
 	static void refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle);
 	static int rngInt(lua_State * L); // args: low, high; returns: int in [low, high]
 	static int healUnit(lua_State * L);

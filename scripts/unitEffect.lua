@@ -232,7 +232,7 @@ function Script:transformByChain(mechanics, aimPoint, spellTarget, chainLength)
 			processedIds[unit:unitID()] = true
 			local hexes = buildPossibleHexes()
 			if not hexes then break end
-			destHex = destHex:getClosestTile(unit:unitSide(), hexes)
+			destHex = destHex:getClosestTile(unit:getSide(), hexes)
 			goto continue
 		else
 			table.insert(effectTarget, {})
@@ -242,7 +242,7 @@ function Script:transformByChain(mechanics, aimPoint, spellTarget, chainLength)
 
 		local hexes = buildPossibleHexes()
 		if not hexes then break end
-		destHex = destHex:getClosestTile(unit:unitSide(), hexes)
+		destHex = destHex:getClosestTile(unit:getSide(), hexes)
 
 		targetIndex = targetIndex + 1
 		::continue::

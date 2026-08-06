@@ -203,6 +203,7 @@ Functions:
 - `onAfterMove` - called after `unit` ends movement
 - `onUnitSpellcast` - called after `unit` casts a spell
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over. `other` is nil
+- `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil
 
 #### Built-in scripts
 
@@ -213,3 +214,8 @@ Functions:
 - `summonGuardians` - surrounds its bearer with summoned guardians when the battle starts. Parameters:
     - `creature` - creature to summon as guardian
     - `percentage` - size of each guardian stack, in percent of the guarded stack
+- `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
+    - `spell` - spell whose effects are applied
+    - `level` - mastery level the effects are applied at
+    - `massive` - true to affect every allied unit instead of only the bearer
+    - `duration` - how many turns the effects last. Defaults to 50, long enough for the effect to accumulate rather than expire between rounds

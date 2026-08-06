@@ -6,5 +6,9 @@
 	"summonGuardians" : {
 		"type" : "lua",
 		"script" : "summonGuardians"
+	},
+	"enchanted" : {
+		"type" : "lua",
+		"script" : "enchanted"
 	}
 }

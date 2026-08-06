@@ -52,4 +52,9 @@ end
 function Script:onBattleStart(server, battle, unit, other)
 end
 
+--- Called for every alive unit at the start of each round after the first.
+--- The first round is covered by `onBattleStart`.
+function Script:onRoundStart(server, battle, unit, other)
+end
+
 return Script

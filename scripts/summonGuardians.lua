@@ -88,7 +88,7 @@ function Script:onBattleStart(server, battle, unit, other)
 	end
 
 	local guardianIsBig = guardian:isDoubleWide()
-	local side = unit:unitSide()
+	local side = unit:getSide()
 	local hexes
 
 	if guardianIsBig then

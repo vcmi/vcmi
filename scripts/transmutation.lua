@@ -46,7 +46,7 @@ function Script:onAfterAttack(server, battle, unit, other)
 	-- removal turns the victim into a ghost with no bonuses and no health, so everything the new
 	-- stack inherits is read while it is still a real unit
 	local position = other:getPosition()
-	local side = other:unitSide()
+	local side = other:getSide()
 
 	server:removeUnit(battle, other)
 	server:addUnit(battle, {

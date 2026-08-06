@@ -267,8 +267,12 @@ void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, boo
 
 	for(const auto * stack : battle.battleGetAllStacks(true))
 	{
+		// first round is covered by the battle start triggers, which ran just before this
 		if(stack->alive() && !isFirstRound)
+		{
 			stackEnchantedTrigger(battle, stack);
+			owner->processBattleEventTriggers(battle, CombatEventType::ROUND_START, stack, nullptr);
+		}
 	}
 }
 
