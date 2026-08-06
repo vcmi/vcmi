@@ -321,6 +321,8 @@ void CSpellWindow::searchInput()
 void CSpellWindow::processSpells()
 {
 	mySpells.clear();
+	sitesPerTabAdv.clear(); // hold page counts of previous run - would be added up otherwise
+	sitesPerTabBattle.clear();
 
 	//initializing castable spells
 	mySpells.reserve(LIBRARY->spellh->objects.size());
@@ -330,11 +332,12 @@ void CSpellWindow::processSpells()
 
 		if(onSpellSelect)
 		{
+			bool spellAvailable = myHero->canCastThisSpell(spell.get()) || (showAllSpells->isSelected() && !spell->isSpecial());
+
 			if(spell->isCombat() == openOnBattleSpells
-				&& !spell->isSpecial()
 				&& !spell->isCreatureAbility()
 				&& searchTextFound
-				&& (showAllSpells->isSelected() || myHero->canCastThisSpell(spell.get())))
+				&& spellAvailable)
 			{
 				mySpells.push_back(spell.get());
 			}
@@ -600,7 +603,7 @@ void CSpellWindow::setSchoolImages(SpellSchool school)
 		schoolPicture->setFrame(getAnimFrameFromSchool(school), 0);
 	
 	schoolPictureCustom.reset();
-	if(!isLegacySpellSchool(school))
+	if(!isLegacySpellSchool(school) && currentPage == 0) // on later pages the header would cover spells
 		schoolPictureCustom = std::make_shared<CPicture>(LIBRARY->spellSchoolHandler->getById(school)->getSchoolHeaderPath(), 117 + offL, 74 + offT);
 }
 
