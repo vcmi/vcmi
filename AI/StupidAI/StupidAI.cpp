@@ -162,7 +162,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 			for (const BattleHex & hex : avHexes)
 			{
-				if(CStack::isMeleeAttackPossible(stack, s, hex))
+				if(cb->getBattle(battleID)->isMeleeAttackPossible(stack, s, hex))
 				{
 					auto i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
 					if(i == enemiesReachable.end())

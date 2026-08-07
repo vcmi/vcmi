@@ -61,9 +61,6 @@ public:
 	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
-	static BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
-	static bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
-
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
 								vstd::RNG & rand,

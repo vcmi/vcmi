@@ -215,7 +215,7 @@ namespace
 			expect(estack, "%s: =1 (bhex %d, nbhex %d), but estack is nullptr", attrname, bh.toInt(), nbh.toInt());
 			// must not pass "nbh" for defender position, as it could be its rear hex
 			expect(
-				cstack->isMeleeAttackPossible(cstack, estack, bh),
+				ctx.battle->isMeleeAttackPossible(cstack, estack, bh),
 				"%s: =1 (bhex %d, nbhex %d), but VCMI says isMeleeAttackPossible=0",
 				attrname,
 				bh.toInt(),

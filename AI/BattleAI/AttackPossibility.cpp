@@ -335,7 +335,7 @@ AttackPossibility AttackPossibility::evaluate(
 	if(attackInfo.shooting)
 		defenderHex.insert(defender->getPosition());
 	else
-		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
+		defenderHex = state->meleeAttackHexes(attacker, defender, hex);
 
 	for(const BattleHex & defHex : defenderHex)
 	{
@@ -475,7 +475,7 @@ AttackPossibility AttackPossibility::evaluate(
 					ap.collateralDamageReduce += defenderDamageReduce;
 
 				if(u->unitId() == defender->unitId()
-					|| (!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex)))
+					|| (!attackInfo.shooting && state->isMeleeAttackPossible(u, attacker, hex)))
 				{
 					//FIXME: handle RANGED_RETALIATION ?
 					ap.attackerDamageReduce += attackerDamageReduce;

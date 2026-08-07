@@ -270,7 +270,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		return false;
 	}
 
-	const bool regularMeleeAttack = CStack::isMeleeAttackPossible(stack, destinationStack);
+	const bool regularMeleeAttack = battle.isMeleeAttackPossible(stack, destinationStack);
 	const bool longWeaponAttack = battle.isLongWeaponAttack(stack, destinationStack);
 
 	if(!regularMeleeAttack && !longWeaponAttack)
@@ -1597,7 +1597,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
 		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
 		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::FIRE)) < 100 &&
-		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
+		battle.isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
 			)
 	{
 		//H3 reflects Fire Shield from pre-mitigation damage, so a high-defense target still reflects a meaningful amount

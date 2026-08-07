@@ -980,6 +980,44 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 	return false;
 }
 
+BattleHexArray CBattleInfoCallback::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPosition, const BattleHex & defenderPosition) const
+{
+	BattleHexArray res;
+
+	BattleHex attackerPos = attackerPosition.isValid() ? attackerPosition : attacker->getPosition();
+	BattleHex defenderPos = defenderPosition.isValid() ? defenderPosition : defender->getPosition();
+
+	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
+	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
+	{
+		if (attackerHexes.contains(defenderHex))
+		{
+			logGlobal->debug("CBattleInfoCallback::meleeAttackHexes: defender and attacker positions overlap");
+			return res;
+		}
+	}
+
+	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
+	{
+		if (attackableHxs.contains(defenderHex))
+			res.insert(defenderHex);
+	}
+
+	return res;
+}
+
+bool CBattleInfoCallback::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos, const BattleHex & defenderPos) const
+{
+	if(defender->isInvincible())
+		return false;
+
+	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
+}
+
 bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -992,7 +1030,7 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 	if(!attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 		return false;
 
-	if(CStack::isMeleeAttackPossible(attacker, defender))
+	if(isMeleeAttackPossible(attacker, defender))
 		return false;
 
 	for(const BattleHex & defenderHex : defender->getHexes())

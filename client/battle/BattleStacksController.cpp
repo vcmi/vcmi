@@ -505,7 +505,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			continue;
 
 		// Another type of indirect attack - dragon breath
-		if (!CStack::isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
+		if (!owner.getBattle()->isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
 			continue;
 
 		// defender need to face in direction opposited to out attacker
@@ -657,7 +657,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto spellEffect = info.spellEffect;
 	bool needsReverse = false;
 
-	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !CStack::isMeleeAttackPossible(attacker, defender);
+	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !owner.getBattle()->isMeleeAttackPossible(attacker, defender);
 
 	if (info.indirectAttack || longWeaponMelee)
 	{

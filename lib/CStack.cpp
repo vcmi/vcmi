@@ -227,46 +227,6 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	bsa.newState.operation = UnitChanges::EOperation::UPDATE;
 }
 
-BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
-{
-	BattleHexArray res;
-
-	if (!attackerPos.isValid())
-		attackerPos = attacker->getPosition();
-	if (!defenderPos.isValid())
-		defenderPos = defender->getPosition();
-
-	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
-	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
-
-	for (BattleHex defenderHex : defenderHexes)
-	{
-		if (attackerHexes.contains(defenderHex))
-		{
-			logGlobal->debug("CStack::meleeAttackHexes: defender and attacker positions overlap");
-			return res;
-		}
-	}
-
-	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
-
-	for (BattleHex defenderHex : defenderHexes)
-	{
-		if (attackableHxs.contains(defenderHex))
-			res.insert(defenderHex);
-	}
-
-	return res;
-}
-
-bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
-{
-	if(defender->isInvincible())
-		return false;
-		
-	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
-}
-
 std::string CStack::getName() const
 {
 	return (getCount() == 1) ? typeID.toEntity(LIBRARY)->getNameSingularTranslated() : typeID.toEntity(LIBRARY)->getNamePluralTranslated(); //War machines can't use base
