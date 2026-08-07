@@ -573,7 +573,7 @@ Increases starting amount of shots that unit has in battle
 
 Affected unit is considered to be alive. Automatically granted to any unit that does not have any other creature nature bonus
 
-Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
+Living units can be affected by TRANSMUTATION, and by the lifeDrain and soulSteal combat scripts
 
 ### NON_LIVING
 
@@ -830,12 +830,22 @@ Affected unit will never receive retaliations when attacking
 
 ### SOUL_STEAL
 
-Affected unit will gain new creatures for each enemy killed by this unit
+REMOVED. This bonus no longer has any effect. Use the [soulSteal](../Lua/Script_Types.md#combat-script)
+combat script instead:
 
-- val: number of units gained per enemy killed
-- subtype:
-  - soulStealPermanent: creature will stay after the battle
-  - soulStealBattle: creature will be lost after the battle
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "soulSteal",
+        "eventParameters" : { "creaturesPerKill" : 1, "permanent" : true }
+    }
+}
+```
+
+`creaturesPerKill` replaces `val`, and `permanent` replaces the `soulStealPermanent` /
+`soulStealBattle` subtypes. Two such bonuses now both take effect, where the two subtypes used to
+be mutually exclusive.
 
 ### TRANSMUTATION
 
@@ -975,9 +985,18 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 ### LIFE_DRAIN
 
-Affected unit will heal itself, resurrecting any dead units, by amount of dealt damage (Vampire Lord)
+REMOVED. This bonus no longer has any effect. Use the [lifeDrain](../Lua/Script_Types.md#combat-script)
+combat script instead, where `percentage` replaces `val`:
 
-- val: percentage of damage that will be converted into health points
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "lifeDrain",
+        "eventParameters" : { "percentage" : 100 }
+    }
+}
+```
 
 ### DOUBLE_DAMAGE_CHANCE
 

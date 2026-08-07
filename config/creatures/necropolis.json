@@ -254,8 +254,11 @@
 			},
 			"drainsLife" :
 			{
-				"type" : "LIFE_DRAIN",
-				"val" : 100
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"addInfo" : {
+					"eventScript" : "lifeDrain",
+					"eventParameters" : { "percentage" : 100 }
+				}
 			}
 		},
 		"graphics" :

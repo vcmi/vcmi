@@ -218,6 +218,9 @@ Functions:
     - `percentage` - size of each guardian stack, in percent of the guarded stack
 - `lifeDrain` - restores part of the damage its bearer dealt back to it as health, resurrecting fallen creatures of the stack. Only damage dealt to living targets counts. Parameters:
     - `percentage` - share of the dealt damage restored to the attacker
+- `soulSteal` - raises its bearer's stack for every enemy creature it killed, beyond the stack's original size. Only kills among living targets count. Parameters:
+    - `creaturesPerKill` - creatures gained for each killed enemy creature
+    - `permanent` - true to keep the gained creatures after the battle
 - `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
     - `spell` - spell whose effects are applied
     - `level` - mastery level the effects are applied at

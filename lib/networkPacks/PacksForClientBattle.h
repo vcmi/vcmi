@@ -250,7 +250,7 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking = 0;
 	ui32 flags = 0; //uses Eflags (below)
-	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128, CUSTOM_ANIMATION = 256};
+	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, CUSTOM_ANIMATION = 256};
 
 	BattleHex tile;
 	SpellID spellID = SpellID::NONE; //for SPELL_LIKE
@@ -282,10 +282,6 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	bool spellLike() const
 	{
 		return flags & SPELL_LIKE;
-	}
-	bool lifeDrain() const
-	{
-		return flags & LIFE_DRAIN;
 	}
 	bool playCustomAnimation() const
 	{

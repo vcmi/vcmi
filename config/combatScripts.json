@@ -14,5 +14,9 @@
 	"lifeDrain" : {
 		"type" : "lua",
 		"script" : "lifeDrain"
+	},
+	"soulSteal" : {
+		"type" : "lua",
+		"script" : "soulSteal"
 	}
 }

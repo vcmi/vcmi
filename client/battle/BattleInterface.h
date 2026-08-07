@@ -83,7 +83,6 @@ struct StackAttackInfo
 	bool lucky;
 	bool unlucky;
 	bool deathBlow;
-	bool lifeDrain;
 	bool playCustomAnimation;
 };
 

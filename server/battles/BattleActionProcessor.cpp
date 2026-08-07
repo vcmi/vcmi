@@ -1079,11 +1079,9 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 	}
 
-	battle::HealInfo healInfo;
-
 	// only primary target
 	if(defender && defender->alive())
-		applyBattleEffects(battle, bat,	attackerState, fireShield, defender, healInfo, distance, false);
+		applyBattleEffects(battle, bat,	attackerState, fireShield, defender, distance, false);
 
 	//multiple-hex normal attack
 	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
@@ -1091,7 +1089,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
 		{
-			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
+			applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
 			removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 		}
 	}
@@ -1124,7 +1122,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
+				applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
 				removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 			}
 		}
@@ -1149,10 +1147,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
-	// soul steal still heals here; the flag and log below go away when it becomes a script too
-	if (healInfo.healedHealthPoints > 0)
-		bat.flags |= BattleAttack::LIFE_DRAIN;
-
 	gameHandler->sendAndApply(bat);
 
 	{
@@ -1171,12 +1165,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 		if(defender)
 			addGenericKilledLog(blm, defender, totalKills, multipleTargets);
-	}
-
-	if(healInfo.healedHealthPoints > 0)
-	{
-		addGenericDrainedLifeLog(blm, attackerState, defender, healInfo.healedHealthPoints);
-		addGenericResurrectedLog(blm, attackerState, defender, healInfo.resurrectedCount);
 	}
 
 	// sent before the triggers below so that anything they log lands after the attack description
@@ -1579,7 +1567,7 @@ void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback
 	}
 }
 
-void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo & healInfo, int distance, bool secondary) const
+void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary) const
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1600,22 +1588,6 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	//soul steal handling
-	if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL) && def->isLiving())
-	{
-		//we can have two bonuses - one with subtype 0 and another with subtype 1
-		//try to use permanent first, use only one of two
-		for(const auto & subtype : { BonusCustomSubtype::soulStealBattle, BonusCustomSubtype::soulStealPermanent})
-		{
-			if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL, subtype))
-			{
-				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(BonusType::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
-				bool permanent = subtype == BonusCustomSubtype::soulStealPermanent;
-				healInfo += attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
-				break;
-			}
-		}
-	}
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
@@ -1684,39 +1656,6 @@ void BattleActionProcessor::addGenericDamageLog(BattleLogMessage& blm, const std
 	attackerState->addNameReplacement(text);
 	text.replaceNumber(damageDealt);
 	blm.lines.push_back(std::move(text));
-}
-
-void BattleActionProcessor::addGenericDrainedLifeLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState>& attackerState, const CStack* defender, int64_t drainedLife) const
-{
-	MetaString text;
-	attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
-	attackerState->addNameReplacement(text);
-	text.replaceNumber(drainedLife);
-
-	if (defender)
-		defender->addNameReplacement(text);
-	else
-		text.replaceTextID("core.genrltxt.43"); // creatures
-
-	blm.lines.push_back(std::move(text));
-}
-
-void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState>& attackerState, const CStack* defender, int64_t resurrected) const
-{
-	if (resurrected > 0)
-	{
-		MetaString & ms = blm.lines.back();
-
-		if (resurrected == 1)
-		{
-			ms.appendLocalString(EMetaText::GENERAL_TXT, 363);		// "\n and one rises from the dead."
-		}
-		else
-		{
-			ms.appendLocalString(EMetaText::GENERAL_TXT, 364);		// "\n and %d rise from the dead."
-			ms.replaceNumber(resurrected);
-		}
-	}
 }
 
 bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)

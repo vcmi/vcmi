@@ -730,14 +730,6 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		});
 	}
 
-	if (info.lifeDrain)
-	{
-		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attacker]()
-		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
-		});
-	}
-
 	//return, animation playback will be handled by stacksAreAttacked
 }
 
