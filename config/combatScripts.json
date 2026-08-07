@@ -1,15 +1,18 @@
 {
 	"transmutation" : {
 		"type" : "lua",
-		"script" : "transmutation"
+		"script" : "transmutation",
+		"description" : "{Transmutation}\nHas a ${chance}% chance to transform the attacked unit into another type."
 	},
 	"summonGuardians" : {
 		"type" : "lua",
-		"script" : "summonGuardians"
+		"script" : "summonGuardians",
+		"description" : "{Summon Guardians}\nAt the start of battle, summons ${creature} (${percentage}%)."
 	},
 	"enchanted" : {
 		"type" : "lua",
-		"script" : "enchanted"
+		"script" : "enchanted",
+		"description" : "{Enchanted}\nPermanently affected by ${spell}."
 	},
 	"lifeDrain" : {
 		"type" : "lua",

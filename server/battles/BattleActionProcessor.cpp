@@ -1484,50 +1484,6 @@ void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback
 	if(!defender->alive())
 		return;
 
-	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving() && !defender->hasBonusOfType(BonusType::TRANSMUTATION_IMMUNITY)) //transmutation mechanics, similar to WoG werewolf ability
-	{
-		int chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION);
-		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
-			return;
-
-		const auto & bonusParameters = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->parameters;
-		const auto & targetCreature = bonusParameters ? bonusParameters->toCreature() : attacker->creatureId();
-
-		if(defender->unitType()->getId() == targetCreature)
-			return;
-
-		battle::UnitInfo resurrectInfo;
-		resurrectInfo.id = battle.battleNextUnitId();
-		resurrectInfo.summoned = false;
-		resurrectInfo.position = defender->getPosition();
-		resurrectInfo.side = defender->unitSide();
-		resurrectInfo.type = targetCreature;
-
-		if(attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerHealth))
-			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
-		else if (attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerUnit))
-			resurrectInfo.count = defender->getCount();
-		else
-			return; //wrong subtype
-
-		BattleUnitsChanged addUnits;
-		addUnits.battleID = battle.getBattle()->getBattleID();
-		addUnits.changedStacks.emplace_back(resurrectInfo.id, UnitChanges::EOperation::ADD);
-		resurrectInfo.save(addUnits.changedStacks.back().data);
-
-		BattleUnitsChanged removeUnits;
-		removeUnits.battleID = battle.getBattle()->getBattleID();
-		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
-		gameHandler->sendAndApply(removeUnits);
-		gameHandler->sendAndApply(addUnits);
-
-		// send empty event to client
-		// temporary(?) workaround to force animations to trigger
-		StacksInjured fakeEvent;
-		fakeEvent.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(fakeEvent);
-	}
-
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
 	{
 		int chanceToTrigger = 0;

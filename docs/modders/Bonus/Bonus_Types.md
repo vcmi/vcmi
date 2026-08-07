@@ -850,12 +850,22 @@ be mutually exclusive.
 
 ### TRANSMUTATION
 
-Affected units have chance to transform attacked, living unit to other creature type, unless attacked unit is under TRANSMUTATION_IMMUNITY bonus
+DEPRECATED. Configs and saves declaring it are converted to the
+[transmutation](../Lua/Script_Types.md#combat-script) combat script on load, so existing content
+keeps working, but new content should declare the script directly:
 
-- val: chance for ability to trigger, percentage
-- subtype:
-  - transmutationPerHealth: transformed unit will have same HP pool as original stack,
-  - transmutationPerUnit: transformed unit will have same number of units as original stack
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "transmutation",
+        "eventParameters" : { "chance" : 40, "transmuteBy" : "health", "creature" : "core:goldGolem" }
+    }
+}
+```
+
+`chance` replaces `val`, `transmuteBy` of `"health"` / `"count"` replaces the
+`transmutationPerHealth` / `transmutationPerUnit` subtypes, and `creature` replaces `addInfo`.
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
 ### TRANSMUTATION_IMMUNITY
@@ -864,10 +874,21 @@ Affected unit is immune to TRANSMUTATION bonus effects
 
 ### SUMMON_GUARDIANS
 
-When battle starts, affected units will be surrounded from all side with summoned units
+DEPRECATED. Configs and saves declaring it are converted to the
+[summonGuardians](../Lua/Script_Types.md#combat-script) combat script on load, so existing content
+keeps working, but new content should declare the script directly:
 
-- val: amount of units to summon, per stack, percentage of summoner stack size
-- subtype: identifier of creature to summon
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "summonGuardians",
+        "eventParameters" : { "creature" : "core:woodElf", "percentage" : 50 }
+    }
+}
+```
+
+`creature` replaces `subtype` and `percentage` replaces `val`.
 
 ### RANGED_RETALIATION
 
@@ -1148,10 +1169,23 @@ Affected stack will resurrect after death
 
 ### ENCHANTED
 
-Affected unit is permanently enchanted with a spell, that is cast again every turn
+DEPRECATED. Configs and saves declaring it are converted to the
+[enchanted](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly:
 
-- subtype: spell identifier
-- val: spell mastery level. If above 3, then spell has mass effect with mastery level of (val-3)
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "addInfo" : {
+        "eventScript" : "enchanted",
+        "eventParameters" : { "spell" : "core:bless", "level" : 2, "massive" : true }
+    }
+}
+```
+
+`spell` replaces `subtype`, while `level` and `massive` replace the single `val` that packed both.
+Several such bonuses for the same spell each apply at their own level, where the bonus took the
+highest level of the group for all of them.
 
 ## Spell immunities
 

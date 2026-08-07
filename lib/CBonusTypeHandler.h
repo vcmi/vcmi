@@ -64,6 +64,7 @@ public:
 private:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
 	std::string combatScriptToString(const BonusParametersCombatScript & parameters) const;
+	std::string describeParameter(const JsonNode & value) const;
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
 	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType

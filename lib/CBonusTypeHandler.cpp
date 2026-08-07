@@ -16,6 +16,8 @@
 #include "filesystem/Filesystem.h"
 
 #include "CCreatureHandler.h"
+#include <vcmi/Creature.h>
+#include <vcmi/spells/Spell.h>
 #include "bonuses/BonusParameters.h"
 #include "combatScripts/CombatScriptService.h"
 #include "GameConstants.h"
@@ -71,6 +73,21 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	return bonusToString(bonus, bonus->val);
 }
 
+std::string CBonusTypeHandler::describeParameter(const JsonNode & value) const
+{
+	// scripts refer to creatures and spells by json key, which is not what a player wants to read
+	if(value.isString())
+	{
+		if(const auto * creature = LIBRARY->creatures()->getByName(value.String()))
+			return creature->getNamePluralTranslated();
+
+		if(const auto * spell = LIBRARY->spells()->getByName(value.String()))
+			return spell->getNameTranslated();
+	}
+
+	return value.toCompactString();
+}
+
 std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatScript & parameters) const
 {
 	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(parameters.eventScript);
@@ -83,7 +100,7 @@ std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatS
 
 	// script parameters are named, so the description refers to them by name instead of ${val}
 	for(const auto & parameter : parameters.eventParameters.Struct())
-		boost::algorithm::replace_all(text, "${" + parameter.first + "}", parameter.second.toCompactString());
+		boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second));
 
 	return text;
 }
