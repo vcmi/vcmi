@@ -837,7 +837,15 @@
 				{
 					"type" : "MANA_REGENERATION", //default mana regeneration
 					"val" : 1,
-					"valueType" : "BASE_NUMBER"
+					"valueType" : "BASE_NUMBER",
+					"limiters" : [
+						"noneOf",
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusType" : "MANA_REGENERATION",
+							"bonusSourceType" : "SECONDARY_SKILL"
+						}
+					]
 				},
 				"experienceGain" : 
 				{
