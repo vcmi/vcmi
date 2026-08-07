@@ -32,9 +32,7 @@ public:
 		BonusParametersCombatScript data;
 		data.eventParameters = eventParameters;
 
-		auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", script, false);
-		if(index.has_value())
-			data.eventScript = CombatScriptID(*index);
+		data.eventScript = CombatScriptID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", script, false));
 
 		bonus->parameters = std::make_shared<BonusParameters>(data);
 		return bonus;
@@ -63,15 +61,6 @@ TEST_F(CombatScriptDescriptionTest, DescriptionIsNotEmpty)
 
 	EXPECT_FALSE(description.empty());
 	EXPECT_EQ(description.find("core.combatScript."), std::string::npos) << description;
-}
-
-/// A bonus whose script comes from a mod that is no longer installed must render as nothing.
-TEST_F(CombatScriptDescriptionTest, UnresolvedScriptHasNoDescription)
-{
-	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::CREATURE_ABILITY, 0, BonusSourceID());
-	bonus->parameters = std::make_shared<BonusParameters>(BonusParametersCombatScript());
-
-	EXPECT_EQ(LIBRARY->bth->bonusToString(bonus), "");
 }
 
 }

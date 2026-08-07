@@ -74,6 +74,7 @@ set(lib_MAIN_SRCS
 	bonuses/BonusList.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
+	bonuses/BonusMigration.cpp
 	bonuses/BonusParameters.cpp
 	bonuses/CBonusSystemNode.cpp
 	bonuses/IBonusBearer.cpp
@@ -478,6 +479,7 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusList.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
+	bonuses/BonusMigration.h
 	bonuses/BonusParameters.h
 	bonuses/CBonusSystemNode.h
 	bonuses/IBonusBearer.h

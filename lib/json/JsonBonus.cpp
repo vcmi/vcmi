@@ -18,6 +18,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusMigration.h"
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
@@ -870,6 +871,11 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	JsonNode replacement = convertDeprecatedBonus(ability);
 	if(!replacement.isNull())
 		return parseBonus(replacement, b, descriptionID);
+
+	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
+	JsonNode migrated;
+	if (BonusMigration::migrateCombatAbility(ability, migrated))
+		return parseBonus(migrated, b, descriptionID);
 
 	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
 	{

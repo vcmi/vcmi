@@ -18,12 +18,18 @@
 
 std::shared_ptr<ICombatEventScript> CombatScriptHandler::get(CombatScriptID scriptID) const
 {
+	if(!scriptID.hasValue())
+		return nullptr;
+
 	const auto & script = scriptTypes.at(scriptID.getNum());
 	return scriptTypeFactories.at(script.type)->get(script.scriptId);
 }
 
 std::string CombatScriptHandler::getDescriptionTextID(CombatScriptID scriptID) const
 {
+	if(!scriptID.hasValue())
+		return {};
+
 	return scriptTypes.at(scriptID.getNum()).descriptionTextID;
 }
 

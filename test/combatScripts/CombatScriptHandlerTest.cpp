@@ -31,10 +31,11 @@ TEST(CombatScriptHandlerTest, FixtureScriptIsLoaded)
 	EXPECT_NE(nullptr, LIBRARY->combatScripts()->get(CombatScriptID(*index)));
 }
 
-/// Bonuses referring to a script from a mod that is no longer present must not crash the battle.
-TEST(CombatScriptHandlerTest, UnresolvedScriptIsNull)
+/// An unset script identifier is a legal value that every accessor has to tolerate.
+TEST(CombatScriptHandlerTest, UnsetScriptIsNull)
 {
 	EXPECT_EQ(nullptr, LIBRARY->combatScripts()->get(CombatScriptID::NONE));
+	EXPECT_EQ("", LIBRARY->combatScripts()->getDescriptionTextID(CombatScriptID::NONE));
 }
 
 }

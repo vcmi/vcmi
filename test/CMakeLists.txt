@@ -34,6 +34,7 @@ set(test_SRCS
 		combatScripts/LifeDrainScriptTest.cpp
 		combatScripts/SoulStealScriptTest.cpp
 		combatScripts/CombatScriptDescriptionTest.cpp
+		combatScripts/BonusMigrationTest.cpp
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp

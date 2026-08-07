@@ -11,6 +11,7 @@
 
 #include "BonusEnum.h"
 #include "BonusCustomTypes.h"
+#include "BonusMigration.h"
 #include "Limiters.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
@@ -100,6 +101,9 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		//old saves stored BATTLE_NO_FLEEING in the slot now used by BATTLE_CAN_FLEE, it blocked retreating unconditionally
 		if(!h.saving && !h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && type == BonusType::BATTLE_CAN_FLEE)
 			val = -GameConstants::BATTLE_RETREAT_BLOCK;
+
+		if (!h.saving && !h.hasFeature(Handler::Version::COMBAT_ABILITY_SCRIPTS))
+			BonusMigration::migrateCombatAbility(*this);
 	}
 
 	void convertAddInfo(const std::vector<int> & oldAddInfo);

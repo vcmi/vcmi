@@ -830,8 +830,9 @@ Affected unit will never receive retaliations when attacking
 
 ### SOUL_STEAL
 
-REMOVED. This bonus no longer has any effect. Use the [soulSteal](../Lua/Script_Types.md#combat-script)
-combat script instead:
+DEPRECATED. Configs and saves declaring it are converted to the
+[soulSteal](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly:
 
 ```json
 {
@@ -985,8 +986,9 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 ### LIFE_DRAIN
 
-REMOVED. This bonus no longer has any effect. Use the [lifeDrain](../Lua/Script_Types.md#combat-script)
-combat script instead, where `percentage` replaces `val`:
+DEPRECATED. Configs and saves declaring it are converted to the
+[lifeDrain](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly, where `percentage` replaces `val`:
 
 ```json
 {

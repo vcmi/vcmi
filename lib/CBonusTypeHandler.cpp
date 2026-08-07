@@ -75,7 +75,7 @@ std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatS
 {
 	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(parameters.eventScript);
 
-	// the mod providing the script may be gone, leaving the bonus unresolved
+	// a trigger bonus with no script set describes nothing
 	if(textID.empty())
 		return "";
 

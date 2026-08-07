@@ -34,10 +34,11 @@ class DLL_LINKAGE CombatScriptService : boost::noncopyable
 public:
 	virtual ~CombatScriptService() = default;
 
-	/// Returns null if the identifier could not be resolved, e.g. because the mod providing it is gone.
+	/// Returns null if no script is set. Throws on an identifier that is set but out of range,
+	/// which can only mean the value itself is corrupt.
 	virtual std::shared_ptr<ICombatEventScript> get(CombatScriptID scriptID) const = 0;
 
-	/// Text ID of the description shown for a bonus that runs this script. Empty if unknown.
+	/// Text ID of the description shown for a bonus that runs this script. Empty if none is set.
 	virtual std::string getDescriptionTextID(CombatScriptID scriptID) const = 0;
 
 	virtual void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) = 0;
