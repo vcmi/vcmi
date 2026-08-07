@@ -36,10 +36,14 @@
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModVerificationInfo.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
@@ -308,6 +312,165 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	printCommandMessage("Translation export complete");
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 
+}
+
+void ClientCommandManager::handleCacheMapsCommand()
+{
+	CMapService mapService;
+
+	printCommandMessage("Searching for available maps");
+	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::MAP;
+	});
+
+	// Group maps by mod
+	std::map<std::string, JsonNode> modCacheData;
+	size_t processedCount = 0;
+	size_t failedCount = 0;
+
+	printCommandMessage("Loading map headers for cache generation");
+	for (auto const & mapName : mapList)
+	{
+		try
+		{
+			std::string modId = LIBRARY->modh->findResourceOrigin(mapName);
+
+			auto mapHeader = mapService.loadMapHeader(mapName);
+
+			JsonNode entry;
+			{
+				std::string fileURI = mapName.getOriginalName();
+				if (!TextOperations::isValidUnicodeString(fileURI))
+					fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
+				entry["fileURI"].String() = fileURI;
+			}
+			entry["name"].String() = mapHeader->name.toString();
+			entry["description"].String() = mapHeader->description.toString();
+			entry["author"].String() = mapHeader->author.toString();
+			entry["authorContact"].String() = mapHeader->authorContact.toString();
+			entry["mapVersion"].String() = mapHeader->mapVersion.toString();
+			entry["creationDateTime"].Integer() = static_cast<int64_t>(mapHeader->creationDateTime);
+			entry["width"].Integer() = mapHeader->width;
+			entry["height"].Integer() = mapHeader->height;
+			entry["difficulty"].Integer() = static_cast<int>(mapHeader->difficulty);
+			entry["levelLimit"].Integer() = mapHeader->levelLimit;
+			entry["howManyTeams"].Integer() = mapHeader->howManyTeams;
+			entry["version"].Integer() = static_cast<int>(mapHeader->version);
+
+			JsonNode playersNode;
+			for (const auto & player : mapHeader->players)
+				playersNode.Vector().push_back(JsonNode(player.canAnyonePlay()));
+			entry["players"] = playersNode;
+
+			JsonNode requiredModsNode;
+			for (const auto & modEntry : mapHeader->mods)
+			{
+				JsonNode modNode;
+				modNode["name"].String() = modEntry.second.name;
+				modNode["version"].String() = modEntry.second.version.toString();
+				requiredModsNode.Vector().push_back(modNode);
+			}
+			entry["requiredMods"] = requiredModsNode;
+
+			modCacheData[modId].Vector().push_back(entry);
+			processedCount++;
+		}
+		catch (std::exception & e)
+		{
+			logGlobal->warn("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+			failedCount++;
+		}
+	}
+
+	// Write cache files to extracted directory
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "maps";
+	boost::filesystem::create_directories(outPath);
+
+	for (auto & modEntry : modCacheData)
+	{
+		std::string filename = modEntry.first;
+		boost::range::replace(filename, '.', '_');
+
+		// Write to user extracted directory
+		const boost::filesystem::path filePath = outPath / (filename + ".json");
+		std::ofstream outFile(filePath.c_str());
+		outFile << modEntry.second.toString();
+		outFile.close();
+	}
+
+	printCommandMessage("Map cache generation complete");
+	printCommandMessage("Processed " + std::to_string(processedCount) + " maps, " + std::to_string(failedCount) + " failed");
+	printCommandMessage("Cache files can be found in " + outPath.string() + " directory\n");
+}
+
+void ClientCommandManager::handleCacheCampaignsCommand()
+{
+	printCommandMessage("Searching for available campaigns");
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::CAMPAIGN;
+	});
+
+	// Group campaigns by mod
+	std::map<std::string, JsonNode> modCacheData;
+	size_t processedCount = 0;
+	size_t failedCount = 0;
+
+	printCommandMessage("Loading campaign headers for cache generation");
+	for (auto const & campaignName : campaignList)
+	{
+		try
+		{
+			std::string modId = LIBRARY->modh->findResourceOrigin(campaignName);
+
+			auto campaign = CampaignHandler::getHeader(campaignName.getName());
+
+			JsonNode entry;
+			{
+				std::string fileURI = campaignName.getOriginalName();
+				if (!TextOperations::isValidUnicodeString(fileURI))
+					fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
+				entry["fileURI"].String() = fileURI;
+			}
+			entry["name"].String() = campaign->getNameTranslated();
+			entry["description"].String() = campaign->getDescriptionTranslated();
+			entry["author"].String() = campaign->getAuthor();
+			entry["authorContact"].String() = campaign->getAuthorContact();
+			entry["campaignVersion"].String() = campaign->getCampaignVersion();
+			entry["creationDateTime"].Integer() = static_cast<int64_t>(campaign->getCreationDateTime());
+			entry["numberOfScenarios"].Integer() = campaign->scenariosCount();
+			for (auto scenarioID : campaign->allScenarios())
+				entry["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaign->scenario(scenarioID)));
+
+			modCacheData[modId].Vector().push_back(entry);
+			processedCount++;
+		}
+		catch (std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+			failedCount++;
+		}
+	}
+
+	// Write cache files to extracted directory
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "campaigns";
+	boost::filesystem::create_directories(outPath);
+
+	for (auto & modEntry : modCacheData)
+	{
+		std::string filename = modEntry.first;
+		boost::range::replace(filename, '.', '_');
+
+		const boost::filesystem::path filePath = outPath / (filename + ".json");
+		std::ofstream outFile(filePath.c_str());
+		outFile << modEntry.second.toString();
+		outFile.close();
+	}
+
+	printCommandMessage("Campaign cache generation complete");
+	printCommandMessage("Processed " + std::to_string(processedCount) + " campaigns, " + std::to_string(failedCount) + " failed");
+	printCommandMessage("Cache files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -690,6 +853,12 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();
+
+	else if(message=="cache maps")
+		handleCacheMapsCommand();
+
+	else if(message=="cache campaigns")
+		handleCacheCampaignsCommand();
 
 	else if(message=="get config")
 		handleGetConfigCommand();

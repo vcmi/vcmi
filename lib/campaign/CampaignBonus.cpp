@@ -239,14 +239,14 @@ CampaignBonus::CampaignBonus(const JsonNode & bjson, CampaignStartOptions mode)
 		}
 		case CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO: //reading of players (colors / scenarios ?) player can choose
 		{
-			PlayerColor player(SecondarySkill::decode(bjson["playerColor"].String()));
+			PlayerColor player(PlayerColor::decode(bjson["playerColor"].String()));
 			CampaignScenarioID scenario(bjson["scenario"].Integer());
 			data = CampaignBonusHeroesFromScenario{player, scenario};
 			break;
 		}
 		case CampaignBonusType::HERO: //heroes player can choose between
 		{
-			PlayerColor player(SecondarySkill::decode(bjson["playerColor"].String()));
+			PlayerColor player(PlayerColor::decode(bjson["playerColor"].String()));
 			HeroTypeID hero(decodeHeroTypeID(bjson["hero"]));
 			data = CampaignBonusStartingHero{player, hero};
 			break;

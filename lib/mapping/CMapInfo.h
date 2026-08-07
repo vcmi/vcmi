@@ -16,6 +16,7 @@ struct StartInfo;
 class CMapHeader;
 class Campaign;
 class ResourcePath;
+class JsonNode;
 
 /**
  * A class which stores the count of human players and all players, the filename,
@@ -50,6 +51,7 @@ public:
 	void saveInit(const ResourcePath & file);
 	void campaignInit();
 	void countPlayers();
+	void initFromCache(const JsonNode & data);
 	
 	std::string getNameTranslated() const;
 	std::string getNameForList() const;

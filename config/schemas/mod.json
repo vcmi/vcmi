@@ -355,6 +355,18 @@
 		"templates" : {
 			"description" : "List of configuration files for RMG templates",
 			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"scripts" : {
+			"description" : "List of configuration files for scripts",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"mapCaches" : {
+			"description" : "List of files with cached map meta information to speed up map loading",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"campaignCaches" : {
+			"description" : "List of files with cached campaign meta information to speed up campaign loading",
+			"$ref" : "#/definitions/fileListOrObject"
 		}
 	}
 }

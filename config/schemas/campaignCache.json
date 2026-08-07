@@ -1,0 +1,51 @@
+{
+	"type" : "array",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI campaign cache",
+	"description" : "Cached campaign metadata for a mod, to avoid reading individual campaign files",
+	"items" : {
+		"type" : "object",
+		"required" : ["fileURI", "name"],
+		"additionalProperties" : false,
+		"properties" : {
+			"fileURI" : {
+				"type" : "string",
+				"description" : "Relative path of the campaign file within the mod"
+			},
+			"name" : {
+				"type" : "string",
+				"description" : "Campaign name (original string, untranslated)"
+			},
+			"description" : {
+				"type" : "string",
+				"description" : "Campaign description (original string, untranslated)"
+			},
+			"author" : {
+				"type" : "string",
+				"description" : "Campaign author"
+			},
+			"authorContact" : {
+				"type" : "string",
+				"description" : "Author contact information"
+			},
+			"campaignVersion" : {
+				"type" : "string",
+				"description" : "Campaign version string"
+			},
+			"creationDateTime" : {
+				"type" : "integer",
+				"description" : "Campaign creation timestamp"
+			},
+			"numberOfScenarios" : {
+				"type" : "integer",
+				"minimum" : 1,
+				"description" : "Number of scenarios in the campaign"
+			},
+			"scenarios" : {
+				"type" : "array",
+				"description" : "Scenario metadata for this campaign",
+				"items" : { "type" : "object" }
+			}
+		}
+	}
+}

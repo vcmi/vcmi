@@ -116,6 +116,7 @@ Other:
 - [Biome](Entities_Format/Biome_Format.md)
 - [Battlefield](Entities_Format/Battlefield_Format.md)
 - [Battle Obstacle](Entities_Format/Battle_Obstacle_Format.md)
+- [Map and Campaign Caches](Map_Campaign_Caches.md)
 
 ## Game Identifiers system
 

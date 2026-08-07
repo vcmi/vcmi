@@ -196,7 +196,21 @@ These are fields that are present only in local mod.json file
 	[
 		"config/templates.json"
 	],
-	
+
+	// List of files with cached map meta information to speed up map loading
+	// Generated with /cache maps command. See Map_Campaign_Caches.md for details
+	"mapCaches" :
+	[
+		"config/cache/mapCache.json"
+	],
+
+	// List of files with cached campaign meta information to speed up campaign loading
+	// Generated with /cache campaigns command. See Map_Campaign_Caches.md for details
+	"campaignCaches" :
+	[
+		"config/cache/campaignCache.json"
+	],
+
 	// Optional, primaly used by translation mods
 	// Defines strings that are translated by mod into base language specified in 'language' field
 	"translations" :

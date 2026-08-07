@@ -52,6 +52,12 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Extracts all translateable texts from maps and campaigns into Translation directory, separating files on per-mod basis
 	void handleTranslateMapsCommand();
 
+	// Generates or regenerates map cache files for all mods that contain maps
+	void handleCacheMapsCommand();
+
+	// Generates or regenerates campaign cache files for all mods that contain campaigns
+	void handleCacheCampaignsCommand();
+
 	// Saves current game configuration into extracted/configuration folder
 	void handleGetConfigCommand();
 

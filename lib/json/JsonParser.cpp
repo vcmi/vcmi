@@ -156,9 +156,6 @@ bool JsonParser::extractWhitespace(bool verbose)
 
 bool JsonParser::extractEscaping(std::string & str)
 {
-	// TODO: support unicode escaping:
-	// \u1234
-
 	switch(input[pos])
 	{
 		case '\r':
@@ -207,6 +204,52 @@ bool JsonParser::extractEscaping(std::string & str)
 			str += '/';
 			pos++;
 			return true;
+		case 'u':
+		{
+			if(pos + 4 >= input.size())
+				return error("Unexpected end of file in unicode escape!", true);
+
+			uint32_t codepoint = 0;
+			for(int i = 1; i <= 4; i++)
+			{
+				char c = input[pos + i];
+				codepoint <<= 4;
+				if(c >= '0' && c <= '9')
+					codepoint += c - '0';
+				else if(c >= 'a' && c <= 'f')
+					codepoint += c - 'a' + 10;
+				else if(c >= 'A' && c <= 'F')
+					codepoint += c - 'A' + 10;
+				else
+					return error("Invalid hex digit in unicode escape!", true);
+			}
+
+			// Encode codepoint to UTF-8
+			if(codepoint <= 0x7F)
+			{
+				str += static_cast<char>(codepoint);
+			}
+			else if(codepoint <= 0x7FF)
+			{
+				str += static_cast<char>(0xC0 | (codepoint >> 6));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			else if(codepoint <= 0xFFFF)
+			{
+				str += static_cast<char>(0xE0 | (codepoint >> 12));
+				str += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			else
+			{
+				str += static_cast<char>(0xF0 | (codepoint >> 18));
+				str += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+				str += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			pos += 5; // skip 'u' + 4 hex digits
+			return true;
+		}
 	}
 	return error("Unknown escape sequence!", true);
 }

@@ -73,6 +73,36 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
+std::unique_ptr<Campaign> CampaignHandler::getHeaderFromCache( const JsonNode & data)
+{
+	auto ret = std::make_unique<Campaign>();
+
+	ret->name.appendRawString(data["name"].String());
+	if (!data["description"].isNull())
+		ret->description.appendRawString(data["description"].String());
+	if (!data["author"].isNull())
+		ret->author.appendRawString(data["author"].String());
+	if (!data["authorContact"].isNull())
+		ret->authorContact.appendRawString(data["authorContact"].String());
+	if (!data["campaignVersion"].isNull())
+		ret->campaignVersion.appendRawString(data["campaignVersion"].String());
+	if (!data["creationDateTime"].isNull())
+		ret->creationDateTime = static_cast<std::time_t>(data["creationDateTime"].Integer());
+	if (!data["numberOfScenarios"].isNull())
+		ret->numberOfScenarios = static_cast<int>(data["numberOfScenarios"].Integer());
+
+	if (!data["scenarios"].isNull())
+	{
+		for (auto scenarioData : data["scenarios"].Vector())
+		{
+			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
+			ret->scenarios[scenarioID] = readScenarioFromJson(scenarioData);
+		}
+	}
+
+	return ret;
+}
+
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
@@ -406,7 +436,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	};
 
 	CampaignScenario ret;
-	ret.mapName = reader.readBaseString();
+	ret.mapName = TextOperations::toUnicode(reader.readBaseString(), header.encoding);
 	reader.readUInt32(); //packedMapSize - not used
 	if(header.numberOfScenarios > 8) //unholy alliance
 	{
