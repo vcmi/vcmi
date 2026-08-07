@@ -17,7 +17,7 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	/// if set, client stores every received netpack on disk so the whole game can be replayed later
 	bool recordGame = false;
 
-	bool operator == (const ExtraOptionsInfo & other) const;
+	bool operator == (const ExtraOptionsInfo & other) const = default;
 
 	template <typename Handler>
 	void serialize(Handler &h)

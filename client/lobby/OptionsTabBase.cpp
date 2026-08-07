@@ -456,8 +456,11 @@ void OptionsTabBase::recreate(bool campaign)
 
 	if(auto buttonRecordGame = widget<CToggleButton>("buttonRecordGame"))
 	{
+		// flipping this for a savegame would discard or falsely extend its existing recording
+		const bool gameAlreadyStarted = SEL->getStartInfo()->mode == EStartMode::LOAD_GAME;
+
 		buttonRecordGame->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.recordGame);
-		buttonRecordGame->block(GAME->server().isGuest());
+		buttonRecordGame->block(GAME->server().isGuest() || gameAlreadyStarted);
 	}
 
 	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))

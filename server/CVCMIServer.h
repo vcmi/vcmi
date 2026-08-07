@@ -69,9 +69,6 @@ public:
 	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionID) const override;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
 	void applyPack(CPackForClient & pack) override;
-
-	/// appends the pack to the replay log kept inside the gamestate
-	void recordPackForReplay(CPackForClient & pack);
 	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
 
 	/// List of all active connections

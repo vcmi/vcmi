@@ -44,12 +44,6 @@ private:
 	std::shared_ptr<VideoWidget> videoPlayer;
 	CPlayerInterface & owner;
 
-	/// while a replay is shown the window closes on its own after this delay
-	static constexpr uint32_t replayAutoCloseDelay = 3000;
-
-	/// milliseconds left before the window closes itself, 0 when it does not
-	uint32_t autoCloseCountdown = 0;
-
 	BattleResultResources getResources(const BattleResult & br);
 
 	void buttonPressed(int button); //internal function for button callbacks
@@ -61,5 +55,4 @@ public:
 	std::function<void(int result)> resultCallback; //callback receiving which button was pressed
 
 	void activate() override;
-	void tick(uint32_t msPassed) override;
 };

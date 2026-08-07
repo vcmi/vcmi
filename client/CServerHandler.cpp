@@ -1114,10 +1114,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 		gameplayReplayer->waitForFinish();
 	}
 
-	// The server keeps the authoritative log for savegames, but its additions never reach us -
-	// the gamestate is only transferred once, when the game starts. So the client maintains its
-	// own copy from the very same pack stream. Recorded before lag compensation, which returns
-	// early for packs that the gamestate already received as a prediction.
+	// not done in CGameState::apply() - lag compensation applies predictions and rollbacks there
 	if(client)
 		client->gameState().replayLog.recordPack(clientPack, client->gameState());
 

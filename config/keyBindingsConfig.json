@@ -29,7 +29,7 @@
 		"adventureNextTown":        "T",
 		"adventureQuestLog":        "Q",
 		"adventureQuitGame":        "Ctrl+Q",
-		"adventureReplayTurn":      [],
+		"adventureReplayTurn":      "Ctrl+R",
 		"adventureRestartGame":     "R",
 		"adventureSaveGame":        "S",
 		"adventureQuickSave":       ["F8"],

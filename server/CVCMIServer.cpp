@@ -22,7 +22,6 @@
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/gameState/ReplayLog.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/modding/CModHandler.h"
@@ -1217,20 +1216,11 @@ bool CVCMIServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor r
 
 void CVCMIServer::applyPack(CPackForClient & pack)
 {
-	// recorded before the pack is applied, so that a fresh snapshot holds the pre-pack state
-	recordPackForReplay(pack);
-
 	logNetwork->trace("\tSending to all clients: %s", typeid(pack).name());
 	for (const auto & c : activeConnections)
 		c->sendPack(pack);
 	gh->gs->apply(pack);
 	logNetwork->trace("\tApplied on gameState(): %s", typeid(pack).name());
-}
-
-void CVCMIServer::recordPackForReplay(CPackForClient & pack)
-{
-	if(gh && gh->gs)
-		gh->gs->replayLog.recordPack(pack, *gh->gs);
 }
 
 void CVCMIServer::sendPack(CPackForClient & pack, GameConnectionID connectionID)

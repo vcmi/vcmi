@@ -19,9 +19,8 @@ class CLabel;
 class CSlider;
 class TransparentFilledRectangle;
 
-/// Controls drawn in the top left corner on top of everything else - including an ongoing combat -
-/// that let the player steer a running replay: abort it, pause it, or change how fast it is shown.
-/// The speed is applied to the regular animation settings and restored once the replay is over.
+/// Abort, pause and speed controls for a running replay, drawn on top of everything else.
+/// Speed is applied to the regular animation settings and restored when the replay ends.
 class ReplayAbortOverlay final : public CIntObject
 {
 	/// animation settings this overlay temporarily overrides, slowest first

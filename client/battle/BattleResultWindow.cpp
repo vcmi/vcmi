@@ -56,17 +56,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
 
-	// a replay is only watched, never influenced - accepting the result is the single option,
-	// and the window steps out of the way on its own
-	const bool duringReplay = GAME->server().isReplayActive();
-
-	if(duringReplay)
-	{
-		autoCloseCountdown = replayAutoCloseDelay;
-		addUsedEvents(TIME);
-	}
-
-	if(!duringReplay && (allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay) && onlyOnePlayerHuman)
+	if((allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay) && onlyOnePlayerHuman)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [this](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
@@ -256,26 +246,6 @@ void BattleResultWindow::activate()
 {
 	owner.showingDialog->setBusy();
 	CIntObject::activate();
-}
-
-void BattleResultWindow::tick(uint32_t msPassed)
-{
-	if(autoCloseCountdown == 0)
-		return;
-
-	if(msPassed < autoCloseCountdown)
-	{
-		autoCloseCountdown -= msPassed;
-		return;
-	}
-
-	// a dialog of the battle aftermath may sit on top of us by now, and only a top window
-	// may close itself - retry on one of the next ticks instead
-	if(!ENGINE->windows().isTopWindow(this))
-		return;
-
-	autoCloseCountdown = 0;
-	bExitf();
 }
 
 void BattleResultWindow::buttonPressed(int button)

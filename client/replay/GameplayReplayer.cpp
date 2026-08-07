@@ -133,7 +133,7 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 		// fast-forwarding through earlier turns costs nothing but CPU time.
 		replayState = std::make_shared<CGameState>();
 		replayState->preInit(LIBRARY);
-		replayState->loadFromMemory(sequence.snapshot);
+		replayState->loadFromMemory(std::move(sequence.snapshot));
 
 		for(const auto & data : sequence.fastForwardPacks)
 		{
@@ -277,7 +277,7 @@ namespace
 	size_t findAnchorChapter(const std::vector<ReplayChapter> & chapters, size_t chapter)
 	{
 		for(size_t i = chapter + 1; i-- > 0;)
-			if(!chapters[i].snapshot.empty())
+			if(!chapters[i].gamestateSnapshot.empty())
 				return i;
 
 		throw std::runtime_error("Recording has no gamestate to start this replay from!");
@@ -294,7 +294,7 @@ std::vector<ReplayTurnOption> ReplayPlanner::availableTurns(const ReplayLog & lo
 		// a turn can only be shown if some earlier chapter still has a gamestate to start from
 		bool reachable = false;
 		for(size_t i = chapterIndex + 1; i-- > 0;)
-			if(!chapters[i].snapshot.empty())
+			if(!chapters[i].gamestateSnapshot.empty())
 				reachable = true;
 
 		if(!reachable)
@@ -303,12 +303,10 @@ std::vector<ReplayTurnOption> ReplayPlanner::availableTurns(const ReplayLog & lo
 		for(size_t turnIndex = 0; turnIndex < chapters[chapterIndex].turns.size(); ++turnIndex)
 		{
 			const auto & turn = chapters[chapterIndex].turns[turnIndex];
-			result.push_back({turn.player, turn.day, false, chapterIndex, turnIndex});
+			const bool ongoing = turn.lastPack == ReplayTurnMark::ongoingTurn;
+			result.push_back({turn.player, turn.day, ongoing, chapterIndex, turnIndex});
 		}
 	}
-
-	if(!result.empty())
-		result.back().ongoing = true;
 
 	return result;
 }
@@ -321,16 +319,19 @@ ReplaySequence ReplayPlanner::prepareTurn(const ReplayLog & log, const ReplayTur
 		throw std::runtime_error("Requested replay of a turn that is no longer available!");
 
 	const auto & chapter = chapters[option.chapter];
+	const auto & turn = chapter.turns[option.turn];
 	const size_t anchor = findAnchorChapter(chapters, option.chapter);
-	const size_t firstPack = chapter.turns[option.turn].firstPack;
-	const size_t lastPack = option.turn + 1 < chapter.turns.size()
-		? chapter.turns[option.turn + 1].firstPack
-		: chapter.packs.size();
+
+	// a turn spans from its own start to its own end - with simturns other players act in between
+	const size_t firstPack = turn.firstPack;
+	const size_t lastPack = turn.lastPack == ReplayTurnMark::ongoingTurn
+		? chapter.packs.size()
+		: std::min<size_t>(turn.lastPack, chapter.packs.size());
 
 	ReplaySequence result;
-	result.replayedPlayer = chapter.turns[option.turn].player;
-	result.day = chapter.turns[option.turn].day;
-	result.snapshot = chapters[anchor].snapshot;
+	result.replayedPlayer = turn.player;
+	result.day = turn.day;
+	result.snapshot = chapters[anchor].gamestateSnapshot;
 
 	// everything between the anchor and the replayed turn is applied without any visuals
 	for(size_t i = anchor; i < option.chapter; ++i)
@@ -350,7 +351,7 @@ ReplaySequence ReplayPlanner::prepareEntireGame(const ReplayLog & log)
 	const auto & chapters = log.getChapters();
 
 	ReplaySequence result;
-	result.snapshot = chapters.front().snapshot;
+	result.snapshot = chapters.front().gamestateSnapshot;
 
 	if(!chapters.front().turns.empty())
 	{

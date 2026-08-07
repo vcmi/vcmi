@@ -51,12 +51,8 @@ namespace ReplayPlanner
 	ReplaySequence prepareEntireGame(const ReplayLog & log);
 }
 
-/// Plays a recorded sequence of netpacks back on a throw-away copy of the game.
-///
-/// The live gamestate is never modified: replaying installs a second, temporary session
-/// (gamestate, callbacks, human interface, map handler, window stack) into CClient and puts the
-/// original one back once the replay is over. Nothing is ever sent to the server, and every pack
-/// that would ask the player for input is applied without showing anything.
+/// Plays recorded netpacks back on a throw-away session that is swapped into CClient and out again.
+/// Nothing is sent to the server, and packs that would ask for input are applied without showing.
 class GameplayReplayer final : boost::noncopyable
 {
 public:

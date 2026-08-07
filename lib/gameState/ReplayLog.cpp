@@ -14,65 +14,23 @@
 
 #include "../networkPacks/NetPacksBase.h"
 #include "../networkPacks/PacksForClient.h"
-#include "../serializer/BinaryDeserializer.h"
-#include "../serializer/BinarySerializer.h"
-
-namespace
-{
-	class ReplayPackWriter final : public IBinaryWriter
-	{
-	public:
-		std::vector<std::byte> data;
-
-		int write(const std::byte * source, unsigned size) final
-		{
-			data.insert(data.end(), source, source + size);
-			return size;
-		}
-	};
-
-	class ReplayPackReader final : public IBinaryReader
-	{
-		const std::vector<std::byte> & data;
-		size_t position = 0;
-
-	public:
-		explicit ReplayPackReader(const std::vector<std::byte> & data)
-			: data(data)
-		{
-		}
-
-		int read(std::byte * target, unsigned size) final
-		{
-			if(position + size > data.size())
-				throw std::runtime_error("Recorded netpack ended unexpectedly!");
-
-			std::copy_n(data.begin() + position, size, target);
-			position += size;
-			return size;
-		}
-	};
-}
+#include "../serializer/CMemorySerializer.h"
 
 std::vector<std::byte> ReplayPackSerializer::write(const CPackForClient & pack)
 {
-	ReplayPackWriter writer;
-	BinarySerializer serializer(&writer);
-	serializer.version = ESerializationVersion::CURRENT;
-	serializer & &pack;
+	CMemorySerializer serializer;
+	serializer.oser & &pack;
 
-	return std::move(writer.data);
+	return serializer.extractBuffer();
 }
 
 std::unique_ptr<CPack> ReplayPackSerializer::read(const std::vector<std::byte> & data, IGameInfoCallback * cb)
 {
-	ReplayPackReader reader(data);
-	BinaryDeserializer deserializer(&reader);
-	deserializer.version = ESerializationVersion::CURRENT;
-	deserializer.cb = cb;
+	CMemorySerializer serializer(data);
+	serializer.iser.cb = cb;
 
 	std::unique_ptr<CPack> result;
-	deserializer & result;
+	serializer.iser & result;
 
 	if(result == nullptr)
 		throw std::runtime_error("Failed to read a netpack from the replay log!");
@@ -84,14 +42,21 @@ void ReplayLog::configure(bool recordEntireGameValue, uint32_t roundsKeptValue)
 {
 	recordEntireGame = recordEntireGameValue;
 	roundsKept = roundsKeptValue;
+	recordingPacks = true;
 }
 
-void ReplayLog::beginDay(std::vector<std::byte> snapshot)
+void ReplayLog::reconfigureOnLoad(uint32_t roundsKeptValue)
 {
-	logGlobal->debug("Replay: new chapter, snapshot of %d bytes, %d chapters kept", snapshot.size(), chapters.size() + 1);
+	roundsKept = roundsKeptValue;
+	recordingPacks = true;
+}
+
+void ReplayLog::beginDay(std::vector<std::byte> gamestateSnapshot)
+{
+	logGlobal->debug("Replay: new chapter, snapshot of %d bytes, %d chapters kept", gamestateSnapshot.size(), chapters.size() + 1);
 
 	chapters.emplace_back();
-	chapters.back().snapshot = std::move(snapshot);
+	chapters.back().gamestateSnapshot = std::move(gamestateSnapshot);
 
 	dropExpiredData();
 }
@@ -114,8 +79,8 @@ void ReplayLog::dropExpiredData()
 	// of the window are not needed - those days are reached by fast-forwarding from the first one
 	for(size_t i = 1; i < chapters.size() - chaptersToKeep; ++i)
 	{
-		chapters[i].snapshot.clear();
-		chapters[i].snapshot.shrink_to_fit();
+		chapters[i].gamestateSnapshot.clear();
+		chapters[i].gamestateSnapshot.shrink_to_fit();
 	}
 }
 
@@ -124,7 +89,34 @@ void ReplayLog::addTurn(const PlayerColor & player, uint32_t day)
 	if(chapters.empty())
 		return;
 
-	chapters.back().turns.push_back({player, day, static_cast<uint32_t>(chapters.back().packs.size())});
+	// the server re-announces a turn that is already running, e.g. after loading a save
+	for(const auto & turn : chapters.back().turns)
+		if(turn.player == player && turn.lastPack == ReplayTurnMark::ongoingTurn)
+			return;
+
+	ReplayTurnMark mark;
+	mark.player = player;
+	mark.day = day;
+	mark.firstPack = static_cast<uint32_t>(chapters.back().packs.size());
+
+	chapters.back().turns.push_back(mark);
+}
+
+void ReplayLog::endTurn(const PlayerColor & player)
+{
+	if(chapters.empty())
+		return;
+
+	// with simturns several turns are open at once, so the right one has to be picked
+	auto & turns = chapters.back().turns;
+	for(size_t i = turns.size(); i-- > 0;)
+	{
+		if(turns[i].player == player && turns[i].lastPack == ReplayTurnMark::ongoingTurn)
+		{
+			turns[i].lastPack = static_cast<uint32_t>(chapters.back().packs.size());
+			return;
+		}
+	}
 }
 
 void ReplayLog::recordPack(CPackForClient & pack, CGameState & gs)
@@ -135,6 +127,9 @@ void ReplayLog::recordPack(CPackForClient & pack, CGameState & gs)
 
 	if(const auto * turnStart = dynamic_cast<const PlayerStartsTurn *>(&pack))
 		addTurn(turnStart->player, gs.day);
+
+	if(const auto * turnEnd = dynamic_cast<const PlayerEndsTurn *>(&pack))
+		endTurn(turnEnd->player);
 
 	try
 	{
@@ -154,6 +149,11 @@ void ReplayLog::addPack(std::vector<std::byte> data)
 	chapters.back().packs.push_back(std::move(data));
 }
 
+bool ReplayLog::isRecordingPacks() const
+{
+	return recordingPacks;
+}
+
 bool ReplayLog::empty() const
 {
 	return chapters.empty();
@@ -166,7 +166,7 @@ bool ReplayLog::isRecordingEntireGame() const
 
 bool ReplayLog::canReplayEntireGame() const
 {
-	return recordEntireGame && !chapters.empty() && !chapters.front().snapshot.empty();
+	return recordEntireGame && !chapters.empty() && !chapters.front().gamestateSnapshot.empty();
 }
 
 const std::vector<ReplayChapter> & ReplayLog::getChapters() const

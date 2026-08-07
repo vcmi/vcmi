@@ -378,6 +378,14 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 		return;
 	}
 
+	// a replay has nothing to ask, so the result window is skipped like every other dialog
+	if(GAME->server().isReplayActive())
+	{
+		windowObject->close();
+		CPlayerInterface::battleInt.reset();
+		return;
+	}
+
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
 	wnd->resultCallback = [this, queryID](ui32 selection)
 	{

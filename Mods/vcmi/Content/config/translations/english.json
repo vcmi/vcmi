@@ -333,7 +333,7 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Set the map scrolling speed to instantaneous.",
 	"vcmi.adventureOptions.minimapShowHeroes.help": "{Show Heroes On Minimap}\n\nShow addition icon for all heroes visible on minimap, making them more easy to see on large maps.",
 	"vcmi.adventureOptions.minimapShowHeroes.hover": "Show Heroes On Minimap",
-	"vcmi.adventureOptions.replayShowBattles.help": "{Show Combats In Replays}\n\nWhen replaying a turn, combats are played out on screen. If disabled, they are resolved instantly.",
+	"vcmi.adventureOptions.replayShowBattles.help": "{Show Combats In Replays}\n\nEvery combat that took place during the replayed turn is played out on screen. If disabled, such combats are skipped.",
 	"vcmi.adventureOptions.replayShowBattles.hover": "Show Combats In Replays",
 	"vcmi.adventureOptions.numericQuantities.help": "{Numeric Creature Quantities}\n\nShow the approximate quantities of enemy creatures in the numeric A-B format.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numeric Creature Quantities",

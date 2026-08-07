@@ -313,7 +313,6 @@ set(lib_MAIN_SRCS
 	CSkillHandler.cpp
 	CStack.cpp
 	ExceptionsCommon.cpp
-	ExtraOptionsInfo.cpp
 	GameSettings.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
