@@ -1171,8 +1171,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	gameHandler->sendAndApply(blm);
 
 	{
-		// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
-		// fire shield, which may kill the attacker
 		CombatEventPayload payload;
 		for(const BattleStackAttacked & bsa : bat.bsa)
 		{
@@ -1182,7 +1180,16 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			entry.killed = bsa.killedAmount;
 			payload.targets.push_back(entry);
 		}
+
+		// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
+		// fire shield, which may kill the attacker
 		processBattleEventTriggers(battle, CombatEventType::ATTACK_RESOLVED, attacker, defender, payload);
+
+		// every unit hit reacts, not only the primary target - a multi-hex attack may hit several.
+		// Not gated on the target being alive: a reaction like fire shield triggers even when the
+		// attack killed it, so each script decides for itself
+		for(const AttackedTarget & target : payload.targets)
+			processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, target.unit, attacker, payload);
 	}
 
 	BattleLogMessage fireShieldLog;
@@ -1437,10 +1444,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		return;
 
 	if(defender->alive())
-	{
 		attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-		processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
-	}
 
 	if(defender->alive())
 		handleAfterAttackAbilities(battle, ranged, attacker, defender);
@@ -1665,7 +1669,7 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	return makeBattleActionImpl(battle, ba);
 }
 
-void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary, const CombatEventPayload & payload)
+void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary, const CombatEventPayload & payload)
 {
 	// Combat events are only fired from battle actions, and neither the script API nor the spell
 	// cast below can start one - both only emit netpacks. Adding a binding that re-enters this

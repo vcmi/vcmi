@@ -202,14 +202,14 @@ Parameters:
 - `battle` - state of the battle this event happened in. See [Battle](Api_Reference.md#battle).
 - `unit` - the unit carrying the bonus, which this event happened to. See [Unit](Api_Reference.md#unit).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
-- `payload` - data specific to this event, empty for events that carry none. `onAttackResolved` fills `payload.targets` with one entry per unit hit, each holding the `unit` itself, the `damage` dealt to it and how many of its creatures were `killed`.
+- `payload` - data specific to this event, empty for events that carry none. `onAttackResolved` and `onAfterAttacked` fill `payload.targets` with one entry per unit the attack hit, each holding the `unit` itself, the `damage` dealt to it and how many of its creatures were `killed`. `onAfterAttacked` receives the whole list rather than only its own entry, so a script can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
 Functions:
 
 - `onBeforeAttack` - called before `unit` attacks `other`
 - `onAfterAttack` - called after `unit` attacked `other` and every ability triggered by that attack has resolved. Fires even if the attack killed `other`, so a script may safely replace or remove it
 - `onBeforeAttacked` - called before `unit` is attacked by `other`
-- `onAfterAttacked` - called after `unit` was attacked by `other`
+- `onAfterAttacked` - called on `unit` once the attack that hit it is resolved, before the attacker's follow-up abilities. Fires for every unit the attack hit, not only its primary target, and fires even when the attack killed `unit`, so a script that should not react to a dead unit has to check for itself. Receives a `payload`, see below
 - `onWait` - called when `unit` waits
 - `onDefend` - called when `unit` defends
 - `onBeforeMove` - called before `unit` starts movement
@@ -217,7 +217,7 @@ Functions:
 - `onUnitSpellcast` - called after `unit` casts a spell
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over. `other` is nil
 - `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil
-- `onAttackResolved` - called on the attacker once its attack is fully resolved, before any reaction of the defender such as fire shield. Receives a `payload`, see below
+- `onAttackResolved` - called on the attacker once its attack is fully resolved, before any reaction of the units it hit. Receives a `payload`, see below
 
 #### Built-in scripts
 
