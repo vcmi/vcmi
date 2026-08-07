@@ -21,6 +21,10 @@
 			"type" : "string",
 			"description" : "path to the script that represents this combat script"
 		},
+		"description" : {
+			"type" : "string",
+			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}"
+		},
 		"patches" : {
 			"type" : "array",
 			"items" : {

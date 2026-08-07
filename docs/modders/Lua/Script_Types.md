@@ -152,6 +152,18 @@ A combat script is registered in the `combatScripts` section of a mod and runs o
 }
 ```
 
+Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the text shown to the player comes from the script rather than from the bonus. Declare it as `description` on the script itself; `${parameterName}` is replaced with the value the bonus passed in `eventParameters`:
+
+```json
+"lifeDrain" : {
+    "type" : "lua",
+    "script" : "lifeDrain",
+    "description" : "{Life Drain}\nRestores health equal to ${percentage}% of damage dealt."
+}
+```
+
+A script without a `description` shows nothing, which is the way to keep an ability out of the creature window.
+
 Scripts extend `combatScript`, which implements every event as a no-op, so a script only defines the events it actually reacts to:
 
 ```lua

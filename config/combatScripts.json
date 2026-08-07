@@ -13,10 +13,12 @@
 	},
 	"lifeDrain" : {
 		"type" : "lua",
-		"script" : "lifeDrain"
+		"script" : "lifeDrain",
+		"description" : "{Life Drain}\nRestores health equal to ${percentage}% of damage dealt."
 	},
 	"soulSteal" : {
 		"type" : "lua",
-		"script" : "soulSteal"
+		"script" : "soulSteal",
+		"description" : "{Soul Steal}\nGains ${creaturesPerKill} new creatures for each enemy killed."
 	}
 }

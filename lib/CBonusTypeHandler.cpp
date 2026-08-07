@@ -16,6 +16,8 @@
 #include "filesystem/Filesystem.h"
 
 #include "CCreatureHandler.h"
+#include "bonuses/BonusParameters.h"
+#include "combatScripts/CombatScriptService.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
@@ -69,8 +71,30 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	return bonusToString(bonus, bonus->val);
 }
 
+std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatScript & parameters) const
+{
+	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(parameters.eventScript);
+
+	// the mod providing the script may be gone, leaving the bonus unresolved
+	if(textID.empty())
+		return "";
+
+	std::string text = LIBRARY->generaltexth->translate(textID);
+
+	// script parameters are named, so the description refers to them by name instead of ${val}
+	for(const auto & parameter : parameters.eventParameters.Struct())
+		boost::algorithm::replace_all(text, "${" + parameter.first + "}", parameter.second.toCompactString());
+
+	return text;
+}
+
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
 {
+	// a scripted ability is described by its script - the bonus type is shared by all of them,
+	// so the type-level description and its hidden flag can not say anything useful here
+	if(bonus->type == BonusType::COMBAT_EVENT_TRIGGER && bonus->parameters)
+		return combatScriptToString(bonus->parameters->toCustom<BonusParametersCombatScript>());
+
 	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
 	if(bt.hidden)
 		return "";

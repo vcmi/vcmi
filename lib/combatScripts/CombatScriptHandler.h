@@ -20,6 +20,7 @@ struct CombatScriptType
 	std::string scriptId; ///< modScope + ':' + identifier
 	std::string type;
 	std::string scriptName;
+	std::string descriptionTextID;
 	std::vector<ICombatScriptFactory::PatchEntry> patches; ///< vector(modScope, sourcePath)
 };
 
@@ -27,6 +28,8 @@ class CombatScriptHandler final : public IHandlerBase, public CombatScriptServic
 {
 public:
 	std::shared_ptr<ICombatEventScript> get(CombatScriptID scriptID) const override;
+
+	std::string getDescriptionTextID(CombatScriptID scriptID) const override;
 
 	void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) override;
 

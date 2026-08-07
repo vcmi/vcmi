@@ -37,5 +37,8 @@ public:
 	/// Returns null if the identifier could not be resolved, e.g. because the mod providing it is gone.
 	virtual std::shared_ptr<ICombatEventScript> get(CombatScriptID scriptID) const = 0;
 
+	/// Text ID of the description shown for a bonus that runs this script. Empty if unknown.
+	virtual std::string getDescriptionTextID(CombatScriptID scriptID) const = 0;
+
 	virtual void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) = 0;
 };

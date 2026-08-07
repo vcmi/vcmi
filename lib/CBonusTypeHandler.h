@@ -16,6 +16,7 @@
 
 
 class JsonNode;
+struct BonusParametersCombatScript;
 
 class DLL_LINKAGE CBonusType : boost::noncopyable
 {
@@ -62,6 +63,7 @@ public:
 	std::vector<BonusType> getAllObjets() const;
 private:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
+	std::string combatScriptToString(const BonusParametersCombatScript & parameters) const;
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
 	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType

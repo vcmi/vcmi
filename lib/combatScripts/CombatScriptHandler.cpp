@@ -12,15 +12,19 @@
 #include "CombatScriptHandler.h"
 
 #include "ICombatEventScript.h"
+#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
+#include "../texts/CGeneralTextHandler.h"
 
 std::shared_ptr<ICombatEventScript> CombatScriptHandler::get(CombatScriptID scriptID) const
 {
-	if(scriptID.getNum() < 0 || scriptID.getNum() >= scriptTypes.size())
-		return nullptr;
-
 	const auto & script = scriptTypes.at(scriptID.getNum());
 	return scriptTypeFactories.at(script.type)->get(script.scriptId);
+}
+
+std::string CombatScriptHandler::getDescriptionTextID(CombatScriptID scriptID) const
+{
+	return scriptTypes.at(scriptID.getNum()).descriptionTextID;
 }
 
 void CombatScriptHandler::registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory)
@@ -40,6 +44,9 @@ void CombatScriptHandler::loadObject(std::string scope, std::string name, const 
 	newScript.modScope = scope;
 	newScript.type = data["type"].String();
 	newScript.scriptName = data["script"].String();
+	newScript.descriptionTextID = TextIdentifier(scope, "combatScript", name, "description").get();
+
+	LIBRARY->generaltexth->registerString(scope, newScript.descriptionTextID, data["description"]);
 
 	for(const auto & patchEntry : data["patches"].Vector())
 		newScript.patches.emplace_back(patchEntry.getModScope(), patchEntry.String());
