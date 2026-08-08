@@ -10,6 +10,7 @@
 #pragma once
 
 #include "IImage.h"
+#include "render/ICacheableAsset.h"
 #include "render/ImageLocator.h"
 #include "render/Colors.h"
 
@@ -45,7 +46,7 @@ struct ScalableImageParameters : boost::noncopyable
 	void adjustPalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode, const ColorFilter & shifter, uint32_t colorsToSkipMask);
 };
 
-class ScalableImageShared final : public std::enable_shared_from_this<ScalableImageShared>, boost::noncopyable
+class ScalableImageShared final : public ICacheableAsset, public std::enable_shared_from_this<ScalableImageShared>, boost::noncopyable
 {
 	static constexpr int scalingSize = 5; // 0-4 range. TODO: switch to 1-4 since there is no '0' scaling
 	static constexpr int maxFlips = 4;
@@ -105,6 +106,9 @@ public:
 	bool drawTexture(SDL_Renderer * renderer, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor);
 
 	const SDL_Palette * getPalette() const;
+
+	/// Estimated memory footprint, for cache accounting
+	size_t bytesUsed() const override;
 
 	std::shared_ptr<ScalableImageInstance> createImageReference();
 

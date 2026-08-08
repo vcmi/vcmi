@@ -79,6 +79,7 @@ public:
 	Rect contentRect() const override;
 
 	bool isLoading() const override;
+	size_t bytesUsed() const override;
 	void setAsyncUpscale(bool on) override;
 	bool getAsyncUpscale() const override;
 

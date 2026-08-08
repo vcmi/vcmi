@@ -44,7 +44,9 @@ CDefFile::CDefFile(const AnimationPath & Name):
 	data(nullptr),
 	palette(nullptr)
 {
-	data = CResourceHandler::get()->load(Name)->readAll().first;
+	auto loaded = CResourceHandler::get()->load(Name)->readAll();
+	data = std::move(loaded.first);
+	dataSize = loaded.second;
 
 	palette = std::unique_ptr<SDL_Color[]>(new SDL_Color[256]);
 	int it = 0;
@@ -287,6 +289,20 @@ CDefFile::SSpriteDef CDefFile::getFrameInfo(size_t frame, size_t group) const
 }
 
 CDefFile::~CDefFile() = default;
+
+size_t CDefFile::bytesUsed() const
+{
+	size_t result = dataSize + 256 * sizeof(SDL_Color) + sizeof(CDefFile);
+
+	for(const auto & group : offset)
+		result += group.second.size() * sizeof(size_t);
+
+	for(const auto & group : name)
+		for(const auto & entry : group.second)
+			result += entry.capacity() + sizeof(std::string);
+
+	return result;
+}
 
 const std::map<size_t, size_t > CDefFile::getEntries() const
 {

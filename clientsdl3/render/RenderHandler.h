@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "MemoryBudgetedCache.h"
 #include "render/IRenderHandler.h"
 #include "render/CDefFile.h"
 
@@ -29,6 +30,10 @@ class RenderHandler final : public IRenderHandler
 
 	std::map<AnimationPath, std::map<int, std::map<int, std::pair<std::string, CDefFile::SSpriteDef>>>> animationSpriteDefs;
 	std::map<AnimationPath, std::weak_ptr<CDefFile>> animationFiles;
+
+	/// The weak maps only find an asset while somebody else still holds it. This keeps the
+	/// most recently used ones alive so they are not decoded again on the next frame.
+	MemoryBudgetedCache retainedAssets;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;

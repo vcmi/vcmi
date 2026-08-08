@@ -391,6 +391,21 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 	return self;
 }
 
+size_t SDLImageShared::bytesUsed() const
+{
+	if(surf == nullptr)
+		return sizeof(SDLImageShared);
+
+	// a surface can be shared between several images, so split its cost between the holders
+	size_t pixelBytes = static_cast<size_t>(surf->h) * surf->pitch / surf->refcount;
+
+	size_t paletteBytes = 0;
+	if(SDL_Palette * palette = CSDL_Ext::getPalette(surf))
+		paletteBytes = static_cast<size_t>(palette->ncolors) * sizeof(SDL_Color);
+
+	return pixelBytes + paletteBytes + sizeof(SDLImageShared);
+}
+
 bool SDLImageShared::isLoading() const
 {
 	return upscalingInProgress;
