@@ -14,7 +14,7 @@ Start any map, press Tab to open the chat input, and enter one of the following 
 
 ### Map cache
 
-```
+```text
 /cache maps
 ```
 
@@ -22,7 +22,7 @@ Scans all maps across all mods and outputs cache files into `extracted/maps/` di
 
 ### Campaign cache
 
-```
+```text
 /cache campaigns
 ```
 
