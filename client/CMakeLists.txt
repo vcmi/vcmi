@@ -453,7 +453,7 @@ endif()
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)
 
 target_link_libraries(vcmiclientcommon PUBLIC
-		vcmi vcmisdl2
+		vcmi ${VCMI_MEDIA_BACKEND}
 )
 
 if(ENABLE_VIDEO)

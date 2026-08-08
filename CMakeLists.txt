@@ -556,6 +556,35 @@ if (ENABLE_CLIENT)
 	endif()
 
 	find_package(libsquish REQUIRED)
+
+	# Probe for a complete set of SDL3 libraries so that ENABLE_SDL3 can default to
+	# whether this machine can actually build the SDL3 backend. Passing
+	# -DENABLE_SDL3=ON/OFF explicitly always wins over this default.
+	find_package(SDL3 QUIET)
+	find_package(SDL3_image QUIET)
+	find_package(SDL3_mixer QUIET)
+	find_package(SDL3_ttf QUIET)
+	if(SDL3_FOUND AND SDL3_image_FOUND AND SDL3_mixer_FOUND AND SDL3_ttf_FOUND)
+		set(SDL3_BACKEND_AVAILABLE ON)
+	else()
+		set(SDL3_BACKEND_AVAILABLE OFF)
+	endif()
+
+	option(ENABLE_SDL3 "Use the SDL3 media backend instead of SDL2" ${SDL3_BACKEND_AVAILABLE})
+
+	if(ENABLE_SDL3)
+		if(NOT SDL3_BACKEND_AVAILABLE)
+			message(FATAL_ERROR "ENABLE_SDL3 is on but SDL3, SDL3_image, SDL3_mixer and SDL3_ttf were not all found")
+		endif()
+		find_package(SDL3 REQUIRED)
+		find_package(SDL3_image REQUIRED)
+		find_package(SDL3_mixer REQUIRED)
+		find_package(SDL3_ttf REQUIRED)
+		set(VCMI_MEDIA_BACKEND vcmisdl3)
+	else()
+		set(VCMI_MEDIA_BACKEND vcmisdl2)
+	endif()
+	message(STATUS "Media backend: ${VCMI_MEDIA_BACKEND} (SDL3 available: ${SDL3_BACKEND_AVAILABLE})")
 endif()
 
 if(ENABLE_LOBBY)
@@ -743,7 +772,11 @@ endif()
 
 if (ENABLE_CLIENT)
 	add_subdirectory(client)
-	add_subdirectory(clientsdl2)
+	if(ENABLE_SDL3)
+		add_subdirectory(clientsdl3)
+	else()
+		add_subdirectory(clientsdl2)
+	endif()
 	add_subdirectory(clientapp)
 endif()
 
