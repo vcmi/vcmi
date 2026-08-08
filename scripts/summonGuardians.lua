@@ -75,6 +75,14 @@ function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 				end
 			end
 		end
+	-- a unit starting against its own edge of the battlefield has no room behind it, so its
+	-- guardians go in front instead
+	elseif not targetIsAttacker and (y % 2 == 0) then
+		checkAndPush(hexes, position:copyToWest():copyToNorthWest())
+		checkAndPush(hexes, position:copyToWest():copyToSouthWest())
+	elseif targetIsAttacker and (y % 2 == 1) then
+		checkAndPush(hexes, position:copyToEast():copyToNorthEast())
+		checkAndPush(hexes, position:copyToEast():copyToSouthEast())
 	end
 
 	return hexes

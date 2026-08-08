@@ -25,17 +25,7 @@ set(test_SRCS
 
 		bonus/BonusSystemTest.cpp
 
-		combatScripts/CombatScriptHandlerTest.cpp
-		combatScripts/CombatEventDispatchTest.cpp
-		combatScripts/AttachCombatScriptTest.cpp
-		combatScripts/TransmutationScriptTest.cpp
-		combatScripts/SummonGuardiansScriptTest.cpp
-		combatScripts/EnchantedScriptTest.cpp
-		combatScripts/LifeDrainScriptTest.cpp
-		combatScripts/SoulStealScriptTest.cpp
-		combatScripts/DestructionScriptTest.cpp
 		combatScripts/CombatScriptDescriptionTest.cpp
-		combatScripts/BonusMigrationTest.cpp
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
@@ -110,10 +100,17 @@ set(test_SRCS
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
 		server/battles/AcidBreathTest.cpp
+		server/battles/BattleTestFixture.cpp
 		server/battles/DeathStareTest.cpp
+		server/battles/DestructionTest.cpp
+		server/battles/EnchantedTest.cpp
 		server/battles/FireShieldTest.cpp
+		server/battles/LifeDrainTest.cpp
+		server/battles/SoulStealTest.cpp
 		texts/TextOperationsTest.cpp
 
+		server/battles/SummonGuardiansTest.cpp
+		server/battles/TransmutationTest.cpp
 		server/queries/QueriesProcessorTest.cpp
 
 		mock/BattleFake.cpp

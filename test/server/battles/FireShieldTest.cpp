@@ -9,33 +9,10 @@
  */
 #include "StdInc.h"
 
-#include "mock/mock_MapServiceTinyH3M.h"
-#include "mock/TinyH3MBuilder.h"
-#include "../../lib/spells/Problem.h"
+#include "BattleTestFixture.h"
 
-#include "../../server/CGameHandler.h"
-#include "../../server/IGameServer.h"
-#include "../../server/battles/BattleProcessor.h"
-
-#include "../../lib/CSkillHandler.h"
 #include "../../lib/CStack.h"
-#include "../../lib/GameLibrary.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
-#include "../../lib/battle/BattleLayout.h"
-#include "../../lib/battle/CObstacleInstance.h"
-#include "../../lib/bonuses/Bonus.h"
-#include "../../lib/callback/GameRandomizer.h"
-#include "../../lib/entities/hero/CHero.h"
-#include "../../lib/filesystem/ResourcePath.h"
-#include "../../lib/gameState/CGameState.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/networkPacks/PacksForClient.h"
-#include "../../lib/networkPacks/PacksForClientBattle.h"
-#include "../../lib/spells/CSpell.h"
-#include "../../lib/spells/ISpellMechanics.h"
 
 namespace
 {
@@ -53,29 +30,6 @@ struct FireShieldCase
 	int64_t expectedDamage;
 };
 
-/// Applies everything the game handler emits straight to the game state, which is
-/// the whole of "being a server" that a battle needs.
-class LocalGameServer : public IGameServer
-{
-public:
-	std::shared_ptr<CGameState> gameState;
-
-	void setState(EServerState value) override { state = value; }
-	EServerState getState() const override { return state; }
-	bool isPlayerHost(const PlayerColor &) const override { return true; }
-	bool hasPlayerAt(PlayerColor, GameConnectionID) const override { return true; }
-	bool hasBothPlayersAtSameConnection(PlayerColor, PlayerColor) const override { return true; }
-	void sendPack(CPackForClient &, GameConnectionID) override {}
-
-	void applyPack(CPackForClient & pack) override
-	{
-		gameState->apply(pack);
-	}
-
-private:
-	EServerState state = EServerState::GAMEPLAY;
-};
-
 }
 
 /// Fire shield reflects part of the damage a melee attacker deals back at it. The amount
@@ -85,198 +39,13 @@ private:
 /// Every scenario is the same battle: the casting hero shields its own unit, the enemy hero
 /// blesses its own unit so that it always deals its maximum damage, and that enemy attacks.
 /// The health the attacker loses is the reflected damage.
-class FireShieldTest : public ::testing::Test, public MapListener, public ::testing::WithParamInterface<FireShieldCase>
+class FireShieldTest : public BattleTestFixture, public ::testing::WithParamInterface<FireShieldCase>
 {
 public:
 	/// The shielded stack is oversized on purpose: the reflected amount is capped by its
 	/// remaining health, and no scenario is meant to hit that cap.
 	static constexpr int32_t shieldedCount = 5000;
 	static constexpr int32_t attackingCount = 1000;
-	/// Adjacent free hexes in the middle of the field, away from the armies placed by the layout.
-	static constexpr int shieldedHex = 5 * GameConstants::BFIELD_WIDTH + 7;
-	static constexpr int attackingHex = shieldedHex + 1;
-
-	void SetUp() override
-	{
-		gameState = std::make_shared<CGameState>();
-		gameState->preInit(LIBRARY);
-	}
-
-	void TearDown() override
-	{
-		gameHandler.reset();
-		gameState.reset();
-	}
-
-	void mapLoaded(CMap * map) override
-	{
-		EXPECT_EQ(this->map, nullptr);
-		this->map = map;
-	}
-
-	/// Two heroes with a token army each, so that a battle between them is valid.
-	void startGame()
-	{
-		const CreatureID token(0);
-
-		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-		builder
-			.size(36, false)
-			.name("FireShieldTest")
-			.playerActive(PlayerColor(0))
-			.playerActive(PlayerColor(1))
-			.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0)).heroGarrison({{token, 1}})
-			.hero({7, 7, 0}, HeroTypeID(1), PlayerColor(1)).heroGarrison({{token, 1}});
-
-		auto bytes = builder.build();
-		mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
-
-		StartInfo si;
-		si.mapname = "tiny";
-		si.difficulty = 0;
-		si.mode = EStartMode::NEW_GAME;
-
-		std::unique_ptr<CMapHeader> header = mapService->loadMapHeader(ResourcePath(si.mapname));
-		ASSERT_NE(header.get(), nullptr);
-
-		for(int i = 0; i < static_cast<int>(header->players.size()); i++)
-		{
-			const PlayerInfo & pinfo = header->players[i];
-			if(!(pinfo.canHumanPlay || pinfo.canComputerPlay))
-				continue;
-
-			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
-			pset.color = PlayerColor(i);
-			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
-			pset.name = "Player";
-			pset.bonus = PlayerStartingBonus::GOLD; // no random starting artifact
-			pset.castle = pinfo.defaultCastle();
-			pset.hero = pinfo.defaultHero();
-		}
-
-		GameRandomizer randomizer(*gameState);
-		Load::ProgressAccumulator progressTracker;
-		gameState->init(mapService.get(), &si, randomizer, progressTracker, false);
-		ASSERT_NE(map, nullptr);
-
-		server.gameState = gameState;
-		gameHandler = std::make_unique<CGameHandler>(server, gameState);
-
-		caster = getHeroByOwner(PlayerColor(0));
-		enemy = getHeroByOwner(PlayerColor(1));
-		ASSERT_NE(caster, nullptr);
-		ASSERT_NE(enemy, nullptr);
-
-		makeNeutral(caster);
-		makeNeutral(enemy);
-	}
-
-	CGHeroInstance * getHeroByOwner(PlayerColor owner) const
-	{
-		for(auto heroID : map->getHeroesOnMap())
-		{
-			auto * hero = dynamic_cast<CGHeroInstance *>(map->getObject(heroID));
-			if(hero && hero->tempOwner == owner)
-				return hero;
-		}
-		return nullptr;
-	}
-
-	/// Strips everything that could scale damage on its own - starting skills, primary stats
-	/// and the innate specialty - so only what a scenario grants explicitly is left.
-	void makeNeutral(CGHeroInstance * hero)
-	{
-		for(const auto & bonus : hero->getHeroType()->specialty)
-			hero->removeBonus(bonus);
-
-		for(int i = 0; i < LIBRARY->skillh->size(); ++i)
-			hero->setSecSkillLevel(SecondarySkill(i), 0, ChangeValueMode::ABSOLUTE);
-
-		for(auto skill : {PrimarySkill::ATTACK, PrimarySkill::DEFENSE, PrimarySkill::SPELL_POWER, PrimarySkill::KNOWLEDGE})
-			hero->setPrimarySkill(skill, 0, ChangeValueMode::ABSOLUTE);
-	}
-
-	void giveArtifact(CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position)
-	{
-		NewArtifact na;
-		na.artHolder = hero->id;
-		na.artId = artifact;
-		na.pos = position;
-		gameHandler->sendAndApply(na);
-	}
-
-	void startBattle()
-	{
-		BattleSideArray<const CGHeroInstance *> heroes = {caster, enemy};
-		BattleSideArray<const CArmedInstance *> armies = {caster, enemy};
-
-		int3 tile(4, 4, 0);
-		auto terrain = gameState->getTile(tile)->getTerrainID();
-		BattleLayout layout = BattleLayout::createDefaultLayout(*gameState, caster, enemy);
-
-		BattleStart bs;
-		bs.info = BattleInfo::setupBattle(gameState.get(), tile, terrain, BattleField(0), armies, heroes, layout, nullptr);
-		bs.battleID = BattleID(0);
-		gameHandler->sendAndApply(bs);
-
-		ASSERT_EQ(gameState->currentBattles.size(), 1u);
-		battle()->tacticDistance = 0;
-
-		// the layout scatters obstacles at random, and a mine under the attacker would be counted
-		// as reflected damage
-		battle()->obstacles.clear();
-	}
-
-	BattleInfo * battle() const
-	{
-		return gameState->currentBattles.front().get();
-	}
-
-	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count)
-	{
-		battle::UnitInfo info;
-		info.id = battle()->battleNextUnitId();
-		info.count = count;
-		info.type = creature;
-		info.side = side;
-		info.position = position;
-		info.summoned = false;
-
-		BattleUnitsChanged pack;
-		pack.battleID = BattleID(0);
-		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
-		info.save(pack.changedStacks.back().data);
-		gameHandler->sendAndApply(pack);
-
-		return battle()->getStack(info.id);
-	}
-
-	/// Casts a hero spell at a unit, reporting whether the game allowed it at all.
-	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target)
-	{
-		const CSpell * spell = spellID.toSpell();
-		spells::BattleCast cast(battle(), hero, spells::Mode::HERO, spell);
-		spells::Target destination;
-		destination.emplace_back(target);
-
-		spells::detail::ProblemImpl problem;
-
-		auto mechanics = spell->battleMechanics(&cast);
-		if(!mechanics->canBeCast(problem) || !mechanics->canBeCastAt(destination, problem))
-			return false;
-
-		cast.cast(gameHandler->spellEnv.get(), destination);
-		return true;
-	}
-
-	std::shared_ptr<CGameState> gameState;
-	std::unique_ptr<MapServiceTinyH3M> mapService;
-	std::unique_ptr<CGameHandler> gameHandler;
-	LocalGameServer server;
-
-	CMap * map = nullptr;
-	CGHeroInstance * caster = nullptr;
-	CGHeroInstance * enemy = nullptr;
 };
 
 TEST_P(FireShieldTest, reflectsExpectedDamage)
@@ -285,43 +54,41 @@ TEST_P(FireShieldTest, reflectsExpectedDamage)
 
 	startGame();
 
-	giveArtifact(caster, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	caster->addSpellToSpellbook(SpellID::FIRE_SHIELD);
-	caster->mana = 9999;
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID::FIRE_SHIELD);
+	attackerSideHero->mana = 9999;
 
-	giveArtifact(enemy, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	enemy->addSpellToSpellbook(SpellID(SpellID::BLESS));
-	enemy->mana = 9999;
+	giveArtifact(defenderSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::BLESS));
+	defenderSideHero->mana = 9999;
 
 	if(scenario.skill >= 0)
-		caster->setSecSkillLevel(SecondarySkill(scenario.skill), scenario.mastery, ChangeValueMode::ABSOLUTE);
+		attackerSideHero->setSecSkillLevel(SecondarySkill(scenario.skill), scenario.mastery, ChangeValueMode::ABSOLUTE);
 
 	if(scenario.artifact >= 0)
-		giveArtifact(caster, ArtifactID(scenario.artifact), ArtifactPosition::MISC1);
+		giveArtifact(attackerSideHero, ArtifactID(scenario.artifact), ArtifactPosition::MISC1);
 
 	startBattle();
 
-	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(scenario.shieldedCreature), BattleHex(shieldedHex), shieldedCount);
-	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(scenario.attackingCreature), BattleHex(attackingHex), attackingCount);
+	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(scenario.shieldedCreature), BattleHex(leftHex), shieldedCount);
+	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(scenario.attackingCreature), BattleHex(rightHex), attackingCount);
 	ASSERT_NE(shielded, nullptr);
 	ASSERT_NE(attacking, nullptr);
 
 	// retaliation would injure the attacker as well, hiding the reflected damage
-	attacking->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::OTHER, 0, BonusSourceID()));
+	blockRetaliation(attacking);
 
 	// a fire-immune target refuses the spell, which is what leaves its own shield untouched
-	castOn(caster, SpellID::FIRE_SHIELD, shielded);
+	castOn(attackerSideHero, SpellID::FIRE_SHIELD, shielded);
 
 	// bless collapses the damage range onto its maximum, making the reflected amount exact.
 	// It comes from the enemy hero, whose kit no scenario touches, so nothing granted to the
 	// casting hero can reach the damage the attack itself deals
-	ASSERT_TRUE(castOn(enemy, SpellID(SpellID::BLESS), attacking));
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID(SpellID::BLESS), attacking));
 
 	const int64_t healthBefore = attacking->getAvailableHealth();
 
-	battle()->activeStack = attacking->unitId();
-	BattleAction action = BattleAction::makeMeleeAttack(attacking, BattleHex(shieldedHex), attacking->getPosition());
-	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), PlayerColor(1), action));
+	ASSERT_TRUE(attack(attacking, BattleHex(leftHex)));
 
 	EXPECT_EQ(healthBefore - attacking->getAvailableHealth(), scenario.expectedDamage) << scenario.name;
 }

@@ -7,8 +7,7 @@
 	"modType" : "Test",
 	"keepDisabled" : true,
 	"heroes" : [ "config/heroes.json" ],
-	"spells" : [ "config/spells.json" ],
-	"combatScripts" : [ "config/combatScripts.json" ],
+	"creatures" : [ "config/creatures.json" ],
 	"objects" : {
 		"questGate" : {
 			"name" : "Quest Gate",
