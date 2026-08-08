@@ -693,6 +693,12 @@ void ScreenHandler::destroyScreenBuffers()
 		screenTexture = nullptr;
 	}
 
+	if(nullptr != screenTarget)
+	{
+		SDL_DestroyTexture(screenTarget);
+		screenTarget = nullptr;
+	}
+
 	for(SDL_Texture *& layer : layerTextures)
 	{
 		if(nullptr != layer)
@@ -701,6 +707,9 @@ void ScreenHandler::destroyScreenBuffers()
 			layer = nullptr;
 		}
 	}
+
+	// the layers are gone, so a canvas handed out for one of them would draw nowhere
+	gpuRenderingSupported = false;
 }
 
 void ScreenHandler::clearLayer(size_t index)
@@ -717,6 +726,15 @@ void ScreenHandler::clearLayer(size_t index)
 
 void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
+	// The software driver supports render targets too, but rasterizes them on the CPU -
+	// going through textures there is slower than the surface blitting it would replace.
+	const std::string driver = SDL_GetRendererName(mainRenderer);
+	if(driver == "software")
+	{
+		logGlobal->info("Software renderer in use - keeping the surface rendering path");
+		return;
+	}
+
 	// every SDL3 renderer can render to a texture, so unlike SDL2 there is nothing to probe for
 	for(size_t i = 0; i < layerTextures.size(); ++i)
 	{
@@ -738,7 +756,24 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 	// texture must stop being opaque for them to show through its transparent holes
 	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
 
-	logGlobal->info("GPU rendering enabled, using driver '%s'", SDL_GetRendererName(mainRenderer));
+	screenTarget = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+
+	if(nullptr == screenTarget)
+	{
+		logGlobal->error("Unable to create the screen render target: %s", SDL_GetError());
+		return;
+	}
+
+	// composited over the layers, so it must blend and start out fully transparent
+	SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderTarget(mainRenderer, screenTarget);
+	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
+	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderTarget(mainRenderer, nullptr);
+
+	gpuRenderingSupported = true;
+	logGlobal->info("GPU rendering enabled, using driver '%s'", driver);
 }
 
 void ScreenHandler::destroyWindow()
@@ -777,12 +812,17 @@ void ScreenHandler::clearScreen()
 
 Canvas ScreenHandler::getScreenCanvas() const
 {
+	if(isGpuRenderingEnabled())
+		return Canvas::createFromRenderTarget(screenTarget, getLogicalResolution(), CanvasScalingPolicy::AUTO);
+
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 }
 
 bool ScreenHandler::isGpuRenderingEnabled() const
 {
-	return layerTextures.front() != nullptr;
+	// A colour scheme is a per-pixel transform of the finished frame, which needs a fragment
+	// shader - only SDL's "gpu" driver has one, so everything stays on the surface path.
+	return gpuRenderingSupported && colorScheme == ColorScheme::NONE;
 }
 
 Canvas ScreenHandler::getLayerCanvas(GpuRenderLayer layer)
@@ -857,6 +897,10 @@ void ScreenHandler::updateScreenTexture()
 		return;
 	}
 
+	// windows drew straight into screenTarget, so there is no surface to upload
+	if(isGpuRenderingEnabled())
+		return;
+
 	if(colorScheme == ColorScheme::NONE)
 	{
 		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
@@ -890,7 +934,7 @@ void ScreenHandler::presentScreenTexture()
 		if(layerTextures[i] && layerActive[i])
 			SDL_RenderTexture(mainRenderer, layerTextures[i], nullptr, nullptr);
 
-	SDL_RenderTexture(mainRenderer, screenTexture, nullptr, nullptr);
+	SDL_RenderTexture(mainRenderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
@@ -934,7 +978,17 @@ bool ScreenHandler::hasFocus()
 
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
+	if(colorScheme == scheme)
+		return;
+
 	colorScheme = scheme;
+
+	// this switches the whole client between the GPU and the surface path, so anything
+	// already drawn into a layer has to be dropped and repainted from scratch
+	for(size_t i = 0; i < layerTextures.size(); ++i)
+		releaseLayer(static_cast<GpuRenderLayer>(i));
+
+	ENGINE->windows().totalRedraw();
 }
 
 void ScreenHandler::screenShot() const

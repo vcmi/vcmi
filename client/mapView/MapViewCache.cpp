@@ -211,7 +211,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(textOverlayVisible && !target.isRenderTarget())
+	if(textOverlayVisible)
 	{
 		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 
