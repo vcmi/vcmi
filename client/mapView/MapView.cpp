@@ -95,13 +95,24 @@ void BasicMapView::renderGpu(bool fullUpdate)
 	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
 	Canvas targetClipped(layer, pos);
 
-	tilesCache->update(controller->getContext());
+	// tick() normally filled the cache already, early enough for the GPU to have finished
+	if(!tilesCache->isUpdatedThisFrame())
+		tilesCache->update(controller->getContext());
+
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
 void BasicMapView::tick(uint32_t msPassed)
 {
 	controller->tick(msPassed);
+
+	// Draw the tiles into the cache now, so the GPU can work while the rest of the frame is
+	// prepared - reading the cache straight after writing it stalls until that drawing is done.
+	if(gpuLayerEligible && ENGINE->amIGuiThread() && ENGINE->screenHandler().isGpuRenderingEnabled())
+	{
+		tilesCache->update(controller->getContext());
+		ENGINE->screenHandler().flushRenderCommands();
+	}
 }
 
 void BasicMapView::show(Canvas & to)

@@ -916,6 +916,11 @@ void ScreenHandler::updateScreenTexture()
 	SDL_DestroySurface(screenScheme);
 }
 
+void ScreenHandler::flushRenderCommands()
+{
+	SDL_FlushRenderer(mainRenderer);
+}
+
 void ScreenHandler::presentScreenTexture()
 {
 	// a layer may still be bound from rendering into it
