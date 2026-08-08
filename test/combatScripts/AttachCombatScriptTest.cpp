@@ -50,7 +50,8 @@ TEST_F(AttachCombatScriptTest, GrantsTriggerBonusReferringToScript)
 
 	JsonNode options;
 	options["eventScript"].String() = "testSpikes";
-	options["eventParameters"]["damage"].Integer() = damage;
+	options["eventValue"].Integer() = damage;
+	options["eventParameters"]["poison"].Bool() = true;
 	options.setModScope(ModScope::scopeBuiltin());
 	setupEffect(options);
 
@@ -79,16 +80,17 @@ TEST_F(AttachCombatScriptTest, GrantsTriggerBonusReferringToScript)
 	EXPECT_EQ(actualBonus[0].type, BonusType::COMBAT_EVENT_TRIGGER);
 	EXPECT_EQ(actualBonus[0].turnsRemain, duration);
 
-	ASSERT_TRUE(actualBonus[0].parameters);
-	const auto & parameters = actualBonus[0].parameters->toCustom<BonusParametersCombatScript>();
-
 	auto expectedScript = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", "testSpikes", false);
 	ASSERT_TRUE(expectedScript.has_value());
-	EXPECT_EQ(parameters.eventScript, CombatScriptID(*expectedScript));
+	EXPECT_EQ(actualBonus[0].subtype, BonusSubtypeID(CombatScriptID(*expectedScript)));
+	EXPECT_EQ(actualBonus[0].val, damage);
+
+	ASSERT_TRUE(actualBonus[0].parameters);
+	const auto & parameters = actualBonus[0].parameters->toCustom<JsonNode>();
 
 	// config parameters are passed through, caster state is snapshotted for later events
-	EXPECT_EQ(parameters.eventParameters["damage"].Integer(), damage);
-	EXPECT_EQ(parameters.eventParameters["casterPower"].Integer(), 5);
+	EXPECT_TRUE(parameters["poison"].Bool());
+	EXPECT_EQ(parameters["casterPower"].Integer(), 5);
 }
 
 }

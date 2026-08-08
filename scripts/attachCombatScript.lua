@@ -30,15 +30,14 @@ function Script:apply(mechanics, server, target)
 		if unit and unit:isAlive() then
 			server:addUnitBonus(battle, unit, {
 				type = "COMBAT_EVENT_TRIGGER",
+				subtype = "combatScript." .. self.eventScript,
+				val = self.eventValue or 0,
 				duration = "N_TURNS",
 				turns = mechanics:getEffectDuration(),
 				sourceType = "SPELL_EFFECT",
 				sourceID = spellKey,
 				stacking = spellKey,
-				addInfo = {
-					eventScript = self.eventScript,
-					eventParameters = parameters
-				}
+				addInfo = parameters
 			}, false)
 		end
 	end

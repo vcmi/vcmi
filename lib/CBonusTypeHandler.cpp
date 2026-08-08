@@ -88,9 +88,9 @@ std::string CBonusTypeHandler::describeParameter(const JsonNode & value) const
 	return value.toCompactString();
 }
 
-std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatScript & parameters) const
+std::string CBonusTypeHandler::combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
 {
-	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(parameters.eventScript);
+	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(bonus->subtype.as<CombatScriptID>());
 
 	// a trigger bonus with no script set describes nothing
 	if(textID.empty())
@@ -98,9 +98,12 @@ std::string CBonusTypeHandler::combatScriptToString(const BonusParametersCombatS
 
 	std::string text = LIBRARY->generaltexth->translate(textID);
 
-	// script parameters are named, so the description refers to them by name instead of ${val}
-	for(const auto & parameter : parameters.eventParameters.Struct())
-		boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second));
+	boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
+
+	// besides the magnitude, script parameters are named, so the description refers to them by name
+	if(bonus->parameters)
+		for(const auto & parameter : bonus->parameters->toCustom<JsonNode>().Struct())
+			boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second));
 
 	return text;
 }
@@ -109,8 +112,8 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 {
 	// a scripted ability is described by its script - the bonus type is shared by all of them,
 	// so the type-level description and its hidden flag can not say anything useful here
-	if(bonus->type == BonusType::COMBAT_EVENT_TRIGGER && bonus->parameters)
-		return combatScriptToString(bonus->parameters->toCustom<BonusParametersCombatScript>());
+	if(bonus->type == BonusType::COMBAT_EVENT_TRIGGER)
+		return combatScriptToString(bonus, bonusValue);
 
 	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
 	if(bt.hidden)

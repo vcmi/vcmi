@@ -6,7 +6,7 @@ Script.__index = Script
 --- Scripted equivalent of the TRANSMUTATION bonus.
 ---
 --- Parameters:
----  chance      - percentage chance to trigger on each attack
+---  val         - percentage chance to trigger on each attack
 ---  creature    - creature the victim turns into. Defaults to the attacker's own creature
 ---  transmuteBy - "health" keeps the total health of the victim, "count" keeps its creature count
 
@@ -33,7 +33,7 @@ end
 function Script:onAfterAttack(server, battle, unit, other)
 	if not other or not other:isAlive() or not other:isLiving() then return end
 	if self:isImmune(other) then return end
-	if not server:rollCombatAbility(battle, unit, self.chance or 0) then return end
+	if not server:rollCombatAbility(battle, unit, self.val or 0) then return end
 
 	local creature = self.creature and LIBRARY:getCreatureByName(self.creature) or unit:getCreature()
 

@@ -81,7 +81,7 @@ TEST_F(CombatEventDispatchTest, ImplementedEventRunsScript)
 	setupDefaultRNG();
 
 	JsonNode parameters;
-	parameters["damage"].Integer() = unitHP;
+	parameters["val"].Integer() = unitHP;
 
 	script->run(&serverMock, *battleFake, CombatEventType::AFTER_ATTACKED, &victim, &attacker, parameters, CombatEventPayload());
 
@@ -94,7 +94,7 @@ TEST_F(CombatEventDispatchTest, UnimplementedEventIsNoOp)
 	auto & attacker = unitsFake.add(BattleSide::ATTACKER);
 
 	JsonNode parameters;
-	parameters["damage"].Integer() = 100;
+	parameters["val"].Integer() = 100;
 
 	// serverMock is strict, so any mutation attempted by the script fails the test
 	script->run(&serverMock, *battleFake, CombatEventType::WAIT, &victim, &attacker, parameters, CombatEventPayload());

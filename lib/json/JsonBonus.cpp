@@ -108,6 +108,14 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			});
 			break;
 		}
+		case BonusType::COMBAT_EVENT_TRIGGER:
+		{
+			LIBRARY->identifiers()->requestIdentifier( "combatScript", node, [&subtype](int32_t identifier)
+			{
+				subtype = CombatScriptID(identifier);
+			});
+			break;
+		}
 		case BonusType::PRIMARY_SKILL:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
@@ -342,16 +350,8 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		}
 		case BonusType::COMBAT_EVENT_TRIGGER:
 		{
-			var = BonusParameters(BonusParametersCombatScript());
-			auto & loadedData = result->toCustom<BonusParametersCombatScript>();
-
-			loadedData.eventParameters = value["eventParameters"];
-
-			// json built by a script is scoped to the whole game, so scripts can refer to any mod
-			LIBRARY->identifiers()->requestIdentifier( "combatScript", value["eventScript"], [&loadedData](int32_t identifier)
-			{
-				loadedData.eventScript = CombatScriptID(identifier);
-			});
+			// the whole addInfo is the script payload - which script runs is the bonus subtype
+			var = BonusParameters(value);
 			break;
 		}
 		default:

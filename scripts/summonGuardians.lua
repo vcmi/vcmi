@@ -6,8 +6,8 @@ Script.__index = Script
 --- Scripted equivalent of the SUMMON_GUARDIANS bonus.
 ---
 --- Parameters:
----  creature   - creature to summon as guardian
----  percentage - size of each guardian stack, in percent of the guarded stack
+---  creature - creature to summon as guardian
+---  val      - size of each guardian stack, in percent of the guarded stack
 
 --- Appends `hex` unless it is off the battlefield or already listed.
 local function checkAndPush(hexes, hex)
@@ -101,7 +101,7 @@ function Script:onBattleStart(server, battle, unit, other)
 		end
 	end
 
-	local count = math.max(1, math.floor(unit:getCount() * (self.percentage or 0) / 100))
+	local count = math.max(1, math.floor(unit:getCount() * (self.val or 0) / 100))
 	local summoned = false
 
 	for _, hex in ipairs(hexes) do

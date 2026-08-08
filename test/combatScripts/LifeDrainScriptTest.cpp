@@ -50,7 +50,7 @@ public:
 	JsonNode parameters()
 	{
 		JsonNode result;
-		result["percentage"].Integer() = percentage;
+		result["val"].Integer() = percentage;
 		return result;
 	}
 

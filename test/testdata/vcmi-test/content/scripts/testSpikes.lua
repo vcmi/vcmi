@@ -8,7 +8,7 @@ Script.__index = Script
 function Script:onAfterAttacked(server, battle, unit, other)
 	if not other or not other:isAlive() then return end
 
-	server:damageUnit(battle, other, self.damage or self.casterPower or 0)
+	server:damageUnit(battle, other, self.val or self.casterPower or 0)
 end
 
 return Script

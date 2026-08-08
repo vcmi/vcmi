@@ -87,25 +87,26 @@ Example:
 
 Runs a [combat script](../Lua/Script_Types.md#combat-script) when an event happens with affected unit.
 
-Unlike `ON_COMBAT_EVENT` this bonus has no subtype - the script is called on every combat event,
-and reacts only to those it implements. Prefer this bonus over `ON_COMBAT_EVENT` for anything
-that predefined bonus or spell actions can not express.
+Unlike `ON_COMBAT_EVENT` the subtype does not select an event - the script is called on every
+combat event and reacts only to those it implements. Prefer this bonus over `ON_COMBAT_EVENT` for
+anything that predefined bonus or spell actions can not express.
 
-- `eventScript`: identifier of combat script to run
-- `eventParameters`: optional, arbitrary json used to initialize the script on every call, the same
-  way spell effect parameters initialize a spell effect script. Read-only - a script that needs to
-  remember something between events must store it itself, for example in a bonus of its own.
+- subtype: combat script to run
+- val: magnitude of the ability, whatever that means for this script. Kept out of `addInfo` so that
+  several sources of the same ability add up the way they do for any other bonus.
+- addInfo: optional, arbitrary json used to initialize the script on every call, the same way spell
+  effect parameters initialize a spell effect script. Read-only - a script that needs to remember
+  something between events must store it itself, for example in a bonus of its own.
 
 Example:
 
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
+    "subtype" : "combatScript.spikes",
+    "val" : 10,
     "addInfo" : {
-        "eventScript" : "spikes",
-        "eventParameters" : {
-            "damage" : 10
-        }
+        "poison" : true
     }
 }
 ```
@@ -837,16 +838,15 @@ working, but new content should declare the script directly:
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
-    "addInfo" : {
-        "eventScript" : "soulSteal",
-        "eventParameters" : { "creaturesPerKill" : 1, "permanent" : true }
-    }
+    "subtype" : "combatScript.soulSteal",
+    "val" : 1,
+    "addInfo" : { "permanent" : true }
 }
 ```
 
-`creaturesPerKill` replaces `val`, and `permanent` replaces the `soulStealPermanent` /
-`soulStealBattle` subtypes. Two such bonuses now both take effect, where the two subtypes used to
-be mutually exclusive.
+`val` keeps its meaning, and `permanent` replaces the `soulStealPermanent` / `soulStealBattle`
+subtypes. Two such bonuses now both take effect, where the two subtypes used to be mutually
+exclusive.
 
 ### TRANSMUTATION
 
@@ -857,14 +857,13 @@ keeps working, but new content should declare the script directly:
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
-    "addInfo" : {
-        "eventScript" : "transmutation",
-        "eventParameters" : { "chance" : 40, "transmuteBy" : "health", "creature" : "core:goldGolem" }
-    }
+    "subtype" : "combatScript.transmutation",
+    "val" : 40,
+    "addInfo" : { "transmuteBy" : "health", "creature" : "core:goldGolem" }
 }
 ```
 
-`chance` replaces `val`, `transmuteBy` of `"health"` / `"count"` replaces the
+`val` keeps its meaning, `transmuteBy` of `"health"` / `"count"` replaces the
 `transmutationPerHealth` / `transmutationPerUnit` subtypes, and `creature` replaces `addInfo`.
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
@@ -881,14 +880,13 @@ keeps working, but new content should declare the script directly:
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
-    "addInfo" : {
-        "eventScript" : "summonGuardians",
-        "eventParameters" : { "creature" : "core:woodElf", "percentage" : 50 }
-    }
+    "subtype" : "combatScript.summonGuardians",
+    "val" : 50,
+    "addInfo" : { "creature" : "core:woodElf" }
 }
 ```
 
-`creature` replaces `subtype` and `percentage` replaces `val`.
+`creature` replaces the old subtype, while `val` keeps its meaning.
 
 ### RANGED_RETALIATION
 
@@ -1009,15 +1007,13 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 DEPRECATED. Configs and saves declaring it are converted to the
 [lifeDrain](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
-working, but new content should declare the script directly, where `percentage` replaces `val`:
+working, but new content should declare the script directly:
 
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
-    "addInfo" : {
-        "eventScript" : "lifeDrain",
-        "eventParameters" : { "percentage" : 100 }
-    }
+    "subtype" : "combatScript.lifeDrain",
+    "val" : 100
 }
 ```
 
@@ -1176,14 +1172,13 @@ working, but new content should declare the script directly:
 ```json
 {
     "type" : "COMBAT_EVENT_TRIGGER",
-    "addInfo" : {
-        "eventScript" : "enchanted",
-        "eventParameters" : { "spell" : "core:bless", "level" : 2, "massive" : true }
-    }
+    "subtype" : "combatScript.enchanted",
+    "addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
 }
 ```
 
-`spell` replaces `subtype`, while `level` and `massive` replace the single `val` that packed both.
+`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed
+both - this script has no magnitude, so it leaves `val` unused.
 Several such bonuses for the same spell each apply at their own level, where the bonus took the
 highest level of the group for all of them.
 

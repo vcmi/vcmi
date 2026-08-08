@@ -147,18 +147,19 @@ A combat script is registered in the `combatScripts` section of a mod and runs o
     "attachSpikes" : {
         "type" : "attachCombatScript",
         "eventScript" : "spikes",
-        "eventParameters" : { "damage" : 10 }
+        "eventValue" : 10,
+        "eventParameters" : { "poison" : true }
     }
 }
 ```
 
-Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the text shown to the player comes from the script rather than from the bonus. Declare it as `description` on the script itself; `${parameterName}` is replaced with the value the bonus passed in `eventParameters`:
+Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the text shown to the player comes from the script rather than from the bonus. Declare it as `description` on the script itself; `${val}` is replaced with the accumulated value of the bonus and `${parameterName}` with the value the bonus passed in its parameters:
 
 ```json
 "lifeDrain" : {
     "type" : "lua",
     "script" : "lifeDrain",
-    "description" : "{Life Drain}\nRestores health equal to ${percentage}% of damage dealt."
+    "description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 }
 ```
 
@@ -185,7 +186,7 @@ return Script
 VCMI guarantees the following:
 
 - every event is delivered to every script attached to the unit it happened to. Events that a script does not implement resolve to the no-op inherited from `combatScript`
-- `eventParameters` stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
+- the parameters stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
 - a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by unit actions
 
 #### Available functions
@@ -194,7 +195,7 @@ All functions share the same signature and return nothing:
 
 Signature: `function Script:on<Event>(server, battle, unit, other)`
 
-The `eventParameters` stored in the bonus initialize the script, so every property defined there is available as a field of `self` - for example `eventParameters` of `{ "damage" : 10 }` is read as `self.damage`.
+The parameters stored in the bonus initialize the script, so every property defined there is available as a field of `self` - for example `addInfo` of `{ "poison" : true }` is read as `self.poison`. The magnitude of the ability lives in the bonus value rather than in the parameters, and is read as `self.val`; it is the only field that accumulates when several sources grant the same ability.
 
 Parameters:
 
@@ -222,16 +223,16 @@ Functions:
 #### Built-in scripts
 
 - `transmutation` - replaces the attacked stack with a stack of another creature, as the WoG werewolf ability does. Parameters:
-    - `chance` - percentage chance to trigger on each attack
+    - `val` - percentage chance to trigger on each attack
     - `creature` - creature the victim turns into. Defaults to the attacker's own creature
     - `transmuteBy` - `"health"` keeps the total health of the victim, `"count"` keeps its creature count
 - `summonGuardians` - surrounds its bearer with summoned guardians when the battle starts. Parameters:
     - `creature` - creature to summon as guardian
-    - `percentage` - size of each guardian stack, in percent of the guarded stack
+    - `val` - size of each guardian stack, in percent of the guarded stack
 - `lifeDrain` - restores part of the damage its bearer dealt back to it as health, resurrecting fallen creatures of the stack. Only damage dealt to living targets counts. Parameters:
-    - `percentage` - share of the dealt damage restored to the attacker
+    - `val` - share of the dealt damage restored to the attacker
 - `soulSteal` - raises its bearer's stack for every enemy creature it killed, beyond the stack's original size. Only kills among living targets count. Parameters:
-    - `creaturesPerKill` - creatures gained for each killed enemy creature
+    - `val` - creatures gained for each killed enemy creature
     - `permanent` - true to keep the gained creatures after the battle
 - `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
     - `spell` - spell whose effects are applied

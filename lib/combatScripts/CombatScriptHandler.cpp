@@ -33,6 +33,14 @@ std::string CombatScriptHandler::getDescriptionTextID(CombatScriptID scriptID) c
 	return scriptTypes.at(scriptID.getNum()).descriptionTextID;
 }
 
+std::string CombatScriptHandler::getJsonKey(CombatScriptID scriptID) const
+{
+	if(!scriptID.hasValue())
+		return {};
+
+	return scriptTypes.at(scriptID.getNum()).scriptId;
+}
+
 void CombatScriptHandler::registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory)
 {
 	scriptTypeFactories[typeName] = factory;

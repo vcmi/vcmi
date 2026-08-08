@@ -75,19 +75,14 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 	const std::string & script = retired->second;
 	int value = ability["val"].Integer();
 
+	// the magnitude keeps living in val, so that several sources of the same ability still add up
 	JsonNode parameters;
-	if(script == "lifeDrain")
+	if(script == "soulSteal")
 	{
-		parameters["percentage"].Integer() = value;
-	}
-	else if(script == "soulSteal")
-	{
-		parameters["creaturesPerKill"].Integer() = value;
 		parameters["permanent"].Bool() = withoutScope(ability["subtype"].String()) != "soulStealBattle";
 	}
 	else if(script == "transmutation")
 	{
-		parameters["chance"].Integer() = value;
 		parameters["transmuteBy"].String() = withoutScope(ability["subtype"].String()) == "transmutationPerHealth" ? "health" : "count";
 		// without a creature the script keeps the default of transmuting into the attacker's own
 		if(!ability["addInfo"].isNull())
@@ -96,10 +91,10 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 	else if(script == "summonGuardians")
 	{
 		parameters["creature"] = ability["subtype"];
-		parameters["percentage"].Integer() = value;
 	}
 	else if(script == "enchanted")
 	{
+		// enchanted packs a mastery level and a flag rather than a magnitude, so val is unused
 		parameters["spell"] = ability["subtype"];
 		parameters["level"].Integer() = enchantedLevel(value);
 		parameters["massive"].Bool() = enchantedIsMassive(value);
@@ -107,58 +102,53 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 
 	// everything else the config says - duration, limiters, icon, description - still applies
 	migrated = ability;
-	migrated.Struct().erase("subtype");
-	migrated.Struct().erase("val");
-
 	migrated["type"].String() = "COMBAT_EVENT_TRIGGER";
+	migrated["subtype"].String() = script;
 
-	JsonNode addInfo;
-	addInfo["eventScript"].String() = script;
-	addInfo["eventParameters"] = parameters;
-	// the replacement lives in whichever mod provides the script, not in the mod being migrated
-	addInfo.setModScope(ModScope::scopeGame());
+	if(script == "enchanted")
+		migrated.Struct().erase("val");
 
-	migrated["addInfo"] = addInfo;
+	// the script lives in whichever mod provides it, not in the mod being migrated
+	migrated["subtype"].setModScope(ModScope::scopeGame());
+	migrated["addInfo"] = parameters;
 
 	return true;
 }
 
 bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 {
-	BonusParametersCombatScript data;
+	CombatScriptID script;
+	JsonNode parameters;
 
 	switch(bonus.type)
 	{
 		case BonusType::LIFE_DRAIN:
-			data.eventScript = resolveScript("lifeDrain");
-			data.eventParameters["percentage"].Integer() = bonus.val;
+			script = resolveScript("lifeDrain");
 			break;
 
 		case BonusType::SOUL_STEAL:
-			data.eventScript = resolveScript("soulSteal");
-			data.eventParameters["creaturesPerKill"].Integer() = bonus.val;
-			data.eventParameters["permanent"].Bool() = bonus.subtype != BonusCustomSubtype::soulStealBattle;
+			script = resolveScript("soulSteal");
+			parameters["permanent"].Bool() = bonus.subtype != BonusCustomSubtype::soulStealBattle;
 			break;
 
 		case BonusType::TRANSMUTATION:
-			data.eventScript = resolveScript("transmutation");
-			data.eventParameters["chance"].Integer() = bonus.val;
-			data.eventParameters["transmuteBy"].String() = bonus.subtype == BonusCustomSubtype::transmutationPerHealth ? "health" : "count";
+			script = resolveScript("transmutation");
+			parameters["transmuteBy"].String() = bonus.subtype == BonusCustomSubtype::transmutationPerHealth ? "health" : "count";
 			if(bonus.parameters)
-				data.eventParameters["creature"].String() = jsonKeyOf(bonus.parameters->toCreature().toEntity(LIBRARY));
+				parameters["creature"].String() = jsonKeyOf(bonus.parameters->toCreature().toEntity(LIBRARY));
 			break;
 
 		case BonusType::SUMMON_GUARDIANS:
-			data.eventScript = resolveScript("summonGuardians");
-			data.eventParameters["creature"].String() = jsonKeyOf(bonus.subtype.as<CreatureID>().toEntity(LIBRARY));
-			data.eventParameters["percentage"].Integer() = bonus.val;
+			script = resolveScript("summonGuardians");
+			parameters["creature"].String() = jsonKeyOf(bonus.subtype.as<CreatureID>().toEntity(LIBRARY));
 			break;
 
 		case BonusType::ENCHANTED:
-			data.eventScript = resolveScript("enchanted");
-			data.eventParameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
-			data.eventParameters["level"].Integer() = enchantedLevel(bonus.val);
-			data.eventParameters["massive"].Bool() = enchantedIsMassive(bonus.val);
+			script = resolveScript("enchanted");
+			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
+			parameters["level"].Integer() = enchantedLevel(bonus.val);
+			parameters["massive"].Bool() = enchantedIsMassive(bonus.val);
+			bonus.val = 0; // enchanted has no magnitude, its old value was a packed level
 			break;
 
 		default:
@@ -166,9 +156,8 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 	}
 
 	bonus.type = BonusType::COMBAT_EVENT_TRIGGER;
-	bonus.subtype = BonusSubtypeID();
-	bonus.val = 0;
-	bonus.parameters = std::make_shared<BonusParameters>(data);
+	bonus.subtype = BonusSubtypeID(script);
+	bonus.parameters = std::make_shared<BonusParameters>(parameters);
 
 	return true;
 }

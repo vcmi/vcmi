@@ -47,7 +47,7 @@ public:
 	{
 		JsonNode result;
 		result["creature"].String() = "core:goldGolem";
-		result["percentage"].Integer() = percentage;
+		result["val"].Integer() = percentage;
 		return result;
 	}
 

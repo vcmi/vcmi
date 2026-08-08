@@ -39,22 +39,38 @@ public:
 		return JsonUtils::parseBonus(ability);
 	}
 
-	static const BonusParametersCombatScript & scriptOf(const std::shared_ptr<Bonus> & bonus)
+	static const JsonNode & scriptOf(const std::shared_ptr<Bonus> & bonus)
 	{
 		EXPECT_EQ(bonus->type, BonusType::COMBAT_EVENT_TRIGGER);
 		EXPECT_NE(bonus->parameters, nullptr);
-		return bonus->parameters->toCustom<BonusParametersCombatScript>();
+		return bonus->parameters->toCustom<JsonNode>();
 	}
 
 	static void expectRunsScript(const std::shared_ptr<Bonus> & bonus, const std::string & script)
 	{
-		const auto & data = scriptOf(bonus);
+		auto scriptID = bonus->subtype.as<CombatScriptID>();
 
-		EXPECT_NE(data.eventScript, CombatScriptID::NONE);
-		EXPECT_NE(LIBRARY->combatScripts()->get(data.eventScript), nullptr);
-		EXPECT_NE(LIBRARY->combatScripts()->getDescriptionTextID(data.eventScript).find(script), std::string::npos);
+		EXPECT_NE(scriptID, CombatScriptID::NONE);
+		EXPECT_NE(LIBRARY->combatScripts()->get(scriptID), nullptr);
+		EXPECT_NE(LIBRARY->combatScripts()->getJsonKey(scriptID).find(script), std::string::npos);
 	}
 };
+
+/// The form content is written in today, which the migration above has to produce as well.
+TEST_F(BonusMigrationTest, ScriptIsNamedByTheBonusSubtype)
+{
+	JsonNode ability;
+	ability["type"].String() = "COMBAT_EVENT_TRIGGER";
+	ability["subtype"].String() = "combatScript.summonGuardians";
+	ability["val"].Integer() = 50;
+	ability["addInfo"]["creature"].String() = "core:woodElf";
+
+	auto bonus = parse(ability);
+
+	expectRunsScript(bonus, "summonGuardians");
+	EXPECT_EQ(bonus->val, 50);
+	EXPECT_EQ(scriptOf(bonus)["creature"].String(), "core:woodElf");
+}
 
 TEST_F(BonusMigrationTest, LifeDrainConfigRunsTheScript)
 {
@@ -65,7 +81,7 @@ TEST_F(BonusMigrationTest, LifeDrainConfigRunsTheScript)
 	auto bonus = parse(ability);
 
 	expectRunsScript(bonus, "lifeDrain");
-	EXPECT_EQ(scriptOf(bonus).eventParameters["percentage"].Integer(), 50);
+	EXPECT_EQ(bonus->val, 50);
 }
 
 TEST_F(BonusMigrationTest, SoulStealSubtypeBecomesParameter)
@@ -82,9 +98,9 @@ TEST_F(BonusMigrationTest, SoulStealSubtypeBecomesParameter)
 	auto migratedOneBattle = parse(oneBattle);
 
 	expectRunsScript(migratedPermanent, "soulSteal");
-	EXPECT_EQ(scriptOf(migratedPermanent).eventParameters["creaturesPerKill"].Integer(), 2);
-	EXPECT_TRUE(scriptOf(migratedPermanent).eventParameters["permanent"].Bool());
-	EXPECT_FALSE(scriptOf(migratedOneBattle).eventParameters["permanent"].Bool());
+	EXPECT_EQ(migratedPermanent->val, 2);
+	EXPECT_TRUE(scriptOf(migratedPermanent)["permanent"].Bool());
+	EXPECT_FALSE(scriptOf(migratedOneBattle)["permanent"].Bool());
 }
 
 TEST_F(BonusMigrationTest, TransmutationSubtypeBecomesParameter)
@@ -101,10 +117,10 @@ TEST_F(BonusMigrationTest, TransmutationSubtypeBecomesParameter)
 	auto migrated = parse(perHealth);
 
 	expectRunsScript(migrated, "transmutation");
-	EXPECT_EQ(scriptOf(migrated).eventParameters["chance"].Integer(), 40);
-	EXPECT_EQ(scriptOf(migrated).eventParameters["transmuteBy"].String(), "health");
-	EXPECT_EQ(scriptOf(migrated).eventParameters["creature"].String(), "core:goldGolem");
-	EXPECT_EQ(scriptOf(parse(perUnit)).eventParameters["transmuteBy"].String(), "count");
+	EXPECT_EQ(migrated->val, 40);
+	EXPECT_EQ(scriptOf(migrated)["transmuteBy"].String(), "health");
+	EXPECT_EQ(scriptOf(migrated)["creature"].String(), "core:goldGolem");
+	EXPECT_EQ(scriptOf(parse(perUnit))["transmuteBy"].String(), "count");
 }
 
 /// Without a creature the script falls back to the attacker's own, so it must stay unset.
@@ -115,7 +131,7 @@ TEST_F(BonusMigrationTest, TransmutationWithoutCreatureSetsNone)
 	ability["val"].Integer() = 10;
 	ability["subtype"].String() = "transmutationPerUnit";
 
-	EXPECT_TRUE(scriptOf(parse(ability)).eventParameters["creature"].isNull());
+	EXPECT_TRUE(scriptOf(parse(ability))["creature"].isNull());
 }
 
 TEST_F(BonusMigrationTest, SummonGuardiansSubtypeBecomesCreature)
@@ -128,8 +144,8 @@ TEST_F(BonusMigrationTest, SummonGuardiansSubtypeBecomesCreature)
 	auto migrated = parse(ability);
 
 	expectRunsScript(migrated, "summonGuardians");
-	EXPECT_EQ(scriptOf(migrated).eventParameters["creature"].String(), "core:woodElf");
-	EXPECT_EQ(scriptOf(migrated).eventParameters["percentage"].Integer(), 50);
+	EXPECT_EQ(scriptOf(migrated)["creature"].String(), "core:woodElf");
+	EXPECT_EQ(migrated->val, 50);
 }
 
 /// ENCHANTED packed the mastery level and the "affects the whole side" flag into a single value.
@@ -147,12 +163,15 @@ TEST_F(BonusMigrationTest, EnchantedValueSplitsIntoLevelAndMassive)
 	auto migratedMassive = parse(massive);
 
 	expectRunsScript(migratedSingle, "enchanted");
-	EXPECT_EQ(scriptOf(migratedSingle).eventParameters["spell"].String(), "core:bless");
-	EXPECT_EQ(scriptOf(migratedSingle).eventParameters["level"].Integer(), 2);
-	EXPECT_FALSE(scriptOf(migratedSingle).eventParameters["massive"].Bool());
+	EXPECT_EQ(scriptOf(migratedSingle)["spell"].String(), "core:bless");
+	EXPECT_EQ(scriptOf(migratedSingle)["level"].Integer(), 2);
+	EXPECT_FALSE(scriptOf(migratedSingle)["massive"].Bool());
 
-	EXPECT_EQ(scriptOf(migratedMassive).eventParameters["level"].Integer(), 2);
-	EXPECT_TRUE(scriptOf(migratedMassive).eventParameters["massive"].Bool());
+	EXPECT_EQ(scriptOf(migratedMassive)["level"].Integer(), 2);
+	EXPECT_TRUE(scriptOf(migratedMassive)["massive"].Bool());
+
+	// the packed level was never a magnitude, so nothing is left in the value to accumulate
+	EXPECT_EQ(migratedMassive->val, 0);
 }
 
 /// Saves hold resolved identifiers, which have to come back out as the json keys scripts expect.
@@ -167,12 +186,12 @@ TEST_F(BonusMigrationTest, SavedEntityReferencesBecomeJsonKeys)
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(guardians));
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(enchanted));
 
-	const auto & guardianData = guardians.parameters->toCustom<BonusParametersCombatScript>();
-	const auto & enchantedData = enchanted.parameters->toCustom<BonusParametersCombatScript>();
+	const auto & guardianData = guardians.parameters->toCustom<JsonNode>();
+	const auto & enchantedData = enchanted.parameters->toCustom<JsonNode>();
 
-	EXPECT_NE(LIBRARY->creatures()->getByName(guardianData.eventParameters["creature"].String()), nullptr);
-	EXPECT_NE(LIBRARY->spells()->getByName(enchantedData.eventParameters["spell"].String()), nullptr);
-	EXPECT_TRUE(enchantedData.eventParameters["massive"].Bool());
+	EXPECT_NE(LIBRARY->creatures()->getByName(guardianData["creature"].String()), nullptr);
+	EXPECT_NE(LIBRARY->spells()->getByName(enchantedData["spell"].String()), nullptr);
+	EXPECT_TRUE(enchantedData["massive"].Bool());
 }
 
 /// The conversion replaces what the ability is, not the settings applied on top of it.
@@ -206,9 +225,8 @@ TEST_F(BonusMigrationTest, SavedBonusIsConverted)
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(*bonus));
 
 	expectRunsScript(bonus, "soulSteal");
-	EXPECT_EQ(scriptOf(bonus).eventParameters["creaturesPerKill"].Integer(), 3);
-	EXPECT_FALSE(scriptOf(bonus).eventParameters["permanent"].Bool());
-	EXPECT_EQ(bonus->subtype, BonusSubtypeID());
+	EXPECT_EQ(bonus->val, 3);
+	EXPECT_FALSE(scriptOf(bonus)["permanent"].Bool());
 }
 
 TEST_F(BonusMigrationTest, SavedBonusOfOtherTypeIsUntouched)

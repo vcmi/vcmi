@@ -2,12 +2,12 @@
 	"transmutation" : {
 		"type" : "lua",
 		"script" : "transmutation",
-		"description" : "{Transmutation}\nHas a ${chance}% chance to transform the attacked unit into another type."
+		"description" : "{Transmutation}\nHas a ${val}% chance to transform the attacked unit into another type."
 	},
 	"summonGuardians" : {
 		"type" : "lua",
 		"script" : "summonGuardians",
-		"description" : "{Summon Guardians}\nAt the start of battle, summons ${creature} (${percentage}%)."
+		"description" : "{Summon Guardians}\nAt the start of battle, summons ${creature} (${val}%)."
 	},
 	"enchanted" : {
 		"type" : "lua",
@@ -17,11 +17,11 @@
 	"lifeDrain" : {
 		"type" : "lua",
 		"script" : "lifeDrain",
-		"description" : "{Life Drain}\nRestores health equal to ${percentage}% of damage dealt."
+		"description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 	},
 	"soulSteal" : {
 		"type" : "lua",
 		"script" : "soulSteal",
-		"description" : "{Soul Steal}\nGains ${creaturesPerKill} new creatures for each enemy killed."
+		"description" : "{Soul Steal}\nGains ${val} new creatures for each enemy killed."
 	}
 }

@@ -1717,18 +1717,22 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 
 	}
 
-	// scripts subscribe to every event and no-op on those they do not implement, so no subtype here
+	// scripts subscribe to every event and no-op on those they do not implement, so the subtype -
+	// which script to run - is not part of the selector here
 	for (const auto & bonus : *target->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
 	{
-		if (!bonus->parameters)
-			continue;
-
-		const auto & parameters = bonus->parameters->toCustom<BonusParametersCombatScript>();
-		auto script = LIBRARY->combatScripts()->get(parameters.eventScript);
+		auto script = LIBRARY->combatScripts()->get(bonus->subtype.as<CombatScriptID>());
 
 		if (!script)
 			continue; // mod providing the script is gone
 
-		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters.eventParameters, payload);
+		JsonNode parameters;
+		if (bonus->parameters)
+			parameters = bonus->parameters->toCustom<JsonNode>();
+
+		// the magnitude lives in val so that the bonus system can accumulate it
+		parameters["val"].Integer() = bonus->val;
+
+		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters, payload);
 	}
 }

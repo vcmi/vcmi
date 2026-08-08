@@ -6,7 +6,7 @@ Script.__index = Script
 --- creatures of the stack. Scripted equivalent of the LIFE_DRAIN bonus.
 ---
 --- Parameters:
----  percentage - share of the dealt damage restored to the attacker
+---  val - share of the dealt damage restored to the attacker, in percent
 
 local ANIMATION = "SP06_"
 local SOUND = "DRAINLIF"
@@ -53,7 +53,7 @@ function Script:onAttackResolved(server, battle, unit, other, payload)
 	-- a stack at full health has nothing to drain into
 	if unit:getTotalHealth() == unit:getAvailableHealth() then return end
 
-	local toHeal = math.floor(drainableDamage(payload) * (self.percentage or 0) / 100)
+	local toHeal = math.floor(drainableDamage(payload) * (self.val or 0) / 100)
 
 	if toHeal <= 0 then return end
 

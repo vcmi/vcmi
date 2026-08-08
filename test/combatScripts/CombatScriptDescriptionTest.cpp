@@ -25,39 +25,43 @@ namespace test
 class CombatScriptDescriptionTest : public ::testing::Test
 {
 public:
-	static std::shared_ptr<Bonus> triggerBonus(const std::string & script, const JsonNode & eventParameters)
+	static std::shared_ptr<Bonus> triggerBonus(const std::string & script, int value, const JsonNode & eventParameters = JsonNode())
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::CREATURE_ABILITY, 0, BonusSourceID());
+		auto scriptID = CombatScriptID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", script, false));
 
-		BonusParametersCombatScript data;
-		data.eventParameters = eventParameters;
-
-		data.eventScript = CombatScriptID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", script, false));
-
-		bonus->parameters = std::make_shared<BonusParameters>(data);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::CREATURE_ABILITY, value, BonusSourceID(), BonusSubtypeID(scriptID));
+		bonus->parameters = std::make_shared<BonusParameters>(eventParameters);
 		return bonus;
 	}
 };
 
-TEST_F(CombatScriptDescriptionTest, ParametersAreSubstitutedByName)
+/// The magnitude of a scripted ability lives in the bonus value, like every other bonus.
+TEST_F(CombatScriptDescriptionTest, ValueIsSubstituted)
 {
-	JsonNode parameters;
-	parameters["percentage"].Integer() = 100;
-
-	auto description = LIBRARY->bth->bonusToString(triggerBonus("lifeDrain", parameters));
+	auto description = LIBRARY->bth->bonusToString(triggerBonus("lifeDrain", 100));
 
 	EXPECT_NE(description.find("100%"), std::string::npos) << description;
 	EXPECT_EQ(description.find("${"), std::string::npos) << description;
+}
+
+/// Everything that is not a magnitude stays a named script parameter.
+TEST_F(CombatScriptDescriptionTest, ParametersAreSubstitutedByName)
+{
+	JsonNode parameters;
+	parameters["creature"].String() = "core:woodElf";
+
+	auto description = LIBRARY->bth->bonusToString(triggerBonus("summonGuardians", 50, parameters));
+
+	EXPECT_NE(description.find("50%"), std::string::npos) << description;
+	EXPECT_EQ(description.find("${"), std::string::npos) << description;
+	EXPECT_EQ(description.find("core:woodElf"), std::string::npos) << description;
 }
 
 /// Regression guard: the shared bonus type has no bonuses.json entry, so it is hidden by default
 /// and scripted abilities used to render as nothing at all.
 TEST_F(CombatScriptDescriptionTest, DescriptionIsNotEmpty)
 {
-	JsonNode parameters;
-	parameters["creaturesPerKill"].Integer() = 1;
-
-	auto description = LIBRARY->bth->bonusToString(triggerBonus("soulSteal", parameters));
+	auto description = LIBRARY->bth->bonusToString(triggerBonus("soulSteal", 1));
 
 	EXPECT_FALSE(description.empty());
 	EXPECT_EQ(description.find("core.combatScript."), std::string::npos) << description;

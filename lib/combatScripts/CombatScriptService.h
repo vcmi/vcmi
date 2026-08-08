@@ -41,5 +41,8 @@ public:
 	/// Text ID of the description shown for a bonus that runs this script. Empty if none is set.
 	virtual std::string getDescriptionTextID(CombatScriptID scriptID) const = 0;
 
+	/// Scoped identifier of the script, e.g. "core:lifeDrain". Empty if no script is set.
+	virtual std::string getJsonKey(CombatScriptID scriptID) const = 0;
+
 	virtual void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) = 0;
 };

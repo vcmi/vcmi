@@ -26,6 +26,7 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/SchoolService.h>
 
+#include "combatScripts/CombatScriptService.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
@@ -638,6 +639,21 @@ const BattleFieldInfo * BattleField::getInfo() const
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return LIBRARY->obstacles()->getById(*this);
+}
+
+si32 CombatScriptID::decode(const std::string & identifier)
+{
+	return resolveIdentifier(entityType(), identifier);
+}
+
+std::string CombatScriptID::encode(const si32 index)
+{
+	return LIBRARY->combatScripts()->getJsonKey(CombatScriptID(index));
+}
+
+std::string CombatScriptID::entityType()
+{
+	return "combatScript";
 }
 
 si32 SpellSchool::decode(const std::string & identifier)

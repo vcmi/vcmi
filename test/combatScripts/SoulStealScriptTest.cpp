@@ -49,7 +49,7 @@ public:
 	JsonNode parameters(bool permanent)
 	{
 		JsonNode result;
-		result["creaturesPerKill"].Integer() = creaturesPerKill;
+		result["val"].Integer() = creaturesPerKill;
 		result["permanent"].Bool() = permanent;
 		return result;
 	}

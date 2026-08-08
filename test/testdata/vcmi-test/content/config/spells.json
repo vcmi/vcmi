@@ -14,7 +14,7 @@
 					"attachSpikes" : {
 						"type" : "attachCombatScript",
 						"eventScript" : "testSpikes",
-						"eventParameters" : { "damage" : 10 }
+						"eventValue" : 10
 					}
 				}
 			}

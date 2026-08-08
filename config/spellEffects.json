@@ -258,6 +258,7 @@
 				"optional" : {},
 				"ignoreImmunity" : { "type" : "boolean" },
 				"eventScript" : { "type" : "string" },
+				"eventValue" : { "type" : "number" },
 				"eventParameters" : { "type" : "object" }
 			},
 			"additionalProperties" : false

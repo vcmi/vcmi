@@ -47,7 +47,7 @@ public:
 	JsonNode parameters()
 	{
 		JsonNode result;
-		result["chance"].Integer() = chance;
+		result["val"].Integer() = chance;
 		result["creature"].String() = "core:goldGolem";
 		result["transmuteBy"].String() = "count";
 		return result;

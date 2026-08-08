@@ -6,8 +6,8 @@ Script.__index = Script
 --- Scripted equivalent of the SOUL_STEAL bonus.
 ---
 --- Parameters:
----  creaturesPerKill - creatures gained for each killed enemy creature
----  permanent        - true to keep the gained creatures after the battle
+---  val       - creatures gained for each killed enemy creature
+---  permanent - true to keep the gained creatures after the battle
 
 -- soul steal has always shared life drain's presentation, since both fed the same heal counter
 local ANIMATION = "SP06_"
@@ -52,7 +52,7 @@ function Script:describe(server, battle, unit, other, healed, resurrected)
 end
 
 function Script:onAttackResolved(server, battle, unit, other, payload)
-	local gained = stolenSouls(payload) * (self.creaturesPerKill or 0)
+	local gained = stolenSouls(payload) * (self.val or 0)
 
 	if gained <= 0 then return end
 

@@ -31,6 +31,8 @@ public:
 
 	std::string getDescriptionTextID(CombatScriptID scriptID) const override;
 
+	std::string getJsonKey(CombatScriptID scriptID) const override;
+
 	void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) override;
 
 	std::vector<JsonNode> loadLegacyData() override;

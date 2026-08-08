@@ -1075,6 +1075,10 @@ public:
 	using StaticIdentifier<CombatScriptID>::StaticIdentifier;
 
 	static const CombatScriptID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 
