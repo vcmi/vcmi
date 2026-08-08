@@ -46,7 +46,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model, bool use
 std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size) const
 {
 	// a view drawn into the software screen cannot read from a GPU-backed cache
-	if(useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled())
+	if(canvasesOnGpu)
 		return std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
 
 	return std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
@@ -54,14 +54,22 @@ std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size) const
 
 void MapViewCache::ensureCanvases()
 {
-	if(terrain)
+	const bool useGpu = useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled();
+
+	if(terrain && canvasesOnGpu == useGpu)
 		return;
 
 	// Must run on the rendering thread: this object is constructed while handling a
 	// netpack, and creating a texture there would move the GL context off the GUI thread
+	canvasesOnGpu = useGpu;
+
 	intermediate = createCanvas(Point(32, 32));
 	terrain = createCanvas(model->getCacheDimensionsPixels());
 	terrainTransition = createCanvas(model->getPixelsVisibleDimensions());
+
+	// the new canvases are empty, so nothing cached about the old ones still holds
+	std::fill_n(terrainChecksum.data(), terrainChecksum.num_elements(), TileChecksum{});
+	std::fill_n(tilesUpToDate.data(), tilesUpToDate.num_elements(), false);
 }
 
 Canvas MapViewCache::getTile(const int3 & coordinates)
