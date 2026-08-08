@@ -40,8 +40,6 @@
 #include "../lib/texts/TextOperations.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
-#include <SDL_render.h>
-
 std::unique_ptr<GameEngine> ENGINE;
 
 static thread_local bool inGuiThread = false;

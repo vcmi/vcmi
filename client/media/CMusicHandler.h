@@ -14,7 +14,8 @@
 
 #include "../../lib/CConfigHandler.h"
 
-#include <SDL_mixer.h>
+// Mix_Music is an opaque type, forward declared here to keep SDL out of this header
+typedef struct _Mix_Music Mix_Music;
 
 class CMusicHandler;
 

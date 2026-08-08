@@ -82,4 +82,7 @@ SDL_Color toSDL(const ColorRGBA & color);
 	SDL_Surface * drawShadow(SDL_Surface * source, bool doSheer);
 
 	void adjustBrightness(SDL_Surface* surface, float factor);
+
+	/// releases thread-local storage allocated by SDL, must be called by every thread that was not created by SDL
+	void cleanupThreadLocalStorage();
 }

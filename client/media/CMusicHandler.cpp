@@ -22,6 +22,8 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/GameLibrary.h"
 
+#include <SDL_mixer.h>
+
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
 	setVolume(volumeNode.Integer());

@@ -28,6 +28,7 @@
 
 #include <SDL_render.h>
 #include <SDL_surface.h>
+#include <SDL_thread.h>
 #include <SDL_version.h>
 
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
@@ -1076,4 +1077,9 @@ void CSDL_Ext::adjustBrightness(SDL_Surface* surface, float factor)
     }
 
     SDL_UnlockSurface(surface);
+}
+
+void CSDL_Ext::cleanupThreadLocalStorage()
+{
+	SDL_TLSCleanup();
 }
