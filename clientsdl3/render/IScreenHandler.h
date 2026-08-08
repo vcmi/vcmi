@@ -94,4 +94,8 @@ public:
 	/// Offscreen canvas of the given logical size. Drawn by the GPU where this backend
 	/// supports it, into a plain surface otherwise. The canvas owns whatever backs it.
 	virtual Canvas createOffscreenCanvas(const Point & size) const = 0;
+
+	/// Hands everything drawn so far to the GPU instead of leaving it queued. Lets drawing
+	/// that a later pass reads back start early, rather than stalling on the first read.
+	virtual void flushRenderCommands() = 0;
 };

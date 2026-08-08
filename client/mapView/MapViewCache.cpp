@@ -174,6 +174,16 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 
 	cachedSize = model->getSingleTileSize();
 	cachedLevel = model->getLevel();
+	updatedTilesRect = dimensions;
+	updatedThisFrame = true;
+}
+
+bool MapViewCache::isUpdatedThisFrame() const
+{
+	return updatedThisFrame
+		&& updatedTilesRect == model->getTilesTotalRect()
+		&& cachedSize == model->getSingleTileSize()
+		&& cachedLevel == model->getLevel();
 }
 
 void MapViewCache::renderCachedTiles(Canvas & target)
@@ -331,6 +341,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 	cachedPosition = model->getMapViewCenter();
 	overlayWasVisible = overlayVisible;
+	updatedThisFrame = false;
 }
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)

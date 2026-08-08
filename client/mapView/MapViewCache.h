@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
+#include "../../lib/Rect.h"
 
 class ObjectInstanceID;
 
@@ -53,6 +54,13 @@ class MapViewCache
 	/// surface path, and a cache built for one path cannot be drawn onto the other.
 	bool canvasesOnGpu = false;
 
+	/// Set by update(), cleared by render(). Lets a caller that already filled the cache
+	/// this frame skip doing it again, which would re-checksum every visible tile.
+	bool updatedThisFrame = false;
+
+	/// Tiles the cache was filled for, to detect a scroll between the update and the draw
+	Rect updatedTilesRect;
+
 	std::unique_ptr<Canvas> terrain;
 	std::unique_ptr<Canvas> terrainTransition;
 	std::unique_ptr<Canvas> intermediate;
@@ -87,6 +95,10 @@ public:
 	void invalidate(const std::shared_ptr<IMapRendererContext> & context, const ObjectInstanceID & object);
 
 	/// updates internal terrain cache according to provided time delta
+	/// True when update() already ran this frame and the view still shows the same tiles. A scroll
+	/// in between brings tiles into view whose cache slots were never filled for them.
+	bool isUpdatedThisFrame() const;
+
 	void update(const std::shared_ptr<IMapRendererContext> & context);
 
 	/// renders updated terrain cache onto provided canvas

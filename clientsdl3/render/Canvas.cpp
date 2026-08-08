@@ -130,6 +130,64 @@ Canvas Canvas::createOwningRenderTarget(SDL_Texture * renderTarget, const Point 
 	return Canvas(renderTarget, size, scalingPolicy, true);
 }
 
+namespace
+{
+/// Scratch texture that surface-backed canvases are uploaded through - one per copy would cost
+/// a GPU allocation and a full upload every time, so a single one is grown and reused.
+/// SDL_UpdateTexture flushes any batch still referring to it, so several copies per frame work.
+SDL_Texture * uploadTexture = nullptr;
+Point uploadTextureSize;
+uint32_t uploadTextureGeneration = 0;
+}
+
+static SDL_Texture * acquireUploadTexture(const Point & size)
+{
+	const bool sameRenderer = uploadTexture && uploadTextureGeneration == mainRendererGeneration;
+
+	if(sameRenderer && uploadTextureSize.x >= size.x && uploadTextureSize.y >= size.y)
+		return uploadTexture;
+
+	// never shrink - a smaller region can always be uploaded into a corner of a larger texture
+	const Point wanted = sameRenderer ? Point(std::max(size.x, uploadTextureSize.x), std::max(size.y, uploadTextureSize.y)) : size;
+
+	SDL_Texture * created = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, wanted.x, wanted.y);
+
+	if(!created)
+		return nullptr;
+
+	// textures of a destroyed renderer are gone with it and must not be touched
+	if(sameRenderer)
+		SDL_DestroyTexture(uploadTexture);
+
+	uploadTexture = created;
+	uploadTextureSize = wanted;
+	uploadTextureGeneration = mainRendererGeneration;
+
+	return uploadTexture;
+}
+
+/// Uploads one region of a surface into the shared texture, which then holds it at its origin.
+/// Returns nullptr when the surface is not in the format our canvases use.
+static SDL_Texture * uploadSurfaceRegion(SDL_Surface * surface, const Rect & area)
+{
+	if(surface->format != SDL_PIXELFORMAT_ARGB8888 || area.w <= 0 || area.h <= 0)
+		return nullptr;
+
+	SDL_Texture * texture = acquireUploadTexture(area.dimensions());
+
+	if(!texture)
+		return nullptr;
+
+	static constexpr int bytesPerPixel = 4;
+	const SDL_Rect destination{0, 0, area.w, area.h};
+	const auto * pixels = static_cast<const uint8_t *>(surface->pixels) + static_cast<size_t>(area.y) * surface->pitch + static_cast<size_t>(area.x) * bytesPerPixel;
+
+	if(!SDL_UpdateTexture(texture, &destination, pixels, surface->pitch))
+		return nullptr;
+
+	return texture;
+}
+
 void Canvas::bindRenderTarget() const
 {
 	// switching targets flushes the batch, so only do it when it actually changes
@@ -149,13 +207,20 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 	// windows composing into plain surfaces can be drawn onto a GPU target at all.
 	if(!image.renderTarget)
 	{
-		SDL_Texture * uploaded = SDL_CreateTextureFromSurface(mainRenderer, image.surface);
+		SDL_Texture * shared = uploadSurfaceRegion(image.surface, image.renderArea);
+
+		// an unexpected surface format still has to go through a conversion of its own
+		SDL_Texture * uploaded = shared ? shared : SDL_CreateTextureFromSurface(mainRenderer, image.surface);
 
 		if(!uploaded)
 		{
 			logGpuIssueOnce(std::string("failed to upload a surface-backed canvas: ") + SDL_GetError());
 			return;
 		}
+
+		// the shared texture received only the requested region, placed at its origin
+		if(shared)
+			source = CSDL_Ext::toSDLFloat(Rect(Point(0, 0), image.renderArea.dimensions()));
 
 		SDL_SetTextureBlendMode(uploaded, static_cast<SDL_BlendMode>(blendMode));
 		SDL_SetTextureAlphaMod(uploaded, alpha);
@@ -164,7 +229,9 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		if(!SDL_RenderTexture(mainRenderer, uploaded, &source, &target))
 			logGpuIssueOnce(std::string("SDL_RenderTexture failed for uploaded surface: ") + SDL_GetError());
 
-		SDL_DestroyTexture(uploaded);
+		if(!shared)
+			SDL_DestroyTexture(uploaded);
+
 		return;
 	}
 

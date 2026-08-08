@@ -152,6 +152,7 @@ public:
 	void releaseLayer(GpuRenderLayer layer) final;
 	void clearReleasedLayers() final;
 	Canvas createOffscreenCanvas(const Point & size) const final;
+	void flushRenderCommands() final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
 
