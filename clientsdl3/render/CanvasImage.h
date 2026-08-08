@@ -26,6 +26,9 @@ public:
 	Rect contentRect() const override;
 	Point dimensions() const override;
 
+	/// canvas-backed images have no GPU copy, so callers must fall back to the surface path
+	bool drawTexture(SDL_Renderer *, const Point &, const Rect *, int) const override { return false; }
+
 	//no-op methods
 
 	bool isTransparent(const Point & coords) const override{ return false;};

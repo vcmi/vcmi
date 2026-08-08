@@ -46,6 +46,9 @@ class ScreenHandler final : public IScreenHandler
 {
 	SDL_Window * mainWindow = nullptr;
 	SDL_Texture * screenTexture = nullptr;
+
+	/// Render target the adventure map is drawn into, composited under screenTexture
+	SDL_Texture * mapTexture = nullptr;
 	SDL_Surface * screen = nullptr;
 
 	/// Window size the buffers above were built for. SDL applies window changes
@@ -82,6 +85,9 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Manages surfaces & textures used for
 	void initializeScreenBuffers();
+
+	/// Creates the render target the adventure map is drawn into
+	void initializeMapTexture(const Point & logicalSize);
 	void destroyScreenBuffers();
 
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
@@ -122,6 +128,10 @@ public:
 	int getInterfaceScalingPercentage() const final;
 
 	Canvas getScreenCanvas() const final;
+
+	bool isGpuMapRenderingEnabled() const final;
+	Canvas getMapLayerCanvas() const final;
+	Canvas createOffscreenCanvas(const Point & size) const final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
 

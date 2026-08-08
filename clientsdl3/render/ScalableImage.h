@@ -80,6 +80,18 @@ class ScalableImageShared final : public std::enable_shared_from_this<ScalableIm
 
 	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const;
 
+	/// Picks the variant matching the requested flips, generating it on first use
+	static const ImageType & selectFlipped(FlippedImages & images, const ScalableImageParameters & parameters);
+
+	/// Walks the composed layers back to front: drawScaled while an upscale is pending, drawNative
+	/// otherwise. Both take (const ImageType &, const ColorRGBA &, uint8_t) -> bool, conjoined.
+	template<typename DrawScaled, typename DrawNative>
+	bool forEachLayer(int scalingFactor, const ScalableImageParameters & parameters, const DrawScaled & drawScaled, const DrawNative & drawNative);
+
+	/// True while any variant needed for this draw is still being upscaled, in which case
+	/// only the 1x image may be used
+	bool anyVariantLoading(int scalingFactor, const ScalableImageParameters & parameters) const;
+
 	void loadScaledImages(int8_t scalingFactor, PlayerColor color);
 
 public:
@@ -90,6 +102,7 @@ public:
 	bool isTransparent(const Point & coords) const;
 	Rect contentRect() const;
 	void draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor);
+	bool drawTexture(SDL_Renderer * renderer, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor);
 
 	const SDL_Palette * getPalette() const;
 
@@ -119,6 +132,7 @@ public:
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const override;
+	bool drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const override;
 	void setOverlayColor(const ColorRGBA & color) override;
 	void setEffectColor(const ColorRGBA & color) override;
 	void playerColored(const PlayerColor & player) override;

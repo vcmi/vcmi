@@ -20,8 +20,24 @@
 #include "render/Graphics.h"
 #include "render/IFont.h"
 
+#include "CMT.h"
+
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
+
+/// Reports a problem in the GPU render path once per distinct message, so that a failure
+/// happening every frame cannot flood the log
+static void logGpuIssueOnce(const std::string & message)
+{
+	// the failing draw may come from any thread, so the guard itself has to be safe
+	static std::mutex mutex;
+	static std::set<std::string> reported;
+
+	std::lock_guard lock(mutex);
+	if(reported.insert(message).second)
+		logGlobal->error("GPU render path: %s", message);
+}
 
 Canvas::Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy):
 	scalingPolicy(scalingPolicy),
@@ -34,17 +50,25 @@ Canvas::Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy):
 Canvas::Canvas(const Canvas & other):
 	scalingPolicy(other.scalingPolicy),
 	surface(other.surface),
+	renderTarget(other.renderTarget),
 	renderArea(other.renderArea)
 {
-	surface->refcount++;
+	if(surface)
+		surface->refcount++;
 }
 
 Canvas::Canvas(Canvas && other):
 	scalingPolicy(other.scalingPolicy),
 	surface(other.surface),
+	renderTarget(other.renderTarget),
+	ownsRenderTarget(other.ownsRenderTarget),
 	renderArea(other.renderArea)
 {
-	surface->refcount++;
+	// ownership of a render target moves; the source must not destroy it any more
+	other.ownsRenderTarget = false;
+
+	if(surface)
+		surface->refcount++;
 }
 
 Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
@@ -80,9 +104,60 @@ Point Canvas::transformSize(const Point & input)
 	return input * getScalingFactor();
 }
 
+Canvas::Canvas(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy, bool ownsRenderTarget):
+	scalingPolicy(scalingPolicy),
+	surface(nullptr),
+	renderTarget(renderTarget),
+	ownsRenderTarget(ownsRenderTarget),
+	renderArea(Point(0, 0), size * getScalingFactor())
+{
+}
+
 Canvas Canvas::createFromSurface(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy)
 {
 	return Canvas(surface, scalingPolicy);
+}
+
+Canvas Canvas::createFromRenderTarget(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy)
+{
+	return Canvas(renderTarget, size, scalingPolicy);
+}
+
+Canvas Canvas::createOwningRenderTarget(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy)
+{
+	return Canvas(renderTarget, size, scalingPolicy, true);
+}
+
+void Canvas::bindRenderTarget() const
+{
+	// switching targets flushes the batch, so only do it when it actually changes
+	if(SDL_GetRenderTarget(mainRenderer) != renderTarget)
+		if(!SDL_SetRenderTarget(mainRenderer, renderTarget))
+			logGpuIssueOnce(std::string("SDL_SetRenderTarget failed: ") + SDL_GetError());
+}
+
+void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha)
+{
+	if(!image.renderTarget)
+	{
+		logGpuIssueOnce("cannot copy a surface-backed canvas onto a GPU target");
+		return;
+	}
+
+	bindRenderTarget();
+
+	SDL_FRect source = CSDL_Ext::toSDLFloat(image.renderArea);
+	SDL_FRect target = CSDL_Ext::toSDLFloat(targetArea);
+
+	SDL_SetTextureBlendMode(image.renderTarget, static_cast<SDL_BlendMode>(blendMode));
+	SDL_SetTextureAlphaMod(image.renderTarget, alpha);
+	// matches SDL_BlitSurfaceScaled on the surface path; see the note in SDLImageShared
+	SDL_SetTextureScaleMode(image.renderTarget, SDL_SCALEMODE_NEAREST);
+
+	if(!SDL_RenderTexture(mainRenderer, image.renderTarget, &source, &target))
+		logGpuIssueOnce(std::string("SDL_RenderTexture failed: ") + SDL_GetError());
+
+	SDL_SetTextureAlphaMod(image.renderTarget, SDL_ALPHA_OPAQUE);
 }
 
 void Canvas::applyTransparency(bool on)
@@ -95,12 +170,19 @@ void Canvas::applyTransparency(bool on)
 
 void Canvas::applyGrayscale()
 {
+	if(renderTarget)
+		return; // no GPU equivalent; only the puzzle map needs this and it stays software
+
 	CSDL_Ext::convertToGrayscale(surface, renderArea);
 }
 
 Canvas::~Canvas()
 {
-	SDL_DestroySurface(surface);
+	if(surface)
+		SDL_DestroySurface(surface);
+
+	if(ownsRenderTarget && renderTarget)
+		SDL_DestroyTexture(renderTarget);
 }
 
 void Canvas::draw(IVideoInstance & video, const Point & pos)
@@ -110,31 +192,71 @@ void Canvas::draw(IVideoInstance & video, const Point & pos)
 
 void Canvas::draw(const IImage& image, const Point & pos)
 {
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		if(!image.drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
+			logGpuIssueOnce("image reference has no texture representation");
+		return;
+	}
+
 	image.draw(surface, transformPos(pos), nullptr, getScalingFactor());
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
 	assert(image);
-	if (image)
-		image->draw(surface, transformPos(pos), nullptr, getScalingFactor());
+	if (!image)
+		return;
+
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		if(!image->drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
+			logGpuIssueOnce("image has no texture representation");
+		return;
+	}
+
+	image->draw(surface, transformPos(pos), nullptr, getScalingFactor());
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
 {
 	Rect realSourceRect = sourceRect * getScalingFactor();
 	assert(image);
-	if (image)
-		image->draw(surface, transformPos(pos), &realSourceRect, getScalingFactor());
+	if (!image)
+		return;
+
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		if(!image->drawTexture(mainRenderer, transformPos(pos), &realSourceRect, getScalingFactor()))
+			logGpuIssueOnce("image has no texture representation (subrect)");
+		return;
+	}
+
+	image->draw(surface, transformPos(pos), &realSourceRect, getScalingFactor());
 }
 
 void Canvas::draw(const Canvas & image, const Point & pos)
 {
+	if(renderTarget)
+	{
+		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), SDL_BLENDMODE_NONE, SDL_ALPHA_OPAQUE);
+		return;
+	}
+
 	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, transformPos(pos));
 }
 
 void Canvas::drawTransparent(const Canvas & image, const Point & pos, double transparency)
 {
+	if(renderTarget)
+	{
+		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), SDL_BLENDMODE_BLEND, 255 * transparency);
+		return;
+	}
+
 	SDL_BlendMode oldMode;
 
 	SDL_GetSurfaceBlendMode(image.surface, &oldMode);
@@ -147,7 +269,16 @@ void Canvas::drawTransparent(const Canvas & image, const Point & pos, double tra
 
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
-	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(transformPos(pos), transformSize(targetSize)));
+	// SDL_BlitSurfaceScaled is a software scaler - expensive on large areas.
+	Rect targetArea(transformPos(pos), transformSize(targetSize));
+
+	if(renderTarget)
+	{
+		copyFromCanvas(image, targetArea, SDL_BLENDMODE_NONE, SDL_ALPHA_OPAQUE);
+		return;
+	}
+
+	SDL_Rect targetRect = CSDL_Ext::toSDL(targetArea);
 	SDL_BlitSurfaceScaled(image.surface, nullptr, surface, &targetRect, SDL_SCALEMODE_NEAREST);
 }
 
@@ -208,6 +339,16 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
+
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		SDL_FRect rect = CSDL_Ext::toSDLFloat(realTarget);
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
+		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+		SDL_RenderFillRect(mainRenderer, &rect);
+		return;
+	}
 
 	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color));
 }

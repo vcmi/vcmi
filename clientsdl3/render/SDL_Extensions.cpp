@@ -77,6 +77,16 @@ SDL_Rect CSDL_Ext::toSDL(const Rect & rect)
 	return result;
 }
 
+SDL_FRect CSDL_Ext::toSDLFloat(const Rect & rect)
+{
+	SDL_FRect result;
+	result.x = rect.x;
+	result.y = rect.y;
+	result.w = rect.w;
+	result.h = rect.h;
+	return result;
+}
+
 ColorRGBA CSDL_Ext::fromSDL(const SDL_Color & color)
 {
 	return { color.r, color.g, color.b, color.a };

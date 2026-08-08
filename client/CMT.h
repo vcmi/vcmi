@@ -12,6 +12,10 @@
 struct SDL_Renderer;
 extern SDL_Renderer * mainRenderer;
 
+/// Bumped whenever mainRenderer is destroyed. Textures remember the generation they were
+/// created in, so that they can tell "still mine" from "already freed with the renderer".
+extern uint32_t mainRendererGeneration;
+
 /// Notify user about encountered fatal error and terminate the game
 /// Defined in clientapp EntryPoint
 /// TODO: decide on better location for this method

@@ -118,6 +118,8 @@ public:
 	int getInterfaceScalingPercentage() const final;
 
 	Canvas getScreenCanvas() const final;
+	Canvas getMapLayerCanvas() const final;
+	Canvas createOffscreenCanvas(const Point & size) const final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
 

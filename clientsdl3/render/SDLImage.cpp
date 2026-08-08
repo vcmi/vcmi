@@ -17,6 +17,7 @@
 #include "render/ColorFilter.h"
 #include "render/CBitmapHandler.h"
 #include "render/CDefFile.h"
+#include "CMT.h"
 #include "GameEngine.h"
 #include "IScreenHandler.h"
 
@@ -26,6 +27,7 @@
 #include <tbb/parallel_for.h>
 
 #include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_version.h>
 
@@ -155,6 +157,115 @@ void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, cons
 
 	if (CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
+}
+
+void SDLImageShared::dropTexture() const
+{
+	// destroying the renderer already destroyed everything it owned, so a stale
+	// generation means the pointer must be dropped rather than freed
+	if(texture && textureGeneration == mainRendererGeneration)
+		SDL_DestroyTexture(texture);
+
+	texture = nullptr;
+}
+
+SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
+{
+	if(upscalingInProgress || surf == nullptr || mainRenderer == nullptr)
+		return nullptr;
+
+	// an upscaled image is plain RGBA - the palette never reaches its texture, so keying the
+	// cache on it would rebuild the texture for every instance that shares the image
+	SDL_Palette * effectivePalette = CSDL_Ext::getPalette(surf) ? palette : nullptr;
+
+	if(texture && textureGeneration == mainRendererGeneration && texturePalette == effectivePalette)
+		return texture;
+
+	dropTexture();
+
+	if(effectivePalette)
+		SDL_SetSurfacePalette(surf, palette);
+
+	texture = SDL_CreateTextureFromSurface(mainRenderer, surf);
+
+	if(CSDL_Ext::getPalette(surf))
+		SDL_SetSurfacePalette(surf, originalPalette);
+
+	if(texture == nullptr)
+		logGlobal->error("Failed to create texture from image! %s", SDL_GetError());
+
+	texturePalette = effectivePalette;
+	textureGeneration = mainRendererGeneration;
+
+	return texture;
+}
+
+bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
+{
+	if(upscalingInProgress || !surf)
+		return false;
+
+	SDL_Texture * source = getTexture(palette);
+	if(!source)
+		return false;
+
+	// same geometry as scaledDraw(), the GPU just does the stretching for us
+	Rect sourceRect(0, 0, surf->w, surf->h);
+	Point destShift(0, 0);
+	Point destScale = Point(surf->w, surf->h) * scaleTo / dimensions();
+	Point marginsScaled = margins * scaleTo / dimensions();
+
+	if(src)
+	{
+		Rect srcUnscaled(Point(src->topLeft() * dimensions() / scaleTo), Point(src->dimensions() * dimensions() / scaleTo));
+
+		if(srcUnscaled.x < margins.x)
+			destShift.x += marginsScaled.x - src->x;
+
+		if(srcUnscaled.y < margins.y)
+			destShift.y += marginsScaled.y - src->y;
+
+		sourceRect = Rect(srcUnscaled).intersect(Rect(margins.x, margins.y, surf->w, surf->h));
+
+		destScale.x = std::min(destScale.x, sourceRect.w * scaleTo.x / dimensions().x);
+		destScale.y = std::min(destScale.y, sourceRect.h * scaleTo.y / dimensions().y);
+
+		sourceRect -= margins;
+	}
+	else
+		destShift = marginsScaled;
+
+	destShift += dest;
+
+	if(sourceRect.w <= 0 || sourceRect.h <= 0 || destScale.x <= 0 || destScale.y <= 0)
+		return true;
+
+	SDL_SetTextureColorMod(source, colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
+	SDL_SetTextureAlphaMod(source, alpha);
+
+	// Sprites must not inherit the renderer-wide scale quality: a smoothed stand-in would
+	// visibly differ from the nearest-scaled xBRZ image that replaces it.
+	SDL_SetTextureScaleMode(source, SDL_SCALEMODE_NEAREST);
+
+	// Unlike the surface path this cannot test the alpha mask: SDL_CreateTextureFromSurface turns
+	// a paletted surface's color key into real alpha, so only a truly opaque image may skip blending
+	if(alpha != SDL_ALPHA_OPAQUE || mode != EImageBlitMode::OPAQUE)
+		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+
+	SDL_FRect sdlSource = CSDL_Ext::toSDLFloat(sourceRect);
+	SDL_FRect sdlTarget = CSDL_Ext::toSDLFloat(Rect(destShift, destScale));
+
+	SDL_RenderTexture(renderer, source, &sdlSource, &sdlTarget);
+	return true;
+}
+
+bool SDLImageShared::drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
+{
+	// drawing at native size is the scaled path with a scale of one, and the geometry
+	// there reduces exactly to the unscaled case
+	return scaledDrawTexture(renderer, palette, dimensions(), dest, src, colorMultiplier, alpha, mode);
 }
 
 void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
@@ -510,6 +621,7 @@ void SDLImageShared::savePalette()
 
 SDLImageShared::~SDLImageShared()
 {
+	dropTexture();
 	SDL_DestroySurface(surf);
 	if (originalPalette)
 		SDL_DestroyPalette(originalPalette);

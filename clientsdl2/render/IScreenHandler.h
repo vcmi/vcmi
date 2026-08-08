@@ -62,4 +62,13 @@ public:
 	virtual bool hasFocus() = 0;
 
 	virtual void setColorScheme(ColorScheme scheme) = 0;
+
+	/// This backend renders in software only; there is no GPU map layer to draw into
+	virtual bool isGpuMapRenderingEnabled() const { return false; }
+
+	/// Unreachable here - callers must gate on isGpuMapRenderingEnabled(), which is always false
+	virtual Canvas getMapLayerCanvas() const = 0;
+
+	/// Offscreen canvas of the given logical size, always a software surface in this backend
+	virtual Canvas createOffscreenCanvas(const Point & size) const = 0;
 };

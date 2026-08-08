@@ -13,6 +13,7 @@
 #include "lib/Color.h"
 
 struct SDL_Rect;
+struct SDL_FRect;
 struct SDL_Surface;
 struct SDL_Color;
 struct SDL_Palette;
@@ -36,6 +37,9 @@ Rect fromSDL(const SDL_Rect & rect);
 
 /// creates SDL_Rect using provided rect
 SDL_Rect toSDL(const Rect & rect);
+
+/// creates SDL_FRect using provided rect - the SDL3 render API works in floats
+SDL_FRect toSDLFloat(const Rect & rect);
 
 /// creates Color using provided SDL_Color
 ColorRGBA fromSDL(const SDL_Color & color);
