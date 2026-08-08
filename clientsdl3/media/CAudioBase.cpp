@@ -10,19 +10,35 @@
 #include "StdInc.h"
 #include "CAudioBase.h"
 
-#include <SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 int CAudioBase::initializationCounter = 0;
 bool CAudioBase::initializeSuccess = false;
+MIX_Mixer * CAudioBase::mixer = nullptr;
 
 CAudioBase::CAudioBase()
 {
 	if(initializationCounter == 0)
 	{
-		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
-			logGlobal->error("Mix_OpenAudio error: %s", Mix_GetError());
+		SDL_AudioSpec spec;
+		spec.freq = 44100;
+		spec.format = SDL_AUDIO_S16;
+		spec.channels = 2;
+
+		if(!MIX_Init())
+			logGlobal->error("MIX_Init error: %s", SDL_GetError());
 		else
-			initializeSuccess = true;
+		{
+			mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+
+			if(mixer == nullptr)
+			{
+				logGlobal->error("MIX_CreateMixerDevice error: %s", SDL_GetError());
+				MIX_Quit();
+			}
+			else
+				initializeSuccess = true;
+		}
 	}
 	++initializationCounter;
 }
@@ -32,13 +48,20 @@ bool CAudioBase::isInitialized() const
 	return initializeSuccess;
 }
 
+MIX_Mixer * CAudioBase::getMixer()
+{
+	return mixer;
+}
+
 CAudioBase::~CAudioBase()
 {
 	--initializationCounter;
 
 	if(initializationCounter == 0 && initializeSuccess)
 	{
-		Mix_CloseAudio();
+		MIX_DestroyMixer(mixer);
+		mixer = nullptr;
+		MIX_Quit();
 		initializeSuccess = false;
 	}
 }

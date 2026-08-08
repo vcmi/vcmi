@@ -21,19 +21,19 @@
 
 #include "lib/CConfigHandler.h"
 
-#include <SDL_render.h>
-#include <SDL_events.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_events.h>
 
 CursorHardware::CursorHardware():
 	cursor(nullptr)
 {
-	SDL_ShowCursor(SDL_DISABLE);
+	SDL_HideCursor();
 }
 
 CursorHardware::~CursorHardware()
 {
 	if(cursor)
-		SDL_FreeCursor(cursor);
+		SDL_DestroyCursor(cursor);
 }
 
 void CursorHardware::setVisible(bool on)
@@ -41,9 +41,9 @@ void CursorHardware::setVisible(bool on)
 	ENGINE->dispatchMainThread([on]()
 	{
 		if (on)
-			SDL_ShowCursor(SDL_ENABLE);
+			SDL_ShowCursor();
 		else
-			SDL_ShowCursor(SDL_DISABLE);
+			SDL_HideCursor();
 	});
 }
 
@@ -72,14 +72,14 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 	if (!cursor)
 		logGlobal->error("Failed to set cursor! SDL says %s", SDL_GetError());
 
-	SDL_FreeSurface(cursorSurface);
-	SDL_FreeSurface(cursorSurfaceScaled);
+	SDL_DestroySurface(cursorSurface);
+	SDL_DestroySurface(cursorSurfaceScaled);
 
 	ENGINE->dispatchMainThread([this, oldCursor](){
 		SDL_SetCursor(cursor);
 
 		if (oldCursor)
-			SDL_FreeCursor(oldCursor);
+			SDL_DestroyCursor(oldCursor);
 	});
 }
 

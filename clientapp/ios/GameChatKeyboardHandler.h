@@ -11,7 +11,11 @@
 
 #import <UIKit/UIKit.h>
 
+#ifdef VCMI_SDL3
+#include <SDL3/SDL_events.h>
+#else
 #include <SDL_events.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

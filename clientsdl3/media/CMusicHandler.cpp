@@ -22,8 +22,6 @@
 #include "lib/filesystem/Filesystem.h"
 #include "lib/GameLibrary.h"
 
-#include <SDL_mixer.h>
-
 void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
 	setVolume(volumeNode.Integer());
@@ -56,11 +54,33 @@ CMusicHandler::CMusicHandler():
 
 	if (isInitialized())
 	{
-		Mix_HookMusicFinished([]()
+		musicTrack = MIX_CreateTrack(getMixer());
+
+		if(musicTrack == nullptr)
+			logGlobal->error("Unable to create music track: %s", SDL_GetError());
+		else
 		{
-			ENGINE->music().musicFinishedCallback();
-		});
+			MIX_SetTrackStoppedCallback(musicTrack, [](void *, MIX_Track *)
+			{
+				if (ENGINE)
+					ENGINE->music().musicFinishedCallback();
+			}, nullptr);
+		}
 	}
+}
+
+MIX_Track * CMusicHandler::getMusicTrack() const
+{
+	return musicTrack;
+}
+
+Sint64 CMusicHandler::fadeFrames(int fade_ms) const
+{
+	if(fade_ms <= 0 || musicTrack == nullptr)
+		return 0;
+
+	// fade lengths are counted in sample frames of whatever is assigned to the track
+	return MIX_TrackMSToFrames(musicTrack, fade_ms);
 }
 
 void CMusicHandler::loadTerrainMusicThemes()
@@ -92,10 +112,18 @@ CMusicHandler::~CMusicHandler()
 	{
 		std::scoped_lock guard(mutex);
 
-		Mix_HookMusicFinished(nullptr);
+		if(musicTrack != nullptr)
+			MIX_SetTrackStoppedCallback(musicTrack, nullptr, nullptr);
 
 		current.reset();
 		next.reset();
+
+		if(musicTrack != nullptr)
+		{
+			MIX_StopTrack(musicTrack, 0);
+			MIX_DestroyTrack(musicTrack);
+			musicTrack = nullptr;
+		}
 	}
 }
 
@@ -172,8 +200,8 @@ void CMusicHandler::setVolume(ui32 percent)
 {
 	volume = std::min(100u, percent);
 
-	if(isInitialized())
-		Mix_VolumeMusic((MIX_MAX_VOLUME * volume) / 100);
+	if(isInitialized() && musicTrack != nullptr)
+		MIX_SetTrackGain(musicTrack, static_cast<float>(volume) / 100.f);
 }
 
 void CMusicHandler::musicFinishedCallback()
@@ -229,18 +257,18 @@ MusicEntry::~MusicEntry()
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while playing!");
-		Mix_HaltMusic();
+		MIX_StopTrack(owner->getMusicTrack(), 0);
 	}
 
-	if(loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
+	if(loop == 0 && MIX_TrackPlaying(owner->getMusicTrack()))
 	{
 		logGlobal->trace("Halting playback of music file %s", currentName.getOriginalName());
-		Mix_HaltMusic();
+		MIX_StopTrack(owner->getMusicTrack(), 0);
 	}
 
 	logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
 	if(music)
-		Mix_FreeMusic(music);
+		MIX_DestroyAudio(music);
 }
 
 void MusicEntry::load(const AudioPath & musicURI)
@@ -248,7 +276,7 @@ void MusicEntry::load(const AudioPath & musicURI)
 	if(music)
 	{
 		logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
-		Mix_FreeMusic(music);
+		MIX_DestroyAudio(music);
 		music = nullptr;
 	}
 
@@ -268,8 +296,9 @@ void MusicEntry::load(const AudioPath & musicURI)
 		if(musicURI.getName() == "BLADEFWCAMPAIGN") // handle defect MP3 file - ffprobe says: Skipping 52 bytes of junk at 0.
 			stream->seek(52);
 
-		auto * musicFile = MakeSDLRWops(std::move(stream));
-		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+		auto * musicFile = MakeSDLIOStream(std::move(stream));
+		// music is streamed from the file rather than predecoded, same as SDL2_mixer did
+		music = MIX_LoadAudio_IO(owner->getMixer(), musicFile, false, true);
 	}
 	catch(const std::exception & e)
 	{
@@ -279,9 +308,35 @@ void MusicEntry::load(const AudioPath & musicURI)
 
 	if(!music)
 	{
-		logGlobal->warn("Warning: Cannot open %s: %s", currentName.getOriginalName(), Mix_GetError());
+		logGlobal->warn("Warning: Cannot open %s: %s", currentName.getOriginalName(), SDL_GetError());
 		return;
 	}
+}
+
+/// Starts the loaded track on the shared music track, optionally fading in and seeking
+bool MusicEntry::playTrack(int fadeInMs, int startPositionMs)
+{
+	MIX_Track * track = owner->getMusicTrack();
+
+	if(track == nullptr || music == nullptr)
+		return false;
+
+	if(!MIX_SetTrackAudio(track, music))
+		return false;
+
+	SDL_PropertiesID options = SDL_CreateProperties();
+	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, 0);
+
+	if(fadeInMs > 0)
+		SDL_SetNumberProperty(options, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, fadeInMs);
+
+	if(startPositionMs > 0)
+		SDL_SetNumberProperty(options, MIX_PROP_PLAY_START_MILLISECOND_NUMBER, startPositionMs);
+
+	bool result = MIX_PlayTrack(track, options);
+	SDL_DestroyProperties(options);
+
+	return result;
 }
 
 bool MusicEntry::play()
@@ -308,9 +363,9 @@ bool MusicEntry::play()
 		// if music track is not interrupted and will finish by timeout/end of file - it will restart from beginning as it should
 		owner->trackPositions.erase(owner->trackPositions.find(currentName));
 
-		if(Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
+		if(!playTrack(1000, std::round(timeToStart * 1000)))
 		{
-			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			logGlobal->error("Unable to play music (%s)", SDL_GetError());
 			return false;
 		}
 	}
@@ -318,9 +373,9 @@ bool MusicEntry::play()
 	{
 		startPosition = 0;
 
-		if(Mix_PlayMusic(music, 1) == -1)
+		if(!playTrack(0, 0))
 		{
-			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			logGlobal->error("Unable to play music (%s)", SDL_GetError());
 			return false;
 		}
 	}
@@ -333,7 +388,7 @@ bool MusicEntry::play()
 
 bool MusicEntry::stop(int fade_ms)
 {
-	if(Mix_PlayingMusic())
+	if(MIX_TrackPlaying(owner->getMusicTrack()))
 	{
 		playing = false;
 		loop = 0;
@@ -343,7 +398,7 @@ bool MusicEntry::stop(int fade_ms)
 		owner->trackPositions[currentName] = playDuration;
 		logGlobal->trace("Stopping music file %s at %f", currentName.getOriginalName(), playDuration);
 
-		Mix_FadeOutMusic(fade_ms);
+		MIX_StopTrack(owner->getMusicTrack(), owner->fadeFrames(fade_ms));
 		return true;
 	}
 	return false;

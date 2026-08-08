@@ -18,8 +18,8 @@
 #include "CMT.h"
 #include "SDL_Extensions.h"
 
-#include <SDL_render.h>
-#include <SDL_events.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_events.h>
 
 void CursorSoftware::update()
 {
@@ -32,13 +32,13 @@ void CursorSoftware::render()
 {
 	Point renderPos = pos - pivot;
 
-	SDL_Rect destRect;
+	SDL_FRect destRect;
 	destRect.x = renderPos.x;
 	destRect.y = renderPos.y;
 	destRect.w = cursorSurface->w;
 	destRect.h = cursorSurface->h;
 
-	SDL_RenderCopy(mainRenderer, cursorTexture, nullptr, &destRect);
+	SDL_RenderTexture(mainRenderer, cursorTexture, nullptr, &destRect);
 }
 
 void CursorSoftware::createTexture(const Point & dimensions)
@@ -47,7 +47,7 @@ void CursorSoftware::createTexture(const Point & dimensions)
 		SDL_DestroyTexture(cursorTexture);
 
 	if (cursorSurface)
-		SDL_FreeSurface(cursorSurface);
+		SDL_DestroySurface(cursorSurface);
 
 	cursorSurface = CSDL_Ext::newSurface(dimensions);
 	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
@@ -98,7 +98,7 @@ CursorSoftware::CursorSoftware():
 	visible(false),
 	pivot(0,0)
 {
-	SDL_ShowCursor(SDL_DISABLE);
+	SDL_HideCursor();
 }
 
 CursorSoftware::~CursorSoftware()
@@ -107,6 +107,6 @@ CursorSoftware::~CursorSoftware()
 		SDL_DestroyTexture(cursorTexture);
 
 	if (cursorSurface)
-		SDL_FreeSurface(cursorSurface);
+		SDL_DestroySurface(cursorSurface);
 }
 

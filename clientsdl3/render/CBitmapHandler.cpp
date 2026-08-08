@@ -16,7 +16,7 @@
 #include "lib/filesystem/Filesystem.h"
 #include "lib/vcmi_endian.h"
 
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 namespace BitmapHandler
 {
@@ -59,7 +59,14 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 
 	if (format==PCX8B)
 	{
-		ret = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
+		ret = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
+		SDL_Palette * palette = ret ? SDL_CreateSurfacePalette(ret) : nullptr;
+
+		if (palette == nullptr)
+		{
+			SDL_DestroySurface(ret);
+			return nullptr;
+		}
 
 		it = 0xC;
 		for (int i=0; i<(int)height; i++)
@@ -77,21 +84,15 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
 			tp.a = SDL_ALPHA_OPAQUE;
-			ret->format->palette->colors[i] = tp;
+			palette->colors[i] = tp;
 		}
 	}
 	else
 	{
-#ifdef VCMI_ENDIAN_BIG
-		int bmask = 0xff0000;
-		int gmask = 0x00ff00;
-		int rmask = 0x0000ff;
-#else
-		int bmask = 0x0000ff;
-		int gmask = 0x00ff00;
-		int rmask = 0xff0000;
-#endif
-		ret = SDL_CreateRGBSurface(0, width, height, 24, rmask, gmask, bmask, 0);
+		ret = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_BGR24);
+
+		if (ret == nullptr)
+			return nullptr;
 
 		//it == 0xC;
 		for (int i=0; i<(int)height; i++)
@@ -127,25 +128,46 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 		}
 		else
 		{ //loading via SDL_Image
-			ret = IMG_Load_RW(
-					  //create SDL_RW with our data (will be deleted by SDL)
-					  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
-					  1); // mark it for auto-deleting
-			if (ret)
-			{
-				if (ret->format->palette)
-				{
-					// set correct value for alpha\unused channel
-					// NOTE: might be unnecessary with SDL2
-					for (int i=0; i < ret->format->palette->ncolors; i++)
-						ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
-				}
-			}
-			else
+			ret = IMG_Load_IO(
+					  //create SDL_IOStream with our data (will be deleted by SDL)
+					  SDL_IOFromConstMem((void*)readFile.first.get(), readFile.second),
+					  true); // mark it for auto-deleting
+			if (!ret)
 			{
 				logGlobal->error("Failed to open %s via SDL_Image", path.getOriginalName());
-				logGlobal->error("Reason: %s", IMG_GetError());
+				logGlobal->error("Reason: %s", SDL_GetError());
 				return nullptr;
+			}
+
+			SDL_Palette * palette = CSDL_Ext::getPalette(ret);
+			if (palette)
+			{
+				// SDL3_image leaves paletted png's indexed and stores their tRNS transparency as palette
+				// alpha, while SDL2_image expanded those to RGBA - do that here to keep one code path.
+				bool paletteHasTransparency = false;
+				for (int i = 0; i < palette->ncolors; i++)
+					if (palette->colors[i].a != SDL_ALPHA_OPAQUE)
+						paletteHasTransparency = true;
+
+				if (paletteHasTransparency)
+				{
+					SDL_Surface * expanded = SDL_ConvertSurface(ret, SDL_PIXELFORMAT_ARGB8888);
+					SDL_DestroySurface(ret);
+					ret = expanded;
+
+					if (!ret)
+					{
+						logGlobal->error("Failed to expand %s into a surface with alpha channel", path.getOriginalName());
+						logGlobal->error("Reason: %s", SDL_GetError());
+						return nullptr;
+					}
+				}
+				else
+				{
+					// set correct value for alpha\unused channel
+					for (int i=0; i < palette->ncolors; i++)
+						palette->colors[i].a = SDL_ALPHA_OPAQUE;
+				}
 			}
 		}
 	}
@@ -160,10 +182,12 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
 	// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
 	// 4) special case - there are 2 .bmp images that have semi-transparency (CCELLGRD.BMP & CCELLSHD.BMP)
-	if (ret->format->palette &&
-		ret->format->palette->colors[0].r == 255 &&
-		ret->format->palette->colors[0].g ==   0 &&
-		ret->format->palette->colors[0].b == 255 )
+	SDL_Palette * palette = CSDL_Ext::getPalette(ret);
+
+	if (palette &&
+		palette->colors[0].r == 255 &&
+		palette->colors[0].g ==   0 &&
+		palette->colors[0].b == 255 )
 	{
 		constexpr std::array shadow =
 		{
@@ -172,17 +196,17 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 			SDL_Color{   0,   0,   0, 128},//  50% - shadow body
 		};
 
-		CSDL_Ext::setColorKey(ret, ret->format->palette->colors[0]);
+		CSDL_Ext::setColorKey(ret, palette->colors[0]);
 
-		ret->format->palette->colors[0] = shadow[0];
-		ret->format->palette->colors[1] = shadow[1];
-		ret->format->palette->colors[4] = shadow[2];
+		palette->colors[0] = shadow[0];
+		palette->colors[1] = shadow[1];
+		palette->colors[4] = shadow[2];
 	}
-	else if (ret->format->palette)
+	else if (palette)
 	{
 		CSDL_Ext::setDefaultColorKeyPresize(ret);
 	}
-	else if (ret->format->Amask)
+	else if (CSDL_Ext::getFormat(ret)->Amask)
 	{
 		SDL_SetSurfaceBlendMode(ret, SDL_BLENDMODE_BLEND);
 	}

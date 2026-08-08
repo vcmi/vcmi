@@ -21,40 +21,31 @@
 
 #include "lib/CConfigHandler.h"
 
-#include <SDL_version.h>
-
 namespace
 {
 
-ControllerPrompt::Family controllerPromptFamily(SDL_GameController * controller)
+ControllerPrompt::Family controllerPromptFamily(SDL_Gamepad * controller)
 {
-#if SDL_VERSION_ATLEAST(2,0,12)
-	switch(SDL_GameControllerGetType(controller))
+	switch(SDL_GetGamepadType(controller))
 	{
-	case SDL_CONTROLLER_TYPE_PS3:
-	case SDL_CONTROLLER_TYPE_PS4:
-#if SDL_VERSION_ATLEAST(2,0,14)
-	case SDL_CONTROLLER_TYPE_PS5:
-#endif
+	case SDL_GAMEPAD_TYPE_PS3:
+	case SDL_GAMEPAD_TYPE_PS4:
+	case SDL_GAMEPAD_TYPE_PS5:
 		return ControllerPrompt::Family::PLAYSTATION;
-	case SDL_CONTROLLER_TYPE_XBOX360:
-	case SDL_CONTROLLER_TYPE_XBOXONE:
+	case SDL_GAMEPAD_TYPE_XBOX360:
+	case SDL_GAMEPAD_TYPE_XBOXONE:
 		return ControllerPrompt::Family::XBOX;
 	default:
 		return ControllerPrompt::Family::UNKNOWN;
 	}
-#else
-	static_cast<void>(controller);
-	return ControllerPrompt::Family::UNKNOWN;
-#endif
 }
 
 }
 
-void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameController)
+void InputSourceGameController::gameControllerDeleter(SDL_Gamepad * gameController)
 {
 	if(gameController)
-		SDL_GameControllerClose(gameController);
+		SDL_CloseGamepad(gameController);
 }
 
 InputSourceGameController::InputSourceGameController():
@@ -80,19 +71,22 @@ InputSourceGameController::InputSourceGameController():
 
 void InputSourceGameController::tryOpenAllGameControllers()
 {
-	for(int i = 0; i < SDL_NumJoysticks(); ++i)
-		if(SDL_IsGameController(i))
-			openGameController(i);
-		else
-			logGlobal->warn("Joystick %d is an unsupported game controller!", i);
+	// SDL3 enumerates gamepads directly, already filtering out unsupported joysticks
+	int count = 0;
+	SDL_JoystickID * gamepads = SDL_GetGamepads(&count);
+
+	for(int i = 0; gamepads && i < count; ++i)
+		openGameController(gamepads[i]);
+
+	SDL_free(gamepads);
 }
 
-void InputSourceGameController::openGameController(int index)
+void InputSourceGameController::openGameController(SDL_JoystickID instanceID)
 {
-	SDL_GameController * controller = SDL_GameControllerOpen(index);
+	SDL_Gamepad * controller = SDL_OpenGamepad(instanceID);
 	if(!controller)
 	{
-		logGlobal->error("Fail to open game controller %d!", index);
+		logGlobal->error("Fail to open game controller %d!", static_cast<int>(instanceID));
 		return;
 	}
 	GameControllerPtr controllerPtr(controller, &gameControllerDeleter);
@@ -101,7 +95,7 @@ void InputSourceGameController::openGameController(int index)
 	int joystickIndex = getJoystickIndex(controllerPtr.get());
 	if(joystickIndex < 0)
 	{
-		logGlobal->error("Fail to get joystick index of game controller %d!", index);
+		logGlobal->error("Fail to get joystick index of game controller %d!", static_cast<int>(instanceID));
 		return;
 	}
 
@@ -123,19 +117,19 @@ ControllerPrompt::Family InputSourceGameController::getActiveControllerPromptFam
 	return controllerPromptFamily(active->second.get());
 }
 
-int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
+int InputSourceGameController::getJoystickIndex(SDL_Gamepad * controller)
 {
-	SDL_Joystick * joystick = SDL_GameControllerGetJoystick(controller);
+	SDL_Joystick * joystick = SDL_GetGamepadJoystick(controller);
 	if(!joystick)
 		return -1;
 
-	SDL_JoystickID instanceID = SDL_JoystickInstanceID(joystick);
-	if(instanceID < 0)
+	SDL_JoystickID instanceID = SDL_GetJoystickID(joystick);
+	if(instanceID == 0)
 		return -1;
-	return instanceID;
+	return static_cast<int>(instanceID);
 }
 
-void InputSourceGameController::handleEventDeviceAdded(const SDL_ControllerDeviceEvent & device)
+void InputSourceGameController::handleEventDeviceAdded(const SDL_GamepadDeviceEvent & device)
 {
 	if(gameControllerMap.find(device.which) != gameControllerMap.end())
 	{
@@ -145,7 +139,7 @@ void InputSourceGameController::handleEventDeviceAdded(const SDL_ControllerDevic
 	openGameController(device.which);
 }
 
-void InputSourceGameController::handleEventDeviceRemoved(const SDL_ControllerDeviceEvent & device)
+void InputSourceGameController::handleEventDeviceRemoved(const SDL_GamepadDeviceEvent & device)
 {
 	if(gameControllerMap.find(device.which) == gameControllerMap.end())
 	{
@@ -157,7 +151,7 @@ void InputSourceGameController::handleEventDeviceRemoved(const SDL_ControllerDev
 	gameControllerMap.erase(device.which);
 }
 
-void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDeviceEvent & device)
+void InputSourceGameController::handleEventDeviceRemapped(const SDL_GamepadDeviceEvent & device)
 {
 	if(gameControllerMap.find(device.which) == gameControllerMap.end())
 	{
@@ -173,7 +167,7 @@ void InputSourceGameController::setActiveController(int instanceID)
 	activeController = instanceID;
 }
 
-bool InputSourceGameController::isAxisMotionActive(const SDL_ControllerAxisEvent & axis) const
+bool InputSourceGameController::isAxisMotionActive(const SDL_GamepadAxisEvent & axis) const
 {
 	return !vstd::isAlmostZero(getRealAxisValue(axis.value));
 }
@@ -191,7 +185,7 @@ double InputSourceGameController::getRealAxisValue(int value) const
 	return clampedValue;
 }
 
-void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue, std::string axisName)
+void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GamepadAxis axisID, int axisValue, std::string axisName)
 {
 	if(getRealAxisValue(axisValue) > configTriggerThreshold)
 	{
@@ -213,13 +207,13 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 	}
 }
 
-void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEvent & axis)
+void InputSourceGameController::handleEventAxisMotion(const SDL_GamepadAxisEvent & axis)
 {
 	if(isAxisMotionActive(axis))
 		tryToConvertCursor();
 
-	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
-	std::string axisName = SDL_GameControllerGetStringForAxis(axisID);
+	SDL_GamepadAxis axisID = static_cast<SDL_GamepadAxis>(axis.axis);
+	std::string axisName = SDL_GetGamepadStringForAxis(axisID);
 
 	auto axisActions = ENGINE->shortcuts().translateJoystickAxis(axisName);
 	auto buttonActions = ENGINE->shortcuts().translateJoystickButton(axisName);
@@ -258,18 +252,18 @@ void InputSourceGameController::tryToConvertCursor()
 	}
 }
 
-void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButtonEvent & button)
+void InputSourceGameController::handleEventButtonDown(const SDL_GamepadButtonEvent & button)
 {
-	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
+	std::string buttonName = SDL_GetGamepadStringForButton(static_cast<SDL_GamepadButton>(button.button));
 	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
 	
 	ENGINE->events().dispatchKeyPressed(buttonName);
 	ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 }
 
-void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEvent & button)
+void InputSourceGameController::handleEventButtonUp(const SDL_GamepadButtonEvent & button)
 {
-	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
+	std::string buttonName = SDL_GetGamepadStringForButton(static_cast<SDL_GamepadButton>(button.button));
 	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
 	ENGINE->events().dispatchKeyReleased(buttonName);
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);

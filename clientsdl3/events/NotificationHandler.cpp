@@ -12,9 +12,10 @@
 #include "NotificationHandler.h"
 
 #if defined(VCMI_WINDOWS)
-#include <SDL_syswm.h>
-#include <SDL_video.h>
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_properties.h>
+#include <SDL3/SDL_system.h>
+#include <SDL3/SDL_video.h>
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
@@ -36,22 +37,43 @@ struct NotificationState
 
 NotificationState state;
 
+/// SDL3 exposes native handles through window properties instead of SDL_SysWMinfo
+static HWND getWindowHandle(SDL_Window * window)
+{
+	if(window == nullptr)
+		return nullptr;
+
+	return static_cast<HWND>(SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+}
+
+/// SDL3 has no SDL_SYSWMEVENT, native messages are delivered through this hook instead
+static bool SDLCALL windowsMessageHook(void * userdata, MSG * msg)
+{
+	if(msg->message == WM_USER_SHELLICON && LOWORD(msg->lParam) == WM_LBUTTONUP)
+	{
+		SDL_MinimizeWindow(state.window);
+		SDL_RestoreWindow(state.window);
+		SDL_RaiseWindow(state.window);
+	}
+
+	return true;
+}
+
 void NotificationHandler::notify(std::string msg)
 {
 	NOTIFYICONDATA niData;
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
+	HWND windowHandle = getWindowHandle(state.window);
 
-	if(!SDL_GetWindowWMInfo(state.window, &info))
+	if(windowHandle == nullptr)
 		return;
 
-	if(info.info.win.window == GetForegroundWindow())
+	if(windowHandle == GetForegroundWindow())
 		return;
 
 	ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
 
 	niData.cbSize = sizeof(NOTIFYICONDATA);
-	niData.hWnd = info.info.win.window;
+	niData.hWnd = windowHandle;
 	niData.uID = 1;
 	niData.uFlags = NIF_INFO | NIF_MESSAGE;
 	niData.uCallbackMessage = WM_USER_SHELLICON;
@@ -69,13 +91,12 @@ void NotificationHandler::init(SDL_Window * window)
 	if(state.initialized)
 		return;
 
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+	SDL_SetWindowsMessageHook(windowsMessageHook, nullptr);
 
 	NOTIFYICONDATA niData;
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
+	HWND windowHandle = getWindowHandle(state.window);
 
-	if(!SDL_GetWindowWMInfo(state.window, &info))
+	if(windowHandle == nullptr)
 		return;
 
 	ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
@@ -83,7 +104,7 @@ void NotificationHandler::init(SDL_Window * window)
 	state.hInst = (HINSTANCE)GetModuleHandle("VCMI_client.exe");
 
 	niData.cbSize = sizeof(NOTIFYICONDATA);
-	niData.hWnd = info.info.win.window;
+	niData.hWnd = windowHandle;
 	niData.uID = 1;
 	niData.uFlags = NIF_ICON | NIF_MESSAGE;
 	niData.uCallbackMessage = WM_USER_SHELLICON;
@@ -104,38 +125,20 @@ void NotificationHandler::init(SDL_Window * window)
 void NotificationHandler::destroy()
 {
 	NOTIFYICONDATA niData;
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
+	HWND windowHandle = getWindowHandle(state.window);
 
-	if(!SDL_GetWindowWMInfo(state.window, &info))
+	if(windowHandle == nullptr)
 		return;
+
+	SDL_SetWindowsMessageHook(nullptr, nullptr);
 
 	ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
 
 	niData.cbSize = sizeof(NOTIFYICONDATA);
-	niData.hWnd = info.info.win.window;
+	niData.hWnd = windowHandle;
 	niData.uID = 1;
 
 	Shell_NotifyIcon(NIM_DELETE, &niData);
-}
-
-bool NotificationHandler::handleSdlEvent(const SDL_Event & ev)
-{
-	if(ev.syswm.msg->msg.win.msg == WM_USER_SHELLICON)
-	{
-		auto winMsg = LOWORD(ev.syswm.msg->msg.win.lParam);
-
-		if(winMsg == WM_LBUTTONUP || winMsg == NIN_BALLOONUSERCLICK)
-		{
-			SDL_MinimizeWindow(state.window);
-			SDL_RestoreWindow(state.window);
-			SDL_RaiseWindow(state.window);
-
-			return true;
-		}
-	}
-
-	return false;
 }
 
 #elif defined(VCMI_ANDROID)
@@ -163,11 +166,6 @@ void NotificationHandler::destroy()
 {
 }
 
-bool NotificationHandler::handleSdlEvent(const SDL_Event & ev)
-{
-	return false;
-}
-
 #else
 
 void NotificationHandler::notify(std::string msg)
@@ -180,11 +178,6 @@ void NotificationHandler::init(SDL_Window * window)
 
 void NotificationHandler::destroy()
 {
-}
-
-bool NotificationHandler::handleSdlEvent(const SDL_Event & ev)
-{
-	return false;
 }
 
 #endif

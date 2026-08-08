@@ -39,12 +39,44 @@
 #	include "ios/utils.h"
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
 
 static constexpr Point heroes3Resolution = Point(800, 600);
+
+/// SDL3 identifies displays by opaque ID's while our settings store a plain index
+static SDL_DisplayID displayIndexToID(int displayIndex)
+{
+	int displaysCount = 0;
+	SDL_DisplayID * displays = SDL_GetDisplays(&displaysCount);
+
+	SDL_DisplayID result = 0;
+	if (displays && displayIndex >= 0 && displayIndex < displaysCount)
+		result = displays[displayIndex];
+
+	SDL_free(displays);
+
+	if (result == 0)
+		result = SDL_GetPrimaryDisplay();
+
+	return result;
+}
+
+static int displayIDToIndex(SDL_DisplayID displayID)
+{
+	int displaysCount = 0;
+	SDL_DisplayID * displays = SDL_GetDisplays(&displaysCount);
+
+	int result = -1;
+	for (int i = 0; displays && i < displaysCount; ++i)
+		if (displays[i] == displayID)
+			result = i;
+
+	SDL_free(displays);
+	return result;
+}
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 {
@@ -68,26 +100,23 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 
 Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 {
+	// SDL_GetRenderScale no longer reflects the logical presentation in SDL3, so let the
+	// renderer convert - interface coordinates have to be in its (upscaled) space first.
+	int scaling = getScalingFactor();
+
+	float x0;
+	float y0;
+	float x1;
+	float y1;
+
+	SDL_RenderCoordinatesToWindow(mainRenderer, input.x * scaling, input.y * scaling, &x0, &y0);
+	SDL_RenderCoordinatesToWindow(mainRenderer, (input.x + input.w) * scaling, (input.y + input.h) * scaling, &x1, &y1);
+
 	Rect result;
-
-	// FIXME: use SDL_RenderLogicalToWindow instead? Needs to be tested on ios
-
-	float scaleX, scaleY;
-	SDL_Rect viewport;
-	SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
-	SDL_RenderGetViewport(mainRenderer, &viewport);
-
-#ifdef VCMI_IOS
-	// TODO ios: looks like SDL bug actually, try fixing there
-	const auto nativeScale = iOS_utils::screenScale();
-	scaleX /= nativeScale;
-	scaleY /= nativeScale;
-#endif
-
-	result.x = (viewport.x + input.x) * scaleX;
-	result.y = (viewport.y + input.y) * scaleY;
-	result.w = input.w * scaleX;
-	result.h = input.h * scaleY;
+	result.x = x0;
+	result.y = y0;
+	result.w = x1 - x0;
+	result.h = y1 - y0;
 
 	return result;
 }
@@ -127,6 +156,12 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
 		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 	Point logicalResolution = availableResolution * 100.0 / scaling;
+
+	// a window smaller than this in one axis keeps that axis at the limit, while the other
+	// still follows the window - so the map gains space instead of the view being refused
+	logicalResolution.x = std::max(logicalResolution.x, heroes3Resolution.x);
+	logicalResolution.y = std::max(logicalResolution.y, heroes3Resolution.y);
+
 	return logicalResolution;
 }
 
@@ -153,7 +188,8 @@ Point ScreenHandler::getRenderResolution() const
 	assert(mainRenderer != nullptr);
 
 	Point result;
-	SDL_GetRendererOutputSize(mainRenderer, &result.x, &result.y);
+	// not the "current" size - that one reports the letterboxed logical area, not the window
+	SDL_GetRenderOutputSize(mainRenderer, &result.x, &result.y);
 
 	return result;
 }
@@ -163,7 +199,7 @@ Point ScreenHandler::getPreferredWindowResolution() const
 	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
 	{
 		SDL_Rect bounds;
-		if (SDL_GetDisplayBounds(getPreferredDisplayIndex(), &bounds) == 0)
+		if (SDL_GetDisplayBounds(displayIndexToID(getPreferredDisplayIndex()), &bounds))
 			return Point(bounds.w, bounds.h);
 	}
 
@@ -182,7 +218,7 @@ int ScreenHandler::getPreferredDisplayIndex() const
 #else
 	if (mainWindow != nullptr)
 	{
-		int result = SDL_GetWindowDisplayIndex(mainWindow);
+		int result = displayIDToIndex(SDL_GetDisplayForWindow(mainWindow));
 		if (result >= 0)
 			return result;
 	}
@@ -213,13 +249,8 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 
 ScreenHandler::ScreenHandler()
 {
-#ifdef VCMI_WINDOWS
-	// set VCMI as "per-monitor DPI awareness". This completely disables any DPI-scaling by system.
-	// Might not be the best solution since VCMI can't automatically adjust to DPI changes (including moving to monitors with different DPI scaling)
-	// However this fixed unintuitive bug where player selects specific resolution for windowed mode, but ends up with completely different one due to scaling
-	// NOTE: requires SDL 2.24.
-	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
-#endif
+	// NOTE: SDL3 is always per-monitor DPI aware, so the Windows-specific
+	// SDL_HINT_WINDOWS_DPI_AWARENESS of SDL2 has no equivalent here
 	if(settings["video"]["allowPortrait"].Bool())
 		SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait PortraitUpsideDown LandscapeLeft LandscapeRight");
 	else
@@ -230,7 +261,7 @@ ScreenHandler::ScreenHandler()
 		SDL_SetHint(SDL_HINT_AUDIO_CATEGORY, "AVAudioSessionCategoryAmbient");
 #endif
 
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
+	if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
 	{
 		logGlobal->error("Something was wrong: %s", SDL_GetError());
 		exit(-1);
@@ -241,7 +272,7 @@ ScreenHandler::ScreenHandler()
 		logGlobal->debug("SDL(category %d; priority %d) %s", category, priority, message);
 	};
 
-	SDL_LogSetOutputFunction(logCallback, nullptr);
+	SDL_SetLogOutputFunction(logCallback, nullptr);
 
 #ifdef VCMI_ANDROID
 	// manually setting egl pixel format, as a possible solution for sdl2<->android problem
@@ -284,35 +315,41 @@ void ScreenHandler::updateWindowState()
 		{
 			// for some reason, VCMI fails to switch from FULLSCREEN_BORDERLESS_WINDOWED to FULLSCREEN_EXCLUSIVE directly
 			// Switch to windowed mode first to avoid this bug
-			SDL_SetWindowFullscreen(mainWindow, 0);
-			SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN);
+			SDL_SetWindowFullscreen(mainWindow, false);
 
-			SDL_DisplayMode mode;
-			SDL_GetDesktopDisplayMode(displayIndex, &mode);
+			SDL_DisplayID displayID = displayIndexToID(displayIndex);
 			Point resolution = getPreferredWindowResolution();
 
-			mode.w = resolution.x;
-			mode.h = resolution.y;
+			SDL_DisplayMode mode;
+			if (SDL_GetClosestFullscreenDisplayMode(displayID, resolution.x, resolution.y, 0.0f, false, &mode))
+				SDL_SetWindowFullscreenMode(mainWindow, &mode);
 
-			SDL_SetWindowDisplayMode(mainWindow, &mode);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
+			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID));
+			SDL_SetWindowFullscreen(mainWindow, true);
 
-			return;
+			break;
 		}
 		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
 		{
-			SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
-			return;
+			SDL_DisplayID displayID = displayIndexToID(displayIndex);
+			// a null fullscreen mode means borderless fullscreen at desktop resolution
+			SDL_SetWindowFullscreenMode(mainWindow, nullptr);
+			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID));
+			SDL_SetWindowFullscreen(mainWindow, true);
+			break;
 		}
 		case EWindowMode::WINDOWED:
 		{
 			Point resolution = getPreferredWindowResolution();
-			SDL_SetWindowFullscreen(mainWindow, 0);
+			SDL_SetWindowFullscreen(mainWindow, false);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
-			return;
+			break;
 		}
 	}
+
+	// SDL3 applies these asynchronously on some backends, so the caller would size the
+	// screen buffers for the previous window - letterboxing them into the new one
+	SDL_SyncWindow(mainWindow);
 #endif
 }
 
@@ -332,13 +369,8 @@ void ScreenHandler::initializeWindow()
 	}
 
 	// create first available renderer if no preferred one is set
-	// use no SDL_RENDERER_SOFTWARE or SDL_RENDERER_ACCELERATED flag, so HW accelerated will be preferred but SW renderer will also be possible
-	uint32_t rendererFlags = 0;
-	if(settings["video"]["vsync"].Bool())
-	{
-		rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
-	}
-	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), rendererFlags);
+	std::string preferredDriver = getPreferredRenderingDriver();
+	mainRenderer = SDL_CreateRenderer(mainWindow, preferredDriver.empty() ? nullptr : preferredDriver.c_str());
 
 	if(mainRenderer == nullptr)
 	{
@@ -348,12 +380,12 @@ void ScreenHandler::initializeWindow()
 		handleFatalError(message, true);
 	}
 
+	SDL_SetRenderVSync(mainRenderer, settings["video"]["vsync"].Bool() ? 1 : SDL_RENDERER_VSYNC_DISABLED);
+
 	selectUpscalingFilter();
 	selectDownscalingFilter();
 
-	SDL_RendererInfo info;
-	SDL_GetRendererInfo(mainRenderer, &info);
-	logGlobal->info("Created renderer %s", info.name);
+	logGlobal->info("Created renderer %s", SDL_GetRendererName(mainRenderer));
 }
 
 EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
@@ -401,28 +433,27 @@ void ScreenHandler::selectUpscalingFilter()
 
 void ScreenHandler::selectDownscalingFilter()
 {
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, settings["video"]["downscalingFilter"].String().c_str());
-	logGlobal->debug("Selected downscaling filter %s", settings["video"]["downscalingFilter"].String());
+	// SDL3 replaced the global SDL_HINT_RENDER_SCALE_QUALITY hint with a per-renderer default
+	static const std::map<std::string, SDL_ScaleMode> scaleModes =
+	{
+		{"nearest", SDL_SCALEMODE_NEAREST },
+		{"linear",  SDL_SCALEMODE_LINEAR },
+		{"best",    SDL_SCALEMODE_LINEAR }
+	};
+
+	auto filterName = settings["video"]["downscalingFilter"].String();
+	auto scaleMode = scaleModes.count(filterName) ? scaleModes.at(filterName) : SDL_SCALEMODE_LINEAR;
+
+	SDL_SetDefaultTextureScaleMode(mainRenderer, scaleMode);
+	logGlobal->debug("Selected downscaling filter %s", filterName);
 }
 
 void ScreenHandler::initializeScreenBuffers()
 {
-#ifdef VCMI_ENDIAN_BIG
-	int bmask = 0xff000000;
-	int gmask = 0x00ff0000;
-	int rmask = 0x0000ff00;
-	int amask = 0x000000ff;
-#else
-	int bmask = 0x000000ff;
-	int gmask = 0x0000ff00;
-	int rmask = 0x00ff0000;
-	int amask = 0xFF000000;
-#endif
-
 	auto logicalSize = getPreferredLogicalResolution() * getScalingFactor();
-	SDL_RenderSetLogicalSize(mainRenderer, logicalSize.x, logicalSize.y);
+	SDL_SetRenderLogicalPresentation(mainRenderer, logicalSize.x, logicalSize.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-	screen = SDL_CreateRGBSurface(0, logicalSize.x, logicalSize.y, 32, rmask, gmask, bmask, amask);
+	screen = SDL_CreateSurface(logicalSize.x, logicalSize.y, SDL_PIXELFORMAT_ARGB8888);
 	if(nullptr == screen)
 	{
 		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", logicalSize.x, logicalSize.y, 32, SDL_GetError());
@@ -440,15 +471,33 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
+	buffersRenderResolution = getRenderResolution();
+
 	clearScreen();
 }
 
-SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool center)
+SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, uint64_t flags, bool center)
 {
-	int displayIndex = getPreferredDisplayIndex();
-	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
+	SDL_DisplayID displayID = displayIndexToID(getPreferredDisplayIndex());
+	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayID) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID);
 
-	return SDL_CreateWindow(GameConstants::VCMI_PROJECT_NAME_VERSIONED, positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	// unlike SDL2, SDL3 rejects a window of zero size even in fullscreen modes
+	if (dimensions.x <= 0 || dimensions.y <= 0)
+	{
+		SDL_Rect bounds;
+		if (SDL_GetDisplayBounds(displayID, &bounds))
+			dimensions = Point(bounds.w, bounds.h);
+		else
+			dimensions = heroes3Resolution;
+	}
+
+	// SDL3 no longer takes the position on creation, it has to be applied afterwards
+	SDL_Window * result = SDL_CreateWindow(GameConstants::VCMI_PROJECT_NAME_VERSIONED, dimensions.x, dimensions.y, flags);
+
+	if (result != nullptr)
+		SDL_SetWindowPosition(result, positionFlags, positionFlags);
+
+	return result;
 }
 
 SDL_Window * ScreenHandler::createWindow()
@@ -462,7 +511,8 @@ SDL_Window * ScreenHandler::createWindow()
 			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
 		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
-			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
+			// with no fullscreen mode set, SDL_WINDOW_FULLSCREEN is borderless at desktop resolution
+			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
 
 		case EWindowMode::WINDOWED:
 			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
@@ -476,7 +526,7 @@ SDL_Window * ScreenHandler::createWindow()
 	SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
 	SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 
-	uint32_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+	uint64_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 	SDL_Window * result = createWindowImpl(Point(), windowFlags | SDL_WINDOW_METAL, false);
 
 	if(result != nullptr)
@@ -487,7 +537,9 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE, false);
+	// without the fullscreen flag SDL reports the window as leaving fullscreen once it is
+	// created, and its Android backend answers that by showing the system bars again
+	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN, false);
 #endif
 }
 
@@ -495,18 +547,20 @@ bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
 	if (keepWindowResolution)
 	{
-		// Only allowed in windowed mode
-		if (getPreferredWindowMode() != EWindowMode::WINDOWED)
+		// SDL reports one window change as up to two events, so the second one asks to rebuild
+		// buffers that already match the window - doing so would only flicker
+		if (screen != nullptr && getRenderResolution() == buffersRenderResolution)
 			return false;
 
-		auto res = getRenderResolution();
+		// the stored resolution is the windowed one, so a fullscreen window must not overwrite it
+		if (getPreferredWindowMode() == EWindowMode::WINDOWED)
+		{
+			auto res = getRenderResolution();
 
-		if (res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
-			return false;
-
-		Settings video = settings.write["video"];
-		video["resolution"]["width"].Integer() = res.x;
-		video["resolution"]["height"].Integer() = res.y;
+			Settings video = settings.write["video"];
+			video["resolution"]["width"].Integer() = res.x;
+			video["resolution"]["height"].Integer() = res.y;
+		}
 
 		// Only recreate buffers (no window changes!)
 		destroyScreenBuffers();
@@ -526,7 +580,8 @@ void ScreenHandler::validateSettings()
 #ifndef VCMI_MOBILE
 	{
 		int displayIndex = settings["video"]["displayIndex"].Integer();
-		int displaysCount = SDL_GetNumVideoDisplays();
+		int displaysCount = 0;
+		SDL_free(SDL_GetDisplays(&displaysCount));
 
 		if (displayIndex >= displaysCount)
 		{
@@ -541,15 +596,15 @@ void ScreenHandler::validateSettings()
 		int displayIndex = getPreferredDisplayIndex();
 		Point resolution = getPreferredWindowResolution();
 
-		SDL_DisplayMode mode;
+		const SDL_DisplayMode * mode = SDL_GetDesktopDisplayMode(displayIndexToID(displayIndex));
 
-		if (SDL_GetDesktopDisplayMode(displayIndex, &mode) == 0)
+		if (mode != nullptr)
 		{
-			if(resolution.x > mode.w || resolution.y > mode.h)
+			if(resolution.x > mode->w || resolution.y > mode->h)
 			{
 				Settings writer = settings.write["video"]["resolution"];
-				writer["width"].Float() = mode.w;
-				writer["height"].Float() = mode.h;
+				writer["width"].Float() = mode->w;
+				writer["height"].Float() = mode->h;
 			}
 		}
 	}
@@ -563,22 +618,22 @@ void ScreenHandler::validateSettings()
 		{
 			// resolution selected for fullscreen mode is not supported by display
 			// try to find current display resolution and use it instead as "reasonable default"
-			SDL_DisplayMode mode;
+			const SDL_DisplayMode * mode = SDL_GetDesktopDisplayMode(displayIndexToID(getPreferredDisplayIndex()));
 
-			if (SDL_GetDesktopDisplayMode(getPreferredDisplayIndex(), &mode) == 0)
+			if (mode != nullptr)
 			{
 				Settings writer = settings.write["video"]["resolution"];
-				writer["width"].Float() = mode.w;
-				writer["height"].Float() = mode.h;
+				writer["width"].Float() = mode->w;
+				writer["height"].Float() = mode->h;
 			}
 		}
 	}
 #endif
 }
 
-int ScreenHandler::getPreferredRenderingDriver() const
+std::string ScreenHandler::getPreferredRenderingDriver() const
 {
-	int result = -1;
+	std::string result;
 	const JsonNode & video = settings["video"];
 
 	int driversCount = SDL_GetNumRenderDrivers();
@@ -588,14 +643,14 @@ int ScreenHandler::getPreferredRenderingDriver() const
 
 	for(int it = 0; it < driversCount; it++)
 	{
-		SDL_RendererInfo info;
-		if (SDL_GetRenderDriverInfo(it, &info) == 0)
+		const char * driver = SDL_GetRenderDriver(it);
+		if (driver != nullptr)
 		{
-			std::string driverName(info.name);
+			std::string driverName(driver);
 
 			if(!preferredDriverName.empty() && driverName == preferredDriverName)
 			{
-				result = it;
+				result = driverName;
 				logGlobal->info("\t%s (active)", driverName);
 			}
 			else
@@ -611,7 +666,7 @@ void ScreenHandler::destroyScreenBuffers()
 {
 	if(nullptr != screen)
 	{
-		SDL_FreeSurface(screen);
+		SDL_DestroySurface(screen);
 		screen = nullptr;
 	}
 
@@ -661,25 +716,34 @@ Canvas ScreenHandler::getScreenCanvas() const
 
 void ScreenHandler::updateScreenTexture()
 {
+	// A window change SDL applied late leaves the buffers sized for the previous window,
+	// which the renderer then letterboxes into the current one. Events alone do not catch
+	// every such case, so the size is reconciled once per frame instead.
+	if(screen != nullptr && getRenderResolution() != buffersRenderResolution)
+	{
+		ENGINE->onScreenResize(true, true);
+		return;
+	}
+
 	if(colorScheme == ColorScheme::NONE)
 	{
 		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 		return;
 	}
 
-	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
+	SDL_Surface * screenScheme = SDL_DuplicateSurface(screen);
 	if(colorScheme == ColorScheme::GRAYSCALE)
 		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
 	else if(colorScheme == ColorScheme::H2_SCHEME)
 		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
 	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
-	SDL_FreeSurface(screenScheme);
+	SDL_DestroySurface(screenScheme);
 }
 
 void ScreenHandler::presentScreenTexture()
 {
 	SDL_RenderClear(mainRenderer);
-	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	SDL_RenderTexture(mainRenderer, screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
@@ -696,17 +760,13 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 
 	std::vector<Point> result;
 
-	int modesCount = SDL_GetNumDisplayModes(displayIndex);
+	int modesCount = 0;
+	SDL_DisplayMode ** modes = SDL_GetFullscreenDisplayModes(displayIndexToID(displayIndex), &modesCount);
 
-	for (int i =0; i < modesCount; ++i)
-	{
-		SDL_DisplayMode mode;
-		if (SDL_GetDisplayMode(displayIndex, i, &mode) == 0)
-		{
-			Point resolution(mode.w, mode.h);
-			result.push_back(resolution);
-		}
-	}
+	for (int i = 0; modes && i < modesCount; ++i)
+		result.push_back(Point(modes[i]->w, modes[i]->h));
+
+	SDL_free(modes);
 
 	std::ranges::sort(result, [](const auto & left, const auto & right)
 	{
@@ -721,7 +781,7 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 
 bool ScreenHandler::hasFocus()
 {
-	ui32 flags = SDL_GetWindowFlags(mainWindow);
+	SDL_WindowFlags flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 

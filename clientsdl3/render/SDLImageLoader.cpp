@@ -15,7 +15,7 @@
 
 #include "lib/Point.h"
 
-#include <SDL_surface.h>
+#include <SDL3/SDL_surface.h>
 
 SDLImageLoader::SDLImageLoader(SDLImageShared * Img):
 	image(Img),
@@ -27,15 +27,15 @@ SDLImageLoader::SDLImageLoader(SDLImageShared * Img):
 void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal)
 {
 	//Init image
-	image->surf = SDL_CreateRGBSurface(0, SpriteSize.x, SpriteSize.y, 8, 0, 0, 0, 0);
+	image->surf = SDL_CreateSurface(SpriteSize.x, SpriteSize.y, SDL_PIXELFORMAT_INDEX8);
 	image->margins  = Margins;
 	image->fullSize = FullSize;
 
 	//Prepare surface
-	SDL_Palette * p = SDL_AllocPalette(DEFAULT_PALETTE_COLORS);
+	SDL_Palette * p = SDL_CreatePalette(DEFAULT_PALETTE_COLORS);
 	SDL_SetPaletteColors(p, pal, 0, DEFAULT_PALETTE_COLORS);
 	SDL_SetSurfacePalette(image->surf, p);
-	SDL_FreePalette(p);
+	SDL_DestroyPalette(p);
 
 	SDL_LockSurface(image->surf);
 	lineStart = position = (ui8*)image->surf->pixels;
@@ -68,7 +68,7 @@ inline void SDLImageLoader::endLine()
 SDLImageLoader::~SDLImageLoader()
 {
 	SDL_UnlockSurface(image->surf);
-	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
+	SDL_SetSurfaceColorKey(image->surf, true, 0);
 	//TODO: RLE if compressed and bpp>1
 }
 

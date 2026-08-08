@@ -21,9 +21,8 @@
 #include "lib/Point.h"
 #include "lib/CConfigHandler.h"
 
-#include <SDL_events.h>
-#include <SDL_hints.h>
-#include <SDL_version.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
@@ -46,11 +45,11 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 
 	mouseButtonsMask = motion.state;
 
-	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+	if (mouseButtonsMask & SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE))
 		ENGINE->events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
-	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_LEFT))
+	else if (mouseButtonsMask & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))
 		ENGINE->events().dispatchMouseDragged(newPosition, distance);
-	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_RIGHT))
+	else if (mouseButtonsMask & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))
 		ENGINE->events().dispatchMouseDraggedPopup(newPosition, distance);
 	else
 		ENGINE->input().setCursorPosition(newPosition);
@@ -81,17 +80,9 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
 	// On Wayland (and some other platforms), SDL delivers smooth/precise scroll events
-	// where the integer wheel.y is 0 but wheel.preciseY carries a fractional value.
-	// We accumulate preciseY and dispatch only whole steps to avoid losing scroll input.
-	// Note: preciseY is already normalised for SDL_MOUSEWHEEL_FLIPPED (natural scrolling),
-	// the same way wheel.y is, so no extra direction handling is needed here.
-#if SDL_VERSION_ATLEAST(2,0,18)
-	wheelAccumulatedX += wheel.preciseX;
-	wheelAccumulatedY += wheel.preciseY;
-#else
-	wheelAccumulatedX += static_cast<float>(wheel.x);
-	wheelAccumulatedY += static_cast<float>(wheel.y);
-#endif
+	// carrying only a fractional value each - accumulate those and dispatch whole steps only
+	wheelAccumulatedX += wheel.x;
+	wheelAccumulatedY += wheel.y;
 
 	int stepsX = static_cast<int>(wheelAccumulatedX);
 	wheelAccumulatedX -= static_cast<float>(stepsX);
@@ -101,13 +92,7 @@ void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 	if(stepsX == 0 && stepsY == 0)
 		return;
 
-	//NOTE: while mouseX / mouseY properties are available since 2.26.0, they are not converted into logical coordinates so don't account for resolution scaling
-	// This SDL bug was fixed in 2.30.1: https://github.com/libsdl-org/SDL/issues/9097
-#if SDL_VERSION_ATLEAST(2,30,1)
-	ENGINE->events().dispatchMouseScrolled(Point(stepsX, stepsY), Point(wheel.mouseX, wheel.mouseY) / ENGINE->screenHandler().getScalingFactor());
-#else
-	ENGINE->events().dispatchMouseScrolled(Point(stepsX, stepsY), ENGINE->getCursorPosition());
-#endif
+	ENGINE->events().dispatchMouseScrolled(Point(stepsX, stepsY), Point(wheel.mouse_x, wheel.mouse_y) / ENGINE->screenHandler().getScalingFactor());
 }
 
 void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & button)

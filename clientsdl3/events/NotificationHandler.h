@@ -18,6 +18,5 @@ class NotificationHandler
 public:
 	static void notify(std::string msg);
 	static void init(SDL_Window * window);
-	static bool handleSdlEvent(const SDL_Event & ev);
 	static void destroy();
 };

@@ -11,7 +11,7 @@
 
 #include "render/IFont.h"
 
-#include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 class JsonNode;
 
@@ -26,10 +26,16 @@ class CTrueTypeFont final : public IFont
 	const bool outline;
 	const bool dropShadow;
 
+	/// decided from the first glyph rendered
+	mutable std::optional<bool> colorGlyphs;
+
 	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);
 	TTF_Font * loadFont(const JsonNode & config);
 	int getPointSize(const JsonNode & config) const;
 	int getFontStyle(const JsonNode & config) const;
+
+	/// colored glyphs keep their own colors and ignore the requested one
+	bool hasColorGlyphs(const std::string & text) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 	void renderTextImpl(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const;

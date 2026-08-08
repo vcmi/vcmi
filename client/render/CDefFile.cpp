@@ -16,7 +16,11 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/Point.h"
 
+#ifdef VCMI_SDL3
+#include <SDL3/SDL_pixels.h>
+#else
 #include <SDL_pixels.h>
+#endif
 
 enum class DefType : uint32_t
 {

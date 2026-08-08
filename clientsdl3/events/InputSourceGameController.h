@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include <SDL_events.h>
-#include <SDL_gamecontroller.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gamepad.h>
 
 #include "lib/Point.h"
 #include "ControllerPromptFamily.h"
@@ -20,11 +20,11 @@
 /// Class that handles game controller input from SDL events
 class InputSourceGameController
 {
-	static void gameControllerDeleter(SDL_GameController * gameController);
-	using GameControllerPtr = std::unique_ptr<SDL_GameController, decltype(&gameControllerDeleter)>;
+	static void gameControllerDeleter(SDL_Gamepad * gameController);
+	using GameControllerPtr = std::unique_ptr<SDL_Gamepad, decltype(&gameControllerDeleter)>;
 
 	std::map<int, GameControllerPtr> gameControllerMap;
-	std::set<SDL_GameControllerAxis> pressedAxes;
+	std::set<SDL_GamepadAxis> pressedAxes;
 	int activeController = -1;
 
 	std::chrono::steady_clock::time_point lastCheckTime;
@@ -47,10 +47,10 @@ class InputSourceGameController
 	const double configAxisSpeed;
 	const double configAxisScale;
 
-	void openGameController(int index);
-	int getJoystickIndex(SDL_GameController * controller);
+	void openGameController(SDL_JoystickID instanceID);
+	int getJoystickIndex(SDL_Gamepad * controller);
 	double getRealAxisValue(int value) const;
-	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue, std::string axisName);
+	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GamepadAxis axisID, int axisValue, std::string axisName);
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);
 	int getMoveDis(float planDis);
@@ -61,14 +61,14 @@ class InputSourceGameController
 public:
 	InputSourceGameController();
 	void setActiveController(int instanceID);
-	bool isAxisMotionActive(const SDL_ControllerAxisEvent & axis) const;
+	bool isAxisMotionActive(const SDL_GamepadAxisEvent & axis) const;
 	ControllerPrompt::Family getActiveControllerPromptFamily() const;
 	void tryOpenAllGameControllers();
-	void handleEventDeviceAdded(const SDL_ControllerDeviceEvent & device);
-	void handleEventDeviceRemoved(const SDL_ControllerDeviceEvent & device);
-	void handleEventDeviceRemapped(const SDL_ControllerDeviceEvent & device);
-	void handleEventAxisMotion(const SDL_ControllerAxisEvent & axis);
-	void handleEventButtonDown(const SDL_ControllerButtonEvent & button);
-	void handleEventButtonUp(const SDL_ControllerButtonEvent & button);
+	void handleEventDeviceAdded(const SDL_GamepadDeviceEvent & device);
+	void handleEventDeviceRemoved(const SDL_GamepadDeviceEvent & device);
+	void handleEventDeviceRemapped(const SDL_GamepadDeviceEvent & device);
+	void handleEventAxisMotion(const SDL_GamepadAxisEvent & axis);
+	void handleEventButtonDown(const SDL_GamepadButtonEvent & button);
+	void handleEventButtonUp(const SDL_GamepadButtonEvent & button);
 	void handleUpdate();
 };
