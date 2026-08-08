@@ -45,6 +45,21 @@
 SDL_Renderer * mainRenderer = nullptr;
 uint32_t mainRendererGeneration = 1;
 
+namespace
+{
+std::mutex pendingTextureMutex;
+std::vector<SDL_Texture *> pendingTextureDestruction;
+}
+
+void destroyTextureDeferred(SDL_Texture * texture)
+{
+	if(!texture)
+		return;
+
+	std::lock_guard lock(pendingTextureMutex);
+	pendingTextureDestruction.push_back(texture);
+}
+
 static constexpr Point heroes3Resolution = Point(800, 600);
 
 /// SDL3 identifies displays by opaque ID's while our settings store a plain index
@@ -472,7 +487,7 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
-	initializeMapTexture(logicalSize);
+	initializeLayerTextures(logicalSize);
 	buffersRenderResolution = getRenderResolution();
 
 	clearScreen();
@@ -678,35 +693,52 @@ void ScreenHandler::destroyScreenBuffers()
 		screenTexture = nullptr;
 	}
 
-	if(nullptr != mapTexture)
+	for(SDL_Texture *& layer : layerTextures)
 	{
-		SDL_DestroyTexture(mapTexture);
-		mapTexture = nullptr;
+		if(nullptr != layer)
+		{
+			SDL_DestroyTexture(layer);
+			layer = nullptr;
+		}
 	}
 }
 
-void ScreenHandler::initializeMapTexture(const Point & logicalSize)
+void ScreenHandler::clearLayer(size_t index)
+{
+	// the bottom layer is what everything else is composited onto, so it stays opaque;
+	// the layers above it must start transparent to let it show through
+	const bool bottom = index == 0;
+
+	SDL_SetRenderTarget(mainRenderer, layerTextures[index]);
+	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, bottom ? 255 : 0);
+	SDL_RenderClear(mainRenderer);
+}
+
+void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
 	// every SDL3 renderer can render to a texture, so unlike SDL2 there is nothing to probe for
-	mapTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
-
-	if(nullptr == mapTexture)
+	for(size_t i = 0; i < layerTextures.size(); ++i)
 	{
-		logGlobal->error("Unable to create map render target: %s", SDL_GetError());
-		return;
+		layerTextures[i] = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+
+		if(nullptr == layerTextures[i])
+		{
+			logGlobal->error("Unable to create render target for GPU layer %d: %s", static_cast<int>(i), SDL_GetError());
+			return;
+		}
+
+		SDL_SetTextureBlendMode(layerTextures[i], i == 0 ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+		clearLayer(i);
 	}
 
-	// the map layer is drawn first and the software screen is blended over it, so the
-	// screen texture must stop being opaque for the map to show through its transparent hole
-	SDL_SetTextureBlendMode(mapTexture, SDL_BLENDMODE_NONE);
-	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
-
-	SDL_SetRenderTarget(mainRenderer, mapTexture);
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
 	SDL_SetRenderTarget(mainRenderer, nullptr);
 
-	logGlobal->info("GPU map rendering enabled, using driver '%s'", SDL_GetRendererName(mainRenderer));
+	// the layers are drawn first and the software screen is blended over them, so the screen
+	// texture must stop being opaque for them to show through its transparent holes
+	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
+
+	logGlobal->info("GPU rendering enabled, using driver '%s'", SDL_GetRendererName(mainRenderer));
 }
 
 void ScreenHandler::destroyWindow()
@@ -748,14 +780,45 @@ Canvas ScreenHandler::getScreenCanvas() const
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 }
 
-bool ScreenHandler::isGpuMapRenderingEnabled() const
+bool ScreenHandler::isGpuRenderingEnabled() const
 {
-	return mapTexture != nullptr;
+	return layerTextures.front() != nullptr;
 }
 
-Canvas ScreenHandler::getMapLayerCanvas() const
+Canvas ScreenHandler::getLayerCanvas(GpuRenderLayer layer)
 {
-	return Canvas::createFromRenderTarget(mapTexture, getLogicalResolution(), CanvasScalingPolicy::AUTO);
+	const size_t index = static_cast<size_t>(layer);
+
+	layerActive.at(index) = true;
+	layerReleasedMask &= ~(1u << index);
+
+	return Canvas::createFromRenderTarget(layerTextures.at(index), getLogicalResolution(), CanvasScalingPolicy::AUTO);
+}
+
+void ScreenHandler::releaseLayer(GpuRenderLayer layer)
+{
+	layerReleasedMask |= 1u << static_cast<size_t>(layer);
+}
+
+void ScreenHandler::clearReleasedLayers()
+{
+	// Windows are deactivated when closed and when merely covered, so this runs before the
+	// redraw and getLayerCanvas() takes the request back if the owner draws again.
+	const uint32_t released = layerReleasedMask.exchange(0);
+
+	if(released == 0)
+		return;
+
+	for(size_t i = 0; i < layerTextures.size(); ++i)
+	{
+		if(!layerTextures[i] || (released & (1u << i)) == 0)
+			continue;
+
+		clearLayer(i);
+		layerActive[i] = false;
+	}
+
+	SDL_SetRenderTarget(mainRenderer, nullptr);
 }
 
 Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
@@ -811,13 +874,21 @@ void ScreenHandler::updateScreenTexture()
 
 void ScreenHandler::presentScreenTexture()
 {
-	// the map layer may still be bound from rendering it
+	// a layer may still be bound from rendering into it
 	SDL_SetRenderTarget(mainRenderer, nullptr);
+
+	{
+		std::lock_guard lock(pendingTextureMutex);
+		for(SDL_Texture * texture : pendingTextureDestruction)
+			SDL_DestroyTexture(texture);
+		pendingTextureDestruction.clear();
+	}
 
 	SDL_RenderClear(mainRenderer);
 
-	if(nullptr != mapTexture)
-		SDL_RenderTexture(mainRenderer, mapTexture, nullptr, nullptr);
+	for(size_t i = 0; i < layerTextures.size(); ++i)
+		if(layerTextures[i] && layerActive[i])
+			SDL_RenderTexture(mainRenderer, layerTextures[i], nullptr, nullptr);
 
 	SDL_RenderTexture(mainRenderer, screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();

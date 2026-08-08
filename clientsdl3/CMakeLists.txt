@@ -35,6 +35,7 @@ set(vcmisdl3_SRCS
 	render/SDLRWwrapper.cpp
 	render/ScreenHandler.cpp
 	render/SDL_Extensions.cpp
+	render/TextTextureCache.cpp
 )
 
 set(vcmisdl3_HEADERS
@@ -70,6 +71,7 @@ set(vcmisdl3_HEADERS
 	render/SDLRWwrapper.h
 	render/ScreenHandler.h
 	render/SDL_Extensions.h
+	render/TextTextureCache.h
 	render/SDL_PixelAccess.h
 )
 

@@ -38,6 +38,18 @@ class BattleFieldController : public CIntObject
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
+	/// Allocates backgroundWithHexes on first use. Deferred out of the constructor, which
+	/// runs on the network thread where creating a render target would steal the GL context
+	void ensureBackgroundCanvas();
+
+	/// True while the battlefield draws into the GPU layer rather than the screen surface
+	bool usesGpuLayer() const;
+
+	/// Set when the background is stale; the rebuild itself must happen at paint time
+	bool backgroundNeedsRebuild = true;
+
+	void rebuildBackgroundWithHexes();
+
 	/// direction which will be used to perform attack with current cursor position
 	Point currentAttackOriginPoint;
 
@@ -97,6 +109,7 @@ class BattleFieldController : public CIntObject
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void activate() override;
+	void deactivate() override;
 
 	void showAll(Canvas & to) override;
 	void show(Canvas & to) override;

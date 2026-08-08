@@ -47,8 +47,15 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Window * mainWindow = nullptr;
 	SDL_Texture * screenTexture = nullptr;
 
-	/// Render target the adventure map is drawn into, composited under screenTexture
-	SDL_Texture * mapTexture = nullptr;
+	/// Render targets composited under screenTexture, in GpuRenderLayer order
+	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
+
+	/// Whether a layer currently holds content that should be composited
+	std::array<bool, static_cast<size_t>(GpuRenderLayer::COUNT)> layerActive = {};
+
+	/// Bitmask of layers whose owner is gone. Written from any thread, drained at the start
+	/// of the next frame, which is where the layer may actually be cleared.
+	std::atomic<uint32_t> layerReleasedMask{0};
 	SDL_Surface * screen = nullptr;
 
 	/// Window size the buffers above were built for. SDL applies window changes
@@ -86,8 +93,11 @@ class ScreenHandler final : public IScreenHandler
 	/// Manages surfaces & textures used for
 	void initializeScreenBuffers();
 
-	/// Creates the render target the adventure map is drawn into
-	void initializeMapTexture(const Point & logicalSize);
+	/// Creates the layer render targets
+	void initializeLayerTextures(const Point & logicalSize);
+
+	/// Clears one layer to its initial state; the bottom layer is opaque, the rest transparent
+	void clearLayer(size_t index);
 	void destroyScreenBuffers();
 
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
@@ -129,8 +139,10 @@ public:
 
 	Canvas getScreenCanvas() const final;
 
-	bool isGpuMapRenderingEnabled() const final;
-	Canvas getMapLayerCanvas() const final;
+	bool isGpuRenderingEnabled() const final;
+	Canvas getLayerCanvas(GpuRenderLayer layer) final;
+	void releaseLayer(GpuRenderLayer layer) final;
+	void clearReleasedLayers() final;
 	Canvas createOffscreenCanvas(const Point & size) const final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;

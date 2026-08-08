@@ -127,6 +127,10 @@ void GameEngine::updateFrame()
 	engineUser->onUpdate();
 
 	handleEvents();
+
+	// before the redraw, so that a window that was only covered can reclaim its layer
+	screenHandlerInstance->clearReleasedLayers();
+
 	windows().simpleRedraw();
 
 	if (settings["video"]["performanceOverlay"]["show"].Bool())

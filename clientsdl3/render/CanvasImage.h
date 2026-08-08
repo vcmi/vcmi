@@ -26,8 +26,8 @@ public:
 	Rect contentRect() const override;
 	Point dimensions() const override;
 
-	/// canvas-backed images have no GPU copy, so callers must fall back to the surface path
-	bool drawTexture(SDL_Renderer *, const Point &, const Rect *, int) const override { return false; }
+	/// Draws the composed surface onto the renderer's target, uploading it on first use
+	bool drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const override;
 
 	//no-op methods
 
@@ -43,6 +43,13 @@ public:
 
 private:
 	SDL_Surface * surface;
+
+	/// GPU copy of surface, rebuilt whenever the surface is redrawn or the renderer changes
+	mutable SDL_Texture * texture = nullptr;
+	mutable uint32_t textureGeneration = 0;
+
+	/// Drops the cached texture, so that the next GPU draw uploads the current surface
+	void invalidateTexture() const;
 	CanvasScalingPolicy scalingPolicy;
 };
 
