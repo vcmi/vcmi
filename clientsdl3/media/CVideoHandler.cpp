@@ -386,6 +386,19 @@ Point CVideoInstance::size()
 	return dimensions / ENGINE->screenHandler().getScalingFactor();
 }
 
+bool CVideoInstance::renderFrame(const Point & position)
+{
+	SDL_Texture * frame = textureYUV ? textureYUV : textureRGB;
+
+	if(!frame)
+		return false;
+
+	SDL_FRect destination{ static_cast<float>(position.x), static_cast<float>(position.y),
+	                       static_cast<float>(dimensions.x), static_cast<float>(dimensions.y) };
+
+	return SDL_RenderTexture(mainRenderer, frame, nullptr, &destination);
+}
+
 void CVideoInstance::show(const Point & position, SDL_Surface * to)
 {
 	if(sws == nullptr)
@@ -686,7 +699,11 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float
 	if (!result->openVideo())
 		return nullptr;
 
-	result->prepareOutput(scaleFactor, false);
+	// Decode straight into a texture when the frame will be drawn by the GPU. Videos opened
+	// while handling a netpack keep the surface path - textures belong to the renderer's thread.
+	const bool useTextureOutput = ENGINE->screenHandler().isGpuRenderingEnabled() && ENGINE->amIGuiThread();
+
+	result->prepareOutput(scaleFactor, useTextureOutput);
 	result->loadNextFrame(); // prepare 1st frame
 
 	return result;

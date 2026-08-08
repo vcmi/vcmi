@@ -30,6 +30,10 @@ public:
 	/// Displays current frame at specified position
 	virtual void show(const Point & position, SDL_Surface * to) = 0;
 
+	/// Draws the current frame onto the renderer's current target, at a position already
+	/// converted to target pixels. False when this video has no GPU frame to draw.
+	virtual bool renderFrame(const Point & position) = 0;
+
 	/// Advances video playback by specified duration
 	virtual void tick(uint32_t msPassed) = 0;
 

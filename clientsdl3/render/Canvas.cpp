@@ -222,8 +222,12 @@ void Canvas::draw(IVideoInstance & video, const Point & pos)
 {
 	if(renderTarget)
 	{
-		// the video decodes into a surface, which a render target cannot accept
-		drawViaScratchSurface(pos, video.size(), [&video](SDL_Surface * target){ video.show(Point(0, 0), target); });
+		bindRenderTarget();
+
+		// videos opened while the GPU path is active decode straight into a texture;
+		// anything else still has to go through a surface
+		if(!video.renderFrame(transformPos(pos)))
+			drawViaScratchSurface(pos, video.size(), [&video](SDL_Surface * target){ video.show(Point(0, 0), target); });
 		return;
 	}
 
