@@ -24,6 +24,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleLayout.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/bonuses/Bonus.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/hero/CHero.h"
@@ -81,9 +82,9 @@ private:
 /// passes through the spell damage pipeline of the shielded unit's hero, so hero skills and
 /// artifacts scale it, and the attacker's own fire resistances cut it down again.
 ///
-/// Every scenario is the same battle: the casting hero shields its own unit, curses the
-/// enemy unit so that it always deals its minimum damage, and lets that enemy attack. The
-/// health the attacker loses is the reflected damage.
+/// Every scenario is the same battle: the casting hero shields its own unit, the enemy hero
+/// blesses its own unit so that it always deals its maximum damage, and that enemy attacks.
+/// The health the attacker loses is the reflected damage.
 class FireShieldTest : public ::testing::Test, public MapListener, public ::testing::WithParamInterface<FireShieldCase>
 {
 public:
@@ -220,6 +221,10 @@ public:
 
 		ASSERT_EQ(gameState->currentBattles.size(), 1u);
 		battle()->tacticDistance = 0;
+
+		// the layout scatters obstacles at random, and a mine under the attacker would be counted
+		// as reflected damage
+		battle()->obstacles.clear();
 	}
 
 	BattleInfo * battle() const
@@ -384,10 +389,10 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, FireShieldTest, ::testing::Values(
 	// so expert mastery still reflects only the creature's own 20%
 	FireShieldCase{"efreetSultanDoesNotStack", efreetSultan, pikeman, fireMagic, expert, noArtifact, 600},
 
-	// with the Orb of Vulnerability the sultan loses that immunity and does accept the spell.
-	// The two shields then add up - 20% from the creature plus the spell's 20% or 30% - which
-	// records what the engine does today rather than a checked H3 rule
-	FireShieldCase{"efreetSultanVulnerable",       efreetSultan, pikeman, noSkill,   0,      orbOfVulnerability, 1200},
-	FireShieldCase{"efreetSultanVulnerableExpert", efreetSultan, pikeman, fireMagic, expert, orbOfVulnerability, 1500}
+	// with the Orb of Vulnerability the sultan loses that immunity and does accept the spell, so
+	// both shields sit on the same unit. They share a stacking group, so only the stronger one is
+	// active: the creature's own 20% until expert mastery makes the spell's 30% win
+	FireShieldCase{"efreetSultanVulnerable",       efreetSultan, pikeman, noSkill,   0,      orbOfVulnerability, 600},
+	FireShieldCase{"efreetSultanVulnerableExpert", efreetSultan, pikeman, fireMagic, expert, orbOfVulnerability, 900}
 ),
 	[](const ::testing::TestParamInfo<FireShieldCase> & info) { return info.param.name; });

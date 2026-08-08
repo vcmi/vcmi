@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorowanie Obrony}\nPodczas ataku jednostka ignoruje umiejętność Obrony celu o ${val}%.",
 	"core.bonus.FEARFUL.description": "{Strach}\nJednostka ma ${val}% szansy na utratę tury w skutek przerażenia.",
 	"core.bonus.FEROCITY.description": "{Zaciekłość}\nPo zgładzeniu oddziału przeciwnika, jednostka zyskuje dodatkowe ataki - ${val}.",
-	"core.bonus.FIRE_SHIELD.description": "{Ognista tarcza}\nOdbija ${val}% obrażeń z walki wręcz z powrotem do atakującego.",
+	"core.combatScript.fireShield.description": "{Ognista tarcza}\nOdbija ${val}% obrażeń z walki wręcz z powrotem do atakującego.",
 	"core.bonus.FIRST_STRIKE.description": "{Pierwszeństwo Kontrataku}\nJednostka kontratakuje zanim przyjmie uderzenie.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Pierwsze Uderzenie}\nJednostka atakuje pierwsza, jeżeli zostanie zaatakowana wręcz.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Pierwszy strzał}\nJednostka atakuje pierwsza, jeżeli zostanie zaatakowana z dystansu.",

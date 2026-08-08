@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ігнорує частину захисту}\nПри атаці, ігнорується ${val}% захисту суперника.",
 	"core.bonus.FEARFUL.description": "{Страх}\nУражений загін має шанс ${val}% завмерти від страху і пропустити свій хід.",
 	"core.bonus.FEROCITY.description": "{Лють}\nЯкщо цей загін вбиває когось, то атакує додатково ${val} раз(и).",
-	"core.bonus.FIRE_SHIELD.description": "{Вогняний щит (${val}%) }\nЗагін повертає ${val} отриманої шкоди від ближнього бою нападнику.",
+	"core.combatScript.fireShield.description": "{Вогняний щит (${val}%) }\nЗагін повертає ${val} отриманої шкоди від ближнього бою нападнику.",
 	"core.bonus.FIRST_STRIKE.description": "{Перший удар}\nЗагін завдає удару у відповідь до того, як його атакують.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Перший удар (ближній бій)}\nЗагін завдає удару у відповідь до того, як його атакують у ближньому бою.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Перший удар (дальній бій)}\nЗагін завдає удару у відповідь до того, як його атакують з відстані.",

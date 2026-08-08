@@ -1,0 +1,90 @@
+local Base = require("combatScript")
+local Script = setmetatable({}, {__index = Base})
+Script.__index = Script
+
+--- Burns whoever strikes its bearer in melee for a share of the damage that strike could have
+--- dealt. Scripted equivalent of the FIRE_SHIELD bonus.
+---
+--- Parameters:
+---  val - share of the reflected damage, in percent
+
+local ANIMATION = "C05SPF0"
+local SOUND = "FIRESHIE"
+local SPELL = "core:fireShield"
+-- spell schools report their json key unscoped, unlike creatures and spells
+local FIRE_SCHOOL = "fire"
+
+--- Whether fire damage can reach the attacker at all. Immunity is checked here rather than left to
+--- the damage pipeline, because a fully immune attacker should not even produce a battle log entry.
+function Script:isImmune(attacker)
+	local immunities = attacker:getBonuses(function(bonus)
+		local subtype = bonus:getSubtype()
+		local type = bonus:getType()
+
+		if subtype ~= FIRE_SCHOOL then return false end
+
+		return type == "SPELL_SCHOOL_IMMUNITY"
+			or type == "NEGATIVE_EFFECTS_IMMUNITY"
+			or (type == "SPELL_DAMAGE_REDUCTION" and bonus:getVal() >= 100)
+	end)
+
+	return immunities:size() > 0
+end
+
+--- The entry of the payload describing the hit this unit took.
+function Script:ownEntry(unit, payload)
+	for _, target in ipairs(payload.targets or {}) do
+		if target.unit and target.unit:unitID() == unit:unitID() then
+			return target
+		end
+	end
+
+	return nil
+end
+
+function Script:onAfterAttacked(server, battle, unit, other, payload)
+	if payload.ranged then return end
+	if not other or not other:isAlive() then return end
+
+	-- a clone is an illusion: it deals and reflects nothing
+	if unit:isClone() then return end
+
+	-- an area attack reaches units the attacker never closed with, and those do not burn it
+	if not battle:isMeleeAttackPossible(other, unit) then return end
+	if self:isImmune(other) then return end
+
+	local entry = self:ownEntry(unit, payload)
+
+	if entry == nil then return end
+
+	-- a stack reflects at most what it could have absorbed, so a small stack burns less
+	local reflectable = math.min(entry.healthBeforeAttack, entry.damageBeforeDefense)
+	local spell = LIBRARY:getSpellByName(SPELL)
+	local damage = spell:adjustDamage(battle, unit, other, math.floor(reflectable * (self.val or 0) / 100))
+
+	if damage <= 0 then return end
+
+	local dealt, killed = server:damageUnit(battle, other, damage)
+
+	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 1.0)
+	self:describe(server, battle, spell, other, dealt, killed)
+end
+
+function Script:describe(server, battle, spell, victim, damage, killed)
+	server:appendLog(battle, {
+		append         = { "core.genrltxt.376" },
+		replaceStrings = { spell:getNameTextID() },
+		replaceNumbers = { damage }
+	})
+
+	if killed > 0 then
+		-- 378 and 379 are the singular and plural forms of the same message
+		server:appendLog(battle, {
+			append         = { killed == 1 and "core.genrltxt.378" or "core.genrltxt.379" },
+			replaceStrings = { victim:getCreature():getNameTextID(killed) },
+			replaceNumbers = { killed }
+		})
+	end
+end
+
+return Script

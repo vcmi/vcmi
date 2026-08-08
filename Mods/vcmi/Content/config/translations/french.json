@@ -15,7 +15,7 @@
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nLa créature a une nature de dragon",
 	"core.bonus.ENCHANTER.description": "{Enchanteur}\nPeut lancer en masse ${subtype.spell} à chaque tour",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorer la défense (${val}%)}\nLors de l'attaque, ${val}% de la défense du défenseur est ignorée",
-	"core.bonus.FIRE_SHIELD.description": "{Bouclier de feu (${val}%)}\nReflète une partie des dégâts de mêlée",
+	"core.combatScript.fireShield.description": "{Bouclier de feu (${val}%)}\nReflète une partie des dégâts de mêlée",
 	"core.bonus.FIRST_STRIKE.description": "{Premier coup}\nCette créature riposte avant d'être attaquée",
 	"core.bonus.FLYING.description": "{Vol}\nVole en se déplaçant (ignore les obstacles)",
 	"core.bonus.FREE_SHOOTING.description": "{Tirer de près}\nPeut utiliser des attaques à distance au corps à corps",

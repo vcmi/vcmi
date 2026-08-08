@@ -13,7 +13,6 @@ enum class EBattleEffect
 {
 	// list of battle effects that have hardcoded triggers
 	MAGIC_MIRROR = 3,
-	FIRE_SHIELD  = 11,
 	FEAR         = 15,
 	GOOD_LUCK    = 18,
 	GOOD_MORALE  = 20,

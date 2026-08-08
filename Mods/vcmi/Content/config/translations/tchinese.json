@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{忽略防禦 (${val}%)}\n發動攻擊時，防禦方${val}%的防禦力將被無視。",
 	"core.bonus.FEARFUL.description": "{恐懼}\n受影響的單位有${val}%的機率因恐懼而無法行動，跳過其回合。",
 	"core.bonus.FEROCITY.description": "{兇猛追擊}\n殺死任意生物後額外攻擊${val}次。",
-	"core.bonus.FIRE_SHIELD.description": "{烈火神盾 (${val}%)}\n反彈部分受到的近戰傷害。",
+	"core.combatScript.fireShield.description": "{烈火神盾 (${val}%)}\n反彈部分受到的近戰傷害。",
 	"core.bonus.FIRST_STRIKE.description": "{搶先反擊}\n該生物的反擊將會在被攻擊前進行。",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{搶先反擊}\n該生物的反擊將會在被近戰攻擊前進行。",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{搶先反擊}\n該生物的反擊將會在被遠程攻擊前進行。",

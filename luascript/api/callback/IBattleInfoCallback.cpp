@@ -73,6 +73,13 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"checkMoat", "Pass true to count crossing a moat as a penalty source."}
 		}, {},
 		"True if a ranged attack along this line crosses a wall or moat (per the flags).");
+	R.function<&IBattleInfoCallbackProxy::isMeleeAttackPossible>("isMeleeAttackPossible",
+		{
+			{"attacker", "Unit that would strike."},
+			{"defender", "Unit that would be struck."}
+		}, {},
+		"True if the attacker stands where it could hit the defender in melee. False for units that "
+		"an area attack reached without being adjacent to them, such as a dragon breath's second target.");
 	R.function<&IBattleInfoCallbackProxy::getUnitByPos>("getUnitByPos",
 		{
 			{"hex",       "Hex to inspect for a unit."},
@@ -140,6 +147,14 @@ bool IBattleInfoCallbackProxy::hasPenaltyOnLine(const IBattleInfoCallback & obje
 	if(!cb)
 		return false;
 	return cb->battleHasPenaltyOnLine(from, dest, checkWall, checkMoat);
+}
+
+bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
+	if(!cb)
+		return false;
+	return cb->isMeleeAttackPossible(&attacker, &defender);
 }
 
 int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)

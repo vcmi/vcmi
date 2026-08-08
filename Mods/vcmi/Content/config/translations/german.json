@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Verteidigung Ignorieren}\nIgnoriert ${val}% der Verteidigungsfähigkeit des Verteidigers.",
 	"core.bonus.FEARFUL.description": "{Furcht}\nDiese Einheit hat eine Chance von ${val}%, vor Angst zu erstarren und auszusetzen.",
 	"core.bonus.FEROCITY.description": "{Wildheit}\nWenn diese Einheit einen Gegner tötet, greift sie ${val} Mal zusätzlich an.",
-	"core.bonus.FIRE_SHIELD.description": "{Feuerschild (${val}%)}\nReflektiert ${val}% des Nahkampfschadens zurück auf den Angreifer.",
+	"core.combatScript.fireShield.description": "{Feuerschild (${val}%)}\nReflektiert ${val}% des Nahkampfschadens zurück auf den Angreifer.",
 	"core.bonus.FIRST_STRIKE.description": "{Erstschlag}\nDiese Einheit kann zurückschlagen, bevor sie angeriffen wird.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Erstschlag (Nahkampf)}\nDiese Einheit kann zurückschlagen, bevor sie im Nahkampf angegriffen wird.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Erstschlag (Fernkampf)}\nDiese Einheit kann zurückschlagen, bevor sie im Fernkampf angegriffen wird.",

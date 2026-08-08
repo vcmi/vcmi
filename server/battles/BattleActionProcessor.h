@@ -43,8 +43,6 @@ class BattleActionProcessor : boost::noncopyable
 		bool invalidRequest;
 	};
 
-	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
-
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
@@ -61,8 +59,8 @@ class BattleActionProcessor : boost::noncopyable
 
 	std::set<SpellID> getSpellsForAttackCasting(const TConstBonusListPtr & spells, const CStack *defender);
 
-	// damage & fire shield
-	void applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary) const;
+	/// Rolls the damage one attacked unit takes and appends what scripts need to know about it to the payload
+	void applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const;
 
 	void sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple) const;

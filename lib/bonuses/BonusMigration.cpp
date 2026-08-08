@@ -44,6 +44,7 @@ const std::map<std::string, std::string> retiredAbilities = {
 	{ "TRANSMUTATION",    "transmutation" },
 	{ "SUMMON_GUARDIANS", "summonGuardians" },
 	{ "ENCHANTED",        "enchanted" },
+	{ "FIRE_SHIELD",      "fireShield" },
 };
 
 /// ENCHANTED packed the mastery level and whether the whole side is affected into a single value.
@@ -141,6 +142,10 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 		case BonusType::SUMMON_GUARDIANS:
 			script = resolveScript("summonGuardians");
 			parameters["creature"].String() = jsonKeyOf(bonus.subtype.as<CreatureID>().toEntity(LIBRARY));
+			break;
+
+		case BonusType::FIRE_SHIELD:
+			script = resolveScript("fireShield");
 			break;
 
 		case BonusType::ENCHANTED:

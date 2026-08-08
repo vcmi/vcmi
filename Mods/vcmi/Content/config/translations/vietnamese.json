@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Giảm phòng thủ}\nKhi tấn công, giảm ${val}% phòng thủ của kẻ địch.",
 	"core.bonus.FEARFUL.description": "{Gây sợ hãi}\nĐơn vị bị ảnh hưởng có ${val}% cơ hội bị bật động vì sợ hãi.",
 	"core.bonus.FEROCITY.description": "{Hung ác}\nTấn công thêm ${val} lần nữa nếu giết chết kẻ địch.",
-	"core.bonus.FIRE_SHIELD.description": "{Khiên lửa}\nĐơn vị này sẽ phản lại ${val} sát thương khi cận chiến.",
+	"core.combatScript.fireShield.description": "{Khiên lửa}\nĐơn vị này sẽ phản lại ${val} sát thương khi cận chiến.",
 	"core.bonus.FIRST_STRIKE.description": "{Đòn đánh phủ đầu}\nĐơn vị này sẽ phản đòn trước khi bị tấn công.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Phản đòn trước}\nĐơn vị này sẽ phản đòn trước khi bị tấn công cận chiến.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Phản đòn trước}\nĐơn vị này sẽ phản đòn trước khi bị tấn công từ xa.",

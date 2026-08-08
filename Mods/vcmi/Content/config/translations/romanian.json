@@ -20,7 +20,7 @@
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Ignoră atacul (${val}%) }\nCând este atacat, ${val}% din atacul agresorului este ignorat",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignoră apărarea (${val}%) }\nCând atacă, ${val}% din apărarea apărătorului este ignorata",
 	"core.bonus.FEROCITY.description": "{Ferocitate}\nAtacă de ${val} ori suplimentar dacă a ucis pe cineva",
-	"core.bonus.FIRE_SHIELD.description": "{Scut de foc (${val}%) }\nUnitatea reflectă ${val} din daunele de corp la corp primite",
+	"core.combatScript.fireShield.description": "{Scut de foc (${val}%) }\nUnitatea reflectă ${val} din daunele de corp la corp primite",
 	"core.bonus.FIRST_STRIKE.description": "{Lovitura de început}\nUnitatea ripostează înainte de a fi atacată",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Lovitura de început}\nUnitatea ripostează înainte de a fi atacată în lupta corp la corp",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Lovitura de început}\nUnitatea ripostează înainte de a fi atacată de o unitate cu atac la distanță",

@@ -18,7 +18,7 @@
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Ignora attacco (${val}%)}\nQuando viene attaccata, ignora il ${val}% dell'attacco dell'avversario",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignora difesa (${val}%)}\nQuando attacca, ignora il ${val}% della difesa dell'avversario",
 	"core.bonus.FEROCITY.description": "{Ferocia}\nAttacca ${val} volte aggiuntive se uccide qualcuno",
-	"core.bonus.FIRE_SHIELD.description": "{Scudo di fuoco (${val}%)}\nRiflette una parte dei danni da mischia",
+	"core.combatScript.fireShield.description": "{Scudo di fuoco (${val}%)}\nRiflette una parte dei danni da mischia",
 	"core.bonus.FIRST_STRIKE.description": "{Primo colpo}\nQuesta creatura contrattacca prima di essere attaccata",
 	"core.bonus.FLYING.description": "{Volare}\nSi muove volando (ignora gli ostacoli)",
 	"core.bonus.FREE_SHOOTING.description": "{Colpo ravvicinato}\nPuò usare attacchi a distanza anche in mischia",

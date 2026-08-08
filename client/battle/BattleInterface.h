@@ -67,7 +67,6 @@ struct StackAttackedInfo
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;
-	bool fireShield;
 };
 
 struct StackAttackInfo

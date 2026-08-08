@@ -542,9 +542,6 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			else
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
 
-			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, AudioPath::builtin("FIRESHIE"), attackedInfo.attacker->getPosition());
-
 			if (attackedInfo.spellEffect != SpellID::NONE)
 			{
 				auto spell = attackedInfo.spellEffect.toSpell();

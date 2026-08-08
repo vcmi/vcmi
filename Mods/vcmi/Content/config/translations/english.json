@@ -25,7 +25,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignore Defense}\nWhen attacking, ignores ${val}% of the defender's Defense skill.",
 	"core.bonus.FEARFUL.description": "{Fear}\nAffected unit has a ${val}% chance to freeze in fear and skip its turn.",
 	"core.bonus.FEROCITY.description": "{Ferocity}\nIf this unit kills an enemy, it attacks ${val} additional time(s).",
-	"core.bonus.FIRE_SHIELD.description": "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker.",
+	"core.combatScript.fireShield.description": "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker.",
 	"core.bonus.FIRST_STRIKE.description": "{First Strike}\nThe unit retaliates before being attacked.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{First Strike (Melee)}\nThe unit retaliates before being attacked in melee.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{First Strike (Ranged)}\nThe unit retaliates before being attacked by ranged attack.",

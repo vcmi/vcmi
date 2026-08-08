@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Savunmayı Yoksayma}\nSaldırı sırasında, savunmacının Savunma becerisinin %${val} kadarını yoksayar.",
 	"core.bonus.FEARFUL.description": "{Korku}\nEtkilenen birim ${val}% ihtimalle korkudan donup kalır ve sırasını atlar.",
 	"core.bonus.FEROCITY.description": "{Vahşet}\nBu birim bir düşmanı öldürürse, ${val} ek saldırı yapar.",
-	"core.bonus.FIRE_SHIELD.description": "{Ateş Kalkanı}\nYakın dövüş hasarının %${val} kadarını saldırgana geri yansıtır.",
+	"core.combatScript.fireShield.description": "{Ateş Kalkanı}\nYakın dövüş hasarının %${val} kadarını saldırgana geri yansıtır.",
 	"core.bonus.FIRST_STRIKE.description": "{İlk Saldırı}\nBirim saldırıya uğramadan önce misilleme yapar.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{İlk Vuruş (Yakın dövüş)}\nBirim, yakın dövüşte saldırıya uğramadan önce misilleme yapar.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{İlk Vuruş(Menzilli)}\nBirim, menzilli saldırıya uğramadan önce misilleme yapar.",

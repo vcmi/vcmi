@@ -1037,9 +1037,22 @@ Affected unit acts as healing tent and can heal allied units on each turn
 
 ### FIRE_SHIELD
 
-When affected unit is attacked, portion of received damage will be also dealt to the attacked. Units immune to fire magic will not receive this damage. Only melee attacks will trigger this bonus
+DEPRECATED. Configs and saves declaring it are converted to the
+[fireShield](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly:
 
-- val: amount to deal in return, percentage
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "subtype" : "combatScript.fireShield",
+    "val" : 20,
+    "stacking" : "fireShield"
+}
+```
+
+`val` keeps its meaning. The `stacking` group is what core content uses to keep a unit that has
+fire shield twice - from its own ability and from the spell - burning attackers only for the
+stronger of the two.
 
 ### MAGIC_MIRROR
 

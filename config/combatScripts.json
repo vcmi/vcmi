@@ -19,6 +19,11 @@
 		"script" : "lifeDrain",
 		"description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 	},
+	"fireShield" : {
+		"type" : "lua",
+		"script" : "fireShield",
+		"description" : "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker."
+	},
 	"soulSteal" : {
 		"type" : "lua",
 		"script" : "soulSteal",

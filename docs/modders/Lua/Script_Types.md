@@ -203,7 +203,7 @@ Parameters:
 - `battle` - state of the battle this event happened in. See [Battle](Api_Reference.md#battle).
 - `unit` - the unit carrying the bonus, which this event happened to. See [Unit](Api_Reference.md#unit).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
-- `payload` - data specific to this event, empty for events that carry none. `onAttackResolved` and `onAfterAttacked` fill `payload.targets` with one entry per unit the attack hit, each holding the `unit` itself, the `damage` dealt to it and how many of its creatures were `killed`. `onAfterAttacked` receives the whole list rather than only its own entry, so a script can see the full attack; it finds itself by comparing `target.unit` against `unit`.
+- `payload` - data specific to this event, empty for events that carry none. `onAttackResolved` and `onAfterAttacked` fill `payload.targets` with one entry per unit the attack hit, and set `payload.ranged` for a shot. Each entry holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` the attack could have dealt with the target's defence ignored, and the `healthBeforeAttack` the unit had left before the hit landed. `onAfterAttacked` receives the whole list rather than only its own entry, so a script can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
 Functions:
 
@@ -234,6 +234,8 @@ Functions:
 - `soulSteal` - raises its bearer's stack for every enemy creature it killed, beyond the stack's original size. Only kills among living targets count. Parameters:
     - `val` - creatures gained for each killed enemy creature
     - `permanent` - true to keep the gained creatures after the battle
+- `fireShield` - burns whoever strikes its bearer in melee for a share of the damage that strike could have dealt. An attacker immune to fire takes nothing. Parameters:
+    - `val` - share of the reflected damage, in percent
 - `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
     - `spell` - spell whose effects are applied
     - `level` - mastery level the effects are applied at

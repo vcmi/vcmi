@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorování obrany}\nPři útoku ignoruje ${val}% Obrany obránce.",
 	"core.bonus.FEARFUL.description": "{Strach}\nZasažená jednotka má ${val}% šanci ztuhnout strachem a přeskočit tah.",
 	"core.bonus.FEROCITY.description": "{Zuřivost}\nPokud tato jednotka někoho zabije, zaútočí ještě ${val}x.",
-	"core.bonus.FIRE_SHIELD.description": "{Ohnivý štít}\nOdráží ${val}% zranění z útoku zblízka zpět útočníkovi.",
+	"core.combatScript.fireShield.description": "{Ohnivý štít}\nOdráží ${val}% zranění z útoku zblízka zpět útočníkovi.",
 	"core.bonus.FIRST_STRIKE.description": "{První úder}\nTato jednotka útočí dříve, než je napadena.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{První úder}\nJednotka zasazuje protiúder dříve, než je zasažena v boji na blízko.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{První úder}\nJednotka zasazuje protiúder dříve, než je zasažena střeleckým útokem.",

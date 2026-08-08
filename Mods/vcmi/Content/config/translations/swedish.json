@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorera Försvar}\nNär denna enhet attackerar ignoreras ${val}% av försvararens Försvarsförmåga.",
 	"core.bonus.FEARFUL.description": "{Skräckinjagande}\nFiendeenheter har ${val}% chans att stelna av skräck och stå över sin turomgång.",
 	"core.bonus.FEROCITY.description": "{Blodad Tand}\nUtlöser ${val} extra attack om den första attacken besegrar minst en fiendeenhet.",
-	"core.bonus.FIRE_SHIELD.description": "{Eldsköld}\nReflekterar tillbaka ${val}% av närstridsskadan.",
+	"core.combatScript.fireShield.description": "{Eldsköld}\nReflekterar tillbaka ${val}% av närstridsskadan.",
 	"core.bonus.FIRST_STRIKE.description": "{Första Slaget}\nDenna enhet vedergäller innan den blir attackerad.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Första Slaget (Närstrid)}\nEnheten vedergäller innan den blir attackerad i närstrid.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Första Slaget (Distans)}\nEnheten vedergäller innan den blir attackerad av en distansattack.",

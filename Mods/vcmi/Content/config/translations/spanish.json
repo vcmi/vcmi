@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorar Defensa}\nCuando ataquen, ignora la parte ${var}% de la habilidad de defensa del defensor.",
 	"core.bonus.FEARFUL.description": "{Miedo}\nLa unidad afectada tiene una posibilidad de ${val}% para que el miedo omite su turno.",
 	"core.bonus.FEROCITY.description": "{Ferocidad}\nSi esta unidad mana un enemigo, ataca ${val} veces adicionales.",
-	"core.bonus.FIRE_SHIELD.description": "{Escudo de Fuego}\nRefleja ${val}% del daño cuerpo a cuerpo devuelto al atacante.",
+	"core.combatScript.fireShield.description": "{Escudo de Fuego}\nRefleja ${val}% del daño cuerpo a cuerpo devuelto al atacante.",
 	"core.bonus.FIRST_STRIKE.description": "{Primer Ataque}\nLa unidad toma represalias antes de ser atacada.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Primer ataque (Pelea)}\nLa unidad contraataca antes de ser atacada en combate cuerpo a cuerpo.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Primer Ataque (a Distancia)}\nLa unidad contraataca antes de ser atacada por un ataque a distancia.",

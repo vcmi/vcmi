@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Védekezés mellőzése}\nTámadáskor mellőzi a védekező védekezés jártasságának ${val}%-át.",
 	"core.bonus.FEARFUL.description": "{Félelem}\nA hatás alatt lévő lénynek ${val}% esélye van lefagyni a félelemtől és kihagyni a körét.",
 	"core.bonus.FEROCITY.description": "{Vadság}\nHa ez a lény megöl egy ellenséget, további ${val} alkalommal támad.",
-	"core.bonus.FIRE_SHIELD.description": "{Tűzpajzs}\nA közelharci sebzés ${val}%-át visszaveri a támadóra.",
+	"core.combatScript.fireShield.description": "{Tűzpajzs}\nA közelharci sebzés ${val}%-át visszaveri a támadóra.",
 	"core.bonus.FIRST_STRIKE.description": "{Első csapás}\nA lény hamarabb üt vissza, mint ahogy rátámadnának.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Első csapás (Közelharc)}\nA lény hamarabb üt vissza közelharcban, mint ahogy rátámadnának.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged": "{Első csapás (Távolsági)}\nA lény hamarabb üt vissza, mint ahogy rátámadnának egy távolsági támadással.",

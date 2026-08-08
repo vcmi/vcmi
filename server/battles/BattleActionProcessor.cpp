@@ -1043,7 +1043,9 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if((!attacker->alive()) || (defender && !defender->alive()))
 		return;
 
-	FireShieldInfo fireShield;
+	CombatEventPayload payload;
+	payload.ranged = ranged;
+
 	BattleAttack bat;
 	BattleLogMessage blm;
 	blm.battleID = battle.getBattle()->getBattleID();
@@ -1081,7 +1083,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	// only primary target
 	if(defender && defender->alive())
-		applyBattleEffects(battle, bat,	attackerState, fireShield, defender, distance, false);
+		applyBattleEffects(battle, bat, attackerState, payload, defender, distance, false);
 
 	//multiple-hex normal attack
 	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
@@ -1089,7 +1091,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
 		{
-			applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
+			applyBattleEffects(battle, bat, attackerState, payload, stack, distance, true);
 			removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 		}
 	}
@@ -1122,7 +1124,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
+				applyBattleEffects(battle, bat, attackerState, payload, stack, distance, true);
 				removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 			}
 		}
@@ -1170,86 +1172,15 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// sent before the triggers below so that anything they log lands after the attack description
 	gameHandler->sendAndApply(blm);
 
-	{
-		CombatEventPayload payload;
-		for(const BattleStackAttacked & bsa : bat.bsa)
-		{
-			AttackedTarget entry;
-			entry.unit = battle.battleGetUnitByID(bsa.stackAttacked);
-			entry.damage = bsa.damageAmount;
-			entry.killed = bsa.killedAmount;
-			payload.targets.push_back(entry);
-		}
+	// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
+	// fire shield, which may kill the attacker
+	processBattleEventTriggers(battle, CombatEventType::ATTACK_RESOLVED, attacker, defender, payload);
 
-		// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
-		// fire shield, which may kill the attacker
-		processBattleEventTriggers(battle, CombatEventType::ATTACK_RESOLVED, attacker, defender, payload);
-
-		// every unit hit reacts, not only the primary target - a multi-hex attack may hit several.
-		// Not gated on the target being alive: a reaction like fire shield triggers even when the
-		// attack killed it, so each script decides for itself
-		for(const AttackedTarget & target : payload.targets)
-			processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, target.unit, attacker, payload);
-	}
-
-	BattleLogMessage fireShieldLog;
-	fireShieldLog.battleID = battle.getBattle()->getBattleID();
-
-	if(!fireShield.empty())
-	{
-		//todo: this should be "virtual" spell instead, we only need fire spell school bonus here
-		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();
-		int64_t totalDamage = 0;
-
-		for(const auto & item : fireShield)
-		{
-			const CStack * actor = item.first;
-			int64_t rawDamage = item.second;
-
-			const CGHeroInstance * actorOwner = battle.battleGetFightingHero(actor->unitSide());
-
-			if(actorOwner)
-			{
-				rawDamage = fireShieldSpell->adjustRawDamage(actorOwner, attacker, rawDamage);
-			}
-			else
-			{
-				rawDamage = fireShieldSpell->adjustRawDamage(actor, attacker, rawDamage);
-			}
-
-			totalDamage+=rawDamage;
-			//FIXME: add custom effect on actor
-		}
-
-		if (totalDamage > 0)
-		{
-			BattleStackAttacked bsa;
-
-			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
-			bsa.stackAttacked = attacker->unitId(); //invert
-			bsa.attackerID = defender->unitId();
-			bsa.damageAmount = totalDamage;
-			attacker->prepareAttacked(bsa, gameHandler->getRandomGenerator());
-
-			StacksInjured pack;
-			pack.battleID = battle.getBattle()->getBattleID();
-			pack.stacks.push_back(bsa);
-			gameHandler->sendAndApply(pack);
-
-			// TODO: this is already implemented in Damage::describeEffect()
-			{
-				MetaString text;
-				text.appendLocalString(EMetaText::GENERAL_TXT, 376);
-				text.replaceName(SpellID(SpellID::FIRE_SHIELD));
-				text.replaceNumber(totalDamage);
-				fireShieldLog.lines.push_back(std::move(text));
-			}
-			addGenericKilledLog(fireShieldLog, attacker, bsa.killedAmount, false);
-		}
-	}
-
-	if(!fireShieldLog.lines.empty())
-		gameHandler->sendAndApply(fireShieldLog);
+	// every unit hit reacts, not only the primary target - a multi-hex attack may hit several.
+	// Not gated on the target being alive: a reaction like fire shield triggers even when the
+	// attack killed it, so each script decides for itself
+	for(const AttackedTarget & target : payload.targets)
+		processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, target.unit, attacker, payload);
 
 	if(defender)
 		handleAfterAttackCasting(battle, ranged, attacker, defender);
@@ -1527,7 +1458,7 @@ void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback
 	}
 }
 
-void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary) const
+void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1550,24 +1481,18 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
-	//fire shield handling
-	if(!bat.shot() &&
-		!def->isClone() &&
-		def->hasBonusOfType(BonusType::FIRE_SHIELD) &&
-		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
-		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
-		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::FIRE)) < 100 &&
-		battle.isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
-			)
-	{
-		//H3 reflects Fire Shield from pre-mitigation damage, so a high-defense target still reflects a meaningful amount
-		BattleAttackInfo unmitigated = bai;
-		unmitigated.ignoreDefenseFactors = true;
-		int64_t reflectedBase = battle.calculateDmgRange(unmitigated).damage.max;
+	// reported to scripts that reflect damage, such as fire shield. Only computable here, while the
+	// attack info is in scope
+	BattleAttackInfo unmitigated = bai;
+	unmitigated.ignoreDefenseFactors = true;
 
-		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), reflectedBase) * def->valOfBonuses(BonusType::FIRE_SHIELD)) / 100;
-		fireShield.emplace_back(def, fireShieldDamage);
-	}
+	AttackedTarget target;
+	target.unit = def;
+	target.damage = bsa.damageAmount;
+	target.killed = bsa.killedAmount;
+	target.damageBeforeDefense = battle.calculateDmgRange(unmitigated).damage.max;
+	target.healthBeforeAttack = def->getAvailableHealth();
+	payload.targets.push_back(target);
 }
 
 void BattleActionProcessor::sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple)

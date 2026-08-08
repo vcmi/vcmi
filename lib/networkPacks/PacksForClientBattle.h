@@ -196,7 +196,7 @@ struct BattleStackAttacked
 	ui32 killedAmount = 0;
 	int64_t damageAmount = 0;
 	UnitChanges newState;
-	enum EFlags { KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, FIRE_SHIELD = 32, };
+	enum EFlags { KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, };
 	ui32 flags = 0; //uses EFlags (above)
 	SpellID spellID = SpellID::NONE; //only if flag SPELL_EFFECT is set
 
@@ -220,10 +220,6 @@ struct BattleStackAttacked
 	bool willRebirth() const//resurrection, e.g. Phoenix
 	{
 		return flags & REBIRTH;
-	}
-	bool fireShield() const
-	{
-		return flags & FIRE_SHIELD;
 	}
 
 	template <typename Handler> void serialize(Handler & h)

@@ -78,7 +78,8 @@
 				"effects" : {
 					"fireShield" : {
 						"type" : "FIRE_SHIELD",
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS",
+						"stacking" : "fireShield"
 					}
 				}
 			}
