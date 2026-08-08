@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RELEASE_TAG="2026-07-06"
+RELEASE_TAG="2026-09-01"
 FILENAME="$1.txz"
 DOWNLOAD_URL="https://github.com/vcmi/vcmi-dependencies/releases/download/$RELEASE_TAG/$FILENAME"
 
