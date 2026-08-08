@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "SDLImage.h"
+#include "RenderHandler.h"
 
 #include "SDLImageLoader.h"
 #include "SDLImageScaler.h"

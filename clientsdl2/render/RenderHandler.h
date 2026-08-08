@@ -22,6 +22,9 @@ class HdImageLoader;
 
 class RenderHandler final : public IRenderHandler
 {
+	/// Bumped on every draw that had to use a stand-in for an unfinished upscale
+	static std::atomic<uint32_t> placeholderDraws;
+
 	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 
 	std::map<AnimationPath, std::map<int, std::map<int, std::pair<std::string, CDefFile::SSpriteDef>>>> animationSpriteDefs;
@@ -53,6 +56,11 @@ class RenderHandler final : public IRenderHandler
 	int getScalingFactor() const;
 
 public:
+	/// Records that a draw used a stand-in for an image that is still being upscaled
+	static void notifyPlaceholderDrawn();
+
+	uint32_t getPlaceholderDrawCount() const override;
+
 	RenderHandler();
 	~RenderHandler();
 

@@ -47,6 +47,18 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/ResourceTypeService.h>
 
+std::atomic<uint32_t> RenderHandler::placeholderDraws{0};
+
+void RenderHandler::notifyPlaceholderDrawn()
+{
+	++placeholderDraws;
+}
+
+uint32_t RenderHandler::getPlaceholderDrawCount() const
+{
+	return placeholderDraws;
+}
+
 RenderHandler::RenderHandler()
 	:assetGenerator(std::make_unique<AssetGenerator>())
 {

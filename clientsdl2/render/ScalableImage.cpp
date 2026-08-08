@@ -19,6 +19,7 @@
 #include "render/Colors.h"
 #include "render/Graphics.h"
 #include "render/IRenderHandler.h"
+#include "RenderHandler.h"
 #include "IScreenHandler.h"
 #include "CanvasImage.h"
 
@@ -280,6 +281,9 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 
 	if (shadowLoading || bodyLoading || overlayLoading || playerLoading || grayscaleLoading)
 	{
+		// upscaling is still running - the 1x image is stretched to stand in for it
+		RenderHandler::notifyPlaceholderDrawn();
+
 		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
