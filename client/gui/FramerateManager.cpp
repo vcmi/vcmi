@@ -12,7 +12,6 @@
 #include "FramerateManager.h"
 
 #include "../../lib/CConfigHandler.h"
-#include <SDL_video.h>
 
 FramerateManager::FramerateManager(int targetFrameRate)
 	: targetFrameTime(Duration(std::chrono::seconds(1)) / targetFrameRate)
