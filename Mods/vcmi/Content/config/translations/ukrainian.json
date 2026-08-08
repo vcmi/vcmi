@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Захист від атаки кавалерії}\nЦей загін не отримує додаткової шкоди від кавалерійської атаки.",
 	"core.bonus.CPU_CONTROLLED.description": "{Автоматичні дії}\nГравець не може керувати цим загоном за замовчуванням.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Максимум шкоди (${val}%)}\nНіяка атака не зможе завдати більше шкоди, ніж ${val}% від максимального здоров'я.",
-	"core.bonus.DEATH_STARE.description": "{Погляд смерті (${val}%) }\nМиттєво вбиває живу істоту з імовірністю ${val}%.",
+	"core.combatScript.deathStare.description": "{Погляд смерті (${val}%) }\nМиттєво вбиває живу істоту з імовірністю ${val}%.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Бонус до захисту}\nЗбільшує захист на +${val} після застосування захисту.",
 	"core.combatScript.destruction.description": "{Знищення}\nМає шанс ${val}% вбити додаткових створінь після атаки.",
 	"core.bonus.DISINTEGRATE.description": "{Розпад}\nКоли цей загін гине, він не залишає після себе жодного трупа.",

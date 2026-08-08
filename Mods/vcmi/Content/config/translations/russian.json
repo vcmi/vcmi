@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Иммунитет к разгону}\nЭтот отряд не получает дополнительного урона от рыцарской атаки",
 	"core.bonus.CPU_CONTROLLED.description": "{Автоматически управляемый}\nИгрок по умолчанию не может управлять этим отрядом.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Лимит урона (${val}%) }\nНи одна атака не может нанести больше урона, чем ${val}% от максимального здоровья",
-	"core.bonus.DEATH_STARE.description": "{Смертельный взгляд (${val}%)}\n${val}% шанс уничтожить одно живое существо",
+	"core.combatScript.deathStare.description": "{Смертельный взгляд (${val}%)}\n${val}% шанс уничтожить одно живое существо",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Защитная стойка}\nПовышает защиту на +${val} после использования действия \"Защита\"",
 	"core.combatScript.destruction.description": "{Уничтожитель}\nШанс ${val}% уничтожить дополнительных существ при атаке",
 	"core.bonus.DISINTEGRATE.description": "{Расщепление}\nПосле гибели этого отряда не остаётся трупа",

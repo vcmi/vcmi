@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Kopjatörésálló}\nEz a lény nem szenved extra sebzést a kopjatörésből.",
 	"core.bonus.CPU_CONTROLLED.description": "{Automatikusan irányított}\nEzt a lényt alapértelmezettként nem irányíthatod kézileg.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Sebzéskorlát}\nEgyetlen támadás sem sebezhet a csapat max. ÉP-jának ${val}%-ánál többet.",
-	"core.bonus.DEATH_STARE.description": "{Halálos tekintet}\n${val}% esélye van azonnal megölni egy élő lényt.",
+	"core.combatScript.deathStare.description": "{Halálos tekintet}\n${val}% esélye van azonnal megölni egy élő lényt.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Védekező állás}\nVédekezés után ez a lény +${val} védekezést kap.",
 	"core.combatScript.destruction.description": "{Pusztítás}\n${val}% esélye van további lényeket megölni támadás után.",
 	"core.bonus.DISINTEGRATE.description": "{Dezintegráció}\nAmikor ez a lény meghal, nem hagy hátra holttestet.",

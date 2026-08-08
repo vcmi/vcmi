@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Imūnitāte pret turnīra bonusu}\nŠī vienība nesaņem papildu bojājumus no turnīra bonusa",
 	"core.bonus.CPU_CONTROLLED.description": "{Automātiski vadāma}\nPēc noklusējuma spēlētājs šo vienību nevar manuāli vadīt.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Bojājumu ierobežojums (${val}%) }\nNeviens atsevišķs uzbrukums nevar nodarīt lielāku kaitējumu kā ${val}% no maksimālās veselības",
-	"core.bonus.DEATH_STARE.description": "{Nāves skatiens (${val}%)}\nIr ${val}% iespēja acumirklī nogalināt vienu dzīvu radību.",
+	"core.combatScript.deathStare.description": "{Nāves skatiens (${val}%)}\nIr ${val}% iespēja acumirklī nogalināt vienu dzīvu radību.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Aizsardzības bonuss}\nPalielina aizsardzību par +${val} pēc aizsardzības darbības izmantošanas",
 	"core.combatScript.destruction.description": "{Destruction}\nPēc uzbrukuma ir ${val}% iespēja nogalināt papildu vienības.",
 	"core.bonus.DISINTEGRATE.description": "{Sadalās}\nKad šī vienība nomirs, tā neatstās līķi",

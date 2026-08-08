@@ -37,6 +37,7 @@ public:
 	static BattleHexArray getHexes(const ::battle::Unit & unit);
 	static BattleHexArray getSurroundingHexes(const ::battle::Unit & unit);
 	static bool hasAbsoluteImmunity(const ::battle::Unit & unit, const spells::Spell & spell);
+	static int getLevel(const ::battle::Unit & unit);
 	static LuaUnitState copy(const ::battle::Unit & unit);
 };
 

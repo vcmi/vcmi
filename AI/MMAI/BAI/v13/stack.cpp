@@ -114,9 +114,6 @@ namespace
 				case BonusType::BLOCKS_RETALIATION:
 					d += 0.3;
 					break;
-				case BonusType::DEATH_STARE:
-					d += (bonus->val * 0.02); // 10% = 0.2
-					break;
 				case BonusType::DOUBLE_DAMAGE_CHANCE:
 					d += (bonus->val * 0.005); // 20% = 0.1
 					break;
@@ -124,7 +121,9 @@ namespace
 					d += (bonus->val * 0.0025); // 40% = 0.1
 					break;
 				case BonusType::COMBAT_EVENT_TRIGGER:
-					if(runsCombatScript(*bonus, "fireShield"))
+					if(runsCombatScript(*bonus, "deathStare"))
+						d += (bonus->val * 0.02); // 10% = 0.2
+					else if(runsCombatScript(*bonus, "fireShield"))
 						d += (bonus->val * 0.003); // 20% = 0.1
 					else if(runsCombatScript(*bonus, "lifeDrain"))
 						d += (bonus->val * 0.003); // 100% = 0.3
@@ -466,12 +465,11 @@ void Stack::processBonuses()
 			case BonusType::COMBAT_EVENT_TRIGGER:
 				if(runsCombatScript(*bonus, "lifeDrain"))
 					setflag(F1::LIFE_DRAIN);
+				else if(runsCombatScript(*bonus, "deathStare"))
+					setflag(F1::DEATH_STARE);
 				break;
 			case BonusType::DOUBLE_DAMAGE_CHANCE:
 				setflag(F1::DOUBLE_DAMAGE_CHANCE);
-				break;
-			case BonusType::DEATH_STARE:
-				setflag(F1::DEATH_STARE);
 				break;
 			case BonusType::NOT_ACTIVE:
 				if(!cstack->isAmmoCart())

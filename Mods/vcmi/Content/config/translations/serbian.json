@@ -11,7 +11,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Магични пригушивач (${val})}\nПовећава трошкове бацање чаролија непријатељских чаролија за ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Имун на бонус за витешки турнир}\nОва јединица не добија додатну штету од бонуса за витешки турнир",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Ограничење штете (${val}%) }\nНиједан појединачни напад не може нанети више штете од ${val}% максималног здравља",
-	"core.bonus.DEATH_STARE.description": "{Смртоносни поглед (${val}%)}\nИма ${val}% шансе да тренутно убије једно живо биће",
+	"core.combatScript.deathStare.description": "{Смртоносни поглед (${val}%)}\nИма ${val}% шансе да тренутно убије једно живо биће",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Бонус одбране}\nПовећава одбрану за +${val} након коришћења одбрамбене акције",
 	"core.combatScript.destruction.description": "{Уништење}\nИма ${val}% шансе да убије додатне јединице након напада",
 	"core.bonus.DISINTEGRATE.description": "{Дезинтеграција}\nКада ова јединица умре, неће оставити лешеве за собом",

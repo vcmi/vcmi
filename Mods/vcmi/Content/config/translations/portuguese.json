@@ -9,7 +9,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Custo de Conjuração (${val})}\nReduz o custo de conjuração de feitiços para o herói em ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Absorvedor Mágico (${val})}\nAumenta o custo de conjuração dos feitiços inimigos em ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Imunidade à Carga}\nImune à Carga do Cavaleiro e do Campeão",
-	"core.bonus.DEATH_STARE.description": "{Olhar da Morte (${val}%)}\nTem ${val}% de chance de matar uma única criatura",
+	"core.combatScript.deathStare.description": "{Olhar da Morte (${val}%)}\nTem ${val}% de chance de matar uma única criatura",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bônus de Defesa}\n+${val} de Defesa ao se defender",
 	"core.combatScript.destruction.description": "{Destruição}\nTem ${val}% de chance de matar unidades extras após o ataque",
 	"core.bonus.DISINTEGRATE.description": "{Desintegrar}\nNenhum corpo permanece após a morte",

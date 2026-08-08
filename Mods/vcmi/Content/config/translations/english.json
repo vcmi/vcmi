@@ -14,7 +14,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Jousting Immunity}\nThis unit takes no extra damage from Jousting.",
 	"core.bonus.CPU_CONTROLLED.description": "{Automatically Controlled}\nThis unit cannot be manually controlled by the player by default.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Damage Limit}\nNo single attack can deal more than ${val}% of this stack's maximum health.",
-	"core.bonus.DEATH_STARE.description": "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature.",
+	"core.combatScript.deathStare.description": "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Defensive Stance}\nAfter defending, this unit gains +${val} Defense.",
 	"core.combatScript.destruction.description": "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking.",
 	"core.bonus.DISINTEGRATE.description": "{Disintegrate}\nWhen this unit dies, it will leave no corpse behind.",

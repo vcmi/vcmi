@@ -24,6 +24,11 @@
 		"script" : "fireShield",
 		"description" : "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker."
 	},
+	"deathStare" : {
+		"type" : "lua",
+		"script" : "deathStare",
+		"description" : "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature."
+	},
 	"destruction" : {
 		"type" : "lua",
 		"script" : "destruction",

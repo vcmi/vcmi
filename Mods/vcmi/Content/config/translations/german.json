@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Lanzenbonus-Immunität}\nErleidet keinen zusätzlichen Schaden durch Lanzenbonus.",
 	"core.bonus.CPU_CONTROLLED.description": "{Automatisch Gesteuert}\nKann standardmäßig nicht manuell vom Spieler gesteuert werden.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Schadenslimit (${val}%)}\nBegrenzt erlittenen Schaden pro Treffer auf ${val}% der maximalen Gesundheit.",
-	"core.bonus.DEATH_STARE.description": "{Todesblick (${val}%)}\n${val}% Chance, eine einzelne Kreatur zu töten.",
+	"core.combatScript.deathStare.description": "{Todesblick (${val}%)}\n${val}% Chance, eine einzelne Kreatur zu töten.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Verteidigungsbonus}\nErhält +${val} Verteidigung beim Verteidigen im Kampf.",
 	"core.combatScript.destruction.description": "{Zerstörung}\n${val}% Chance, nach einem Angriff zusätzliche Kreaturen zu töten.",
 	"core.bonus.DISINTEGRATE.description": "{Auflösen}\nHinterlässt keinen Leichnam nach dem Tod.",

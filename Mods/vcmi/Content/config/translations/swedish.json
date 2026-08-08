@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immun mot Galoppanfall}\nDen här enheten tar ingen extra skada av galoppanfall.",
 	"core.bonus.CPU_CONTROLLED.description": "{Automatiskt Styrd}\nDen här enheten kan som standard inte styras manuellt av spelaren.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Skadebegränsning}\nIngen enskild attack kan orsaka mer än ${val}% av denna enhets maximala hälsa.",
-	"core.bonus.DEATH_STARE.description": "{Dödsblick}\nHar ${val}% chans att omedelbart döda en levande varelse.",
+	"core.combatScript.deathStare.description": "{Dödsblick}\nHar ${val}% chans att omedelbart döda en levande varelse.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Försvarsställning}\nEfter att ha försvarat sig får denna enhet +${val} i Försvar.",
 	"core.combatScript.destruction.description": "{Förgöra}\nHar ${val}% chans att döda ytterligare varelser efter att ha attackerat.",
 	"core.bonus.DISINTEGRATE.description": "{Desintegrerar}\nDenna enhet lämnar ingen kropp efter sig när den stupar.",

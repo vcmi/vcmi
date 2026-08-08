@@ -236,6 +236,10 @@ Functions:
     - `permanent` - true to keep the gained creatures after the battle
 - `fireShield` - burns whoever strikes its bearer in melee for a share of the damage that strike could have dealt. An attacker immune to fire takes nothing. Parameters:
     - `val` - share of the reflected damage, in percent
+- `deathStare` - kills creatures of the attacked stack outright, each creature of the bearer's stack rolling its own chance. At most the share of the stack that could have rolled it dies. Parameters:
+    - `val` - chance for each creature to kill one, in percent. For `"commander"` it is instead a flat number of kills, scaled by the level ratio of the two stacks
+    - `situation` - when the ability applies: `"melee"`, `"ranged"`, `"rangedDistancePenalty"`, `"rangedWallPenalty"`, `"rangedDistanceAndWallPenalty"` or `"commander"`
+    - `spell` - spell cast to kill them, which decides the animation, the immunities and the wording of the combat log. Defaults to death stare
 - `destruction` - kills creatures of the attacked stack outright, on top of the damage the attack itself dealt. Parameters:
     - `val` - percentage chance to trigger on each attack
     - `killBy` - `"percentage"` kills a share of the victim's stack, `"count"` kills a fixed number

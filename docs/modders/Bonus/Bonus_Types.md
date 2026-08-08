@@ -1096,20 +1096,30 @@ unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 
 ### DEATH_STARE
 
-Affected unit will kill additional units after attack. Used for Death stare (Mighty Gorgon) ability and for Accurate Shot (Pirates, HotA)
+DEPRECATED. Configs and saves declaring it are converted to the
+[deathStare](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly:
 
-- subtype:
-  - deathStareGorgon: only melee attack, random amount of killed units
-  - deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
-  - deathStareRangePenalty: only ranged attacks with range penalty
-  - deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
-  - deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
-  - deathStareCommander: fixed amount, both melee and ranged attacks
-- val:
-  - for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
-  - for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
-- addInfo:
-  - SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "subtype" : "combatScript.deathStare",
+    "val" : 10,
+    "addInfo" : { "situation" : "melee" }
+}
+```
+
+`val` keeps its meaning. The old subtype becomes the `situation` parameter and the old `addInfo`
+becomes `spell`:
+
+| Old subtype | `situation` |
+|---|---|
+| `deathStareGorgon` | `"melee"` |
+| `deathStareNoRangePenalty` | `"ranged"` |
+| `deathStareRangePenalty` | `"rangedDistancePenalty"` |
+| `deathStareObstaclePenalty` | `"rangedWallPenalty"` |
+| `deathStareRangeObstaclePenalty` | `"rangedDistanceAndWallPenalty"` |
+| `deathStareCommander` | `"commander"` |
 
 ### SPECIAL_CRYSTAL_GENERATION
 

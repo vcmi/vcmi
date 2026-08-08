@@ -34,6 +34,7 @@
 #include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/battle/IBattleState.h"
 #include "../../../lib/CStack.h"
+#include "../../../lib/spells/AbilityCaster.h"
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/battle/CUnitState.h"
@@ -154,6 +155,15 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		},
 		{"integer", "Random integer in [low, high]."},
 		"Returns a server-side random integer in the inclusive range [low, high].");
+	R.cfunction<&ServerCallbackProxy::rngBinomial>("rngBinomial",
+		{
+			{"trials", "integer", "How many independent chances are rolled."},
+			{"chance", "number",  "Chance of each one succeeding, from 0 to 1."}
+		},
+		{"integer", "How many of them succeeded."},
+		"Rolls the same chance many times over and returns how many succeeded. Use this rather "
+		"than a loop over `rngInt` for abilities that roll once per creature in a stack, which "
+		"can number in the thousands.");
 	R.function<&ServerCallbackProxy::rollCombatAbility>("rollCombatAbility",
 		{
 			{"battle",           "Battle the acting unit fights in."},
@@ -163,6 +173,18 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		{"True if the ability triggers."},
 		"Rolls a chance-based combat ability. Use this rather than `rngInt` for abilities that "
 		"trigger with a percentage chance - it draws from the per-army biased sequence");
+	R.function<&ServerCallbackProxy::castSpell>("castSpell",
+		{
+			{"battle",      "Battle the spell is cast in."},
+			{"caster",      "Unit whose ability casts the spell."},
+			{"spell",       "Spell to cast."},
+			{"target",      "Units the spell is aimed at."},
+			{"effectValue", "Magnitude handed to the spell's effects, for spells that take one."}
+		}, {},
+		"Casts a spell as a passive ability of the caster: announces it so that clients play its "
+		"animation and sound, filters the targets through the spell's own immunity rules, and "
+		"applies its effects with the given magnitude. Casting this way never fires a combat "
+		"event, so a script that casts cannot re-enter itself.");
 	R.function<&ServerCallbackProxy::applySpellEffects>("applySpellEffects",
 		{
 			{"battle",         "Battle the spell is applied in."},
@@ -225,6 +247,28 @@ void ServerCallbackProxy::applySpellEffects(ServerCallback & object, const IBatt
 			destinations.emplace_back(unit);
 
 	cast.applyEffects(&object, destinations, false, ignoreImmunity);
+}
+
+void ServerCallbackProxy::castSpell(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & caster, const spells::Spell & spell, const std::vector<const battle::Unit *> & target, int64_t effectValue)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&battle);
+	if(!cb)
+		throw std::runtime_error("Attempt to cast a spell outside of a battle!");
+
+	const CSpell * spellObject = spell.getId().toSpell();
+	if(!spellObject)
+		throw std::runtime_error("Attempt to cast an unknown spell!");
+
+	spells::AbilityCaster abilityCaster(&caster, 0);
+	spells::BattleCast cast(cb, &abilityCaster, spells::Mode::PASSIVE, spellObject);
+	cast.setEffectValue(effectValue);
+
+	spells::Target destinations;
+	for(const auto * unit : target)
+		if(unit)
+			destinations.emplace_back(unit);
+
+	cast.cast(&object, destinations);
 }
 
 void ServerCallbackProxy::showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency)
@@ -379,6 +423,25 @@ int ServerCallbackProxy::rngInt(lua_State * L)
 	S.get(3, high);
 
 	int result = object->getRNG()->nextInt(low, high);
+
+	S.clear();
+	S.push(result);
+	return 1;
+}
+
+int ServerCallbackProxy::rngBinomial(lua_State * L)
+{
+	LuaStack S(L);
+
+	ServerCallback * object = nullptr;
+	int trials = 0;
+	double chance = 0;
+
+	S.getNonNull(1, object);
+	S.get(2, trials);
+	S.get(3, chance);
+
+	int result = object->getRNG()->nextBinomialInt(trials, chance);
 
 	S.clear();
 	S.push(result);

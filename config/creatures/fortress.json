@@ -278,9 +278,10 @@
 		{
 			"deathStare" : 
 			{
-				"type" : "DEATH_STARE",
-				"subtype" : "deathStareGorgon",
-				"val" : 10
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "combatScript.deathStare",
+				"val" : 10,
+				"addInfo" : { "situation" : "melee" }
 			}
 		},
 		"graphics" :

@@ -80,6 +80,18 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"True if the attacker stands where it could hit the defender in melee. False for units that "
 		"an area attack reached without being adjacent to them, such as a dragon breath's second target.");
+	R.function<&IBattleInfoCallbackProxy::hasDistancePenalty>("hasDistancePenalty",
+		{
+			{"shooter", "Unit making the ranged attack."},
+			{"target",  "Unit being shot at."}
+		}, {},
+		"True if the shooter is too far from the target for a full-strength shot.");
+	R.function<&IBattleInfoCallbackProxy::hasWallPenalty>("hasWallPenalty",
+		{
+			{"shooter", "Unit making the ranged attack."},
+			{"target",  "Unit being shot at."}
+		}, {},
+		"True if a town wall stands between the shooter and the target.");
 	R.function<&IBattleInfoCallbackProxy::getUnitByPos>("getUnitByPos",
 		{
 			{"hex",       "Hex to inspect for a unit."},
@@ -155,6 +167,22 @@ bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback &
 	if(!cb)
 		return false;
 	return cb->isMeleeAttackPossible(&attacker, &defender);
+}
+
+bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
+	if(!cb)
+		return false;
+	return cb->battleHasDistancePenalty(&shooter, shooter.getPosition(), target.getPosition());
+}
+
+bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+{
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
+	if(!cb)
+		return false;
+	return cb->battleHasWallPenalty(&shooter, shooter.getPosition(), target.getPosition());
 }
 
 int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)

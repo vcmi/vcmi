@@ -8,7 +8,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Réduire le coût de lancement (${val})}\nRéduit le coût d'incantation du héros de ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Amortisseur magique (${val})}\nAugmente le coût d'incantation des sorts ennemis de ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immunisé contre la charge}\nImmunisé contre la charge du cavalier et du champion",
-	"core.bonus.DEATH_STARE.description": "{Regard mortel (${val}%)}\nA ${val}% de chances de tuer une seule créature",
+	"core.combatScript.deathStare.description": "{Regard mortel (${val}%)}\nA ${val}% de chances de tuer une seule créature",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus de défense}\n+${val} Défense en défense",
 	"core.combatScript.destruction.description": "{Destruction}\nA ${val} % de chances de tuer des unités supplémentaires après l'attaque",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Coup mortel}\nA ${val}% de chances d'infliger des dégâts de base doublés en attaquant",

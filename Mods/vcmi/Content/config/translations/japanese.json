@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{馬上一騎打ちへの耐性}\nこのユニットは馬上一騎打ちのボーナスによる追加ダメージを受けない。",
 	"core.bonus.CPU_CONTROLLED.description": "{自動制御}\nこのユニットは、デフォルトではプレイヤーによる手動操作はできない。",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{ダメージ制限}\n1回の攻撃で与えられるダメージは、このスタックの最大体力の${val}%を超えることはできない。",
-	"core.bonus.DEATH_STARE.description": "{死の視線}\n単一のクリーチャーを即死させる${val}%の確率を持つ。",
+	"core.combatScript.deathStare.description": "{死の視線}\n単一のクリーチャーを即死させる${val}%の確率を持つ。",
 	"core.bonus.DEFENSIVE_STANCE.description": "{防御スタンス}\n防御を使用後、防御力が+${val}増加する。",
 	"core.combatScript.destruction.description": "{破壊}\n攻撃後、${val}%の確率で追加のクリーチャーを倒す。",
 	"core.bonus.DISINTEGRATE.description": "{消滅}\nこのユニットが死亡しても、死体は残らない。",

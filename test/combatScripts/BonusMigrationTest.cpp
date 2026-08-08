@@ -171,6 +171,35 @@ TEST_F(BonusMigrationTest, DestructionSubtypeAndAddInfoBecomeParameters)
 	EXPECT_EQ(scriptOf(parse(amount))["amount"].Integer(), 3);
 }
 
+/// The six death stare subtypes were two different things: a situation the ability fires in, and
+/// the commander formula. Both become the same parameter.
+TEST_F(BonusMigrationTest, DeathStareSubtypeBecomesSituation)
+{
+	JsonNode gorgon;
+	gorgon["type"].String() = "DEATH_STARE";
+	gorgon["val"].Integer() = 10;
+	gorgon["subtype"].String() = "deathStareGorgon";
+
+	JsonNode accurateShot = gorgon;
+	accurateShot["subtype"].String() = "deathStareRangePenalty";
+	accurateShot["addInfo"].String() = "core:deathStare";
+
+	JsonNode commander = gorgon;
+	commander["subtype"].String() = "deathStareCommander";
+
+	auto migrated = parse(gorgon);
+
+	expectRunsScript(migrated, "deathStare");
+	EXPECT_EQ(migrated->val, 10);
+	EXPECT_EQ(scriptOf(migrated)["situation"].String(), "melee");
+	// without an override the script casts death stare itself
+	EXPECT_TRUE(scriptOf(migrated)["spell"].isNull());
+
+	EXPECT_EQ(scriptOf(parse(accurateShot))["situation"].String(), "rangedDistancePenalty");
+	EXPECT_EQ(scriptOf(parse(accurateShot))["spell"].String(), "core:deathStare");
+	EXPECT_EQ(scriptOf(parse(commander))["situation"].String(), "commander");
+}
+
 /// ENCHANTED packed the mastery level and the "affects the whole side" flag into a single value.
 TEST_F(BonusMigrationTest, EnchantedValueSplitsIntoLevelAndMassive)
 {

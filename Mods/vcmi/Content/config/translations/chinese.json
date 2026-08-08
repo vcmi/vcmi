@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{免疫冲锋}\n对冲锋特技的额外伤害免疫。",
 	"core.bonus.CPU_CONTROLLED.description": "{自动控制}\n此单位在默认状态下无法被玩家手动控制。",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{承伤上限(${val}%)}\n单次攻击对该生物造成的伤害不会高于其最大生命值的${val}%。",
-	"core.bonus.DEATH_STARE.description": "{死亡凝视 (${val}%)}\n${val}%几率直接杀死一单位生物。",
+	"core.combatScript.deathStare.description": "{死亡凝视 (${val}%)}\n${val}%几率直接杀死一单位生物。",
 	"core.bonus.DEFENSIVE_STANCE.description": "{防御奖励}\n当选择防御时+${val}防御力。",
 	"core.combatScript.destruction.description": "{毁灭}\n${val}%几率在攻击后追加消灭数量。",
 	"core.bonus.DISINTEGRATE.description": "{解体}\n死亡后不会留下尸体。",

@@ -8,7 +8,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Riduce il costo del lancio (${val})}\nRiduce il costo del lancio degli incantesimi dell'eroe di ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Resistenza magica (${val}%)}\nAumenta il costo del lancio degli incantesimi nemici di ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immunità alla carica}\nImmune alla carica di Cavalieri e Campioni",
-	"core.bonus.DEATH_STARE.description": "{Sguardo della morte (${val}%)}\nHa una probabilità del ${val}% di uccidere un'unità singola",
+	"core.combatScript.deathStare.description": "{Sguardo della morte (${val}%)}\nHa una probabilità del ${val}% di uccidere un'unità singola",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus di difesa}\n+${val} Difesa quando è in posizione difensiva",
 	"core.combatScript.destruction.description": "{Distruzione}\nHa una probabilità del ${val}% di uccidere unità extra dopo l'attacco",
 	"core.bonus.DISINTEGRATE.description": "{Disintegrazione}\nNessun cadavere rimane dopo la morte",

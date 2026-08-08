@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Odporność: Szarża}\nJednostka nie otrzymuje dodatkowych obrażeń z wrogiej szarży.",
 	"core.bonus.CPU_CONTROLLED.description": "{Autonomiczny}\nTa jednostka domyślnie nie może być kontrolowana ręcznie przez gracza.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Limit obrażeń}\nWrogi atak nie zada więcej obrażeń niż ${val}% maks. wytrzymałości jednostki.",
-	"core.bonus.DEATH_STARE.description": "{Spojrzenie Śmierci}\n${val}% szans na natychmiastową śmierć 1 żywego stworzenia.",
+	"core.combatScript.deathStare.description": "{Spojrzenie Śmierci}\n${val}% szans na natychmiastową śmierć 1 żywego stworzenia.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Postawa obronna}\n+${val} obrony podczas defensywy.",
 	"core.combatScript.destruction.description": "{Destrukcja}\n${val}% szans na zgładzenie dodatkowych jednostek po ataku.",
 	"core.bonus.DISINTEGRATE.description": "{Dezintegracja}\nJednostka nie pozostawia zwłok po zgładzeniu.",

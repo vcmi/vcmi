@@ -18,6 +18,7 @@
 #include "GameLibrary.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
+#include "bonuses/BonusMigration.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
@@ -1303,6 +1304,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			}
 		}
 	}
+
+	// this table names abilities that are combat scripts now, and builds them without going
+	// through the json loader that would otherwise convert them
+	for(const auto & bonus : bl)
+		BonusMigration::migrateCombatAbility(*bonus);
 }
 
 int CCreatureHandler::stringToNumber(std::string & s) const

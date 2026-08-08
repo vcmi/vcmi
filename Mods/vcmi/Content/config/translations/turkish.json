@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Mızrak Dövüşü Bağışıklığı}\nBu birim mızrak dövüşünden ekstra hasar almaz.",
 	"core.bonus.CPU_CONTROLLED.description": "{Otomatik Olarak Kontrol Edilen}\nBu ünite oyuncu tarafından manuel kontrol edilemez.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Hasar sınırı}\nTek bir saldırı, maksimum sağlığın ${val}%'inden fazla hasar veremez.",
-	"core.bonus.DEATH_STARE.description": "{Ölüm Bakışı}\nBir canlıyı anında öldürme şansı %${val}.",
+	"core.combatScript.deathStare.description": "{Ölüm Bakışı}\nBir canlıyı anında öldürme şansı %${val}.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Savunma Duruşu}\nSavunma yaptıktan sonra, bu birim +${val} Savunma kazanır.",
 	"core.combatScript.destruction.description": "{Yıkım}\nSaldırıdan sonra ek yaratıkları öldürme şansı %${val}.",
 	"core.bonus.DISINTEGRATE.description": "{Parçalanma}\nBu birim öldüğünde, geride ceset bırakmaz.",

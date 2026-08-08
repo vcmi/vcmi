@@ -1183,7 +1183,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, target.unit, attacker, payload);
 
 	if(defender)
-		handleAfterAttackCasting(battle, ranged, attacker, defender);
+		handleAfterAttackCasting(battle, attacker, defender, payload);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
@@ -1306,81 +1306,15 @@ void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback 
 	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACKED, defender, attacker);
 }
 
-void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
-{
-	// mechanics of Death Stare as in H3:
-	// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
-	//original formula x = min(x, (gorgons_count + 9)/10);
-
-	/* mechanics of Accurate Shot as in HotA:
-		* each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
-		* but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
-		* X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
-		*/
-
-	auto subtype = BonusCustomSubtype::deathStareGorgon;
-
-	if (ranged)
-	{
-		bool rangePenalty = battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition());
-		bool obstaclePenalty = battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition());
-
-		if(rangePenalty)
-		{
-			if(obstaclePenalty)
-				subtype = BonusCustomSubtype::deathStareRangeObstaclePenalty;
-			else
-				subtype = BonusCustomSubtype::deathStareRangePenalty;
-		}
-		else
-		{
-			if(obstaclePenalty)
-				subtype = BonusCustomSubtype::deathStareObstaclePenalty;
-			else
-				subtype = BonusCustomSubtype::deathStareNoRangePenalty;
-		}
-	}
-
-	int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, subtype);
-	double chanceToKill = singleCreatureKillChancePercent / 100.0;
-	vstd::amin(chanceToKill, 1); //cap at 100%
-	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
-
-	int maxToKill = vstd::divideAndCeil(attacker->getCount() * singleCreatureKillChancePercent, 100);
-	vstd::amin(killedCreatures, maxToKill);
-
-	killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
-
-	if(killedCreatures)
-	{
-		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
-		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
-		if(bonus && bonus->parameters && bonus->parameters->toSpell() != SpellID::NONE)
-			spellID = bonus->parameters->toSpell();
-
-		const CSpell * spell = spellID.toSpell();
-		spells::AbilityCaster caster(attacker, 0);
-
-		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-		spells::Target target;
-		target.emplace_back(defender);
-		parameters.setEffectValue(killedCreatures);
-		parameters.cast(gameHandler->spellcastEnvironment(), target);
-	}
-}
-
-void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)
 {
 	if(!attacker->alive()) // can be already dead, e.g. from retaliation
 		return;
 
 	if(defender->alive())
-		attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
+		attackCasting(battle, payload.ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
 
-	if(defender->alive() && attacker->hasBonusOfType(BonusType::DEATH_STARE))
-		handleDeathStare(battle, ranged, attacker, defender);
-
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender, payload);
 }
 
 void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const

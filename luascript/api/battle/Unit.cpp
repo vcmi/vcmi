@@ -12,6 +12,7 @@
 
 #include "Unit.h"
 
+#include "../../../lib/CStack.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/CUnitState.h"
 #include "../library/BonusBearerBindings.h"
@@ -97,6 +98,9 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns a copy of the unit's state allowing copying or changing this unit via server calls.");
 	R.method<&Unit::creatureLevel>("creatureLevel", {},
 		"Returns the creature level (1..7) of the unit's type.");
+	R.function<&UnitProxy::getLevel>("getLevel", {},
+		"Returns the level of the stack itself, which for a commander is its own level rather than "
+		"the tier of its creature. Use `creatureLevel` when the creature type is what matters.");
 	R.method<&IUnitInfo::unitId, Unit>("unitID", {},
 		"DEPRECATED. Returns the unit's internal numeric identifier.");
 }
@@ -119,6 +123,13 @@ BattleHexArray UnitProxy::getSurroundingHexes(const Unit & unit)
 bool UnitProxy::hasAbsoluteImmunity(const Unit & unit, const spells::Spell & spell)
 {
 	return unit.hasAbsoluteImmunity(spell.getId());
+}
+
+int UnitProxy::getLevel(const Unit & unit)
+{
+	// only a real stack knows whether it stands for a commander, whose own level is not its tier
+	const auto * stack = dynamic_cast<const CStack *>(&unit);
+	return stack ? static_cast<int>(stack->level()) : unit.creatureLevel();
 }
 
 LuaUnitState UnitProxy::copy(const Unit & unit)

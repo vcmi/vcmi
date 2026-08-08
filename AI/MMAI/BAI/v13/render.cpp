@@ -908,7 +908,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::DOUBLE_DAMAGE_CHANCE), "HEX.STACK_FLAGS1.DOUBLE_DAMAGE_CHANCE");
 								break;
 							case SF1::DEATH_STARE:
-								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::DEATH_STARE), "HEX.STACK_FLAGS1.DEATH_STARE");
+								ensureValueMatch(vf, hasCombatScript(cstack, "deathStare"), "HEX.STACK_FLAGS1.DEATH_STARE");
 								break;
 							default:
 								THROW_FORMAT("Unexpected StackFlag: %d", EI(f));

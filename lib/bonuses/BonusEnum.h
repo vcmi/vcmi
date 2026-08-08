@@ -117,7 +117,7 @@ class JsonNode;
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
 	BONUS_NAME(SHOTS)\
-	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
+	BONUS_NAME(DEATH_STARE) /*DEPRECATED, converted to the deathStare combat script on load*/\
 	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
 	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\

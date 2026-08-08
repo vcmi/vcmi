@@ -13,7 +13,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Bộ binh}\nKháng lại kỹ năng đặc biệt của Cavalier và Champion.",
 	"core.bonus.CPU_CONTROLLED.description": "{Tự động đánh}\nKhông thể điều khiển hành động của đơn vị này bằng tay.",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Giới hạn sát thương}\nKhông thể gây sát thương vượt quá ${val}% máu tối đa của đạo quân này.",
-	"core.bonus.DEATH_STARE.description": "{Ánh mắt tử thần}\nCó ${val}% cơ hội giết chết kẻ địch.",
+	"core.combatScript.deathStare.description": "{Ánh mắt tử thần}\nCó ${val}% cơ hội giết chết kẻ địch.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Thưởng phòng thủ}\n+${val} phòng thủ khi đang ở thế thủ.",
 	"core.combatScript.destruction.description": "{Đòn tận diệt}\nCó ${val}% cơ hội giết thêm kẻ địch sau khi đánh.",
 	"core.bonus.DISINTEGRATE.description": "{Hủy xác}\nXác chết biến mất khỏi chiến trường.",

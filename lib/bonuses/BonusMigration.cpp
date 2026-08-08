@@ -46,7 +46,34 @@ const std::map<std::string, std::string> retiredAbilities = {
 	{ "ENCHANTED",        "enchanted" },
 	{ "FIRE_SHIELD",      "fireShield" },
 	{ "DESTRUCTION",      "destruction" },
+	{ "DEATH_STARE",      "deathStare" },
 };
+
+/// Situation each of the old death stare subtypes stood for.
+const std::map<std::string, std::string> deathStareSituations = {
+	{ "deathStareGorgon",              "melee" },
+	{ "deathStareCommander",           "commander" },
+	{ "deathStareNoRangePenalty",      "ranged" },
+	{ "deathStareRangePenalty",        "rangedDistancePenalty" },
+	{ "deathStareObstaclePenalty",     "rangedWallPenalty" },
+	{ "deathStareRangeObstaclePenalty","rangedDistanceAndWallPenalty" },
+};
+
+std::string deathStareSituation(const std::string & subtype)
+{
+	auto situation = deathStareSituations.find(subtype);
+	return situation == deathStareSituations.end() ? "melee" : situation->second;
+}
+
+std::string deathStareSituation(const BonusSubtypeID & subtype)
+{
+	if(subtype == BonusCustomSubtype::deathStareCommander)           return "commander";
+	if(subtype == BonusCustomSubtype::deathStareNoRangePenalty)      return "ranged";
+	if(subtype == BonusCustomSubtype::deathStareRangePenalty)        return "rangedDistancePenalty";
+	if(subtype == BonusCustomSubtype::deathStareObstaclePenalty)     return "rangedWallPenalty";
+	if(subtype == BonusCustomSubtype::deathStareRangeObstaclePenalty)return "rangedDistanceAndWallPenalty";
+	return "melee";
+}
 
 /// Retired abilities that have no conversion, and what to declare instead.
 const std::map<std::string, std::string> retiredWithoutMigration = {
@@ -105,6 +132,13 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 		// the old addInfo accepted both a bare number and a single-element array
 		const JsonNode & amount = ability["addInfo"].isVector() ? ability["addInfo"][0] : ability["addInfo"];
 		parameters["amount"].Integer() = amount.Integer();
+	}
+	else if(script == "deathStare")
+	{
+		parameters["situation"].String() = deathStareSituation(withoutScope(ability["subtype"].String()));
+		// without an override the script casts death stare itself
+		if(!ability["addInfo"].isNull())
+			parameters["spell"] = ability["addInfo"];
 	}
 	else if(script == "enchanted")
 	{
@@ -176,6 +210,13 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 				parameters["amount"].Integer() = bonus.parameters->toNumber();
 			break;
 
+		case BonusType::DEATH_STARE:
+			script = resolveScript("deathStare");
+			parameters["situation"].String() = deathStareSituation(bonus.subtype);
+			if(bonus.parameters && bonus.parameters->toSpell() != SpellID::NONE)
+				parameters["spell"].String() = jsonKeyOf(bonus.parameters->toSpell().toEntity(LIBRARY));
+			break;
+
 		case BonusType::ENCHANTED:
 			script = resolveScript("enchanted");
 			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
@@ -187,6 +228,10 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 		default:
 			return false;
 	}
+
+	// the script is registered by whichever mod provides it, which may not be loaded yet
+	if(script == CombatScriptID::NONE)
+		return false;
 
 	bonus.type = BonusType::COMBAT_EVENT_TRIGGER;
 	bonus.subtype = BonusSubtypeID(script);
