@@ -47,6 +47,10 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Window * mainWindow = nullptr;
 	SDL_Texture * screenTexture = nullptr;
 
+	/// Render target every window draws into while the GPU path is active. Replaces
+	/// uploading `screen` each frame; `screen` stays allocated for screenshots and sizing.
+	SDL_Texture * screenTarget = nullptr;
+
 	/// Render targets composited under screenTexture, in GpuRenderLayer order
 	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
 
@@ -64,6 +68,10 @@ class ScreenHandler final : public IScreenHandler
 
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
 	ColorScheme colorScheme = ColorScheme::NONE;
+
+	/// False when the driver rasterizes on the CPU, where routing draws through render
+	/// targets is slower than blitting surfaces
+	bool gpuRenderingSupported = false;
 
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;

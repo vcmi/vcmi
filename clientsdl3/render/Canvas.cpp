@@ -206,8 +206,27 @@ Canvas::~Canvas()
 		destroyTextureDeferred(renderTarget);
 }
 
+void Canvas::drawViaScratchSurface(const Point & pos, const Point & size, const std::function<void(SDL_Surface *)> & render)
+{
+	if(size.x <= 0 || size.y <= 0)
+		return;
+
+	Canvas scratch(size, scalingPolicy);
+	render(scratch.surface);
+
+	// copyFromCanvas uploads a surface-backed source for us
+	copyFromCanvas(scratch, Rect(transformPos(pos), scratch.renderArea.dimensions()), SDL_BLENDMODE_BLEND, SDL_ALPHA_OPAQUE);
+}
+
 void Canvas::draw(IVideoInstance & video, const Point & pos)
 {
+	if(renderTarget)
+	{
+		// the video decodes into a surface, which a render target cannot accept
+		drawViaScratchSurface(pos, video.size(), [&video](SDL_Surface * target){ video.show(Point(0, 0), target); });
+		return;
+	}
+
 	video.show(pos, surface);
 }
 
@@ -217,7 +236,7 @@ void Canvas::draw(const IImage& image, const Point & pos)
 	{
 		bindRenderTarget();
 		if(!image.drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
-			logGpuIssueOnce("image reference has no texture representation");
+			drawViaScratchSurface(pos, image.dimensions(), [&](SDL_Surface * target){ image.draw(target, Point(0, 0), nullptr, getScalingFactor()); });
 		return;
 	}
 
@@ -234,7 +253,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 	{
 		bindRenderTarget();
 		if(!image->drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
-			logGpuIssueOnce("image has no texture representation");
+			drawViaScratchSurface(pos, image->dimensions(), [&](SDL_Surface * target){ image->draw(target, Point(0, 0), nullptr, getScalingFactor()); });
 		return;
 	}
 
@@ -252,7 +271,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const
 	{
 		bindRenderTarget();
 		if(!image->drawTexture(mainRenderer, transformPos(pos), &realSourceRect, getScalingFactor()))
-			logGpuIssueOnce("image has no texture representation (subrect)");
+			drawViaScratchSurface(pos, sourceRect.dimensions(), [&](SDL_Surface * target){ image->draw(target, Point(0, 0), &realSourceRect, getScalingFactor()); });
 		return;
 	}
 
@@ -551,14 +570,65 @@ ColorRGBA Canvas::getPixel(const Point & position) const
 	return ColorRGBA(color.r, color.g, color.b, color.a);
 }
 
+/// Rect::intersect reports "no overlap at all" as a negative rect, which SDL reads as a request
+/// to stop clipping - clamp it, so a widget scrolled out of its viewport draws nothing.
+static SDL_Rect toClipRect(const Rect & rect)
+{
+	SDL_Rect result = CSDL_Ext::toSDL(rect);
+
+	result.w = std::max(0, result.w);
+	result.h = std::max(0, result.h);
+
+	return result;
+}
+
 CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
 {
-	CSDL_Ext::getClipRect(surf, oldRect);
 	const Rect scaled = rect * ENGINE->screenHandler().getScalingFactor();
+
+	if(canvas.isRenderTarget())
+	{
+		// Clipping is renderer state and survives a target switch, so the destructor has to rebind
+		// the canvas before undoing the clip.
+		onRenderTarget = true;
+		guarded = &canvas;
+		canvas.bindRenderTarget();
+
+		// An active clip may well be empty, so only SDL_RenderClipEnabled separates it from having
+		// none - going by the rectangle would discard the clip this guard is nested in
+		SDL_Rect previous{};
+		hadClipRect = SDL_RenderClipEnabled(mainRenderer) && SDL_GetRenderClipRect(mainRenderer, &previous);
+
+		// the clip is in target pixels, so it has to carry the canvas' own offset
+		const Rect area = Rect(scaled.topLeft() + canvas.renderArea.topLeft(), scaled.dimensions()).intersect(canvas.renderArea);
+		oldRect = hadClipRect ? CSDL_Ext::fromSDL(previous) : area;
+
+		SDL_Rect clip = toClipRect(hadClipRect ? oldRect.intersect(area) : area);
+		SDL_SetRenderClipRect(mainRenderer, &clip);
+		return;
+	}
+
+	CSDL_Ext::getClipRect(surf, oldRect);
 	CSDL_Ext::setClipRect(surf, oldRect.intersect(scaled));
 }
 
 CanvasClipRectGuard::~CanvasClipRectGuard()
 {
+	if(onRenderTarget)
+	{
+		// the clip belongs to whichever target is bound, so restore it on ours
+		if(guarded)
+			guarded->bindRenderTarget();
+
+		if(hadClipRect)
+		{
+			SDL_Rect restored = toClipRect(oldRect);
+			SDL_SetRenderClipRect(mainRenderer, &restored);
+		}
+		else
+			SDL_SetRenderClipRect(mainRenderer, nullptr);
+		return;
+	}
+
 	CSDL_Ext::setClipRect(surf, oldRect);
 }

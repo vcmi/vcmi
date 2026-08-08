@@ -33,6 +33,9 @@ CIntObject::CIntObject(int used_, Point pos_):
 
 CIntObject::~CIntObject()
 {
+	// a deferred repaint must never outlive its object
+	ENGINE->windows().cancelRedraw(this);
+
 	if(isActive())
 		deactivate();
 
@@ -243,6 +246,14 @@ void CIntObject::redraw()
 		}
 		else
 		{
+			// On the GPU path only the rendering thread may draw, but redraw() is reachable from the
+			// network thread - ask for the repaint instead of performing it.
+			if(ENGINE->screenHandler().isGpuRenderingEnabled() && !ENGINE->amIGuiThread())
+			{
+				ENGINE->windows().requestRedraw(this);
+				return;
+			}
+
 			Canvas buffer = ENGINE->screenHandler().getScreenCanvas();
 			showAll(buffer);
 		}

@@ -10,6 +10,7 @@
 #pragma once
 
 class IShowActivatable;
+class CIntObject;
 
 class WindowHandler
 {
@@ -25,6 +26,15 @@ class WindowHandler
 
 	bool totalRedrawRequested = false;
 
+	/// Objects whose redraw() arrived from a thread that may not draw, repainted at the start of
+	/// the next frame. No extra drawing - the software path would have redrawn them right away.
+	std::mutex pendingRedrawMutex;
+	std::vector<CIntObject *> pendingRedraws;
+
+	/// Whether pendingRedraws holds anything, so that the common case - every widget
+	/// destruction cancels a repaint that was never requested - stays lock-free
+	std::atomic<bool> hasPendingRedraws{false};
+
 	/// returns top windows
 	std::shared_ptr<IShowActivatable> topWindowImpl() const;
 
@@ -37,6 +47,16 @@ class WindowHandler
 public:
 	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void totalRedraw();
+
+	/// Defers one object's repaint to the next frame. Safe to call from any thread;
+	/// nothing is drawn here.
+	void requestRedraw(CIntObject * object);
+
+	/// Drops a pending repaint, so that a destroyed object is never drawn
+	void cancelRedraw(CIntObject * object);
+
+	/// Repaints everything deferred by requestRedraw(). Runs on the rendering thread.
+	void processPendingRedraws();
 
 	/// update only top windows and draw background from buffer, sets a flag, method gets called at the end of the rendering
 	void simpleRedraw();

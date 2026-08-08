@@ -61,6 +61,10 @@ class Canvas
 	/// kept untyped so that this header does not have to pull in SDL
 	void copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha);
 
+	/// Fallback for content that has no texture of its own: renders it into a scratch
+	/// surface through the software path, then uploads that onto this canvas' target
+	void drawViaScratchSurface(const Point & pos, const Point & size, const std::function<void(SDL_Surface *)> & render);
+
 	/// copy constructor
 	Canvas(const Canvas & other);
 
@@ -159,6 +163,14 @@ class CanvasClipRectGuard : boost::noncopyable
 {
 	SDL_Surface * surf;
 	Rect oldRect;
+
+	/// Set when the guarded canvas draws on the GPU, where clipping is renderer state
+	/// rather than a property of the target
+	bool onRenderTarget = false;
+	bool hadClipRect = false;
+
+	/// The guarded canvas, so its target can be rebound before the clip is restored
+	const Canvas * guarded = nullptr;
 
 public:
 	CanvasClipRectGuard(Canvas & canvas, const Rect & rect);

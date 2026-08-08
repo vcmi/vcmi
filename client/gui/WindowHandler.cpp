@@ -102,6 +102,45 @@ void WindowHandler::totalRedraw()
 	totalRedrawRequested = true;
 }
 
+void WindowHandler::requestRedraw(CIntObject * object)
+{
+	std::lock_guard lock(pendingRedrawMutex);
+
+	if(!vstd::contains(pendingRedraws, object))
+		pendingRedraws.push_back(object);
+
+	hasPendingRedraws = true;
+}
+
+void WindowHandler::cancelRedraw(CIntObject * object)
+{
+	if(!hasPendingRedraws)
+		return;
+
+	std::lock_guard lock(pendingRedrawMutex);
+	vstd::erase(pendingRedraws, object);
+	hasPendingRedraws = !pendingRedraws.empty();
+}
+
+void WindowHandler::processPendingRedraws()
+{
+	std::vector<CIntObject *> pending;
+
+	{
+		std::lock_guard lock(pendingRedrawMutex);
+		pending.swap(pendingRedraws);
+		hasPendingRedraws = false;
+	}
+
+	if(pending.empty())
+		return;
+
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
+
+	for(CIntObject * object : pending)
+		object->showAll(target);
+}
+
 void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
@@ -117,6 +156,8 @@ void WindowHandler::totalRedrawImpl()
 
 void WindowHandler::simpleRedraw()
 {
+	processPendingRedraws();
+
 	if (totalRedrawRequested)
 		totalRedrawImpl();
 	else
