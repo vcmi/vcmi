@@ -132,6 +132,9 @@ public:
 	/// Returns true if this image is still loading and can't be used
 	virtual bool isLoading() const = 0;
 
+	/// Estimated memory footprint, for cache accounting
+	virtual size_t bytesUsed() const = 0;
+
 	/// When disabled upscaling needs to be done in sync (e.g. because there is no 1x base image)
 	virtual void setAsyncUpscale(bool on) = 0;
 	virtual bool getAsyncUpscale() const = 0;

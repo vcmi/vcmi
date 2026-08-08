@@ -301,6 +301,7 @@ set(vcmiclientcommon_HEADERS
 	render/Colors.h
 	render/EFont.h
 	render/Graphics.h
+	render/ICacheableAsset.h
 	render/ICursor.h
 	render/IFont.h
 	render/IImageLoader.h

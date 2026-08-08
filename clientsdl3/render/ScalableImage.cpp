@@ -354,6 +354,32 @@ bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & des
 		});
 }
 
+size_t ScalableImageShared::bytesUsed() const
+{
+	// an image that cannot be flipped hands out itself for every flip, so the same instance
+	// can sit in several slots - count it once
+	std::set<const ISharedImage *> counted;
+	size_t result = sizeof(ScalableImageShared);
+
+	const auto & account = [&counted, &result](const ImageType & image)
+	{
+		if(image && counted.insert(image.get()).second)
+			result += image->bytesUsed();
+	};
+
+	for(const auto & variant : scaled)
+	{
+		for(const auto & group : {variant.shadow, variant.body, variant.overlay, variant.bodyGrayscale})
+			for(const auto & image : group)
+				account(image);
+
+		for(const auto & image : variant.playerColored)
+			account(image);
+	}
+
+	return result;
+}
+
 const SDL_Palette * ScalableImageShared::getPalette() const
 {
 	return scaled[1].body[0]->getPalette();

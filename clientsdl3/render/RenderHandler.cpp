@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "RenderHandler.h"
 
+#include <SDL3/SDL_cpuinfo.h>
+
 #include "SDLImage.h"
 #include "ScalableImage.h"
 #include "FontChain.h"
@@ -49,6 +51,17 @@
 
 std::atomic<uint32_t> RenderHandler::placeholderDraws{0};
 
+
+/// Cache budget in bytes: the configured size in MiB, or a sixteenth of system RAM
+static size_t assetCacheBudget()
+{
+	if(int configured = settings["video"]["assetCacheSize"].Integer(); configured > 0)
+		return static_cast<size_t>(configured) * 1024 * 1024;
+
+	const size_t systemBytes = static_cast<size_t>(SDL_GetSystemRAM()) * 1024 * 1024;
+	return std::clamp<size_t>(systemBytes / 16, 64u * 1024 * 1024, 512u * 1024 * 1024);
+}
+
 void RenderHandler::notifyPlaceholderDrawn()
 {
 	++placeholderDraws;
@@ -62,6 +75,11 @@ uint32_t RenderHandler::getPlaceholderDrawCount() const
 RenderHandler::RenderHandler()
 	:assetGenerator(std::make_unique<AssetGenerator>())
 {
+	const size_t budget = assetCacheBudget();
+
+	retainedAssets.setBudget(budget);
+
+	logGlobal->info("Asset cache budget: %d MiB", static_cast<int>(budget / 1024 / 1024));
 }
 
 RenderHandler::~RenderHandler() = default;
@@ -78,7 +96,10 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 		{
 			auto locked = it->second.lock();
 			if (locked)
+			{
+				retainedAssets.store(actualPath, locked);
 				return locked;
+			}
 		}
 	}
 
@@ -97,6 +118,8 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 
 		animationFiles[actualPath] = result;
 	}
+
+	retainedAssets.store(actualPath, result);
 	
 	return result;
 }
@@ -249,7 +272,10 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 	{
 		auto locked = it->second.lock();
 		if (locked)
+		{
+			retainedAssets.store(locator, locked);
 			return locked;
+		}
 	}
 
 	auto sdlImage = loadImageFromFileUncached(locator);
@@ -314,6 +340,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image)
 {
 	imageFiles[locator] = image;
+	retainedAssets.store(locator, image);
 }
 
 std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocator & locator)
