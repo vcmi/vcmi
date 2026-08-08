@@ -60,8 +60,8 @@ public:
 	static void refreshBattleUnits(ServerCallback & object, const IBattleInfoCallback & battle);
 	static void showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency);
 	static void castSpell(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & caster, const spells::Spell & spell, const std::vector<const battle::Unit *> & target, int64_t effectValue);
-	static int rngInt(lua_State * L); // args: low, high; returns: int in [low, high]
-	static int rngBinomial(lua_State * L); // args: trials, chance; returns: successes in [0, trials]
+	static int rngInt(ServerCallback & object, int low, int high);
+	static int rngBinomial(ServerCallback & object, int trials, double chance);
 	static int healUnit(lua_State * L);
 	static int changeUnit(lua_State * L); // args: battle, unitState, [healthDelta=0]
 	static int damageUnit(lua_State * L); // args: battle, unit, damageAmount; returns: actualDamage, killedAmount

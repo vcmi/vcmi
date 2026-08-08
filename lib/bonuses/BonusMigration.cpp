@@ -65,14 +65,18 @@ std::string deathStareSituation(const std::string & subtype)
 	return situation == deathStareSituations.end() ? "melee" : situation->second;
 }
 
+/// Saved bonuses hold the numeric subtype the retired ability used, which no longer has a name.
 std::string deathStareSituation(const BonusSubtypeID & subtype)
 {
-	if(subtype == BonusCustomSubtype::deathStareCommander)           return "commander";
-	if(subtype == BonusCustomSubtype::deathStareNoRangePenalty)      return "ranged";
-	if(subtype == BonusCustomSubtype::deathStareRangePenalty)        return "rangedDistancePenalty";
-	if(subtype == BonusCustomSubtype::deathStareObstaclePenalty)     return "rangedWallPenalty";
-	if(subtype == BonusCustomSubtype::deathStareRangeObstaclePenalty)return "rangedDistanceAndWallPenalty";
-	return "melee";
+	switch(subtype.getNum())
+	{
+		case 1:  return "commander";
+		case 2:  return "ranged";
+		case 3:  return "rangedDistancePenalty";
+		case 4:  return "rangedWallPenalty";
+		case 5:  return "rangedDistanceAndWallPenalty";
+		default: return "melee";
+	}
 }
 
 /// Retired abilities that have no conversion, and what to declare instead.
@@ -178,46 +182,46 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 
 	switch(bonus.type)
 	{
-		case BonusType::LIFE_DRAIN:
+		case BonusType::UNUSED_LIFE_DRAIN:
 			script = resolveScript("lifeDrain");
 			break;
 
-		case BonusType::SOUL_STEAL:
+		case BonusType::UNUSED_SOUL_STEAL:
 			script = resolveScript("soulSteal");
-			parameters["permanent"].Bool() = bonus.subtype != BonusCustomSubtype::soulStealBattle;
+			parameters["permanent"].Bool() = bonus.subtype.getNum() != 1; // 1 was soulStealBattle
 			break;
 
-		case BonusType::TRANSMUTATION:
+		case BonusType::UNUSED_TRANSMUTATION:
 			script = resolveScript("transmutation");
-			parameters["transmuteBy"].String() = bonus.subtype == BonusCustomSubtype::transmutationPerHealth ? "health" : "count";
+			parameters["transmuteBy"].String() = bonus.subtype.getNum() == 0 ? "health" : "count"; // 0 was transmutationPerHealth
 			if(bonus.parameters)
 				parameters["creature"].String() = jsonKeyOf(bonus.parameters->toCreature().toEntity(LIBRARY));
 			break;
 
-		case BonusType::SUMMON_GUARDIANS:
+		case BonusType::UNUSED_SUMMON_GUARDIANS:
 			script = resolveScript("summonGuardians");
 			parameters["creature"].String() = jsonKeyOf(bonus.subtype.as<CreatureID>().toEntity(LIBRARY));
 			break;
 
-		case BonusType::FIRE_SHIELD:
+		case BonusType::UNUSED_FIRE_SHIELD:
 			script = resolveScript("fireShield");
 			break;
 
-		case BonusType::DESTRUCTION:
+		case BonusType::UNUSED_DESTRUCTION:
 			script = resolveScript("destruction");
-			parameters["killBy"].String() = bonus.subtype == BonusCustomSubtype::destructionKillPercentage ? "percentage" : "count";
+			parameters["killBy"].String() = bonus.subtype.getNum() == 0 ? "percentage" : "count"; // 0 was destructionKillPercentage
 			if(bonus.parameters)
 				parameters["amount"].Integer() = bonus.parameters->toNumber();
 			break;
 
-		case BonusType::DEATH_STARE:
+		case BonusType::UNUSED_DEATH_STARE:
 			script = resolveScript("deathStare");
 			parameters["situation"].String() = deathStareSituation(bonus.subtype);
 			if(bonus.parameters && bonus.parameters->toSpell() != SpellID::NONE)
 				parameters["spell"].String() = jsonKeyOf(bonus.parameters->toSpell().toEntity(LIBRARY));
 			break;
 
-		case BonusType::ENCHANTED:
+		case BonusType::UNUSED_ENCHANTED:
 			script = resolveScript("enchanted");
 			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
 			parameters["level"].Integer() = enchantedLevel(bonus.val);

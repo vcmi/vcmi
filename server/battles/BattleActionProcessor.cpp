@@ -1503,12 +1503,22 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 
 	// scripts subscribe to every event and no-op on those they do not implement, so the subtype -
 	// which script to run - is not part of the selector here
+	std::vector<std::shared_ptr<Bonus>> triggered;
 	for (const auto & bonus : *target->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+		if (LIBRARY->combatScripts()->get(bonus->subtype.as<CombatScriptID>()))
+			triggered.push_back(bonus); // anything else is a script whose mod is gone
+
+	// bonus order is alphabetical by ability name, which would let a mod decide what runs first by
+	// renaming an ability. Scripts that care about running before another declare a priority
+	std::stable_sort(triggered.begin(), triggered.end(), [](const std::shared_ptr<Bonus> & left, const std::shared_ptr<Bonus> & right)
+	{
+		return LIBRARY->combatScripts()->getPriority(left->subtype.as<CombatScriptID>())
+			 < LIBRARY->combatScripts()->getPriority(right->subtype.as<CombatScriptID>());
+	});
+
+	for (const auto & bonus : triggered)
 	{
 		auto script = LIBRARY->combatScripts()->get(bonus->subtype.as<CombatScriptID>());
-
-		if (!script)
-			continue; // mod providing the script is gone
 
 		JsonNode parameters;
 		if (bonus->parameters)

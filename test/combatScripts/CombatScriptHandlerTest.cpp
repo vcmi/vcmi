@@ -36,6 +36,25 @@ TEST(CombatScriptHandlerTest, UnsetScriptIsNull)
 {
 	EXPECT_EQ(nullptr, LIBRARY->combatScripts()->get(CombatScriptID::NONE));
 	EXPECT_EQ("", LIBRARY->combatScripts()->getDescriptionTextID(CombatScriptID::NONE));
+	EXPECT_EQ(0, LIBRARY->combatScripts()->getPriority(CombatScriptID::NONE));
+}
+
+/// Scripts sharing an event run in priority order, and death stare has to reach the victim before
+/// transmutation replaces it with a different creature.
+TEST(CombatScriptHandlerTest, PriorityOrdersScriptsOnTheSameEvent)
+{
+	const auto priorityOf = [](const std::string & name)
+	{
+		auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", name, false);
+		EXPECT_TRUE(index.has_value()) << name;
+		return index.has_value() ? LIBRARY->combatScripts()->getPriority(CombatScriptID(*index)) : 0;
+	};
+
+	EXPECT_LT(priorityOf("deathStare"), priorityOf("transmutation"));
+	EXPECT_LT(priorityOf("transmutation"), priorityOf("destruction"));
+
+	// a script that does not care keeps the default, which is what most of them do
+	EXPECT_EQ(0, priorityOf("lifeDrain"));
 }
 
 }

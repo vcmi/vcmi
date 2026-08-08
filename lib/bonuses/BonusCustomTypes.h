@@ -43,12 +43,6 @@ public:
 	static const BonusCustomSubtype heroMovementLand; // 1
 	static const BonusCustomSubtype heroMovementSea; // 0
 
-	static const BonusCustomSubtype deathStareGorgon; // 0
-	static const BonusCustomSubtype deathStareCommander;
-	static const BonusCustomSubtype deathStareNoRangePenalty;
-	static const BonusCustomSubtype deathStareRangePenalty;
-	static const BonusCustomSubtype deathStareObstaclePenalty;
-	static const BonusCustomSubtype deathStareRangeObstaclePenalty;
 
 	static const BonusCustomSubtype rebirthRegular; // 0
 	static const BonusCustomSubtype rebirthSpecial; // 1
@@ -60,14 +54,8 @@ public:
 	static const BonusCustomSubtype immunityBattleWide; // 0
 	static const BonusCustomSubtype immunityEnemyHero; // 1
 
-	static const BonusCustomSubtype transmutationPerHealth; // 0
-	static const BonusCustomSubtype transmutationPerUnit; // 1
 
-	static const BonusCustomSubtype destructionKillPercentage; // 0
-	static const BonusCustomSubtype destructionKillAmount; // 1
 
-	static const BonusCustomSubtype soulStealPermanent; // 0
-	static const BonusCustomSubtype soulStealBattle; // 1
 
 	static const BonusCustomSubtype movementFlying; // -1
 	static const BonusCustomSubtype movementTeleporting; // 1

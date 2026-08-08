@@ -130,7 +130,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::BONUS_DAMAGE_PERCENTAGE:
 		case BonusType::SPECIAL_UPGRADE:
 		case BonusType::HATE:
-		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
 		case BonusType::SKELETON_TRANSFORMER_TARGET:
 		case BonusType::DEITYOFFIRE:
@@ -161,7 +160,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELL_AFTER_ATTACK:
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPECIFIC_SPELL_POWER:
-		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
 		case BonusType::ADJACENT_SPELLCASTER:
 		case BonusType::NOT_ACTIVE:
@@ -191,10 +189,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::SOUL_STEAL:
-		case BonusType::TRANSMUTATION:
-		case BonusType::DESTRUCTION:
-		case BonusType::DEATH_STARE:
 		case BonusType::REBIRTH:
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL: // spell level
@@ -236,9 +230,8 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::IMPROVED_NECROMANCY:
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		case BonusType::DESTRUCTION:
 		case BonusType::LIMITED_SHOOTING_RANGE:
-		case BonusType::ACID_BREATH:
+		case BonusType::UNUSED_ACID_BREATH:
 		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
@@ -254,13 +247,8 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
-		case BonusType::TRANSMUTATION:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
-			break;
-		case BonusType::DEATH_STARE:
-			// 1 spell ID
-			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:

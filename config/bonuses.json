@@ -119,17 +119,11 @@
 		"blockDescriptionPropagation": true
 	},
 
-	"DEATH_STARE":
-	{
-	},
 
 	"DEFENSIVE_STANCE":
 	{
 	},
 
-	"DESTRUCTION":
-	{
-	},
 
 	"DOUBLE_DAMAGE_CHANCE":
 	{
@@ -143,9 +137,6 @@
 	{
 	},
 
-	"ENCHANTED":
-	{
-	},
 
 	"ENEMY_ATTACK_REDUCTION":
 	{
@@ -159,9 +150,6 @@
 	{
 	},
 
-	"FIRE_SHIELD":
-	{
-	},
 
 	"FIRST_STRIKE":
 	{
@@ -301,9 +289,6 @@
 	{
 	},
 
-	"LIFE_DRAIN":
-	{
-	},
 
 	"LIMITED_SHOOTING_RANGE":
 	{
@@ -489,9 +474,6 @@
 		"blockDescriptionPropagation": true
 	},
 	
-	"SOUL_STEAL":
-	{
-	},
 	
 	"SPELLCASTER":
 	{
@@ -537,9 +519,6 @@
 	{
 	},
 
-	"SUMMON_GUARDIANS":
-	{
-	},
 	
 	"SURRENDER_DISCOUNT":
 	{
@@ -562,9 +541,6 @@
 	{
 	},
 	
-	"TRANSMUTATION":
-	{
-	},
 
 	"TRANSMUTATION_IMMUNITY":
 	{
@@ -659,7 +635,6 @@
 	{
 	},
 
-	"ACID_BREATH" : {},
 	"ALWAYS_MINIMUM_DAMAGE" : {},
 	"ATTACKS_NEAREST_CREATURE" : {},
 	"BLOCK_ALL_MAGIC" : {},

@@ -134,18 +134,14 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 
 bool IBattleInfoCallbackProxy::isAccessibleForUnit(const IBattleInfoCallback & object, const battle::Unit & unit, BattleHex hex)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->getAccessibility(&unit).accessible(hex, &unit);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.getAccessibility(&unit).accessible(hex, &unit);
 }
 
 bool IBattleInfoCallbackProxy::isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->getAccessibility().accessible(hex, creature.isDoubleWide(), side);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side);
 }
 
 int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
@@ -155,34 +151,26 @@ int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
 
 bool IBattleInfoCallbackProxy::hasPenaltyOnLine(const IBattleInfoCallback & object, BattleHex from, BattleHex dest, bool checkWall, bool checkMoat)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->battleHasPenaltyOnLine(from, dest, checkWall, checkMoat);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasPenaltyOnLine(from, dest, checkWall, checkMoat);
 }
 
 bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->isMeleeAttackPossible(&attacker, &defender);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.isMeleeAttackPossible(&attacker, &defender);
 }
 
 bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->battleHasDistancePenalty(&shooter, shooter.getPosition(), target.getPosition());
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasDistancePenalty(&shooter, shooter.getPosition(), target.getPosition());
 }
 
 bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->battleHasWallPenalty(&shooter, shooter.getPosition(), target.getPosition());
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasWallPenalty(&shooter, shooter.getPosition(), target.getPosition());
 }
 
 int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)

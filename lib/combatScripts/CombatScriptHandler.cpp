@@ -41,6 +41,14 @@ std::string CombatScriptHandler::getJsonKey(CombatScriptID scriptID) const
 	return scriptTypes.at(scriptID.getNum()).scriptId;
 }
 
+int CombatScriptHandler::getPriority(CombatScriptID scriptID) const
+{
+	if(!scriptID.hasValue())
+		return 0;
+
+	return scriptTypes.at(scriptID.getNum()).priority;
+}
+
 void CombatScriptHandler::registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory)
 {
 	scriptTypeFactories[typeName] = factory;
@@ -59,6 +67,7 @@ void CombatScriptHandler::loadObject(std::string scope, std::string name, const 
 	newScript.type = data["type"].String();
 	newScript.scriptName = data["script"].String();
 	newScript.descriptionTextID = TextIdentifier(scope, "combatScript", name, "description").get();
+	newScript.priority = data["priority"].Integer();
 
 	LIBRARY->generaltexth->registerString(scope, newScript.descriptionTextID, data["description"]);
 

@@ -232,8 +232,8 @@ TEST_F(BonusMigrationTest, SavedEntityReferencesBecomeJsonKeys)
 	auto creature = LIBRARY->creatures()->getByName("core:woodElf");
 	ASSERT_NE(creature, nullptr);
 
-	Bonus guardians(BonusDuration::PERMANENT, BonusType::SUMMON_GUARDIANS, BonusSource::CREATURE_ABILITY, 50, BonusSourceID(), BonusSubtypeID(CreatureID(creature->getIndex())));
-	Bonus enchanted(BonusDuration::PERMANENT, BonusType::ENCHANTED, BonusSource::CREATURE_ABILITY, 5, BonusSourceID(), BonusSubtypeID(SpellID(SpellID::BLESS)));
+	Bonus guardians(BonusDuration::PERMANENT, BonusType::UNUSED_SUMMON_GUARDIANS, BonusSource::CREATURE_ABILITY, 50, BonusSourceID(), BonusSubtypeID(CreatureID(creature->getIndex())));
+	Bonus enchanted(BonusDuration::PERMANENT, BonusType::UNUSED_ENCHANTED, BonusSource::CREATURE_ABILITY, 5, BonusSourceID(), BonusSubtypeID(SpellID(SpellID::BLESS)));
 
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(guardians));
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(enchanted));
@@ -262,7 +262,8 @@ TEST_F(BonusMigrationTest, UnrelatedFieldsSurvive)
 }
 
 /// ACID_BREATH was retired without a conversion - it is replaced by a pair of bonuses, which the
-/// one-in-one-out migration cannot produce. Content declaring it is warned about instead.
+/// one-in-one-out migration cannot produce. Content declaring it is warned about instead, and the
+/// name no longer resolves, so it certainly does not turn into a script by accident.
 TEST_F(BonusMigrationTest, AcidBreathIsNotMigrated)
 {
 	JsonNode ability;
@@ -270,7 +271,7 @@ TEST_F(BonusMigrationTest, AcidBreathIsNotMigrated)
 	ability["val"].Integer() = 25;
 	ability["addInfo"].Integer() = 20;
 
-	EXPECT_EQ(parse(ability)->type, BonusType::ACID_BREATH);
+	EXPECT_NE(parse(ability)->type, BonusType::COMBAT_EVENT_TRIGGER);
 }
 
 TEST_F(BonusMigrationTest, OtherBonusesAreUntouched)
@@ -284,7 +285,7 @@ TEST_F(BonusMigrationTest, OtherBonusesAreUntouched)
 /// Saves store the resolved bonus, so the same conversion has to work without any json around.
 TEST_F(BonusMigrationTest, SavedBonusIsConverted)
 {
-	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SOUL_STEAL, BonusSource::CREATURE_ABILITY, 3, BonusSourceID(), BonusCustomSubtype::soulStealBattle);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNUSED_SOUL_STEAL, BonusSource::CREATURE_ABILITY, 3, BonusSourceID(), BonusCustomSubtype(1) /* was soulStealBattle */);
 
 	ASSERT_TRUE(BonusMigration::migrateCombatAbility(*bonus));
 

@@ -148,19 +148,19 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"damageDealt",  "Damage to apply to the wall section."}
 		}, {},
 		"Performs a catapult attack against the given wall section, dealing the supplied damage.");
-	R.cfunction<&ServerCallbackProxy::rngInt>("rngInt",
+	R.function<&ServerCallbackProxy::rngInt>("rngInt",
 		{
-			{"low",  "integer", "Inclusive lower bound."},
-			{"high", "integer", "Inclusive upper bound."}
+			{"low",  "Inclusive lower bound."},
+			{"high", "Inclusive upper bound."}
 		},
-		{"integer", "Random integer in [low, high]."},
+		{"Random integer in [low, high]."},
 		"Returns a server-side random integer in the inclusive range [low, high].");
-	R.cfunction<&ServerCallbackProxy::rngBinomial>("rngBinomial",
+	R.function<&ServerCallbackProxy::rngBinomial>("rngBinomial",
 		{
-			{"trials", "integer", "How many independent chances are rolled."},
-			{"chance", "number",  "Chance of each one succeeding, from 0 to 1."}
+			{"trials", "How many independent chances are rolled."},
+			{"chance", "Chance of each one succeeding, from 0 to 1."}
 		},
-		{"integer", "How many of them succeeded."},
+		{"How many of them succeeded."},
 		"Rolls the same chance many times over and returns how many succeeded. Use this rather "
 		"than a loop over `rngInt` for abilities that roll once per creature in a stack, which "
 		"can number in the thousands.");
@@ -410,42 +410,14 @@ void ServerCallbackProxy::catapultAttack(ServerCallback & object, const IBattleI
 	object.apply(ca);
 }
 
-int ServerCallbackProxy::rngInt(lua_State * L)
+int ServerCallbackProxy::rngInt(ServerCallback & object, int low, int high)
 {
-	LuaStack S(L);
-
-	ServerCallback * object = nullptr;
-	int low = 0;
-	int high = 0;
-
-	S.getNonNull(1, object);
-	S.get(2, low);
-	S.get(3, high);
-
-	int result = object->getRNG()->nextInt(low, high);
-
-	S.clear();
-	S.push(result);
-	return 1;
+	return object.getRNG()->nextInt(low, high);
 }
 
-int ServerCallbackProxy::rngBinomial(lua_State * L)
+int ServerCallbackProxy::rngBinomial(ServerCallback & object, int trials, double chance)
 {
-	LuaStack S(L);
-
-	ServerCallback * object = nullptr;
-	int trials = 0;
-	double chance = 0;
-
-	S.getNonNull(1, object);
-	S.get(2, trials);
-	S.get(3, chance);
-
-	int result = object->getRNG()->nextBinomialInt(trials, chance);
-
-	S.clear();
-	S.push(result);
-	return 1;
+	return object.getRNG()->nextBinomialInt(trials, chance);
 }
 
 void ServerCallbackProxy::moveUnit(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit, BattleHex destination, bool isTeleport)

@@ -44,5 +44,9 @@ public:
 	/// Scoped identifier of the script, e.g. "core:lifeDrain". Empty if no script is set.
 	virtual std::string getJsonKey(CombatScriptID scriptID) const = 0;
 
+	/// Order in which scripts reacting to the same event run, from lowest to highest. Zero when
+	/// the script declares none, which is what a script that does not care about ordering wants.
+	virtual int getPriority(CombatScriptID scriptID) const = 0;
+
 	virtual void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) = 0;
 };

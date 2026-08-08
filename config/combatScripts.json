@@ -2,6 +2,7 @@
 	"transmutation" : {
 		"type" : "lua",
 		"script" : "transmutation",
+		"priority" : 300,
 		"description" : "{Transmutation}\nHas a ${val}% chance to transform the attacked unit into another type."
 	},
 	"summonGuardians" : {
@@ -27,11 +28,13 @@
 	"deathStare" : {
 		"type" : "lua",
 		"script" : "deathStare",
+		"priority" : 100,
 		"description" : "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature."
 	},
 	"destruction" : {
 		"type" : "lua",
 		"script" : "destruction",
+		"priority" : 400,
 		"description" : "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking."
 	},
 	"soulSteal" : {

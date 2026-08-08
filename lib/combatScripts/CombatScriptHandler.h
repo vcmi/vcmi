@@ -21,6 +21,7 @@ struct CombatScriptType
 	std::string type;
 	std::string scriptName;
 	std::string descriptionTextID;
+	int priority = 0; ///< scripts reacting to the same event run from lowest to highest
 	std::vector<ICombatScriptFactory::PatchEntry> patches; ///< vector(modScope, sourcePath)
 };
 
@@ -32,6 +33,8 @@ public:
 	std::string getDescriptionTextID(CombatScriptID scriptID) const override;
 
 	std::string getJsonKey(CombatScriptID scriptID) const override;
+
+	int getPriority(CombatScriptID scriptID) const override;
 
 	void registerFactory(const std::string & typeName, std::shared_ptr<ICombatScriptFactory> factory) override;
 

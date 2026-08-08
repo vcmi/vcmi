@@ -427,6 +427,22 @@
 		},
 		{
 			"if" : {
+				// generated specialty bonuses reach validation without a type, and a missing
+				// property satisfies "properties" - so match only nodes that actually declare one
+				"required" : [ "type" ],
+				"properties" : {
+					"type" : { "enum" : [ "COMBAT_EVENT_TRIGGER" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					// parameters of the combat script, whose shape only that script knows
+					"addInfo" : { "type" : "object" }
+				}
+			}
+		},
+		{
+			"if" : {
 				"properties" : {
 					"type" : { "enum" : [ "ON_COMBAT_EVENT" ] }
 				}

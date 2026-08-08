@@ -25,6 +25,10 @@
 			"type" : "string",
 			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}"
 		},
+		"priority" : {
+			"type" : "number",
+			"description" : "order in which scripts reacting to the same combat event run, from lowest to highest. Defaults to 0"
+		},
 		"patches" : {
 			"type" : "array",
 			"items" : {

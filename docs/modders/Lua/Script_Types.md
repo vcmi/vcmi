@@ -222,6 +222,8 @@ Functions:
 
 #### Built-in scripts
 
+A script may declare a `priority` in its `combatScripts` entry. Scripts reacting to the same event run from lowest priority to highest; scripts that declare none keep the default of 0. Bonus order is otherwise alphabetical by ability name, which would let a mod decide what runs first by renaming an ability.
+
 - `transmutation` - replaces the attacked stack with a stack of another creature, as the WoG werewolf ability does. Parameters:
     - `val` - percentage chance to trigger on each attack
     - `creature` - creature the victim turns into. Defaults to the attacker's own creature

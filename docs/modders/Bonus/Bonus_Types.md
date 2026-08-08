@@ -98,6 +98,9 @@ anything that predefined bonus or spell actions can not express.
   effect parameters initialize a spell effect script. Read-only - a script that needs to remember
   something between events must store it itself, for example in a bonus of its own.
 
+Several scripts may react to the same event on the same unit. The order they run in is the
+`priority` declared by each script, not the order the bonuses appear in.
+
 Example:
 
 ```json
