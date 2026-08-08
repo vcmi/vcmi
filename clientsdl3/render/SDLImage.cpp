@@ -164,7 +164,7 @@ void SDLImageShared::dropTexture() const
 	// destroying the renderer already destroyed everything it owned, so a stale
 	// generation means the pointer must be dropped rather than freed
 	if(texture && textureGeneration == mainRendererGeneration)
-		SDL_DestroyTexture(texture);
+		destroyTextureDeferred(texture);
 
 	texture = nullptr;
 }

@@ -17,6 +17,16 @@ class Rect;
 
 class Canvas;
 
+/// GPU layers composited under the software screen, in draw order. Each is screen sized;
+/// a layer is transparent wherever its owner has not drawn.
+enum class GpuRenderLayer : uint8_t
+{
+	MAP,
+	BATTLE,
+
+	COUNT
+};
+
 class IScreenHandler
 {
 public:
@@ -66,11 +76,20 @@ public:
 	// New methods go below this line: inserting a virtual anywhere above shifts every
 	// later vtable slot, which silently misdispatches any translation unit not rebuilt.
 
-	/// True when the adventure map is drawn by the GPU instead of into the screen surface
-	virtual bool isGpuMapRenderingEnabled() const = 0;
+	/// True when GPU layers are available, i.e. the driver granted us render targets
+	virtual bool isGpuRenderingEnabled() const = 0;
 
-	/// Canvas drawing into the GPU map layer. Only valid while GPU map rendering is active.
-	virtual Canvas getMapLayerCanvas() const = 0;
+	/// Canvas drawing into one of the GPU layers. Only valid while GPU rendering is active.
+	/// Requesting it marks the layer as having content to composite.
+	virtual Canvas getLayerCanvas(GpuRenderLayer layer) = 0;
+
+	/// Gives a layer back once its owner is gone, so that its last frame stops showing
+	/// through. Safe to call from any thread; acted on at the start of the next frame.
+	virtual void releaseLayer(GpuRenderLayer layer) = 0;
+
+	/// Clears any layer released since the last frame. Must run before windows redraw, so
+	/// that an owner that is merely covered rather than gone can reclaim its layer.
+	virtual void clearReleasedLayers() = 0;
 
 	/// Offscreen canvas of the given logical size. Drawn by the GPU where this backend
 	/// supports it, into a plain surface otherwise. The canvas owns whatever backs it.

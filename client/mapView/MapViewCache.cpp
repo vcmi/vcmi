@@ -46,7 +46,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model, bool use
 std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size) const
 {
 	// a view drawn into the software screen cannot read from a GPU-backed cache
-	if(useGpuLayer && ENGINE->screenHandler().isGpuMapRenderingEnabled())
+	if(useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled())
 		return std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
 
 	return std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);

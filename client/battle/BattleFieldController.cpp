@@ -32,6 +32,7 @@
 #include "render/Canvas.h"
 #include "render/IImage.h"
 #include "render/IRenderHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
@@ -161,8 +162,6 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	pos.w = background->width();
 	pos.h = background->height();
-
-	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()), CanvasScalingPolicy::AUTO);
 
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
@@ -326,13 +325,53 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 	}
 }
 
+void BattleFieldController::deactivate()
+{
+	// Released on deactivation rather than in the destructor, which runs after the window is
+	// already gone. A window that is merely covered reclaims the layer on the next redraw.
+	ENGINE->screenHandler().releaseLayer(GpuRenderLayer::BATTLE);
+	CIntObject::deactivate();
+}
+
+bool BattleFieldController::usesGpuLayer() const
+{
+	return ENGINE->screenHandler().isGpuRenderingEnabled();
+}
+
+void BattleFieldController::ensureBackgroundCanvas()
+{
+	if(backgroundWithHexes)
+		return;
+
+	const Point size(background->width(), background->height());
+
+	// the backend decides whether this is a render target or a plain surface
+	if(usesGpuLayer())
+		backgroundWithHexes = std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
+	else
+		backgroundWithHexes = std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
+}
+
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
+	if(backgroundNeedsRebuild)
+		rebuildBackgroundWithHexes();
+
 	canvas.draw(*backgroundWithHexes, Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
 {
+	// Only marks the background stale - callers are netpack handlers on the network thread,
+	// which must not take the GL context away from the rendering thread.
+	backgroundNeedsRebuild = true;
+}
+
+void BattleFieldController::rebuildBackgroundWithHexes()
+{
+	backgroundNeedsRebuild = false;
+	ensureBackgroundCanvas();
+
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	if(activeStack)
 		availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
@@ -854,6 +893,26 @@ void BattleFieldController::tick(uint32_t msPassed)
 
 void BattleFieldController::show(Canvas & to)
 {
+	if(usesGpuLayer())
+	{
+		// the battlefield is composited from its own GPU layer, so the software screen only
+		// has to stop covering it. Safe from any thread - it only writes into the surface.
+		to.drawColor(pos, ColorRGBA(0, 0, 0, 0));
+
+		// the GL context belongs to the rendering thread, but redraw() can reach us from the
+		// network thread while handling a netpack; the next frame repaints the layer anyway
+		if(!ENGINE->amIGuiThread())
+			return;
+
+		Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::BATTLE);
+		renderBattlefield(layer);
+
+		if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
+			layer.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
+
+		return;
+	}
+
 	CanvasClipRectGuard guard(to, pos);
 
 	renderBattlefield(to);

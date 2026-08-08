@@ -16,6 +16,12 @@ extern SDL_Renderer * mainRenderer;
 /// created in, so that they can tell "still mine" from "already freed with the renderer".
 extern uint32_t mainRendererGeneration;
 
+struct SDL_Texture;
+
+/// Queues a texture for destruction on the rendering thread. Textures may only be created
+/// and destroyed there, so owners released on other threads hand them over instead.
+void destroyTextureDeferred(SDL_Texture * texture);
+
 /// Notify user about encountered fatal error and terminate the game
 /// Defined in clientapp EntryPoint
 /// TODO: decide on better location for this method

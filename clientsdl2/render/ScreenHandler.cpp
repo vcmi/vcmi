@@ -659,10 +659,10 @@ Canvas ScreenHandler::getScreenCanvas() const
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 }
 
-Canvas ScreenHandler::getMapLayerCanvas() const
+Canvas ScreenHandler::getLayerCanvas(GpuRenderLayer)
 {
-	// unreachable: isGpuMapRenderingEnabled() is always false in this backend
-	throw std::runtime_error("SDL2 backend has no GPU map layer");
+	// unreachable: isGpuRenderingEnabled() is always false in this backend
+	throw std::runtime_error("SDL2 backend has no GPU layers");
 }
 
 Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const

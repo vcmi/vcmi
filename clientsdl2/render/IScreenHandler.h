@@ -17,6 +17,16 @@ class Rect;
 
 class Canvas;
 
+/// GPU layers composited under the software screen. This backend has none, but client code
+/// is shared between backends and names them.
+enum class GpuRenderLayer : uint8_t
+{
+	MAP,
+	BATTLE,
+
+	COUNT
+};
+
 class IScreenHandler
 {
 public:
@@ -63,11 +73,14 @@ public:
 
 	virtual void setColorScheme(ColorScheme scheme) = 0;
 
-	/// This backend renders in software only; there is no GPU map layer to draw into
-	virtual bool isGpuMapRenderingEnabled() const { return false; }
+	/// This backend renders in software only; there are no GPU layers to draw into
+	virtual bool isGpuRenderingEnabled() const { return false; }
 
-	/// Unreachable here - callers must gate on isGpuMapRenderingEnabled(), which is always false
-	virtual Canvas getMapLayerCanvas() const = 0;
+	/// Unreachable here - callers must gate on isGpuRenderingEnabled(), which is always false
+	virtual Canvas getLayerCanvas(GpuRenderLayer layer) = 0;
+
+	void releaseLayer(GpuRenderLayer) {}
+	void clearReleasedLayers() {}
 
 	/// Offscreen canvas of the given logical size, always a software surface in this backend
 	virtual Canvas createOffscreenCanvas(const Point & size) const = 0;

@@ -21,6 +21,8 @@
 #include "render/IFont.h"
 
 #include "CMT.h"
+#include "render/SDLImage.h"
+#include "render/TextTextureCache.h"
 
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_pixels.h>
@@ -138,16 +140,33 @@ void Canvas::bindRenderTarget() const
 
 void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha)
 {
-	if(!image.renderTarget)
-	{
-		logGpuIssueOnce("cannot copy a surface-backed canvas onto a GPU target");
-		return;
-	}
-
 	bindRenderTarget();
 
 	SDL_FRect source = CSDL_Ext::toSDLFloat(image.renderArea);
 	SDL_FRect target = CSDL_Ext::toSDLFloat(targetArea);
+
+	// A surface-backed source has no texture of its own - upload it once for this copy, so
+	// windows composing into plain surfaces can be drawn onto a GPU target at all.
+	if(!image.renderTarget)
+	{
+		SDL_Texture * uploaded = SDL_CreateTextureFromSurface(mainRenderer, image.surface);
+
+		if(!uploaded)
+		{
+			logGpuIssueOnce(std::string("failed to upload a surface-backed canvas: ") + SDL_GetError());
+			return;
+		}
+
+		SDL_SetTextureBlendMode(uploaded, static_cast<SDL_BlendMode>(blendMode));
+		SDL_SetTextureAlphaMod(uploaded, alpha);
+		SDL_SetTextureScaleMode(uploaded, SDL_SCALEMODE_NEAREST);
+
+		if(!SDL_RenderTexture(mainRenderer, uploaded, &source, &target))
+			logGpuIssueOnce(std::string("SDL_RenderTexture failed for uploaded surface: ") + SDL_GetError());
+
+		SDL_DestroyTexture(uploaded);
+		return;
+	}
 
 	SDL_SetTextureBlendMode(image.renderTarget, static_cast<SDL_BlendMode>(blendMode));
 	SDL_SetTextureAlphaMod(image.renderTarget, alpha);
@@ -181,8 +200,10 @@ Canvas::~Canvas()
 	if(surface)
 		SDL_DestroySurface(surface);
 
+	// owners are released on whichever thread drops them, and a texture may only be
+	// destroyed on the rendering thread
 	if(ownsRenderTarget && renderTarget)
-		SDL_DestroyTexture(renderTarget);
+		destroyTextureDeferred(renderTarget);
 }
 
 void Canvas::draw(IVideoInstance & video, const Point & pos)
@@ -285,11 +306,44 @@ void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & t
 void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 {
 	Point point = transformPos(dest);
+
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+		SDL_RenderPoint(mainRenderer, point.x, point.y);
+		return;
+	}
 	CSDL_Ext::putPixelWithoutRefreshIfInSurf(surface, point.x, point.y, color.r, color.g, color.b, color.a);
 }
 
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+
+		const Point start = transformPos(from);
+		const Point end = transformPos(dest);
+
+		// SDL draws a line in a single color, so approximate the gradient with segments -
+		// these are hairlines, so the banding is not visible
+		static constexpr int segments = 16;
+		for(int i = 0; i < segments; ++i)
+		{
+			const auto blend = [i](uint8_t a, uint8_t b){ return static_cast<uint8_t>(a + (b - a) * i / (segments - 1)); };
+
+			Point segmentFrom = start + (end - start) * i / segments;
+			Point segmentTo = start + (end - start) * (i + 1) / segments;
+
+			SDL_SetRenderDrawColor(mainRenderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
+			SDL_RenderLine(mainRenderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
+		}
+		return;
+	}
+
 	CSDL_Ext::drawLine(surface, transformPos(from), transformPos(dest), CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest), getScalingFactor());
 }
 
@@ -297,12 +351,53 @@ void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+
+		for(int i = 0; i < width * getScalingFactor(); ++i)
+		{
+			SDL_FRect ring = CSDL_Ext::toSDLFloat(realTarget.resize(-i));
+			SDL_RenderRect(mainRenderer, &ring);
+		}
+		return;
+	}
+
 	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, CSDL_Ext::toSDL(color), width * getScalingFactor());
 }
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
+
+	if(renderTarget)
+	{
+		// SDL has no dashed primitive; approximate with alternating short segments
+		bindRenderTarget();
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+
+		const auto dashedLine = [&](Point from, Point to)
+		{
+			static constexpr int dash = 4;
+			const int length = std::max(std::abs(to.x - from.x), std::abs(to.y - from.y));
+
+			for(int i = 0; i < length; i += dash * 2)
+			{
+				Point a = from + (to - from) * i / std::max(1, length);
+				Point b = from + (to - from) * std::min(i + dash, length) / std::max(1, length);
+				SDL_RenderLine(mainRenderer, a.x, a.y, b.x, b.y);
+			}
+		};
+
+		dashedLine(realTarget.topLeft(),    realTarget.topRight());
+		dashedLine(realTarget.bottomLeft(), realTarget.bottomRight());
+		dashedLine(realTarget.topLeft(),    realTarget.bottomLeft());
+		dashedLine(realTarget.topRight(),   realTarget.bottomRight());
+		return;
+	}
 
 	CSDL_Ext::drawLineDashed(surface, realTarget.topLeft(),    realTarget.topRight(),    CSDL_Ext::toSDL(color));
 	CSDL_Ext::drawLineDashed(surface, realTarget.bottomLeft(), realTarget.bottomRight(), CSDL_Ext::toSDL(color));
@@ -312,6 +407,22 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
 {
+	if(renderTarget)
+	{
+		// The font stack writes glyphs into a surface, which a render target cannot accept,
+		// so the string is rasterized once and drawn as a texture from then on
+		auto image = TextTextureCache::get().getImage(font, colorDest, text);
+
+		if(image)
+		{
+			bindRenderTarget();
+			Point topLeft = transformPos(position) + TextTextureCache::getAlignmentOffset(font, alignment, text);
+			if(!image->drawTexture(mainRenderer, nullptr, topLeft, nullptr, Colors::WHITE_TRUE, SDL_ALPHA_OPAQUE, EImageBlitMode::SIMPLE))
+				logGpuIssueOnce("rendered text has no texture representation");
+		}
+		return;
+	}
+
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	switch (alignment)
@@ -325,6 +436,20 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
 {
+	if(renderTarget)
+	{
+		// reuse the single-line GPU path per line, stepping down by the font's line height
+		const auto & fontPtrGpu = ENGINE->renderHandler().loadFont(font);
+		Point linePosition = position;
+
+		for(const auto & line : text)
+		{
+			drawText(linePosition, font, colorDest, alignment, line);
+			linePosition.y += fontPtrGpu->getLineHeight();
+		}
+		return;
+	}
+
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	switch (alignment)
@@ -357,6 +482,16 @@ void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
+	if(renderTarget)
+	{
+		bindRenderTarget();
+		SDL_FRect rect = CSDL_Ext::toSDLFloat(realTarget);
+		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+		SDL_RenderFillRect(mainRenderer, &rect);
+		return;
+	}
+
 	CSDL_Ext::fillRectBlended(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
@@ -367,10 +502,22 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 		return;
 		
 	Rect imageArea(Point(0, 0), image->dimensions());
-	for (int y=0; y < surface->h; y+= imageArea.h)
+	const Point area = renderArea.dimensions();
+
+	for (int y=0; y < area.y; y+= imageArea.h)
 	{
-		for (int x=0; x < surface->w; x+= imageArea.w)
-			image->draw(surface, Point(renderArea.x + x * getScalingFactor(), renderArea.y + y * getScalingFactor()), nullptr, getScalingFactor());
+		for (int x=0; x < area.x; x+= imageArea.w)
+		{
+			Point at(renderArea.x + x * getScalingFactor(), renderArea.y + y * getScalingFactor());
+
+			if(renderTarget)
+			{
+				bindRenderTarget();
+				image->drawTexture(mainRenderer, at, nullptr, getScalingFactor());
+			}
+			else
+				image->draw(surface, at, nullptr, getScalingFactor());
+		}
 	}
 }
 
@@ -381,6 +528,25 @@ Rect Canvas::getRenderArea() const
 
 ColorRGBA Canvas::getPixel(const Point & position) const
 {
+	if(renderTarget)
+	{
+		// readback stalls the GPU, but this is only used by occasional hit testing
+		bindRenderTarget();
+
+		SDL_Rect probe{ position.x, position.y, 1, 1 };
+		SDL_Surface * pixel = SDL_RenderReadPixels(mainRenderer, &probe);
+
+		if(!pixel)
+		{
+			logGpuIssueOnce(std::string("SDL_RenderReadPixels failed: ") + SDL_GetError());
+			return ColorRGBA(0, 0, 0, 0);
+		}
+
+		SDL_Color read = CSDL_Ext::getColor(pixel, CSDL_Ext::getPixel(pixel, 0, 0));
+		SDL_DestroySurface(pixel);
+		return ColorRGBA(read.r, read.g, read.b, read.a);
+	}
+
 	SDL_Color color = CSDL_Ext::getColor(surface, CSDL_Ext::getPixel(surface, position.x, position.y));
 	return ColorRGBA(color.r, color.g, color.b, color.a);
 }

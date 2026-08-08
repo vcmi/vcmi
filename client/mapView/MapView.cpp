@@ -63,7 +63,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool 
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
-	if(gpuLayerEligible && ENGINE->screenHandler().isGpuMapRenderingEnabled())
+	if(gpuLayerEligible && ENGINE->screenHandler().isGpuRenderingEnabled())
 	{
 		// The software screen keeps a transparent hole over the map's GPU layer. Punched every
 		// frame, since any widget redrawing its background would fill it back in. Thread safe.
@@ -92,7 +92,7 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 
 void BasicMapView::renderGpu(bool fullUpdate)
 {
-	Canvas layer = ENGINE->screenHandler().getMapLayerCanvas();
+	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
 	Canvas targetClipped(layer, pos);
 
 	tilesCache->update(controller->getContext());
