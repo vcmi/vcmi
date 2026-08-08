@@ -22,8 +22,22 @@ public class NativeMethods
 {
     private static WeakReference<Messenger> serverMessengerRef;
 
+    // The server runs in a process without an activity, and SDL3 only holds one of those
+    private static Context serviceContext;
+
     public NativeMethods()
     {
+    }
+
+    public static void setServiceContext(final Context ctx)
+    {
+        serviceContext = ctx;
+    }
+
+    private static Context context()
+    {
+        final Context ctx = SDL.getContext();
+        return ctx != null ? ctx : serviceContext;
     }
 
     public static native void initClassloader();
@@ -37,7 +51,7 @@ public class NativeMethods
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static String dataRoot()
     {
-        final Context ctx = SDL.getContext();
+        final Context ctx = context();
         String root = Storage.getVcmiDataDir(ctx).getAbsolutePath();
 
         Log.i("Accessing data root: " + root);
@@ -48,7 +62,7 @@ public class NativeMethods
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static String internalDataRoot()
     {
-        final Context ctx = SDL.getContext();
+        final Context ctx = context();
         String root = new File(ctx.getFilesDir(), Const.VCMI_DATA_ROOT_FOLDER_NAME).getAbsolutePath();
         Log.i("Accessing internal data root: " + root);
         return root;
@@ -76,7 +90,7 @@ public class NativeMethods
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static void hapticFeedback()
     {
-        final Context ctx = SDL.getContext();
+        final Context ctx = context();
         if (Build.VERSION.SDK_INT >= 29) {
             ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
         } else {
@@ -86,7 +100,7 @@ public class NativeMethods
 
     private static void internalProgressDisplay(final boolean show)
     {
-        final Context ctx = SDL.getContext();
+        final Context ctx = context();
         if (!(ctx instanceof VcmiSDLActivity))
         {
             return;

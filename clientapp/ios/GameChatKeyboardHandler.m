@@ -10,7 +10,11 @@
 
 #import "GameChatKeyboardHandler.h"
 
+#ifdef VCMI_SDL3
+static bool watchReturnKey(void * userdata, SDL_Event * event);
+#else
 static int watchReturnKey(void * userdata, SDL_Event * event);
+#endif
 
 
 @interface GameChatKeyboardHandler ()
@@ -19,14 +23,22 @@ static int watchReturnKey(void * userdata, SDL_Event * event);
 
 @implementation GameChatKeyboardHandler
 
-+ (void)sendKeyEventWithKeyCode:(SDL_KeyCode)keyCode
++ (void)sendKeyEventWithKeyCode:(SDL_Keycode)keyCode
 {
 	SDL_Event keyEvent;
+#ifdef VCMI_SDL3
+	keyEvent.key = (SDL_KeyboardEvent){
+		.type = SDL_EVENT_KEY_DOWN,
+		.down = true,
+		.key = keyCode,
+	};
+#else
 	keyEvent.key = (SDL_KeyboardEvent){
 		.type = SDL_KEYDOWN,
 		.state = SDL_PRESSED,
 		.keysym.sym = keyCode,
 	};
+#endif
 	SDL_PushEvent(&keyEvent);
 }
 
@@ -58,6 +70,18 @@ static int watchReturnKey(void * userdata, SDL_Event * event);
 @end
 
 
+#ifdef VCMI_SDL3
+static bool watchReturnKey(void * userdata, SDL_Event * event)
+{
+	if(event->type == SDL_EVENT_KEY_DOWN && event->key.scancode == SDL_SCANCODE_RETURN)
+	{
+		__auto_type self = (__bridge GameChatKeyboardHandler *)userdata;
+		self.wasChatMessageSent = YES;
+		SDL_RemoveEventWatch(watchReturnKey, userdata);
+	}
+	return true;
+}
+#else
 static int watchReturnKey(void * userdata, SDL_Event * event)
 {
 	if(event->type == SDL_KEYDOWN && event->key.keysym.scancode == SDL_SCANCODE_RETURN)
@@ -68,3 +92,4 @@ static int watchReturnKey(void * userdata, SDL_Event * event)
 	}
 	return 1;
 }
+#endif

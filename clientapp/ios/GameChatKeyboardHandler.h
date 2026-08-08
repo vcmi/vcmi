@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GameChatKeyboardHandler : NSObject
 
-+ (void)sendKeyEventWithKeyCode:(SDL_KeyCode)keyCode;
++ (void)sendKeyEventWithKeyCode:(SDL_Keycode)keyCode;
 
 @end
 

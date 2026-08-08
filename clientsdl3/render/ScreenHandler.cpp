@@ -80,7 +80,7 @@ static SDL_DisplayID displayIndexToID(int displayIndex)
 	return result;
 }
 
-static int displayIDToIndex(SDL_DisplayID displayID)
+[[maybe_unused]] static int displayIDToIndex(SDL_DisplayID displayID)
 {
 	int displaysCount = 0;
 	SDL_DisplayID * displays = SDL_GetDisplays(&displaysCount);
