@@ -108,6 +108,7 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
+		server/battles/FireShieldTest.cpp
 		texts/TextOperationsTest.cpp
 
 		server/queries/QueriesProcessorTest.cpp
