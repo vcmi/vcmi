@@ -27,7 +27,7 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
 #include "../windows/InfoWindows.h"
-#include "../render/Colors.h"
+#include "render/Colors.h"
 #include "../globalLobby/GlobalLobbyClient.h"
 
 #include "../../lib/CConfigHandler.h"

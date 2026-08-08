@@ -21,7 +21,7 @@
 #include "../widgets/Slider.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CMinimap.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"

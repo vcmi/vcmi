@@ -12,7 +12,7 @@
 
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
-#include "../../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../Slider.h"
 #include "../TextControls.h"
 #include "../../windows/InfoWindows.h"

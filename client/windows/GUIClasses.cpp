@@ -24,7 +24,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../media/ISoundPlayer.h"
+#include "media/ISoundPlayer.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -37,10 +37,10 @@
 #include "../widgets/VideoWidget.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 
-#include "../render/Canvas.h"
-#include "../render/IRenderHandler.h"
-#include "../render/IImage.h"
-#include "../render/IFont.h"
+#include "render/Canvas.h"
+#include "render/IRenderHandler.h"
+#include "render/IImage.h"
+#include "render/IFont.h"
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"

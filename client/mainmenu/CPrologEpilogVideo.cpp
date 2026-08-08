@@ -12,14 +12,14 @@
 #include "CPrologEpilogVideo.h"
 #include "CMainMenu.h"
 
-#include "../media/IMusicPlayer.h"
-#include "../media/ISoundPlayer.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
 #include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../../lib/CConfigHandler.h"
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)

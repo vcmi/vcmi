@@ -31,7 +31,7 @@
 #include "netlag/NetworkLagCompensator.h"
 #include "replay/GameplayReplayer.h"
 
-#include "renderSDL/SDL_Extensions.h"
+#include "render/SDL_Extensions.h"
 
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"

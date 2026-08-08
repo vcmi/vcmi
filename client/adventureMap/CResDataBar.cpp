@@ -11,9 +11,9 @@
 #include "CResDataBar.h"
 
 #include "../CPlayerInterface.h"
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/EFont.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/TextAlignment.h"

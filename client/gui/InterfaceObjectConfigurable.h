@@ -12,7 +12,7 @@
 
 #include "CIntObject.h"
 #include "TextAlignment.h"
-#include "../render/EFont.h"
+#include "render/EFont.h"
 
 #include "../../lib/json/JsonNode.h"
 

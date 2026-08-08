@@ -20,7 +20,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/WindowHandler.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../windows/CMarketWindow.h"
 #include "CGarrisonInt.h"
 #include "GraphicalPrimitiveCanvas.h"
@@ -28,7 +28,7 @@
 #include "../windows/CCastleInterface.h"
 #include "../windows/wiki/WikiWindow.h"
 #include "../windows/InfoWindows.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"

@@ -16,9 +16,9 @@
 #include "../../../widgets/Images.h"
 #include "../../../widgets/TextControls.h"
 #include "../../../widgets/GraphicalPrimitiveCanvas.h"
-#include "../../../render/Colors.h"
-#include "../../../render/IFont.h"
-#include "../../../render/IRenderHandler.h"
+#include "render/Colors.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 #include "../../../GameEngine.h"
 
 // ============================================================================

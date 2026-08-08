@@ -14,8 +14,8 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../mapView/mapHandler.h"
-#include "../media/IMusicPlayer.h"
-#include "../media/ISoundPlayer.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
 
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"

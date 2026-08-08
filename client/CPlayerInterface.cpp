@@ -27,8 +27,8 @@
 #include "battle/BattleResultWindow.h"
 #include "battle/BattleWindow.h"
 
-#include "eventsSDL/InputHandler.h"
-#include "eventsSDL/NotificationHandler.h"
+#include "events/InputHandler.h"
+#include "events/NotificationHandler.h"
 
 #include "GameEngine.h"
 #include "GameInstance.h"

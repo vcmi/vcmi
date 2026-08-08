@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "IImage.h"
+#include "render/IImage.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/constants/EntityIdentifiers.h"

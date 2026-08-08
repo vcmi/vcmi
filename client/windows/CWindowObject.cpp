@@ -18,12 +18,12 @@
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
 #include "CMessage.h"
-#include "../render/IImage.h"
-#include "../render/IScreenHandler.h"
-#include "../render/IRenderHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/CanvasImage.h"
+#include "render/IImage.h"
+#include "render/IScreenHandler.h"
+#include "render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/CanvasImage.h"
 
 #include "../CPlayerInterface.h"
 

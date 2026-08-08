@@ -11,7 +11,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
-#include "../render/EFont.h"
+#include "render/EFont.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/FunctionList.h"

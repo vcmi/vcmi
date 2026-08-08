@@ -743,6 +743,7 @@ endif()
 
 if (ENABLE_CLIENT)
 	add_subdirectory(client)
+	add_subdirectory(clientsdl2)
 	add_subdirectory(clientapp)
 endif()
 

@@ -32,9 +32,9 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../media/IMusicPlayer.h"
-#include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
+#include "render/Canvas.h"
 #include "../windows/CTutorialWindow.h"
 
 #include "../../lib/BattleFieldHandler.h"

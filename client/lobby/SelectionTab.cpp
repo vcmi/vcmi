@@ -34,9 +34,9 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CMapOverview.h"
-#include "../render/CAnimation.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
 #include "../mainmenu/CCampaignScreen.h"
 
 #include "../../lib/CConfigHandler.h"

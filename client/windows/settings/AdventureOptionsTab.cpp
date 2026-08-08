@@ -16,7 +16,7 @@
 #include "../../GameInstance.h"
 #include "../../CPlayerInterface.h"
 #include "../../PlayerLocalState.h"
-#include "../../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Images.h"

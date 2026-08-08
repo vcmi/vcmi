@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "IImage.h"
+#include "render/IImage.h"
 #include "ImageLocator.h"
 
 #include "../../lib/GameConstants.h"

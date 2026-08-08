@@ -14,7 +14,7 @@
 #include "BattleWindow.h"
 
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"

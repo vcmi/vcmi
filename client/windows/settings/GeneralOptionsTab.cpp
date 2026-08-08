@@ -17,7 +17,7 @@
 #include "render/IScreenHandler.h"
 #include "windows/GUIClasses.h"
 
-#include "../../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../../GameEngine.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"

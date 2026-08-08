@@ -18,9 +18,9 @@
 
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
-#include "../render/Canvas.h"
-#include "../render/IFont.h"
-#include "../render/IRenderHandler.h"
+#include "render/Canvas.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

@@ -13,12 +13,12 @@
 
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../gui/Shortcut.h"
 
-#include "../render/Graphics.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
+#include "render/Graphics.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
 
 #include "../widgets/ComboBox.h"
 #include "../widgets/Images.h"

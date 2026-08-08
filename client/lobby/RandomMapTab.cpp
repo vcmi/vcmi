@@ -31,8 +31,8 @@
 #include "../widgets/CTextInput.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
-#include "../render/IRenderHandler.h"
-#include "../render/IFont.h"
+#include "render/IRenderHandler.h"
+#include "render/IFont.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"

@@ -12,7 +12,7 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/Color.h"
 #include "../widgets/Images.h"
-#include "../render/IImage.h"
+#include "render/IImage.h"
 
 class CIntObject;
 class CreatureAnimation;

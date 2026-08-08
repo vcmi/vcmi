@@ -17,7 +17,7 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
-#include "../media/ISoundPlayer.h"
+#include "media/ISoundPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

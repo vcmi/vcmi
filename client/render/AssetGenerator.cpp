@@ -11,10 +11,10 @@
 #include "AssetGenerator.h"
 
 #include "../GameEngine.h"
-#include "IImage.h"
+#include "render/IImage.h"
 #include "IImageLoader.h"
-#include "Canvas.h"
-#include "CanvasImage.h"
+#include "render/Canvas.h"
+#include "render/CanvasImage.h"
 #include "ColorFilter.h"
 #include "IRenderHandler.h"
 #include "CAnimation.h"

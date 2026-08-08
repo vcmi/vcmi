@@ -16,7 +16,7 @@
 #include <vcmi/spells/Service.h>
 
 #include "../CPlayerInterface.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CComponentHolder.h"
