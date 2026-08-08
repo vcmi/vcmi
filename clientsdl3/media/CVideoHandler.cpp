@@ -201,32 +201,24 @@ void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 	//setup scaling
 	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * ENGINE->screenHandler().getScalingFactor();
 
-	// Allocate a place to put our YUV image on that screen
+	// Both paths decode to ARGB8888, the format of the screen texture. A YUV texture would
+	// save a conversion, but leaves it to the renderer, which picks the colorspace itself.
 	if (useTextureOutput)
 	{
-		std::array potentialFormats = {
-			AV_PIX_FMT_YUV420P, // -> SDL_PIXELFORMAT_IYUV - most of H3 videos use YUV format, so it is preferred to save some space & conversion time
-			AV_PIX_FMT_RGB32,   // -> SDL_PIXELFORMAT_ARGB8888 - some .smk videos actually use palette, so RGB > YUV. This is also our screen texture format
-			AV_PIX_FMT_NONE
-		};
+		textureRGB = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
 
-		auto preferredFormat = avcodec_find_best_pix_fmt_of_list(potentialFormats.data(), getCodecContext()->pix_fmt, false, nullptr);
-
-		if (preferredFormat == AV_PIX_FMT_YUV420P)
-			textureYUV = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
-		else
-			textureRGB = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
-		sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
-							dimensions.x, dimensions.y, preferredFormat,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
+		if (textureRGB == nullptr)
+			logGlobal->warn("Failed to create video texture, falling back to software: %s", SDL_GetError());
 	}
-	else
-	{
+
+	// without a texture the frames are drawn through a surface instead - a video with neither
+	// decodes fine but never shows anything
+	if (textureRGB == nullptr)
 		surface = CSDL_Ext::newSurface(dimensions);
-		sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
-							 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
-	}
+
+	sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
+						 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
+						 SWS_BICUBIC, nullptr, nullptr, nullptr);
 
 	if (sws == nullptr)
 		throw std::runtime_error("Failed to create sws");
@@ -305,13 +297,6 @@ bool CVideoInstance::loadNextFrame()
 	uint8_t * data[4] = {};
 	int linesize[4] = {};
 
-	if(textureYUV)
-	{
-		av_image_alloc(data, linesize, dimensions.x, dimensions.y, AV_PIX_FMT_YUV420P, 1);
-		sws_scale(sws, frame->data, frame->linesize, 0, getCodecContext()->height, data, linesize);
-		SDL_UpdateYUVTexture(textureYUV, nullptr, data[0], linesize[0], data[1], linesize[1], data[2], linesize[2]);
-		av_freep(&data[0]);
-	}
 	if(textureRGB)
 	{
 		av_image_alloc(data, linesize, dimensions.x, dimensions.y, AV_PIX_FMT_RGB32, 1);
@@ -356,7 +341,6 @@ CVideoInstance::CVideoInstance()
 CVideoInstance::~CVideoInstance()
 {
 	sws_freeContext(sws);
-	SDL_DestroyTexture(textureYUV);
 	SDL_DestroyTexture(textureRGB);
 	SDL_DestroySurface(surface);
 }
@@ -388,7 +372,7 @@ Point CVideoInstance::size()
 
 bool CVideoInstance::renderFrame(const Point & position)
 {
-	SDL_Texture * frame = textureYUV ? textureYUV : textureRGB;
+	SDL_Texture * frame = textureRGB;
 
 	if(!frame)
 		return false;

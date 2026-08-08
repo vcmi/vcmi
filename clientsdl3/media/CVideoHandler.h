@@ -71,7 +71,6 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 
 	struct SwsContext * sws = nullptr;
 	SDL_Texture * textureRGB = nullptr;
-	SDL_Texture * textureYUV = nullptr;
 	SDL_Surface * surface = nullptr;
 	Point dimensions;
 
