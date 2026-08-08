@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Максимум шкоди (${val}%)}\nНіяка атака не зможе завдати більше шкоди, ніж ${val}% від максимального здоров'я.",
 	"core.bonus.DEATH_STARE.description": "{Погляд смерті (${val}%) }\nМиттєво вбиває живу істоту з імовірністю ${val}%.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Бонус до захисту}\nЗбільшує захист на +${val} після застосування захисту.",
-	"core.bonus.DESTRUCTION.description": "{Знищення}\nМає шанс ${val}% вбити додаткових створінь після атаки.",
+	"core.combatScript.destruction.description": "{Знищення}\nМає шанс ${val}% вбити додаткових створінь після атаки.",
 	"core.bonus.DISINTEGRATE.description": "{Розпад}\nКоли цей загін гине, він не залишає після себе жодного трупа.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Смертельний удар}\nМає шанс ${val}% нанести подвійну базову шкоду при атаці.",
 	"core.bonus.DRAGON_NATURE.description": "{Дракон}\nЦя істота Дракон.",

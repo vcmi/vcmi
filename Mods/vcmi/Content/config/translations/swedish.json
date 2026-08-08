@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Skadebegränsning}\nIngen enskild attack kan orsaka mer än ${val}% av denna enhets maximala hälsa.",
 	"core.bonus.DEATH_STARE.description": "{Dödsblick}\nHar ${val}% chans att omedelbart döda en levande varelse.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Försvarsställning}\nEfter att ha försvarat sig får denna enhet +${val} i Försvar.",
-	"core.bonus.DESTRUCTION.description": "{Förgöra}\nHar ${val}% chans att döda ytterligare varelser efter att ha attackerat.",
+	"core.combatScript.destruction.description": "{Förgöra}\nHar ${val}% chans att döda ytterligare varelser efter att ha attackerat.",
 	"core.bonus.DISINTEGRATE.description": "{Desintegrerar}\nDenna enhet lämnar ingen kropp efter sig när den stupar.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Dödsstöt}\nDen här enheten har ${val}% chans att orsaka dubbel grundskada när den attackerar.",
 	"core.bonus.DRAGON_NATURE.description": "{Drake}\nDenna varelse är en Drake.",

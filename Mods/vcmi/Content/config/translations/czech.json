@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Limit poškození}\nÚtok nemůže způsobit více než ${val}% maximálního zdraví této jednotky.",
 	"core.bonus.DEATH_STARE.description": "{Smrtící pohled}\nMá ${val}% šanci okamžitě zabít jednu živou jednotku.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Obranný postoj}\nPo zvolení obrany získá tato jednotka +${val} Obrany.",
-	"core.bonus.DESTRUCTION.description": "{Zničení}\nMá ${val}% šanci po útoku zabít další jednotky.",
+	"core.combatScript.destruction.description": "{Zničení}\nMá ${val}% šanci po útoku zabít další jednotky.",
 	"core.bonus.DISINTEGRATE.description": "{Rozpad}\nPo smrti nezůstane žádné tělo.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Smrtelný úder}\nMá ${val}% šanci způsobit dvojnásobné základní poškození při útoku.",
 	"core.bonus.DRAGON_NATURE.description": "{Drak}\nTato jednotka má dračí povahu.",

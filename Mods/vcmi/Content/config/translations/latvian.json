@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Bojājumu ierobežojums (${val}%) }\nNeviens atsevišķs uzbrukums nevar nodarīt lielāku kaitējumu kā ${val}% no maksimālās veselības",
 	"core.bonus.DEATH_STARE.description": "{Nāves skatiens (${val}%)}\nIr ${val}% iespēja acumirklī nogalināt vienu dzīvu radību.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Aizsardzības bonuss}\nPalielina aizsardzību par +${val} pēc aizsardzības darbības izmantošanas",
-	"core.bonus.DESTRUCTION.description": "{Destruction}\nPēc uzbrukuma ir ${val}% iespēja nogalināt papildu vienības.",
+	"core.combatScript.destruction.description": "{Destruction}\nPēc uzbrukuma ir ${val}% iespēja nogalināt papildu vienības.",
 	"core.bonus.DISINTEGRATE.description": "{Sadalās}\nKad šī vienība nomirs, tā neatstās līķi",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Nāves trieciens}\nUzbrūkot, ir ${val}% iespēja nodarīt dubultu bāzes bojājumu.",
 	"core.bonus.DRAGON_NATURE.description": "{Pūķis}\nŠī radība ir pūķis",

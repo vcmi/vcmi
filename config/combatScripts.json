@@ -24,6 +24,11 @@
 		"script" : "fireShield",
 		"description" : "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker."
 	},
+	"destruction" : {
+		"type" : "lua",
+		"script" : "destruction",
+		"description" : "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking."
+	},
 	"soulSteal" : {
 		"type" : "lua",
 		"script" : "soulSteal",

@@ -12,7 +12,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Imunitate la bonusul de turnir}\nAceastă unitate nu primește daune suplimentare de la bonusul de turnir",
 	"core.bonus.DEATH_STARE.description": "{Privire mortală (${val}%)}\nAre o șansă de ${val}% de a ucide instant un singur monstru viu",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus de apărare}\nCrește apărarea cu +${val} după utilizarea acțiunii de apărare",
-	"core.bonus.DESTRUCTION.description": "{Distrugere}\nAre o șansă de ${val}% de a ucide unități suplimentare după atac",
+	"core.combatScript.destruction.description": "{Distrugere}\nAre o șansă de ${val}% de a ucide unități suplimentare după atac",
 	"core.bonus.DISINTEGRATE.description": "{Dezintegrate}\nCând această unitate moare, nu va lăsa niciun cadavru în urma sa",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Lovitura fatală}\nAre o șansă de ${val}% de a da dublu daune de bază când atacă",
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nAceastă creatură este un Dragon",

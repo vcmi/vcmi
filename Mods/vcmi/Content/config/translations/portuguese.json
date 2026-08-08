@@ -11,7 +11,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Imunidade à Carga}\nImune à Carga do Cavaleiro e do Campeão",
 	"core.bonus.DEATH_STARE.description": "{Olhar da Morte (${val}%)}\nTem ${val}% de chance de matar uma única criatura",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bônus de Defesa}\n+${val} de Defesa ao se defender",
-	"core.bonus.DESTRUCTION.description": "{Destruição}\nTem ${val}% de chance de matar unidades extras após o ataque",
+	"core.combatScript.destruction.description": "{Destruição}\nTem ${val}% de chance de matar unidades extras após o ataque",
 	"core.bonus.DISINTEGRATE.description": "{Desintegrar}\nNenhum corpo permanece após a morte",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Golpe Mortal}\nTem ${val}% de chance de causar o dobro do dano base ao atacar",
 	"core.bonus.DRAGON_NATURE.description": "{Dragão}\nA criatura possui Natureza de Dragão",

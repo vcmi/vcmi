@@ -911,13 +911,21 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 
 ### DESTRUCTION
 
-Affected unit will kills additional units after attack
+DEPRECATED. Configs and saves declaring it are converted to the
+[destruction](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+working, but new content should declare the script directly:
 
-- val: chance to trigger, percentage
-- subtype:
-  - destructionKillPercentage: kill percentage of units,
-  - destructionKillAmount: kill amount
-- addInfo: amount or percentage to kill
+```json
+{
+    "type" : "COMBAT_EVENT_TRIGGER",
+    "subtype" : "combatScript.destruction",
+    "val" : 20,
+    "addInfo" : { "killBy" : "percentage", "amount" : 10 }
+}
+```
+
+`val` keeps its meaning. The old subtype becomes `killBy` - `destructionKillPercentage` maps to
+`"percentage"` and `destructionKillAmount` to `"count"` - and the old `addInfo` becomes `amount`.
 
 ### LIMITED_SHOOTING_RANGE
 

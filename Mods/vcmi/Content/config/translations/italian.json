@@ -10,7 +10,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immunità alla carica}\nImmune alla carica di Cavalieri e Campioni",
 	"core.bonus.DEATH_STARE.description": "{Sguardo della morte (${val}%)}\nHa una probabilità del ${val}% di uccidere un'unità singola",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus di difesa}\n+${val} Difesa quando è in posizione difensiva",
-	"core.bonus.DESTRUCTION.description": "{Distruzione}\nHa una probabilità del ${val}% di uccidere unità extra dopo l'attacco",
+	"core.combatScript.destruction.description": "{Distruzione}\nHa una probabilità del ${val}% di uccidere unità extra dopo l'attacco",
 	"core.bonus.DISINTEGRATE.description": "{Disintegrazione}\nNessun cadavere rimane dopo la morte",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Colpo della morte}\nHa una probabilità del ${val}% di infliggere il doppio dei danni base quando attacca",
 	"core.bonus.DRAGON_NATURE.description": "{Drago}\nCreatura con Natura del Drago",

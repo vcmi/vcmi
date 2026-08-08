@@ -45,6 +45,7 @@ const std::map<std::string, std::string> retiredAbilities = {
 	{ "SUMMON_GUARDIANS", "summonGuardians" },
 	{ "ENCHANTED",        "enchanted" },
 	{ "FIRE_SHIELD",      "fireShield" },
+	{ "DESTRUCTION",      "destruction" },
 };
 
 /// ENCHANTED packed the mastery level and whether the whole side is affected into a single value.
@@ -92,6 +93,13 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 	else if(script == "summonGuardians")
 	{
 		parameters["creature"] = ability["subtype"];
+	}
+	else if(script == "destruction")
+	{
+		parameters["killBy"].String() = withoutScope(ability["subtype"].String()) == "destructionKillPercentage" ? "percentage" : "count";
+		// the old addInfo accepted both a bare number and a single-element array
+		const JsonNode & amount = ability["addInfo"].isVector() ? ability["addInfo"][0] : ability["addInfo"];
+		parameters["amount"].Integer() = amount.Integer();
 	}
 	else if(script == "enchanted")
 	{
@@ -146,6 +154,13 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 
 		case BonusType::FIRE_SHIELD:
 			script = resolveScript("fireShield");
+			break;
+
+		case BonusType::DESTRUCTION:
+			script = resolveScript("destruction");
+			parameters["killBy"].String() = bonus.subtype == BonusCustomSubtype::destructionKillPercentage ? "percentage" : "count";
+			if(bonus.parameters)
+				parameters["amount"].Integer() = bonus.parameters->toNumber();
 			break;
 
 		case BonusType::ENCHANTED:

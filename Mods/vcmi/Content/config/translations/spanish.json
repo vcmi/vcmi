@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Limite del daño}\nNingún ataque individual puede infligir más del ${val}% de la salud máxima de esta pila.",
 	"core.bonus.DEATH_STARE.description": "{Mirada Mortal}\nTiene ${val}% de probabilidad de matar a una criatura viva.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Postura defensiva}\nTras defender, esta unidad gana +${val} de Defensa.",
-	"core.bonus.DESTRUCTION.description": "{Destrucción}\nTiene un ${val}% de probabilidad de matar criaturas extra tras atacar.",
+	"core.combatScript.destruction.description": "{Destrucción}\nTiene un ${val}% de probabilidad de matar criaturas extra tras atacar.",
 	"core.bonus.DISINTEGRATE.description": "{Desintegración}\nCuando esta unidad muere, no dejará ningún cadaver detrás.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Golpe Mortal}\nTiene un ${val}% de probabilidad de daño doble cuando ataque.",
 	"core.bonus.DRAGON_NATURE.description": "{Dragón}\nEsta criatura es un dragón.",

@@ -13,7 +13,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Ограничење штете (${val}%) }\nНиједан појединачни напад не може нанети више штете од ${val}% максималног здравља",
 	"core.bonus.DEATH_STARE.description": "{Смртоносни поглед (${val}%)}\nИма ${val}% шансе да тренутно убије једно живо биће",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Бонус одбране}\nПовећава одбрану за +${val} након коришћења одбрамбене акције",
-	"core.bonus.DESTRUCTION.description": "{Уништење}\nИма ${val}% шансе да убије додатне јединице након напада",
+	"core.combatScript.destruction.description": "{Уништење}\nИма ${val}% шансе да убије додатне јединице након напада",
 	"core.bonus.DISINTEGRATE.description": "{Дезинтеграција}\nКада ова јединица умре, неће оставити лешеве за собом",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Смртоносни ударац}\nИма ${val}% шансе да нанесе двоструку основну штету приликом напада",
 	"core.bonus.DRAGON_NATURE.description": "{Змај}\nОво створење је Змај",

@@ -10,7 +10,7 @@
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immunisé contre la charge}\nImmunisé contre la charge du cavalier et du champion",
 	"core.bonus.DEATH_STARE.description": "{Regard mortel (${val}%)}\nA ${val}% de chances de tuer une seule créature",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus de défense}\n+${val} Défense en défense",
-	"core.bonus.DESTRUCTION.description": "{Destruction}\nA ${val} % de chances de tuer des unités supplémentaires après l'attaque",
+	"core.combatScript.destruction.description": "{Destruction}\nA ${val} % de chances de tuer des unités supplémentaires après l'attaque",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Coup mortel}\nA ${val}% de chances d'infliger des dégâts de base doublés en attaquant",
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nLa créature a une nature de dragon",
 	"core.bonus.ENCHANTER.description": "{Enchanteur}\nPeut lancer en masse ${subtype.spell} à chaque tour",

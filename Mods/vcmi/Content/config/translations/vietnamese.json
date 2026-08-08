@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Giới hạn sát thương}\nKhông thể gây sát thương vượt quá ${val}% máu tối đa của đạo quân này.",
 	"core.bonus.DEATH_STARE.description": "{Ánh mắt tử thần}\nCó ${val}% cơ hội giết chết kẻ địch.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Thưởng phòng thủ}\n+${val} phòng thủ khi đang ở thế thủ.",
-	"core.bonus.DESTRUCTION.description": "{Đòn tận diệt}\nCó ${val}% cơ hội giết thêm kẻ địch sau khi đánh.",
+	"core.combatScript.destruction.description": "{Đòn tận diệt}\nCó ${val}% cơ hội giết thêm kẻ địch sau khi đánh.",
 	"core.bonus.DISINTEGRATE.description": "{Hủy xác}\nXác chết biến mất khỏi chiến trường.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Đòn chí mạng}\nCó ${val}% cơ hội gây sát thương gấp đôi khi đánh.",
 	"core.bonus.DRAGON_NATURE.description": "{Rồng}\nQuân có thuộc tính của loài Rồng.",

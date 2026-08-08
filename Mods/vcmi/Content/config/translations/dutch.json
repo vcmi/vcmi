@@ -13,7 +13,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "Schadelimiet (${val}%)\nGeen enkele aanval kan meer schade toebrengen dan ${val}% van de maximale gezondheid",
 	"core.bonus.DEATH_STARE.description": "{Doodsblik (${val}%)}\nHeeft een kans van ${val}% om een ​​enkel levend wezen direct te doden",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Verdedigingsbonus}\nVerhoogt de verdediging met +${val} na het uitvoeren van een verdedigingsactie",
-	"core.bonus.DESTRUCTION.description": "{Vernietiging}\nHeeft ${val}% kans om extra eenheden te doden na een aanval",
+	"core.combatScript.destruction.description": "{Vernietiging}\nHeeft ${val}% kans om extra eenheden te doden na een aanval",
 	"core.bonus.DISINTEGRATE.description": "{Desintegreren}\nWanneer deze eenheid sterft, laat hij geen lijk achter.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Doodslag}\nHeeft een kans van ${val}% om dubbele basisschade toe te brengen bij een aanval",
 	"core.bonus.DRAGON_NATURE.description": "{Draak}\nDit wezen is een draak",

@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Limit obrażeń}\nWrogi atak nie zada więcej obrażeń niż ${val}% maks. wytrzymałości jednostki.",
 	"core.bonus.DEATH_STARE.description": "{Spojrzenie Śmierci}\n${val}% szans na natychmiastową śmierć 1 żywego stworzenia.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Postawa obronna}\n+${val} obrony podczas defensywy.",
-	"core.bonus.DESTRUCTION.description": "{Destrukcja}\n${val}% szans na zgładzenie dodatkowych jednostek po ataku.",
+	"core.combatScript.destruction.description": "{Destrukcja}\n${val}% szans na zgładzenie dodatkowych jednostek po ataku.",
 	"core.bonus.DISINTEGRATE.description": "{Dezintegracja}\nJednostka nie pozostawia zwłok po zgładzeniu.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Cios śmierci}\n${val}% szans na podwójne obrażenia podczas ataku.",
 	"core.bonus.DRAGON_NATURE.description": "{Smok}\nStworzenie smoczej natury.",

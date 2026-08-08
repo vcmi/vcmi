@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Лимит урона (${val}%) }\nНи одна атака не может нанести больше урона, чем ${val}% от максимального здоровья",
 	"core.bonus.DEATH_STARE.description": "{Смертельный взгляд (${val}%)}\n${val}% шанс уничтожить одно живое существо",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Защитная стойка}\nПовышает защиту на +${val} после использования действия \"Защита\"",
-	"core.bonus.DESTRUCTION.description": "{Уничтожитель}\nШанс ${val}% уничтожить дополнительных существ при атаке",
+	"core.combatScript.destruction.description": "{Уничтожитель}\nШанс ${val}% уничтожить дополнительных существ при атаке",
 	"core.bonus.DISINTEGRATE.description": "{Расщепление}\nПосле гибели этого отряда не остаётся трупа",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Смертельный удар}\nС шансом ${val}% наносит двойной базовый урон при атаке.",
 	"core.bonus.DRAGON_NATURE.description": "{Дракон}\nЭто существо - Дракон",

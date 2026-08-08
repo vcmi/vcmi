@@ -236,6 +236,10 @@ Functions:
     - `permanent` - true to keep the gained creatures after the battle
 - `fireShield` - burns whoever strikes its bearer in melee for a share of the damage that strike could have dealt. An attacker immune to fire takes nothing. Parameters:
     - `val` - share of the reflected damage, in percent
+- `destruction` - kills creatures of the attacked stack outright, on top of the damage the attack itself dealt. Parameters:
+    - `val` - percentage chance to trigger on each attack
+    - `killBy` - `"percentage"` kills a share of the victim's stack, `"count"` kills a fixed number
+    - `amount` - the share, or the number of creatures, depending on `killBy`
 - `enchanted` - keeps a spell permanently applied by re-applying it every round. Parameters:
     - `spell` - spell whose effects are applied
     - `level` - mastery level the effects are applied at

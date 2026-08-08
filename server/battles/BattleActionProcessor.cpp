@@ -1414,48 +1414,6 @@ void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback
 		parameters.setEffectValue(acidDamage * attacker->getCount());
 		parameters.cast(gameHandler->spellcastEnvironment(), target);
 	}
-
-
-	if(!defender->alive())
-		return;
-
-	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
-	{
-		int chanceToTrigger = 0;
-		int amountToDie = 0;
-
-		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
-		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
-			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)));
-			int percentageToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
-			amountToDie = defender->getCount() * percentageToDie / 100;
-		}
-		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
-		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
-			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)));
-			amountToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
-		}
-
-		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
-			return;
-
-		BattleStackAttacked bsa;
-		bsa.attackerID = -1;
-		bsa.stackAttacked = defender->unitId();
-		bsa.damageAmount = amountToDie * defender->getMaxHealth();
-		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
-		bsa.spellID = SpellID::SLAYER;
-		defender->prepareAttacked(bsa, gameHandler->getRandomGenerator());
-
-		StacksInjured si;
-		si.battleID = battle.getBattle()->getBattleID();
-		si.stacks.push_back(bsa);
-
-		gameHandler->sendAndApply(si);
-		sendGenericKilledLog(battle, defender, bsa.killedAmount, false);
-	}
 }
 
 void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const

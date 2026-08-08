@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Hasar sınırı}\nTek bir saldırı, maksimum sağlığın ${val}%'inden fazla hasar veremez.",
 	"core.bonus.DEATH_STARE.description": "{Ölüm Bakışı}\nBir canlıyı anında öldürme şansı %${val}.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Savunma Duruşu}\nSavunma yaptıktan sonra, bu birim +${val} Savunma kazanır.",
-	"core.bonus.DESTRUCTION.description": "{Yıkım}\nSaldırıdan sonra ek yaratıkları öldürme şansı %${val}.",
+	"core.combatScript.destruction.description": "{Yıkım}\nSaldırıdan sonra ek yaratıkları öldürme şansı %${val}.",
 	"core.bonus.DISINTEGRATE.description": "{Parçalanma}\nBu birim öldüğünde, geride ceset bırakmaz.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Ölümcül Darbe}\nSaldırı sırasında %${val} oranında çift temel hasar verme şansı vardır.",
 	"core.bonus.DRAGON_NATURE.description": "{Ejderha}\nBu yaratık bir Ejderhadır.",

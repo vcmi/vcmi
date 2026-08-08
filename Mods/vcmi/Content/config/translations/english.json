@@ -16,7 +16,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Damage Limit}\nNo single attack can deal more than ${val}% of this stack's maximum health.",
 	"core.bonus.DEATH_STARE.description": "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature.",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Defensive Stance}\nAfter defending, this unit gains +${val} Defense.",
-	"core.bonus.DESTRUCTION.description": "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking.",
+	"core.combatScript.destruction.description": "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking.",
 	"core.bonus.DISINTEGRATE.description": "{Disintegrate}\nWhen this unit dies, it will leave no corpse behind.",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Death Blow}\nHas a ${val}% chance of dealing double base damage when attacking.",
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nThis creature is a Dragon.",

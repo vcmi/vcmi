@@ -15,7 +15,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{承傷上限(${val}%)}\n單次攻擊對該生物造成的傷害不會高於其最大生命值的${val}%。",
 	"core.bonus.DEATH_STARE.description": "{死亡凝視 (${val}%)}\n${val}%機率直接殺死一單位生物。",
 	"core.bonus.DEFENSIVE_STANCE.description": "{防禦獎勵}\n當選擇防禦時+${val}防禦力。",
-	"core.bonus.DESTRUCTION.description": "{毀滅}\n${val}%機率在攻擊後追加消滅數量。",
+	"core.combatScript.destruction.description": "{毀滅}\n${val}%機率在攻擊後追加消滅數量。",
 	"core.bonus.DISINTEGRATE.description": "{解體}\n死亡後不會留下屍體。",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{致命一擊}\n${val}%機率造成雙倍基礎傷害。",
 	"core.bonus.DRAGON_NATURE.description": "{龍}\n生物擁有龍的特性。",

@@ -148,6 +148,29 @@ TEST_F(BonusMigrationTest, SummonGuardiansSubtypeBecomesCreature)
 	EXPECT_EQ(migrated->val, 50);
 }
 
+TEST_F(BonusMigrationTest, DestructionSubtypeAndAddInfoBecomeParameters)
+{
+	JsonNode percentage;
+	percentage["type"].String() = "DESTRUCTION";
+	percentage["val"].Integer() = 20;
+	percentage["subtype"].String() = "destructionKillPercentage";
+	percentage["addInfo"].Integer() = 10;
+
+	JsonNode amount = percentage;
+	amount["subtype"].String() = "destructionKillAmount";
+	amount["addInfo"].Integer() = 3;
+
+	auto migrated = parse(percentage);
+
+	expectRunsScript(migrated, "destruction");
+	EXPECT_EQ(migrated->val, 20);
+	EXPECT_EQ(scriptOf(migrated)["killBy"].String(), "percentage");
+	EXPECT_EQ(scriptOf(migrated)["amount"].Integer(), 10);
+
+	EXPECT_EQ(scriptOf(parse(amount))["killBy"].String(), "count");
+	EXPECT_EQ(scriptOf(parse(amount))["amount"].Integer(), 3);
+}
+
 /// ENCHANTED packed the mastery level and the "affects the whole side" flag into a single value.
 TEST_F(BonusMigrationTest, EnchantedValueSplitsIntoLevelAndMassive)
 {

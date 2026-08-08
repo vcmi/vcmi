@@ -13,7 +13,7 @@
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "{Limitadong pinsala (${val}%) }\nWalang isang atake ang maaaring magdulot ng mas maraming pinsala kaysa sa ${val}% ng pinakamataas na kalusugan",
 	"core.bonus.DEATH_STARE.description": "{Death Stare (${val}%)}\nMay ${val}% na tsansa na agad na makapatay ng isang buhay na nilalang",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus sa Depensa}\nPinapataas ang depensa ng +${val} pagkatapos gamitin ang aksyong depensa",
-	"core.bonus.DESTRUCTION.description": "{Pagkawasak}\nMay ${val}% na tsansa na makapatay ng mga karagdagang yunit pagkatapos ng pag-atake",
+	"core.combatScript.destruction.description": "{Pagkawasak}\nMay ${val}% na tsansa na makapatay ng mga karagdagang yunit pagkatapos ng pag-atake",
 	"core.bonus.DISINTEGRATE.description": "{Mawawasak}\nKapag namatay ang yunit na ito, wala itong maiiwang bangkay",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Death Blow}\nMay ${val}% na tsansa na magdulot ng double base damage kapag umaatake",
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nAng nilalang na ito ay isang Dragon",
