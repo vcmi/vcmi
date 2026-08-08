@@ -49,6 +49,10 @@ class MapViewCache
 	/// Whether this cache may allocate GPU render targets
 	bool useGpuLayer;
 
+	/// Whether the canvases below are GPU backed. A colour scheme moves the whole client to the
+	/// surface path, and a cache built for one path cannot be drawn onto the other.
+	bool canvasesOnGpu = false;
+
 	std::unique_ptr<Canvas> terrain;
 	std::unique_ptr<Canvas> terrainTransition;
 	std::unique_ptr<Canvas> intermediate;
