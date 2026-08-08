@@ -34,7 +34,12 @@
 		"blockDescriptionPropagation": true
 	},
 
-	"BATTLE_NO_FLEEING":
+	"BATTLE_CAN_FLEE":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"BATTLE_CAN_SURRENDER":
 	{
 		"blockDescriptionPropagation": true
 	},
@@ -576,21 +581,6 @@
 	},
 
 	"SURRENDER_MARKETPLACE_ACCESS":
-	{
-		"blockDescriptionPropagation": true
-	},
-
-	"SURRENDER_WITHOUT_ENEMY_HERO":
-	{
-		"blockDescriptionPropagation": true
-	},
-
-	"BATTLE_ESCAPE_FROM_SIEGE":
-	{
-		"blockDescriptionPropagation": true
-	},
-
-	"BATTLE_ESCAPE_AFTER_SPELLCAST":
 	{
 		"blockDescriptionPropagation": true
 	},

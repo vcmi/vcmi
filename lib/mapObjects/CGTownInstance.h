@@ -101,7 +101,13 @@ public:
 			h & spellResearchPendingRerollsCounters;
 
 		if(!h.saving)
+		{
 			postDeserialize();
+
+			//buildings of towns saved before this version did not provide any retreat permission bonuses
+			if(!h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && getFactionID().hasValue())
+				recreateBuildingsBonuses();
+		}
 	}
 	//////////////////////////////////////////////////////////////////////////
 

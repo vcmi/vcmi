@@ -464,9 +464,17 @@ Increases weekly growth of creatures in affected towns (Statue of Legion)
 
 - val: additional growth, percentage
 
-### BATTLE_NO_FLEEING
+### BATTLE_CAN_FLEE
 
-Heroes affected by this bonus can not retreat or surrender in battle (Shackles of War effect)
+Controls whether affected hero can retreat from combat. Values of all bonuses of this type are summed up, and retreating is blocked if the sum is negative. Restrictions of the game itself - defending a besieged town and casting a spell in first combat rounds as attacker - subtract 10 each.
+
+- val: -100 blocks retreating in a way that can not be overcome by any bonus (Shackles of War), -10 blocks a single case, +10 allows to overcome a single restriction (Escape Tunnel)
+
+### BATTLE_CAN_SURRENDER
+
+Controls whether affected hero can surrender. Works in the same way as `BATTLE_CAN_FLEE`, with an additional restriction of 10 if enemy army has no hero to negotiate with. Hero that can not retreat can never surrender either.
+
+- val: see `BATTLE_CAN_FLEE`
 
 ### NEGATE_ALL_NATURAL_IMMUNITIES
 
@@ -1291,18 +1299,6 @@ Increases amount of counted marketplaces when trading in town. You may want to u
 ### SURRENDER_MARKETPLACE_ACCESS
 
 Allows affected hero or player to open a marketplace after failing to pay surrender cost, sell resources, and retry surrender payment. This can be granted by artifacts, global/per-hero game config bonuses, or other bonus sources.
-
-### SURRENDER_WITHOUT_ENEMY_HERO
-
-Allows affected hero to surrender in battles against armies that have no hero, such as neutral monsters or town garrisons.
-
-### BATTLE_ESCAPE_FROM_SIEGE
-
-Allows affected hero to retreat or surrender while defending a town, in the same way as escape tunnel does.
-
-### BATTLE_ESCAPE_AFTER_SPELLCAST
-
-Allows affected hero to retreat or surrender as attacker even after casting a spell during the first combat rounds, ignoring the `COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS` restriction.
 
 ### DIPLOMACY_ARMY_STRENGTH_MULTIPLIER
 

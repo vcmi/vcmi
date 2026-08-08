@@ -131,7 +131,6 @@ namespace MappedKeys
 		{ "castleGate", BuildingSubID::CASTLE_GATE },
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
 		{ "library", BuildingSubID::LIBRARY },
-		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
 		{ "treasury", BuildingSubID::TREASURY },
 		{ "bank", BuildingSubID::BANK },
 		{ "auroraBorealis", BuildingSubID::AURORA_BOREALIS }

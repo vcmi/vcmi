@@ -314,6 +314,29 @@ const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 	return getBattle()->getBonusBearer();
 }
 
+int CBattleInfoEssentials::battleGetRetreatPermission(BattleSide side, BonusType permission) const
+{
+	const CGHeroInstance * myHero = battleGetFightingHero(side);
+	const bool enemyHasHero = battleHasHero(otherSide(side));
+	int result = 0;
+
+	//blockers such as shackles of war have nobody to enforce them if enemy army has no hero
+	for(const auto & bonus : *myHero->getBonusesOfType(permission))
+		if(enemyHasHero || bonus->val > 0)
+			result += bonus->val;
+
+	//we are besieged defender, town may provide a way out, e.g. escape tunnel
+	if(side == BattleSide::DEFENDER && battleGetDefendedTown() != nullptr)
+		result += battleGetDefendedTown()->valOfBonuses(permission) - GameConstants::BATTLE_RETREAT_RESTRICTION;
+
+	//cannot leave after casting spell in X first turns as attacker
+	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
+		&& side == BattleSide::ATTACKER && enemyHasHero && getBattle()->getCastSpells(side) >= 1)
+		result -= GameConstants::BATTLE_RETREAT_RESTRICTION;
+
+	return result;
+}
+
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -321,31 +344,11 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 	if(side == BattleSide::NONE)
 		return false;
 
-	const CGHeroInstance * myHero = battleGetFightingHero(side);
-
 	//current player has no hero
-	if(!myHero)
+	if(!battleGetFightingHero(side))
 		return false;
 
-	//eg. one of heroes is wearing shackles of war
-	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING) && battleHasHero(otherSide(side)))
-		return false;
-
-	//cannot flee after casting spell in X first turns as attacker
-	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
-		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1
-		&& !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_AFTER_SPELLCAST))
-		return false;
-
-	//we are besieged defender
-	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
-	{
-		const auto * town = battleGetDefendedTown();
-		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL) && !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_FROM_SIEGE))
-			return false;
-	}
-
-	return true;
+	return battleGetRetreatPermission(side, BonusType::BATTLE_CAN_FLEE) >= 0;
 }
 
 BattleSide CBattleInfoEssentials::playerToSide(const PlayerColor & player) const
@@ -413,21 +416,19 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(side == BattleSide::NONE)
 		return false;
-	const CGHeroInstance * myHero = battleGetFightingHero(side);
-	if(!myHero)
+
+	//current player has no hero
+	if(!battleGetFightingHero(side))
 		return false;
 
-	//we are besieged defender - escape tunnel allows fleeing, but not surrendering
-	bool iAmSiegeDefender = (side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
-	if(iAmSiegeDefender && !myHero->hasBonusOfType(BonusType::BATTLE_ESCAPE_FROM_SIEGE))
-		return false;
+	int permission = battleGetRetreatPermission(side, BonusType::BATTLE_CAN_SURRENDER);
 
-	//enemy must have a hero to negotiate with
-	if(!battleHasHero(otherSide(side)) && !myHero->hasBonusOfType(BonusType::SURRENDER_WITHOUT_ENEMY_HERO))
-		return false;
+	//enemy must have a hero to negotiate the surrender with
+	if(!battleHasHero(otherSide(side)))
+		permission -= GameConstants::BATTLE_RETREAT_RESTRICTION;
 
-	//remaining conditions are the same as for fleeing
-	return battleCanFlee(player);
+	//hero that is not allowed to retreat can not surrender either
+	return permission >= 0 && battleCanFlee(player);
 }
 
 bool CBattleInfoEssentials::battleHasHero(BattleSide side) const
