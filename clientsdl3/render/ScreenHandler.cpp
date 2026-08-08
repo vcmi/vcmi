@@ -928,6 +928,9 @@ void ScreenHandler::presentScreenTexture()
 		pendingTextureDestruction.clear();
 	}
 
+	// the draw color is left over from whatever was rendered last, and this clear also
+	// covers the letterbox bars around the reserved area
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mainRenderer);
 
 	for(size_t i = 0; i < layerTextures.size(); ++i)
