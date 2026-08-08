@@ -16,8 +16,8 @@
 #include "SDLImageScaler.h"
 #include "SDLImage.h"
 
-#include <SDL_image.h>
-#include <SDL_surface.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL_surface.h>
 
 CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 	: surface(CSDL_Ext::newSurface(scalingPolicy == CanvasScalingPolicy::IGNORE ? size : (size * ENGINE->screenHandler().getScalingFactor())))
@@ -27,7 +27,7 @@ CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 
 CanvasImage::~CanvasImage()
 {
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 }
 
 void CanvasImage::draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const
@@ -44,7 +44,7 @@ void CanvasImage::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 
 	SDLImageScaler scaler(surface);
 	scaler.scaleSurface(scaledSize, algorithm);
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 	surface = scaler.acquireResultSurface();
 }
 

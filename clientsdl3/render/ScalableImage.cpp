@@ -24,7 +24,7 @@
 
 #include "lib/constants/EntityIdentifiers.h"
 
-#include <SDL_surface.h>
+#include <SDL3/SDL_surface.h>
 
 //First 8 colors in def palette used for transparency
 static constexpr std::array<SDL_Color, 8> sourcePalette = {{
@@ -82,7 +82,7 @@ ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPal
 {
 	if (originalPalette)
 	{
-		palette = SDL_AllocPalette(256);
+		palette = SDL_CreatePalette(256);
 		SDL_SetPaletteColors(palette, originalPalette->colors, 0, originalPalette->ncolors);
 		preparePalette(originalPalette, blitMode);
 	}
@@ -91,7 +91,7 @@ ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPal
 ScalableImageParameters::~ScalableImageParameters()
 {
 	if (palette)
-		SDL_FreePalette(palette);
+		SDL_DestroyPalette(palette);
 }
 
 void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode)

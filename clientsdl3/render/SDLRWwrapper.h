@@ -11,6 +11,6 @@
 
 class CInputStream;
 
-struct SDL_RWops;
+struct SDL_IOStream;
 
-SDL_RWops* MakeSDLRWops(std::unique_ptr<CInputStream> in);
+SDL_IOStream* MakeSDLIOStream(std::unique_ptr<CInputStream> in);

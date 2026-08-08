@@ -28,9 +28,24 @@
 #include "ios/utils.h"
 #endif
 
-#include <SDL_events.h>
-#include <SDL_hints.h>
-#include <SDL_timer.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_touch.h>
+
+/// SDL3 replaced the indexed finger accessors with a single array query
+static int countTouchFingers(SDL_TouchID touchID)
+{
+	int count = 0;
+	SDL_free(SDL_GetTouchFingers(touchID, &count));
+	return count;
+}
+
+/// SDL3 timestamps events in nanoseconds, while the gesture timings are milliseconds
+static uint32_t touchEventTimeMs(const SDL_TouchFingerEvent & tfinger)
+{
+	return static_cast<uint32_t>(SDL_NS_TO_MS(tfinger.timestamp));
+}
 
 InputSourceTouch::InputSourceTouch()
 	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0), numTouchFingers(0)
@@ -58,11 +73,11 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 {
 	Point screenSize = ENGINE->screenDimensions();
 
-	motionAccumulatedX[tfinger.fingerId] += tfinger.dx;
-	motionAccumulatedY[tfinger.fingerId] += tfinger.dy;
+	motionAccumulatedX[tfinger.fingerID] += tfinger.dx;
+	motionAccumulatedY[tfinger.fingerID] += tfinger.dy;
 
 	float motionThreshold = 1.0 / std::min(screenSize.x, screenSize.y);
-	if(std::abs(motionAccumulatedX[tfinger.fingerId]) < motionThreshold && std::abs(motionAccumulatedY[tfinger.fingerId]) < motionThreshold)
+	if(std::abs(motionAccumulatedX[tfinger.fingerID]) < motionThreshold && std::abs(motionAccumulatedY[tfinger.fingerID]) < motionThreshold)
 		return;
 
 	int scalingFactor = ENGINE->screenHandler().getScalingFactor();
@@ -78,8 +93,8 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		case TouchState::RELATIVE_MODE:
 		{
 			Point moveDistance {
-				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * motionAccumulatedX[tfinger.fingerId]),
-				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * motionAccumulatedY[tfinger.fingerId])
+				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * motionAccumulatedX[tfinger.fingerID]),
+				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * motionAccumulatedY[tfinger.fingerID])
 			};
 
 			ENGINE->input().moveCursorPosition(moveDistance);
@@ -122,21 +137,21 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		}
 	}
 
-	if(std::abs(motionAccumulatedX[tfinger.fingerId]) >= motionThreshold)
-		motionAccumulatedX[tfinger.fingerId] = 0;
-	if(std::abs(motionAccumulatedY[tfinger.fingerId]) >= motionThreshold)
-		motionAccumulatedY[tfinger.fingerId] = 0;
+	if(std::abs(motionAccumulatedX[tfinger.fingerID]) >= motionThreshold)
+		motionAccumulatedX[tfinger.fingerID] = 0;
+	if(std::abs(motionAccumulatedY[tfinger.fingerID]) >= motionThreshold)
+		motionAccumulatedY[tfinger.fingerID] = 0;
 }
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
-	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+	numTouchFingers = countTouchFingers(tfinger.touchID);
 
 	// FIXME: better place to update potentially changed settings?
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
 
-	lastTapTimeTicks = tfinger.timestamp;
+	lastTapTimeTicks = touchEventTimeMs(tfinger);
 
 	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
 	{
@@ -199,7 +214,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 
 void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 {
-	numTouchFingers = SDL_GetNumTouchFingers(tfinger.touchId);
+	numTouchFingers = countTouchFingers(tfinger.touchID);
 
 	switch(state)
 	{
@@ -222,7 +237,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		case TouchState::TAP_DOWN_SHORT:
 		{
 			ENGINE->input().setCursorPosition(convertTouchToMouse(tfinger));
-			if(tfinger.timestamp - lastLeftClickTimeTicks < params.doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).length() < params.doubleTouchToleranceDistance)
+			if(touchEventTimeMs(tfinger) - lastLeftClickTimeTicks < params.doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).length() < params.doubleTouchToleranceDistance)
 			{
 				ENGINE->events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger), params.touchToleranceDistance);
 				ENGINE->events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
@@ -231,7 +246,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			{
 				ENGINE->events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
 				ENGINE->events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
-				lastLeftClickTimeTicks = tfinger.timestamp;
+				lastLeftClickTimeTicks = touchEventTimeMs(tfinger);
 				lastLeftClickPosition = convertTouchToMouse(tfinger);
 			}
 			ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
@@ -248,12 +263,12 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
-			if (SDL_GetNumTouchFingers(tfinger.touchId) == 1)
+			if (countTouchFingers(tfinger.touchID) == 1)
 			{
 				ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
 				state = TouchState::TAP_DOWN_PANNING;
 			}
-			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			if (countTouchFingers(tfinger.touchID) == 0)
 			{
 				ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
 				ENGINE->events().dispatchGesturePanningEnded(lastTapPosition, convertTouchToMouse(tfinger));
@@ -263,7 +278,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		}
 		case TouchState::TAP_DOWN_LONG:
 		{
-			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			if (countTouchFingers(tfinger.touchID) == 0)
 			{
 				state = TouchState::TAP_DOWN_LONG_AWAIT;
 			}
@@ -271,7 +286,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		}
 		case TouchState::TAP_DOWN_LONG_AWAIT:
 		{
-			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			if (countTouchFingers(tfinger.touchID) == 0)
 			{
 				ENGINE->input().setCursorPosition(convertTouchToMouse(tfinger));
 				ENGINE->events().dispatchClosePopup(convertTouchToMouse(tfinger));
@@ -286,7 +301,7 @@ void InputSourceTouch::handleUpdate()
 {
 	if ( state == TouchState::TAP_DOWN_SHORT)
 	{
-		uint32_t currentTime = SDL_GetTicks();
+		uint32_t currentTime = static_cast<uint32_t>(SDL_GetTicks());
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
 			ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
@@ -313,7 +328,9 @@ Point InputSourceTouch::convertTouchToMouse(float x, float y)
 
 bool InputSourceTouch::hasTouchInputDevice() const
 {
-	return SDL_GetNumTouchDevices() > 0;
+	int count = 0;
+	SDL_free(SDL_GetTouchDevices(&count));
+	return count > 0;
 }
 
 int InputSourceTouch::getNumTouchFingers() const
@@ -323,27 +340,31 @@ int InputSourceTouch::getNumTouchFingers() const
 
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	Point distance = convertTouchToMouse(-motionAccumulatedX[tfinger.fingerId], -motionAccumulatedY[tfinger.fingerId]);
+	Point distance = convertTouchToMouse(-motionAccumulatedX[tfinger.fingerID], -motionAccumulatedY[tfinger.fingerID]);
 
 	ENGINE->events().dispatchGesturePanning(lastTapPosition, convertTouchToMouse(tfinger), distance);
 }
 
 void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	int fingers = SDL_GetNumTouchFingers(tfinger.touchId);
-
-	if (fingers < 2)
-		return;
-
 	bool otherFingerFound = false;
 	double otherX;
 	double otherY;
 
-	for (int i = 0; i < fingers; ++i)
-	{
-		SDL_Finger * finger = SDL_GetTouchFinger(tfinger.touchId, i);
+	int fingersCount = 0;
+	SDL_Finger ** fingersList = SDL_GetTouchFingers(tfinger.touchID, &fingersCount);
 
-		if (finger && finger->id != tfinger.fingerId)
+	if (fingersCount < 2)
+	{
+		SDL_free(fingersList);
+		return;
+	}
+
+	for (int i = 0; fingersList && i < fingersCount; ++i)
+	{
+		SDL_Finger * finger = fingersList[i];
+
+		if (finger && finger->id != tfinger.fingerID)
 		{
 			otherX = finger->x * ENGINE->screenDimensions().x;
 			otherY = finger->y * ENGINE->screenDimensions().y;
@@ -352,13 +373,15 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 		}
 	}
 
+	SDL_free(fingersList);
+
 	if (!otherFingerFound)
 		return; // should be impossible, but better to avoid weird edge cases
 
 	float thisX = tfinger.x * ENGINE->screenDimensions().x;
 	float thisY = tfinger.y * ENGINE->screenDimensions().y;
-	float deltaX = motionAccumulatedX[tfinger.fingerId] * ENGINE->screenDimensions().x;
-	float deltaY = motionAccumulatedY[tfinger.fingerId] * ENGINE->screenDimensions().y;
+	float deltaX = motionAccumulatedX[tfinger.fingerID] * ENGINE->screenDimensions().x;
+	float deltaY = motionAccumulatedY[tfinger.fingerID] * ENGINE->screenDimensions().y;
 
 	float oldX = thisX - deltaX - otherX;
 	float oldY = thisY - deltaY - otherY;

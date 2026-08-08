@@ -15,7 +15,7 @@
 #include "lib/filesystem/Filesystem.h"
 #include "lib/CRandomGenerator.h"
 
-#include <SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -34,45 +34,89 @@ void CSoundHandler::onVolumeChange(const JsonNode & volumeNode)
 	setVolume(volumeNode.Integer());
 }
 
+/// SDL2_mixer defaulted to 8 mixing channels, keep that as fallback
+static constexpr int DEFAULT_CHANNELS_COUNT = 8;
+
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
 	ambientConfig(JsonPath::builtin("config/ambientSounds.json"))
 {
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
-	if(ambientConfig["allocateChannels"].isNumber())
-		Mix_AllocateChannels(ambientConfig["allocateChannels"].Integer());
-
 	if(isInitialized())
 	{
-		Mix_ChannelFinished([](int channel)
+		if(ambientConfig["allocateChannels"].isNumber())
+			allocateChannels(ambientConfig["allocateChannels"].Integer());
+		else
+			allocateChannels(DEFAULT_CHANNELS_COUNT);
+	}
+}
+
+void CSoundHandler::allocateChannels(int count)
+{
+	for(int channel = 0; channel < count; ++channel)
+	{
+		MIX_Track * track = MIX_CreateTrack(getMixer());
+
+		if(track == nullptr)
+		{
+			logGlobal->error("Unable to create mixer track: %s", SDL_GetError());
+			break;
+		}
+
+		// track index is passed as userdata so that the callback knows the channel it belongs to
+		MIX_SetTrackStoppedCallback(track, [](void * userdata, MIX_Track *)
 		{
 			// It is possible for this code to be executed during ENGINE destruction.
 			// In this scenario, ENGINE is already nullptr, but ~CSoundHandler is still running
 			if (ENGINE)
-				ENGINE->sound().soundFinishedCallback(channel);
-		});
+				ENGINE->sound().soundFinishedCallback(static_cast<int>(reinterpret_cast<intptr_t>(userdata)));
+		}, reinterpret_cast<void *>(static_cast<intptr_t>(channel)));
+
+		channels.push_back(track);
 	}
 }
 
-void CSoundHandler::MixChunkDeleter::operator()(Mix_Chunk * ptr)
+MIX_Track * CSoundHandler::getChannel(int channel) const
 {
-	Mix_FreeChunk(ptr);
+	if(channel < 0 || channel >= static_cast<int>(channels.size()))
+		return nullptr;
+
+	return channels[channel];
+}
+
+int CSoundHandler::findFreeChannel() const
+{
+	for(int channel = 0; channel < static_cast<int>(channels.size()); ++channel)
+		if(!MIX_TrackPlaying(channels[channel]) && !MIX_TrackPaused(channels[channel]))
+			return channel;
+
+	return -1;
+}
+
+void CSoundHandler::MixChunkDeleter::operator()(MIX_Audio * ptr)
+{
+	MIX_DestroyAudio(ptr);
 }
 
 CSoundHandler::~CSoundHandler()
 {
 	if(isInitialized())
 	{
-		Mix_ChannelFinished(nullptr);
-		Mix_HaltChannel(-1);
+		for(auto * track : channels)
+		{
+			MIX_SetTrackStoppedCallback(track, nullptr, nullptr);
+			MIX_StopTrack(track, 0);
+			MIX_DestroyTrack(track);
+		}
+		channels.clear();
 
 		soundChunks.clear();
 		uncachedPlayingChunks.clear();
 	}
 }
 
-Mix_Chunk * CSoundHandler::getSoundChunkCached(const AudioPath & sound)
+MIX_Audio * CSoundHandler::getSoundChunkCached(const AudioPath & sound)
 {
 	if (soundChunks.find(sound) == soundChunks.end())
 		soundChunks[sound].first = getSoundChunk(sound);
@@ -86,8 +130,9 @@ CSoundHandler::MixChunkPtr CSoundHandler::getSoundChunk(const AudioPath & sound)
 	try
 	{
 		auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
-		SDL_RWops * ops = SDL_RWFromMem(data.first.get(), data.second);
-		Mix_Chunk * chunk = Mix_LoadWAV_RW(ops, 1); // will free ops
+		SDL_IOStream * ops = SDL_IOFromMem(data.first.get(), data.second);
+		// predecode, since the backing memory is released as soon as this method returns
+		MIX_Audio * chunk = MIX_LoadAudio_IO(getMixer(), ops, true, true); // will free ops
 		return MixChunkPtr(chunk);
 	}
 	catch(std::exception & e)
@@ -103,8 +148,8 @@ CSoundHandler::MixChunkPtr CSoundHandler::getSoundChunk(std::pair<std::unique_pt
 	{
 		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + std::min(static_cast<si64>(100), data.second));
 
-		SDL_RWops * ops = SDL_RWFromMem(data.first.get(), data.second);
-		Mix_Chunk * chunk = Mix_LoadWAV_RW(ops, 1); // will free ops
+		SDL_IOStream * ops = SDL_IOFromMem(data.first.get(), data.second);
+		MIX_Audio * chunk = MIX_LoadAudio_IO(getMixer(), ops, true, true); // will free ops
 		return MixChunkPtr(chunk);
 	}
 	catch(std::exception & e)
@@ -145,22 +190,17 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 
 	uint32_t milliseconds = 0;
 
-	Mix_Chunk * chunk = Mix_LoadWAV_RW(SDL_RWFromMem(data.first.get(), data.second), 1);
-
-	int freq = 0;
-	Uint16 fmt = 0;
-	int channels = 0;
-	if(!Mix_QuerySpec(&freq, &fmt, &channels))
-		return 0;
+	MIX_Audio * chunk = MIX_LoadAudio_IO(getMixer(), SDL_IOFromMem(data.first.get(), data.second), false, true);
 
 	if(chunk != nullptr)
 	{
-		Uint32 sampleSizeBytes = (fmt & 0xFF) / 8;
-		Uint32 samples = (chunk->alen / sampleSizeBytes);
-		Uint32 frames = (samples / channels);
-		milliseconds = ((frames * 1000) / freq);
+		SDL_AudioSpec spec;
+		Sint64 frames = MIX_GetAudioDuration(chunk);
 
-		Mix_FreeChunk(chunk);
+		if(frames >= 0 && MIX_GetAudioFormat(chunk, &spec))
+			milliseconds = MIX_FramesToMS(spec.freq, frames);
+
+		MIX_DestroyAudio(chunk);
 	}
 
 	return milliseconds;
@@ -193,7 +233,7 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 
 	int channel;
 	MixChunkPtr chunkPtr = getSoundChunk(sound);
-	Mix_Chunk * chunk = nullptr;
+	MIX_Audio * chunk = nullptr;
 	if (!useCache)
 	{
 		chunkPtr = getSoundChunk(sound);
@@ -204,10 +244,10 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 
 	if(chunk)
 	{
-		channel = Mix_PlayChannel(-1, chunk, repeats);
+		channel = playChunk(chunk, repeats);
 		if(channel == -1)
 		{
-			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), Mix_GetError());
+			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), SDL_GetError());
 		}
 		else
 		{
@@ -217,6 +257,33 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 	}
 	else
 		channel = -1;
+
+	return channel;
+}
+
+/// Assigns the chunk to a free track and starts it, emulating Mix_PlayChannel(-1, ...)
+int CSoundHandler::playChunk(MIX_Audio * chunk, int repeats)
+{
+	int channel = findFreeChannel();
+
+	if(channel == -1)
+	{
+		SDL_SetError("No free mixer track available");
+		return -1;
+	}
+
+	MIX_Track * track = channels[channel];
+
+	if(!MIX_SetTrackAudio(track, chunk))
+		return -1;
+
+	SDL_PropertiesID options = SDL_CreateProperties();
+	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, repeats);
+	bool started = MIX_PlayTrack(track, options);
+	SDL_DestroyProperties(options);
+
+	if(!started)
+		return -1;
 
 	return channel;
 }
@@ -233,10 +300,10 @@ int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data)
 	auto chunk = getSoundChunk(data);
 	if(chunk)
 	{
-		channel = Mix_PlayChannel(-1, chunk.get(), 0);
+		channel = playChunk(chunk.get(), 0);
 		if(channel == -1)
 		{
-			logGlobal->error("Unable to play sound, error %s", Mix_GetError());
+			logGlobal->error("Unable to play sound, error %s", SDL_GetError());
 		}
 		else
 		{
@@ -255,20 +322,20 @@ int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> & sound_vec)
 
 void CSoundHandler::stopSound(int handler)
 {
-	if(isInitialized() && handler != -1)
-		Mix_HaltChannel(handler);
+	if(isInitialized() && getChannel(handler))
+		MIX_StopTrack(getChannel(handler), 0);
 }
 
 void CSoundHandler::pauseSound(int handler)
 {
-	if(isInitialized() && handler != -1)
-		Mix_Pause(handler);
+	if(isInitialized() && getChannel(handler))
+		MIX_PauseTrack(getChannel(handler));
 }
 
 void CSoundHandler::resumeSound(int handler)
 {
-	if(isInitialized() && handler != -1)
-		Mix_Resume(handler);
+	if(isInitialized() && getChannel(handler))
+		MIX_ResumeTrack(getChannel(handler));
 }
 
 ui32 CSoundHandler::getVolume() const
@@ -301,7 +368,16 @@ void CSoundHandler::updateChannelVolume(int channel)
 // Sets the sound volume, from 0 (mute) to 100
 void CSoundHandler::setChannelVolume(int channel, ui32 percent)
 {
-	Mix_Volume(channel, (MIX_MAX_VOLUME * percent) / 100);
+	float gain = static_cast<float>(percent) / 100.f;
+
+	// channel of -1 means "every channel", same as in SDL2_mixer
+	if(channel == -1)
+	{
+		for(auto * track : channels)
+			MIX_SetTrackGain(track, gain);
+	}
+	else if(getChannel(channel))
+		MIX_SetTrackGain(getChannel(channel), gain);
 }
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)

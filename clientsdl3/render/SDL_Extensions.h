@@ -15,9 +15,21 @@
 struct SDL_Rect;
 struct SDL_Surface;
 struct SDL_Color;
+struct SDL_Palette;
+struct SDL_PixelFormatDetails;
 
 namespace CSDL_Ext
 {
+
+/// SDL_Surface only stores the pixel format enum, the layout has to be looked up separately
+const SDL_PixelFormatDetails * getFormat(const SDL_Surface * surface);
+int getBytesPerPixel(const SDL_Surface * surface);
+int getBitsPerPixel(const SDL_Surface * surface);
+SDL_Palette * getPalette(const SDL_Surface * surface);
+
+/// maps color to a pixel value in the format of the given surface
+uint32_t mapColor(const SDL_Surface * surface, SDL_Color color);
+SDL_Color getColor(const SDL_Surface * surface, uint32_t pixel);
 
 /// creates Rect using provided rect
 Rect fromSDL(const SDL_Rect & rect);

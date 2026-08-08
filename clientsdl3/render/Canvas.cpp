@@ -20,8 +20,8 @@
 #include "render/Graphics.h"
 #include "render/IFont.h"
 
-#include <SDL_surface.h>
-#include <SDL_pixels.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_pixels.h>
 
 Canvas::Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy):
 	scalingPolicy(scalingPolicy),
@@ -100,7 +100,7 @@ void Canvas::applyGrayscale()
 
 Canvas::~Canvas()
 {
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 }
 
 void Canvas::draw(IVideoInstance & video, const Point & pos)
@@ -148,7 +148,7 @@ void Canvas::drawTransparent(const Canvas & image, const Point & pos, double tra
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
 	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(transformPos(pos), transformSize(targetSize)));
-	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect);
+	SDL_BlitSurfaceScaled(image.surface, nullptr, surface, &targetRect, SDL_SCALEMODE_NEAREST);
 }
 
 void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
@@ -240,8 +240,7 @@ Rect Canvas::getRenderArea() const
 
 ColorRGBA Canvas::getPixel(const Point & position) const
 {
-	SDL_Color color;
-	SDL_GetRGBA(CSDL_Ext::getPixel(surface, position.x, position.y), surface->format, &color.r, &color.g, &color.b, &color.a);
+	SDL_Color color = CSDL_Ext::getColor(surface, CSDL_Ext::getPixel(surface, position.x, position.y));
 	return ColorRGBA(color.r, color.g, color.b, color.a);
 }
 

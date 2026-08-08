@@ -29,7 +29,11 @@
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/GameLibrary.h"
 
+#ifdef VCMI_SDL3
+#include <SDL3/SDL_surface.h>
+#else
 #include <SDL_surface.h>
+#endif
 
 Graphics * graphics = nullptr;
 

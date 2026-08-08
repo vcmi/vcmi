@@ -1,3 +1,26 @@
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+if(TARGET SDL2_image::SDL2_image)
+	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+endif()
+if(TARGET SDL2_image::SDL2_image-static)
+	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image-static)
+endif()
+find_package(SDL2_mixer REQUIRED)
+if(TARGET SDL2_mixer::SDL2_mixer)
+	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+endif()
+if(TARGET SDL2_mixer::SDL2_mixer-static)
+	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer-static)
+endif()
+find_package(SDL2_ttf REQUIRED)
+if(TARGET SDL2_ttf::SDL2_ttf)
+	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+endif()
+if(TARGET SDL2_ttf::SDL2_ttf-static)
+	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
+endif()
+
 set(vcmisdl2_SRCS
 	events/NotificationHandler.cpp
 	events/InputHandler.cpp

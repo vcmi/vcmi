@@ -27,8 +27,8 @@
 #include "lib/texts/TextOperations.h"
 #include "lib/vcmi_endian.h"
 
-#include <SDL_surface.h>
-#include <SDL_image.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3_image/SDL_image.h>
 
 struct AtlasLayout
 {
@@ -159,19 +159,20 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 	auto atlas = doAtlasPacking(atlasSymbol);
 
-	atlasImage = SDL_CreateRGBSurface(0, atlas.dimensions.x, atlas.dimensions.y, 8, 0, 0, 0, 0);
+	atlasImage = SDL_CreateSurface(atlas.dimensions.x, atlas.dimensions.y, SDL_PIXELFORMAT_INDEX8);
+	SDL_CreateSurfacePalette(atlasImage);
 
-	assert(atlasImage->format->palette != nullptr);
-	assert(atlasImage->format->palette->ncolors == 256);
+	assert(CSDL_Ext::getPalette(atlasImage) != nullptr);
+	assert(CSDL_Ext::getPalette(atlasImage)->ncolors == 256);
 
-	atlasImage->format->palette->colors[0] = { 0, 255, 255, SDL_ALPHA_OPAQUE }; // transparency
-	atlasImage->format->palette->colors[1] = { 0, 0, 0, SDL_ALPHA_OPAQUE }; // black shadow
+	CSDL_Ext::getPalette(atlasImage)->colors[0] = { 0, 255, 255, SDL_ALPHA_OPAQUE }; // transparency
+	CSDL_Ext::getPalette(atlasImage)->colors[1] = { 0, 0, 0, SDL_ALPHA_OPAQUE }; // black shadow
 
 	CSDL_Ext::fillSurface(atlasImage, CSDL_Ext::toSDL(Colors::CYAN));
 	CSDL_Ext::setColorKey(atlasImage, CSDL_Ext::toSDL(Colors::CYAN));
 
-	for (size_t i = 2; i < atlasImage->format->palette->ncolors; ++i)
-		atlasImage->format->palette->colors[i] = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	for (size_t i = 2; i < CSDL_Ext::getPalette(atlasImage)->ncolors; ++i)
+		CSDL_Ext::getPalette(atlasImage)->colors[i] = { 255, 255, 255, SDL_ALPHA_OPAQUE };
 
 	for (auto const	& symbol : loadedChars)
 	{
@@ -209,7 +210,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		EScalingAlgorithm algorithm = filterNameToEnum.at(filterName);
 		SDLImageScaler scaler(atlasImage);
 		scaler.scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
-		SDL_FreeSurface(atlasImage);
+		SDL_DestroySurface(atlasImage);
 		atlasImage = scaler.acquireResultSurface();
 	}
 
@@ -222,7 +223,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 CBitmapFont::~CBitmapFont()
 {
-	SDL_FreeSurface(atlasImage);
+	SDL_DestroySurface(atlasImage);
 }
 
 size_t CBitmapFont::getLineHeightScaled() const
@@ -273,8 +274,8 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	auto sdlColor = CSDL_Ext::toSDL(color);
 
-	if (atlasImage->format->palette)
-		SDL_SetPaletteColors(atlasImage->format->palette, &sdlColor, 255, 1);
+	if (CSDL_Ext::getPalette(atlasImage))
+		SDL_SetPaletteColors(CSDL_Ext::getPalette(atlasImage), &sdlColor, 255, 1);
 	else
 		SDL_SetSurfaceColorMod(atlasImage, color.r, color.g, color.b);
 

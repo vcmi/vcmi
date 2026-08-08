@@ -16,7 +16,7 @@
 #include "xBRZ/xbrz.h"
 
 #include <tbb/parallel_for.h>
-#include <SDL_surface.h>
+#include <SDL3/SDL_surface.h>
 
 SDLImageOptimizer::SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDimensions)
 	: surf(surf)
@@ -36,7 +36,7 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 
 	// locate fully-transparent area around image
 	// H3 hadles this on format level, but mods or images scaled in runtime do not
-	if (surf->format->palette)
+	if (CSDL_Ext::getPalette(surf))
 	{
 		for (int y = 0; y < surf->h; ++y)
 		{
@@ -56,14 +56,17 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 	}
 	else
 	{
+		// hoisted out of the loop, resolving the format for every pixel is not free
+		const SDL_PixelFormatDetails * format = CSDL_Ext::getFormat(surf);
+
 		for (int y = 0; y < surf->h; ++y)
 		{
 			for (int x = 0; x < surf->w; ++x)
 			{
-				ColorRGBA color;
-				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), surf->format, &color.r, &color.g, &color.b, &color.a);
+				uint8_t alpha;
+				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), format, nullptr, nullptr, nullptr, nullptr, &alpha);
 
-				if (color.a != SDL_ALPHA_TRANSPARENT)
+				if (alpha != SDL_ALPHA_TRANSPARENT)
 				{
 					// opaque
 					top = std::min(top, y);
@@ -88,11 +91,11 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
 
-		if (SDL_HasColorKey(surf))
+		if (SDL_SurfaceHasColorKey(surf))
 		{
 			uint32_t colorKey;
-			SDL_GetColorKey(surf, &colorKey);
-			SDL_SetColorKey(newSurface, SDL_TRUE, colorKey);
+			SDL_GetSurfaceColorKey(surf, &colorKey);
+			SDL_SetSurfaceColorKey(newSurface, true, colorKey);
 		}
 		output = newSurface;
 
@@ -224,8 +227,8 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 
 	if (intermediate == surf)
 	{
-		SDL_FreeSurface(intermediate);
-		intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
+		SDL_DestroySurface(intermediate);
+		intermediate = SDL_ConvertSurface(surf, SDL_PIXELFORMAT_ARGB8888);
 	}
 
 	if (intermediate == surf)
@@ -236,9 +239,8 @@ SDLImageScaler::~SDLImageScaler()
 {
 	ENGINE->dispatchMainThread([surface = intermediate]()
 	{
-		// SDL_FreeSurface must be executed in main thread to avoid thread races to its internal state
-		// will be no longer necessary in SDL 3
-		SDL_FreeSurface(surface);
+		// SDL_DestroySurface must be executed in main thread to avoid thread races to its internal state
+		SDL_DestroySurface(surface);
 	});
 }
 

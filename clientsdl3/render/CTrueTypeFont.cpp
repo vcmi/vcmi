@@ -20,6 +20,8 @@
 #include "lib/filesystem/Filesystem.h"
 #include "lib/texts/TextOperations.h"
 
+#include <SDL3/SDL_iostream.h>
+
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
@@ -39,10 +41,10 @@ int CTrueTypeFont::getPointSize(const JsonNode & config) const
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
 {
-	if(!TTF_WasInit() && TTF_Init()==-1)
-		throw std::runtime_error(std::string("Failed to initialize true type support: ") + TTF_GetError() + "\n");
+	if(!TTF_WasInit() && !TTF_Init())
+		throw std::runtime_error(std::string("Failed to initialize true type support: ") + SDL_GetError() + "\n");
 
-	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), data.second), 1, getPointSize(config["size"]));
+	return TTF_OpenFontIO(SDL_IOFromConstMem(data.first.get(), data.second), true, getPointSize(config["size"]));
 }
 
 int CTrueTypeFont::getFontStyle(const JsonNode &config) const
@@ -74,10 +76,10 @@ CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	logGlobal->debug("Loaded TTF font: '%s', point size %d, height %d, ascent %d, descent %d, line skip %d",
 					 fontConfig["file"].String(),
 					 getPointSize(fontConfig["size"]),
-					 TTF_FontHeight(font.get()),
-					 TTF_FontAscent(font.get()),
-					 TTF_FontDescent(font.get()),
-					 TTF_FontLineSkip(font.get())
+					 TTF_GetFontHeight(font.get()),
+					 TTF_GetFontAscent(font.get()),
+					 TTF_GetFontDescent(font.get()),
+					 TTF_GetFontLineSkip(font.get())
 	);
 }
 
@@ -85,12 +87,12 @@ CTrueTypeFont::~CTrueTypeFont() = default;
 
 size_t CTrueTypeFont::getFontAscentScaled() const
 {
-	return TTF_FontAscent(font.get());
+	return TTF_GetFontAscent(font.get());
 }
 
 size_t CTrueTypeFont::getLineHeightScaled() const
 {
-	return TTF_FontHeight(font.get());
+	return TTF_GetFontHeight(font.get());
 }
 
 size_t CTrueTypeFont::getGlyphWidthScaled(const char *text) const
@@ -101,21 +103,16 @@ size_t CTrueTypeFont::getGlyphWidthScaled(const char *text) const
 bool CTrueTypeFont::canRepresentCharacter(const char * text) const
 {
 	uint32_t codepoint = TextOperations::getUnicodeCodepoint(text, TextOperations::getUnicodeCharacterSize(*text));
-#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
-	return TTF_GlyphIsProvided32(font.get(), codepoint);
-#elif SDL_TTF_VERSION_ATLEAST(2, 0, 12)
-	if (codepoint <= 0xffff)
-		return TTF_GlyphIsProvided(font.get(), codepoint);
-	return true;
-#else
-	return true;
-#endif
+	return TTF_FontHasGlyph(font.get(), codepoint);
 }
 
 size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 {
-	int width;
-	TTF_SizeUTF8(font.get(), text.c_str(), &width, nullptr);
+	int width = 0;
+	TTF_GetStringSize(font.get(), text.c_str(), text.size(), &width, nullptr);
+
+	if (hasColorGlyphs(text))
+		return width;
 
 	if (outline)
 		width += getScalingFactor();
@@ -125,10 +122,35 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 	return width;
 }
 
+bool CTrueTypeFont::hasColorGlyphs(const std::string & text) const
+{
+	if (colorGlyphs.has_value())
+		return *colorGlyphs;
+
+	if (text.empty())
+		return false;
+
+	uint32_t codepoint = TextOperations::getUnicodeCodepoint(text.c_str(), TextOperations::getUnicodeCharacterSize(text[0]));
+
+	TTF_ImageType imageType = TTF_IMAGE_INVALID;
+	SDL_Surface * glyph = TTF_GetGlyphImage(font.get(), codepoint, &imageType);
+	SDL_DestroySurface(glyph);
+
+	colorGlyphs = imageType == TTF_IMAGE_COLOR;
+	return *colorGlyphs;
+}
+
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & text, const ColorRGBA & color, const Point & pos) const
 {
 	if (text.empty())
 		return;
+
+	// an outline pass would redraw the colored glyph beside itself, not a black border
+	if (hasColorGlyphs(text))
+	{
+		renderTextImpl(surface, text, color, pos);
+		return;
+	}
 
 	if (outline)
 		renderTextImpl(surface, text, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
@@ -143,17 +165,17 @@ void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & te
 {
 	SDL_Surface * rendered;
 	if (blended)
-		rendered = TTF_RenderUTF8_Blended(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
+		rendered = TTF_RenderText_Blended(font.get(), text.c_str(), text.size(), CSDL_Ext::toSDL(color));
 	else
-		rendered = TTF_RenderUTF8_Solid(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
+		rendered = TTF_RenderText_Solid(font.get(), text.c_str(), text.size(), CSDL_Ext::toSDL(color));
 
 	if (rendered)
 	{
 		CSDL_Ext::blitSurface(rendered, surface, pos);
-		SDL_FreeSurface(rendered);
+		SDL_DestroySurface(rendered);
 	}
 	else
-		logGlobal->error("Failed to render text '%s'. Reason: '%s'", text, TTF_GetError());
+		logGlobal->error("Failed to render text '%s'. Reason: '%s'", text, SDL_GetError());
 
 }
 

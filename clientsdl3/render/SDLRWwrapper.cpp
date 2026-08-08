@@ -13,85 +13,79 @@
 
 #include "lib/filesystem/CInputStream.h"
 
-#include <SDL_rwops.h>
+#include <SDL3/SDL_iostream.h>
 
-static inline CInputStream* get_stream(SDL_RWops* context)
+static inline CInputStream* get_stream(void* userdata)
 {
-	return static_cast<CInputStream*>(context->hidden.unknown.data1);
+	return static_cast<CInputStream*>(userdata);
 }
 
-static Sint64 impl_size(SDL_RWops* context)
+static Sint64 SDLCALL impl_size(void* userdata)
 {
-    return get_stream(context)->getSize();
+	return get_stream(userdata)->getSize();
 }
 
-static Sint64 impl_seek(SDL_RWops* context, Sint64 offset, int whence)
+static Sint64 SDLCALL impl_seek(void* userdata, Sint64 offset, SDL_IOWhence whence)
 {
-	auto stream = get_stream(context);
+	auto stream = get_stream(userdata);
 	switch (whence)
 	{
-	case RW_SEEK_SET:
+	case SDL_IO_SEEK_SET:
 		return stream->seek(offset);
-		break;
-	case RW_SEEK_CUR:
+	case SDL_IO_SEEK_CUR:
 		return stream->seek(stream->tell() + offset);
-		break;
-	case RW_SEEK_END:
+	case SDL_IO_SEEK_END:
 		return stream->seek(stream->getSize() + offset);
-		break;
 	default:
 		return -1;
 	}
-
 }
 
-static std::size_t impl_read(SDL_RWops* context, void *ptr, size_t size, size_t maxnum)
+static std::size_t SDLCALL impl_read(void* userdata, void *ptr, size_t size, SDL_IOStatus *status)
 {
-	auto stream = get_stream(context);
-	auto oldpos = stream->tell();
+	// unlike SDL2, SDL3 asks for a plain byte count and reports a short read as EOF
+	auto count = get_stream(userdata)->read(static_cast<ui8*>(ptr), size);
 
-	auto count = stream->read(static_cast<ui8*>(ptr), size*maxnum);
+	if (count == 0)
+		*status = SDL_IO_STATUS_EOF;
 
-	if (count != 0 && count != size*maxnum)
-	{
-		// if not a whole amount of objects of size has been read, we need to seek
-		stream->seek(oldpos + size * (count / size));
-	}
-
-	return count / size;
+	return count;
 }
 
-static std::size_t impl_write(SDL_RWops* context, const void *ptr, size_t size, size_t num)
+static std::size_t SDLCALL impl_write(void* userdata, const void *ptr, size_t size, SDL_IOStatus *status)
 {
 	// writing is not supported
-    return 0;
-}
-
-static int impl_close(SDL_RWops* context)
-{
-	if (context == nullptr)
-		return 0;
-
-	delete get_stream(context);
-	SDL_FreeRW(context);
+	*status = SDL_IO_STATUS_READONLY;
 	return 0;
 }
 
-
-SDL_RWops* MakeSDLRWops(std::unique_ptr<CInputStream> in)
+static bool SDLCALL impl_flush(void* userdata, SDL_IOStatus *status)
 {
-	SDL_RWops* result = SDL_AllocRW();
+	return true;
+}
+
+static bool SDLCALL impl_close(void* userdata)
+{
+	delete get_stream(userdata);
+	return true;
+}
+
+SDL_IOStream* MakeSDLIOStream(std::unique_ptr<CInputStream> in)
+{
+	SDL_IOStreamInterface iface;
+	SDL_INIT_INTERFACE(&iface);
+
+	iface.size  = &impl_size;
+	iface.seek  = &impl_seek;
+	iface.read  = &impl_read;
+	iface.write = &impl_write;
+	iface.flush = &impl_flush;
+	iface.close = &impl_close;
+
+	SDL_IOStream * result = SDL_OpenIO(&iface, in.get());
 	if (!result)
 		return nullptr;
 
-	result->size  = &impl_size;
-	result->seek  = &impl_seek;
-	result->read  = &impl_read;
-	result->write = &impl_write;
-	result->close = &impl_close;
-
-	result->type = SDL_RWOPS_UNKNOWN;
-	result->hidden.unknown.data1 = in.release();
-
+	in.release();
 	return result;
 }

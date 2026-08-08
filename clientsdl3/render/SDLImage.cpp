@@ -25,9 +25,9 @@
 
 #include <tbb/parallel_for.h>
 
-#include <SDL_image.h>
-#include <SDL_surface.h>
-#include <SDL_version.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_version.h>
 
 class SDLImageLoader;
 
@@ -132,12 +132,12 @@ void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, cons
 	SDL_SetSurfaceColorMod(surf, colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
 	SDL_SetSurfaceAlphaMod(surf, alpha);
 
-	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0))
+	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && CSDL_Ext::getFormat(surf)->Amask != 0))
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
 	else
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
 
 	SDL_Rect srcRect = CSDL_Ext::toSDL(sourceRect);
@@ -146,14 +146,14 @@ void SDLImageShared::scaledDraw(SDL_Surface * where, SDL_Palette * palette, cons
 	if (sourceRect.dimensions() * scaleTo / dimensions() != destScale)
 		logGlobal->info("???");
 
-	SDL_Surface * tempSurface = SDL_ConvertSurface(surf, where->format, 0);
-	int result = SDL_BlitScaled(tempSurface, &srcRect, where, &dstRect);
+	SDL_Surface * tempSurface = SDL_ConvertSurface(surf, where->format);
+	bool result = SDL_BlitSurfaceScaled(tempSurface, &srcRect, where, &dstRect, SDL_SCALEMODE_NEAREST);
 
-	SDL_FreeSurface(tempSurface);
-	if (result != 0)
-		logGlobal->error("SDL_BlitScaled failed! %s", SDL_GetError());
+	SDL_DestroySurface(tempSurface);
+	if (!result)
+		logGlobal->error("SDL_BlitSurfaceScaled failed! %s", SDL_GetError());
 
-	if (surf->format->palette)
+	if (CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
@@ -189,15 +189,15 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 	SDL_SetSurfaceColorMod(surf, colorMultiplier.r, colorMultiplier.g, colorMultiplier.b);
 	SDL_SetSurfaceAlphaMod(surf, alpha);
 
-	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0))
+	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && CSDL_Ext::getFormat(surf)->Amask != 0))
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
 	else
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
 
-	if(surf->format->palette && mode != EImageBlitMode::OPAQUE && mode != EImageBlitMode::COLORKEY)
+	if(CSDL_Ext::getPalette(surf) && mode != EImageBlitMode::OPAQUE && mode != EImageBlitMode::COLORKEY)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift, alpha);
 	}
@@ -206,7 +206,7 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 		CSDL_Ext::blitSurface(surf, sourceRect, where, destShift);
 	}
 
-	if (surf->format->palette)
+	if (CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
@@ -219,7 +219,7 @@ void SDLImageShared::optimizeSurface()
 	SDLImageOptimizer optimizer(surf, Rect(margins, fullSize));
 
 	optimizer.optimizeSurface(surf);
-	SDL_FreeSurface(surf);
+	SDL_DestroySurface(surf);
 
 	surf = optimizer.acquireResultSurface();
 	margins = optimizer.getResultDimensions().topLeft();
@@ -237,7 +237,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	if (!surf)
 		return shared_from_this();
 
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
 
 	// simple heuristics to differentiate tileable UI elements from map object / combat assets
@@ -249,7 +249,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 
 	auto result = SDLImageShared::createScaled(this, factor, algorithm);
 
-	if (surf->format->palette)
+	if (CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 
 	return result;
@@ -299,7 +299,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
 
 	SDLImageScaler scaler(surf, Rect(margins, fullSize), true);
@@ -308,9 +308,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 
 	auto scaled = scaler.acquireResultSurface();
 
-	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
-		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
-	else if(scaled->format && scaled->format->Amask)
+	if (scaled->format && CSDL_Ext::getPalette(scaled)) // fix color keying, because SDL loses it at this point
+		CSDL_Ext::setColorKey(scaled, CSDL_Ext::getPalette(scaled)->colors[0]);
+	else if(scaled->format && CSDL_Ext::getFormat(scaled)->Amask)
 		SDL_SetSurfaceBlendMode(scaled, SDL_BLENDMODE_BLEND);//just in case
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
@@ -320,9 +320,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 	ret->margins = scaler.getResultDimensions().topLeft();
 
 	// erase our own reference
-	SDL_FreeSurface(scaled);
+	SDL_DestroySurface(scaled);
 
-	if (surf->format->palette)
+	if (CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 
 	return ret;
@@ -340,10 +340,10 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 	if (!surf)
 		return;
 
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
 	IMG_SavePNG(surf, path.string().c_str());
-	if (palette && surf->format->palette)
+	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
@@ -360,8 +360,7 @@ bool SDLImageShared::isTransparent(const Point & coords) const
 	if (test.x < 0 || test.y < 0 || test.x >= surf->w || test.y >= surf->h)
 		return true;
 
-	SDL_Color color;
-	SDL_GetRGBA(CSDL_Ext::getPixel(surf, test.x, test.y), surf->format, &color.r, &color.g, &color.b, &color.a);
+	SDL_Color color = CSDL_Ext::getColor(surf, CSDL_Ext::getPixel(surf, test.x, test.y));
 
 	bool pixelTransparent = color.a < 128;
 	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
@@ -387,7 +386,7 @@ const SDL_Palette * SDLImageShared::getPalette() const
 
 	if (!surf)
 		return nullptr;
-	return surf->format->palette;
+	return CSDL_Ext::getPalette(surf);
 }
 
 Point SDLImageShared::dimensions() const
@@ -414,7 +413,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 	ret->fullSize = fullSize;
 
 	// erase our own reference
-	SDL_FreeSurface(flipped);
+	SDL_DestroySurface(flipped);
 
 	return ret;
 }
@@ -435,7 +434,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	ret->fullSize = fullSize;
 
 	// erase our own reference
-	SDL_FreeSurface(flipped);
+	SDL_DestroySurface(flipped);
 
 	return ret;
 }
@@ -456,7 +455,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
 	ret->optimizeSurface();
 
 	// erase our own reference
-	SDL_FreeSurface(shadow);
+	SDL_DestroySurface(shadow);
 
 	return ret;
 }
@@ -478,7 +477,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & co
 	ret->optimizeSurface();
 
 	// erase our own reference
-	SDL_FreeSurface(outline);
+	SDL_DestroySurface(outline);
 
 	return ret;
 }
@@ -500,18 +499,18 @@ void SDLImageShared::savePalette()
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
 	// For some images that don't have palette, skip this
-	if(surf->format->palette == nullptr)
+	if(CSDL_Ext::getPalette(surf) == nullptr)
 		return;
 
 	if(originalPalette == nullptr)
-		originalPalette = SDL_AllocPalette(surf->format->palette->ncolors);
+		originalPalette = SDL_CreatePalette(CSDL_Ext::getPalette(surf)->ncolors);
 
-	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, surf->format->palette->ncolors);
+	SDL_SetPaletteColors(originalPalette, CSDL_Ext::getPalette(surf)->colors, 0, CSDL_Ext::getPalette(surf)->ncolors);
 }
 
 SDLImageShared::~SDLImageShared()
 {
-	SDL_FreeSurface(surf);
+	SDL_DestroySurface(surf);
 	if (originalPalette)
-		SDL_FreePalette(originalPalette);
+		SDL_DestroyPalette(originalPalette);
 }

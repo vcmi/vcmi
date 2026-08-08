@@ -18,13 +18,18 @@
 
 #include "lib/Rect.h"
 
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
+
+/// SDL3 tracks text input state per window instead of globally
+static SDL_Window * textInputWindow()
+{
+	return SDL_GetKeyboardFocus();
+}
 
 InputSourceText::InputSourceText()
 {
-	// For whatever reason, in SDL text input is considered to be active by default at least on desktop platforms
-	// Apparently fixed in SDL3, but until then we need a workaround
-	SDL_StopTextInput();
+	// SDL3 no longer starts text input on its own, so nothing has to be stopped here
 }
 
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
@@ -44,11 +49,15 @@ void InputSourceText::startTextInput(const Rect & whereInput)
 		Rect rectInScreenCoordinates = ENGINE->screenHandler().convertLogicalPointsToWindow(whereInput);
 		SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
 
-		SDL_SetTextInputRect(&textInputRect);
+		SDL_Window * window = textInputWindow();
+		if (window == nullptr)
+			return;
 
-		if (SDL_IsTextInputActive() == SDL_FALSE)
+		SDL_SetTextInputArea(window, &textInputRect, 0);
+
+		if (!SDL_TextInputActive(window))
 		{
-			SDL_StartTextInput();
+			SDL_StartTextInput(window);
 		}
 	});
 }
@@ -57,9 +66,11 @@ void InputSourceText::stopTextInput()
 {
 	ENGINE->dispatchMainThread([]()
 	{
-		if (SDL_IsTextInputActive() == SDL_TRUE)
+		SDL_Window * window = textInputWindow();
+
+		if (window != nullptr && SDL_TextInputActive(window))
 		{
-			SDL_StopTextInput();
+			SDL_StopTextInput(window);
 		}
 	});
 }

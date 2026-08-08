@@ -19,9 +19,10 @@
 #include "gui/Shortcut.h"
 #include "gui/ShortcutHandler.h"
 
-#include <SDL_clipboard.h>
-#include <SDL_events.h>
-#include <SDL_hints.h>
+#include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_keyboard.h>
 
 InputSourceKeyboard::InputSourceKeyboard()
 : handleBackRightMouseButton(settings["input"]["handleBackRightMouseButton"].Bool())
@@ -31,6 +32,13 @@ InputSourceKeyboard::InputSourceKeyboard()
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
 	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, handleBackRightMouseButton ? "1" : "0");
+}
+
+/// SDL3 tracks text input state per window instead of globally
+static bool isTextInputActive()
+{
+	SDL_Window * window = SDL_GetKeyboardFocus();
+	return window != nullptr && SDL_TextInputActive(window);
 }
 
 std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & keyName, bool keyUp)
@@ -57,13 +65,13 @@ std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & key
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), false);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.scancode), false);
 	logGlobal->trace("keyboard: key '%s' pressed", keyName);
-	assert(key.state == SDL_PRESSED);
+	assert(key.down);
 
-	if (SDL_IsTextInputActive() == SDL_TRUE)
+	if (isTextInputActive())
 	{
-		if(key.keysym.sym == SDLK_v && isKeyboardCtrlDown()) 
+		if(key.key == SDLK_V && isKeyboardCtrlDown()) 
 		{
 			char * clipboardBuffer = SDL_GetClipboardText();
 			std::string clipboardContent = clipboardBuffer;
@@ -74,14 +82,14 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			return;
 	 	}
 
-		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		if (key.key >= ' ' && key.key < 0x80)
 			return; // printable character - will be handled as text input
 	} else {
-		if(key.repeat != 0)
+		if(key.repeat)
 			return; // ignore periodic event resends
 	}
 
-	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
+	if(handleBackRightMouseButton && key.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
 	{
 		ENGINE->events().dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["mouseToleranceDistance"].Integer());
 		return;
@@ -127,25 +135,25 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 {
-	if(key.repeat != 0)
+	if(key.repeat)
 		return; // ignore periodic event resends
 
-	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
+	if(handleBackRightMouseButton && key.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
 	{
 		ENGINE->events().dispatchClosePopup(ENGINE->getCursorPosition());
 		return;
 	}
 
-	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), true);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.scancode), true);
 	logGlobal->trace("keyboard: key '%s' released", keyName);
 
-	if (SDL_IsTextInputActive() == SDL_TRUE)
+	if (isTextInputActive())
 	{
-		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		if (key.key >= ' ' && key.key < 0x80)
 			return; // printable character - will be handled as text input
 	}
 
-	assert(key.state == SDL_RELEASED);
+	assert(!key.down);
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
 	

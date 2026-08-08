@@ -14,16 +14,17 @@
 
 #include "lib/CConfigHandler.h"
 
-struct Mix_Chunk;
+struct MIX_Audio;
+struct MIX_Track;
 
 class CSoundHandler final : public CAudioBase, public ISoundPlayer
 {
 private:
 	struct MixChunkDeleter
 	{
-		void operator ()(Mix_Chunk *);
+		void operator ()(MIX_Audio *);
 	};
-	using MixChunkPtr = std::unique_ptr<Mix_Chunk, MixChunkDeleter>;
+	using MixChunkPtr = std::unique_ptr<MIX_Audio, MixChunkDeleter>;
 
 	//update volume on configuration change
 	SettingsListener listener;
@@ -39,8 +40,17 @@ private:
 	/// indexed by channel ID
 	std::map<int, MixChunkPtr> uncachedPlayingChunks;
 
+	/// SDL3_mixer has no fixed set of channels, so a pool of tracks is used to emulate them.
+	/// Index into this vector is what the rest of the client sees as a channel ID.
+	std::vector<MIX_Track *> channels;
+
+	void allocateChannels(int count);
+	MIX_Track * getChannel(int channel) const;
+	int findFreeChannel() const;
+	int playChunk(MIX_Audio * chunk, int repeats);
+
 	MixChunkPtr getSoundChunk(const AudioPath & sound);
-	Mix_Chunk * getSoundChunkCached(const AudioPath & sound);
+	MIX_Audio * getSoundChunkCached(const AudioPath & sound);
 	MixChunkPtr getSoundChunk(std::pair<std::unique_ptr<ui8[]>, si64> & data);
 
 	/// have entry for every currently active channel

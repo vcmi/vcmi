@@ -31,10 +31,11 @@
 #include "lib/AsyncRunner.h"
 #include "lib/CConfigHandler.h"
 
-#include <SDL_events.h>
-#include <SDL_timer.h>
-#include <SDL_clipboard.h>
-#include <SDL_power.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_power.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -59,78 +60,78 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 {
 	switch (current.type)
 	{
-		case SDL_KEYDOWN:
+		case SDL_EVENT_KEY_DOWN:
 			setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 			keyboardHandler->handleEventKeyDown(current.key);
 			return;
-		case SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 			keyboardHandler->handleEventKeyUp(current.key);
 			return;
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseMotion(current.motion);
 			}
 			return;
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
 			}
 			return;
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (enableMouse)
 				mouseHandler->handleEventMouseButtonUp(current.button);
 			return;
-		case SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_WHEEL:
 			if (enableMouse)
 				mouseHandler->handleEventMouseWheel(current.wheel);
 			return;
 #endif
-		case SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 			textHandler->handleEventTextInput(current.text);
 			return;
-		case SDL_TEXTEDITING:
+		case SDL_EVENT_TEXT_EDITING:
 			textHandler->handleEventTextEditing(current.edit);
 			return;
-		case SDL_FINGERMOTION:
+		case SDL_EVENT_FINGER_MOTION:
 			if (enableTouch)
 			{
 				setCurrentInputMode(InputMode::TOUCH);
 				fingerHandler->handleEventFingerMotion(current.tfinger);
 			}
 			return;
-		case SDL_FINGERDOWN:
+		case SDL_EVENT_FINGER_DOWN:
 			if (enableTouch)
 			{
 				setCurrentInputMode(InputMode::TOUCH);
 				fingerHandler->handleEventFingerDown(current.tfinger);
 			}
 			return;
-		case SDL_FINGERUP:
+		case SDL_EVENT_FINGER_UP:
 			if (enableTouch)
 				fingerHandler->handleEventFingerUp(current.tfinger);
 			return;
-		case SDL_CONTROLLERAXISMOTION:
+		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 			if (enableController)
 			{
 				setCurrentInputMode(InputMode::CONTROLLER);
-				gameControllerHandler->handleEventAxisMotion(current.caxis);
+				gameControllerHandler->handleEventAxisMotion(current.gaxis);
 			}
 			return;
-		case SDL_CONTROLLERBUTTONDOWN:
+		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 			if (enableController)
 			{
 				setCurrentInputMode(InputMode::CONTROLLER);
-				gameControllerHandler->handleEventButtonDown(current.cbutton);
+				gameControllerHandler->handleEventButtonDown(current.gbutton);
 			}
 			return;
-		case SDL_CONTROLLERBUTTONUP:
+		case SDL_EVENT_GAMEPAD_BUTTON_UP:
 			if (enableController)
-				gameControllerHandler->handleEventButtonUp(current.cbutton);
+				gameControllerHandler->handleEventButtonUp(current.gbutton);
 			return;
 	}
 }
@@ -221,10 +222,10 @@ bool InputHandler::ignoreEventsUntilInput()
 	{
 		switch(event.type)
 		{
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_FINGERDOWN:
-			case SDL_KEYDOWN:
-			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			case SDL_EVENT_FINGER_DOWN:
+			case SDL_EVENT_KEY_DOWN:
+			case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 				inputFound = true;
 		}
 	}
@@ -235,7 +236,7 @@ bool InputHandler::ignoreEventsUntilInput()
 
 void InputHandler::preprocessEvent(const SDL_Event & ev)
 {
-	if(ev.type == SDL_QUIT)
+	if(ev.type == SDL_EVENT_QUIT)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 #ifdef VCMI_ANDROID
@@ -245,15 +246,15 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 		return;
 	}
-	else if(ev.type == SDL_APP_WILLENTERBACKGROUND)
+	else if(ev.type == SDL_EVENT_WILL_ENTER_BACKGROUND)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->user().onAppPaused();
 		return;
 	}
-	else if(ev.type == SDL_KEYDOWN)
+	else if(ev.type == SDL_EVENT_KEY_DOWN)
 	{
-		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
+		if(ev.key.key == SDLK_F4 && (ev.key.mod & SDL_KMOD_ALT))
 		{
 			// FIXME: dead code? Looks like intercepted by OS/SDL and delivered as SDL_Quit instead?
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
@@ -261,89 +262,78 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			return;
 		}
 
-		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
+		if(ev.key.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
 		{
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 			ENGINE->user().onShutdownRequested(true);
 			return;
 		}
 	}
-	else if(ev.type == SDL_USEREVENT)
+	else if(ev.type == SDL_EVENT_USER)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		handleUserEvent(ev.user);
 
 		return;
 	}
-	else if(ev.type == SDL_WINDOWEVENT)
+	// SDL3 delivers each window event as its own event type instead of a single SDL_WINDOWEVENT
+	else if(ev.type == SDL_EVENT_WINDOW_RESTORED)
 	{
-		switch (ev.window.event) {
-			case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
-			{
-				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(false, false);
-			}
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		ENGINE->onScreenResize(false, false);
 #endif
-				break;
-			case SDL_WINDOWEVENT_SIZE_CHANGED:
-			{
-				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-#ifdef VCMI_MOBILE
-				ENGINE->onScreenResize(true, false);
-#else
-				ENGINE->onScreenResize(true, true);
-#endif
-			}
-				break;
-			case SDL_WINDOWEVENT_FOCUS_GAINED:
-			{
-				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				if(settings["general"]["audioMuteFocus"].Bool()) {
-					ENGINE->music().setVolume(settings["general"]["music"].Integer());
-					ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
-				}
-			}
-				break;
-			case SDL_WINDOWEVENT_FOCUS_LOST:
-			{
-				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				if(settings["general"]["audioMuteFocus"].Bool()) {
-					ENGINE->music().setVolume(0);
-					ENGINE->sound().setVolume(0);
-				}
-			}
-				break;
-		}
 		return;
 	}
-	else if(ev.type == SDL_SYSWMEVENT)
+	// SDL3 split SDL2's SIZE_CHANGED in two. Android posts only RESIZED - it enters immersive
+	// mode after the window exists - and SDL drops the derived pixel size event as a duplicate.
+	else if(ev.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED || ev.type == SDL_EVENT_WINDOW_RESIZED)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
-		{
-			NotificationHandler::handleSdlEvent(ev);
+#ifdef VCMI_MOBILE
+		ENGINE->onScreenResize(true, false);
+#else
+		ENGINE->onScreenResize(true, true);
+#endif
+		return;
+	}
+	else if(ev.type == SDL_EVENT_WINDOW_FOCUS_GAINED)
+	{
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		if(settings["general"]["audioMuteFocus"].Bool()) {
+			ENGINE->music().setVolume(settings["general"]["music"].Integer());
+			ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 		}
-	}
-	else if(ev.type == SDL_CONTROLLERDEVICEADDED)
-	{
-		gameControllerHandler->handleEventDeviceAdded(ev.cdevice);
 		return;
 	}
-	else if(ev.type == SDL_CONTROLLERDEVICEREMOVED)
+	else if(ev.type == SDL_EVENT_WINDOW_FOCUS_LOST)
 	{
-		gameControllerHandler->handleEventDeviceRemoved(ev.cdevice);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		if(settings["general"]["audioMuteFocus"].Bool()) {
+			ENGINE->music().setVolume(0);
+			ENGINE->sound().setVolume(0);
+		}
 		return;
 	}
-	else if(ev.type == SDL_CONTROLLERDEVICEREMAPPED)
+	else if(ev.type == SDL_EVENT_GAMEPAD_ADDED)
 	{
-		gameControllerHandler->handleEventDeviceRemapped(ev.cdevice);
+		gameControllerHandler->handleEventDeviceAdded(ev.gdevice);
+		return;
+	}
+	else if(ev.type == SDL_EVENT_GAMEPAD_REMOVED)
+	{
+		gameControllerHandler->handleEventDeviceRemoved(ev.gdevice);
+		return;
+	}
+	else if(ev.type == SDL_EVENT_GAMEPAD_REMAPPED)
+	{
+		gameControllerHandler->handleEventDeviceRemapped(ev.gdevice);
 		return;
 	}
 
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 	//preprocessing
-	if(ev.type == SDL_MOUSEMOTION)
+	if(ev.type == SDL_EVENT_MOUSE_MOTION)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
@@ -361,7 +351,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		{
 			const SDL_Event & prev = eventsQueue.back();
 
-			if(ev.type == SDL_MOUSEMOTION && prev.type == SDL_MOUSEMOTION)
+			if(ev.type == SDL_EVENT_MOUSE_MOTION && prev.type == SDL_EVENT_MOUSE_MOTION)
 			{
 				SDL_Event accumulated = ev;
 				accumulated.motion.xrel += prev.motion.xrel;
@@ -370,7 +360,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 				return;
 			}
 
-			if(ev.type == SDL_FINGERMOTION && prev.type == SDL_FINGERMOTION && ev.tfinger.fingerId == prev.tfinger.fingerId)
+			if(ev.type == SDL_EVENT_FINGER_MOTION && prev.type == SDL_EVENT_FINGER_MOTION && ev.tfinger.fingerID == prev.tfinger.fingerID)
 			{
 				SDL_Event accumulated = ev;
 				accumulated.tfinger.dx += prev.tfinger.dx;
@@ -387,8 +377,23 @@ void InputHandler::fetchEvents()
 {
 	SDL_Event ev;
 
-	while(1 == SDL_PollEvent(&ev))
+	while(SDL_PollEvent(&ev))
 	{
+		// SDL2 scaled mouse coordinates to the renderer logical size on its own, SDL3 leaves
+		// them in window coordinates. Touch events stay normalized and are left alone.
+		if (mainRenderer != nullptr)
+		{
+			switch(ev.type)
+			{
+				case SDL_EVENT_MOUSE_MOTION:
+				case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				case SDL_EVENT_MOUSE_BUTTON_UP:
+				case SDL_EVENT_MOUSE_WHEEL:
+					SDL_ConvertEventToRenderCoordinates(mainRenderer, &ev);
+					break;
+			}
+		}
+
 		preprocessEvent(ev);
 	}
 }
@@ -442,7 +447,7 @@ void InputHandler::hapticFeedback()
 
 uint32_t InputHandler::getTicks()
 {
-	return SDL_GetTicks();
+	return static_cast<uint32_t>(SDL_GetTicks());
 }
 
 bool InputHandler::hasTouchInputDevice() const
@@ -462,7 +467,7 @@ void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 	auto heapFunctor = std::make_unique<std::function<void()>>(functor);
 
 	SDL_Event event;
-	event.user.type = SDL_USEREVENT;
+	event.user.type = SDL_EVENT_USER;
 	event.user.code = 0;
 	event.user.data1 = nullptr;
 	event.user.data2 = nullptr;

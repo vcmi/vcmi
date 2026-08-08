@@ -27,7 +27,7 @@
 #include "lib/texts/Languages.h"
 #include "lib/GameLibrary.h"
 
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -358,7 +358,7 @@ CVideoInstance::~CVideoInstance()
 	sws_freeContext(sws);
 	SDL_DestroyTexture(textureYUV);
 	SDL_DestroyTexture(textureRGB);
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 }
 
 FFMpegStream::~FFMpegStream()

@@ -1,3 +1,8 @@
+find_package(SDL3 REQUIRED)
+find_package(SDL3_image REQUIRED)
+find_package(SDL3_mixer REQUIRED)
+find_package(SDL3_ttf REQUIRED)
+
 set(vcmisdl3_SRCS
 	events/NotificationHandler.cpp
 	events/InputHandler.cpp
