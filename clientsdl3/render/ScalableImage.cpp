@@ -19,6 +19,7 @@
 #include "render/Colors.h"
 #include "render/Graphics.h"
 #include "render/IRenderHandler.h"
+#include "RenderHandler.h"
 #include "IScreenHandler.h"
 #include "CanvasImage.h"
 
@@ -290,6 +291,8 @@ bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImagePar
 	if (anyVariantLoading(scalingFactor, parameters))
 	{
 		// upscaling is still running - the 1x image is stretched to stand in for it
+		RenderHandler::notifyPlaceholderDrawn();
+
 		bool drawn = drawScaled(selectFlipped(scaled[1].body, parameters), parameters.colorMultiplier, parameters.alphaValue);
 
 		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)

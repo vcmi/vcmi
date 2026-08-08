@@ -111,6 +111,8 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 	Canvas target = getTile(coordinates);
 
+	const uint32_t placeholdersBefore = ENGINE->renderHandler().getPlaceholderDrawCount();
+
 	if(model->getSingleTileSize() == Point(32, 32))
 	{
 		mapRenderer->renderTile(*context, target, coordinates);
@@ -124,7 +126,11 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 	if(context->filterGrayscale())
 		target.applyGrayscale();
 
-	oldCacheEntry = newCacheEntry;
+	// A tile drawn from a stretched stand-in is not final. Leaving its checksum empty keeps
+	// it out of the cache, so it is drawn again until the upscale it waits for has finished.
+	const bool usedPlaceholder = ENGINE->renderHandler().getPlaceholderDrawCount() != placeholdersBefore;
+
+	oldCacheEntry = usedPlaceholder ? TileChecksum{} : newCacheEntry;
 	tilesUpToDate[cacheX][cacheY] = false;
 }
 
