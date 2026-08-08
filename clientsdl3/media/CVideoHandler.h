@@ -97,6 +97,7 @@ public:
 	Point size() final;
 
 	void show(const Point & position, SDL_Surface * to) final;
+	bool renderFrame(const Point & position) final;
 	void tick(uint32_t msPassed) final;
 	void activate() final;
 	void deactivate() final;
