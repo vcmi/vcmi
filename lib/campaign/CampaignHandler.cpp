@@ -245,7 +245,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
-JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario, const std::string & encoding)
 {
 	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
 	{
@@ -261,7 +261,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 	};
 
 	JsonNode node;
-	node["map"].String() = scenario.mapName;
+	node["map"].String() = encoding.empty() ? scenario.mapName : TextOperations::toUnicode(scenario.mapName, encoding);
 	for(auto & g : scenario.preconditionRegions)
 		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
@@ -436,7 +436,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	};
 
 	CampaignScenario ret;
-	ret.mapName = TextOperations::toUnicode(reader.readBaseString(), header.encoding);
+	ret.mapName = reader.readBaseString();
 	reader.readUInt32(); //packedMapSize - not used
 	if(header.numberOfScenarios > 8) //unholy alliance
 	{
