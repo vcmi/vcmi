@@ -16,10 +16,10 @@
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../GameEngine.h"
-#include "../render/AssetGenerator.h"
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/IRenderHandler.h"
+#include "render/AssetGenerator.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 

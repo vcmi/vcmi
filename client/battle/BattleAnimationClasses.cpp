@@ -22,9 +22,9 @@
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
-#include "../media/ISoundPlayer.h"
-#include "../render/CAnimation.h"
-#include "../render/IRenderHandler.h"
+#include "media/ISoundPlayer.h"
+#include "render/CAnimation.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/CSpell.h"

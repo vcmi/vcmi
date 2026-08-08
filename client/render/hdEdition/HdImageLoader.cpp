@@ -18,9 +18,9 @@
 
 #include "../../GameEngine.h"
 #include "../CBitmapHandler.h"
-#include "../IScreenHandler.h"
-#include "../../renderSDL/SDLImage.h"
-#include "../../renderSDL/SDL_Extensions.h"
+#include "render/IScreenHandler.h"
+#include "render/SDLImage.h"
+#include "render/SDL_Extensions.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/filesystem/CCompressedStream.h"

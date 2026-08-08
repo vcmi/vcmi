@@ -15,12 +15,12 @@
 #include "MapRenderer.h"
 #include "MapViewModel.h"
 
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/IImage.h"
-#include "../render/IFont.h"
-#include "../render/IRenderHandler.h"
-#include "../render/Graphics.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/IImage.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
+#include "render/Graphics.h"
 
 #include "../GameEngine.h"
 #include "../widgets/TextControls.h"

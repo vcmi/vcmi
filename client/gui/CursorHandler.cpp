@@ -13,12 +13,12 @@
 
 #include "GameEngine.h"
 #include "FramerateManager.h"
-#include "../renderSDL/CursorSoftware.h"
-#include "../renderSDL/CursorHardware.h"
-#include "../render/CAnimation.h"
-#include "../render/IImage.h"
-#include "../render/IScreenHandler.h"
-#include "../render/IRenderHandler.h"
+#include "render/CursorSoftware.h"
+#include "render/CursorHardware.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
+#include "render/IScreenHandler.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"

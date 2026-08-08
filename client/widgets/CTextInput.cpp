@@ -14,11 +14,11 @@
 #include "TextControls.h"
 
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../gui/Shortcut.h"
-#include "../render/Graphics.h"
-#include "../render/IFont.h"
-#include "../render/IRenderHandler.h"
+#include "render/Graphics.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/texts/TextOperations.h"
 

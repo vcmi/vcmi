@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CTutorialWindow.h"
 
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/ConditionalWait.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -25,7 +25,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }, page { 0 }

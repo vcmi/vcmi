@@ -11,9 +11,9 @@
 #include "StdInc.h"
 #include "CViewport.h"
 
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 CViewport::CViewport(const Rect & viewRect, const Point & contentSz,
                      CSlider::EStyle style)

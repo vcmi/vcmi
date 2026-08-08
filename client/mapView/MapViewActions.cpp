@@ -18,7 +18,7 @@
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/MouseButton.h"
-#include "../render/IScreenHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CInGameConsole.h"

@@ -117,13 +117,13 @@ See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for
   - **adventureMap/** - Adventure mode UI and logic
   - **battle/** - Battle UI and rendering
   - **gui/** - GUI framework (CIntObject base class and components)
-  - **eventsSDL/** - Input handling (keyboard, mouse, touch, gamepad)
+  - **events/** - Input handling (keyboard, mouse, touch, gamepad)
   - **lobby/** - Local game setup screens
   - **globalLobby/** - Online/global lobby UI and client
   - **mainmenu/** - Main menu and game selection
   - **mapView/** - Map rendering
   - **render/** - Rendering abstractions and interfaces
-  - **renderSDL/** - SDL-based rendering backend
+  - **render/** - SDL-based rendering backend
   - **widgets/** - Reusable UI widget components
   - **windows/** - Game windows and dialogs
 

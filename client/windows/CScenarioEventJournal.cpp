@@ -15,7 +15,7 @@
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/Shortcut.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../render/Colors.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"

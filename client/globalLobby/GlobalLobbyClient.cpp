@@ -21,7 +21,7 @@
 #include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../media/ISoundPlayer.h"
+#include "media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"

@@ -14,8 +14,8 @@
 #include "WindowHandler.h"
 #include "EventDispatcher.h"
 #include "Shortcut.h"
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
 #include "../windows/CMessage.h"
 
 CIntObject::CIntObject(int used_, Point pos_):

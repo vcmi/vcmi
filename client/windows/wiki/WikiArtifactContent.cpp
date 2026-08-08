@@ -15,8 +15,8 @@
 #include "../../widgets/Images.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/GraphicalPrimitiveCanvas.h"
-#include "../../render/Canvas.h"
-#include "../../render/Colors.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
 #include "../../GameEngine.h"
 #include "../../gui/WindowHandler.h"
 

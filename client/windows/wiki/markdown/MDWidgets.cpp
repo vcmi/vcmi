@@ -11,11 +11,11 @@
 #include "MDWidgets.h"
 
 #include "../../../widgets/Images.h"
-#include "../../../render/Canvas.h"
-#include "../../../render/Colors.h"
-#include "../../../render/EFont.h"
-#include "../../../render/IFont.h"
-#include "../../../render/IRenderHandler.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 #include "../../../GameEngine.h"
 #include "../../InfoWindows.h"
 

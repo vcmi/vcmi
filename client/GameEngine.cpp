@@ -18,7 +18,7 @@
 #include "gui/FramerateManager.h"
 #include "gui/WindowHandler.h"
 #include "gui/EventDispatcher.h"
-#include "eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 #include "media/CMusicHandler.h"
 #include "media/CSoundHandler.h"
@@ -30,8 +30,8 @@
 #include "render/Colors.h"
 #include "render/IFont.h"
 #include "render/EFont.h"
-#include "renderSDL/ScreenHandler.h"
-#include "renderSDL/RenderHandler.h"
+#include "render/ScreenHandler.h"
+#include "render/RenderHandler.h"
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 

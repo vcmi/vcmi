@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "GraphicalPrimitiveCanvas.h"
 
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 
 GraphicalPrimitiveCanvas::GraphicalPrimitiveCanvas(Rect dimensions)
 {

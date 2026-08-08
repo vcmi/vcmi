@@ -25,7 +25,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 
-#include "../render/IRenderHandler.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"

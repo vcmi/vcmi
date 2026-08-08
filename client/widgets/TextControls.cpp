@@ -19,11 +19,11 @@
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../eventsSDL/InputHandler.h"
-#include "../render/Canvas.h"
-#include "../render/Graphics.h"
-#include "../render/IFont.h"
-#include "../render/IRenderHandler.h"
+#include "events/InputHandler.h"
+#include "render/Canvas.h"
+#include "render/Graphics.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/texts/TextOperations.h"
 

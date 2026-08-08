@@ -13,13 +13,13 @@
 #include "ControllerActionButton.h"
 
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../gui/ShortcutHandler.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../render/IFont.h"
-#include "../render/IImage.h"
+#include "render/IImage.h"
 #include "../render/IRenderHandler.h"
 
 namespace

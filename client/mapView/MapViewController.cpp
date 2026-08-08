@@ -21,8 +21,8 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
-#include "../eventsSDL/InputHandler.h"
 #include "../replay/GameplayReplayer.h"
+#include "events/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"

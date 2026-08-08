@@ -14,9 +14,9 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
-#include "../render/Colors.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
+#include "render/Colors.h"
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {

@@ -23,8 +23,8 @@
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
-#include "../client/render/Graphics.h"
-#include "../client/render/IRenderHandler.h"
+#include "render/Graphics.h"
+#include "render/IRenderHandler.h"
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
