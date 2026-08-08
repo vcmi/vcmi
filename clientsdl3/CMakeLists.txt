@@ -3,6 +3,10 @@ find_package(SDL3_image REQUIRED)
 find_package(SDL3_mixer REQUIRED)
 find_package(SDL3_ttf REQUIRED)
 
+vcmi_resolve_sdl3_target(sdl3Image SDL3_image::SDL3_image SDL3_image::SDL3_image-static sdl_image::sdl_image)
+vcmi_resolve_sdl3_target(sdl3Mixer SDL3_mixer::SDL3_mixer SDL3_mixer::SDL3_mixer-static sdl_mixer::sdl_mixer)
+vcmi_resolve_sdl3_target(sdl3Ttf   SDL3_ttf::SDL3_ttf     SDL3_ttf::SDL3_ttf-static     sdl_ttf::sdl_ttf)
+
 set(vcmisdl3_SRCS
 	events/NotificationHandler.cpp
 	events/InputHandler.cpp
@@ -104,7 +108,7 @@ endif()
 # such as GameEngine and gui/, so the two static libraries are mutually dependent
 target_link_libraries(vcmisdl3 PUBLIC
 		vcmiclientcommon vcmi
-		SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer SDL3_ttf::SDL3_ttf
+		${SDL3_CORE_TARGET} ${sdl3Image} ${sdl3Mixer} ${sdl3Ttf}
 		libsquish::libsquish
 )
 

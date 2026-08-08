@@ -456,6 +456,12 @@ target_link_libraries(vcmiclientcommon PUBLIC
 		vcmi ${VCMI_MEDIA_BACKEND}
 )
 
+# render/ holds the parts both backends share, and the few SDL calls that were renamed
+# between SDL2 and SDL3 are selected there with #ifdef VCMI_SDL3
+if(ENABLE_SDL3)
+	target_compile_definitions(vcmiclientcommon PUBLIC VCMI_SDL3)
+endif()
+
 if(ENABLE_VIDEO)
 	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_VIDEO)
 endif()

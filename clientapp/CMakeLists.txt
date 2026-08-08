@@ -45,7 +45,7 @@ target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 # repeated here because imported targets are scoped to the directory that creates them.
 if(ENABLE_SDL3)
 	find_package(SDL3 REQUIRED)
-	target_link_libraries(vcmiclient PRIVATE SDL3::SDL3)
+	target_link_libraries(vcmiclient PRIVATE ${SDL3_CORE_TARGET})
 	target_compile_definitions(vcmiclient PRIVATE VCMI_SDL3)
 else()
 	find_package(SDL2 REQUIRED)
