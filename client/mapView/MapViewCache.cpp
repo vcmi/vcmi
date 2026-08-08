@@ -23,25 +23,45 @@
 #include "render/Graphics.h"
 
 #include "../GameEngine.h"
+#include "render/IScreenHandler.h"
 #include "../widgets/TextControls.h"
 
 #include "../../lib/int3.h"
 
 MapViewCache::~MapViewCache() = default;
 
-MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
+MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model, bool useGpuLayer)
 	: model(model)
+	, useGpuLayer(useGpuLayer)
 	, cachedLevel(0)
 	, overlayWasVisible(false)
 	, mapRenderer(new MapRenderer())
 	, iconsStorage(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
-	, intermediate(new Canvas(Point(32, 32), CanvasScalingPolicy::AUTO))
-	, terrain(new Canvas(model->getCacheDimensionsPixels(), CanvasScalingPolicy::AUTO))
-	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions(), CanvasScalingPolicy::AUTO))
 {
 	Point visibleSize = model->getTilesVisibleDimensions();
 	terrainChecksum.resize(boost::extents[visibleSize.x][visibleSize.y]);
 	tilesUpToDate.resize(boost::extents[visibleSize.x][visibleSize.y]);
+}
+
+std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size) const
+{
+	// a view drawn into the software screen cannot read from a GPU-backed cache
+	if(useGpuLayer && ENGINE->screenHandler().isGpuMapRenderingEnabled())
+		return std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
+
+	return std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
+}
+
+void MapViewCache::ensureCanvases()
+{
+	if(terrain)
+		return;
+
+	// Must run on the rendering thread: this object is constructed while handling a
+	// netpack, and creating a texture there would move the GL context off the GUI thread
+	intermediate = createCanvas(Point(32, 32));
+	terrain = createCanvas(model->getCacheDimensionsPixels());
+	terrainTransition = createCanvas(model->getPixelsVisibleDimensions());
 }
 
 Canvas MapViewCache::getTile(const int3 & coordinates)
@@ -110,6 +130,8 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 {
+	ensureCanvases();
+
 	Rect dimensions = model->getTilesTotalRect();
 	bool mapResized = cachedSize != model->getSingleTileSize();
 
@@ -139,6 +161,8 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
+	ensureCanvases();
+
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
 	bool textOverlayVisible = context->showTextOverlay();
 	bool overlayVisible = context->showImageOverlay() || textOverlayVisible;
@@ -187,7 +211,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(textOverlayVisible)
+	if(textOverlayVisible && !target.isRenderTarget())
 	{
 		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 

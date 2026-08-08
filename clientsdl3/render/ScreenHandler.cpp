@@ -43,6 +43,7 @@
 
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
+uint32_t mainRendererGeneration = 1;
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -471,6 +472,7 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
+	initializeMapTexture(logicalSize);
 	buffersRenderResolution = getRenderResolution();
 
 	clearScreen();
@@ -675,6 +677,36 @@ void ScreenHandler::destroyScreenBuffers()
 		SDL_DestroyTexture(screenTexture);
 		screenTexture = nullptr;
 	}
+
+	if(nullptr != mapTexture)
+	{
+		SDL_DestroyTexture(mapTexture);
+		mapTexture = nullptr;
+	}
+}
+
+void ScreenHandler::initializeMapTexture(const Point & logicalSize)
+{
+	// every SDL3 renderer can render to a texture, so unlike SDL2 there is nothing to probe for
+	mapTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+
+	if(nullptr == mapTexture)
+	{
+		logGlobal->error("Unable to create map render target: %s", SDL_GetError());
+		return;
+	}
+
+	// the map layer is drawn first and the software screen is blended over it, so the
+	// screen texture must stop being opaque for the map to show through its transparent hole
+	SDL_SetTextureBlendMode(mapTexture, SDL_BLENDMODE_NONE);
+	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
+
+	SDL_SetRenderTarget(mainRenderer, mapTexture);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderTarget(mainRenderer, nullptr);
+
+	logGlobal->info("GPU map rendering enabled, using driver '%s'", SDL_GetRendererName(mainRenderer));
 }
 
 void ScreenHandler::destroyWindow()
@@ -683,6 +715,8 @@ void ScreenHandler::destroyWindow()
 	{
 		SDL_DestroyRenderer(mainRenderer);
 		mainRenderer = nullptr;
+		// every texture created from the old renderer is now dangling
+		++mainRendererGeneration;
 	}
 
 	if(nullptr != mainWindow)
@@ -714,6 +748,41 @@ Canvas ScreenHandler::getScreenCanvas() const
 	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 }
 
+bool ScreenHandler::isGpuMapRenderingEnabled() const
+{
+	return mapTexture != nullptr;
+}
+
+Canvas ScreenHandler::getMapLayerCanvas() const
+{
+	return Canvas::createFromRenderTarget(mapTexture, getLogicalResolution(), CanvasScalingPolicy::AUTO);
+}
+
+Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
+{
+	const Point pixels = size * getScalingFactor();
+	SDL_Texture * target = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, pixels.x, pixels.y);
+
+	if(!target)
+	{
+		logGlobal->error("Failed to create %dx%d render target: %s - falling back to software", pixels.x, pixels.y, SDL_GetError());
+		return Canvas(size, CanvasScalingPolicy::AUTO);
+	}
+
+	SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
+
+	// a fresh render target holds undefined contents - start it transparent so that
+	// blending the first sprites onto it produces the same result as the surface path
+	SDL_Texture * previousTarget = SDL_GetRenderTarget(mainRenderer);
+	SDL_SetRenderTarget(mainRenderer, target);
+	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
+	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderTarget(mainRenderer, previousTarget);
+
+	return Canvas::createOwningRenderTarget(target, size, CanvasScalingPolicy::AUTO);
+}
+
 void ScreenHandler::updateScreenTexture()
 {
 	// A window change SDL applied late leaves the buffers sized for the previous window,
@@ -742,7 +811,14 @@ void ScreenHandler::updateScreenTexture()
 
 void ScreenHandler::presentScreenTexture()
 {
+	// the map layer may still be bound from rendering it
+	SDL_SetRenderTarget(mainRenderer, nullptr);
+
 	SDL_RenderClear(mainRenderer);
+
+	if(nullptr != mapTexture)
+		SDL_RenderTexture(mainRenderer, mapTexture, nullptr, nullptr);
+
 	SDL_RenderTexture(mainRenderer, screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);

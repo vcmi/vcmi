@@ -14,6 +14,7 @@
 #include "lib/Color.h"
 
 struct SDL_Surface;
+struct SDL_Texture;
 class IImage;
 class IVideoInstance;
 enum EFonts : int8_t;
@@ -33,14 +34,32 @@ class Canvas
 	/// Upscaler awareness. Must be first member for initialization
 	CanvasScalingPolicy scalingPolicy;
 
-	/// Target surface
+	/// Target surface. Null when this canvas draws onto a GPU render target instead.
 	SDL_Surface * surface;
+
+	/// GPU render target this canvas draws onto, or null for the software path.
+	/// The caller owns it; the canvas only references it.
+	SDL_Texture * renderTarget = nullptr;
+
+	/// Whether this canvas has to destroy renderTarget. Only the canvas handed out by
+	/// the screen handler owns it; copies and clipped views never do.
+	bool ownsRenderTarget = false;
 
 	/// Current rendering area, all rendering operations will be moved into selected area
 	Rect renderArea;
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	explicit Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
+
+	/// constructs canvas drawing onto a GPU render target. Caller maintains ownership
+	Canvas(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy, bool ownsRenderTarget = false);
+
+	/// Makes the renderer draw onto this canvas' target, if it is not already doing so
+	void bindRenderTarget() const;
+
+	/// GPU counterpart of the canvas-to-canvas blits. blendMode is an SDL_BlendMode,
+	/// kept untyped so that this header does not have to pull in SDL
+	void copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha);
 
 	/// copy constructor
 	Canvas(const Canvas & other);
@@ -64,6 +83,15 @@ public:
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	static Canvas createFromSurface(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
+
+	/// constructs canvas drawing onto a GPU render target of the given size in logical units
+	static Canvas createFromRenderTarget(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy);
+
+	/// Same, but the returned canvas destroys the render target when it dies
+	static Canvas createOwningRenderTarget(SDL_Texture * renderTarget, const Point & size, CanvasScalingPolicy scalingPolicy);
+
+	/// True when this canvas draws with the GPU rather than into a surface
+	bool isRenderTarget() const { return renderTarget != nullptr; }
 
 	~Canvas();
 

@@ -30,12 +30,23 @@ protected:
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
+	/// Only the adventure map owns the GPU layer; the puzzle map is drawn inside a window
+	/// above it and must stay in the software screen
+	const bool gpuLayerEligible;
+
+	/// Set when a redraw reached us off the GUI thread and had to skip the GPU drawing,
+	/// so that the next frame on the GUI thread repaints the whole map layer
+	bool gpuFullUpdatePending = false;
+
 	void render(Canvas & target, bool fullUpdate);
+
+	/// Draws the map into the GPU layer instead of into the screen surface
+	void renderGpu(bool fullUpdate);
 
 public:
 	bool needFullUpdate;
 
-	BasicMapView(const Point & offset, const Point & dimensions);
+	BasicMapView(const Point & offset, const Point & dimensions, bool useGpuLayer);
 	~BasicMapView() override;
 
 	void tick(uint32_t msPassed) override;
