@@ -534,6 +534,29 @@ if (ENABLE_CLIENT)
 
 	find_package(libsquish REQUIRED)
 
+	# upstream SDL3, its static builds and the Conan packages all export different target
+	# names, so take whichever one this configuration actually provides
+	function(vcmi_resolve_sdl3_target output)
+		foreach(candidate IN LISTS ARGN)
+			if(TARGET ${candidate})
+				set(${output} ${candidate} PARENT_SCOPE)
+				return()
+			endif()
+		endforeach()
+
+		set(availableTargets "")
+		if(NOT CMAKE_VERSION VERSION_LESS 3.21)
+			get_property(allTargets GLOBAL PROPERTY IMPORTED_TARGETS)
+			foreach(target IN LISTS allTargets)
+				if(target MATCHES "[Ss][Dd][Ll]")
+					list(APPEND availableTargets ${target})
+				endif()
+			endforeach()
+		endif()
+
+		message(FATAL_ERROR "No usable SDL3 target found.\n  tried:     ${ARGN}\n  available: ${availableTargets}")
+	endfunction()
+
 	# Probe for a complete set of SDL3 libraries so that ENABLE_SDL3 can default to
 	# whether this machine can actually build the SDL3 backend. Passing
 	# -DENABLE_SDL3=ON/OFF explicitly always wins over this default.
@@ -553,6 +576,7 @@ if (ENABLE_CLIENT)
 		if(NOT SDL3_BACKEND_AVAILABLE)
 			message(FATAL_ERROR "ENABLE_SDL3 is on but SDL3, SDL3_image, SDL3_mixer and SDL3_ttf were not all found")
 		endif()
+		vcmi_resolve_sdl3_target(SDL3_CORE_TARGET SDL3::SDL3 SDL3::SDL3-static sdl::sdl)
 		set(VCMI_MEDIA_BACKEND vcmisdl3)
 	else()
 		set(VCMI_MEDIA_BACKEND vcmisdl2)
