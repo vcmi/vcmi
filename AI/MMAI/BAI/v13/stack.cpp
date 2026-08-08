@@ -15,6 +15,8 @@
 #include "bonuses/BonusEnum.h"
 #include "common.h"
 #include "constants/EntityIdentifiers.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModScope.h"
 
 #include "BAI/v13/stack.h"
 #include "schema/v13/constants.h"
@@ -31,6 +33,13 @@ using CreatureValues = std::map<CreatureID, int>;
 
 namespace
 {
+	/// Combat script the name refers to, or NONE if no mod provides it.
+	CombatScriptID combatScriptID(const std::string & name)
+	{
+		auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", name, false);
+		return index.has_value() ? CombatScriptID(*index) : CombatScriptID::NONE;
+	}
+
 	int calculateSlot(const CStack * cstack)
 	{
 		int slot = cstack->unitSlot();
@@ -114,14 +123,14 @@ namespace
 				case BonusType::ENEMY_DEFENCE_REDUCTION:
 					d += (bonus->val * 0.0025); // 40% = 0.1
 					break;
-				case BonusType::FIRE_SHIELD:
-					d += (bonus->val * 0.003); // 20% = 0.1
+				case BonusType::COMBAT_EVENT_TRIGGER:
+					if(runsCombatScript(*bonus, "fireShield"))
+						d += (bonus->val * 0.003); // 20% = 0.1
+					else if(runsCombatScript(*bonus, "lifeDrain"))
+						d += (bonus->val * 0.003); // 100% = 0.3
 					break;
 				case BonusType::FLYING:
 					d += 0.1;
-					break;
-				case BonusType::LIFE_DRAIN:
-					d += (bonus->val * 0.003); // 100% = 0.3
 					break;
 				case BonusType::NO_DISTANCE_PENALTY:
 					d += 0.5;
@@ -191,6 +200,26 @@ namespace
 
 		return values;
 	}
+}
+
+bool runsCombatScript(const Bonus & bonus, const std::string & script)
+{
+	if(bonus.type != BonusType::COMBAT_EVENT_TRIGGER)
+		return false;
+
+	auto scriptID = combatScriptID(script);
+
+	return scriptID != CombatScriptID::NONE && bonus.subtype.as<CombatScriptID>() == scriptID;
+}
+
+bool hasCombatScript(const CStack * cstack, const std::string & script)
+{
+	auto scriptID = combatScriptID(script);
+
+	if(scriptID == CombatScriptID::NONE)
+		return false;
+
+	return cstack->hasBonus(Selector::typeSubtype(BonusType::COMBAT_EVENT_TRIGGER, BonusSubtypeID(scriptID)));
 }
 
 // static
@@ -434,8 +463,9 @@ void Stack::processBonuses()
 			case BonusType::ENEMY_DEFENCE_REDUCTION:
 				setflag(F1::ENEMY_DEFENCE_REDUCTION);
 				break;
-			case BonusType::LIFE_DRAIN:
-				setflag(F1::LIFE_DRAIN);
+			case BonusType::COMBAT_EVENT_TRIGGER:
+				if(runsCombatScript(*bonus, "lifeDrain"))
+					setflag(F1::LIFE_DRAIN);
 				break;
 			case BonusType::DOUBLE_DAMAGE_CHANCE:
 				setflag(F1::DOUBLE_DAMAGE_CHANCE);

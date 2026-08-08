@@ -35,6 +35,18 @@ using BitQueue = std::bitset<S13::STACK_QUEUE_SIZE>;
 static_assert(1 << S13::STACK_QUEUE_SIZE < std::numeric_limits<int>::max(), "BitQueue must be convertible to int");
 
 /*
+ * Whether the bonus runs the named combat script. Several abilities the model observes used to be
+ * bonus types of their own and are combat scripts now, sharing a single bonus type - the script is
+ * what tells them apart.
+ */
+bool runsCombatScript(const Bonus & bonus, const std::string & script);
+
+/*
+ * Whether any bonus on the unit runs the named combat script.
+ */
+bool hasCombatScript(const CStack * cstack, const std::string & script);
+
+/*
  * A wrapper around CStack
  */
 class Stack : public Schema::V13::IStack
