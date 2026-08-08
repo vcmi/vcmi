@@ -232,6 +232,18 @@ TEST_F(BonusMigrationTest, UnrelatedFieldsSurvive)
 	EXPECT_EQ(bonus->turnsRemain, 3);
 }
 
+/// ACID_BREATH was retired without a conversion - it is replaced by a pair of bonuses, which the
+/// one-in-one-out migration cannot produce. Content declaring it is warned about instead.
+TEST_F(BonusMigrationTest, AcidBreathIsNotMigrated)
+{
+	JsonNode ability;
+	ability["type"].String() = "ACID_BREATH";
+	ability["val"].Integer() = 25;
+	ability["addInfo"].Integer() = 20;
+
+	EXPECT_EQ(parse(ability)->type, BonusType::ACID_BREATH);
+}
+
 TEST_F(BonusMigrationTest, OtherBonusesAreUntouched)
 {
 	JsonNode ability;

@@ -1070,10 +1070,29 @@ If affected unit is targeted by a spell it will reflect spell to a random enemy 
 
 ### ACID_BREATH
 
-Affected unit will deal additional damage after attack
+REMOVED. The engine no longer implements it and, unlike the other retired abilities, declaring it
+is **not** converted automatically - a bonus of this type does nothing and is reported as a warning
+on load. Two existing bonuses replace it, and the pair has to be declared by hand:
 
-- val - additional damage to deal, multiplied by unit stack size
-- addInfo: chance to trigger, percentage
+```json
+"acidBreath" : {
+    "type" : "SPELL_AFTER_ATTACK",
+    "subtype" : "spell.acidBreathDamage",
+    "val" : 20
+},
+"acidBreathDamage" : {
+    "type" : "SPECIFIC_SPELL_POWER",
+    "subtype" : "spell.acidBreathDamage",
+    "val" : 25
+}
+```
+
+The old `addInfo` (chance to trigger) becomes the `val` of the SPELL_AFTER_ATTACK bonus, and the old
+`val` (damage per creature) becomes the `val` of the SPECIFIC_SPELL_POWER bonus, which the spell
+multiplies by the size of the attacking stack exactly as the ability used to.
+
+Note that the defence reduction half of the rust dragon's acid breath was always separate, and is
+unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 
 ### DEATH_STARE
 

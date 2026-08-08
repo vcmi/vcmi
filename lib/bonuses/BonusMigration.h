@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../texts/TextIdentifier.h"
+
 class JsonNode;
 struct Bonus;
 
@@ -23,4 +25,8 @@ DLL_LINKAGE bool migrateCombatAbility(const JsonNode & ability, JsonNode & migra
 
 /// Same conversion, for a bonus restored from a save predating the ability becoming a script.
 DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);
+
+/// Logs a warning for abilities that were retired without a conversion, so that content still
+/// declaring them fails loudly rather than by quietly doing nothing.
+DLL_LINKAGE void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID);
 }

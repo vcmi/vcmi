@@ -877,6 +877,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	if (BonusMigration::migrateCombatAbility(ability, migrated))
 		return parseBonus(migrated, b, descriptionID);
 
+	BonusMigration::warnIfRetired(ability, descriptionID);
+
 	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);

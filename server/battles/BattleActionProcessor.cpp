@@ -1377,43 +1377,10 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 	if(defender->alive())
 		attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
 
-	if(defender->alive())
-		handleAfterAttackAbilities(battle, ranged, attacker, defender);
-
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
-}
-
-void BattleActionProcessor::handleAfterAttackAbilities(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
-{
-	if(attacker->hasBonusOfType(BonusType::DEATH_STARE))
+	if(defender->alive() && attacker->hasBonusOfType(BonusType::DEATH_STARE))
 		handleDeathStare(battle, ranged, attacker, defender);
 
-	if(!defender->alive())
-		return;
-
-	int64_t acidDamage = 0;
-	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type()(BonusType::ACID_BREATH));
-	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
-
-	for(const auto & b : *acidBreath)
-	{
-		if (b->parameters && gameHandler->randomizer->rollCombatAbility(ownerArmy, b->parameters->toNumber()))
-			acidDamage += b->val;
-	}
-
-	if(acidDamage > 0)
-	{
-		const CSpell * spell = SpellID(SpellID::ACID_BREATH_DAMAGE).toSpell();
-
-		spells::AbilityCaster caster(attacker, 0);
-
-		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-		spells::Target target;
-		target.emplace_back(defender);
-
-		parameters.setEffectValue(acidDamage * attacker->getCount());
-		parameters.cast(gameHandler->spellcastEnvironment(), target);
-	}
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
 }
 
 void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const

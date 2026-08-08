@@ -48,6 +48,11 @@ const std::map<std::string, std::string> retiredAbilities = {
 	{ "DESTRUCTION",      "destruction" },
 };
 
+/// Retired abilities that have no conversion, and what to declare instead.
+const std::map<std::string, std::string> retiredWithoutMigration = {
+	{ "ACID_BREATH", "a SPELL_AFTER_ATTACK bonus for the damage spell, plus SPECIFIC_SPELL_POWER for its damage" },
+};
+
 /// ENCHANTED packed the mastery level and whether the whole side is affected into a single value.
 int enchantedLevel(int value)
 {
@@ -122,6 +127,14 @@ bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & m
 	migrated["addInfo"] = parameters;
 
 	return true;
+}
+
+void BonusMigration::warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID)
+{
+	auto retired = retiredWithoutMigration.find(withoutScope(ability["type"].String()));
+
+	if(retired != retiredWithoutMigration.end())
+		logMod->warn("Bonus %s no longer does anything and was not converted - declare %s instead. Description: '%s'", ability["type"].String(), retired->second, descriptionID.get());
 }
 
 bool BonusMigration::migrateCombatAbility(Bonus & bonus)
