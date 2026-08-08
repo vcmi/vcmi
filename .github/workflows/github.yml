@@ -17,6 +17,7 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: mac-intel
@@ -742,6 +743,7 @@ jobs:
     if: ${{ needs.build.result == 'success' }}
     name: Create Windows Installer (${{ matrix.arch }})
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: msvc-x64
