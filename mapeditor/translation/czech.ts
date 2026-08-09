@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukončit</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukončit</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -2644,17 +2644,17 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatné</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zástupce hrdiny (úroveň síly %1)</translation>
     </message>
 </context>
 <context>
@@ -3409,27 +3409,27 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Učenec</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhodné</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Primární dovednost</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Druhotná dovednost</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">Kouzlo</translation>
+        <translation>Kouzlo</translation>
     </message>
 </context>
 <context>
@@ -4067,12 +4067,12 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukončit</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
@@ -4838,7 +4838,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Navštivitelná pozice %2 objektu %1 je mimo hranice mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
@@ -4858,12 +4858,12 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Chýše čarodějnice na x: %1 y: %2 ve vrstvě %3 obsahuje neplatnou odměnu</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="173"/>
         <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Učenec na x: %1 y: %2 ve vrstvě %3 obsahuje neplatnou odměnu</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
@@ -4927,22 +4927,22 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="214"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>porazit konkrétního hrdinu</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>ztratit konkrétního hrdinu</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="218"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>zástupce hrdiny</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="220"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spuštěná událost &apos;%1&apos; používá podmínku %2 cílenou na %3 na %4. Toto nastavení je neobvyklé a mělo by se mu vyhnout. Mapa zůstane hratelná, ale podmínka zůstane nevyřešená, pokud není podporována náhrada zástupce.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="278"/>

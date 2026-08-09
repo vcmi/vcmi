@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportovat uložené hry</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložené hry exportovány do %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se uložit archiv do vybraného umístění</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte cílový soubor</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte prosím cílový soubor a uložte archiv jako vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivy ZIP (*.zip);;Všechny soubory (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportují se logy...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Export logů</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -486,28 +486,29 @@ Nahlaste prosím tento problém vývojářům</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložená hra existuje</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložená hra &apos;%1&apos; již existuje. Chcete ji přepsat?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se importovat uložené hry z %1.
+Důvod: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Dokončeno</translation>
+        <translation>Dokončeno</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>Importováno %1 souborů uložených her</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -2103,17 +2104,17 @@ Důvod: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import se nezdařil</translation>
+        <translation>Import se nezdařil</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se importovat uloženou hru %1 z %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se importovat soubor uložené hry %1</translation>
     </message>
 </context>
 <context>
@@ -2277,7 +2278,7 @@ nainstalováno %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte soubory k instalaci (konfigurace, modifikace, uložené hry, mapy, kampaně, soubory GOG)...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
@@ -2307,7 +2308,7 @@ nainstalováno %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložené hry</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2355,22 +2356,22 @@ Konfigurační soubory pro VCMI (.json)
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Připravují se vybrané soubory k importu...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Připravují se vybrané soubory k importu... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import se nezdařil</translation>
+        <translation>Import se nezdařil</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se připravit soubor k importu: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2384,7 +2385,16 @@ Konfigurační soubory pro VCMI (.json)
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Tato volba umožňuje importovat další soubory do vaší instalace VCMI. V současnosti jsou podporovány následující možnosti:
+
+ - Mapy Heroes III (.h3m nebo .vmap).
+ - Kampaně Heroes III (.h3c nebo .vcmp).
+ - Heroes Chronicles pomocí offline instalátoru z GOG.com (.exe).
+ - Modifikace VCMI ve formátu zip (.zip)
+ - Archiv uložených her VCMI ve formátu zip (.zip)
+ - Soubory uložených her VCMI (.vsgm1)
+ - Konfigurační soubory VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>
