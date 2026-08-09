@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>导出存档</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>将存档导出至%1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>保存压缩包到选定位置失败</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择目标文件</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>请选择目标文件，并保存压缩包为 vcmi-saves.zip。</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip压缩包(*.zip);;所有文件(*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>导出日志中...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>日志导出</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -486,28 +486,29 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>存档已存在</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>存档“ %1”已存在，你要覆盖它吗？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>从%1导入存档失败。
+原因：%2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">成功</translation>
+        <translation>成功</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>已导入 %1 个存档文件</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -2090,17 +2091,17 @@ Reason: %2</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">导入失败</translation>
+        <translation>导入失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>从%2导入存档%1失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>导入存档文件%1失败</translation>
     </message>
 </context>
 <context>
@@ -2258,7 +2259,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>选择文件（配置、模组、存档、地图、战役、gog 文件）……</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
@@ -2288,7 +2289,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>存档</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2336,22 +2337,22 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在准备导入所选文件...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在准备导入所选文件...%1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Import failed</source>
-        <translation type="unfinished">导入失败</translation>
+        <translation>导入失败</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>导入文件准备失败：%1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2365,7 +2366,16 @@ Reason: %2</source>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>此选项允许你将额外的数据文件导入 VCMI 安装目录。目前支持以下类型：
+
+ - 英雄无敌3地图（.h3m 或 .vmap）。
+ - 英雄无敌3战役（.h3c 或 .vcmp）。
+ - 使用来自GOG.com的离线备份安装程序安装的英雄无敌3历代记（.exe）。
+ - ZIP格式的VCMI MOD（.zip）。
+ - ZIP格式的VCMI存档压缩包（.zip）。
+ - VCMI存档文件（.vsgm1）。
+ - VCMI配置文件（.json）。
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>

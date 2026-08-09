@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -1938,7 +1938,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
-        <translation>玩家标识符: %1</translation>
+        <translation>玩家ID: %1</translation>
     </message>
 </context>
 <context>
@@ -2148,17 +2148,17 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="528"/>
         <source>ID</source>
-        <translation>标识符</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="529"/>
         <source>SubID</source>
-        <translation>子标识符</translation>
+        <translation>子ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="530"/>
         <source>InstanceName</source>
-        <translation>实力名称</translation>
+        <translation>实例名称</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="535"/>
@@ -2642,17 +2642,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>无效</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄占位符（战力等级 %1）</translation>
     </message>
 </context>
 <context>
@@ -3407,27 +3407,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>学者</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">随机</translation>
+        <translation>随机</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>主属性</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>辅助技能</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
 </context>
 <context>
@@ -3809,7 +3809,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="675"/>
         <source>ID</source>
-        <translation>标识符</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="691"/>
@@ -4065,12 +4065,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
@@ -4096,7 +4096,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="309"/>
         <source>ID: %1</source>
-        <translation>标识符：%1</translation>
+        <translation>ID：%1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
@@ -4705,7 +4705,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation>字符串标识符</translation>
+        <translation>字符串ID</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
@@ -4836,7 +4836,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>物体的%1个访问位置%2超出了地图范围</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
@@ -4856,12 +4856,12 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>位于%3层、坐标x: %1 y: %2的女巫小屋包含无效奖励</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="173"/>
         <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>位于%3层、坐标x: %1 y: %2的学者包含无效奖励</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
@@ -4925,22 +4925,22 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="214"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>击败特定英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>失去特定英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="218"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄占位符</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="220"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>触发事件“%1”使用了%2条件，目标为%4处的%3。此设置较为异常，应避免使用；地图仍可游玩，但除非支持占位符替换，否则该条件将无法解析。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="278"/>

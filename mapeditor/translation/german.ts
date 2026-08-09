@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlassen</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlassen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -1388,7 +1388,7 @@ Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (od
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation>Helden-Fertigkeiten</translation>
+        <translation>Helden-Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -1411,7 +1411,7 @@ Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (od
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation>Fertigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
@@ -1421,7 +1421,7 @@ Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (od
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
-        <translation>Fertigkeiten anpassen</translation>
+        <translation>Fähigkeiten anpassen</translation>
     </message>
 </context>
 <context>
@@ -2039,7 +2039,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="177"/>
         <source>Random hero secondary skills</source>
-        <translation>Zufällige Nebenfertigkeiten des Helden</translation>
+        <translation>Zufällige Sekundärfähigkeiten des Helden</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="183"/>
@@ -2100,7 +2100,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="338"/>
         <source>Skills</source>
-        <translation>Fertigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="340"/>
@@ -2506,7 +2506,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../inspector/questwidget.cpp" line="457"/>
         <location filename="../inspector/rewardswidget.cpp" line="800"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation>Primäre Fertigkeiten: %1/%2/%3/%4</translation>
+        <translation>Primärfähigkeiten: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="468"/>
@@ -2530,7 +2530,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../inspector/questwidget.cpp" line="489"/>
         <location filename="../inspector/rewardswidget.cpp" line="828"/>
         <source>Secondary Skills: %1</source>
-        <translation>Sekundäre Fertigkeiten: %1</translation>
+        <translation>Sekundärfähigkeiten: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="496"/>
@@ -2643,17 +2643,17 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültig</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Helden-Platzhalter (Stärke Rang %1)</translation>
     </message>
 </context>
 <context>
@@ -2706,7 +2706,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation>Primäre Fähigkeiten</translation>
+        <translation>Primärfähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
@@ -2746,7 +2746,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation>Fertigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="442"/>
@@ -2932,7 +2932,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../inspector/rewardswidget.ui" line="437"/>
         <location filename="../inspector/rewardswidget.ui" line="1157"/>
         <source>Primary skills</source>
-        <translation>Primäre Fähigkeiten</translation>
+        <translation>Primärfähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="452"/>
@@ -2980,7 +2980,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../inspector/rewardswidget.ui" line="637"/>
         <location filename="../inspector/rewardswidget.ui" line="1341"/>
         <source>Skills</source>
-        <translation>Fertigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="677"/>
@@ -3241,7 +3241,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="377"/>
         <source>Primary skills</source>
-        <translation>Primäre Fähigkeiten</translation>
+        <translation>Primärfähigkeiten</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="384"/>
@@ -3408,27 +3408,27 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelehrter</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Zufall</translation>
+        <translation>Zufall</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Primärfähigkeit</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundärfähigkeit</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">Zauberspruch</translation>
+        <translation>Zauberspruch</translation>
     </message>
 </context>
 <context>
@@ -3482,7 +3482,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation>Primäre Fähigkeit</translation>
+        <translation>Primärfähigkeit</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
@@ -3628,7 +3628,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="379"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation>Primäre Fähigkeit (Angriff: %1, Verteidigung: %2, Zauberkraft: %3, Wissen: %4) für %5</translation>
+        <translation>Primärfähigkeit (Angriff: %1, Verteidigung: %2, Zauberkraft: %3, Wissen: %4) für %5</translation>
     </message>
 </context>
 <context>
@@ -3779,7 +3779,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="524"/>
         <source>Banned Skills</source>
-        <translation>Verbotene Fertigkeiten</translation>
+        <translation>Verbotene Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="531"/>
@@ -4066,12 +4066,12 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlassen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
@@ -4794,7 +4794,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
         <source>Skill Selector</source>
-        <translation>Fertigkeiten-Auswahl</translation>
+        <translation>Fähigkeiten-Auswahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
@@ -4837,7 +4837,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Die besuchbare Position %2 des Objekts %1 liegt außerhalb der Kartengrenzen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
@@ -4857,12 +4857,12 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Hexenhütte bei x: %1 y: %2 auf Ebene %3 hat eine ungültige Belohnung</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="173"/>
         <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Gelehrter bei x: %1 y: %2 auf Ebene %3 hat eine ungültige Belohnung</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
@@ -4926,22 +4926,22 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="214"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmten Helden besiegen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmten Helden verlieren</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="218"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Helden-Platzhalter</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="220"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgelöste Ereignis &apos;%1&apos; verwendet die Bedingung %2, die auf %3 bei %4 abzielt. Diese Konfiguration ist ungewöhnlich und sollte vermieden werden; die Karte bleibt zwar spielbar, doch die Bedingung bleibt unaufgelöst, sofern das Ersetzen von Platzhaltern nicht unterstützt wird.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="278"/>

@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Yetenekler</translation>
+        <translation>Yetenekler</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm Seçimleri Kaldır</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tümünü Seç</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Özelleştir</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Gösterilen beceriler, cadı kulübesinin varsayılan uygulamasını temel alır. Modlar bu ayarları değiştirebilir.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
@@ -195,7 +195,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Senaryo aç</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -391,12 +391,12 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Label Pos X</source>
-        <translation type="unfinished">Etiket X konumu</translation>
+        <translation>Etiket X konumu</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished">Etiket Y konumu</translation>
+        <translation>Etiket Y konumu</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="202"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -932,14 +932,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Harita Düzenleyici</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Android&apos;deki Harita Düzenleyici deneme aşamasındadır.
+
+En iyi deneyim için, harita düzenleyiciyi bir tablette (veya fare/kalemle) kullanmanızı öneririz.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1156,12 +1158,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Görsel biçimi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Görsel biçim formatı:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1172,12 +1174,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Görsel kaydedilemedi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Görsel %1 konumuna kaydedilemiyor</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1198,7 +1200,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Dizin</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1386,7 +1388,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation>Kahraman yetenekleri</translation>
+        <translation>Kahraman becerileri</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -1465,22 +1467,22 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Form</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm kahramanlar</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel kahramanlar</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Yasaklı Kahramanlar</translation>
+        <translation>Yasaklı Kahramanlar</translation>
     </message>
 </context>
 <context>
@@ -1563,7 +1565,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nesne yerleştirilemiyor</translation>
+        <translation>Nesne yerleştirilemiyor</translation>
     </message>
 </context>
 <context>
@@ -1967,7 +1969,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Oyuncuları seçin</translation>
     </message>
 </context>
 <context>
@@ -2204,7 +2206,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <location filename="../inspector/inspector.cpp" line="304"/>
         <location filename="../inspector/inspector.cpp" line="733"/>
         <source>Placeholder type</source>
-        <translation type="unfinished">Yer tutucu türü</translation>
+        <translation>Değişken türü</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="307"/>
@@ -2327,7 +2329,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <location filename="../inspector/inspector.cpp" line="494"/>
         <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Şunlar için uygun:</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="969"/>
@@ -2339,13 +2341,14 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Şunlar için uygun:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
         <location filename="../inspector/inspector.cpp" line="820"/>
         <source>Never flees</source>
-        <translation type="unfinished">Asla kaçmaz</translation>
+        <translation>Asla kaçmaz</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="447"/>
@@ -2411,7 +2414,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="924"/>
         <source>UNFLAGGABLE</source>
-        <translation type="unfinished">BAYRAKLANAMAZ</translation>
+        <translation>BAYRAK DİKİLEMEZ</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="417"/>
@@ -2458,7 +2461,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
         <source>Custom</source>
-        <translation type="unfinished">Özel</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
@@ -2617,39 +2620,39 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosyayı nereden açmak istiyorsunuz?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Dahili</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Harici</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosyayı nereye kaydetmek istersiniz?</translation>
     </message>
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapat</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçersiz</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kahraman değişkeni (güç derecesi %1)</translation>
     </message>
 </context>
 <context>
@@ -2846,12 +2849,12 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> hafta</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> ay</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3194,7 +3197,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Videolar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -3227,7 +3230,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="364"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished">Geçiş yapan kahramanlar korunsun</translation>
+        <translation>Geçiş yapan kahramanlar korunsun</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="370"/>
@@ -3267,7 +3270,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="465"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished">Geçiş yapan eşyalar</translation>
+        <translation>Geçiş yapan eserler</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="494"/>
@@ -3287,12 +3290,12 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="514"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished">Kahraman aktarım seçenekleri</translation>
+        <translation>Kahraman aktarım seçenekleri</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="521"/>
         <source>Starting hero options</source>
-        <translation type="unfinished">Başlangıç kahramanı seçenekleri</translation>
+        <translation>Başlangıç kahramanı seçenekleri</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="539"/>
@@ -3304,42 +3307,42 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
         <location filename="../campaigneditor/scenarioproperties.cpp" line="476"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Player position</source>
-        <translation type="unfinished">Oyuncu konumu</translation>
+        <translation>Oyuncu konumu</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="555"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished">Başlangıç bonusu seçeneği</translation>
+        <translation>Başlangıç bonusu seçeneği</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="566"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished">Aktarım / Başlangıç kahramanı</translation>
+        <translation>Aktarım / Başlangıç kahramanı</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="584"/>
         <source>Add...</source>
-        <translation type="unfinished">Ekle...</translation>
+        <translation>Ekle...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="591"/>
         <source>Edit...</source>
-        <translation type="unfinished">Düzenle...</translation>
+        <translation>Düzenle...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="125"/>
         <source>Strongest</source>
-        <translation type="unfinished">En güçlü</translation>
+        <translation>En güçlü</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
         <source>Generated</source>
-        <translation type="unfinished">Oluşturulmuş</translation>
+        <translation>Oluşturulmuş</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="127"/>
         <source>Random</source>
-        <translation type="unfinished">Rastgele</translation>
+        <translation>Rastgele</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="144"/>
@@ -3404,27 +3407,27 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilgin</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Rastgele</translation>
+        <translation>Rastgele</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Ana Beceri</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>İkincil Beceri</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">Büyü</translation>
+        <translation>Büyü</translation>
     </message>
 </context>
 <context>
@@ -3579,12 +3582,12 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="133"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished">Yaygın (%1 ve %2)</translation>
+        <translation>Yaygın (%1 ve %2)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="138"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished">Nadir (%1, %2, %3, %4)</translation>
+        <translation>Nadir (%1, %2, %3, %4)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="320"/>
@@ -3624,7 +3627,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="379"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished">%5 için Birincil beceri (Saldırı: %1, Savunma: %2, Büyü: %3, Bilgi: %4)</translation>
+        <translation>%5 için Birincil beceri (Saldırı: %1, Savunma: %2, Büyü: %3, Bilgi: %4)</translation>
     </message>
 </context>
 <context>
@@ -4062,12 +4065,12 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
@@ -4113,7 +4116,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="395"/>
         <source>Junction</source>
-        <translation type="unfinished">Kavşak</translation>
+        <translation>Kavşak</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="396"/>
@@ -4123,7 +4126,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="397"/>
         <source>Sealed</source>
-        <translation type="unfinished">Mühürlü</translation>
+        <translation>Mühürlü</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="424"/>
@@ -4194,12 +4197,12 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="470"/>
         <source>Wide</source>
-        <translation type="unfinished">Geniş</translation>
+        <translation>Geniş</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="471"/>
         <source>Force portal</source>
-        <translation type="unfinished">Zorla portal</translation>
+        <translation>Portala zorla</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="473"/>
@@ -4310,7 +4313,7 @@ Muhafız: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Şablon sayısı çok az!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
@@ -4320,12 +4323,12 @@ Muhafız: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge sayısı yetersiz</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı eklemeden önce en az iki bölge oluşturun.</translation>
     </message>
 </context>
 <context>
@@ -4603,17 +4606,17 @@ Muhafız: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="34"/>
         <source>Like Zone</source>
-        <translation type="unfinished">Bölge gibi</translation>
+        <translation>Tercih Edilen Bölge</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="35"/>
         <source>Not like zone (comma separated)</source>
-        <translation type="unfinished">Bölge gibi değil (virgülle ayrılmış)</translation>
+        <translation>İstenmeyen bölge (virgülle ayrılmış)</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="36"/>
         <source>Related to zone terrain</source>
-        <translation type="unfinished">Bölgenin arazisiyle ilgili</translation>
+        <translation>Bölgenin arazisiyle ilgili</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="61"/>
@@ -4702,7 +4705,7 @@ Muhafız: %3</translation>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation type="unfinished">Dize Kimliği</translation>
+        <translation>Dize Kimliği</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
@@ -4732,12 +4735,12 @@ Muhafız: %3</translation>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished">Hazıneleri Seç</translation>
+        <translation>Hazineleri Seç</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="27"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished">Hazine Seçici</translation>
+        <translation>Hazine Seçici</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="33"/>
@@ -4775,27 +4778,27 @@ Muhafız: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="77"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Arazi Seçici</translation>
+        <translation>Arazi Seçici</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="81"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Büyü Seçici</translation>
+        <translation>Büyü Seçici</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="85"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Eser Seçici</translation>
+        <translation>Eser Seçici</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Yetenek Seçici</translation>
+        <translation>Yetenek Seçici</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Kahraman Türü Seçici</translation>
+        <translation>Kahraman Türü Seçici</translation>
     </message>
 </context>
 <context>
@@ -4813,7 +4816,7 @@ Muhafız: %3</translation>
     <message>
         <location filename="../validator.cpp" line="72"/>
         <source>No factions allowed for player %1</source>
-        <translation type="unfinished">Oyuncu %1 için fraksiyon izni yok</translation>
+        <translation>Oyuncu %1 için fraksiyon izni yok</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="75"/>
@@ -4823,47 +4826,47 @@ Muhafız: %3</translation>
     <message>
         <location filename="../validator.cpp" line="77"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation type="unfinished">Harita sadece bir oyuncuya izin veriyor ve başlatılamaz</translation>
+        <translation>Harita sadece bir oyuncuya izin veriyor ve başlatılamaz</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="79"/>
         <source>No human players allowed to play this map</source>
-        <translation type="unfinished">Bu haritayı oynayacak insan oyuncusu yok</translation>
+        <translation>Bu haritayı gerçek oyuncuların oynamasına izin verilmiyor</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nesnesinin ziyaret edilebilir %2 konumu harita sınırlarının dışında</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation type="unfinished">Nesne %1 oynanamaz oyuncu %2&apos;ye atanmış</translation>
+        <translation>Nesne %1 oynanamaz oyuncu %2&apos;ye atanmış</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="150"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished">Büyü parşömeni %1&apos;in atanmış örneği yok ve kaldırılmalı</translation>
+        <translation>Büyü parşömeni %1&apos;in atanmış örneği yok ve kaldırılmalı</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="156"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished">Eser %1 harita ayarları tarafından yasaklanmış</translation>
+        <translation>Eser %1 harita ayarları tarafından yasaklanmış</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>x: %1 y: %2 koordinatındaki ve %3 katmanındaki cadı kulübesi geçersiz bir ödüle sahip</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="173"/>
         <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>x: %1 y: %2 koordinatındaki ve %3 katmanındaki bilgin geçersiz bir ödüle sahip</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished">Oyuncu %1&apos;in atanmış şehir ve kahramanı yok</translation>
+        <translation>Oyuncu %1&apos;in atanmış şehir ve kahramanı yok</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="118"/>
@@ -4878,77 +4881,77 @@ Muhafız: %3</translation>
     <message>
         <location filename="../validator.cpp" line="123"/>
         <source>Hero %1 must have an owner</source>
-        <translation type="unfinished">Kahraman %1 bir sahibe sahip olmalı</translation>
+        <translation>%1 Kahramanının bir sahibi olmalı</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="130"/>
         <source>Hero %1 is prohibited by map settings</source>
-        <translation type="unfinished">Kahraman %1 harita ayarları tarafından yasaklanmış</translation>
+        <translation>Kahraman %1 harita ayarları tarafından yasaklanmış</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="133"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation type="unfinished">Kahraman %1 haritada yinelenmiş</translation>
+        <translation>%1 Kahramanı haritada birden fazla kez mevcut</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="136"/>
         <source>Hero %1 has an empty type and must be removed</source>
-        <translation type="unfinished">Kahraman %1 türü boş ve kaldırılmalı</translation>
+        <translation>Kahraman %1 türü boş ve kaldırılmalı</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="147"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation type="unfinished">Büyü parşömeni %1 harita ayarları tarafından yasaklanmış</translation>
+        <translation>Büyü parşömeni %1 harita ayarları tarafından yasaklanmış</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
-        <translation type="unfinished">Oyuncu %1&apos;in hiç başlangıç şehri yok</translation>
+        <translation>Oyuncu %1&apos;in hiç başlangıç şehri yok</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>Map name is not specified</source>
-        <translation type="unfinished">Harita adı belirtilmemiş</translation>
+        <translation>Harita adı belirtilmemiş</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="197"/>
         <source>Map description is not specified</source>
-        <translation type="unfinished">Harita açıklaması belirtilmemiş</translation>
+        <translation>Harita açıklaması belirtilmemiş</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="214"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>belirli bir kahramanı yen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>belirli bir kahramanı kaybet</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="218"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişken kahraman</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="220"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; tetiklenen etkinliği, %4 konumunda %3 unsurunu hedefleyen %2 koşulunu kullanıyor. Bu kurulum alışılmadık bir durumdur ve kaçınılmalıdır; harita oynanabilir kalacaktır ancak değişken değişimi desteklenmediği sürece koşul çözümlenmemiş olarak kalır.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="278"/>
         <source>The map is valid and has no issues.</source>
-        <translation type="unfinished">Harita geçerli ve sorunsuz.</translation>
+        <translation>Harita geçerli ve sorunsuz.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="233"/>
         <source>Exception occurs during validation: %1</source>
-        <translation type="unfinished">Doğrulama sırasında istisna oluştu: %1</translation>
+        <translation>Doğrulama sırasında hata oluştu: %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="237"/>
         <source>Unknown exception occurs during validation</source>
-        <translation type="unfinished">Doğrulama sırasında bilinmeyen istisna oluştu</translation>
+        <translation>Doğrulama sırasında bilinmeyen hata oluştu</translation>
     </message>
 </context>
 <context>
@@ -4956,7 +4959,7 @@ Muhafız: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Form</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="40"/>
@@ -4966,32 +4969,32 @@ Muhafız: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="59"/>
         <source>Only for human players</source>
-        <translation type="unfinished">Yalnızca insan oyuncular için</translation>
+        <translation>Yalnızca gerçek oyuncular için</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="66"/>
         <source>Allow standard victory</source>
-        <translation type="unfinished">Standart zafere izin ver</translation>
+        <translation>Standart zafere izin ver</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="79"/>
         <source>Parameters</source>
-        <translation type="unfinished">Parametreler</translation>
+        <translation>Parametreler</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>No special victory</source>
-        <translation type="unfinished">Özel zafer yok</translation>
+        <translation>Özel zafer yok</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Capture artifact</source>
-        <translation type="unfinished">Eseri ele geçir</translation>
+        <translation>Eseri ele geçir</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Hire creatures</source>
-        <translation type="unfinished">Yaratık kirala</translation>
+        <translation>Yaratık kirala</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
