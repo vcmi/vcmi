@@ -325,9 +325,9 @@ int CBattleInfoEssentials::battleGetRetreatPermission(BattleSide side, BonusType
 		if(enemyHasHero || bonus->val > 0)
 			result += bonus->val;
 
-	//we are besieged defender, town may provide a way out, e.g. escape tunnel
+	//we are besieged defender, town buildings decide - village hall locks us in, escape tunnel provides a way out
 	if(side == BattleSide::DEFENDER && battleGetDefendedTown() != nullptr)
-		result += battleGetDefendedTown()->valOfBonuses(permission) - GameConstants::BATTLE_RETREAT_RESTRICTION;
+		result += battleGetDefendedTown()->valOfBonuses(permission);
 
 	//cannot leave after casting spell in X first turns as attacker
 	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)

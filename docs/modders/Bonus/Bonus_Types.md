@@ -466,7 +466,7 @@ Increases weekly growth of creatures in affected towns (Statue of Legion)
 
 ### BATTLE_CAN_FLEE
 
-Controls whether affected hero can retreat from combat. Values of all bonuses of this type are summed up, and retreating is blocked if the sum is negative. Restrictions of the game itself - defending a besieged town and casting a spell in first combat rounds as attacker - subtract 10 each.
+Controls whether affected hero can retreat from combat. Values of all bonuses of this type are summed up, and retreating is blocked if the sum is negative. When defending a town, bonuses of the town are summed up as well - Village Hall provides -10, locking the defender in. Casting a spell in first combat rounds as attacker subtracts another 10.
 
 - val: -100 blocks retreating in a way that can not be overcome by any bonus (Shackles of War), -10 blocks a single case, +10 allows to overcome a single restriction (Escape Tunnel)
 
