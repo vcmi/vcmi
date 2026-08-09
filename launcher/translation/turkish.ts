@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtları Dışa Aktar</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlar %1 konumuna dışa aktarıldı</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıt arşivi seçilen konuma kaydedilemedi</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef dosyayı seçin</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lütfen hedef dosyayı seçin ve arşivi vcmi-saves.zip olarak kaydedin.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip arşivleri (*.zip);;Tüm dosyalar (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Günlükler dışa aktarılıyor...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>İptal</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Günlükleri Dışa Aktar</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -486,28 +486,29 @@ Bu sorunu geliştiricilere bildiriniz</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıt zaten mevcut</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; adlı kayıt zaten mevcut. Üzerine yazmak istiyor musunuz?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlar %1 konumundan içe aktarılamadı.
+Neden: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Başarılı</translation>
+        <translation>Başarılı</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kayıt dosyası içe aktarıldı</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -570,7 +571,9 @@ Reason: %2</source>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+İndirilen dosyalar işlensin mi?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
@@ -1205,12 +1208,12 @@ Pencereli - oyun, ekranınızın bir kısmını kaplayan bir pencerede çalış�
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III verisi bulunamadı mı? VCMI&apos;ı denemek için ücretsiz demoyu indirin</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demoyu İndir</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1430,7 +1433,7 @@ Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini s
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Demosu indiriliyor...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
@@ -1685,12 +1688,12 @@ Bin (%n Bayt):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Basitleştirilmiş Çince</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Geleneksel Çince</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1996,7 +1999,7 @@ Bin (%n Bayt):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <source>Skills</source>
-        <translation>Yetenekler</translation>
+        <translation>Beceriler</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
@@ -2067,7 +2070,7 @@ Bin (%n Bayt):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo</translation>
     </message>
 </context>
 <context>
@@ -2088,17 +2091,17 @@ Neden: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">İçe aktarma başarısız</translation>
+        <translation>İçe aktarma başarısız</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kaydı %2 konumundan içe aktarılamadı</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kayıt dosyası içe aktarılamadı</translation>
     </message>
 </context>
 <context>
@@ -2215,7 +2218,7 @@ Neden: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Oyunu yükle</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2256,17 +2259,17 @@ Neden: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüklenecek dosyaları (ayarlar, modlar, kayıtlar, haritalar, senaryolar, gog dosyaları) seçin..</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III&apos;ü yükle</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu işlem, tüm demo oyun verilerini (Data, Maps, Mp3, Video klasörleri) silecek ve kurulum sihirbazını yeniden başlatacaktır. Emin misiniz?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="275"/>
@@ -2286,7 +2289,7 @@ Neden: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlar</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2334,22 +2337,22 @@ Neden: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen dosyalar içe aktarım için hazırlanıyor...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen dosyalar içe aktarım için hazırlanıyor... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Import failed</source>
-        <translation type="unfinished">İçe aktarma başarısız</translation>
+        <translation>İçe aktarma başarısız</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosya içe aktarım için hazırlanamadı: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2363,7 +2366,16 @@ Neden: %2</translation>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Bu seçenek, VCMI kurulumunuza ek veri dosyalarını içe aktarmanıza olanak tanır. Şu anda aşağıdaki seçenekler desteklenmektedir:
+
+ - Heroes III Haritaları (.h3m veya .vmap).
+ - Heroes III Senaryoları (.h3c veya .vcmp).
+ - GOG.com’dan indirilen çevrimdışı yedekleme yükleyicisini (.exe) kullanan Heroes III Chronicles.
+ - Zip formatındaki VCMI modları (.zip)
+ - Zip formatındaki VCMI kayıt arşivleri (.zip)
+ - VCMI kayıt dosyaları (.vsgm1)
+ - VCMI yapılandırma dosyaları (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>
