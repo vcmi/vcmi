@@ -1217,7 +1217,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">Heroes III 데이터 파일을 성공적으로 찾았습니다.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation type="unfinished">원하는 언어로 Heroes III 번역 설치</translation>
     </message>
@@ -1242,52 +1242,49 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation type="unfinished">추가 모드는 지금 또는 나중에 언제든 VCMI 런처로 설치할 수 있습니다</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="723"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation type="unfinished">VCMI 팀이 이식한 팬 메이드 확장팩 &quot;Horn of the Abyss&quot;의 호환 버전 설치</translation>
+        <translation type="obsolete">VCMI 팀이 이식한 팬 메이드 확장팩 &quot;Horn of the Abyss&quot;의 호환 버전 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="806"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>VCMI Extras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="836"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation type="unfinished">팬 메이드 확장팩 &quot;In The Wake of Gods&quot;의 호환 버전 설치</translation>
+        <translation type="obsolete">팬 메이드 확장팩 &quot;In The Wake of Gods&quot;의 호환 버전 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="852"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="868"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="885"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished">무작위 맵 인터페이스 개선, 전투 선택 동작 등 다양한 인터페이스 개선 모드 설치</translation>
+        <translation type="obsolete">무작위 맵 인터페이스 개선, 전투 선택 동작 등 다양한 인터페이스 개선 모드 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="951"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
         <source>Tides of War</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="989"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
         <source>Fallen of the Depth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1048"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Finish</source>
         <translation type="unfinished">완료</translation>
     </message>
@@ -1353,174 +1350,199 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1041"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="781"/>
         <source>Back</source>
         <translation type="unfinished">뒤로</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="767"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
         <source>Horn of the Abyss</source>
         <translation type="unfinished">Horn of the Abyss</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
         <translation type="unfinished">Heroes III 번역</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="913"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
         <source>In The Wake of Gods</source>
         <translation type="unfinished">In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Heroes III installation found!</source>
         <translation type="unfinished">Heroes III 설치를 찾았습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Copy data to VCMI folder?</source>
         <translation type="unfinished">데이터를 VCMI 폴더로 복사할까요?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="451"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="456"/>
         <source>GOG file (*.*)</source>
         <translation type="unfinished">GOG 파일 (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="452"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="457"/>
         <source>File selection</source>
         <translation type="unfinished">파일 선택</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="663"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>GOG installer</source>
         <translation type="unfinished">GOG 설치 관리자</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="556"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="561"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">Heroes III: HD Edition 파일은 VCMI에서 지원되지 않습니다.
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death가 설치된 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="563"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">알 수 없거나 지원되지 않는 Heroes III 버전이 감지되었습니다.
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="479"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>GOG data</source>
         <translation type="unfinished">GOG 데이터</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="400"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished">파일을 열지 못했습니다: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="420"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="446"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="428"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="435"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="440"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="464"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="666"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">잘못된 파일이 선택되었습니다</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="480"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="679"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid data file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="595"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="731"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
         <source>Importing Heroes III data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="628"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
         <source>Preparing installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="688"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Extracting installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="715"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
         <source>Extracting error!</source>
         <translation type="unfinished">압축 해제 오류!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="719"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
         <source>Hash error!</source>
         <translation type="unfinished">해시 오류!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>No Heroes III data!</source>
         <translation type="unfinished">Heroes III 데이터가 없습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation type="unfinished">선택한 파일에 Heroes III 데이터가 포함되어 있지 않습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="745"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
         <source>Scanning selected folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="553"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <source>Tears of Ashan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation type="unfinished">선택한 디렉터리에서 올바른 Heroes III 데이터를 감지하지 못했습니다.
 설치된 Heroes III 데이터가 있는 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="564"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="569"/>
         <source>Heroes III data not found!</source>
         <translation type="unfinished">Heroes III 데이터를 찾지 못했습니다!</translation>
     </message>
@@ -1740,61 +1762,66 @@ Bin (%n bytes):
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="41"/>
         <source>Norwegian</source>
         <translation type="unfinished">Norwegian</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Polish</source>
         <translation type="unfinished">Polish</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Portuguese</source>
         <translation type="unfinished">Portuguese</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="44"/>
         <source>Romanian</source>
         <translation type="unfinished">Romanian</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="45"/>
         <source>Russian</source>
         <translation type="unfinished">Russian</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Serbian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="46"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Spanish</source>
         <translation type="unfinished">Spanish</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="47"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Swedish</source>
         <translation type="unfinished">Swedish</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="48"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Turkish</source>
         <translation type="unfinished">Turkish</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="49"/>
+        <location filename="../languages.cpp" line="50"/>
         <source>Ukrainian</source>
         <translation type="unfinished">Ukrainian</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="50"/>
+        <location filename="../languages.cpp" line="51"/>
         <source>Vietnamese</source>
         <translation type="unfinished">Vietnamese</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="72"/>
+        <location filename="../languages.cpp" line="73"/>
         <source>Auto (%1)</source>
         <translation type="unfinished">자동(%1)</translation>
     </message>
@@ -2059,12 +2086,12 @@ Bin (%n bytes):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="159"/>
+        <location filename="../main.cpp" line="158"/>
         <source>Error starting executable</source>
         <translation type="unfinished">실행 파일 시작 오류</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="160"/>
+        <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation type="unfinished">%1을(를) 시작하지 못했습니다
@@ -2239,57 +2266,57 @@ Reason: %2</source>
         <translation type="unfinished">%1로 업데이트 가능</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="288"/>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="297"/>
+        <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="275"/>
+        <location filename="../startGame/StartGameTab.cpp" line="276"/>
         <source>All supported files</source>
         <translation type="unfinished">모든 지원 파일</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="277"/>
         <source>Maps</source>
         <translation type="unfinished">지도</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Campaigns</source>
         <translation type="unfinished">캠페인</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="280"/>
         <source>Configs</source>
         <translation type="unfinished">설정</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="281"/>
         <source>Mods</source>
         <translation type="unfinished">모드</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="282"/>
         <source>Gog files</source>
         <translation type="unfinished">GOG 파일</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="284"/>
+        <location filename="../startGame/StartGameTab.cpp" line="285"/>
         <source>All files (*.*)</source>
         <translation type="unfinished">모든 파일 (*.*)</translation>
     </message>
@@ -2316,28 +2343,28 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="332"/>
-        <location filename="../startGame/StartGameTab.cpp" line="367"/>
+        <location filename="../startGame/StartGameTab.cpp" line="333"/>
+        <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="337"/>
+        <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="426"/>
+        <location filename="../startGame/StartGameTab.cpp" line="427"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2351,17 +2378,17 @@ Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="443"/>
+        <location filename="../startGame/StartGameTab.cpp" line="444"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation type="unfinished">보유한 Heroes III 버전의 언어가 다릅니다. VCMI는 다양한 언어 번역을 제공합니다. 이 옵션으로 자동 설치하세요.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="453"/>
+        <location filename="../startGame/StartGameTab.cpp" line="454"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation type="unfinished">해당 언어로의 Heroes III 번역이 설치되어 있지만 꺼져 있습니다. 이 옵션으로 활성화하세요.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="463"/>
+        <location filename="../startGame/StartGameTab.cpp" line="464"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2370,65 +2397,65 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 경고: 일부 경우 업데이트된 모드는 기존 저장과 호환되지 않을 수 있습니다. 진행 중인 게임을 마칠 때까지 업데이트를 미루는 것이 좋습니다.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="475"/>
+        <location filename="../startGame/StartGameTab.cpp" line="476"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="488"/>
+        <location filename="../startGame/StartGameTab.cpp" line="489"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="499"/>
+        <location filename="../startGame/StartGameTab.cpp" line="500"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="510"/>
+        <location filename="../startGame/StartGameTab.cpp" line="511"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="521"/>
+        <location filename="../startGame/StartGameTab.cpp" line="522"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="532"/>
+        <location filename="../startGame/StartGameTab.cpp" line="533"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Preset import failed</source>
         <translation type="unfinished">프리셋 가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation type="unfinished">프리셋 가져오기 실패 - 클립보드 데이터가 모드 프리셋처럼 보이지 않습니다!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="596"/>
+        <location filename="../startGame/StartGameTab.cpp" line="597"/>
         <source>Enter preset name:</source>
         <translation type="unfinished">프리셋 이름을 입력하세요:</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="639"/>
+        <location filename="../startGame/StartGameTab.cpp" line="640"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation type="unfinished">프리셋 &apos;%1&apos;의 이름을 다음으로 변경:</translation>
     </message>

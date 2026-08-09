@@ -1215,7 +1215,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
         <translation>Dữ liệu Heroes III đã được tìm thấy.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>Cài ngôn ngữ Heroes III</translation>
     </message>
@@ -1240,52 +1240,49 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>Tùy chọn, bạn có thể cài mod bổ sung ngay bây giờ hoặc bất kì lúc nào bằng VCMI Launcher</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="723"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation>Cài đặt phiên bản tương thích Horn of the Abyss, bản mở rộng Heroes III do các FAN hâm mộ tự làm, được nhóm VCMI chuyển qua</translation>
+        <translation type="vanished">Cài đặt phiên bản tương thích Horn of the Abyss, bản mở rộng Heroes III do các FAN hâm mộ tự làm, được nhóm VCMI chuyển qua</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="806"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>VCMI Extras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="836"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation>Cài đặt phiên bản tương thích In The Wake of Gods, bản mở rộng Heroes III do các FAN hâm mộ tự làm</translation>
+        <translation type="vanished">Cài đặt phiên bản tương thích In The Wake of Gods, bản mở rộng Heroes III do các FAN hâm mộ tự làm</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="852"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="868"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="885"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation>Cài đặt mod cung cấp thêm nhiều cải tiến về giao diện đồ họa cho bản đồ ngẫu nhiên và có thể lựa chọn thêm các hành động trong trận chiến</translation>
+        <translation type="vanished">Cài đặt mod cung cấp thêm nhiều cải tiến về giao diện đồ họa cho bản đồ ngẫu nhiên và có thể lựa chọn thêm các hành động trong trận chiến</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="951"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
         <source>Tides of War</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="989"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
         <source>Fallen of the Depth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1048"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Finish</source>
         <translation>Hoàn thành</translation>
     </message>
@@ -1351,174 +1348,199 @@ Cài đặt ngoại tuyến bao gồm hai tệp tin sau: &quot;.exe&quot; và &q
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1041"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="781"/>
         <source>Back</source>
         <translation>Quay lại</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="767"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
         <source>Horn of the Abyss</source>
         <translation>Horn of the Abyss</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
         <translation>Bản dịch Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="913"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Heroes III installation found!</source>
         <translation>Đã tìm thấy bản cài đặt Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Copy data to VCMI folder?</source>
         <translation>Sao chép dữ liệu vào thư mục VCMI?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="451"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="456"/>
         <source>GOG file (*.*)</source>
         <translation>Tệp tin GOG (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="452"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="457"/>
         <source>File selection</source>
         <translation>Chọn tệp tin</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="663"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>GOG installer</source>
         <translation>Trình cài đặt GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="556"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="561"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>VCMI không hỗ trợ các tập tin Heroes III: HD Edition.
 Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="563"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Phiên bản Heroes III không đúng hoặc không được hỗ trợ.
 Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="479"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>GOG data</source>
         <translation>Dữ liệu GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="400"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished">Không mở được tệp: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="420"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="446"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="428"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="435"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="440"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="464"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="666"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">Tập tin được chọn không hợp lệ</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="480"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="679"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid data file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="595"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="731"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
         <source>Importing Heroes III data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="628"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
         <source>Preparing installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="688"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Extracting installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="715"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
         <source>Extracting error!</source>
         <translation>Có lỗi khi giải nén</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="719"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
         <source>Hash error!</source>
         <translation>Lỗi hàm Hash!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>No Heroes III data!</source>
         <translation>Không có dữ liệu Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Các tệp tin đã chọn không chứa dữ liệu Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="745"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
         <source>Scanning selected folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="553"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <source>Tears of Ashan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Không tìm thấy dữ liệu Heroes III trong thư mục đã chọn.
 Hãy chọn đúng thư mục chứa dữ liệu Heroes III đã cài đặt.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="564"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="569"/>
         <source>Heroes III data not found!</source>
         <translation>Không tìm thấy dữ liệu Heroes III!</translation>
     </message>
@@ -1738,61 +1760,66 @@ Bin (%n bytes):
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="41"/>
         <source>Norwegian</source>
         <translation type="unfinished">Tiếng Na Uy</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Polish</source>
         <translation>Tiếng Ba Lan</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Portuguese</source>
         <translation>Tiếng Bồ Đào Nha</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="44"/>
         <source>Romanian</source>
         <translation type="unfinished">Tiếng Romania</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="45"/>
         <source>Russian</source>
         <translation>Tiếng Nga</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Serbian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="46"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Spanish</source>
         <translation>Tiếng Tây Ban Nha</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="47"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Swedish</source>
         <translation>Tiếng Thụy Điển</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="48"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Turkish</source>
         <translation>Tiếng Thổ Nhĩ Kỳ</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="49"/>
+        <location filename="../languages.cpp" line="50"/>
         <source>Ukrainian</source>
         <translation>Tiếng Ukraina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="50"/>
+        <location filename="../languages.cpp" line="51"/>
         <source>Vietnamese</source>
         <translation>Tiếng Việt</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="72"/>
+        <location filename="../languages.cpp" line="73"/>
         <source>Auto (%1)</source>
         <translation>Tự động (%1)</translation>
     </message>
@@ -2057,12 +2084,12 @@ Bin (%n bytes):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="159"/>
+        <location filename="../main.cpp" line="158"/>
         <source>Error starting executable</source>
         <translation>Có lỗi khi khởi động</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="160"/>
+        <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>Không thể khởi động %1
@@ -2238,57 +2265,57 @@ cài đặt %n/%1</numerusform>
         <translation>Cập nhật %1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="288"/>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="297"/>
+        <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="275"/>
+        <location filename="../startGame/StartGameTab.cpp" line="276"/>
         <source>All supported files</source>
         <translation>Các tệp tin được hỗ trợ</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="277"/>
         <source>Maps</source>
         <translation type="unfinished">Bản đồ</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Campaigns</source>
         <translation type="unfinished">Chiến dịch</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="280"/>
         <source>Configs</source>
         <translation type="unfinished">Cấu hình</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="281"/>
         <source>Mods</source>
         <translation>Mods</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="282"/>
         <source>Gog files</source>
         <translation type="unfinished">Tệp Gog</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="284"/>
+        <location filename="../startGame/StartGameTab.cpp" line="285"/>
         <source>All files (*.*)</source>
         <translation>Tất cả tệp tin (*.*)</translation>
     </message>
@@ -2314,28 +2341,28 @@ cài đặt %n/%1</numerusform>
 - Tệp cấu hình VCMI (.json).</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="332"/>
-        <location filename="../startGame/StartGameTab.cpp" line="367"/>
+        <location filename="../startGame/StartGameTab.cpp" line="333"/>
+        <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="337"/>
+        <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
         <translation type="unfinished">Nhập thất bại</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="426"/>
+        <location filename="../startGame/StartGameTab.cpp" line="427"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2349,17 +2376,17 @@ cài đặt %n/%1</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="443"/>
+        <location filename="../startGame/StartGameTab.cpp" line="444"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation type="unfinished">Phiên bản Heroes III của bạn sử dụng ngôn ngữ khác. VCMI cung cấp bản dịch trò chơi sang nhiều ngôn ngữ mà bạn có thể sử dụng. Sử dụng tùy chọn này để tự động cài đặt bản dịch sang ngôn ngữ của bạn.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="453"/>
+        <location filename="../startGame/StartGameTab.cpp" line="454"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation type="unfinished">Bản dịch Heroes III sang ngôn ngữ của bạn đã được cài đặt nhưng đang bị tắt. Sử dụng tùy chọn này để bật nó.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="463"/>
+        <location filename="../startGame/StartGameTab.cpp" line="464"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2368,65 +2395,65 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 CẢNH BÁO: Trong một số trường hợp, các phiên bản cập nhật của mod có thể không tương thích với các bản lưu hiện có của bạn. Bạn có thể muốn hoãn cập nhật mod cho đến khi hoàn thành trò chơi hiện tại của mình.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="475"/>
+        <location filename="../startGame/StartGameTab.cpp" line="476"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="488"/>
+        <location filename="../startGame/StartGameTab.cpp" line="489"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="499"/>
+        <location filename="../startGame/StartGameTab.cpp" line="500"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="510"/>
+        <location filename="../startGame/StartGameTab.cpp" line="511"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="521"/>
+        <location filename="../startGame/StartGameTab.cpp" line="522"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="532"/>
+        <location filename="../startGame/StartGameTab.cpp" line="533"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Preset import failed</source>
         <translation type="unfinished">Nhập preset thất bại</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation type="unfinished">Không thể nhập preset - dữ liệu trong bảng tạm không giống preset của mod!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="596"/>
+        <location filename="../startGame/StartGameTab.cpp" line="597"/>
         <source>Enter preset name:</source>
         <translation type="unfinished">Nhập tên thiết lập:</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="639"/>
+        <location filename="../startGame/StartGameTab.cpp" line="640"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation type="unfinished">Đổi tên thiết lập &apos;%1&apos; thành:</translation>
     </message>

@@ -1221,7 +1221,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>已成功找到英雄无敌3数据文件。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>安装您所选语言的英雄无敌3翻译</translation>
     </message>
@@ -1246,32 +1246,30 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>安装推荐的VCMI模组</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>你可以现在选择安装额外模组或是以后使用VCMI启动器安装模组</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="723"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation>安装兼容版本的“深渊的号角”，一个由爱好者制作的英雄无敌3扩展包，由VCMI团队移植</translation>
+        <translation type="vanished">安装兼容版本的“深渊的号角”，一个由爱好者制作的英雄无敌3扩展包，由VCMI团队移植</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="806"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>VCMI Extras</source>
         <translation>VCMI附加内容</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="836"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation>安装兼容版本的“追随神迹”，一个由爱好者制作的英雄无敌3扩展包</translation>
+        <translation type="vanished">安装兼容版本的“追随神迹”，一个由爱好者制作的英雄无敌3扩展包</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="852"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation>一款功能丰富的扩展包，为9个原版城镇各自新增一种替代单位，同时加入新的中立生物、生物宝屋、技能与魔法，极大地拓展了游戏玩法</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="868"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation>深入地下世界，揭开炮塔族的面纱——这是一个新种族，位于蘑菇、岩石与符文魔法在黑暗中蓬勃生长之地，这个种族为VCMI而创作</translation>
     </message>
@@ -1280,17 +1278,16 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">检测到英雄无敌3 Demo文件，需要在VCMI中安装此模组来使用Demo资源，否则游戏将会崩溃</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="885"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation>安装提供各种各样界面改进的模组，例如美化随机地图界面或添加战场行动选项</translation>
+        <translation type="vanished">安装提供各种各样界面改进的模组，例如美化随机地图界面或添加战场行动选项</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="951"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
         <source>Tides of War</source>
         <translation>战争之潮</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="989"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
         <source>Fallen of the Depth</source>
         <translation>堕落深渊</translation>
     </message>
@@ -1299,7 +1296,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">Demo支持</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1048"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
@@ -1365,177 +1362,202 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1041"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="781"/>
         <source>Back</source>
         <translation>返回</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="767"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
         <source>Horn of the Abyss</source>
         <translation>深渊的号角</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
         <translation>英雄无敌3翻译</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="913"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
         <source>In The Wake of Gods</source>
         <translation>追随神迹</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Heroes III installation found!</source>
         <translation>英雄无敌3安装目录已找到！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Copy data to VCMI folder?</source>
         <translation>复制数据到VCMI文件夹吗？</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="451"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="456"/>
         <source>GOG file (*.*)</source>
         <translation>GOG文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="452"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="457"/>
         <source>File selection</source>
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="663"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>GOG installer</source>
         <translation>GOG安装包</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="556"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="561"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>VCMI不支持英雄无敌3高清版文件。
 请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="563"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>检测到未知或不支持的英雄无敌3版本。
 请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="479"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>GOG data</source>
         <translation>GOG数据</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="400"/>
         <source>Failed to open file: %1</source>
         <translation>打开文件失败：%1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="719"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
         <source>Hash error!</source>
         <translation>哈希错误！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>No Heroes III data!</source>
         <translation>没有英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="723"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>所选的文件不包含英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="553"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>从所选目录检测有效的英雄无敌3数据失败。
 请选择已安装英雄无敌3的数据目录。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
         <translation>下载英雄无敌3试玩版...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="420"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="446"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation>你需要选择%1文件！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="428"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>选择了无法识别的安装程序
 你需要选择官方的GOG安装程序。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="435"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="440"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation>你选择的是GOG Galaxy的安装程序，该文件不包含游戏本体。请下载离线备份游戏安装程序。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="464"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation>选取离线GOG安装程序(.exe)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="666"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
         <source>Invalid file selected</source>
         <translation>所选的文件无效</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="480"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation>选择离线GOG安装程序数据文件：%1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="500"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="679"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid data file</source>
         <translation>数据文件无效</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="564"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="569"/>
         <source>Heroes III data not found!</source>
         <translation>未找到英雄无敌3数据！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="595"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="731"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
         <source>Importing Heroes III data...</source>
         <translation>导入英雄无敌3数据...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="628"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
         <source>Preparing installer...</source>
         <translation>准备安装程序...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="688"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Extracting installer...</source>
         <translation>提取安装程序...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="715"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
         <source>Extracting error!</source>
         <translation>提取错误！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="745"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
         <source>Scanning selected folder...</source>
         <translation>扫描选中的文件夹...</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <source>Tears of Ashan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1757,61 +1779,66 @@ Bin (%n字节):
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="41"/>
         <source>Norwegian</source>
         <translation>挪威语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Polish</source>
         <translation>波兰语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Portuguese</source>
         <translation>葡萄牙语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="44"/>
         <source>Romanian</source>
         <translation>罗马尼亚语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="45"/>
         <source>Russian</source>
         <translation>俄语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Serbian</source>
         <translation>塞尔维亚语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="46"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Spanish</source>
         <translation>西班牙语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="47"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Swedish</source>
         <translation>瑞典语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="48"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Turkish</source>
         <translation>土耳其语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="49"/>
+        <location filename="../languages.cpp" line="50"/>
         <source>Ukrainian</source>
         <translation>乌克兰语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="50"/>
+        <location filename="../languages.cpp" line="51"/>
         <source>Vietnamese</source>
         <translation>越南语</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="72"/>
+        <location filename="../languages.cpp" line="73"/>
         <source>Auto (%1)</source>
         <translation>自动 (%1)</translation>
     </message>
@@ -2076,12 +2103,12 @@ Bin (%n字节):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="159"/>
+        <location filename="../main.cpp" line="158"/>
         <source>Error starting executable</source>
         <translation>启动可执行文件时出错</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="160"/>
+        <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>启动%1失败
@@ -2257,57 +2284,57 @@ Reason: %2</source>
         <translation>可更新至%1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="288"/>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation>选择文件（配置、模组、存档、地图、战役、gog 文件）……</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="297"/>
+        <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
         <translation>安装英雄无敌3</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation>此操作将删除所有试玩版游戏数据（Data、Maps、Mp3、Video文件夹），并重新启动安装向导。确定继续吗？</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="275"/>
+        <location filename="../startGame/StartGameTab.cpp" line="276"/>
         <source>All supported files</source>
         <translation>所有支持的文件格式</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="277"/>
         <source>Maps</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Campaigns</source>
         <translation>战役</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
         <translation>存档</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="280"/>
         <source>Configs</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="281"/>
         <source>Mods</source>
         <translation>模组</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="282"/>
         <source>Gog files</source>
         <translation>Gog文件</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="284"/>
+        <location filename="../startGame/StartGameTab.cpp" line="285"/>
         <source>All files (*.*)</source>
         <translation>所有文件 (*.*)</translation>
     </message>
@@ -2334,28 +2361,28 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="332"/>
-        <location filename="../startGame/StartGameTab.cpp" line="367"/>
+        <location filename="../startGame/StartGameTab.cpp" line="333"/>
+        <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
         <translation>正在准备导入所选文件...</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="337"/>
+        <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation>正在准备导入所选文件...%1/%2</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="358"/>
+        <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
         <translation>导入文件准备失败：%1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="426"/>
+        <location filename="../startGame/StartGameTab.cpp" line="427"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2378,17 +2405,17 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="443"/>
+        <location filename="../startGame/StartGameTab.cpp" line="444"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation>您的英雄无敌3版本使用的是不同的语言。VCMI提供了多种语言的翻译，您可以使用这些翻译。使用此选项可以自动安装适合您语言的翻译。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="453"/>
+        <location filename="../startGame/StartGameTab.cpp" line="454"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation>您语言对应的英雄无敌3翻译已安装，但是被关闭了。使用这个选项来启用它。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="463"/>
+        <location filename="../startGame/StartGameTab.cpp" line="464"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2397,14 +2424,14 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 警告：在某些情况下，模组的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新模组。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="475"/>
+        <location filename="../startGame/StartGameTab.cpp" line="476"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation>如果你在gog.com拥有英雄无敌历代记，可以使用GOG提供的离线备份安装包，将英雄无敌历代记的数据导入VCMI，并作为自定义战役使用。
 要导入英雄无敌历代记，请下载你想安装的每一部历代记对应的离线备份安装包，选择“导入文件”选项，然后选取已下载的文件。系统将为VCMI自动生成并安装包含这些历代记内容的模组。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="488"/>
+        <location filename="../startGame/StartGameTab.cpp" line="489"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2413,7 +2440,7 @@ To resolve this problem, please copy missing mp3 files from Heroes III to VCMI d
 要解决此问题，请手动将英雄无敌3中的缺失mp3文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="499"/>
+        <location filename="../startGame/StartGameTab.cpp" line="500"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2422,7 +2449,7 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
 要解决此问题，请手动将英雄无敌3中的VIDEO.VID文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="510"/>
+        <location filename="../startGame/StartGameTab.cpp" line="511"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
@@ -2431,7 +2458,7 @@ To resolve this problem, please reinstall game and reimport data files using sup
 要解决此问题，请重新安装游戏，并使用受支持版本的英雄无敌3重新导入数据文件。VCMI需要英雄无敌3死亡阴影或完全版才能运行，你可以从gog.com获取这些版本。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="521"/>
+        <location filename="../startGame/StartGameTab.cpp" line="522"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2440,7 +2467,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
 要解决此问题，请手动将英雄无敌3中的缺失数据文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="532"/>
+        <location filename="../startGame/StartGameTab.cpp" line="533"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
@@ -2449,24 +2476,24 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
 安装完成后，你需要设置图像放大过滤器到x2或更高，高清图像效果才可见。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Preset import failed</source>
         <translation>预设导入失败</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="571"/>
-        <location filename="../startGame/StartGameTab.cpp" line="580"/>
+        <location filename="../startGame/StartGameTab.cpp" line="572"/>
+        <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation>导入预设失败——剪切板中的数据并非模组预设数据！</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="596"/>
+        <location filename="../startGame/StartGameTab.cpp" line="597"/>
         <source>Enter preset name:</source>
         <translation>输入预设名字：</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="639"/>
+        <location filename="../startGame/StartGameTab.cpp" line="640"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation>重命名预设&apos;%1&apos;为：</translation>
     </message>
