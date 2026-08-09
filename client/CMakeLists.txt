@@ -226,6 +226,7 @@ set(vcmiclientcommon_HEADERS
 	battle/BattleProjectileController.h
 	battle/BattleRenderer.h
 	battle/BattleResultWindow.h
+	battle/BattleSidePanel.h
 	battle/BattleSiegeController.h
 	battle/BattleStacksController.h
 	battle/BattleWindow.h
