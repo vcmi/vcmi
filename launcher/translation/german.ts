@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielstände exportieren</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielstände nach %1 exportiert</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Archiv konnte nicht am ausgewählten Zielort gespeichert werden</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieldatei auswählen</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte wählen sie die Zieldatei aus und speichern Sie das Archiv als vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip-Archive (*.zip);;Alle Dateien (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Logs werden exportiert...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Log exportieren</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -486,28 +486,29 @@ Bitte melden Sie dieses Problem den Entwicklern</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielstand vorhanden</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielstand &apos;%1&apos; existiert bereits. Wollen Sie ihn überschreiben?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren der Spielstände aus %1 fehlgeschlagen.
+Ursache: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Erfolg</translation>
+        <translation>Erfolg</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Spielstände importiert</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -2097,17 +2098,17 @@ Grund: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import fehlgeschlagen</translation>
+        <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Import von Spielstand %1 aus %2 fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Import von Spielstand %1 fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -2268,7 +2269,7 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien (Einstellungen, Mods, Spielstände, Karten, Kampagnen, GoG Dateien) zum Installieren auswählen...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
@@ -2298,7 +2299,7 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Spielstände</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2346,22 +2347,22 @@ Grund: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Dateien werden zum Import vorbereitet...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Dateien werden zum Import vorbereitet... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import fehlgeschlagen</translation>
+        <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht für den Import vorbereitet werden: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2375,7 +2376,16 @@ Grund: %2</translation>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Mit dieser Option können Sie zusätzliche Datendateien in Ihre VCMI-Installation importieren. Derzeit werden folgende Optionen unterstützt:
+
+- Heroes III Karten (.h3m oder .vmap).
+- Heroes III Kampagnen (.h3c oder .vcmp).
+- Heroes III Chronicles über das Offline-Backup-Installationsprogramm von GOG.com (.exe).
+- VCMI Mods im zip-Format (.zip)
+- VCMI Spielstandarchiv im zip-Format (.zip)
+- VCMI Spielstände (.vsgm1)
+- VCMI Konfigurationsdateien (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>
