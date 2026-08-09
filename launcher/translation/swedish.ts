@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera sparade spel</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparade spel har exporterats till %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att spara arkivet till den valda destinationen</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj målfil</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj målfil och spara arkivet som vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip-arkiv (*.zip);;Alla filer (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporterar loggar...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Loggexport</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -486,28 +486,29 @@ Vänligen rapportera detta problem till utvecklarna</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparfilen finns redan</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparfilen &apos;%1&apos; finns redan. Vill du skriva över den?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att importera sparfiler från %1.
+Orsak: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Åtgärden lyckades</translation>
+        <translation>Lyckades</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 sparfiler har importerats</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -2097,17 +2098,17 @@ Orsak: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">Importen misslyckades</translation>
+        <translation>Import misslyckades</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att importera det sparade spelet %1 från %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att importera den sparade filen %1</translation>
     </message>
 </context>
 <context>
@@ -2268,7 +2269,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj filer (konfigurationsfiler, moddar, sparade spel, kartor, kampanjer, GOG-filer) som ska installeras...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
@@ -2298,7 +2299,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparfiler</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2346,22 +2347,22 @@ Orsak: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbereder de valda filerna för import...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbereder de valda filerna för import... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Import failed</source>
-        <translation type="unfinished">Importen misslyckades</translation>
+        <translation>Import misslyckades</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades med att förbereda filen för import: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2375,7 +2376,16 @@ Orsak: %2</translation>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Med det här alternativet kan du importera ytterligare datafiler till din VCMI-installation. För närvarande stöds följande alternativ:
+
+ - Heroes III-kartor (.h3m eller .vmap).
+ - Heroes III-kampanjer (.h3c eller .vcmp).
+ - Heroes III Chronicles med hjälp av backup-filer från GOG.com (.exe).
+ - VCMI-moddar i zip-format (.zip)
+ - Arkiv med VCMI-sparfiler i zip-format (.zip)
+ - VCMI-sparfiler (.vsgm1)
+ - VCMI-konfigurationsfiler (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>
