@@ -111,7 +111,11 @@ void BasicMapView::tick(uint32_t msPassed)
 	if(gpuLayerEligible && ENGINE->amIGuiThread() && ENGINE->screenHandler().isGpuRenderingEnabled())
 	{
 		tilesCache->update(controller->getContext());
+#ifndef VCMI_MOBILE
+		// a tile-based mobile GPU resolves its render target on every flush, which costs
+		// more than the stall this avoids on desktop
 		ENGINE->screenHandler().flushRenderCommands();
+#endif
 	}
 }
 
