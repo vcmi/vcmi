@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "MapRenderer.h"
 
 #include "IMapRendererContext.h"
@@ -188,6 +189,7 @@ MapRendererTerrain::MapRendererTerrain()
 
 void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: terrain");
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
 	int32_t terrainIndex = mapTile.getTerrainID().getNum();
@@ -227,6 +229,7 @@ MapRendererRiver::MapRendererRiver()
 
 void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: river");
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
 	if(!mapTile.hasRiver())
@@ -262,6 +265,7 @@ MapRendererRoad::MapRendererRoad()
 
 void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: road");
 	const int3 coordinatesAbove = coordinates - int3(0, 1, 0);
 
 	if(context.isInMap(coordinatesAbove))
@@ -340,6 +344,7 @@ size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const i
 
 void MapRendererBorder::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: border");
 	if (context.showBorder())
 	{
 		const auto & image = animation->getImage(getIndexForTile(context, coordinates));
@@ -570,6 +575,7 @@ void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & ta
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: objects");
 	const CGObjectInstance * activeHero = nullptr;
 	bool activeHeroCovered = false;
 
@@ -702,6 +708,7 @@ MapRendererOverlay::MapRendererOverlay()
 
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: overlay");
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
@@ -813,6 +820,7 @@ size_t MapRendererPath::selectImageArrow(bool reachableToday, const int3 & curr,
 
 void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: path");
 	size_t imageID = selectImage(context, coordinates);
 
 	if (imageID < pathNodes->size() && settings["adventure"]["showMovePath"].Bool())
@@ -888,6 +896,7 @@ void MapRenderer::prepareFrame(IMapRendererContext & context)
 
 MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & context, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: checksum");
 	// computes basic checksum to determine whether tile needs an update
 	// if any component gives different value, tile will be updated
 	TileChecksum result;
@@ -930,6 +939,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 
 void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: render");
 	if(!context.isInMap(coordinates))
 	{
 		rendererBorder.renderTile(context, target, coordinates);

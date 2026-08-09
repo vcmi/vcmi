@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "BattleInterface.h"
 
 #include "BattleActionsController.h"
@@ -208,6 +209,7 @@ BattleInterface::~BattleInterface()
 
 void BattleInterface::redrawBattlefield()
 {
+	VCMI_PROFILE_N("Battle: redraw battlefield");
 	fieldController->redrawBackgroundWithHexes();
 	ENGINE->windows().totalRedraw();
 }

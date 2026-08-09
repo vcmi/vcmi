@@ -404,6 +404,7 @@ set(vcmiclientcommon_HEADERS
 
 	ArtifactsUIController.h
 	CMT.h
+	Profiler.h
 	CPlayerInterface.h
 	GameEngine.h
 	GameEngineUser.h
@@ -487,3 +488,35 @@ endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")
 enable_pch(vcmiclientcommon)
+
+if(ENABLE_TRACY)
+	include(FetchContent)
+
+	# a local checkout avoids re-downloading and lets the client match the profiler GUI build
+	if(TRACY_ROOT)
+		FetchContent_Declare(tracy SOURCE_DIR "${TRACY_ROOT}")
+	else()
+		FetchContent_Declare(tracy
+			GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+			GIT_TAG master
+			GIT_SHALLOW TRUE
+		)
+	endif()
+
+	# on-demand keeps the client idle until the profiler connects, instead of recording
+	# every frame since launch into memory
+	set(TRACY_ENABLE ON CACHE BOOL "" FORCE)
+	set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
+	set(TRACY_NO_BROADCAST OFF CACHE BOOL "" FORCE)
+
+	FetchContent_MakeAvailable(tracy)
+
+	# VCMI builds with -Werror, which Tracy's own sources do not survive
+	if(NOT MSVC)
+		target_compile_options(TracyClient PRIVATE -w)
+	endif()
+
+	# PUBLIC: the client executable has to link the Tracy runtime too
+	target_link_libraries(vcmiclientcommon PUBLIC TracyClient)
+	target_compile_definitions(vcmiclientcommon PUBLIC VCMI_TRACY)
+endif()

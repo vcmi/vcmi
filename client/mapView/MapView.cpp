@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "MapView.h"
 
 #include "MapViewActions.h"
@@ -63,6 +64,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool 
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
+	VCMI_PROFILE_N("Map: render");
 	if(gpuLayerEligible && ENGINE->screenHandler().isGpuRenderingEnabled())
 	{
 		// The software screen keeps a transparent hole over the map's GPU layer. Punched every
@@ -87,6 +89,7 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 
 void BasicMapView::renderGpu(bool fullUpdate)
 {
+	VCMI_PROFILE_N("Map: render (GPU layer)");
 	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
 	Canvas targetClipped(layer, pos);
 
@@ -99,6 +102,7 @@ void BasicMapView::renderGpu(bool fullUpdate)
 
 void BasicMapView::tick(uint32_t msPassed)
 {
+	VCMI_PROFILE_N("Map: tick");
 	controller->tick(msPassed);
 
 	// tick() only ever runs from the timer dispatch, which is part of the frame
@@ -119,6 +123,7 @@ void BasicMapView::tick(uint32_t msPassed)
 
 void BasicMapView::show(Canvas & to)
 {
+	VCMI_PROFILE_N("Map: show");
 	CanvasClipRectGuard guard(to, pos);
 	render(to, needFullUpdate);
 
@@ -127,6 +132,7 @@ void BasicMapView::show(Canvas & to)
 
 void BasicMapView::showAll(Canvas & to)
 {
+	VCMI_PROFILE_N("Map: show all");
 	CanvasClipRectGuard guard(to, pos);
 	render(to, true);
 }

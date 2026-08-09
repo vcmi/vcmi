@@ -94,6 +94,13 @@ public:
 		}
 	}
 
+	/// Bytes currently retained, for reporting
+	size_t bytesUsed()
+	{
+		std::lock_guard lock(mutex);
+		return usedBytes;
+	}
+
 	void clear()
 	{
 		std::list<Entry> evicted;

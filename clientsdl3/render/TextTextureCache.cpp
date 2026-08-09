@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "TextTextureCache.h"
 
 #include "SDLImage.h"
@@ -38,6 +39,7 @@ Point TextTextureCache::getAlignmentOffset(EFonts font, ETextAlignment alignment
 
 std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const ColorRGBA & color, const std::string & text)
 {
+	VCMI_PROFILE_N("Text: get texture");
 	// not a ColorRGBA: that orders itself by mean brightness, colliding different colours
 	const uint32_t packedColor = (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
 	Key key{ static_cast<int>(font), packedColor, text };
@@ -77,6 +79,7 @@ std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const Co
 		order.pop_back();
 	}
 
+	VCMI_PROFILE_PLOT("Text: cached textures", entries.size());
 	return result;
 }
 

@@ -8,10 +8,12 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "Canvas.h"
 #include "GpuResources.h"
 
 #include "GameEngine.h"
+#include "GpuProfiler.h"
 #include "../media/IVideoPlayer.h"
 #include "render/IRenderHandler.h"
 #include "IScreenHandler.h"
@@ -135,6 +137,9 @@ Canvas Canvas::createOwningRenderTarget(SDL_Texture * renderTarget, const Point 
 /// Returns nullptr when the surface is not in the format our canvases use.
 static SDL_Texture * uploadSurfaceRegion(SDL_Surface * surface, const Rect & area)
 {
+	VCMI_PROFILE_N("Canvas: upload surface region");
+	VCMI_PROFILE_VALUE(area.w * area.h);
+
 	if(surface->format != SDL_PIXELFORMAT_ARGB8888 || area.w <= 0 || area.h <= 0)
 		return nullptr;
 
@@ -159,12 +164,21 @@ void Canvas::bindRenderTarget() const
 
 	// switching targets flushes the batch, so only do it when it actually changes
 	if(SDL_GetRenderTarget(renderer) != renderTarget)
+	{
+		VCMI_PROFILE_N("DIAG: switch render target");
+		VCMI_PROFILE_VALUE(reinterpret_cast<uint64_t>(renderTarget));
 		if(!SDL_SetRenderTarget(renderer, renderTarget))
 			logGpuIssueOnce(std::string("SDL_SetRenderTarget failed: ") + SDL_GetError());
+
+		// SDL submitted everything drawn into the previous target on the way in, so the
+		// GPU zone measuring that pass has to close here rather than before the switch
+		GpuProfiler::beginPass(renderTarget);
+	}
 }
 
 void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha)
 {
+	VCMI_PROFILE_N("Canvas: copy from canvas");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	bindRenderTarget();
@@ -225,6 +239,7 @@ void Canvas::applyTransparency(bool on)
 
 void Canvas::applyGrayscale()
 {
+	VCMI_PROFILE_N("Canvas: apply grayscale");
 	if(renderTarget)
 		return; // no GPU equivalent; only the puzzle map needs this and it stays software
 
@@ -239,11 +254,15 @@ Canvas::~Canvas()
 	// owners are released on whichever thread drops them, and a texture may only be
 	// destroyed on the rendering thread
 	if(ownsRenderTarget && renderTarget)
+	{
+		VCMI_PROFILE_N("DIAG: owning canvas destroyed");
 		GpuResources::get().destroyTextureDeferred(renderTarget);
+	}
 }
 
 void Canvas::drawViaScratchSurface(const Point & pos, const Point & size, const std::function<void(SDL_Surface *)> & render)
 {
+	VCMI_PROFILE_N("Canvas: scratch surface fallback");
 	if(size.x <= 0 || size.y <= 0)
 		return;
 
@@ -256,6 +275,7 @@ void Canvas::drawViaScratchSurface(const Point & pos, const Point & size, const 
 
 void Canvas::draw(IVideoInstance & video, const Point & pos)
 {
+	VCMI_PROFILE_N("Canvas: draw video");
 	if(renderTarget)
 	{
 		bindRenderTarget();
@@ -271,6 +291,7 @@ void Canvas::draw(IVideoInstance & video, const Point & pos)
 
 void Canvas::draw(const IImage& image, const Point & pos)
 {
+	VCMI_PROFILE_N("Canvas: draw image");
 	if(renderTarget)
 	{
 		bindRenderTarget();
@@ -286,6 +307,7 @@ void Canvas::draw(const IImage& image, const Point & pos)
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
+	VCMI_PROFILE_N("Canvas: draw image");
 	assert(image);
 	if (!image)
 		return;
@@ -303,6 +325,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
 {
+	VCMI_PROFILE_N("Canvas: draw image region");
 	Rect realSourceRect = sourceRect * getScalingFactor();
 	assert(image);
 	if (!image)
@@ -321,6 +344,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const
 
 void Canvas::draw(const Canvas & image, const Point & pos)
 {
+	VCMI_PROFILE_N("Canvas: draw canvas");
 	if(renderTarget)
 	{
 		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), SDL_BLENDMODE_NONE, SDL_ALPHA_OPAQUE);
@@ -332,6 +356,7 @@ void Canvas::draw(const Canvas & image, const Point & pos)
 
 void Canvas::drawTransparent(const Canvas & image, const Point & pos, double transparency)
 {
+	VCMI_PROFILE_N("Canvas: draw canvas transparent");
 	if(renderTarget)
 	{
 		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), SDL_BLENDMODE_BLEND, 255 * transparency);
@@ -350,6 +375,7 @@ void Canvas::drawTransparent(const Canvas & image, const Point & pos, double tra
 
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
+	VCMI_PROFILE_N("Canvas: draw canvas scaled");
 	// SDL_BlitSurfaceScaled is a software scaler - expensive on large areas.
 	Rect targetArea(transformPos(pos), transformSize(targetSize));
 
@@ -382,6 +408,7 @@ void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
+	VCMI_PROFILE_N("Canvas: draw line");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	if(renderTarget)
@@ -413,6 +440,7 @@ void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & 
 
 void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
+	VCMI_PROFILE_N("Canvas: draw border");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
@@ -436,6 +464,7 @@ void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
+	VCMI_PROFILE_N("Canvas: draw border dashed");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
@@ -531,6 +560,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 
 void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
+	VCMI_PROFILE_N("Canvas: fill color");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
@@ -550,6 +580,7 @@ void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 {
+	VCMI_PROFILE_N("Canvas: fill color blended");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
@@ -569,6 +600,7 @@ void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 
 void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 {
+	VCMI_PROFILE_N("Canvas: fill texture");
 	assert(image);
 	if (!image)
 		return;
@@ -600,6 +632,7 @@ Rect Canvas::getRenderArea() const
 
 ColorRGBA Canvas::getPixel(const Point & position) const
 {
+	VCMI_PROFILE_N("Canvas: read pixel");
 	if(renderTarget)
 	{
 		// readback stalls the GPU, but this is only used by occasional hit testing

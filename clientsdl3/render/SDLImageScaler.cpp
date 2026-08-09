@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "SDLImageScaler.h"
 
 #include "SDL_Extensions.h"
@@ -26,6 +27,7 @@ SDLImageOptimizer::SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDim
 
 void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 {
+	VCMI_PROFILE_N("Scaler: optimize surface");
 	if (!surf)
 		return;
 
@@ -123,6 +125,7 @@ const Rect & SDLImageOptimizer::getResultDimensions() const
 
 void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algorithm)
 {
+	VCMI_PROFILE_N("Scaler: scale to size");
 	if (!intermediate)
 		return; // may happen on scaling of empty images
 
@@ -150,6 +153,7 @@ void SDLImageScaler::scaleSurface(Point targetDimensions, EScalingAlgorithm algo
 
 void SDLImageScaler::scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm algorithm)
 {
+	VCMI_PROFILE_N("Scaler: scale by integer factor");
 	if (!intermediate)
 		return; // may happen on scaling of empty images
 

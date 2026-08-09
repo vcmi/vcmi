@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "AdventureMapInterface.h"
 
 #include "AdventureOptions.h"
@@ -134,6 +135,7 @@ void AdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & co
 
 void AdventureMapInterface::activate()
 {
+	VCMI_PROFILE_N("Adventure: activate");
 	CIntObject::activate();
 
 	adjustActiveness();
@@ -164,6 +166,7 @@ void AdventureMapInterface::deactivate()
 
 void AdventureMapInterface::showAll(Canvas & to)
 {
+	VCMI_PROFILE_N("Adventure: show all");
 	CIntObject::showAll(to);
 	dim(to);
 	GAME->interface()->cingconsole->show(to);
@@ -171,6 +174,7 @@ void AdventureMapInterface::showAll(Canvas & to)
 
 void AdventureMapInterface::show(Canvas & to)
 {
+	VCMI_PROFILE_N("Adventure: show");
 	CIntObject::show(to);
 	dim(to);
 	GAME->interface()->cingconsole->show(to);
@@ -204,6 +208,7 @@ void AdventureMapInterface::dim(Canvas & to)
 
 void AdventureMapInterface::tick(uint32_t msPassed)
 {
+	VCMI_PROFILE_N("Adventure: tick");
 	handleMapScrollingUpdate(msPassed);
 
 	// we want animations to be active during enemy turn but map itself to be non-interactive

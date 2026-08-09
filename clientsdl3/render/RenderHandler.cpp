@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "RenderHandler.h"
 
 #include <SDL3/SDL_cpuinfo.h>
@@ -51,6 +52,15 @@
 
 std::atomic<uint32_t> RenderHandler::placeholderDraws{0};
 
+/// Human readable name of the asset a locator points at, for the profiler
+[[maybe_unused]] static std::string locatorName(const ImageLocator & locator)
+{
+	if(locator.image)
+		return locator.image->getName();
+	if(locator.defFile)
+		return locator.defFile->getName() + "#" + std::to_string(locator.defFrame) + "/" + std::to_string(locator.defGroup);
+	return "<generated>";
+}
 
 /// Cache budget in bytes: the configured size in MiB, or a sixteenth of system RAM
 static size_t assetCacheBudget()
@@ -80,12 +90,22 @@ RenderHandler::RenderHandler()
 	retainedAssets.setBudget(budget);
 
 	logGlobal->info("Asset cache budget: %d MiB", static_cast<int>(budget / 1024 / 1024));
+
+	VCMI_PROFILE_PLOT_MEMORY("Assets: cache bytes");
+}
+
+/// Samples what the asset cache currently retains
+void RenderHandler::reportCacheUsage()
+{
+	VCMI_PROFILE_PLOT("Assets: cache bytes", retainedAssets.bytesUsed());
 }
 
 RenderHandler::~RenderHandler() = default;
 
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
+	VCMI_PROFILE_N("Assets: get def file");
+	VCMI_PROFILE_TEXT(path.getName());
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
 	{
@@ -98,6 +118,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 			if (locked)
 			{
 				retainedAssets.store(actualPath, locked);
+				reportCacheUsage();
 				return locked;
 			}
 		}
@@ -120,6 +141,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	}
 
 	retainedAssets.store(actualPath, result);
+	reportCacheUsage();
 	
 	return result;
 }
@@ -267,6 +289,8 @@ ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & pa
 
 std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
+	VCMI_PROFILE_N("Assets: load image");
+	VCMI_PROFILE_TEXT(locatorName(locator));
 	auto it = imageFiles.find(locator);
 	if (it != imageFiles.end())
 	{
@@ -274,6 +298,7 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 		if (locked)
 		{
 			retainedAssets.store(locator, locked);
+			reportCacheUsage();
 			return locked;
 		}
 	}
@@ -287,6 +312,8 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 
 std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const ImageLocator & locator)
 {
+	VCMI_PROFILE_N("Assets: decode image file");
+	VCMI_PROFILE_TEXT(locatorName(locator));
 	if(locator.image)
 	{
 		auto imagePath = *locator.image;
@@ -341,10 +368,13 @@ void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_p
 {
 	imageFiles[locator] = image;
 	retainedAssets.store(locator, image);
+	reportCacheUsage();
 }
 
 std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocator & locator)
 {
+	VCMI_PROFILE_N("Assets: build scaled image");
+	VCMI_PROFILE_TEXT(locatorName(locator));
 	static constexpr std::array scaledDataPath = {
 		"", // 0x
 		"DATA/",
@@ -525,11 +555,14 @@ std::shared_ptr<CanvasImage> RenderHandler::createImage(const Point & size, Canv
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
+	VCMI_PROFILE_N("Assets: load animation");
+	VCMI_PROFILE_TEXT(path.getName());
 	return std::make_shared<CAnimation>(path, getAnimationLayout(path, 1, mode), mode);
 }
 
 void RenderHandler::addImageListEntries(const EntityService * service)
 {
+	VCMI_PROFILE_N("Assets: add image list entries");
 	service->forEachBase([this](const Entity * entity, bool & stop)
 	{
 		entity->registerIcons([this](size_t index, size_t group, const std::string & listName, const std::string & imageName)
@@ -609,6 +642,7 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
+	VCMI_PROFILE_N("Assets: library loading finished");
 	hdImageLoader = std::make_unique<HdImageLoader>(); // needs to initialize after class construction because we need loaded screenHandler for getScalingFactor()
 
 	assert(animationLayouts.empty());
@@ -634,6 +668,7 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 
 std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 {
+	VCMI_PROFILE_N("Assets: load font");
 	if (fonts.count(font))
 		return fonts.at(font);
 
@@ -676,6 +711,7 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 
 void RenderHandler::updateGeneratedAssets()
 {
+	VCMI_PROFILE_N("Assets: update generated");
 	for(const auto & [key, value] : assetGenerator->generateAllAnimations())
 		animationLayouts[key] = value;
 }

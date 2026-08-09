@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "BattleFieldController.h"
 
 #include "BattleActionsController.h"
@@ -279,6 +280,7 @@ void BattleFieldController::showPopupWindow(const Point & cursorPosition)
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: render battlefield");
 	Rect renderPos = pos;
 	renderPos.x += shakeOffset.x;
 	renderPos.y += shakeOffset.y;
@@ -295,6 +297,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: background");
 	if (owner.stacksController->getActiveStack() != nullptr )
 		showBackgroundImageWithHexes(canvas);
 	else
@@ -354,6 +357,7 @@ void BattleFieldController::ensureBackgroundCanvas()
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: background with hexes");
 	if(backgroundNeedsRebuild)
 		rebuildBackgroundWithHexes();
 
@@ -362,6 +366,7 @@ void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 
 void BattleFieldController::redrawBackgroundWithHexes()
 {
+	VCMI_PROFILE_N("Battle: rebuild hex background");
 	// Only marks the background stale - callers are netpack handlers on the network thread,
 	// which must not take the GL context away from the rendering thread.
 	backgroundNeedsRebuild = true;
@@ -639,6 +644,7 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: highlighted hexes");
 	BattleHexArray rangedFullDamageLimitHexes;
 	BattleHexArray shootingRangeLimitHexes;
 
@@ -866,6 +872,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 
 void BattleFieldController::updateAccessibleHexes()
 {
+	VCMI_PROFILE_N("Battle: update accessible hexes");
 	auto accessibility = owner.getBattle()->getAccessibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
@@ -879,11 +886,13 @@ bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 
 void BattleFieldController::showAll(Canvas & to)
 {
+	VCMI_PROFILE_N("Battle: show all");
 	show(to);
 }
 
 void BattleFieldController::tick(uint32_t msPassed)
 {
+	VCMI_PROFILE_N("Battle: tick");
 	updateShake();
 	updateAccessibleHexes();
 	owner.stacksController->tick(msPassed);
@@ -893,6 +902,7 @@ void BattleFieldController::tick(uint32_t msPassed)
 
 void BattleFieldController::show(Canvas & to)
 {
+	VCMI_PROFILE_N("Battle: show");
 	if(usesGpuLayer())
 	{
 		// the battlefield is composited from its own GPU layer, so the software screen only

@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "MapViewCache.h"
 
 #include "IMapRendererContext.h"
@@ -54,6 +55,7 @@ std::unique_ptr<Canvas> MapViewCache::createCanvas(const Point & size) const
 
 void MapViewCache::ensureCanvases()
 {
+	VCMI_PROFILE_N("MapCache: ensure canvases");
 	const bool useGpu = useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled();
 
 	// on the GPU the cache keeps its tiles unscaled and scales them while blitting, which spares
@@ -137,6 +139,7 @@ static bool differsOnlyInTerrainAnimation(const std::array<uint8_t, 8> & before,
 
 void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapCache: update tile");
 	int cacheX = (terrainChecksum.shape()[0] + coordinates.x) % terrainChecksum.shape()[0];
 	int cacheY = (terrainChecksum.shape()[1] + coordinates.y) % terrainChecksum.shape()[1];
 
@@ -193,6 +196,7 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 {
+	VCMI_PROFILE_N("MapCache: update");
 	ensureCanvases();
 
 	Rect dimensions = model->getTilesTotalRect();
@@ -247,6 +251,7 @@ bool MapViewCache::isUpdatedThisFrame() const
 
 void MapViewCache::renderCachedTiles(Canvas & target)
 {
+	VCMI_PROFILE_N("MapCache: blit cached tiles");
 	const Rect tilesRect = model->getTilesTotalRect();
 	const Point tileSize = model->getSingleTileSize();
 	const Point cacheTileSize = model->getCacheTileSize();
@@ -306,6 +311,7 @@ void MapViewCache::renderCachedTiles(Canvas & target)
 
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
+	VCMI_PROFILE_N("MapCache: render");
 	ensureCanvases();
 
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
@@ -414,6 +420,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)
 {
+	VCMI_PROFILE_N("MapCache: transition snapshot");
 	update(context);
 	render(context, *terrainTransition, true);
 }

@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "ScalableImage.h"
 
 #include "SDLImage.h"
@@ -97,6 +98,7 @@ ScalableImageParameters::~ScalableImageParameters()
 
 void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode)
 {
+	VCMI_PROFILE_N("Image: prepare palette");
 	switch(blitMode)
 	{
 		case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
@@ -337,6 +339,7 @@ bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImagePar
 
 void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
+	VCMI_PROFILE_N("Image: draw (surface)");
 	forEachLayer(scalingFactor, parameters, false,
 		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha, const ImageFlip &)
 		{
@@ -352,6 +355,7 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 
 bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
+	VCMI_PROFILE_N("Image: draw (texture)");
 	// mirroring during the draw needs the whole image: a source rectangle would have to be
 	// mirrored along with it, so those keep taking the mirrored copy
 	const bool mirrorWhileDrawing = src == nullptr;
@@ -531,6 +535,7 @@ void ScalableImageInstance::verticalFlip()
 
 std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const
 {
+	VCMI_PROFILE_N("Image: load or generate variant");
 	ImageLocator loadingLocator;
 
 	loadingLocator.image = locator.image;
@@ -600,6 +605,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 
 void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor color)
 {
+	VCMI_PROFILE_N("Image: load scaled variants");
 	if (scaled[scalingFactor].body[0] == nullptr && scalingFactor != 1)
 	{
 		switch(locator.layer)
@@ -690,6 +696,7 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 
 void ScalableImageShared::preparePlayerColoredImage(PlayerColor color)
 {
+	VCMI_PROFILE_N("Image: player colored variant");
 	loadScaledImages(ENGINE->screenHandler().getScalingFactor(), color);
 }
 

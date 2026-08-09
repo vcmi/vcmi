@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "GameEngine.h"
 #include "GameLibrary.h"
 #include "Discord.h"
@@ -93,6 +94,7 @@ GameEngine::GameEngine()
 
 void GameEngine::handleEvents()
 {
+	VCMI_PROFILE_N("Engine: handle events");
 	events().dispatchTimer(framerate().consumeElapsedMilliseconds());
 
 	//player interface may want special event handling
@@ -111,8 +113,13 @@ void GameEngine::fakeMouseMove()
 
 [[noreturn]] void GameEngine::mainLoop()
 {
+	VCMI_PROFILE_THREAD("GUI");
+	VCMI_PROFILE_PLOT_LINE("Engine: frames per second");
+	VCMI_PROFILE_PLOT_LINE("Engine: frame time (ms)");
+
 	for (;;)
 	{
+		VCMI_PROFILE_N("Engine: main loop iteration");
 		input().fetchEvents();
 
 		// A frame with nothing new to show would still hold interfaceMutex, which is the lock the
@@ -125,12 +132,21 @@ void GameEngine::fakeMouseMove()
 		lastFrameRendered = now;
 		updateFrame();
 		screenHandlerInstance->presentScreenTexture();
-		framerate().framerateDelay(); // holds a constant FPS
+
+		{
+			VCMI_PROFILE_N("Engine: framerate delay");
+			framerate().framerateDelay(); // holds a constant FPS
+		}
+
+		VCMI_PROFILE_PLOT_FLOAT("Engine: frames per second", framerate().getFramerate());
+		VCMI_PROFILE_PLOT_FLOAT("Engine: frame time (ms)", framerate().getElapsedMilliseconds());
+		VCMI_PROFILE_PLOT("Engine: open windows", windows().count());
 	}
 }
 
 void GameEngine::updateFrame()
 {
+	VCMI_PROFILE_N("Engine: update frame");
 	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	engineUser->onUpdate();
@@ -213,6 +229,7 @@ bool GameEngine::isDemoData() const
 
 void GameEngine::drawPerformanceOverlay()
 {
+	VCMI_PROFILE_N("Engine: performance overlay");
 	auto font = EFonts::FONT_SMALL;
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
@@ -307,6 +324,7 @@ void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 
 void GameEngine::onScreenResize(bool resolutionChanged, bool windowResized)
 {
+	VCMI_PROFILE_N("Engine: screen resize");
 	if(resolutionChanged)
 		if(!screenHandler().onScreenResize(windowResized))
 			return;

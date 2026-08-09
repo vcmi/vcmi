@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "CanvasImage.h"
 #include "GpuResources.h"
 
@@ -30,6 +31,7 @@ CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 
 void CanvasImage::invalidateTexture() const
 {
+	VCMI_PROFILE_N("DIAG: canvas image texture dropped");
 	if(texture && textureGeneration == GpuResources::get().generation())
 		GpuResources::get().destroyTextureDeferred(texture);
 

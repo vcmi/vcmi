@@ -52,6 +52,9 @@ class RenderHandler final : public IRenderHandler
 	void addImageListEntries(const EntityService * service);
 	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image);
 
+	/// Samples cache sizes for the profiler; does nothing in a build without it
+	void reportCacheUsage();
+
 	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
 
 	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);

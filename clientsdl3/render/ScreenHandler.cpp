@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "ScreenHandler.h"
 #include "GpuResources.h"
 
@@ -23,6 +24,8 @@
 #include "gui/CursorHandler.h"
 #include "gui/WindowHandler.h"
 #include "Canvas.h"
+#include "FrameTimestamps.h"
+#include "GpuProfiler.h"
 #include "SDLImage.h"
 
 #include "lib/CConfigHandler.h"
@@ -251,6 +254,8 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 
 ScreenHandler::ScreenHandler()
 {
+	// this runs on the thread that owns the renderer, which is the one drawing every frame
+	VCMI_PROFILE_THREAD("GUI");
 	// NOTE: SDL3 is always per-monitor DPI aware, so the Windows-specific
 	// SDL_HINT_WINDOWS_DPI_AWARENESS of SDL2 has no equivalent here
 	if(settings["video"]["allowPortrait"].Bool())
@@ -388,6 +393,11 @@ void ScreenHandler::initializeWindow()
 	selectDownscalingFilter();
 
 	logGlobal->info("Created renderer %s", SDL_GetRendererName(GpuResources::get().renderer()));
+
+	// the GL context the timer queries live in belongs to the renderer just created
+	GpuProfiler::initialize();
+	GpuProfiler::nameTarget(nullptr, "GPU: backbuffer + swap");
+	FrameTimestamps::initialize(mainWindow);
 }
 
 EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
@@ -452,6 +462,7 @@ void ScreenHandler::selectDownscalingFilter()
 
 void ScreenHandler::initializeScreenBuffers()
 {
+	VCMI_PROFILE_N("Screen: create buffers");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	auto logicalSize = getPreferredLogicalResolution() * getScalingFactor();
@@ -550,6 +561,7 @@ SDL_Window * ScreenHandler::createWindow()
 
 bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
+	VCMI_PROFILE_N("Screen: resize");
 	if (keepWindowResolution)
 	{
 		// SDL reports one window change as up to two events, so the second one asks to rebuild
@@ -669,6 +681,7 @@ std::string ScreenHandler::getPreferredRenderingDriver() const
 
 void ScreenHandler::destroyScreenBuffers()
 {
+	VCMI_PROFILE_N("Screen: destroy buffers");
 	if(nullptr != screen)
 	{
 		SDL_DestroySurface(screen);
@@ -683,6 +696,7 @@ void ScreenHandler::destroyScreenBuffers()
 
 	if(nullptr != screenTarget)
 	{
+		GpuProfiler::forgetTarget(screenTarget);
 		SDL_DestroyTexture(screenTarget);
 		screenTarget = nullptr;
 	}
@@ -691,6 +705,7 @@ void ScreenHandler::destroyScreenBuffers()
 	{
 		if(nullptr != layer)
 		{
+			GpuProfiler::forgetTarget(layer);
 			SDL_DestroyTexture(layer);
 			layer = nullptr;
 		}
@@ -702,6 +717,7 @@ void ScreenHandler::destroyScreenBuffers()
 
 void ScreenHandler::clearLayer(size_t index)
 {
+	VCMI_PROFILE_N("Screen: clear layer");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// the bottom layer is what everything else is composited onto, so it stays opaque;
@@ -709,13 +725,21 @@ void ScreenHandler::clearLayer(size_t index)
 	const bool bottom = index == 0;
 
 	SDL_SetRenderTarget(renderer, layerTextures[index]);
+	GpuProfiler::beginPass(layerTextures[index]);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, bottom ? 255 : 0);
 	SDL_RenderClear(renderer);
 }
 
+/// Timeline names for the GPU layers, in GpuRenderLayer order
+static constexpr std::array<const char *, static_cast<size_t>(GpuRenderLayer::COUNT)> gpuLayerProfilerNames = {
+	"GPU: map layer",
+	"GPU: battle layer",
+};
+
 void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
+	VCMI_PROFILE_N("Screen: create layer textures");
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// The software driver supports render targets too, but rasterizes them on the CPU -
@@ -739,6 +763,7 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 		}
 
 		SDL_SetTextureBlendMode(layerTextures[i], i == 0 ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+		GpuProfiler::nameTarget(layerTextures[i], gpuLayerProfilerNames[i]);
 		clearLayer(i);
 	}
 
@@ -758,6 +783,7 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 
 	// composited over the layers, so it must blend and start out fully transparent
 	SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND);
+	GpuProfiler::nameTarget(screenTarget, "GPU: window layer");
 	SDL_SetRenderTarget(renderer, screenTarget);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -772,6 +798,10 @@ void ScreenHandler::destroyWindow()
 {
 	if(nullptr != GpuResources::get().renderer())
 	{
+		// the timer queries belong to the GL context that goes away with the renderer, and
+		// Tracy has no way to rebuild a GPU context - so profiling ends here for this run
+		GpuProfiler::shutdown();
+		FrameTimestamps::shutdown();
 		GpuResources::get().destroyRenderer();
 	}
 
@@ -832,6 +862,7 @@ void ScreenHandler::releaseLayer(GpuRenderLayer layer)
 
 void ScreenHandler::clearReleasedLayers()
 {
+	VCMI_PROFILE_N("Screen: clear released layers");
 	// Windows are deactivated when closed and when merely covered, so this runs before the
 	// redraw and getLayerCanvas() takes the request back if the owner draws again.
 	const uint32_t released = layerReleasedMask.exchange(0);
@@ -849,10 +880,13 @@ void ScreenHandler::clearReleasedLayers()
 	}
 
 	SDL_SetRenderTarget(GpuResources::get().renderer(), nullptr);
+	GpuProfiler::beginPass(nullptr);
 }
 
 Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 {
+	VCMI_PROFILE_N("Screen: create offscreen canvas");
+
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// the software driver rasterizes a render target on the CPU, which is slower than the
@@ -875,16 +909,20 @@ Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 	// blending the first sprites onto it produces the same result as the surface path
 	SDL_Texture * previousTarget = SDL_GetRenderTarget(renderer);
 	SDL_SetRenderTarget(renderer, target);
+	GpuProfiler::beginPass(target);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 	SDL_SetRenderTarget(renderer, previousTarget);
+	GpuProfiler::beginPass(previousTarget);
 
 	return Canvas::createOwningRenderTarget(target, size, CanvasScalingPolicy::AUTO);
 }
 
 void ScreenHandler::updateScreenTexture()
 {
+	VCMI_PROFILE_N("Screen: upload screen surface");
+
 	// A window change SDL applied late leaves the buffers sized for the previous window,
 	// which the renderer then letterboxes into the current one. Events alone do not catch
 	// every such case, so the size is reconciled once per frame instead.
@@ -915,18 +953,31 @@ void ScreenHandler::updateScreenTexture()
 
 void ScreenHandler::flushRenderCommands()
 {
+	VCMI_PROFILE_N("Screen: flush render commands");
 	SDL_FlushRenderer(GpuResources::get().renderer());
 }
 
 void ScreenHandler::presentScreenTexture()
 {
+	VCMI_PROFILE_N("Screen: present");
+
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// a layer may still be bound from rendering into it
-	SDL_SetRenderTarget(renderer, nullptr);
+	if(SDL_GetRenderTarget(renderer) != nullptr)
+	{
+		VCMI_PROFILE_N("DIAG: switch render target");
+		SDL_SetRenderTarget(renderer, nullptr);
+	}
+
+	// SDL_RenderPresent both submits the composite below and waits for the display, so the
+	// two cannot be told apart - one zone covers the whole thing
+	GpuProfiler::beginPass(nullptr);
 
 	{
-		GpuResources::get().processPendingTextureDestruction();
+		VCMI_PROFILE_N("Screen: destroy deferred textures");
+		[[maybe_unused]] const size_t destroyed = GpuResources::get().processPendingTextureDestruction(); // only read by the profiler plot
+		VCMI_PROFILE_PLOT("Screen: textures awaiting destruction", destroyed);
 	}
 
 	// the draw color is left over from whatever was rendered last, and this clear also
@@ -934,13 +985,33 @@ void ScreenHandler::presentScreenTexture()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
+	[[maybe_unused]] int activeLayers = 0; // only read by the profiler plot
 	for(size_t i = 0; i < layerTextures.size(); ++i)
 		if(layerTextures[i] && layerActive[i])
+		{
 			SDL_RenderTexture(renderer, layerTextures[i], nullptr, nullptr);
+			++activeLayers;
+		}
+
+	VCMI_PROFILE_PLOT("Screen: active GPU layers", activeLayers);
+	VCMI_PROFILE_PLOT("Screen: GPU rendering enabled", isGpuRenderingEnabled() ? 1 : 0);
 
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
-	SDL_RenderPresent(renderer);
+
+	FrameTimestamps::beginFrame();
+
+	{
+		// vsync waits in here, so it is worth seeing separately from the drawing above
+		VCMI_PROFILE_N("Screen: SDL_RenderPresent");
+		SDL_RenderPresent(renderer);
+	}
+
+	GpuProfiler::endPass();
+	GpuProfiler::collect();
+	FrameTimestamps::collect();
+
+	VCMI_PROFILE_FRAME();
 }
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const

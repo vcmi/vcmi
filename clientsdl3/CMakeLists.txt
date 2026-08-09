@@ -28,6 +28,8 @@ set(vcmisdl3_SRCS
 	render/CursorHardware.cpp
 	render/CursorSoftware.cpp
 	render/FontChain.cpp
+	render/FrameTimestamps.cpp
+	render/GpuProfiler.cpp
 	render/ScalableImage.cpp
 	render/RenderHandler.cpp
 	render/SDLImage.cpp
@@ -66,6 +68,8 @@ set(vcmisdl3_HEADERS
 	render/CursorHardware.h
 	render/CursorSoftware.h
 	render/FontChain.h
+	render/FrameTimestamps.h
+	render/GpuProfiler.h
 	render/ScalableImage.h
 	render/RenderHandler.h
 	render/SDLImage.h

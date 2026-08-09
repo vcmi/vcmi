@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "EventDispatcher.h"
 
 #include "EventsReceiver.h"
@@ -70,6 +71,7 @@ void EventDispatcher::deactivateElement(AEventsReceiver * elem, ui16 activityFla
 
 void EventDispatcher::dispatchTimer(uint32_t msPassed)
 {
+	VCMI_PROFILE_N("Events: timer");
 	EventReceiversList hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
@@ -82,6 +84,7 @@ void EventDispatcher::dispatchTimer(uint32_t msPassed)
 
 void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & shortcutsVector)
 {
+	VCMI_PROFILE_N("Events: shortcut pressed");
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
@@ -156,16 +159,19 @@ void EventDispatcher::dispatchKeyReleased(const std::string & keyName)
 
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
 {
+	VCMI_PROFILE_N("Events: mouse double click");
 	handleDoubleButtonClick(position, tolerance);
 }
 
 void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position, int tolerance)
 {
+	VCMI_PROFILE_N("Events: mouse pressed");
 	handleLeftButtonClick(position, tolerance, true);
 }
 
 void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position, int tolerance)
 {
+	VCMI_PROFILE_N("Events: mouse released");
 	handleLeftButtonClick(position, tolerance, false);
 }
 
@@ -204,6 +210,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 
 void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 {
+	VCMI_PROFILE_N("Events: show popup");
 	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::SHOW_POPUP, tolerance);
 
 	auto hlp = rclickable;
@@ -242,6 +249,7 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)
 {
+	VCMI_PROFILE_N("Events: left click");
 	// WARNING: this approach is NOT SAFE
 	// 1) We allow (un)registering elements when list itself is being processed/iterated
 	// 2) To avoid iterator invalidation we create a copy of this list for processing
@@ -329,6 +337,7 @@ void EventDispatcher::handleDoubleButtonClick(const Point & position, int tolera
 
 void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
 {
+	VCMI_PROFILE_N("Events: mouse scrolled");
 	EventReceiversList hlp = wheelInterested;
 	for(auto & i : hlp)
 	{
@@ -422,6 +431,7 @@ void EventDispatcher::dispatchGesturePinch(const Point & initialPosition, double
 
 void EventDispatcher::dispatchMouseMoved(const Point & distance, const Point & position)
 {
+	VCMI_PROFILE_N("Events: mouse moved");
 	EventReceiversList newlyHovered;
 
 	auto hoverableCopy = hoverable;

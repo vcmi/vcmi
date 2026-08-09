@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "CIntObject.h"
 
 #include "GameEngine.h"
@@ -48,6 +49,8 @@ CIntObject::~CIntObject()
 
 void CIntObject::show(Canvas & to)
 {
+	VCMI_PROFILE_N("Widget: show");
+	VCMI_PROFILE_TEXT(std::string(typeid(*this).name()));
 	for(auto & elem : children)
 		if(elem->recActions & UPDATE)
 			elem->show(to);
@@ -55,6 +58,8 @@ void CIntObject::show(Canvas & to)
 
 void CIntObject::showAll(Canvas & to)
 {
+	VCMI_PROFILE_N("Widget: show all");
+	VCMI_PROFILE_TEXT(std::string(typeid(*this).name()));
 	for(auto & elem : children)
 		if(elem->recActions & SHOWALL)
 			elem->showAll(to);
@@ -236,6 +241,7 @@ void CIntObject::removeChild(CIntObject * child, bool adjustPosition)
 
 void CIntObject::redraw()
 {
+	VCMI_PROFILE_N("Widget: redraw");
 	//currently most of calls come from active objects so this check won't affect them
 	//it should fix glitches when called by inactive elements located below active window
 	if (isActive())
