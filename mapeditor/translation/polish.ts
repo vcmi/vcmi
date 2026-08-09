@@ -11,22 +11,22 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Odznacz wszystko</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz wszystko</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostosuj</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Wyświetlone umiejętności zakładają domyślne działanie Chatki Wiedźmy. Mody mogą to nadpisać.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyjście</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
@@ -195,7 +195,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom kampanię</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyjście</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -932,14 +932,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor map na Androidzie jest w wersji eksperymentalnej.
+
+Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1156,12 +1158,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format obrazu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wierz format obrazu:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1172,12 +1174,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się zapisać obrazu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać obrazu do %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1198,7 +1200,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalizacja</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1470,7 +1472,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszyscy bohaterowie</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
@@ -1480,7 +1482,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Zakazani bohaterowie</translation>
+        <translation>Wykluczeni bohaterowie</translation>
     </message>
 </context>
 <context>
@@ -1967,7 +1969,7 @@ Czy chcesz to zrobić teraz?</translation>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz graczy</translation>
     </message>
 </context>
 <context>
@@ -2329,7 +2331,7 @@ Czy chcesz to zrobić teraz?</translation>
         <location filename="../inspector/inspector.cpp" line="494"/>
         <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Dostępne dla</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="969"/>
@@ -2341,7 +2343,8 @@ Czy chcesz to zrobić teraz?</translation>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Dostępne dla:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
@@ -2460,7 +2463,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
         <source>Custom</source>
-        <translation type="unfinished">Niestandardowe</translation>
+        <translation>Dostosowane</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
@@ -2619,39 +2622,39 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Skąd chcesz otworzyć plik?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Wewnętrzne</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Zewnętrzne</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Gdzie chcesz zapisać plik?</translation>
     </message>
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamknij</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="212"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Niewłaściwe</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamiennik bohatera (ranga mocy %1)</translation>
     </message>
 </context>
 <context>
@@ -2848,12 +2851,12 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> tygodnie</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> miesiące</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3196,7 +3199,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Filmy</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -3406,12 +3409,12 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Uczony</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Losowe</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
@@ -4064,12 +4067,12 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyjście</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
@@ -4322,12 +4325,12 @@ Strażnik: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbyt mało stref</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stwórz przynajmniej dwie strefy znim dodasz łączenie.</translation>
     </message>
 </context>
 <context>
@@ -4777,27 +4780,27 @@ Strażnik: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="77"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Wybór terenu</translation>
+        <translation>Selektor terenu</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="81"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Wybór zaklęć</translation>
+        <translation>Selektor zaklęć</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="85"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Wybór artefaktów</translation>
+        <translation>Selektor artefaktów</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Wybór umiejętności</translation>
+        <translation>Selektor umiejętności</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Wybór typu bohatera</translation>
+        <translation>Selektor typu bohatera</translation>
     </message>
 </context>
 <context>
@@ -4835,7 +4838,7 @@ Strażnik: %3</translation>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Wejście do obiektu %1 znajduje się poza granicami mapy %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
@@ -4855,12 +4858,12 @@ Strażnik: %3</translation>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Chatka wiedźmy w miejscu x: %1 y: %2 na warstwie %3 posiada niewłaściwą nagrodę</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="173"/>
         <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Uczony w miejscu x: %1 y: %2 na warstwie %3 posiada niewłaściwą nagrodę</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
@@ -4920,22 +4923,22 @@ Strażnik: %3</translation>
     <message>
         <location filename="../validator.cpp" line="214"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>pokonanie konkretnego bohatera</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>utrata konkretnego bohatera</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="218"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>zamiennik gracza</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="220"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Uruchomione zdarzenie &apos;%1&apos; używa %2 warunków odnoszących się do %3 w %4. Taka konfiguracja jest niecodzienna i powinno się jej unikać; mapa pozostanie grywalna, ale warunek będzie nierozwiązany, dopóki zamiennik nie będzie wspierany.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="278"/>

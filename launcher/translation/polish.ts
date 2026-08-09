@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj zapisy</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisy Eksportowane do %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się zapisać archiwum do wybranej lokalizacji</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik docelowy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę wybrać plik docelowy i zapisać archiwum jako vcmi-saves.zip</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiwa zip (*.zip);;Wszystkie pliki (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportowanie logów...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport logów</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -491,23 +491,24 @@ Proszę zgłoś ten problem deweloperom</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapis &apos;%1&apos; już istnieje. Czy chcesz go nadpisać?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się importować zapisów z %1.
+Powód: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Sukces</translation>
+        <translation>Powodzenie</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>Importowano %1 plików zapisu</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -572,7 +573,9 @@ Reason: %2</source>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Przetworzyć pobrane pliki?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
@@ -1207,12 +1210,12 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak danych Heroes III? Pobierz darmowe demo, żeby wypróbować VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobierz demo</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1460,7 +1463,7 @@ Proszę wybrać folder z zainstalowanymi danymi Heroes III.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie dema Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
@@ -1699,12 +1702,12 @@ Bin (%n bajtów):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiński Uproszczony</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiński Tradycyjny</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -2081,7 +2084,7 @@ Bin (%n bajtów):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja demonstracyjna</translation>
     </message>
 </context>
 <context>
@@ -2107,12 +2110,12 @@ Powód: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się importować zapisu %1 z %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się importować pliku zapisu %1</translation>
     </message>
 </context>
 <context>
@@ -2229,7 +2232,7 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj grę</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2276,17 +2279,17 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="288"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz pliki (config, mody, zapisy, mapy, kampanie, pliki gog) żeby zainstalować...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="297"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>To usunie wszystkie dane dema gry (foldery: Data, Maps, Mp3, Video) i uruchomi ponownie kreatora instalacji. Napewno chcesz to zrobić?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="275"/>
@@ -2306,7 +2309,7 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisy</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
@@ -2354,12 +2357,12 @@ Powód: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="332"/>
         <location filename="../startGame/StartGameTab.cpp" line="367"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Przygotowywanie wybranych plików do importu...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Przygotowywanie wybranych plików do importu... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
@@ -2369,7 +2372,7 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="358"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się przygotować pliku do importu: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="426"/>
@@ -2383,7 +2386,16 @@ Powód: %2</translation>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ta opcja pozwala zaimportować dodatkowe pliki danych do twojej instalacji VCMI. W tym momencie wspierane są następujące opcje:
+
+ - Mapy Heroes III (.h3m or .vmap).
+ - Kampanie Heroes III (.h3c or .vcmp).
+ - Heroes III Chronicles używając offlinowego instalatora backupu z GOG.com (.exe).
+ - Mody VCMI w formacie zip (.zip)
+ - Archiwa zapisów VCMI w formacie zip (.zip)
+ - Pliki zapisów VCMI (.vsgm1)
+ - Pliki konfiguracyjne VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="443"/>
