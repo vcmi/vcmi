@@ -2374,13 +2374,13 @@ Chcete to udělat nyní?</translation>
         <location filename="../inspector/inspector.cpp" line="491"/>
         <location filename="../inspector/inspector.cpp" line="639"/>
         <source>Human trigger</source>
-        <translation>Lidský spouštěč</translation>
+        <translation>Spouští člověk</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="492"/>
         <location filename="../inspector/inspector.cpp" line="642"/>
         <source>Cpu trigger</source>
-        <translation>AI spouštěč</translation>
+        <translation>Spouští AI</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="501"/>
@@ -2617,7 +2617,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="236"/>
         <source>Failed to open campaign</source>
-        <translation>Kampěň se nepodařilo otevřít</translation>
+        <translation>Kampaň se nepodařilo otevřít</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
@@ -4484,7 +4484,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation>Opakovat po (0 = bez opakováí)</translation>
+        <translation>Opakovat po (0 = bez opakování)</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="123"/>
