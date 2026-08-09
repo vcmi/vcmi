@@ -1343,8 +1343,13 @@ TEST_P(SecondarySkillSpecialty, scalesSkillBonus)
 	const int64_t withoutSpec = skillContribution(adelaideIdx, c);
 
 	ASSERT_GT(withoutSpec, 0) << c.name << ": skill provides no measurable bonus";
-
-	EXPECT_EQ(withSpec, applyPercentDown(withoutSpec, 5 * c.heroLevel)) << c.name;
+	// mysticism specialty has a hidden +1 flat mana regeneration
+	if (c.skillIdx == 8)
+	{
+		EXPECT_EQ(withSpec, applyPercentDown(withoutSpec, 5 * c.heroLevel) + 1) << c.name;
+	} else {
+		EXPECT_EQ(withSpec, applyPercentDown(withoutSpec, 5 * c.heroLevel)) << c.name;
+	}	
 }
 
 INSTANTIATE_TEST_SUITE_P(Heroes, SecondarySkillSpecialty, ::testing::Values(

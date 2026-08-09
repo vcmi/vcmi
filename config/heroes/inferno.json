@@ -157,7 +157,14 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"secondary" : "mysticism"
+			"secondary" : "mysticism",
+			"bonuses" : {
+				"mysticismExtra" : {
+					"type" : "MANA_REGENERATION",
+					"val" : 1,
+					"valueType" : "ADDITIVE_VALUE"
+				}
+			}
 		}
 	},
 	"olema":
