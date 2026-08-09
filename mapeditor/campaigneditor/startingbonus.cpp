@@ -207,9 +207,9 @@ void StartingBonus::loadBonus()
 			on_radioButtonPrimarySkill_toggled();
 			setComboBoxValue(ui->comboBoxPrimarySkillRecipient, bonusValue.hero.getNum());
 			ui->spinBoxPrimarySkillAttack->setValue(bonusValue.amounts[0]);
-			ui->spinBoxPrimarySkillDefense->setValue(bonusValue.amounts[0]);
-			ui->spinBoxPrimarySkillSpell->setValue(bonusValue.amounts[0]);
-			ui->spinBoxPrimarySkillKnowledge->setValue(bonusValue.amounts[0]);
+			ui->spinBoxPrimarySkillDefense->setValue(bonusValue.amounts[1]);
+			ui->spinBoxPrimarySkillSpell->setValue(bonusValue.amounts[2]);
+			ui->spinBoxPrimarySkillKnowledge->setValue(bonusValue.amounts[3]);
 			break;
 		}
 		case CampaignBonusType::SECONDARY_SKILL:
