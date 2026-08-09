@@ -24,7 +24,7 @@
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Ignoruoti puolimą}\nNepaiso ${val}% puolėjo puolimo įgūdžio.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignoruoti gynybą}\nPuldamas nepaiso ${val}% gynėjo gynybos įgūdžio.",
 	"core.bonus.FEARFUL.description": "{Baimė}\nPaveiktas vienetas turi ${val}% tikimybę sustingti iš baimės ir praleisti savo eilę.",
-	"core.bonus.FEROCITY.description": "{Ferocity}\nJei šis dalinys nužudo priešą, jis atakuoja dar ${val} laiką.",
+	"core.bonus.FEROCITY.description": "{Ferocity}\nJei šis dalinys nužudo priešą, jis atakuoja dar ${val} pridėtą laiką.",
 	"core.bonus.FIRE_SHIELD.description": "{Ugnies skydas}\nAtspindi ${val}% artimojo kovos žalos užpuolikui.",
 	"core.bonus.FIRST_STRIKE.description": "{First Strike}\nPrieš užpuolimą padalinys atkerta.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee": "{Pirmasis smūgis (melee)}\nVienetas atkerta, kol jį užpuola artimoje kovoje.",
