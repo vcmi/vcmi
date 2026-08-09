@@ -156,6 +156,8 @@
 							"help" : "core.help.294",
 							"hotkey": "adventureToggleMapLevel",
 							"playerColored" : true,
+							"generateFromBaseImage" : "adventureLayers.png",
+							"generateSmall" : true,
 							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
 						}
 					]
@@ -570,6 +572,8 @@
 							"image" : "adventureLayersButton",
 							"playerColored" : true,
 							"hotkey": "adventureToggleMapLevel",
+							"generateFromBaseImage" : "adventureLayers.png",
+							"generateSmall" : true,
 							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
 						}
 					]
