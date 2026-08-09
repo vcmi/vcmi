@@ -51,11 +51,12 @@ void ReplayLog::reconfigureOnLoad(uint32_t roundsKeptValue)
 	recordingPacks = true;
 }
 
-void ReplayLog::beginDay(std::vector<std::byte> gamestateSnapshot)
+void ReplayLog::beginDay(uint32_t day, std::vector<std::byte> gamestateSnapshot)
 {
 	logGlobal->debug("Replay: new chapter, snapshot of %d bytes, %d chapters kept", gamestateSnapshot.size(), chapters.size() + 1);
 
 	chapters.emplace_back();
+	chapters.back().day = day;
 	chapters.back().gamestateSnapshot = std::move(gamestateSnapshot);
 
 	dropExpiredData();
@@ -84,7 +85,7 @@ void ReplayLog::dropExpiredData()
 	}
 }
 
-void ReplayLog::addTurn(const PlayerColor & player, uint32_t day)
+void ReplayLog::addTurn(const PlayerColor & player)
 {
 	if(chapters.empty())
 		return;
@@ -96,7 +97,6 @@ void ReplayLog::addTurn(const PlayerColor & player, uint32_t day)
 
 	ReplayTurnMark mark;
 	mark.player = player;
-	mark.day = day;
 	mark.firstPack = static_cast<uint32_t>(chapters.back().packs.size());
 
 	chapters.back().turns.push_back(mark);
@@ -121,24 +121,19 @@ void ReplayLog::endTurn(const PlayerColor & player)
 
 void ReplayLog::recordPack(CPackForClient & pack, CGameState & gs)
 {
-	// every game day opens a new chapter, anchored by the state that day started from
-	if(chapters.empty() || dynamic_cast<const NewTurn *>(&pack) != nullptr)
-		beginDay(gs.saveToMemory());
+	// every game day opens a new chapter, anchored by the state that day started from.
+	// NewTurn is recorded before it is applied, so the new day is only known from the pack itself
+	const auto * newTurn = dynamic_cast<const NewTurn *>(&pack);
+	if(chapters.empty() || newTurn != nullptr)
+		beginDay(newTurn ? newTurn->day : gs.day, gs.saveToMemory());
 
 	if(const auto * turnStart = dynamic_cast<const PlayerStartsTurn *>(&pack))
-		addTurn(turnStart->player, gs.day);
+		addTurn(turnStart->player);
 
 	if(const auto * turnEnd = dynamic_cast<const PlayerEndsTurn *>(&pack))
 		endTurn(turnEnd->player);
 
-	try
-	{
-		addPack(ReplayPackSerializer::write(pack));
-	}
-	catch(const std::exception & e)
-	{
-		logGlobal->error("Failed to record netpack '%s' for replay: %s", typeid(pack).name(), e.what());
-	}
+	addPack(ReplayPackSerializer::write(pack));
 }
 
 void ReplayLog::addPack(std::vector<std::byte> data)

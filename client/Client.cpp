@@ -358,25 +358,7 @@ void CClient::applyPackSilently(CPackForClient & pack)
 
 ClientSession CClient::swapSession(ClientSession replacement)
 {
-	ClientSession previous;
-
-	std::swap(previous.gamestate, gamestate);
-	std::swap(previous.playerint, playerint);
-	std::swap(previous.battleints, battleints);
-	std::swap(previous.additionalBattleInts, additionalBattleInts);
-	std::swap(previous.battleCallbacks, battleCallbacks);
-	std::swap(previous.playerEnvironments, playerEnvironments);
-	std::swap(previous.advInterfaceReadySent, advInterfaceReadySent);
-
-	gamestate = std::move(replacement.gamestate);
-	playerint = std::move(replacement.playerint);
-	battleints = std::move(replacement.battleints);
-	additionalBattleInts = std::move(replacement.additionalBattleInts);
-	battleCallbacks = std::move(replacement.battleCallbacks);
-	playerEnvironments = std::move(replacement.playerEnvironments);
-	advInterfaceReadySent = std::move(replacement.advInterfaceReadySent);
-
-	return previous;
+	return std::exchange(static_cast<ClientSession &>(*this), std::move(replacement));
 }
 
 void CClient::installObserverInterface(PlayerColor color)

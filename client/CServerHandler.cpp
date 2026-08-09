@@ -1109,7 +1109,9 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
 	if(gameplayReplayer && gameplayReplayer->isActive())
 	{
-		// a replay has taken the client over - the live session is not there to receive this pack yet
+		// a replay has taken the client over, so the live gamestate is not there to receive this pack.
+		// Holding the network thread here keeps packs in order and applies them to the live session
+		// once the replay is over - the player can end a replay at any time from its overlay
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		gameplayReplayer->waitForFinish();
 	}

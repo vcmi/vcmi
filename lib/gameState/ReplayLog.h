@@ -31,7 +31,6 @@ struct DLL_LINKAGE ReplayTurnMark
 	static constexpr uint32_t ongoingTurn = std::numeric_limits<uint32_t>::max();
 
 	PlayerColor player;
-	uint32_t day = 0;
 
 	/// index of the first pack of this turn inside ReplayChapter::packs
 	uint32_t firstPack = 0;
@@ -42,22 +41,25 @@ struct DLL_LINKAGE ReplayTurnMark
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
-		h & day;
 		h & firstPack;
 		h & lastPack;
 	}
 };
 
 /// One game day of recording: the gamestate the day started from, plus every netpack sent afterwards.
-/// The snapshot is dropped once the day falls out of the retention window, the packs are not.
+/// A day that falls out of the retention window is dropped entirely - unless the whole game is
+/// recorded, in which case only its snapshot goes: its packs are still needed to fast-forward from
+/// the snapshot of the very first day to any later one.
 struct DLL_LINKAGE ReplayChapter
 {
+	uint32_t day = 0;
 	std::vector<std::byte> gamestateSnapshot;
 	std::vector<std::vector<std::byte>> packs;
 	std::vector<ReplayTurnMark> turns;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
+		h & day;
 		h & gamestateSnapshot;
 		h & packs;
 		h & turns;
@@ -65,7 +67,8 @@ struct DLL_LINKAGE ReplayChapter
 };
 
 /// Recording of the game, kept inside CGameState so that it is part of every savegame.
-/// Filled by the server, which is the only place where all netpacks pass through.
+/// The server records every pack it sends out in CGameState::apply(), the client records every pack
+/// it receives - so both sides end up with a log of their own that they can replay on their own.
 class DLL_LINKAGE ReplayLog
 {
 	std::vector<ReplayChapter> chapters;
@@ -88,9 +91,9 @@ public:
 	void reconfigureOnLoad(uint32_t roundsKept);
 
 	/// Opens a chapter for a new game day. `gamestateSnapshot` must be the gamestate as of right now.
-	void beginDay(std::vector<std::byte> gamestateSnapshot);
+	void beginDay(uint32_t day, std::vector<std::byte> gamestateSnapshot);
 
-	void addTurn(const PlayerColor & player, uint32_t day);
+	void addTurn(const PlayerColor & player);
 	void endTurn(const PlayerColor & player);
 	void addPack(std::vector<std::byte> data);
 

@@ -122,18 +122,11 @@ struct ClientSession
 };
 
 /// Class which handles client - server logic
-class CClient : public Environment, public IClient
+class CClient : public Environment, public IClient, public ClientSession
 {
-	std::shared_ptr<CGameState> gamestate;
 	int requestCounter = 1;
-	std::set<PlayerColor> advInterfaceReadySent;
 
 public:
-	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
-	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
-
-	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
-
 	std::unique_ptr<BattleAction> currentBattleAction;
 
 	CClient();
@@ -176,6 +169,7 @@ public:
 
 	/// Applies the pack on gamestate only, without notifying any interface.
 	/// Used by the replay system to fast-forward to the turn that shall be shown.
+	/// Just like handlePack(), the caller must already hold the interface mutex.
 	void applyPackSilently(CPackForClient & pack);
 
 	/// Replaces the entire gameplay state of this client and returns the previous one
@@ -199,7 +193,4 @@ public:
 
 private:
 	std::optional<PlayerColor> findPlayerColorForSpectatorInterface() const;
-
-	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
-	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 };

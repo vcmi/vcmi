@@ -33,28 +33,25 @@
 #include "../../lib/gameState/ReplayLog.h"
 #include "../../lib/networkPacks/NetPacksBase.h"
 
-namespace
+/// Everything of the live session that has to step aside while a replay is on screen
+struct LiveSessionBackup
 {
-	/// Everything of the live session that has to step aside while a replay is on screen
-	struct LiveSessionBackup
-	{
-		ClientSession session;
-		std::unique_ptr<CMapHandler> mapHandler;
-		std::vector<std::shared_ptr<IShowActivatable>> windows;
-		std::shared_ptr<AdventureMapInterface> adventureMap;
-		std::shared_ptr<BattleInterface> battleInterface;
-		CPlayerInterface * playerInterface = nullptr;
-	};
+	ClientSession session;
+	std::unique_ptr<CMapHandler> mapHandler;
+	std::vector<std::shared_ptr<IShowActivatable>> windows;
+	std::shared_ptr<AdventureMapInterface> adventureMap;
+	std::shared_ptr<BattleInterface> battleInterface;
+	CPlayerInterface * playerInterface = nullptr;
+};
 
-	CPackForClient & asClientPack(CPack & pack)
-	{
-		auto * clientPack = dynamic_cast<CPackForClient *>(&pack);
+static CPackForClient & asClientPack(CPack & pack)
+{
+	auto * clientPack = dynamic_cast<CPackForClient *>(&pack);
 
-		if(clientPack == nullptr)
-			throw std::runtime_error("Recorded data contains a pack that is not meant for the client!");
+	if(clientPack == nullptr)
+		throw std::runtime_error("Recorded data contains a pack that is not meant for the client!");
 
-		return *clientPack;
-	}
+	return *clientPack;
 }
 
 GameplayReplayer::GameplayReplayer() = default;
@@ -74,15 +71,56 @@ bool GameplayReplayer::isActive() const
 	return active;
 }
 
+std::optional<PlayerColor> replayFollowedPlayer()
+{
+	if(!GAME->server().isReplayActive())
+		return std::nullopt;
+
+	return GAME->server().replayer().followedPlayer();
+}
+
+std::optional<PlayerColor> GameplayReplayer::followedPlayer() const
+{
+	std::scoped_lock lock(stateMutex);
+	return followed;
+}
+
 void GameplayReplayer::requestStop()
 {
-	stopRequested = true;
-	paused = false;
+	{
+		std::scoped_lock lock(stateMutex);
+		stopRequested = true;
+		paused = false;
+	}
+	stateChanged.notify_all();
 }
 
 void GameplayReplayer::setPaused(bool value)
 {
-	paused = value;
+	{
+		std::scoped_lock lock(stateMutex);
+		paused = value;
+	}
+	stateChanged.notify_all();
+}
+
+bool GameplayReplayer::waitWhilePaused()
+{
+	std::unique_lock lock(stateMutex);
+	stateChanged.wait(lock, [this]() { return !paused || stopRequested; });
+	return !stopRequested;
+}
+
+bool GameplayReplayer::isStopRequested() const
+{
+	std::scoped_lock lock(stateMutex);
+	return stopRequested;
+}
+
+void GameplayReplayer::setFollowedPlayer(const std::optional<PlayerColor> & value)
+{
+	std::scoped_lock lock(stateMutex);
+	followed = value;
 }
 
 void GameplayReplayer::waitForFinish() const
@@ -108,19 +146,63 @@ void GameplayReplayer::start(ReplaySequence sequence, PlayerColor observer, cons
 			return;
 
 		active = true;
+		stopRequested = false;
+		paused = false;
+		followed = std::nullopt;
 	}
 
 	if(worker.joinable())
 		worker.join();
 
-	stopRequested = false;
-	paused = false;
 	worker = std::thread(&GameplayReplayer::run, this, std::move(sequence), observer, options);
+}
+
+std::unique_ptr<CMapHandler> GameplayReplayer::beginPass(CClient & client, CGameState & state, PlayerColor observer, PlayerColor turnPlayer, const int3 & viewCenter)
+{
+	auto previousMapHandler = GAME->swapMapInstance(std::make_unique<CMapHandler>(&state.getMap()));
+
+	client.installObserverInterface(observer);
+
+	ENGINE->windows().pushWindow(adventureInt);
+
+	// isHuman=false is deliberate: only that state blocks input on a throw-away game
+	adventureInt->onEnemyTurnStarted(turnPlayer, false);
+	adventureInt->onMapTilesChanged(std::nullopt);
+
+	// start off where the player was looking, instead of at the top left corner of the map
+	if(state.isInTheMap(viewCenter))
+		adventureInt->centerOnTile(viewCenter);
+
+	// drawn outside of the window stack, so it stays reachable even during a combat
+	ENGINE->windows().setOverlay(std::make_shared<ReplayAbortOverlay>(
+		[this](){ requestStop(); },
+		[this](bool value){ setPaused(value); }));
+
+	return previousMapHandler;
+}
+
+void GameplayReplayer::endPass(CClient & client, const std::shared_ptr<CGameState> & state)
+{
+	// windows go first, so that a battle window is gone before the interface it points to
+	ENGINE->windows().setOverlay(nullptr);
+	ENGINE->windows().clear();
+	CPlayerInterface::battleInt.reset();
+	adventureInt.reset();
+
+	// the gamestate is handed straight back, only the interfaces built on top of it are dropped
+	ClientSession next;
+	next.gamestate = state;
+	ClientSession previous = client.swapSession(std::move(next));
+	previous = ClientSession();
+
+	state->currentBattles.clear();
 }
 
 void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Options options)
 {
 	setThreadName("replay");
+
+	logGlobal->info("Replay: day %d, player %s, %d days", sequence.day, sequence.replayedPlayer.toString(), sequence.days.size());
 
 	CClient & client = *GAME->server().client;
 	LiveSessionBackup backup;
@@ -149,12 +231,13 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 			throw std::runtime_error("Recorded game has no player to watch it with!");
 
 		// 2. put the live session aside and let the client operate on the replayed state instead
+		int3 previousViewCenter;
 		{
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 			backup.playerInterface = GAME->interface();
 			backup.adventureMap = adventureInt;
-			const int3 previousViewCenter = adventureInt ? adventureInt->getMapViewCenter() : int3();
+			previousViewCenter = adventureInt ? adventureInt->getMapViewCenter() : int3();
 			backup.battleInterface = CPlayerInterface::battleInt;
 			backup.windows = ENGINE->windows().detachAll();
 
@@ -167,62 +250,76 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 			CPlayerInterface::battleInt.reset();
 			adventureInt.reset();
 
-			backup.mapHandler = GAME->swapMapInstance(std::make_unique<CMapHandler>(&replayState->getMap()));
+			const std::optional<PlayerColor> firstFollowed = sequence.days.empty() || sequence.days.front().passes.empty()
+				? std::nullopt
+				: sequence.days.front().passes.front().followedPlayer;
 
-			client.installObserverInterface(observer);
-
-			ENGINE->windows().pushWindow(adventureInt);
-
-			// isHuman=false is deliberate: only that state blocks input on a throw-away game
-			adventureInt->onEnemyTurnStarted(sequence.replayedPlayer, false);
-			adventureInt->onMapTilesChanged(std::nullopt);
-
-			// start off where the player was looking, instead of at the top left corner of the map
-			if(replayState->isInTheMap(previousViewCenter))
-				adventureInt->centerOnTile(previousViewCenter);
-
-			// drawn outside of the window stack, so it stays reachable even during a combat
-			ENGINE->windows().setOverlay(std::make_shared<ReplayAbortOverlay>(
-				[this](){ requestStop(); },
-				[this](bool value){ setPaused(value); }));
+			setFollowedPlayer(firstFollowed);
+			backup.mapHandler = beginPass(client, *replayState, observer, firstFollowed.value_or(sequence.replayedPlayer), previousViewCenter);
 		}
 
-		// 3. play the recorded turn back, one pack at a time
-		for(const auto & data : sequence.replayPacks)
+		// 3. play the recording back, one pack at a time. A day of simultaneous turns is watched
+		// once per player, so it is rewound to its own start before every further pass.
+		for(const auto & day : sequence.days)
 		{
-			// waiting happens without the interface mutex, so a paused replay stays responsive
-			while(paused && !stopRequested)
-				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::vector<std::byte> dayStart;
+			if(day.passes.size() > 1)
+				dayStart = replayState->saveToMemory();
 
-			if(stopRequested)
-				break;
-
+			for(size_t passIndex = 0; passIndex < day.passes.size(); ++passIndex)
 			{
-				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				const ReplayPass & pass = day.passes[passIndex];
 
-				auto pack = ReplayPackSerializer::read(data, replayState.get());
-				CPackForClient & clientPack = asClientPack(*pack);
-
-				switch(ReplayPackFilter::classify(clientPack))
 				{
-					case EReplayPackKind::INTERACTIVE:
-						// dialogs, queries and session bookkeeping are applied, but never shown
-						client.applyPackSilently(clientPack);
-						break;
-					case EReplayPackKind::BATTLE:
-						if(options.showBattles)
-							client.handlePack(clientPack);
-						else
-							client.applyPackSilently(clientPack);
-						break;
-					case EReplayPackKind::REGULAR:
-						client.handlePack(clientPack);
-						break;
+					std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+
+					setFollowedPlayer(pass.followedPlayer);
+
+					// rewinding replaces the map and every object in it, so the interface that
+					// points into them has to be built anew
+					if(passIndex > 0)
+					{
+						endPass(client, replayState);
+						replayState->loadFromMemory(dayStart);
+						beginPass(client, *replayState, observer, pass.followedPlayer.value_or(sequence.replayedPlayer), previousViewCenter);
+					}
 				}
+
+				for(size_t packIndex = 0; packIndex < pass.packCount && packIndex < day.packs.size(); ++packIndex)
+				{
+					// waiting happens without the interface mutex, so a paused replay stays responsive
+					if(!waitWhilePaused())
+						break;
+
+					std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+
+					auto pack = ReplayPackSerializer::read(day.packs[packIndex], replayState.get());
+					CPackForClient & clientPack = asClientPack(*pack);
+
+					switch(ReplayPackFilter::classify(clientPack))
+					{
+						case EReplayPackKind::INTERACTIVE:
+							// dialogs, queries and session bookkeeping are applied, but never shown
+							client.applyPackSilently(clientPack);
+							break;
+						case EReplayPackKind::BATTLE:
+							if(options.showBattles)
+								client.handlePack(clientPack);
+							else
+								client.applyPackSilently(clientPack);
+							break;
+						case EReplayPackKind::REGULAR:
+							client.handlePack(clientPack);
+							break;
+					}
+				}
+
+				if(isStopRequested())
+					break;
 			}
 
-			// the mutex is released between packs so that the engine can draw what just happened
-			std::this_thread::yield();
+			if(isStopRequested())
+				break;
 		}
 	}
 	catch(const std::exception & e)
@@ -236,32 +333,25 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-		try
-		{
-			// windows go first, so that a battle window is gone before the interface it points to
-			ENGINE->windows().setOverlay(nullptr);
-			ENGINE->windows().clear();
-			CPlayerInterface::battleInt.reset();
+		// windows go first, so that a battle window is gone before the interface it points to
+		ENGINE->windows().setOverlay(nullptr);
+		ENGINE->windows().clear();
+		CPlayerInterface::battleInt.reset();
 
-			// dropping the replay session destroys its interfaces and callbacks
-			ClientSession replaySession = client.swapSession(std::move(backup.session));
-			if(replaySession.gamestate)
-				replaySession.gamestate->currentBattles.clear();
-			replaySession = ClientSession();
+		// dropping the replay session destroys its interfaces and callbacks
+		ClientSession replaySession = client.swapSession(std::move(backup.session));
+		if(replaySession.gamestate)
+			replaySession.gamestate->currentBattles.clear();
+		replaySession = ClientSession();
 
-			GAME->swapMapInstance(std::move(backup.mapHandler));
+		GAME->swapMapInstance(std::move(backup.mapHandler));
 
-			adventureInt = backup.adventureMap;
-			CPlayerInterface::battleInt = backup.battleInterface;
-			GAME->setInterfaceInstance(backup.playerInterface);
+		adventureInt = backup.adventureMap;
+		CPlayerInterface::battleInt = backup.battleInterface;
+		GAME->setInterfaceInstance(backup.playerInterface);
 
-			ENGINE->windows().attachAll(std::move(backup.windows));
-			ENGINE->windows().totalRedraw();
-		}
-		catch(const std::exception & e)
-		{
-			logGlobal->error("Failed to restore the game after a replay: %s", e.what());
-		}
+		ENGINE->windows().attachAll(std::move(backup.windows));
+		ENGINE->windows().totalRedraw();
 
 		client.observerMode = false;
 	}
@@ -271,17 +361,33 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 }
 
 
-namespace
+/// index of the newest chapter at or before `chapter` that still carries a snapshot
+static size_t findAnchorChapter(const std::vector<ReplayChapter> & chapters, size_t chapter)
 {
-	/// index of the newest chapter at or before `chapter` that still carries a snapshot
-	size_t findAnchorChapter(const std::vector<ReplayChapter> & chapters, size_t chapter)
-	{
-		for(size_t i = chapter + 1; i-- > 0;)
-			if(!chapters[i].gamestateSnapshot.empty())
-				return i;
+	for(size_t i = chapter + 1; i-- > 0;)
+		if(!chapters[i].gamestateSnapshot.empty())
+			return i;
 
-		throw std::runtime_error("Recording has no gamestate to start this replay from!");
-	}
+	throw std::runtime_error("Recording has no gamestate to start this replay from!");
+}
+
+/// index one past the last pack of this turn, resolved against the day it belongs to
+static size_t turnLastPack(const ReplayTurnMark & turn, const ReplayChapter & chapter)
+{
+	if(turn.lastPack == ReplayTurnMark::ongoingTurn)
+		return chapter.packs.size();
+
+	return std::min<size_t>(turn.lastPack, chapter.packs.size());
+}
+
+/// True if the turns of this day overlap, which is the case with simultaneous turns
+static bool hasInterleavedTurns(const ReplayChapter & chapter)
+{
+	for(size_t i = 1; i < chapter.turns.size(); ++i)
+		if(chapter.turns[i].firstPack < chapter.turns[i - 1].lastPack)
+			return true;
+
+	return false;
 }
 
 std::vector<ReplayTurnOption> ReplayPlanner::availableTurns(const ReplayLog & log)
@@ -291,20 +397,20 @@ std::vector<ReplayTurnOption> ReplayPlanner::availableTurns(const ReplayLog & lo
 
 	for(size_t chapterIndex = 0; chapterIndex < chapters.size(); ++chapterIndex)
 	{
-		// a turn can only be shown if some earlier chapter still has a gamestate to start from
-		bool reachable = false;
-		for(size_t i = chapterIndex + 1; i-- > 0;)
-			if(!chapters[i].gamestateSnapshot.empty())
-				reachable = true;
+		const auto & chapter = chapters[chapterIndex];
+		const bool simultaneous = hasInterleavedTurns(chapter);
 
-		if(!reachable)
-			continue;
-
-		for(size_t turnIndex = 0; turnIndex < chapters[chapterIndex].turns.size(); ++turnIndex)
+		for(size_t turnIndex = 0; turnIndex < chapter.turns.size(); ++turnIndex)
 		{
-			const auto & turn = chapters[chapterIndex].turns[turnIndex];
+			const auto & turn = chapter.turns[turnIndex];
 			const bool ongoing = turn.lastPack == ReplayTurnMark::ongoingTurn;
-			result.push_back({turn.player, turn.day, ongoing, chapterIndex, turnIndex});
+
+			// such a day is replayed from its start for every player, so a player that did nothing
+			// would only offer a second look at the very same packs
+			if(simultaneous && turn.firstPack >= turnLastPack(turn, chapter))
+				continue;
+
+			result.push_back({turn.player, chapter.day, ongoing, chapterIndex, turnIndex});
 		}
 	}
 
@@ -322,15 +428,15 @@ ReplaySequence ReplayPlanner::prepareTurn(const ReplayLog & log, const ReplayTur
 	const auto & turn = chapter.turns[option.turn];
 	const size_t anchor = findAnchorChapter(chapters, option.chapter);
 
-	// a turn spans from its own start to its own end - with simturns other players act in between
-	const size_t firstPack = turn.firstPack;
-	const size_t lastPack = turn.lastPack == ReplayTurnMark::ongoingTurn
-		? chapter.packs.size()
-		: std::min<size_t>(turn.lastPack, chapter.packs.size());
+	// with simturns the packs of a day belong to no single player, so the day is replayed from its
+	// start and ends with the last pack of this player. Otherwise a turn spans start to end.
+	const bool simultaneous = hasInterleavedTurns(chapter);
+	const size_t firstPack = simultaneous ? 0 : turn.firstPack;
+	const size_t lastPack = turnLastPack(turn, chapter);
 
 	ReplaySequence result;
 	result.replayedPlayer = turn.player;
-	result.day = turn.day;
+	result.day = chapter.day;
 	result.snapshot = chapters[anchor].gamestateSnapshot;
 
 	// everything between the anchor and the replayed turn is applied without any visuals
@@ -338,7 +444,11 @@ ReplaySequence ReplayPlanner::prepareTurn(const ReplayLog & log, const ReplayTur
 		result.fastForwardPacks.insert(result.fastForwardPacks.end(), chapters[i].packs.begin(), chapters[i].packs.end());
 
 	result.fastForwardPacks.insert(result.fastForwardPacks.end(), chapter.packs.begin(), chapter.packs.begin() + firstPack);
-	result.replayPacks.assign(chapter.packs.begin() + firstPack, chapter.packs.begin() + lastPack);
+
+	ReplayDay day;
+	day.packs.assign(chapter.packs.begin() + firstPack, chapter.packs.begin() + lastPack);
+	day.passes.push_back({simultaneous ? std::make_optional(turn.player) : std::nullopt, day.packs.size()});
+	result.days.push_back(std::move(day));
 
 	return result;
 }
@@ -353,14 +463,42 @@ ReplaySequence ReplayPlanner::prepareEntireGame(const ReplayLog & log)
 	ReplaySequence result;
 	result.snapshot = chapters.front().gamestateSnapshot;
 
-	if(!chapters.front().turns.empty())
+	// the first chapter holds the packs sent before any turn was announced, so it may carry no turn
+	for(const auto & chapter : chapters)
 	{
-		result.replayedPlayer = chapters.front().turns.front().player;
-		result.day = chapters.front().turns.front().day;
+		if(chapter.turns.empty())
+			continue;
+
+		result.replayedPlayer = chapter.turns.front().player;
+		result.day = chapter.day;
+		break;
 	}
 
 	for(const auto & chapter : chapters)
-		result.replayPacks.insert(result.replayPacks.end(), chapter.packs.begin(), chapter.packs.end());
+	{
+		ReplayDay day;
+		day.packs = chapter.packs;
+
+		// a day of simultaneous turns is watched once per player, shortest pass first - every pass
+		// ends with the last pack of its player, and only the camera tells the players apart
+		if(hasInterleavedTurns(chapter))
+		{
+			for(const auto & turn : chapter.turns)
+				if(turn.firstPack < turnLastPack(turn, chapter))
+					day.passes.push_back({turn.player, turnLastPack(turn, chapter)});
+
+			std::sort(day.passes.begin(), day.passes.end(),
+				[](const ReplayPass & left, const ReplayPass & right) { return left.packCount < right.packCount; });
+		}
+
+		// the last pass shows what is left of the day, so the state is complete for the next one
+		if(day.passes.empty())
+			day.passes.push_back({std::nullopt, day.packs.size()});
+		else
+			day.passes.back().packCount = day.packs.size();
+
+		result.days.push_back(std::move(day));
+	}
 
 	return result;
 }

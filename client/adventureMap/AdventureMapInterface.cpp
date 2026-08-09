@@ -23,6 +23,7 @@
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
+#include "../replay/GameplayReplayer.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/RadialMenu.h"
 #include "../gui/CursorHandler.h"
@@ -320,7 +321,9 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 
 	widget->getInfoBar()->popAll();
 	mapAudio->onSelectionChanged(sel);
-	bool centerView = !settings["session"]["autoSkip"].Bool();
+
+	// while a replay follows another player, our own selection must not drag the camera along
+	bool centerView = !settings["session"]["autoSkip"].Bool() && !replayFollowedPlayer();
 
 	if (centerView)
 		centerOnObject(sel);

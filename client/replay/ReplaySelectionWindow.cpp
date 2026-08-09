@@ -38,13 +38,13 @@ namespace
 		return options;
 	}
 
-	std::string describeTurn(const PlayerColor & player, uint32_t day, bool ongoing)
+	std::string describeTurn(const ReplayTurnOption & turn)
 	{
-		const auto * playerState = GAME->interface()->cb->getPlayerState(player, false);
-		const std::string playerName = playerState ? playerState->getNameTranslated() : player.toString();
+		const auto * playerState = GAME->interface()->cb->getPlayerState(turn.player, false);
+		const std::string playerName = playerState ? playerState->getNameTranslated() : turn.player.toString();
 
-		MetaString text = MetaString::createFromTextID(ongoing ? "vcmi.replay.turnOngoing" : "vcmi.replay.turn");
-		text.replaceNumber(day);
+		MetaString text = MetaString::createFromTextID(turn.ongoing ? "vcmi.replay.turnOngoing" : "vcmi.replay.turn");
+		text.replaceNumber(turn.day);
 		text.replaceRawString(playerName);
 		return text.toString();
 	}
@@ -81,7 +81,7 @@ void ReplaySelection::showSelectionDialog()
 	// newest turn first - that is the one the player is most likely after
 	std::vector<ReplayTurnOption> orderedTurns(turns.rbegin(), turns.rend());
 	for(const auto & turn : orderedTurns)
-		entries.push_back(describeTurn(turn.player, turn.day, turn.ongoing));
+		entries.push_back(describeTurn(turn));
 
 	if(entireGame)
 		entries.push_back(LIBRARY->generaltexth->translate("vcmi.replay.entireGame"));
