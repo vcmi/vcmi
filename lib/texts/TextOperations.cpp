@@ -19,6 +19,8 @@
 
 #include <iconv.h>
 
+const static int CHAR_PER_TYPO_ALLOWED = 4;
+
 template<typename FromString, typename DestString>
 FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
 {
