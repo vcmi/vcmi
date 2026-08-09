@@ -71,7 +71,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 void StackQueue::show(Canvas & to)
 {
-	if(embedded)
+	// the battlefield erases its own area every frame, so only a queue above it must repaint
+	if(embedded && owner.fieldController && pos.intersectionTest(owner.fieldController->pos))
 		showAll(to);
 	CIntObject::show(to);
 }
@@ -97,6 +98,8 @@ void StackQueue::update()
 
 	for(; boxIndex < stackBoxes.size(); boxIndex++)
 		stackBoxes[boxIndex]->setUnit(nullptr);
+
+	redraw();
 }
 
 int32_t StackQueue::getSiegeShooterIconID() const
