@@ -35,16 +35,16 @@ TEST_F(QuestVisibilityTest, QuestSource_FogOfWarVisibility_questHolderRemainsAcc
 	ASSERT_NE(hero, nullptr);
 
 	// Hide the whole map for the player so visibility can only come from the override.
-	const auto teamId = gameState->players.at(PlayerColor(0)).team;
-	for(auto & tile : gameState->teams.at(teamId).fogOfWarMap)
+	const auto teamId = gameState()->players.at(PlayerColor(0)).team;
+	for(auto & tile : gameState()->teams.at(teamId).fogOfWarMap)
 		tile = 0;
 
-	ASSERT_FALSE(gameState->isVisibleFor(seer, PlayerColor(0)))
+	ASSERT_FALSE(gameState()->isVisibleFor(seer, PlayerColor(0)))
 		<< "precondition: seer must be hidden under fog before the quest is logged";
 
 	visit(hero, seer); // first visit registers the quest in player 0's log
 
-	EXPECT_TRUE(gameState->isVisibleFor(seer, PlayerColor(0)))
+	EXPECT_TRUE(gameState()->isVisibleFor(seer, PlayerColor(0)))
 		<< "a quest source in the player's log must stay accessible under fog of war";
 }
 
@@ -58,11 +58,11 @@ TEST_F(QuestVisibilityTest, QuestSource_RemovedSourceErasesQuestLogEntry)
 	ASSERT_NE(hero, nullptr);
 
 	visit(hero, seer);
-	ASSERT_FALSE(gameState->players.at(PlayerColor(0)).quests.empty())
+	ASSERT_FALSE(gameState()->players.at(PlayerColor(0)).quests.empty())
 		<< "precondition: visiting the seer must register a quest-log entry";
 
-	gameEventCallback->removeObject(seer, PlayerColor(0));
+	gameEvents().removeObject(seer, PlayerColor(0));
 
-	EXPECT_TRUE(gameState->players.at(PlayerColor(0)).quests.empty())
+	EXPECT_TRUE(gameState()->players.at(PlayerColor(0)).quests.empty())
 		<< "removing the quest source must erase its quest-log entry";
 }

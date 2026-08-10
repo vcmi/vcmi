@@ -111,15 +111,15 @@ TEST_F(QuestBorderTest, Keymaster_FirstVisit_doesNotEmitAddQuest)
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(keymaster, nullptr);
 
-	ASSERT_TRUE(gameEventCallback->addedQuests.empty()) << "preconditions";
+	ASSERT_TRUE(gameEvents().addedQuests.empty()) << "preconditions";
 
 	visit(hero, keymaster);
 
-	EXPECT_TRUE(gameEventCallback->addedQuests.empty())
-		<< "keymaster visit unexpectedly emitted " << gameEventCallback->addedQuests.size()
+	EXPECT_TRUE(gameEvents().addedQuests.empty())
+		<< "keymaster visit unexpectedly emitted " << gameEvents().addedQuests.size()
 		<< " AddQuest packet(s)";
 	// And the visit still rendered the standard first-visit message:
-	EXPECT_FALSE(gameEventCallback->infoWindows.empty());
+	EXPECT_FALSE(gameEvents().infoWindows.empty());
 }
 
 TEST_F(QuestBorderTest, Keymaster_SecondVisit_showsAlreadyVisitedText)
@@ -135,11 +135,11 @@ TEST_F(QuestBorderTest, Keymaster_SecondVisit_showsAlreadyVisitedText)
 	ASSERT_NE(keymaster, nullptr);
 
 	visit(hero, keymaster);
-	const size_t windowsAfterFirst = gameEventCallback->infoWindows.size();
+	const size_t windowsAfterFirst = gameEvents().infoWindows.size();
 	ASSERT_GE(windowsAfterFirst, 1u);
 
 	visit(hero, keymaster);
-	EXPECT_GT(gameEventCallback->infoWindows.size(), windowsAfterFirst)
+	EXPECT_GT(gameEvents().infoWindows.size(), windowsAfterFirst)
 		<< "second visit should produce its own already-visited dialog";
 }
 
@@ -158,9 +158,9 @@ TEST_F(QuestBorderTest, BorderGuard_BeforeKeymaster_blocksAndEmitsAddQuest)
 
 	visit(hero, borderGuard);
 
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), 1u);
-	EXPECT_FALSE(gameEventCallback->infoWindows.empty());
-	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
+	EXPECT_EQ(gameEvents().addedQuests.size(), 1u);
+	EXPECT_FALSE(gameEvents().infoWindows.empty());
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty())
 		<< "border guard should not prompt for removal before the keymaster has been visited";
 }
 
@@ -181,11 +181,11 @@ TEST_F(QuestBorderTest, BorderGuard_AfterKeymaster_promptsRemovalDialog)
 	visit(hero, keymaster);
 	// Drop everything queued by the keymaster visit so the assertion is
 	// scoped to the border-guard interaction.
-	gameEventCallback->infoWindows.clear();
+	gameEvents().infoWindows.clear();
 
 	visit(hero, borderGuard);
 
-	EXPECT_EQ(gameEventCallback->blockingDialogs.size(), 1u)
+	EXPECT_EQ(gameEvents().blockingDialogs.size(), 1u)
 		<< "border guard should prompt the player whether to demolish";
 }
 
@@ -206,7 +206,7 @@ TEST_F(QuestBorderTest, BorderGuard_AnsweredYes_removesObject)
 	visit(hero, keymaster);
 	visit(hero, borderGuard);
 
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, /*yes*/ 1);
 
 	EXPECT_EQ(findObjectAt(s.questPos2), nullptr)
@@ -230,7 +230,7 @@ TEST_F(QuestBorderTest, BorderGuard_TwoSiblingsSameColor_emitOnlyOneAddQuest)
 	visit(hero, guardA);
 	visit(hero, guardB);
 
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), 1u)
+	EXPECT_EQ(gameEvents().addedQuests.size(), 1u)
 		<< "same-colour border guards must share one quest-log entry";
 }
 
@@ -250,13 +250,13 @@ TEST_F(QuestBorderTest, BorderGuard_TypeQuestNotTiedToInstance)
 
 	visit(hero, guardA); // registers the shared colour entry
 
-	gameEventCallback->removeObject(guardA, PlayerColor(0));
+	gameEvents().removeObject(guardA, PlayerColor(0));
 
-	const auto & quests = gameState->players.at(PlayerColor(0)).quests;
+	const auto & quests = gameState()->players.at(PlayerColor(0)).quests;
 	ASSERT_EQ(quests.size(), 1u) << "the shared colour entry must survive the guard's removal";
 	EXPECT_FALSE(quests.front().hasObjectInstance())
 		<< "a border entry is a colour type quest, not bound to a map object";
-	EXPECT_NE(quests.front().getQuest(gameState.get()), nullptr)
+	EXPECT_NE(quests.front().getQuest(gameState().get()), nullptr)
 		<< "the type quest still resolves after the visited instance is gone";
 }
 
@@ -275,9 +275,9 @@ TEST_F(QuestBorderTest, BorderGuard_TypeQuestSurvivesAllSiblingsDestroyed)
 	ASSERT_NE(guardB, nullptr);
 
 	visit(hero, guardA);
-	gameEventCallback->removeObject(guardA, PlayerColor(0));
-	gameEventCallback->removeObject(guardB, PlayerColor(0)); // last sibling destroyed
+	gameEvents().removeObject(guardA, PlayerColor(0));
+	gameEvents().removeObject(guardB, PlayerColor(0)); // last sibling destroyed
 
-	EXPECT_EQ(gameState->players.at(PlayerColor(0)).quests.size(), 1u)
+	EXPECT_EQ(gameState()->players.at(PlayerColor(0)).quests.size(), 1u)
 		<< "a keymaster colour type quest persists with no border instances left";
 }

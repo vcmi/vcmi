@@ -95,7 +95,7 @@ TEST_F(QuestGateTest, TollPassableForHeroOverloadDifferentiatesPaying)
 
 	auto * hero  = findHeroAt(kHeroPos);
 	auto * gate  = expectAt<QuestGate>(kGatePos);
-	auto & player = gameState->players.at(PlayerColor(0));
+	auto & player = gameState()->players.at(PlayerColor(0));
 
 	player.resources[GameResID::WOOD] = 5;
 	EXPECT_FALSE(gate->passableFor(hero)) << "hero who cannot pay the toll is blocked";
@@ -111,7 +111,7 @@ TEST_F(QuestGateTest, TollChargedEveryPassAndNeverCompleted)
 
 	auto * hero   = findHeroAt(kHeroPos);
 	auto * gate   = expectAt<QuestGate>(kGatePos);
-	auto & player = gameState->players.at(PlayerColor(0));
+	auto & player = gameState()->players.at(PlayerColor(0));
 	player.resources[GameResID::WOOD] = 30;
 
 	visit(hero, gate);

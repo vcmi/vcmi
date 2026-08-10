@@ -150,7 +150,7 @@ TEST_F(QuestSeerTest, FirstVisit_emitsAddQuest)
 
 	visit(tyris, seer);
 
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), 1u);
+	EXPECT_EQ(gameEvents().addedQuests.size(), 1u);
 }
 
 TEST_F(QuestSeerTest, RepeatVisit_failedRequirements_showsNextVisitText)
@@ -166,15 +166,15 @@ TEST_F(QuestSeerTest, RepeatVisit_failedRequirements_showsNextVisitText)
 	ASSERT_NE(seer,      nullptr);
 
 	visit(christian, seer);
-	const size_t addQuestsAfterFirst = gameEventCallback->addedQuests.size();
-	const size_t windowsAfterFirst   = gameEventCallback->infoWindows.size();
+	const size_t addQuestsAfterFirst = gameEvents().addedQuests.size();
+	const size_t windowsAfterFirst   = gameEvents().infoWindows.size();
 	EXPECT_EQ(addQuestsAfterFirst, 1u);
 	EXPECT_GE(windowsAfterFirst,   1u);
 
 	visit(christian, seer);
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsAfterFirst)
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsAfterFirst)
 		<< "second failed visit must not re-emit AddQuest";
-	EXPECT_GT(gameEventCallback->infoWindows.size(), windowsAfterFirst)
+	EXPECT_GT(gameEvents().infoWindows.size(), windowsAfterFirst)
 		<< "second failed visit should produce its own next-visit info dialog";
 }
 
@@ -192,7 +192,7 @@ TEST_F(QuestSeerTest, GrantsRewardOnAcceptance)
 
 	const auto xpBefore = tyris->exp;
 	visit(tyris, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(tyris, /*select reward 0*/ 1);
 
 	EXPECT_GE(tyris->exp, xpBefore + 500)
@@ -215,15 +215,15 @@ TEST_F(QuestSeerTest, CompletedOneShot_subsequentVisitShowsEmptyText)
 	answerDialog(tyris, 1);
 
 	// Snapshot after completion, then re-visit.
-	const size_t addQuestsBefore     = gameEventCallback->addedQuests.size();
-	const size_t blockingsBefore     = gameEventCallback->blockingDialogs.size();
-	const size_t windowsBefore       = gameEventCallback->infoWindows.size();
+	const size_t addQuestsBefore     = gameEvents().addedQuests.size();
+	const size_t blockingsBefore     = gameEvents().blockingDialogs.size();
+	const size_t windowsBefore       = gameEvents().infoWindows.size();
 
 	visit(tyris, seer);
 
-	EXPECT_EQ(gameEventCallback->addedQuests.size(),     addQuestsBefore);
-	EXPECT_EQ(gameEventCallback->blockingDialogs.size(), blockingsBefore);
-	EXPECT_GT(gameEventCallback->infoWindows.size(),     windowsBefore);
+	EXPECT_EQ(gameEvents().addedQuests.size(),     addQuestsBefore);
+	EXPECT_EQ(gameEvents().blockingDialogs.size(), blockingsBefore);
+	EXPECT_GT(gameEvents().infoWindows.size(),     windowsBefore);
 }
 
 TEST_F(QuestSeerTest, BringResources_takesResources)
@@ -235,7 +235,7 @@ TEST_F(QuestSeerTest, BringResources_takesResources)
 	grantResources(PlayerColor(0), GameResID(GameResID::GOLD), 7000);
 	grantResources(PlayerColor(0), GameResID(GameResID::WOOD),   10);
 
-	auto & playerRes = gameState->players.at(PlayerColor(0)).resources;
+	auto & playerRes = gameState()->players.at(PlayerColor(0)).resources;
 	const int goldBefore = playerRes[GameResID::GOLD];
 	const int woodBefore = playerRes[GameResID::WOOD];
 
@@ -245,7 +245,7 @@ TEST_F(QuestSeerTest, BringResources_takesResources)
 	ASSERT_NE(seer, nullptr);
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_EQ(goldBefore - playerRes[GameResID::GOLD], 5000);
@@ -270,7 +270,7 @@ TEST_F(QuestSeerTest, BringArmy_takesCreatures_keepsExtras)
 	ASSERT_EQ(hero->getStackCount(SlotID(1)),  5);
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_EQ(hero->getStackCount(SlotID(0)), 5) << "5 of 10 Griffins should remain";
@@ -291,7 +291,7 @@ TEST_F(QuestSeerTest, BringArtifact_completesAndTakesArtifact)
 	ASSERT_TRUE(hero->hasArt(kArtifactSash)) << "scenario must place the sash in the backpack";
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_FALSE(hero->hasArt(kArtifactSash))
@@ -313,7 +313,7 @@ TEST_F(QuestSeerTest, BringArtifact_componentOfAssemblyInBackpack_disassembles)
 	ASSERT_TRUE(hero->hasArt(kArtifactAngelicAlly)) << "Angelic Alliance must be carried pre-visit";
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_FALSE(hero->hasArt(kArtifactAngelicAlly))
@@ -337,7 +337,7 @@ TEST_F(QuestSeerTest, BringArtifact_componentOfAssemblyEquipped_disassembles)
 	ASSERT_TRUE(hero->hasArt(kArtifactAngelicAlly)) << "Angelic Alliance must be equipped pre-visit";
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_FALSE(hero->hasArt(kArtifactAngelicAlly))
@@ -361,7 +361,7 @@ TEST_F(QuestSeerTest, FullArmyRemoval_h3BugSetting_enabledAllowsArmyEmpty)
 	ASSERT_EQ(hero->getStackCount(SlotID(0)), 1);
 
 	visit(hero, seer);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
 	answerDialog(hero, 1);
 
 	EXPECT_FALSE(hero->hasStackAtSlot(SlotID(0)))
@@ -381,7 +381,7 @@ TEST_F(QuestSeerTest, FullArmyRemoval_disabled_keepsHeroWithOneStack)
 	ASSERT_NE(seer, nullptr);
 
 	visit(hero, seer);
-	if(!gameEventCallback->blockingDialogs.empty())
+	if(!gameEvents().blockingDialogs.empty())
 		answerDialog(hero, 1);
 
 	EXPECT_TRUE(hero->hasStackAtSlot(SlotID(0)))
@@ -401,17 +401,17 @@ TEST_F(QuestSeerTest, Timeout_expiresOnLastDay)
 	EXPECT_FALSE(seer->getQuest().isCompleted);
 
 	advanceDays(10);
-	GameRandomizer randomizer(*gameState);
-	seer->newTurn(*gameEventCallback, randomizer);
+	GameRandomizer randomizer(*gameState());
+	seer->newTurn(gameEvents(), randomizer);
 
 	// After the deadline the seer is inaccessible: a visit yields only the
 	// empty-seer info dialog, with no quest log entry and no reward prompt.
 	auto * hero = findHeroAt(s.heroPos);
 	ASSERT_NE(hero, nullptr);
-	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
 	visit(hero, seer);
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore)
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore)
 		<< "expired seer must not register a quest log entry";
-	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty())
 		<< "expired seer must not offer its reward";
 }
