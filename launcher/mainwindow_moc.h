@@ -46,7 +46,11 @@ class MainWindow : public QMainWindow
 	std::unique_ptr<CConsoleHandler> console;
 #endif
 
+	bool gamepadStartAllowed = false;
+
 	void load();
+	void setGamepadStartAllowed(bool allowed);
+	void startGameFromGamepad();
 	void centerWindowOnScreen(QScreen * screen);
 	void ensureWindowVisibleOnExistingScreen();
 	void handleScreenRemoved();

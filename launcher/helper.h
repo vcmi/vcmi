@@ -25,6 +25,8 @@ namespace Helper
 	void revealDirectoryInFileBrowser(QString path);
 	MainWindow * getMainWindow();
 	void keepScreenOn(bool isEnabled);
+	/// on Android, gamepad input is handled by the activity - tell it whether starting the game is possible right now
+	void allowGamepadStart(bool isEnabled);
 	bool canUseFolderPicker();
 	void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb);
 	QStringList findFilesForCopy(const QString &treeUri);

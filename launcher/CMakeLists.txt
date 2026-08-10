@@ -73,6 +73,12 @@ set(launcher_HEADERS
 		prepare_p.h
 )
 
+# gamepad support relies on SDL, which is not linked into launcher on mobile platforms
+if(NOT ANDROID AND NOT IOS)
+	list(APPEND launcher_SRCS gamepadHandler.cpp)
+	list(APPEND launcher_HEADERS gamepadHandler.h)
+endif()
+
 set(launcher_FORMS
 		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
