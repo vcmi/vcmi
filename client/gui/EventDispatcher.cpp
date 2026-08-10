@@ -56,6 +56,10 @@ void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
 
 void EventDispatcher::deactivateElement(AEventsReceiver * elem, ui16 activityFlag)
 {
+	// element that is deactivated while being touched will never receive finger-up event
+	if((activityFlag & AEventsReceiver::LCLICK) && vstd::erase_if_present(touchPressedElements, elem))
+		elem->onTouchPress(false);
+
 	processLists(activityFlag,[&](EventReceiversList & lst){
 		auto hlp = std::find(lst.begin(),lst.end(),elem);
 		assert(hlp != lst.end());
@@ -479,13 +483,12 @@ void EventDispatcher::dispatchTouchPress(const Point & position, bool down, int 
 	}
 	else
 	{
-		for(auto & elem : touchPressedElements)
-		{
-			if(!vstd::contains(lclickable, elem))
-				continue;
-			elem->onTouchPress(false); // reset all because we don't neccessary get the same element (finger can moved after touching, before releasing)
-		}
+		// reset all because we don't neccessary get the same element (finger can moved after touching, before releasing)
+		auto hlp = std::move(touchPressedElements);
 		touchPressedElements.clear();
+
+		for(auto & elem : hlp)
+			elem->onTouchPress(false);
 	}
 }
 
