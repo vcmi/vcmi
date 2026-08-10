@@ -9,6 +9,9 @@
  */
 #include "StdInc.h"
 
+#include <tbb/parallel_for.h>
+#include <tbb/concurrent_vector.h>
+
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
@@ -1024,79 +1027,108 @@ size_t SelectionTab::getHiddenIncompatibleMapsCount() const
 void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
+	auto timeStart = std::chrono::steady_clock::now();
 	allItems.clear();
-	for(auto & file : files)
-	{
-		try
-		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->mapInit(file.getOriginalName());
-			mapInfo->name = mapInfo->getNameForList();
 
-			if (isMapSupported(*mapInfo))
-				allItems.push_back(mapInfo);
-		}
-		catch(std::exception & e)
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &parsedItems](const tbb::blocked_range<size_t> & r)
+	{
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			auto & file = filesVector[i];
+			try
+			{
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->mapInit(file.getOriginalName());
+				mapInfo->name = mapInfo->getNameForList();
+
+				if (isMapSupported(*mapInfo))
+					parsedItems.push_back(mapInfo);
+			}
+			catch(std::exception & e)
+			{
+				logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			}
 		}
-	}
+	});
+
+	allItems.assign(std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d maps took %d ms", files.size(), timeElapsed.count());
 }
 
 std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
-	std::vector<ResourcePath> unsupported;
+	auto timeStart = std::chrono::steady_clock::now();
 
-	for(auto & file : files)
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
+	tbb::concurrent_vector<ResourcePath> unsupported;
+
+	ELoadMode loadMode = GAME->server().getLoadMode();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [&filesVector, &parsedItems, &unsupported, loadMode](const tbb::blocked_range<size_t> & r)
 	{
-		try
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->saveInit(file);
-			mapInfo->name = mapInfo->getNameForList();
-
-			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
-			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
-			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
-			switch(GAME->server().getLoadMode())
+			auto & file = filesVector[i];
+			try
 			{
-			case ELoadMode::SINGLE:
-				if(isCampaign || isTutorial)
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->saveInit(file);
+				mapInfo->name = mapInfo->getNameForList();
+
+				// Filter out other game modes
+				bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
+				bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
+				bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
+				switch(loadMode)
+				{
+				case ELoadMode::SINGLE:
+					if(isCampaign || isTutorial)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::CAMPAIGN:
+					if(!isCampaign)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::TUTORIAL:
+					if(!isTutorial)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::MULTI:
+					if(!isMultiplayer)
+						mapInfo->mapHeader.reset();
+					break;
+				default:
+					assert(0);
 					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::CAMPAIGN:
-				if(!isCampaign)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::TUTORIAL:
-				if(!isTutorial)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::MULTI:
-				if(!isMultiplayer)
-					mapInfo->mapHeader.reset();
-				break;
-			default:
-				assert(0);
-				mapInfo->mapHeader.reset();
-				break;
+					break;
+				}
+
+				parsedItems.push_back(mapInfo);
 			}
+			catch(const IdentifierResolutionException & e)
+			{
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
+			catch(const std::exception & e)
+			{
+				unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
+		}
+	});
 
-			allItems.push_back(mapInfo);
-		}
-		catch(const IdentifierResolutionException & e)
-		{
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-		}
-		catch(const std::exception & e)
-		{
-			unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-		}
-	}
+	allItems.insert(allItems.end(), std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
 
-	return unsupported;
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d saves took %d ms", filesVector.size(), timeElapsed.count());
+
+	return std::vector<ResourcePath>(std::make_move_iterator(unsupported.begin()), std::make_move_iterator(unsupported.end()));
 }
 
 void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & files)
@@ -1119,34 +1151,48 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	allItems.reserve(files.size());
-	for(auto & file : files)
+	auto timeStart = std::chrono::steady_clock::now();
+
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &parsedItems](const tbb::blocked_range<size_t> & r)
 	{
-		try
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto info = std::make_shared<ElementInfo>();
-			info->fileURI = file.getOriginalName();
-			info->campaignInit();
-			info->name = info->getNameForList();
-
-			if(info->campaign)
+			auto & file = filesVector[i];
+			try
 			{
-				// skip campaigns organized in sets
-				bool foundInSet = false;
-				for (auto const & set : campaignSets.Struct())
-					for (auto const & item : set.second["items"].Vector())
-						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = true;
+				auto info = std::make_shared<ElementInfo>();
+				info->fileURI = file.getOriginalName();
+				info->campaignInit();
+				info->name = info->getNameForList();
 
-				if(!foundInSet || !enableUiEnhancements)
-					allItems.push_back(info);
+				if(info->campaign)
+				{
+					// skip campaigns organized in sets
+					bool foundInSet = false;
+					for (auto const & set : campaignSets.Struct())
+						for (auto const & item : set.second["items"].Vector())
+							if(file.getName() == ResourcePath(item["file"].String()).getName())
+								foundInSet = true;
+
+					if(!foundInSet || !enableUiEnhancements)
+						parsedItems.push_back(info);
+				}
+			}
+			catch(const std::exception & e)
+			{
+				logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 			}
 		}
-		catch(const std::exception & e)
-		{
-			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
-		}
-	}
+	});
+
+	allItems.reserve(allItems.size() + parsedItems.size());
+	allItems.insert(allItems.end(), std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
 }
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)
