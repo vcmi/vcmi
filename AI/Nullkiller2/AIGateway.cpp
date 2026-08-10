@@ -1109,9 +1109,9 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			return nullptr;
 		};
 
-		auto doMovement = [&](int3 dst, bool transit)
+		auto doMovement = [&](int3 dst, bool transit, const EPathfindingLayer & layer)
 		{
-			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit);
+			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit, layer);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
@@ -1163,13 +1163,14 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		for(; i > 0; i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
-			int3 nextCoord = path.nodes[i - 1].coord;
+			const auto & nextNode = path.nodes[i - 1];
+			int3 nextCoord = nextNode.coord;
 
 			auto currentObject = getObj(currentCoord, currentCoord == heroPtr->visitablePos());
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
-			if(isTeleportAction(path.nodes[i - 1].action) && destTeleportObj != nullptr)
+			if(isTeleportAction(nextNode.action) && destTeleportObj != nullptr)
 			{
 				//we use special login if hero standing on teleporter it's mean we need
 				doTeleportMovement(destTeleportObj->id, nextCoord);
@@ -1181,14 +1182,13 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			}
 
 			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-			if(path.nodes[i - 1].turns)
+			if(nextNode.turns)
 			{
 				//blockedHeroes.insert(h); //to avoid attempts of moving heroes with very little MPs
 				return false;
 			}
 
-			int3 endpos = path.nodes[i - 1].coord;
-			if(endpos == heroPtr->visitablePos())
+			if(nextCoord == heroPtr->visitablePos())
 				continue;
 
 			bool isConnected = false;
@@ -1199,19 +1199,11 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 				isConnected = CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i - 2].coord, false));
 				isNextObjectTeleport = CGTeleport::isTeleport(nextObjectTop);
 			}
-			if(isConnected || isNextObjectTeleport)
-			{
+			if(isConnected || isNextObjectTeleport || nextNode.layer == EPathfindingLayer::AIR)
 				// Hero should be able to go through object if it's allow transit
-				doMovement(endpos, true);
-			}
-			else if(path.nodes[i - 1].layer == EPathfindingLayer::AIR)
-			{
-				doMovement(endpos, true);
-			}
+				doMovement(nextCoord, true, nextNode.layer);
 			else
-			{
-				doMovement(endpos, false);
-			}
+				doMovement(nextCoord, false, nextNode.layer);
 
 			afterMovementCheck();
 
