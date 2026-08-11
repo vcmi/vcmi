@@ -41,7 +41,6 @@ static std::string methodName(CombatEventType event)
 		case CombatEventType::UNIT_SPELLCAST:  return "onUnitSpellcast";
 		case CombatEventType::BATTLE_START:    return "onBattleStart";
 		case CombatEventType::ROUND_START:     return "onRoundStart";
-		case CombatEventType::ATTACK_RESOLVED: return "onAttackResolved";
 		case CombatEventType::INVALID:         break;
 	}
 

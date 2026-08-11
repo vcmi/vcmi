@@ -49,7 +49,7 @@ function Script:describe(server, battle, unit, other, healed, resurrected)
 	})
 end
 
-function Script:onAttackResolved(server, battle, unit, other, payload)
+function Script:onAfterAttack(server, battle, unit, other, payload)
 	-- a stack at full health has nothing to drain into
 	if unit:getTotalHealth() == unit:getAvailableHealth() then return end
 

@@ -31,6 +31,8 @@ function Script:resultingCount(victim, creature)
 end
 
 function Script:onAfterAttack(server, battle, unit, other)
+	-- a dead attacker transmutes nothing, and it may have been killed by the retaliation to this attack
+	if not unit:isAlive() then return end
 	if not other or not other:isAlive() or not other:isLiving() then return end
 	if self:isImmune(other) then return end
 	if not server:rollCombatAbility(battle, unit, self.val or 0) then return end

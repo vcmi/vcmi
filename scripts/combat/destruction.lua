@@ -27,6 +27,8 @@ function Script:creaturesToKill(victim)
 end
 
 function Script:onAfterAttack(server, battle, unit, other)
+	-- a dead attacker destroys nothing, and it may have been killed by the retaliation to this attack
+	if not unit:isAlive() then return end
 	if not other or not other:isAlive() then return end
 	if not server:rollCombatAbility(battle, unit, self.val or 0) then return end
 

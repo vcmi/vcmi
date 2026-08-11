@@ -85,6 +85,7 @@
 		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/fireShield",
+		"priority" : 50,
 		"schema" : {
 			"properties" : {},
 			"additionalProperties" : false

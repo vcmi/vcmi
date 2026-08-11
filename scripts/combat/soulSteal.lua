@@ -51,7 +51,7 @@ function Script:describe(server, battle, unit, other, healed, resurrected)
 	})
 end
 
-function Script:onAttackResolved(server, battle, unit, other, payload)
+function Script:onAfterAttack(server, battle, unit, other, payload)
 	local gained = stolenSouls(payload) * (self.val or 0)
 
 	if gained <= 0 then return end

@@ -54,6 +54,8 @@ function Script:commanderKills(unit, other)
 end
 
 function Script:onAfterAttack(server, battle, unit, other, payload)
+	-- the gaze dies with its bearer, which a retaliation or a reflected hit may have just killed
+	if not unit:isAlive() then return end
 	if not other or not other:isAlive() then return end
 
 	local situation = self.situation or "melee"

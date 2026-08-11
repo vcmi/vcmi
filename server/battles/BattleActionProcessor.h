@@ -46,10 +46,24 @@ class BattleActionProcessor : boost::noncopyable
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
-	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter);
+	/// One script that is about to run, kept by unit id rather than by pointer because a script
+	/// running before it may remove either unit from the battle.
+	struct PendingTrigger
+	{
+		std::shared_ptr<Bonus> bonus;
+		CombatEventType event;
+		uint32_t self;
+		uint32_t other; ///< -1 when the event has no unit on the other side
+	};
 
-	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
+	void collectEventTriggers(std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const;
+	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
+
+	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
+	/// attackIndex is the position of this attack among those its own side makes in this action;
+	/// a counterattack is its side's attack 0. `first` instead marks the attack that the legacy
+	/// spell-casting abilities fire on, which is not the same thing for a defender striking first.
+	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, int attackIndex, bool first, bool ranged, bool counter);
 
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload);
 	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);

@@ -18,6 +18,7 @@ class Unit;
 }
 
 /// One unit hit by an attack, as reported to combat scripts.
+/// Before the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet.
 struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<AttackedTarget>
 {
 	const battle::Unit * unit = nullptr;
@@ -43,11 +44,15 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 {
 	std::vector<AttackedTarget> targets;
 	bool ranged = false;
+	bool isCounter = false;
+	int32_t attackIndex = 0;
 
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("targets", targets, "Units hit by the attack that caused this event.");
-		s("ranged",  ranged,  "Whether the attack that caused this event was a shot.");
+		s("targets",     targets,     "Units hit by the attack that caused this event. Before the attack, only their identity and remaining health are known.");
+		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
+		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
+		s("attackIndex", attackIndex, "Index of this attack among those its own side makes in this action. A counterattack is its side's attack 0.");
 	}
 };

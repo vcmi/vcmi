@@ -36,6 +36,21 @@
 
 #include <vstd/RNG.h>
 
+namespace
+{
+
+/// What a script reacting before an attack learns about a unit that is about to be hit. The damage
+/// is not rolled yet, so only the identity of the unit and the health it has left are known.
+AttackedTarget unitAboutToBeAttacked(const battle::Unit * unit)
+{
+	AttackedTarget target;
+	target.unit = unit;
+	target.healthBeforeAttack = unit->getAvailableHealth();
+	return target;
+}
+
+}
+
 BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -303,13 +318,13 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//first strike
 		if(i == 0 && firstStrike && destinationStack->ableToRetaliate() && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible() && !longWeaponAttack)
 		{
-			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
+			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), 0, true, false, true);
 		}
 
 		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
 		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
 		{
-			makeAttack(battle, stack, destinationStack, (i ? 0 : movementResult.distance), destinationTile, i==0, false, false);//no distance travelled on second attack
+			makeAttack(battle, stack, destinationStack, (i ? 0 : movementResult.distance), destinationTile, i, i==0, false, false);//no distance travelled on second attack
 
 			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
@@ -333,7 +348,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 			&& (i == 0 && !firstStrike)
 			&& destinationStack->ableToRetaliate())
 		{
-			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
+			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), 0, true, false, true);
 		}
 	}
 
@@ -426,7 +441,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	}
 
 	if (!firstStrike)
-		makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
+		makeAttack(battle, stack, destinationStack, 0, destination, 0, true, true, false);
 
 	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
 	BonusList defenderBonusesToRemove;
@@ -441,7 +456,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		&& battle.battleCanShoot(destinationStack, stack->getPosition())
 		&& stack->alive()) //attacker may have died (fire shield)
 	{
-		makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, true, true);
+		makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), 0, true, true, true);
 	}
 	//allow more than one additional attack
 
@@ -460,7 +475,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 			&& (emptyTileAreaAttack || destinationStack->alive())
 			&& stack->shots.canUse())
 		{
-			makeAttack(battle, stack, destinationStack, 0, destination, false, true, false);
+			// when the defender strikes first the opening shot above is skipped and this loop makes
+			// it instead, so the shot that abilities fire on is the first one this loop makes
+			makeAttack(battle, stack, destinationStack, 0, destination, i, i == 0, true, false);
 		}
 	}
 
@@ -1034,17 +1051,41 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	return { static_cast<int16_t>(pathDistance), !movementSuccess, false };
 }
 
-void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
+void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, int attackIndex, bool first, bool ranged, bool counter)
 {
+	// spell-casting abilities keep their own rule - once per attack action and never on a counter.
+	// Combat scripts are notified before every attack instead, further below
 	if(defender && first && !counter)
-		handleAttackBeforeCasting(battle, ranged, attacker, defender);
+		attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender);
 
 	// If the attacker or defender is not alive before the attack action, the action should be skipped.
 	if((!attacker->alive()) || (defender && !defender->alive()))
 		return;
 
+	// the same set of units feeds the notification below and the damage further down
+	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, ranged); //creatures other than primary target
+
 	CombatEventPayload payload;
 	payload.ranged = ranged;
+	payload.isCounter = counter;
+	payload.attackIndex = attackIndex;
+
+	// what a script reacting before the attack gets to see: who is about to be hit and how much
+	// health each of them has left. Nothing about the damage - it has not been rolled yet
+	CombatEventPayload upcoming = payload;
+	if(defender && defender->alive())
+		upcoming.targets.push_back(unitAboutToBeAttacked(defender));
+	for(const CStack * stack : attackedCreatures)
+		if(stack != defender && stack->alive())
+			upcoming.targets.push_back(unitAboutToBeAttacked(stack));
+
+	// the attacker and every unit it is about to hit react as one ordered group, so that a script
+	// declaring a priority runs before or after another whichever side of the attack it sits on
+	std::vector<PendingTrigger> beforeAttack;
+	collectEventTriggers(beforeAttack, CombatEventType::BEFORE_ATTACK, attacker, defender);
+	for(const AttackedTarget & target : upcoming.targets)
+		collectEventTriggers(beforeAttack, CombatEventType::BEFORE_ATTACKED, target.unit, attacker);
+	runEventTriggers(battle, beforeAttack, upcoming);
 
 	BattleAttack bat;
 	BattleLogMessage blm;
@@ -1086,7 +1127,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		applyBattleEffects(battle, bat, attackerState, payload, defender, distance, false);
 
 	//multiple-hex normal attack
-	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
@@ -1172,18 +1212,18 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// sent before the triggers below so that anything they log lands after the attack description
 	gameHandler->sendAndApply(blm);
 
-	// reactions of the attacker to its own attack, e.g. life drain. Runs before the defender's
-	// fire shield, which may kill the attacker
-	processBattleEventTriggers(battle, CombatEventType::ATTACK_RESOLVED, attacker, defender, payload);
-
-	// every unit hit reacts, not only the primary target - a multi-hex attack may hit several.
-	// Not gated on the target being alive: a reaction like fire shield triggers even when the
-	// attack killed it, so each script decides for itself
-	for(const AttackedTarget & target : payload.targets)
-		processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, target.unit, attacker, payload);
-
 	if(defender)
 		handleAfterAttackCasting(battle, attacker, defender, payload);
+
+	// the attacker and every unit it hit react as one ordered group. Priority alone decides what
+	// runs first, which is how life drain heals before a fire shield can burn the attacker down and
+	// how a death stare only lands after it. Not gated on anyone being alive: a reflecting ability
+	// answers a lethal blow while dying, so each script decides for itself
+	std::vector<PendingTrigger> afterAttack;
+	collectEventTriggers(afterAttack, CombatEventType::AFTER_ATTACK, attacker, defender);
+	for(const AttackedTarget & target : payload.targets)
+		collectEventTriggers(afterAttack, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
+	runEventTriggers(battle, afterAttack, payload);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
@@ -1299,13 +1339,8 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 	return spellsToCast;
 }
 
-void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
-{
-	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACKED, defender, attacker);
-}
-
+/// Legacy spell-casting abilities only - combat scripts are notified from makeAttack instead, and
+/// deliberately without these gates.
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)
 {
 	if(!attacker->alive()) // can be already dead, e.g. from retaliation
@@ -1313,8 +1348,6 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	if(defender->alive())
 		attackCasting(battle, payload.ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender, payload);
 }
 
 void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const CStack * def, int distance, bool secondary) const
@@ -1501,32 +1534,61 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 
 	}
 
+	std::vector<PendingTrigger> pending;
+	collectEventTriggers(pending, event, target, secondary);
+	runEventTriggers(battle, pending, payload);
+}
+
+/// Gathers the scripts one unit runs for one event, without running any of them yet, so that
+/// several units reacting to the same attack can be ordered against each other.
+void BattleActionProcessor::collectEventTriggers(std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const
+{
 	// scripts subscribe to every event and no-op on those they do not implement, so the subtype -
 	// which script to run - is not part of the selector here
-	std::vector<std::shared_ptr<Bonus>> triggered;
-	for (const auto & bonus : *target->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
-		if (LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>()))
-			triggered.push_back(bonus); // anything else is a script whose mod is gone
-
-	// bonus order is alphabetical by ability name, which would let a mod decide what runs first by
-	// renaming an ability. Scripts that care about running before another declare a priority
-	std::stable_sort(triggered.begin(), triggered.end(), [](const std::shared_ptr<Bonus> & left, const std::shared_ptr<Bonus> & right)
+	for (const auto & bonus : *self->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
 	{
-		return LIBRARY->scriptTypes()->getPriority(left->subtype.as<ScriptID>())
-			 < LIBRARY->scriptTypes()->getPriority(right->subtype.as<ScriptID>());
+		if (!LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>()))
+			continue; // a script whose mod is gone
+
+		PendingTrigger trigger;
+		trigger.bonus = bonus;
+		trigger.event = event;
+		trigger.self = self->unitId();
+		trigger.other = other ? other->unitId() : -1;
+		pending.push_back(trigger);
+	}
+}
+
+void BattleActionProcessor::runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload)
+{
+	// bonus order is alphabetical by ability name, which would let a mod decide what runs first by
+	// renaming an ability. Scripts that care about running before another declare a priority, and
+	// that priority orders every reaction to the same attack - the attacker's against its victims'
+	std::stable_sort(pending.begin(), pending.end(), [](const PendingTrigger & left, const PendingTrigger & right)
+	{
+		return LIBRARY->scriptTypes()->getPriority(left.bonus->subtype.as<ScriptID>())
+			 < LIBRARY->scriptTypes()->getPriority(right.bonus->subtype.as<ScriptID>());
 	});
 
-	for (const auto & bonus : triggered)
+	for (const auto & trigger : pending)
 	{
-		auto script = LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>());
+		// an earlier script may have removed either unit - transmutation replaces the stack it
+		// hits - so both are looked up again rather than kept as pointers
+		const battle::Unit * self = battle.battleGetUnitByID(trigger.self);
+		if (!self)
+			continue;
+
+		const battle::Unit * other = trigger.other == -1 ? nullptr : battle.battleGetUnitByID(trigger.other);
+
+		auto script = LIBRARY->scriptTypes()->getCombatEventScript(trigger.bonus->subtype.as<ScriptID>());
 
 		JsonNode parameters;
-		if (bonus->parameters)
-			parameters = bonus->parameters->toCustom<JsonNode>();
+		if (trigger.bonus->parameters)
+			parameters = trigger.bonus->parameters->toCustom<JsonNode>();
 
 		// the magnitude lives in val so that the bonus system can accumulate it
-		parameters["val"].Integer() = bonus->val;
+		parameters["val"].Integer() = trigger.bonus->val;
 
-		script->run(gameHandler->spellcastEnvironment(), battle, event, target, secondary, parameters, payload);
+		script->run(gameHandler->spellcastEnvironment(), battle, trigger.event, self, other, parameters, payload);
 	}
 }
