@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "../../lib/bonuses/CBonusSystemNode.h"
+#include "../../lib/bonuses/BonusList.h"
 #include "../../lib/bonuses/BonusEnum.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Propagators.h"
@@ -19,6 +20,29 @@ namespace test
 {
 
 using namespace ::testing;
+
+namespace
+{
+
+BonusList makeSourceModifiedBonus(int value, BonusValueType valueType, int modifier, BonusSource source = BonusSource::SECONDARY_SKILL)
+{
+	BonusList bonuses;
+	auto valueBonus = std::make_shared<Bonus>();
+	valueBonus->val = value;
+	valueBonus->valType = valueType;
+	valueBonus->source = source;
+	bonuses.push_back(valueBonus);
+
+	auto sourceModifier = std::make_shared<Bonus>();
+	sourceModifier->val = modifier;
+	sourceModifier->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+	sourceModifier->source = BonusSource::HERO_SPECIAL;
+	sourceModifier->targetSourceType = source;
+	bonuses.push_back(sourceModifier);
+	return bonuses;
+}
+
+}
 
 class TestBonusSystemNode : public CBonusSystemNode
 {
@@ -303,6 +327,40 @@ TEST_F(BonusSystemTest, legionPieces)
 	EXPECT_EQ(town.valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(3)), 0);
 
 	heroAine.detachFromSource(legion);
+}
+
+TEST(BonusListTest, secondarySkillPercentToBaseKeepsFraction)
+{
+	auto bonuses = makeSourceModifiedBonus(30, BonusValueType::PERCENT_TO_BASE, 5);
+	EXPECT_EQ(bonuses.totalValue(1700), 2235);
+}
+
+TEST(BonusListTest, secondarySkillPercentToAllKeepsFraction)
+{
+	auto bonuses = makeSourceModifiedBonus(10, BonusValueType::PERCENT_TO_ALL, 45);
+	EXPECT_EQ(bonuses.totalValue(1700), 1946);
+}
+
+TEST(BonusListTest, scaledResultKeepsFraction)
+{
+	auto bonuses = makeSourceModifiedBonus(15, BonusValueType::PERCENT_TO_BASE, 5);
+	auto baseValue = std::make_shared<Bonus>();
+	baseValue->val = 100;
+	baseValue->valType = BonusValueType::BASE_NUMBER;
+	baseValue->source = BonusSource::GLOBAL;
+	bonuses.push_back(baseValue);
+
+	EXPECT_EQ(bonuses.totalValue(), 115);
+	EXPECT_EQ(bonuses.totalValueScaled(0, BonusList::FRACTION_SCALE), 11575);
+}
+
+TEST(BonusListTest, flatAndCreatureBonusesKeepWholeNumberRounding)
+{
+	auto flatBonuses = makeSourceModifiedBonus(15, BonusValueType::BASE_NUMBER, 5);
+	EXPECT_EQ(flatBonuses.totalValue(), 15);
+
+	auto creatureBonuses = makeSourceModifiedBonus(30, BonusValueType::PERCENT_TO_BASE, 5, BonusSource::CREATURE_ABILITY);
+	EXPECT_EQ(creatureBonuses.totalValue(1700), 2244);
 }
 
 }

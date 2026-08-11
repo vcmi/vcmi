@@ -19,7 +19,7 @@
 #include "../IGameSettings.h"
 #include "../spells/SpellSchoolHandler.h"
 
-int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode mode) const
+int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode mode, int32_t valueScale) const
 {
 	if (target->getTreeVersion() == currentValue.version)
 	{
@@ -32,7 +32,7 @@ int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSel
 		int newValue;
 
 		if (mode == BonusCacheMode::VALUE)
-			newValue = target->valOfBonuses(selector);
+			newValue = static_cast<int>(target->getAllBonuses(selector)->totalValueScaled(0, valueScale));
 		else
 			newValue = target->hasBonus(selector);
 		currentValue.value = newValue;
@@ -42,13 +42,13 @@ int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSel
 	}
 }
 
-BonusValueCache::BonusValueCache(const IBonusBearer * target, const CSelector & selector)
-	:BonusCacheBase(target),selector(selector)
+BonusValueCache::BonusValueCache(const IBonusBearer * target, const CSelector & selector, int32_t valueScale)
+	:BonusCacheBase(target),selector(selector),valueScale(valueScale)
 {}
 
 int BonusValueCache::getValue() const
 {
-	return getBonusValueImpl(value, selector, BonusCacheMode::VALUE);
+	return getBonusValueImpl(value, selector, BonusCacheMode::VALUE, valueScale);
 }
 
 bool BonusValueCache::hasBonus() const

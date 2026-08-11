@@ -1308,7 +1308,7 @@ struct SkillCase
 	int            skillIdx;
 	BonusType      bonusType;
 	BonusSubtypeID subtype;
-	int            baseValue; // 0 for flat (BASE_NUMBER) effects; 100 for percentage effects
+	int            baseValue; // base passed to percentage effects; 0 for flat effects
 	int            heroLevel;
 };
 
@@ -1319,8 +1319,8 @@ public:
 	/// value with the skill minus value without it. Taking the per-hero difference
 	/// cancels any innate, non-skill contribution to the same bonus (e.g. a hero's
 	/// base mana regeneration or spell damage), leaving only the skill's part - which
-	/// is what the specialty scales. Percentage effects (baseValue 100) are read
-	/// against a fixed base so their contribution is measurable at all.
+	/// is what the specialty scales. Percentage effects are read against a fixed base
+	/// so their contribution is measurable at all.
 	int64_t skillContribution(int heroIdx, const SkillCase & c)
 	{
 		const auto sel = Selector::typeSubtype(c.bonusType, c.subtype);
@@ -1349,7 +1349,7 @@ TEST_P(SecondarySkillSpecialty, scalesSkillBonus)
 		EXPECT_EQ(withSpec, applyPercentDown(withoutSpec, 5 * c.heroLevel) + 1) << c.name;
 	} else {
 		EXPECT_EQ(withSpec, applyPercentDown(withoutSpec, 5 * c.heroLevel)) << c.name;
-	}	
+	}
 }
 
 INSTANTIATE_TEST_SUITE_P(Heroes, SecondarySkillSpecialty, ::testing::Values(
@@ -1365,11 +1365,41 @@ INSTANTIATE_TEST_SUITE_P(Heroes, SecondarySkillSpecialty, ::testing::Values(
 	SkillCase{"axsis_mysticism",      58,  8, BonusType::MANA_REGENERATION,           BonusSubtypeID(),                                     0, 12},
 	SkillCase{"gird_sorcery",        104, 25, BonusType::SPELL_DAMAGE,                BonusSubtypeID(SpellSchool::ANY),                     0, 10},
 	SkillCase{"geon_eagleEye",        92, 11, BonusType::LEARN_BATTLE_SPELL_CHANCE,   BonusSubtypeID(),                                     0, 16},
-	// percentage-valued skills: measured against a fixed base (see measure()).
-	SkillCase{"kyrre_logistics",      23,  2, BonusType::MOVEMENT,                    BonusSubtypeID(BonusCustomSubtype::heroMovementLand), 100, 20},
+	// percentage-valued skills: measured against a fixed base (see skillContribution()).
+	SkillCase{"kyrre_logistics",      23,  2, BonusType::MOVEMENT,                    BonusSubtypeID(BonusCustomSubtype::heroMovementLand), 1700, 1},
 	SkillCase{"ayden_intelligence",   56, 24, BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE, BonusSubtypeID(),                                  100, 18}
 ),
 	[](const ::testing::TestParamInfo<SkillCase> & info) { return info.param.name; });
+
+TEST_F(BattleSpellCastTest, learningSpecialtyKeepsFractionalPercent)
+{
+	const int adelaideIdx = 11;
+	CGHeroInstance * hero = placeHero(adelaideIdx, 1, {{CreatureID(0), 1}});
+	hero->setSecSkillLevel(SecondarySkill(SecondarySkill::LEARNING), 1, ChangeValueMode::ABSOLUTE);
+
+	auto specialty = std::make_shared<Bonus>(
+		BonusDuration::PERMANENT,
+		BonusType::HERO_EXPERIENCE_GAIN_PERCENT,
+		BonusSource::HERO_SPECIAL,
+		5,
+		BonusSourceID(),
+		BonusSubtypeID(),
+		BonusValueType::PERCENT_TO_TARGET_TYPE);
+	specialty->targetSourceType = BonusSource::SECONDARY_SKILL;
+	hero->addNewBonus(specialty);
+
+	EXPECT_EQ(hero->calculateXp(1700), 1789);
+}
+
+TEST_F(BattleSpellCastTest, intelligenceSpecialtyKeepsFractionalMana)
+{
+	const int aydenIdx = 56;
+	CGHeroInstance * hero = placeHero(aydenIdx, 1, {{CreatureID(0), 1}});
+	hero->setSecSkillLevel(SecondarySkill(SecondarySkill::INTELLIGENCE), 1, ChangeValueMode::ABSOLUTE);
+	hero->setPrimarySkill(PrimarySkill::KNOWLEDGE, 8, ChangeValueMode::ABSOLUTE);
+
+	EXPECT_EQ(hero->manaLimit(), 101);
+}
 
 // --- movement specialty (GROWS_WITH_LEVEL) ---
 

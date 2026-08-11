@@ -53,37 +53,50 @@ void BonusList::stackBonuses()
 
 int BonusList::totalValue(int baseValue) const
 {
+	return static_cast<int>(totalValueScaled(baseValue, 1));
+}
+
+int64_t BonusList::totalValueScaled(int64_t baseValue, int64_t valueScale) const
+{
+	assert(valueScale > 0);
+
 	if (bonuses.empty())
-		return baseValue;
+		return baseValue * valueScale;
+
+	constexpr int64_t percentScale = FRACTION_SCALE;
+	constexpr int64_t precisePercentScale = percentScale * percentScale;
 
 	struct BonusCollection
 	{
-		int base = 0;
-		int percentToBase = 0;
-		int percentToAll = 0;
-		int additive = 0;
-		int percentToSource = 0;
-		int indepMin = std::numeric_limits<int>::max();
-		int indepMax = std::numeric_limits<int>::min();
+		int64_t base = 0;
+		int64_t percentToBase = 0;
+		int64_t percentToAll = 0;
+		int64_t additive = 0;
+		int64_t indepMin = std::numeric_limits<int64_t>::max();
+		int64_t indepMax = std::numeric_limits<int64_t>::min();
 	};
 
-	auto applyPercentageRoundUp = [](int base, int percent) -> int {
+	auto applyPercentageRoundUp = [](int64_t base, int64_t percent) -> int64_t {
 		if (base >= 0)
-			return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+			return (base * (percentScale + percent) + percentScale - 1) / percentScale;
 		else
-			return (static_cast<int64_t>(base) * (100 + percent) - 99) / 100;
+			return (base * (percentScale + percent) - percentScale + 1) / percentScale;
 	};
 
-	auto applyPercentageRoundDown = [](int base, int percent) -> int {
-		return (static_cast<int64_t>(base) * (100 + percent)) / 100;
+	auto applyPercentageRoundDown = [](int64_t base, int64_t percent) -> int64_t {
+		return (base * (percentScale + percent)) / percentScale;
+	};
+
+	auto applyPrecisePercentageRoundDown = [](int64_t base, int64_t percent) -> int64_t {
+		return (base * (precisePercentScale + percent)) / precisePercentScale;
 	};
 
 	BonusCollection accumulated;
-	accumulated.base = baseValue;
+	accumulated.base = baseValue * valueScale;
 	int indexMaxCount = 0;
 	int indexMinCount = 0;
 
-	std::array<int, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
+	std::array<int64_t, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
 
 	for(const auto & b : bonuses)
 	{
@@ -103,38 +116,43 @@ int BonusList::totalValue(int baseValue) const
 		int sourceIndex = vstd::to_underlying(b->source);
 		// Workaround: creature hero specialties in H3 is the only place that uses rounding up in bonuses
 		// TODO: try to find more elegant solution?
-		int valModified	= b->source == BonusSource::CREATURE_ABILITY ?
+		int64_t valModified = b->source == BonusSource::CREATURE_ABILITY ?
 			applyPercentageRoundUp(b->val, percentToSource[sourceIndex]):
 			applyPercentageRoundDown(b->val, percentToSource[sourceIndex]);
+		const bool preserveFraction = b->source == BonusSource::SECONDARY_SKILL
+			&& (b->valType == BonusValueType::PERCENT_TO_BASE || b->valType == BonusValueType::PERCENT_TO_ALL);
+		int64_t percentModified = preserveFraction ?
+			static_cast<int64_t>(b->val) * (percentScale + percentToSource[sourceIndex]):
+			valModified * percentScale;
 
 		switch(b->valType)
 		{
 		case BonusValueType::BASE_NUMBER:
-			accumulated.base += valModified;
+			accumulated.base += valModified * valueScale;
 			break;
 		case BonusValueType::PERCENT_TO_ALL:
-			accumulated.percentToAll += valModified;
+			accumulated.percentToAll += percentModified;
 			break;
 		case BonusValueType::PERCENT_TO_BASE:
-			accumulated.percentToBase += valModified;
+			accumulated.percentToBase += percentModified;
 			break;
 		case BonusValueType::ADDITIVE_VALUE:
-			accumulated.additive += valModified;
+			accumulated.additive += valModified * valueScale;
 			break;
 		case BonusValueType::INDEPENDENT_MAX: // actual meaning: at least this value
 			indexMaxCount++;
-			vstd::amax(accumulated.indepMax, valModified);
+			vstd::amax(accumulated.indepMax, valModified * valueScale);
 			break;
 		case BonusValueType::INDEPENDENT_MIN: // actual meaning: at most this value
 			indexMinCount++;
-			vstd::amin(accumulated.indepMin, valModified);
+			vstd::amin(accumulated.indepMin, valModified * valueScale);
 			break;
 		}
 	}
 
-	accumulated.base = applyPercentageRoundDown(accumulated.base, accumulated.percentToBase);
+	accumulated.base = applyPrecisePercentageRoundDown(accumulated.base, accumulated.percentToBase);
 	accumulated.base += accumulated.additive;
-	auto valFirst = applyPercentageRoundDown(accumulated.base ,accumulated.percentToAll);
+	auto valFirst = applyPrecisePercentageRoundDown(accumulated.base, accumulated.percentToAll);
 
 	if(indexMinCount && indexMaxCount && accumulated.indepMin < accumulated.indepMax)
 		accumulated.indepMax = accumulated.indepMin;

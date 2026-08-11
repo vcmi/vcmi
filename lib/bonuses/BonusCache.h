@@ -47,16 +47,17 @@ protected:
 		}
 	};
 
-	int getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode) const;
+	int getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode, int32_t valueScale = 1) const;
 };
 
 /// Cache that tracks a single query to bonus system
 class BonusValueCache : public BonusCacheBase
 {
 	CSelector selector;
+	int32_t valueScale;
 	mutable BonusCacheEntry value;
 public:
-	BonusValueCache(const IBonusBearer * target, const CSelector & selector);
+	BonusValueCache(const IBonusBearer * target, const CSelector & selector, int32_t valueScale = 1);
 	int getValue() const;
 	bool hasBonus() const;
 };

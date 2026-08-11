@@ -17,6 +17,7 @@ class DLL_LINKAGE BonusList : public scripting::ApiCopyable<BonusList>
 {
 public:
 	using TInternalContainer = boost::container::small_vector<std::shared_ptr<Bonus>, 16>;
+	static constexpr int64_t FRACTION_SCALE = 100;
 
 private:
 	TInternalContainer bonuses;
@@ -53,6 +54,8 @@ public:
 	// BonusList functions
 	void stackBonuses();
 	int totalValue(int baseValue = 0) const;
+	/// Returns the value multiplied by valueScale.
+	int64_t totalValueScaled(int64_t baseValue, int64_t valueScale) const;
 	void getBonuses(BonusList &out, const CSelector &selector) const;
 	void getAllBonuses(BonusList &out) const;
 

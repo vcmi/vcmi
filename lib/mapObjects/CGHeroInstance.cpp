@@ -39,6 +39,7 @@
 #include "../entities/hero/CHeroClass.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../battle/CBattleInfoEssentials.h"
+#include "../bonuses/BonusList.h"
 #include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
@@ -261,7 +262,7 @@ CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	primarySkills(this),
 	magicSchoolMastery(this),
 	turnInfoCache(std::make_unique<TurnInfoCache>(this)),
-	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))
+	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE), BonusList::FRACTION_SCALE)
 {
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::NONE, -1);
@@ -774,7 +775,11 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	return static_cast<TExpType>(exp * (valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT)) / 100.0);
+	constexpr int64_t percentageScale = 100 * BonusList::FRACTION_SCALE;
+	const int64_t scaledPercentage = getBonusesOfType(BonusType::HERO_EXPERIENCE_GAIN_PERCENT)->totalValueScaled(0, BonusList::FRACTION_SCALE);
+	const TExpType whole = exp / percentageScale;
+	const TExpType remainder = exp % percentageScale;
+	return whole * scaledPercentage + remainder * scaledPercentage / percentageScale;
 }
 
 int32_t CGHeroInstance::getCasterUnitId() const
@@ -1158,7 +1163,8 @@ std::string CGHeroInstance::nodeName() const
 
 si32 CGHeroInstance::manaLimit() const
 {
-	return getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * manaPerKnowledgeCached.getValue() / 100;
+	constexpr int64_t percentageScale = 100 * BonusList::FRACTION_SCALE;
+	return static_cast<si32>(static_cast<int64_t>(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * manaPerKnowledgeCached.getValue() / percentageScale);
 }
 
 HeroTypeID CGHeroInstance::getPortraitSource() const
