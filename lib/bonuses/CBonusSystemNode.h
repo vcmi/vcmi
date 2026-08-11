@@ -37,12 +37,22 @@ public:
 	};
 
 private:
+	/// Runtime link from a materialized propagation updater result to its origin.
+	/// These records are rebuilt together with propagated bonuses after loading.
+	struct PropagationRecord
+	{
+		std::shared_ptr<Bonus> bonus;
+		const Bonus * original;
+		const CBonusSystemNode * exporter;
+	};
+
 	/// List of bonuses that affect this node, whether local, or propagated to this node
 	BonusList bonuses;
 
 	/// List of bonuses that ar ecoming from this node.
 	/// Also includes nodes that are propagated away from this node, and might not affect this node itself
 	BonusList exportedBonuses;
+	std::vector<PropagationRecord> propagationRecords;
 
 	TCNodesVector parentsToInherit; // we inherit bonuses from them
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
@@ -73,8 +83,10 @@ private:
 	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
 
-	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
+	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & updaterContext, const CBonusSystemNode & exporter);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
+	void unpropagateBonusFrom(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & exporter);
+	void refreshPropagationUpdaters();
 	bool actsAsBonusSourceOnly() const;
 
 	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
@@ -87,6 +99,7 @@ private:
 protected:
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	void exportBonuses();
+	void nodeHasChangedWithPropagation();
 
 public:
 	explicit CBonusSystemNode(BonusNodeType nodeType, bool isHypotetic);

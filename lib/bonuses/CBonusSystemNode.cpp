@@ -356,14 +356,16 @@ bool CBonusSystemNode::actsAsBonusSourceOnly() const
 	}
 }
 
-void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source)
+void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & updaterContext, const CBonusSystemNode & exporter)
 {
 	if(b->propagator->shouldBeAttached(this))
 	{
 		auto propagated = b->propagationUpdater
-			? source.getUpdatedBonus(b, b->propagationUpdater)
+			? updaterContext.getUpdatedBonus(b, b->propagationUpdater)
 			: b;
 		bonuses.push_back(propagated);
+		if(b->propagationUpdater)
+			propagationRecords.push_back({propagated, b.get(), &exporter});
 		logBonus->trace("#$# %s #propagated to# %s", propagated->Description(nullptr), nodeName());
 		invalidateChildrenNodes(globalCounter);
 	}
@@ -371,7 +373,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 	TNodes lchildren;
 	getRedChildren(lchildren);
 	for(CBonusSystemNode *pname : lchildren)
-		pname->propagateBonus(b, source);
+		pname->propagateBonus(b, updaterContext, exporter);
 }
 
 void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
@@ -384,6 +386,14 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 			{
 				return bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater;
 			});
+
+			for(auto it = propagationRecords.begin(); it != propagationRecords.end();)
+			{
+				if(it->bonus->propagationUpdater == b->propagationUpdater)
+					it = propagationRecords.erase(it);
+				else
+					++it;
+			}
 		}
 		else
 		{
@@ -400,6 +410,30 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 	getRedChildren(lchildren);
 	for(CBonusSystemNode *pname : lchildren)
 		pname->unpropagateBonus(b);
+}
+
+void CBonusSystemNode::unpropagateBonusFrom(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & exporter)
+{
+	if(b->propagator->shouldBeAttached(this))
+	{
+		for(auto it = propagationRecords.begin(); it != propagationRecords.end();)
+		{
+			if(it->original == b.get() && it->exporter == &exporter)
+			{
+				bonuses -= it->bonus;
+				it = propagationRecords.erase(it);
+			}
+			else
+				++it;
+		}
+
+		invalidateChildrenNodes(globalCounter);
+	}
+
+	TNodes lchildren;
+	getRedChildren(lchildren);
+	for(CBonusSystemNode *pname : lchildren)
+		pname->unpropagateBonusFrom(b, exporter);
 }
 
 void CBonusSystemNode::detachFromAll()
@@ -473,7 +507,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant) const
 	for(const auto & b : exportedBonuses)
 	{
 		if(b->propagator)
-			descendant.propagateBonus(b, *this);
+			descendant.propagateBonus(b, *this, *this);
 	}
 	TCNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
@@ -483,7 +517,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant) const
 		for(const auto & b : parent->exportedBonuses)
 		{
 			if(b->propagator)
-				descendant.propagateBonus(b, *this);
+				descendant.propagateBonus(b, *this, *parent);
 		}
 	}
 }
@@ -520,7 +554,7 @@ void CBonusSystemNode::exportBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator)
 	{
-		propagateBonus(b, *this);
+		propagateBonus(b, *this, *this);
 	}
 	else
 	{
@@ -593,6 +627,26 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 void CBonusSystemNode::nodeHasChanged()
 {
 	invalidateChildrenNodes(++globalCounter);
+}
+
+void CBonusSystemNode::refreshPropagationUpdaters()
+{
+	BonusList bonusesToRefresh;
+	for(const auto & bonus : exportedBonuses)
+		if(bonus->propagator && bonus->propagationUpdater)
+			bonusesToRefresh.push_back(bonus);
+
+	for(const auto & bonus : bonusesToRefresh)
+		unpropagateBonusFrom(bonus, *this);
+
+	for(const auto & bonus : bonusesToRefresh)
+		propagateBonus(bonus, *this, *this);
+}
+
+void CBonusSystemNode::nodeHasChangedWithPropagation()
+{
+	nodeHasChanged();
+	refreshPropagationUpdaters();
 }
 
 void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)

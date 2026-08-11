@@ -1440,7 +1440,7 @@ void CGHeroInstance::levelUp()
 {
 	++level;
 	//update specialty and other bonuses that scale with level
-	nodeHasChanged();
+	nodeHasChangedWithPropagation();
 }
 
 void CGHeroInstance::attachCommanderToArmy()

@@ -14,6 +14,7 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Propagators.h"
 #include "../../lib/bonuses/Updaters.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace test
 {
@@ -240,6 +241,28 @@ TEST_F(BonusSystemTest, battlewidePropagationToEnemies)
 	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::LUCK), -1);
 }
 
+TEST_F(BonusSystemTest, propagationUpdaterDetachesSourceAfterNewRedEdge)
+{
+	TestBonusSystemNode devil{BonusNodeType::STACK_INSTANCE};
+	TestBonusSystemNode pikemanEnemy{BonusNodeType::STACK_INSTANCE};
+
+	devil.setPlayer(PlayerColor(0));
+	pikemanEnemy.setPlayer(PlayerColor(1));
+	devil.attachToSource(creatureDevil);
+	pikemanEnemy.attachToSource(creaturePikeman);
+
+	devil.attachTo(heroAine);
+	pikemanEnemy.attachTo(heroBron);
+	startBattle();
+
+	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::LUCK), -1);
+
+	devil.detachFromSource(creatureDevil);
+	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::LUCK), 0);
+
+	devil.detachFrom(heroAine);
+}
+
 TEST_F(BonusSystemTest, battlewideSkillPropagationToEnemies)
 {
 	TestBonusSystemNode pikemanAlly{BonusNodeType::STACK_INSTANCE};
@@ -277,6 +300,107 @@ TEST_F(BonusSystemTest, battlewideSkillPropagationToEnemies)
 	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::MORALE), -1);
 
 	heroAine.detachFromSource(armor);
+}
+
+TEST_F(BonusSystemTest, propagationUpdaterTracksHeroLevel)
+{
+	CGHeroInstance mentor(nullptr);
+	CGHeroInstance ally(nullptr);
+
+	mentor.attachTo(playerRed);
+	ally.attachTo(playerRed);
+
+	auto learningBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_EXPERIENCE_GAIN_PERCENT, BonusSource::HERO_SPECIAL, 1, HeroTypeID(0));
+	learningBonus->propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::PLAYER);
+	learningBonus->propagationUpdater = std::make_shared<TimesHeroLevelUpdater>();
+	mentor.addNewBonus(learningBonus);
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 1);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 1);
+
+	mentor.levelUp();
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 2);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 2);
+
+	mentor.levelUp();
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 3);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 3);
+
+	mentor.detachFrom(playerRed);
+	ally.detachFrom(playerRed);
+}
+
+TEST_F(BonusSystemTest, propagationRefreshKeepsSharedUpdaterBonuses)
+{
+	CGHeroInstance mentorA(nullptr);
+	CGHeroInstance mentorB(nullptr);
+
+	mentorA.attachTo(playerRed);
+	mentorB.attachTo(playerRed);
+
+	auto updater = std::make_shared<TimesHeroLevelUpdater>();
+	auto propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::PLAYER);
+	auto bonusA = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_EXPERIENCE_GAIN_PERCENT, BonusSource::HERO_SPECIAL, 1, HeroTypeID(0));
+	auto bonusB = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_EXPERIENCE_GAIN_PERCENT, BonusSource::HERO_SPECIAL, 2, HeroTypeID(1));
+	bonusA->propagator = propagator;
+	bonusB->propagator = propagator;
+	bonusA->propagationUpdater = updater;
+	bonusB->propagationUpdater = updater;
+
+	mentorA.addNewBonus(bonusA);
+	mentorA.addNewBonus(bonusB);
+	mentorB.addNewBonus(bonusA);
+
+	EXPECT_EQ(heroAine.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 4);
+
+	mentorA.levelUp();
+	EXPECT_EQ(heroAine.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 7);
+
+	mentorB.levelUp();
+	EXPECT_EQ(heroAine.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 8);
+
+}
+
+TEST_F(BonusSystemTest, propagationRefreshKeepsHeroAsUpdaterContext)
+{
+	CGHeroInstance mentor(nullptr);
+	mentor.setOwner(PlayerColor(0));
+	mentor.attachTo(playerRed);
+
+	CBonusSystemNode artifactType{BonusNodeType::ARTIFACT};
+	CBonusSystemNode artifact{BonusNodeType::ARTIFACT_INSTANCE};
+	artifact.attachToSource(artifactType);
+	mentor.attachToSource(artifact);
+
+	auto updater = std::make_shared<CompositeUpdater>();
+	updater->updaters.push_back(std::make_shared<TimesHeroLevelUpdater>());
+	updater->updaters.push_back(std::make_shared<OwnerUpdater>());
+
+	auto intimidationBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::HERO_SPECIAL, -1, HeroTypeID(0));
+	intimidationBonus->propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::BATTLE_WIDE);
+	intimidationBonus->propagationUpdater = updater;
+	intimidationBonus->limiter = std::make_shared<OppositeSideLimiter>();
+	mentor.addNewBonus(intimidationBonus);
+
+	startBattle();
+	mentor.attachTo(battle);
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::MORALE), 0);
+	EXPECT_EQ(heroAine.valOfBonuses(BonusType::MORALE), 0);
+	EXPECT_EQ(heroBron.valOfBonuses(BonusType::MORALE), -1);
+
+	mentor.levelUp();
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::MORALE), 0);
+	EXPECT_EQ(heroAine.valOfBonuses(BonusType::MORALE), 0);
+	EXPECT_EQ(heroBron.valOfBonuses(BonusType::MORALE), -2);
+
+	mentor.detachFrom(battle);
+	mentor.detachFromSource(artifact);
+	mentor.detachFrom(playerRed);
+	artifact.detachFromSource(artifactType);
 }
 
 TEST_F(BonusSystemTest, legionPieces)
