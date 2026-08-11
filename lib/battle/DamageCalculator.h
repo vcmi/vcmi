@@ -40,6 +40,7 @@ class DLL_LINKAGE DamageCalculator
 	int getTargetDefenseBase() const;
 	int getTargetDefenseEffective() const;
 	int getTargetDefenseIgnored() const;
+	int getDefenseReduction(const IBonusBearer * reductionBearer, int defense) const;
 
 	double getAttackSkillFactor() const;
 	double getAttackOffenseArcheryFactor() const;

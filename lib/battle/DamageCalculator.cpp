@@ -131,7 +131,24 @@ DamageRange DamageCalculator::getBaseDamageStack() const
 
 int DamageCalculator::getActorAttackBase() const
 {
-	return info.attacker->getAttack(info.shooting);
+	int attack = info.attacker->getAttack(info.shooting);
+	int frenzy = info.attacker->valOfBonuses(BonusType::IN_FRENZY);
+
+	if(frenzy > 0)
+	{
+		static const auto defenseSelector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
+		int defense = battleBonusValue(info.attacker, defenseSelector);
+		int defenseReduction = getDefenseReduction(info.defender, defense);
+
+		if(defenseReduction != 0)
+		{
+			attack -= frenzy * defense / 100;
+			attack += frenzy * (defense - defenseReduction) / 100;
+			vstd::amax(attack, 0);
+		}
+	}
+
+	return attack;
 }
 
 int DamageCalculator::getActorAttackEffective() const
@@ -186,12 +203,17 @@ int DamageCalculator::getTargetDefenseEffective() const
 
 int DamageCalculator::getTargetDefenseIgnored() const
 {
-	double multDefenceReduction = battleBonusValue(info.attacker, Selector::type()(BonusType::ENEMY_DEFENCE_REDUCTION)) / 100.0;
+	return -getDefenseReduction(info.attacker, getTargetDefenseBase());
+}
 
-	if(multDefenceReduction > 0)
+int DamageCalculator::getDefenseReduction(const IBonusBearer * reductionBearer, int defense) const
+{
+	int reductionPercent = battleBonusValue(reductionBearer, Selector::type()(BonusType::ENEMY_DEFENCE_REDUCTION));
+
+	if(reductionPercent > 0 && defense > 0)
 	{
-		int reduction = std::floor(multDefenceReduction * getTargetDefenseBase()) + 1;
-		return -std::min(reduction,getTargetDefenseBase());
+		int reduction = std::floor(reductionPercent / 100.0 * defense) + 1;
+		return std::min(reduction, defense);
 	}
 	return 0;
 }

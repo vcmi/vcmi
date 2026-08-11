@@ -18,6 +18,7 @@ set(test_SRCS
 
  		battle/BattleHexTest.cpp
  		battle/CBattleInfoCallbackTest.cpp
+		battle/DamageCalculatorTest.cpp
  		battle/CHealthTest.cpp
 		battle/CUnitStateTest.cpp
 		battle/CUnitStateMagicTest.cpp
