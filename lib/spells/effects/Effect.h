@@ -34,7 +34,6 @@ namespace effects
 using RNG = vstd::RNG;
 class Effects;
 class Effect;
-class SpellEffectService;
 
 using TargetType = spells::AimType;
 

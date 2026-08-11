@@ -21,7 +21,7 @@ class CGameState;
 class CGHeroInstance;
 class CMap;
 class CStack;
-struct BattleInfo;
+class BattleInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;

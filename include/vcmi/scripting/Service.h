@@ -16,12 +16,7 @@
 
 class CGameState;
 
-namespace spells::effects
-{
-    class SpellEffectService;
-}
-
-class CombatScriptService;
+class ScriptService;
 
 namespace scripting
 {
@@ -58,7 +53,8 @@ class DLL_LINKAGE Service
 public:
 	virtual ~Service() = default;
 
-	virtual void installScripting(spells::effects::SpellEffectService * spellEffects, CombatScriptService * combatScripts) = 0;
+	/// Registers this language as a script backend. Called once, before any content is loaded.
+	virtual void installScripting(ScriptService & scripts) = 0;
 
 	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
 

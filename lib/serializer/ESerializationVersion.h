@@ -52,12 +52,13 @@ enum class ESerializationVersion : int32_t
 	SCRIPT_VARIABLES, // per-map script variable storage (mod-namespaced key/value store)
 	GAME_REPLAY_RECORDING, // recording of the game (and the battle ID counter it needs), stored in the savegame
 	COMBAT_ABILITY_SCRIPTS, // combat abilities that became combat scripts are converted on load
+	MERGED_SCRIPT_ENTITY, // spell effects and combat scripts share one registry; bonus subtype saves the script as a string
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = COMBAT_ABILITY_SCRIPTS,
+	CURRENT = MERGED_SCRIPT_ENTITY,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

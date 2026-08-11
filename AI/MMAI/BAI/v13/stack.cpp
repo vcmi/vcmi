@@ -34,10 +34,10 @@ using CreatureValues = std::map<CreatureID, int>;
 namespace
 {
 	/// Combat script the name refers to, or NONE if no mod provides it.
-	CombatScriptID combatScriptID(const std::string & name)
+	ScriptID combatScriptID(const std::string & name)
 	{
-		auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", name, false);
-		return index.has_value() ? CombatScriptID(*index) : CombatScriptID::NONE;
+		auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", name, false);
+		return index.has_value() ? ScriptID(*index) : ScriptID::NONE;
 	}
 
 	int calculateSlot(const CStack * cstack)
@@ -208,14 +208,14 @@ bool runsCombatScript(const Bonus & bonus, const std::string & script)
 
 	auto scriptID = combatScriptID(script);
 
-	return scriptID != CombatScriptID::NONE && bonus.subtype.as<CombatScriptID>() == scriptID;
+	return scriptID != ScriptID::NONE && bonus.subtype.as<ScriptID>() == scriptID;
 }
 
 bool hasCombatScript(const CStack * cstack, const std::string & script)
 {
 	auto scriptID = combatScriptID(script);
 
-	if(scriptID == CombatScriptID::NONE)
+	if(scriptID == ScriptID::NONE)
 		return false;
 
 	return cstack->hasBonus(Selector::typeSubtype(BonusType::COMBAT_EVENT_TRIGGER, BonusSubtypeID(scriptID)));

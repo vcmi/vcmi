@@ -304,12 +304,8 @@
 			"description" : "List of configuration files for spell schools",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
-		"spellEffects" : {
-			"description" : "List of configuration files for spell effects",
-			"$ref" : "#/definitions/fileListOrObject"
-		},
-		"combatScripts" : {
-			"description" : "List of configuration files for combat scripts",
+		"scripts" : {
+			"description" : "List of configuration files for scripts, of every kind",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"spells" : {

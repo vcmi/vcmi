@@ -296,12 +296,11 @@ set(lib_MAIN_SRCS
 	spells/adventure/TownPortalEffect.cpp
 	spells/adventure/ViewWorldEffect.cpp
 
-	combatScripts/CombatScriptHandler.cpp
+	scripting/ScriptHandler.cpp
 
 	spells/effects/Effect.cpp
 	spells/effects/Effects.cpp
 	spells/effects/LocationEffect.cpp
-	spells/effects/SpellEffectHandler.cpp
 
 	texts/CGeneralTextHandler.cpp
 	texts/CLegacyConfigParser.cpp
@@ -771,16 +770,17 @@ set(lib_MAIN_HEADERS
 	spells/adventure/TownPortalEffect.h
 	spells/adventure/ViewWorldEffect.h
 
-	combatScripts/CombatScriptHandler.h
-	combatScripts/CombatScriptService.h
+	combatScripts/CombatEventPayload.h
 	combatScripts/ICombatEventScript.h
+
+	scripting/ScriptHandler.h
+	scripting/ScriptService.h
+	scripting/ScriptTypeDescription.h
 
 	spells/effects/Effect.h
 	spells/effects/Effects.h
 	spells/effects/EffectsFwd.h
 	spells/effects/LocationEffect.h
-	spells/effects/SpellEffectHandler.h
-	spells/effects/SpellEffectService.h
 
 	texts/CGeneralTextHandler.h
 	texts/Languages.h

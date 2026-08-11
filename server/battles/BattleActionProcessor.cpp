@@ -22,7 +22,7 @@
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/bonuses/BonusParameters.h"
-#include "../../lib/combatScripts/CombatScriptService.h"
+#include "../../lib/scripting/ScriptService.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/callback/GameRandomizer.h"
@@ -1505,20 +1505,20 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 	// which script to run - is not part of the selector here
 	std::vector<std::shared_ptr<Bonus>> triggered;
 	for (const auto & bonus : *target->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
-		if (LIBRARY->combatScripts()->get(bonus->subtype.as<CombatScriptID>()))
+		if (LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>()))
 			triggered.push_back(bonus); // anything else is a script whose mod is gone
 
 	// bonus order is alphabetical by ability name, which would let a mod decide what runs first by
 	// renaming an ability. Scripts that care about running before another declare a priority
 	std::stable_sort(triggered.begin(), triggered.end(), [](const std::shared_ptr<Bonus> & left, const std::shared_ptr<Bonus> & right)
 	{
-		return LIBRARY->combatScripts()->getPriority(left->subtype.as<CombatScriptID>())
-			 < LIBRARY->combatScripts()->getPriority(right->subtype.as<CombatScriptID>());
+		return LIBRARY->scriptTypes()->getPriority(left->subtype.as<ScriptID>())
+			 < LIBRARY->scriptTypes()->getPriority(right->subtype.as<ScriptID>());
 	});
 
 	for (const auto & bonus : triggered)
 	{
-		auto script = LIBRARY->combatScripts()->get(bonus->subtype.as<CombatScriptID>());
+		auto script = LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>());
 
 		JsonNode parameters;
 		if (bonus->parameters)

@@ -2,17 +2,55 @@
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI script format",
-	"description" : "Format used to configure script environment",
-	"required" : ["source"],
+	"description" : "Format used to define scripts of any kind in VCMI",
+	"required" : [ "type", "implements", "script" ],
+	"additionalProperties" : false,
 	"properties" : {
-		"source" : {
+		"type" : {
 			"type" : "string",
-			"description" : "Full VFS path to script source (extension required)"
+			"description" : "Language this script is written in, such as lua"
 		},
 		"implements" : {
 			"type" : "string",
-			"enum" : ["ANYTHING", "BATTLE_EFFECT"],
-			"description" : ""
+			"enum" : [ "spellEffect", "combatEvent" ],
+			"description" : "Which part of the game this script implements. 'spellEffect' is an effect of a spell, 'combatEvent' reacts to events that happen to a unit in combat"
+		},
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
+		"script" : {
+			"type" : "string",
+			"description" : "path to the script that represents this object"
+		},
+		"patches" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string",
+				"description" : "list of patches that modify this script"
+			}
+		},
+		"schema" : {
+			"type" : "object",
+			"description" : "Json schema for validating the parameters that every user of this script passes to it"
+		},
+		"stringRegistrations" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Parameters of this script that hold text shown to the player, and are to be registered for translation"
+		},
+		"description" : {
+			"type" : "string",
+			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}"
+		},
+		"priority" : {
+			"type" : "number",
+			"description" : "order in which scripts reacting to the same combat event run, from lowest to highest. Defaults to 0"
 		}
 	}
 }

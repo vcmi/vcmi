@@ -255,7 +255,7 @@
 			"drainsLife" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.lifeDrain",
+				"subtype" : "lifeDrain",
 				"val" : 100
 			}
 		},

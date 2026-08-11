@@ -20,7 +20,7 @@
 			"transmutes" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.transmutation",
+				"subtype" : "transmutation",
 				"val" : 100,
 				"addInfo" : { "creature" : "core:pikeman", "transmuteBy" : "count" }
 			}
@@ -44,7 +44,7 @@
 			"transmutes" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.transmutation",
+				"subtype" : "transmutation",
 				"val" : 100,
 				"addInfo" : { "creature" : "core:pikeman", "transmuteBy" : "health" }
 			}
@@ -68,7 +68,7 @@
 			"destroys" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.destruction",
+				"subtype" : "destruction",
 				"val" : 100,
 				"addInfo" : { "killBy" : "percentage", "amount" : 20 }
 			}
@@ -92,7 +92,7 @@
 			"destroys" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.destruction",
+				"subtype" : "destruction",
 				"val" : 100,
 				"addInfo" : { "killBy" : "count", "amount" : 7 }
 			}
@@ -116,7 +116,7 @@
 			"stealsSouls" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.soulSteal",
+				"subtype" : "soulSteal",
 				"val" : 2,
 				"addInfo" : { "permanent" : false }
 			}
@@ -140,7 +140,7 @@
 			"enchanted" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.enchanted",
+				"subtype" : "enchanted",
 				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : false }
 			}
 		}
@@ -163,7 +163,7 @@
 			"enchanted" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.enchanted",
+				"subtype" : "enchanted",
 				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : true }
 			}
 		}
@@ -188,7 +188,7 @@
 			"summonsGuardians" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.summonGuardians",
+				"subtype" : "summonGuardians",
 				"val" : 50,
 				"addInfo" : { "creature" : "core:pikeman" }
 			}
@@ -212,7 +212,7 @@
 			"summonsGuardians" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.summonGuardians",
+				"subtype" : "summonGuardians",
 				"val" : 50,
 				"addInfo" : { "creature" : "core:wyvern" }
 			}
@@ -237,7 +237,7 @@
 			"summonsGuardians" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.summonGuardians",
+				"subtype" : "summonGuardians",
 				"val" : 50,
 				"addInfo" : { "creature" : "core:pikeman" }
 			}
@@ -262,7 +262,7 @@
 			"summonsGuardians" :
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.summonGuardians",
+				"subtype" : "summonGuardians",
 				"val" : 50,
 				"addInfo" : { "creature" : "core:wyvern" }
 			}

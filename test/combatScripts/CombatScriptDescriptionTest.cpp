@@ -27,7 +27,7 @@ class CombatScriptDescriptionTest : public ::testing::Test
 public:
 	static std::shared_ptr<Bonus> triggerBonus(const std::string & script, int value, const JsonNode & eventParameters = JsonNode())
 	{
-		auto scriptID = CombatScriptID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", script, false));
+		auto scriptID = ScriptID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", script, false));
 
 		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::CREATURE_ABILITY, value, BonusSourceID(), BonusSubtypeID(scriptID));
 		bonus->parameters = std::make_shared<BonusParameters>(eventParameters);

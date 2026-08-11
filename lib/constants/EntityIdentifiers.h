@@ -1061,20 +1061,13 @@ public:
 	const spells::SpellSchoolType * toEntity(const Services * services) const;
 };
 
-class DLL_LINKAGE SpellEffectID : public StaticIdentifier<SpellEffectID>
+/// Identifies a script of any kind - spell effect, combat event handler
+class DLL_LINKAGE ScriptID : public EntityIdentifier<ScriptID>
 {
 public:
-	using StaticIdentifier<SpellEffectID>::StaticIdentifier;
+	using EntityIdentifier<ScriptID>::EntityIdentifier;
 
-	static const SpellEffectID NONE;
-};
-
-class DLL_LINKAGE CombatScriptID : public StaticIdentifier<CombatScriptID>
-{
-public:
-	using StaticIdentifier<CombatScriptID>::StaticIdentifier;
-
-	static const CombatScriptID NONE;
+	static const ScriptID NONE;
 
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);

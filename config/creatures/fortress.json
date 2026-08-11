@@ -279,7 +279,7 @@
 			"deathStare" : 
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "combatScript.deathStare",
+				"subtype" : "deathStare",
 				"val" : 10,
 				"addInfo" : { "situation" : "melee" }
 			}

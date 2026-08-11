@@ -8,6 +8,7 @@ set(lualib_SRCS
 		LuaScriptInstance.cpp
 		LuaContext.cpp
 		LuaScriptPool.cpp
+		LuaScriptFactory.cpp
 		LuaSpellEffect.cpp
 		LuaCombatEventScript.cpp
 		LuaStack.cpp
@@ -64,6 +65,7 @@ set(lualib_HDRS
 		LuaSpellEffect.h
 		LuaCombatEventScript.h
 		LuaScriptPool.h
+		LuaScriptFactory.h
 		LuaStack.h
 		LuaWrapper.h
 

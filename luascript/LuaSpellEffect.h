@@ -12,7 +12,6 @@
 
 #include "../lib/json/JsonNode.h"
 #include "../lib/spells/effects/Effect.h"
-#include "../lib/spells/effects/SpellEffectService.h"
 
 class JsonNode;
 
@@ -20,32 +19,10 @@ namespace scripting
 {
 class LuaScriptInstance;
 class LuaContext;
-class LuaModule;
-class LuaScriptPool;
 }
 
 namespace spells::effects
 {
-
-/// Registered under the "lua" effect type; loads Lua scripts on demand and creates LuaSpellEffect instances from them.
-class LuaSpellEffectFactory final : public ISpellEffectFactory
-{
-public:
-	LuaSpellEffectFactory(scripting::LuaModule & host);
-	virtual ~LuaSpellEffectFactory();
-
-	void initialize(const std::string & effectId,
-		const std::string & scope, const std::string & name,
-		const std::vector<PatchEntry> & patches) override;
-	std::shared_ptr<Effect> create(const std::string & effectId) const override;
-
-	void registerScripts(scripting::LuaScriptPool * pool);
-
-private:
-	/// effect id -> script mapping
-	std::map<std::string, std::unique_ptr<scripting::LuaScriptInstance> > loadedScripts;
-	scripting::LuaModule & host;
-};
 
 /// Implements a full spell effect (targeting, applicability, apply) by delegating each step to a Lua script function.
 class LuaSpellEffect final : public Effect

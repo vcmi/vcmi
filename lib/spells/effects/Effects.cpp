@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "Effects.h"
-#include "SpellEffectService.h"
 
 #include <vcmi/spells/Caster.h>
 
@@ -19,6 +18,8 @@
 #include "../../GameLibrary.h"
 #include "../../json/JsonNode.h"
 #include "../../modding/IdentifierStorage.h"
+#include "../../scripting/ScriptService.h"
+#include "../../texts/TextIdentifier.h"
 
 
 namespace spells
@@ -129,12 +130,18 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 	for(const auto & [name, raw] : effectMap.Struct())
 	{
-		SpellEffectID effectID(*LIBRARY->identifiers()->getIdentifier("spellEffect", raw["type"]));
+		ScriptID effectID(*LIBRARY->identifiers()->getIdentifier("script", raw["type"]));
+
+		if(LIBRARY->scriptTypes()->getKind(effectID) != ScriptKind::SPELL_EFFECT)
+		{
+			logMod->error("Spell '%s:%s' uses script '%s' as effect '%s', but that script is not a spell effect!", spellScope, spellIdentifier, raw["type"].String(), name);
+			continue;
+		}
 
 		JsonNode data = raw;
-		LIBRARY->spellEffects()->prepareEffect(effectID, data, spellScope, spellIdentifier, name);
+		LIBRARY->scriptTypes()->prepareParameters(effectID, data, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
-		auto effect = LIBRARY->spellEffects()->create(effectID);
+		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
 		if(!effect)
 			continue;
 

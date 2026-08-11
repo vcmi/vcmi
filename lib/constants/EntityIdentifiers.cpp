@@ -26,7 +26,7 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/SchoolService.h>
 
-#include "combatScripts/CombatScriptService.h"
+#include "scripting/ScriptService.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
@@ -80,8 +80,7 @@ const SpellSchool SpellSchool::FIRE(1);
 const SpellSchool SpellSchool::EARTH(2);
 const SpellSchool SpellSchool::WATER(3);
 
-const SpellEffectID SpellEffectID::NONE(-1);
-const CombatScriptID CombatScriptID::NONE(-1);
+const ScriptID ScriptID::NONE(-1);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
@@ -641,19 +640,21 @@ const ObstacleInfo * Obstacle::getInfo() const
 	return LIBRARY->obstacles()->getById(*this);
 }
 
-si32 CombatScriptID::decode(const std::string & identifier)
+si32 ScriptID::decode(const std::string & identifier)
 {
 	return resolveIdentifier(entityType(), identifier);
 }
 
-std::string CombatScriptID::encode(const si32 index)
+std::string ScriptID::encode(const si32 index)
 {
-	return LIBRARY->combatScripts()->getJsonKey(CombatScriptID(index));
+	if (index == -1)
+		return "";
+	return LIBRARY->scriptTypes()->getJsonKey(ScriptID(index));
 }
 
-std::string CombatScriptID::entityType()
+std::string ScriptID::entityType()
 {
-	return "combatScript";
+	return "script";
 }
 
 si32 SpellSchool::decode(const std::string & identifier)

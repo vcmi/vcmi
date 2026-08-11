@@ -31,10 +31,10 @@ std::string withoutScope(const std::string & identifier)
 	return separator == std::string::npos ? identifier : identifier.substr(separator + 1);
 }
 
-CombatScriptID resolveScript(const std::string & name)
+ScriptID resolveScript(const std::string & name)
 {
-	auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "combatScript", name, false);
-	return index.has_value() ? CombatScriptID(*index) : CombatScriptID::NONE;
+	auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", name, false);
+	return index.has_value() ? ScriptID(*index) : ScriptID::NONE;
 }
 
 /// Name of the script each retired bonus type is now implemented by.
@@ -177,7 +177,7 @@ void BonusMigration::warnIfRetired(const JsonNode & ability, const TextIdentifie
 
 bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 {
-	CombatScriptID script;
+	ScriptID script;
 	JsonNode parameters;
 
 	switch(bonus.type)
@@ -234,7 +234,7 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 	}
 
 	// the script is registered by whichever mod provides it, which may not be loaded yet
-	if(script == CombatScriptID::NONE)
+	if(script == ScriptID::NONE)
 		return false;
 
 	bonus.type = BonusType::COMBAT_EVENT_TRIGGER;

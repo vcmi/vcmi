@@ -23,6 +23,7 @@
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
+#include "../scripting/ScriptService.h"
 
 
 template <typename T>
@@ -110,9 +111,9 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		}
 		case BonusType::COMBAT_EVENT_TRIGGER:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "combatScript", node, [&subtype](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "script", node, [&subtype](int32_t identifier)
 			{
-				subtype = CombatScriptID(identifier);
+				subtype = ScriptID(identifier);
 			});
 			break;
 		}
@@ -347,6 +348,37 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 	}
 
 	return result;
+}
+
+/// A combat script validates the parameters the bonus hands it and registers any translatable text
+/// among them. Both need the script itself, which only resolves once every mod has been loaded -
+/// scripts are a content type of their own and may well load after whoever refers to them.
+static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, const TextIdentifier & descriptionID)
+{
+	LIBRARY->identifiers()->requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	{
+		ScriptID scriptID(identifier);
+
+		if (LIBRARY->scriptTypes()->getKind(scriptID) != ScriptKind::COMBAT_EVENT)
+		{
+			// the bonus stays, but no combat event script will ever be found for it, so it does nothing
+			logMod->error("Bonus '%s' runs script '%s', which is not a combat event script!", descriptionID.get(), LIBRARY->scriptTypes()->getJsonKey(scriptID));
+			return;
+		}
+
+		// a bonus may pass no parameters at all, while the script requires some. The schema only
+		// applies to an object, so an absent payload is validated as an empty one rather than skipped
+		JsonNode parameters;
+		if (b->parameters)
+			parameters = b->parameters->toCustom<JsonNode>();
+		else
+			parameters.setType(JsonNode::JsonType::DATA_STRUCT);
+
+		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, descriptionID);
+
+		// parameters are immutable once stored, so the prepared payload replaces them wholesale
+		b->parameters = std::make_shared<BonusParameters>(parameters);
+	});
 }
 
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
@@ -867,11 +899,14 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
 
-	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
+	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
+
+		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
+			prepareCombatScriptParameters(b, subtypeNode, descriptionID);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());

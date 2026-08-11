@@ -58,22 +58,22 @@ Example:
 
 ```json
 {
-    "type" : "ON_COMBAT_EVENT",
+	"type" : "ON_COMBAT_EVENT",
 	"subtype" : "combatEventDefend",
 	"addInfo" : {
-	    "effect" : [
-		    {
-			    "action" : "bonus"
+		"effect" : [
+			{
+				"action" : "bonus"
 				"targetEnemy" : false,
 				"bonus" : {
-				    "type" : "STACKS_SPEED",
+					"type" : "STACKS_SPEED",
 					"val" : -1,
 					"duration" : "N_TURNS",
 					"turns" : 1
 				}				
 			},
 			{
-			    "action" : "spell",
+				"action" : "spell",
 				"spell" : "bless",
 				"mastery" : 0,
 				"targetEnemy" : false
@@ -85,7 +85,7 @@ Example:
 
 ### COMBAT_EVENT_TRIGGER
 
-Runs a [combat script](../Lua/Script_Types.md#combat-script) when an event happens with affected unit.
+Runs a [combat script](../Lua/Combat_Event_Scripts.md) when an event happens with affected unit.
 
 Unlike `ON_COMBAT_EVENT` the subtype does not select an event - the script is called on every
 combat event and reacts only to those it implements. Prefer this bonus over `ON_COMBAT_EVENT` for
@@ -105,12 +105,12 @@ Example:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.spikes",
-    "val" : 10,
-    "addInfo" : {
-        "poison" : true
-    }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "spikes",
+	"val" : 10,
+	"addInfo" : {
+		"poison" : true
+	}
 }
 ```
 
@@ -835,15 +835,15 @@ Affected unit will never receive retaliations when attacking
 ### SOUL_STEAL
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[soulSteal](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[soulSteal](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.soulSteal",
-    "val" : 1,
-    "addInfo" : { "permanent" : true }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "soulSteal",
+	"val" : 1,
+	"addInfo" : { "permanent" : true }
 }
 ```
 
@@ -854,15 +854,15 @@ exclusive.
 ### TRANSMUTATION
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[transmutation](../Lua/Script_Types.md#combat-script) combat script on load, so existing content
+[transmutation](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content
 keeps working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.transmutation",
-    "val" : 40,
-    "addInfo" : { "transmuteBy" : "health", "creature" : "core:goldGolem" }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "transmutation",
+	"val" : 40,
+	"addInfo" : { "transmuteBy" : "health", "creature" : "core:goldGolem" }
 }
 ```
 
@@ -877,15 +877,15 @@ Affected unit is immune to TRANSMUTATION bonus effects
 ### SUMMON_GUARDIANS
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[summonGuardians](../Lua/Script_Types.md#combat-script) combat script on load, so existing content
+[summonGuardians](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content
 keeps working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.summonGuardians",
-    "val" : 50,
-    "addInfo" : { "creature" : "core:woodElf" }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "summonGuardians",
+	"val" : 50,
+	"addInfo" : { "creature" : "core:woodElf" }
 }
 ```
 
@@ -915,15 +915,15 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 ### DESTRUCTION
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[destruction](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[destruction](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.destruction",
-    "val" : 20,
-    "addInfo" : { "killBy" : "percentage", "amount" : 10 }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "destruction",
+	"val" : 20,
+	"addInfo" : { "killBy" : "percentage", "amount" : 10 }
 }
 ```
 
@@ -1017,14 +1017,14 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 ### LIFE_DRAIN
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[lifeDrain](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[lifeDrain](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.lifeDrain",
-    "val" : 100
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "lifeDrain",
+	"val" : 100
 }
 ```
 
@@ -1049,15 +1049,15 @@ Affected unit acts as healing tent and can heal allied units on each turn
 ### FIRE_SHIELD
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[fireShield](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[fireShield](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.fireShield",
-    "val" : 20,
-    "stacking" : "fireShield"
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "fireShield",
+	"val" : 20,
+	"stacking" : "fireShield"
 }
 ```
 
@@ -1079,14 +1079,14 @@ on load. Two existing bonuses replace it, and the pair has to be declared by han
 
 ```json
 "acidBreath" : {
-    "type" : "SPELL_AFTER_ATTACK",
-    "subtype" : "spell.acidBreathDamage",
-    "val" : 20
+	"type" : "SPELL_AFTER_ATTACK",
+	"subtype" : "acidBreathDamage",
+	"val" : 20
 },
 "acidBreathDamage" : {
-    "type" : "SPECIFIC_SPELL_POWER",
-    "subtype" : "spell.acidBreathDamage",
-    "val" : 25
+	"type" : "SPECIFIC_SPELL_POWER",
+	"subtype" : "cidBreathDamage",
+	"val" : 25
 }
 ```
 
@@ -1100,15 +1100,15 @@ unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 ### DEATH_STARE
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[deathStare](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[deathStare](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.deathStare",
-    "val" : 10,
-    "addInfo" : { "situation" : "melee" }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "deathStare",
+	"val" : 10,
+	"addInfo" : { "situation" : "melee" }
 }
 ```
 
@@ -1219,14 +1219,14 @@ Affected stack will resurrect after death
 ### ENCHANTED
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[enchanted](../Lua/Script_Types.md#combat-script) combat script on load, so existing content keeps
+[enchanted](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
 {
-    "type" : "COMBAT_EVENT_TRIGGER",
-    "subtype" : "combatScript.enchanted",
-    "addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "enchanted",
+	"addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
 }
 ```
 

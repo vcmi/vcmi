@@ -96,7 +96,7 @@
 			"skills": [3, 4]
 		},
 		{
-			"ability": [{ "type" : "COMBAT_EVENT_TRIGGER", "val": 1, "subtype" : "combatScript.deathStare", "addInfo" : { "situation" : "commander" } }],
+			"ability": [{ "type" : "COMBAT_EVENT_TRIGGER", "val": 1, "subtype" : "deathStare", "addInfo" : { "situation" : "commander" } }],
 			"skills": [3,5]
 		},
 		{

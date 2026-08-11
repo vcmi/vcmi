@@ -103,13 +103,10 @@
 	[
 		"config/spellSchools.json"
 	],
-	"spellEffects" :
+	"scripts" :
 	[
-		"config/spellEffects.json"
-	],
-	"combatScripts" :
-	[
-		"config/combatScripts.json"
+		"config/scriptsSpells.json",
+		"config/scriptsCombat.json"
 	],
 	"skills" :
 	[

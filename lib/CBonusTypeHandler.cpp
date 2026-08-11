@@ -19,7 +19,7 @@
 #include <vcmi/Creature.h>
 #include <vcmi/spells/Spell.h>
 #include "bonuses/BonusParameters.h"
-#include "combatScripts/CombatScriptService.h"
+#include "scripting/ScriptService.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
@@ -90,7 +90,7 @@ std::string CBonusTypeHandler::describeParameter(const JsonNode & value) const
 
 std::string CBonusTypeHandler::combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
 {
-	std::string textID = LIBRARY->combatScripts()->getDescriptionTextID(bonus->subtype.as<CombatScriptID>());
+	std::string textID = LIBRARY->scriptTypes()->getDescriptionTextID(bonus->subtype.as<ScriptID>());
 
 	// a trigger bonus with no script set describes nothing
 	if(textID.empty())

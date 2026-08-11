@@ -48,31 +48,6 @@ static std::string methodName(CombatEventType event)
 	throw std::runtime_error("Combat script called for invalid combat event!");
 }
 
-LuaCombatScriptFactory::LuaCombatScriptFactory(LuaModule & host)
-	:host(host)
-{
-}
-
-LuaCombatScriptFactory::~LuaCombatScriptFactory() = default;
-
-void LuaCombatScriptFactory::initialize(const std::string & scriptId, const std::string & scope, const std::string & name, const std::vector<PatchEntry> & patches)
-{
-	auto loadedScript = std::make_unique<LuaScriptInstance>(host, scope, name, patches);
-	instances[scriptId] = std::make_shared<LuaCombatEventScript>(loadedScript.get());
-	loadedScripts[scriptId] = std::move(loadedScript);
-}
-
-std::shared_ptr<ICombatEventScript> LuaCombatScriptFactory::get(const std::string & scriptId) const
-{
-	return instances.at(scriptId);
-}
-
-void LuaCombatScriptFactory::registerScripts(LuaScriptPool * pool)
-{
-	for(const auto & script : loadedScripts)
-		pool->registerScript(script.second.get());
-}
-
 LuaCombatEventScript::LuaCombatEventScript(const LuaScriptInstance * script)
 	: script(script)
 {
