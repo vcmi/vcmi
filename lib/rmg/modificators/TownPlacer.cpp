@@ -171,36 +171,93 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownIn
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
 	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
+	const int3 townPositionOffset = rmgObject.getPosition() - rmgObject.getVisitablePosition();
 
-	int3 position(-1, -1, -1);
+	auto findTownPosition = [this, &manager, &rmgObject, townPositionOffset](bool requireExitInsideZone)
 	{
 		Zone::Lock lock(zone.areaMutex);
-		position = manager.findPlaceForObject(zone.areaPossible().get(), rmgObject, [this](const int3& t)
+		return manager.findPlaceForObject(zone.areaPossible().get(), rmgObject,
+			[this, &rmgObject, townPositionOffset, requireExitInsideZone](const int3 & t)
 			{
+				if(requireExitInsideZone && !hasTownExitInsideZone(rmgObject, townPositionOffset))
+					return -1.f;
+
 				float distance = zone.getPos().dist2dSQ(t);
 				return 100000.f - distance; //some big number
 			}, ObjectManager::OptimizeType::WEIGHT);
+	};
+
+	int3 position = findTownPosition(true);
+	if(!position.isValid())
+	{
+		logGlobal->warn("Failed to place town with local exit in zone %d, reserving boundary exit", zone.getId());
+		position = findTownPosition(false);
 	}
-	rmgObject.setPosition(position + int3(2, 2, 0)); //place visitable tile in the exact center of a zone
+
+	if(!position.isValid())
+		throw rmgException(boost::str(boost::format("Failed to place town with free exit in zone %d") % zone.getId()));
+
+	rmgObject.setPosition(position + townPositionOffset); //place visitable tile in the exact center of a zone
 	manager.placeObject(rmgObject, false, true, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 	return position;
 }
 
-void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
+bool TownPlacer::hasTownExitInsideZone(const rmg::Object & rmgObject, const int3 & offset) const
 {
-	Zone::Lock lock(zone.areaMutex);
 	for(const auto & t : rmgObject.getArea().getBorderOutside())
 	{
-		if (t.y > rmgObject.getVisitablePosition().y) //Line below the town
+		if(t.y <= rmgObject.getVisitablePosition().y)
+			continue;
+
+		const auto exitTile = t + offset;
+		if(map.isOnMap(exitTile) && map.getZoneID(exitTile) == zone.getId())
+			return true;
+	}
+
+	return false;
+}
+
+void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
+{
+	const bool hasLocalExit = hasTownExitInsideZone(rmgObject);
+	std::map<TRmgTemplateZoneId, rmg::Tileset> neighboringExitTiles;
+
+	{
+		Zone::Lock lock(zone.areaMutex);
+		for(const auto & t : rmgObject.getArea().getBorderOutside())
 		{
-			if (map.isOnMap(t))
-			{
-				map.setOccupied(t, ETileType::FREE);
-				zone.areaPossible()->erase(t);
-				zone.freePaths()->add(t);
-			}
+			if(t.y <= rmgObject.getVisitablePosition().y || !map.isOnMap(t))
+				continue;
+
+			const auto exitZoneId = map.getZoneID(t);
+			const bool localExit = exitZoneId == zone.getId();
+			if(!localExit && hasLocalExit)
+				continue;
+
+			map.setOccupied(t, ETileType::FREE);
+			zone.areaPossible()->erase(t);
+			zone.freePaths()->add(t);
+
+			if(!localExit)
+				neighboringExitTiles[exitZoneId].insert(t);
+		}
+	}
+
+	auto & zones = map.getZones();
+	for(const auto & [zoneId, tiles] : neighboringExitTiles)
+	{
+		auto zoneIter = zones.find(zoneId);
+		if(zoneIter == zones.end())
+			continue;
+
+		auto zoneToUpdate = zoneIter->second;
+		Zone::Lock lock(zoneToUpdate->areaMutex);
+		for(const auto & t : tiles)
+		{
+			zoneToUpdate->areaPossible()->erase(t);
+			zoneToUpdate->areaUsed()->add(t);
 		}
 	}
 }

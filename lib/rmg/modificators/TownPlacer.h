@@ -23,6 +23,9 @@ public:
 	
 	int getTotalTowns() const;
 	
+private:
+	bool hasTownExitInsideZone(const rmg::Object & rmgObject, const int3 & offset = int3()) const;
+
 protected:
 	void cleanupBoundaries(const rmg::Object & rmgObject);
 	void addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager);
