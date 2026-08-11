@@ -74,6 +74,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::CREATURES_MONTH_DOUBLE_GROWTH_PROBABILITY,        "creatures", "monthDoubleGrowthProbability"         },
 		{EGameSettings::CREATURES_MONTH_PLAGUE_PROBABILITY,               "creatures", "monthPlagueProbability"               },
 		{EGameSettings::CREATURES_WEEK_SPECIAL_PROBABILITY,               "creatures", "weekSpecialProbability"               },
+		{EGameSettings::CREATURES_H3_BUG_CONFLUX_ALIGNMENT_MIX,           "creatures", "h3BugConfluxAlignmentMix"             },
 		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,                "dwellings", "accumulateWhenNeutral"                },
 		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED,                  "dwellings", "accumulateWhenOwned"                  },
 		{EGameSettings::DWELLINGS_MERGE_ON_RECRUIT,                       "dwellings", "mergeOnRecruit"                       },

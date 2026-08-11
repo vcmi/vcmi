@@ -720,7 +720,10 @@
 			"allowJoiningForFree" : true,
 			// percent of stack amount that joins player per each successful join (does not decrease cost when joining for gold), if 0 or lower creatures never join for free or gold
 			// NOTE: on HotA maps this setting has no effect on units placed in map editor, preset value from h3m will be used instead
-			"joiningPercentage" : 100
+			"joiningPercentage" : 100,
+			// Emulates SoD bug where Conflux creatures can not be mixed with other alignments under Angelic Alliance / troop-mixing effects.
+			// If this option is off, Conflux is treated as a regular neutral-alignment faction and can be mixed normally
+			"h3BugConfluxAlignmentMix" : false
 		},
 		
 		"dwellings" :
