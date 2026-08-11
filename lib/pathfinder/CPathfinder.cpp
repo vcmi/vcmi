@@ -503,6 +503,14 @@ int CPathfinderHelper::getGuardiansCount(int3 tile) const
 	return gameInfo.getGuardingCreatures(tile).size();
 }
 
+bool CPathfinderHelper::isTileBlockedByHole(const int3 & tile) const
+{
+	if(!gameInfo.getSettings().getBoolean(EGameSettings::PATHFINDER_BLOCK_DISEMBARK_ON_HOLE))
+		return false;
+
+	return gameInfo.getTileDigStatus(tile) == EDiggingStatus::TILE_OCCUPIED;
+}
+
 CPathfinderHelper::CPathfinderHelper(const IGameInfoCallback & gameInfo, const CGHeroInstance * Hero, const PathfinderOptions & Options):
 	gameInfo(gameInfo),
 	turn(-1),

@@ -138,4 +138,5 @@ public:
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 
 	int getGuardiansCount(int3 tile) const;
+	bool isTileBlockedByHole(const int3 & tile) const;
 };
