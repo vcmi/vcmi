@@ -62,15 +62,18 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
 	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && !info.attacker->isTurret())
 	{
-		static const auto bonusSelector =
+		static const auto heroAttackSelector =
 			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
 			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
 			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
-
-		//minDmg and maxDmg of a Ballista are multiplied by hero attack + 1
-		int heroAttackSkill = info.attacker->valOfBonuses(bonusSelector);
-		minDmg *= heroAttackSkill + 1;
-		maxDmg *= heroAttackSkill + 1;
+		static const auto damageOffsetSelector = Selector::type()(BonusType::SIEGE_WEAPON_DAMAGE_OFFSET);
+		
+		//minDmg and maxDmg of a Ballista are multiplied by hero attack + max(damageOffset, 1)
+		int heroAttackSkill = info.attacker->valOfBonuses(heroAttackSelector);
+		int damageOffsetVal = info.attacker->valOfBonuses(damageOffsetSelector);
+		int damageOffset = (damageOffsetVal > 0) ? damageOffsetVal : 1;
+		minDmg *= heroAttackSkill + damageOffset;
+		maxDmg *= heroAttackSkill + damageOffset;
 	}
 	return { minDmg, maxDmg };
 }

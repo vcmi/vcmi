@@ -466,6 +466,11 @@
 	{
 		"creatureNature" : true
 	},
+
+	"SIEGE_WEAPON_DAMAGE_OFFSET":
+	{
+		"hidden" : true
+	},
 	
 	"SKELETON_TRANSFORMER_TARGET":
 	{
