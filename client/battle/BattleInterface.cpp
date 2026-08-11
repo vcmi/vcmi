@@ -82,7 +82,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 		tacticianInterface = defenderInt;
 
 	//if we found interface of player with tactics, then enter tactics mode
-	tacticsMode = static_cast<bool>(tacticianInterface);
+	_tacticsMode = static_cast<bool>(tacticianInterface);
 
 	//initializing armies
 	this->army1 = army1;
@@ -107,6 +107,13 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	windowObject->updateQueue();
 
 	playIntroSoundAndUnlockInterface();
+}
+
+bool BattleInterface::isInTacticsMode()
+{
+	if (_tacticsMode && tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() == 0)
+		_tacticsMode = false;
+	return _tacticsMode;
 }
 
 void BattleInterface::playIntroSoundAndUnlockInterface()
@@ -174,7 +181,7 @@ void BattleInterface::openingEnd()
 		return;
 
 	onAnimationsFinished();
-	if(tacticsMode)
+	if(isInTacticsMode())
 	{
 		// h3 tactics phase tutorial
 		if(!persistentStorage["gui"]["tacticsPhaseHintShown"].Bool())
@@ -311,7 +318,7 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
 	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
 
-	if(!tacticsMode)
+	if(!isInTacticsMode())
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
@@ -393,7 +400,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	// Do not deactivate anything in tactics mode
 	// This is battlefield setup spells
-	if(!tacticsMode)
+	if(!isInTacticsMode())
 	{
 		windowObject->blockUI(true);
 
@@ -649,8 +656,7 @@ void BattleInterface::trySetActivePlayer( PlayerColor player )
 {
 	if ( attackerInt && attackerInt->playerID == player )
 		curInt = attackerInt;
-
-	if ( defenderInt && defenderInt->playerID == player )
+	else if ( defenderInt && defenderInt->playerID == player )
 		curInt = defenderInt;
 }
 
@@ -702,7 +708,7 @@ void BattleInterface::endAction(const BattleAction &action)
 	windowObject->updateQueue();
 
 	//stack ended movement in tactics phase -> select the next one
-	if (tacticsMode)
+	if (isInTacticsMode())
 		tacticNextStack(stack);
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
@@ -736,7 +742,6 @@ void BattleInterface::startAction(const BattleAction & action)
 void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
-	tacticsMode = false;
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
 	auto action = BattleAction::makeEndOFTacticPhase(side);
@@ -818,14 +823,18 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 		return; // battle finished with spellcast
 	}
 
-	if (tacticsMode)
+	auto tacticsDist = curInt->cb->getBattle(battleID)->battleGetTacticDist();
+
+	if (tacticsDist > 0)
 	{
-		// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-		// the AI can take any action except end tactics phase (AI actions won't be triggered)
-		//TODO implement the possibility that the AI will be triggered for further actions
-		//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
-		tacticPhaseEnd();
 		stacksController->setActiveStack(nullptr);
+		std::thread aiThread([localBattleID = battleID, localCurInt = curInt, tacticsDist]()
+		{
+			setThreadName("autofightingAI");
+			std::cout << "localCurInt " << localCurInt << "\n";
+			localCurInt->autofightingAI->yourTacticPhase(localBattleID, tacticsDist);
+		});
+		aiThread.detach();
 	}
 	else
 	{

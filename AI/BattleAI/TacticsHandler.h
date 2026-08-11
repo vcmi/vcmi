@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "AsyncRunner.h"
 #include "battle/CPlayerBattleCallback.h"
 #include "callback/CBattleCallback.h"
 
@@ -24,7 +23,7 @@ public:
 
 	TacticsHandler(const std::shared_ptr<CBattleCallback> & cb, const BattleID & bid, Settings settings);
 	void onTacticsStarted();
-	void onStackMoved(const CStack * cstack);
+	void onActionFinished(const BattleAction & action);
 private:
 	struct SpecialHexes
 	{
@@ -35,28 +34,42 @@ private:
 		std::vector<BattleHex> tempHexes;
 	};
 
+	enum class Phase : ui8
+	{
+		INACTIVE,
+		MOVE_GUARDS_AWAY_FROM_CORNERS,
+		MOVE_VIPS_TO_CORNERS,
+		MOVE_GUARDS_AROUND_VIPS
+	};
+
 	const std::shared_ptr<CBattleCallback> cb = nullptr;
 	const std::shared_ptr<CPlayerBattleCallback> battle = nullptr;
-	const BattleID & bid;
+	const BattleID bid;
 	const Settings settings;
-	std::unique_ptr<AsyncRunner> asyncTasks;
 
+	Phase phase = Phase::INACTIVE;
 	const CStack * movingStack = nullptr;
-	std::mutex mutex;
-	std::condition_variable cond;
+	std::vector<const CStack *> vips;
+	std::vector<const CStack *> guards;
+	std::vector<const CStack *> vipsToMove;
+	SpecialHexes specialHexes;
+	std::size_t guardIndex = 0;
+	std::size_t vipIndex = 0;
+	int guardPass = 0;
 
 	bool canHandle() const;
 	void tacticMove(const CStack * stack, const BattleHex & bh);
-	bool guardVip(const CStack * guard, const CStack * vip);
+	std::optional<BattleHex> findGuardDestination(const CStack * guard, const CStack * vip);
 	void end();
 	void handle();
+	void advance();
+	bool moveNextGuardAwayFromCorners();
+	bool moveNextVipToCorner();
+	bool moveNextGuardAroundVip();
 
 	std::vector<const CStack *> findVIPs() const;
 	std::vector<const CStack *> findGuards(const std::vector<const CStack*> & vips) const;
 	std::vector<BattleHex> GuardableHexes(const CStack * vip, const CStack * guard);
 
 	SpecialHexes getSpecialHexes() const;
-	void moveGuardsAwayFromCorners(const std::vector<const CStack*> & guards, const SpecialHexes & specialHexes);
-	void moveVipsToCorners(const std::vector<const CStack *> & vips, const SpecialHexes & specialHexes);
-	void moveGuardsAroundVips(const std::vector<const CStack*> & guards, const std::vector<const CStack*> & vips);
 };

@@ -245,7 +245,7 @@ bool BattleActionsController::isActiveStackSpellcaster() const
 void BattleActionsController::enterCreatureCastingMode()
 {
 	//silently check for possible errors
-	if (owner.tacticsMode)
+	if (owner.isInTacticsMode())
 		return;
 
 	//hero is casting a spell
@@ -314,7 +314,7 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 	for(const auto & spell : creatureSpells)
 		data.creatureSpellsToCast.push_back(spell->id);
 
-	data.tacticsMode = owner.tacticsMode;
+	data.tacticsMode = owner.isInTacticsMode();
 	auto allActions = owner.getBattle()->getClientActionsForStack(stack, data);
 
 	allActions.push_back(PossiblePlayerBattleAction::HERO_INFO);
@@ -325,7 +325,7 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 
 void BattleActionsController::reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack)
 {
-	if(owner.tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
+	if(owner.getBattle()->battleTacticDist() > 0 || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
 
 	auto assignPriority = [&](const PossiblePlayerBattleAction & item
 						  ) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it

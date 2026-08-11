@@ -65,8 +65,9 @@ namespace
 }
 
 TacticsHandler::TacticsHandler(const std::shared_ptr<CBattleCallback> & cb, const BattleID & bid, Settings settings)
-: cb(cb), battle(cb->getBattle(bid)), bid(bid), settings(settings), asyncTasks(std::make_unique<AsyncRunner>())
-{}
+: cb(cb), battle(cb->getBattle(bid)), bid(bid), settings(settings)
+{
+}
 
 bool TacticsHandler::canHandle() const
 {
@@ -106,7 +107,7 @@ bool TacticsHandler::canHandle() const
 
 	if (haveEnemyShooterWithAoE)
 	{
-		info("Enemy AoE shooter found, skip tactics");
+		info("Enemy AoE shooter found; stop");
 		return false;
 	}
 
@@ -132,7 +133,7 @@ bool TacticsHandler::canHandle() const
 
 	if (haveFastEnemyWithBreath)
 	{
-		info("Fast enemy with breath found, skip tactics");
+		info("Fast enemy with breath found; stop");
 		return false;
 	}
 
@@ -141,6 +142,7 @@ bool TacticsHandler::canHandle() const
 
 void TacticsHandler::end()
 {
+	info("Ending tactics");
 	cb->battleMakeTacticAction(bid, BattleAction::makeEndOFTacticPhase(battle->battleGetMySide()));
 };
 
@@ -473,109 +475,162 @@ TacticsHandler::SpecialHexes TacticsHandler::getSpecialHexes() const
 
 void TacticsHandler::onTacticsStarted()
 {
+	std::cout << "onTacticsStarted: ROUND: " << battle->battleGetRound() << " " << this << "\n";
+	if (battle->battleTacticDist() == 0)
+	{
+		std::cout << "tactics dist == 0, bail\n";
+		phase = Phase::INACTIVE;
+		return;
+	}
+
 	if (!settings.enabled || !canHandle())
 	{
+		phase = Phase::INACTIVE;
 		end();
 		return;
 	}
 
-	asyncTasks->run(
-		[this]()
-		{
-			handle();
-			end();
-		});
+	handle();
 }
 
 void TacticsHandler::tacticMove(const CStack * cstack, const BattleHex & bh)
 {
 	logAi->debug("[Tactics] Moving to hex %d", bh.toInt());
-	std::unique_lock lock(mutex);
 	movingStack = cstack;
 	cb->battleMakeUnitAction(bid, BattleAction::makeMove(cstack, bh));
-	auto success = cond.wait_for(
-		lock,
-		std::chrono::seconds(10),
-		[this]
-		{
-			return movingStack == nullptr;
-		}
-	);
-
-	success ? logAi->debug("[Tactics] Move finished") : logAi->debug("[Tactics] Stack still moving after 10s");
-}
-
-void TacticsHandler::moveGuardsAwayFromCorners(const std::vector<const CStack *> & guards, const SpecialHexes & specialHexes)
-{
-	for(const CStack * guard : guards)
-	{
-		if(!guard->coversPos(specialHexes.corner1) && !guard->coversPos(specialHexes.corner2))
-			continue;
-
-		const auto reachability = battle->getReachability(guard);
-		for(const auto & bh : specialHexes.tempHexes)
-		{
-			if(reachability.isReachable(bh))
-			{
-				tacticMove(guard, bh);
-				break;
-			}
-		}
-	}
-}
-
-void TacticsHandler::moveVipsToCorners(const std::vector<const CStack *> & vips, const SpecialHexes & specialHexes)
-{
-
-	auto vipsToMove = std::vector<const CStack *>{};
-	for(const CStack * vip : vips)
-		if(vipsToMove.size() < 2 && !vip->coversPos(specialHexes.corner1) && !vip->coversPos(specialHexes.corner2))
-			vipsToMove.push_back(vip);
-
-	for(const CStack * vip : vipsToMove)
-	{
-		const auto reachability = battle->getReachability(vip);
-		const auto destinations = vip->doubleWide()
-									? std::vector<BattleHex>{specialHexes.corner1Wide, specialHexes.corner2Wide}
-									: std::vector<BattleHex>{specialHexes.corner1, specialHexes.corner2};
-
-		for(const auto & bh : destinations)
-		{
-			if(reachability.isReachable(bh))
-			{
-				tacticMove(vip, bh);
-				break;
-			}
-		}
-	}
-}
-
-void TacticsHandler::moveGuardsAroundVips(const std::vector<const CStack*> & guards, const std::vector<const CStack*> & vips)
-{
-	// Initial pass might fail if some units were blocked by obstacles
-	// => loop again in case they have become unblocked
-	for(int i = 0; i < 2; ++i)
-		for(const CStack * guard : guards)
-			for(const auto * vip : vips)
-				if(guardVip(guard, vip))
-					break;
 }
 
 void TacticsHandler::handle()
 {
-	const auto vips = findVIPs();
-	const auto guards = findGuards(vips);
-	const auto specialHexes = getSpecialHexes();
+	vips = findVIPs();
+	guards = findGuards(vips);
+	specialHexes = getSpecialHexes();
+	guardIndex = 0;
+	vipIndex = 0;
+	guardPass = 0;
+	phase = Phase::MOVE_GUARDS_AWAY_FROM_CORNERS;
 
 	for(const CStack * vip : vips)
 		logAi->debug("VIP: " + vip->getDescription());
 
-	moveGuardsAwayFromCorners(guards, specialHexes);
-	moveVipsToCorners(vips, specialHexes);
-	moveGuardsAroundVips(guards, vips);
+	advance();
 }
 
-bool TacticsHandler::guardVip(const CStack * guard, const CStack * vip)
+void TacticsHandler::advance()
+{
+	while(phase != Phase::INACTIVE)
+	{
+		bool moveStarted = false;
+		switch(phase)
+		{
+			case Phase::MOVE_GUARDS_AWAY_FROM_CORNERS:
+				moveStarted = moveNextGuardAwayFromCorners();
+				break;
+			case Phase::MOVE_VIPS_TO_CORNERS:
+				moveStarted = moveNextVipToCorner();
+				break;
+			case Phase::MOVE_GUARDS_AROUND_VIPS:
+				moveStarted = moveNextGuardAroundVip();
+				break;
+			case Phase::INACTIVE:
+				break;
+		}
+
+		if(moveStarted)
+			return;
+	}
+
+	end();
+}
+
+bool TacticsHandler::moveNextGuardAwayFromCorners()
+{
+	while(guardIndex < guards.size())
+	{
+		const auto * guard = guards[guardIndex++];
+		if(!guard->coversPos(specialHexes.corner1) && !guard->coversPos(specialHexes.corner2))
+			continue;
+
+		const auto reachability = battle->getReachability(guard);
+		for(const auto & hex : specialHexes.tempHexes)
+		{
+			if(reachability.isReachable(hex))
+			{
+				tacticMove(guard, hex);
+				return true;
+			}
+		}
+	}
+
+	vipsToMove.clear();
+	for(const auto * vip : vips)
+	{
+		if(vipsToMove.size() < 2 && !vip->coversPos(specialHexes.corner1) && !vip->coversPos(specialHexes.corner2))
+			vipsToMove.push_back(vip);
+	}
+	vipIndex = 0;
+	phase = Phase::MOVE_VIPS_TO_CORNERS;
+	return false;
+}
+
+bool TacticsHandler::moveNextVipToCorner()
+{
+	while(vipIndex < vipsToMove.size())
+	{
+		const auto * vip = vipsToMove[vipIndex++];
+		const auto reachability = battle->getReachability(vip);
+		const auto destinations = vip->doubleWide()
+			? std::vector<BattleHex>{specialHexes.corner1Wide, specialHexes.corner2Wide}
+			: std::vector<BattleHex>{specialHexes.corner1, specialHexes.corner2};
+
+		for(const auto & hex : destinations)
+		{
+			if(reachability.isReachable(hex))
+			{
+				tacticMove(vip, hex);
+				return true;
+			}
+		}
+	}
+
+	guardIndex = 0;
+	vipIndex = 0;
+	phase = Phase::MOVE_GUARDS_AROUND_VIPS;
+	return false;
+}
+
+bool TacticsHandler::moveNextGuardAroundVip()
+{
+	// Initial pass might fail if some units were blocked by obstacles.
+	// Loop again in case they have become unblocked.
+	while(guardPass < 2)
+	{
+		while(guardIndex < guards.size())
+		{
+			const auto * guard = guards[guardIndex];
+			while(vipIndex < vips.size())
+			{
+				const auto destination = findGuardDestination(guard, vips[vipIndex++]);
+				if(destination)
+				{
+					++guardIndex;
+					vipIndex = 0;
+					tacticMove(guard, *destination);
+					return true;
+				}
+			}
+			++guardIndex;
+			vipIndex = 0;
+		}
+		++guardPass;
+		guardIndex = 0;
+	}
+
+	phase = Phase::INACTIVE;
+	return false;
+}
+
+std::optional<BattleHex> TacticsHandler::findGuardDestination(const CStack * guard, const CStack * vip)
 {
 	assert(vip);
 	logAi->debug("Handling GUARD stack %s (vip=%s)", guard->getDescription(), vip->getDescription());
@@ -583,30 +638,34 @@ bool TacticsHandler::guardVip(const CStack * guard, const CStack * vip)
 	const auto hexes = GuardableHexes(vip, guard);
 	const auto reachability = cb->getBattle(bid)->getReachability(guard);
 
-	BattleHex target;
-
 	for(const auto hex : hexes)
 	{
 		if(guard->getPosition() == hex)
 			break;
 
 		if(reachability.isReachable(hex) && cb->getBattle(bid)->isInTacticRange(hex))
-		{
-			tacticMove(guard, hex);
-			return true;
-		}
+			return hex;
 	}
 
 	logAi->debug("No viable guard move (VIP unreachable or already surrounded)");
-	return false;
+	return std::nullopt;
 }
 
-void TacticsHandler::onStackMoved(const CStack * stack)
+void TacticsHandler::onActionFinished(const BattleAction & action)
 {
-	if(stack != movingStack)
+	std::cout << "onActionFinished: DIST: " << static_cast<int>(battle->battleTacticDist()) << "\n";
+	std::cout << "onActionFinished: ROUND: " << battle->battleGetRound() << "\n";
+
+	if (battle->battleTacticDist() == 0)
+	{
+		phase = Phase::INACTIVE;
+		return;
+	}
+
+	if(!movingStack || action.actionType != EActionType::WALK || action.stackNumber != movingStack->unitId())
 		return;
 
-	std::lock_guard lock(mutex);
+	logAi->debug("[Tactics] Move finished");
 	movingStack = nullptr;
-	cond.notify_one();
+	advance();
 }

@@ -98,9 +98,9 @@ void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 	tacticsHandler->onTacticsStarted();
 }
 
-void CBattleAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
+void CBattleAI::actionFinished(const BattleID & battleID, const BattleAction & action)
 {
-	tacticsHandler->onStackMoved(stack);
+	tacticsHandler->onActionFinished(action);
 }
 
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
@@ -250,7 +250,7 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 	LOG_TRACE(logAi);
 	side = Side;
 	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
-	tacticsHandler = std::make_shared<TacticsHandler>(cb, battleID, tacticsSettings);
+	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
 }
 
 void CBattleAI::print(const std::string &text) const

@@ -368,7 +368,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 
 bool BattleSiegeController::isAttackableByCatapult(const BattleHex & hex) const
 {
-	if (owner.tacticsMode)
+	if (owner.isInTacticsMode())
 		return false;
 
 	auto wallPart = owner.getBattle()->battleHexToWallPart(hex);

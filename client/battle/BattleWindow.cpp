@@ -132,7 +132,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 	createStickyHeroInfoWindows();
 	createTimerInfoWindows();
 
-	if ( owner.tacticsMode )
+	if ( owner.isInTacticsMode() )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
@@ -879,21 +879,22 @@ void BattleWindow::blockUI(bool on)
 	}
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
+	bool tacticsMode = owner.isInTacticsMode();
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
 	setShortcutBlocked(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, on);
 	setShortcutBlocked(EShortcut::BATTLE_OPEN_HOVERED_UNIT, on);
 	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.getBattle()->battleCanFlee());
 	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.getBattle()->battleGetSurrenderCost() < 0);
-	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
-	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
-	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || tacticsMode || !canCastSpells);
+	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || tacticsMode || !canWait);
+	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || !onlyOnePlayerHuman || owner.actionsController->heroSpellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !tacticsMode);
 
 	quickSpellWindow->setInputEnabled(!on);
 	unitActionWindow->setInputEnabled(!on);

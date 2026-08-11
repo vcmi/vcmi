@@ -118,6 +118,9 @@ class BattleInterface
 	/// ID of ongoing battle
 	BattleID battleID;
 
+	/// cache var for isInTacticsMode()
+	bool _tacticsMode;
+
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
@@ -134,7 +137,6 @@ public:
 	const CGHeroInstance *attackingHeroInstance;
 	const CGHeroInstance *defendingHeroInstance;
 
-	bool tacticsMode;
 	ui32 round;
 
 	std::unique_ptr<BattleProjectileController> projectilesController;
@@ -233,4 +235,6 @@ public:
 
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
+
+	bool isInTacticsMode();
 };

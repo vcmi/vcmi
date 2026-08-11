@@ -807,12 +807,19 @@ void CPlayerInterface::actionStarted(const BattleID & battleID, const BattleActi
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
+	if(battleInt)
+		battleInt->trySetActivePlayer(cb->getBattle(battleID)->sideToPlayer(action.side));
+
 	battleInt->startAction(action);
 }
 
 void CPlayerInterface::actionFinished(const BattleID & battleID, const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	if (autofightingAI && !isAutoFightOn)
+		unregisterBattleInterface(autofightingAI);
+
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->endAction(action);
@@ -834,15 +841,11 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 
 	if (autofightingAI)
 	{
-		if (isAutoFightOn)
-		{
-			//FIXME: we want client rendering to proceed while AI is making actions
-			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
-			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-			autofightingAI->activeStack(battleID, stack);
-			return;
-		}
-		unregisterBattleInterface(autofightingAI);
+		//FIXME: we want client rendering to proceed while AI is making actions
+		// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		autofightingAI->activeStack(battleID, stack);
+		return;
 	}
 
 	assert(battleInt);
