@@ -473,6 +473,66 @@ public:
 	CGHeroInstance * opponent = nullptr;
 };
 
+TEST_F(BattleSpellCastTest, airShieldDoesNotAddDistancePenalty)
+{
+	const PlayerColor attackerOwner(0);
+	const PlayerColor defenderOwner(1);
+	const SpellID airShield(SpellID::AIR_SHIELD);
+	const CreatureID pikeman(CreatureID::decode("core:pikeman"));
+	const CreatureID sharpshooter(CreatureID::decode("core:sharpshooter"));
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("AirShieldDistancePenaltyTest")
+		.playerActive(attackerOwner)
+		.playerActive(defenderOwner)
+		.hero({5, 5, 0}, HeroTypeID(HeroTypeID::decode("core:sylvia")), attackerOwner)
+			.heroPrimary(0, 0, 10, 20)
+			.heroSecondarySkills({{SecondarySkill::AIR_MAGIC, 2}})
+			.heroSpells({airShield})
+			.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID::SPELLBOOK}})
+			.heroGarrison({{pikeman, 100}})
+		.hero({7, 7, 0}, HeroTypeID(HeroTypeID::decode("core:orrin")), defenderOwner)
+			.heroGarrison({{sharpshooter, 100}});
+	startTinyGame(builder);
+
+	auto * caster = getHeroByOwner(attackerOwner);
+	auto * defenderHero = getHeroByOwner(defenderOwner);
+	ASSERT_NE(caster, nullptr);
+	ASSERT_NE(defenderHero, nullptr);
+
+	startTestBattle(caster, defenderHero);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const CStack * target = nullptr;
+	const CStack * shooter = nullptr;
+	for(const auto * stack : battle->battleGetAllStacks())
+	{
+		if(stack->unitType()->getId() == pikeman)
+			target = stack;
+		else if(stack->unitType()->getId() == sharpshooter)
+			shooter = stack;
+	}
+	ASSERT_NE(target, nullptr);
+	ASSERT_NE(shooter, nullptr);
+
+	ASSERT_FALSE(battle->battleHasDistancePenalty(shooter, shooter->getPosition(), target->getPosition()));
+
+	BattleAttackInfo attack(shooter, target, /*chargeDistance*/ 0, /*shooting*/ true);
+	const DamageRange damageWithoutShield = battle->calculateDmgRange(attack).damage;
+
+	castOn(caster, airShield, target);
+
+	const auto airShieldEffect = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusCustomSubtype::damageTypeRanged)
+		.And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(airShield)));
+	ASSERT_EQ(target->getBonuses(airShieldEffect)->totalValue(), 50);
+
+	const DamageRange shieldedDamage = battle->calculateDmgRange(attack).damage;
+	EXPECT_EQ(shieldedDamage.min, damageWithoutShield.min / 2);
+	EXPECT_EQ(shieldedDamage.max, damageWithoutShield.max / 2);
+}
+
 //Issue #2765, Ghost Dragons can cast Age on Catapults
 TEST_F(BattleSpellCastTest, issue2765)
 {
