@@ -14,6 +14,7 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Propagators.h"
 #include "../../lib/bonuses/Updaters.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace test
 {
@@ -268,6 +269,11 @@ TEST_F(BonusSystemTest, battlewideSkillPropagationToEnemies)
 	EXPECT_EQ(heroBron.valOfBonuses(BonusType::MORALE), -1);
 	EXPECT_EQ(pikemanAlly.valOfBonuses(BonusType::MORALE), 0);
 	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::MORALE), -1);
+	auto ownedMorale = battle.getFirstBonus(Selector::type()(BonusType::MORALE).And([](const Bonus * bonus)
+	{
+		return bonus->bonusOwner == PlayerColor(0);
+	}));
+	ASSERT_NE(ownedMorale, nullptr);
 
 	heroAine.nodeHasChanged();
 
@@ -277,6 +283,56 @@ TEST_F(BonusSystemTest, battlewideSkillPropagationToEnemies)
 	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::MORALE), -1);
 
 	heroAine.detachFromSource(armor);
+}
+
+TEST_F(BonusSystemTest, propagationUpdaterTracksHeroLevelAcrossTopologyChanges)
+{
+	CGHeroInstance mentor(nullptr);
+	CGHeroInstance ally(nullptr);
+	CBonusSystemNode townAndVisitor(BonusNodeType::TOWN_AND_VISITOR);
+
+	auto learningBonus = std::make_shared<Bonus>(
+		BonusDuration::PERMANENT,
+		BonusType::HERO_EXPERIENCE_GAIN_PERCENT,
+		BonusSource::HERO_SPECIAL,
+		1,
+		HeroTypeID(0));
+	learningBonus->propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::PLAYER);
+	learningBonus->propagationUpdater = std::make_shared<TimesHeroLevelUpdater>();
+	mentor.addNewBonus(learningBonus);
+	mentor.attachTo(playerRed);
+	ally.attachTo(playerRed);
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 1);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 1);
+
+	mentor.levelUp();
+
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 2);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 2);
+
+	mentor.removeBonus(learningBonus);
+	EXPECT_EQ(mentor.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 0);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 0);
+
+	mentor.detachFrom(playerRed);
+	mentor.addNewBonus(learningBonus);
+
+	// Garrisoned heroes reach their player through the town's virtual node.
+	mentor.attachTo(townAndVisitor);
+	townAndVisitor.attachTo(playerRed);
+
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 2);
+
+	mentor.levelUp();
+
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 3);
+
+	townAndVisitor.detachFrom(playerRed);
+	EXPECT_EQ(ally.valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT), 0);
+
+	mentor.detachFrom(townAndVisitor);
+	ally.detachFrom(playerRed);
 }
 
 TEST_F(BonusSystemTest, legionPieces)

@@ -25,9 +25,11 @@ Propagation is used when bonuses need to be shared in a different direction than
 
 ### Technical Details
 
-- Propagation is done by copying bonuses to the target nodes. This happens when bonuses are added.
+- Propagation copies bonuses to target nodes when they are added. If a runtime node directly exports a bonus with a
+  propagation updater, the target keeps that node as the updater context and evaluates the updater when queried.
 - Inheritance is done on-the-fly when needed, by traversing the black DAG. Results are cached to improve performance.
 - Whenever a node changes (e.g. bonus added), a global counter gets increased which is used to check whether cached results are still current.
+- Runtime nodes also invalidate targets containing propagation-updated bonuses exported by them.
 
 ## Operations on the graph
 
