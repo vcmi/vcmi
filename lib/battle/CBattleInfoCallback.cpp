@@ -2148,15 +2148,24 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	for(const auto * unit : battleGetUnitsIf([](const battle::Unit * unit)
 	{
-		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
+		const bool originalArmyStack = unit->unitSlot().validSlot()
+			|| unit->unitSlot() == SlotID::COMMANDER_SLOT_PLACEHOLDER;
+		return unit->isValidTarget(false) || (!unit->alive() && originalArmyStack);
+	}))
+	{
+		const IBonusBearer * bonusBearer = unit;
+		if(!unit->alive())
+			bonusBearer = unit->unitType();
+
+		if(unit->unitOwner() == caster->tempOwner && bonusBearer->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
 		{
-			vstd::amax(manaReduction, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
+			vstd::amax(manaReduction, bonusBearer->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
 		}
-		if(unit->unitOwner() != caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
+		if(unit->unitOwner() != caster->tempOwner && bonusBearer->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
 		{
-			vstd::amax(manaIncrease, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
+			vstd::amax(manaIncrease, bonusBearer->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
 		}
 	}
 

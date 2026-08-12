@@ -473,6 +473,64 @@ public:
 	CGHeroInstance * opponent = nullptr;
 };
 
+TEST_F(BattleSpellCastTest, pegasusSpellCostIncreasePersistsAfterDeathAndRemoval)
+{
+	const CreatureID pegasusId(CreatureID::decode("core:pegasus"));
+	const CreatureID pitLordId(CreatureID::decode("core:pitLord"));
+	const SpellID frenzyId(SpellID::FRENZY);
+	auto * pegasusOwner = placeHero(0, 1, {{pegasusId, 2}, {pitLordId, 1}});
+	auto * caster = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(pegasusOwner, nullptr);
+	ASSERT_NE(caster, nullptr);
+
+	configureCaster(caster, frenzyId, 10);
+	startTestBattle(pegasusOwner, caster);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const auto * frenzy = frenzyId.toSpell();
+	ASSERT_NE(frenzy, nullptr);
+
+	const CStack * pegasus = nullptr;
+	const CStack * pitLord = nullptr;
+	for(const auto * stack : battle->battleGetAllStacks())
+	{
+		if(stack->unitType()->getId() == pegasusId)
+			pegasus = stack;
+		if(stack->unitType()->getId() == pitLordId)
+			pitLord = stack;
+	}
+	ASSERT_NE(pegasus, nullptr);
+	ASSERT_NE(pitLord, nullptr);
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+
+	BattleStackAttacked attacked;
+	attacked.stackAttacked = pegasus->unitId();
+	attacked.damageAmount = pegasus->getAvailableHealth();
+	pegasus->prepareAttacked(attacked, randomGenerator);
+
+	StacksInjured injured;
+	injured.battleID = BattleID(0);
+	injured.stacks.push_back(attacked);
+	gameEventCallback->sendAndApply(injured);
+
+	EXPECT_FALSE(pegasus->alive());
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+
+	const SpellID summonDemonsId(SpellID::decode("core:summonDemons"));
+	const auto * summonDemons = summonDemonsId.toSpell();
+	ASSERT_NE(summonDemons, nullptr);
+	spells::BattleCast summon(battle, pitLord, spells::Mode::CREATURE_ACTIVE, summonDemons);
+	summon.setSpellLevel(0);
+	spells::Target corpse;
+	corpse.emplace_back(pegasus);
+	ASSERT_TRUE(summonDemons->battleMechanics(&summon)->canBeCastAt(corpse));
+	summon.cast(this, corpse);
+
+	EXPECT_TRUE(pegasus->isGhost());
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+}
+
 //Issue #2765, Ghost Dragons can cast Age on Catapults
 TEST_F(BattleSpellCastTest, issue2765)
 {
