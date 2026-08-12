@@ -68,7 +68,7 @@ private:
 	bool moveNextGuardAroundVip();
 
 	std::vector<const CStack *> findVIPs() const;
-	std::vector<const CStack *> findGuards(const std::vector<const CStack*> & vips) const;
+	std::vector<const CStack *> findGuards() const;
 	std::vector<BattleHex> GuardableHexes(const CStack * vip, const CStack * guard);
 
 	SpecialHexes getSpecialHexes() const;

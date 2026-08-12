@@ -193,20 +193,20 @@ std::vector<const CStack *> TacticsHandler::findVIPs() const
 	return res;
 }
 
-std::vector<const CStack *> TacticsHandler::findGuards(const std::vector<const CStack*> & vips) const
+std::vector<const CStack *> TacticsHandler::findGuards() const
 {
-	auto guards = battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
-	assert(guards.size() > 0);
+	auto stacks = battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
+	assert(stacks.size() > 0);
 	std::erase_if(
-		guards,
-		[&vips](const CStack * guard)
+		stacks,
+		[this](const CStack * guard)
 		{
 			return guard->getMovementRange() == 0 \
 				|| std::ranges::find(vips, guard) != vips.end();
 		}
 	);
-	std::ranges::sort(guards, std::less{}, CalcStackValue);
-	return guards;
+	std::ranges::sort(stacks, std::less{}, CalcStackValue);
+	return stacks;
 }
 
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
@@ -475,10 +475,8 @@ TacticsHandler::SpecialHexes TacticsHandler::getSpecialHexes() const
 
 void TacticsHandler::onTacticsStarted()
 {
-	std::cout << "onTacticsStarted: ROUND: " << battle->battleGetRound() << " " << this << "\n";
 	if (battle->battleTacticDist() == 0)
 	{
-		std::cout << "tactics dist == 0, bail\n";
 		phase = Phase::INACTIVE;
 		return;
 	}
@@ -503,7 +501,7 @@ void TacticsHandler::tacticMove(const CStack * cstack, const BattleHex & bh)
 void TacticsHandler::handle()
 {
 	vips = findVIPs();
-	guards = findGuards(vips);
+	guards = findGuards();
 	specialHexes = getSpecialHexes();
 	guardIndex = 0;
 	vipIndex = 0;
@@ -653,9 +651,6 @@ std::optional<BattleHex> TacticsHandler::findGuardDestination(const CStack * gua
 
 void TacticsHandler::onActionFinished(const BattleAction & action)
 {
-	std::cout << "onActionFinished: DIST: " << static_cast<int>(battle->battleTacticDist()) << "\n";
-	std::cout << "onActionFinished: ROUND: " << battle->battleGetRound() << "\n";
-
 	if (battle->battleTacticDist() == 0)
 	{
 		phase = Phase::INACTIVE;
