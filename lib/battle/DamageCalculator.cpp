@@ -136,7 +136,9 @@ int DamageCalculator::getActorAttackBase() const
 
 	if(frenzy > 0)
 	{
-		static const auto defenseSelector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
+		static const auto defenseSelector = Selector::typeSubtype(
+			BonusType::PRIMARY_SKILL,
+			BonusSubtypeID(PrimarySkill::DEFENSE));
 		int defense = battleBonusValue(info.attacker, defenseSelector);
 		int defenseReduction = getDefenseReduction(info.defender, defense);
 

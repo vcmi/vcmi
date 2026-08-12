@@ -48,9 +48,13 @@ protected:
 	battle::CUnitStateDetached defender;
 	TestCallback callback;
 
-	DamageCalculatorTest() : attacker(&attackerInfo, &attackerBonuses), defender(&defenderInfo, &defenderBonuses) {}
+	DamageCalculatorTest()
+		: attacker(&attackerInfo, &attackerBonuses)
+		, defender(&defenderInfo, &defenderBonuses)
+	{
+	}
 
-	void addBonus(
+	static void addBonus(
 		BonusBearerMock & bearer,
 		BonusType type,
 		int value,
@@ -58,7 +62,13 @@ protected:
 		BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT
 	)
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, value, BonusSourceID(), subtype);
+		auto bonus = std::make_shared<Bonus>(
+			BonusDuration::PERMANENT,
+			type,
+			BonusSource::CREATURE_ABILITY,
+			value,
+			BonusSourceID(),
+			subtype);
 		bonus->effectRange = effectRange;
 		bearer.addNewBonus(bonus);
 	}
@@ -78,7 +88,12 @@ protected:
 		attacker.localInit(&environment);
 	}
 
-	void setupDefender(int count, int health, int defenseValue, int reduction = 0, BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT)
+	void setupDefender(
+		int count,
+		int health,
+		int defenseValue,
+		int reduction = 0,
+		BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT)
 	{
 		ON_CALL(defenderInfo, unitBaseAmount()).WillByDefault(Return(count));
 		ON_CALL(defenderInfo, unitType()).WillByDefault(Return(CreatureID(0).toCreature()));
@@ -91,7 +106,7 @@ protected:
 		defender.localInit(&environment);
 	}
 
-	DamageEstimation calculateDamage(bool shooting = false, bool ignoreDefenseFactors = false)
+	DamageEstimation calculateDamage(bool shooting = false, bool ignoreDefenseFactors = false) const
 	{
 		BattleAttackInfo attackInfo(&attacker, &defender, 0, shooting);
 		attackInfo.ignoreDefenseFactors = ignoreDefenseFactors;
