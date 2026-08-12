@@ -146,9 +146,9 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL, manager);
 	addNewTowns(zone.getNeutralTowns().getTownCount(), false, PlayerColor::NEUTRAL, manager);
 	
-	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
+	//if there's no town present, get random faction for dwellings and pandoras - unless a town hint pinned it already
+	if(!totalTowns && !hasTownTypeHint(0))
 	{
-		// TODO: Use townHints also when there are no towns in zone
 		//25% chance for neutral
 		if (zone.getRand().nextInt(1, 100) <= 25)
 		{
@@ -260,6 +260,18 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 			zoneToUpdate->areaUsed()->add(t);
 		}
 	}
+}
+
+bool TownPlacer::hasTownTypeHint(size_t hintIndex) const
+{
+	const auto & hints = zone.getTownHints();
+	if(hints.size() <= hintIndex)
+		return false;
+
+	const auto & townHints = hints[hintIndex];
+	return townHints.likeZone != rmg::ZoneOptions::NO_ZONE
+		|| !townHints.notLikeZone.empty()
+		|| townHints.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE;
 }
 
 FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
