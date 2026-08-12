@@ -32,6 +32,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 
+#include "../../lib/battle/BattleAttackInfo.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleLayout.h"
 #include "../../lib/callback/GameRandomizer.h"
@@ -472,6 +473,65 @@ public:
 	CGHeroInstance * specialist = nullptr;
 	CGHeroInstance * opponent = nullptr;
 };
+
+TEST_F(BattleSpellCastTest, frenzyUsesDefenseAfterAncientBehemothReduction)
+{
+	const PlayerColor attackerOwner(0);
+	const PlayerColor defenderOwner(1);
+	const CreatureID nagaQueenId(CreatureID::decode("core:nagaQueen"));
+	const CreatureID ancientBehemothId(CreatureID::decode("core:ancientBehemoth"));
+	const SpellID frenzyId(SpellID::FRENZY);
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("FrenzyDefenseReductionTest")
+		.playerActive(attackerOwner)
+		.playerActive(defenderOwner)
+		.hero({5, 5, 0}, HeroTypeID(HeroTypeID::decode("core:edric")), attackerOwner)
+			.heroPrimary(0, 0, 10, 20)
+			.heroSecondarySkills({{SecondarySkill::FIRE_MAGIC, 3}})
+			.heroSpells({frenzyId})
+			.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID::SPELLBOOK}})
+			.heroGarrison({{nagaQueenId, 1000}})
+		.hero({7, 7, 0}, HeroTypeID(HeroTypeID::decode("core:orrin")), defenderOwner)
+			.heroPrimary(0, 0, 0, 0)
+			.heroGarrison({{ancientBehemothId, 1000}});
+	startTinyGame(builder);
+
+	auto * caster = getHeroByOwner(attackerOwner);
+	auto * defenderHero = getHeroByOwner(defenderOwner);
+	ASSERT_NE(caster, nullptr);
+	ASSERT_NE(defenderHero, nullptr);
+
+	startTestBattle(caster, defenderHero);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const CStack * nagaQueen = nullptr;
+	const CStack * ancientBehemoth = nullptr;
+	for(const auto * stack : battle->battleGetAllStacks())
+	{
+		if(stack->unitType()->getId() == nagaQueenId)
+			nagaQueen = stack;
+		else if(stack->unitType()->getId() == ancientBehemothId)
+			ancientBehemoth = stack;
+	}
+	ASSERT_NE(nagaQueen, nullptr);
+	ASSERT_NE(ancientBehemoth, nullptr);
+
+	BattleAttackInfo behemothAttack(ancientBehemoth, nagaQueen, /*chargeDistance*/ 0, /*shooting*/ false);
+	const auto behemothDamage = battle->calculateDmgRange(behemothAttack).damage;
+	EXPECT_EQ(behemothDamage.min, 55500);
+	EXPECT_EQ(behemothDamage.max, 92500);
+
+	castOn(caster, frenzyId, nagaQueen);
+	ASSERT_EQ(nagaQueen->valOfBonuses(BonusType::IN_FRENZY), 200);
+
+	BattleAttackInfo attack(nagaQueen, ancientBehemoth, /*chargeDistance*/ 0, /*shooting*/ false);
+	const auto damage = battle->calculateDmgRange(attack).damage;
+	EXPECT_EQ(damage.min, 31500);
+	EXPECT_EQ(damage.max, 31500);
+}
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
 TEST_F(BattleSpellCastTest, issue2765)
