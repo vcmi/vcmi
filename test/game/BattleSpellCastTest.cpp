@@ -420,6 +420,17 @@ public:
 		return battle->getStack(info.id);
 	}
 
+	CStack * findStack(CreatureID creature) const
+	{
+		for(const auto & stack : gameState->currentBattles.front()->stacks)
+		{
+			if(stack->unitType()->getId() == creature)
+				return stack.get();
+		}
+
+		return nullptr;
+	}
+
 	/// Cast a spell from a hero caster aimed at a unit. Targeting adapts to the
 	/// spell's aim type: creature spells target the unit, location spells target
 	/// the unit's hex, mass spells take no target.
@@ -472,6 +483,90 @@ public:
 	CGHeroInstance * specialist = nullptr;
 	CGHeroInstance * opponent = nullptr;
 };
+
+TEST_F(BattleSpellCastTest, pegasusSpellCostIncreasePersistsAfterDeath)
+{
+	auto * pegasusOwner = placeHero(0, 1, {{CreatureID(20), 1}});
+	auto * caster = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(pegasusOwner, nullptr);
+	ASSERT_NE(caster, nullptr);
+
+	caster->setSecSkillLevel(SecondarySkill::FIRE_MAGIC, MasteryLevel::EXPERT, ChangeValueMode::ABSOLUTE);
+	startTestBattle(pegasusOwner, caster);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const auto * frenzy = SpellID(SpellID::FRENZY).toSpell();
+	ASSERT_NE(frenzy, nullptr);
+
+	CStack * pegasus = findStack(CreatureID(20));
+	ASSERT_NE(pegasus, nullptr);
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+
+	int64_t damage = pegasus->getAvailableHealth();
+	pegasus->damage(damage);
+	ASSERT_FALSE(pegasus->alive());
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+
+	BattleUnitsChanged removePegasus;
+	removePegasus.battleID = BattleID(0);
+	removePegasus.changedStacks.emplace_back(pegasus->unitId(), UnitChanges::EOperation::REMOVE);
+	gameEventCallback->sendAndApply(removePegasus);
+
+	ASSERT_TRUE(pegasus->isGhost());
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+}
+
+TEST_F(BattleSpellCastTest, mageSpellCostReductionPersistsAfterDeath)
+{
+	auto * caster = placeHero(0, 1, {{CreatureID(34), 1}});
+	auto * opponent = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(caster, nullptr);
+	ASSERT_NE(opponent, nullptr);
+
+	caster->setSecSkillLevel(SecondarySkill::FIRE_MAGIC, MasteryLevel::EXPERT, ChangeValueMode::ABSOLUTE);
+	startTestBattle(caster, opponent);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const auto * frenzy = SpellID(SpellID::FRENZY).toSpell();
+	CStack * mage = findStack(CreatureID(34));
+	ASSERT_NE(frenzy, nullptr);
+	ASSERT_NE(mage, nullptr);
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 10);
+
+	int64_t damage = mage->getAvailableHealth();
+	mage->damage(damage);
+	ASSERT_FALSE(mage->alive());
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 10);
+}
+
+TEST_F(BattleSpellCastTest, battleAddedSpellCostModifierEndsWithUnit)
+{
+	auto * caster = placeHero(0, 1, {{CreatureID(0), 1}});
+	auto * opponent = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(caster, nullptr);
+	ASSERT_NE(opponent, nullptr);
+
+	caster->setSecSkillLevel(SecondarySkill::FIRE_MAGIC, MasteryLevel::EXPERT, ChangeValueMode::ABSOLUTE);
+	startTestBattle(caster, opponent);
+
+	auto * battle = gameState->currentBattles.front().get();
+	const auto * frenzy = SpellID(SpellID::FRENZY).toSpell();
+	CStack * pegasus = addStack(BattleSide::DEFENDER, CreatureID(20), 1);
+	ASSERT_NE(frenzy, nullptr);
+	ASSERT_NE(pegasus, nullptr);
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 14);
+
+	int64_t damage = pegasus->getAvailableHealth();
+	pegasus->damage(damage);
+	ASSERT_FALSE(pegasus->alive());
+
+	EXPECT_EQ(battle->battleGetSpellCost(frenzy, caster), 12);
+}
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
 TEST_F(BattleSpellCastTest, issue2765)

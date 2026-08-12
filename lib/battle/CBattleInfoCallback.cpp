@@ -2148,16 +2148,28 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	auto updateSpellCostModifiers = [&](const IBonusBearer * bonusBearer, PlayerColor owner)
 	{
-		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
+		if(owner == caster->tempOwner && bonusBearer->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
 		{
-			vstd::amax(manaReduction, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
+			vstd::amax(manaReduction, bonusBearer->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
 		}
-		if(unit->unitOwner() != caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
+		if(owner != caster->tempOwner && bonusBearer->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
 		{
-			vstd::amax(manaIncrease, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
+			vstd::amax(manaIncrease, bonusBearer->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
 		}
+	};
+
+	for(const auto * unit : battleAliveUnits())
+		updateSpellCostModifiers(unit, unit->unitOwner());
+
+	// Mage and Pegasus spell-cost modifiers last for the entire battle.
+	for(const auto * unit : battleGetStacksIf([](const CStack * stack)
+	{
+		return stack->base != nullptr && !stack->isValidTarget(false);
+	}))
+	{
+		updateSpellCostModifiers(unit->unitType(), unit->unitOwner());
 	}
 
 	return std::max(0, ret - manaReduction + manaIncrease);
