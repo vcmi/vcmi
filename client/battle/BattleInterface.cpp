@@ -831,7 +831,6 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 		std::thread aiThread([localBattleID = battleID, localCurInt = curInt, tacticsDist]()
 		{
 			setThreadName("autofightingAI");
-			std::cout << "localCurInt " << localCurInt << "\n";
 			localCurInt->autofightingAI->yourTacticPhase(localBattleID, tacticsDist);
 		});
 		aiThread.detach();
