@@ -1,9 +1,9 @@
 # VCMI Project
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.1)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.3/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.3)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.4/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.4)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.5/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.5)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving it new and extended possibilities.
