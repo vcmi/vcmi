@@ -26,6 +26,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -122,7 +123,9 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 
 	if(words.size() == 2)
 	{
-		gameHandler->save("Saves/" + words[1], PlayerColor::CANNOT_DETERMINE);
+		const auto savePath = SavegamePath::getPath(
+			*gameHandler->gameInfo().getStartInfo(), *gameHandler->gameInfo().getMapHeader(), words[1]);
+		gameHandler->save(savePath, PlayerColor::CANNOT_DETERMINE);
 		MetaString str;
 		str.appendTextID("vcmi.broadcast.gameSavedAs");
 		str.appendRawString(" ");

@@ -22,6 +22,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/callback/CCallback.h"
+#include "../lib/filesystem/SavegamePath.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
@@ -144,8 +145,6 @@ void GameInstance::onAppPaused()
 
 void GameInstance::pauseAutoSave()
 {
-	const std::string autoSaveName = "Saves/PauseAutosave";
-
 	logGlobal->info("Received pause save game request");
 	if(!GAME->interface() || !GAME->interface()->cb)
 	{
@@ -165,5 +164,10 @@ void GameInstance::pauseAutoSave()
 		return;
 	}
 
-	GAME->interface()->cb->save(autoSaveName, false);
+	const std::string autosavePath = SavegamePath::getPath(
+		*GAME->interface()->cb->getStartInfo(),
+		*GAME->interface()->cb->getMapHeader(),
+		"PauseAutosave"
+	);
+	GAME->interface()->cb->save(autosavePath, false);
 }

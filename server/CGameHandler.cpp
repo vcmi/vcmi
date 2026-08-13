@@ -50,6 +50,7 @@
 #include "../lib/entities/hero/CHeroHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 
 #include "../lib/gameState/CGameState.h"
 
@@ -1067,7 +1068,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		gameInfo().getPlayerState(h->getOwner())->human &&
 	   (guardian || objectToVisit) &&
 	   movementMode == EMovementMode::STANDARD)
-		save("Saves/BeforeVisitSave", PlayerColor::CANNOT_DETERMINE);
+	{
+		const auto savePath = SavegamePath::getPath(
+			*gameInfo().getStartInfo(), *gameInfo().getMapHeader(), "BeforeVisitSave");
+		save(savePath, PlayerColor::CANNOT_DETERMINE);
+	}
 
 	if (!transit && embarking)
 	{

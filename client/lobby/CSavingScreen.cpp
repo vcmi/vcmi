@@ -24,6 +24,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
@@ -37,6 +38,9 @@ CSavingScreen::CSavingScreen()
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
+	tabSel->curFolder = SavegamePath::getGameDirectoryName(
+		*GAME->interface()->cb->getStartInfo(),
+		*GAME->interface()->cb->getMapHeader());
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
 	tabSel->toggleMode();
 	curTab = tabSel;

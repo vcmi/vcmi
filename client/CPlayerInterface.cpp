@@ -146,7 +146,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
-	hasQuickSave = checkQuickLoadingGame();
+	hasQuickSave = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -162,6 +162,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 {
 	cb = CB;
 	env = ENV;
+	hasQuickSave = checkQuickLoadingGame();
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
@@ -1983,12 +1984,14 @@ void CPlayerInterface::proposeLoadingGame()
 
 void CPlayerInterface::quickSaveGame()
 {
+	const std::string quickSavePath = getQuickSavePath();
+
 	// notify player about saving
 	MetaString txt;
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
-	txt.replaceRawString(QUICKSAVE_PATH);
+	txt.replaceRawString(quickSavePath);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
-	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
+	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)
 		adventureInt->updateActiveState();
@@ -1996,24 +1999,25 @@ void CPlayerInterface::quickSaveGame()
 
 bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 {
-	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	const std::string quickSavePath = getQuickSavePath();
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(quickSavePath, EResType::SAVEGAME)))
 	{
 		if(verbose)
-			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->error("No quicksave file found at %s", quickSavePath);
 		else
-			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->trace("No quicksave file found at %s", quickSavePath);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
 		return false;
 	}
-	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	auto error = GAME->server().canQuickLoadGame(quickSavePath);
 	if(error)
 	{
 		if(verbose)
-			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->error("Cannot quick load game at %s: %s", quickSavePath, *error);
 		else
-			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->trace("Cannot quick load game at %s: %s", quickSavePath, *error);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
@@ -2027,12 +2031,18 @@ void CPlayerInterface::proposeQuickLoadingGame()
 	if(!checkQuickLoadingGame(true))
 		return;
 
-	auto onYes = [this]() -> void
+	const std::string quickSavePath = getQuickSavePath();
+	auto onYes = [quickSavePath]() -> void
 	{
-		GAME->server().quickLoadGame(QUICKSAVE_PATH);
+		GAME->server().quickLoadGame(quickSavePath);
 	};
 
 	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
+}
+
+std::string CPlayerInterface::getQuickSavePath() const
+{
+	return SavegamePath::getPath(*cb->getStartInfo(), *cb->getMapHeader(), "Quicksave");
 }
 
 bool CPlayerInterface::capturedAllEvents()

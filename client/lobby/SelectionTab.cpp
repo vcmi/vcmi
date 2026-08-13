@@ -389,6 +389,7 @@ void SelectionTab::toggleMode()
 {
 	allItems.clear();
 	curItems.clear();
+	const bool restoreSelection = curFolder.empty();
 	if(GAME->server().isGuest())
 	{
 		if(slider)
@@ -420,7 +421,8 @@ void SelectionTab::toggleMode()
 			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
 			inputName->enable();
 			inputName->activate();
-			restoreLastSelection();
+			if(!restoreSelection)
+				inputName->setText(LIBRARY->generaltexth->translate("core.genrltxt.11"));
 			break;
 
 		case ESelectionScreen::campaignList:
@@ -442,7 +444,7 @@ void SelectionTab::toggleMode()
 			GAME->server().setCampaignState(GAME->server().campaignStateToSend);
 			GAME->server().campaignStateToSend.reset();
 		}
-		else
+		else if(restoreSelection)
 		{
 			restoreLastSelection();
 		}
