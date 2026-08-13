@@ -54,6 +54,8 @@ struct DLL_EXPORT EvaluationContext
 	uint64_t danger;
 	float closestWayRatio;
 	float armyLossRatio;
+	uint64_t armyLoss;
+	uint64_t targetObjectArmyLoss;
 	float armyReward;
 	uint64_t armyGrowth;
 	int32_t goldReward;
@@ -72,13 +74,18 @@ struct DLL_EXPORT EvaluationContext
 	int threatTurns;
 	TResources buildingCost;
 	bool involvesSailing;
+	bool pathRequiresBattle;
 	bool isTradeBuilding;
 	bool isExchange;
 	bool isArmyUpgrade;
 	bool isHero;
 	bool isEnemy;
+	bool canBeKilledByEnemy;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // powerRatio = heroPower / totalPower. The ratio of a hero's army strength to the total power of all creatures available to the AI
+	float routeAnchorBonus;
+	float routeAnchorMovementCost;
+	std::string routeAnchorName;
 
 	EvaluationContext(const Nullkiller * aiNk);
 
@@ -122,7 +129,7 @@ private:
 	EvaluationContext buildEvaluationContext(const Goals::TSubgoal & goal) const;
 	static float evaluateMovement(float score, float movementCost);
 	static float evaluateArmyLossRatio(float score, float armyLossRatio, HeroRole heroRole);
-	static float evaluateSkillReward(float score, float skillReward, float armyInvolvement, float armyLossRatio);
+	static float evaluateSkillReward(float score, float skillReward, float armyLossRatio);
 	static float evaluateConquestValue(float score, float conquestValue, float armyInvolvement);
 };
 

@@ -326,7 +326,7 @@ const CGTownInstance * DangerHitMapAnalyzer::getClosestTown(const int3 & tile) c
 	return hitMap[tile.x][tile.y][tile.z].closestTown;
 }
 
-uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const
+bool DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const
 {
 	int3 tile = path.targetTile();
 	int turn = path.turn();

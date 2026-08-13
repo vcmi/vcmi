@@ -60,6 +60,28 @@ TEST(Nullkiller2_Behaviors_EscapeBehavior, rejectsDestinationWithNoThreatReducti
 	EXPECT_FALSE(NK2AI::evaluateEscapePathCandidate(candidate).accepted);
 }
 
+TEST(Nullkiller2_Behaviors_EscapeBehavior, acceptsDestinationCloserToOwnedTown)
+{
+	auto candidate = makeAcceptedCandidate();
+	candidate.hasOwnedTown = true;
+	candidate.destinationGetsCloserToOwnedTown = true;
+	candidate.currentTownDistance = 100;
+	candidate.destinationTownDistance = 64;
+
+	EXPECT_TRUE(NK2AI::evaluateEscapePathCandidate(candidate).accepted);
+}
+
+TEST(Nullkiller2_Behaviors_EscapeBehavior, rejectsDestinationAwayFromOwnedTown)
+{
+	auto candidate = makeAcceptedCandidate();
+	candidate.hasOwnedTown = true;
+	candidate.destinationGetsCloserToOwnedTown = false;
+	candidate.currentTownDistance = 100;
+	candidate.destinationTownDistance = 121;
+
+	EXPECT_FALSE(NK2AI::evaluateEscapePathCandidate(candidate).accepted);
+}
+
 TEST(Nullkiller2_Behaviors_EscapeBehavior, acceptsDimensionDoorPathWhenItIsOtherwiseValid)
 {
 	auto candidate = makeAcceptedCandidate();

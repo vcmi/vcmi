@@ -80,8 +80,11 @@ bool executeSpecialAction(
 }
 }
 
-ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
-	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
+ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj, bool affectsTargetObject)
+	: ElementarGoal(Goals::EXECUTE_HERO_CHAIN),
+		chainPath(path),
+		affectsTargetObject(affectsTargetObject),
+		closestWayRatio(1)
 {
 	hero = path.targetHero;
 	tile = path.targetTile();
@@ -105,17 +108,25 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 
 bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 {
-	return tile == other.tile 
+	return tile == other.tile
 		&& chainPath.targetHero == other.chainPath.targetHero
 		&& chainPath.nodes.size() == other.chainPath.nodes.size()
 		&& chainPath.chainMask == other.chainPath.chainMask;
+}
+
+void ExecuteHeroChain::setRouteAnchorBonus(const CGObjectInstance * anchor, float bonus, float anchorMovementCost)
+{
+	routeAnchor = anchor->id;
+	routeAnchorName = anchor->getObjectName() + anchor->visitablePos().toString();
+	routeAnchorBonus = bonus;
+	routeAnchorMovementCost = anchorMovementCost;
 }
 
 std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
 {
 	std::vector<ObjectInstanceID> affectedObjects = { chainPath.targetHero->id };
 
-	if(objid != -1)
+	if(affectsTargetObject && objid != -1)
 		affectedObjects.push_back(ObjectInstanceID(objid));
 
 	for(auto & node : chainPath.nodes)
@@ -131,7 +142,7 @@ std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
 
 bool ExecuteHeroChain::isObjectAffected(ObjectInstanceID id) const
 {
-	if(chainPath.targetHero->id == id || objid == id.getNum())
+	if(chainPath.targetHero->id == id || (affectsTargetObject && objid == id.getNum()))
 		return true;
 
 	for(auto & node : chainPath.nodes)
@@ -347,7 +358,6 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				return;
 			}
-			
 			// no exception means we were not able to reach the tile
 			aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);

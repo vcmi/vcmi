@@ -33,6 +33,7 @@
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CPlayerState.h"
 
+#include "AIUtility.h"
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
@@ -271,10 +272,22 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			}
 			else
 			{
+				const auto firstHeroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(firstHero);
+				const auto secondHeroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(secondHero);
 				if(nullkiller->isActive(firstHero))
-					transferFrom2to1(secondHero, firstHero);
+				{
+					if(firstHeroRole == HeroRole::MAIN && secondHeroRole == HeroRole::SCOUT && nullkiller->heroManager->isMeaningfulArmyCarrier(secondHero))
+						transferFrom2to1(firstHero, secondHero);
+					else
+						transferFrom2to1(secondHero, firstHero);
+				}
 				else
-					transferFrom2to1(firstHero, secondHero);
+				{
+					if(secondHeroRole == HeroRole::MAIN && firstHeroRole == HeroRole::SCOUT && nullkiller->heroManager->isMeaningfulArmyCarrier(firstHero))
+						transferFrom2to1(secondHero, firstHero);
+					else
+						transferFrom2to1(firstHero, secondHero);
+				}
 			}
 
 			answerQuery(query, 0);
@@ -420,6 +433,10 @@ void AIGateway::battleResultsApplied()
 {
 	LOG_TRACE(logAi);
 	assert(status.getBattle() == ENDING_BATTLE);
+
+	std::unique_lock lockGuard(nullkiller->aiStateMutex);
+	nullkiller->heroManager->update();
+	nullkiller->invalidatePathfinderData();
 }
 
 void AIGateway::battleEnded()
@@ -633,17 +650,28 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		if(selection) // select the last component; they are indexed in range [1, size]
 			sel = components.size();
 		{
-				std::unique_lock mxLock(nullkiller->aiStateMutex);
+			std::unique_lock mxLock(nullkiller->aiStateMutex);
 
-				// TODO: Find better way to understand it is Chest of Treasures
-				if(heroPtr.isVerified()
-					&& components.size() == 2
-					&& components.front().type == ComponentType::RESOURCE
-					&& (nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) != HeroRole::MAIN
-						|| nullkiller->buildAnalyzer->isGoldPressureOverMax()))
-				{
-					sel = 1;
-				}
+			// TODO: Find better way to understand it is Chest of Treasures
+			const bool isTreasureChestDialog = heroPtr.isVerified()
+										&& components.size() == 2
+										&& components.front().type == ComponentType::RESOURCE;
+
+			if(isTreasureChestDialog && (nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) != HeroRole::MAIN
+					|| nullkiller->getFreeResources()[GameResID::GOLD] < 1000))
+			{
+				sel = 1;
+			}
+
+			if(isTreasureChestDialog)
+			{
+				const auto & selectedComponent = components[sel - 1];
+				logAi->warn("Treasure chest reward selected by %s: %s, choice %d, gold %d",
+					heroPtr.nameOrDefault(),
+					selectedComponent.type == ComponentType::RESOURCE ? "gold" : "experience",
+					sel,
+					nullkiller->getFreeResources()[GameResID::GOLD]);
+			}
 		}
 
 		answerQuery(askID, sel);
@@ -1193,13 +1221,15 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 			bool isConnected = false;
 			bool isNextObjectTeleport = false;
+			bool isNextObjectPassable = false;
 			// Check there is node after next one; otherwise transit is pointless
 			if(i - 2 >= 0)
 			{
 				isConnected = CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i - 2].coord, false));
 				isNextObjectTeleport = CGTeleport::isTeleport(nextObjectTop);
+				isNextObjectPassable = nextObject && isObjectPassable(nullkiller.get(), nextObject);
 			}
-			if(isConnected || isNextObjectTeleport)
+			if(isConnected || isNextObjectTeleport || isNextObjectPassable)
 			{
 				// Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);

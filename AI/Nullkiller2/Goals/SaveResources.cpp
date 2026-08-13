@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "SaveResources.h"
 #include "../AIGateway.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
 
 namespace NK2AI
 {

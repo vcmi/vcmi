@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
+#include "../Engine/PriorityEvaluator.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Invalid.h"
@@ -20,6 +21,112 @@ namespace NK2AI
 {
 
 using namespace Goals;
+
+static bool isRouteFiller(const Nullkiller * nullkiller, const CGObjectInstance * obj, HeroRole role)
+{
+	switch(obj->ID)
+	{
+	case Obj::RESOURCE:
+	case Obj::ARTIFACT:
+	case Obj::SPELL_SCROLL:
+	case Obj::CAMPFIRE:
+	case Obj::SEA_CHEST:
+	case Obj::OCEAN_BOTTLE:
+	case Obj::FLOTSAM:
+	case Obj::SHIPWRECK_SURVIVOR:
+	case Obj::STABLES:
+		return true;
+	case Obj::SCHOLAR:
+		return role == HeroRole::MAIN;
+	case Obj::TREASURE_CHEST:
+		return role == HeroRole::MAIN || nullkiller->getFreeResources()[GameResID::GOLD] < 1000;
+	default:
+		return false;
+	}
+}
+
+static float getRoutePickupValue(const RewardEvaluator & evaluator, const CGObjectInstance * obj, const CGHeroInstance * hero, const CCreatureSet * army, HeroRole role)
+{
+	return evaluator.getStrategicalValue(obj, hero) * 1000
+		+ evaluator.getGoldReward(obj, hero)
+		+ evaluator.getSkillReward(obj, hero, role) * 1000
+		+ evaluator.getArmyReward(obj, hero, army, true)
+		+ evaluator.getArmyGrowth(obj, hero, army);
+}
+
+static bool pathVisitsObject(const AIPath & path, const CGObjectInstance * obj)
+{
+	for(const auto & node : path.nodes)
+	{
+		if(node.coord == obj->visitablePos())
+			return true;
+	}
+
+	return false;
+}
+
+static void addRoutePickupBonuses(Goals::TGoalVec & tasks,
+	const std::vector<AIPath> & paths,
+	const std::vector<const CGObjectInstance *> & objs,
+	const Nullkiller * nullkiller,
+	const CGObjectInstance * target)
+{
+	if(!target)
+		return;
+
+	for(size_t index = 0; index < tasks.size() && index < paths.size(); ++index)
+	{
+		auto * chain = dynamic_cast<ExecuteHeroChain *>(tasks[index].get());
+		if(!chain)
+			continue;
+
+		const auto & targetPath = paths[index];
+		const auto * hero = targetPath.targetHero;
+		const auto * army = targetPath.heroArmy ? targetPath.heroArmy : hero;
+		const auto role = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero);
+
+		if(role != HeroRole::MAIN && targetPath.getPathDanger() > 0)
+		{
+			continue;
+		}
+		if(targetPath.exchangeCount > 1)
+		{
+			continue;
+		}
+
+		const CGObjectInstance * firstPickup = nullptr;
+		float totalBonus = 0;
+		const RewardEvaluator evaluator(nullkiller);
+
+		for(const auto * pickup : objs)
+		{
+			if(pickup == target || pickup->visitablePos().z != target->visitablePos().z)
+				continue;
+			if(!isRouteFiller(nullkiller, pickup, role))
+				continue;
+
+			const float pickupValue = getRoutePickupValue(evaluator, pickup, hero, army, role);
+			if(pickupValue <= 0)
+				continue;
+
+			if(!shouldVisit(nullkiller, hero, pickup))
+				continue;
+
+			if(!pathVisitsObject(targetPath, pickup))
+				continue;
+
+			if(!firstPickup)
+				firstPickup = pickup;
+
+			totalBonus += pickupValue;
+		}
+
+		if(firstPickup)
+		{
+			chain->setRouteAnchorBonus(firstPickup, totalBonus, 0);
+		}
+	}
+}
 
 template <typename T>
 bool vectorEquals(const std::vector<T> & v1, const std::vector<T> & v2)
@@ -240,7 +347,9 @@ void CaptureObjectsBehavior::decomposeObjects(
 #if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Found %d paths", paths.size());
 #endif
-				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));
+				auto visitGoals = getVisitGoals(paths, nullkiller, objToVisit, specificObjects);
+				addRoutePickupBonuses(visitGoals, paths, objs, nullkiller, objToVisit);
+				vstd::concatenate(tasksLocal, visitGoals);
 			}
 
 			std::lock_guard lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead

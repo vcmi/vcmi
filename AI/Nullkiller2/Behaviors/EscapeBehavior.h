@@ -24,7 +24,11 @@ struct EscapePathCandidate
 	bool singleHeroPath = false;
 	bool destinationSafe = false;
 	bool destinationIsSafer = false;
+	bool hasOwnedTown = false;
+	bool destinationGetsCloserToOwnedTown = true;
 	bool usesDimensionDoor = false;
+	ui32 currentTownDistance = 0;
+	ui32 destinationTownDistance = 0;
 	float threatReduction = 0.0f;
 	float movementCost = 0.0f;
 };

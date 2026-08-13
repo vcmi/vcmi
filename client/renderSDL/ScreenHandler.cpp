@@ -378,7 +378,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	Point logicalResolution = getPreferredLogicalResolution();
 
 	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
-	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
+	float scaleY = static_cast<float>(outputResolution.y) / logicalResolution.y;
 	float scaling = std::min(scaleX, scaleY);
 	int systemMemoryMb = SDL_GetSystemRAM();
 

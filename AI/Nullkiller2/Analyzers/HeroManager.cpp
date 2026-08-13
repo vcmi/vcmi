@@ -137,11 +137,13 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	const int biggerMapFactor = cc->getCalendar().getCurrentDay() > 21 ? cc->getMapSize().x / CMapHeader::MAP_SIZE_LARGE : 0;
-	// One per town + static bonus on bigger maps after some weeks
-	int globalMainCount = std::max(static_cast<int>(cc->getTownsInfo().size()) + biggerMapFactor, 1);
-	// If 1 town but big map, limit a bit to don't spread the army too much
-	globalMainCount = std::min(globalMainCount, static_cast<int>(cc->getTownsInfo().size() * 2));
+	const int currentTownCount = static_cast<int>(cc->getTownsInfo().size());
+	if(initialTownCount < 0)
+		initialTownCount = currentTownCount;
+
+	const int capturedTownCount = std::max(0, currentTownCount - initialTownCount);
+	int globalMainCount = std::max(initialTownCount + capturedTownCount / 2, 1);
+	globalMainCount = std::min(globalMainCount, static_cast<int>(myHeroes.size()));
 
 	// TODO: Mircea: Should spread them on map min 1 per town, avoiding all within the same town and the other towns just with dummy scouts
 	logAi->trace("HeroManager::update Max number of main heroes (globalMainCount) is %d", globalMainCount);
@@ -171,6 +173,34 @@ void HeroManager::update()
 HeroRole HeroManager::getHeroRoleOrDefaultInefficient(const  CGHeroInstance * hero) const
 {
 	return getHeroRoleOrDefault(HeroPtr(hero, aiNk->cc.get()));
+}
+
+bool HeroManager::isMeaningfulArmyCarrier(const CGHeroInstance * hero) const
+{
+	static constexpr uint64_t MIN_REINFORCEMENT_ARMY_STRENGTH = 500;
+	static constexpr uint64_t REINFORCEMENT_ARMY_STRENGTH_DIVISOR = 10;
+
+	if(!hero)
+		return false;
+
+	const auto armyStrength = hero->getArmyStrength();
+	uint64_t strongestArmy = armyStrength;
+	bool isStrongestArmy = true;
+
+	for(const auto * otherHero : cc->getHeroesInfo())
+	{
+		if(otherHero == hero)
+			continue;
+
+		const auto otherArmyStrength = otherHero->getArmyStrength();
+		strongestArmy = std::max(strongestArmy, otherArmyStrength);
+		if(otherArmyStrength > armyStrength
+			|| (otherArmyStrength == armyStrength && otherHero->id.getNum() < hero->id.getNum()))
+			isStrongestArmy = false;
+	}
+
+	return isStrongestArmy
+		|| armyStrength > std::max(MIN_REINFORCEMENT_ARMY_STRENGTH, strongestArmy / REINFORCEMENT_ARMY_STRENGTH_DIVISOR);
 }
 
 // TODO: Mircea: Do we need this map on HeroPtr or is enough just on hero?

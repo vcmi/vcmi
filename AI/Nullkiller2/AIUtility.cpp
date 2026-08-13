@@ -201,6 +201,9 @@ bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 // Pathfinder internal helper
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
+	if(obj->ID == Obj::SIGN)
+		return true;
+
 	if((obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
 		&& objectRelations != PlayerRelations::ENEMIES)
 		return true;
@@ -722,23 +725,26 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
-	{
-		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT)
-			return false;
-
-		TResources myRes = aiNk->getFreeResources();
-		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
-			return false;
 		break;
-	}
 	case Obj::MAGIC_WELL:
 		return hero->mana < hero->manaLimit();
 	case Obj::PRISON:
+		// TODO: support freeing a hero slot in prison goal decomposition. There is already findWeakHeroToDismiss()
 		return !aiNk->heroManager->heroCapReached();
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:
-	case Obj::SIGN:
+		return false;
+	}
+
+	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
+	InfoAboutRewardableObject rewardableInfo;
+	if(rewardableObject
+		&& rewardableObject->configuration.visitMode == Rewardable::VISIT_ONCE
+		&& aiNk->cc->getRewardableObjectInfo(obj, rewardableInfo, hero)
+		&& rewardableInfo.scouted
+		&& rewardableInfo.cleared)
+	{
 		return false;
 	}
 

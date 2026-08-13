@@ -98,7 +98,7 @@ namespace Goals
 
 	DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
 	DLL_EXPORT TTask taskptr(const AbstractGoal & tmp);
-	
+
 	class DLL_EXPORT AbstractGoal
 	{
 	public:
@@ -151,7 +151,7 @@ namespace Goals
 		{
 			return goalType == EGoals::INVALID;
 		}
-		
+
 		// virtual bool operator==(const AbstractGoal & g) const;
 		virtual bool operator==(const AbstractGoal & g) const { return false; }
 
@@ -161,11 +161,34 @@ namespace Goals
 
 		virtual uint64_t getHash() const { return 0; }
 
+		virtual bool isObjectAffected(ObjectInstanceID id) const
+		{
+			return (hero && hero->id == id)
+				|| objid == id.getNum()
+				|| (town && town->id == id);
+		}
+
+		virtual std::vector<ObjectInstanceID> getAffectedObjects() const
+		{
+			auto result = std::vector<ObjectInstanceID>();
+
+			if(hero)
+				result.push_back(hero->id);
+
+			if(objid != -1)
+				result.emplace_back(objid);
+
+			if(town)
+				result.push_back(town->id);
+
+			return result;
+		}
+
 		virtual ITask * asTask()
 		{
 			throw std::runtime_error("Abstract goal is not a task");
 		}
-		
+
 		bool operator!=(const AbstractGoal & g) const
 		{
 			return !(*this == g);

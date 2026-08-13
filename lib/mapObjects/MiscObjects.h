@@ -51,6 +51,7 @@ public:
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;
+	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

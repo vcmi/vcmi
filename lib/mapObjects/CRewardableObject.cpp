@@ -222,7 +222,8 @@ std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHe
 	{
 		if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
 		{
-			if (wasVisited(hero))
+			const bool visited = configuration.visitMode == Rewardable::VISIT_ONCE ? onceVisitableObjectCleared : wasVisited(hero);
+			if (visited)
 				result += "\n" + configuration.visitedTooltip.toString();
 			else
 				result += "\n" + configuration.notVisitedTooltip.toString();
@@ -232,7 +233,8 @@ std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHe
 	{
 		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE || configuration.visitMode == Rewardable::VISIT_PLAYER_GLOBAL)
 		{
-			if (wasVisited(player))
+			const bool visited = configuration.visitMode == Rewardable::VISIT_ONCE ? onceVisitableObjectCleared : wasVisited(player);
+			if (visited)
 				result += "\n" + configuration.visitedTooltip.toString();
 			else
 				result += "\n" + configuration.notVisitedTooltip.toString();

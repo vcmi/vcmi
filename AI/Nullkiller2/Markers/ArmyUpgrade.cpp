@@ -23,6 +23,7 @@ ArmyUpgrade::ArmyUpgrade(const AIPath & upgradePath, const CGObjectInstance * up
 	initialValue(upgradePath.heroArmy->getArmyStrength()), goldCost(upgrade.upgradeCost[EGameResID::GOLD])
 {
 	hero = upgradePath.targetHero;
+	objid = upgrader->id.getNum();
 }
 
 ArmyUpgrade::ArmyUpgrade(const CGHeroInstance * targetMain, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade)
@@ -30,6 +31,7 @@ ArmyUpgrade::ArmyUpgrade(const CGHeroInstance * targetMain, const CGObjectInstan
 	initialValue(targetMain->getArmyStrength()), goldCost(upgrade.upgradeCost[EGameResID::GOLD])
 {
 	sethero(targetMain);
+	objid = upgrader->id.getNum();
 }
 
 bool ArmyUpgrade::operator==(const ArmyUpgrade & other) const

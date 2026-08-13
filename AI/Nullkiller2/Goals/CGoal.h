@@ -91,28 +91,9 @@ namespace Goals
 
 		int getHeroExchangeCount() const override { return 0; }
 
-		bool isObjectAffected(ObjectInstanceID id) const override
-		{
-			return (AbstractGoal::hero && AbstractGoal::hero->id == id)
-				|| AbstractGoal::objid == id.getNum()
-				|| (AbstractGoal::town && AbstractGoal::town->id == id);
-		}
+		bool isObjectAffected(ObjectInstanceID id) const override { return AbstractGoal::isObjectAffected(id); }
 
-		std::vector<ObjectInstanceID> getAffectedObjects() const override
-		{
-			auto result = std::vector<ObjectInstanceID>();
-
-			if(AbstractGoal::hero)
-				result.push_back(AbstractGoal::hero->id);
-
-			if(AbstractGoal::objid != -1)
-				result.push_back(ObjectInstanceID(AbstractGoal::objid));
-
-			if(AbstractGoal::town)
-				result.push_back(AbstractGoal::town->id);
-
-			return result;
-		}
+		std::vector<ObjectInstanceID> getAffectedObjects() const override { return AbstractGoal::getAffectedObjects(); }
 
 		ITask * asTask() override
 		{

@@ -16,6 +16,7 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../spells/CSpell.h"
@@ -31,6 +32,26 @@
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
+
+static uint64_t getConfiguredRewardableGuardStrength(const Rewardable::Interface & rewardable, const CGHeroInstance * hero)
+{
+	uint64_t result = 0;
+
+	for(auto index : rewardable.getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+	{
+		uint64_t rewardStrength = 0;
+
+		for(const auto & guard : rewardable.configuration.info[index].reward.guards)
+		{
+			if(guard.getType())
+				rewardStrength += guard.getType()->getAIValue() * guard.getCount();
+		}
+
+		vstd::amax(result, rewardStrength);
+	}
+
+	return result;
+}
 
 const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
 {
@@ -123,6 +144,34 @@ const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId,
 	}
 
 	return ret;
+}
+
+bool CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object, InfoAboutRewardableObject & out, const CGHeroInstance * hero) const
+{
+	out = {};
+
+	const auto * rewardable = dynamic_cast<const CRewardableObject *>(object);
+	if(!rewardable)
+		return false;
+
+	auto player = getPlayerID();
+	out.scouted = !player.has_value() || rewardable->wasScouted(*player);
+
+	if(out.scouted)
+	{
+		out.cleared = rewardable->configuration.visitMode == Rewardable::VISIT_ONCE
+			? rewardable->onceVisitableObjectCleared
+			: hero ? rewardable->wasVisitedBefore(hero) : player.has_value() && rewardable->wasVisited(*player);
+
+		if(const auto * armed = dynamic_cast<const CArmedInstance *>(object))
+			out.guardStrength = armed->getArmyStrength();
+	}
+	else
+	{
+		out.guardStrength = getConfiguredRewardableGuardStrength(*rewardable, hero);
+	}
+
+	return true;
 }
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const

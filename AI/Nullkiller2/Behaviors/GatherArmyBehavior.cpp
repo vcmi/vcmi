@@ -44,6 +44,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * aiNk) const
 		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::MAIN)
 		{
 			vstd::concatenate(tasks, deliverArmyToHero(aiNk, hero));
+			vstd::concatenate(tasks, collectArmyFromNearbyScouts(aiNk, hero));
 		}
 	}
 
@@ -100,12 +101,13 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		}
 
 		HeroExchange heroExchange(receiverHero, path);
-		// TODO: Mircea: Artifacts (inventory things) aren't considered in this calculation, though they are properly changed in an army exchange, to revisit
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(aiNk);
-		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength) / receiverHero->getArmyStrength();
+		const uint64_t artifactExchangeValue = heroExchange.getArtifactExchangeValue();
+		const uint64_t exchangeValue = additionalArmyStrength + artifactExchangeValue;
+		const float additionalArmyRatio = static_cast<float>(exchangeValue) / receiverHero->getArmyStrength();
 
 		// avoid transferring very small amount of army
-		if((additionalArmyRatio < 0.1f && additionalArmyStrength < 20000) || additionalArmyStrength < 500)
+		if((additionalArmyRatio < 0.1f && exchangeValue < 20000) || exchangeValue < 500)
 		{
 #if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("GatherArmyBehavior::deliverArmyToHero Army value is too small.");
@@ -157,7 +159,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		if(isSafe)
 		{
 			Composition composition;
-			ExecuteHeroChain exchangePath(path, receiverHero);
+			ExecuteHeroChain exchangePath(path, receiverHero, false);
 			exchangePath.closestWayRatio = 1;
 			composition.addNext(heroExchange);
 
@@ -209,6 +211,76 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 	return tasks;
 }
 
+Goals::TGoalVec GatherArmyBehavior::collectArmyFromNearbyScouts(const Nullkiller * aiNk, const CGHeroInstance * receiverHero) const
+{
+	Goals::TGoalVec tasks;
+	constexpr float maxMainMovementCost = 0.5f;
+	const auto targetHeroScore = aiNk->heroManager->evaluateHero(receiverHero);
+
+	for(const auto * scout : aiNk->cc->getHeroesInfo())
+	{
+		if(scout == receiverHero)
+			continue;
+		if(scout->getOwner() != aiNk->playerID)
+			continue;
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(scout) != HeroRole::SCOUT)
+			continue;
+		if(!aiNk->heroManager->isMeaningfulArmyCarrier(scout))
+			continue;
+
+		auto paths = aiNk->pathfinder->getPathInfo(scout->visitablePos(), aiNk->isObjectGraphAllowed());
+		for(const auto & path : paths)
+		{
+			if(path.targetHero != receiverHero)
+				continue;
+			if(path.movementCost() > maxMainMovementCost)
+				continue;
+			if(path.getFirstBlockedAction())
+				continue;
+			if(aiNk->getHeroLockedReason(receiverHero) != HeroLockedReason::NOT_LOCKED)
+				continue;
+
+			const uint64_t additionalArmyStrength = aiNk->armyManager->howManyReinforcementsCanGet(receiverHero, scout);
+			const uint64_t exchangeValue = additionalArmyStrength;
+			const float additionalArmyRatio = static_cast<float>(exchangeValue) / std::max<uint64_t>(1, receiverHero->getArmyStrength());
+
+			if((additionalArmyRatio < 0.1f && exchangeValue < 20000) || exchangeValue < 500)
+				continue;
+
+			bool hasOtherMainInPath = false;
+			for(const auto & node : path.nodes)
+			{
+				if(!node.targetHero || node.targetHero == receiverHero)
+					continue;
+
+				if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(node.targetHero) == MAIN
+					&& aiNk->heroManager->evaluateHero(node.targetHero) >= targetHeroScore)
+				{
+					hasOtherMainInPath = true;
+					break;
+				}
+			}
+
+			if(hasOtherMainInPath)
+				continue;
+
+			const auto danger = path.getTotalDanger();
+			if(!isSafeToVisit(receiverHero, path.heroArmy, danger, aiNk->settings->getSafeAttackRatio()))
+				continue;
+
+			Composition composition;
+			HeroExchange heroExchange(receiverHero, path, additionalArmyStrength);
+			ExecuteHeroChain exchangePath(path, scout, false);
+			exchangePath.closestWayRatio = 1;
+			composition.addNext(heroExchange);
+			composition.addNext(exchangePath);
+			tasks.push_back(sptr(composition));
+		}
+	}
+
+	return tasks;
+}
+
 Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const CGTownInstance * upgrader) const
 {
 	Goals::TGoalVec tasks;
@@ -232,7 +304,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 	for(const AIPath & path : paths)
 	{
 		auto heroRole = aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
-		if(heroRole == HeroRole::MAIN && path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
+		if((heroRole == HeroRole::MAIN || aiNk->heroManager->isMeaningfulArmyCarrier(path.targetHero))
+			&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 		{
 			hasMainAround = true;
 			break;
@@ -282,7 +355,10 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		}
 
 		auto upgrade = aiNk->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
-		if(!upgrader->getGarrisonHero() && (hasMainAround || aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero) == HeroRole::MAIN))
+		if(!upgrader->getGarrisonHero()
+			&& (hasMainAround
+				|| aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero) == HeroRole::MAIN
+				|| aiNk->heroManager->isMeaningfulArmyCarrier(path.targetHero)))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 			armyToGetOrBuy.addArmyToGet(aiNk->armyManager->getBestArmy(path.targetHero, path.heroArmy, upgrader->getUpperArmy(), TerrainId::NONE));
@@ -304,6 +380,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 					{
 						Composition recruitHero;
 						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(upgrader, hero));
+						tasks.push_back(sptr(recruitHero));
 					}
 				}
 			}

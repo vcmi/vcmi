@@ -12,26 +12,28 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"
 
-namespace NK2AI
-{
-namespace Goals
+namespace NK2AI::Goals
 {
 	class DLL_EXPORT HeroExchange : public CGoal<HeroExchange>
 	{
+	private:
+		uint64_t reinforcementArmyStrengthOverride = 0;
+
 	public:
 		AIPath exchangePath;
 
-		HeroExchange(const CGHeroInstance * targetHero, const AIPath & exchangePath)
-			: CGoal(Goals::HERO_EXCHANGE), exchangePath(exchangePath)
+		HeroExchange(const CGHeroInstance * targetHero, const AIPath & exchangePath, uint64_t reinforcementArmyStrengthOverride = 0)
+			: CGoal(Goals::HERO_EXCHANGE),
+			exchangePath(exchangePath),
+			reinforcementArmyStrengthOverride(reinforcementArmyStrengthOverride)
 		{
 			sethero(targetHero);
 		}
 
 		bool operator==(const HeroExchange & other) const override;
 		std::string toString() const override;
-
 		uint64_t getReinforcementArmyStrength(const Nullkiller * aiNk) const;
+		uint64_t getArtifactExchangeValue() const;
 	};
 }
 
-}

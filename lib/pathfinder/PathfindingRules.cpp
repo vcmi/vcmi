@@ -253,6 +253,10 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 			/// Transit via unguarded garrisons is always possible
 			return BlockingReason::NONE;
 		}
+		else if(destination.nodeObject->ID == Obj::SIGN)
+		{
+			return BlockingReason::NONE;
+		}
 		else if(const auto * source = destination.nodeObject->asQuestSource();
 			source && source->requiresQuestToPass() && !destination.nodeObject->isBlockedVisitable())
 		{
