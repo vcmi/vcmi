@@ -38,8 +38,6 @@
 				"hapticFeedback",
 				"longTouchTimeMilliseconds",
 				"autosaveCountLimit",
-				"useSavePrefix",
-				"savePrefix",
 				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
@@ -138,14 +136,6 @@
 				"autosaveCountLimit" : {
 					"type" : "number",
 					"default": 5
-				},
-				"useSavePrefix" : {
-					"type": "boolean",
-					"default": true
-				},
-				"savePrefix" : {
-					"type": "string",
-					"default": ""
 				},
 				"startTurnAutosave" : {
 					"type": "boolean",
