@@ -24,7 +24,7 @@
 
 #include "../../lib/CConfigHandler.h"
 
-#ifndef VCMI_MOBILE
+#if !defined(VCMI_MOBILE) || defined(VCMI_SDL3)
 #ifdef VCMI_SDL3
 #include <SDL3/SDL.h>
 #else
@@ -374,11 +374,15 @@ void CSettingsView::fillValidScalingRange()
 	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
 }
 
-#ifndef VCMI_MOBILE
+#if !defined(VCMI_MOBILE) || defined(VCMI_SDL3)
 
 static QStringList getAvailableRenderingDrivers()
 {
+	// SDL3 lists the compiled-in render drivers without an initialized video subsystem,
+	// which matters on mobile where the launcher shares its process with the client
+#ifndef VCMI_SDL3
 	SDL_InitSubSystem(SDL_INIT_VIDEO);
+#endif
 	QStringList result;
 
 	result += QString(); // empty value for autoselection
@@ -398,9 +402,36 @@ static QStringList getAvailableRenderingDrivers()
 #endif
 	}
 
+#ifndef VCMI_SDL3
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 	return result;
 }
+
+void CSettingsView::fillValidRenderers()
+{
+	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
+
+	ui->comboBoxRendererType->clear();
+
+	auto driversList = getAvailableRenderingDrivers();
+	ui->comboBoxRendererType->addItems(driversList);
+
+	std::string rendererName = settings["video"]["driver"].String();
+
+	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
+	ui->comboBoxRendererType->setCurrentIndex(index);
+}
+#else
+void CSettingsView::fillValidRenderers()
+{
+	// SDL2 renderer selection is untested on mobile platforms
+	ui->comboBoxRendererType->hide();
+	ui->labelRendererType->hide();
+}
+#endif
+
+#ifndef VCMI_MOBILE
 
 static QVector<QSize> findAvailableResolutions(int displayIndex)
 {
@@ -509,34 +540,12 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 		}
 	}
 }
-
-void CSettingsView::fillValidRenderers()
-{
-	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
-
-	ui->comboBoxRendererType->clear();
-
-	auto driversList = getAvailableRenderingDrivers();
-	ui->comboBoxRendererType->addItems(driversList);
-
-	std::string rendererName = settings["video"]["driver"].String();
-
-	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
-	ui->comboBoxRendererType->setCurrentIndex(index);
-}
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	// resolutions are not selectable on mobile platforms
 	ui->comboBoxResolution->hide();
 	ui->labelResolution->hide();
-}
-
-void CSettingsView::fillValidRenderers()
-{
-	// untested on mobile platforms
-	ui->comboBoxRendererType->hide();
-	ui->labelRendererType->hide();
 }
 #endif
 

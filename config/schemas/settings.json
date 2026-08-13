@@ -274,7 +274,7 @@
 					"type" : "string",
 					"defaultWindows" : "",
 					"default" : "opengl",
-					"description" : "preferred graphics backend driver name for SDL2"
+					"description" : "preferred graphics backend driver name"
 				},
 				"displayIndex" : {
 					"type" : "number",
