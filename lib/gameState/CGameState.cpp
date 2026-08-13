@@ -172,6 +172,17 @@ const IGameSettings & CGameState::getSettings() const
 	return map->getSettings();
 }
 
+void CGameState::setSaveDirectory(const std::string & value)
+{
+	scenarioOps->saveDirectory = value;
+	initialOpts->saveDirectory = value;
+
+	if(scenarioOps->campState)
+		scenarioOps->campState->setSaveDirectory(value);
+	if(initialOpts->campState)
+		initialOpts->campState->setSaveDirectory(value);
+}
+
 void CGameState::preInit(Services * newServices)
 {
 	services = newServices;

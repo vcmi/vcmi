@@ -116,9 +116,8 @@
 
 #include "../lib/spells/CSpell.h"
 
-#include "../lib/texts/TextOperations.h"
-
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 
 
 // The macro below is used to mark functions that are called by client when game state changes.
@@ -144,7 +143,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new ConditionalWait();
 	cingconsole = new CInGameConsole();
-	autosaveCount = 0;
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
@@ -255,49 +253,11 @@ void CPlayerInterface::performAutosave()
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getCalendar().getCurrentDay() % frequency == 0)
 	{
-		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
-		std::string prefix = std::string();
-
-		if(usePrefix)
-		{
-			prefix = settings["general"]["savePrefix"].String();
-			if(prefix.empty())
-			{
-				std::string name = cb->getMapHeader()->name.toString();
-				int txtlen = TextOperations::getUnicodeCharactersCount(name);
-
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 14));
-				auto const & isSymbolIllegal = [&](char c) {
-					static const std::string forbiddenChars("\\/:*?\"<>| ");
-
-					bool charForbidden = forbiddenChars.find(c) != std::string::npos;
-					bool charNonprintable = static_cast<unsigned char>(c) < static_cast<unsigned char>(' ');
-
-					return charForbidden || charNonprintable;
-				};
-				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
-
-				prefix = vstd::getFormattedDateTime(cb->getStartInfo()->startTime, "%Y-%m-%d_%H-%M") + "_" + name + "/";
-			}
-		}
-
-		autosaveCount++;
-
-		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
-		if(autosaveCountLimit > 0)
-		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
-			autosaveCount %= autosaveCountLimit;
-		}
-		else
-		{
-			auto calendar = cb->getCalendar();
-			std::string stringifiedDate = std::to_string(calendar.getMonth())
-					+ std::to_string(calendar.getWeek())
-					+ std::to_string(calendar.getDayOfWeek());
-
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
-		}
+		const auto calendar = cb->getCalendar();
+		const auto autosaveCountLimit = static_cast<int>(settings["general"]["autosaveCountLimit"].Integer());
+		cb->saveAutosave(
+			SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar),
+			autosaveCountLimit);
 	}
 }
 

@@ -89,14 +89,25 @@ void CSavingScreen::saveGame()
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+	auto confirmOverwrite = [this, path, overWrite]()
 	{
-		std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
-		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
-		GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
+		if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		{
+			std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
+			boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
+			GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
+		}
+		else
+		{
+			overWrite();
+		}
+	};
+
+	if(SavegamePath::isAutosaveName(tabSel->inputName->getText()))
+	{
+		const std::string warning = LIBRARY->generaltexth->translate("vcmi.savingScreen.autosaveNameWarning");
+		GAME->interface()->showYesNoDialog(warning, confirmOverwrite, nullptr);
 	}
 	else
-	{
-		overWrite();
-	}
+		confirmOverwrite();
 }

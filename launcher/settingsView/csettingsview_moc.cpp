@@ -299,7 +299,9 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
-	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
+	const bool autosaveEnabled = settings["general"]["saveFrequency"].Integer() > 0;
+	setCheckbuttonState(ui->buttonAutoSave, autosaveEnabled);
+	ui->spinBoxAutoSaveLimit->setEnabled(autosaveEnabled);
 
 	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
 
@@ -656,6 +658,7 @@ void CSettingsView::on_buttonAutoSave_toggled(bool value)
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = value ? 1 : 0;
 	updateCheckbuttonText(ui->buttonAutoSave);
+	ui->spinBoxAutoSaveLimit->setEnabled(value);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)

@@ -364,6 +364,26 @@ std::optional<CampaignScenarioID> CampaignState::currentScenario() const
 	return currentMap;
 }
 
+std::time_t CampaignState::getStartTime() const
+{
+	return startTime;
+}
+
+void CampaignState::setStartTime(std::time_t value)
+{
+	startTime = value;
+}
+
+const std::string & CampaignState::getSaveDirectory() const
+{
+	return saveDirectory;
+}
+
+void CampaignState::setSaveDirectory(const std::string & value)
+{
+	saveDirectory = value;
+}
+
 std::optional<CampaignScenarioID> CampaignState::lastScenario() const
 {
 	if (mapsConquered.empty())
