@@ -223,9 +223,14 @@ void CClient::initPlayerEnvironments()
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
+		// getAllClientPlayers is derived from lobby StartInfo, which still lists players
+		// pruned during random map generation; skip those absent from the actual game
+		if(color.isValidPlayer() && !gameState().players.count(color))
+			continue;
+
 		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
-		
+
 		if(color.isValidPlayer() && !hasHumanPlayer && gameState().players.at(color).isHuman())
 			hasHumanPlayer = true;
 	}

@@ -360,6 +360,9 @@ void CLobbyScreen::toggleMode(bool host)
 
 void CLobbyScreen::toggleChat()
 {
+	if(!buttonChat)
+		return;
+
 	card->toggleChat();
 	if(card->showChat)
 		buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);

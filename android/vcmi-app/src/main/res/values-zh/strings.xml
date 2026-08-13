@@ -1,3 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    </resources>
+    <string name="server_name">VCMI服务器</string>
+    <string name="shortcut_play">启动VCMI</string>
+</resources>

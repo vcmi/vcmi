@@ -454,11 +454,20 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 			continue;
 		}
 
+		// existsResource may report a stale entry (e.g. mod updated to a version without description);
+		// tolerate a failing load since description is optional and index/disk can diverge until reload
 		if (CResourceHandler::get()->existsResource(getModDescriptionFile(modID)))
 		{
-			auto data = CResourceHandler::get()->load(getModDescriptionFile(modID))->readAll();
-			std::string modDescriptions(reinterpret_cast<const char *>(data.first.get()), data.second);
-			ModDescription::mergeModDescriptions(modConfig, modDescriptions);
+			try
+			{
+				auto data = CResourceHandler::get()->load(getModDescriptionFile(modID))->readAll();
+				std::string modDescriptions(reinterpret_cast<const char *>(data.first.get()), data.second);
+				ModDescription::mergeModDescriptions(modConfig, modDescriptions);
+			}
+			catch (const std::exception & e)
+			{
+				logMod->warn("Failed to load description for mod %s: %s", modID, e.what());
+			}
 		}
 
 		mods.try_emplace(modID, modID, modConfig, availableRepositoryMods[modID]);

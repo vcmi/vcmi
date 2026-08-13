@@ -35,8 +35,8 @@ android {
 		minSdk = qtMinSdkVersion as Integer
 		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
 
-		versionCode 1757
-		versionName "1.7.4"
+		versionCode 1769
+		versionName "1.7.5"
 	}
 
 	sourceSets {

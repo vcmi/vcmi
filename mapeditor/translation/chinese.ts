@@ -1354,12 +1354,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="1093"/>
         <source>Grid clicked</source>
-        <translation>开关网格</translation>
+        <translation>触发网格</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1174"/>
         <source>Fill clicked</source>
-        <translation>已填充</translation>
+        <translation>触发填充</translation>
     </message>
     <message>
         <source>View surface</source>
@@ -2051,7 +2051,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="504"/>
         <source>InstanceName</source>
-        <translation>实力名称</translation>
+        <translation>实例名称</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="509"/>
@@ -2889,7 +2889,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="56"/>
         <source>Day %1</source>
-        <translation>%1 天</translation>
+        <translation>第%1日</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="247"/>
@@ -3877,7 +3877,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="293"/>
         <source>ID: %1</source>
-        <translation>ID: %1</translation>
+        <translation>ID：%1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="295"/>
@@ -4094,7 +4094,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>模版过少！</translation>
     </message>
     <message>
         <source>To few templates!</source>
@@ -4499,7 +4499,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation>字符串标识</translation>
+        <translation>字符串ID</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
@@ -4874,7 +4874,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
-        <translation>人类队伍</translation>
+        <translation>玩家队伍</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="476"/>
@@ -5033,7 +5033,7 @@ Guard: %3</source>
     <message>
         <location filename="../mainwindow.cpp" line="113"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44切分为独立的PNG文件。</translation>
+        <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32和Un44切分为独立的PNG文件。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="114"/>

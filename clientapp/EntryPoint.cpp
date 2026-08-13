@@ -280,164 +280,171 @@ int main(int argc, char * argv[])
 	logConfigurator.configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
-	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](const std::string & filename, const std::string & message)
+	try
 	{
-		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
-			handleFatalError(message, false);
-	};
+		// Some basic data validation to produce better error messages in cases of incorrect install
+		auto testFile = [](const std::string & filename, const std::string & message)
+		{
+			if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
+				handleFatalError(message, false);
+		};
 
-	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
-	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
-	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted!\nBuilt-in mod was not found!");
-	testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + VCMIDirs::get().userDataPath().string() + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
-	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
-	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
+		testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
+		testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
+		testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted!\nBuilt-in mod was not found!");
+		testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + VCMIDirs::get().userDataPath().string() + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
+		testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
+		testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
 
-	if(!settings["session"]["headless"].Bool())
-		ENGINE = std::make_unique<GameEngine>();
+		if(!settings["session"]["headless"].Bool())
+			ENGINE = std::make_unique<GameEngine>();
 
-	GAME = std::make_unique<GameInstance>();
+		GAME = std::make_unique<GameInstance>();
 
-	if (ENGINE)
-		ENGINE->setEngineUser(GAME.get());
+		if (ENGINE)
+			ENGINE->setEngineUser(GAME.get());
 	
 #ifndef VCMI_NO_THREADED_LOAD
-	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	std::thread loading([]()
-	{
-		setThreadName("initialize");
-		init();
-	});
+		//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+		std::thread loading([]()
+		{
+			setThreadName("initialize");
+			init();
+		});
 #else
-	init();
+		init();
 #endif
 
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
-	{
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
+		{
+			CAndroidVMHelper vmHelper;
+			vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
 	#endif // ANDROID
-		loading.join();
+			loading.join();
 	#ifdef VCMI_ANDROID
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
-	}
+			vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
+		}
 	#endif // ANDROID
 #endif // THREADED
 
-	if (criticalInitializationError.has_value())
-	{
-		handleFatalError(criticalInitializationError.value(), false);
-	}
+		if (criticalInitializationError.has_value())
+		{
+			handleFatalError(criticalInitializationError.value(), false);
+		}
 
-	if (ENGINE)
-	{
-		pomtime.getDiff();
-		graphics = new Graphics(); // should be before curh
-		ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
+		if (ENGINE)
+		{
+			pomtime.getDiff();
+			graphics = new Graphics(); // should be before curh
+			ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
 
-		CMessage::init();
-		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
+			CMessage::init();
+			logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
-		ENGINE->cursor().init();
-		ENGINE->cursor().show();
-	}
+			ENGINE->cursor().init();
+			ENGINE->cursor().show();
+		}
 
-	logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
+		logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
 
-	session["autoSkip"].Bool()  = vm.count("autoSkip");
-	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
-	session["aiSolo"].Bool() = false;
+		session["autoSkip"].Bool()  = vm.count("autoSkip");
+		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
+		session["aiSolo"].Bool() = false;
 	
-	if(vm.count("testmap"))
-	{
-		session["testmap"].String() = vm["testmap"].as<std::string>();
-		session["onlyai"].Bool() = true;
-		GAME->server().debugStartTest(session["testmap"].String(), false);
-	}
-	else if(vm.count("testsave"))
-	{
-		session["testsave"].String() = vm["testsave"].as<std::string>();
-		session["onlyai"].Bool() = true;
-		GAME->server().debugStartTest(session["testsave"].String(), true);
-	}
-	else if (!settings["session"]["headless"].Bool())
-	{
-		GAME->mainmenu()->makeActiveInterface();
+		if(vm.count("testmap"))
+		{
+			session["testmap"].String() = vm["testmap"].as<std::string>();
+			session["onlyai"].Bool() = true;
+			GAME->server().debugStartTest(session["testmap"].String(), false);
+		}
+		else if(vm.count("testsave"))
+		{
+			session["testsave"].String() = vm["testsave"].as<std::string>();
+			session["onlyai"].Bool() = true;
+			GAME->server().debugStartTest(session["testsave"].String(), true);
+		}
+		else if (!settings["session"]["headless"].Bool())
+		{
+			GAME->mainmenu()->makeActiveInterface();
 
-		bool playIntroVideo = !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
-		if(playIntroVideo)
-			GAME->mainmenu()->playIntroVideos();
-		else
-			GAME->mainmenu()->playMusic();
-	}
+			bool playIntroVideo = !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
+			if(playIntroVideo)
+				GAME->mainmenu()->playIntroVideos();
+			else
+				GAME->mainmenu()->playMusic();
+		}
 	
 #ifndef VCMI_UNIX
-	// on Linux, name of main thread is also name of our process. Which we don't want to change
-	setThreadName("MainGUI");
+		// on Linux, name of main thread is also name of our process. Which we don't want to change
+		setThreadName("MainGUI");
 #endif
 
-	const auto & runMainLoop = []()
-	{
-		try
+		const auto & runMainLoop = []()
 		{
-			if (ENGINE)
+			try
 			{
-				checkForModLoadingFailure();
-				ENGINE->mainLoop();
+				if (ENGINE)
+				{
+					checkForModLoadingFailure();
+					ENGINE->mainLoop();
+				}
+				else
+				{
+					while(!headlessQuit)
+						std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				}
 			}
-			else
+			catch (const GameShutdownException & )
 			{
-				while(!headlessQuit)
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				// no-op - just break out of main loop
+				logGlobal->info("Main loop termination requested");
 			}
-		}
-		catch (const GameShutdownException & )
-		{
-			// no-op - just break out of main loop
-			logGlobal->info("Main loop termination requested");
-		}
-	};
+		};
 
-	const auto & cleanupEngine = [&logConfigurator]()
+		const auto & cleanupEngine = [&logConfigurator]()
+		{
+			GAME->server().endNetwork();
+
+			if(!settings["session"]["headless"].Bool())
+			{
+				if(GAME->server().client)
+					GAME->server().endGameplay();
+
+				if (ENGINE)
+					ENGINE->windows().clear();
+			}
+
+			GAME.reset();
+
+			if(!settings["session"]["headless"].Bool())
+			{
+				CMessage::dispose();
+				delete graphics;
+				graphics = nullptr;
+			}
+
+			// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
+			ENGINE->async().wait();
+
+			ENGINE.reset();
+
+			delete LIBRARY;
+			LIBRARY = nullptr;
+			logConfigurator.deconfigure();
+
+			std::cout << "Ending...\n";
+		};
+
+		auto onExit = vstd::makeScopeGuard(cleanupEngine);
+		runMainLoop();
+	}
+	catch (const GameShutdownException &)
 	{
-		GAME->server().endNetwork();
-
-		if(!settings["session"]["headless"].Bool())
-		{
-			if(GAME->server().client)
-				GAME->server().endGameplay();
-
-			if (ENGINE)
-				ENGINE->windows().clear();
-		}
-
-		GAME.reset();
-
-		if(!settings["session"]["headless"].Bool())
-		{
-			CMessage::dispose();
-			delete graphics;
-			graphics = nullptr;
-		}
-
-		// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
-		ENGINE->async().wait();
-
-		ENGINE.reset();
-
-		delete LIBRARY;
-		LIBRARY = nullptr;
-		logConfigurator.deconfigure();
-
-		std::cout << "Ending...\n";
-	};
-
-	auto onExit = vstd::makeScopeGuard(cleanupEngine);
-	runMainLoop();
+		logGlobal->info("Shutdown requested during initialization");
+	}
 	return 0;
 }
 
@@ -455,5 +462,5 @@ void handleFatalError(const std::string & message, bool terminate)
 	if (terminate)
 		throw std::runtime_error(message);
 	else
-		::exit(1);
+		throw GameShutdownException();
 }

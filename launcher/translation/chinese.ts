@@ -292,7 +292,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="999"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1004"/>
         <source>mods repository index</source>
-        <translation>模组源索引号</translation>
+        <translation>模组源索引</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
@@ -347,12 +347,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>这是一个附属模组它无法在所属模组外被直接被安装或者卸载</translation>
+        <translation>这是一个子模组，无法脱离所属模组单独安装或卸载</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="441"/>
         <source>Notes</source>
-        <translation>笔记注释</translation>
+        <translation>注释</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="523"/>
@@ -377,7 +377,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="870"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
-        <translation type="unfinished"></translation>
+        <translation>正在解压%3的content.zip(%1/%2)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="877"/>
@@ -554,7 +554,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
         <source>Additional repository</source>
-        <translation>额外仓库</translation>
+        <translation>额外源</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="671"/>
@@ -723,7 +723,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation type="unfinished"></translation>
+        <translation>完全解压模组</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
@@ -878,7 +878,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="483"/>
         <source>Default repository</source>
-        <translation>默认仓库</translation>
+        <translation>默认源</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
@@ -1117,17 +1117,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
         <source>Install gog.com files</source>
-        <translation>安装  gog.com 文件</translation>
+        <translation>安装gog.com文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="494"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation>成功的找到英雄无敌3数据文件。</translation>
+        <translation>已成功找到英雄无敌3数据文件。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="631"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>安装与您英雄无敌3语言相符的翻译</translation>
+        <translation>安装您所选语言的英雄无敌3翻译</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="394"/>
@@ -1172,7 +1172,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation>一款功能丰富的扩展包，为9个原版城镇各自新增一种替代单位，同时加入新的中立生物、生物宝物、技能与魔法，极大地拓展了游戏玩法</translation>
+        <translation>一款功能丰富的扩展包，为9个原版城镇各自新增一种替代单位，同时加入新的中立生物、生物宝屋、技能与魔法，极大地拓展了游戏玩法</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
@@ -1182,7 +1182,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation>检测到英雄无敌3 Demo文件，需要在VCMI中安装此模组来使用Demo资源，否则游戏将会崩溃</translation>
+        <translation>检测到英雄无敌3试玩版文件，需要在VCMI中安装此模组来使用试玩版资源，否则游戏将会崩溃</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1202,7 +1202,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation>Demo支持</translation>
+        <translation>试玩版支持</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1436,7 +1436,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="699"/>
         <source>Scanning selected folder...</source>
-        <translation>扫描选中的文件...</translation>
+        <translation>扫描选中的文件夹...</translation>
     </message>
 </context>
 <context>
@@ -1996,7 +1996,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="635"/>
         <source>Import from Clipboard</source>
-        <translation>从剪切板导入</translation>
+        <translation>从剪贴板导入</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="654"/>
@@ -2085,7 +2085,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="695"/>
         <source>You are using the latest version</source>
-        <translation>您已使用最新版</translation>
+        <translation>您当前使用的是最新版本</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
@@ -2136,7 +2136,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="210"/>
         <source>Update to %1 available</source>
-        <translation>可以更新到%1</translation>
+        <translation>可更新至%1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="246"/>
@@ -2212,7 +2212,7 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation>您已安装的一部分模组的现在可以从模组源里获取更新。使用此选项可以自动将您的所有模组更新到最新版本。
+        <translation>您已安装的部分模组现在有新版本可从模组源获取。使用此选项可以自动将您的所有模组更新到最新版本。
 
 警告：在某些情况下，模组的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新模组。</translation>
     </message>
@@ -2220,35 +2220,45 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="346"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你在gog.com拥有英雄无敌历代记，可以使用GOG提供的离线备份安装包，将英雄无敌历代记的数据导入VCMI，并作为自定义战役使用。
+
+要导入英雄无敌历代记，请下载你想安装的每一部历代记对应的离线备份安装包，选择“导入文件”选项，然后选取已下载的文件。系统将为VCMI自动生成并安装包含这些历代记内容的模组。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到当前安装中缺少英雄无敌3的音乐文件。VCMI仍可正常运行，但游戏内将无法播放音乐。
+
+要解决此问题，请手动将英雄无敌3中的缺失mp3文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="370"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到当前安装中缺少英雄无敌3的视频文件。VCMI仍可正常运行，但游戏内过场动画将无法播放。
+
+要解决此问题，请手动将英雄无敌3中的VIDEO.VID文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="381"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到当前安装中缺少部分英雄无敌3数据文件。你仍可以尝试运行VCMI，但游戏可能无法正常工作，或发生崩溃。
+
+要解决此问题，请重新安装游戏，并使用受支持版本的英雄无敌3重新导入数据文件。VCMI需要英雄无敌3死亡阴影或完全版才能运行，你可以从gog.com获取这些版本。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="392"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI检测到当前安装中缺少部分英雄无敌3末日之刃数据文件。VCMI仍可正常运行，但末日之刃战役将无法使用。
+
+要解决此问题，请手动将英雄无敌3中的缺失数据文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="403"/>
@@ -2257,7 +2267,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
         <translation>要改善VCMI的画质，你可以从Steam上安装来自英雄无敌3高清版的文件。选择Steam上的英雄无敌3高清版文件夹。
 
-安装完成后，你需要设置图像放大器到x2或更高，高清图像效果才可见。</translation>
+安装完成后，你需要设置图像放大过滤器到x2或更高，高清图像效果才可见。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>
@@ -2307,7 +2317,7 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>无法从url中读取JSON或JSON数据不正确</translation>
+        <translation>无法从URL中读取JSON或JSON数据不正确</translation>
     </message>
 </context>
 </TS>

@@ -1,5 +1,32 @@
 # VCMI Project Changelog
 
+## 1.7.4 -> 1.7.5
+
+### Stability
+
+* Fix possible crash on starting random map with random number of players
+* Fixed crash on updating a mod in which mod description file has been removed
+* Block special creatures from being selected for special weeks even if they are marked as allowed to prevent crash
+* Fixed crash on failure to load H3 bitmap font, in favor of using true type font provided by VCMI
+* Fixed possible crash on starting a save with eliminated human player
+* Fixed possible crash on Android on displaying message boxes when VCMI is inactive
+* Game will now stop video playback on stream corruption instead of crashing
+* Fixed failure to open .zip archive on systems that use minizip-ng library, such as Fedora
+* Fixed crash on attempt to create zero-sized slider
+* Fixed crash on right-clicking on configurable map object with empty config
+* Fixed several possible crashes on shutdown
+* Fix potential crash due to use-after-free in movement animation
+* Fix possible crash on hero with invalid starting army escaping a battle
+* Fix concurrency race in NKAI's
+* Fixed crash on manual import of mod with unsatisfied deppendency
+* Fix crash on having ADVANCED_NECROMANCY bonus when loading game started in 1.6 release
+* Fix possible crash on object fade-out
+
+### Other
+
+* Do not allow targeting unavailable hexes with area attacks
+* Fix saving of server port number
+
 ## 1.7.3 -> 1.7.4
 
 * Added in-game Wiki that can be opened via F1 or from adventure map options menu

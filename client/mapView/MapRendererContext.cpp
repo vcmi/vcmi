@@ -528,7 +528,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 	{
 		const auto * object = getObject(objectID);
 
-		if(!object->visitableAt(coordinates))
+		if(!object || !object->visitableAt(coordinates))
 			continue;
 
 		ObjectPosInfo info(object);

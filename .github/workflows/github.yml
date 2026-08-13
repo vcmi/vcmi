@@ -60,7 +60,7 @@ jobs:
           - platform: msvc-x64
             arch: x64
             toolset: '14.29'
-            os: windows-2025
+            os: windows-2025-vs2026
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -74,7 +74,7 @@ jobs:
           - platform: msvc-x86
             arch: amd64_x86
             toolset: '14.29'
-            os: windows-2025
+            os: windows-2025-vs2026
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -87,7 +87,7 @@ jobs:
 
           - platform: msvc-arm64
             arch: arm64
-            os: windows-11-arm
+            os: windows-11-vs2026-arm
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -95,7 +95,7 @@ jobs:
             preset: windows-msvc-ninja-release-arm64
             conan_profile: msvc-arm64
             conan_prebuilts: dependencies-windows-arm64
-            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh
             artifact_platform: arm64
 
           - platform: android-32
@@ -281,7 +281,8 @@ jobs:
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           --conf="tools.cmake.cmaketoolchain:generator=Ninja" \
-          ${{ matrix.conan_options }}
+          ${{ matrix.conan_options }} \
+          ${{ startsWith(matrix.platform, 'msvc') && '--conf="tools.microsoft.msbuild:vs_version=18"' || '' }}
         ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
     # Can't be set in Gradle project

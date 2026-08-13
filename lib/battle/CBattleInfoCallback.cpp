@@ -985,6 +985,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 {
 	RETURN_IF_NOT_BATTLE(false);
 
+	if(!dest.isAvailable())
+		return false;
+
 	const battle::Unit * defender = battleGetUnitByPos(dest);
 	if(!attacker)
 		return false;
@@ -1530,7 +1533,7 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	if (reachableHexes.empty())
 		return BattleHex::INVALID;
 
-	return *std::ranges::min_element(reachableHexes, {}, [&](const BattleHex & h)
+	return *vstd::minElementByFun(reachableHexes, [&](const BattleHex & h)
 	{
 		return BattleHex::getDistance(h, targetHex);
 	});
