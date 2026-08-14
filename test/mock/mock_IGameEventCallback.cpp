@@ -84,6 +84,12 @@ void GameEventCallbackMock::showBlockingDialog(const IObjectInterface * caller, 
 	blockingDialogs.push_back({*iw, caller});
 }
 
+void GameEventCallbackMock::showScriptDialog(BlockingDialog * iw)
+{
+	assert(iw);
+	blockingDialogs.push_back({*iw, nullptr});
+}
+
 void GameEventCallbackMock::giveResource(PlayerColor player, GameResID which, int val)
 {
 	if(!val)
@@ -165,6 +171,17 @@ bool GameEventCallbackMock::changeStackCount(const StackLocation & sl, TQuantity
 	csc.count = count;
 	csc.mode  = mode;
 	sendAndApply(csc);
+	return true;
+}
+
+bool GameEventCallbackMock::insertNewStack(const StackLocation & sl, const CCreature * c, TQuantity count)
+{
+	InsertNewStack ins;
+	ins.army = sl.army;
+	ins.slot = sl.slot;
+	ins.type = c->getId();
+	ins.count = count;
+	sendAndApply(ins);
 	return true;
 }
 

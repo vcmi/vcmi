@@ -47,7 +47,8 @@ void LuaSpellEffectFactory::initialize(const std::string & effectId,
 	const std::string & scope, const std::string & name,
 	const std::vector<PatchEntry> & patches)
 {
-	auto loadedScript = std::make_unique<scripting::LuaScriptInstance>(host, scope, name, patches);
+	ScriptPath basePath = ScriptPath::builtinTODO(name).addPrefix("SCRIPTS/");
+	auto loadedScript = std::make_unique<scripting::LuaScriptInstance>(host, scope, basePath, patches);
 	loadedScripts[effectId] = std::move(loadedScript);
 }
 

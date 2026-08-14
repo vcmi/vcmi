@@ -12,7 +12,10 @@
 #include "../GameConstants.h"
 #include "../networkPacks/ObjProperty.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 class int3;
+class JsonNode;
 struct GiveBonus;
 struct QuestInfo;
 struct CPackForClient;
@@ -52,9 +55,12 @@ namespace vstd
 class RNG;
 }
 
-class DLL_LINKAGE IGameEventCallback
+class DLL_LINKAGE IGameEventCallback : public scripting::ApiRawPointer<IGameEventCallback>
 {
 public:
+	/// Sets value of a map script variable.
+	virtual void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) = 0;
+
 	virtual void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) = 0;
 	virtual void setRewardableObjectConfiguration(ObjectInstanceID mapObjectID, const Rewardable::Configuration & configuration) = 0;
 	virtual void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) = 0;
@@ -64,14 +70,18 @@ public:
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)=0;
+	virtual void buildStructureForced(ObjectInstanceID townID, BuildingID building)=0; //erects a building ignoring cost and prerequisites
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void addQuest(const PlayerColor & player, const QuestInfo & quest) = 0;
+	/// Sets the quest-log / hover hint text of an active quest.
+	virtual void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
+	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;

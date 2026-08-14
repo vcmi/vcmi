@@ -23,6 +23,8 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include "../../lib/gameState/SThievesGuildInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -55,6 +57,13 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 
 		if (!event.affectsPlayer(color, gameHandler->gameInfo().getPlayerState(color)->isHuman()))
 			continue;
+
+		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
+		{
+			gameHandler->runScriptedEvent(*dispatcher, color, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onPlayerTurnStart(*gameHandler, event.scriptHandler, color); });
+			continue;
+		}
 
 		InfoWindow iw;
 		iw.player = color;
@@ -93,6 +102,13 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		PlayerColor player = town->getOwner();
 		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
+
+		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
+		{
+			gameHandler->runScriptedEvent(*dispatcher, player, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onTownTurnStart(*gameHandler, event.scriptHandler, town); });
+			continue;
+		}
 
 		// dialog
 		InfoWindow iw;

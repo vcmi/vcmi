@@ -56,6 +56,12 @@ public:
 	bool isCompleted = false;
 	std::set<PlayerColor> activeForPlayers;
 
+	/// HotA scripted quest: id of the questEvents handler this quest's condition/reward logic lives in
+	std::string scriptHandler;
+
+	/// HotA scripted quest: hint text last set by the script, shown in the quest log and on hover
+	MetaString scriptHintText;
+
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
 	// needed for messages / hover text
@@ -115,6 +121,11 @@ public:
 		h & firstVisitText;
 		h & nextVisitText;
 		h & completedText;
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
+		{
+			h & scriptHandler;
+			h & scriptHintText;
+		}
 		// legacy "text was customized" flags; now derived on the fly from text
 		// emptiness in initObj. Kept on the wire for save compatibility.
 		bool isCustomFirst = !firstVisitText.empty();
@@ -198,6 +209,8 @@ public:
 	// "Visited / not visited" popup text for a keymaster tent or border guard/gate;
 	// kept here for the cross-DLL client KeymasterPopup caller.
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
+
+	std::string getVisitScriptHandler() const override;
 
 	const IQuestSource * asQuestSource() const override { return this; }
 	const Quest * getActiveQuest() const override { return isEmpty() ? nullptr : &getQuest(); }

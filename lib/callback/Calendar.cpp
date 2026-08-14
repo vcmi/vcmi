@@ -49,9 +49,17 @@ int Calendar::getMonth() const
 	return ((day - 1) / getDaysInMonth()) + 1;
 }
 
+const IGameSettings & Calendar::settings() const
+{
+	if(!gameSettings)
+		throw std::runtime_error("Attempt to use a default-constructed Calendar");
+
+	return *gameSettings;
+}
+
 int Calendar::getDaysInWeek() const
 {
-	return gameSettings->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+	return settings().getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
 }
 
 int Calendar::getDaysInMonth() const
@@ -61,10 +69,10 @@ int Calendar::getDaysInMonth() const
 
 int Calendar::getWeeksInMonth() const
 {
-	return gameSettings->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH);
+	return settings().getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH);
 }
 
 Calendar Calendar::nextDay() const
 {
-	return Calendar(*gameSettings, day + 1);
+	return Calendar(settings(), day + 1);
 }

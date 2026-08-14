@@ -13,37 +13,58 @@
 #include "LuaScriptInstance.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/modding/ModScope.h"
 
 namespace scripting
 {
 
-LuaScriptInstance::LuaScriptInstance(LuaModule & host,
-	const std::string & baseScope, const std::string & basePath,
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host,
+	const std::string & baseScope, const ScriptPath & basePath,
 	const std::vector<std::pair<std::string, std::string>> & patches)
 	: host(host)
+	, baseModScope(baseScope)
+	, baseSourcePath(basePath.getName())
 {
 	loadLayer(baseScope, basePath);
 	for (const auto & [scope, path] : patches)
 		loadLayer(scope, path);
 }
 
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
+	const std::vector<std::string> & builtinLayers)
+	: host(host)
+	, baseModScope(baseScope)
+	, baseSourcePath(":map")
+{
+	Layer layer;
+	layer.sourceText = std::move(sourceText);
+	layer.identifier = baseModScope + baseSourcePath;
+	layers.push_back(std::move(layer));
+
+	for(const auto & name : builtinLayers)
+		loadLayer(ModScope::scopeBuiltin(), name);
+}
+
 LuaScriptInstance::~LuaScriptInstance() = default;
 
 void LuaScriptInstance::loadLayer(const std::string & modScope, const std::string & sourcePath)
 {
-	ScriptPath sourcePathId = ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/");
+	loadLayer(modScope, ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/"));
+}
 
+void LuaScriptInstance::loadLayer(const std::string & modScope, const ScriptPath & sourcePath)
+{
 	auto * loader = CResourceHandler::get(modScope);
-	if (!loader->existsResource(sourcePathId))
+	if (!loader->existsResource(sourcePath))
 	{
-		logMod->error("Script layer not found: %s:%s", modScope, sourcePath);
+		logMod->error("Script layer not found: %s:%s", modScope, sourcePath.getName());
 		return;
 	}
 
 	Layer layer;
-	auto rawData = loader->load(sourcePathId)->readAll();
+	auto rawData = loader->load(sourcePath)->readAll();
 	layer.sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
-	layer.identifier = modScope + ':' + sourcePath;
+	layer.identifier = modScope + ':' + sourcePath.getName();
 	layers.push_back(std::move(layer));
 }
 

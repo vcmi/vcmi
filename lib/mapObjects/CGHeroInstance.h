@@ -54,6 +54,11 @@ protected:
 
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject, public scripting::ApiRawPointer<CGHeroInstance>
 {
+public:
+	// Disambiguate the scripting tag: CGHeroInstance is ApiRawPointer both directly and via CGObjectInstance
+	using ScriptingApiName = CGHeroInstance;
+
+private:
 	// We serialize heroes into JSON for crossover
 	friend class CampaignState;
 	friend class CMapLoaderH3M;

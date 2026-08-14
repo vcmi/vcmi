@@ -45,6 +45,7 @@ set(test_SRCS
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
+		map/MapScriptTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp
@@ -60,8 +61,6 @@ set(test_SRCS
 		quest/CQuestGateTest.cpp
 
 		netpacks/NetPackFixture.cpp
-
-#TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/AdventureSpellEffectTest.cpp

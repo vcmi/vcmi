@@ -18,7 +18,7 @@ namespace scripting::api
 /// MethodRegistrar implementation that collects bindings as metadata.
 /// Drives the same `registerMethods` code path the runtime uses, but instead of pushing
 /// closures onto a Lua table it accumulates fully-structured DocEntry records that
-/// downstream code (docs exporter, BindingsCoverageTest) can inspect directly without
+/// downstream code (the docs exporter) can inspect directly without
 /// any string parsing.
 class DocRegistrar final : public MethodRegistrar
 {

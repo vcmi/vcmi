@@ -22,7 +22,7 @@
 class MapServiceTinyH3M : public IMapService
 {
 public:
-	MapServiceTinyH3M(std::vector<uint8_t> h3mBytes, MapListener * mapListener_);
+	MapServiceTinyH3M(std::vector<uint8_t> h3mBytes, MapListener * mapListener_, std::string scriptSource = "");
 
 	std::unique_ptr<CMap>       loadMap(const ResourcePath & name, IGameInfoCallback * cb) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name, bool isEditor = false) const override;
@@ -35,4 +35,5 @@ public:
 
 private:
 	std::vector<uint8_t> bytes;
+	std::string scriptSource;
 };
