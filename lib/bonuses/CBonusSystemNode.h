@@ -37,12 +37,27 @@ public:
 	};
 
 private:
+	struct PropagationRecord
+	{
+		std::shared_ptr<Bonus> materialized;
+		std::shared_ptr<Bonus> original;
+		const CBonusSystemNode * updaterContext;
+	};
+
 	/// List of bonuses that affect this node, whether local, or propagated to this node
 	BonusList bonuses;
 
 	/// List of bonuses that ar ecoming from this node.
 	/// Also includes nodes that are propagated away from this node, and might not affect this node itself
 	BonusList exportedBonuses;
+
+	/// Runtime-only provenance for propagation-updated bonuses exported by runtime nodes.
+	/// The materialized bonus preserves BonusList ordering; its value is evaluated lazily from original.
+	std::map<const Bonus *, PropagationRecord> propagationRecords;
+
+	/// Nodes whose propagated bonuses depend on this node as their updater context.
+	/// Counts are needed when several bonuses or graph paths connect the same pair of nodes.
+	mutable std::map<CBonusSystemNode *, size_t> propagationDependents;
 
 	TCNodesVector parentsToInherit; // we inherit bonuses from them
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
@@ -73,8 +88,15 @@ private:
 	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
 
-	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
-	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
+	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source, bool trackUpdater);
+	void unpropagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode * updaterContext = nullptr);
+	void addPropagationRecord(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & updaterContext);
+	bool removePropagationRecord(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & updaterContext);
+	std::shared_ptr<Bonus> applyPropagationUpdater(const std::shared_ptr<Bonus> & b) const;
+	void addPropagationDependent(CBonusSystemNode & dependent) const;
+	void removePropagationDependent(CBonusSystemNode & dependent) const;
+	void clearPropagationRecords();
+	void removePropagationRecordsForContext(const CBonusSystemNode & updaterContext);
 	bool actsAsBonusSourceOnly() const;
 
 	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
