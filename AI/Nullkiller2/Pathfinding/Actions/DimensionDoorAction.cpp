@@ -22,18 +22,25 @@
 
 namespace NK2AI::AIPathfinding
 {
-	bool canUseDimensionDoorAction(const DimensionDoorActionValidation & validation)
+	bool hasDimensionDoorActionResources(const DimensionDoorActionValidation & validation)
 	{
-		if(!validation.hero || !validation.spell)
+		if(!validation.hero)
 			return false;
 
 		const int plannedAndPerformedCasts = validation.castsAlreadyPerformed
 			+ validation.plannedDimensionDoorCasts;
 
-		return validation.hero->canCastThisSpell(validation.spell)
-			&& validation.hero->mana >= validation.manaAlreadySpent + validation.manaCost
+		return validation.hero->mana >= validation.manaAlreadySpent + validation.manaCost
 			&& validation.movementPointsRemaining > validation.movementPointsRequired
 			&& (validation.castsLimit <= 0 || plannedAndPerformedCasts < validation.castsLimit);
+	}
+
+	bool canUseDimensionDoorAction(const DimensionDoorActionValidation & validation)
+	{
+		return validation.hero
+			&& validation.spell
+			&& validation.hero->canCastThisSpell(validation.spell)
+			&& hasDimensionDoorActionResources(validation);
 	}
 
 	DimensionDoorAction::DimensionDoorAction(const DimensionDoorActionParameters & parameters)

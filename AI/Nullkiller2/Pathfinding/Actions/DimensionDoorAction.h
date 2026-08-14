@@ -29,6 +29,7 @@ namespace NK2AI::AIPathfinding
 		int plannedDimensionDoorCasts = 0;
 	};
 
+	bool hasDimensionDoorActionResources(const DimensionDoorActionValidation & validation);
 	bool canUseDimensionDoorAction(const DimensionDoorActionValidation & validation);
 
 	struct DimensionDoorActionParameters

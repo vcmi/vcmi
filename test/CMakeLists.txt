@@ -169,6 +169,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
 		nullkiller2/Helpers/ExplorationHelperTest.cpp
 		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
+		nullkiller2/Pathfinding/AIPathNodePoolTest.cpp
 		nullkiller2/Pathfinding/ArmyLossTest.cpp
 		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
 	)

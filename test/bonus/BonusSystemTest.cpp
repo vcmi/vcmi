@@ -113,6 +113,32 @@ protected:
 	}
 };
 
+TEST(BonusSystemInvalidationTest, AttachingChildKeepsUnchangedBranchVersions)
+{
+	CBonusSystemNode parent{BonusNodeType::PLAYER};
+	CBonusSystemNode firstChild{BonusNodeType::HERO};
+	CBonusSystemNode secondChild{BonusNodeType::HERO};
+
+	firstChild.attachTo(parent);
+	parent.addNewBonus(std::make_shared<Bonus>(
+		BonusDuration::PERMANENT,
+		BonusType::MORALE,
+		BonusSource::OTHER,
+		1,
+		BonusSourceID()));
+
+	EXPECT_EQ(firstChild.valOfBonuses(BonusType::MORALE), 1);
+
+	const auto parentVersion = parent.getTreeVersion();
+	const auto firstChildVersion = firstChild.getTreeVersion();
+
+	secondChild.attachTo(parent);
+
+	EXPECT_EQ(secondChild.valOfBonuses(BonusType::MORALE), 1);
+	EXPECT_EQ(parent.getTreeVersion(), parentVersion);
+	EXPECT_EQ(firstChild.getTreeVersion(), firstChildVersion);
+}
+
 TEST_F(BonusSystemTest, multipleBonusSources)
 {
 	CBonusSystemNode ring1{BonusNodeType::ARTIFACT_INSTANCE};

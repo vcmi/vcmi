@@ -68,10 +68,10 @@ float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue,
 
 EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	: movementCost(0.0),
+	movementCostByRole(),
 	manaCost(0),
 	danger(0),
 	closestWayRatio(1),
-	movementCostByRole(),
 	skillReward(0),
 	goldReward(0),
 	goldCost(0),
@@ -103,6 +103,12 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 void EvaluationContext::addNonCriticalStrategicalValue(float value)
 {
 	vstd::amax(strategicalValue, std::min(value, MAX_CRITICAL_VALUE));
+}
+
+float EvaluationContext::getMovementCost(const HeroRole role) const
+{
+	static_assert(HeroRole::SCOUT == 0 && HeroRole::MAIN == 1);
+	return movementCostByRole.at(static_cast<size_t>(role));
 }
 
 PriorityEvaluator::~PriorityEvaluator() = default;
@@ -682,7 +688,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 				{
 					const spells::Spell * spell = LIBRARY->spells()->getById(spellID);
 
-					if(hero->canLearnSpell(spell) && !hero->spellbookContainsSpell(spellID))
+					if(hero->canLearnSpell(spell, true))
 					{
 						rewardValue += std::sqrt(spell->getLevel()) / 4.0f;
 					}
@@ -914,7 +920,7 @@ public:
 			const float movementCost = movementSpent / movementLimit;
 
 			evaluationContext.movementCost += movementCost;
-			evaluationContext.movementCostByRole[role] += movementCost;
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += movementCost;
 		}
 	}
 };
@@ -942,7 +948,7 @@ public:
 		else
 		{
 			evaluationContext.movementCost += stayAtTown.getMovementWasted();
-			evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(evaluationContext.heroRole)) += stayAtTown.getMovementWasted();
 		}
 	}
 };
@@ -1045,7 +1051,7 @@ public:
 		for(auto pair : costsPerHero)
 		{
 			auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(pair.first);
-			evaluationContext.movementCostByRole[role] += pair.second;
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += pair.second;
 			if (pair.second > highestCostForSingleHero)
 				highestCostForSingleHero = pair.second;
 		}
@@ -1168,7 +1174,7 @@ public:
 			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target) / boost);
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army) / boost;
-			evaluationContext.movementCostByRole[role] += objInfo.second.movementCost / boost;
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += objInfo.second.movementCost / boost;
 			evaluationContext.movementCost += objInfo.second.movementCost / boost;
 
 			vstd::amax(evaluationContext.turn, objInfo.second.turn / boost);
@@ -1206,7 +1212,7 @@ public:
 			auto mpLeft = garrisonHero->movementPointsRemaining() / (float)garrisonHero->movementPointsLimit();
 
 			evaluationContext.movementCost += mpLeft;
-			evaluationContext.movementCostByRole[defenderRole] += mpLeft;
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(defenderRole)) += mpLeft;
 			evaluationContext.heroRole = defenderRole;
 			evaluationContext.isDefend = true;
 			evaluationContext.armyInvolvement = garrisonHero->getArmyStrength();
@@ -1235,7 +1241,7 @@ public:
 		auto mpLeft = dismissedHero->movementPointsRemaining();
 
 		evaluationContext.movementCost += mpLeft;
-		evaluationContext.movementCostByRole[role] += mpLeft;
+		evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += mpLeft;
 		evaluationContext.goldCost += GameConstants::HERO_GOLD_COST + getArmyCost(dismissedHero);
 	}
 };
@@ -1254,7 +1260,7 @@ public:
 		constexpr int dailyIncomeValueFactor = 7;
 		evaluationContext.goldReward += dailyIncomeValueFactor * bi.dailyIncome.marketValue() / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
-		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
+		evaluationContext.movementCostByRole.at(static_cast<size_t>(evaluationContext.heroRole)) += bi.prerequisitesCount;
 		int32_t cost = bi.buildCost[EGameResID::GOLD];
 		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
@@ -1337,7 +1343,7 @@ public:
 		if(bi.isMissingResources && bi.prerequisitesCount == 1)
 		{
 			evaluationContext.strategicalValue /= 3;
-			evaluationContext.movementCostByRole[evaluationContext.heroRole] += 5;
+			evaluationContext.movementCostByRole.at(static_cast<size_t>(evaluationContext.heroRole)) += 5;
 			evaluationContext.turn += 5;
 		}
 	}
@@ -1440,7 +1446,14 @@ float PriorityEvaluator::evaluateConquestValue(float score, const float conquest
 float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 {
 	auto evaluationContext = buildEvaluationContext(task);
+	return evaluate(task, priorityTier, evaluationContext);
+}
 
+float PriorityEvaluator::evaluate(
+	Goals::TSubgoal task,
+	const int priorityTier,
+	const EvaluationContext & evaluationContext)
+{
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
 
@@ -1471,8 +1484,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.armyLossRatio,
 			maxWillingToLose,
 			static_cast<int>(evaluationContext.turn),
-			evaluationContext.movementCostByRole[HeroRole::MAIN],
-			evaluationContext.movementCostByRole[HeroRole::SCOUT],
+			evaluationContext.getMovementCost(HeroRole::MAIN),
+			evaluationContext.getMovementCost(HeroRole::SCOUT),
 			evaluationContext.armyInvolvement,
 			evaluationContext.goldReward,
 			evaluationContext.goldCost,
@@ -1780,8 +1793,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		task->toString(),
 		evaluationContext.armyLossRatio,
 		static_cast<int>(evaluationContext.turn),
-		evaluationContext.movementCostByRole[HeroRole::MAIN],
-		evaluationContext.movementCostByRole[HeroRole::SCOUT],
+		evaluationContext.getMovementCost(HeroRole::MAIN),
+		evaluationContext.getMovementCost(HeroRole::SCOUT),
 		evaluationContext.armyInvolvement,
 		evaluationContext.goldReward,
 		evaluationContext.goldCost,

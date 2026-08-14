@@ -196,7 +196,9 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 		parent.children.push_back(this);
 	}
 
-	parent.nodeHasChanged();
+	// The new branch was invalidated by attachToSource. Adding it does not
+	// change the parent or existing branches; propagation invalidates every
+	// node whose bonuses actually change.
 }
 
 void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
@@ -247,6 +249,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 				nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 		}
 	}
+
 	parent.nodeHasChanged();
 }
 

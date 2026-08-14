@@ -378,7 +378,7 @@ void ObjectClusterizer::clusterize()
 	}
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, objs.size()),
+		tbb::blocked_range<size_t>(0, objs.size(), 256),
 		[&](const tbb::blocked_range<size_t> & r)
 		{
 			auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
@@ -533,9 +533,11 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+				const auto goal = Goals::sptr(Goals::ExecuteHeroChain(path, obj));
+				const auto evaluationContext = priorityEvaluator->buildEvaluationContext(goal);
+				for(int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 				{
-					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+					priority = std::max(priority, priorityEvaluator->evaluate(goal, prio, evaluationContext));
 				}
 
 				if (priority <= 0)
@@ -557,9 +559,11 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		const auto goal = Goals::sptr(Goals::ExecuteHeroChain(path, obj));
+		const auto evaluationContext = priorityEvaluator->buildEvaluationContext(goal);
+		for(int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+			priority = std::max(priority, priorityEvaluator->evaluate(goal, prio, evaluationContext));
 		}
 
 		if (priority <= 0)
