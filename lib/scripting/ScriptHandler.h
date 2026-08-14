@@ -38,7 +38,7 @@ public:
 
 	void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const override;
 
-	void registerFactory(const std::string & backend, std::shared_ptr<IScriptFactory> factory) override;
+	void registerFactory(std::shared_ptr<IScriptFactory> factory) override;
 
 	std::vector<JsonNode> loadLegacyData() override;
 
@@ -51,6 +51,6 @@ private:
 	/// which can only mean the value itself is corrupt.
 	const LoadedScript * find(ScriptID scriptID) const;
 
-	std::unordered_map<std::string, std::shared_ptr<IScriptFactory>> backends;
+	std::shared_ptr<IScriptFactory> factory;
 	std::vector<LoadedScript> scripts;
 };

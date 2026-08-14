@@ -11,8 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../lib/CStack.h"
-#include "../../lib/battle/BattleInfo.h"
 #include "../../lib/bonuses/Bonus.h"
 #include "../../lib/CCreatureHandler.h"
 
@@ -30,12 +28,12 @@ constexpr int32_t transmuterCount = 1;
 class TransmutationTest : public BattleTestFixture
 {
 public:
-	void setUpBattle(const std::string & transmuter)
+	void setUpBattle(const std::string & transmuter, const std::string & victimCreature = "core:blackDragon")
 	{
 		startGame();
 		startBattle();
 
-		victim = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), victimCount);
+		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		attacker = addStack(BattleSide::DEFENDER, creatureByName(transmuter), BattleHex(rightHex), transmuterCount);
 		ASSERT_NE(victim, nullptr);
 		ASSERT_NE(attacker, nullptr);
@@ -97,20 +95,12 @@ TEST_F(TransmutationTest, ImmuneVictimIsLeftAlone)
 
 TEST_F(TransmutationTest, NonLivingVictimIsLeftAlone)
 {
-	startGame();
-	startBattle();
-
 	// a golem is not alive, and nothing that is not alive can be transmuted
-	CStack * golem = addStack(BattleSide::ATTACKER, creatureByName("core:ironGolem"), BattleHex(leftHex), victimCount);
-	CStack * transmuter = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testTransmuterCount"), BattleHex(rightHex), transmuterCount);
-	ASSERT_NE(golem, nullptr);
-	ASSERT_NE(transmuter, nullptr);
+	setUpBattle("vcmi-test:testTransmuterCount", "core:ironGolem");
 
-	blockRetaliation(transmuter);
+	ASSERT_TRUE(attack(attacker, BattleHex(leftHex)));
 
-	ASSERT_TRUE(attack(transmuter, BattleHex(leftHex)));
-
-	const CStack * survivor = battle()->battleGetStackByPos(BattleHex(leftHex), true);
+	const CStack * survivor = unitOnVictimHex();
 	ASSERT_NE(survivor, nullptr);
 	EXPECT_EQ(survivor->unitType()->getId(), creatureByName("core:ironGolem"));
 }

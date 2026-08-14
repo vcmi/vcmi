@@ -3,13 +3,9 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI script format",
 	"description" : "Format used to define scripts of any kind in VCMI",
-	"required" : [ "type", "implements", "script" ],
+	"required" : [ "implements", "script" ],
 	"additionalProperties" : false,
 	"properties" : {
-		"type" : {
-			"type" : "string",
-			"description" : "Language this script is written in, such as lua"
-		},
 		"implements" : {
 			"type" : "string",
 			"enum" : [ "spellEffect", "combatEvent" ],

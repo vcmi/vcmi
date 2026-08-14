@@ -1,4 +1,5 @@
 local Base = require("combat/combatScript")
+local BattleLog = require("battleLog")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
@@ -40,15 +41,7 @@ function Script:onAfterAttack(server, battle, unit, other)
 	local _, killed = server:damageUnit(battle, other, toKill * other:getMaxHealth())
 
 	server:showBattleAnimation(battle, { { unit = other } }, ANIMATION, SOUND, 1.0)
-
-	if killed > 0 then
-		-- 378 and 379 are the singular and plural forms of the same message
-		server:appendLog(battle, {
-			append         = { killed == 1 and "core.genrltxt.378" or "core.genrltxt.379" },
-			replaceStrings = { other:getCreature():getNameTextID(killed) },
-			replaceNumbers = { killed }
-		})
-	end
+	BattleLog.creaturesPerish(server, battle, other, killed)
 end
 
 return Script

@@ -37,6 +37,7 @@ public:
 	void apply(CPackForClient & pack) override { currentGameState->apply(pack); }
 	void complain(const std::string & problem) override;
 	vstd::RNG * getRNG() override { return &testRandomGenerator; }
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int) override { return false; }
 
 	void apply(BattleLogMessage &) override {}
 	void apply(BattleStackMoved &) override {}
@@ -96,6 +97,12 @@ public:
 
 protected:
 	virtual void onMapStarted() {}
+	/// Services the game state is initialized with. The mock covers map-level tests; a test that
+	/// runs real game logic overrides this with the game library.
+	virtual Services * gameServices() { return &services; }
+	/// Applied to every player of the scenario, for tests that need a specific starting setup.
+	virtual void configurePlayer(PlayerSettings & settings) const {}
+
 	const std::shared_ptr<CGameState> & gameState() const { return currentGameState; }
 	CMap * map() const { return loadedMap; }
 

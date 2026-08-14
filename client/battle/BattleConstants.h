@@ -19,7 +19,6 @@ enum class EBattleEffect
 	BAD_MORALE   = 30,
 	BAD_LUCK     = 48,
 	RESURRECT    = 50,
-	DRAIN_LIFE   = 52,
 	POISON       = 67,
 	DEATH_BLOW   = 73,
 	REGENERATION = 74,

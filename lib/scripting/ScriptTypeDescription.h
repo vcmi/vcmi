@@ -32,7 +32,6 @@ struct ScriptTypeDescription
 	std::string identifier; ///< "lifeDrain"
 	std::string modScope; ///< "core"
 	std::string scriptId; ///< modScope + ':' + identifier, unique across all scripts
-	std::string backend; ///< which scripting language runs this script, e.g. "lua"
 	std::string sourcePath; ///< path to the base source, without the SCRIPTS/ prefix
 	ScriptKind kind = ScriptKind::INVALID;
 	std::vector<ScriptSource> patches; ///< extra layers stacked over the base, in declared order

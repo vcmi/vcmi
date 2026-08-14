@@ -1,6 +1,5 @@
 {
 	"catapult" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/catapult",
 		"schema" : {
@@ -34,7 +33,6 @@
 		}
 	},
 	"clone" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/clone",
 		"schema" : {
@@ -56,7 +54,6 @@
 		}
 	},
 	"damage" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/damage",
 		"schema" : {
@@ -84,7 +81,6 @@
 		}
 	},
 	"demonSummon" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/demonSummon",
 		"schema" : {
@@ -109,7 +105,6 @@
 		}
 	},
 	"dispel" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/dispel",
 		"schema" : {
@@ -137,7 +132,6 @@
 		}
 	},
 	"heal" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/heal",
 		"schema" : {
@@ -165,7 +159,6 @@
 		}
 	},
 	"sacrifice" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/sacrifice",
 		"schema" : {
@@ -193,7 +186,6 @@
 		}
 	},
 	"moat" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/moat",
 		"schema" : {
@@ -239,7 +231,6 @@
 		}
 	},
 	"obstacle" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/obstacle",
 		"schema" : {
@@ -370,7 +361,6 @@
 		}
 	},
 	"removeObstacle" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/removeObstacle",
 		"schema" : {
@@ -393,7 +383,6 @@
 		}
 	},
 	"summon" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/summon",
 		"schema" : {
@@ -421,7 +410,6 @@
 		}
 	},
 	"teleport" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/teleport",
 		"schema" : {
@@ -446,7 +434,6 @@
 		}
 	},
 	"attachCombatScript" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/attachCombatScript",
 		"schema" : {
@@ -471,7 +458,6 @@
 		}
 	},
 	"timed" : {
-		"type" : "lua",
 		"implements" : "spellEffect",
 		"script" : "spells/timed",
 		"stringRegistrations" : [

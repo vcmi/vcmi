@@ -92,22 +92,21 @@ std::vector<RecordedCast> RecordingGameServer::castsOf(const SpellID & spell) co
 	return result;
 }
 
-void BattleTestFixture::SetUp()
-{
-	gameState = std::make_shared<CGameState>();
-	gameState->preInit(LIBRARY);
-}
-
 void BattleTestFixture::TearDown()
 {
+	// the handler holds on to the game state, so it has to go before the state does
 	gameHandler.reset();
-	gameState.reset();
+	TinyMapGameTest::TearDown();
 }
 
-void BattleTestFixture::mapLoaded(CMap * loadedMap)
+Services * BattleTestFixture::gameServices()
 {
-	EXPECT_EQ(this->map, nullptr);
-	this->map = loadedMap;
+	return LIBRARY;
+}
+
+void BattleTestFixture::configurePlayer(PlayerSettings & settings) const
+{
+	settings.bonus = PlayerStartingBonus::GOLD; // no random starting artifact
 }
 
 void BattleTestFixture::startGame()
@@ -123,58 +122,18 @@ void BattleTestFixture::startGame()
 		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0)).heroGarrison({{token, 1}})
 		.hero({7, 7, 0}, HeroTypeID(1), PlayerColor(1)).heroGarrison({{token, 1}});
 
-	auto bytes = builder.build();
-	mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
+	startWithMap(std::move(builder));
 
-	StartInfo si;
-	si.mapname = "tiny";
-	si.difficulty = 0;
-	si.mode = EStartMode::NEW_GAME;
+	server.gameState = gameState();
+	gameHandler = std::make_shared<CGameHandler>(server, gameState());
 
-	std::unique_ptr<CMapHeader> header = mapService->loadMapHeader(ResourcePath(si.mapname));
-	ASSERT_NE(header.get(), nullptr);
-
-	for(int i = 0; i < static_cast<int>(header->players.size()); i++)
-	{
-		const PlayerInfo & pinfo = header->players[i];
-		if(!(pinfo.canHumanPlay || pinfo.canComputerPlay))
-			continue;
-
-		PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
-		pset.color = PlayerColor(i);
-		pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
-		pset.name = "Player";
-		pset.bonus = PlayerStartingBonus::GOLD; // no random starting artifact
-		pset.castle = pinfo.defaultCastle();
-		pset.hero = pinfo.defaultHero();
-	}
-
-	GameRandomizer randomizer(*gameState);
-	Load::ProgressAccumulator progressTracker;
-	gameState->init(mapService.get(), &si, randomizer, progressTracker, false);
-	ASSERT_NE(map, nullptr);
-
-	server.gameState = gameState;
-	gameHandler = std::make_shared<CGameHandler>(server, gameState);
-
-	attackerSideHero = getHeroByOwner(PlayerColor(0));
-	defenderSideHero = getHeroByOwner(PlayerColor(1));
+	attackerSideHero = findHeroByOwner(PlayerColor(0));
+	defenderSideHero = findHeroByOwner(PlayerColor(1));
 	ASSERT_NE(attackerSideHero, nullptr);
 	ASSERT_NE(defenderSideHero, nullptr);
 
 	makeNeutral(attackerSideHero);
 	makeNeutral(defenderSideHero);
-}
-
-CGHeroInstance * BattleTestFixture::getHeroByOwner(PlayerColor owner) const
-{
-	for(auto heroID : map->getHeroesOnMap())
-	{
-		auto * hero = dynamic_cast<CGHeroInstance *>(map->getObject(heroID));
-		if(hero && hero->tempOwner == owner)
-			return hero;
-	}
-	return nullptr;
 }
 
 /// Strips everything that could scale damage on its own - starting skills, primary stats and the
@@ -197,15 +156,15 @@ void BattleTestFixture::startBattle()
 	BattleSideArray<const CArmedInstance *> armies = {attackerSideHero, defenderSideHero};
 
 	int3 tile(4, 4, 0);
-	auto terrain = gameState->getTile(tile)->getTerrainID();
-	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState, attackerSideHero, defenderSideHero);
+	auto terrain = gameState()->getTile(tile)->getTerrainID();
+	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState(), attackerSideHero, defenderSideHero);
 
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(gameState.get(), tile, terrain, BattleField(0), armies, heroes, layout, nullptr);
+	bs.info = BattleInfo::setupBattle(gameState().get(), tile, terrain, BattleField(0), armies, heroes, layout, nullptr);
 	bs.battleID = BattleID(0);
 	gameHandler->sendAndApply(bs);
 
-	ASSERT_EQ(gameState->currentBattles.size(), 1u);
+	ASSERT_EQ(gameState()->currentBattles.size(), 1u);
 
 	battle()->tacticDistance = 0;
 
@@ -227,7 +186,7 @@ void BattleTestFixture::beginCombat()
 
 BattleInfo * BattleTestFixture::battle() const
 {
-	return gameState->currentBattles.front().get();
+	return gameState()->currentBattles.front().get();
 }
 
 CStack * BattleTestFixture::addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count)

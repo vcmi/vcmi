@@ -13,8 +13,6 @@
 
 #include "../../server/CGameHandler.h"
 
-#include "../../lib/CStack.h"
-#include "../../lib/battle/BattleInfo.h"
 #include "../../lib/callback/GameRandomizer.h"
 
 namespace

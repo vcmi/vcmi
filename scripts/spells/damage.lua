@@ -1,4 +1,5 @@
 local Base = require("spells/unitEffect")
+local BattleLog = require("battleLog")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
@@ -129,27 +130,8 @@ function Script:describeEffect(server, battle, mechanics, firstUnit, kills, dama
 		})
 
 	else
-		server:appendLog(battle, {
-			append         = { "core.genrltxt.376" },
-			replaceStrings = { spell:getNameTextID() },
-			replaceNumbers = { damage }
-		})
-		if kills > 0 then
-			if kills > 1 then
-				server:appendLog(battle, {
-					append         = { "core.genrltxt.379" },
-					replaceStrings = { multiple and "core.genrltxt.43"
-					                            or firstUnit:getCreature():getNameTextID(0) },
-					replaceNumbers = { kills }
-				})
-			else
-				server:appendLog(battle, {
-					append         = { "core.genrltxt.378" },
-					replaceStrings = { multiple and "core.genrltxt.42"
-					                            or firstUnit:getCreature():getNameTextID(1) }
-				})
-			end
-		end
+		-- an area spell kills creatures of several stacks, so the log names none of them
+		BattleLog.spellDamage(server, battle, spell, not multiple and firstUnit or nil, damage, kills)
 	end
 end
 

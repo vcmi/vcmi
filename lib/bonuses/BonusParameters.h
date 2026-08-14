@@ -58,9 +58,6 @@ struct BonusParametersOnCombatEvent
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	// new alternatives must be appended - variant index is part of the save format.
-	// JsonNode holds the read-only payload that initializes a combat script on every call;
-	// scripts that need mutable state must track it themselves, e.g. via a separate bonus
 	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent, JsonNode>;
 
 	BonusParameters() = default;

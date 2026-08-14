@@ -120,7 +120,7 @@ On `installScripting`, registers `LuaScriptFactory` with the `ScriptService` und
 
 ### LuaScriptInstance
 
-Stores the source code and identity of a single Lua script. Created by `LuaScriptStore` when a script declares `"type" : "lua"`. Persists for the lifetime of the module — across map restarts.
+Stores the source code and identity of a single Lua script. Created by `LuaScriptStore` for every script declared in json. Persists for the lifetime of the module — across map restarts.
 
 Key fields:
 

@@ -14,14 +14,14 @@
 class JsonNode;
 struct Bonus;
 
-/// Conversion of combat abilities that used to be hardcoded bonus types into the
-/// COMBAT_EVENT_TRIGGER bonus that runs the combat script replacing them. Keeps existing content
-/// working without every mod having to be updated.
+/// Conversion of bonus types that no longer exist into whatever replaced them - most of them
+/// combat abilities that became the COMBAT_EVENT_TRIGGER bonus running a combat script. Keeps
+/// existing content working without every mod having to be updated.
 namespace BonusMigration
 {
-/// Rewrites a bonus config declaring such an ability into its script form. Returns false and
+/// Rewrites a bonus config declaring a retired bonus into its replacement. Returns false and
 /// leaves 'migrated' untouched when the config needs no conversion.
-DLL_LINKAGE bool migrateCombatAbility(const JsonNode & ability, JsonNode & migrated);
+DLL_LINKAGE bool migrateBonus(const JsonNode & ability, JsonNode & migrated);
 
 /// Same conversion, for a bonus restored from a save predating the ability becoming a script.
 DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);

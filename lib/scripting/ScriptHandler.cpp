@@ -54,7 +54,7 @@ std::shared_ptr<spells::effects::Effect> ScriptHandler::createSpellEffect(Script
 	if(!script || script->description.kind != ScriptKind::SPELL_EFFECT)
 		return nullptr;
 
-	return backends.at(script->description.backend)->createSpellEffect(script->description.scriptId);
+	return factory->createSpellEffect(script->description.scriptId);
 }
 
 std::string ScriptHandler::getJsonKey(ScriptID scriptID) const
@@ -85,9 +85,9 @@ ScriptKind ScriptHandler::getKind(ScriptID scriptID) const
 	return script ? script->description.kind : ScriptKind::INVALID;
 }
 
-void ScriptHandler::registerFactory(const std::string & backend, std::shared_ptr<IScriptFactory> factory)
+void ScriptHandler::registerFactory(std::shared_ptr<IScriptFactory> newFactory)
 {
-	backends[backend] = factory;
+	factory = std::move(newFactory);
 }
 
 std::vector<JsonNode> ScriptHandler::loadLegacyData()
@@ -101,7 +101,6 @@ void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNo
 	description.identifier = name;
 	description.modScope = scope;
 	description.scriptId = scope + ':' + name;
-	description.backend = data["type"].String();
 	description.sourcePath = data["script"].String();
 	description.kind = parseKind(data["implements"].String());
 	description.parametersSchema = data["schema"];
@@ -119,29 +118,22 @@ void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNo
 		return;
 	}
 
-	auto backend = backends.find(description.backend);
-	if(backend == backends.end())
-	{
-		logMod->error("Script '%s' is written in unknown language '%s'! Script will not be loaded.", description.scriptId, description.backend);
-		return;
-	}
-
 	if(!data["description"].isNull())
 	{
 		description.descriptionTextID = TextIdentifier(scope, "script", name, "description").get();
 		LIBRARY->generaltexth->registerString(scope, description.descriptionTextID, data["description"]);
 	}
 
-	backend->second->initialize(description);
+	factory->initialize(description);
 
 	LoadedScript loadedScript;
 	// a stateless script is shared, so it is created once here rather than on every event
 	if(description.kind == ScriptKind::COMBAT_EVENT)
 	{
-		loadedScript.combatEventScript = backend->second->createCombatEventScript(description.scriptId);
+		loadedScript.combatEventScript = factory->createCombatEventScript(description.scriptId);
 
 		if(!loadedScript.combatEventScript)
-			logMod->error("Language '%s' can not provide combat event scripts, required by '%s'!", description.backend, description.scriptId);
+			logMod->error("Scripting host can not provide combat event scripts, required by '%s'!", description.scriptId);
 	}
 	loadedScript.description = std::move(description);
 

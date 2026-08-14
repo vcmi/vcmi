@@ -24,7 +24,6 @@ Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the
 
 ```json
 "lifeDrain" : {
-    "type" : "lua",
     "implements" : "combatEvent",
     "script" : "lifeDrain",
     "description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
@@ -94,15 +93,12 @@ Functions:
 - `onBeforeAttack` - called on the attacker before every one of its attacks, retaliations included
 - `onBeforeAttacked` - called on every unit the attack is about to reach, not only its primary
   target, before every attack
-- `onAttackResolved` - called on the attacker once its attack is resolved, **before** any unit it
-  hit reacts. This is where an effect belongs if it must land even when the reaction kills the
-  attacker - life drain heals here, before a fire shield can burn it down
+- `onAfterAttack` - called on the attacker once its attack is resolved. The attacker may be dead by
+  then, killed by a reaction to its own attack, so a script that must not act from beyond the grave
+  checks `unit:isAlive()` itself
 - `onAfterAttacked` - called on every unit the attack hit, once that attack is resolved. Fires even
   when the attack killed `unit`, so that a reflecting ability still answers a lethal blow; a script
   that should not react from a dead unit has to check for itself
-- `onAfterAttack` - called on the attacker last, **after** every unit it hit has reacted. The
-  attacker may be dead by then, killed by a reaction to its own attack, so a script that must not
-  act from beyond the grave checks `unit:isAlive()` itself
 - `onWait` - called when `unit` waits
 - `onDefend` - called when `unit` defends
 - `onBeforeMove` - called before `unit` starts movement
@@ -116,13 +112,17 @@ Functions:
 The attack events always fire in this order, once per attack:
 
 ```
-onBeforeAttack   (attacker)
-onBeforeAttacked (each unit about to be hit)
+onBeforeAttack   (attacker)  \  one group, ordered by priority
+onBeforeAttacked (each unit about to be hit)  /
       ... damage is rolled and applied, the combat log is written ...
-onAttackResolved (attacker)
-onAfterAttacked  (each unit that was hit)
-onAfterAttack    (attacker)
+onAfterAttack    (attacker)  \  one group, ordered by priority
+onAfterAttacked  (each unit that was hit)  /
 ```
+
+The attacker and the units it hits react as one ordered group, so `priority` alone decides whether
+a script runs before or after another - which side of the attack it sits on does not matter. That
+is what lets life drain (priority 0) heal before a fire shield (priority 50) burns the attacker
+down.
 
 None of them is withheld: a counterattack, the second blow of a double attack and an attack whose
 bearer dies mid-resolution all deliver the full sequence. Deciding whether to act is left to the

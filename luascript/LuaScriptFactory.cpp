@@ -28,7 +28,8 @@ LuaScriptStore::~LuaScriptStore() = default;
 
 void LuaScriptStore::load(const ScriptTypeDescription & description)
 {
-	loadedScripts[description.scriptId] = std::make_unique<LuaScriptInstance>(host, description.modScope, description.sourcePath, description.patches);
+	ScriptPath basePath = ScriptPath::builtinTODO(description.sourcePath).addPrefix("SCRIPTS/");
+	loadedScripts[description.scriptId] = std::make_unique<LuaScriptInstance>(host, description.modScope, basePath, description.patches);
 }
 
 const LuaScriptInstance * LuaScriptStore::get(const std::string & scriptId) const

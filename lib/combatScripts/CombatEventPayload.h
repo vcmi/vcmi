@@ -53,6 +53,6 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 		s("targets",     targets,     "Units hit by the attack that caused this event. Before the attack, only their identity and remaining health are known.");
 		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
 		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
-		s("attackIndex", attackIndex, "Index of this attack among those its own side makes in this action. A counterattack is its side's attack 0.");
+		s("attackIndex", attackIndex, "Zero-based index of this attack among those its own side makes in this action, so a second blow of a double attack is 1. A counterattack is its side's attack 0.");
 	}
 };

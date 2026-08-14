@@ -9,19 +9,18 @@
  */
 #pragma once
 
-#include "mock/mock_MapServiceTinyH3M.h"
+#include "mock/TinyMapGameTest.h"
 
 #include "../../server/IGameServer.h"
+// every scenario reads the units it placed and the battle they are in, so the fixture brings both
+#include "../../lib/CStack.h"
+#include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-class CGameState;
 class CGHeroInstance;
-class CMap;
-class CStack;
-class BattleInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -64,16 +63,14 @@ private:
 /// A real game with two heroes and a battle between them, which is what tests of server-side
 /// battle abilities need before they can do anything at all. Everything that could scale damage
 /// on its own is stripped from both heroes, so a scenario measures only what it sets up.
-class BattleTestFixture : public ::testing::Test, public MapListener
+class BattleTestFixture : public TinyMapGameTest
 {
 public:
 	/// Free hexes in the middle of the field, away from the armies placed by the layout.
 	static constexpr int leftHex = 5 * GameConstants::BFIELD_WIDTH + 7;
 	static constexpr int rightHex = leftHex + 1;
 
-	void SetUp() override;
 	void TearDown() override;
-	void mapLoaded(CMap * map) override;
 
 	/// Two heroes with a token army each, so that a battle between them is valid.
 	void startGame();
@@ -83,7 +80,6 @@ public:
 	void beginCombat();
 
 	BattleInfo * battle() const;
-	CGHeroInstance * getHeroByOwner(PlayerColor owner) const;
 
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
 	void giveArtifact(CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
@@ -106,18 +102,20 @@ public:
 	/// Creature declared by a mod, by its full identifier - "vcmi-test:testSoulStealer".
 	static CreatureID creatureByName(const std::string & name);
 
-	std::shared_ptr<CGameState> gameState;
-	std::unique_ptr<MapServiceTinyH3M> mapService;
 	/// Shared rather than unique so that tests need not see the definition of the game handler
 	/// only in order to destroy one.
 	std::shared_ptr<CGameHandler> gameHandler;
 	RecordingGameServer server;
 
-	CMap * map = nullptr;
 	/// Hero of the side that starts on the left of the battlefield, and its opponent.
 	CGHeroInstance * attackerSideHero = nullptr;
 	CGHeroInstance * defenderSideHero = nullptr;
 
+protected:
+	/// A battle runs real game logic, which the mocked services cannot answer.
+	Services * gameServices() override;
+	void configurePlayer(PlayerSettings & settings) const override;
+
 private:
-	void makeNeutral(CGHeroInstance * hero);
+	static void makeNeutral(CGHeroInstance * hero);
 };

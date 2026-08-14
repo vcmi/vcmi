@@ -1,6 +1,5 @@
 {
 	"transmutation" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/transmutation",
 		"priority" : 300,
@@ -24,7 +23,6 @@
 		"description" : "{Transmutation}\nHas a ${val}% chance to transform the attacked unit into another type."
 	},
 	"summonGuardians" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/summonGuardians",
 		"schema" : {
@@ -42,7 +40,6 @@
 		"description" : "{Summon Guardians}\nAt the start of battle, summons ${creature} (${val}%)."
 	},
 	"enchanted" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/enchanted",
 		"schema" : {
@@ -72,7 +69,6 @@
 		"description" : "{Enchanted}\nPermanently affected by ${spell}."
 	},
 	"lifeDrain" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/lifeDrain",
 		"schema" : {
@@ -82,7 +78,6 @@
 		"description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 	},
 	"fireShield" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/fireShield",
 		"priority" : 50,
@@ -93,7 +88,6 @@
 		"description" : "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker."
 	},
 	"deathStare" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/deathStare",
 		"priority" : 100,
@@ -121,7 +115,6 @@
 		"description" : "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature."
 	},
 	"destruction" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/destruction",
 		"priority" : 400,
@@ -145,7 +138,6 @@
 		"description" : "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking."
 	},
 	"soulSteal" : {
-		"type" : "lua",
 		"implements" : "combatEvent",
 		"script" : "combat/soulSteal",
 		"schema" : {

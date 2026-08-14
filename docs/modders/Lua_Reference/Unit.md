@@ -100,6 +100,12 @@ True if the stack was summoned during battle (e.g. by Summon Elementals).
 
 - returns `boolean`
 
+### isLiving
+
+True if the stack is a living creature - not undead, not a golem-like non-living unit.
+
+- returns `boolean`
+
 ### getOwner
 
 Returns the player color controlling this unit.
@@ -112,7 +118,7 @@ Returns the army slot in the army this unit occupies. NOTE: All summoned units s
 
 - returns `integer`
 
-### unitSide
+### getSide
 
 Returns the battle side (attacker or defender) this unit belongs to.
 
@@ -174,6 +180,12 @@ Returns the list of hexes currently occupied by the unit.
 
 - returns [`BattleHexArray`](BattleHexArray.md)
 
+### getSurroundingHexes
+
+Returns the hexes adjacent to the unit - six for a single-hex unit, eight for a double-wide one.
+
+- returns [`BattleHexArray`](BattleHexArray.md)
+
 ### copy
 
 Returns a copy of the unit's state allowing copying or changing this unit via server calls.
@@ -183,6 +195,12 @@ Returns a copy of the unit's state allowing copying or changing this unit via se
 ### creatureLevel
 
 Returns the creature level (1..7) of the unit's type.
+
+- returns `integer`
+
+### getLevel
+
+Returns the level of the stack itself, which for a commander is its own level rather than the tier of its creature. Use `creatureLevel` when the creature type is what matters.
 
 - returns `integer`
 

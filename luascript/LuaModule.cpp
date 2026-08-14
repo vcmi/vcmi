@@ -36,7 +36,7 @@ LuaModule::~LuaModule() = default;
 void LuaModule::installScripting(ScriptService & scripts)
 {
 	factory = std::make_shared<LuaScriptFactory>(*store);
-	scripts.registerFactory("lua", factory);
+	scripts.registerFactory(factory);
 }
 
 std::unique_ptr<Pool> LuaModule::createPoolInstance(const Environment * ENV) const

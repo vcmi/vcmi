@@ -72,8 +72,8 @@ function AdventureServer:takeSpell(hero, spell) end
 ---@param amount integer # How many points to add. Use a negative number to reduce the skill; it is clamped at zero and never goes negative.
 function AdventureServer:grantPrimarySkill(hero, skill, amount) end
 
----Teaches a secondary skill to a hero, or raises it to the given mastery. If the hero already knows the skill at an equal or higher mastery it is left unchanged; a hero who has no free skill slots left will not learn a brand-new skill.
----@param hero HeroInstance # Hero that learns or improves the skill.
+---Teaches a secondary skill to a hero, or changes it to the given mastery. A hero who has no free skill slots left will not learn a brand-new skill.
+---@param hero HeroInstance # Hero that learns the skill.
 ---@param skill Skill # Secondary skill to grant, as returned by Services:getSecondarySkillByName.
 ---@param level integer # Mastery to move to: 1 = basic, 2 = advanced, 3 = expert.
 function AdventureServer:grantSecondarySkill(hero, skill, level) end
@@ -223,6 +223,17 @@ function Battle:getUnitsIf(predicate) end
 ---@return boolean
 function Battle:isAccessibleForUnit(unit, hex) end
 
+---True if a unit of the given creature could be placed on the given hex. Use before summoning a unit; unlike `isAccessibleForUnit` it needs no existing unit to ask about.
+---@param hex BattleHex # Hex the unit would be placed on. For a double-wide creature this is its front hex.
+---@param creature Creature # Creature that would be placed there.
+---@param side BattleSide # Battle side the unit would belong to, which decides where its second hex goes.
+---@return boolean
+function Battle:isAccessibleForNewUnit(hex, creature, side) end
+
+---Returns the number of hex columns on the battlefield, including the two edge columns that units cannot stand on.
+---@return integer
+function Battle:getFieldWidth() end
+
 ---True if a ranged attack along this line crosses a wall or moat (per the flags).
 ---@param from BattleHex # Origin hex of the ranged attack.
 ---@param dest BattleHex # Target hex of the ranged attack.
@@ -230,6 +241,24 @@ function Battle:isAccessibleForUnit(unit, hex) end
 ---@param checkMoat boolean # Pass true to count crossing a moat as a penalty source.
 ---@return boolean
 function Battle:hasPenaltyOnLine(from, dest, checkWall, checkMoat) end
+
+---True if the attacker stands where it could hit the defender in melee. False for units that an area attack reached without being adjacent to them, such as a dragon breath's second target.
+---@param attacker Unit # Unit that would strike.
+---@param defender Unit # Unit that would be struck.
+---@return boolean
+function Battle:isMeleeAttackPossible(attacker, defender) end
+
+---True if the shooter is too far from the target for a full-strength shot.
+---@param shooter Unit # Unit making the ranged attack.
+---@param target Unit # Unit being shot at.
+---@return boolean
+function Battle:hasDistancePenalty(shooter, target) end
+
+---True if a town wall stands between the shooter and the target.
+---@param shooter Unit # Unit making the ranged attack.
+---@param target Unit # Unit being shot at.
+---@return boolean
+function Battle:hasWallPenalty(shooter, target) end
 
 ---Returns the unit covering the given hex, or nil.
 ---@param hex BattleHex # Hex to inspect for a unit.
@@ -330,6 +359,14 @@ function BattleHex:copyToSouthWest() end
 ---Returns the neighbouring hex one step west.
 ---@return BattleHex
 function BattleHex:copyToWest() end
+
+---Returns the column of this hex, from 0 at the left edge of the battlefield to 16 at the right one. The two edge columns only hold the heroes, so no unit ever stands there.
+---@return integer
+function BattleHex:getX() end
+
+---Returns the row of this hex, from 0 at the top of the battlefield to 10 at the bottom. Odd rows are shifted half a hex to the right.
+---@return integer
+function BattleHex:getY() end
 
 ---A list of BattleHex values. Used wherever the engine returns or accepts a set of tiles (reachable hexes, area-of-effect, obstacle footprint, …). Supports indexed access, insertion, and erasure; iteration order matches insertion order
 ---@class BattleHexArray
@@ -450,6 +487,49 @@ function BattleServer:catapultAttack(battle, attacker, attackedPart, damageDealt
 ---@param high integer # Inclusive upper bound.
 ---@return integer # Random integer in [low, high].
 function BattleServer:rngInt(low, high) end
+
+---Rolls the same chance many times over and returns how many succeeded. Use this rather than a loop over `rngInt` for abilities that roll once per creature in a stack, which can number in the thousands.
+---@param trials integer # How many independent chances are rolled.
+---@param chance number # Chance of each one succeeding, from 0 to 1.
+---@return integer # How many of them succeeded.
+function BattleServer:rngBinomial(trials, chance) end
+
+---Rolls a chance-based combat ability. Use this rather than `rngInt` for abilities that trigger with a percentage chance - it draws from the per-army biased sequence
+---@param battle Battle # Battle the acting unit fights in.
+---@param actor Unit # Unit whose ability is being rolled.
+---@param percentageChance integer # Chance to succeed, in percent.
+---@return boolean # True if the ability triggers.
+function BattleServer:rollCombatAbility(battle, actor, percentageChance) end
+
+---Casts a spell as a passive ability of the caster: announces it so that clients play its animation and sound, filters the targets through the spell's own immunity rules, and applies its effects with the given magnitude. Casting this way never fires a combat event, so a script that casts cannot re-enter itself.
+---@param battle Battle # Battle the spell is cast in.
+---@param caster Unit # Unit whose ability casts the spell.
+---@param spell Spell # Spell to cast.
+---@param target Unit[] # Units the spell is aimed at.
+---@param effectValue integer # Magnitude handed to the spell's effects, for spells that take one.
+function BattleServer:castSpell(battle, caster, spell, target, effectValue) end
+
+---Applies the effects of a spell to the given units, and nothing else. Unlike casting the spell, the target list is used as given rather than expanded through the spell's range, magic resistance and magic mirror are not rolled, countering effects are not removed, and no spell animation or battle log entry is produced. Use it for abilities that behave as if the spell were already in effect.
+---@param battle Battle # Battle the spell is applied in.
+---@param caster Unit # Unit acting as the caster. Its stats scale the effects.
+---@param spell Spell # Spell whose effects are applied.
+---@param target Unit[] # Units to affect.
+---@param spellLevel integer # Mastery level the effects are applied at.
+---@param effectDuration integer # How many turns timed effects of the spell last.
+---@param ignoreImmunity boolean # Pass true to affect units that are immune to the spell.
+function BattleServer:applySpellEffects(battle, caster, spell, target, spellLevel, effectDuration, ignoreImmunity) end
+
+---Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a visual to a change the script made itself. The animation plays after whatever is currently animating has finished, rather than overlapping it.
+---@param battle Battle # Battle the animation is played in.
+---@param target Destination[] # Units and hexes the animation is played on, one copy each.
+---@param animation string # Resource name of the animation to play, e.g. `SP06_`.
+---@param sound string # Resource name of the sound to play alongside it, or an empty string for none.
+---@param transparency number # Opacity of the animation, from 0 for invisible to 1 for opaque.
+function BattleServer:showBattleAnimation(battle, target, animation, sound, transparency) end
+
+---Makes the client play back pending unit changes. Needed after adding or removing units outside of an attack, which otherwise produce no animation.
+---@param battle Battle # Battle whose units were changed.
+function BattleServer:refreshBattleUnits(battle) end
 
 ---A single effect contributing to target abilities (e.g. +5 attack, immunity to fire spells). Carries type, value, source, duration, stacking key. Scripts read bonuses through `getBonuses(...)` and construct new ones via addUnitBonus or addBattleBonus in ServerCallback.
 ---@class Bonus
@@ -1282,6 +1362,14 @@ function Spell:getLevelPower(skillLevel) end
 ---@return SpellSchool[]
 function Spell:getSchools() end
 
+---Runs a raw damage amount through this spell's damage pipeline - the school bonuses of the actor's hero, and the target's resistances, vulnerabilities and immunities. Use it for abilities that damage as if they were this spell without actually casting it.
+---@param battle Battle # Battle the damage is dealt in.
+---@param actor Unit # Unit whose ability deals the damage. Its hero, if it has one, provides the caster bonuses.
+---@param target Unit # Unit taking the damage, whose resistances and vulnerabilities apply.
+---@param rawDamage integer # Damage before any of those modifiers.
+---@return integer
+function Spell:adjustDamage(battle, actor, target, rawDamage) end
+
 ---Per-cast spell context: which Spell is being cast, who is casting it, at what power and level. Lua spell scripts receive this as the entry point to their cast logic and consult it for caster identity, target validation, and damage formulas.
 ---@class SpellMechanics
 local SpellMechanics = {}
@@ -1536,6 +1624,10 @@ function Unit:hasAbsoluteImmunity(spell) end
 ---@return boolean
 function Unit:isSummoned() end
 
+---True if the stack is a living creature - not undead, not a golem-like non-living unit.
+---@return boolean
+function Unit:isLiving() end
+
 ---Returns the player color controlling this unit.
 ---@return integer
 function Unit:getOwner() end
@@ -1546,7 +1638,7 @@ function Unit:getSlot() end
 
 ---Returns the battle side (attacker or defender) this unit belongs to.
 ---@return BattleSide
-function Unit:unitSide() end
+function Unit:getSide() end
 
 ---Returns the battlefield hex occupied by the unit, or front hex for double-wide units
 ---@return BattleHex
@@ -1585,6 +1677,10 @@ function Unit:getBaseAmount() end
 ---@return BattleHexArray
 function Unit:getHexes() end
 
+---Returns the hexes adjacent to the unit - six for a single-hex unit, eight for a double-wide one.
+---@return BattleHexArray
+function Unit:getSurroundingHexes() end
+
 ---Returns a copy of the unit's state allowing copying or changing this unit via server calls.
 ---@return UnitState
 function Unit:copy() end
@@ -1592,6 +1688,10 @@ function Unit:copy() end
 ---Returns the creature level (1..7) of the unit's type.
 ---@return integer
 function Unit:creatureLevel() end
+
+---Returns the level of the stack itself, which for a commander is its own level rather than the tier of its creature. Use `creatureLevel` when the creature type is what matters.
+---@return integer
+function Unit:getLevel() end
 
 ---DEPRECATED. Returns the unit's internal numeric identifier.
 ---@return integer

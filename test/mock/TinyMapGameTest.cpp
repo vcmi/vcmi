@@ -21,7 +21,7 @@
 void TinyMapGameTest::SetUp()
 {
 	currentGameState = std::make_shared<CGameState>();
-	currentGameState->preInit(&services);
+	currentGameState->preInit(gameServices());
 }
 
 void TinyMapGameTest::TearDown()
@@ -81,6 +81,7 @@ void TinyMapGameTest::startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficul
 		settings.name = "Player";
 		settings.castle = playerInfo.defaultCastle();
 		settings.hero = playerInfo.defaultHero();
+		configurePlayer(settings);
 	}
 
 	GameRandomizer randomizer(*currentGameState);

@@ -39,8 +39,7 @@ private:
 	LuaModule & host;
 };
 
-/// Registered as the "lua" backend; wraps a loaded Lua script into whichever object the kind of
-/// that script calls for.
+/// Wraps a loaded Lua script into whichever object the kind of that script calls for.
 class LuaScriptFactory final : public IScriptFactory
 {
 public:

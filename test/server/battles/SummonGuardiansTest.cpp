@@ -12,8 +12,6 @@
 #include "BattleTestFixture.h"
 
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CStack.h"
-#include "../../lib/battle/BattleInfo.h"
 
 namespace
 {

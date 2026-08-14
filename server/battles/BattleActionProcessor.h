@@ -60,7 +60,7 @@ class BattleActionProcessor : boost::noncopyable
 	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
 
 	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
-	/// attackIndex is the position of this attack among those its own side makes in this action;
+	/// attackIndex is the zero-based position of this attack among those its own side makes in this action;
 	/// a counterattack is its side's attack 0. `first` instead marks the attack that the legacy
 	/// spell-casting abilities fire on, which is not the same thing for a defender striking first.
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, int attackIndex, bool first, bool ranged, bool counter);

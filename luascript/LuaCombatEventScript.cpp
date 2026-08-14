@@ -26,7 +26,7 @@ namespace scripting
 /// Combat event to name of the script method handling it. Scripts that do not care about
 /// an event simply inherit the no-op implementation from their base class.
 /// Switch without default, so that adding a combat event without a handler fails to compile.
-static std::string methodName(CombatEventType event)
+static const char * methodName(CombatEventType event)
 {
 	switch(event)
 	{

@@ -859,23 +859,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const Text
 	return b;
 }
 
-/// MOD COMPATIBILITY - returns replacement for a bonus that is no longer supported, or null node if bonus is still valid
-static JsonNode convertDeprecatedBonus(const JsonNode & ability)
-{
-	// BATTLE_NO_FLEEING is deprecated in 1.8 - it blocked retreating unconditionally, so its value is ignored
-	if(ability["type"].isString() && ability["type"].String() == "BATTLE_NO_FLEEING")
-	{
-		logMod->warn("Bonus BATTLE_NO_FLEEING is deprecated. Use BATTLE_CAN_FLEE with negative value instead");
-
-		JsonNode result = ability;
-		result["type"].String() = "BATTLE_CAN_FLEE";
-		result["val"].Float() = -GameConstants::BATTLE_RETREAT_BLOCK;
-		return result;
-	}
-
-	return JsonNode();
-}
-
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
@@ -888,13 +871,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		return false;
 	}
 
-	JsonNode replacement = convertDeprecatedBonus(ability);
-	if(!replacement.isNull())
-		return parseBonus(replacement, b, descriptionID);
-
 	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
 	JsonNode migrated;
-	if (BonusMigration::migrateCombatAbility(ability, migrated))
+	if (BonusMigration::migrateBonus(ability, migrated))
 		return parseBonus(migrated, b, descriptionID);
 
 	BonusMigration::warnIfRetired(ability, descriptionID);

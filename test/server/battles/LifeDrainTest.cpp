@@ -11,9 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../lib/CStack.h"
-#include "../../lib/battle/BattleInfo.h"
-
 namespace
 {
 

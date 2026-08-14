@@ -187,7 +187,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<BattleSpellCast>(143);
 	s.template registerType<SetStackEffect>(144);
 	s.template registerType<BattleTriggerEffect>(145);
-	s.template registerType<BattleAnimationPlayed>(267);
 	s.template registerType<BattleUpdateGateState>(146);
 	s.template registerType<BattleSetStackProperty>(147);
 	s.template registerType<StacksInjured>(148);
@@ -308,4 +307,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyModsCheck>(266);
 	s.template registerType<SetScriptVariable>(267);
 	s.template registerType<SetQuestHint>(268);
+    s.template registerType<BattleAnimationPlayed>(269);
 }

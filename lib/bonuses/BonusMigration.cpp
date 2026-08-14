@@ -14,6 +14,7 @@
 #include "Bonus.h"
 #include "BonusParameters.h"
 #include "../GameLibrary.h"
+#include "../constants/NumericConstants.h"
 #include "../json/JsonNode.h"
 #include <vcmi/Creature.h>
 #include <vcmi/spells/Spell.h>
@@ -103,8 +104,19 @@ std::string jsonKeyOf(const Entity * entity)
 
 }
 
-bool BonusMigration::migrateCombatAbility(const JsonNode & ability, JsonNode & migrated)
+bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 {
+	// BATTLE_NO_FLEEING is deprecated in 1.8 - it blocked retreating unconditionally, so its value is ignored
+	if(withoutScope(ability["type"].String()) == "BATTLE_NO_FLEEING")
+	{
+		logMod->warn("Bonus BATTLE_NO_FLEEING is deprecated. Use BATTLE_CAN_FLEE with negative value instead");
+
+		migrated = ability;
+		migrated["type"].String() = "BATTLE_CAN_FLEE";
+		migrated["val"].Float() = -GameConstants::BATTLE_RETREAT_BLOCK;
+		return true;
+	}
+
 	auto retired = retiredAbilities.find(withoutScope(ability["type"].String()));
 
 	if(retired == retiredAbilities.end())
@@ -232,10 +244,6 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 		default:
 			return false;
 	}
-
-	// the script is registered by whichever mod provides it, which may not be loaded yet
-	if(script == ScriptID::NONE)
-		return false;
 
 	bonus.type = BonusType::COMBAT_EVENT_TRIGGER;
 	bonus.subtype = BonusSubtypeID(script);

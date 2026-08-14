@@ -6,7 +6,6 @@ which functions the script has to define:
 
 ```json
 "lifeDrain" : {
-    "type" : "lua",
     "implements" : "combatEvent",
     "script" : "combat/lifeDrain",
     "description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
@@ -24,7 +23,6 @@ which functions the script has to define:
 
 Fields every script may declare, whatever its type:
 
-- `type` - the language the script is written in. Currently only `lua`
 - `implements` - what this script is, see above
 - `script` - path to the source, relative to the `SCRIPTS/` directory of the mod, without the
   extension. Sources are kept in a directory per type, so `spells/damage` or `combat/lifeDrain`
@@ -51,7 +49,6 @@ that uses it, a combat event script by the bonus that runs it - but `schema` and
 
 ```json
 "deathStare" : {
-    "type" : "lua",
     "implements" : "combatEvent",
     "script" : "combat/deathStare",
     "priority" : 100,

@@ -224,6 +224,7 @@ public:
 	void apply(CPackForClient & pack) override { gameState->apply(pack); }
 	void complain(const std::string & problem) override { FAIL() << "Server-side assertion: " << problem; }
 	vstd::RNG * getRNG() override { return &randomGenerator; }
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int) override { return false; }
 	void apply(BattleLogMessage &) override {}
 	void apply(BattleStackMoved &) override {}
 	void apply(BattleUnitsChanged &) override {}

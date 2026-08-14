@@ -97,9 +97,9 @@ Permanently raises or lowers one of a hero's four primary skills.
 
 ### grantSecondarySkill
 
-Teaches a secondary skill to a hero, or raises it to the given mastery. If the hero already knows the skill at an equal or higher mastery it is left unchanged; a hero who has no free skill slots left will not learn a brand-new skill.
+Teaches a secondary skill to a hero, or changes it to the given mastery. A hero who has no free skill slots left will not learn a brand-new skill.
 
-- param `hero`: [`HeroInstance`](HeroInstance.md) — Hero that learns or improves the skill.
+- param `hero`: [`HeroInstance`](HeroInstance.md) — Hero that learns the skill.
 - param `skill`: [`Skill`](Skill.md) — Secondary skill to grant, as returned by Services:getSecondarySkillByName.
 - param `level`: `integer` — Mastery to move to: 1 = basic, 2 = advanced, 3 = expert.
 

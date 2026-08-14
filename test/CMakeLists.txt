@@ -107,11 +107,11 @@ set(test_SRCS
 		server/battles/FireShieldTest.cpp
 		server/battles/LifeDrainTest.cpp
 		server/battles/SoulStealTest.cpp
-		texts/TextOperationsTest.cpp
-
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TransmutationTest.cpp
 		server/queries/QueriesProcessorTest.cpp
+
+		texts/TextOperationsTest.cpp
 
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
@@ -137,6 +137,8 @@ set(test_HEADERS
 		spells/effects/EffectFixture.h
 
 		spells/targetConditions/TargetConditionItemFixture.h
+
+		server/battles/BattleTestFixture.h
 
 		mock/BattleFake.h
 		mock/mock_BonusBearer.h

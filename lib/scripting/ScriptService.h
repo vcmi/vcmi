@@ -23,8 +23,8 @@ namespace spells::effects
 class Effect;
 }
 
-/// Loads scripts written in one scripting language and turns them into the objects the engine
-/// calls. One factory per backend, shared by every script kind.
+/// Loads script sources and turns them into the objects the engine calls.
+/// One factory for the whole game, shared by every script kind.
 class DLL_LINKAGE IScriptFactory
 {
 public:
@@ -33,7 +33,7 @@ public:
 	/// Loads the base source and any patch layers, keeping them under description.scriptId.
 	virtual void initialize(const ScriptTypeDescription & description) = 0;
 
-	/// One creator per script kind. A backend that can not express a kind inherits the null
+	/// One creator per script kind. A factory that can not express a kind inherits the null
 	/// default, which the handler reports as a load error rather than passing on.
 	virtual std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const { return nullptr; }
 	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const { return nullptr; }
@@ -71,5 +71,5 @@ public:
 	/// when it is empty only validation runs, since there is no stable key to register under.
 	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const = 0;
 
-	virtual void registerFactory(const std::string & backend, std::shared_ptr<IScriptFactory> factory) = 0;
+	virtual void registerFactory(std::shared_ptr<IScriptFactory> factory) = 0;
 };
