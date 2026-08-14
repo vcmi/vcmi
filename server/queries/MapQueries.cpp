@@ -14,6 +14,7 @@
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
 #include "../../lib/callback/IGameInfoCallback.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"

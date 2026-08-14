@@ -40,7 +40,7 @@ TEST_F(QuestMarkerTest, Source_isAlwaysMarked)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 	auto * seer = expectAt<SeerHut>(s.questPos);
 
-	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState.get());
+	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState().get());
 
 	EXPECT_TRUE(hasTile(tiles, seer->visitablePos())) << "the quest source must always be marked";
 }
@@ -52,7 +52,7 @@ TEST_F(QuestMarkerTest, KillCreature_marksTarget)
 	auto * seer    = expectAt<SeerHut>(s.questPos);
 	auto * monster = expectAt<CGCreature>(s.secondHeroPos);
 
-	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState.get());
+	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState().get());
 
 	EXPECT_TRUE(hasTile(tiles, seer->visitablePos()));
 	EXPECT_TRUE(hasTile(tiles, monster->visitablePos())) << "kill target must be marked from destroyedObjects";
@@ -66,7 +66,7 @@ TEST_F(QuestMarkerTest, BringArtifact_marksHeroHoldingIt)
 	auto * hero = findHeroAt(s.heroPos);
 	ASSERT_NE(hero, nullptr);
 
-	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState.get());
+	auto tiles = QuestInfo(seer->id).getMarkerTiles(gameState().get());
 
 	EXPECT_TRUE(hasTile(tiles, hero->visitablePos()))
 		<< "a hero already satisfying the limiter (carrying the artifact) must be marked";
@@ -81,8 +81,8 @@ TEST_F(QuestMarkerTest, Level_marksQualifyingHeroOnly)
 	auto * hero = findHeroAt(s.heroPos);
 	ASSERT_NE(hero, nullptr);
 
-	auto easyTiles = QuestInfo(easySeer->id).getMarkerTiles(gameState.get());
-	auto hardTiles = QuestInfo(hardSeer->id).getMarkerTiles(gameState.get());
+	auto easyTiles = QuestInfo(easySeer->id).getMarkerTiles(gameState().get());
+	auto hardTiles = QuestInfo(hardSeer->id).getMarkerTiles(gameState().get());
 
 	EXPECT_TRUE(hasTile(easyTiles, hero->visitablePos())) << "hero meets the easy level requirement";
 	EXPECT_FALSE(hasTile(hardTiles, hero->visitablePos())) << "hero does not meet the hard level requirement";
@@ -97,7 +97,7 @@ TEST_F(QuestMarkerTest, BorderGuard_marksMatchingKeymaster)
 	ASSERT_NE(guard,     nullptr);
 	ASSERT_NE(keymaster, nullptr);
 
-	auto tiles = QuestInfo(guard->id).getMarkerTiles(gameState.get());
+	auto tiles = QuestInfo(guard->id).getMarkerTiles(gameState().get());
 
 	EXPECT_TRUE(hasTile(tiles, guard->visitablePos()));
 	EXPECT_TRUE(hasTile(tiles, keymaster->visitablePos()))

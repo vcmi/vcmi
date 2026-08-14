@@ -110,7 +110,7 @@ TEST_F(QuestSeerMultiTest, PerQuestRewardIsUsedNotConfigurationInfoIndex)
 
 	auto * hero  = findHeroAt(kHeroPos);
 	auto * seer  = expectAt<SeerHut>(kSeerPos);
-	auto & res   = gameState->players.at(PlayerColor(0)).resources;
+	auto & res   = gameState()->players.at(PlayerColor(0)).resources;
 	const int woodBefore = res[GameResID::WOOD];
 
 	visit(hero, seer);
@@ -193,13 +193,13 @@ TEST_F(QuestSeerMultiTest, PermanentlyEmptyWhenAllOneShotAndAllRepeatableExpired
 	answerDialog(hero, 1);   // finish the only one-shot
 	advanceDays(5);          // expire the repeatable past its deadline
 
-	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
-	gameEventCallback->blockingDialogs.clear();
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
+	gameEvents().blockingDialogs.clear();
 	visit(hero, seer);       // no offerable quest: empty dialog only
 
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore)
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore)
 		<< "emptied seer must not register a quest log entry";
-	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty())
 		<< "emptied seer must not offer a reward";
 }
 
@@ -275,8 +275,8 @@ TEST_F(QuestSeerMultiTest, QuestlessSeer_isVisitableAndGetQuestThrows)
 	EXPECT_TRUE(seer->allQuests().empty());
 	EXPECT_ANY_THROW((void)seer->getQuest()) << "no active quest - getQuest() must throw";
 
-	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
 	ASSERT_NO_FATAL_FAILURE(visit(hero, seer)); // shows only the empty-seer dialog
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore);
-	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty());
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore);
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
 }

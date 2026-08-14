@@ -34,6 +34,7 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(
 	info->id              = MapLayerId(index);
 	info->identifier      = identifier;
 	info->modScope        = scope;
+	info->icon            = json["icon"].String();
 
 	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
@@ -74,6 +75,12 @@ std::string MapLayerType::getNameTextID() const
 std::string MapLayerType::getNameTranslated() const
 {
 	return LIBRARY->generaltexth->translate(getNameTextID());
+}
+
+void MapLayerType::registerIcons(const IconRegistar & cb) const
+{
+	if (!icon.empty())
+		cb(getIconIndex(), 0, "MAPLAYERS", icon);
 }
 
 MapLayerType::MapLayerType():

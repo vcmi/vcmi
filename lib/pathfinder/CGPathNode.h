@@ -74,6 +74,7 @@ struct DLL_LINKAGE CGPathNode
 	EPathAccessibility accessible;
 	EPathNodeAction action;
 	bool locked;
+	uint32_t generation = 0;
 
 	CGPathNode()
 		: coord(-1),
@@ -140,6 +141,8 @@ struct DLL_LINKAGE CGPathNode
 		}
 		else
 		{
+			assert(coord == Coord);
+			assert(layer == Layer);
 			reset();
 		}
 
@@ -195,6 +198,27 @@ struct DLL_LINKAGE CPathsInfo
 {
 	using ELayer = EPathfindingLayer;
 
+private:
+	friend class NodeStorage;
+
+	uint32_t currentGeneration = 1;
+	CGPathNode unreachableNode;
+
+	void beginSearch();
+
+	inline
+	CGPathNode * getNodeForWrite(const int3 & coord, const ELayer layer)
+	{
+		return &nodes[layer.getNum()][coord.z][coord.x][coord.y];
+	}
+
+	inline
+	bool isCurrent(const CGPathNode & node) const
+	{
+		return node.generation == currentGeneration;
+	}
+
+public:
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
@@ -204,21 +228,16 @@ struct DLL_LINKAGE CPathsInfo
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
+	void prepareForReuse(const CGHeroInstance * hero_);
 	const CGPathNode * getPathInfo(const int3 & tile, const ELayer layer = ELayer::AUTO) const;
 	bool getPath(CGPath & out, const int3 & dst, const ELayer layer = ELayer::AUTO) const;
 	const CGPathNode * getNode(const int3 & coord) const;
 
-	//FIXME: what is the non-const version used for? internal node storage should be modified via NodeStorage only
-	inline
-	CGPathNode * getNode(const int3 & coord, const ELayer layer)
-	{
-		return &nodes[layer.getNum()][coord.z][coord.x][coord.y];
-	}
-
 	inline
 	const CGPathNode * getNode(const int3 & coord, const ELayer layer) const
 	{
-		return &nodes[layer.getNum()][coord.z][coord.x][coord.y];
+		const auto * node = &nodes[layer.getNum()][coord.z][coord.x][coord.y];
+		return isCurrent(*node) ? node : &unreachableNode;
 	}
 };
 

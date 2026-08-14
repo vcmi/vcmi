@@ -637,7 +637,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 				// breath and other multi-hex attacks also strike extra units - add their kills to the prediction
 				// (getAttackedBattleUnits excludes the directly-attacked hex, so the main target is handled above)
-				for(const auto * splashTarget : owner.getBattle()->getAttackedBattleUnits(attacker, targetStack, targetHex, false, attackFromHex))
+				for(const auto * splashTarget : owner.getBattle()->getAttackedCreatures(attacker, targetHex, false, attackFromHex).first)
 				{
 					if(splashTarget == targetStack || splashTarget == attacker)
 						continue;

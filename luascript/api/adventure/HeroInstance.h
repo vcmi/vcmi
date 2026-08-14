@@ -25,6 +25,10 @@ class HeroInstanceProxy : public RawPointerWrapper<const CGHeroInstance, HeroIns
 	static bool isMale(const CGHeroInstance & hero);
 	static bool isFemale(const CGHeroInstance & hero);
 	static int getLevel(const CGHeroInstance & hero);
+	static int64_t getExperience(const CGHeroInstance & hero);
+	static bool hasArtifact(const CGHeroInstance & hero, ArtifactID artifact);
+	static int ownedArtifacts(const CGHeroInstance & hero, ArtifactID artifact);
+	static int creatureCountInArmy(const CGHeroInstance & hero, CreatureID creature);
 
 public:
 	static constexpr std::string_view luaName = "HeroInstance";

@@ -621,6 +621,8 @@
 			"areaShotCanTargetEmptyHex" : false,
 			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
 			"noSpellHitAndRunRounds" : 0,
+			// Cost of surrendering is recruit cost of hero army divided by this value, before any discounts are applied
+			"surrenderCostDivisor" : 2.0,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
@@ -767,6 +769,8 @@
 		
 		"pathfinder" :
 		{
+			// if enabled, pathfinder will not allow disembarking from a boat on a tile with a hole (e.g. after digging for Grail)
+			"blockDisembarkOnHole" : true,
 			// if enabled, pathfinder will build path through locations guarded by wandering monsters
 			"ignoreGuards" : false,
 			// if enabled, pathfinder will take use of any available boats
@@ -837,7 +841,15 @@
 				{
 					"type" : "MANA_REGENERATION", //default mana regeneration
 					"val" : 1,
-					"valueType" : "BASE_NUMBER"
+					"valueType" : "BASE_NUMBER",
+					"limiters" : [
+						"noneOf",
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusType" : "MANA_REGENERATION",
+							"bonusSourceType" : "SECONDARY_SKILL"
+						}
+					]
 				},
 				"experienceGain" : 
 				{

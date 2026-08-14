@@ -59,7 +59,7 @@ TEST_F(QuestGuardTest, SatisfiedQuest_takesResourcesAndRemovesObjectOnAcceptance
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 
 	grantResources(PlayerColor(0), GameResID(GameResID::WOOD), 1500);
-	const auto woodBefore = gameState->players.at(PlayerColor(0)).resources[GameResID::WOOD];
+	const auto woodBefore = gameState()->players.at(PlayerColor(0)).resources[GameResID::WOOD];
 	ASSERT_GE(woodBefore, 1000) << "scenario must leave hero with at least the demanded amount";
 
 	auto * hero  = findHeroAt(s.heroPos);
@@ -68,11 +68,11 @@ TEST_F(QuestGuardTest, SatisfiedQuest_takesResourcesAndRemovesObjectOnAcceptance
 	ASSERT_NE(guard, nullptr);
 
 	visit(hero, guard);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u)
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u)
 		<< "first visit with a satisfied limiter should prompt the player";
 	answerDialog(hero, /*yes*/ 1);
 
-	const auto woodAfter = gameState->players.at(PlayerColor(0)).resources[GameResID::WOOD];
+	const auto woodAfter = gameState()->players.at(PlayerColor(0)).resources[GameResID::WOOD];
 	EXPECT_EQ(woodBefore - woodAfter, 1000)
 		<< "quest should deduct exactly the demanded 1000 wood";
 	EXPECT_EQ(findObjectAt(s.questPos), nullptr)

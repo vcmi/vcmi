@@ -39,6 +39,7 @@ public:
 
 	static const std::string HEADER_FILE_NAME;
 	static const std::string OBJECTS_FILE_NAME;
+	static const std::string SCRIPT_FILE_NAME;
 	static const std::string TERRAIN_FILE_NAMES[2];
 
 	/// Removes "map.<mapName>." prefix from translation keys
@@ -230,6 +231,9 @@ public:
 	 */
 	void readObjects();
 
+	/// Loads the map's `script.lua` archive entry, if present, into map->scriptSource.
+	void readScript();
+
 	bool isExistArchive(const std::string & archiveFilename);
 	JsonNode getFromArchive(const std::string & archiveFilename);
 
@@ -295,6 +299,9 @@ public:
 	 * Saves all map objects into zip archive
 	 */
 	void writeObjects();
+
+	/// Saves map->scriptSource as the `script.lua` archive entry, if non-empty.
+	void writeScript();
 
 private:
 	CInputOutputStream * buffer;

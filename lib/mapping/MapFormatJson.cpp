@@ -244,6 +244,7 @@ const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
+const std::string CMapFormatJson::SCRIPT_FILE_NAME = "script.lua";
 
 std::string getTerrainFilename(int i)
 {
@@ -883,8 +884,19 @@ void CMapLoaderJson::readMap()
 	map->initTerrain();
 	readTerrain();
 	readObjects();
+	readScript();
 
 	map->calculateGuardingGreaturePositions();
+}
+
+void CMapLoaderJson::readScript()
+{
+	ScriptPath scriptPath = ScriptPath::builtin(SCRIPT_FILE_NAME);
+	if(!loader.existsResource(scriptPath))
+		return;
+
+	auto data = loader.load(scriptPath)->readAll();
+	map->scriptSource = std::string(reinterpret_cast<char *>(data.first.get()), data.second);
 }
 
 void CMapLoaderJson::readHeader(const bool complete)
@@ -1368,6 +1380,19 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 	writeHeader();
 	writeTerrain();
 	writeObjects();
+	writeScript();
+}
+
+void CMapSaverJson::writeScript()
+{
+	if(map->scriptSource.empty())
+		return;
+
+	const std::string & source = map->scriptSource;
+	std::unique_ptr<COutputStream> stream = saver.addFile(SCRIPT_FILE_NAME);
+
+	if(stream->write(reinterpret_cast<const ui8 *>(source.c_str()), source.size()) != source.size())
+		throw std::runtime_error("CMapSaverJson::writeScript() zip compression failed.");
 }
 
 void CMapSaverJson::writeHeader()

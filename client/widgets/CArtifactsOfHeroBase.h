@@ -43,6 +43,7 @@ public:
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
 	virtual ArtPlacePtr getArtPlace(const Point & cursorPosition);
+	virtual ArtPlacePtr getArtPlace(const CComponentHolder & artPlace);
 	virtual void updateWornSlots();
 	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);

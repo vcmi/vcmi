@@ -881,7 +881,7 @@ jobs:
             python3 CI/normalize_relative_includes.py --repo .
 
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v24
+          uses: DavidAnson/markdownlint-cli2-action@v24.2.0
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'

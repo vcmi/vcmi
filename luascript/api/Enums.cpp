@@ -117,6 +117,46 @@ EnumGroup<BattleSide> Enums::exportBattleSide() const
 	}};
 }
 
+EnumGroup<EMapDifficulty> Enums::exportDifficulty() const
+{
+	return {{
+		{ "pawn",   EMapDifficulty::EASY,       "Easy difficulty. (80%)" },
+		{ "knight", EMapDifficulty::NORMAL,     "Normal difficulty. (100%)" },
+		{ "rook",   EMapDifficulty::HARD,       "Hard difficulty. (130%)" },
+		{ "queen",  EMapDifficulty::EXPERT,     "Expert difficulty. (160%)" },
+		{ "king",   EMapDifficulty::IMPOSSIBLE, "Impossible difficulty. (200%)" },
+	}};
+}
+
+EnumGroup<PrimarySkill> Enums::exportPrimarySkill() const
+{
+	return {{
+		{ "attack",     PrimarySkill::ATTACK,      "Attack skill, raises damage dealt by the hero's troops." },
+		{ "defence",    PrimarySkill::DEFENSE,     "Defence skill, lowers damage taken by the hero's troops." },
+		{ "spellpower", PrimarySkill::SPELL_POWER, "Spell power, scales the effect of the hero's spells." },
+		{ "knowledge",  PrimarySkill::KNOWLEDGE,   "Knowledge, scales the hero's maximum spell points." },
+	}};
+}
+
+EnumGroup<PlayerColor> Enums::exportPlayerColor() const
+{
+	EnumGroup<PlayerColor> result;
+	for(PlayerColor player : PlayerColor::ALL_PLAYERS())
+		result.items.push_back({PlayerColor::encode(player.getNum()), player, "Player " + player.toString() + "."});
+
+	result.items.push_back({"neutral", PlayerColor::NEUTRAL, "No owner - used by unowned towns, mines and dwellings."});
+	return result;
+}
+
+EnumGroup<EPlayerStatus> Enums::exportPlayerStatus() const
+{
+	return {{
+		{ "ingame", EPlayerStatus::INGAME, "Player is still playing." },
+		{ "loser",  EPlayerStatus::LOSER,  "Player has been defeated and is out of the game." },
+		{ "winner", EPlayerStatus::WINNER, "Player has won the game." },
+	}};
+}
+
 EnumGroup<BonusSource> Enums::exportBonusSource() const
 {
 	return {{

@@ -979,7 +979,7 @@ void WikiWindow::buildElementList(int categoryIndex) // NOSONAR
 		entries = allEntries;
 	else
 		for(const auto & entry : allEntries)
-			if(TextOperations::textSearchSimilarityScore(filter, entry.name))
+			if(TextOperations::isFuzzyMatch(filter, entry.name))
 				entries.push_back(entry);
 
 	currentDisplayedEntries = entries;

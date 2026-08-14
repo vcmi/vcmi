@@ -208,20 +208,47 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlanAndFilter(TGoalVec & tasks, int priorityTier) const
+Nullkiller::EvaluationContextMap Nullkiller::buildEvaluationContexts(const TGoalVec & tasks) const
+{
+	std::vector<std::optional<EvaluationContext>> contexts(tasks.size());
+
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, tasks.size(), 128),
+		[this, &tasks, &contexts](const tbb::blocked_range<size_t> & r)
+		{
+			const auto evaluator = priorityEvaluators->acquire();
+			for(size_t i = r.begin(); i != r.end(); ++i)
+				contexts[i].emplace(evaluator->buildEvaluationContext(tasks[i]));
+		}
+	);
+
+	EvaluationContextMap result;
+	for(size_t i = 0; i != tasks.size(); ++i)
+		result.try_emplace(tasks[i].get(), std::move(contexts[i].value()));
+
+	return result;
+}
+
+Goals::TTaskVec Nullkiller::buildPlanAndFilter(
+	TGoalVec & tasks,
+	const EvaluationContextMap & evaluationContexts,
+	int priorityTier) const
 {
 	TaskPlan taskPlan;
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, tasks.size()),
-		[this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
+		tbb::blocked_range<size_t>(0, tasks.size(), 128),
+		[this, &tasks, &evaluationContexts, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
 			const auto evaluator = this->priorityEvaluators->acquire();
 			for(size_t i = r.begin(); i != r.end(); i++)
 			{
 				const auto & task = tasks[i];
 				if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
-					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+					task->asTask()->priority = evaluator->evaluate(
+						task,
+						priorityTier,
+						evaluationContexts.at(task.get()));
 			}
 		}
 	);
@@ -528,7 +555,6 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
-	std::lock_guard sharedStorageLock(AISharedStorage::locker);
 	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
 	resetState();
@@ -559,12 +585,13 @@ void Nullkiller::makeTurn()
 		if(!isOpenMap())
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
+		const auto evaluationContexts = buildEvaluationContexts(tasks);
 		TTaskVec selectedTasks;
 		int prioOfTask = 0;
 		for(int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 			prioOfTask = prio;
-			selectedTasks = buildPlanAndFilter(tasks, prio);
+			selectedTasks = buildPlanAndFilter(tasks, evaluationContexts, prio);
 			if (!selectedTasks.empty())
 			{
 				// Activate for deep debugging, otherwise too noisy even for trace level 2

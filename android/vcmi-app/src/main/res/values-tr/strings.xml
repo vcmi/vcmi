@@ -2,4 +2,5 @@
 <resources>
     <string name="server_name">VCMI Sunucu</string>
     <string name="shortcut_play">VCMI Oyna</string>
+    <string name="shortcut_editor">VCMI Düzenleyicisini aç</string>
 </resources>

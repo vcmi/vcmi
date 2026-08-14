@@ -409,6 +409,10 @@ void LayerTransitionRule::process(
 		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::GUARDED))
 			destination.blocked = true;
 
+		//cannot disembark on a hole (e.g. after digging for Grail) - hole is neither visitable nor blocking, so check for it explicitly
+		if(pathfinderHelper->isTileBlockedByHole(destination.coord))
+			destination.blocked = true;
+
 		break;
 
 	case EPathfindingLayer::AVIATE:

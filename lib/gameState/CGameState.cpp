@@ -70,6 +70,7 @@
 #include "UpgradeInfo.h"
 #include "mapObjects/CGPandoraBox.h"
 
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
@@ -202,6 +203,10 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 
 	logGlobal->debug("Initialization:");
 
+	initScriptVariables();
+	// script `init` runs from here, so it sees the map before object randomization and hero placement -
+	// it can only bind handlers by instance name, not inspect object contents
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, true);
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)
@@ -377,6 +382,15 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap();
+}
+
+void CGameState::initScriptVariables()
+{
+	for(const auto & declaration : map->scriptVariableDefinitions)
+		map->getScriptVariables().set(ModScope::scopeMap(), declaration.name, declaration.initialValue);
+
+	if(scenarioOps->campState) // campaigns might override initial value
+		scenarioOps->campState->seedPersistentVariables(*map);
 }
 
 void CGameState::initGlobalBonuses()
@@ -1556,7 +1570,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 	}
 	if(level >= 4) //army strength
 	{
-		FILL_FIELD(army, Statistic::getArmyStrength(&g->second))
+		FILL_FIELD(army, Statistic::getArmyStrength(&g->second, false, true))
 	}
 	if(level >= 5) //income
 	{
@@ -1761,6 +1775,9 @@ void CGameState::loadGame(CLoadFile & file)
 	file.load(dummyStartInfo);
 	file.load(dummyActiveMods);
 	file.load(*this);
+
+	// Runtime-only object, not serialized; rebuild from the loaded script source.
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);
 }
 
 const scripting::Pool & CGameState::getScriptContextPool() const

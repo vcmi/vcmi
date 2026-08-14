@@ -42,6 +42,11 @@ class GameSettings;
 class BattleInfo;
 class UpgradeInfo;
 
+namespace scripting
+{
+class MapEventDispatcher;
+}
+
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
 class GameStateEnvironment final : public Environment
@@ -67,6 +72,8 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 
 	std::unique_ptr<GameStateEnvironment> scriptingEnvironment;
 	std::unique_ptr<scripting::Pool> scriptingPool;
+	/// Runs the map's converted event script; null when the map has no event system. Server-only, rebuilt on load.
+	std::unique_ptr<scripting::MapEventDispatcher> mapEventDispatcher;
 
 public:
 	/// List of currently ongoing battles
@@ -187,6 +194,9 @@ public:
 	Calendar getCalendar() const override;
 
 	const scripting::Pool & getScriptContextPool() const final;
+	const Environment & getScriptingEnvironment() const { return *scriptingEnvironment; }
+	/// Null when the map has no event script - callers must check.
+	scripting::MapEventDispatcher * getMapEventDispatcher() const { return mapEventDispatcher.get(); }
 
 	void saveGame(CSaveFile & file) const;
 	void loadGame(CLoadFile & file);
@@ -229,6 +239,7 @@ private:
 	// ----- initialization -----
 	void initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void initGlobalBonuses();
+	void initScriptVariables();
 	void initGrailPosition(vstd::RNG & randomGenerator);
 	void initRandomFactionsForPlayers(vstd::RNG & randomGenerator);
 	void initOwnedObjects();

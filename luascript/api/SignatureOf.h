@@ -33,7 +33,7 @@ template<class T> struct IsSharedPtr<std::shared_ptr<T>>: std::true_type  { usin
 /// templates (vector, optional, shared_ptr, raw pointer) are resolved at compile time;
 /// everything else goes through `Registry::lookupLuaName`, which is populated by proxy
 /// registrations and explicit aliases in `Registry::Registry()`. Unregistered types throw
-/// `std::runtime_error` — caught in `BindingsCoverageTest` so misses surface in CI.
+/// `std::runtime_error` during doc export and Lua context creation, so misses surface there.
 template<class T>
 inline std::string luaTypeName()
 {

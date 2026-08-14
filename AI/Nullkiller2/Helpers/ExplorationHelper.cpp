@@ -287,44 +287,101 @@ void ExplorationHelper::scanTile(const int3 & tile)
 		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
 		return;
 
-	auto paths = aiNk->pathfinder->getPathInfo(tile);
-	if(paths.empty())
+	std::vector<AIPathSummary> summaries;
+	aiNk->pathfinder->calculatePathSummaries(summaries, tile);
+	if(summaries.empty())
 		return;
 
-	int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
+	const int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
 	if(!tilesDiscovered)
 		return;
-	
-	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, aiNk->cc->getTopObj(tile));
 
-	for(int i = 0; i != paths.size(); i++)
+	const CGObjectInstance * object = cc->getTopObj(tile);
+	if(object && object->isBlockedVisitable())
+		return;
+
+	std::vector<size_t> candidateIndices;
+	for(size_t index = 0; index != summaries.size(); ++index)
 	{
-		auto & path = paths[i];
-		auto goal = waysToVisit[i];
+		const auto & summary = summaries[index];
+		if(summary.exchangeCount > 1
+			|| summary.targetHero != hero
+			|| summary.cost <= 0.f)
+		{
+			continue;
+		}
 
-		if(path.exchangeCount > 1 || path.targetHero != hero || path.movementCost() <= 0.0 || goal->invalid())
+		const float value = static_cast<float>(tilesDiscovered) * tilesDiscovered / summary.cost;
+		if(value > bestValue)
+			candidateIndices.push_back(index);
+	}
+
+	if(candidateIndices.empty())
+		return;
+
+	std::vector<std::optional<AIPath>> reconstructedPaths(summaries.size());
+	std::vector<bool> reconstructionAttempted(summaries.size(), false);
+	auto reconstruct = [&](const size_t index) -> const AIPath *
+	{
+		if(!reconstructionAttempted[index])
+		{
+			reconstructionAttempted[index] = true;
+			AIPath path;
+			if(aiNk->pathfinder->calculatePathInfo(path, summaries[index]))
+				reconstructedPaths[index] = std::move(path);
+		}
+
+		return reconstructedPaths[index] ? &*reconstructedPaths[index] : nullptr;
+	};
+
+	const HeroRole heroRole = aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero);
+	float closestWayCost = std::numeric_limits<float>::max();
+	for(size_t index = 0; index != summaries.size(); ++index)
+	{
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(summaries[index].targetHero) != heroRole)
 			continue;
 
-		float ourValue = (float)tilesDiscovered * tilesDiscovered / path.movementCost();
+		const AIPath * path = reconstruct(index);
+		if(!path || path->getFirstBlockedAction())
+			continue;
 
-		if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
+		const auto goals = CaptureObjectsBehavior::getVisitGoals({ *path }, aiNk, object);
+		if(vstd::contains_if(goals, [](const TSubgoal & goal)
+			{
+				return !goal->invalid();
+			}))
 		{
-			auto obj = cc->getTopObj(tile);
+			closestWayCost = std::min(closestWayCost, path->movementCost());
+		}
+	}
 
-			// picking up resources does not yield any exploration at all.
-			// if it blocks the way to some explorable tile AIPathfinder will take care of it
-			if(obj && obj->isBlockedVisitable())
-			{
-				continue;
-			}
+	for(const size_t index : candidateIndices)
+	{
+		const AIPath * path = reconstruct(index);
+		if(!path)
+			continue;
 
-			if(isSafeToVisit(hero, path.heroArmy, path.getTotalDanger(), aiNk->settings->getSafeAttackRatio()))
-			{
-				bestGoal = goal;
-				bestValue = ourValue;
-				bestTile = tile;
-				bestTilesDiscovered = tilesDiscovered;
-			}
+		auto waysToVisit = CaptureObjectsBehavior::getVisitGoals({ *path }, aiNk, object);
+		auto goal = waysToVisit.front();
+		if(goal->invalid())
+			continue;
+
+		const float ourValue = static_cast<float>(tilesDiscovered) * tilesDiscovered / path->movementCost();
+		if(ourValue <= bestValue)
+			continue;
+
+		if(auto * execute = dynamic_cast<ExecuteHeroChain *>(goal.get());
+			execute && closestWayCost < std::numeric_limits<float>::max())
+		{
+			execute->closestWayRatio = closestWayCost / path->movementCost();
+		}
+
+		if(isSafeToVisit(hero, path->heroArmy, path->getTotalDanger(), aiNk->settings->getSafeAttackRatio()))
+		{
+			bestGoal = goal;
+			bestValue = ourValue;
+			bestTile = tile;
+			bestTilesDiscovered = tilesDiscovered;
 		}
 	}
 }

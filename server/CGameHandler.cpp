@@ -21,6 +21,7 @@
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
+#include "queries/LuaScriptQuery.h"
 #include "queries/MapQueries.h"
 #include "queries/VisitQueries.h"
 
@@ -50,14 +51,19 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/HotaScriptConverter.h"
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGPandoraBox.h"
+#include "../lib/mapObjects/Quest.h"
 #include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -959,8 +965,15 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
-	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
-		return complainRet("Cannot disembark hero, tile is blocked!");
+	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand())
+	{
+		if(t.blocked())
+			return complainRet("Cannot disembark hero, tile is blocked!");
+
+		//hole is neither visitable nor blocking, so check for it explicitly
+		if(pathfinderHelper->isTileBlockedByHole(hmpos))
+			return complainRet("Cannot disembark hero, tile contains a hole!");
+	}
 
 	if(!h->pos.areNeighbours(dst) && movementMode == EMovementMode::STANDARD)
 		return complainRet("Tiles " + h->pos.toString()+ " and "+ dst.toString() +" are not neighboring!");
@@ -1180,12 +1193,64 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 	sendAndApply(*iw);
 }
 
+void CGameHandler::showScriptDialog(BlockingDialog * iw)
+{
+	// The dialog sits above the paused script's query; its reply is stashed there and consumed when
+	// the script query is exposed and resumes the coroutine.
+	auto scriptQuery = std::dynamic_pointer_cast<LuaScriptQuery>(queries->topQuery(iw->player));
+	if(!scriptQuery)
+	{
+		logGlobal->error("showScriptDialog called without an active script query for player %s", iw->player.toString());
+		return;
+	}
+
+	auto dialogQuery = std::make_shared<CGenericQuery>(this, iw->player,
+		[scriptQuery](std::optional<int32_t> reply){ scriptQuery->setPendingAnswer(reply); });
+	queries->addQuery(dialogQuery);
+	iw->queryID = dialogQuery->queryID;
+	sendAndApply(*iw);
+}
+
+void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
+	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
+{
+	// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
+	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
+	auto scriptQuery = std::make_shared<LuaScriptQuery>(this, player);
+	if(visitingHero.hasValue())
+		scriptQuery->setVisitingHero(visitingHero);
+	queries->addQuery(scriptQuery);
+
+	auto handle = dispatch(dispatcher);
+	if(handle)
+		scriptQuery->setCoroutine(*handle);
+	else
+		queries->popIfTop(scriptQuery);
+}
+
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
 	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendAndApply(*iw);
+}
+
+void CGameHandler::setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value)
+{
+	SetScriptVariable pack;
+	pack.scope = scope;
+	pack.name = name;
+	pack.value = value;
+	sendAndApply(pack);
+}
+
+void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
+{
+	SetQuestHint pack;
+	pack.object = obj;
+	pack.hint = hint;
+	sendAndApply(pack);
 }
 
 void CGameHandler::giveResource(PlayerColor player, GameResID which, int val)
@@ -2143,6 +2208,11 @@ bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 
 	eraseStack(StackLocation(s1->id, pos));
 	return true;
+}
+
+void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID building)
+{
+	buildStructure(townID, building, true);
 }
 
 bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)
@@ -3598,7 +3668,13 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	hv.starting = true;
 	sendAndApply(hv);
 
-	visitedObject->onHeroVisit(*this, h);
+	std::string scriptHandler = visitedObject->getVisitScriptHandler();
+	auto * dispatcher = gameState().getMapEventDispatcher();
+	if(!scriptHandler.empty() && dispatcher)
+		runScriptedEvent(*dispatcher, h->getOwner(), h->id,
+			[&](scripting::MapEventDispatcher & d){ return d.onObjectVisit(*this, scriptHandler, visitedObject, h); });
+	else
+		visitedObject->onHeroVisit(*this, h);
 
 	if(visitQuery)
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created

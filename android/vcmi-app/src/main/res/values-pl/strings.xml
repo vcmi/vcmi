@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="server_name">VCMI Serwer</string>
+    <string name="server_name">Serwer VCMI</string>
     <string name="shortcut_play">Zagraj w VCMI</string>
+    <string name="shortcut_editor">Uruchom Edytor VCMI</string>
 </resources>

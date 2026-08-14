@@ -605,8 +605,12 @@ void BattleWindow::bSurrenderf()
 		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name;
 		if(enemyHeroName.empty())
 		{
-			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
-			enemyHeroName = "#ENEMY#";
+			// army without a hero, e.g. neutral monsters - strongest of their remaining units speaks on their behalf
+			auto enemyStacks = owner.getBattle()->battleGetStacks(CPlayerBattleCallback::ONLY_ENEMY);
+			auto strongest = vstd::maxElementByFun(enemyStacks, [](const CStack * stack){ return stack->unitType()->getAIValue(); });
+
+			if(strongest != enemyStacks.end())
+				enemyHeroName = (*strongest)->unitType()->getNameSingularTranslated();
 		}
 
 		std::string surrenderMessage = boost::str(boost::format(LIBRARY->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."

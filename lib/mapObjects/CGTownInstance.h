@@ -40,8 +40,13 @@ struct DLL_LINKAGE GrowthInfo
 	int handicapPercentage;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader, public scripting::ApiRawPointer<CGTownInstance>
 {
+public:
+	// Disambiguate the scripting tag: CGTownInstance is ApiRawPointer both directly and via CGObjectInstance
+	using ScriptingApiName = CGTownInstance;
+
+private:
 	friend class CTownInstanceConstructor;
 	std::string nameTextId; // name of town
 	std::string customName;
@@ -101,7 +106,13 @@ public:
 			h & spellResearchPendingRerollsCounters;
 
 		if(!h.saving)
+		{
 			postDeserialize();
+
+			//buildings of towns saved before this version did not provide any retreat permission bonuses
+			if(!h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && getFactionID().hasValue())
+				recreateBuildingsBonuses();
+		}
 	}
 	//////////////////////////////////////////////////////////////////////////
 

@@ -21,42 +21,55 @@
 
 void NodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
-	//TODO: fix this code duplication with AINodeStorage::initialize, problem is to keep `resetTile` inline
+	out.beginSearch();
+	this->gameInfo = &gameInfo;
+	player = out.hero->tempOwner;
+	playerTeam = gameInfo.getPlayerTeam(player);
+	useFlying = options.useFlying;
+	useWaterWalking = options.useWaterWalking;
+}
 
-	int3 pos;
-	const PlayerColor player = out.hero->tempOwner;
-	const int3 sizes = gameInfo.getMapSize();
-	const auto & fow = gameInfo.getPlayerTeam(player)->fogOfWarMap;
+EPathAccessibility NodeStorage::evaluateAccessibility(
+	const int3 & coord,
+	const EPathfindingLayer & layer) const
+{
+	const TerrainTile * tile = gameInfo->getTile(coord);
+	const bool isWater = tile->isWater();
 
-	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
-	const bool useFlying = options.useFlying;
-	const bool useWaterWalking = options.useWaterWalking;
+	if((layer == ELayer::LAND && isWater)
+		|| (layer == ELayer::SAIL && !isWater)
+		|| (layer == ELayer::AIR && !useFlying)
+		|| (layer == ELayer::WATER && (!isWater || !useWaterWalking)))
+		return EPathAccessibility::NOT_SET;
 
-	for(pos.z=0; pos.z < sizes.z; ++pos.z)
+	switch(layer.toEnum())
 	{
-		for(pos.x=0; pos.x < sizes.x; ++pos.x)
-		{
-			for(pos.y=0; pos.y < sizes.y; ++pos.y)
-			{
-				const TerrainTile * tile = gameInfo.getTile(pos);
-				resetTile(pos, ELayer::AVIATE, PathfinderUtil::evaluateAccessibility<ELayer::AVIATE>(pos, *tile, fow, player, gameInfo));
-				if(tile->isWater())
-				{
-					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
-					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
-					if(useWaterWalking)
-						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
-				}
-				if(tile->isLand())
-				{
-					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
-					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
-				}
-			}
-		}
+	case ELayer::LAND:
+		return PathfinderUtil::evaluateAccessibility<ELayer::LAND>(
+			coord, *tile, playerTeam->fogOfWarMap, player, *gameInfo);
+	case ELayer::SAIL:
+		return PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(
+			coord, *tile, playerTeam->fogOfWarMap, player, *gameInfo);
+	case ELayer::WATER:
+		return PathfinderUtil::evaluateAccessibility<ELayer::WATER>(
+			coord, *tile, playerTeam->fogOfWarMap, player, *gameInfo);
+	case ELayer::AIR:
+		return PathfinderUtil::evaluateAccessibility<ELayer::AIR>(
+			coord, *tile, playerTeam->fogOfWarMap, player, *gameInfo);
+	case ELayer::AVIATE:
+		return PathfinderUtil::evaluateAccessibility<ELayer::AVIATE>(
+			coord, *tile, playerTeam->fogOfWarMap, player, *gameInfo);
+	default:
+		return EPathAccessibility::NOT_SET;
 	}
+}
+
+CGPathNode * NodeStorage::getNode(const int3 & coord, const EPathfindingLayer & layer)
+{
+	auto * node = out.getNodeForWrite(coord, layer);
+	if(!out.isCurrent(*node))
+		resetTile(coord, layer, evaluateAccessibility(coord, layer));
+	return node;
 }
 
 void NodeStorage::calculateNeighbours(
@@ -120,7 +133,9 @@ NodeStorage::NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 
 void NodeStorage::resetTile(const int3 & tile, const EPathfindingLayer & layer, EPathAccessibility accessibility)
 {
-	getNode(tile, layer)->update(tile, layer, accessibility);
+	auto * node = out.getNodeForWrite(tile, layer);
+	node->update(tile, layer, accessibility);
+	node->generation = out.currentGeneration;
 }
 
 std::vector<CGPathNode *> NodeStorage::getInitialNodes()

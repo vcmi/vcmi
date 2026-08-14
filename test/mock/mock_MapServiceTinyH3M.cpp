@@ -25,9 +25,10 @@ constexpr const char * kEncoding = "ASCII";
 constexpr const char * kMapName  = "TinyH3MFixture";
 }
 
-MapServiceTinyH3M::MapServiceTinyH3M(std::vector<uint8_t> h3mBytes, MapListener * mapListener_)
+MapServiceTinyH3M::MapServiceTinyH3M(std::vector<uint8_t> h3mBytes, MapListener * mapListener_, std::string scriptSource)
 	: mapListener(mapListener_)
 	, bytes(std::move(h3mBytes))
+	, scriptSource(std::move(scriptSource))
 {
 }
 
@@ -40,6 +41,8 @@ std::unique_ptr<CMap> MapServiceTinyH3M::loadMap(const ResourcePath & /*name*/, 
 
 	CMapLoaderH3M loader(kMapName, kModName, kEncoding, &buf);
 	auto map = loader.loadMap(cb);
+	if(!scriptSource.empty())
+		map->scriptSource = scriptSource;
 	if(mapListener)
 		mapListener->mapLoaded(map.get());
 	return map;

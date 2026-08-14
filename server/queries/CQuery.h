@@ -38,6 +38,7 @@ enum class QueryType : uint8_t
 	HeroMovement,
 	TimerPause,
 	Generic,
+	LuaScript,
 	Unknown
 };
 

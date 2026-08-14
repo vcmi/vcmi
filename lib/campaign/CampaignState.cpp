@@ -17,6 +17,7 @@
 #include "../mapping/CMapService.h"
 #include "../mapping/CMapInfo.h"
 #include "../mapping/CMap.h"
+#include "../modding/ModScope.h"
 #include "../mapping/MapFormatSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
@@ -239,6 +240,20 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}
+}
+
+void CampaignState::savePersistentVariables(const CMap & map)
+{
+	for(const auto & declaration : map.scriptVariableDefinitions)
+		if(declaration.persistInCampaign)
+			persistentScriptVariables.set(ModScope::scopeMap(), declaration.name, map.getScriptVariables().get(ModScope::scopeMap(), declaration.name));
+}
+
+void CampaignState::seedPersistentVariables(CMap & map) const
+{
+	for(const auto & declaration : map.scriptVariableDefinitions)
+		if(declaration.importFromPreviousScenario && persistentScriptVariables.has(ModScope::scopeMap(), declaration.name))
+			map.getScriptVariables().set(ModScope::scopeMap(), declaration.name, persistentScriptVariables.get(ModScope::scopeMap(), declaration.name));
 }
 
 std::optional<CampaignBonus> CampaignState::getBonus(CampaignScenarioID which) const

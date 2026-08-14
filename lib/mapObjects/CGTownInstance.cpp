@@ -429,9 +429,9 @@ DamageRange CGTownInstance::getTowerDamageRange() const
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 6;
 	// extra damage, for each building in town
-	static constexpr int extraDamage = 1;
+	static constexpr int extraDamage = 2;
 
-	const int minDamage = baseDamage + extraDamage * getTownLevel();
+	const int minDamage = baseDamage + extraDamage * (getTownLevel() / 2);
 
 	return {
 		minDamage,
@@ -865,11 +865,15 @@ bool CGTownInstance::armedGarrison() const
 int CGTownInstance::getTownLevel() const
 {
 	// count all buildings that are not upgrades
+	// H3 counts Town Hall as a structure, but not Village Hall
+	// Fort/Citadel/Castle are not considered structures for arrow tower damage
 	int level = 0;
 
 	for(const auto & bid : builtBuildings)
-	{
-		if(getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
+	{	
+		if(bid == BuildingID::VILLAGE_HALL || bid == BuildingID::FORT)
+			continue;
+		if(bid == BuildingID::TOWN_HALL || getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
 	}
 	return level;

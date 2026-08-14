@@ -154,7 +154,12 @@ private:
 	const CGHeroInstance * findRequiredTownDefender(const CGTownInstance * town) const;
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
-	Goals::TTaskVec buildPlanAndFilter(Goals::TGoalVec & tasks, int priorityTier) const;
+	using EvaluationContextMap = std::map<const Goals::AbstractGoal *, EvaluationContext>;
+	EvaluationContextMap buildEvaluationContexts(const Goals::TGoalVec & tasks) const;
+	Goals::TTaskVec buildPlanAndFilter(
+		Goals::TGoalVec & tasks,
+		const EvaluationContextMap & evaluationContexts,
+		int priorityTier) const;
 	bool executeTask(const Goals::TTask & task);
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;

@@ -128,8 +128,6 @@ void AssetGenerator::initialize()
 	for(int i = 1; i < 9; i++)
 		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
 	
-	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"), true);
-	
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButtonClear")] = createGSPButtonClear();
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButton2Arrow")] = createGSPButton2Arrow();
 
@@ -176,6 +174,11 @@ std::map<AnimationPath, AssetGenerator::AnimationLayoutMap> AssetGenerator::gene
 void AssetGenerator::addImageFile(const ImagePath & path, ImageGenerationFunctor & img)
 {
 	imageFiles[path] = img;
+}
+
+bool AssetGenerator::hasAnimationFile(const AnimationPath & path) const
+{
+	return animationFiles.count(path) > 0;
 }
 
 void AssetGenerator::addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim)

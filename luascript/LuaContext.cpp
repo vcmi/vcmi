@@ -113,6 +113,12 @@ LuaContext::LuaContext(const LuaScriptInstance * source, const Environment * env
 		lua_setglobal(L, lib.name);
 	}
 
+#if LUA_VERSION_NUM >= 502
+	// Since 5.2 the coroutine library is separate; on 5.1/LuaJIT it comes with luaopen_base.
+	luaopen_coroutine(L);
+	lua_setglobal(L, LUA_COLIBNAME);
+#endif
+
 	lua_settop(L, 0);
 
 	cleanupGlobals();
