@@ -1054,7 +1054,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, int attackIndex, bool first, bool ranged, bool counter)
 {
 	// spell-casting abilities keep their own rule - once per attack action and never on a counter.
-	// Combat scripts are notified before every attack instead, further below
+	// Combat event reactions are notified before every attack instead, further below
 	if(defender && first && !counter)
 		attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender);
 
@@ -1082,9 +1082,9 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// the attacker and every unit it is about to hit react as one ordered group, so that a script
 	// declaring a priority runs before or after another whichever side of the attack it sits on
 	std::vector<PendingTrigger> beforeAttack;
-	collectEventTriggers(beforeAttack, CombatEventType::BEFORE_ATTACK, attacker, defender);
+	collectEventTriggers(battle, beforeAttack, CombatEventType::BEFORE_ATTACK, attacker, defender);
 	for(const AttackedTarget & target : upcoming.targets)
-		collectEventTriggers(beforeAttack, CombatEventType::BEFORE_ATTACKED, target.unit, attacker);
+		collectEventTriggers(battle, beforeAttack, CombatEventType::BEFORE_ATTACKED, target.unit, attacker);
 	runEventTriggers(battle, beforeAttack, upcoming);
 
 	BattleAttack bat;
@@ -1218,11 +1218,11 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// the attacker and every unit it hit react as one ordered group. Priority alone decides what
 	// runs first, which is how life drain heals before a fire shield can burn the attacker down and
 	// how a death stare only lands after it. Not gated on anyone being alive: a reflecting ability
-	// answers a lethal blow while dying, so each script decides for itself
+	// answers a lethal blow while dying, so each reaction decides for itself
 	std::vector<PendingTrigger> afterAttack;
-	collectEventTriggers(afterAttack, CombatEventType::AFTER_ATTACK, attacker, defender);
+	collectEventTriggers(battle, afterAttack, CombatEventType::AFTER_ATTACK, attacker, defender);
 	for(const AttackedTarget & target : payload.targets)
-		collectEventTriggers(afterAttack, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
+		collectEventTriggers(battle, afterAttack, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
 	runEventTriggers(battle, afterAttack, payload);
 }
 
@@ -1339,7 +1339,7 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 	return spellsToCast;
 }
 
-/// Legacy spell-casting abilities only - combat scripts are notified from makeAttack instead, and
+/// Legacy spell-casting abilities only - combat event reactions run from makeAttack instead, and
 /// deliberately without these gates.
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)
 {
@@ -1488,97 +1488,82 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 
 void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary, const CombatEventPayload & payload)
 {
-	// Combat events are only fired from battle actions, and neither the script API nor the spell
-	// cast below can start one - both only emit netpacks. Adding a binding that re-enters this
-	// class (making a unit attack or move) would make this recursive and need a depth guard.
-	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
-	for (const auto & bonus : *bonuses)
-	{
-		const auto parameters = bonus->parameters->toCustom<BonusParametersOnCombatEvent>();
-
-		for (const auto & effect : parameters.effects)
-		{
-			auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
-			auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
-
-			if (bonusEffect)
-			{
-				SetStackEffect sse;
-				sse.battleID = battle.getBattle()->getBattleID();
-				std::vector<Bonus> bonuses{*bonusEffect->bonus};
-				if (bonusEffect->targetEnemy && secondary)
-					sse.toAdd.emplace_back(secondary->unitId(), bonuses);
-				if (!bonusEffect->targetEnemy)
-					sse.toAdd.emplace_back(target->unitId(), bonuses);
-				gameHandler->sendAndApply(sse);
-			}
-			if (spellEffect)
-			{
-				const CSpell * spell = spellEffect->spell.toSpell();
-				spells::AbilityCaster spellCaster(target, spellEffect->masteryLevel);
-
-				spells::Target spellTarget;
-				if (spellEffect->targetEnemy && secondary)
-					spellTarget.emplace_back(secondary);
-				if (!spellEffect->targetEnemy)
-					spellTarget.emplace_back(target);
-
-				spells::BattleCast parameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
-
-				auto m = spell->battleMechanics(&parameters);
-
-				if(m->canBeCastAt(spellTarget))
-					parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
-			}
-		}
-
-	}
-
 	std::vector<PendingTrigger> pending;
-	collectEventTriggers(pending, event, target, secondary);
+	collectEventTriggers(battle, pending, event, target, secondary);
 	runEventTriggers(battle, pending, payload);
 }
 
-/// Gathers the scripts one unit runs for one event, without running any of them yet, so that
+/// Gathers everything one unit reacts to one event with, without running any of it yet, so that
 /// several units reacting to the same attack can be ordered against each other.
-void BattleActionProcessor::collectEventTriggers(std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const
+void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const
 {
-	// scripts subscribe to every event and no-op on those they do not implement, so the subtype -
-	// which script to run - is not part of the selector here
-	for (const auto & bonus : *self->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	auto add = [&pending, event, self, other](const std::shared_ptr<Bonus> & bonus)
 	{
-		if (!LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>()))
-			continue; // a script whose mod is gone
-
 		PendingTrigger trigger;
 		trigger.bonus = bonus;
 		trigger.event = event;
 		trigger.self = self->unitId();
 		trigger.other = other ? other->unitId() : -1;
 		pending.push_back(trigger);
+	};
+
+	// predefined reactions name the event they react to in their subtype
+	for (const auto & bonus : *self->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event))))
+	{
+		// what to do is the entire content of such a bonus, and the schema requires it, so one
+		// without it is content that already failed validation and reacts to nothing
+		if (bonus->parameters)
+			add(bonus);
+	}
+
+	// a script instead reacts to every event it implements, so which script to run - the subtype -
+	// is not part of the selector here
+	for (const auto & bonus : *self->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	{
+		auto script = LIBRARY->scriptTypes()->getCombatEventScript(bonus->subtype.as<ScriptID>());
+
+		if (script && script->handlesEvent(battle, event))
+			add(bonus);
 	}
 }
 
 void BattleActionProcessor::runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload)
 {
-	// bonus order is alphabetical by ability name, which would let a mod decide what runs first by
-	// renaming an ability. Scripts that care about running before another declare a priority, and
-	// that priority orders every reaction to the same attack - the attacker's against its victims'
-	std::stable_sort(pending.begin(), pending.end(), [](const PendingTrigger & left, const PendingTrigger & right)
+	// order in which reactions to the same attack run. Bonus order is alphabetical by ability name,
+	// which would let a mod decide what runs first by renaming an ability, so scripts that care
+	// declare a priority instead. It orders the attacker's reactions against its victims'
+	auto priorityOf = [](const Bonus & bonus)
 	{
-		return LIBRARY->scriptTypes()->getPriority(left.bonus->subtype.as<ScriptID>())
-			 < LIBRARY->scriptTypes()->getPriority(right.bonus->subtype.as<ScriptID>());
+		// predefined reactions declare no priority and run at the default one
+		if (bonus.type != BonusType::COMBAT_EVENT_TRIGGER)
+			return 0;
+
+		return LIBRARY->scriptTypes()->getPriority(bonus.subtype.as<ScriptID>());
+	};
+
+	std::stable_sort(pending.begin(), pending.end(), [&priorityOf](const PendingTrigger & left, const PendingTrigger & right)
+	{
+		return priorityOf(*left.bonus) < priorityOf(*right.bonus);
 	});
 
+	// Combat events are only fired from battle actions, and neither the script API nor the spell
+	// casts below can start one - both only emit netpacks. Adding a binding that re-enters this
+	// class (making a unit attack or move) would make this recursive and need a depth guard.
 	for (const auto & trigger : pending)
 	{
-		// an earlier script may have removed either unit - transmutation replaces the stack it
+		// an earlier reaction may have removed either unit - transmutation replaces the stack it
 		// hits - so both are looked up again rather than kept as pointers
 		const battle::Unit * self = battle.battleGetUnitByID(trigger.self);
 		if (!self)
 			continue;
 
 		const battle::Unit * other = trigger.other == -1 ? nullptr : battle.battleGetUnitByID(trigger.other);
+
+		if (trigger.bonus->type == BonusType::ON_COMBAT_EVENT)
+		{
+			runPredefinedReaction(battle, *trigger.bonus, self, other);
+			continue;
+		}
 
 		auto script = LIBRARY->scriptTypes()->getCombatEventScript(trigger.bonus->subtype.as<ScriptID>());
 
@@ -1590,5 +1575,46 @@ void BattleActionProcessor::runEventTriggers(const CBattleInfoCallback & battle,
 		parameters["val"].Integer() = trigger.bonus->val;
 
 		script->run(gameHandler->spellcastEnvironment(), battle, trigger.event, self, other, parameters, payload);
+	}
+}
+
+void BattleActionProcessor::runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other)
+{
+	const auto parameters = bonus.parameters->toCustom<BonusParametersOnCombatEvent>();
+
+	for (const auto & effect : parameters.effects)
+	{
+		const auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
+		const auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
+
+		if (bonusEffect)
+		{
+			SetStackEffect sse;
+			sse.battleID = battle.getBattle()->getBattleID();
+			std::vector<Bonus> bonuses{*bonusEffect->bonus};
+			if (bonusEffect->targetEnemy && other)
+				sse.toAdd.emplace_back(other->unitId(), bonuses);
+			if (!bonusEffect->targetEnemy)
+				sse.toAdd.emplace_back(self->unitId(), bonuses);
+			gameHandler->sendAndApply(sse);
+		}
+		if (spellEffect)
+		{
+			const CSpell * spell = spellEffect->spell.toSpell();
+			spells::AbilityCaster spellCaster(self, spellEffect->masteryLevel);
+
+			spells::Target spellTarget;
+			if (spellEffect->targetEnemy && other)
+				spellTarget.emplace_back(other);
+			if (!spellEffect->targetEnemy)
+				spellTarget.emplace_back(self);
+
+			spells::BattleCast castParameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
+
+			auto m = spell->battleMechanics(&castParameters);
+
+			if(m->canBeCastAt(spellTarget))
+				castParameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
+		}
 	}
 }

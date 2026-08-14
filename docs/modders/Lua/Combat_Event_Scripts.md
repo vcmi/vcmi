@@ -32,7 +32,7 @@ Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the
 
 A script without a `description` shows nothing, which is the way to keep an ability out of the creature window.
 
-Scripts extend `combatScript`, which implements every event as a no-op, so a script only defines the events it actually reacts to:
+Scripts extend `combatScript` and define a method only for the events they actually react to. An event whose method the script does not define is never handed to it:
 
 ```lua
 local Base = require("combatScript")
@@ -52,7 +52,7 @@ return Script
 
 VCMI guarantees the following:
 
-- every event is delivered to every script attached to the unit it happened to. Events that a script does not implement resolve to the no-op inherited from `combatScript`
+- every event is delivered to every script attached to the unit it happened to that defines a method for it. An event the script does not define a method for is skipped
 - the parameters stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
 - a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by unit actions
 - no event is withheld from a script because the engine judged it pointless. Whether a counterattack, a repeated blow or the death of the bearer is a reason to do nothing is the script's own decision

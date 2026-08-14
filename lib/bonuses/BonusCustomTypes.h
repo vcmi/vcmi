@@ -43,7 +43,6 @@ public:
 	static const BonusCustomSubtype heroMovementLand; // 1
 	static const BonusCustomSubtype heroMovementSea; // 0
 
-
 	static const BonusCustomSubtype rebirthRegular; // 0
 	static const BonusCustomSubtype rebirthSpecial; // 1
 
@@ -53,9 +52,6 @@ public:
 
 	static const BonusCustomSubtype immunityBattleWide; // 0
 	static const BonusCustomSubtype immunityEnemyHero; // 1
-
-
-
 
 	static const BonusCustomSubtype movementFlying; // -1
 	static const BonusCustomSubtype movementTeleporting; // 1

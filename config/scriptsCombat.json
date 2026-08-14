@@ -2,21 +2,12 @@
 	"transmutation" : {
 		"implements" : "combatEvent",
 		"script" : "combat/transmutation",
+		"patches" : [ ],
 		"priority" : 300,
 		"schema" : {
 			"properties" : {
-				"creature" : {
-					"type" : "string",
-					"description" : "creature the victim turns into. Defaults to the creature of the attacker"
-				},
-				"transmuteBy" : {
-					"type" : "string",
-					"enum" : [
-						"health",
-						"count"
-					],
-					"description" : "'health' keeps the total health of the victim, 'count' keeps its creature count"
-				}
+				"creature" : { "type" : "string", "description" : "creature the victim turns into. Defaults to the creature of the attacker" },
+				"transmuteBy" : { "type" : "string", "enum" : ["health", "count"], "description" : "'health' keeps the total health of the victim, 'count' keeps its creature count" }
 			},
 			"additionalProperties" : false
 		},
@@ -25,15 +16,11 @@
 	"summonGuardians" : {
 		"implements" : "combatEvent",
 		"script" : "combat/summonGuardians",
+		"patches" : [ ],
 		"schema" : {
-			"required" : [
-				"creature"
-			],
+			"required" : ["creature"],
 			"properties" : {
-				"creature" : {
-					"type" : "string",
-					"description" : "creature to summon as guardian"
-				}
+				"creature" : { "type" : "string", "description" : "creature to summon as guardian" }
 			},
 			"additionalProperties" : false
 		},
@@ -42,27 +29,14 @@
 	"enchanted" : {
 		"implements" : "combatEvent",
 		"script" : "combat/enchanted",
+		"patches" : [ ],
 		"schema" : {
-			"required" : [
-				"spell"
-			],
+			"required" : ["spell"],
 			"properties" : {
-				"spell" : {
-					"type" : "string",
-					"description" : "spell whose effects are applied"
-				},
-				"level" : {
-					"type" : "number",
-					"description" : "mastery level the effects are applied at"
-				},
-				"massive" : {
-					"type" : "boolean",
-					"description" : "true to affect every allied unit instead of only the bearer"
-				},
-				"duration" : {
-					"type" : "number",
-					"description" : "how many turns the effects last. Defaults to 50, long enough to accumulate rather than expire between rounds"
-				}
+				"spell" : { "type" : "string", "description" : "spell whose effects are applied" },
+				"level" : { "type" : "number", "description" : "mastery level the effects are applied at" },
+				"massive" : { "type" : "boolean", "description" : "true to affect every allied unit instead of only the bearer" },
+				"duration" : { "type" : "number", "description" : "how many turns the effects last. Defaults to 50, long enough to accumulate rather than expire between rounds" }
 			},
 			"additionalProperties" : false
 		},
@@ -71,6 +45,7 @@
 	"lifeDrain" : {
 		"implements" : "combatEvent",
 		"script" : "combat/lifeDrain",
+		"patches" : [ ],
 		"schema" : {
 			"properties" : {},
 			"additionalProperties" : false
@@ -80,6 +55,7 @@
 	"fireShield" : {
 		"implements" : "combatEvent",
 		"script" : "combat/fireShield",
+		"patches" : [ ],
 		"priority" : 50,
 		"schema" : {
 			"properties" : {},
@@ -90,25 +66,12 @@
 	"deathStare" : {
 		"implements" : "combatEvent",
 		"script" : "combat/deathStare",
+		"patches" : [ ],
 		"priority" : 100,
 		"schema" : {
 			"properties" : {
-				"situation" : {
-					"type" : "string",
-					"enum" : [
-						"melee",
-						"ranged",
-						"rangedDistancePenalty",
-						"rangedWallPenalty",
-						"rangedDistanceAndWallPenalty",
-						"commander"
-					],
-					"description" : "when the ability applies"
-				},
-				"spell" : {
-					"type" : "string",
-					"description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare"
-				}
+				"situation" : { "type" : "string", "enum" : ["melee", "ranged", "rangedDistancePenalty", "rangedWallPenalty", "rangedDistanceAndWallPenalty", "commander"], "description" : "when the ability applies" },
+				"spell" : { "type" : "string", "description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare" }
 			},
 			"additionalProperties" : false
 		},
@@ -117,21 +80,12 @@
 	"destruction" : {
 		"implements" : "combatEvent",
 		"script" : "combat/destruction",
+		"patches" : [ ],
 		"priority" : 400,
 		"schema" : {
 			"properties" : {
-				"killBy" : {
-					"type" : "string",
-					"enum" : [
-						"percentage",
-						"count"
-					],
-					"description" : "'percentage' kills a share of the victim's stack, 'count' kills a fixed number"
-				},
-				"amount" : {
-					"type" : "number",
-					"description" : "the share, or the number of creatures, depending on killBy"
-				}
+				"killBy" : { "type" : "string", "enum" : ["percentage", "count"], "description" : "'percentage' kills a share of the victim's stack, 'count' kills a fixed number" },
+				"amount" : { "type" : "number", "description" : "the share, or the number of creatures, depending on killBy" }
 			},
 			"additionalProperties" : false
 		},
@@ -140,12 +94,10 @@
 	"soulSteal" : {
 		"implements" : "combatEvent",
 		"script" : "combat/soulSteal",
+		"patches" : [ ],
 		"schema" : {
 			"properties" : {
-				"permanent" : {
-					"type" : "boolean",
-					"description" : "true to keep the gained creatures after the battle"
-				}
+				"permanent" : { "type" : "boolean", "description" : "true to keep the gained creatures after the battle" }
 			},
 			"additionalProperties" : false
 		},

@@ -77,7 +77,8 @@
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"fireShield" : {
-						"type" : "FIRE_SHIELD",
+						"type" : "COMBAT_EVENT_TRIGGER",
+						"subtype" : "fireShield",
 						"duration" : "N_TURNS",
 						"stacking" : "fireShield"
 					}

@@ -23,10 +23,10 @@
 namespace scripting
 {
 
-/// Combat event to name of the script method handling it. Scripts that do not care about
-/// an event simply inherit the no-op implementation from their base class.
-/// Switch without default, so that adding a combat event without a handler fails to compile.
-static const char * methodName(CombatEventType event)
+namespace
+{
+
+const char * methodName(CombatEventType event)
 {
 	switch(event)
 	{
@@ -47,6 +47,8 @@ static const char * methodName(CombatEventType event)
 	throw std::runtime_error("Combat script called for invalid combat event!");
 }
 
+}
+
 LuaCombatEventScript::LuaCombatEventScript(const LuaScriptInstance * script)
 	: script(script)
 {
@@ -54,7 +56,7 @@ LuaCombatEventScript::LuaCombatEventScript(const LuaScriptInstance * script)
 
 LuaCombatEventScript::~LuaCombatEventScript() = default;
 
-void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters, const CombatEventPayload & payload) const
+std::shared_ptr<LuaContext> LuaCombatEventScript::contextOf(const CBattleInfoCallback & battle) const
 {
 	//TODO: find a way to avoid dynamic casting
 	auto genericContext = battle.getScriptContextPool().getContext(script);
@@ -62,7 +64,17 @@ void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallbac
 	if(!luaContext)
 		throw std::runtime_error("Failed to execute Lua combat script! Context not available!");
 
-	luaContext->callMethod<void>(methodName(event), parameters, server, &battle, self, other, payload);
+	return luaContext;
+}
+
+bool LuaCombatEventScript::handlesEvent(const CBattleInfoCallback & battle, CombatEventType event) const
+{
+	return contextOf(battle)->hasFunction(methodName(event));
+}
+
+void LuaCombatEventScript::run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters, const CombatEventPayload & payload) const
+{
+	contextOf(battle)->callMethod<void>(methodName(event), parameters, server, &battle, self, other, payload);
 }
 
 }

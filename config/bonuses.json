@@ -119,11 +119,9 @@
 		"blockDescriptionPropagation": true
 	},
 
-
 	"DEFENSIVE_STANCE":
 	{
 	},
-
 
 	"DOUBLE_DAMAGE_CHANCE":
 	{
@@ -137,7 +135,6 @@
 	{
 	},
 
-
 	"ENEMY_ATTACK_REDUCTION":
 	{
 	},
@@ -149,7 +146,6 @@
 	"FEARFUL":
 	{
 	},
-
 
 	"FIRST_STRIKE":
 	{
@@ -179,7 +175,6 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
 
 	"FREE_SHOOTING":
 	{
@@ -288,7 +283,6 @@
 	"LEVEL_SPELL_IMMUNITY":
 	{
 	},
-
 
 	"LIMITED_SHOOTING_RANGE":
 	{
@@ -473,8 +467,7 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
-	
+
 	"SPELLCASTER":
 	{
 	},
@@ -519,7 +512,6 @@
 	{
 	},
 
-	
 	"SURRENDER_DISCOUNT":
 	{
 		"blockDescriptionPropagation": true
@@ -540,7 +532,6 @@
 	"THREE_HEADED_ATTACK":
 	{
 	},
-	
 
 	"TRANSMUTATION_IMMUNITY":
 	{

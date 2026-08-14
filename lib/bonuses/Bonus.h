@@ -11,7 +11,6 @@
 
 #include "BonusEnum.h"
 #include "BonusCustomTypes.h"
-#include "BonusMigration.h"
 #include "Limiters.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
@@ -24,6 +23,12 @@ class IUpdater;
 class CSelector;
 class IGameInfoCallback;
 class BonusParameters;
+struct Bonus;
+
+namespace BonusMigration
+{
+DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);
+}
 
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;

@@ -46,18 +46,20 @@ class BattleActionProcessor : boost::noncopyable
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	/// One script that is about to run, kept by unit id rather than by pointer because a script
-	/// running before it may remove either unit from the battle.
+	/// One reaction to a combat event that is about to run, kept by unit id rather than by pointer
+	/// because a reaction running before it may remove either unit from the battle.
 	struct PendingTrigger
 	{
 		std::shared_ptr<Bonus> bonus;
 		CombatEventType event;
-		uint32_t self;
-		uint32_t other; ///< -1 when the event has no unit on the other side
+		int32_t self;
+		int32_t other; ///< -1 when the event has no unit on the other side
 	};
 
-	void collectEventTriggers(std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const;
+	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const;
 	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
+	/// Predefined reaction of the ON_COMBAT_EVENT bonus - grant a bonus, or cast a spell
+	void runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other);
 
 	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
 	/// attackIndex is the zero-based position of this attack among those its own side makes in this action;

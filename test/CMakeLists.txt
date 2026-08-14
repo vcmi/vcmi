@@ -101,6 +101,7 @@ set(test_SRCS
 
 		server/battles/AcidBreathTest.cpp
 		server/battles/BattleTestFixture.cpp
+		server/battles/CombatEventTriggerTest.cpp
 		server/battles/DeathStareTest.cpp
 		server/battles/DestructionTest.cpp
 		server/battles/EnchantedTest.cpp

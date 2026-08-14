@@ -872,7 +872,7 @@ keeps working, but new content should declare the script directly:
 
 ### TRANSMUTATION_IMMUNITY
 
-Affected unit is immune to TRANSMUTATION bonus effects
+Affected unit can not be transmuted by the `transmutation` combat script
 
 ### SUMMON_GUARDIANS
 

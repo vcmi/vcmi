@@ -335,7 +335,8 @@
 			},
 			"fireShield" :
 			{
-				"type" : "FIRE_SHIELD",
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "fireShield",
 				"val" : 20,
 				// only the strongest fire shield is active, so the spell does not add to this one
 				"stacking" : "fireShield"

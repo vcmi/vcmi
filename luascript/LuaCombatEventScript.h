@@ -24,10 +24,13 @@ public:
 	LuaCombatEventScript(const LuaScriptInstance * script);
 	virtual ~LuaCombatEventScript();
 
+	bool handlesEvent(const CBattleInfoCallback & battle, CombatEventType event) const override;
 	void run(ServerCallback * server, const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * self, const battle::Unit * other, const JsonNode & parameters, const CombatEventPayload & payload) const override;
 
 private:
 	const LuaScriptInstance * script;
+
+	std::shared_ptr<LuaContext> contextOf(const CBattleInfoCallback & battle) const;
 };
 
 }

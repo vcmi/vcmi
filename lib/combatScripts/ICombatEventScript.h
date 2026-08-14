@@ -30,6 +30,10 @@ class DLL_LINKAGE ICombatEventScript
 public:
 	virtual ~ICombatEventScript() = default;
 
+	/// Whether this script reacts to the event at all. A script implements only the events it cares
+	/// about, and every event is offered to every script, so most of them are answered with false.
+	virtual bool handlesEvent(const CBattleInfoCallback & battle, CombatEventType event) const = 0;
+
 	/// self is the unit the event happened to, other is the unit on the opposite side of it (may be null).
 	/// `parameters` configure the script and come from the bonus; `payload` describes this specific
 	/// event and is empty for events that carry no extra data.

@@ -76,7 +76,7 @@
 			"skills": [1, 4]
 		}, 
 		{
-			"ability": [{ "type" : "FIRE_SHIELD", "val": 1, "stacking" : "fireShield" }],
+			"ability": [{ "type" : "COMBAT_EVENT_TRIGGER", "val": 1, "subtype" : "fireShield", "stacking" : "fireShield" }],
 			"skills": [1, 5]
 		},
 		{
