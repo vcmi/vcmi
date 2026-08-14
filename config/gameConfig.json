@@ -767,6 +767,8 @@
 		
 		"pathfinder" :
 		{
+			// if enabled, pathfinder will not allow disembarking from a boat on a tile with a hole (e.g. after digging for Grail)
+			"blockDisembarkOnHole" : true,
 			// if enabled, pathfinder will build path through locations guarded by wandering monsters
 			"ignoreGuards" : false,
 			// if enabled, pathfinder will take use of any available boats

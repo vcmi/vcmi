@@ -109,6 +109,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::MODULE_STACK_ARTIFACT,                            "modules",   "stackArtifact"                        },
 		{EGameSettings::MODULE_STACK_ARTIFACT_INDICATION,                 "modules",   "stackArtifactIndication"              },
 		{EGameSettings::MODULE_STACK_EXPERIENCE,                          "modules",   "stackExperience"                      },
+		{EGameSettings::PATHFINDER_BLOCK_DISEMBARK_ON_HOLE,               "pathfinder", "blockDisembarkOnHole"                },
 		{EGameSettings::PATHFINDER_IGNORE_GUARDS,                         "pathfinder", "ignoreGuards"                        },
 		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,                    "pathfinder", "originalFlyRules"                    },
 		{EGameSettings::PATHFINDER_USE_BOAT,                              "pathfinder", "useBoat"                             },
