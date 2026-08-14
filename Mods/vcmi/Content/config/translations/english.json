@@ -1064,6 +1064,7 @@
 	"vcmi.replay.speed": "Replay speed",
 	"vcmi.replay.turn": "Day %d - %s",
 	"vcmi.replay.turnOngoing": "Day %d - %s (current turn)",
+	"vcmi.replay.turnTimer": "A turn cannot be replayed while a turn timer is running.",
 	"vcmi.randomMap.description": "Map created by the Random Map Generator.\nTemplate was %s, size %dx%d, levels %d, players %d, computers %d, water %s, monster %s, VCMI map",
 	"vcmi.randomMap.description.isHuman": ", %s is human",
 	"vcmi.randomMap.description.monster.normal": "normal",

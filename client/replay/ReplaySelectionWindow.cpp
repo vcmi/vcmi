@@ -23,6 +23,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/ReplayLog.h"
@@ -54,17 +55,39 @@ namespace
 		const PlayerColor observer = GAME->interface()->playerID;
 		GAME->server().replayer().start(std::move(sequence), observer, currentOptions());
 	}
+
+	/// Text to show instead of starting a replay, if the live session must not be swapped out right now
+	std::optional<std::string> replayRefusalMessage()
+	{
+		const CGameState & gs = GAME->server().client->gameState();
+
+		// with simultaneous turns another player handled by this client could act while the live
+		// session is swapped out, and its actions would be lost
+		if(gs.actingPlayers.size() > 1)
+			return "vcmi.replay.notNow";
+
+		// the server keeps counting our turn time while we watch and ends the turn when it runs out
+		if(gs.getStartInfo() && gs.getStartInfo()->turnTimerInfo.isEnabled())
+			return "vcmi.replay.turnTimer";
+
+		return std::nullopt;
+	}
+
+	bool refuseReplay()
+	{
+		const auto message = replayRefusalMessage();
+		if(!message)
+			return false;
+
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate(*message));
+		return true;
+	}
 }
 
 void ReplaySelection::showSelectionDialog()
 {
-	// with simultaneous turns another player handled by this client could act while the live
-	// session is swapped out, and its actions would be lost
-	if(GAME->server().client->gameState().actingPlayers.size() > 1)
-	{
-		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.replay.notNow"));
+	if(refuseReplay())
 		return;
-	}
 
 	const ReplayLog & log = GAME->server().client->gameState().replayLog;
 	const auto turns = ReplayPlanner::availableTurns(log);
@@ -88,6 +111,10 @@ void ReplaySelection::showSelectionDialog()
 
 	auto onSelected = [orderedTurns, entireGame](int index)
 	{
+		// checked again because another player may have started to act while the list was open
+		if(refuseReplay())
+			return;
+
 		try
 		{
 			const ReplayLog & currentLog = GAME->server().client->gameState().replayLog;
