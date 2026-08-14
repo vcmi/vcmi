@@ -19,7 +19,6 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
@@ -87,8 +86,7 @@ void CSavingScreen::saveGame()
 
 	auto overWrite = [this, path]() -> void
 	{
-		Settings lastSave = settings.write["general"]["lastSave"];
-		lastSave->String() = path;
+		tabSel->rememberSave(path);
 		GAME->interface()->cb->save(path, true);
 		close();
 	};

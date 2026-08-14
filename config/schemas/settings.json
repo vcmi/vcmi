@@ -27,6 +27,8 @@
 				"language",
 				"gameDataLanguage",
 				"lastSave",
+				"lastScenarioSave",
+				"lastCampaignSave",
 				"lastSettingsTab",
 				"lastCampaign",
 				"lastDifficulty",
@@ -88,6 +90,14 @@
 				"lastSave" : {
 					"type" : "string",
 					"default" : "NEWGAME"
+				},
+				"lastScenarioSave" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"lastCampaignSave" : {
+					"type" : "string",
+					"default" : ""
 				},
 				"lastSettingsTab" : {
 					"type" : "number",
