@@ -114,7 +114,8 @@
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
 				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
-				"noSpellHitAndRunRounds" :      { "type" : "number" }
+				"noSpellHitAndRunRounds" :      { "type" : "number" },
+				"surrenderCostDivisor" :        { "type" : "number" }
 			}
 		},
 		"creatures": {

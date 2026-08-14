@@ -218,7 +218,9 @@ public:
 	/// Returns true if 'left' hero is stronger than 'right' when considering campaign transfer priority
 	static bool compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right);
 	uint64_t getValueForDiplomacy() const;
-	
+	/// Army strength as seen by neutral creatures and Thieves Guild - may be scaled by artifacts such as Diplomat's Cloak
+	uint64_t getArmyStrengthPerceivedByOthers() const;
+
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses

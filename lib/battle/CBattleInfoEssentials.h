@@ -10,6 +10,7 @@
 #pragma once
 #include "IBattleInfoCallback.h"
 #include "BattleSide.h"
+#include "../bonuses/BonusEnum.h"
 
 class CGTownInstance;
 class CGHeroInstance;
@@ -26,6 +27,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public IBattleInfoCallback
 {
 protected:
 	bool battleDoWeKnowAbout(BattleSide side) const;
+	int battleGetRetreatPermission(BattleSide side, BonusType permission) const;
 
 public:
 	enum EStackOwnership

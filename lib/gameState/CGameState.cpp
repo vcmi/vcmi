@@ -1552,7 +1552,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 	}
 	if(level >= 4) //army strength
 	{
-		FILL_FIELD(army, Statistic::getArmyStrength(&g->second))
+		FILL_FIELD(army, Statistic::getArmyStrength(&g->second, false, true))
 	}
 	if(level >= 5) //income
 	{

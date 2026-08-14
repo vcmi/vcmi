@@ -731,13 +731,24 @@ double CGHeroInstance::getHeroStrength() const
 uint64_t CGHeroInstance::getValueForDiplomacy() const
 {
 	// H3 formula for hero strength when considering diplomacy skill
-	uint64_t armyStrength = getArmyStrength();
+	uint64_t armyStrength = getArmyStrengthPerceivedByOthers();
 	double heroStrength = sqrt(
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::ATTACK)) *
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::DEFENSE))
 		);
 
 	return heroStrength * armyStrength;
+}
+
+uint64_t CGHeroInstance::getArmyStrengthPerceivedByOthers() const
+{
+	uint64_t armyStrength = getArmyStrength();
+
+	// artifacts such as Diplomat's Cloak make hero army look stronger or weaker than it is
+	for(const auto & bonus : *getBonusesOfType(BonusType::DIPLOMACY_ARMY_STRENGTH_MULTIPLIER))
+		armyStrength = armyStrength * bonus->val / 100;
+
+	return armyStrength;
 }
 
 bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
