@@ -131,12 +131,11 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		"Permanently raises or lowers one of a hero's four primary skills.");
 	R.function<&AdventureServerProxy::grantSecondarySkill>("grantSecondarySkill",
 		{
-			{"hero",  "Hero that learns or improves the skill."},
+            {"hero",  "Hero that learns the skill."},
 			{"skill", "Secondary skill to grant, as returned by Services:getSecondarySkillByName."},
 			{"level", "Mastery to move to: 1 = basic, 2 = advanced, 3 = expert."}
 		}, {},
-		"Teaches a secondary skill to a hero, or raises it to the given mastery. If the hero already knows the skill at an "
-		"equal or higher mastery it is left unchanged; a hero who has no free skill slots left will not learn a brand-new skill.");
+        "Teaches a secondary skill to a hero, or changes it to the given mastery. A hero who has no free skill slots left will not learn a brand-new skill.");
 	R.function<&AdventureServerProxy::grantArtifact>("grantArtifact",
 		{
 			{"hero",     "Hero that receives the artifact."},
@@ -359,7 +358,7 @@ void AdventureServerProxy::grantPrimarySkill(IGameEventCallback & object, const 
 
 void AdventureServerProxy::grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, const Skill & skill, int level)
 {
-	object.changeSecSkill(&hero, skill.getId(), level, ChangeValueMode::RELATIVE);
+    object.changeSecSkill(&hero, skill.getId(), level, ChangeValueMode::ABSOLUTE);
 }
 
 void AdventureServerProxy::grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const Artifact & artifact)

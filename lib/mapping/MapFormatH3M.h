@@ -131,9 +131,6 @@ private:
 	 */
 	void readHotaScripts();
 
-	/// Loads a sibling `<mapName>.lua` file, if present, as the map's script
-	void readSiblingScript();
-
 	/**
 	 * Reads the list of allowed heroes.
 	 */

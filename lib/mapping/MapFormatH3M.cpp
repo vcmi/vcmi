@@ -96,7 +96,6 @@ void CMapLoaderH3M::init()
 	readObjectTemplates();
 	readObjects();
 	readEvents();
-	readSiblingScript();
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
@@ -781,19 +780,6 @@ void CMapLoaderH3M::readHotaScripts()
 		[this](const TextIdentifier & identifier){ return readLocalizedString(identifier); });
 
 	scriptConverter->readScript();
-}
-
-void CMapLoaderH3M::readSiblingScript()
-{
-	ScriptPath scriptPath = ScriptPath::builtinTODO(mapName);
-	auto * loader = CResourceHandler::get(modName);
-	if(!loader->existsResource(scriptPath))
-		return;
-
-	logGlobal->info("Map '%s': using sibling script file, replacing script converted from map data", mapName);
-
-	auto rawData = loader->load(scriptPath)->readAll();
-	map->scriptSource = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()
