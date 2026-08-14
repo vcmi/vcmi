@@ -957,8 +957,15 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
-	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
-		return complainRet("Cannot disembark hero, tile is blocked!");
+	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand())
+	{
+		if(t.blocked())
+			return complainRet("Cannot disembark hero, tile is blocked!");
+
+		//hole is neither visitable nor blocking, so check for it explicitly
+		if(pathfinderHelper->isTileBlockedByHole(hmpos))
+			return complainRet("Cannot disembark hero, tile contains a hole!");
+	}
 
 	if(!h->pos.areNeighbours(dst) && movementMode == EMovementMode::STANDARD)
 		return complainRet("Tiles " + h->pos.toString()+ " and "+ dst.toString() +" are not neighboring!");
