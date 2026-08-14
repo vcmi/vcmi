@@ -25,7 +25,7 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int
 
 void CArtifactsOfHeroMarket::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(auto ownedPlace = getArtPlace(cursorPosition))
+	if(auto ownedPlace = getArtPlace(artPlace))
 	{
 		if(ownedPlace->isLocked())
 			return;
