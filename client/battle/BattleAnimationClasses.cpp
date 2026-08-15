@@ -927,10 +927,10 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparency, bool reversed):
 	BattleAnimation(owner),
 	animation(ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
-	transparencyFactor(transparencyFactor),
+	transparencyFactor(transparency),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
@@ -938,14 +938,14 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName.getName());
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, float transparencyFactor, bool reversed):
-	EffectAnimation(owner, animationName, effects, transparencyFactor, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, float transparency, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparency, reversed)
 {
 	battlehexes = hexes;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, float transparencyFactor, bool reversed):
-	EffectAnimation(owner, animationName, effects, transparencyFactor, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, float transparency, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparency, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.insert(hex);

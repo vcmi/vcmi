@@ -192,7 +192,10 @@ public:
 		BattleHex attackerPos = BattleHex::INVALID,
 		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	
-	std::pair<std::set<const CStack*>, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	/// Units a multi-hex attack strikes besides its primary target, in battlefield hex order, and
+	/// whether a custom hit animation is to be played. Ordered rather than a set, because who is hit
+	/// first decides in which order their abilities react and how the rolls of the attack are drawn.
+	std::pair<battle::Units, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;

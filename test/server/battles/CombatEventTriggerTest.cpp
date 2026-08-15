@@ -11,20 +11,17 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../lib/bonuses/BonusParameters.h"
+#include "../../../lib/bonuses/BonusParameters.h"
 
 namespace
 {
 
 /// Marker the reaction to one event grants, so that the value accumulated on a unit says exactly
 /// which of its events fired. Luck is used because nothing else in the scenario grants any.
-enum MarkerValue
-{
-	BEFORE_ATTACK = 1,
-	AFTER_ATTACK = 2,
-	BEFORE_ATTACKED = 4,
-	AFTER_ATTACKED = 8,
-};
+constexpr int markerBeforeAttack = 1;
+constexpr int markerAfterAttack = 2;
+constexpr int markerBeforeAttacked = 4;
+constexpr int markerAfterAttacked = 8;
 
 }
 
@@ -71,10 +68,10 @@ TEST_F(CombatEventTriggerTest, everyAttackEventReachesItsUnit)
 	// a retaliation would fire the same events again, with the roles swapped
 	blockRetaliation(attacker);
 
-	reactWithMarker(attacker, CombatEventType::BEFORE_ATTACK, BEFORE_ATTACK);
-	reactWithMarker(attacker, CombatEventType::AFTER_ATTACK, AFTER_ATTACK);
-	reactWithMarker(defender, CombatEventType::BEFORE_ATTACKED, BEFORE_ATTACKED);
-	reactWithMarker(defender, CombatEventType::AFTER_ATTACKED, AFTER_ATTACKED);
+	reactWithMarker(attacker, CombatEventType::BEFORE_ATTACK, markerBeforeAttack);
+	reactWithMarker(attacker, CombatEventType::AFTER_ATTACK, markerAfterAttack);
+	reactWithMarker(defender, CombatEventType::BEFORE_ATTACKED, markerBeforeAttacked);
+	reactWithMarker(defender, CombatEventType::AFTER_ATTACKED, markerAfterAttacked);
 
 	ASSERT_EQ(markersOf(attacker), 0);
 	ASSERT_EQ(markersOf(defender), 0);
@@ -82,6 +79,6 @@ TEST_F(CombatEventTriggerTest, everyAttackEventReachesItsUnit)
 	ASSERT_TRUE(attack(attacker, BattleHex(leftHex)));
 	ASSERT_TRUE(defender->alive()) << "the victim has to survive to be checked";
 
-	EXPECT_EQ(markersOf(attacker), BEFORE_ATTACK + AFTER_ATTACK);
-	EXPECT_EQ(markersOf(defender), BEFORE_ATTACKED + AFTER_ATTACKED);
+	EXPECT_EQ(markersOf(attacker), markerBeforeAttack + markerAfterAttack);
+	EXPECT_EQ(markersOf(defender), markerBeforeAttacked + markerAfterAttacked);
 }

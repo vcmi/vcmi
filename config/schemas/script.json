@@ -3,8 +3,21 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI script format",
 	"description" : "Format used to define scripts of any kind in VCMI",
-	"required" : [ "implements", "script", "patches" ],
+	"required" : [ "implements", "script", "patches", "schema" ],
 	"additionalProperties" : false,
+	"allOf" : [
+		{
+			"if" : {
+				"required" : [ "implements" ],
+				"properties" : {
+					"implements" : { "const" : "combatEvent" }
+				}
+			},
+			"then" : {
+				"required" : [ "description", "priority" ]
+			}
+		}
+	],
 	"properties" : {
 		"implements" : {
 			"type" : "string",
@@ -31,7 +44,7 @@
 		},
 		"schema" : {
 			"type" : "object",
-			"description" : "Json schema for validating the parameters that every user of this script passes to it"
+			"description" : "Json schema for validating the parameters that every user of this script passes to it. Declare a closed, empty one when the script takes none, so that anything passed by mistake is reported"
 		},
 		"stringRegistrations" : {
 			"type" : "array",
@@ -42,11 +55,11 @@
 		},
 		"description" : {
 			"type" : "string",
-			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}"
+			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}. Required of a combat event script, which shares one bonus type with every other and so has nothing else to describe it by"
 		},
 		"priority" : {
 			"type" : "number",
-			"description" : "order in which scripts reacting to the same combat event run, from lowest to highest. Defaults to 0"
+			"description" : "order in which scripts reacting to the same combat event run, from lowest to highest. Required of a combat event script, since which of two abilities acts first is part of what each of them does"
 		}
 	}
 }

@@ -313,7 +313,7 @@ std::vector<JsonNode> ObstacleSetHandler::loadLegacyData()
 	return {};
 }
 
-void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void ObstacleSetHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	auto os = loadFromJson(scope, data, name, biomes.size());
 	if(os)
@@ -328,7 +328,7 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 	}
 }
 
-void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void ObstacleSetHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	//Unused
 	loadObject(scope, name, data);

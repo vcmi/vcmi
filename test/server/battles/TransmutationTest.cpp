@@ -11,8 +11,8 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../lib/bonuses/Bonus.h"
-#include "../../lib/CCreatureHandler.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/CCreatureHandler.h"
 
 namespace
 {

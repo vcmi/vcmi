@@ -649,7 +649,7 @@ std::string ScriptID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
-	return LIBRARY->scriptTypes()->getJsonKey(ScriptID(index));
+	return LIBRARY->scriptTypes()->getById(ScriptID(index)).scriptId;
 }
 
 std::string ScriptID::entityType()

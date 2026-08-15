@@ -406,7 +406,7 @@ bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & batt
 	return actionsProcessor->makeAutomaticBattleAction(battle, ba);
 }
 
-void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
+void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary)
 {
 	actionsProcessor->processBattleEventTriggers(battle, event, target, secondary);
 }

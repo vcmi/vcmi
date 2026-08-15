@@ -14,6 +14,7 @@
 #include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../json/JsonUtils.h"
+#include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
@@ -32,57 +33,20 @@ ScriptKind parseKind(const std::string & name)
 
 }
 
-const ScriptHandler::LoadedScript * ScriptHandler::find(ScriptID scriptID) const
+const ScriptTypeDescription & ScriptHandler::getById(ScriptID scriptID) const
 {
-	if(!scriptID.hasValue())
-		return nullptr;
-
-	return &scripts.at(scriptID.getNum());
-}
-
-std::shared_ptr<ICombatEventScript> ScriptHandler::getCombatEventScript(ScriptID scriptID) const
-{
-	const auto * script = find(scriptID);
-
-	return script ? script->combatEventScript : nullptr;
+	return scripts.at(scriptID.getNum());
 }
 
 std::shared_ptr<spells::effects::Effect> ScriptHandler::createSpellEffect(ScriptID scriptID) const
 {
-	const auto * script = find(scriptID);
+	const ScriptTypeDescription & description = getById(scriptID);
+	auto effect = factory->createSpellEffect(description.scriptId);
 
-	if(!script || script->description.kind != ScriptKind::SPELL_EFFECT)
-		return nullptr;
+	if(!effect)
+		logMod->error("Scripting host can not provide spell effects, required by '%s'!", description.scriptId);
 
-	return factory->createSpellEffect(script->description.scriptId);
-}
-
-std::string ScriptHandler::getJsonKey(ScriptID scriptID) const
-{
-	const auto * script = find(scriptID);
-
-	return script ? script->description.scriptId : std::string();
-}
-
-std::string ScriptHandler::getDescriptionTextID(ScriptID scriptID) const
-{
-	const auto * script = find(scriptID);
-
-	return script ? script->description.descriptionTextID : std::string();
-}
-
-int ScriptHandler::getPriority(ScriptID scriptID) const
-{
-	const auto * script = find(scriptID);
-
-	return script ? script->description.priority : 0;
-}
-
-ScriptKind ScriptHandler::getKind(ScriptID scriptID) const
-{
-	const auto * script = find(scriptID);
-
-	return script ? script->description.kind : ScriptKind::INVALID;
+	return effect;
 }
 
 void ScriptHandler::registerFactory(std::shared_ptr<IScriptFactory> newFactory)
@@ -95,7 +59,7 @@ std::vector<JsonNode> ScriptHandler::loadLegacyData()
 	return {};
 }
 
-void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void ScriptHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	ScriptTypeDescription description;
 	description.identifier = name;
@@ -126,37 +90,42 @@ void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNo
 
 	factory->initialize(description);
 
-	LoadedScript loadedScript;
 	// a stateless script is shared, so it is created once here rather than on every event
 	if(description.kind == ScriptKind::COMBAT_EVENT)
 	{
-		loadedScript.combatEventScript = factory->createCombatEventScript(description.scriptId);
+		description.combatEventScript = factory->createCombatEventScript(description.scriptId);
 
-		if(!loadedScript.combatEventScript)
-			logMod->error("Scripting host can not provide combat event scripts, required by '%s'!", description.scriptId);
+		// every unit carrying this ability would deref that null the moment it acts, so there is
+		// nothing to gain by carrying on with the load
+		if(!description.combatEventScript)
+			throw std::runtime_error("Scripting host can not provide combat event scripts, required by '" + description.scriptId + "'!");
 	}
-	loadedScript.description = std::move(description);
 
 	registerObject(scope, "script", name, data, scripts.size());
-	scripts.push_back(std::move(loadedScript));
+	scripts.push_back(std::move(description));
 }
 
-void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void ScriptHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	throw std::runtime_error("Not supported");
 }
 
 void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const
 {
-	const auto * script = find(scriptID);
-
-	if(!script)
-		return;
-
-	const auto & description = script->description;
+	const ScriptTypeDescription & description = getById(scriptID);
 
 	if(!description.parametersSchema.isNull())
 		JsonUtils::validate(parameters, description.parametersSchema, owner.get());
+
+	// a parameter naming an entity is resolved here purely to have it reported when it names
+	// nothing - otherwise a typo only shows up as a raw json key in the creature window
+	for(const auto & [field, property] : description.parametersSchema["properties"].Struct())
+	{
+		const std::string & entityType = property["entity"].String();
+
+		if(!entityType.empty())
+			LIBRARY->identifiers()->requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
+	}
 
 	if(description.stringRegistrations.empty())
 		return;

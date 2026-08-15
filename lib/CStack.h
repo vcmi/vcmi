@@ -56,7 +56,7 @@ public:
 	bool isOnNativeTerrain() const;
 	TerrainId getCurrentTerrain() const;
 
-	ui32 level() const;
+	int32_t unitLevel() const override;
 	si32 magicResistance() const override; //include aura of resistance
 	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise

@@ -12,6 +12,8 @@
 
 #include "../json/JsonNode.h"
 
+class ICombatEventScript;
+
 /// (modScope, sourcePath) pair identifying one script source layer
 using ScriptSource = std::pair<std::string, std::string>;
 
@@ -25,7 +27,7 @@ enum class ScriptKind
 	INVALID
 };
 
-/// Everything the engine knows about one script without having loaded its source.
+/// Everything the engine knows about one script.
 /// Shared by every script kind - a kind that has no use for a field simply ignores it.
 struct ScriptTypeDescription
 {
@@ -39,4 +41,8 @@ struct ScriptTypeDescription
 	std::vector<std::string> stringRegistrations; ///< parameter fields holding translatable text
 	std::string descriptionTextID; ///< text shown to the player, empty if the script declares none
 	int priority = 0; ///< scripts reacting to the same event run from lowest to highest
+
+	/// a combat event script is stateless and shared between every unit running it, so the single
+	/// instance is created on load and handed out as is. Null for every other kind
+	std::shared_ptr<ICombatEventScript> combatEventScript;
 };

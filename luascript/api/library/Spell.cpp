@@ -81,8 +81,11 @@ int64_t SpellProxy::adjustDamage(const Spell & spell, const IBattleInfoCallback 
 	const auto * owner = dynamic_cast<const CSpell *>(&spell);
 	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&battle);
 
-	if(!owner || !cb)
-		return rawDamage;
+	if(!owner)
+		throw std::runtime_error("Attempt to adjust damage of an unknown spell!");
+
+	if(!cb)
+		throw std::runtime_error("Attempt to adjust spell damage outside of a battle!");
 
 	// a unit fighting under a hero benefits from that hero's magic, as in a normal cast
 	const spells::Caster * caster = cb->battleGetFightingHero(actor.unitSide());

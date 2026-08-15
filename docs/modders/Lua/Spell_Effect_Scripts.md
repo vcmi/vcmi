@@ -133,4 +133,3 @@ Parameters:
 - `types` - target types collected so far
 
 Return value: list of target types
-

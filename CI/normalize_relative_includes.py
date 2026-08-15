@@ -65,7 +65,12 @@ def process_file(file_path: Path, repo_root: Path) -> list[str]:
             continue
 
         include_path = match.group(1)
-        canonical = canonical_include_path(include_path, file_path, line_no)
+        try:
+            canonical = canonical_include_path(include_path, file_path, line_no)
+        except FileNotFoundError as exc:
+            issues.append(str(exc))
+            continue
+
         if canonical is None:
             continue
 
@@ -92,12 +97,8 @@ def main() -> int:
     files = tracked_source_files(repo_root)
 
     all_issues: list[str] = []
-    try:
-        for file_path in files:
-            all_issues.extend(process_file(file_path, repo_root))
-    except FileNotFoundError as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
+    for file_path in files:
+        all_issues.extend(process_file(file_path, repo_root))
 
     print(f"Files scanned: {len(files)}")
     print(f"Includes to normalize: {len(all_issues)}")

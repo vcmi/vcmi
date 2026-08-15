@@ -31,18 +31,18 @@ A spell grants the same bonus for its own duration through the built-in [attachC
 
 ## Description shown to the player
 
-Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the text shown to the player comes from the script rather than from the bonus. Declare it as `description` on the script itself; `${val}` is replaced with the accumulated value of the bonus and `${parameterName}` with the value the bonus passed in its parameters:
+Every scripted ability shares the same `COMBAT_EVENT_TRIGGER` bonus type, so the text shown to the player comes from the script rather than from the bonus. Declare it as `description` on the script itself; `${val}` is replaced with the total value of every bonus granting this script and `${parameterName}` with the value the bonus passed in its parameters:
 
 ```json
 "lifeDrain" : {
     "implements" : "combatEvent",
     "script" : "combat/lifeDrain",
     "patches" : [ ],
+    "priority" : 0,
+    "schema" : { "properties" : {}, "additionalProperties" : false },
     "description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 }
 ```
-
-A script without a `description` shows nothing, which is the way to keep an ability out of the creature window.
 
 ## Writing a script
 
@@ -77,7 +77,9 @@ All handlers share the same signature and return nothing:
 
 Signature: `function Script:on<Event>(server, battle, unit, other, payload)`
 
-The parameters stored in the bonus initialize the script, so every property defined there is available as a field of `self` - for example `addInfo` of `{ "poison" : true }` is read as `self.poison`. The magnitude of the ability lives in the bonus value rather than in the parameters, and is read as `self.val`; it is the only field that accumulates when several sources grant the same ability.
+The parameters stored in the bonus initialize the script, so every property defined there is available as a field of `self` - for example `addInfo` of `{ "poison" : true }` is read as `self.poison`. The magnitude of the ability lives in the bonus value rather than in the parameters, and is read as `self.val`.
+
+When several bonuses on the same unit grant the same script, each of them runs the script once, with its own `val` - the values are not summed into a single run. An ability whose effect is proportional to `val` therefore adds up on its own, while one that rolls a chance rolls once per bonus rather than once at the combined chance. When only the strongest source should apply instead, give every bonus granting the script the same [`stacking`](../Bonus_Format.md) group, the way core content does for fire shield.
 
 Parameters:
 
@@ -86,10 +88,10 @@ Parameters:
 - `unit` - the unit carrying the bonus, which this event happened to. See [Unit](API_Reference.md#unit).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
 - `payload` - data about the attack that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
-    - `ranged` - whether the attack was a shot
-    - `isCounter` - whether the attack is a counterattack, either a first strike or a regular retaliation
-    - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first blow and `1` for the second of a double attack. A counterattack is its own side's attack `0`
-    - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` the attack could have dealt with the target's defence ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
+  - `ranged` - whether the attack was a shot
+  - `isCounter` - whether the attack is a counterattack, either a first strike or a regular retaliation
+  - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first blow and `1` for the second of a double attack. A counterattack is its own side's attack `0`
+  - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` the attack could have dealt with the target's defence ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
 
   A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
@@ -109,7 +111,7 @@ Handlers:
 
 The attack events always fire in this order, once per attack:
 
-```
+```text
 onBeforeAttack   (attacker)  \  one group, ordered by priority
 onBeforeAttacked (each unit about to be hit)  /
       ... damage is rolled and applied, the combat log is written ...
@@ -123,7 +125,7 @@ None of them is withheld: a counterattack, the second blow of a double attack an
 
 ## Built-in scripts
 
-A script may declare a `priority` in its `scripts` entry. Scripts reacting to the same event run from lowest priority to highest; scripts that declare none keep the default of 0. Bonus order is otherwise alphabetical by ability name, which would let a mod decide what runs first by renaming an ability.
+Every combat event script declares a `priority` in its `scripts` entry. Scripts reacting to the same event run from lowest priority to highest, and `0` is the usual answer. It is required rather than defaulted because bonus order is otherwise alphabetical by ability name, which would let a mod decide what runs first by renaming an ability.
 
 Four of the scripts below exist only so that content declaring the bonus they replaced keeps working. They reproduce the H3 and WoG behaviour they were converted from, quirks included, and will not grow options beyond what that behaviour needs. A mod that wants an ability of that kind should ship its own script rather than try to configure these.
 

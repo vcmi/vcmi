@@ -13,30 +13,30 @@
 
 #include "mock/TinyH3MBuilder.h"
 
-#include "../../server/CGameHandler.h"
-#include "../../server/battles/BattleProcessor.h"
+#include "../../../server/CGameHandler.h"
+#include "../../../server/battles/BattleProcessor.h"
 
-#include "../../lib/CSkillHandler.h"
-#include "../../lib/CStack.h"
-#include "../../lib/GameLibrary.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/battle/BattleAction.h"
-#include "../../lib/battle/BattleInfo.h"
-#include "../../lib/battle/BattleLayout.h"
-#include "../../lib/battle/CObstacleInstance.h"
-#include "../../lib/bonuses/Bonus.h"
-#include "../../lib/callback/GameRandomizer.h"
-#include "../../lib/entities/hero/CHero.h"
-#include "../../lib/filesystem/ResourcePath.h"
-#include "../../lib/gameState/CGameState.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/modding/IdentifierStorage.h"
-#include "../../lib/modding/ModScope.h"
-#include "../../lib/networkPacks/PacksForClient.h"
-#include "../../lib/spells/CSpell.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/Problem.h"
+#include "../../../lib/CSkillHandler.h"
+#include "../../../lib/CStack.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/StartInfo.h"
+#include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/BattleInfo.h"
+#include "../../../lib/battle/BattleLayout.h"
+#include "../../../lib/battle/CObstacleInstance.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/callback/GameRandomizer.h"
+#include "../../../lib/entities/hero/CHero.h"
+#include "../../../lib/filesystem/ResourcePath.h"
+#include "../../../lib/gameState/CGameState.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/modding/IdentifierStorage.h"
+#include "../../../lib/modding/ModScope.h"
+#include "../../../lib/networkPacks/PacksForClient.h"
+#include "../../../lib/spells/CSpell.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/Problem.h"
 
 void RecordingGameServer::applyPack(CPackForClient & pack)
 {
@@ -218,7 +218,7 @@ CStack * BattleTestFixture::addStack(BattleSide side, const CreatureID & creatur
 	return battle()->getStack(info.id);
 }
 
-void BattleTestFixture::giveArtifact(CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position)
+void BattleTestFixture::giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position)
 {
 	NewArtifact na;
 	na.artHolder = hero->id;
@@ -227,7 +227,7 @@ void BattleTestFixture::giveArtifact(CGHeroInstance * hero, ArtifactID artifact,
 	gameHandler->sendAndApply(na);
 }
 
-bool BattleTestFixture::castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target)
+bool BattleTestFixture::castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const
 {
 	const CSpell * spell = spellID.toSpell();
 	spells::BattleCast cast(battle(), hero, spells::Mode::HERO, spell);

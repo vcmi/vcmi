@@ -358,10 +358,12 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 	{
 		ScriptID scriptID(identifier);
 
-		if (LIBRARY->scriptTypes()->getKind(scriptID) != ScriptKind::COMBAT_EVENT)
+		const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+		if (script.kind != ScriptKind::COMBAT_EVENT)
 		{
 			// the bonus stays, but no combat event script will ever be found for it, so it does nothing
-			logMod->error("Bonus '%s' runs script '%s', which is not a combat event script!", descriptionID.get(), LIBRARY->scriptTypes()->getJsonKey(scriptID));
+			logMod->error("Bonus '%s' runs script '%s', which is not a combat event script!", descriptionID.get(), script.scriptId);
 			return;
 		}
 

@@ -11,13 +11,13 @@
 
 #include "mock/TinyMapGameTest.h"
 
-#include "../../server/IGameServer.h"
+#include "../../../server/IGameServer.h"
 // every scenario reads the units it placed and the battle they are in, so the fixture brings both
-#include "../../lib/CStack.h"
-#include "../../lib/battle/BattleInfo.h"
-#include "../../lib/battle/BattleHex.h"
-#include "../../lib/constants/EntityIdentifiers.h"
-#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../../lib/CStack.h"
+#include "../../../lib/battle/BattleInfo.h"
+#include "../../../lib/battle/BattleHex.h"
+#include "../../../lib/constants/EntityIdentifiers.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
@@ -85,10 +85,10 @@ public:
 	BattleInfo * battle() const;
 
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
-	void giveArtifact(CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
+	void giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
 
 	/// Casts a hero spell at a unit, reporting whether the game allowed it at all.
-	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target);
+	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const;
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
 	bool attack(const CStack * attacker, const BattleHex & targetHex);

@@ -316,14 +316,14 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	return newObject;
 }
 
-void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	mapObjectTypes.push_back(loadFromJson(scope, data, name, mapObjectTypes.size()));
 
 	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
 }
 
-void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(mapObjectTypes.at(index) == nullptr); // ensure that this id was not loaded before
 

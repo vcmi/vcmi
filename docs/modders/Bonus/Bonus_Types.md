@@ -29,9 +29,7 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 
 ### ON_COMBAT_EVENT
 
-DEPRECATED. Use [COMBAT_EVENT_TRIGGER](#combat_event_trigger) instead, which reacts to the same
-events through a [combat script](../Lua/Combat_Event_Scripts.md) and is not limited to the two
-predefined actions below. Existing content declaring this bonus keeps working.
+DEPRECATED. Use [COMBAT_EVENT_TRIGGER](#combat_event_trigger) instead, which reacts to the same events through a [combat script](../Lua/Combat_Event_Scripts.md) and is not limited to the two predefined actions below. Existing content declaring this bonus keeps working.
 
 Allows to execute an action when specific event happens with affected unit
 
@@ -91,19 +89,13 @@ Example:
 
 Runs a [combat script](../Lua/Combat_Event_Scripts.md) when an event happens with affected unit.
 
-Unlike the deprecated [ON_COMBAT_EVENT](#on_combat_event) the subtype does not select an event -
-the script is called on every combat event it implements a handler for, including the start of the
-battle and of each round, which that bonus can not react to at all.
+Unlike the deprecated [ON_COMBAT_EVENT](#on_combat_event) the subtype does not select an event - the script is called on every combat event it implements a handler for, including the start of the battle and of each round, which that bonus can not react to at all.
 
 - subtype: combat script to run
-- val: magnitude of the ability, whatever that means for this script. Kept out of `addInfo` so that
-  several sources of the same ability add up the way they do for any other bonus.
-- addInfo: optional, arbitrary json used to initialize the script on every call, the same way spell
-  effect parameters initialize a spell effect script. Read-only - a script that needs to remember
-  something between events must store it itself, for example in a bonus of its own.
+- val: magnitude of the ability, whatever that means for this script
+- addInfo: optional, arbitrary json used to initialize the script on every call, the same way spell effect parameters initialize a spell effect script. Read-only - a script that needs to remember something between events must store it itself, for example in a bonus of its own.
 
-Several scripts may react to the same event on the same unit. The order they run in is the
-`priority` declared by each script, not the order the bonuses appear in.
+Several scripts may react to the same event on the same unit. The order they run in is the `priority` declared by each script, not the order the bonuses appear in.
 
 Example:
 
@@ -838,9 +830,7 @@ Affected unit will never receive retaliations when attacking
 
 ### SOUL_STEAL
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[soulSteal](../Lua/Combat_Event_Scripts.md#soulsteal) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [soulSteal](../Lua/Combat_Event_Scripts.md#soulsteal) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -851,15 +841,11 @@ working, but new content should declare the script directly:
 }
 ```
 
-`val` keeps its meaning, and `permanent` replaces the `soulStealPermanent` / `soulStealBattle`
-subtypes. Two such bonuses now both take effect, where the two subtypes used to be mutually
-exclusive.
+`val` keeps its meaning, and `permanent` replaces the `soulStealPermanent` / `soulStealBattle` subtypes. Two such bonuses now both take effect, where the two subtypes used to be mutually exclusive.
 
 ### TRANSMUTATION
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[transmutation](../Lua/Combat_Event_Scripts.md#transmutation) combat script on load, so existing content
-keeps working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [transmutation](../Lua/Combat_Event_Scripts.md#transmutation) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -870,9 +856,7 @@ keeps working, but new content should declare the script directly:
 }
 ```
 
-`val` keeps its meaning, `transmuteBy` of `"health"` / `"count"` replaces the
-`transmutationPerHealth` / `transmutationPerUnit` subtypes, and `creature` replaces `addInfo`.
-- addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
+`val` keeps its meaning, `transmuteBy` of `"health"` / `"count"` replaces the `transmutationPerHealth` / `transmutationPerUnit` subtypes, and `creature` replaces `addInfo`. Without `creature` the victim is transformed into the creature of the attacker, as before.
 
 ### TRANSMUTATION_IMMUNITY
 
@@ -880,9 +864,7 @@ Affected unit can not be transmuted by the `transmutation` combat script
 
 ### SUMMON_GUARDIANS
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[summonGuardians](../Lua/Combat_Event_Scripts.md#summonguardians) combat script on load, so existing content
-keeps working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [summonGuardians](../Lua/Combat_Event_Scripts.md#summonguardians) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -918,9 +900,7 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 
 ### DESTRUCTION
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[destruction](../Lua/Combat_Event_Scripts.md#destruction) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [destruction](../Lua/Combat_Event_Scripts.md#destruction) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -931,8 +911,7 @@ working, but new content should declare the script directly:
 }
 ```
 
-`val` keeps its meaning. The old subtype becomes `killBy` - `destructionKillPercentage` maps to
-`"percentage"` and `destructionKillAmount` to `"count"` - and the old `addInfo` becomes `amount`.
+`val` keeps its meaning. The old subtype becomes `killBy` - `destructionKillPercentage` maps to `"percentage"` and `destructionKillAmount` to `"count"` - and the old `addInfo` becomes `amount`.
 
 ### LIMITED_SHOOTING_RANGE
 
@@ -956,9 +935,7 @@ Affected unit will ignore specified percentage of attacked unit attack (Nix)
 
 ### REVENGE
 
-Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle
-(formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`.
-Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
+Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle (formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`. Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
 
 ## Special abilities
 
@@ -1020,9 +997,7 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 ### LIFE_DRAIN
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[lifeDrain](../Lua/Combat_Event_Scripts.md#lifedrain) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [lifeDrain](../Lua/Combat_Event_Scripts.md#lifedrain) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -1052,9 +1027,7 @@ Affected unit acts as healing tent and can heal allied units on each turn
 
 ### FIRE_SHIELD
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[fireShield](../Lua/Combat_Event_Scripts.md#fireshield) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [fireShield](../Lua/Combat_Event_Scripts.md#fireshield) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -1065,9 +1038,7 @@ working, but new content should declare the script directly:
 }
 ```
 
-`val` keeps its meaning. The `stacking` group is what core content uses to keep a unit that has
-fire shield twice - from its own ability and from the spell - burning attackers only for the
-stronger of the two.
+`val` keeps its meaning. The `stacking` group is what core content uses to keep a unit that has fire shield twice - from its own ability and from the spell - burning attackers only for the stronger of the two.
 
 ### MAGIC_MIRROR
 
@@ -1077,35 +1048,28 @@ If affected unit is targeted by a spell it will reflect spell to a random enemy 
 
 ### ACID_BREATH
 
-REMOVED. The engine no longer implements it and, unlike the other retired abilities, declaring it
-is **not** converted automatically - a bonus of this type does nothing and is reported as a warning
-on load. Two existing bonuses replace it, and the pair has to be declared by hand:
+REMOVED. The engine no longer implements it and, unlike the other retired abilities, declaring it is **not** converted automatically - a bonus of this type does nothing and is reported as a warning on load. Two existing bonuses replace it, and the pair has to be declared by hand:
 
 ```json
 "acidBreath" : {
-	"type" : "SPELL_AFTER_ATTACK",
+    "type" : "SPELL_AFTER_ATTACK",
 	"subtype" : "acidBreathDamage",
 	"val" : 20
 },
 "acidBreathDamage" : {
-	"type" : "SPECIFIC_SPELL_POWER",
-	"subtype" : "cidBreathDamage",
+    "type" : "SPECIFIC_SPELL_POWER",
+	"subtype" : "acidBreathDamage",
 	"val" : 25
 }
 ```
 
-The old `addInfo` (chance to trigger) becomes the `val` of the SPELL_AFTER_ATTACK bonus, and the old
-`val` (damage per creature) becomes the `val` of the SPECIFIC_SPELL_POWER bonus, which the spell
-multiplies by the size of the attacking stack exactly as the ability used to.
+The old `addInfo` (chance to trigger) becomes the `val` of the SPELL_AFTER_ATTACK bonus, and the old `val` (damage per creature) becomes the `val` of the SPECIFIC_SPELL_POWER bonus, which the spell multiplies by the size of the attacking stack exactly as the ability used to.
 
-Note that the defence reduction half of the rust dragon's acid breath was always separate, and is
-unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
+Note that the defence reduction half of the rust dragon's acid breath was always separate, and is unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 
 ### DEATH_STARE
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[deathStare](../Lua/Combat_Event_Scripts.md#deathstare) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [deathStare](../Lua/Combat_Event_Scripts.md#deathstare) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -1116,11 +1080,10 @@ working, but new content should declare the script directly:
 }
 ```
 
-`val` keeps its meaning. The old subtype becomes the `situation` parameter and the old `addInfo`
-becomes `spell`:
+`val` keeps its meaning. The old subtype becomes the `situation` parameter and the old `addInfo` becomes `spell`:
 
 | Old subtype | `situation` |
-|---|---|
+| ----------- | ----------- |
 | `deathStareGorgon` | `"melee"` |
 | `deathStareNoRangePenalty` | `"ranged"` |
 | `deathStareRangePenalty` | `"rangedDistancePenalty"` |
@@ -1180,8 +1143,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-  - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
-  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
+  - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering. When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPELL_BEFORE_ATTACK
 
@@ -1190,8 +1152,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-  - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
-  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
+  - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering. When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPECIFIC_SPELL_POWER
 
@@ -1222,9 +1183,7 @@ Affected stack will resurrect after death
 
 ### ENCHANTED
 
-DEPRECATED. Configs and saves declaring it are converted to the
-[enchanted](../Lua/Combat_Event_Scripts.md#enchanted) combat script on load, so existing content keeps
-working, but new content should declare the script directly:
+DEPRECATED. Configs and saves declaring it are converted to the [enchanted](../Lua/Combat_Event_Scripts.md#enchanted) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
 ```json
 {
@@ -1234,10 +1193,7 @@ working, but new content should declare the script directly:
 }
 ```
 
-`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed
-both - this script has no magnitude, so it leaves `val` unused.
-Several such bonuses for the same spell each apply at their own level, where the bonus took the
-highest level of the group for all of them.
+`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed both - this script has no magnitude, so it leaves `val` unused. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
 
 ## Spell immunities
 

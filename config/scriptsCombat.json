@@ -1,3 +1,6 @@
+// Descriptions are empty here on purpose: the text every one of these scripts shows to the
+// player lives in the translation files as core.script.<name>.description, so that it is not
+// spelled out twice. A mod is expected to declare the text right here instead.
 {
 	"transmutation" : {
 		"implements" : "combatEvent",
@@ -6,51 +9,54 @@
 		"priority" : 300,
 		"schema" : {
 			"properties" : {
-				"creature" : { "type" : "string", "description" : "creature the victim turns into. Defaults to the creature of the attacker" },
+				"creature" : { "type" : "string", "entity" : "creature", "description" : "creature the victim turns into. Defaults to the creature of the attacker" },
 				"transmuteBy" : { "type" : "string", "enum" : ["health", "count"], "description" : "'health' keeps the total health of the victim, 'count' keeps its creature count" }
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Transmutation}\nHas a ${val}% chance to transform the attacked unit into another type."
+		"description" : ""
 	},
 	"summonGuardians" : {
 		"implements" : "combatEvent",
 		"script" : "combat/summonGuardians",
 		"patches" : [ ],
+		"priority" : 0,
 		"schema" : {
 			"required" : ["creature"],
 			"properties" : {
-				"creature" : { "type" : "string", "description" : "creature to summon as guardian" }
+				"creature" : { "type" : "string", "entity" : "creature", "description" : "creature to summon as guardian" }
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Summon Guardians}\nAt the start of battle, summons ${creature} (${val}%)."
+		"description" : ""
 	},
 	"enchanted" : {
 		"implements" : "combatEvent",
 		"script" : "combat/enchanted",
 		"patches" : [ ],
+		"priority" : 0,
 		"schema" : {
 			"required" : ["spell"],
 			"properties" : {
-				"spell" : { "type" : "string", "description" : "spell whose effects are applied" },
+				"spell" : { "type" : "string", "entity" : "spell", "description" : "spell whose effects are applied" },
 				"level" : { "type" : "number", "description" : "mastery level the effects are applied at" },
 				"massive" : { "type" : "boolean", "description" : "true to affect every allied unit instead of only the bearer" },
 				"duration" : { "type" : "number", "description" : "how many turns the effects last. Defaults to 50, long enough to accumulate rather than expire between rounds" }
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Enchanted}\nPermanently affected by ${spell}."
+		"description" : ""
 	},
 	"lifeDrain" : {
 		"implements" : "combatEvent",
 		"script" : "combat/lifeDrain",
 		"patches" : [ ],
+		"priority" : 0,
 		"schema" : {
 			"properties" : {},
 			"additionalProperties" : false
 		},
-		"description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
+		"description" : ""
 	},
 	"fireShield" : {
 		"implements" : "combatEvent",
@@ -61,7 +67,7 @@
 			"properties" : {},
 			"additionalProperties" : false
 		},
-		"description" : "{Fire Shield}\nReflects ${val}% of melee damage back to the attacker."
+		"description" : ""
 	},
 	"deathStare" : {
 		"implements" : "combatEvent",
@@ -71,11 +77,11 @@
 		"schema" : {
 			"properties" : {
 				"situation" : { "type" : "string", "enum" : ["melee", "ranged", "rangedDistancePenalty", "rangedWallPenalty", "rangedDistanceAndWallPenalty", "commander"], "description" : "when the ability applies. 'commander' is deprecated - it comes from a patch kept for the converted commander skill, and a mod wanting its own kind of stare should stack a patch of its own instead" },
-				"spell" : { "type" : "string", "description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare" }
+				"spell" : { "type" : "string", "entity" : "spell", "description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare" }
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Death Stare}\nHas a ${val}% chance to instantly kill one living creature."
+		"description" : ""
 	},
 	"destruction" : {
 		"implements" : "combatEvent",
@@ -89,18 +95,19 @@
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Destruction}\nHas a ${val}% chance to kill additional creatures after attacking."
+		"description" : ""
 	},
 	"soulSteal" : {
 		"implements" : "combatEvent",
 		"script" : "combat/soulSteal",
 		"patches" : [ ],
+		"priority" : 0,
 		"schema" : {
 			"properties" : {
 				"permanent" : { "type" : "boolean", "description" : "true to keep the gained creatures after the battle" }
 			},
 			"additionalProperties" : false
 		},
-		"description" : "{Soul Steal}\nGains ${val} new creatures for each enemy killed."
+		"description" : ""
 	}
 }

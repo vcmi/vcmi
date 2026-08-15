@@ -108,8 +108,8 @@ public:
 	~ObstacleSetHandler() = default;
 
 	std::vector<JsonNode> loadLegacyData() override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 	std::shared_ptr<ObstacleSet> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);

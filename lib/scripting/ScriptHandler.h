@@ -19,22 +19,9 @@
 /// namespace and one set of features - patches, parameter schema, translatable strings.
 class DLL_LINKAGE ScriptHandler final : public IHandlerBase, public ScriptService
 {
-	struct LoadedScript
-	{
-		ScriptTypeDescription description;
-		/// combat event scripts are stateless and shared between every unit running them,
-		/// so the single instance is created on load and handed out as is
-		std::shared_ptr<ICombatEventScript> combatEventScript;
-	};
-
 public:
-	std::shared_ptr<ICombatEventScript> getCombatEventScript(ScriptID scriptID) const override;
+	const ScriptTypeDescription & getById(ScriptID scriptID) const override;
 	std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const override;
-
-	std::string getJsonKey(ScriptID scriptID) const override;
-	std::string getDescriptionTextID(ScriptID scriptID) const override;
-	int getPriority(ScriptID scriptID) const override;
-	ScriptKind getKind(ScriptID scriptID) const override;
 
 	void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const override;
 
@@ -43,14 +30,10 @@ public:
 	std::vector<JsonNode> loadLegacyData() override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 private:
-	/// Returns null on an identifier that is not set, throws on one that is set but out of range,
-	/// which can only mean the value itself is corrupt.
-	const LoadedScript * find(ScriptID scriptID) const;
-
 	std::shared_ptr<IScriptFactory> factory;
-	std::vector<LoadedScript> scripts;
+	std::vector<ScriptTypeDescription> scripts;
 };

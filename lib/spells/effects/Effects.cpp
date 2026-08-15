@@ -130,9 +130,17 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 	for(const auto & [name, raw] : effectMap.Struct())
 	{
-		ScriptID effectID(*LIBRARY->identifiers()->getIdentifier("script", raw["type"]));
+		auto identifier = LIBRARY->identifiers()->getIdentifier("script", raw["type"]);
 
-		if(LIBRARY->scriptTypes()->getKind(effectID) != ScriptKind::SPELL_EFFECT)
+		if(!identifier.has_value())
+		{
+			logMod->error("Spell '%s:%s' uses unknown script '%s' as effect '%s'!", spellScope, spellIdentifier, raw["type"].String(), name);
+			continue;
+		}
+
+		ScriptID effectID(*identifier);
+
+		if(LIBRARY->scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
 		{
 			logMod->error("Spell '%s:%s' uses script '%s' as effect '%s', but that script is not a spell effect!", spellScope, spellIdentifier, raw["type"].String(), name);
 			continue;
@@ -142,8 +150,9 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 		LIBRARY->scriptTypes()->prepareParameters(effectID, data, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
 		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
+
 		if(!effect)
-			continue;
+			continue; // reported by the handler
 
 		effect->name = name;
 		effect->spellScope = spellScope;

@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/json/JsonUtils.h"
 
 TEST(JsonTest, conflictDetectionTestNoConflict)
@@ -133,4 +134,76 @@ TEST(JsonTest, conflictDetectionTestArrayAppendAlwaysSafe)
 	JsonUtils::detectConflicts(result, jsonA, jsonC, "test");
 
 	EXPECT_EQ(result.Struct().size(), 0);
+}
+
+/// A script declares what its kind needs: every one of them a schema, and a combat event script
+/// also the description and the priority that decide how its ability reads and when it runs.
+class ScriptSchemaTest : public ::testing::Test
+{
+public:
+	static JsonNode scriptNode(const std::string & text)
+	{
+		JsonNode node(text.data(), text.size(), "ScriptSchemaTest");
+		// core is exempt from required-entry checks, so the sample has to come from somewhere else
+		node.setModScope("vcmi-test");
+		return node;
+	}
+
+	static bool isValid(const std::string & text)
+	{
+		return JsonUtils::validate(scriptNode(text), "vcmi:script", "ScriptSchemaTest");
+	}
+};
+
+TEST_F(ScriptSchemaTest, combatEventScriptDeclaresEverythingItsKindNeeds)
+{
+	EXPECT_TRUE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : { "properties" : {}, "additionalProperties" : false },
+		"description" : "{Spikes}"
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, combatEventScriptWithoutPriorityIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"schema" : { "properties" : {}, "additionalProperties" : false },
+		"description" : "{Spikes}"
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, combatEventScriptWithoutDescriptionIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : { "properties" : {}, "additionalProperties" : false }
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, scriptWithoutSchemaIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "spellEffect",
+		"script" : "spells/spikes",
+		"patches" : [ ]
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, spellEffectNeedsNoDescriptionOrPriority)
+{
+	EXPECT_TRUE(isValid(R"({
+		"implements" : "spellEffect",
+		"script" : "spells/spikes",
+		"patches" : [ ],
+		"schema" : { "properties" : {}, "additionalProperties" : false }
+	})"));
 }

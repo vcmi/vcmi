@@ -15,9 +15,11 @@ end
 
 --- "<attacker> drains life from <victim>", optionally followed by how many creatures it raised.
 --- Life drain and soul steal have always shared this wording, since both fed the same counter.
-function BattleLog.lifeDrained(server, battle, unit, victim, healed, resurrected)
+--- `drainerCount` is how big the draining stack was before it healed, since that is the stack the
+--- message names - it must be read before the heal, which may well have grown it.
+function BattleLog.lifeDrained(server, battle, unit, victim, healed, resurrected, drainerCount)
 	-- 361 and 362 are the singular and plural forms of the same message
-	local lines = { unit:getCount() == 1 and "core.genrltxt.361" or "core.genrltxt.362" }
+	local lines = { drainerCount == 1 and "core.genrltxt.361" or "core.genrltxt.362" }
 	local numbers = { healed }
 
 	if resurrected == 1 then
@@ -27,9 +29,12 @@ function BattleLog.lifeDrained(server, battle, unit, victim, healed, resurrected
 		table.insert(numbers, resurrected)
 	end
 
+	-- both stacks are named in the form matching what is left of them
+	local victimCount = victim and victim:getCount() or 0
+
 	server:appendLog(battle, {
 		append         = lines,
-		replaceStrings = { unit:getCreature():getNameTextID(unit:getCount()), creatureName(victim, 0) },
+		replaceStrings = { unit:getCreature():getNameTextID(drainerCount), creatureName(victim, victimCount) },
 		replaceNumbers = numbers
 	})
 end

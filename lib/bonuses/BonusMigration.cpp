@@ -21,6 +21,8 @@
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 
+#include <span>
+
 namespace
 {
 
@@ -38,8 +40,19 @@ ScriptID resolveScript(const std::string & name)
 	return index.has_value() ? ScriptID(*index) : ScriptID::NONE;
 }
 
+using NameMapping = std::pair<std::string_view, std::string_view>;
+
+/// What `name` maps to, or an empty view when the table does not mention it. These tables are a
+/// handful of entries each, read once per bonus at load, so a linear scan is what they are worth.
+std::string_view lookup(std::span<const NameMapping> table, std::string_view name)
+{
+	auto entry = std::ranges::find(table, name, &NameMapping::first);
+
+	return entry == table.end() ? std::string_view() : entry->second;
+}
+
 /// Name of the script each retired bonus type is now implemented by.
-const std::map<std::string, std::string> retiredAbilities = {
+constexpr std::array<NameMapping, 8> retiredAbilities = {{
 	{ "LIFE_DRAIN",       "lifeDrain" },
 	{ "SOUL_STEAL",       "soulSteal" },
 	{ "TRANSMUTATION",    "transmutation" },
@@ -48,22 +61,23 @@ const std::map<std::string, std::string> retiredAbilities = {
 	{ "FIRE_SHIELD",      "fireShield" },
 	{ "DESTRUCTION",      "destruction" },
 	{ "DEATH_STARE",      "deathStare" },
-};
+}};
 
 /// Situation each of the old death stare subtypes stood for.
-const std::map<std::string, std::string> deathStareSituations = {
+constexpr std::array<NameMapping, 6> deathStareSituations = {{
 	{ "deathStareGorgon",              "melee" },
 	{ "deathStareCommander",           "commander" },
 	{ "deathStareNoRangePenalty",      "ranged" },
 	{ "deathStareRangePenalty",        "rangedDistancePenalty" },
 	{ "deathStareObstaclePenalty",     "rangedWallPenalty" },
 	{ "deathStareRangeObstaclePenalty","rangedDistanceAndWallPenalty" },
-};
+}};
 
 std::string deathStareSituation(const std::string & subtype)
 {
-	auto situation = deathStareSituations.find(subtype);
-	return situation == deathStareSituations.end() ? "melee" : situation->second;
+	std::string_view situation = lookup(deathStareSituations, subtype);
+
+	return situation.empty() ? "melee" : std::string(situation);
 }
 
 /// Saved bonuses hold the numeric subtype the retired ability used, which no longer has a name.
@@ -81,9 +95,9 @@ std::string deathStareSituation(const BonusSubtypeID & subtype)
 }
 
 /// Retired abilities that have no conversion, and what to declare instead.
-const std::map<std::string, std::string> retiredWithoutMigration = {
+constexpr std::array<NameMapping, 1> retiredWithoutMigration = {{
 	{ "ACID_BREATH", "a SPELL_AFTER_ATTACK bonus for the damage spell, plus SPECIFIC_SPELL_POWER for its damage" },
-};
+}};
 
 /// ENCHANTED packed the mastery level and whether the whole side is affected into a single value.
 int enchantedLevel(int value)
@@ -117,15 +131,15 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		return true;
 	}
 
-	auto retired = retiredAbilities.find(withoutScope(ability["type"].String()));
+	std::string_view script = lookup(retiredAbilities, withoutScope(ability["type"].String()));
 
-	if(retired == retiredAbilities.end())
+	if(script.empty())
 		return false;
 
-	const std::string & script = retired->second;
 	int value = ability["val"].Integer();
 
-	// the magnitude keeps living in val, so that several sources of the same ability still add up
+	// the magnitude keeps living in val and only the rest of the ability becomes parameters, so that
+	// limiters, updaters and the description still see it as an ordinary bonus value
 	JsonNode parameters;
 	if(script == "soulSteal")
 	{
@@ -167,7 +181,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	// everything else the config says - duration, limiters, icon, description - still applies
 	migrated = ability;
 	migrated["type"].String() = "COMBAT_EVENT_TRIGGER";
-	migrated["subtype"].String() = script;
+	migrated["subtype"].String() = std::string(script);
 
 	if(script == "enchanted")
 		migrated.Struct().erase("val");
@@ -181,60 +195,60 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 
 void BonusMigration::warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID)
 {
-	auto retired = retiredWithoutMigration.find(withoutScope(ability["type"].String()));
+	std::string_view replacement = lookup(retiredWithoutMigration, withoutScope(ability["type"].String()));
 
-	if(retired != retiredWithoutMigration.end())
-		logMod->warn("Bonus %s no longer does anything and was not converted - declare %s instead. Description: '%s'", ability["type"].String(), retired->second, descriptionID.get());
+	if(!replacement.empty())
+		logMod->warn("Bonus %s no longer does anything and was not converted - declare %s instead. Description: '%s'", ability["type"].String(), replacement, descriptionID.get());
 }
 
 bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 {
-	ScriptID script;
+	std::string scriptName;
 	JsonNode parameters;
 
 	switch(bonus.type)
 	{
 		case BonusType::UNUSED_LIFE_DRAIN:
-			script = resolveScript("lifeDrain");
+			scriptName = "lifeDrain";
 			break;
 
 		case BonusType::UNUSED_SOUL_STEAL:
-			script = resolveScript("soulSteal");
+			scriptName = "soulSteal";
 			parameters["permanent"].Bool() = bonus.subtype.getNum() != 1; // 1 was soulStealBattle
 			break;
 
 		case BonusType::UNUSED_TRANSMUTATION:
-			script = resolveScript("transmutation");
+			scriptName = "transmutation";
 			parameters["transmuteBy"].String() = bonus.subtype.getNum() == 0 ? "health" : "count"; // 0 was transmutationPerHealth
 			if(bonus.parameters)
 				parameters["creature"].String() = jsonKeyOf(bonus.parameters->toCreature().toEntity(LIBRARY));
 			break;
 
 		case BonusType::UNUSED_SUMMON_GUARDIANS:
-			script = resolveScript("summonGuardians");
+			scriptName = "summonGuardians";
 			parameters["creature"].String() = jsonKeyOf(bonus.subtype.as<CreatureID>().toEntity(LIBRARY));
 			break;
 
 		case BonusType::UNUSED_FIRE_SHIELD:
-			script = resolveScript("fireShield");
+			scriptName = "fireShield";
 			break;
 
 		case BonusType::UNUSED_DESTRUCTION:
-			script = resolveScript("destruction");
+			scriptName = "destruction";
 			parameters["killBy"].String() = bonus.subtype.getNum() == 0 ? "percentage" : "count"; // 0 was destructionKillPercentage
 			if(bonus.parameters)
 				parameters["amount"].Integer() = bonus.parameters->toNumber();
 			break;
 
 		case BonusType::UNUSED_DEATH_STARE:
-			script = resolveScript("deathStare");
+			scriptName = "deathStare";
 			parameters["situation"].String() = deathStareSituation(bonus.subtype);
 			if(bonus.parameters && bonus.parameters->toSpell() != SpellID::NONE)
 				parameters["spell"].String() = jsonKeyOf(bonus.parameters->toSpell().toEntity(LIBRARY));
 			break;
 
 		case BonusType::UNUSED_ENCHANTED:
-			script = resolveScript("enchanted");
+			scriptName = "enchanted";
 			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
 			parameters["level"].Integer() = enchantedLevel(bonus.val);
 			parameters["massive"].Bool() = enchantedIsMassive(bonus.val);
@@ -243,6 +257,16 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 
 		default:
 			return false;
+	}
+
+	ScriptID script = resolveScript(scriptName);
+
+	// nothing provides the script this ability became, so leaving the bonus as the retired type it
+	// already is - which the engine ignores - beats pointing it at no script at all
+	if(!script.hasValue())
+	{
+		logMod->warn("Combat ability '%s' can not be converted - no such script is available!", scriptName);
+		return false;
 	}
 
 	bonus.type = BonusType::COMBAT_EVENT_TRIGGER;

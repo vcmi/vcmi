@@ -7,6 +7,8 @@ Every script, whatever it does, is declared the same way - in the `scripts` sect
     "implements" : "combatEvent",
     "script" : "combat/lifeDrain",
     "patches" : [ ],
+    "priority" : 0,
+    "schema" : { "properties" : {}, "additionalProperties" : false },
     "description" : "{Life Drain}\nRestores health equal to ${val}% of damage dealt."
 }
 ```
@@ -23,13 +25,16 @@ Fields every script declares, whatever its type:
 - `implements` - what this script is, see above
 - `script` - path to the source, relative to the `SCRIPTS/` directory of the mod, without the extension. Sources are kept in a directory per type, so `spells/damage` or `combat/lifeDrain`
 - `patches` - other sources stacked over the base one, in the order given, so that a mod can change a script it does not own instead of replacing it. Declare it as an empty list when the script has none, so that other mods have a place to append to
+- `schema` - a json schema validating the parameters every user of this script passes to it. Errors are reported when the game loads, naming whoever passed the bad parameters. Declare an empty, closed one when the script takes no parameters, rather than leaving it out
+
+Fields a `combatEvent` script declares on top of those:
+
+- `description` - text shown to the player for an ability that runs this script. `${val}` is replaced with the value of the bonus and `${parameterName}` with a parameter the bonus passed. Every scripted ability shares one bonus type, so this is the only thing that tells one from another in the creature window - a script that is deliberately invisible declares it empty
+- `priority` - the order in which scripts reacting to the same event run, from lowest to highest. Required rather than defaulted, because which of two abilities acts first is part of what each of them does. `0` is the usual answer
 
 Fields a script may declare:
 
-- `schema` - a json schema validating the parameters every user of this script passes to it. Errors are reported when the game loads, naming whoever passed the bad parameters
 - `stringRegistrations` - names of parameters that hold text shown to the player. Such a parameter is registered for translation instead of being used as-is. A value starting with `@` is taken to be a reference to a string some other entity already registered
-- `description` - text shown to the player for an ability that runs this script. `${val}` is replaced with the value of the bonus and `${parameterName}` with a parameter the bonus passed
-- `priority` - for `combatEvent`, the order in which scripts reacting to the same event run
 
 Scripts of every type share one namespace, so a script is referred to simply by its name - or by `<modName>:<name>` when the reference has to name the mod that provides it.
 
@@ -56,8 +61,24 @@ Whatever configures a single use of a script is its parameters, and they reach t
 }
 ```
 
-A script that takes no parameters at all should still declare an empty, closed schema, so that anything passed to it by mistake is reported rather than silently ignored:
+A script that takes no parameters at all still declares a schema - an empty, closed one, so that anything passed to it by mistake is reported rather than silently ignored:
 
 ```json
 "schema" : { "properties" : {}, "additionalProperties" : false }
 ```
+
+## Parameters that name something
+
+A parameter holding the identifier of a creature, a spell or any other entity says so with `entity`, next to its type:
+
+```json
+"schema" : {
+    "required" : [ "creature" ],
+    "properties" : {
+        "creature" : { "type" : "string", "entity" : "creature", "description" : "creature to summon as guardian" }
+    },
+    "additionalProperties" : false
+}
+```
+
+Two things follow from it. The identifier is resolved when the mod loads, whatever kind of entity it names, so a typo is reported by name instead of quietly turning into an ability that does nothing. And the `description` of the script prints a creature or a spell by its own translated name where it writes `${parameterName}`, instead of the raw json key - as the kind of entity the parameter declares, which matters because one key can name a creature and a spell at once. A parameter that declares no `entity` is printed as written, so an ordinary string is never mistaken for an identifier.

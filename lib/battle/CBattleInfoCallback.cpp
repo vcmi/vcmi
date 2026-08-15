@@ -1961,9 +1961,9 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	return units;
 }
 
-std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
+std::pair<battle::Units, bool> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
 {
-	std::pair<std::set<const CStack*>, bool> attackedCres;
+	std::pair<battle::Units, bool> attackedCres;
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
 	AttackableTiles at;
@@ -1982,21 +1982,24 @@ std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatur
 		}
 	}
 
+	// a double-wide unit is found through both of its hexes, so the same unit shows up twice
+	const auto & addOnce = [&attackedCres](const battle::Unit * unit)
+	{
+		if(!vstd::contains(attackedCres.first, unit))
+			attackedCres.first.push_back(unit);
+	};
+
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && battleGetOwner(st) != battleGetOwner(attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
-		{
-			attackedCres.first.insert(st);
-		}
+			addOnce(st);
 	}
 	for (const BattleHex & tile : at.friendlyCreaturePositions)
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
-		{
-			attackedCres.first.insert(st);
-		}
+			addOnce(st);
 	}
 
 	if (at.friendlyCreaturePositions.empty())

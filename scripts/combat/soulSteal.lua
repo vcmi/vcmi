@@ -34,13 +34,15 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 	if gained <= 0 then return end
 
 	local power = self.permanent and ENUM.HealPower.permanent or ENUM.HealPower.oneBattle
+	-- the log names the stack as it was before it grew
+	local stealerCount = unit:getCount()
 	local healed, resurrected = server:healUnit(battle, unit, gained * unit:getMaxHealth(),
 		ENUM.HealLevel.overheal, power)
 
 	if healed <= 0 then return end
 
 	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, TRANSPARENCY)
-	BattleLog.lifeDrained(server, battle, unit, other, healed, resurrected)
+	BattleLog.lifeDrained(server, battle, unit, other, healed, resurrected, stealerCount)
 end
 
 return Script

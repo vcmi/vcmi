@@ -90,7 +90,9 @@ TEST_P(AcidBreathTest, dealsExpectedDamage)
 		EXPECT_EQ(cast.logLines.size(), cast.killed > 0 ? 2u : 1u) << scenario.name;
 
 		if(cast.killed > 0)
+        {
 			EXPECT_EQ(cast.logLines.back().front(), '\n') << scenario.name;
+        }
 
 		// what the client turns into the acid animation and sound
 		EXPECT_FALSE(cast.announcement.castByHero) << scenario.name;

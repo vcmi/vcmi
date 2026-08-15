@@ -73,37 +73,52 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	return bonusToString(bonus, bonus->val);
 }
 
-std::string CBonusTypeHandler::describeParameter(const JsonNode & value) const
+/// A json key on its own can name a creature and a spell at once, and an ordinary string parameter
+/// must not be mistaken for either, so what a parameter denotes is taken from its schema rather
+/// than guessed by asking every service in turn.
+std::string CBonusTypeHandler::describeParameter(const JsonNode & value, const std::string & entityType) const
 {
-	// scripts refer to creatures and spells by json key, which is not what a player wants to read
-	if(value.isString())
-	{
+	if(entityType == "creature")
 		if(const auto * creature = LIBRARY->creatures()->getByName(value.String()))
 			return creature->getNamePluralTranslated();
 
+	if(entityType == "spell")
 		if(const auto * spell = LIBRARY->spells()->getByName(value.String()))
 			return spell->getNameTranslated();
-	}
 
 	return value.toCompactString();
 }
 
 std::string CBonusTypeHandler::combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
 {
-	std::string textID = LIBRARY->scriptTypes()->getDescriptionTextID(bonus->subtype.as<ScriptID>());
+	ScriptID scriptID = bonus->subtype.as<ScriptID>();
 
-	// a trigger bonus with no script set describes nothing
-	if(textID.empty())
+	// content declaring a script that does not exist - reported on load, and there is nothing to describe
+	if(!scriptID.hasValue())
 		return "";
 
-	std::string text = LIBRARY->generaltexth->translate(textID);
+	const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+	// only a combat event script is required to describe itself, and only one of those belongs here
+	if(script.descriptionTextID.empty())
+		return "";
+
+	std::string text = LIBRARY->generaltexth->translate(script.descriptionTextID);
 
 	boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
 
 	// besides the magnitude, script parameters are named, so the description refers to them by name
 	if(bonus->parameters)
+	{
+		const JsonNode & properties = script.parametersSchema["properties"];
+
 		for(const auto & parameter : bonus->parameters->toCustom<JsonNode>().Struct())
-			boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second));
+		{
+			const std::string & entityType = properties[parameter.first]["entity"].String();
+
+			boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second, entityType));
+		}
+	}
 
 	return text;
 }
@@ -170,7 +185,7 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 	return {};
 }
 
-void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	if (vstd::contains(builtinBonusNames, name))
 	{
@@ -190,7 +205,7 @@ void CBonusTypeHandler::loadObject(std::string scope, std::string name, const Js
 	}
 }
 
-void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(0);
 }

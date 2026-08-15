@@ -33,10 +33,10 @@ public:
 	/// Loads the base source and any patch layers, keeping them under description.scriptId.
 	virtual void initialize(const ScriptTypeDescription & description) = 0;
 
-	/// One creator per script kind. A factory that can not express a kind inherits the null
-	/// default, which the handler reports as a load error rather than passing on.
-	virtual std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const { return nullptr; }
-	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const { return nullptr; }
+	/// One creator per script kind. Returning null is a load error, which the handler reports
+	/// rather than passing on.
+	virtual std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const = 0;
+	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const = 0;
 };
 
 class DLL_LINKAGE ScriptService : boost::noncopyable
@@ -44,26 +44,13 @@ class DLL_LINKAGE ScriptService : boost::noncopyable
 public:
 	virtual ~ScriptService() = default;
 
-	/// Shared, stateless handler for a combat event script. Null if no script is set, or if the
-	/// script the id names is of another kind.
-	virtual std::shared_ptr<ICombatEventScript> getCombatEventScript(ScriptID scriptID) const = 0;
+	/// Everything the game knows about one script, including the shared instance of a combat event
+	/// script. Throws on an id naming no script, which can only come from content that was never
+	/// validated - there is nothing sensible to hand back for it.
+	virtual const ScriptTypeDescription & getById(ScriptID scriptID) const = 0;
 
 	/// Fresh spell effect instance - the caller initializes it with its own parameters.
-	/// Null if no script is set, or if the script the id names is of another kind.
 	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const = 0;
-
-	/// Scoped identifier of the script, e.g. "core:lifeDrain". Empty if no script is set.
-	virtual std::string getJsonKey(ScriptID scriptID) const = 0;
-
-	/// Text ID of the description shown to the player. Empty if the script declares none.
-	virtual std::string getDescriptionTextID(ScriptID scriptID) const = 0;
-
-	/// Order in which scripts reacting to the same event run, from lowest to highest. Zero when
-	/// the script declares none, which is what a script that does not care about ordering wants.
-	virtual int getPriority(ScriptID scriptID) const = 0;
-
-	/// Which engine interface this script implements. INVALID if no script is set.
-	virtual ScriptKind getKind(ScriptID scriptID) const = 0;
 
 	/// Validates the parameters of a single instance of this script against the schema it
 	/// declares, and turns every field it lists in stringRegistrations into a registered text ID.

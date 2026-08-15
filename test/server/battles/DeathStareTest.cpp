@@ -11,11 +11,11 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../lib/GameLibrary.h"
-#include "../../lib/bonuses/BonusParameters.h"
-#include "../../lib/json/JsonNode.h"
-#include "../../lib/modding/IdentifierStorage.h"
-#include "../../lib/modding/ModScope.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/bonuses/BonusParameters.h"
+#include "../../../lib/json/JsonNode.h"
+#include "../../../lib/modding/IdentifierStorage.h"
+#include "../../../lib/modding/ModScope.h"
 
 namespace
 {
@@ -178,5 +178,5 @@ TEST_F(DeathStareCommanderTest, KillsScaleWithTheLevelRatio)
 	ASSERT_EQ(casts.size(), 1u) << "the stare is not rolled for, so it lands on every attack";
 
 	// nothing is rolled here - the patch kills a flat number, worth less against bigger creatures
-	EXPECT_EQ(casts.front().killed, static_cast<uint32_t>(killsBeforeRatio * bearer->level() / victim->level()));
+	EXPECT_EQ(casts.front().killed, static_cast<uint32_t>(killsBeforeRatio * bearer->unitLevel() / victim->unitLevel()));
 }

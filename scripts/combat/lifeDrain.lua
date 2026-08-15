@@ -34,13 +34,16 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 
 	if toHeal <= 0 then return end
 
+	-- the log names the stack as it was before it drained, which resurrecting may grow
+	local drainerCount = unit:getCount()
+
 	local healed, resurrected = server:healUnit(battle, unit, toHeal,
 		ENUM.HealLevel.resurrect, ENUM.HealPower.permanent)
 
 	if healed <= 0 then return end
 
 	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, TRANSPARENCY)
-	BattleLog.lifeDrained(server, battle, unit, other, healed, resurrected)
+	BattleLog.lifeDrained(server, battle, unit, other, healed, resurrected, drainerCount)
 end
 
 return Script

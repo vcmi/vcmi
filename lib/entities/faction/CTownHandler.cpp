@@ -837,7 +837,7 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	return faction;
 }
 
-void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CTownHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	auto object = loadFromJson(scope, data, name, objects.size());
 
@@ -876,7 +876,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
-void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CTownHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(scope, data, name, index);
 

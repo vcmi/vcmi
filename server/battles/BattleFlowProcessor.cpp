@@ -135,13 +135,12 @@ void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, boo
 			removeObstacle(battle, *obstPtr);
 	}
 
-	for(const auto * stack : battle.battleGetAllStacks(true))
+	// first round is covered by the battle start triggers, which ran just before this
+	if(!isFirstRound)
 	{
-		// first round is covered by the battle start triggers, which ran just before this
-		if(stack->alive() && !isFirstRound)
-		{
-			owner->processBattleEventTriggers(battle, CombatEventType::ROUND_START, stack, nullptr);
-		}
+		for(const auto * stack : battle.battleGetAllStacks(true))
+			if(stack->alive())
+				owner->processBattleEventTriggers(battle, CombatEventType::ROUND_START, stack, nullptr);
 	}
 }
 

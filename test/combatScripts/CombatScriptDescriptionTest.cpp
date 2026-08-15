@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "../../lib/CBonusTypeHandler.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/bonuses/Bonus.h"
 #include "../../lib/bonuses/BonusParameters.h"
@@ -57,6 +58,23 @@ TEST_F(CombatScriptDescriptionTest, ParametersAreSubstitutedByName)
 	EXPECT_EQ(description.find("core:woodElf"), std::string::npos) << description;
 }
 
+/// A parameter is resolved as whatever its schema declares it to be, rather than against every
+/// service in turn - a json key can name a creature and a spell at once, and only the script knows
+/// which of the two it meant.
+TEST_F(CombatScriptDescriptionTest, ParameterIsResolvedAsItsDeclaredType)
+{
+	const auto * creature = LIBRARY->creatures()->getByName("core:woodElf");
+	ASSERT_NE(creature, nullptr);
+
+	// the spell parameter of this script is handed a creature, which no spell is named after
+	JsonNode parameters;
+	parameters["spell"].String() = "core:woodElf";
+
+	auto description = LIBRARY->bth->bonusToString(triggerBonus("enchanted", 0, parameters));
+
+	EXPECT_EQ(description.find(creature->getNamePluralTranslated()), std::string::npos) << description;
+}
+
 /// Regression guard: the shared bonus type has no bonuses.json entry, so it is hidden by default
 /// and scripted abilities used to render as nothing at all.
 TEST_F(CombatScriptDescriptionTest, DescriptionIsNotEmpty)
@@ -64,7 +82,7 @@ TEST_F(CombatScriptDescriptionTest, DescriptionIsNotEmpty)
 	auto description = LIBRARY->bth->bonusToString(triggerBonus("soulSteal", 1));
 
 	EXPECT_FALSE(description.empty());
-	EXPECT_EQ(description.find("core.combatScript."), std::string::npos) << description;
+	EXPECT_EQ(description.find("core.script."), std::string::npos) << description;
 }
 
 }

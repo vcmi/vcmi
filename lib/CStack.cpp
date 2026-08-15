@@ -79,7 +79,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 	position = initialPosition;
 }
 
-ui32 CStack::level() const
+int32_t CStack::unitLevel() const
 {
 	if(base)
 		return base->getLevel(); //creature or commander

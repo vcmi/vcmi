@@ -411,7 +411,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	size_t index = objects.size();
 	static const int specialFramesCount = 2; // reserved for 2 special frames
@@ -423,7 +423,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	registerObject(scope, "hero", name, data, object->getIndex());
 }
 
-void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index);
