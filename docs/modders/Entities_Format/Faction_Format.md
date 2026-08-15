@@ -1,6 +1,6 @@
 # Faction Format
 
-This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](Faction_Help.md).
+This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](../Guides/Faction_Help.md).
 
 ## Required data
 

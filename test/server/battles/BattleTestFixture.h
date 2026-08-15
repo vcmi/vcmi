@@ -70,6 +70,9 @@ public:
 	static constexpr int leftHex = 5 * GameConstants::BFIELD_WIDTH + 7;
 	static constexpr int rightHex = leftHex + 1;
 
+	/// Fixes every roll of the battle, so that a failure can be reproduced.
+	static constexpr int seed = 1337;
+
 	void TearDown() override;
 
 	/// Two heroes with a token army each, so that a battle between them is valid.

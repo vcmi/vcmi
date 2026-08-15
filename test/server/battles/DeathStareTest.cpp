@@ -11,9 +11,11 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../server/CGameHandler.h"
-
-#include "../../lib/callback/GameRandomizer.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/bonuses/BonusParameters.h"
+#include "../../lib/json/JsonNode.h"
+#include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
 
 namespace
 {
@@ -23,7 +25,7 @@ struct DeathStareCase
 {
 	const char * name;
 	int defendingCreature;
-	uint32_t expectedKills;   ///< 0 when the target is immune and no stare ever lands
+	uint32_t expectedKills;   ///< most one stare can kill; 0 when the target is immune to it
 	std::vector<std::string> expectedLog;
 };
 
@@ -44,10 +46,6 @@ public:
 	/// How many attacks one scenario makes. The roll is biased against long streaks of failure,
 	/// so a run this long always contains several triggers.
 	static constexpr int attacks = 20;
-	/// Fixes the rolls, which decide which of those attacks trigger.
-	static constexpr int seed = 1337;
-	/// How many of those attacks land a stare at all, for this seed.
-	static constexpr size_t expectedTriggers = 20;
 
 	/// The gorgon is double wide and occupies this hex and the one behind it.
 	static constexpr int gorgonHex = rightHex;
@@ -68,8 +66,6 @@ TEST_P(DeathStareTest, killsExpectedCreatures)
 
 	// retaliation would shrink the staring stack, and every gorgon in it rolls its own chance
 	blockRetaliation(gorgon);
-
-	gameHandler->randomizer->setSeed(seed);
 
 	for(int i = 0; i < attacks; ++i)
 	{
@@ -95,18 +91,23 @@ TEST_P(DeathStareTest, killsExpectedCreatures)
 		EXPECT_EQ(cast.damage, static_cast<int64_t>(cast.killed) * target->getMaxHealth()) << scenario.name;
 	}
 
-	// how often the ability fired. Fixed by the seed, so this only moves when the chance itself
-	// moves, or when the way it is rolled does. An immune target is announced and animated all the
-	// same - the roll happens before the spell, which is what filters the target back out
-	EXPECT_EQ(casts.size(), expectedTriggers) << scenario.name;
+	// a hundred gorgons rolling their chance separately practically never all miss, so every
+	// attack lands a stare. An immune target is announced and animated all the same - the roll
+	// happens before the spell, which is what filters the target back out
+	EXPECT_EQ(casts.size(), static_cast<size_t>(attacks)) << scenario.name;
 
-	EXPECT_EQ(casts.front().killed, scenario.expectedKills) << scenario.name;
-	EXPECT_EQ(casts.front().logLines, scenario.expectedLog) << scenario.name;
+	// how many die is a roll, so no single stare can be pinned down. What can is the cap, which
+	// a run this long always reaches, so the heaviest stare of the run is the one measured here
+	const auto & heaviest = *std::max_element(casts.begin(), casts.end(),
+		[](const RecordedCast & left, const RecordedCast & right) { return left.killed < right.killed; });
+
+	EXPECT_EQ(heaviest.killed, scenario.expectedKills) << scenario.name;
+	EXPECT_EQ(heaviest.logLines, scenario.expectedLog) << scenario.name;
 
 	if(scenario.expectedKills == 0)
-		EXPECT_TRUE(casts.front().announcement.affectedCres.empty()) << scenario.name;
+		EXPECT_TRUE(heaviest.announcement.affectedCres.empty()) << scenario.name;
 	else
-		EXPECT_EQ(casts.front().announcement.affectedCres, std::vector<ui32>{target->unitId()}) << scenario.name;
+		EXPECT_EQ(heaviest.announcement.affectedCres, std::vector<ui32>{target->unitId()}) << scenario.name;
 }
 
 namespace
@@ -127,3 +128,55 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, DeathStareTest, ::testing::Values(
 	DeathStareCase{"golemTarget",  ironGolem, 0, {}}
 ),
 	[](const ::testing::TestParamInfo<DeathStareCase> & info) { return info.param.name; });
+
+/// The "commander" situation is not part of the death stare script - it comes from the patch core
+/// stacks over it, so this covers both that ability and that patching a combat script works.
+class DeathStareCommanderTest : public BattleTestFixture
+{
+public:
+	/// Far more health than the bearer can chew through, so every creature missing afterwards was
+	/// taken by the stare.
+	static constexpr int32_t victimCount = 1000;
+	static constexpr int32_t bearerCount = 10;
+	/// Kills before the level ratio of the two stacks is applied.
+	static constexpr int killsBeforeRatio = 14;
+
+	static void giveCommanderStare(CStack * unit, int value)
+	{
+		const std::string scriptName = "deathStare";
+		auto script = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", scriptName);
+		ASSERT_TRUE(script.has_value());
+
+		JsonNode parameters;
+		parameters["situation"].String() = "commander";
+
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::OTHER, value, BonusSourceID(), BonusSubtypeID(ScriptID(*script)));
+		bonus->parameters = std::make_shared<BonusParameters>(parameters);
+
+		unit->addNewBonus(bonus);
+	}
+};
+
+TEST_F(DeathStareCommanderTest, KillsScaleWithTheLevelRatio)
+{
+	startGame();
+	startBattle();
+
+	CStack * victim = addStack(BattleSide::ATTACKER, creatureByName("core:titan"), BattleHex(leftHex), victimCount);
+	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), bearerCount);
+	ASSERT_NE(victim, nullptr);
+	ASSERT_NE(bearer, nullptr);
+
+	// a retaliating titan would wipe out the stack whose level the kills are scaled by
+	blockRetaliation(bearer);
+
+	giveCommanderStare(bearer, killsBeforeRatio);
+
+	ASSERT_TRUE(attack(bearer, BattleHex(leftHex)));
+
+	const auto casts = server.castsOf(SpellID::DEATH_STARE);
+	ASSERT_EQ(casts.size(), 1u) << "the stare is not rolled for, so it lands on every attack";
+
+	// nothing is rolled here - the patch kills a flat number, worth less against bigger creatures
+	EXPECT_EQ(casts.front().killed, static_cast<uint32_t>(killsBeforeRatio * bearer->level() / victim->level()));
+}

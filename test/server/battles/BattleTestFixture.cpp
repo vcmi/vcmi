@@ -127,6 +127,10 @@ void BattleTestFixture::startGame()
 	server.gameState = gameState();
 	gameHandler = std::make_shared<CGameHandler>(server, gameState());
 
+	// a battle rolls for luck, morale and every chance-based ability, so nothing in it is
+	// reproducible until the rolls are pinned down
+	gameHandler->randomizer->setSeed(seed);
+
 	attackerSideHero = findHeroByOwner(PlayerColor(0));
 	defenderSideHero = findHeroByOwner(PlayerColor(1));
 	ASSERT_NE(attackerSideHero, nullptr);
@@ -159,8 +163,14 @@ void BattleTestFixture::startBattle()
 	auto terrain = gameState()->getTile(tile)->getTerrainID();
 	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState(), attackerSideHero, defenderSideHero);
 
+	// a battlefield grants bonuses of its own, and the default one is a clover field, whose luck
+	// would turn some attacks into lucky strikes and double the damage a scenario measures
+	// a string rather than a literal, which would pick the overload that takes a scoped name
+	const std::string battlefieldName = "core:sand_shore";
+	BattleField battlefield(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "battlefield", battlefieldName));
+
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(gameState().get(), tile, terrain, BattleField(0), armies, heroes, layout, nullptr);
+	bs.info = BattleInfo::setupBattle(gameState().get(), tile, terrain, battlefield, armies, heroes, layout, nullptr);
 	bs.battleID = BattleID(0);
 	gameHandler->sendAndApply(bs);
 

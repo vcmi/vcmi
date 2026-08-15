@@ -6,11 +6,10 @@ Script.__index = Script
 --- accurate shot do. Scripted equivalent of the DEATH_STARE bonus.
 ---
 --- Parameters:
----  val       - chance for each creature of the bearer's stack to kill one, in percent. For the
----              "commander" situation it is instead a flat number of kills, scaled by the level
----              ratio of the two stacks
+---  val       - chance for each creature of the bearer's stack to kill one, in percent
 ---  situation - when the ability applies: "melee", "ranged", "rangedDistancePenalty",
----              "rangedWallPenalty", "rangedDistanceAndWallPenalty" or "commander"
+---              "rangedWallPenalty" or "rangedDistanceAndWallPenalty". A situation this script
+---              does not know is left to whatever patches are stacked over it
 ---  spell     - spell cast to kill them. Defaults to death stare, and is what decides the
 ---              animation, the immunities and the wording of the combat log
 
@@ -44,13 +43,12 @@ function Script:rolledKills(server, unit)
 	return math.min(killed, cap)
 end
 
---- Commanders kill a fixed number instead of rolling, worth less against bigger creatures.
-function Script:commanderKills(unit, other)
-	local defenderLevel = other:getLevel()
+--- Creatures the gaze kills in the attack that just happened, or nil when it does not apply to
+--- that attack at all. This is the seam a patch overrides to add a situation of its own.
+function Script:killsIn(server, battle, unit, other, payload)
+	if (self.situation or "melee") ~= situationOf(battle, unit, other, payload) then return nil end
 
-	if defenderLevel <= 0 then return 0 end
-
-	return math.floor(unit:getLevel() * (self.val or 0) / defenderLevel)
+	return self:rolledKills(server, unit)
 end
 
 function Script:onAfterAttack(server, battle, unit, other, payload)
@@ -58,18 +56,9 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 	if not unit:isAlive() then return end
 	if not other or not other:isAlive() then return end
 
-	local situation = self.situation or "melee"
-	local killed
+	local killed = self:killsIn(server, battle, unit, other, payload)
 
-	if situation == "commander" then
-		killed = self:commanderKills(unit, other)
-	elseif situation == situationOf(battle, unit, other, payload) then
-		killed = self:rolledKills(server, unit)
-	else
-		return
-	end
-
-	if killed <= 0 then return end
+	if not killed or killed <= 0 then return end
 
 	-- the spell is what filters out targets immune to the gaze, and what the client animates
 	local spell = LIBRARY:getSpellByName(self.spell or SPELL)

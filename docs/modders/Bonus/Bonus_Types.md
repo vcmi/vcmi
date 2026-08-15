@@ -29,6 +29,10 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 
 ### ON_COMBAT_EVENT
 
+DEPRECATED. Use [COMBAT_EVENT_TRIGGER](#combat_event_trigger) instead, which reacts to the same
+events through a [combat script](../Lua/Combat_Event_Scripts.md) and is not limited to the two
+predefined actions below. Existing content declaring this bonus keeps working.
+
 Allows to execute an action when specific event happens with affected unit
 
 Subtypes:
@@ -87,9 +91,9 @@ Example:
 
 Runs a [combat script](../Lua/Combat_Event_Scripts.md) when an event happens with affected unit.
 
-Unlike `ON_COMBAT_EVENT` the subtype does not select an event - the script is called on every
-combat event and reacts only to those it implements. Prefer this bonus over `ON_COMBAT_EVENT` for
-anything that predefined bonus or spell actions can not express.
+Unlike the deprecated [ON_COMBAT_EVENT](#on_combat_event) the subtype does not select an event -
+the script is called on every combat event it implements a handler for, including the start of the
+battle and of each round, which that bonus can not react to at all.
 
 - subtype: combat script to run
 - val: magnitude of the ability, whatever that means for this script. Kept out of `addInfo` so that
@@ -835,7 +839,7 @@ Affected unit will never receive retaliations when attacking
 ### SOUL_STEAL
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[soulSteal](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[soulSteal](../Lua/Combat_Event_Scripts.md#soulsteal) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
@@ -854,7 +858,7 @@ exclusive.
 ### TRANSMUTATION
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[transmutation](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content
+[transmutation](../Lua/Combat_Event_Scripts.md#transmutation) combat script on load, so existing content
 keeps working, but new content should declare the script directly:
 
 ```json
@@ -877,7 +881,7 @@ Affected unit can not be transmuted by the `transmutation` combat script
 ### SUMMON_GUARDIANS
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[summonGuardians](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content
+[summonGuardians](../Lua/Combat_Event_Scripts.md#summonguardians) combat script on load, so existing content
 keeps working, but new content should declare the script directly:
 
 ```json
@@ -915,7 +919,7 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 ### DESTRUCTION
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[destruction](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[destruction](../Lua/Combat_Event_Scripts.md#destruction) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
@@ -1017,7 +1021,7 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 ### LIFE_DRAIN
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[lifeDrain](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[lifeDrain](../Lua/Combat_Event_Scripts.md#lifedrain) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
@@ -1049,7 +1053,7 @@ Affected unit acts as healing tent and can heal allied units on each turn
 ### FIRE_SHIELD
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[fireShield](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[fireShield](../Lua/Combat_Event_Scripts.md#fireshield) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
@@ -1100,7 +1104,7 @@ unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 ### DEATH_STARE
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[deathStare](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[deathStare](../Lua/Combat_Event_Scripts.md#deathstare) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json
@@ -1219,7 +1223,7 @@ Affected stack will resurrect after death
 ### ENCHANTED
 
 DEPRECATED. Configs and saves declaring it are converted to the
-[enchanted](../Lua/Combat_Event_Scripts.md) combat script on load, so existing content keeps
+[enchanted](../Lua/Combat_Event_Scripts.md#enchanted) combat script on load, so existing content keeps
 working, but new content should declare the script directly:
 
 ```json

@@ -1,6 +1,6 @@
 # Creature Format
 
-This page tells you what you need to do to make your creature work. For help, tips and advices, read the [creature help](Creature_Help.md).
+This page tells you what you need to do to make your creature work. For help, tips and advices, read the [creature help](../Guides/Creature_Help.md).
 
 ## Required data
 

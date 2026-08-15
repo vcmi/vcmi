@@ -27,13 +27,6 @@ constexpr int32_t bloodlustAttack = 3;
 /// these check: the attack of a creature under a permanent bloodlust.
 class EnchantedTest : public BattleTestFixture
 {
-public:
-	CStack * addEnchanter(const std::string & creature, BattleSide side, const BattleHex & hex)
-	{
-		CStack * stack = addStack(side, creatureByName(creature), hex, stackCount);
-		EXPECT_NE(stack, nullptr);
-		return stack;
-	}
 };
 
 TEST_F(EnchantedTest, EnchantsItsBearerWhenTheBattleStarts)
@@ -41,7 +34,7 @@ TEST_F(EnchantedTest, EnchantsItsBearerWhenTheBattleStarts)
 	startGame();
 	startBattle();
 
-	CStack * enchanter = addEnchanter("vcmi-test:testEnchanter", BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
 	ASSERT_NE(enchanter, nullptr);
 	ASSERT_EQ(enchanter->getAttack(false), baseAttack);
 
@@ -55,8 +48,8 @@ TEST_F(EnchantedTest, KeepsTheEnchantmentAsRoundsPass)
 	startGame();
 	startBattle();
 
-	CStack * enchanter = addEnchanter("vcmi-test:testEnchanter", BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * opponent = addEnchanter("vcmi-test:testSoulStealer", BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
+	CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
 	ASSERT_NE(enchanter, nullptr);
 	ASSERT_NE(opponent, nullptr);
 
@@ -75,9 +68,9 @@ TEST_F(EnchantedTest, MassiveEnchantmentReachesEveryAllyAndNoEnemy)
 	startGame();
 	startBattle();
 
-	CStack * enchanter = addEnchanter("vcmi-test:testMassEnchanter", BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * ally = addEnchanter("vcmi-test:testSoulStealer", BattleSide::ATTACKER, BattleHex(leftHex - 1));
-	CStack * enemy = addEnchanter("vcmi-test:testSoulStealer", BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testMassEnchanter"), BattleHex(leftHex), stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex - 1), stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
 	ASSERT_NE(enchanter, nullptr);
 	ASSERT_NE(ally, nullptr);
 	ASSERT_NE(enemy, nullptr);

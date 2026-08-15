@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI script format",
 	"description" : "Format used to define scripts of any kind in VCMI",
-	"required" : [ "implements", "script" ],
+	"required" : [ "implements", "script", "patches" ],
 	"additionalProperties" : false,
 	"properties" : {
 		"implements" : {
@@ -24,9 +24,9 @@
 		},
 		"patches" : {
 			"type" : "array",
+			"description" : "Scripts stacked over this one, in order, each extending the previous. Declare an empty list when there are none, so that mods have a place to append to",
 			"items" : {
-				"type" : "string",
-				"description" : "list of patches that modify this script"
+				"type" : "string"
 			}
 		},
 		"schema" : {

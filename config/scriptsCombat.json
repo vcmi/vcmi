@@ -66,11 +66,11 @@
 	"deathStare" : {
 		"implements" : "combatEvent",
 		"script" : "combat/deathStare",
-		"patches" : [ ],
+		"patches" : [ "combat/deathStareCommander" ],
 		"priority" : 100,
 		"schema" : {
 			"properties" : {
-				"situation" : { "type" : "string", "enum" : ["melee", "ranged", "rangedDistancePenalty", "rangedWallPenalty", "rangedDistanceAndWallPenalty", "commander"], "description" : "when the ability applies" },
+				"situation" : { "type" : "string", "enum" : ["melee", "ranged", "rangedDistancePenalty", "rangedWallPenalty", "rangedDistanceAndWallPenalty", "commander"], "description" : "when the ability applies. 'commander' is deprecated - it comes from a patch kept for the converted commander skill, and a mod wanting its own kind of stare should stack a patch of its own instead" },
 				"spell" : { "type" : "string", "description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare" }
 			},
 			"additionalProperties" : false

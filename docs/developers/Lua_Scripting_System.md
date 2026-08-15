@@ -95,7 +95,7 @@ The following standard Lua globals are **removed** for safety: `collectgarbage`,
 ScriptingHandler (engine core)
   └── LuaModule  (DLL plugin, implements Service)
         ├── LuaScriptStore    (every loaded Lua script, of every kind)
-        ├── LuaScriptFactory  (backend "lua", registered with ScriptService)
+        ├── LuaScriptFactory  (the script factory, registered with ScriptService)
         │     ├── createSpellEffect()      -> LuaSpellEffect
         │     └── createCombatEventScript() -> LuaCombatEventScript
         └── createPoolInstance()
@@ -116,7 +116,7 @@ Global entry point for the Lua scripting system. Loaded as a dynamic library plu
 - `GetAiName` — returns the module display name `"Lua interpreter"`
 - `GetNewModule` — creates and returns a new `LuaModule` instance
 
-On `installScripting`, registers `LuaScriptFactory` with the `ScriptService` under the backend key `"lua"`. On `createPoolInstance`, creates a `LuaScriptPool` and registers all currently loaded scripts into it.
+On `installScripting`, registers `LuaScriptFactory` with the `ScriptService` as the factory every script goes through - scripts do not name the language they are written in. On `createPoolInstance`, creates a `LuaScriptPool` and registers all currently loaded scripts into it.
 
 ### LuaScriptInstance
 
@@ -234,7 +234,7 @@ Singleton (access via `Registry::get()`). Constructed once at program startup; i
 
 ### LuaSpellEffect and LuaScriptFactory
 
-`LuaScriptFactory` is registered as the `"lua"` backend. When `ScriptHandler` loads a script written in Lua it calls `initialize(description)`, which stores the sources in `LuaScriptStore`. A script declaring `"implements" : "spellEffect"` is then wrapped into a `LuaSpellEffect` by `createSpellEffect`, once per spell that uses it; one declaring `"implements" : "combatEvent"` is wrapped once into a shared, stateless `LuaCombatEventScript`.
+`LuaScriptFactory` is the single factory `ScriptService` knows. When `ScriptHandler` loads a script it calls `initialize(description)`, which stores the sources in `LuaScriptStore`. Adding a second language means replacing this factory, or teaching it to dispatch - a script itself declares only what it implements, never what it is written in. A script declaring `"implements" : "spellEffect"` is then wrapped into a `LuaSpellEffect` by `createSpellEffect`, once per spell that uses it; one declaring `"implements" : "combatEvent"` is wrapped once into a shared, stateless `LuaCombatEventScript`.
 
 `LuaSpellEffect` implements the full `spells::effects::Effect` interface by resolving the active `LuaContext` from the current `Mechanics` object and delegating each virtual method call to the correspondingly named Lua function:
 

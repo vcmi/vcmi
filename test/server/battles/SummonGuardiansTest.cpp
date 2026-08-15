@@ -91,8 +91,8 @@ constexpr auto pikeman = "core:pikeman";
 constexpr auto wyvern = "core:wyvern";
 
 // middle of the field, clear of the armies the layout places against either edge
-constexpr int attackerHex = 5 * GameConstants::BFIELD_WIDTH + 7;
-constexpr int defenderHex = 5 * GameConstants::BFIELD_WIDTH + 8;
+constexpr int attackerHex = SummonGuardiansTest::leftHex;
+constexpr int defenderHex = SummonGuardiansTest::rightHex;
 
 // against the bearer's own edge of the field, where there is no room behind it
 constexpr int attackerEdgeHex = 7 * GameConstants::BFIELD_WIDTH + 1;

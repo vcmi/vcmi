@@ -91,9 +91,9 @@ Game Entities:
 
 - [Artifact](Entities_Format/Artifact_Format.md)
 - [Creature Requirement](Entities_Format/Creature_Format.md)
-- [Creature Help](Entities_Format/Creature_Help.md)
+- [Creature Help](Guides/Creature_Help.md)
 - [Faction Requirement](Entities_Format/Faction_Format.md)
-- [Faction Help](Entities_Format/Faction_Help.md)
+- [Faction Help](Guides/Faction_Help.md)
 - [Hero Class](Entities_Format/Hero_Class_Format.md)
 - [Hero Type](Entities_Format/Hero_Type_Format.md)
 - [Spell](Entities_Format/Spell_Format.md)

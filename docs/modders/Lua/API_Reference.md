@@ -16,7 +16,7 @@ Additionally, VCMI supports subset of Lua Standard Library:
 - `math` - standard Lua math operations library
 - ...as well as several other globals.
 
-See [Lua Standard Library](Lua_Standard_Library.md) page for more details.
+See [Lua Standard Library](Standard_Library.md) page for more details.
 
 ## Persistent data
 
