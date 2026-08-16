@@ -850,7 +850,7 @@ void CGameHandler::addQuest(const PlayerColor & player, const QuestInfo & quest)
 	sendAndApply(aq);
 }
 
-void CGameHandler::addScenarioEventJournalEntry(const PlayerColor & player, const std::string & title, const MetaString & message)
+void CGameHandler::addScenarioEventJournalEntry(const PlayerColor & player, const std::string & title, const MetaString & message, const int3 & location)
 {
 	if(message.toString().empty())
 		return;
@@ -860,6 +860,7 @@ void CGameHandler::addScenarioEventJournalEntry(const PlayerColor & player, cons
 	pack.entry.day = gameState().day;
 	pack.entry.title = title;
 	pack.entry.message = message;
+	pack.entry.location = location;
 	sendAndApply(pack);
 }
 

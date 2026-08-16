@@ -180,6 +180,7 @@ set(vcmiclientcommon_SRCS
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
+	windows/CScenarioEventJournal.cpp
 	windows/CSpellWindow.cpp
 	windows/CTutorialWindow.cpp
 	windows/wiki/WikiCommon.cpp
@@ -432,6 +433,7 @@ set(vcmiclientcommon_HEADERS
 	windows/CMarketWindow.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
+	windows/CScenarioEventJournal.h
 	windows/CSpellWindow.h
 	windows/CTutorialWindow.h
 	windows/wiki/WikiCommon.h

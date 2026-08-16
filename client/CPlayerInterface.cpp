@@ -63,6 +63,7 @@
 #include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
+#include "windows/CScenarioEventJournal.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
@@ -1829,20 +1830,7 @@ void CPlayerInterface::showScenarioEventJournal()
 		return;
 	}
 
-	std::string text;
-	for(const auto & entry : entries)
-	{
-		if(!text.empty())
-			text += "\n\n";
-
-		const std::string title = entry.title.empty()
-			? LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.event")
-			: entry.title;
-		text += "{" + title + " - " + LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.day") + " " + std::to_string(entry.day) + "}\n";
-		text += entry.message.toString();
-	}
-
-	CInfoWindow::showInfoDialog(text, {}, playerID);
+	ENGINE->windows().createAndPushWindow<CScenarioEventJournal>(entries);
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
