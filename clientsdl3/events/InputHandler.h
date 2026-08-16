@@ -18,6 +18,7 @@ enum class EUserEvent;
 enum class MouseButton;
 union SDL_Event;
 struct SDL_UserEvent;
+struct SDL_TouchFingerEvent;
 
 class InputSourceMouse;
 class InputSourceKeyboard;
@@ -33,6 +34,8 @@ enum class InputMode
 {
 	KEYBOARD_AND_MOUSE,
 	TOUCH,
+	/// hovers like a mouse, is tapped and dragged like a finger
+	PEN,
 	CONTROLLER
 };
 
@@ -62,7 +65,12 @@ class InputHandler
 	const bool enableController;
 
 	InputMode currentInputMode;
+
+	/// tells a hovering pen apart from one that is dragging
+	bool penIsTouching = false;
+
 	void setCurrentInputMode(InputMode modi);
+	static InputMode inputModeForTouch(const SDL_TouchFingerEvent & tfinger);
 
 	std::vector<SDL_Event> acquireEvents();
 
@@ -134,6 +142,9 @@ public:
 
 	InputMode getCurrentInputMode();
 	ControllerPrompt::Family getActiveControllerPromptFamily() const;
+
+	bool inputModeSupportsHover() const;
+	bool inputModeUsesGestures() const;
 
 	void copyToClipBoard(const std::string & text);
 	PowerState getPowerState();

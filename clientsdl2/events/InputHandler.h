@@ -33,6 +33,8 @@ enum class InputMode
 {
 	KEYBOARD_AND_MOUSE,
 	TOUCH,
+	/// hovers like a mouse, is tapped and dragged like a finger
+	PEN,
 	CONTROLLER
 };
 
@@ -134,6 +136,9 @@ public:
 
 	InputMode getCurrentInputMode();
 	ControllerPrompt::Family getActiveControllerPromptFamily() const;
+
+	bool inputModeSupportsHover() const;
+	bool inputModeUsesGestures() const;
 
 	void copyToClipBoard(const std::string & text);
 	PowerState getPowerState();

@@ -67,6 +67,10 @@ InputSourceTouch::InputSourceTouch()
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+
+	// both pen mirrors stay on, InputHandler picks one per event so a tap does not arrive twice
+	SDL_SetHint(SDL_HINT_PEN_MOUSE_EVENTS, "1");
+	SDL_SetHint(SDL_HINT_PEN_TOUCH_EVENTS, "1");
 }
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)

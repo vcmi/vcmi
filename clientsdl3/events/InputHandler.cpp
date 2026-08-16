@@ -69,6 +69,16 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 		case SDL_EVENT_MOUSE_MOTION:
+			// a hovering pen is only reported here, a dragging one by the finger events
+			if (current.motion.which == SDL_PEN_MOUSEID)
+			{
+				if (enableMouse && !penIsTouching)
+				{
+					setCurrentInputMode(InputMode::PEN);
+					mouseHandler->handleEventMouseMotion(current.motion);
+				}
+				return;
+			}
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
@@ -76,6 +86,16 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			}
 			return;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			// the tip repeats the tap the finger events deliver, the barrel buttons do not
+			if (current.button.which == SDL_PEN_MOUSEID)
+			{
+				if (enableMouse && current.button.button != SDL_BUTTON_LEFT)
+				{
+					setCurrentInputMode(InputMode::PEN);
+					mouseHandler->handleEventMouseButtonDown(current.button);
+				}
+				return;
+			}
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
@@ -83,6 +103,12 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			}
 			return;
 		case SDL_EVENT_MOUSE_BUTTON_UP:
+			if (current.button.which == SDL_PEN_MOUSEID)
+			{
+				if (enableMouse && current.button.button != SDL_BUTTON_LEFT)
+					mouseHandler->handleEventMouseButtonUp(current.button);
+				return;
+			}
 			if (enableMouse)
 				mouseHandler->handleEventMouseButtonUp(current.button);
 			return;
@@ -100,18 +126,22 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 		case SDL_EVENT_FINGER_MOTION:
 			if (enableTouch)
 			{
-				setCurrentInputMode(InputMode::TOUCH);
+				setCurrentInputMode(inputModeForTouch(current.tfinger));
 				fingerHandler->handleEventFingerMotion(current.tfinger);
 			}
 			return;
 		case SDL_EVENT_FINGER_DOWN:
+			if (current.tfinger.touchID == SDL_PEN_TOUCHID)
+				penIsTouching = true;
 			if (enableTouch)
 			{
-				setCurrentInputMode(InputMode::TOUCH);
+				setCurrentInputMode(inputModeForTouch(current.tfinger));
 				fingerHandler->handleEventFingerDown(current.tfinger);
 			}
 			return;
 		case SDL_EVENT_FINGER_UP:
+			if (current.tfinger.touchID == SDL_PEN_TOUCHID)
+				penIsTouching = false;
 			if (enableTouch)
 				fingerHandler->handleEventFingerUp(current.tfinger);
 			return;
@@ -141,6 +171,11 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	}
 }
 
+InputMode InputHandler::inputModeForTouch(const SDL_TouchFingerEvent & tfinger)
+{
+	return tfinger.touchID == SDL_PEN_TOUCHID ? InputMode::PEN : InputMode::TOUCH;
+}
+
 void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
@@ -158,6 +193,16 @@ InputMode InputHandler::getCurrentInputMode()
 ControllerPrompt::Family InputHandler::getActiveControllerPromptFamily() const
 {
 	return gameControllerHandler->getActiveControllerPromptFamily();
+}
+
+bool InputHandler::inputModeSupportsHover() const
+{
+	return currentInputMode != InputMode::TOUCH;
+}
+
+bool InputHandler::inputModeUsesGestures() const
+{
+	return currentInputMode == InputMode::TOUCH || currentInputMode == InputMode::PEN;
 }
 
 void InputHandler::copyToClipBoard(const std::string & text)
@@ -451,7 +496,7 @@ void InputHandler::stopTextInput()
 
 void InputHandler::hapticFeedback()
 {
-	if(currentInputMode == InputMode::TOUCH)
+	if(inputModeUsesGestures())
 		fingerHandler->hapticFeedback();
 }
 
@@ -467,7 +512,7 @@ bool InputHandler::hasTouchInputDevice() const
 
 int InputHandler::getNumTouchFingers() const
 {
-	if(currentInputMode != InputMode::TOUCH)
+	if(!inputModeUsesGestures())
 		return 0;
 	return fingerHandler->getNumTouchFingers();
 }
