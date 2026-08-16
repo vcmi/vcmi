@@ -22,6 +22,9 @@ class GameStatePackVisitor final : public ICPackVisitor
 	/// Morale from army composition is only recomputed on army change, so it must be refreshed on gain or loss of a troop-mixing bonus
 	void updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus);
 
+	/// Refreshes army morale of every army of a player, for troop-mixing bonuses that are propagated to him
+	void updateMoraleForPlayer(const PlayerColor & player);
+
 	/// Equipped artifacts may allow to mix troops of different alignments (Angelic Alliance), so the same applies to changed equipment
 	void updateMoraleOnArtifactChange(const ObjectInstanceID & artHolder);
 private:

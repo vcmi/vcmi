@@ -42,18 +42,31 @@ void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode
 
 	//bonus given to a player is inherited by all armies that he owns
 	if(auto * player = dynamic_cast<PlayerState *>(node))
-	{
-		for(auto * hero : player->getHeroes())
-			hero->updateMoraleBonusFromArmy();
-		for(auto * town : player->getTowns())
-			town->updateMoraleBonusFromArmy();
-	}
+		updateMoraleForPlayer(player->color);
+}
+
+void GameStatePackVisitor::updateMoraleForPlayer(const PlayerColor & player)
+{
+	auto * playerState = gs.getPlayerState(player, false);
+	if(!playerState)
+		return;
+
+	for(auto * hero : playerState->getHeroes())
+		hero->updateMoraleBonusFromArmy();
+	for(auto * town : playerState->getTowns())
+		town->updateMoraleBonusFromArmy();
 }
 
 void GameStatePackVisitor::updateMoraleOnArtifactChange(const ObjectInstanceID & artHolder)
 {
-	if(auto * army = dynamic_cast<CArmedInstance *>(gs.getObjInstance(artHolder)))
-		army->updateMoraleBonusFromArmy();
+	auto * army = dynamic_cast<CArmedInstance *>(gs.getObjInstance(artHolder));
+	if(!army)
+		return;
+
+	army->updateMoraleBonusFromArmy();
+
+	//troop-mixing artifact may be propagated to the player, in which case all armies that he owns are affected
+	updateMoraleForPlayer(army->getOwner());
 }
 
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
