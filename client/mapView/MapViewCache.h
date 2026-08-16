@@ -40,6 +40,9 @@ class MapViewCache
 	boost::multi_array<TileChecksum, 2> terrainChecksum;
 	boost::multi_array<bool, 2> tilesUpToDate;
 
+	/// Tiles redrawn for an animation step so far this frame, reset by update()
+	int animatedTilesRedrawn = 0;
+
 	Point cachedSize;
 	Point cachedPosition;
 	int cachedLevel;
