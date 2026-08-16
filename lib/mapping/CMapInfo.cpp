@@ -43,10 +43,8 @@ void CMapInfo::mapInit(const std::string & fname)
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
+	fileMetadataResource = resource;
 	mapHeader = mapService.loadMapHeader(resource);
-	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
-	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 	countPlayers();
 }
 
@@ -61,10 +59,8 @@ void CMapInfo::saveInit(const ResourcePath & file)
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
-	fullFileURI = CResourceHandler::get()->getFullFileURI(file); // Includes absolute path + extension
+	fileMetadataResource = file;
 	countPlayers();
-	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
-	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!
@@ -75,10 +71,8 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
+	fileMetadataResource = resource;
 	campaign = CampaignHandler::getHeader(fileURI);
-	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
-	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 }
 
 void CMapInfo::initFromCache(const std::string & fileURI_, BinaryDeserializer & h)
@@ -90,11 +84,48 @@ void CMapInfo::initFromCache(const std::string & fileURI_, BinaryDeserializer & 
 
 	ResourcePath resource = ResourcePath(fileURI, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
-	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
-	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
+	fileMetadataResource = resource;
 
 	countPlayers();
+}
+
+void CMapInfo::initCampaignFromCache(const std::string & fileURI_, BinaryDeserializer & h, const std::string & modName)
+{
+	fileURI = fileURI_;
+
+	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
+	originalFileURI = resource.getOriginalName();
+	fileMetadataResource = resource;
+	campaign = CampaignHandler::getHeaderFromCache(h, modName);
+}
+
+void CMapInfo::ensureFileMetadata() const
+{
+	if (fileMetadataLoaded || fileMetadataResource.empty())
+		return;
+
+	fullFileURI = CResourceHandler::get()->getFullFileURI(fileMetadataResource);
+	lastWrite = CResourceHandler::get()->getLastWriteTime(fileMetadataResource);
+	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
+	fileMetadataLoaded = true;
+}
+
+const std::string & CMapInfo::getFullFileURI() const
+{
+	ensureFileMetadata();
+	return fullFileURI;
+}
+
+std::time_t CMapInfo::getLastWrite() const
+{
+	ensureFileMetadata();
+	return lastWrite;
+}
+
+const std::string & CMapInfo::getDate() const
+{
+	ensureFileMetadata();
+	return date;
 }
 
 void CMapInfo::countPlayers()

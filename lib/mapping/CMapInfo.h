@@ -10,12 +10,12 @@
 #pragma once
 
 #include "../serializer/Serializeable.h"
+#include "../filesystem/ResourcePath.h"
 
 struct StartInfo;
 
 class CMapHeader;
 class Campaign;
-class ResourcePath;
 class BinaryDeserializer;
 
 /**
@@ -30,9 +30,6 @@ public:
 	std::unique_ptr<StartInfo> scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string originalFileURI; // no need to serialize
-	std::string fullFileURI; // no need to serialize
-	std::time_t lastWrite; // no need to serialize
-	std::string date;
 	int amountOfPlayersOnMap;
 	int amountOfHumanControllablePlayers;
 	int amountOfHumanPlayersInSave;
@@ -52,6 +49,7 @@ public:
 	void campaignInit();
 	void countPlayers();
 	void initFromCache(const std::string & fileURI, BinaryDeserializer & h);
+	void initCampaignFromCache(const std::string & fileURI, BinaryDeserializer & h, const std::string & modName);
 	
 	std::string getNameTranslated() const;
 	std::string getNameForList() const;
@@ -60,16 +58,30 @@ public:
 	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;
 
+	const std::string & getFullFileURI() const;
+	std::time_t getLastWrite() const;
+	const std::string & getDate() const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapHeader;
 		h & campaign;
 		h & scenarioOptionsOfSave;
 		h & fileURI;
+		ensureFileMetadata();
 		h & date;
 		h & amountOfPlayersOnMap;
 		h & amountOfHumanControllablePlayers;
 		h & amountOfHumanPlayersInSave;
 		h & isRandomMap;
 	}
+
+private:
+	void ensureFileMetadata() const;
+
+	ResourcePath fileMetadataResource{ "", EResType::OTHER };
+	mutable bool fileMetadataLoaded = false;
+	mutable std::string fullFileURI;
+	mutable std::time_t lastWrite = 0;
+	mutable std::string date;
 };

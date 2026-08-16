@@ -252,7 +252,7 @@ void InfoCard::changeSelection()
 	if(!mapInfo)
 		return;
 
-	labelSaveDate->setText(mapInfo->date);
+	labelSaveDate->setText(mapInfo->getDate());
 	mapName->setText(mapInfo->getNameTranslated());
 	mapDescription->setText(mapInfo->getDescriptionTranslated());
 

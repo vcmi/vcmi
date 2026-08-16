@@ -163,7 +163,7 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _fileName: //by filename
 			return TextOperations::compareLocalizedStrings(aaa->fileURI, bbb->fileURI);
 		case _changeDate: //by changedate
-			return aaa->lastWrite < bbb->lastWrite;
+			return aaa->getLastWrite() < bbb->getLastWrite();
 		default:
 			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		}
@@ -448,7 +448,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			}
 
 			if(!curItems[py]->isFolder)
-				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->getFullFileURI(), std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
@@ -549,18 +549,18 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		{
 			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
 			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
-			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
+			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->getDate();
 		}
 		else
 		{
 			author = curItems[py]->campaign->getAuthor() + (!curItems[py]->campaign->getAuthorContact().empty() ? (" <" + curItems[py]->campaign->getAuthorContact() + ">") : "");
 			mapVersion = curItems[py]->campaign->getCampaignVersion();
-			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
+			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->getDate();
 		}
 
 		ENGINE->windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->name,
-			curItems[py]->fullFileURI,
+			curItems[py]->getFullFileURI(),
 			creationDateTime,
 			author,
 			mapVersion,
@@ -915,9 +915,9 @@ void SelectionTab::selectNewestFile()
 	time_t newestTime = 0;
 	std::string newestFile = "";
 	for(int i = static_cast<int>(allItems.size()) - 1; i >= 0; i--)
-		if(allItems[i]->lastWrite > newestTime)
+		if(allItems[i]->getLastWrite() > newestTime)
 		{
-			newestTime = allItems[i]->lastWrite;
+			newestTime = allItems[i]->getLastWrite();
 			newestFile = allItems[i]->fileURI;
 		}
 	selectFileName(newestFile);
@@ -1250,12 +1250,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 							continue;
 
 						auto info = std::make_shared<ElementInfo>();
-						info->fileURI = fileURI;
-						info->originalFileURI = campRes.getOriginalName();
-						info->fullFileURI = CResourceHandler::get()->getFullFileURI(campRes);
-						info->lastWrite = CResourceHandler::get()->getLastWriteTime(campRes);
-						info->date = TextOperations::getFormattedDateTimeLocal(info->lastWrite);
-						info->campaign = CampaignHandler::getHeaderFromCache(deserializer, modID);
+						info->initCampaignFromCache(fileURI, deserializer, modID);
 						info->name = info->getNameForList();
 
 						remainingFiles.erase(campRes);
