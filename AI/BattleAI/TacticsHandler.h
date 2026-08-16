@@ -69,7 +69,7 @@ private:
 
 	std::vector<const CStack *> findVIPs() const;
 	std::vector<const CStack *> findGuards() const;
-	std::vector<BattleHex> GuardableHexes(const CStack * vip, const CStack * guard);
+	std::vector<BattleHex> guardableHexes(const CStack * vip, const CStack * guard);
 
 	SpecialHexes getSpecialHexes() const;
 };

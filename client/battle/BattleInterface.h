@@ -118,9 +118,6 @@ class BattleInterface
 	/// ID of ongoing battle
 	BattleID battleID;
 
-	/// cache var for isInTacticsMode()
-	bool _tacticsMode;
-
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:

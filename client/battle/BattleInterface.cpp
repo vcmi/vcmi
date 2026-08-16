@@ -81,9 +81,6 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	else if(defenderInt && defenderInt->cb->getBattle(getBattleID())->battleGetTacticDist())
 		tacticianInterface = defenderInt;
 
-	//if we found interface of player with tactics, then enter tactics mode
-	_tacticsMode = static_cast<bool>(tacticianInterface);
-
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
@@ -111,9 +108,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 
 bool BattleInterface::isInTacticsMode()
 {
-	if (_tacticsMode && tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() == 0)
-		_tacticsMode = false;
-	return _tacticsMode;
+	return tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() == 0; 
 }
 
 void BattleInterface::playIntroSoundAndUnlockInterface()

@@ -209,8 +209,7 @@ std::vector<const CStack *> TacticsHandler::findGuards() const
 	return stacks;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
-std::vector<BattleHex> TacticsHandler::GuardableHexes(const CStack * vip, const CStack * guard) // NOSONAR
+std::vector<BattleHex> TacticsHandler::guardableHexes(const CStack * vip, const CStack * guard) // NOSONAR
 {
 	auto res = std::vector<BattleHex>{};
 	res.reserve(16);
@@ -633,7 +632,7 @@ std::optional<BattleHex> TacticsHandler::findGuardDestination(const CStack * gua
 	assert(vip);
 	logAi->debug("Handling GUARD stack %s (vip=%s)", guard->getDescription(), vip->getDescription());
 
-	const auto hexes = GuardableHexes(vip, guard);
+	const auto hexes = guardableHexes(vip, guard);
 	const auto reachability = cb->getBattle(bid)->getReachability(guard);
 
 	for(const auto hex : hexes)
