@@ -68,7 +68,7 @@ void CTutorialWindow::setContent()
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(ENGINE->input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(ENGINE->input().inputModeUsesGestures() && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(GAME->interface())
 			GAME->interface()->showingDialog->setBusy();

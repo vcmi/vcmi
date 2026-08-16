@@ -29,6 +29,8 @@ enum class InputMode
 {
 	KEYBOARD_AND_MOUSE,
 	TOUCH,
+	/// hovers like a mouse, is tapped and dragged like a finger
+	PEN,
 	CONTROLLER
 };
 
@@ -129,6 +131,9 @@ public:
 	bool isKeyboardShiftDown() const;
 
 	InputMode getCurrentInputMode();
+
+	bool inputModeSupportsHover() const;
+	bool inputModeUsesGestures() const;
 
 	void copyToClipBoard(const std::string & text);
 	PowerState getPowerState();

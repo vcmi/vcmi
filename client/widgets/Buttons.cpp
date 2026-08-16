@@ -265,7 +265,7 @@ void CButton::playClickSound(bool released)
 {
 	// on touch the pressed state is already shown on finger-down, so sound is played on click instead
 	// otherwise long press or panning would also sound like a click
-	bool playOnRelease = ENGINE->input().getCurrentInputMode() == InputMode::TOUCH;
+	bool playOnRelease = ENGINE->input().inputModeUsesGestures();
 
 	if(!soundDisabled && released == playOnRelease)
 	{
@@ -289,7 +289,7 @@ void CButton::clickPressed(const Point & cursorPosition)
 bool CButton::isHoverHighlighted() const
 {
 	// touch input has no real hovering - highlight would remain visible after finger is lifted
-	return hoverable && isHovered() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH;
+	return hoverable && isHovered() && ENGINE->input().inputModeSupportsHover();
 }
 
 void CButton::clickReleased(const Point & cursorPosition)
@@ -328,7 +328,7 @@ void CButton::onTouchPress(bool on)
 
 void CButton::hover (bool on)
 {
-	if(hoverable && !isBlocked() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH)
+	if(hoverable && !isBlocked() && ENGINE->input().inputModeSupportsHover())
 	{
 		if(on)
 			setState(EButtonState::HIGHLIGHTED);

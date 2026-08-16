@@ -149,6 +149,16 @@ InputMode InputHandler::getCurrentInputMode()
 	return currentInputMode;
 }
 
+bool InputHandler::inputModeSupportsHover() const
+{
+	return currentInputMode != InputMode::TOUCH;
+}
+
+bool InputHandler::inputModeUsesGestures() const
+{
+	return currentInputMode == InputMode::TOUCH || currentInputMode == InputMode::PEN;
+}
+
 void InputHandler::copyToClipBoard(const std::string & text)
 {
 	SDL_SetClipboardText(text.c_str());
@@ -436,7 +446,7 @@ void InputHandler::stopTextInput()
 
 void InputHandler::hapticFeedback()
 {
-	if(currentInputMode == InputMode::TOUCH)
+	if(inputModeUsesGestures())
 		fingerHandler->hapticFeedback();
 }
 
@@ -452,7 +462,7 @@ bool InputHandler::hasTouchInputDevice() const
 
 int InputHandler::getNumTouchFingers() const
 {
-	if(currentInputMode != InputMode::TOUCH)
+	if(!inputModeUsesGestures())
 		return 0;
 	return fingerHandler->getNumTouchFingers();
 }
