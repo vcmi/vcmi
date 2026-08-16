@@ -91,7 +91,7 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         if (!gamepadStartEnabled)
             return false;
 
-        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != InputDevice.SOURCE_GAMEPAD)
+        if (!event.isFromSource(InputDevice.SOURCE_GAMEPAD))
             return false;
 
         final int keyCode = event.getKeyCode();
