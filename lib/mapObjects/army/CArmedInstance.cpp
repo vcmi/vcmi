@@ -14,6 +14,8 @@
 #include "CStackInstance.h"
 
 #include "../../CPlayerState.h"
+#include "../../IGameSettings.h"
+#include "../../callback/IGameInfoCallback.h"
 #include "../../entities/faction/CTown.h"
 #include "../../entities/faction/CTownHandler.h"
 #include "../../mapping/TerrainTile.h"
@@ -114,7 +116,10 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 	else if(!factions.empty()) // no bonus from empty garrison
 	{
-		b->val = 2 - static_cast<si32>(factionsInArmy);
+		//H3 caps this penalty at the worst possible morale, so it can not cancel out positive modifiers beyond that
+		si32 maxPenalty = static_cast<si32>(cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE).size());
+
+		b->val = std::max(2 - static_cast<si32>(factionsInArmy), -maxPenalty);
 		bonusDescription.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
 		bonusDescription.replaceNumber(factionsInArmy);
 	}
