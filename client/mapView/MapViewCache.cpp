@@ -102,6 +102,24 @@ void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & conte
 	}
 }
 
+/// Terrain animation is unstaggered, so every animated tile goes dirty on the same frame. Only
+/// this many are redrawn per frame, the rest keep their old checksum and follow in the next ones.
+static constexpr int animatedTileRedrawBudget = 64;
+
+/// Indices of the terrain and river components of MapRenderer::getTileChecksum()
+static constexpr size_t terrainChecksumIndex = 1;
+static constexpr size_t riverChecksumIndex = 2;
+
+/// Whether the two checksums differ in nothing but the terrain animation
+static bool differsOnlyInTerrainAnimation(const std::array<uint8_t, 8> & before, const std::array<uint8_t, 8> & after)
+{
+	for(size_t i = 0; i < before.size(); ++i)
+		if(before[i] != after[i] && i != terrainChecksumIndex && i != riverChecksumIndex)
+			return false;
+
+	return true;
+}
+
 void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates)
 {
 	int cacheX = (terrainChecksum.shape()[0] + coordinates.x) % terrainChecksum.shape()[0];
@@ -116,6 +134,20 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 	if(cachedLevel == coordinates.z && oldCacheEntry == newCacheEntry && !context->tileAnimated(coordinates))
 		return;
+
+	// only an animation step may wait - a scrolled-in or genuinely changed tile is drawn now
+	const bool holdsSameTile = oldCacheEntry.tileX == coordinates.x && oldCacheEntry.tileY == coordinates.y;
+	const bool animationOnly = cachedLevel == coordinates.z && holdsSameTile
+		&& !context->tileAnimated(coordinates)
+		&& differsOnlyInTerrainAnimation(oldCacheEntry.checksum, newCacheEntry.checksum);
+
+	if(animationOnly)
+	{
+		if(animatedTilesRedrawn >= animatedTileRedrawBudget)
+			return;
+
+		++animatedTilesRedrawn;
+	}
 
 	Canvas target = getTile(coordinates);
 
@@ -167,6 +199,8 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 
 	// Refresh whatever the renderer can resolve once instead of per tile
 	mapRenderer->prepareFrame(*context);
+
+	animatedTilesRedrawn = 0;
 
 	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		for(int x = dimensions.left(); x < dimensions.right(); ++x)
