@@ -132,8 +132,7 @@
 				"allowRandomSpecialWeeks" :           { "type" : "boolean" },
 				"allowAllForDoubleMonth" :            { "type" : "boolean" },
 				"allowJoiningForFree" :               { "type" : "boolean" },
-				"joiningPercentage" :                 { "type" : "number" },
-				"h3BugConfluxAlignmentMix" :          { "type" : "boolean" }
+				"joiningPercentage" :                 { "type" : "number" }
 			}
 		},
 		"dwellings": {

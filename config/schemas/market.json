@@ -30,10 +30,10 @@
 			"minimum" : 1,
 			"maximum" : 9
 		},
-		"rate" : {
-			"description" : "If set, this many units of any resource are exchanged for one unit of another, ignoring their price and market efficiency",
+		"effectiveness" : {
+			"description" : "If set, overrides exchange effectiveness normally derived from efficiency. 1.0 - resources are exchanged at their nominal price",
 			"type" : "number",
-			"minimum" : 1
+			"exclusiveMinimum" : 0
 		},
 		"resources" : {
 			"description" : "Resources that this market can trade. If not set, all resources can be traded",

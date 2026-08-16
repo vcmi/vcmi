@@ -96,6 +96,10 @@ bool CFaction::hasTown() const
 
 EAlignment CFaction::getAlignment() const
 {
+	//alignment is a property of a town, so creature-only factions (e.g. neutral creatures) have none
+	if(!hasTown())
+		return EAlignment::NONE;
+
 	return alignment;
 }
 

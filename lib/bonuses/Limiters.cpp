@@ -444,6 +444,8 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 			return ILimiter::EDecision::ACCEPT;
 		if(alignment == EAlignment::NEUTRAL && !c->isEvil() && !c->isGood())
 			return ILimiter::EDecision::ACCEPT;
+		if(alignment == EAlignment::NONE && LIBRARY->factions()->getById(c->getFactionID())->getAlignment() == EAlignment::NONE)
+			return ILimiter::EDecision::ACCEPT;
 
 		return ILimiter::EDecision::DISCARD;
 	}

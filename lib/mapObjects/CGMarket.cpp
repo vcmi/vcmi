@@ -79,9 +79,13 @@ std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 	return IMarket::availableItemsIds(mode);
 }
 
-int CGMarket::getResourceExchangeRate() const
+double CGMarket::getMarketExchangeEffectiveness() const
 {
-	return getMarketHandler()->getResourceExchangeRate();
+	// market with exchange effectiveness set explicitly in its config, e.g. Warlock's Lab
+	if(double effectiveness = getMarketHandler()->getMarketExchangeEffectiveness(); effectiveness > 0)
+		return effectiveness;
+
+	return IMarket::getMarketExchangeEffectiveness();
 }
 
 std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const

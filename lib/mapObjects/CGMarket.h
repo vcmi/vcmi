@@ -34,7 +34,7 @@ public:
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 	std::set<EMarketMode> availableModes() const override;
-	int getResourceExchangeRate() const override;
+	double getMarketExchangeEffectiveness() const override;
 };
 
 class DLL_LINKAGE CGBlackMarket : public CGMarket

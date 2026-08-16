@@ -24,7 +24,7 @@ namespace GameConstants
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
 
-	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
+	const std::string ALIGNMENT_NAMES [4] = {"good", "evil", "neutral", "none"};
 
 	const std::string DIFFICULTY_NAMES [5] = {"pawn", "knight", "rook", "queen", "king"};
 }

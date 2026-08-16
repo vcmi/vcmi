@@ -18,7 +18,6 @@
 #include "../../entities/faction/CTownHandler.h"
 #include "../../mapping/TerrainTile.h"
 #include "../../GameLibrary.h"
-#include "../../IGameSettings.h"
 #include "../../gameState/CGameState.h"
 
 void CArmedInstance::randomizeArmy(FactionID type)
@@ -46,30 +45,19 @@ CArmedInstance::CArmedInstance(IGameInfoCallback * cb)
 CArmedInstance::CArmedInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic)
 	: CGObjectInstance(cb)
 	, CBonusSystemNode(nodeType, isHypothetic)
-	, alignmentMix(this, Selector::type()(BonusType::ALIGNMENT_MIX)) // Take troop-mixing freedom of Angelic Alliance or Temple of Loyalty into account.
+	// Take troop-mixing freedom of Angelic Alliance or Temple of Loyalty into account.
+	, alignmentMix(this, Selector::type()(BonusType::ALIGNMENT_MIX).Or(Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)))
 	, battle(nullptr)
 {
 }
 
 bool CArmedInstance::canMixAlignment(EAlignment alignment) const
 {
-	//bonus without subtype allows to mix any alignment, subtype marks the single alignment that is left out
-	for(const auto & bonus : *getBonusesOfType(BonusType::ALIGNMENT_MIX))
-		if(!bonus->subtype.hasValue() || bonus->subtype.getNum() != static_cast<int32_t>(alignment))
-			return true;
+	// MOD COMPATIBILITY - deprecated NONEVIL_ALIGNMENT_MIX acts as ALIGNMENT_MIX for good and neutral alignments
+	if((alignment == EAlignment::GOOD || alignment == EAlignment::NEUTRAL) && hasBonusOfType(BonusType::NONEVIL_ALIGNMENT_MIX))
+		return true;
 
-	return false;
-}
-
-bool CArmedInstance::canMixFactionlessCreatures() const
-{
-	//only a bonus without subtype (Temple of Loyalty) allows mixing factionless creatures (e.g. Peasants);
-	//Angelic Alliance (subtype alignmentEvil) does not
-	for(const auto & bonus : *getBonusesOfType(BonusType::ALIGNMENT_MIX))
-		if(!bonus->subtype.hasValue())
-			return true;
-
-	return false;
+	return hasBonusOfType(BonusType::ALIGNMENT_MIX, BonusCustomSubtype::alignment(alignment));
 }
 
 void CArmedInstance::updateMoraleBonusFromArmy()
@@ -87,18 +75,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	//number of alignments and presence of undead
 	std::set<FactionID> factions;
 	bool hasUndead = false;
-	bool hasFactionlessCreatures = false; //creatures with no town faction (e.g. Peasants) - never mixable by alignment
 
 	for(const auto & slot : Slots())
 	{
 		const auto * creature = slot.second->getCreatureID().toEntity(LIBRARY);
-		auto factionId = creature->getFactionID();
 
-		//factionless creatures count as their own separate faction and are not part of any alignment
-		if(LIBRARY->factions()->getById(factionId)->hasTown())
-			factions.insert(factionId);
-		else
-			hasFactionlessCreatures = true;
+		factions.insert(creature->getFactionID());
 
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if(!hasUndead)
@@ -108,28 +90,16 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		}
 	}
 
-	size_t factionsInArmy = factions.size() + (hasFactionlessCreatures ? 1 : 0); //town garrison seems to take both sets into account
+	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
 	if(alignmentMix.hasBonus())
 	{
-		//alignments that can be mixed count as a single one, e.g. all but evil for Angelic Alliance, or all of them for Temple of Loyalty
+		//mixable alignments count as a single one, e.g. good and neutral for Angelic Alliance, or all of them for Temple of Loyalty
 		size_t mixableFactions = 0;
 
-		//SoD bug: Conflux can not be mixed with other alignments under troop-mixing effects (can be disabled via config)
-		bool confluxMixBug = cb->getSettings().getBoolean(EGameSettings::CREATURES_H3_BUG_CONFLUX_ALIGNMENT_MIX);
-
 		for(auto f : factions)
-		{
-			if(confluxMixBug && f == FactionID::CONFLUX)
-				continue;
-
 			if(canMixAlignment(LIBRARY->factions()->getById(f)->getAlignment()))
 				mixableFactions++;
-		}
-
-		//Temple of Loyalty (no subtype) also mixes factionless creatures; Angelic Alliance does not
-		if(hasFactionlessCreatures && canMixFactionlessCreatures())
-			mixableFactions++;
 
 		if(mixableFactions > 0)
 			factionsInArmy -= mixableFactions - 1;

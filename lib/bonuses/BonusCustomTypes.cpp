@@ -45,6 +45,11 @@ BonusCustomSubtype BonusCustomSubtype::creatureLevel(int level)
 	return BonusCustomSubtype(level);
 }
 
+BonusCustomSubtype BonusCustomSubtype::alignment(EAlignment alignment)
+{
+	return BonusCustomSubtype(static_cast<int32_t>(alignment));
+}
+
 si32 BonusCustomSubtype::decode(const std::string & identifier)
 {
 	return std::stoi(identifier);

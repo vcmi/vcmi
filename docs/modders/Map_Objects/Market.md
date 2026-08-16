@@ -22,7 +22,7 @@ Here is schema describing such object
 			"efficiency": 5, //market exchange rate, equivalent to amount of markets of certain type owning by player
 			"speech": "", //optional parameter - extra message showing on market
 			"resources": [], //optional parameter - resources that can be traded on this market. All resources by default
-			"rate": 1, //optional parameter - fixed amount of resource to give for one unit of another resource
+			"effectiveness": 1.0, //optional parameter - overrides exchange effectiveness that is normally derived from efficiency
 
 			"templates" : {
 				... //describe templates in a common way
@@ -85,7 +85,7 @@ By default markets with `resource-resource` mode trade all resources, at a rate 
 
 The `resources` field limits which resources such market trades - resources that are not listed will not be shown in market window and can not be traded.
 
-The `rate` field sets exchange rate directly - player gives this many units of one resource for one unit of another, no matter their price and `efficiency`. Note that regular rate can not go below 2:1 even with highest `efficiency`, since price of the wanted resource is doubled at that point.
+The `effectiveness` field replaces the effectiveness that is normally derived from `efficiency`. Price of the wanted resource is divided by it, so `1.0` means trade at nominal price of resources, and `0.5` means twice as expensive. Regular markets never go above `0.5`, so resources of the same price can not be traded better than 2:1 without this field.
 
 ### Example for Warlock's Lab
 
@@ -94,7 +94,7 @@ Lab that transmutes precious resources into each other at 1:1 rate:
 ```json
 "modes" : ["resource-resource"],
 "resources" : ["mercury", "sulfur", "crystal", "gems"],
-"rate" : 1
+"effectiveness" : 1.0
 ```
 
 ## Offer

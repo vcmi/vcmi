@@ -59,7 +59,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	}
 
 	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
-	resourceExchangeRate = input["rate"].Integer();
+	exchangeEffectiveness = input["effectiveness"].Float();
 	predefinedOffer = input["offer"];
 
 	for(const auto & element : input["resources"].Vector())
@@ -131,7 +131,7 @@ const std::vector<GameResID> & MarketInstanceConstructor::getTradeableResources(
 	return tradeableResources;
 }
 
-int MarketInstanceConstructor::getResourceExchangeRate() const
+double MarketInstanceConstructor::getMarketExchangeEffectiveness() const
 {
-	return resourceExchangeRate;
+	return exchangeEffectiveness;
 }

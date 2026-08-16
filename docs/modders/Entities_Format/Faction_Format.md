@@ -65,7 +65,8 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Description of town (e.g. history or story about town)
 	"description" : "",
 
-	// Faction alignment. Can be good, neutral (default) or evil.
+	// Faction alignment. Can be good, neutral (default), evil, or none.
+	// Factions with "none" belong to no alignment at all and never mix with the others, like factions that have no town
 	"alignment" : "",
 	
 	// If set to true, RMG will prefer placing towns of this faction on subterranean level of the map

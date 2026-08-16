@@ -81,6 +81,7 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentGood", static_cast<int>(EAlignment::GOOD));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentEvil", static_cast<int>(EAlignment::EVIL));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentNeutral", static_cast<int>(EAlignment::NEUTRAL));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentNone", static_cast<int>(EAlignment::NONE));
 }
 
 void CIdentifierStorage::checkIdentifier(const std::string & ID)

@@ -34,7 +34,7 @@
 
 void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus)
 {
-	if(bonus.type != BonusType::ALIGNMENT_MIX)
+	if(bonus.type != BonusType::ALIGNMENT_MIX && bonus.type != BonusType::NONEVIL_ALIGNMENT_MIX)
 		return;
 
 	if(auto * army = dynamic_cast<CArmedInstance *>(node))
@@ -1138,7 +1138,7 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 	// Troop-mixing bonuses (e.g. Temple of Loyalty) may expire now, so army morale of their owners must be recomputed afterwards
 	std::vector<CArmedInstance *> troopMixingArmies;
 	for(auto * army : gs.getMap().getObjects<CArmedInstance>())
-		if(army->hasBonusOfType(BonusType::ALIGNMENT_MIX))
+		if(army->hasBonusOfType(BonusType::ALIGNMENT_MIX) || army->hasBonusOfType(BonusType::NONEVIL_ALIGNMENT_MIX))
 			troopMixingArmies.push_back(army);
 
 	// Update bonuses before doing anything else so hero don't get more MP than needed

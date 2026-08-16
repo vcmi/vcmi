@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
 #include "BonusEnum.h"
 
@@ -61,6 +62,7 @@ public:
 
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
+	static BonusCustomSubtype alignment(EAlignment alignment);
 };
 
 class DLL_LINKAGE BonusTypeID : public EntityIdentifier<BonusTypeID>

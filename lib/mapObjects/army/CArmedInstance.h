@@ -31,9 +31,6 @@ private:
 	/// Returns true if creatures of this alignment can be mixed with others without morale penalty
 	bool canMixAlignment(EAlignment alignment) const;
 
-	/// Returns true if factionless creatures (e.g. Peasants) can be mixed with others without morale penalty
-	bool canMixFactionlessCreatures() const;
-
 	void attachUnitsToArmy();
 
 protected:
