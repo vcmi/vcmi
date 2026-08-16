@@ -121,12 +121,11 @@ public:
 	int getMovementCost(
 		const int3 & src,
 		const int3 & dst,
-		const TerrainTile * ct,
-		const TerrainTile * dt,
+		const EPathfindingLayer & dstLayer,
 		const int remainingMovePoints = -1,
 		const bool checkLast = true,
-		const EPathfindingLayer & srcLayer = EPathfindingLayer::AUTO,
-		const EPathfindingLayer & dstLayer = EPathfindingLayer::AUTO) const;
+		const TerrainTile * srcTile = nullptr,
+		const TerrainTile * dstTile = nullptr) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,

@@ -38,6 +38,7 @@ set(test_SRCS
 		game/BattleSpellCastTest.cpp
 		game/HeroRecruitmentTest.cpp
 		game/HeroSecondarySkillsTest.cpp
+		game/MovementCostTest.cpp
 
 		json/JsonTests.cpp
 
