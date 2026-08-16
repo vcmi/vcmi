@@ -32,20 +32,10 @@ public:
 	void showAll(Canvas & to) override;
 };
 
-class CScenarioEventJournalIcon : public CAnimImage
-{
-public:
-	std::function<void()> callback;
-
-	CScenarioEventJournalIcon(const AnimationPath & animation, int index, int x, int y);
-
-	void clickPressed(const Point & cursorPosition) override;
-};
-
 class CScenarioEventJournalMinimap : public CMinimap
 {
 	int3 location = int3(-1, -1, -1);
-	std::shared_ptr<CScenarioEventJournalIcon> marker;
+	std::shared_ptr<CPicture> marker;
 
 	void markerClicked();
 

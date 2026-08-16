@@ -39,17 +39,6 @@ void CScenarioEventJournalLabel::showAll(Canvas & to)
 	CMultiLineLabel::showAll(to);
 }
 
-CScenarioEventJournalIcon::CScenarioEventJournalIcon(const AnimationPath & animation, int index, int x, int y)
-	: CAnimImage(animation, index, 0, x, y)
-{
-	addUsedEvents(LCLICK);
-}
-
-void CScenarioEventJournalIcon::clickPressed(const Point & cursorPosition)
-{
-	callback();
-}
-
 CScenarioEventJournalMinimap::CScenarioEventJournalMinimap(const Rect & position)
 	: CMinimap(position)
 {
@@ -72,9 +61,9 @@ void CScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
 
 	OBJECT_CONSTRUCTION;
 	const Point markerPosition = tileToPixels(location);
-	marker = std::make_shared<CScenarioEventJournalIcon>(AnimationPath::builtin("VwSymbol.def"), 3, markerPosition.x, markerPosition.y);
+	marker = std::make_shared<CPicture>(ImagePath::builtin("minimapIcons/generic"), markerPosition);
 	marker->moveBy(Point(-marker->pos.w / 2, -marker->pos.h / 2));
-	marker->callback = std::bind(&CScenarioEventJournalMinimap::markerClicked, this);
+	marker->addLClickCallback(std::bind(&CScenarioEventJournalMinimap::markerClicked, this));
 	redraw();
 }
 
