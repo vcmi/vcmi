@@ -35,6 +35,9 @@ public:
 
 	std::vector<EShortcut> translateJoystickAxis(const std::string & key) const;
 
+	/// Returns sorted unique joystick button bindings assigned to the provided shortcut.
+	std::vector<std::string> getJoystickButtonBindings(EShortcut shortcut) const;
+
 	/// attempts to find shortcut by its unique identifier. Returns EShortcut::NONE on failure
 	EShortcut findShortcut(const std::string & identifier ) const;
 };

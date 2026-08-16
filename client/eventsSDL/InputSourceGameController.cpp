@@ -21,6 +21,36 @@
 
 #include "../../lib/CConfigHandler.h"
 
+#include <SDL_version.h>
+
+namespace
+{
+
+ControllerPrompt::Family controllerPromptFamily(SDL_GameController * controller)
+{
+#if SDL_VERSION_ATLEAST(2,0,12)
+	switch(SDL_GameControllerGetType(controller))
+	{
+	case SDL_CONTROLLER_TYPE_PS3:
+	case SDL_CONTROLLER_TYPE_PS4:
+#if SDL_VERSION_ATLEAST(2,0,14)
+	case SDL_CONTROLLER_TYPE_PS5:
+#endif
+		return ControllerPrompt::Family::PLAYSTATION;
+	case SDL_CONTROLLER_TYPE_XBOX360:
+	case SDL_CONTROLLER_TYPE_XBOXONE:
+		return ControllerPrompt::Family::XBOX;
+	default:
+		return ControllerPrompt::Family::UNKNOWN;
+	}
+#else
+	static_cast<void>(controller);
+	return ControllerPrompt::Family::UNKNOWN;
+#endif
+}
+
+}
+
 void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameController)
 {
 	if(gameController)
@@ -84,6 +114,15 @@ void InputSourceGameController::openGameController(int index)
 	gameControllerMap.try_emplace(joystickIndex, std::move(controllerPtr));
 }
 
+ControllerPrompt::Family InputSourceGameController::getActiveControllerPromptFamily() const
+{
+	const auto active = gameControllerMap.find(activeController);
+	if(active == gameControllerMap.end())
+		return ControllerPrompt::Family::UNKNOWN;
+
+	return controllerPromptFamily(active->second.get());
+}
+
 int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
 {
 	SDL_Joystick * joystick = SDL_GameControllerGetJoystick(controller);
@@ -98,11 +137,8 @@ int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
 
 void InputSourceGameController::handleEventDeviceAdded(const SDL_ControllerDeviceEvent & device)
 {
-	if(gameControllerMap.find(device.which) != gameControllerMap.end())
-	{
-		logGlobal->warn("Game controller %d is already opened.", device.which);
-		return;
-	}
+	// SDL reports a device index for ADDED events, while gameControllerMap is
+	// keyed by the stable joystick instance ID resolved by openGameController.
 	openGameController(device.which);
 }
 
@@ -113,6 +149,8 @@ void InputSourceGameController::handleEventDeviceRemoved(const SDL_ControllerDev
 		logGlobal->warn("Game controller %d is not opened before.", device.which);
 		return;
 	}
+	if(activeController == device.which)
+		activeController = -1;
 	gameControllerMap.erase(device.which);
 }
 
@@ -123,8 +161,18 @@ void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDe
 		logGlobal->warn("Game controller %d is not opened.", device.which);
 		return;
 	}
-	gameControllerMap.erase(device.which);
-	openGameController(device.which);
+
+	// SDL updates the existing controller handle before reporting the remap.
+}
+
+void InputSourceGameController::setActiveController(int instanceID)
+{
+	activeController = instanceID;
+}
+
+bool InputSourceGameController::isAxisMotionActive(const SDL_ControllerAxisEvent & axis) const
+{
+	return !vstd::isAlmostZero(getRealAxisValue(axis.value));
 }
 
 double InputSourceGameController::getRealAxisValue(int value) const
@@ -164,7 +212,8 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 
 void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEvent & axis)
 {
-	tryToConvertCursor();
+	if(isAxisMotionActive(axis))
+		tryToConvertCursor();
 
 	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
 	std::string axisName = SDL_GameControllerGetStringForAxis(axisID);
