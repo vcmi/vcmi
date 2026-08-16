@@ -23,6 +23,7 @@
 #include "../gameState/EVictoryLossCheckResult.h"
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
+#include "../gameState/ScenarioEventJournalEntry.h"
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
@@ -619,6 +620,20 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 	{
 		h & player;
 		h & quest;
+	}
+};
+
+struct DLL_LINKAGE AddScenarioEventJournalEntry : public CPackForClient
+{
+	PlayerColor player;
+	ScenarioEventJournalEntry entry;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & player;
+		h & entry;
 	}
 };
 

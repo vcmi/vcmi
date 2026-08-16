@@ -19,6 +19,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "mapObjects/CGObjectInstance.h"
 #include "mapping/MapTilesStorage.h"
+#include "gameState/ScenarioEventJournalEntry.h"
 
 class CGObjectInstance;
 class CGHeroInstance;
@@ -64,6 +65,7 @@ public:
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::set<VisitedObjectGlobal> visitedObjectsGlobal;
 	std::vector<QuestInfo> quests; //store info about all received quests
+	std::vector<ScenarioEventJournalEntry> scenarioEventJournal;
 	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 	std::map<uint32_t, std::map<ArtifactPosition, ArtifactID>> costumesArtifacts;
 	std::unique_ptr<JsonNode> playerLocalSettings; // Json with client-defined data, such as order of heroes or current hero paths. Not used by client/lib
@@ -125,6 +127,8 @@ public:
 		h & ownedObjects;
 
 		h & quests;
+		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL))
+			h & scenarioEventJournal;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;
 		h & status;

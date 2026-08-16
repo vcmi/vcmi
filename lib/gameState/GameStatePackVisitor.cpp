@@ -118,6 +118,12 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
+void GameStatePackVisitor::visitAddScenarioEventJournalEntry(AddScenarioEventJournalEntry & pack)
+{
+	assert(vstd::contains(gs.players, pack.player));
+	gs.players.at(pack.player).scenarioEventJournal.push_back(pack.entry);
+}
+
 void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 {
 	gs.getHero(pack.hid)->setFormation(pack.formation);

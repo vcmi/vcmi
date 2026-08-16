@@ -73,6 +73,7 @@ public:
 	virtual void buildStructureForced(ObjectInstanceID townID, BuildingID building)=0; //erects a building ignoring cost and prerequisites
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void addQuest(const PlayerColor & player, const QuestInfo & quest) = 0;
+	virtual void addScenarioEventJournalEntry(const PlayerColor & player, const std::string & title, const MetaString & message) = 0;
 	/// Sets the quest-log / hover hint text of an active quest.
 	virtual void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;

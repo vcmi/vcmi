@@ -211,6 +211,11 @@ void AddQuest::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAddQuest(*this);
 }
 
+void AddScenarioEventJournalEntry::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAddScenarioEventJournalEntry(*this);
+}
+
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);

@@ -1818,6 +1818,33 @@ void CPlayerInterface::showQuestLog()
 	ENGINE->windows().createAndPushWindow<CQuestLog>(GAME->interface()->cb->getMyQuests());
 }
 
+void CPlayerInterface::showScenarioEventJournal()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	const auto entries = cb->getMyScenarioEventJournal();
+
+	if(entries.empty())
+	{
+		showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.empty"));
+		return;
+	}
+
+	std::string text;
+	for(const auto & entry : entries)
+	{
+		if(!text.empty())
+			text += "\n\n";
+
+		const std::string title = entry.title.empty()
+			? LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.event")
+			: entry.title;
+		text += "{" + title + " - " + LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.day") + " " + std::to_string(entry.day) + "}\n";
+		text += entry.message.toString();
+	}
+
+	showInfoDialog(text);
+}
+
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 {
 	if (obj->shipyardStatus() != IBoatGenerator::GOOD)
