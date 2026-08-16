@@ -28,7 +28,6 @@ public class ClientBackgroundService extends Service
         Notifications.createChannels(this);
         Notifications.setServiceRunning(true);
 
-        // the service type only exists from android 14 on, older versions reject an unknown one
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         {
             startForeground(Notifications.ID_SERVICE, Notifications.buildServiceNotification(this), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);

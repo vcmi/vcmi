@@ -118,8 +118,6 @@ public class VcmiSDLActivity extends SDLActivity
         VcmiSDLActivity.this.setWindowStyle(true); // set fullscreen
 
         Notifications.createChannels(this);
-
-        // keeps the process alive once the player leaves the game - the game itself stops rendering only
         startService(new Intent(this, ClientBackgroundService.class));
     }
 

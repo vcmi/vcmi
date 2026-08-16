@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar" />
+
+	<!-- activity that shows nothing but a dialog -->
+	<style name="TranslucentTheme" parent="@style/Theme.AppCompat.NoActionBar">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowAnimationStyle">@null</item>
+	</style>
 </resources>

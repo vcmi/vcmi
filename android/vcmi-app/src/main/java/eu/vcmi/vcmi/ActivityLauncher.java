@@ -2,6 +2,7 @@ package eu.vcmi.vcmi;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 
 import eu.vcmi.vcmi.util.ActivityHelper;
 import eu.vcmi.vcmi.util.FileUtil;
+import eu.vcmi.vcmi.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +37,8 @@ import org.libsdl.app.SDL;
 public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActivity
 {
     private static final int PICK_EXTERNAL_VCMI_DATA_TO_COPY = 1;
-    // distinct value - qt issues permission requests of its own through this activity
+    // qt requests permissions through this activity as well and counts its codes up from 0
+    // (nextRequestCode() in qtbase/src/corelib/kernel/qjnihelpers.cpp), so stay out of that range
     private static final int REQUEST_NOTIFICATIONS = 4244;
 
     public boolean justLaunched = true;
@@ -104,9 +107,10 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         {
             startActivity(intent);
         }
-        catch (final Exception e)
+        catch (final ActivityNotFoundException e)
         {
-            // no settings screen on this device - nothing we can do about it
+            // the action only exists since android 8
+            Log.w(this, "cannot open notification settings: " + e);
         }
     }
 

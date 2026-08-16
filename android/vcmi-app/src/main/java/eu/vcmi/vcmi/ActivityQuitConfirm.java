@@ -1,17 +1,17 @@
 package eu.vcmi.vcmi;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import eu.vcmi.vcmi.util.Notifications;
 
 /**
  * Asks before the quit button of the background notification actually ends the game.
  */
-public class ActivityQuitConfirm extends Activity
+public class ActivityQuitConfirm extends AppCompatActivity
 {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState)

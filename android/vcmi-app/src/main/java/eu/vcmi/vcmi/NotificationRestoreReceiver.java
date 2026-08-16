@@ -7,8 +7,8 @@ import android.content.Intent;
 import eu.vcmi.vcmi.util.Notifications;
 
 /**
- * Since android 14 the notification of a running foreground service can be swiped away.
- * It is the only way to stop the game from outside, so put it back while the service lives on.
+ * Since android 14 the notification of a running foreground service can be swiped away, which
+ * would leave the game running with its quit button gone. Post it again while the service lives on.
  */
 public class NotificationRestoreReceiver extends BroadcastReceiver
 {
