@@ -464,7 +464,7 @@ void CMapGenerator::addHeaderInfo()
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
 	m.mapLayers = mapGenOptions.getLevelMapLayers();
-	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.name = mapGenOptions.getMapName();
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();

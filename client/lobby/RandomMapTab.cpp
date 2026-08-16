@@ -273,7 +273,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	mapInfo->mapHeader->name = mapGenOptions->getMapName();
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 
 	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
