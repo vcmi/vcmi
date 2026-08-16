@@ -18,10 +18,12 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/Slider.h"
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 CScenarioEventJournalLabel::CScenarioEventJournalLabel(const Rect & position, const std::string & text)
@@ -125,6 +127,36 @@ void CScenarioEventJournal::selectEntry(size_t entryIndex, int labelIndex)
 	if(description->slider)
 		description->slider->scrollToMin();
 	description->setText(entry.message.toString());
+
+	componentsBox.reset();
+	std::vector<GameResID> changedResources;
+	for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
+	{
+		if(entry.resources[resource] != 0)
+			changedResources.push_back(resource);
+	}
+
+	std::vector<std::shared_ptr<CComponent>> components;
+	const auto componentSize = changedResources.size() > 4 ? CComponent::small : CComponent::large;
+	for(const auto & resource : changedResources)
+	{
+		const auto value = entry.resources[resource];
+		const std::string subtitle = (value > 0 ? "+" : "") + std::to_string(value);
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, subtitle, componentSize));
+	}
+
+	if(components.empty())
+	{
+		description->resize(Point(385, DESCRIPTION_HEIGHT));
+	}
+	else
+	{
+		const int descriptionHeight = DESCRIPTION_HEIGHT - 130;
+		description->resize(Point(385, descriptionHeight));
+		OBJECT_CONSTRUCTION;
+		componentsBox = std::make_shared<CComponentBox>(components, Rect(205, 18 + descriptionHeight + 15, 385, 115));
+	}
+
 	minimap->setLocation(entry.location);
 	redraw();
 }

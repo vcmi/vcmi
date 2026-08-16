@@ -307,7 +307,7 @@ void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstan
 void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
 	const auto & eventMessage = configuration.info.at(rewardIndex).message;
-	gameEvents.addScenarioEventJournalEntry(contextHero->tempOwner, getObjectName(), eventMessage, visitablePos());
+	gameEvents.addScenarioEventJournalEntry(contextHero->tempOwner, getObjectName(), eventMessage, visitablePos(), configuration.info.at(rewardIndex).reward.resources);
 	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
@@ -335,7 +335,7 @@ void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * 
 			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
-		gameEvents.addScenarioEventJournalEntry(h->tempOwner, getObjectName(), iw.text, visitablePos());
+		gameEvents.addScenarioEventJournalEntry(h->tempOwner, getObjectName(), iw.text, visitablePos(), TResources());
 		gameEvents.showInfoDialog(&iw);
 		gameEvents.startBattle(h, this);
 	}

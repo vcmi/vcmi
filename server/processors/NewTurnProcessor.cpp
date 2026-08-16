@@ -69,7 +69,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		InfoWindow iw;
 		iw.player = color;
 		iw.text = event.message;
-		gameHandler->addScenarioEventJournalEntry(color, event.name, event.message, int3(-1, -1, -1));
+		gameHandler->addScenarioEventJournalEntry(color, event.name, event.message, int3(-1, -1, -1), event.resources);
 
 		//give resources
 		if (!event.resources.empty())
@@ -116,7 +116,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		InfoWindow iw;
 		iw.player = player;
 		iw.text = event.message;
-		gameHandler->addScenarioEventJournalEntry(player, event.name, event.message, town->visitablePos());
+		gameHandler->addScenarioEventJournalEntry(player, event.name, event.message, town->visitablePos(), event.resources);
 
 		if (event.resources.nonZero())
 		{

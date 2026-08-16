@@ -19,6 +19,7 @@
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
 
 class CButton;
+class CComponentBox;
 class CSlider;
 
 class CScenarioEventJournalLabel : public LRClickableAreaWText, public CMultiLineLabel
@@ -58,6 +59,7 @@ class CScenarioEventJournal : public CWindowObject
 	const std::vector<ScenarioEventJournalEntry> entries;
 	std::vector<std::shared_ptr<CScenarioEventJournalLabel>> labels;
 	std::shared_ptr<CTextBox> description;
+	std::shared_ptr<CComponentBox> componentsBox;
 	std::shared_ptr<CScenarioEventJournalMinimap> minimap;
 	std::shared_ptr<CSlider> slider;
 	std::shared_ptr<CButton> ok;

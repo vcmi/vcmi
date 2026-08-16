@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../ResourceSet.h"
 #include "../int3.h"
 #include "../texts/MetaString.h"
 
@@ -18,6 +19,7 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 	std::string title;
 	MetaString message;
 	int3 location = int3(-1, -1, -1);
+	TResources resources;
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -26,5 +28,6 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 		h & title;
 		h & message;
 		h & location;
+		h & resources;
 	}
 };
