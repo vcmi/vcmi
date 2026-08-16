@@ -3,7 +3,8 @@
 	{
 		"index" : 8,
 		"nativeTerrain": [ "grass" ],
-		"alignment" : "neutral",
+		// SoD does not let Conflux creatures mix with other alignments under Angelic Alliance - mods that fix this bug use "neutral" instead
+		"alignment" : "none",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASELE",
