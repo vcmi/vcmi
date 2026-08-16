@@ -157,6 +157,19 @@ bool CFilesystemList::createResource(const std::string & filename, bool update)
 	return false;
 }
 
+bool CFilesystemList::removeResource(const ResourcePath & resourceName)
+{
+	logGlobal->trace("Removing %s", resourceName.getOriginalName());
+	for(const auto & loader : std::views::reverse(loaders))
+	{
+		if(writeableLoaders.contains(loader.get()) && loader->existsResource(resourceName))
+			return loader->removeResource(resourceName);
+	}
+
+	logGlobal->trace("Failed to remove resource");
+	return false;
+}
+
 std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName(const ResourcePath & resourceName) const
 {
 	std::vector<const ISimpleResourceLoader *> ret;

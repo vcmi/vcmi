@@ -115,6 +115,25 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	return true;
 }
 
+bool CFilesystemLoader::removeResource(const ResourcePath & resourceName)
+{
+	std::lock_guard lock(fileListGuard);
+	auto resource = fileList.find(resourceName);
+	if(resource == fileList.end())
+		return false;
+
+	boost::system::error_code error;
+	boost::filesystem::remove(baseDirectory / resource->second, error);
+	if(error)
+	{
+		logGlobal->error("Failed to remove resource %s: %s", resourceName.getOriginalName(), error.message());
+		return false;
+	}
+
+	fileList.erase(resource);
+	return true;
+}
+
 std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
 {
 	static const EResType initArray[] = {

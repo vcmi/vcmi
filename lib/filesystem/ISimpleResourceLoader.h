@@ -94,6 +94,16 @@ public:
 	}
 
 	/**
+	 * Removes an existing resource from a writable loader.
+	 *
+	 * @return true if the resource no longer exists, false on error or if this loader is read-only
+	 */
+	virtual bool removeResource(const ResourcePath & resourceName)
+	{
+		return false;
+	}
+
+	/**
 	 * @brief Returns all loaders that have resource with such name
 	 *
 	 * @return vector with all loaders
