@@ -97,7 +97,7 @@ CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJour
 		const std::string title = entry.title.empty()
 			? LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.event")
 			: entry.title;
-		const std::string day = LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.day") + " " + std::to_string(entry.day);
+		const std::string day = LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entry.day);
 		auto label = std::make_shared<CScenarioEventJournalLabel>(Rect(13, 195, 149, 31), title + "\n" + day);
 		label->callback = std::bind(&CScenarioEventJournal::selectEntry, this, i, static_cast<int>(i));
 		labels.push_back(label);
