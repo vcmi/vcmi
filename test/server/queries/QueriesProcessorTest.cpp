@@ -7,12 +7,19 @@
 #include "../../../server/queries/QueriesProcessor.h"
 #include "CGameHandler.h"
 
+#include "lib/gameState/CGameState.h"
+
 namespace
 {
 
 class DummyGameServer : public IGameServer
 {
 public:
+	explicit DummyGameServer(std::shared_ptr<CGameState> gameState = nullptr)
+		: gameState(std::move(gameState))
+	{
+	}
+
 	void setState(EServerState value) override
 	{
 		state = value;
@@ -40,6 +47,8 @@ public:
 
 	void applyPack(CPackForClient & pack) override
 	{
+		if(gameState)
+			gameState->apply(pack);
 	}
 
 	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override
@@ -48,6 +57,7 @@ public:
 
 private:
 	EServerState state{};
+	std::shared_ptr<CGameState> gameState;
 };
 
 enum class QueryEvent
@@ -538,4 +548,3 @@ TEST_F(QueriesProcessorTest, countQuery_returnsZeroForNullptr)
 {
 	EXPECT_EQ(queries.countQuery(nullptr), 0);
 }
-
