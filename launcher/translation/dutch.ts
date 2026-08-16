@@ -507,14 +507,31 @@ Reason: %2</source>
         <translation type="unfinished">Mod %1 installeren</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
+        <source>%1 requires: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
+        <source>Failed to enable mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
+        <source>One or more installed mods could not be enabled:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map exists</source>
         <translation type="unfinished">De kaart bestaat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">De map &apos;%1&apos; bestaat al. Wilt u deze overschrijven?</translation>
     </message>
@@ -529,12 +546,12 @@ Reason: %2</source>
         <translation type="unfinished">Nee tegen alles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>Import complete</source>
         <translation type="unfinished">Import voltooid</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform>%n kaarten succesvol geïmporteerd.</numerusform>
@@ -542,19 +559,19 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Uninstall mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Import failed</source>
         <translation type="unfinished">Importeren mislukt</translation>
     </message>
@@ -566,29 +583,29 @@ Process successfully downloaded files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation type="unfinished">Het importeren van de volgende kaarten is mislukt:\n%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1638"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
         <source>Operation failed</source>
         <translation type="unfinished">Operatie mislukt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished">Er zijn fouten opgetreden:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1691"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
         <source>screenshots</source>
         <translation type="unfinished">screenshots</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
         <source>Screenshot %1</source>
         <translation type="unfinished">Screenshot %1</translation>
     </message>
@@ -1237,7 +1254,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="obsolete">Installeer een compatibele versie van \&quot;Horn of the Abyss\&quot;, een door fans gemaakte uitbreiding voor Heroes III die is geporteerd door het VCMI-team.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>VCMI Extras</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1246,12 +1263,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="obsolete">Installeer een compatibele versie van \&quot;In The Wake of Gods\&quot;, een door fans gemaakte uitbreiding voor Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="820"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1260,12 +1277,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="obsolete">Installeer een mod die verschillende interfaceverbeteringen biedt, zoals een betere interface voor willekeurig gegenereerde kaarten en selecteerbare acties in gevechten.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Tides of War</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>Fallen of the Depth</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1340,7 +1357,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="unfinished">Rug</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="804"/>
         <source>Horn of the Abyss</source>
         <translation type="unfinished">Hoorn van de Afgrond</translation>
     </message>
@@ -1350,7 +1367,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="unfinished">Helden III Vertaling</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>In The Wake of Gods</source>
         <translation type="unfinished">In het kielzog van de goden</translation>
     </message>
@@ -1376,7 +1393,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="677"/>
         <source>GOG installer</source>
         <translation type="unfinished">GOG-installatieprogramma</translation>
     </message>
@@ -1394,7 +1411,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="690"/>
         <source>GOG data</source>
         <translation type="unfinished">GOG-gegevens</translation>
     </message>
@@ -1433,7 +1450,7 @@ You need to select the offline GOG installer.</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="680"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">Ongeldig bestand geselecteerd</translation>
     </message>
@@ -1445,73 +1462,73 @@ You need to select the offline GOG installer.</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Invalid data file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="755"/>
         <source>Importing Heroes III data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="639"/>
         <source>Preparing installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="702"/>
         <source>Extracting installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="739"/>
         <source>Extracting error!</source>
         <translation type="unfinished">Fout bij het extraheren!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
         <source>Hash error!</source>
         <translation type="unfinished">Hashfout!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>No Heroes III data!</source>
         <translation type="unfinished">Geen gegevens voor Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation type="unfinished">De geselecteerde bestanden bevatten geen Heroes III-gegevens!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="772"/>
         <source>Scanning selected folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="799"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="805"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="810"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Tears of Ashan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="825"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>

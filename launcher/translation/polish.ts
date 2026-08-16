@@ -516,14 +516,31 @@ Powód: %2</translation>
         <translation>Instalowanie modyfikacji %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
+        <source>%1 requires: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
+        <source>Failed to enable mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
+        <source>One or more installed mods could not be enabled:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map exists</source>
         <translation>Mapa istnieje</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Mapa &apos;%1&apos; już istnieje. Czy chcesz ją nadpisać?</translation>
     </message>
@@ -538,12 +555,12 @@ Powód: %2</translation>
         <translation>Nie dla wszystkich</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>Import complete</source>
         <translation>Import zakończony</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n mapa zaimportowana pomyślnie.</numerusform>
@@ -552,19 +569,19 @@ Powód: %2</translation>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Uninstall mod</source>
         <translation>Odinstaluj mod</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>Jesteś pewien, że chcesz odinstalować %1?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Import failed</source>
         <translation>Import nie powiódł się</translation>
     </message>
@@ -578,31 +595,31 @@ Process successfully downloaded files?</source>
 Przetworzyć pobrane pliki?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Nie udało się zaimportować następujących map:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1638"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
         <source>Operation failed</source>
         <translation>Operacja nieudana</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Encountered errors:
 </source>
         <translation>Napotkane błędy:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1691"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
         <source>screenshots</source>
         <translation>zrzuty ekranu</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
         <source>Screenshot %1</source>
         <translation>Zrzut ekranu %1</translation>
     </message>
@@ -1257,7 +1274,7 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
         <translation type="vanished">Zainstaluj kompatybilną wersję fanowskiego dodatku Horn of the Abyss odtworzoną przez zespół VCMI</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>VCMI Extras</source>
         <translation>VCMI Extras</translation>
     </message>
@@ -1266,12 +1283,12 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
         <translation type="vanished">Zainstaluj kompatybilną wersję fanowskiego dodatku &quot;In The Wake Of Gods&quot;</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation>Rozbudowane rozszerzenie, które wzbogaca rozgrywkę o jedną alternatywną jednostkę dla każdego z 9 standardowych miast, a także dodaje nowe neutralne stworzenia, banki stworzeń, umiejętności i zaklęcia</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="820"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation>Zejdź do podziemnego królestwa i odkryj Kazamaty — nową frakcję stworzoną dla VCMI, w której grzyby, magia run i kamieni czyhają w ciemności</translation>
     </message>
@@ -1284,12 +1301,12 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
         <translation type="vanished">Zainstaluj mod, który wprowadza różne ulepszenia interfejsu, takie jak lepszy interfejs dla losowych map i możliwość wyboru akcji w bitwach</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Tides of War</source>
         <translation type="unfinished">Losy wojny</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>Fallen of the Depth</source>
         <translation>Fallen of the Depth</translation>
     </message>
@@ -1369,7 +1386,7 @@ Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&
         <translation>Wstecz</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="804"/>
         <source>Horn of the Abyss</source>
         <translation>Róg Otchłani</translation>
     </message>
@@ -1379,7 +1396,7 @@ Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&
         <translation>Tłumaczenie Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
     </message>
@@ -1405,7 +1422,7 @@ Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="677"/>
         <source>GOG installer</source>
         <translation>Instalator GOG</translation>
     </message>
@@ -1425,7 +1442,7 @@ Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.<
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="690"/>
         <source>GOG data</source>
         <translation>Dane GOG</translation>
     </message>
@@ -1435,17 +1452,17 @@ Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.<
         <translation>Nie udało się otworzyć pliku: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
         <source>Hash error!</source>
         <translation>Błąd sumy kontrolnej!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>No Heroes III data!</source>
         <translation>Brak danych Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Wybrane pliki nie zawierają danych Heroes III!</translation>
     </message>
@@ -1488,7 +1505,7 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="680"/>
         <source>Invalid file selected</source>
         <translation>Wybrano nieprawidłowy plik</translation>
     </message>
@@ -1500,7 +1517,7 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Invalid data file</source>
         <translation>Nieprawidłowy plik danych</translation>
     </message>
@@ -1512,52 +1529,52 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="755"/>
         <source>Importing Heroes III data...</source>
         <translation>Importowanie danych Heroes III...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="639"/>
         <source>Preparing installer...</source>
         <translation>Przygotowanie instalatora...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="702"/>
         <source>Extracting installer...</source>
         <translation>Wyodrębnianie instalatora...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="739"/>
         <source>Extracting error!</source>
         <translation>Błąd wypakowywania!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="772"/>
         <source>Scanning selected folder...</source>
         <translation>Skanowanie wybranego folderu...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="799"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="805"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="810"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Tears of Ashan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="825"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
