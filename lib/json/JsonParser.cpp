@@ -156,9 +156,6 @@ bool JsonParser::extractWhitespace(bool verbose)
 
 bool JsonParser::extractEscaping(std::string & str)
 {
-	// TODO: support unicode escaping:
-	// \u1234
-
 	switch(input[pos])
 	{
 		case '\r':
@@ -207,6 +204,96 @@ bool JsonParser::extractEscaping(std::string & str)
 			str += '/';
 			pos++;
 			return true;
+		case 'u':
+		{
+			uint32_t codepoint = 0;
+
+			auto parseHexQuad = [&]() -> bool {
+				if(pos + 4 >= input.size())
+				{
+					error("Unexpected end of file in unicode escape!", true);
+					return false;
+				}
+
+				codepoint = 0;
+				for(int i = 1; i <= 4; i++)
+				{
+					char c = input[pos + i];
+					codepoint <<= 4;
+					if(c >= '0' && c <= '9')
+						codepoint += c - '0';
+					else if(c >= 'a' && c <= 'f')
+						codepoint += c - 'a' + 10;
+					else if(c >= 'A' && c <= 'F')
+						codepoint += c - 'A' + 10;
+					else
+					{
+						error("Invalid hex digit in unicode escape!", true);
+						return false;
+					}
+				}
+				pos += 5; // skip 'u' + 4 hex digits
+				return true;
+			};
+
+			if(!parseHexQuad())
+				return true;
+
+			// JSON \uXXXX represents a UTF-16 code unit. Surrogate pairs must be
+			// combined into a single code point before encoding as UTF-8.
+			if(codepoint >= 0xD800 && codepoint <= 0xDBFF)
+			{
+				uint32_t high = codepoint;
+
+				if(pos + 1 >= input.size() || input[pos] != '\\' || input[pos + 1] != 'u')
+				{
+					error("Unpaired high surrogate in unicode escape!", true);
+					return true;
+				}
+
+				pos += 1; // skip '\', point at 'u' of the second escape (parseHexQuad expects pos on 'u')
+				if(!parseHexQuad())
+					return true;
+
+				if(codepoint < 0xDC00 || codepoint > 0xDFFF)
+				{
+					error("High surrogate not followed by a low surrogate in unicode escape!", true);
+					return true;
+				}
+
+				codepoint = 0x10000 + ((high - 0xD800) << 10) + (codepoint - 0xDC00);
+			}
+			else if(codepoint >= 0xDC00 && codepoint <= 0xDFFF)
+			{
+				error("Unpaired low surrogate in unicode escape!", true);
+				return true;
+			}
+
+			// Encode codepoint to UTF-8
+			if(codepoint <= 0x7F)
+			{
+				str += static_cast<char>(codepoint);
+			}
+			else if(codepoint <= 0x7FF)
+			{
+				str += static_cast<char>(0xC0 | (codepoint >> 6));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			else if(codepoint <= 0xFFFF)
+			{
+				str += static_cast<char>(0xE0 | (codepoint >> 12));
+				str += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			else
+			{
+				str += static_cast<char>(0xF0 | (codepoint >> 18));
+				str += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+				str += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+				str += static_cast<char>(0x80 | (codepoint & 0x3F));
+			}
+			return true;
+		}
 	}
 	return error("Unknown escape sequence!", true);
 }

@@ -36,14 +36,19 @@
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/mapping/MapFormat.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
+#include <boost/algorithm/string/replace.hpp>
+#include "../lib/serializer/CBinaryCache.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/ObstacleHandler.h"
@@ -308,6 +313,150 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	printCommandMessage("Translation export complete");
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 
+}
+
+void ClientCommandManager::handleCacheMapsCommand()
+{
+	CMapService mapService;
+
+	printCommandMessage("Searching for available maps");
+	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::MAP;
+	});
+
+	// Group maps by mod
+	struct MapCacheEntry
+	{
+		std::string fileURI;
+		std::unique_ptr<CMapHeader> header;
+	};
+	std::map<std::string, std::vector<MapCacheEntry>> modCacheData;
+	size_t processedCount = 0;
+	size_t failedCount = 0;
+
+	printCommandMessage("Loading map headers for cache generation");
+	for (auto const & mapName : mapList)
+	{
+		try
+		{
+			std::string modId = LIBRARY->modh->findResourceOrigin(mapName);
+
+			auto mapHeader = mapService.loadMapHeader(mapName);
+
+			std::string fileURI = mapName.getOriginalName();
+			if (!TextOperations::isValidUnicodeString(fileURI))
+				fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
+
+			modCacheData[modId].push_back({ std::move(fileURI), std::move(mapHeader) });
+			processedCount++;
+		}
+		catch (std::exception & e)
+		{
+			logGlobal->warn("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+			failedCount++;
+		}
+	}
+
+	// Write cache files to extracted directory
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "maps";
+	boost::filesystem::create_directories(outPath);
+
+	for (auto & modEntry : modCacheData)
+	{
+		std::string filename = modEntry.first;
+		boost::algorithm::replace_all(filename, ".", "_");
+
+		CBinaryCacheWriter writer(BinaryCache::MAP_MAGIC);
+		auto & serializer = writer.getSerializer();
+		serializer & static_cast<uint32_t>(modEntry.second.size());
+		for (auto & entry : modEntry.second)
+		{
+			serializer & entry.fileURI;
+			serializer & *entry.header;
+		}
+
+		const boost::filesystem::path filePath = outPath / (filename + ".bin");
+		std::ofstream outFile(filePath.c_str(), std::ios::binary);
+		const auto & buffer = writer.getBuffer();
+		outFile.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
+		outFile.close();
+	}
+
+	printCommandMessage("Map cache generation complete.\n");
+	printCommandMessage("Processed " + std::to_string(processedCount) + " maps, " + std::to_string(failedCount) + " failed.\n");
+	printCommandMessage("Cache files can be found in " + outPath.string() + " directory\n");
+}
+
+void ClientCommandManager::handleCacheCampaignsCommand()
+{
+	printCommandMessage("Searching for available campaigns");
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::CAMPAIGN;
+	});
+
+	// Group campaigns by mod
+	struct CampaignCacheEntry
+	{
+		std::string fileURI;
+		std::unique_ptr<Campaign> campaign;
+	};
+	std::map<std::string, std::vector<CampaignCacheEntry>> modCacheData;
+	size_t processedCount = 0;
+	size_t failedCount = 0;
+
+	printCommandMessage("Loading campaign headers for cache generation");
+	for (auto const & campaignName : campaignList)
+	{
+		try
+		{
+			std::string modId = LIBRARY->modh->findResourceOrigin(campaignName);
+
+			auto campaign = CampaignHandler::getHeader(campaignName.getName());
+
+			std::string fileURI = campaignName.getOriginalName();
+			if (!TextOperations::isValidUnicodeString(fileURI))
+				fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
+
+			modCacheData[modId].push_back({ std::move(fileURI), std::move(campaign) });
+			processedCount++;
+		}
+		catch (std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+			failedCount++;
+		}
+	}
+
+	// Write cache files to extracted directory
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "campaigns";
+	boost::filesystem::create_directories(outPath);
+
+	for (auto & modEntry : modCacheData)
+	{
+		std::string filename = modEntry.first;
+		boost::algorithm::replace_all(filename, ".", "_");
+
+		CBinaryCacheWriter writer(BinaryCache::CAMPAIGN_MAGIC);
+		auto & serializer = writer.getSerializer();
+		serializer & static_cast<uint32_t>(modEntry.second.size());
+		for (auto & entry : modEntry.second)
+		{
+			serializer & entry.fileURI;
+			serializer & *entry.campaign;
+		}
+
+		const boost::filesystem::path filePath = outPath / (filename + ".bin");
+		std::ofstream outFile(filePath.c_str(), std::ios::binary);
+		const auto & buffer = writer.getBuffer();
+		outFile.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
+		outFile.close();
+	}
+
+	printCommandMessage("Campaign cache generation complete.\n");
+	printCommandMessage("Processed " + std::to_string(processedCount) + " campaigns, " + std::to_string(failedCount) + " failed.\n");
+	printCommandMessage("Cache files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -690,6 +839,12 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();
+
+	else if(message=="cache maps")
+		handleCacheMapsCommand();
+
+	else if(message=="cache campaigns")
+		handleCacheCampaignsCommand();
 
 	else if(message=="get config")
 		handleGetConfigCommand();

@@ -152,6 +152,8 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 - `translate` - save game texts into json files
 - `translate missing` - save untranslated game texts into json files
 - `translate maps` - save map and campaign texts into json files
+- `cache maps` - generate map cache files for all mods
+- `cache campaigns` - generate campaign cache files for all mods
 - `get config` - save game objects data into json files
 - `get scripts` - dumps lua script stuff into files (currently inactive due to scripting disabled for default builds)
 - `get txt` - save game texts into .txt files matching original heroes 3 files

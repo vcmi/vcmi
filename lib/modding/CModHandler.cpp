@@ -22,6 +22,7 @@
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
+#include "../serializer/CBinaryCache.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
@@ -46,6 +47,96 @@ const std::vector<std::string> & CModHandler::getActiveMods() const
 const ModDescription & CModHandler::getModInfo(const TModID & modId) const
 {
 	return modManager->getModDescription(modId);
+}
+
+std::vector<std::string> CModHandler::getModMapCaches(const TModID & modId) const
+{
+	std::vector<std::string> result;
+	const auto & modInfo = getModInfo(modId);
+	const JsonNode & cacheFileList = modInfo.getLocalValue("mapCaches");
+
+	if (!cacheFileList.isNull() && cacheFileList.isVector())
+	{
+		for (const auto & cacheFileNode : cacheFileList.Vector())
+			result.push_back(cacheFileNode.String());
+	}
+	return result;
+}
+
+void CModHandler::validateMapCaches()
+{
+	for (const TModID & modName : getActiveMods())
+	{
+		auto cacheFiles = getModMapCaches(modName);
+		if (cacheFiles.empty())
+			continue;
+
+		for (const auto & cacheFile : cacheFiles)
+		{
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
+			if (!CResourceHandler::get(modName)->existsResource(cacheResPath))
+			{
+				logMod->warn("Map cache file '%s' declared in mod '%s' was not found!", cacheFile, modName);
+				continue;
+			}
+
+			try
+			{
+				auto stream = CResourceHandler::get(modName)->load(cacheResPath);
+				auto rawData = stream->readAll();
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::MAP_MAGIC);
+			}
+			catch (std::exception & e)
+			{
+				logMod->warn("Invalid map cache file '%s' in mod '%s': %s", cacheFile, modName, e.what());
+			}
+		}
+	}
+}
+
+std::vector<std::string> CModHandler::getModCampaignCaches(const TModID & modId) const
+{
+	std::vector<std::string> result;
+	const auto & modInfo = getModInfo(modId);
+	const JsonNode & cacheFileList = modInfo.getLocalValue("campaignCaches");
+
+	if (!cacheFileList.isNull() && cacheFileList.isVector())
+	{
+		for (const auto & cacheFileNode : cacheFileList.Vector())
+			result.push_back(cacheFileNode.String());
+	}
+	return result;
+}
+
+void CModHandler::validateCampaignCaches()
+{
+	for (const TModID & modName : getActiveMods())
+	{
+		auto cacheFiles = getModCampaignCaches(modName);
+		if (cacheFiles.empty())
+			continue;
+
+		for (const auto & cacheFile : cacheFiles)
+		{
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
+			if (!CResourceHandler::get(modName)->existsResource(cacheResPath))
+			{
+				logMod->warn("Campaign cache file '%s' declared in mod '%s' was not found!", cacheFile, modName);
+				continue;
+			}
+
+			try
+			{
+				auto stream = CResourceHandler::get(modName)->load(cacheResPath);
+				auto rawData = stream->readAll();
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::CAMPAIGN_MAGIC);
+			}
+			catch (std::exception & e)
+			{
+				logMod->warn("Invalid campaign cache file '%s' in mod '%s': %s", cacheFile, modName, e.what());
+			}
+		}
+	}
 }
 
 static JsonNode genDefaultFS()
@@ -310,6 +401,9 @@ void CModHandler::load()
 	}
 
 	content->loadCustom();
+
+	validateMapCaches();
+	validateCampaignCaches();
 
 	logMod->info("\tLoading mod data");
 	LIBRARY->creh->loadCrExpMod();

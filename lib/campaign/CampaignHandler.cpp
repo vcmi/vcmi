@@ -25,6 +25,7 @@
 #include "../modding/CModHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../serializer/BinaryDeserializer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
@@ -70,6 +71,14 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 
 	readCampaign(ret.get(), cmpgn, resourceID.getName(), modName, encoding);
 
+	return ret;
+}
+
+std::unique_ptr<Campaign> CampaignHandler::getHeaderFromCache(BinaryDeserializer & h, const std::string & modName)
+{
+	auto ret = std::make_unique<Campaign>();
+	h & *ret;
+	ret->modName = modName;
 	return ret;
 }
 
@@ -215,7 +224,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
-JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario, const std::string & encoding)
 {
 	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
 	{
@@ -225,18 +234,18 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 			node["video"].Vector() = JsonVector{ JsonNode(elem.prologVideo.first.getName()), JsonNode(elem.prologVideo.second.getName()) };
 			node["music"].String() = elem.prologMusic.getName();
 			node["voice"].String() = elem.prologVoice.getName();
-			node["text"].String() = elem.prologText.toString();
+			elem.prologText.jsonSerialize(node["text"]);
 		}
 		return node;
 	};
 
 	JsonNode node;
-	node["map"].String() = scenario.mapName;
+	node["map"].String() = encoding.empty() ? scenario.mapName : TextOperations::toUnicode(scenario.mapName, encoding);
 	for(auto & g : scenario.preconditionRegions)
 		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
-	node["regionText"].String() = scenario.regionText.toString();
+	scenario.regionText.jsonSerialize(node["regionText"]);
 	node["prolog"] = prologEpilogWriter(scenario.prolog);
 	node["epilog"] = prologEpilogWriter(scenario.epilog);
 

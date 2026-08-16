@@ -81,6 +81,22 @@ void CMapInfo::campaignInit()
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 }
 
+void CMapInfo::initFromCache(const std::string & fileURI_, BinaryDeserializer & h)
+{
+	fileURI = fileURI_;
+
+	mapHeader = std::make_unique<CMapHeader>();
+	h & *mapHeader;
+
+	ResourcePath resource = ResourcePath(fileURI, EResType::MAP);
+	originalFileURI = resource.getOriginalName();
+	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
+	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
+	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
+
+	countPlayers();
+}
+
 void CMapInfo::countPlayers()
 {
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)

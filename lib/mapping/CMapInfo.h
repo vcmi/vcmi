@@ -16,6 +16,7 @@ struct StartInfo;
 class CMapHeader;
 class Campaign;
 class ResourcePath;
+class BinaryDeserializer;
 
 /**
  * A class which stores the count of human players and all players, the filename,
@@ -50,6 +51,7 @@ public:
 	void saveInit(const ResourcePath & file);
 	void campaignInit();
 	void countPlayers();
+	void initFromCache(const std::string & fileURI, BinaryDeserializer & h);
 	
 	std::string getNameTranslated() const;
 	std::string getNameForList() const;

@@ -41,6 +41,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
@@ -52,6 +53,8 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/serializer/CBinaryCache.h"
 
 #include <widgets/GraphicalPrimitiveCanvas.h>
 
@@ -1062,9 +1065,83 @@ size_t SelectionTab::getHiddenIncompatibleMapsCount() const
 
 void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
-	logGlobal->debug("Parsing %d maps", files.size());
+	auto startTime = std::chrono::steady_clock::now();
+	logGlobal->info("Parsing %d maps", files.size());
 	allItems.clear();
-	for(auto & file : files)
+
+	std::unordered_set<ResourcePath> remainingFiles = files;
+	size_t cachedCount = 0;
+
+	for (const auto & modID : LIBRARY->modh->getActiveMods())
+	{
+		auto cacheFiles = LIBRARY->modh->getModMapCaches(modID);
+		if (cacheFiles.empty())
+			continue;
+
+		for (const auto & cacheFile : cacheFiles)
+		{
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
+
+			if (!CResourceHandler::get(modID)->existsResource(cacheResPath))
+				continue;
+
+			try
+			{
+				auto cacheLoadStart = std::chrono::steady_clock::now();
+				auto stream = CResourceHandler::get(modID)->load(cacheResPath);
+				auto rawData = stream->readAll();
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::MAP_MAGIC);
+				auto & deserializer = cacheReader.getDeserializer();
+
+				uint32_t entryCount = 0;
+				deserializer & entryCount;
+
+				size_t localCount = 0;
+				for (uint32_t entryIndex = 0; entryIndex < entryCount; entryIndex++)
+				{
+					try
+					{
+						std::string fileURI;
+						deserializer & fileURI;
+						ResourcePath mapRes(fileURI, EResType::MAP);
+
+						// Reject foreign or nonexistent resources: a cache entry is valid only
+						// when its declaring mod is the actual resource owner.
+						if (LIBRARY->modh->findResourceOrigin(mapRes) != modID)
+							continue;
+
+						// Deduplicate: only the first entry for a given resource is consumed.
+						if (!remainingFiles.contains(mapRes))
+							continue;
+
+						auto mapInfo = std::make_shared<ElementInfo>();
+						mapInfo->initFromCache(fileURI, deserializer);
+						mapInfo->name = mapInfo->getNameForList();
+
+						if (isMapSupported(*mapInfo))
+							allItems.push_back(mapInfo);
+
+						remainingFiles.erase(mapRes);
+						localCount++;
+					}
+					catch (std::exception & e)
+					{
+						logGlobal->warn("Skipping invalid map cache entry in mod %s: %s", modID, e.what());
+					}
+				}
+				cachedCount += localCount;
+				auto cacheLoadMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cacheLoadStart).count();
+				logGlobal->info("Loaded %d maps from cache '%s' in %lld ms", localCount, cacheFile, cacheLoadMs);
+			}
+			catch (std::exception & e)
+			{
+				logGlobal->error("Failed to load map cache %s from mod %s: %s", cacheFile, modID, e.what());
+			}
+		}
+	}
+
+	auto fileLoadStart = std::chrono::steady_clock::now();
+	for (auto & file : remainingFiles)
 	{
 		try
 		{
@@ -1075,11 +1152,15 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 			if (isMapSupported(*mapInfo))
 				allItems.push_back(mapInfo);
 		}
-		catch(std::exception & e)
+		catch (std::exception & e)
 		{
 			logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
 		}
 	}
+	auto fileLoadMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - fileLoadStart).count();
+
+	auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
+	logGlobal->info("Map loading complete: %d from cache, %d from files (%lld ms), total %d maps in %lld ms", cachedCount, remainingFiles.size(), fileLoadMs, allItems.size(), totalMs);
 }
 
 std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
@@ -1158,8 +1239,97 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
+	auto startTime = std::chrono::steady_clock::now();
+	logGlobal->info("Parsing %d campaigns", files.size());
 	allItems.reserve(files.size());
-	for(auto & file : files)
+
+	std::unordered_set<ResourcePath> remainingFiles = files;
+	size_t cachedCount = 0;
+
+	for (const auto & modID : LIBRARY->modh->getActiveMods())
+	{
+		auto cacheFiles = LIBRARY->modh->getModCampaignCaches(modID);
+		if (cacheFiles.empty())
+			continue;
+
+		for (const auto & cacheFile : cacheFiles)
+		{
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
+
+			if (!CResourceHandler::get(modID)->existsResource(cacheResPath))
+				continue;
+
+			try
+			{
+				auto cacheLoadStart = std::chrono::steady_clock::now();
+				auto stream = CResourceHandler::get(modID)->load(cacheResPath);
+				auto rawData = stream->readAll();
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::CAMPAIGN_MAGIC);
+				auto & deserializer = cacheReader.getDeserializer();
+
+				uint32_t entryCount = 0;
+				deserializer & entryCount;
+
+				size_t localCount = 0;
+				for (uint32_t entryIndex = 0; entryIndex < entryCount; entryIndex++)
+				{
+					try
+					{
+						std::string fileURI;
+						deserializer & fileURI;
+						ResourcePath campRes(fileURI, EResType::CAMPAIGN);
+
+						// Reject foreign or nonexistent resources: a cache entry is valid only
+						// when its declaring mod is the actual resource owner.
+						if (LIBRARY->modh->findResourceOrigin(campRes) != modID)
+							continue;
+
+						// Deduplicate: only the first entry for a given resource is consumed.
+						if (!remainingFiles.contains(campRes))
+							continue;
+
+						auto info = std::make_shared<ElementInfo>();
+						info->fileURI = fileURI;
+						info->originalFileURI = campRes.getOriginalName();
+						info->fullFileURI = CResourceHandler::get()->getFullFileURI(campRes);
+						info->lastWrite = CResourceHandler::get()->getLastWriteTime(campRes);
+						info->date = TextOperations::getFormattedDateTimeLocal(info->lastWrite);
+						info->campaign = CampaignHandler::getHeaderFromCache(deserializer, modID);
+						info->name = info->getNameForList();
+
+						remainingFiles.erase(campRes);
+						localCount++;
+
+						if (info->campaign)
+						{
+							bool foundInSet = false;
+							for (auto const & set : campaignSets.Struct())
+								for (auto const & item : set.second["items"].Vector())
+									if (campRes.getName() == ResourcePath(item["file"].String()).getName())
+										foundInSet = true;
+
+							if (!foundInSet || !enableUiEnhancements)
+								allItems.push_back(info);
+						}
+					}
+					catch (std::exception & e)
+					{
+						logGlobal->warn("Skipping invalid campaign cache entry in mod %s: %s", modID, e.what());
+					}
+				}
+				cachedCount += localCount;
+				auto cacheLoadMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cacheLoadStart).count();
+				logGlobal->info("Loaded %d campaigns from cache '%s' in %lld ms", localCount, cacheFile, cacheLoadMs);
+			}
+			catch (std::exception & e)
+			{
+				logGlobal->error("Failed to load campaign cache %s from mod %s: %s", cacheFile, modID, e.what());
+			}
+		}
+	}
+
+	auto fileLoadStart = std::chrono::steady_clock::now();
+	for(auto & file : remainingFiles)
 	{
 		try
 		{
@@ -1186,6 +1356,10 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 		}
 	}
+	auto fileLoadMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - fileLoadStart).count();
+
+	auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
+	logGlobal->info("Campaign loading complete: %d from cache, %d from files (%lld ms), total %d campaigns in %lld ms", cachedCount, remainingFiles.size(), fileLoadMs, allItems.size(), totalMs);
 }
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)

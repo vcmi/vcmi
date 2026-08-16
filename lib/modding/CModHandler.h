@@ -58,6 +58,18 @@ public:
 
 	const ModDescription & getModInfo(const TModID & modId) const;
 
+	/// returns list of map cache file paths for a mod (from mod.json mapCaches), empty if none
+	std::vector<std::string> getModMapCaches(const TModID & modId) const;
+
+	/// returns list of campaign cache file paths for a mod (from mod.json campaignCaches), empty if none
+	std::vector<std::string> getModCampaignCaches(const TModID & modId) const;
+
+	/// validates map cache files for all active mods
+	void validateMapCaches();
+
+	/// validates campaign cache files for all active mods
+	void validateCampaignCaches();
+
 	/// load content from all available mods
 	void load();
 	void afterLoad();

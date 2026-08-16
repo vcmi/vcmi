@@ -80,6 +80,15 @@ void JsonWriter::writeString(const std::string & string)
 				out << '\\' << escapedCode[escapedPos];
 				start = pos + 1;
 			}
+			else if(static_cast<unsigned char>(string[pos]) < 0x20)
+			{
+				// C0 control character: escape as \u00XX (e.g. \u0007 for BEL)
+				out.write(string.data() + start, pos - start);
+				static const char hex[] = "0123456789abcdef";
+				unsigned char c = static_cast<unsigned char>(string[pos]);
+				out << "\\u00" << hex[c >> 4] << hex[c & 0x0F];
+				start = pos + 1;
+			}
 		}
 	}
 	out.write(string.data() + start, pos - start);
