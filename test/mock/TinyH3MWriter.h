@@ -52,6 +52,7 @@ public:
 	void writeArtifact(ArtifactID v);
 	void writeCreature(CreatureID v);
 	void writePlayer(PlayerColor v);
+	void writePlayer32(PlayerColor v);
 	void writeSpell32(SpellID v);   // 4 bytes; used by spell scrolls
 	void writeGameResID(GameResID v); // 1 signed byte
 
