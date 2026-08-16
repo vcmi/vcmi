@@ -13,8 +13,6 @@
 /// Namespace that provides utilities for unicode support (UTF-8)
 namespace TextOperations
 {
-	const static int CHAR_PER_TYPO_ALLOWED = 4;
-
 	/// returns 32-bit UTF codepoint for UTF-8 character symbol
 	uint32_t DLL_LINKAGE getUnicodeCodepoint(const char *data, size_t maxSize);
 

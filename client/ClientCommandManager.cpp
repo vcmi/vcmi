@@ -51,7 +51,7 @@
 
 void ClientCommandManager::handleQuitCommand()
 {
-		exit(EXIT_SUCCESS);
+		throw GameShutdownException();
 }
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)
@@ -93,7 +93,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.count(color) && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}

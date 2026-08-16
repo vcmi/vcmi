@@ -755,6 +755,7 @@ void CServerHandler::endGameplay()
 		gameplayReplayer.reset();
 	}
 
+	client->endNetwork();
 	client->finishGameplay();
 
 	// Game is ending

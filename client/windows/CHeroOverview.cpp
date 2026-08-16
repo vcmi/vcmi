@@ -145,7 +145,7 @@ void CHeroOverview::genControls()
 	int iStack = 0;
 	for(auto & army : (*LIBRARY->heroh)[heroIdx]->initialArmy)
 	{
-		if((*LIBRARY->creh)[army.creature]->warMachine == ArtifactID::NONE)
+		if(army.creature.hasValue() && army.creature.toCreature()->warMachine == ArtifactID::NONE)
 		{
 			imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*LIBRARY->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 2 * borderOffset + yOffset + 30));
 			labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 32, 3 * borderOffset + yOffset + 72, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
@@ -178,7 +178,7 @@ void CHeroOverview::genControls()
 			labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 51, 5 * borderOffset + yOffset + 144, FONT_SMALL, ETextAlignment::TOPLEFT, grayedColor, "100%"));
 			i++;
 		}
-		if((*LIBRARY->creh)[army.creature]->warMachine != ArtifactID::NONE)
+		if(army.creature.hasValue() && army.creature.toCreature()->warMachine != ArtifactID::NONE)
 		{
 			imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*LIBRARY->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 124));
 			if(iStack<stacksCountChances.size())

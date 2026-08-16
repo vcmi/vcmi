@@ -637,34 +637,34 @@ int CPathfinderHelper::getMovementCost(
 	return getMovementCost(
 		src.coord,
 		dst.coord,
-		src.tile,
-		dst.tile,
+		dst.node->layer,
 		remainingMovePoints,
 		checkLast,
-		src.node->layer,
-		dst.node->layer
+		src.tile,
+		dst.tile
 	);
 }
 
 int CPathfinderHelper::getMovementCost(
 	const int3 & src,
 	const int3 & dst,
-	const TerrainTile * ct,
-	const TerrainTile * dt,
+	const EPathfindingLayer & dstLayer,
 	const int remainingMovePoints,
 	const bool checkLast,
-	const EPathfindingLayer & srcLayer,
-	const EPathfindingLayer & dstLayer) const
+	const TerrainTile * srcTile,
+	const TerrainTile * dstTile) const
 {
 	if(src == dst) //same tile
 		return 0;
 
+	assert(dstLayer >= EPathfindingLayer::LAND && dstLayer < EPathfindingLayer::NUM_LAYERS);
+
 	const auto * ti = getTurnInfo();
 
-	if(ct == nullptr || dt == nullptr)
+	if(srcTile == nullptr || dstTile == nullptr)
 	{
-		ct = hero->cb->getTile(src);
-		dt = hero->cb->getTile(dst);
+		srcTile = hero->cb->getTile(src);
+		dstTile = hero->cb->getTile(dst);
 	}
 
 	bool isSailLayer = dstLayer == EPathfindingLayer::SAIL;
@@ -674,10 +674,10 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isAviateLayer = hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::AVIATE;
 
-	int movementCost = getTileMovementCost(*dt, *ct, ti);
+	int movementCost = getTileMovementCost(*dstTile, *srcTile, ti);
 	if(isSailLayer)
 	{
-		if(ct->hasFavorableWinds())
+		if(srcTile->hasFavorableWinds())
 			movementCost = static_cast<int>(movementCost * 2.0 / 3);
 	}
 	else if(isAirLayer)
@@ -708,7 +708,7 @@ int CPathfinderHelper::getMovementCost(
 	const int pointsLeft = remainingMovePoints - movementCost;
 	if(checkLast && pointsLeft > 0)
 	{
-		int minimalNextMoveCost = isAirLayer ? gameInfo.getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE) : getTileMovementCost(*dt, *ct, ti);
+		int minimalNextMoveCost = isAirLayer ? gameInfo.getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE) : getTileMovementCost(*dstTile, *srcTile, ti);
 
 		if (pointsLeft < minimalNextMoveCost)
 			return remainingMovePoints;

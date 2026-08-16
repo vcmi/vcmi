@@ -84,7 +84,7 @@ private:
 /* ---------------------------------------------------------------------------- */
 
 /// The class CLogManager is a global storage for logger objects.
-class DLL_LINKAGE CLogManager : public boost::noncopyable
+class DLL_LINKAGE CLogManager final : public boost::noncopyable
 {
 public:
 	static CLogManager & get();
@@ -95,7 +95,7 @@ public:
 
 private:
 	CLogManager();
-	virtual ~CLogManager();
+	 ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
 	mutable std::mutex mx;

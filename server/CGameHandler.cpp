@@ -895,12 +895,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	{
 		const auto * boat = h->getBoat();
 
-		// AI pathfinder may incorrectly keep the WATER layer when moving to land.
-		// Normal boats cannot fly, so moving to land MUST be a disembark action.
-		// Airships fly over land, so they rely solely on the explicit LAND layer request.
-		const bool isExplicitDisembark = (layer == EPathfindingLayer::LAND);
-		const bool isForcedBoatDisembark = (boat->layer == EPathfindingLayer::SAIL);
-		const bool hasDisembarkIntent = isExplicitDisembark || isForcedBoatDisembark;
+		const bool hasDisembarkIntent = (layer == EPathfindingLayer::LAND);
 
 		// Ensure the destination tile is physically valid for the current vehicle
 		const bool isStayingInPlace = (dst == h->pos);
@@ -919,18 +914,6 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	tmh.result = TryMoveHero::FAILED;
 	tmh.movePoints = h->movementPointsRemaining();
 
-	//check if destination tile is available
-	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(gameInfo()));
-	const auto * ti = pathfinderHelper->getTurnInfo();
-
-	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && (h->getBoat()->layer == EPathfindingLayer::AIR || h->getBoat()->layer == EPathfindingLayer::AVIATE));
-	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
-	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
-
-	const bool movingOntoObstacle = t.blocked() && !t.visitable();
-	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
-	const bool movingOntoWater = !h->inBoat() && t.isWater() && !objectCoastVisitable;
-
 	const auto complainRet = [&](const std::string & message)
 	{
 		//send info about movement failure
@@ -938,6 +921,26 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		sendAndApply(tmh);
 		return false;
 	};
+
+	const bool requiresLayer = movementMode == EMovementMode::STANDARD && dst != h->pos;
+	const bool hasValidLayer = layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS;
+	if(requiresLayer && !hasValidLayer)
+		return complainRet("Invalid movement layer!");
+
+	//check if destination tile is available
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(gameInfo()));
+	const auto * ti = pathfinderHelper->getTurnInfo();
+
+	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && (h->getBoat()->layer == EPathfindingLayer::AIR || h->getBoat()->layer == EPathfindingLayer::AVIATE));
+	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
+	const bool usesMovementCost = movementMode == EMovementMode::STANDARD || embarking || disembarking;
+	const int cost = usesMovementCost
+		? pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, layer, h->movementPointsRemaining())
+		: 0;
+
+	const bool movingOntoObstacle = t.blocked() && !t.visitable();
+	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
+	const bool movingOntoWater = !h->inBoat() && t.isWater() && !objectCoastVisitable;
 
 	if (guardian && getVisitingHero(guardian) != nullptr)
 		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this wandering monster!");

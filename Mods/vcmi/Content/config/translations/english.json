@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orb of Vulnerability}\nNegates natural magic resistance of all creatures on the battlefield.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Additional Attacks}\nThis unit can attack ${val} additional time(s).",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Additional Retaliations}\nThis unit can retaliate ${val} additional time(s).",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Adjacent Spellcaster}\nThis unit can cast ${subtype.spell} while standing next to its target.",

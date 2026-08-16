@@ -28,12 +28,16 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 
 void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit, const EPathfindingLayer & layer)
 {
+	assert(destination == h->pos || (layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS));
+
 	MoveHero pack({destination}, layer, h->id, transit);
 	sendRequest(pack);
 }
 
 void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit, const EPathfindingLayer & layer)
 {
+	assert(layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS);
+
 	MoveHero pack(path, layer, h->id, transit);
 	sendRequest(pack);
 }
