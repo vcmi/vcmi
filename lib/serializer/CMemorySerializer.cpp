@@ -28,7 +28,19 @@ int CMemorySerializer::write(const std::byte * data, unsigned size)
 	return size;
 }
 
-CMemorySerializer::CMemorySerializer(): iser(this), oser(this), readPos(0)
+CMemorySerializer::CMemorySerializer(): CMemorySerializer(std::vector<std::byte>())
+{
+}
+
+CMemorySerializer::CMemorySerializer(std::vector<std::byte> data): buffer(std::move(data)), readPos(0), iser(this), oser(this)
 {
 	iser.version = ESerializationVersion::CURRENT;
+}
+
+std::vector<std::byte> CMemorySerializer::extractBuffer()
+{
+	std::vector<std::byte> result = std::move(buffer);
+	buffer.clear();
+	readPos = 0;
+	return result;
 }

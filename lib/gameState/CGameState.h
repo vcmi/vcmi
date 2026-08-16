@@ -16,6 +16,7 @@
 #include "../LoadProgress.h"
 
 #include "GameStatistics.h"
+#include "ReplayLog.h"
 #include "RumorState.h"
 #include "mapObjects/CGObjectInstance.h"
 
@@ -102,6 +103,9 @@ public:
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
+
+	/// recording of this game, filled by the server and stored as part of every savegame
+	ReplayLog replayLog;
 
 	// NOTE: effectively AI mutex, only used by adventure map AI
 	static std::shared_mutex mutex;
@@ -197,6 +201,14 @@ public:
 	void saveGame(CSaveFile & file) const;
 	void loadGame(CLoadFile & file);
 
+	/// Serializes the whole gamestate into a memory buffer. The replay log is deliberately left
+	/// out - a snapshot lives inside that very log, and including it would nest snapshots.
+	std::vector<std::byte> saveToMemory();
+
+	/// Replaces contents of this gamestate with a snapshot made by saveToMemory().
+	/// Identity of this object is preserved, so all shared_ptr's to it stay valid.
+	void loadFromMemory(std::vector<std::byte> data);
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & scenarioOps;
@@ -210,6 +222,14 @@ public:
 		h & globalEffects;
 		h & currentRumor;
 		h & campaign;
+
+		if(h.hasFeature(Handler::Version::GAME_REPLAY_RECORDING))
+		{
+			// battles never survive a day boundary, but the counter must - a recorded
+			// BattleStart carries the ID the server had handed out when it was recorded
+			h & nextBattleID;
+			h & replayLog;
+		}
 
 		if(!h.saving && h.loadingGamestate)
 			restoreBonusSystemTree();

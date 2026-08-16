@@ -157,6 +157,11 @@ AdventureOptionsTab::AdventureOptionsTab()
 		setBoolSetting("adventure", "minimapShowHeroes", value);
 		ENGINE->windows().totalRedraw();
 	});
+	addCallback("replayShowBattlesChanged", [](bool value)
+	{
+		setBoolSetting("adventure", "replayShowBattles", value);
+	});
+
 	addCallback("showMovePathChanged", [](bool value)
 	{
 		setBoolSetting("adventure", "showMovePath", value);
@@ -226,4 +231,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> showMovePathCheckbox = widget<CToggleButton>("showMovePathCheckbox");
 	showMovePathCheckbox->setSelected(settings["adventure"]["showMovePath"].Bool());
+
+	std::shared_ptr<CToggleButton> replayShowBattlesCheckbox = widget<CToggleButton>("replayShowBattlesCheckbox");
+	replayShowBattlesCheckbox->setSelected(settings["adventure"]["replayShowBattles"].Bool());
 }

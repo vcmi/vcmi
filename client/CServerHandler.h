@@ -33,6 +33,7 @@ struct LobbyModsCheck;
 class HighScoreParameter;
 
 class NetworkLagCompensator;
+class GameplayReplayer;
 class CClient;
 class CBaseForLobbyApply;
 class GlobalLobbyClient;
@@ -103,6 +104,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GameChatHandler> gameChat;
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::unique_ptr<NetworkLagCompensator> networkLagCompensator;
+	std::unique_ptr<GameplayReplayer> gameplayReplayer;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
 
@@ -228,6 +230,11 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
+
+	GameplayReplayer & replayer();
+
+	/// Safe to call at any time, also outside of a running game
+	bool isReplayActive() const;
 
 	void sendGamePack(const CPackForServer & pack) const;
 

@@ -23,6 +23,7 @@
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
+#include "../replay/GameplayReplayer.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/RadialMenu.h"
 #include "../gui/CursorHandler.h"
@@ -82,6 +83,8 @@ AdventureMapInterface::AdventureMapInterface():
 
 void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
+	mapViewCenter = int3(visibleArea.center().x, visibleArea.center().y, mapLevel);
+
 	shortcuts->onMapViewMoved(visibleArea, mapLevel);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
 	widget->onMapViewMoved(visibleArea, mapLevel);
@@ -297,6 +300,11 @@ void AdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 	widget->getMapView()->onCenteredObject(obj);
 }
 
+int3 AdventureMapInterface::getMapViewCenter() const
+{
+	return mapViewCenter;
+}
+
 void AdventureMapInterface::keyPressed(EShortcut key)
 {
 	if (key == EShortcut::GLOBAL_CANCEL && spellBeingCasted)
@@ -313,7 +321,9 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 
 	widget->getInfoBar()->popAll();
 	mapAudio->onSelectionChanged(sel);
-	bool centerView = !settings["session"]["autoSkip"].Bool();
+
+	// while a replay follows another player, our own selection must not drag the camera along
+	bool centerView = !settings["session"]["autoSkip"].Bool() && !replayFollowedPlayer();
 
 	if (centerView)
 		centerOnObject(sel);

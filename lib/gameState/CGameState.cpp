@@ -1150,6 +1150,10 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 
 void CGameState::apply(CPackForClient & pack)
 {
+	// recorded first, so that a snapshot taken here holds the pre-pack state
+	if(replayLog.isRecordingPacks())
+		replayLog.recordPack(pack, *this);
+
 	GameStatePackVisitor visitor(*this);
 	pack.visit(visitor);
 }
@@ -1734,6 +1738,32 @@ void CGameState::saveGame(CSaveFile & file) const
 	file.save(*getStartInfo());
 	file.save(activeModsDummy);
 	file.save(*this);
+}
+
+std::vector<std::byte> CGameState::saveToMemory()
+{
+	// a snapshot is stored inside the replay log itself, so the log must not be part of it.
+	// Swapping keeps the serialized layout identical - an empty log is written instead.
+	ReplayLog logBackup;
+	std::swap(logBackup, replayLog);
+
+	CMemorySerializer serializer;
+	serializer.oser & *this;
+
+	std::swap(logBackup, replayLog);
+
+	return serializer.extractBuffer();
+}
+
+void CGameState::loadFromMemory(std::vector<std::byte> data)
+{
+	// battles are not part of serialize(), so leftovers of the discarded state have to go explicitly
+	currentBattles.clear();
+
+	CMemorySerializer serializer(std::move(data));
+	serializer.iser.loadingGamestate = true;
+	serializer.iser.cb = this;
+	serializer.iser & *this;
 }
 
 void CGameState::loadGame(CLoadFile & file)
