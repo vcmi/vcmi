@@ -1825,7 +1825,7 @@ void CPlayerInterface::showScenarioEventJournal()
 
 	if(entries.empty())
 	{
-		showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.empty"));
+		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.empty"), {}, playerID);
 		return;
 	}
 
@@ -1842,7 +1842,7 @@ void CPlayerInterface::showScenarioEventJournal()
 		text += entry.message.toString();
 	}
 
-	showInfoDialog(text);
+	CInfoWindow::showInfoDialog(text, {}, playerID);
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
