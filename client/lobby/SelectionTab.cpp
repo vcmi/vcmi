@@ -54,6 +54,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/modding/CModHandler.h"
+#include "../../lib/serializer/CBinaryCache.h"
 
 class ScenarioTabConfigurable : public InterfaceObjectConfigurable
 {
@@ -1040,7 +1041,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 
 		for (const auto & cacheFile : cacheFiles)
 		{
-			ResourcePath cacheResPath(cacheFile, EResType::JSON);
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
 
 			if (!CResourceHandler::get(modID)->existsResource(cacheResPath))
 				continue;
@@ -1050,21 +1051,44 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 				auto cacheLoadStart = std::chrono::steady_clock::now();
 				auto stream = CResourceHandler::get(modID)->load(cacheResPath);
 				auto rawData = stream->readAll();
-				JsonNode cacheData(reinterpret_cast<std::byte *>(rawData.first.get()), rawData.second, cacheFile);
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::MAP_MAGIC);
+				auto & deserializer = cacheReader.getDeserializer();
+
+				uint32_t entryCount = 0;
+				deserializer & entryCount;
 
 				size_t localCount = 0;
-				for (const auto & mapEntry : cacheData.Vector())
+				for (uint32_t entryIndex = 0; entryIndex < entryCount; entryIndex++)
 				{
-					auto mapInfo = std::make_shared<ElementInfo>();
-					mapInfo->initFromCache(mapEntry);
-					mapInfo->name = mapInfo->getNameForList();
+					try
+					{
+						std::string fileURI;
+						deserializer & fileURI;
+						ResourcePath mapRes(fileURI, EResType::MAP);
 
-					if (isMapSupported(*mapInfo))
-						allItems.push_back(mapInfo);
+						// Reject foreign or nonexistent resources: a cache entry is valid only
+						// when its declaring mod is the actual resource owner.
+						if (LIBRARY->modh->findResourceOrigin(mapRes) != modID)
+							continue;
 
-					ResourcePath mapRes(mapEntry["fileURI"].String(), EResType::MAP);
-					remainingFiles.erase(mapRes);
-					localCount++;
+						// Deduplicate: only the first entry for a given resource is consumed.
+						if (!remainingFiles.contains(mapRes))
+							continue;
+
+						auto mapInfo = std::make_shared<ElementInfo>();
+						mapInfo->initFromCache(fileURI, deserializer);
+						mapInfo->name = mapInfo->getNameForList();
+
+						if (isMapSupported(*mapInfo))
+							allItems.push_back(mapInfo);
+
+						remainingFiles.erase(mapRes);
+						localCount++;
+					}
+					catch (std::exception & e)
+					{
+						logGlobal->warn("Skipping invalid map cache entry in mod %s: %s", modID, e.what());
+					}
 				}
 				cachedCount += localCount;
 				auto cacheLoadMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cacheLoadStart).count();
@@ -1191,7 +1215,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 
 		for (const auto & cacheFile : cacheFiles)
 		{
-			ResourcePath cacheResPath(cacheFile, EResType::JSON);
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
 
 			if (!CResourceHandler::get(modID)->existsResource(cacheResPath))
 				continue;
@@ -1201,34 +1225,57 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 				auto cacheLoadStart = std::chrono::steady_clock::now();
 				auto stream = CResourceHandler::get(modID)->load(cacheResPath);
 				auto rawData = stream->readAll();
-				JsonNode cacheData(reinterpret_cast<std::byte *>(rawData.first.get()), rawData.second, cacheFile);
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::CAMPAIGN_MAGIC);
+				auto & deserializer = cacheReader.getDeserializer();
+
+				uint32_t entryCount = 0;
+				deserializer & entryCount;
 
 				size_t localCount = 0;
-				for (const auto & entry : cacheData.Vector())
+				for (uint32_t entryIndex = 0; entryIndex < entryCount; entryIndex++)
 				{
-					auto info = std::make_shared<ElementInfo>();
-					info->fileURI = entry["fileURI"].String();
-					ResourcePath campRes(info->fileURI, EResType::CAMPAIGN);
-					info->originalFileURI = campRes.getOriginalName();
-					info->fullFileURI = CResourceHandler::get()->getFullFileURI(campRes);
-					info->lastWrite = CResourceHandler::get()->getLastWriteTime(campRes);
-					info->date = TextOperations::getFormattedDateTimeLocal(info->lastWrite);
-					info->campaign = CampaignHandler::getHeaderFromCache(entry);
-					info->name = info->getNameForList();
-
-					remainingFiles.erase(campRes);
-					localCount++;
-
-					if (info->campaign)
+					try
 					{
-						bool foundInSet = false;
-						for (auto const & set : campaignSets.Struct())
-							for (auto const & item : set.second["items"].Vector())
-								if (campRes.getName() == ResourcePath(item["file"].String()).getName())
-									foundInSet = true;
+						std::string fileURI;
+						deserializer & fileURI;
+						ResourcePath campRes(fileURI, EResType::CAMPAIGN);
 
-						if (!foundInSet || !enableUiEnhancements)
-							allItems.push_back(info);
+						// Reject foreign or nonexistent resources: a cache entry is valid only
+						// when its declaring mod is the actual resource owner.
+						if (LIBRARY->modh->findResourceOrigin(campRes) != modID)
+							continue;
+
+						// Deduplicate: only the first entry for a given resource is consumed.
+						if (!remainingFiles.contains(campRes))
+							continue;
+
+						auto info = std::make_shared<ElementInfo>();
+						info->fileURI = fileURI;
+						info->originalFileURI = campRes.getOriginalName();
+						info->fullFileURI = CResourceHandler::get()->getFullFileURI(campRes);
+						info->lastWrite = CResourceHandler::get()->getLastWriteTime(campRes);
+						info->date = TextOperations::getFormattedDateTimeLocal(info->lastWrite);
+						info->campaign = CampaignHandler::getHeaderFromCache(deserializer, modID);
+						info->name = info->getNameForList();
+
+						remainingFiles.erase(campRes);
+						localCount++;
+
+						if (info->campaign)
+						{
+							bool foundInSet = false;
+							for (auto const & set : campaignSets.Struct())
+								for (auto const & item : set.second["items"].Vector())
+									if (campRes.getName() == ResourcePath(item["file"].String()).getName())
+										foundInSet = true;
+
+							if (!foundInSet || !enableUiEnhancements)
+								allItems.push_back(info);
+						}
+					}
+					catch (std::exception & e)
+					{
+						logGlobal->warn("Skipping invalid campaign cache entry in mod %s: %s", modID, e.what());
 					}
 				}
 				cachedCount += localCount;

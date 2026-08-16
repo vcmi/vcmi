@@ -256,6 +256,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/TerrainPainter.cpp
 	rmg/MapProxy.cpp
 
+	serializer/CBinaryCache.cpp
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
 	serializer/GameConnection.cpp
@@ -717,6 +718,7 @@ set(lib_MAIN_HEADERS
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
+	serializer/CBinaryCache.h
 	serializer/CLoadFile.h
 	serializer/CMemorySerializer.h
 	serializer/GameConnection.h

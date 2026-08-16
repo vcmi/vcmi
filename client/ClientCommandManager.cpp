@@ -38,7 +38,6 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/mapping/MapFormat.h"
-#include "../lib/modding/ModVerificationInfo.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
@@ -49,6 +48,7 @@
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
 #include <boost/algorithm/string/replace.hpp>
+#include "../lib/serializer/CBinaryCache.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/ObstacleHandler.h"
@@ -326,7 +326,12 @@ void ClientCommandManager::handleCacheMapsCommand()
 	});
 
 	// Group maps by mod
-	std::map<std::string, JsonNode> modCacheData;
+	struct MapCacheEntry
+	{
+		std::string fileURI;
+		std::unique_ptr<CMapHeader> header;
+	};
+	std::map<std::string, std::vector<MapCacheEntry>> modCacheData;
 	size_t processedCount = 0;
 	size_t failedCount = 0;
 
@@ -339,42 +344,11 @@ void ClientCommandManager::handleCacheMapsCommand()
 
 			auto mapHeader = mapService.loadMapHeader(mapName);
 
-			JsonNode entry;
-			{
-				std::string fileURI = mapName.getOriginalName();
-				if (!TextOperations::isValidUnicodeString(fileURI))
-					fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
-				entry["fileURI"].String() = fileURI;
-			}
-			entry["name"].String() = mapHeader->name.toString();
-			entry["description"].String() = mapHeader->description.toString();
-			entry["author"].String() = mapHeader->author.toString();
-			entry["authorContact"].String() = mapHeader->authorContact.toString();
-			entry["mapVersion"].String() = mapHeader->mapVersion.toString();
-			entry["creationDateTime"].Integer() = static_cast<int64_t>(mapHeader->creationDateTime);
-			entry["width"].Integer() = mapHeader->width;
-			entry["height"].Integer() = mapHeader->height;
-			entry["difficulty"].Integer() = static_cast<int>(mapHeader->difficulty);
-			entry["levelLimit"].Integer() = mapHeader->levelLimit;
-			entry["howManyTeams"].Integer() = mapHeader->howManyTeams;
-			entry["version"].Integer() = static_cast<int>(mapHeader->version);
+			std::string fileURI = mapName.getOriginalName();
+			if (!TextOperations::isValidUnicodeString(fileURI))
+				fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
 
-			JsonNode playersNode;
-			for (const auto & player : mapHeader->players)
-				playersNode.Vector().push_back(JsonNode(player.canAnyonePlay()));
-			entry["players"] = playersNode;
-
-			JsonNode requiredModsNode;
-			for (const auto & modEntry : mapHeader->mods)
-			{
-				JsonNode modNode;
-				modNode["name"].String() = modEntry.second.name;
-				modNode["version"].String() = modEntry.second.version.toString();
-				requiredModsNode.Vector().push_back(modNode);
-			}
-			entry["requiredMods"] = requiredModsNode;
-
-			modCacheData[modId].Vector().push_back(entry);
+			modCacheData[modId].push_back({ std::move(fileURI), std::move(mapHeader) });
 			processedCount++;
 		}
 		catch (std::exception & e)
@@ -393,10 +367,19 @@ void ClientCommandManager::handleCacheMapsCommand()
 		std::string filename = modEntry.first;
 		boost::algorithm::replace_all(filename, ".", "_");
 
-		// Write to user extracted directory
-		const boost::filesystem::path filePath = outPath / (filename + ".json");
-		std::ofstream outFile(filePath.c_str());
-		outFile << modEntry.second.toString();
+		CBinaryCacheWriter writer(BinaryCache::MAP_MAGIC);
+		auto & serializer = writer.getSerializer();
+		serializer & static_cast<uint32_t>(modEntry.second.size());
+		for (auto & entry : modEntry.second)
+		{
+			serializer & entry.fileURI;
+			serializer & *entry.header;
+		}
+
+		const boost::filesystem::path filePath = outPath / (filename + ".bin");
+		std::ofstream outFile(filePath.c_str(), std::ios::binary);
+		const auto & buffer = writer.getBuffer();
+		outFile.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
 		outFile.close();
 	}
 
@@ -414,7 +397,12 @@ void ClientCommandManager::handleCacheCampaignsCommand()
 	});
 
 	// Group campaigns by mod
-	std::map<std::string, JsonNode> modCacheData;
+	struct CampaignCacheEntry
+	{
+		std::string fileURI;
+		std::unique_ptr<Campaign> campaign;
+	};
+	std::map<std::string, std::vector<CampaignCacheEntry>> modCacheData;
 	size_t processedCount = 0;
 	size_t failedCount = 0;
 
@@ -427,24 +415,11 @@ void ClientCommandManager::handleCacheCampaignsCommand()
 
 			auto campaign = CampaignHandler::getHeader(campaignName.getName());
 
-			JsonNode entry;
-			{
-				std::string fileURI = campaignName.getOriginalName();
-				if (!TextOperations::isValidUnicodeString(fileURI))
-					fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
-				entry["fileURI"].String() = fileURI;
-			}
-			entry["name"].String() = campaign->getNameTranslated();
-			entry["description"].String() = campaign->getDescriptionTranslated();
-			entry["author"].String() = campaign->getAuthor();
-			entry["authorContact"].String() = campaign->getAuthorContact();
-			entry["campaignVersion"].String() = campaign->getCampaignVersion();
-			entry["creationDateTime"].Integer() = static_cast<int64_t>(campaign->getCreationDateTime());
-			entry["numberOfScenarios"].Integer() = campaign->scenariosCount();
-			for (auto scenarioID : campaign->allScenarios())
-				entry["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaign->scenario(scenarioID), campaign->getEncoding()));
+			std::string fileURI = campaignName.getOriginalName();
+			if (!TextOperations::isValidUnicodeString(fileURI))
+				fileURI = TextOperations::filesystemPathToUtf8(boost::filesystem::path(fileURI));
 
-			modCacheData[modId].Vector().push_back(entry);
+			modCacheData[modId].push_back({ std::move(fileURI), std::move(campaign) });
 			processedCount++;
 		}
 		catch (std::exception & e)
@@ -463,9 +438,19 @@ void ClientCommandManager::handleCacheCampaignsCommand()
 		std::string filename = modEntry.first;
 		boost::algorithm::replace_all(filename, ".", "_");
 
-		const boost::filesystem::path filePath = outPath / (filename + ".json");
-		std::ofstream outFile(filePath.c_str());
-		outFile << modEntry.second.toString();
+		CBinaryCacheWriter writer(BinaryCache::CAMPAIGN_MAGIC);
+		auto & serializer = writer.getSerializer();
+		serializer & static_cast<uint32_t>(modEntry.second.size());
+		for (auto & entry : modEntry.second)
+		{
+			serializer & entry.fileURI;
+			serializer & *entry.campaign;
+		}
+
+		const boost::filesystem::path filePath = outPath / (filename + ".bin");
+		std::ofstream outFile(filePath.c_str(), std::ios::binary);
+		const auto & buffer = writer.getBuffer();
+		outFile.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
 		outFile.close();
 	}
 

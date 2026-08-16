@@ -201,14 +201,14 @@ These are fields that are present only in local mod.json file
 	// Generated with /cache maps command. See Map_Campaign_Caches.md for details
 	"mapCaches" :
 	[
-		"config/cache/mapCache.json"
+		"config/cache/mapCache.bin"
 	],
 
 	// List of files with cached campaign meta information to speed up campaign loading
 	// Generated with /cache campaigns command. See Map_Campaign_Caches.md for details
 	"campaignCaches" :
 	[
-		"config/cache/campaignCache.json"
+		"config/cache/campaignCache.bin"
 	],
 
 	// Optional, primaly used by translation mods

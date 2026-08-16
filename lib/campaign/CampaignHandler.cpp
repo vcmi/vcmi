@@ -25,6 +25,7 @@
 #include "../modding/CModHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../serializer/BinaryDeserializer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
@@ -73,33 +74,11 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-std::unique_ptr<Campaign> CampaignHandler::getHeaderFromCache( const JsonNode & data)
+std::unique_ptr<Campaign> CampaignHandler::getHeaderFromCache(BinaryDeserializer & h, const std::string & modName)
 {
 	auto ret = std::make_unique<Campaign>();
-
-	ret->name.appendRawString(data["name"].String());
-	if (!data["description"].isNull())
-		ret->description.appendRawString(data["description"].String());
-	if (!data["author"].isNull())
-		ret->author.appendRawString(data["author"].String());
-	if (!data["authorContact"].isNull())
-		ret->authorContact.appendRawString(data["authorContact"].String());
-	if (!data["campaignVersion"].isNull())
-		ret->campaignVersion.appendRawString(data["campaignVersion"].String());
-	if (!data["creationDateTime"].isNull())
-		ret->creationDateTime = static_cast<std::time_t>(data["creationDateTime"].Integer());
-	if (!data["numberOfScenarios"].isNull())
-		ret->numberOfScenarios = static_cast<int>(data["numberOfScenarios"].Integer());
-
-	if (!data["scenarios"].isNull())
-	{
-		for (auto scenarioData : data["scenarios"].Vector())
-		{
-			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
-			ret->scenarios[scenarioID] = readScenarioFromJson(scenarioData);
-		}
-	}
-
+	h & *ret;
+	ret->modName = modName;
 	return ret;
 }
 
@@ -255,7 +234,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario,
 			node["video"].Vector() = JsonVector{ JsonNode(elem.prologVideo.first.getName()), JsonNode(elem.prologVideo.second.getName()) };
 			node["music"].String() = elem.prologMusic.getName();
 			node["voice"].String() = elem.prologVoice.getName();
-			node["text"].String() = elem.prologText.toString();
+			elem.prologText.jsonSerialize(node["text"]);
 		}
 		return node;
 	};
@@ -266,7 +245,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario,
 		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
-	node["regionText"].String() = scenario.regionText.toString();
+	scenario.regionText.jsonSerialize(node["regionText"]);
 	node["prolog"] = prologEpilogWriter(scenario.prolog);
 	node["epilog"] = prologEpilogWriter(scenario.epilog);
 

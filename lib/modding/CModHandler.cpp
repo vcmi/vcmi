@@ -22,6 +22,7 @@
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
+#include "../serializer/CBinaryCache.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
@@ -72,17 +73,22 @@ void CModHandler::validateMapCaches()
 
 		for (const auto & cacheFile : cacheFiles)
 		{
-			ResourcePath cacheResPath(cacheFile, EResType::JSON);
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
 			if (!CResourceHandler::get(modName)->existsResource(cacheResPath))
 			{
 				logMod->warn("Map cache file '%s' declared in mod '%s' was not found!", cacheFile, modName);
+				continue;
 			}
-			else
+
+			try
 			{
 				auto stream = CResourceHandler::get(modName)->load(cacheResPath);
 				auto rawData = stream->readAll();
-				JsonNode cacheData(reinterpret_cast<std::byte *>(rawData.first.get()), rawData.second, cacheFile);
-				JsonUtils::validate(cacheData, "vcmi:mapCache", modName + "/" + cacheFile);
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::MAP_MAGIC);
+			}
+			catch (std::exception & e)
+			{
+				logMod->warn("Invalid map cache file '%s' in mod '%s': %s", cacheFile, modName, e.what());
 			}
 		}
 	}
@@ -112,17 +118,22 @@ void CModHandler::validateCampaignCaches()
 
 		for (const auto & cacheFile : cacheFiles)
 		{
-			ResourcePath cacheResPath(cacheFile, EResType::JSON);
+			ResourcePath cacheResPath(cacheFile, EResType::OTHER);
 			if (!CResourceHandler::get(modName)->existsResource(cacheResPath))
 			{
 				logMod->warn("Campaign cache file '%s' declared in mod '%s' was not found!", cacheFile, modName);
+				continue;
 			}
-			else
+
+			try
 			{
 				auto stream = CResourceHandler::get(modName)->load(cacheResPath);
 				auto rawData = stream->readAll();
-				JsonNode cacheData(reinterpret_cast<std::byte *>(rawData.first.get()), rawData.second, cacheFile);
-				JsonUtils::validate(cacheData, "vcmi:campaignCache", modName + "/" + cacheFile);
+				CBinaryCacheReader cacheReader(reinterpret_cast<const std::byte *>(rawData.first.get()), rawData.second, BinaryCache::CAMPAIGN_MAGIC);
+			}
+			catch (std::exception & e)
+			{
+				logMod->warn("Invalid campaign cache file '%s' in mod '%s': %s", cacheFile, modName, e.what());
 			}
 		}
 	}

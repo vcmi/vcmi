@@ -16,7 +16,6 @@
 #include "CMapService.h"
 #include "CMapHeader.h"
 #include "MapFormat.h"
-#include "../json/JsonNode.h"
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
@@ -82,68 +81,18 @@ void CMapInfo::campaignInit()
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 }
 
-void CMapInfo::initFromCache(const JsonNode & data)
+void CMapInfo::initFromCache(const std::string & fileURI_, BinaryDeserializer & h)
 {
-	fileURI = data["fileURI"].String();
+	fileURI = fileURI_;
+
+	mapHeader = std::make_unique<CMapHeader>();
+	h & *mapHeader;
+
 	ResourcePath resource = ResourcePath(fileURI, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
-
-	mapHeader = std::make_unique<CMapHeader>();
-
-	if (!data["version"].isNull())
-		mapHeader->version = static_cast<EMapFormat>(data["version"].Integer());
-
-	mapHeader->width = data["width"].Integer();
-	mapHeader->height = data["height"].Integer();
-
-	mapHeader->name.appendRawString(data["name"].String());
-	if (!data["description"].isNull())
-		mapHeader->description.appendRawString(data["description"].String());
-	if (!data["author"].isNull())
-		mapHeader->author.appendRawString(data["author"].String());
-	if (!data["authorContact"].isNull())
-		mapHeader->authorContact.appendRawString(data["authorContact"].String());
-	if (!data["mapVersion"].isNull())
-		mapHeader->mapVersion.appendRawString(data["mapVersion"].String());
-
-	if (!data["creationDateTime"].isNull())
-		mapHeader->creationDateTime = static_cast<std::time_t>(data["creationDateTime"].Integer());
-
-	if (!data["difficulty"].isNull())
-		mapHeader->difficulty = static_cast<EMapDifficulty>(data["difficulty"].Integer());
-
-	if (!data["levelLimit"].isNull())
-		mapHeader->levelLimit = static_cast<ui8>(data["levelLimit"].Integer());
-
-	if (!data["howManyTeams"].isNull())
-		mapHeader->howManyTeams = static_cast<ui8>(data["howManyTeams"].Integer());
-
-	// Populate player info
-	const JsonNode & playersNode = data["players"];
-	mapHeader->players.resize(PlayerColor::PLAYER_LIMIT_I);
-	size_t playerCount = std::min(playersNode.Vector().size(), static_cast<size_t>(PlayerColor::PLAYER_LIMIT_I));
-	for (size_t i = 0; i < playerCount; ++i)
-	{
-		bool isPlayable = playersNode.Vector()[i].Bool();
-		mapHeader->players[i].canHumanPlay = isPlayable;
-		mapHeader->players[i].canComputerPlay = isPlayable;
-	}
-
-	// Populate required mods
-	if (!data["requiredMods"].isNull())
-	{
-		for (const auto & modNode : data["requiredMods"].Vector())
-		{
-			ModVerificationInfo modInfo;
-			modInfo.name = modNode["name"].String();
-			if (!modNode["version"].isNull())
-				modInfo.version = CModVersion::fromString(modNode["version"].String());
-			mapHeader->mods[modInfo.name] = modInfo;
-		}
-	}
 
 	countPlayers();
 }

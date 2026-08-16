@@ -18,7 +18,7 @@ Start any map, press Tab to open the chat input, and enter one of the following 
 /cache maps
 ```
 
-Scans all maps across all mods and outputs cache files into `extracted/maps/` directory, one file per mod.
+Scans all maps across all mods and outputs binary cache files into `extracted/maps/` directory, one file per mod.
 
 ### Campaign cache
 
@@ -26,7 +26,7 @@ Scans all maps across all mods and outputs cache files into `extracted/maps/` di
 /cache campaigns
 ```
 
-Scans all campaigns across all mods and outputs cache files into `extracted/campaigns/` directory.
+Scans all campaigns across all mods and outputs binary cache files into `extracted/campaigns/` directory.
 
 After generation, copy the relevant cache file into your mod's `Content/` directory and declare it in `mod.json`.
 
@@ -39,151 +39,43 @@ Add the `mapCaches` and/or `campaignCaches` fields to your `mod.json`:
 	// List of files with cached map meta information
 	"mapCaches" :
 	[
-		"config/cache/mapCache.json"
+		"config/cache/mapCache.bin"
 	],
 
 	// List of files with cached campaign meta information
 	"campaignCaches" :
 	[
-		"config/cache/campaignCache.json"
+		"config/cache/campaignCache.bin"
 	]
 }
 ```
 
-Place the cache files in your mod's `Content/` directory (e.g. `Content/config/cache/mapCache.json`). Any path and filename works, as long as it is reachable via the VCMI resource system.
+Place the cache files in your mod's `Content/` directory (e.g. `Content/config/cache/mapCache.bin`). Any path and filename works, as long as it is reachable via the VCMI resource system.
 
-## Map Cache Format
+## Cache File Format
 
-Map cache files are JSON arrays. Each element describes one map:
+Cache files are binary and use the same serialization framework as VCMI save games.
 
-```json
-[
-	{
-		// Map format version: 14=ROE, 21=AB, 28=SOD, 29=CHR, 32=HOTA, 51=WOG, 100=VCMI
-		"version" : 32,
+Each file begins with:
 
-		// Relative path of the map file within the mod
-		"fileURI" : "MAPS/HotA Single Maps/A Viking We Shall Go.h3m",
+- A 4-byte magic: `VCMM` for map caches, `VCMC` for campaign caches.
+- A 4-byte `ESerializationVersion` value.
+- The entry count, encoded as a VCMI variable-length integer.
 
-		// Map name (original string, untranslated)
-		"name" : "A Viking We Shall Go",
+After the header, the file is a sequence of entries. Each entry is:
 
-		// Map description (original string, untranslated)
-		"description" : "A Viking We Shall Go. Map by...",
+1. A length-prefixed UTF-8 string holding the resource `fileURI` (the map or campaign path within the mod).
+2. The full binary-serialized `CMapHeader` (map caches) or `Campaign` (campaign caches).
 
-		// Map author
-		"author" : "Fenrir",
+Map caches contain every `CMapHeader` field consumed by the lobby: name, description, author, contact, map version, dimensions, difficulty, level limit, player slots, team count, victory/defeat conditions, allowed and restricted heroes, required mods, and the translation table.
 
-		// Author contact information
-		"authorContact" : "",
+Campaign caches contain the complete `Campaign` object, including its header and every scenario.
 
-		// Map version string
-		"mapVersion" : "",
-
-		// Map creation timestamp (unix time, 0 = unknown)
-		"creationDateTime" : 1625097600,
-
-		// Map size in tiles
-		"width" : 144,
-		"height" : 144,
-
-		// Map difficulty: 0=easy, 1=normal, 2=hard, 3=expert, 4=impossible
-		"difficulty" : 2,
-
-		// Hero level limit (0 = no limit)
-		"levelLimit" : 0,
-
-		// Boolean array of 8 player slots - true if slot can be played by human or AI
-		"players" : [ true, true, true, true, false, false, false, false ],
-
-		// Number of teams
-		"howManyTeams" : 4,
-
-		// List of required mods
-		"requiredMods" : []
-	}
-]
-```
-
-## Campaign Cache Format
-
-Campaign cache files are JSON arrays. Each element describes one campaign:
-
-```json
-[
-	{
-		// Relative path of the campaign file within the mod
-		"fileURI" : "MAPS/HotA Campaigns/NewDayRising.h3c",
-
-		// Campaign name (original string, untranslated)
-		"name" : "New Day Rising",
-
-		// Campaign description (original string, untranslated)
-		"description" : "New Day Rising. New lands...",
-
-		// Campaign author
-		"author" : "Hota Crew",
-
-		// Author contact information
-		"authorContact" : "",
-
-		// Campaign version string
-		"campaignVersion" : "1.0",
-
-		// Campaign creation timestamp (unix time, 0 = unknown)
-		"creationDateTime" : 1625097600,
-
-		// Number of scenarios
-		"numberOfScenarios" : 5,
-
-		// Scenario metadata
-		"scenarios" : [
-			{
-				// Map file name inside the campaign
-				"map" : "MAP1.H3M",
-
-				// Precondition scenario indices
-				"preconditions" : [],
-
-				// Region color index: 0=red, 1=blue, 2=tan, 3=green, 4=orange, 5=purple, 6=teal, 7=pink
-				"color" : 0,
-
-				// Difficulty: 0=pawn, 1=knight, 2=rook, 3=queen, 4=king
-				"difficulty" : 2,
-
-				// Region tooltip text
-				"regionText" : "",
-
-				// Player color: "red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
-				"playerColor" : "blue",
-
-				// Starting options: "none", "bonus", "crossover", "hero"
-				"startOptions" : "none",
-
-				// What hero keeps between scenarios
-				"heroKeeps" : [],
-
-				// Creatures kept by hero (game identifiers)
-				"keepCreatures" : [],
-
-				// Artifacts kept by hero (game identifiers)
-				"keepArtifacts" : [],
-
-				// Prolog and epilog (optional)
-				"prolog" : {},
-				"epilog" : {},
-
-				// Starting bonuses
-				"bonuses" : []
-			}
-		]
-	}
-]
-```
+Because the cache reuses VCMI's binary serializer, the content is language-independent (source text IDs are preserved rather than a single UI language) and does not depend on JSON escaping or text encoding.
 
 ## Notes
 
 - Cache files are **optional**. Maps and campaigns not covered by any cache are still loaded by reading individual files.
 - **Regenerate caches** whenever you add, remove, or modify maps or campaigns in your mod. Stale cache data will result in incorrect or missing entries.
 - Cache entries pointing to files that no longer exist are silently ignored.
-- Cache files are validated against schemas during mod loading. Invalid cache data produces a warning on startup but does not prevent the game from running.
+- Cache files are checked for a valid magic and serialization version during mod loading. Invalid cache data produces a warning on startup but does not prevent the game from running.
