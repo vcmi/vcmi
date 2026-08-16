@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include <tbb/parallel_for.h>
-#include <tbb/concurrent_vector.h>
 
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
@@ -1028,16 +1027,17 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
 	auto timeStart = std::chrono::steady_clock::now();
-	allItems.clear();
-
 	std::vector<ResourcePath> filesVector(files.begin(), files.end());
-	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &parsedItems](const tbb::blocked_range<size_t> & r)
+	// every entry is written by a single thread only, entries of failed maps stay empty
+	allItems.clear();
+	allItems.resize(filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector](const tbb::blocked_range<size_t> & r)
 	{
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto & file = filesVector[i];
+			const auto & file = filesVector[i];
 			try
 			{
 				auto mapInfo = std::make_shared<ElementInfo>();
@@ -1045,7 +1045,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 				mapInfo->name = mapInfo->getNameForList();
 
 				if (isMapSupported(*mapInfo))
-					parsedItems.push_back(mapInfo);
+					allItems[i] = mapInfo;
 			}
 			catch(std::exception & e)
 			{
@@ -1054,7 +1054,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 		}
 	});
 
-	allItems.assign(std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
+	vstd::erase(allItems, nullptr);
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d maps took %d ms", files.size(), timeElapsed.count());
@@ -1065,16 +1065,19 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 	auto timeStart = std::chrono::steady_clock::now();
 
 	std::vector<ResourcePath> filesVector(files.begin(), files.end());
-	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
-	tbb::concurrent_vector<ResourcePath> unsupported;
+
+	// every entry is written by a single thread only, entries of failed saves stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+	std::vector<uint8_t> isUnsupported(filesVector.size(), 0);
 
 	ELoadMode loadMode = GAME->server().getLoadMode();
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [&filesVector, &parsedItems, &unsupported, loadMode](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &isUnsupported, offset, loadMode](const tbb::blocked_range<size_t> & r)
 	{
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto & file = filesVector[i];
+			const auto & file = filesVector[i];
 			try
 			{
 				auto mapInfo = std::make_shared<ElementInfo>();
@@ -1109,7 +1112,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 					break;
 				}
 
-				parsedItems.push_back(mapInfo);
+				allItems[offset + i] = mapInfo;
 			}
 			catch(const IdentifierResolutionException & e)
 			{
@@ -1117,18 +1120,23 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 			}
 			catch(const std::exception & e)
 			{
-				unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
+				isUnsupported[i] = 1; // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
 				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 			}
 		}
 	});
 
-	allItems.insert(allItems.end(), std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+
+	std::vector<ResourcePath> unsupported;
+	for(size_t i = 0; i < filesVector.size(); i++)
+		if(isUnsupported[i])
+			unsupported.push_back(filesVector[i]);
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d saves took %d ms", filesVector.size(), timeElapsed.count());
 
-	return std::vector<ResourcePath>(std::make_move_iterator(unsupported.begin()), std::make_move_iterator(unsupported.end()));
+	return unsupported;
 }
 
 void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & files)
@@ -1154,13 +1162,16 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	auto timeStart = std::chrono::steady_clock::now();
 
 	std::vector<ResourcePath> filesVector(files.begin(), files.end());
-	tbb::concurrent_vector<std::shared_ptr<ElementInfo>> parsedItems;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &parsedItems](const tbb::blocked_range<size_t> & r)
+	// every entry is written by a single thread only, entries of skipped campaigns stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, offset](const tbb::blocked_range<size_t> & r)
 	{
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto & file = filesVector[i];
+			const auto & file = filesVector[i];
 			try
 			{
 				auto info = std::make_shared<ElementInfo>();
@@ -1178,7 +1189,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 								foundInSet = true;
 
 					if(!foundInSet || !enableUiEnhancements)
-						parsedItems.push_back(info);
+						allItems[offset + i] = info;
 				}
 			}
 			catch(const std::exception & e)
@@ -1188,8 +1199,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 		}
 	});
 
-	allItems.reserve(allItems.size() + parsedItems.size());
-	allItems.insert(allItems.end(), std::make_move_iterator(parsedItems.begin()), std::make_move_iterator(parsedItems.end()));
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
