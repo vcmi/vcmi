@@ -1816,7 +1816,11 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	const auto quests = cb->getMyQuests();
+	auto quests = cb->getMyQuests();
+	vstd::erase_if(quests, [this](const QuestInfo & quest)
+	{
+		return quest.getQuest(cb.get()) == nullptr;
+	});
 	if(quests.empty())
 	{
 		const auto entries = cb->getMyScenarioEventJournal();
