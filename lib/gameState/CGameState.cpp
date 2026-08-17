@@ -70,6 +70,7 @@
 #include "UpgradeInfo.h"
 #include "mapObjects/CGPandoraBox.h"
 
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
@@ -202,6 +203,10 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 
 	logGlobal->debug("Initialization:");
 
+	initScriptVariables();
+	// script `init` runs from here, so it sees the map before object randomization and hero placement -
+	// it can only bind handlers by instance name, not inspect object contents
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, true);
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)
@@ -291,6 +296,9 @@ void CGameState::updateOnLoad(const StartInfo & si)
 	scenarioOps->playerInfos = si.playerInfos;
 	for(auto & i : si.playerInfos)
 	{
+		// a random-map save stores the original (unpruned) StartInfo, which may list players absent from the actual game state
+		if(!players.count(i.first))
+			continue;
 		players.at(i.first).human = i.second.isControlledByHuman();
 		logGlobal->debug("Player %d is controlled by %s, team %d", i.first.getNum(), i.second.isControlledByHuman() ? "human" : "AI", players.at(i.first).team.getNum());
 	}
@@ -377,6 +385,15 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap();
+}
+
+void CGameState::initScriptVariables()
+{
+	for(const auto & declaration : map->scriptVariableDefinitions)
+		map->getScriptVariables().set(ModScope::scopeMap(), declaration.name, declaration.initialValue);
+
+	if(scenarioOps->campState) // campaigns might override initial value
+		scenarioOps->campState->seedPersistentVariables(*map);
 }
 
 void CGameState::initGlobalBonuses()
@@ -1133,6 +1150,10 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 
 void CGameState::apply(CPackForClient & pack)
 {
+	// recorded first, so that a snapshot taken here holds the pre-pack state
+	if(replayLog.isRecordingPacks())
+		replayLog.recordPack(pack, *this);
+
 	GameStatePackVisitor visitor(*this);
 	pack.visit(visitor);
 }
@@ -1552,7 +1573,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 	}
 	if(level >= 4) //army strength
 	{
-		FILL_FIELD(army, Statistic::getArmyStrength(&g->second))
+		FILL_FIELD(army, Statistic::getArmyStrength(&g->second, false, true))
 	}
 	if(level >= 5) //income
 	{
@@ -1719,6 +1740,32 @@ void CGameState::saveGame(CSaveFile & file) const
 	file.save(*this);
 }
 
+std::vector<std::byte> CGameState::saveToMemory()
+{
+	// a snapshot is stored inside the replay log itself, so the log must not be part of it.
+	// Swapping keeps the serialized layout identical - an empty log is written instead.
+	ReplayLog logBackup;
+	std::swap(logBackup, replayLog);
+
+	CMemorySerializer serializer;
+	serializer.oser & *this;
+
+	std::swap(logBackup, replayLog);
+
+	return serializer.extractBuffer();
+}
+
+void CGameState::loadFromMemory(std::vector<std::byte> data)
+{
+	// battles are not part of serialize(), so leftovers of the discarded state have to go explicitly
+	currentBattles.clear();
+
+	CMemorySerializer serializer(std::move(data));
+	serializer.iser.loadingGamestate = true;
+	serializer.iser.cb = this;
+	serializer.iser & *this;
+}
+
 void CGameState::loadGame(CLoadFile & file)
 {
 	logGlobal->info("Loading game state...");
@@ -1731,6 +1778,9 @@ void CGameState::loadGame(CLoadFile & file)
 	file.load(dummyStartInfo);
 	file.load(dummyActiveMods);
 	file.load(*this);
+
+	// Runtime-only object, not serialized; rebuild from the loaded script source.
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);
 }
 
 const scripting::Pool & CGameState::getScriptContextPool() const

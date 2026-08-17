@@ -1831,7 +1831,13 @@
 		"type" : ["HERO"],
 		"bonuses" : {
 			"noRetreat" : {
-				"type" : "BATTLE_NO_FLEEING",
+				"type" : "BATTLE_CAN_FLEE",
+				"val" : -100,
+				"propagator": "BATTLE_WIDE"
+			},
+			"noSurrender" : {
+				"type" : "BATTLE_CAN_SURRENDER",
+				"val" : -100,
 				"propagator": "BATTLE_WIDE"
 			}
 		}

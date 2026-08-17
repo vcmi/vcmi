@@ -313,15 +313,15 @@ int Statistic::getNumberOfDwellings(const PlayerState * ps)
 	return ret;
 }
 
-// get total strength of player army
-si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
+// get total strength of player army, either real one or the one perceived by other players, e.g. in Thieves Guild
+si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison, bool asPerceivedByOthers)
 {
 	si64 str = 0;
 
 	for(auto h : ps->getHeroes())
 	{
 		if(!h->isGarrisoned() || withTownGarrison)		//original h3 behavior
-			str += h->getArmyStrength();
+			str += asPerceivedByOthers ? h->getArmyStrengthPerceivedByOthers() : h->getArmyStrength();
 	}
 	return str;
 }

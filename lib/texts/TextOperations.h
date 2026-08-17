@@ -69,18 +69,20 @@ namespace TextOperations
 	/// timeOffset - optional parameter to modify current time by specified time in seconds
 	DLL_LINKAGE std::string getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset = {});
 
+	/// Compares two strings using locale-aware collation based on the selected game language.
+	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
+
+	DLL_LINKAGE bool isFuzzyMatch(const std::string & haystack, const std::string & needle);
+
+	DLL_LINKAGE bool isRelevantScore(const std::string & needle, const int & score);
+
+	/// measures the smallest Levenshtein distance of a needle to any substring of a haystack
+	DLL_LINKAGE int textSearchSimilarityScore(const std::string & needle, const std::string & haystack);
+
 	/// Algorithm for detection of typos in words
 	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
 	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
-
-	/// Compares two strings using locale-aware collation based on the selected game language.
-	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
-
-	/// Check if texts have similarity when typing into search boxes
-	/// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match, 
-	/// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
-	DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
 
 	/// This function is mainly used to avoid garbled text when reading or writing files
 	/// with non-ASCII (e.g. Chinese) characters in the path, especially on Windows.

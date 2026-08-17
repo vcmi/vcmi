@@ -59,7 +59,7 @@ msgstr "大量界面改进：高分辨率、部队行动队列、生物窗口"
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
-msgstr ""
+msgstr "强大且易用的模组支持——可自由添加新城镇、生物、英雄、宝物和法术，无数量限制且互不冲突"
 "强大且易用的模组支持——可自由添加新城镇、生物、英雄、宝物和法术，无数量限制且"
 "互不冲突"
 

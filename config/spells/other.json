@@ -480,6 +480,9 @@
 				"range" : "X"
 			}
 		},
+		"counters" : {
+			"spell.stoneGaze": true
+		},
 		"flags" : {
 			"positive": true
 		}

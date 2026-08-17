@@ -42,6 +42,11 @@ public:
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
 
+	// ---- captured mutations inspected by MapScriptTest -------------------
+	std::vector<std::pair<ObjectInstanceID, int>>        manaPointsSet;
+	std::vector<std::pair<ObjectInstanceID, int>>        movePointsSet;
+	std::vector<std::pair<ObjectInstanceID, BuildingID>> builtStructures;
+
 	// ---- non-empty overrides (defined in mock_IGameEventCallback.cpp) ----
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
@@ -49,8 +54,10 @@ public:
 	void showInfoDialog(InfoWindow * iw) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
+	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
+	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures, bool forceRemoval) override;
@@ -63,10 +70,12 @@ public:
 
 	// ---- no-op stubs ----------------------------------------------------
 
+	void setScriptVariable(const std::string &, const std::string &, const JsonNode &) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID, const Rewardable::Configuration &) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID, BuildingID, const Rewardable::Configuration &) override {}
 	void changeSpells(const CGHeroInstance *, bool, const std::set<SpellID> &) override {}
 	void setResearchedSpells(const CGTownInstance *, int, const std::vector<SpellID> &, bool) override {}
+	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override { builtStructures.emplace_back(townID, building); }
 	void createBoat(const int3 &, BoatId, PlayerColor) override {}
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}
@@ -77,7 +86,7 @@ public:
 	void giveCreatures(const CGHeroInstance *, const CCreatureSet &) override {}
 	void giveCreatures(const CArmedInstance *, const CGHeroInstance *, const CCreatureSet &, bool) override {}
 	bool changeStackType(const StackLocation &, const CCreature *) override { return false; }
-	bool insertNewStack(const StackLocation &, const CCreature *, TQuantity) override { return false; }
+	bool insertNewStack(const StackLocation & sl, const CCreature * c, TQuantity count) override;
 	bool swapStacks(const StackLocation &, const StackLocation &) override { return false; }
 	bool addToSlot(const StackLocation &, const CCreature *, TQuantity) override { return false; }
 	void tryJoiningArmy(const CArmedInstance *, const CArmedInstance *, bool, bool) override {}
@@ -94,8 +103,8 @@ public:
 	bool moveHero(ObjectInstanceID, int3, EMovementMode, bool, PlayerColor, const EPathfindingLayer &) override { return false; }
 	void giveHeroBonus(GiveBonus *) override {}
 	void setMovePoints(SetMovePoints *) override {}
-	void setMovePoints(ObjectInstanceID, int) override {}
-	void setManaPoints(ObjectInstanceID, int) override {}
+	void setMovePoints(ObjectInstanceID hid, int val) override { movePointsSet.emplace_back(hid, val); }
+	void setManaPoints(ObjectInstanceID hid, int val) override { manaPointsSet.emplace_back(hid, val); }
 	void giveHero(ObjectInstanceID, PlayerColor, ObjectInstanceID) override {}
 	void changeObjPos(ObjectInstanceID, int3, const PlayerColor &) override {}
 	void heroExchange(ObjectInstanceID, ObjectInstanceID) override {}

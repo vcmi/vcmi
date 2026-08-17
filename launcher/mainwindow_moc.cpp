@@ -24,6 +24,9 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
+#ifndef VCMI_MOBILE
+#include "gamepadHandler.h"
+#endif
 
 void MainWindow::load()
 {
@@ -133,10 +136,33 @@ MainWindow::MainWindow(QWidget * parent)
 	else
 		enterSetup();
 
+	setGamepadStartAllowed(h3DataFound && setupCompleted);
+
 	ui->settingsView->setDisplayList();
+
+#ifndef VCMI_MOBILE
+	auto * gamepadHandler = new GamepadHandler(this);
+	connect(gamepadHandler, &GamepadHandler::startGameRequested, this, &MainWindow::startGameFromGamepad);
+#endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::setGamepadStartAllowed(bool allowed)
+{
+	gamepadStartAllowed = allowed;
+	Helper::allowGamepadStart(allowed);
+}
+
+void MainWindow::startGameFromGamepad()
+{
+	// setup and dialogs can't be operated with a gamepad, so don't take control away from the player
+	if(!gamepadStartAllowed || QApplication::activeModalWidget())
+		return;
+
+	hide();
+	startGame({});
 }
 
 void MainWindow::centerWindowOnScreen(QScreen * screen)
@@ -312,6 +338,8 @@ void MainWindow::exitSetup(bool goToMods)
 {
 	Settings writer = settings.write["launcher"]["setupCompleted"];
 	writer->Bool() = true;
+
+	setGamepadStartAllowed(true);
 
 	ui->sidePanel->setVisible(true);
 	if (goToMods)

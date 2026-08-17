@@ -464,9 +464,17 @@ Increases weekly growth of creatures in affected towns (Statue of Legion)
 
 - val: additional growth, percentage
 
-### BATTLE_NO_FLEEING
+### BATTLE_CAN_FLEE
 
-Heroes affected by this bonus can not retreat or surrender in battle (Shackles of War effect)
+Controls whether affected hero can retreat from combat. Values of all bonuses of this type are summed up, and retreating is blocked if the sum is negative. When defending a town, bonuses of the town are summed up as well - Village Hall provides -10, locking the defender in. Casting a spell in first combat rounds as attacker subtracts another 10.
+
+- val: -100 blocks retreating in a way that can not be overcome by any bonus (Shackles of War), -10 blocks a single case, +10 allows to overcome a single restriction (Escape Tunnel)
+
+### BATTLE_CAN_SURRENDER
+
+Controls whether affected hero can surrender. Works in the same way as `BATTLE_CAN_FLEE`, with an additional restriction of 10 if enemy army has no hero to negotiate with. Hero that can not retreat can never surrender either.
+
+- val: see `BATTLE_CAN_FLEE`
 
 ### NEGATE_ALL_NATURAL_IMMUNITIES
 
@@ -1291,6 +1299,12 @@ Increases amount of counted marketplaces when trading in town. You may want to u
 ### SURRENDER_MARKETPLACE_ACCESS
 
 Allows affected hero or player to open a marketplace after failing to pay surrender cost, sell resources, and retry surrender payment. This can be granted by artifacts, global/per-hero game config bonuses, or other bonus sources.
+
+### DIPLOMACY_ARMY_STRENGTH_MULTIPLIER
+
+Changes army strength of affected hero as seen by neutral creatures deciding whether to join or to flee, and as reported by Thieves Guild. Actual army strength of the hero remains unchanged.
+
+- val: army strength multiplier, in percentage. 100 - unchanged, 300 - three times stronger, 50 - two times weaker. Multiple bonuses of this type are multiplied with each other
 
 ### DEITYOFFIRE
 

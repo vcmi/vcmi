@@ -21,6 +21,7 @@
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
+#include "queries/LuaScriptQuery.h"
 #include "queries/MapQueries.h"
 #include "queries/VisitQueries.h"
 
@@ -50,14 +51,19 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/HotaScriptConverter.h"
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGPandoraBox.h"
+#include "../lib/mapObjects/Quest.h"
 #include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -580,6 +586,8 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 
 	for (const auto & elem : gameState().players)
 		turnOrder->addPlayer(elem.first);
+
+	configureReplayLog(true);
 }
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
@@ -887,12 +895,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	{
 		const auto * boat = h->getBoat();
 
-		// AI pathfinder may incorrectly keep the WATER layer when moving to land.
-		// Normal boats cannot fly, so moving to land MUST be a disembark action.
-		// Airships fly over land, so they rely solely on the explicit LAND layer request.
-		const bool isExplicitDisembark = (layer == EPathfindingLayer::LAND);
-		const bool isForcedBoatDisembark = (boat->layer == EPathfindingLayer::SAIL);
-		const bool hasDisembarkIntent = isExplicitDisembark || isForcedBoatDisembark;
+		const bool hasDisembarkIntent = (layer == EPathfindingLayer::LAND);
 
 		// Ensure the destination tile is physically valid for the current vehicle
 		const bool isStayingInPlace = (dst == h->pos);
@@ -911,18 +914,6 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	tmh.result = TryMoveHero::FAILED;
 	tmh.movePoints = h->movementPointsRemaining();
 
-	//check if destination tile is available
-	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(gameInfo()));
-	const auto * ti = pathfinderHelper->getTurnInfo();
-
-	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && (h->getBoat()->layer == EPathfindingLayer::AIR || h->getBoat()->layer == EPathfindingLayer::AVIATE));
-	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
-	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
-
-	const bool movingOntoObstacle = t.blocked() && !t.visitable();
-	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
-	const bool movingOntoWater = !h->inBoat() && t.isWater() && !objectCoastVisitable;
-
 	const auto complainRet = [&](const std::string & message)
 	{
 		//send info about movement failure
@@ -930,6 +921,26 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		sendAndApply(tmh);
 		return false;
 	};
+
+	const bool requiresLayer = movementMode == EMovementMode::STANDARD && dst != h->pos;
+	const bool hasValidLayer = layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS;
+	if(requiresLayer && !hasValidLayer)
+		return complainRet("Invalid movement layer!");
+
+	//check if destination tile is available
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(gameInfo()));
+	const auto * ti = pathfinderHelper->getTurnInfo();
+
+	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && (h->getBoat()->layer == EPathfindingLayer::AIR || h->getBoat()->layer == EPathfindingLayer::AVIATE));
+	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
+	const bool usesMovementCost = movementMode == EMovementMode::STANDARD || embarking || disembarking;
+	const int cost = usesMovementCost
+		? pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, layer, h->movementPointsRemaining())
+		: 0;
+
+	const bool movingOntoObstacle = t.blocked() && !t.visitable();
+	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
+	const bool movingOntoWater = !h->inBoat() && t.isWater() && !objectCoastVisitable;
 
 	if (guardian && getVisitingHero(guardian) != nullptr)
 		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this wandering monster!");
@@ -957,8 +968,15 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
-	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
-		return complainRet("Cannot disembark hero, tile is blocked!");
+	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand())
+	{
+		if(t.blocked())
+			return complainRet("Cannot disembark hero, tile is blocked!");
+
+		//hole is neither visitable nor blocking, so check for it explicitly
+		if(pathfinderHelper->isTileBlockedByHole(hmpos))
+			return complainRet("Cannot disembark hero, tile contains a hole!");
+	}
 
 	if(!h->pos.areNeighbours(dst) && movementMode == EMovementMode::STANDARD)
 		return complainRet("Tiles " + h->pos.toString()+ " and "+ dst.toString() +" are not neighboring!");
@@ -1178,12 +1196,64 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 	sendAndApply(*iw);
 }
 
+void CGameHandler::showScriptDialog(BlockingDialog * iw)
+{
+	// The dialog sits above the paused script's query; its reply is stashed there and consumed when
+	// the script query is exposed and resumes the coroutine.
+	auto scriptQuery = std::dynamic_pointer_cast<LuaScriptQuery>(queries->topQuery(iw->player));
+	if(!scriptQuery)
+	{
+		logGlobal->error("showScriptDialog called without an active script query for player %s", iw->player.toString());
+		return;
+	}
+
+	auto dialogQuery = std::make_shared<CGenericQuery>(this, iw->player,
+		[scriptQuery](std::optional<int32_t> reply){ scriptQuery->setPendingAnswer(reply); });
+	queries->addQuery(dialogQuery);
+	iw->queryID = dialogQuery->queryID;
+	sendAndApply(*iw);
+}
+
+void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
+	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
+{
+	// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
+	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
+	auto scriptQuery = std::make_shared<LuaScriptQuery>(this, player);
+	if(visitingHero.hasValue())
+		scriptQuery->setVisitingHero(visitingHero);
+	queries->addQuery(scriptQuery);
+
+	auto handle = dispatch(dispatcher);
+	if(handle)
+		scriptQuery->setCoroutine(*handle);
+	else
+		queries->popIfTop(scriptQuery);
+}
+
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
 	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendAndApply(*iw);
+}
+
+void CGameHandler::setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value)
+{
+	SetScriptVariable pack;
+	pack.scope = scope;
+	pack.name = name;
+	pack.value = value;
+	sendAndApply(pack);
+}
+
+void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
+{
+	SetQuestHint pack;
+	pack.object = obj;
+	pack.hint = hint;
+	sendAndApply(pack);
 }
 
 void CGameHandler::giveResource(PlayerColor player, GameResID which, int val)
@@ -1710,6 +1780,19 @@ void CGameHandler::load(const StartInfo &info)
 
 	gs->preInit(LIBRARY);
 	gs->updateOnLoad(info);
+
+	configureReplayLog(false);
+}
+
+void CGameHandler::configureReplayLog(bool gameIsNew)
+{
+	const int roundsKept = std::max(0, static_cast<int>(settings["server"]["replayRoundsKept"].Integer()));
+
+	// a loaded game keeps the recording mode it was started with
+	if(gameIsNew)
+		gs->replayLog.configure(gs->getStartInfo()->extraOptionsInfo.recordGame, roundsKept);
+	else
+		gs->replayLog.reconfigureOnLoad(roundsKept);
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)
@@ -2128,6 +2211,11 @@ bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 
 	eraseStack(StackLocation(s1->id, pos));
 	return true;
+}
+
+void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID building)
+{
+	buildStructure(townID, building, true);
 }
 
 bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)
@@ -3583,7 +3671,13 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	hv.starting = true;
 	sendAndApply(hv);
 
-	visitedObject->onHeroVisit(*this, h);
+	std::string scriptHandler = visitedObject->getVisitScriptHandler();
+	auto * dispatcher = gameState().getMapEventDispatcher();
+	if(!scriptHandler.empty() && dispatcher)
+		runScriptedEvent(*dispatcher, h->getOwner(), h->id,
+			[&](scripting::MapEventDispatcher & d){ return d.onObjectVisit(*this, scriptHandler, visitedObject, h); });
+	else
+		visitedObject->onHeroVisit(*this, h);
 
 	if(visitQuery)
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created

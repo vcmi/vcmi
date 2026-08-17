@@ -315,7 +315,6 @@ int main(int argc, const char * argv[])
 		CVCMIServer server(port, runByClient);
 		server.prepare(connectToLobby, true);
 		server.run();
-
 		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 

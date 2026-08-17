@@ -180,6 +180,7 @@
 			"noRetalitation" : { "type" : "BLOCKS_RANGED_RETALIATION" },
 			"noLuck" : { "type" : "NO_LUCK" },
 			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
+			"noArcheryBonuses" : { "type" : "PERCENTAGE_DAMAGE_BOOST", "subtype" : "damageTypeRanged", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
 			"cpuControlled" : { "type" : "CPU_CONTROLLED" }
 		},
 		"graphics" :

@@ -49,6 +49,11 @@ class NewTurnProcessor;
 class IGameServer;
 class TurnStartVisitScheduler;
 
+namespace scripting
+{
+class MapEventDispatcher;
+}
+
 class CGameHandler : public Environment, public IGameEventCallback
 {
 	IGameServer & server;
@@ -108,8 +113,10 @@ public:
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
+	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
+	void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);
@@ -118,9 +125,17 @@ public:
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
+	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
+
+	/// Runs a converted map-event handler under a LuaScriptQuery so blocking script actions can pause and
+	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
+	/// handle (empty when the handler finished without pausing).
+	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
+		const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch);
+	void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
 
@@ -260,6 +275,9 @@ public:
 
 		h & *statistics;
 	}
+
+	/// applies replay recording options of this game to the log kept inside the gamestate
+	void configureReplayLog(bool gameIsNew);
 
 	void sendAndApply(CPackForClient & pack) override;
 	void sendAndApply(CGarrisonOperationPack & pack);

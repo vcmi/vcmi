@@ -20,6 +20,11 @@
 		{
 			"type" : "string",
 			"description" : "Terrain used to fill this layer when clearing / generating terrain, defaults to water"
-		}
+		},
+		"icon" :
+		{
+			"type" : "string",
+			"description" : "Optional custom icon for this map layer"
+    }
 	}
 }

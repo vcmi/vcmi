@@ -93,6 +93,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER_CLASS("questGuard", QuestGuardInstanceConstructor);
+	SET_HANDLER("questGate", QuestGate);
 	SET_HANDLER("seerHut", SeerHut);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);

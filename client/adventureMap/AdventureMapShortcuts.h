@@ -100,6 +100,7 @@ public:
 	bool optionCanEndTurn();
 	bool optionSpellcasting();
 	bool optionInMapView();
+	bool optionReplayTurn();
 	bool optionInWorldView();
 	bool optionSidePanelActive();
 	bool optionLobbyActive();

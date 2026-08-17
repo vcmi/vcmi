@@ -27,6 +27,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../CServerHandler.h"
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CursorHandler.h"
@@ -139,7 +140,8 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	{
 		ENGINE->sound().setCallback(battleIntroSoundChannel, onIntroPlayed);
 
-		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+		// a replay is watched, not played - the intro is always skipped there
+		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool() || GAME->server().isReplayActive())
 			openingEnd();
 	}
 	else // failed to play sound
@@ -373,6 +375,14 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	{
 		curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
+		return;
+	}
+
+	// a replay has nothing to ask, so the result window is skipped like every other dialog
+	if(GAME->server().isReplayActive())
+	{
+		windowObject->close();
+		CPlayerInterface::battleInt.reset();
 		return;
 	}
 

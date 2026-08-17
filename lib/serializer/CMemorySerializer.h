@@ -28,6 +28,12 @@ public:
 
 	CMemorySerializer();
 
+	/// Prepares a serializer that reads from a buffer written earlier
+	explicit CMemorySerializer(std::vector<std::byte> data);
+
+	/// Hands out everything written so far and leaves this serializer empty
+	std::vector<std::byte> extractBuffer();
+
 	template <typename T>
 	static std::unique_ptr<T> deepCopy(const T &data, IGameInfoCallback * cb = nullptr)
 	{

@@ -418,7 +418,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath", "replayShowBattles" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -492,6 +492,10 @@
 					"default" : 32
 				},
 				"showMovePath" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"replayShowBattles" : {
 					"type" : "boolean",
 					"default" : true
 				}
@@ -578,7 +582,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed"],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed", "replayRoundsKept"],
 			"properties" : {
 				"localHostname" : {
 					"type" : "string",
@@ -599,6 +603,11 @@
 				"seed" : {
 					"type" : "number",
 					"default" : 0
+				},
+				// number of past game days that stay replayable on top of the current one
+				"replayRoundsKept" : {
+					"type" : "number",
+					"default" : 1
 				}
 			}
 		},

@@ -43,7 +43,6 @@ public:
 	{
 		loadedPointers.clear();
 		loadedSharedPointers.clear();
-		loadedUniquePointers.clear();
 	}
 
 	bool hasFeature(Version v) const
@@ -56,7 +55,6 @@ private:
 
 	std::vector<std::string> loadedStrings;
 	std::map<uint32_t, Serializeable *> loadedPointers;
-	std::set<Serializeable *> loadedUniquePointers;
 	std::map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IBinaryReader * reader;
 
@@ -179,6 +177,17 @@ private:
 		data = static_cast<bool>(read);
 	}
 
+	/// raw blob of bytes, e.g. a gamestate snapshot - read in bulk instead of byte by byte.
+	/// Byte order is irrelevant for a blob, so the endianness-swapping read() is bypassed.
+	void load(std::vector<std::byte> & data)
+	{
+		uint32_t length = 0;
+		load(length);
+		data.resize(length);
+		if(length != 0)
+			reader->read(data.data(), length);
+	}
+
 	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
 	void load(std::vector<T> & data)
 	{
@@ -224,9 +233,6 @@ private:
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
 				data = dynamic_cast<T>(i->second);
-				if (vstd::contains(loadedUniquePointers, data))
-					throw std::runtime_error("Attempt to deserialize duplicated unique_ptr!");
-
 				return;
 			}
 		}
@@ -318,8 +324,6 @@ private:
 		T * internalPtr;
 		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
-		if (internalPtr != nullptr)
-			loadedUniquePointers.insert(internalPtr);
 	}
 
 	template<typename T, size_t N>

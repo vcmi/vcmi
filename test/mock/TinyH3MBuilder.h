@@ -48,6 +48,7 @@ struct Quest
 	std::vector<HeroClassID>                     heroClasses;              // HOTA_HERO_CLASS
 	uint32_t                                     reachDateDay = 0;         // HOTA_REACH_DATE: resulting mission.daysPassed
 	uint8_t                                      difficultyMask = 0;       // HOTA_GAME_DIFFICULTY: allowed-difficulty bitmask (1..31)
+	uint32_t                                     scriptEventID = 0;        // HOTA_SCRIPTED: questEvents handler id
 
 	/// Day-of-game past which the quest can no longer be completed. -1 (default) = no timeout.
 	int32_t                                      lastDay = -1;
@@ -105,6 +106,11 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
+
+	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
+	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
+	TinyH3MBuilder & withScript(std::string lua) { mapScript = std::move(lua); return *this; }
+	const std::string & script() const { return mapScript; }
 
 	/// HotA sub-format version. Ignored unless the format is EMapFormat::HOTA.
 	/// Only versions 0..3 are emittable; higher values throw at build() time.
@@ -164,11 +170,17 @@ public:
 	/// Resource pile. amount=0 means "use default".
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
 
+	/// Empty Pandora's Box - no message, guards or rewards.
+	TinyH3MBuilder & pandora(const int3 & pos);
+
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
 
 	/// Spell scroll pickup containing the given spell.
 	TinyH3MBuilder & scroll(const int3 & pos, SpellID spell);
+
+	/// Fixed creature dwelling owned by `owner`.
+	TinyH3MBuilder & dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner);
 
 	// ---- quest objects -------------------------------------------------
 
@@ -219,6 +231,7 @@ public:
 	static Quest missionHeroClass(std::vector<HeroClassID> classes);
 	static Quest missionReachDate(uint32_t daysPassed);
 	static Quest missionDifficulty(uint8_t difficultyMask);
+	static Quest missionScripted(uint32_t scriptEventID);
 
 	// ---- seer-hut reward factories --------------------------------------
 
@@ -333,6 +346,7 @@ private:
 	bool           twoLevel = false;
 	std::string    mapName = "TinyH3M test map";
 	std::string    mapDescription;
+	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
 
 	std::array<bool, 8> playerEnabled{};

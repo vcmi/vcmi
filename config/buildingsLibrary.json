@@ -48,7 +48,17 @@
 	"villageHall": {
 		"id" : 10,
 		"mode" : "auto",
-		"produce": { "gold": 500 }
+		"produce": { "gold": 500 },
+		"bonuses": [
+			{
+				"type": "BATTLE_CAN_FLEE",
+				"val": -10
+			},
+			{
+				"type": "BATTLE_CAN_SURRENDER",
+				"val": -10
+			}
+		]
 	},
 
 	"townHall": {

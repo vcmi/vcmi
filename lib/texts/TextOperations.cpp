@@ -19,6 +19,8 @@
 
 #include <iconv.h>
 
+const static int CHAR_PER_TYPO_ALLOWED = 4;
+
 template<typename FromString, typename DestString>
 FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
 {
@@ -389,20 +391,28 @@ DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, 
 	) < 0;
 }
 
-std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & needle, const std::string & haystack)
+bool TextOperations::isFuzzyMatch(const std::string & needle, const std::string & haystack)
 {
-	// 0 - Best possible match: text starts with the search string
-	if(haystack.rfind(needle, 0) == 0)
-		return 0;
+	return isRelevantScore(needle, textSearchSimilarityScore(needle, haystack));
+}
 
-	// 1 - Strong match: text contains the search string
+bool TextOperations::isRelevantScore(const std::string & needle, const int & score)
+{
+	int charCount = getUnicodeCharactersCount(needle);
+	if (charCount == 0)
+		return score == 0;
+	return score == 0 || score <= charCount/CHAR_PER_TYPO_ALLOWED;
+}
+
+int TextOperations::textSearchSimilarityScore(const std::string & needle, const std::string & haystack)	//here
+{
+	// Strong match: text contains the search string
 	if(haystack.find(needle) != std::string::npos)
-		return 1;
+		return 0;
 
 	// Dynamic threshold: Reject if too many typos based on word length
 	int haystackCodepoints = getUnicodeCharactersCount(haystack);
 	int needleCodepoints = getUnicodeCharactersCount(needle);
-	int maxAllowedDistance = needleCodepoints / 2;
 
 	// Compute Levenshtein distance for fuzzy similarity
 	int minDist = std::numeric_limits<int>::max();
@@ -421,11 +431,7 @@ std::optional<int> TextOperations::textSearchSimilarityScore(const std::string &
 		minDist = std::min(minDist, dist);
 	}
 
-	// Apply scaling: Short words tolerate smaller distances
-	if(needle.size() > 2 && minDist <= 2)
-		minDist += 1;
-
-	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
+	return minDist;
 }
 
 std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& path)

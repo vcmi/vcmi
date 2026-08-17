@@ -92,6 +92,10 @@ set(vcmiclientcommon_SRCS
 	netlag/NetworkLagCompensator.cpp
 	netlag/PackRollbackGeneratorVisitor.cpp
 
+	replay/GameplayReplayer.cpp
+	replay/ReplayAbortOverlay.cpp
+	replay/ReplaySelectionWindow.cpp
+
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -328,6 +332,11 @@ set(vcmiclientcommon_HEADERS
 	netlag/NetworkLagPredictionTestVisitor.h
 	netlag/NetworkLagReplyPrediction.h
 	netlag/PackRollbackGeneratorVisitor.h
+
+	replay/GameplayReplayer.h
+	replay/ReplayAbortOverlay.h
+	replay/ReplayPackFilter.h
+	replay/ReplaySelectionWindow.h
 
 	render/AssetGenerator.h
 	render/CAnimation.h

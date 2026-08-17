@@ -67,3 +67,9 @@ True if the bonus is hidden from the player's interface display.
 Returns the bonus's extra parameters encoded as a single integer (0 if none).
 
 - returns `integer`
+
+### getParametersAsVector
+
+Returns the bonus's extra parameters as a list of integers (empty if not stored as an array).
+
+- returns `integer[]`

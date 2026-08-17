@@ -30,6 +30,7 @@ public:
 	std::map<ImagePath, std::shared_ptr<ISharedImage>> generateAllImages();
 	std::map<AnimationPath, AnimationLayoutMap> generateAllAnimations();
 
+	bool hasAnimationFile(const AnimationPath & path) const;
 	void addImageFile(const ImagePath & path, ImageGenerationFunctor & img);
 	void addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim);
 	void addBackpackBackground(const std::string & fileName, const Point & size);

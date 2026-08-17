@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
+import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
@@ -42,6 +44,9 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
     private static final int REQUEST_NOTIFICATIONS = 4244;
 
     public boolean justLaunched = true;
+
+    // set from the Qt thread, so it must not be cached by the UI thread
+    private volatile boolean gamepadStartEnabled = false;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState)
@@ -129,6 +134,38 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    /**
+     * SDL can't read gamepads from a Qt activity, so the launcher relies on the key events Android delivers here
+     */
+    @Override
+    public boolean dispatchKeyEvent(final KeyEvent event)
+    {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && isGamepadStartButton(event))
+        {
+            onLaunchGameBtnPressed();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    public void setGamepadStartEnabled(final boolean enabled)
+    {
+        gamepadStartEnabled = enabled;
+    }
+
+    private boolean isGamepadStartButton(final KeyEvent event)
+    {
+        if (!gamepadStartEnabled)
+            return false;
+
+        if (!event.isFromSource(InputDevice.SOURCE_GAMEPAD))
+            return false;
+
+        final int keyCode = event.getKeyCode();
+        return keyCode == KeyEvent.KEYCODE_BUTTON_A || keyCode == KeyEvent.KEYCODE_BUTTON_START;
     }
 
     public void onLaunchGameBtnPressed()

@@ -34,9 +34,9 @@ struct SpellObstacleDescriptor;
 class ServerCallbackProxy : public RawPointerWrapper<ServerCallback, ServerCallbackProxy>
 {
 public:
-	static constexpr std::string_view luaName = "Server";
+	static constexpr std::string_view luaName = "BattleServer";
 	static constexpr std::string_view luaDescription =
-		"The authoritative-side mutation interface. Available only to scripts running on the "
+		"The authoritative battle mutation interface. Available only to scripts running on the "
 		"server: spawn or remove battle units, move them, deal damage, alter bonuses, drop "
 		"obstacles, append to the combat log, draw from the seeded RNG. Every call emits a "
 		"network pack so clients receive the resulting state change.";

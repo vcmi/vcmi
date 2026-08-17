@@ -125,6 +125,14 @@ void TinyH3MWriter::writePlayer(PlayerColor v)
 		writeUInt8(static_cast<uint8_t>(v.getNum()));
 }
 
+void TinyH3MWriter::writePlayer32(PlayerColor v)
+{
+	if(v == PlayerColor::NEUTRAL || v.getNum() < 0)
+		writeUInt32(0xff);
+	else
+		writeUInt32(static_cast<uint32_t>(v.getNum()));
+}
+
 void TinyH3MWriter::writeSpell32(SpellID v)
 {
 	if(v == SpellID::NONE || v.getNum() < 0)

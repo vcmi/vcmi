@@ -19,6 +19,8 @@
 #include "../../lib/bonuses/BonusEnum.h"
 #include "../../lib/battle/BattleSide.h"
 #include "../../lib/battle/CObstacleInstance.h"
+#include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/mapping/MapDifficulty.h"
 
 namespace scripting::api
 {
@@ -53,6 +55,10 @@ class Enums : public scripting::ApiSerializable<Enums>
 	EnumGroup<CObstacleInstance::EObstacleType> exportObstacleType() const;
 	EnumGroup<EWallPart> exportWallPart() const;
 	EnumGroup<BattleSide> exportBattleSide() const;
+	EnumGroup<EMapDifficulty> exportDifficulty() const;
+	EnumGroup<PrimarySkill> exportPrimarySkill() const;
+	EnumGroup<PlayerColor> exportPlayerColor() const;
+	EnumGroup<EPlayerStatus> exportPlayerStatus() const;
 
 public:
 	static constexpr std::string_view luaName = "Enums";
@@ -74,6 +80,10 @@ public:
 		s("ObstacleType",     exportObstacleType(),     "Obstacle categories used by SpellObstacleDescriptor `obstacleType`.");
 		s("WallPart",         exportWallPart(),         "Town-wall sections referenced by siege APIs and `catapultAttack`.");
 		s("BattleSide",       exportBattleSide(),       "Battlefield side identifiers: none / attacker / defender.");
+		s("Difficulty",       exportDifficulty(),       "Game difficulty levels, named after chess pieces (pawn = easiest, king = hardest).");
+		s("PrimarySkill",     exportPrimarySkill(),     "The four primary hero skills.");
+		s("PlayerColor",      exportPlayerColor(),      "Player colours, plus the neutral owner used by unowned objects.");
+		s("PlayerStatus",     exportPlayerStatus(),     "Whether a player is still playing, has won, or has lost.");
 	}
 };
 

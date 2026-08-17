@@ -104,7 +104,7 @@ void CArtifactsOfHeroBase::setShowPopupArtPlacesCallback(const CArtPlace::ClickF
 
 void CArtifactsOfHeroBase::clickPressedArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(auto ownedPlace = getArtPlace(cursorPosition))
+	if(auto ownedPlace = getArtPlace(artPlace))
 	{
 		if(ownedPlace->isLocked())
 			return;
@@ -116,7 +116,7 @@ void CArtifactsOfHeroBase::clickPressedArtPlace(CComponentHolder & artPlace, con
 
 void CArtifactsOfHeroBase::showPopupArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(auto ownedPlace = getArtPlace(cursorPosition))
+	if(auto ownedPlace = getArtPlace(artPlace))
 	{
 		if(ownedPlace->isLocked())
 			return;
@@ -128,7 +128,7 @@ void CArtifactsOfHeroBase::showPopupArtPlace(CComponentHolder & artPlace, const 
 
 void CArtifactsOfHeroBase::gestureArtPlace(CComponentHolder & artPlace, const Point & cursorPosition)
 {
-	if(auto ownedPlace = getArtPlace(cursorPosition))
+	if(auto ownedPlace = getArtPlace(artPlace))
 	{
 		if(ownedPlace->isLocked())
 			return;
@@ -188,15 +188,31 @@ CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Artifa
 
 CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Point & cursorPosition)
 {
+	// Slots may overlap each other if they are spread over hidden tabs, so only visible ones may be hit
 	for(const auto & [slot, artPlace] : artWorn)
 	{
-		if(artPlace->pos.isInside(cursorPosition))
+		if(artPlace->isActive() && artPlace->pos.isInside(cursorPosition))
 			return artPlace;
 	}
 	for(const auto & artPlace : backpack)
 	{
-		if(artPlace->pos.isInside(cursorPosition))
+		if(artPlace->isActive() && artPlace->pos.isInside(cursorPosition))
 			return artPlace;
+	}
+	return nullptr;
+}
+
+CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const CComponentHolder & artPlace)
+{
+	for(const auto & [slot, ownedPlace] : artWorn)
+	{
+		if(ownedPlace.get() == &artPlace)
+			return ownedPlace;
+	}
+	for(const auto & ownedPlace : backpack)
+	{
+		if(ownedPlace.get() == &artPlace)
+			return ownedPlace;
 	}
 	return nullptr;
 }

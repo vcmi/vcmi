@@ -1016,6 +1016,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 {
 	RETURN_IF_NOT_BATTLE(false);
 
+	if(!dest.isAvailable())
+		return false;
+
 	const battle::Unit * defender = battleGetUnitByPos(dest);
 	if(!attacker)
 		return false;
@@ -1561,7 +1564,7 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	if (reachableHexes.empty())
 		return BattleHex::INVALID;
 
-	return *std::ranges::min_element(reachableHexes, {}, [&](const BattleHex & h)
+	return *vstd::minElementByFun(reachableHexes, [&](const BattleHex & h)
 	{
 		return BattleHex::getDistance(h, targetHex);
 	});
@@ -2387,6 +2390,11 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 
 	for(const auto * unit : battleAliveUnits(side))
 		ret += unit->getRawSurrenderCost();
+
+	//H3 - hero pays half of the recruit cost of his remaining army
+	double costDivisor = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_SURRENDER_COST_DIVISOR);
+	if(costDivisor > 0)
+		ret = static_cast<int>(ret / costDivisor);
 
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		discount += h->valOfBonuses(BonusType::SURRENDER_DISCOUNT);

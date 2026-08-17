@@ -191,9 +191,14 @@ void CClient::initPlayerEnvironments()
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
+		// getAllClientPlayers is derived from lobby StartInfo, which still lists players
+		// pruned during random map generation; skip those absent from the actual game
+		if(color.isValidPlayer() && !gameState().players.count(color))
+			continue;
+
 		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
-		
+
 		if(color.isValidPlayer() && !hasHumanPlayer && gameState().players.at(color).isHuman())
 			hasHumanPlayer = true;
 	}
@@ -350,6 +355,27 @@ void CClient::handlePack(CPackForClient & pack)
 	logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 }
 
+void CClient::applyPackSilently(CPackForClient & pack)
+{
+	std::unique_lock lock(CGameState::mutex);
+	gameState().apply(pack);
+}
+
+ClientSession CClient::swapSession(ClientSession replacement)
+{
+	return std::exchange(static_cast<ClientSession &>(*this), std::move(replacement));
+}
+
+void CClient::installObserverInterface(PlayerColor color)
+{
+	assert(gamestate);
+
+	playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
+
+	auto interfacePtr = std::make_shared<CPlayerInterface>(color);
+	installNewPlayerInterface(interfacePtr, color);
+}
+
 std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return playerint[player]->makeSurrenderRetreatDecision(battleID, battleState);
@@ -357,6 +383,12 @@ std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor pl
 
 int CClient::sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize)
 {
+	if(observerMode)
+	{
+		logNetwork->trace("Dropped request \"%s\" - a replay is in progress", typeid(request).name());
+		return 0;
+	}
+
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 

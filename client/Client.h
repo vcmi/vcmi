@@ -108,19 +108,25 @@ public:
 	const GameCb * game() const override;
 };
 
-/// Class which handles client - server logic
-class CClient : public Environment, public IClient
+/// Complete set of gameplay state that CClient operates on.
+/// Swapped out as a whole while a replay is being shown, so that the live game is left untouched.
+struct ClientSession
 {
 	std::shared_ptr<CGameState> gamestate;
-	int requestCounter = 1;
-	std::set<PlayerColor> advInterfaceReadySent;
-
-public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
 	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
-
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
+	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks;
+	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
+	std::set<PlayerColor> advInterfaceReadySent;
+};
 
+/// Class which handles client - server logic
+class CClient : public Environment, public IClient, public ClientSession
+{
+	int requestCounter = 1;
+
+public:
 	std::unique_ptr<BattleAction> currentBattleAction;
 
 	CClient();
@@ -156,7 +162,23 @@ public:
 
 	ThreadSafeVector<int> waitingRequest;
 
+	/// While set, this client only observes a replay and must not send anything to the server
+	std::atomic<bool> observerMode = false;
+
 	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
+
+	/// Applies the pack on gamestate only, without notifying any interface.
+	/// Used by the replay system to fast-forward to the turn that shall be shown.
+	/// Just like handlePack(), the caller must already hold the interface mutex.
+	void applyPackSilently(CPackForClient & pack);
+
+	/// Replaces the entire gameplay state of this client and returns the previous one
+	ClientSession swapSession(ClientSession replacement);
+
+	/// Creates a callback and a human interface for a single player of the currently installed gamestate.
+	/// Unlike initPlayerInterfaces() this never creates any AI and never talks to the server.
+	void installObserverInterface(PlayerColor color);
+
 	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override; //returns ID given to that request
 	std::optional<BattleAction> makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
@@ -171,7 +193,4 @@ public:
 
 private:
 	std::optional<PlayerColor> findPlayerColorForSpectatorInterface() const;
-
-	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
-	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 };

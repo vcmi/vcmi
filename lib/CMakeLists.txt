@@ -136,6 +136,7 @@ set(lib_MAIN_SRCS
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
 	gameState/QuestInfo.cpp
+	gameState/ReplayLog.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -182,6 +183,7 @@ set(lib_MAIN_SRCS
 	mapping/CMapInfo.cpp
 	mapping/CMapOperation.cpp
 	mapping/CMapService.cpp
+	mapping/HotaScriptConverter.cpp
 	mapping/MapEditUtils.cpp
 	mapping/MapIdentifiersH3M.cpp
 	mapping/MapFeaturesH3M.cpp
@@ -266,6 +268,8 @@ set(lib_MAIN_SRCS
 	serializer/JsonSerializer.cpp
 	serializer/JsonUpdater.cpp
 	serializer/SerializerReflection.cpp
+
+	scripting/ScriptVariablesStorage.cpp
 
 	spells/AbilityCaster.cpp
 	spells/BattleSpellMechanics.cpp
@@ -557,6 +561,7 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatePackVisitor.h
 	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
+	gameState/ReplayLog.h
 	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
 	gameState/TavernHeroesPool.h
@@ -617,6 +622,7 @@ set(lib_MAIN_HEADERS
 	mapping/CMapOperation.h
 	mapping/CMapService.h
 	mapping/MapDifficulty.h
+	mapping/HotaScriptConverter.h
 	mapping/MapEditUtils.h
 	mapping/MapIdentifiersH3M.h
 	mapping/MapFeaturesH3M.h
@@ -655,6 +661,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForLobby.h
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
+	networkPacks/SetScriptVariable.h
 	networkPacks/SetStackEffect.h
 	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
@@ -724,6 +731,8 @@ set(lib_MAIN_HEADERS
 	serializer/CSerializer.h
 	serializer/CTypeList.h
 	serializer/GameConnectionID.h
+	scripting/IScriptVariablesHost.h
+	scripting/ScriptVariablesStorage.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h

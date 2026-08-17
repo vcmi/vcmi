@@ -258,6 +258,19 @@ public:
 	void get(int position, std::string & value);
 
 	template<typename T>
+	void get(int position, std::optional<T> & value)
+	{
+		if(lua_isnoneornil(L, position))
+		{
+			value = std::nullopt;
+			return;
+		}
+		T temp{};
+		get(position, temp);
+		value = std::move(temp);
+	}
+
+	template<typename T>
 	void get(int idx, std::vector<T> & out)
 	{
 		if (!lua_istable(L, idx))

@@ -16,6 +16,7 @@
 
 class CGHeroInstance;
 class MapReaderH3M;
+class HotaScriptConverter;
 class MetaString;
 class CArtifactInstance;
 class CArmedInstance;
@@ -129,11 +130,6 @@ private:
 	 * Reads HotA events system.
 	 */
 	void readHotaScripts();
-	void readHotaScriptActions();
-	void readHotaScriptCondition();
-	void readHotaScriptConditionInternal();
-	void readHotaScriptExpression();
-	void readHotaScriptExpressionInternal();
 
 	/**
 	 * Reads the list of allowed heroes.
@@ -219,8 +215,8 @@ private:
 	std::shared_ptr<CGObjectInstance> readHeroPlaceholder(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
-	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position);
-	std::shared_ptr<CGObjectInstance> readQuestGate(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readQuestGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
@@ -248,7 +244,7 @@ private:
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
-	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID);
+	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID, const std::string & scriptBucket);
 
 	/**
 	 * Reads a quest for the given quest guard.
@@ -299,6 +295,7 @@ private:
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
 	std::unique_ptr<MapReaderH3M> reader;
+	std::unique_ptr<HotaScriptConverter> scriptConverter;
 	CInputStream * inputStream;
 
 	std::string mapName;

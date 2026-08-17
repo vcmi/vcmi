@@ -134,6 +134,11 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 	}
 	else if(currentLevel == 0) // gained new skill
 	{
+		// Explicitly set skills are mutually exclusive with the (NONE, -1) "use hero type
+		// default skills" marker. Leaving the marker in place makes the hero serialize as
+		// having default skills, silently discarding every skill set here - see
+		// serializeJsonOptions().
+		vstd::erase_if(secSkills, [](const std::pair<SecondarySkill, ui8> & pair) { return pair.first == SecondarySkill::NONE; });
 		secSkills.emplace_back(which, newLevelClamped);
 	}
 	else
@@ -726,13 +731,24 @@ double CGHeroInstance::getHeroStrength() const
 uint64_t CGHeroInstance::getValueForDiplomacy() const
 {
 	// H3 formula for hero strength when considering diplomacy skill
-	uint64_t armyStrength = getArmyStrength();
+	uint64_t armyStrength = getArmyStrengthPerceivedByOthers();
 	double heroStrength = sqrt(
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::ATTACK)) *
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::DEFENSE))
 		);
 
 	return heroStrength * armyStrength;
+}
+
+uint64_t CGHeroInstance::getArmyStrengthPerceivedByOthers() const
+{
+	uint64_t armyStrength = getArmyStrength();
+
+	// artifacts such as Diplomat's Cloak make hero army look stronger or weaker than it is
+	for(const auto & bonus : *getBonusesOfType(BonusType::DIPLOMACY_ARMY_STRENGTH_MULTIPLIER))
+		armyStrength = armyStrength * bonus->val / 100;
+
+	return armyStrength;
 }
 
 bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
@@ -999,7 +1015,24 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->parameters && newPick->parameters->toNumber() > necromancerPower)
+		// MOD COMPATIBILITY: Bonus::convertAddInfo stored multi-element legacy addInfo
+		// as std::vector<int32_t> regardless of bonus type; saves taken with that bug
+		// keep the wrong variant after re-save. Fall back to the first vector element.
+		int requiredSkill = 0;
+		if(newPick->parameters)
+		{
+			try
+			{
+				requiredSkill = newPick->parameters->toNumber();
+			}
+			catch(const std::runtime_error &)
+			{
+				const auto & vec = newPick->parameters->toVector();
+				if(!vec.empty())
+					requiredSkill = vec.front();
+			}
+		}
+		if(newPick->parameters && requiredSkill > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;

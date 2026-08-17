@@ -218,7 +218,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 	std::mutex sync;
 	logAi->debug("Scanning objects, count %d", objs.size());
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, objs.size()),
+		tbb::blocked_range<size_t>(0, objs.size(), 128),
 		[this, &objs, &sync, &result, nullkiller](const tbb::blocked_range<size_t> & r)
 		{
 			std::vector<AIPath> paths;

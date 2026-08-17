@@ -29,6 +29,7 @@
 #include "lobby/CBonusSelection.h"
 
 #include "netlag/NetworkLagCompensator.h"
+#include "replay/GameplayReplayer.h"
 
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
@@ -683,6 +684,8 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
+	gameplayReplayer = std::make_unique<GameplayReplayer>();
+
 	if (isGuest())
 		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(), gameState);
 
@@ -733,6 +736,26 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 void CServerHandler::endGameplay()
 {
+	// a running replay holds the live session hostage - it has to be gone before anything is torn down.
+	// Every caller of this method owns the interface mutex, which the replay thread needs to finish.
+	if(gameplayReplayer)
+	{
+		gameplayReplayer->requestStop();
+
+		if(ENGINE)
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+			gameplayReplayer->waitForFinish();
+		}
+		else
+		{
+			gameplayReplayer->waitForFinish();
+		}
+
+		gameplayReplayer.reset();
+	}
+
+	client->endNetwork();
 	client->finishGameplay();
 
 	// Game is ending
@@ -1085,10 +1108,34 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	if(gameplayReplayer && gameplayReplayer->isActive())
+	{
+		// a replay has taken the client over, so the live gamestate is not there to receive this pack.
+		// Holding the network thread here keeps packs in order and applies them to the live session
+		// once the replay is over - the player can end a replay at any time from its overlay
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		gameplayReplayer->waitForFinish();
+	}
+
+	// not done in CGameState::apply() - lag compensation applies predictions and rollbacks there
+	if(client)
+		client->gameState().replayLog.recordPack(clientPack, client->gameState());
+
 	if (networkLagCompensator && networkLagCompensator->verifyReply(clientPack))
 		return;
 
 	client->handlePack(clientPack);
+}
+
+GameplayReplayer & CServerHandler::replayer()
+{
+	assert(gameplayReplayer);
+	return *gameplayReplayer;
+}
+
+bool CServerHandler::isReplayActive() const
+{
+	return gameplayReplayer && gameplayReplayer->isActive();
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

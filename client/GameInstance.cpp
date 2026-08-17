@@ -76,6 +76,12 @@ void GameInstance::setMapInstance(std::unique_ptr<CMapHandler> ptr)
 	mapInstance = std::move(ptr);
 }
 
+std::unique_ptr<CMapHandler> GameInstance::swapMapInstance(std::unique_ptr<CMapHandler> ptr)
+{
+	std::swap(mapInstance, ptr);
+	return ptr;
+}
+
 void GameInstance::setInterfaceInstance(CPlayerInterface * ptr)
 {
 	interfaceInstance = ptr;
@@ -97,6 +103,11 @@ void GameInstance::onUpdate()
 
 bool GameInstance::capturedAllEvents()
 {
+	// a replay animates constantly, which would otherwise swallow every event and make the
+	// abort button unreachable. Nothing can be disturbed - the replayed game is a throw-away copy.
+	if (serverInstance && serverInstance->isReplayActive())
+		return false;
+
 	if (interfaceInstance)
 		return interfaceInstance->capturedAllEvents();
 	else

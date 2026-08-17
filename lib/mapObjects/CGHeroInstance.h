@@ -54,6 +54,11 @@ protected:
 
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject, public scripting::ApiRawPointer<CGHeroInstance>
 {
+public:
+	// Disambiguate the scripting tag: CGHeroInstance is ApiRawPointer both directly and via CGObjectInstance
+	using ScriptingApiName = CGHeroInstance;
+
+private:
 	// We serialize heroes into JSON for crossover
 	friend class CampaignState;
 	friend class CMapLoaderH3M;
@@ -218,7 +223,9 @@ public:
 	/// Returns true if 'left' hero is stronger than 'right' when considering campaign transfer priority
 	static bool compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right);
 	uint64_t getValueForDiplomacy() const;
-	
+	/// Army strength as seen by neutral creatures and Thieves Guild - may be scaled by artifacts such as Diplomat's Cloak
+	uint64_t getArmyStrengthPerceivedByOthers() const;
+
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses

@@ -44,6 +44,8 @@
 #include "media/IMusicPlayer.h"
 #include "media/ISoundPlayer.h"
 
+#include "replay/GameplayReplayer.h"
+
 #include "render/CAnimation.h"
 #include "render/IImage.h"
 #include "render/IRenderHandler.h"
@@ -433,6 +435,13 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 void CPlayerInterface::townRemoved(const CGTownInstance* town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	// close town screen if it shows the town being removed, otherwise objectRemovedAfter dereferences a dangling pointer
+	if(castleInt && castleInt->town == town)
+	{
+		castleInt->close();
+		castleInt = nullptr;
+	}
 
 	if(town->tempOwner == playerID)
 	{
@@ -1547,6 +1556,11 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	// while a replay follows another player, the camera stays with him
+	if(replayFollowedPlayer())
+		return;
+
 	waitWhileDialog();
 	ENGINE->cursor().hide();
 	adventureInt->centerOnTile(pos);

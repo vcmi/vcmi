@@ -321,6 +321,17 @@ TinyH3MBuilder & TinyH3MBuilder::resource(const int3 & pos, GameResID resource, 
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::pandora(const int3 & pos)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::PANDORAS_BOX;
+	spec.subid         = MapObjectSubID(0);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::artifact(const int3 & pos, ArtifactID artifact)
 {
 	ObjectSpec spec;
@@ -339,6 +350,18 @@ TinyH3MBuilder & TinyH3MBuilder::scroll(const int3 & pos, SpellID spell)
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
 	spec.scrollSpell   = spell;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::CREATURE_GENERATOR1;
+	spec.subid         = type;
+	spec.position      = pos;
+	spec.owner         = owner;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
 	registerObject(std::move(spec));
 	return *this;
@@ -542,6 +565,14 @@ Quest TinyH3MBuilder::missionDifficulty(uint8_t difficultyMask)
 	Quest q;
 	q.kind = EQuestMission::HOTA_GAME_DIFFICULTY;
 	q.difficultyMask = difficultyMask;
+	return q;
+}
+
+Quest TinyH3MBuilder::missionScripted(uint32_t scriptEventID)
+{
+	Quest q;
+	q.kind = EQuestMission::HOTA_SCRIPTED;
+	q.scriptEventID = scriptEventID;
 	return q;
 }
 
@@ -963,6 +994,35 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.skipZero(4);
 				break;
 
+			case Obj::PANDORAS_BOX:
+				// Mirror of readBoxContent, readPandora and readBoxHotaContent
+				w.writeBool(false);                                    // hasMessage (=> no guards / no skip)
+				w.writeUInt32(0);                                      // heroExperience
+				w.writeInt32(0);                                       // manaDiff
+				w.writeInt8(0);                                        // morale
+				w.writeInt8(0);                                        // luck
+				for(int i = 0; i < features.resourcesCount; ++i)
+					w.writeInt32(0);                                   // resources
+				for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+					w.writeUInt8(0);                                   // primary skills
+				w.writeUInt8(0);                                       // gained abilities count
+				w.writeUInt8(0);                                       // gained artifacts count
+				w.writeUInt8(0);                                       // gained spells count
+				w.writeUInt8(0);                                       // gained creatures count
+				w.skipZero(8);                                         // reserved
+
+				if(features.levelHOTA5)
+				{
+					w.skipZero(1);                                     // readPandora: unknown, always 0
+					w.writeInt32(0);                                   // movement mode: 0 = give
+					w.writeInt32(0);                                   // movement amount
+				}
+				if(features.levelHOTA6)
+					w.writeInt32(31);                                  // allowed difficulties; reader rejects 0
+				if(features.levelHOTA9)
+					w.writeBool(false);                                // does not use the event system
+				break;
+
 			case Obj::ARTIFACT:
 			case Obj::RANDOM_ART:
 			case Obj::RANDOM_TREASURE_ART:
@@ -979,6 +1039,10 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 
 			case Obj::SPELL_SCROLL:
 				writeScrollBody(w, obj);
+				break;
+
+			case Obj::CREATURE_GENERATOR1:
+				w.writePlayer32(obj.owner);
 				break;
 
 			case Obj::KEYMASTER:
@@ -1187,7 +1251,8 @@ void TinyH3MBuilder::writeQuestBody(TinyH3MWriter & w, const Quest & quest) cons
 	// every other kind writes its own missionId byte directly.
 	const bool isHotaMission = quest.kind == EQuestMission::HOTA_HERO_CLASS
 		|| quest.kind == EQuestMission::HOTA_REACH_DATE
-		|| quest.kind == EQuestMission::HOTA_GAME_DIFFICULTY;
+		|| quest.kind == EQuestMission::HOTA_GAME_DIFFICULTY
+		|| quest.kind == EQuestMission::HOTA_SCRIPTED;
 	w.writeInt8(static_cast<int8_t>(isHotaMission ? EQuestMission::HOTA_MULTI_PLACEHOLDER : quest.kind));
 
 	switch(quest.kind)
@@ -1261,6 +1326,12 @@ void TinyH3MBuilder::writeQuestBody(TinyH3MWriter & w, const Quest & quest) cons
 		case EQuestMission::HOTA_GAME_DIFFICULTY:
 			w.writeUInt32(2);                      // missionSubID
 			w.writeUInt32(quest.difficultyMask);
+			break;
+
+		case EQuestMission::HOTA_SCRIPTED:
+			w.writeUInt32(3);                      // missionSubID
+			w.writeUInt32(quest.scriptEventID);
+			w.writeBool(false);                    // unknown trailing bool, meaning TBD
 			break;
 
 		default:

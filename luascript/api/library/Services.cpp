@@ -17,6 +17,7 @@
 #include <vcmi/Faction.h>
 #include <vcmi/HeroClass.h>
 #include <vcmi/HeroType.h>
+#include <vcmi/ResourceType.h>
 #include <vcmi/Skill.h>
 #include <vcmi/spells/Spell.h>
 
@@ -30,6 +31,7 @@
 #include "Faction.h"
 #include "HeroClass.h"
 #include "HeroType.h"
+#include "ResourceType.h"
 #include "Skill.h"
 #include "Spell.h"
 #include "SpellSchool.h"
@@ -57,6 +59,9 @@ void ServicesProxy::registerMethods(MethodRegistrar & R)
 	R.function<&ServicesProxy::getHeroTypeByName>("getHeroTypeByName",
 		{{"name", "JSON key of the hero type (e.g. `core:orrin`)."}}, {},
 		"Looks up a hero type by its JSON key. Returns nil if not found.");
+	R.function<&ServicesProxy::getResourceByName>("getResourceByName",
+		{{"name", "JSON key of the resource (e.g. `core:gold`)."}}, {},
+		"Looks up a resource by its JSON key. Returns nil if not found.");
 	R.function<&ServicesProxy::getSpellByName>("getSpellByName",
 		{{"name", "JSON key of the spell (e.g. `core:magicArrow`)."}}, {},
 		"Looks up a spell by its JSON key. Returns nil if not found.");
@@ -91,6 +96,11 @@ const HeroClass * ServicesProxy::getHeroClassByName(const Services * services, c
 const HeroType * ServicesProxy::getHeroTypeByName(const Services * services, const std::string & name)
 {
 	return services->heroTypes()->getByName(name);
+}
+
+const ResourceType * ServicesProxy::getResourceByName(const Services * services, const std::string & name)
+{
+	return services->resources()->getByName(name);
 }
 
 const spells::Spell * ServicesProxy::getSpellByName(const Services * services, const std::string & name)

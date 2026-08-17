@@ -49,6 +49,10 @@ public:
 
 	void setServerInstance(std::unique_ptr<CServerHandler> ptr);
 	void setMapInstance(std::unique_ptr<CMapHandler> ptr);
+
+	/// installs a new map handler and hands the previous one back to the caller
+	std::unique_ptr<CMapHandler> swapMapInstance(std::unique_ptr<CMapHandler> ptr);
+
 	void setInterfaceInstance(CPlayerInterface * ptr);
 
 	void onGlobalLobbyInterfaceActivated() final;

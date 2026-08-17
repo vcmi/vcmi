@@ -119,14 +119,20 @@ public:
 	void setRequiredHumanPlayers(size_t players);
 	void rememberCurrentSelection();
 	void restoreLastSelection();
+	bool checkNameFilter(const std::string & fullstring) const;
 
 private:
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;
 	std::shared_ptr<CLabel> labelTabTitle;
+	std::shared_ptr<CTextInput> searchInput;
+	std::shared_ptr<CLabel> searchBoxLabel;
+	std::shared_ptr<FilledTexturePlayerColored> searchWidgetBackground;
+	std::shared_ptr<TransparentFilledRectangle> searchInputRectangle;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
+	int positionsToShow;
 
 	std::shared_ptr<CButton> buttonDeleteMode;
 	std::shared_ptr<ScenarioTabConfigurable> scenarioTabConfigurable;

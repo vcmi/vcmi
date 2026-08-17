@@ -42,6 +42,10 @@ public:
 	template<typename ReturnType, typename... Args>
 	ReturnType callMethod(const std::string & name, const JsonNode & params, Args&&... args);
 
+	/// Calls a plain (non-OOP) function on the script table; unlike callMethod no self is passed.
+	template<typename ReturnType, typename... Args>
+	ReturnType callFunction(const std::string & name, Args&&... args);
+
 private:
 	std::mutex mutex;
 	lua_State * L;
@@ -52,6 +56,12 @@ private:
 
 	std::shared_ptr<LuaReference> modules;
 	std::shared_ptr<LuaReference> scriptTable;
+
+	/// Calls the named function from the given table reference. When `self` is non-null it is pushed as
+	/// a first argument whose metatable resolves missing keys through `ref` (OOP dispatch); when null the
+	/// remaining args are passed as-is. Shared body of callMethod / callRuntime.
+	template<typename ReturnType, typename... Args>
+	ReturnType callImpl(const std::shared_ptr<LuaReference> & ref, const JsonNode * self, const std::string & name, Args&&... args);
 
 	/// Loads one Lua chunk from source. On success the chunk function is at the top of the stack.
 	/// Returns false on compile failure with the error string left on the stack.
@@ -89,9 +99,21 @@ private:
 template<typename ReturnType, typename... Args>
 ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & params, Args&&... args)
 {
+	return callImpl<ReturnType>(scriptTable, &params, name, std::forward<Args>(args)...);
+}
+
+template<typename ReturnType, typename... Args>
+ReturnType LuaContext::callFunction(const std::string & name, Args&&... args)
+{
+	return callImpl<ReturnType>(scriptTable, nullptr, name, std::forward<Args>(args)...);
+}
+
+template<typename ReturnType, typename... Args>
+ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const JsonNode * self, const std::string & name, Args&&... args)
+{
 	std::lock_guard guard(mutex);
 
-	if(!scriptTable)
+	if(!ref)
 	{
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -101,7 +123,7 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 
 	LuaStack S(L);
 
-	scriptTable->push();               // stack: (table)
+	ref->push();                       // stack: (table)
 	lua_getfield(L, -1, name.c_str()); // stack: (table), (function)
 	lua_replace(L, 1);                 // stack: (function)
 
@@ -115,15 +137,18 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 			return;
 	}
 
-	// Build self: push params as Lua table, set __index = scriptTable via metatable
-	S.push(params);                    // stack: (function), (self)
-	lua_newtable(L);                   // stack: (function), (self), (mt)
-	scriptTable->push();               // stack: (function), (self), (mt), (scriptTable)
-	lua_setfield(L, -2, "__index");    // mt.__index = scriptTable; stack: (function), (self), (mt)
-	lua_setmetatable(L, -2);           // setmetatable(self, mt); stack: (function), (self)
+	int argc = sizeof...(Args);
+	if(self)
+	{
+		// Build self: push params as Lua table, set __index = ref via metatable
+		S.push(*self);                 // stack: (function), (self)
+		lua_newtable(L);               // stack: (function), (self), (mt)
+		ref->push();                   // stack: (function), (self), (mt), (table)
+		lua_setfield(L, -2, "__index");// mt.__index = ref; stack: (function), (self), (mt)
+		lua_setmetatable(L, -2);       // setmetatable(self, mt); stack: (function), (self)
+		++argc;
+	}
 
-	// push all params
-	int argc = 1 + sizeof...(Args);
 	(S << ... << args);
 
 	if(lua_pcall(L, argc, 1, 0))

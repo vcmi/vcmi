@@ -37,6 +37,8 @@ set(test_SRCS
 
 		game/BattleSpellCastTest.cpp
 		game/HeroRecruitmentTest.cpp
+		game/HeroSecondarySkillsTest.cpp
+		game/MovementCostTest.cpp
 
 		json/JsonTests.cpp
 
@@ -44,6 +46,7 @@ set(test_SRCS
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
+		map/MapScriptTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp
@@ -59,8 +62,6 @@ set(test_SRCS
 		quest/CQuestGateTest.cpp
 
 		netpacks/NetPackFixture.cpp
-
-#TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/AdventureSpellEffectTest.cpp
@@ -96,6 +97,8 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
+		texts/TextOperationsTest.cpp
+
 		server/queries/QueriesProcessorTest.cpp
 
 		mock/BattleFake.cpp
@@ -104,6 +107,7 @@ set(test_SRCS
  		mock/mock_MapServiceTinyH3M.cpp
  		mock/mock_BonusBearer.cpp
 		mock/mock_CPSICallback.cpp
+		mock/TinyMapGameTest.cpp
 		mock/TinyH3MWriter.cpp
 		mock/TinyH3MBuilder.cpp
 )
@@ -130,6 +134,7 @@ set(test_HEADERS
  		mock/mock_MapServiceTinyH3M.h
 		mock/mock_BonusBearer.h
 		mock/TownFake.h
+		mock/TinyMapGameTest.h
 		mock/TinyH3MWriter.h
 		mock/TinyH3MBuilder.h
 
@@ -164,12 +169,14 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
 		nullkiller2/Helpers/ExplorationHelperTest.cpp
 		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
+		nullkiller2/Pathfinding/AIPathNodePoolTest.cpp
 		nullkiller2/Pathfinding/ArmyLossTest.cpp
 		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
 	)
 
 	list(APPEND test_HEADERS
 		nullkiller2/Nulkiller2TestUtils.h
+		nullkiller2/NullkillerTest.h
 	)
 endif()
 

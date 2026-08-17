@@ -189,6 +189,16 @@ void keepScreenOn(bool isEnabled)
 #endif
 }
 
+void allowGamepadStart(bool isEnabled)
+{
+#if defined(VCMI_ANDROID)
+	QtAndroid::runOnAndroidThread([isEnabled]
+	{
+		QtAndroid::androidActivity().callMethod<void>("setGamepadStartEnabled", "(Z)V", isEnabled);
+	});
+#endif
+}
+
 bool canUseFolderPicker()
 {
 #if defined(VCMI_ANDROID)

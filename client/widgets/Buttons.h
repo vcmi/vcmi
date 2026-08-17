@@ -80,6 +80,12 @@ class CButton : public ButtonBase
 protected:
 	void onButtonClicked(); // calls callback
 
+	// plays click sound, either on press or on release - depending on input mode
+	void playClickSound(bool released);
+
+	// true if button should show hovered state right now
+	bool isHoverHighlighted() const;
+
 	// internal method to change state. Public change can be done only via block()
 	void setState(EButtonState newState);
 
