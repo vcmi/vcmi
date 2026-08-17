@@ -124,6 +124,8 @@ signals:
 protected:
 	
 private:
+	void moveNewObjectTo(const QPoint & viewportPos);
+
 	MapController * controller = nullptr;
 	QRubberBand * rubberBand = nullptr;
 	QPointF mouseStart;
