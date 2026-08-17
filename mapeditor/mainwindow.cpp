@@ -67,20 +67,13 @@
 #endif
 
 #ifdef VCMI_ANDROID
-// Qt 5 bug on Android with QT_SCALE_FACTOR:
-// In androidjniinput.cpp, mouse/tablet handlers compute:
-//   localPos = globalPos(device_pixels) - tlw->position()(logical_pixels)
-// mixing coordinate spaces. After QHighDpiScaling the widget receives
-// a localPos that is off by windowPos*(1-1/S) for any window not at (0,0).
-// Touch events use normalized coordinates and are NOT affected.
-//
-// Fix: recompute localPos from the already-correct global/screen position.
-// After QHighDpi scaling, screenPos() (mouse) and globalPosF() (tablet)
-// are in logical coordinates.  window->position() is also logical.
-// So: correctedLocal = globalLogical - window->position().
-// We modify the event in-place (protected members l,w / mPos) to preserve
-// the spontaneous flag and Qt's internal mouse-grab state.
-// The fix is always active (harmless no-op when scale == 1.0).
+// Qt 5 bug on Android: androidjniinput.cpp computes the local position of mouse
+// and tablet events as globalPos(native px) - tlw->position()(logical px), mixing
+// coordinate spaces. After QHighDpiScaling the local position is off by
+// windowPos*(1-1/factor) - zero for the fullscreen main window at (0,0), wrong for
+// every other top level window. Touch events are global based and unaffected.
+// Fix: recompute the local position from the (correct) global one. Modified in place
+// via the protected members to keep the spontaneous flag and Qt's mouse grab state.
 class AndroidInputOffsetFix : public QObject
 {
 public:
@@ -100,8 +93,7 @@ public:
 			case QEvent::MouseButtonDblClick:
 			{
 				auto * me = static_cast<QMouseEvent *>(event);
-				// screenPos() (= global logical pos) is always correct after
-				// QHighDpi scaling.  Recompute the local position from it.
+				// screenPos() is the global position in logical coordinates
 				QPointF correct = me->screenPos() - QPointF(window->position());
 				struct Accessor : QMouseEvent
 				{
@@ -115,10 +107,7 @@ public:
 			case QEvent::TabletMove:
 			{
 				auto * te = static_cast<QTabletEvent *>(event);
-				// globalPosF() is already in correct logical coordinates after
-				// QHighDpi::fromNativePixels in handleTabletEvent().  Only the
-				// local position (mPos) was computed incorrectly by the JNI
-				// layer (native_px - logical_px mismatch).  Recompute it.
+				// only mPos is damaged, globalPosF() went through fromNativePixels
 				QPointF correctedLocal = te->globalPosF() - QPointF(window->position());
 				struct Accessor : QTabletEvent
 				{
