@@ -10,7 +10,9 @@
 
 #pragma once
 
-namespace MMAI::BAI::V13
+#include "AI/MMAI/common.h" // IWYU pragma: keep
+
+namespace MMAI::BAI
 {
 
 class Logger

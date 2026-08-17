@@ -8,7 +8,7 @@
  *
  */
 
-#include "BAI/v13/encoder.h"
+#include "BAI/v13/encoder_v13.h"
 #include "schema/v13/constants.h"
 #include "schema/v13/types.h"
 #include "test/googletest/googletest/include/gtest/gtest.h"

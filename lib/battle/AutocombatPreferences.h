@@ -12,6 +12,7 @@
 struct AutocombatPreferences
 {
 	bool enableSpellsUsage = true;
+	bool enableTacticsUsage = true;
 	//TODO: below options exist in original H3, consider usefulness of mixed human-AI combat when enabling autocombat inside battle
 //	bool enableUnitsUsage = true;
 //	bool enableCatapultUsage = true;

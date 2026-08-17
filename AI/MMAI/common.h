@@ -10,8 +10,11 @@
 
 #pragma once
 
-#include "StdInc.h"
+#include "StdInc.h" // IWYU pragma: keep
+
 #include "CThreadHelper.h"
+
+#include <boost/format.hpp>
 
 namespace MMAI
 {
@@ -19,17 +22,63 @@ namespace MMAI
 // https://en.cppreference.com/w/cpp/utility/to_underlying
 #define EI(enum_value) static_cast<int>(enum_value)
 
-#define ASSERT(cond, msg) \
-	if(!(cond))           \
-	throw std::runtime_error(std::string("Assertion failed in ") + boost::filesystem::path(__FILE__).filename().string() + ": " + msg)
+inline void assertImpl(bool cond, std::string_view msg, std::string_view file, int line, std::string_view function)
+{
+	if(!cond)
+	{
+		throw std::runtime_error(
+			std::string("Assertion failed in ") + boost::filesystem::path(std::string(file)).filename().string() + ":" + std::to_string(line) + " in "
+			+ std::string(function) + ": " + std::string(msg)
+		);
+	}
+}
+
+#define ASSERT(condition, message) ::MMAI::assertImpl((condition), (message), __FILE__, __LINE__, BOOST_CURRENT_FUNCTION)
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
+
+template<class... Args>
+[[noreturn]] void throwf(std::string_view format, Args &&... args)
+{
+	boost::format formatter{std::string(format)};
+	((formatter % std::forward<Args>(args)), ...);
+	throw std::runtime_error(formatter.str());
+}
+
+// constexpr version of EI with proper underlying type conversion
+// underlying_type_t requires C++23, but Global.h uses it already
+template<typename E>
+requires std::is_enum_v<E>
+constexpr std::underlying_type_t<E> EU(E value) noexcept
+{
+	return static_cast<std::underlying_type_t<E>>(value);
+}
 
 inline bool isMMAIVerbose()
 {
 	static const bool value = []
 	{
 		const char * envvar = std::getenv("MMAI_VERBOSE");
+		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
+	}();
+	return value;
+}
+
+inline bool isMMAIAutoRender()
+{
+	static const bool value = []
+	{
+		const char * envvar = std::getenv("MMAI_AUTO_RENDER");
+		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
+	}();
+	return value;
+}
+
+inline bool isMMAIAutoVerify()
+{
+	static const bool value = []
+	{
+		const char * envvar = std::getenv("MMAI_AUTO_VERIFY");
 		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
 	}();
 	return value;

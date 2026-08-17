@@ -6,6 +6,7 @@ set(battleAI_SRCS
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
 		SpellTargetsEvaluator.cpp
+		TacticsHandler.cpp
 		ThreatMap.cpp
 		BattleExchangeVariant.cpp
 )
@@ -20,6 +21,7 @@ set(battleAI_HEADERS
 		PossibleSpellcast.h
 		StackWithBonuses.h
 		SpellTargetsEvaluator.h
+		TacticsHandler.h
 		ThreatMap.h
 		BattleExchangeVariant.h
 )

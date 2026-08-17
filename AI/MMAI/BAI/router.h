@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "StdInc.h"
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
 #include "battle/AutocombatPreferences.h"
 #include "battle/CPlayerBattleCallback.h"

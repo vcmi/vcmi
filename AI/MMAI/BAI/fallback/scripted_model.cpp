@@ -8,10 +8,11 @@
  *
  */
 
+#include "scripted_model.h"
+
 #include "StdInc.h"
 
 #include "schema/base.h"
-#include "scripted_model.h"
 
 namespace MMAI::BAI
 {
