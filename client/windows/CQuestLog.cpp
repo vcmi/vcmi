@@ -133,8 +133,8 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, DESCRIPTION_TOP, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
-	auto questsTab = std::make_shared<CToggleButton>(Point(205, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	auto eventsTab = std::make_shared<CToggleButton>(Point(400, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	auto questsTab = std::make_shared<CToggleButton>(Point(193, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
 	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->block(GAME->interface()->cb->getMyScenarioEventJournal().empty());

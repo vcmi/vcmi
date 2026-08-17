@@ -87,10 +87,10 @@ CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJour
 	OBJECT_CONSTRUCTION;
 
 	minimap = std::make_shared<CScenarioEventJournalMinimap>(Rect(12, 12, 169, 169));
-	description = std::make_shared<CTextBox>("", Rect(205, DESCRIPTION_TOP, 385, DESCRIPTION_HEIGHT), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
+	description = std::make_shared<CTextBox>("", Rect(205, EVENT_DESCRIPTION_TOP, 385, EVENT_DESCRIPTION_HEIGHT), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CScenarioEventJournal::close, this), EShortcut::GLOBAL_RETURN);
-	auto questsTab = std::make_shared<CToggleButton>(Point(205, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	auto eventsTab = std::make_shared<CToggleButton>(Point(400, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	auto questsTab = std::make_shared<CToggleButton>(Point(193, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
 	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
 	questsTab->block(GAME->interface()->cb->getMyQuests().empty());
@@ -116,7 +116,11 @@ CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJour
 			: entry.title;
 		const std::string day = LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entry.day);
 		auto label = std::make_shared<CScenarioEventJournalLabel>(Rect(13, 195, 149, 31), title + "\n" + day);
-		label->callback = std::bind(&CScenarioEventJournal::selectEntry, this, i, static_cast<int>(i));
+		label->callback = [this, i]()
+		{
+			selectEntry(i, static_cast<int>(i));
+			redraw();
+		};
 		labels.push_back(label);
 	}
 
@@ -164,18 +168,17 @@ void CScenarioEventJournal::selectEntry(size_t entryIndex, int labelIndex)
 
 	if(components.empty())
 	{
-		description->resize(Point(385, DESCRIPTION_HEIGHT));
+		description->resize(Point(385, EVENT_DESCRIPTION_HEIGHT));
 	}
 	else
 	{
-		const int descriptionHeight = DESCRIPTION_HEIGHT - 130;
+		const int descriptionHeight = EVENT_DESCRIPTION_HEIGHT - 130;
 		description->resize(Point(385, descriptionHeight));
 		OBJECT_CONSTRUCTION;
-		componentsBox = std::make_shared<CComponentBox>(components, Rect(205, DESCRIPTION_TOP + descriptionHeight + 15, 385, 115));
+		componentsBox = std::make_shared<CComponentBox>(components, Rect(205, EVENT_DESCRIPTION_TOP + descriptionHeight + 15, 385, 115));
 	}
 
 	minimap->setLocation(entry.location);
-	redraw();
 }
 
 void CScenarioEventJournal::recreateEntryList(int firstVisible)
@@ -199,7 +202,7 @@ void CScenarioEventJournal::sliderMoved(int newPosition)
 void CScenarioEventJournal::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
-	if(selectedLabel >= 0 && selectedLabel < labels.size())
+	if(selectedLabel >= 0 && selectedLabel < labels.size() && !labels[selectedLabel]->isDisabled())
 	{
 		Rect selection = Rect::createAround(labels[selectedLabel]->pos, 1);
 		selection.x -= 2;

@@ -180,7 +180,7 @@ void AdventureMapShortcuts::showQuestlog()
 	GAME->interface()->showQuestLog();
 }
 
-void AdventureMapShortcuts::showScenarioEventJournal()
+void AdventureMapShortcuts::showScenarioEventJournal() const
 {
 	GAME->interface()->showScenarioEventJournal();
 }

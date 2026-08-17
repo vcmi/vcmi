@@ -54,8 +54,8 @@ public:
 class CScenarioEventJournal : public CWindowObject
 {
 	static constexpr int VISIBLE_ENTRY_COUNT = 6;
-	static constexpr int DESCRIPTION_TOP = 64;
-	static constexpr int DESCRIPTION_HEIGHT = 309;
+	static constexpr int EVENT_DESCRIPTION_TOP = 64;
+	static constexpr int EVENT_DESCRIPTION_HEIGHT = 309;
 
 	int selectedLabel = -1;
 	const std::vector<ScenarioEventJournalEntry> entries;
