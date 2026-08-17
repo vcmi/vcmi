@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="server_name">VCMI Server</string>
+    <string name="notification_channel_running">Running in background</string>
+    <string name="notification_channel_game">Game events</string>
+    <string name="notification_running_title">VCMI is running</string>
+    <string name="notification_running_text">The game stays active in the background</string>
+    <string name="notification_game_title">VCMI</string>
+    <string name="notification_quit">Quit</string>
+    <string name="quit_title">Quit VCMI</string>
+    <string name="notification_permission_title">Notifications are disabled</string>
+    <string name="notification_permission_denied">VCMI needs the notification permission to tell you when your turn begins or a chat message arrives while the game runs in the background. Without it the game still runs, but you will not be notified.</string>
+    <string name="notification_permission_settings">Settings</string>
+    <string name="quit_message">Do you really want to end the running game? Unsaved progress will be lost.</string>
     <string name="data_folder_name">VCMI Data</string>
     <string name="shortcut_play">Play VCMI</string>
     <string name="shortcut_editor">Open VCMI Editor</string>

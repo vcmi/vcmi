@@ -20,6 +20,7 @@
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
+#include "../eventsSDL/NotificationHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
@@ -109,6 +110,8 @@ void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const s
 void CInGameConsole::addMessage(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
 {
 	addMessageSilent(timeFormatted, senderName, messageText);
+
+	NotificationHandler::notify(senderName + ": " + messageText);
 
 	ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 
