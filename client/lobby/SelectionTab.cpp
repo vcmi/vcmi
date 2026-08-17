@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include <tbb/parallel_for.h>
+
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
@@ -1063,77 +1065,115 @@ size_t SelectionTab::getHiddenIncompatibleMapsCount() const
 void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
-	allItems.clear();
-	for(auto & file : files)
-	{
-		try
-		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->mapInit(file.getOriginalName());
-			mapInfo->name = mapInfo->getNameForList();
+	auto timeStart = std::chrono::steady_clock::now();
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
 
-			if (isMapSupported(*mapInfo))
-				allItems.push_back(mapInfo);
-		}
-		catch(std::exception & e)
+	// every entry is written by a single thread only, entries of failed maps stay empty
+	allItems.clear();
+	allItems.resize(filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector](const tbb::blocked_range<size_t> & r)
+	{
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			const auto & file = filesVector[i];
+			try
+			{
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->mapInit(file.getOriginalName());
+				mapInfo->name = mapInfo->getNameForList();
+
+				if (isMapSupported(*mapInfo))
+					allItems[i] = mapInfo;
+			}
+			catch(std::exception & e)
+			{
+				logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			}
 		}
-	}
+	});
+
+	vstd::erase(allItems, nullptr);
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d maps took %d ms", files.size(), timeElapsed.count());
 }
 
 std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
-	std::vector<ResourcePath> unsupported;
+	auto timeStart = std::chrono::steady_clock::now();
 
-	for(auto & file : files)
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+
+	// every entry is written by a single thread only, entries of failed saves stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+	std::vector<uint8_t> isUnsupported(filesVector.size(), 0);
+
+	ELoadMode loadMode = GAME->server().getLoadMode();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &isUnsupported, offset, loadMode](const tbb::blocked_range<size_t> & r)
 	{
-		try
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->saveInit(file);
-			mapInfo->name = mapInfo->getNameForList();
-
-			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
-			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
-			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
-			switch(GAME->server().getLoadMode())
+			const auto & file = filesVector[i];
+			try
 			{
-			case ELoadMode::SINGLE:
-				if(isCampaign || isTutorial)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::CAMPAIGN:
-				if(!isCampaign)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::TUTORIAL:
-				if(!isTutorial)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::MULTI:
-				if(!isMultiplayer)
-					mapInfo->mapHeader.reset();
-				break;
-			default:
-				assert(0);
-				mapInfo->mapHeader.reset();
-				break;
-			}
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->saveInit(file);
+				mapInfo->name = mapInfo->getNameForList();
 
-			allItems.push_back(mapInfo);
+				// Filter out other game modes
+				bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
+				bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
+				bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
+				switch(loadMode)
+				{
+				case ELoadMode::SINGLE:
+					if(isCampaign || isTutorial)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::CAMPAIGN:
+					if(!isCampaign)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::TUTORIAL:
+					if(!isTutorial)
+						mapInfo->mapHeader.reset();
+					break;
+				case ELoadMode::MULTI:
+					if(!isMultiplayer)
+						mapInfo->mapHeader.reset();
+					break;
+				default:
+					assert(0);
+					mapInfo->mapHeader.reset();
+					break;
+				}
+
+				allItems[offset + i] = mapInfo;
+			}
+			catch(const IdentifierResolutionException & e)
+			{
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
+			catch(const std::exception & e)
+			{
+				isUnsupported[i] = 1; // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
 		}
-		catch(const IdentifierResolutionException & e)
-		{
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-		}
-		catch(const std::exception & e)
-		{
-			unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-		}
-	}
+	});
+
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+
+	std::vector<ResourcePath> unsupported;
+	for(size_t i = 0; i < filesVector.size(); i++)
+		if(isUnsupported[i])
+			unsupported.push_back(filesVector[i]);
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d saves took %d ms", filesVector.size(), timeElapsed.count());
 
 	return unsupported;
 }
@@ -1158,34 +1198,50 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	allItems.reserve(files.size());
-	for(auto & file : files)
+	auto timeStart = std::chrono::steady_clock::now();
+
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+
+	// every entry is written by a single thread only, entries of skipped campaigns stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, offset](const tbb::blocked_range<size_t> & r)
 	{
-		try
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto info = std::make_shared<ElementInfo>();
-			info->fileURI = file.getOriginalName();
-			info->campaignInit();
-			info->name = info->getNameForList();
-
-			if(info->campaign)
+			const auto & file = filesVector[i];
+			try
 			{
-				// skip campaigns organized in sets
-				bool foundInSet = false;
-				for (auto const & set : campaignSets.Struct())
-					for (auto const & item : set.second["items"].Vector())
-						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = true;
+				auto info = std::make_shared<ElementInfo>();
+				info->fileURI = file.getOriginalName();
+				info->campaignInit();
+				info->name = info->getNameForList();
 
-				if(!foundInSet || !enableUiEnhancements)
-					allItems.push_back(info);
+				if(info->campaign)
+				{
+					// skip campaigns organized in sets
+					bool foundInSet = false;
+					for (auto const & set : campaignSets.Struct())
+						for (auto const & item : set.second["items"].Vector())
+							if(file.getName() == ResourcePath(item["file"].String()).getName())
+								foundInSet = true;
+
+					if(!foundInSet || !enableUiEnhancements)
+						allItems[offset + i] = info;
+				}
+			}
+			catch(const std::exception & e)
+			{
+				logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 			}
 		}
-		catch(const std::exception & e)
-		{
-			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
-		}
-	}
+	});
+
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
 }
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)
