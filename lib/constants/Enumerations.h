@@ -275,4 +275,6 @@ enum class CombatEventType : int8_t
 	BEFORE_MOVE = 7,
 	AFTER_MOVE = 8,
 	UNIT_SPELLCAST = 9,
+	BATTLE_START = 10,
+	ROUND_START = 11,
 };

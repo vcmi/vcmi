@@ -36,81 +36,6 @@ BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler *
 {
 }
 
-void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
-{
-	int x = targetPosition.getX();
-	int y = targetPosition.getY();
-
-	const bool targetIsAttacker = side == BattleSide::ATTACKER;
-
-	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false));
-	else
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false));
-
-	//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
-	if (targetIsAttacker && ((y % 2 == 0) || (x > 1)))
-	{
-		if (targetIsTwoHex && (y % 2 == 1) && (x == 2)) //handle exceptional case
-		{
-			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
-			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
-		}
-		else
-		{	//add back-side guardians for two-hex target, side guardians for one-hex
-			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false));
-			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false));
-
-			if (!targetIsTwoHex && x > 2) //back guard for one-hex
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false));
-			else if (targetIsTwoHex)//front-side guardians for two-hex target
-			{
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
-				if (x > 3) //back guard for two-hex
-					output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false));
-			}
-		}
-
-	}
-
-	else if (!targetIsAttacker && ((y % 2 == 1) || (x < GameConstants::BFIELD_WIDTH - 2)))
-	{
-		if (targetIsTwoHex && (y % 2 == 0) && (x == GameConstants::BFIELD_WIDTH - 3)) //handle exceptional case... equivalent for above for defender side
-		{
-			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-		}
-		else
-		{
-			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false));
-			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false));
-
-			if (!targetIsTwoHex && x < GameConstants::BFIELD_WIDTH - 3)
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false));
-			else if (targetIsTwoHex)
-			{
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-				if (x < GameConstants::BFIELD_WIDTH - 4)
-					output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false));
-			}
-		}
-	}
-
-	else if (!targetIsAttacker && y % 2 == 0)
-	{
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
-	}
-
-	else if (targetIsAttacker && y % 2 == 1)
-	{
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
-		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
-	}
-}
-
 void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 {
 	const auto * town = battle.battleGetDefendedTown();
@@ -140,59 +65,6 @@ void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 
 	if (battle.battleGetTacticDist() == 0)
 		onTacticsEnded(battle);
-}
-
-void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack)
-{
-	if (!stack->hasBonusOfType(BonusType::SUMMON_GUARDIANS))
-		return;
-
-	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
-	auto accessibility = battle.getAccessibility();
-	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
-	if (!creatureData.hasValue())
-	{
-		logGlobal->error("Unable to summon guardians - bonus SUMMON_GUARDIANS has invalid creature ID!");
-		return;
-	}
-	BattleHexArray targetHexes;
-	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
-	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
-
-	/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
-		For one-hex targets there are four guardians - front, back and one per side (up + down).
-		Two-hex targets are wider and the difference is there are two guardians per side to cover 3 hexes + extra hex in the front
-		Additionally, there are special cases for starting positions etc., where guardians would be outside of battlefield if spawned normally*/
-	if (!guardianIsBig)
-		targetHexes = stack->getSurroundingHexes();
-	else
-		summonGuardiansHelper(battle, targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
-
-	for(const auto & hex : targetHexes)
-	{
-		if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
-		{
-			battle::UnitInfo info;
-			info.id = battle.battleNextUnitId();
-			info.count =  std::max(1, stack->getCount() * summonInfo->val / 100);
-			info.type = creatureData;
-			info.side = stack->unitSide();
-			info.position = hex;
-			info.summoned = true;
-
-			BattleUnitsChanged pack;
-			pack.battleID = battle.getBattle()->getBattleID();
-			pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
-			info.save(pack.changedStacks.back().data);
-			gameHandler->sendAndApply(pack);
-		}
-	}
-
-	// send empty event to client
-	// temporary(?) workaround to force animations to trigger
-	StacksInjured fakeEvent;
-	fakeEvent.battleID = battle.getBattle()->getBattleID();
-	gameHandler->sendAndApply(fakeEvent);
 }
 
 void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
@@ -234,8 +106,7 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 
 	for (const CStack * stack : initialStacks)
 	{
-		trySummonGuardians(battle, stack);
-		stackEnchantedTrigger(battle, stack);
+		owner->processBattleEventTriggers(battle, CombatEventType::BATTLE_START, stack, nullptr);
 	}
 
 	castOpeningSpells(battle);
@@ -264,10 +135,12 @@ void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, boo
 			removeObstacle(battle, *obstPtr);
 	}
 
-	for(const auto * stack : battle.battleGetAllStacks(true))
+	// first round is covered by the battle start triggers, which ran just before this
+	if(!isFirstRound)
 	{
-		if(stack->alive() && !isFirstRound)
-			stackEnchantedTrigger(battle, stack);
+		for(const auto * stack : battle.battleGetAllStacks(true))
+			if(stack->alive())
+				owner->processBattleEventTriggers(battle, CombatEventType::ROUND_START, stack, nullptr);
 	}
 }
 
@@ -851,38 +724,6 @@ bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle
 
 	bool ret = owner->makeAutomaticBattleAction(battle, ba);
 	return ret;
-}
-
-void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * st)
-{
-	auto bl = *(st->getBonusesOfType(BonusType::ENCHANTED));
-	for(const auto & b : bl)
-	{
-		if (!b->subtype.as<SpellID>().hasValue())
-			continue;
-
-		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
-		const int32_t val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
-		const int32_t level = ((val > 3) ? (val - 3) : val);
-
-		spells::BattleCast battleCast(&battle, st, spells::Mode::PASSIVE, sp);
-		//this makes effect accumulate for at most 50 turns by default, but effect may be permanent and last till the end of battle
-		battleCast.setEffectDuration(50);
-		battleCast.setSpellLevel(level);
-		spells::Target target;
-
-		if(val > 3)
-		{
-			for(const auto * s : battle.battleGetAllStacks())
-				if(battle.battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
-					target.emplace_back(s);
-		}
-		else
-		{
-			target.emplace_back(st);
-		}
-		battleCast.applyEffects(gameHandler->spellcastEnvironment(), target, false, true);
-	}
 }
 
 void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle)

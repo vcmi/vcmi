@@ -107,3 +107,14 @@ Returns the spell's per-level power bonus.
 Returns the list of magic schools the spell belongs to.
 
 - returns [`SpellSchool[]`](SpellSchool.md)
+
+### adjustDamage
+
+Runs a raw damage amount through this spell's damage pipeline - the school bonuses of the actor's hero, and the target's resistances, vulnerabilities and immunities. Use it for abilities that damage as if they were this spell without actually casting it.
+
+- param `battle`: [`Battle`](Battle.md) — Battle the damage is dealt in.
+- param `actor`: [`Unit`](Unit.md) — Unit whose ability deals the damage. Its hero, if it has one, provides the caster bonuses.
+- param `target`: [`Unit`](Unit.md) — Unit taking the damage, whose resistances and vulnerabilities apply.
+- param `rawDamage`: `integer` — Damage before any of those modifiers.
+
+- returns `integer`

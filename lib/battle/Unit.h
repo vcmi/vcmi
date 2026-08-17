@@ -73,6 +73,9 @@ public:
 	virtual int32_t creatureIndex() const = 0;
 	virtual CreatureID creatureId() const = 0;
 	virtual int32_t creatureLevel() const = 0;
+	/// Level of this unit rather than the tier of its creature - the two differ for a commander,
+	/// which levels up on its own. Same as creatureLevel unless overridden.
+	virtual int32_t unitLevel() const;
 	virtual int32_t creatureCost() const = 0;
 	virtual int32_t creatureIconIndex() const = 0;
 

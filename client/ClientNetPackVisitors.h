@@ -78,6 +78,7 @@ public:
 	void visitBattleSetActiveStack(BattleSetActiveStack & pack) override;
 	void visitBattleLogMessage(BattleLogMessage & pack) override;
 	void visitBattleTriggerEffect(BattleTriggerEffect & pack) override;
+	void visitBattleAnimationPlayed(BattleAnimationPlayed & pack) override;
 	void visitBattleAttack(BattleAttack & pack) override;
 	void visitBattleSpellCast(BattleSpellCast & pack) override;
 	void visitSetStackEffect(SetStackEffect & pack) override;

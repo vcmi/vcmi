@@ -12,24 +12,20 @@
 
 #include <vcmi/scripting/Service.h>
 
-namespace spells::effects
-{
-class LuaSpellEffectFactory;
-}
-
 namespace scripting
 {
 
-class LuaScriptInstance;
+class LuaScriptFactory;
+class LuaScriptStore;
 
-/// Top-level Lua scripting service; owns script factories and creates script pools.
+/// Top-level Lua scripting service; owns every loaded Lua script and creates script pools.
 class DLL_LINKAGE LuaModule final : public Service
 {
 public:
 	LuaModule();
 	~LuaModule();
 
-	void installScripting(spells::effects::SpellEffectService * spellEffects) override;
+	void installScripting(ScriptService & scripts) override;
 
 	std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const override;
 
@@ -38,9 +34,7 @@ public:
 	void exportDocs(const boost::filesystem::path & outDir) const override;
 
 private:
-	using ScriptPtr = std::shared_ptr<LuaScriptInstance>;
-	using ScriptMap = std::map<std::string, ScriptPtr>;
-
-	std::shared_ptr<spells::effects::LuaSpellEffectFactory> luaSpellEffects;
+	std::unique_ptr<LuaScriptStore> store;
+	std::shared_ptr<LuaScriptFactory> factory;
 };
 }

@@ -16,6 +16,10 @@
 #include "../Registry.h"
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/battle/CBattleInfoCallback.h"
+#include "../../../lib/battle/Unit.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/spells/CSpell.h"
 
 namespace scripting::api
 {
@@ -60,6 +64,36 @@ void SpellProxy::registerMethods(MethodRegistrar & R)
 		"Returns the spell's per-level power bonus.");
 	R.function<&SpellProxy::getSchools>("getSchools", {},
 		"Returns the list of magic schools the spell belongs to.");
+	R.function<&SpellProxy::adjustDamage>("adjustDamage",
+		{
+			{"battle",    "Battle the damage is dealt in."},
+			{"actor",     "Unit whose ability deals the damage. Its hero, if it has one, provides the caster bonuses."},
+			{"target",    "Unit taking the damage, whose resistances and vulnerabilities apply."},
+			{"rawDamage", "Damage before any of those modifiers."}
+		}, {},
+		"Runs a raw damage amount through this spell's damage pipeline - the school bonuses of the "
+		"actor's hero, and the target's resistances, vulnerabilities and immunities. Use it for "
+		"abilities that damage as if they were this spell without actually casting it.");
+}
+
+int64_t SpellProxy::adjustDamage(const Spell & spell, const IBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & target, int64_t rawDamage)
+{
+	const auto * owner = dynamic_cast<const CSpell *>(&spell);
+	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&battle);
+
+	if(!owner)
+		throw std::runtime_error("Attempt to adjust damage of an unknown spell!");
+
+	if(!cb)
+		throw std::runtime_error("Attempt to adjust spell damage outside of a battle!");
+
+	// a unit fighting under a hero benefits from that hero's magic, as in a normal cast
+	const spells::Caster * caster = cb->battleGetFightingHero(actor.unitSide());
+
+	if(!caster)
+		caster = &actor;
+
+	return owner->adjustRawDamage(caster, &target, rawDamage);
 }
 
 std::vector<const spells::SpellSchoolType *> SpellProxy::getSchools(const Spell & spell)

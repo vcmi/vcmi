@@ -307,4 +307,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyModsCheck>(266);
 	s.template registerType<SetScriptVariable>(267);
 	s.template registerType<SetQuestHint>(268);
+	s.template registerType<BattleAnimationPlayed>(269);
 }

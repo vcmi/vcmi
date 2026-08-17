@@ -692,7 +692,7 @@ std::string BAI::debugInfo(Action * action, const CStack * astack, const BattleH
 		info << "rinfo.distances[nbh] <= astack->getMovementRange(): " << (rinfo.distances[nbh->toInt()] <= astack->getMovementRange()) << "\n";
 
 		if(stack)
-			info << "astack->isMeleeAttackPossible(...)=" << astack->isMeleeAttackPossible(astack, stack->cstack, *nbh) << "\n";
+			info << "astack->isMeleeAttackPossible(...)=" << battle->isMeleeAttackPossible(astack, stack->cstack, *nbh) << "\n";
 	}
 
 	info << "\nACTION TRACE:\n";

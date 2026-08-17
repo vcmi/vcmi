@@ -48,11 +48,49 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 {
 	size_t effectID = static_cast<size_t>(effect);
 
-	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
+	BattleHexArray tiles;
+	tiles.insert(destTile);
+	displayAnimation(AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]), soundFile, tiles, transparencyFactor);
+}
 
+void BattleEffectsController::displayAnimation(const AnimationPath & animation, const AudioPath & soundFile, const BattleHexArray & destTiles, float transparencyFactor)
+{
 	ENGINE->sound().playSound( soundFile );
 
-	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
+	owner.stacksController->addNewAnim(new EffectAnimation(owner, animation, destTiles, 0, transparencyFactor));
+}
+
+void BattleEffectsController::battleAnimationPlayed(const BattleAnimationPlayed & pack)
+{
+	BattleHexArray tiles;
+
+	for(const auto & target : pack.targets)
+	{
+		// a unit may have moved since the pack was sent, so its current position wins over the
+		// hex recorded back then
+		const auto * unit = target.unitID < 0 ? nullptr : owner.getBattle()->battleGetUnitByID(target.unitID);
+		const BattleHex & tile = unit ? unit->getPosition() : target.tile;
+
+		if(tile.isValid())
+			tiles.insert(tile);
+	}
+
+	if(tiles.empty())
+		return;
+
+	// queued into the same stage as the hit animations of the pack that follows, so that both start
+	// on the same frame instead of one after the other
+	if(pack.deferred)
+	{
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, animation = pack.animation, sound = pack.sound, tiles, transparency = pack.transparency](){
+			displayAnimation(animation, sound, tiles, transparency);
+		});
+		return;
+	}
+
+	owner.checkForAnimations();
+	displayAnimation(pack.animation, pack.sound, tiles, pack.transparency);
+	owner.waitForAnimations();
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)

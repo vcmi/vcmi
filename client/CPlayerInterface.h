@@ -186,6 +186,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
+	void battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack) override; //standalone animation, no state change
 	void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right

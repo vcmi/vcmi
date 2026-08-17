@@ -120,6 +120,7 @@ public:
 	virtual void visitBattleObstaclesChanged(BattleObstaclesChanged & pack) {}
 	virtual void visitBattleSetStackProperty(BattleSetStackProperty & pack) {}
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
+	virtual void visitBattleAnimationPlayed(BattleAnimationPlayed & pack) {}
 	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) {}
 	virtual void visitAdvmapSpellCast(AdvmapSpellCast & pack) {}
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}

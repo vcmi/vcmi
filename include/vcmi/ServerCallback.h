@@ -17,6 +17,13 @@ namespace vstd
 	class RNG;
 }
 
+namespace battle
+{
+	class Unit;
+}
+
+class IBattleInfoCallback;
+
 struct CPackForClient;
 struct BattleLogMessage;
 struct BattleStackMoved;
@@ -35,6 +42,9 @@ public:
 	virtual bool describeChanges() const = 0;
 
 	virtual vstd::RNG * getRNG() = 0;
+
+	/// Rolls a chance-based combat ability of the given unit
+	virtual bool rollCombatAbility(const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance) = 0;
 
 	virtual void apply(CPackForClient & pack) = 0;
 

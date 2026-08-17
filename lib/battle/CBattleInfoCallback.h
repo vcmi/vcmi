@@ -119,6 +119,9 @@ public:
 	bool battleCanShoot(const battle::Unit * attacker, const BattleHex & dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
 	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const;
+	//hexes of the defender that the attacker can reach in melee; empty if no melee attack is possible
+	BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
+	bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
 	battle::Units battleAdjacentUnits(const battle::Unit * unit) const;
 
@@ -189,7 +192,10 @@ public:
 		BattleHex attackerPos = BattleHex::INVALID,
 		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	
-	std::pair<std::set<const CStack*>, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	/// Units a multi-hex attack strikes besides its primary target, in battlefield hex order, and
+	/// whether a custom hit animation is to be played. Ordered rather than a set, because who is hit
+	/// first decides in which order their abilities react and how the rolls of the attack are drawn.
+	std::pair<battle::Units, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;

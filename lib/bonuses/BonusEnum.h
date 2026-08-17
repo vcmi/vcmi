@@ -74,11 +74,11 @@ class JsonNode;
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(GENERAL_DAMAGE_PREMY)						\
 	BONUS_NAME(MIND_IMMUNITY)							\
-	BONUS_NAME(FIRE_SHIELD)								\
+	BONUS_NAME(UNUSED_FIRE_SHIELD) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(UNDEAD)									\
 	BONUS_NAME(HP_REGENERATION) /*creature regenerates val HP every new round*/					\
 	BONUS_NAME(MANA_DRAIN) /*value - spell points per turn*/ \
-	BONUS_NAME(LIFE_DRAIN)								\
+	BONUS_NAME(UNUSED_LIFE_DRAIN) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \
 	BONUS_NAME(RETURN_AFTER_STRIKE)						\
 	BONUS_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - weighted chance. use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER for calculating the power*/ \
@@ -117,23 +117,23 @@ class JsonNode;
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
 	BONUS_NAME(SHOTS)\
-	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
+	BONUS_NAME(UNUSED_DEATH_STARE) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
-	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
+	BONUS_NAME(UNUSED_ACID_BREATH) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
 	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
 	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection cast by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
-	BONUS_NAME(ENCHANTED) /* permanently enchanted with spell subID of level = val, if val > 3 then spell is mass and has level of val-3*/ \
+	BONUS_NAME(UNUSED_ENCHANTED) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
-	BONUS_NAME(SOUL_STEAL) /*val - number of units gained per enemy killed, subtype = 0 - gained units survive after battle, 1 - they do not*/ \
-	BONUS_NAME(TRANSMUTATION) /*val - chance to trigger in %, subtype = 0 - resurrection based on HP, 1 - based on unit count, additional info - target creature ID (attacker default)*/\
-	BONUS_NAME(SUMMON_GUARDIANS) /*val - amount in % of stack count, subtype = creature ID*/\
+	BONUS_NAME(UNUSED_SOUL_STEAL) /*DEPRECATED, kept so that old configs and saves still convert*/\
+	BONUS_NAME(UNUSED_TRANSMUTATION) /*DEPRECATED, kept so that old configs and saves still convert*/\
+	BONUS_NAME(UNUSED_SUMMON_GUARDIANS) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - power of catapult effect, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
 	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
@@ -143,7 +143,7 @@ class JsonNode;
 	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighbouring with target) without spell-like mechanics */\
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
-	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
+	BONUS_NAME(UNUSED_DESTRUCTION) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(SPECIAL_CRYSTAL_GENERATION) /*crystal dragon crystal generation*/ \
 	BONUS_NAME(NO_SPELLCAST_BY_DEFAULT) /*spellcast will not be default attack option for this creature*/ \
 	BONUS_NAME(SKELETON_TRANSFORMER_TARGET) /* for skeleton transformer */ \
@@ -209,6 +209,7 @@ class JsonNode;
 	BONUS_NAME(SPECIAL_SPELL_SCALING) /*like SPECIAL_SPELL_LEV but with H3-correct per-target-level rounding; subtype = spell, val = percent per step*/\
 	BONUS_NAME(DIPLOMACY_ARMY_STRENGTH_MULTIPLIER) /*Scales army strength as seen by neutral creatures deciding to join or flee, and by Thieves Guild; val - multiplier in percent*/\
 	BONUS_NAME(BATTLE_CAN_SURRENDER) /*val - permission to surrender, sum of all modifiers below zero blocks surrendering, e.g. -100 for shackles of war*/\
+	BONUS_NAME(COMBAT_EVENT_TRIGGER) /* Runs a combat script on every combat event that happens to bearer */ \
 
 	/* end of list */
 

@@ -16,7 +16,7 @@
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../../lib/networkPacks/SetStackEffect.h"
 
-#include "../../../lib/spells/effects/SpellEffectService.h"
+#include "../../../lib/scripting/ScriptService.h"
 
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/modding/IdentifierStorage.h"
@@ -57,9 +57,9 @@ EffectFixture::~EffectFixture() = default;
 
 void EffectFixture::setupEffect(const JsonNode & effectConfig)
 {
-	SpellEffectID effectID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "spellEffect", effectName));
+	ScriptID effectID(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", effectName));
 
-	subject = LIBRARY->spellEffects()->create(effectID);
+	subject = LIBRARY->scriptTypes()->createSpellEffect(effectID);
 	ASSERT_TRUE(subject);
 
 	JsonNode effectConfigActual = effectConfig;

@@ -94,14 +94,18 @@ The following standard Lua globals are **removed** for safety: `collectgarbage`,
 ```text
 ScriptingHandler (engine core)
   └── LuaModule  (DLL plugin, implements Service)
-        ├── LuaSpellEffectFactory  (effect type "lua")
-        ├── LuaUnitEffectFactory   (effect type "luaUnit")
+        ├── LuaScriptStore    (every loaded Lua script, of every kind)
+        ├── LuaScriptFactory  (the script factory, registered with ScriptService)
+        │     ├── createSpellEffect()      -> LuaSpellEffect
+        │     └── createCombatEventScript() -> LuaCombatEventScript
         └── createPoolInstance()
               └── LuaScriptPool  (owned by CGameState)
                     └── LuaContext  (one per script, per session)
 ```
 
-Script *source* (path + text) lives in `LuaScriptInstance` objects, which are owned by the effect factories and persist across map restarts. The runnable execution environment — the `lua_State` itself — lives in `LuaContext` and is torn down and recreated on each map restart.
+Scripts of every kind are one entity - see [Script Types](../modders/Lua/Script_Types.md). `ScriptHandler` owns the registry and knows nothing about Lua; `LuaScriptFactory` is the only place that knows both a script kind and a language, because marshalling a call is specific to both.
+
+Script *source* (path + text) lives in `LuaScriptInstance` objects, which are owned by `LuaScriptStore` and persist across map restarts. The runnable execution environment — the `lua_State` itself — lives in `LuaContext` and is torn down and recreated on each map restart.
 
 ## Classes
 
@@ -112,11 +116,11 @@ Global entry point for the Lua scripting system. Loaded as a dynamic library plu
 - `GetAiName` — returns the module display name `"Lua interpreter"`
 - `GetNewModule` — creates and returns a new `LuaModule` instance
 
-On `installScripting`, registers `LuaSpellEffectFactory` under the effect type key `"lua"`. On `createPoolInstance`, creates a `LuaScriptPool` and registers all currently loaded scripts into it.
+On `installScripting`, registers `LuaScriptFactory` with the `ScriptService` as the factory every script goes through - scripts do not name the language they are written in. On `createPoolInstance`, creates a `LuaScriptPool` and registers all currently loaded scripts into it.
 
 ### LuaScriptInstance
 
-Stores the source code and identity of a single Lua script. Created by `LuaSpellEffectFactory` when an effect type references a Lua script path. Persists for the lifetime of the module — across map restarts.
+Stores the source code and identity of a single Lua script. Created by `LuaScriptStore` for every script declared in json. Persists for the lifetime of the module — across map restarts.
 
 Key fields:
 
@@ -228,9 +232,9 @@ Singleton (access via `Registry::get()`). Constructed once at program startup; i
 
 `find(name)` looks up a type in the public map (currently all types are registered as private, meaning they are accessible from scripts but not listed in the public API).
 
-### LuaSpellEffect and LuaSpellEffectFactory
+### LuaSpellEffect and LuaScriptFactory
 
-`LuaSpellEffectFactory` is registered under the JSON effect type key `"lua"`. When `SpellEffectService` encounters this type during mod loading it calls `initialize(scope, name)` to load the Lua script, then `create(scope, name)` to return a `LuaSpellEffect` for each spell that uses it.
+`LuaScriptFactory` is the single factory `ScriptService` knows. When `ScriptHandler` loads a script it calls `initialize(description)`, which stores the sources in `LuaScriptStore`. Adding a second language means replacing this factory, or teaching it to dispatch - a script itself declares only what it implements, never what it is written in. A script declaring `"implements" : "spellEffect"` is then wrapped into a `LuaSpellEffect` by `createSpellEffect`, once per spell that uses it; one declaring `"implements" : "combatEvent"` is wrapped once into a shared, stateless `LuaCombatEventScript`.
 
 `LuaSpellEffect` implements the full `spells::effects::Effect` interface by resolving the active `LuaContext` from the current `Mechanics` object and delegating each virtual method call to the correspondingly named Lua function:
 

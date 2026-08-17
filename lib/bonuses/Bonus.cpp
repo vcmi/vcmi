@@ -144,9 +144,9 @@ void Bonus::convertAddInfo(const std::vector<int> & oldAddInfo)
 
 	if (oldAddInfo.size() == 1 && oldAddInfo[0] != -1)
 	{
-		if (type == BonusType::SPECIAL_UPGRADE || type == BonusType::TRANSMUTATION)
+		if (type == BonusType::SPECIAL_UPGRADE || type == BonusType::UNUSED_TRANSMUTATION)
 			parameters = std::make_shared<BonusParameters>(CreatureID(oldAddInfo[0]));
-		else if (type == BonusType::DEATH_STARE)
+		else if (type == BonusType::UNUSED_DEATH_STARE)
 			parameters = std::make_shared<BonusParameters>(SpellID(oldAddInfo[0]));
 		else
 			parameters = std::make_shared<BonusParameters>(oldAddInfo[0]);

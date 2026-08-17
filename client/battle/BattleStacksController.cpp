@@ -505,7 +505,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			continue;
 
 		// Another type of indirect attack - dragon breath
-		if (!CStack::isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
+		if (!owner.getBattle()->isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
 			continue;
 
 		// defender need to face in direction opposited to out attacker
@@ -541,9 +541,6 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				addNewAnim(new DefenceAnimation(owner, attackedInfo.defender));
 			else
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
-
-			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, AudioPath::builtin("FIRESHIE"), attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 			{
@@ -657,7 +654,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto spellEffect = info.spellEffect;
 	bool needsReverse = false;
 
-	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !CStack::isMeleeAttackPossible(attacker, defender);
+	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !owner.getBattle()->isMeleeAttackPossible(attacker, defender);
 
 	if (info.indirectAttack || longWeaponMelee)
 	{
@@ -727,14 +724,6 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		owner.addToAnimationStage(EAnimationEvents::HIT, [this, spellEffect, tile]()
 		{
 			owner.displaySpellHit(spellEffect.toSpell(), tile);
-		});
-	}
-
-	if (info.lifeDrain)
-	{
-		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attacker]()
-		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
 		});
 	}
 

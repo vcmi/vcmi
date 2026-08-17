@@ -25,6 +25,8 @@ set(test_SRCS
 
 		bonus/BonusSystemTest.cpp
 
+		combatScripts/CombatScriptDescriptionTest.cpp
+
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/CFactionTest.cpp
@@ -97,9 +99,20 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
-		texts/TextOperationsTest.cpp
-
+		server/battles/AcidBreathTest.cpp
+		server/battles/BattleTestFixture.cpp
+		server/battles/CombatEventTriggerTest.cpp
+		server/battles/DeathStareTest.cpp
+		server/battles/DestructionTest.cpp
+		server/battles/EnchantedTest.cpp
+		server/battles/FireShieldTest.cpp
+		server/battles/LifeDrainTest.cpp
+		server/battles/SoulStealTest.cpp
+		server/battles/SummonGuardiansTest.cpp
+		server/battles/TransmutationTest.cpp
 		server/queries/QueriesProcessorTest.cpp
+
+		texts/TextOperationsTest.cpp
 
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
@@ -125,6 +138,8 @@ set(test_HEADERS
 		spells/effects/EffectFixture.h
 
 		spells/targetConditions/TargetConditionItemFixture.h
+
+		server/battles/BattleTestFixture.h
 
 		mock/BattleFake.h
 		mock/mock_BonusBearer.h

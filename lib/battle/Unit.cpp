@@ -27,6 +27,11 @@ namespace battle
 ///Unit
 Unit::~Unit() = default;
 
+int32_t Unit::unitLevel() const
+{
+	return creatureLevel();
+}
+
 bool Unit::isDead() const
 {
 	return !alive() && !isGhost();

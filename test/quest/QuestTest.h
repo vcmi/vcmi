@@ -29,6 +29,7 @@ public:
 	{
 	}
 
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int) override { return false; }
 	// ---- public test API ------------------------------------------------
 
 	/// Pretend the player has just defeated `target` — short-circuits the

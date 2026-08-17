@@ -68,7 +68,7 @@ PotentialTargets::PotentialTargets(
 		{
 			for(const BattleHex & hex : avHexes)
 			{
-				if(!CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
+				if(!state->isMeleeAttackPossible(attackerInfo, defender, hex))
 					continue;
 
 				auto bai = GenerateAttackInfo(false, hex);

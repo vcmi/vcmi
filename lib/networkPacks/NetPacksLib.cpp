@@ -521,6 +521,11 @@ void BattleTriggerEffect::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBattleTriggerEffect(*this);
 }
 
+void BattleAnimationPlayed::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleAnimationPlayed(*this);
+}
+
 void BattleUpdateGateState::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBattleUpdateGateState(*this);

@@ -215,7 +215,7 @@ namespace
 			expect(estack, "%s: =1 (bhex %d, nbhex %d), but estack is nullptr", attrname, bh.toInt(), nbh.toInt());
 			// must not pass "nbh" for defender position, as it could be its rear hex
 			expect(
-				cstack->isMeleeAttackPossible(cstack, estack, bh),
+				ctx.battle->isMeleeAttackPossible(cstack, estack, bh),
 				"%s: =1 (bhex %d, nbhex %d), but VCMI says isMeleeAttackPossible=0",
 				attrname,
 				bh.toInt(),
@@ -902,13 +902,13 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::ENEMY_DEFENCE_REDUCTION), "HEX.STACK_FLAGS1.ENEMY_DEFENCE_REDUCTION");
 								break;
 							case SF1::LIFE_DRAIN:
-								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::LIFE_DRAIN), "HEX.STACK_FLAGS1.LIFE_DRAIN");
+								ensureValueMatch(vf, hasCombatScript(cstack, "lifeDrain"), "HEX.STACK_FLAGS1.LIFE_DRAIN");
 								break;
 							case SF1::DOUBLE_DAMAGE_CHANCE:
 								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::DOUBLE_DAMAGE_CHANCE), "HEX.STACK_FLAGS1.DOUBLE_DAMAGE_CHANCE");
 								break;
 							case SF1::DEATH_STARE:
-								ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::DEATH_STARE), "HEX.STACK_FLAGS1.DEATH_STARE");
+								ensureValueMatch(vf, hasCombatScript(cstack, "deathStare"), "HEX.STACK_FLAGS1.DEATH_STARE");
 								break;
 							default:
 								THROW_FORMAT("Unexpected StackFlag: %d", EI(f));

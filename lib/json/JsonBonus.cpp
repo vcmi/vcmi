@@ -18,10 +18,12 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusMigration.h"
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
+#include "../scripting/ScriptService.h"
 
 
 template <typename T>
@@ -107,6 +109,14 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			});
 			break;
 		}
+		case BonusType::COMBAT_EVENT_TRIGGER:
+		{
+			LIBRARY->identifiers()->requestIdentifier( "script", node, [&subtype](int32_t identifier)
+			{
+				subtype = ScriptID(identifier);
+			});
+			break;
+		}
 		case BonusType::PRIMARY_SKILL:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
@@ -121,7 +131,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::BONUS_DAMAGE_PERCENTAGE:
 		case BonusType::SPECIAL_UPGRADE:
 		case BonusType::HATE:
-		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
 		case BonusType::SKELETON_TRANSFORMER_TARGET:
 		case BonusType::DEITYOFFIRE:
@@ -152,7 +161,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELL_AFTER_ATTACK:
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPECIFIC_SPELL_POWER:
-		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
 		case BonusType::ADJACENT_SPELLCASTER:
 		case BonusType::NOT_ACTIVE:
@@ -182,10 +190,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::SOUL_STEAL:
-		case BonusType::TRANSMUTATION:
-		case BonusType::DESTRUCTION:
-		case BonusType::DEATH_STARE:
 		case BonusType::REBIRTH:
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL: // spell level
@@ -227,9 +231,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::IMPROVED_NECROMANCY:
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		case BonusType::DESTRUCTION:
 		case BonusType::LIMITED_SHOOTING_RANGE:
-		case BonusType::ACID_BREATH:
 		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
@@ -245,13 +247,8 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
-		case BonusType::TRANSMUTATION:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
-			break;
-		case BonusType::DEATH_STARE:
-			// 1 spell ID
-			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
@@ -339,11 +336,50 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			}
 			break;
 		}
+		case BonusType::COMBAT_EVENT_TRIGGER:
+		{
+			// the whole addInfo is the script payload - which script runs is the bonus subtype
+			var = BonusParameters(value);
+			break;
+		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
 
 	return result;
+}
+
+/// A combat script validates the parameters the bonus hands it and registers any translatable text
+/// among them. Both need the script itself, which only resolves once every mod has been loaded -
+/// scripts are a content type of their own and may well load after whoever refers to them.
+static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, const TextIdentifier & descriptionID)
+{
+	LIBRARY->identifiers()->requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	{
+		ScriptID scriptID(identifier);
+
+		const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+		if (script.kind != ScriptKind::COMBAT_EVENT)
+		{
+			// the bonus stays, but no combat event script will ever be found for it, so it does nothing
+			logMod->error("Bonus '%s' runs script '%s', which is not a combat event script!", descriptionID.get(), script.scriptId);
+			return;
+		}
+
+		// a bonus may pass no parameters at all, while the script requires some. The schema only
+		// applies to an object, so an absent payload is validated as an empty one rather than skipped
+		JsonNode parameters;
+		if (b->parameters)
+			parameters = b->parameters->toCustom<JsonNode>();
+		else
+			parameters.setType(JsonNode::JsonType::DATA_STRUCT);
+
+		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, descriptionID);
+
+		// parameters are immutable once stored, so the prepared payload replaces them wholesale
+		b->parameters = std::make_shared<BonusParameters>(parameters);
+	});
 }
 
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
@@ -824,23 +860,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const Text
 	return b;
 }
 
-/// MOD COMPATIBILITY - returns replacement for a bonus that is no longer supported, or null node if bonus is still valid
-static JsonNode convertDeprecatedBonus(const JsonNode & ability)
-{
-	// BATTLE_NO_FLEEING is deprecated in 1.8 - it blocked retreating unconditionally, so its value is ignored
-	if(ability["type"].isString() && ability["type"].String() == "BATTLE_NO_FLEEING")
-	{
-		logMod->warn("Bonus BATTLE_NO_FLEEING is deprecated. Use BATTLE_CAN_FLEE with negative value instead");
-
-		JsonNode result = ability;
-		result["type"].String() = "BATTLE_CAN_FLEE";
-		result["val"].Float() = -GameConstants::BATTLE_RETREAT_BLOCK;
-		return result;
-	}
-
-	return JsonNode();
-}
-
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
@@ -853,15 +872,21 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		return false;
 	}
 
-	JsonNode replacement = convertDeprecatedBonus(ability);
-	if(!replacement.isNull())
-		return parseBonus(replacement, b, descriptionID);
+	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
+	JsonNode migrated;
+	if (BonusMigration::migrateBonus(ability, migrated))
+		return parseBonus(migrated, b, descriptionID);
 
-	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
+	BonusMigration::warnIfRetired(ability, descriptionID);
+
+	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
+
+		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
+			prepareCombatScriptParameters(b, subtypeNode, descriptionID);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());

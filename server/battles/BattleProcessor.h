@@ -23,6 +23,11 @@ struct BattleResult;
 struct BattleLayout;
 class BattleID;
 
+namespace battle
+{
+class Unit;
+}
+
 class CGameHandler;
 class CBattleQuery;
 class BattleActionProcessor;
@@ -49,6 +54,7 @@ class BattleProcessor : boost::noncopyable
 	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
 
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 

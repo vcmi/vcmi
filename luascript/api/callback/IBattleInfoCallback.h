@@ -18,6 +18,7 @@
 
 struct CObstacleInstance;
 class CBattleInfoCallback;
+class Creature;
 
 namespace scripting::api
 {
@@ -36,7 +37,12 @@ public:
 	static int getAvailableHex(lua_State * L);
 	static int getUnitsIf(lua_State * L);
 	static bool isAccessibleForUnit(const IBattleInfoCallback & object, const battle::Unit & unit, BattleHex hex);
+	static bool isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side);
+	static int getFieldWidth(const IBattleInfoCallback & object);
 	static bool hasPenaltyOnLine(const IBattleInfoCallback & object, BattleHex from, BattleHex dest, bool checkWall, bool checkMoat);
+	static bool isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender);
+	static bool hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target);
+	static bool hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target);
 	static const battle::Unit * getUnitByPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyAlive);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getAllObstacles(const IBattleInfoCallback & object);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getObstaclesOnPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyBlocking);

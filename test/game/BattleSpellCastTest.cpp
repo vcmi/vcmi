@@ -135,6 +135,11 @@ public:
 		return &randomGenerator;//todo: mock this
 	}
 
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int percentageChance) override
+	{
+		return randomGenerator.nextInt(1, 100) <= percentageChance;
+	}
+
 	const CMap * getMap() const override
 	{
 		return map;

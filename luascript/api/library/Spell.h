@@ -15,6 +15,9 @@
 #include "../../LuaWrapper.h"
 #include "../MethodRegistrar.h"
 
+class IBattleInfoCallback;
+
+namespace battle { class Unit; }
 namespace spells { class SpellSchoolType; }
 
 namespace scripting::api
@@ -31,6 +34,7 @@ public:
 	static void registerMethods(MethodRegistrar & R);
 
 	static std::vector<const spells::SpellSchoolType *> getSchools(const ::spells::Spell & spell);
+	static int64_t adjustDamage(const ::spells::Spell & spell, const IBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & target, int64_t rawDamage);
 };
 
 }

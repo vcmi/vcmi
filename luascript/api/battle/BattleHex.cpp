@@ -39,6 +39,8 @@ void BattleHexProxy::registerMethods(MethodRegistrar & R)
 	R.method<&BattleHex::copyToSouthEast>    ("copyToSouthEast", {}, "Returns the neighbouring hex one step south-east.");
 	R.method<&BattleHex::copyToSouthWest>    ("copyToSouthWest", {}, "Returns the neighbouring hex one step south-west.");
 	R.method<&BattleHex::copyToWest>         ("copyToWest",      {}, "Returns the neighbouring hex one step west.");
+	R.method<&BattleHex::getX>               ("getX", {}, "Returns the column of this hex, from 0 at the left edge of the battlefield to 16 at the right one. The two edge columns only hold the heroes, so no unit ever stands there.");
+	R.method<&BattleHex::getY>               ("getY", {}, "Returns the row of this hex, from 0 at the top of the battlefield to 10 at the bottom. Odd rows are shifted half a hex to the right.");
 }
 
 BattleHex BattleHexProxy::getClosestTile(const BattleHex & self, BattleSide side, const BattleHexArray & hexes)

@@ -332,9 +332,16 @@
 			},
 			"acidBreath" :
 			{
-				"type" : "ACID_BREATH",
-				"val" : 25,
-				"addInfo" : 30
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.acidBreathDamage",
+				"val" : 20
+			},
+			// damage of the cast above, multiplied by the number of dragons in the stack
+			"acidBreathDamage" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.acidBreathDamage",
+				"val" : 25
 			},
 			"reduceDefence" :
 			{

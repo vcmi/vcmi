@@ -980,6 +980,44 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 	return false;
 }
 
+BattleHexArray CBattleInfoCallback::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPosition, const BattleHex & defenderPosition) const
+{
+	BattleHexArray res;
+
+	BattleHex attackerPos = attackerPosition.isValid() ? attackerPosition : attacker->getPosition();
+	BattleHex defenderPos = defenderPosition.isValid() ? defenderPosition : defender->getPosition();
+
+	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
+	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
+	{
+		if (attackerHexes.contains(defenderHex))
+		{
+			logGlobal->debug("CBattleInfoCallback::meleeAttackHexes: defender and attacker positions overlap");
+			return res;
+		}
+	}
+
+	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
+	{
+		if (attackableHxs.contains(defenderHex))
+			res.insert(defenderHex);
+	}
+
+	return res;
+}
+
+bool CBattleInfoCallback::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos, const BattleHex & defenderPos) const
+{
+	if(defender->isInvincible())
+		return false;
+
+	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
+}
+
 bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -992,7 +1030,7 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 	if(!attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 		return false;
 
-	if(CStack::isMeleeAttackPossible(attacker, defender))
+	if(isMeleeAttackPossible(attacker, defender))
 		return false;
 
 	for(const BattleHex & defenderHex : defender->getHexes())
@@ -1923,9 +1961,9 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	return units;
 }
 
-std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
+std::pair<battle::Units, bool> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
 {
-	std::pair<std::set<const CStack*>, bool> attackedCres;
+	std::pair<battle::Units, bool> attackedCres;
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
 	AttackableTiles at;
@@ -1944,21 +1982,24 @@ std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatur
 		}
 	}
 
+	// a double-wide unit is found through both of its hexes, so the same unit shows up twice
+	const auto & addOnce = [&attackedCres](const battle::Unit * unit)
+	{
+		if(!vstd::contains(attackedCres.first, unit))
+			attackedCres.first.push_back(unit);
+	};
+
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && battleGetOwner(st) != battleGetOwner(attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
-		{
-			attackedCres.first.insert(st);
-		}
+			addOnce(st);
 	}
 	for (const BattleHex & tile : at.friendlyCreaturePositions)
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
-		{
-			attackedCres.first.insert(st);
-		}
+			addOnce(st);
 	}
 
 	if (at.friendlyCreaturePositions.empty())

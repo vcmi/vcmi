@@ -18,6 +18,7 @@
 #include "GameLibrary.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
+#include "bonuses/BonusMigration.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
@@ -1035,8 +1036,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = BonusType::DOUBLE_DAMAGE_CHANCE;
 		break;
 	case 'E':
-		b.type = BonusType::DEATH_STARE;
-		b.subtype = BonusCustomSubtype::deathStareGorgon;
+		b.type = BonusType::UNUSED_DEATH_STARE;
+		b.subtype = BonusCustomSubtype(0); // was deathStareGorgon, converted below
 		break;
 	case 'F':
 		b.type = BonusType::FEARFUL; break;
@@ -1239,7 +1240,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.val = stringToNumber(mod);
 		break;
 	case 's':
-		b.type = BonusType::ENCHANTED;
+		b.type = BonusType::UNUSED_ENCHANTED;
 		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
 		b.valType = BonusValueType::INDEPENDENT_MAX;
 		break;
@@ -1303,6 +1304,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			}
 		}
 	}
+
+	// this table names abilities that are combat scripts now, and builds them without going
+	// through the json loader that would otherwise convert them
+	for(const auto & bonus : bl)
+		BonusMigration::migrateCombatAbility(*bonus);
 }
 
 int CCreatureHandler::stringToNumber(std::string & s) const

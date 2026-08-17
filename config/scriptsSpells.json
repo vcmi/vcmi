@@ -1,0 +1,287 @@
+{
+	"catapult" : {
+		"implements" : "spellEffect",
+		"script" : "spells/catapult",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"targetsToAttack" : { "type" : "number" },
+				"chanceToHitKeep" : { "type" : "number" },
+				"chanceToHitGate" : { "type" : "number" },
+				"chanceToHitTower" : { "type" : "number" },
+				"chanceToHitWall" : { "type" : "number" },
+				"chanceToNormalHit" : { "type" : "number" },
+				"chanceToCrit" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"clone" : {
+		"implements" : "spellEffect",
+		"script" : "spells/clone",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"maxTier" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"damage" : {
+		"implements" : "spellEffect",
+		"script" : "spells/damage",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"killByPercentage" : { "type" : "boolean" },
+				"killByCount" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"demonSummon" : {
+		"implements" : "spellEffect",
+		"script" : "spells/demonSummon",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"dispel" : {
+		"implements" : "spellEffect",
+		"script" : "spells/dispel",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"dispelPositive" : { "type" : "boolean" },
+				"dispelNegative" : { "type" : "boolean" },
+				"dispelNeutral" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"heal" : {
+		"implements" : "spellEffect",
+		"script" : "spells/heal",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"sacrifice" : {
+		"implements" : "spellEffect",
+		"script" : "spells/sacrifice",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"moat" : {
+		"implements" : "spellEffect",
+		"script" : "spells/moat",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"dispellable" : { "type" : "boolean" },
+				"moatDamage" : { "type" : "number" },
+				"moatHexes" : { "type" : "array", "items" : { "type" : "array", "items" : { "type" : "number" } } },
+				"triggerAbility" : { "type" : "string" },
+				"defender" : {},
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"obstacle" : {
+		"implements" : "spellEffect",
+		"script" : "spells/obstacle",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"passable" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"hideNative" : { "type" : "boolean" },
+				"patchCount" : { "type" : "number" },
+				"turnsRemaining" : { "type" : "number" },
+				"triggerAbility" : { "type" : "string" },
+				"attacker" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Per-side appearance and placement of the obstacle",
+					"properties" : {
+						"animation" : { "type" : "string", "description" : "Looping animation shown while the obstacle is on the battlefield" },
+						"appearAnimation" : { "type" : "string", "description" : "Animation played when the obstacle appears" },
+						"appearSound" : { "type" : "string", "description" : "Sound played when the obstacle appears" },
+						"removalAnimation" : { "type" : "string", "description" : "Animation played when the obstacle is removed. Falls back to appearAnimation if empty" },
+						"offsetY" : { "type" : "number", "description" : "Vertical offset of the obstacle sprite, in pixels" },
+						"shape" : { "type" : "array", "description" : "Hexes occupied by the obstacle, as direction paths from the anchor hex", "items" : { "type" : "array", "items" : { "type" : "string" } } },
+						"range" : { "type" : "array", "description" : "Hexes the obstacle may be placed on, as direction paths from the target hex", "items" : { "type" : "array", "items" : { "type" : "string" } } }
+					}
+				},
+				"defender" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Per-side appearance and placement of the obstacle",
+					"properties" : {
+						"animation" : { "type" : "string", "description" : "Looping animation shown while the obstacle is on the battlefield" },
+						"appearAnimation" : { "type" : "string", "description" : "Animation played when the obstacle appears" },
+						"appearSound" : { "type" : "string", "description" : "Sound played when the obstacle appears" },
+						"removalAnimation" : { "type" : "string", "description" : "Animation played when the obstacle is removed. Falls back to appearAnimation if empty" },
+						"offsetY" : { "type" : "number", "description" : "Vertical offset of the obstacle sprite, in pixels" },
+						"shape" : { "type" : "array", "description" : "Hexes occupied by the obstacle, as direction paths from the anchor hex", "items" : { "type" : "array", "items" : { "type" : "string" } } },
+						"range" : { "type" : "array", "description" : "Hexes the obstacle may be placed on, as direction paths from the target hex", "items" : { "type" : "array", "items" : { "type" : "string" } } }
+					}
+				}
+			},
+			"additionalProperties" : false
+		}
+	},
+	"removeObstacle" : {
+		"implements" : "spellEffect",
+		"script" : "spells/removeObstacle",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"removeAbsolute" : { "type" : "boolean" },
+				"removeUsual" : { "type" : "boolean" },
+				"removeAllSpells" : { "type" : "boolean" },
+				"removeSpells" : {}
+			},
+			"additionalProperties" : false
+		}
+	},
+	"summon" : {
+		"implements" : "spellEffect",
+		"script" : "spells/summon",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" },
+				"exclusive" : { "type" : "boolean" },
+				"summonByHealth" : { "type" : "boolean" },
+				"summonSameUnit" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"teleport" : {
+		"implements" : "spellEffect",
+		"script" : "spells/teleport",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"isWallPassable" : { "type" : "boolean" },
+				"isMoatPassable" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"attachCombatScript" : {
+		"implements" : "spellEffect",
+		"script" : "spells/attachCombatScript",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"eventScript" : { "type" : "string" },
+				"eventValue" : { "type" : "number" },
+				"eventParameters" : { "type" : "object" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"timed" : {
+		"implements" : "spellEffect",
+		"script" : "spells/timed",
+		"stringRegistrations" : ["battleLogSingular", "battleLogPlural"],
+		"patches" : ["spells/patches/timedShield", "spells/patches/timedBind"],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"cumulative" : { "type" : "boolean" },
+				"battleLogSingular" : { "type" : "string" },
+				"battleLogPlural" : { "type" : "string" },
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	}
+}

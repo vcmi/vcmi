@@ -281,7 +281,7 @@ std::tuple<std::shared_ptr<Hexes>, Stack *> Battlefield::InitHexes(const CPlayer
 		{
 			auto i = (y * 15) + x;
 			auto bh = BattleHex(x + 1, y);
-			res->at(y).at(x) = std::make_unique<Hex>(bh, ainfo.at(bh.toInt()), gatestate, hexobstacles.at(i), hexstacks, astackinfo);
+			res->at(y).at(x) = std::make_unique<Hex>(battle, bh, ainfo.at(bh.toInt()), gatestate, hexobstacles.at(i), hexstacks, astackinfo);
 		}
 	}
 

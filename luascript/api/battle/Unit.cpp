@@ -64,11 +64,13 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"True if the unit is absolutely immune to the given spell.");
 	R.method<&Unit::isSummoned>("isSummoned", {},
 		"True if the stack was summoned during battle (e.g. by Summon Elementals).");
+	R.method<&ACreature::isLiving, Unit>("isLiving", {},
+		"True if the stack is a living creature - not undead, not a golem-like non-living unit.");
 	R.method<&IUnitInfo::unitOwner, Unit>("getOwner", {},
 		"Returns the player color controlling this unit.");
 	R.method<&IUnitInfo::unitSlot, Unit>("getSlot", {},
 		"Returns the army slot in the army this unit occupies. NOTE: All summoned units share the same slot");
-	R.method<&IUnitInfo::unitSide, Unit>("unitSide", {},
+	R.method<&IUnitInfo::unitSide, Unit>("getSide", {},
 		"Returns the battle side (attacker or defender) this unit belongs to.");
 	R.method<&Unit::getPosition>("getPosition", {},
 		"Returns the battlefield hex occupied by the unit, or front hex for double-wide units");
@@ -89,10 +91,15 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the initial number of creatures this stack had at battle start.");
 	R.function<&UnitProxy::getHexes>("getHexes", {},
 		"Returns the list of hexes currently occupied by the unit.");
+	R.function<&UnitProxy::getSurroundingHexes>("getSurroundingHexes", {},
+		"Returns the hexes adjacent to the unit - six for a single-hex unit, eight for a double-wide one.");
 	R.function<&UnitProxy::copy>("copy", {},
 		"Returns a copy of the unit's state allowing copying or changing this unit via server calls.");
 	R.method<&Unit::creatureLevel>("creatureLevel", {},
 		"Returns the creature level (1..7) of the unit's type.");
+	R.method<&Unit::unitLevel>("getLevel", {},
+		"Returns the level of the stack itself, which for a commander is its own level rather than "
+		"the tier of its creature. Use `creatureLevel` when the creature type is what matters.");
 	R.method<&IUnitInfo::unitId, Unit>("unitID", {},
 		"DEPRECATED. Returns the unit's internal numeric identifier.");
 }
@@ -105,6 +112,11 @@ const Creature * UnitProxy::getCreature(const Unit & unit)
 BattleHexArray UnitProxy::getHexes(const Unit & unit)
 {
 	return unit.getHexes();
+}
+
+BattleHexArray UnitProxy::getSurroundingHexes(const Unit & unit)
+{
+	return unit.getSurroundingHexes();
 }
 
 bool UnitProxy::hasAbsoluteImmunity(const Unit & unit, const spells::Spell & spell)

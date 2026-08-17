@@ -119,15 +119,7 @@
 		"blockDescriptionPropagation": true
 	},
 
-	"DEATH_STARE":
-	{
-	},
-
 	"DEFENSIVE_STANCE":
-	{
-	},
-
-	"DESTRUCTION":
 	{
 	},
 
@@ -143,10 +135,6 @@
 	{
 	},
 
-	"ENCHANTED":
-	{
-	},
-
 	"ENEMY_ATTACK_REDUCTION":
 	{
 	},
@@ -156,10 +144,6 @@
 	},
 	
 	"FEARFUL":
-	{
-	},
-
-	"FIRE_SHIELD":
 	{
 	},
 
@@ -191,7 +175,6 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
 
 	"FREE_SHOOTING":
 	{
@@ -298,10 +281,6 @@
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
-	{
-	},
-
-	"LIFE_DRAIN":
 	{
 	},
 
@@ -488,11 +467,7 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
-	"SOUL_STEAL":
-	{
-	},
-	
+
 	"SPELLCASTER":
 	{
 	},
@@ -537,10 +512,6 @@
 	{
 	},
 
-	"SUMMON_GUARDIANS":
-	{
-	},
-	
 	"SURRENDER_DISCOUNT":
 	{
 		"blockDescriptionPropagation": true
@@ -559,10 +530,6 @@
 	},
 
 	"THREE_HEADED_ATTACK":
-	{
-	},
-	
-	"TRANSMUTATION":
 	{
 	},
 
@@ -659,7 +626,6 @@
 	{
 	},
 
-	"ACID_BREATH" : {},
 	"ALWAYS_MINIMUM_DAMAGE" : {},
 	"ATTACKS_NEAREST_CREATURE" : {},
 	"BLOCK_ALL_MAGIC" : {},

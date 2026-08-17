@@ -24,16 +24,12 @@ class JsonNode;
 class BattleFieldService;
 class ObstacleService;
 class IGameSettings;
+class ScriptService;
 
 namespace spells
 {
 	class Service;
 	class SchoolService;
-
-	namespace effects
-	{
-		class SpellEffectService;
-	}
 }
 
 namespace scripting
@@ -58,6 +54,7 @@ public:
 	virtual const BattleFieldService * battlefields() const = 0;
 	virtual const ObstacleService * obstacles() const = 0;
 	virtual const IGameSettings * engineSettings() const = 0;
-	virtual const spells::effects::SpellEffectService * spellEffects() const = 0;
 	virtual const spells::SchoolService * spellSchools() const = 0;
+	/// registry of every script the game knows, of every kind
+	virtual const ScriptService * scriptTypes() const = 0;
 };

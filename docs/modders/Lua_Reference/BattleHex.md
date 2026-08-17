@@ -58,3 +58,15 @@ Returns the neighbouring hex one step south-west.
 Returns the neighbouring hex one step west.
 
 - returns [`BattleHex`](BattleHex.md)
+
+### getX
+
+Returns the column of this hex, from 0 at the left edge of the battlefield to 16 at the right one. The two edge columns only hold the heroes, so no unit ever stands there.
+
+- returns `integer`
+
+### getY
+
+Returns the row of this hex, from 0 at the top of the battlefield to 10 at the bottom. Odd rows are shifted half a hex to the right.
+
+- returns `integer`

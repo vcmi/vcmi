@@ -312,23 +312,23 @@ caster spell power * base spell power + spell mastery power(caster spell school)
 
 Where:
 
-- `caster spell school` is assumed spell school level for the spell. For unit this is value of [SPELLCASTER](../bonus/Bonus_Types.md#spellcaster) bonus. For hero this is value of [MAGIC_SCHOOL_SKILL](../bonus/Bonus_Types.md#magic_school_skill) or [SPELL](../bonus/Bonus_Types.md#spell) bonus, whichever is greater
+- `caster spell school` is assumed spell school level for the spell. For unit this is value of [SPELLCASTER](../Bonus/Bonus_Types.md#spellcaster) bonus. For hero this is value of [MAGIC_SCHOOL_SKILL](../Bonus/Bonus_Types.md#magic_school_skill) or [SPELL](../Bonus/Bonus_Types.md#spell) bonus, whichever is greater
 - `spell mastery power` is `power` parameter defined in config of corresponding mastery level of the spell
 - `base spell power` is `power` parameter, as defined in config of spell itself
-- `caster spell power` is spellpower of the hero, or [CREATURE_SPELL_POWER](../bonus/Bonus_Types.md#creature_spell_power) bonus for units
+- `caster spell power` is spellpower of the hero, or [CREATURE_SPELL_POWER](../Bonus/Bonus_Types.md#creature_spell_power) bonus for units
 
-If unit has [SPECIFIC_SPELL_POWER](../bonus/Bonus_Types.md#specific_spell_power) bonus for corresponding spell, game will use value of the bonus instead
+If unit has [SPECIFIC_SPELL_POWER](../Bonus/Bonus_Types.md#specific_spell_power) bonus for corresponding spell, game will use value of the bonus instead
 
 Power of `damage`, `heal` and `demonSummon` effects cast by hero can also be affected by following bonuses:
 
-- [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) bonus for the spell, scaled by target level (Solmyr / Deemer). Usually configured via the `spellScalingPercentage` hero specialty shortcut
-- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell - legacy variant of the above with incorrect rounding, kept only for backward compatibility
-- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for spell school of the spell, or for any spell school (Sorcery)
-- [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
+- [SPECIAL_SPELL_SCALING](../Bonus/Bonus_Types.md#special_spell_scaling) bonus for the spell, scaled by target level (Solmyr / Deemer). Usually configured via the `spellScalingPercentage` hero specialty shortcut
+- [SPECIAL_SPELL_LEV](../Bonus/Bonus_Types.md#special_spell_lev) bonus for the spell - legacy variant of the above with incorrect rounding, kept only for backward compatibility
+- [SPELL_DAMAGE](../Bonus/Bonus_Types.md#spell_damage) for spell school of the spell, or for any spell school (Sorcery)
+- [SPECIFIC_SPELL_DAMAGE](../Bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
 
-Magnitude of a buff or debuff placed by a `timed` effect cast by hero is affected by [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) for the spell (e.g. Shield, Frenzy, Forgetfulness). This is the only spell-power bonus that reaches `timed` effects - [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) and [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) do not.
+Magnitude of a buff or debuff placed by a `timed` effect cast by hero is affected by [SPECIAL_SPELL_SCALING](../Bonus/Bonus_Types.md#special_spell_scaling) for the spell (e.g. Shield, Frenzy, Forgetfulness). This is the only spell-power bonus that reaches `timed` effects - [SPELL_DAMAGE](../Bonus/Bonus_Types.md#spell_damage) and [SPECIFIC_SPELL_DAMAGE](../Bonus/Bonus_Types.md#specific_spell_damage) do not.
 
-Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell only.
+Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../Bonus/Bonus_Types.md#specific_spell_damage) for the spell only.
 
 ## Smart target modifier
 
@@ -362,6 +362,27 @@ To restrict spell from casting it on "wrong" side in combat, you can use `smart`
 	// Only applicable for damage spells and only if chain length is non-zero.
 	// Multiplier for damage for each chained target
 	"chainFactor" : 0.5,
+}
+```
+
+### Attach combat script
+
+Gives every affected unit a [COMBAT_EVENT_TRIGGER](../Bonus/Bonus_Types.md#combat_event_trigger) bonus running the named [combat event script](../Lua/Combat_Event_Scripts.md) for the duration of the spell. Use it for a spell whose effect is not immediate but happens later, when something happens to the unit it was cast on.
+
+`eventParameters` reaches the script exactly as written and is checked against the schema that script declares, so the spell has to pass whatever the script requires. Nothing about the caster is added - a script that needs to know the spell or its power has to be given it here.
+
+```json
+"firstSpellEffect" : {
+	"type": "core:attachCombatScript",
+
+	// combat event script to attach
+	"eventScript" : "mod:spikes",
+
+	// magnitude of the ability, read by the script as self.val
+	"eventValue" : 10,
+
+	// parameters the script is initialized with, read as fields of self
+	"eventParameters" : { "poison" : true }
 }
 ```
 
@@ -425,7 +446,7 @@ Deals specified damage to all affected targets based on spell effect value:
 
 If spell has chain effect, damage dealt to chained target will be multiplied by specified `chainFactor`
 
-Target with [SPELL_DAMAGE_REDUCTION](../bonus/Bonus_Types.md#spell_damage_reduction) bonus with value greater than 100% for any of spell school of the spell are immune to this effect
+Target with [SPELL_DAMAGE_REDUCTION](../Bonus/Bonus_Types.md#spell_damage_reduction) bonus with value greater than 100% for any of spell school of the spell are immune to this effect
 
 ```json
 "firstSpellEffect":{
@@ -676,14 +697,14 @@ Timed effect gives affected units specified bonuses for duration of the spell.
 
 Duration of effect is:
 
-- Hero: Spellpower + value of [SPELL_DURATION](../bonus/Bonus_Types.md#spell_duration) + [SPELL_DURATION](../bonus/Bonus_Types.md#spell_duration) for specific spell
-- Units: value of [CREATURE_ENCHANT_POWER](../bonus/Bonus_Types.md#creature_enchant_power), or 3 if no such bonus
+- Hero: Spellpower + value of [SPELL_DURATION](../Bonus/Bonus_Types.md#spell_duration) + [SPELL_DURATION](../Bonus/Bonus_Types.md#spell_duration) for specific spell
+- Units: value of [CREATURE_ENCHANT_POWER](../Bonus/Bonus_Types.md#creature_enchant_power), or 3 if no such bonus
 
 Value of all bonuses can be affected by following bonuses:
 
-- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified according to level of target unit, using per-tier values from addInfo
-- [SPECIAL_ADD_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_add_value_enchant): value from addInfo is added to val of bonus
-- [SPECIAL_FIXED_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_fixed_value_enchant): value from addInfo replaces val of bonus
+- [SPECIAL_PECULIAR_ENCHANT](../Bonus/Bonus_Types.md#special_peculiar_enchant): value modified according to level of target unit, using per-tier values from addInfo
+- [SPECIAL_ADD_VALUE_ENCHANT](../Bonus/Bonus_Types.md#special_add_value_enchant): value from addInfo is added to val of bonus
+- [SPECIAL_FIXED_VALUE_ENCHANT](../Bonus/Bonus_Types.md#special_fixed_value_enchant): value from addInfo replaces val of bonus
 
 ```json
 "firstSpellEffect" : {

@@ -933,6 +933,13 @@ void CPlayerInterface::battleStacksEffectsSet(const BattleID & battleID, const S
 
 	battleInt->battleStacksEffectsSet(sse);
 }
+void CPlayerInterface::battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->effectsController->battleAnimationPlayed(pack);
+}
 void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -969,7 +976,6 @@ void CPlayerInterface::battleStacksAttacked(const BattleID & battleID, const std
 		info.killed         = elem.killed();
 		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
-		info.fireShield     = elem.fireShield();
 
 		if (elem.isSpell())
 			info.spellEffect = elem.spellID;
@@ -990,7 +996,6 @@ void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttac
 	info.lucky = ba->lucky();
 	info.unlucky = ba->unlucky();
 	info.deathBlow = ba->deathBlow();
-	info.lifeDrain = ba->lifeDrain();
 	info.playCustomAnimation = ba->playCustomAnimation();
 	info.tile = ba->tile;
 	info.spellEffect = SpellID::NONE;

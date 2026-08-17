@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../json/JsonNode.h"
 #include "../serializer/Serializeable.h"
 
 #include "Bonus.h"
@@ -57,7 +58,7 @@ struct BonusParametersOnCombatEvent
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent>;
+	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent, JsonNode>;
 
 	BonusParameters() = default;
 

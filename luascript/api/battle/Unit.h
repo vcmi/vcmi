@@ -35,6 +35,7 @@ public:
 
 	static const Creature * getCreature(const ::battle::Unit & unit);
 	static BattleHexArray getHexes(const ::battle::Unit & unit);
+	static BattleHexArray getSurroundingHexes(const ::battle::Unit & unit);
 	static bool hasAbsoluteImmunity(const ::battle::Unit & unit, const spells::Spell & spell);
 	static LuaUnitState copy(const ::battle::Unit & unit);
 };

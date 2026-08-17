@@ -26,6 +26,7 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/SchoolService.h>
 
+#include "scripting/ScriptService.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
@@ -79,7 +80,7 @@ const SpellSchool SpellSchool::FIRE(1);
 const SpellSchool SpellSchool::EARTH(2);
 const SpellSchool SpellSchool::WATER(3);
 
-const SpellEffectID SpellEffectID::NONE(-1);
+const ScriptID ScriptID::NONE(-1);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
@@ -637,6 +638,23 @@ const BattleFieldInfo * BattleField::getInfo() const
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return LIBRARY->obstacles()->getById(*this);
+}
+
+si32 ScriptID::decode(const std::string & identifier)
+{
+	return resolveIdentifier(entityType(), identifier);
+}
+
+std::string ScriptID::encode(const si32 index)
+{
+	if (index == -1)
+		return "";
+	return LIBRARY->scriptTypes()->getById(ScriptID(index)).scriptId;
+}
+
+std::string ScriptID::entityType()
+{
+	return "script";
 }
 
 si32 SpellSchool::decode(const std::string & identifier)

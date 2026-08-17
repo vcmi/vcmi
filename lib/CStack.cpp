@@ -79,7 +79,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 	position = initialPosition;
 }
 
-ui32 CStack::level() const
+int32_t CStack::unitLevel() const
 {
 	if(base)
 		return base->getLevel(); //creature or commander
@@ -225,46 +225,6 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	bsa.newState.healthDelta = -bsa.damageAmount;
 	bsa.newState.id = customState->unitId();
 	bsa.newState.operation = UnitChanges::EOperation::UPDATE;
-}
-
-BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
-{
-	BattleHexArray res;
-
-	if (!attackerPos.isValid())
-		attackerPos = attacker->getPosition();
-	if (!defenderPos.isValid())
-		defenderPos = defender->getPosition();
-
-	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
-	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
-
-	for (BattleHex defenderHex : defenderHexes)
-	{
-		if (attackerHexes.contains(defenderHex))
-		{
-			logGlobal->debug("CStack::meleeAttackHexes: defender and attacker positions overlap");
-			return res;
-		}
-	}
-
-	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
-
-	for (BattleHex defenderHex : defenderHexes)
-	{
-		if (attackableHxs.contains(defenderHex))
-			res.insert(defenderHex);
-	}
-
-	return res;
-}
-
-bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
-{
-	if(defender->isInvincible())
-		return false;
-		
-	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
 }
 
 std::string CStack::getName() const

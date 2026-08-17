@@ -11,6 +11,7 @@
 #pragma once
 
 #include "battle/AccessibilityInfo.h"
+#include "battle/CPlayerBattleCallback.h"
 #include "battle/BattleHex.h"
 #include "battle/CObstacleInstance.h"
 #include "battle/ReachabilityInfo.h"
@@ -53,7 +54,8 @@ public:
 	static std::pair<int, int> CalcXY(const BattleHex & bh);
 	static HexActionHex NearbyBattleHexes(const BattleHex & bh);
 
-	Hex(const BattleHex & bh,
+	Hex(const CPlayerBattleCallback * battle,
+		const BattleHex & bh,
 		EAccessibility accessibility,
 		EGateState gatestate,
 		const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles,
@@ -82,6 +84,6 @@ private:
 
 	void setStateMask(EAccessibility accessibility, const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles, BattleSide side);
 
-	void setActionMask(const std::shared_ptr<ActiveStackInfo> & astackinfo, const std::map<BattleHex, std::shared_ptr<Stack>> & hexstacks);
+	void setActionMask(const CPlayerBattleCallback * battle, const std::shared_ptr<ActiveStackInfo> & astackinfo, const std::map<BattleHex, std::shared_ptr<Stack>> & hexstacks);
 };
 }

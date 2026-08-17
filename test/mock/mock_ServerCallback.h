@@ -19,6 +19,7 @@ public:
 
 	MOCK_METHOD1(complain, void(const std::string &));
 	MOCK_METHOD0(getRNG, vstd::RNG *());
+	MOCK_METHOD3(rollCombatAbility, bool(const IBattleInfoCallback &, const battle::Unit &, int));
 
 	MOCK_METHOD1(apply, void(CPackForClient &));
 

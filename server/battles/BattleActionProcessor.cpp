@@ -15,12 +15,15 @@
 #include "../CGameHandler.h"
 
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/bonuses/BonusParameters.h"
+#include "../../lib/scripting/ScriptService.h"
+#include "../../lib/combatScripts/ICombatEventScript.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -32,6 +35,16 @@
 #include "../../lib/spells/CSpell.h"
 
 #include <vstd/RNG.h>
+
+/// What a script reacting before an attack learns about a unit that is about to be hit. The damage
+/// is not rolled yet, so only the identity of the unit and the health it has left are known.
+static AttackedTarget unitAboutToBeAttacked(const battle::Unit * unit)
+{
+	AttackedTarget target;
+	target.unit = unit;
+	target.healthBeforeAttack = unit->getAvailableHealth();
+	return target;
+}
 
 BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
@@ -267,7 +280,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		return false;
 	}
 
-	const bool regularMeleeAttack = CStack::isMeleeAttackPossible(stack, destinationStack);
+	const bool regularMeleeAttack = battle.isMeleeAttackPossible(stack, destinationStack);
 	const bool longWeaponAttack = battle.isLongWeaponAttack(stack, destinationStack);
 
 	if(!regularMeleeAttack && !longWeaponAttack)
@@ -300,13 +313,14 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//first strike
 		if(i == 0 && firstStrike && destinationStack->ableToRetaliate() && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible() && !longWeaponAttack)
 		{
-			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
+			makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .counter = true});
 		}
 
 		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
 		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
 		{
-			makeAttack(battle, stack, destinationStack, (i ? 0 : movementResult.distance), destinationTile, i==0, false, false);//no distance travelled on second attack
+			//no distance travelled on second attack
+			makeAttack(battle, stack, destinationStack, {.targetHex = destinationTile, .distance = (i ? 0 : movementResult.distance), .attackIndex = i, .first = i == 0});
 
 			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
@@ -330,7 +344,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 			&& (i == 0 && !firstStrike)
 			&& destinationStack->ableToRetaliate())
 		{
-			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
+			makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .counter = true});
 		}
 	}
 
@@ -362,7 +376,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	return true;
 }
 
-void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const CStack * stack, BonusList bonuses)
+void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, BonusList bonuses)
 {
 	if (!stack)
 	{
@@ -423,7 +437,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	}
 
 	if (!firstStrike)
-		makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
+		makeAttack(battle, stack, destinationStack, {.targetHex = destination, .first = true, .ranged = true});
 
 	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
 	BonusList defenderBonusesToRemove;
@@ -438,7 +452,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		&& battle.battleCanShoot(destinationStack, stack->getPosition())
 		&& stack->alive()) //attacker may have died (fire shield)
 	{
-		makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, true, true);
+		makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .ranged = true, .counter = true});
 	}
 	//allow more than one additional attack
 
@@ -457,7 +471,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 			&& (emptyTileAreaAttack || destinationStack->alive())
 			&& stack->shots.canUse())
 		{
-			makeAttack(battle, stack, destinationStack, 0, destination, false, true, false);
+			// when the defender strikes first the opening shot above is skipped and this loop makes
+			// it instead, so the shot that abilities fire on is the first one this loop makes
+			makeAttack(battle, stack, destinationStack, {.targetHex = destination, .attackIndex = i, .first = i == 0, .ranged = true});
 		}
 	}
 
@@ -1031,31 +1047,8 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	return { static_cast<int16_t>(pathDistance), !movementSuccess, false };
 }
 
-void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
+void BattleActionProcessor::rollAttackFlags(const CBattleInfoCallback & battle, const CStack * attacker, BattleAttack & bat) const
 {
-	if(defender && first && !counter)
-		handleAttackBeforeCasting(battle, ranged, attacker, defender);
-
-	// If the attacker or defender is not alive before the attack action, the action should be skipped.
-	if((!attacker->alive()) || (defender && !defender->alive()))
-		return;
-
-	FireShieldInfo fireShield;
-	BattleAttack bat;
-	BattleLogMessage blm;
-	blm.battleID = battle.getBattle()->getBattleID();
-	bat.battleID = battle.getBattle()->getBattleID();
-	bat.attackerChanges.battleID = battle.getBattle()->getBattleID();
-	bat.stackAttacking = attacker->unitId();
-	bat.tile = targetHex;
-
-	std::shared_ptr<battle::CUnitState> attackerState = attacker->acquireState();
-
-	if(ranged)
-		bat.flags |= BattleAttack::SHOT;
-	if(counter)
-		bat.flags |= BattleAttack::COUNTER;
-
 	const int attackerLuck = attacker->luckVal();
 	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
 
@@ -1075,79 +1068,149 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, chance))
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 	}
+}
 
-	battle::HealInfo healInfo;
-
-	// only primary target
+void BattleActionProcessor::describeUpcomingAttack(CombatEventPayload & payload, const CStack * defender, const battle::Units & secondaryTargets) const
+{
 	if(defender && defender->alive())
-		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
+		payload.targets.push_back(unitAboutToBeAttacked(defender));
+
+	for(const auto * unit : secondaryTargets)
+		payload.targets.push_back(unitAboutToBeAttacked(unit));
+}
+
+battle::Units BattleActionProcessor::collectSecondaryTargets(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const AttackDescriptor & attack, BattleAttack & bat) const
+{
+	battle::Units result;
+
+	const auto & addOnce = [&result, defender](const battle::Unit * unit)
+	{
+		if(unit != defender && unit->alive() && !vstd::contains(result, unit)) //do not hit same unit twice
+			result.push_back(unit);
+	};
 
 	//multiple-hex normal attack
-	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
-	for(const CStack * stack : attackedCreatures)
-	{
-		if(stack != defender && stack->alive()) //do not hit same stack twice
-		{
-			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
-			removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
-		}
-	}
+	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, attack.targetHex, attack.ranged);
+
+	for(const auto * unit : attackedCreatures)
+		addOnce(unit);
 
 	if (useCustomAnimation)
 		bat.flags |= BattleAttack::CUSTOM_ANIMATION;
 
 	std::shared_ptr<const Bonus> bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
+
+	if(!bonus || !attack.ranged || !bonus->subtype.hasValue()) //TODO: make it work in melee?
+		return result;
+
+	//this is need for displaying hit animation
+	bat.flags |= BattleAttack::SPELL_LIKE;
+	bat.spellID = bonus->subtype.as<SpellID>();
+
+	//TODO: should spell override creature`s projectile?
+
+	const auto * spell = bat.spellID.toSpell();
+
+	battle::Target target;
+	target.emplace_back(defender, attack.targetHex);
+
+	spells::BattleCast event(&battle, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
+	event.setSpellLevel(bonus->val);
+
+	//TODO: get exact attacked hex for defender
+
+	for(const CStack * stack : spell->battleMechanics(&event)->getAffectedStacks(target))
+		addOnce(stack);
+
+	return result;
+}
+
+void BattleActionProcessor::markSpellLikeAttack(const CStack * attacker, BattleAttack & bat) const
+{
+	if(!bat.spellLike())
+		return;
+
+	//now add effect info for all attacked stacks
+	for (BattleStackAttacked & bsa : bat.bsa)
 	{
-		//this is need for displaying hit animation
-		bat.flags |= BattleAttack::SPELL_LIKE;
-		bat.spellID = bonus->subtype.as<SpellID>();
-
-		//TODO: should spell override creature`s projectile?
-
-		const auto * spell = bat.spellID.toSpell();
-
-		battle::Target target;
-		target.emplace_back(defender, targetHex);
-
-		spells::BattleCast event(&battle, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
-		event.setSpellLevel(bonus->val);
-
-		auto affectedStacks = spell->battleMechanics(&event)->getAffectedStacks(target);
-
-		//TODO: get exact attacked hex for defender
-
-		for(const CStack * stack : affectedStacks)
+		if (bsa.attackerID == attacker->unitId()) //this is our attack and not f.e. fire shield
 		{
-			if(stack != defender && stack->alive()) //do not hit same stack twice
-			{
-				applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
-				removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
-			}
-		}
-
-		//now add effect info for all attacked stacks
-		for (BattleStackAttacked & bsa : bat.bsa)
-		{
-			if (bsa.attackerID == attacker->unitId()) //this is our attack and not f.e. fire shield
-			{
-				//this is need for displaying affect animation
-				bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
-				bsa.spellID = bonus->subtype.as<SpellID>();
-			}
+			//this is need for displaying affect animation
+			bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
+			bsa.spellID = bat.spellID;
 		}
 	}
+}
 
-	attackerState->afterAttack(ranged, counter);
+void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const AttackDescriptor & attack)
+{
+	// spell-casting abilities keep their own rule - once per attack action and never on a counter.
+	// Combat event reactions are notified before every attack instead, further below
+	if(defender && attack.first && !attack.counter)
+		attackCasting(battle, attack.ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender);
+
+	// If the attacker or defender is not alive before the attack action, the action should be skipped.
+	if((!attacker->alive()) || (defender && !defender->alive()))
+		return;
+
+	BattleAttack bat;
+	BattleLogMessage blm;
+	blm.battleID = battle.getBattle()->getBattleID();
+	bat.battleID = battle.getBattle()->getBattleID();
+	bat.attackerChanges.battleID = battle.getBattle()->getBattleID();
+	bat.stackAttacking = attacker->unitId();
+	bat.tile = attack.targetHex;
+
+	if(attack.ranged)
+		bat.flags |= BattleAttack::SHOT;
+	if(attack.counter)
+		bat.flags |= BattleAttack::COUNTER;
+
+	// the same units feed the notification below and the damage further down
+	const battle::Units secondaryTargets = collectSecondaryTargets(battle, attacker, defender, attack, bat);
+
+	CombatEventPayload payload;
+	payload.ranged = attack.ranged;
+	payload.isCounter = attack.counter;
+	payload.attackIndex = attack.attackIndex;
+
+	CombatEventPayload upcoming = payload;
+	describeUpcomingAttack(upcoming, defender, secondaryTargets);
+
+	processAttackTriggers(battle, CombatEventType::BEFORE_ATTACK, CombatEventType::BEFORE_ATTACKED, attacker, defender, upcoming);
+
+	// a reaction to the upcoming attack may have killed either side of it - a unit that died before
+	// striking does not strike, and one that died before being hit is not hit again
+	if((!attacker->alive()) || (defender && !defender->alive()))
+		return;
+
+	std::shared_ptr<battle::CUnitState> attackerState = attacker->acquireState();
+
+	rollAttackFlags(battle, attacker, bat);
+
+	// only primary target
+	if(defender && defender->alive())
+		applyBattleEffects(battle, bat, attackerState, payload, defender, attack.distance, false);
+
+	for(const auto * unit : secondaryTargets)
+	{
+		// a reaction to the upcoming attack may have killed it before the blow landed
+		if(!unit->alive())
+			continue;
+
+		applyBattleEffects(battle, bat, attackerState, payload, unit, attack.distance, true);
+		removeBonuses(battle, unit, *unit->getAllBonuses(Bonus::UntilTakingIndirectDamage));
+	}
+
+	markSpellLikeAttack(attacker, bat);
+
+	attackerState->afterAttack(attack.ranged, attack.counter);
 
 	{
 		UnitChanges info(attackerState->unitId(), UnitChanges::EOperation::UPDATE);
 		info.data = attackerState->save();
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
-
-	if (healInfo.healedHealthPoints > 0)
-		bat.flags |= BattleAttack::LIFE_DRAIN;
 
 	gameHandler->sendAndApply(bat);
 
@@ -1169,70 +1232,16 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
 
-	// drain life effect (as well as log entry) must be applied after the attack
-	if(healInfo.healedHealthPoints > 0)
-	{
-		addGenericDrainedLifeLog(blm, attackerState, defender, healInfo.healedHealthPoints);
-		addGenericResurrectedLog(blm, attackerState, defender, healInfo.resurrectedCount);
-	}
-
-	if(!fireShield.empty())
-	{
-		//todo: this should be "virtual" spell instead, we only need fire spell school bonus here
-		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();
-		int64_t totalDamage = 0;
-
-		for(const auto & item : fireShield)
-		{
-			const CStack * actor = item.first;
-			int64_t rawDamage = item.second;
-
-			const CGHeroInstance * actorOwner = battle.battleGetFightingHero(actor->unitSide());
-
-			if(actorOwner)
-			{
-				rawDamage = fireShieldSpell->adjustRawDamage(actorOwner, attacker, rawDamage);
-			}
-			else
-			{
-				rawDamage = fireShieldSpell->adjustRawDamage(actor, attacker, rawDamage);
-			}
-
-			totalDamage+=rawDamage;
-			//FIXME: add custom effect on actor
-		}
-
-		if (totalDamage > 0)
-		{
-			BattleStackAttacked bsa;
-
-			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
-			bsa.stackAttacked = attacker->unitId(); //invert
-			bsa.attackerID = defender->unitId();
-			bsa.damageAmount = totalDamage;
-			attacker->prepareAttacked(bsa, gameHandler->getRandomGenerator());
-
-			StacksInjured pack;
-			pack.battleID = battle.getBattle()->getBattleID();
-			pack.stacks.push_back(bsa);
-			gameHandler->sendAndApply(pack);
-
-			// TODO: this is already implemented in Damage::describeEffect()
-			{
-				MetaString text;
-				text.appendLocalString(EMetaText::GENERAL_TXT, 376);
-				text.replaceName(SpellID(SpellID::FIRE_SHIELD));
-				text.replaceNumber(totalDamage);
-				blm.lines.push_back(std::move(text));
-			}
-			addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
-		}
-	}
-
+	// sent before the triggers below so that anything they log lands after the attack description
 	gameHandler->sendAndApply(blm);
 
 	if(defender)
-		handleAfterAttackCasting(battle, ranged, attacker, defender);
+		handleAfterAttackCasting(battle, attacker, defender, payload);
+
+	// priority alone decides what runs first, which is how life drain heals before a fire shield can
+	// burn the attacker down and how a death stare only lands after it. Not gated on anyone being
+	// alive: a reflecting ability answers a lethal blow while dying, so each reaction decides for itself
+	processAttackTriggers(battle, CombatEventType::AFTER_ATTACK, CombatEventType::AFTER_ATTACKED, attacker, defender, payload);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
@@ -1348,214 +1357,18 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 	return spellsToCast;
 }
 
-void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
-{
-	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACKED, defender, attacker);
-}
-
-void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
-{
-	// mechanics of Death Stare as in H3:
-	// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
-	//original formula x = min(x, (gorgons_count + 9)/10);
-
-	/* mechanics of Accurate Shot as in HotA:
-		* each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
-		* but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
-		* X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
-		*/
-
-	auto subtype = BonusCustomSubtype::deathStareGorgon;
-
-	if (ranged)
-	{
-		bool rangePenalty = battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition());
-		bool obstaclePenalty = battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition());
-
-		if(rangePenalty)
-		{
-			if(obstaclePenalty)
-				subtype = BonusCustomSubtype::deathStareRangeObstaclePenalty;
-			else
-				subtype = BonusCustomSubtype::deathStareRangePenalty;
-		}
-		else
-		{
-			if(obstaclePenalty)
-				subtype = BonusCustomSubtype::deathStareObstaclePenalty;
-			else
-				subtype = BonusCustomSubtype::deathStareNoRangePenalty;
-		}
-	}
-
-	int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, subtype);
-	double chanceToKill = singleCreatureKillChancePercent / 100.0;
-	vstd::amin(chanceToKill, 1); //cap at 100%
-	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
-
-	int maxToKill = vstd::divideAndCeil(attacker->getCount() * singleCreatureKillChancePercent, 100);
-	vstd::amin(killedCreatures, maxToKill);
-
-	killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
-
-	if(killedCreatures)
-	{
-		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
-		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
-		if(bonus && bonus->parameters && bonus->parameters->toSpell() != SpellID::NONE)
-			spellID = bonus->parameters->toSpell();
-
-		const CSpell * spell = spellID.toSpell();
-		spells::AbilityCaster caster(attacker, 0);
-
-		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-		spells::Target target;
-		target.emplace_back(defender);
-		parameters.setEffectValue(killedCreatures);
-		parameters.cast(gameHandler->spellcastEnvironment(), target);
-	}
-}
-
-void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+/// Legacy spell-casting abilities only - combat event reactions run from makeAttack instead, and
+/// deliberately without these gates.
+void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)
 {
 	if(!attacker->alive()) // can be already dead, e.g. from retaliation
 		return;
 
-	// attacker's own combat event (e.g. HotA runes) must fire even if the attack wiped out the defender
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
-
-	if(!defender->alive())
-		return;
-
-	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
-
-	if(!defender->alive())
-	{
-		//don't try death stare or acid breath on dead stack (crash!)
-		return;
-	}
-
-	if(attacker->hasBonusOfType(BonusType::DEATH_STARE))
-		handleDeathStare(battle, ranged, attacker, defender);
-
-	if(!defender->alive())
-		return;
-
-	int64_t acidDamage = 0;
-	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type()(BonusType::ACID_BREATH));
-	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
-
-	for(const auto & b : *acidBreath)
-	{
-		if (b->parameters && gameHandler->randomizer->rollCombatAbility(ownerArmy, b->parameters->toNumber()))
-			acidDamage += b->val;
-	}
-
-	if(acidDamage > 0)
-	{
-		const CSpell * spell = SpellID(SpellID::ACID_BREATH_DAMAGE).toSpell();
-
-		spells::AbilityCaster caster(attacker, 0);
-
-		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-		spells::Target target;
-		target.emplace_back(defender);
-
-		parameters.setEffectValue(acidDamage * attacker->getCount());
-		parameters.cast(gameHandler->spellcastEnvironment(), target);
-	}
-
-
-	if(!defender->alive())
-		return;
-
-	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving() && !defender->hasBonusOfType(BonusType::TRANSMUTATION_IMMUNITY)) //transmutation mechanics, similar to WoG werewolf ability
-	{
-		int chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION);
-		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
-			return;
-
-		const auto & bonusParameters = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->parameters;
-		const auto & targetCreature = bonusParameters ? bonusParameters->toCreature() : attacker->creatureId();
-
-		if(defender->unitType()->getId() == targetCreature)
-			return;
-
-		battle::UnitInfo resurrectInfo;
-		resurrectInfo.id = battle.battleNextUnitId();
-		resurrectInfo.summoned = false;
-		resurrectInfo.position = defender->getPosition();
-		resurrectInfo.side = defender->unitSide();
-		resurrectInfo.type = targetCreature;
-
-		if(attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerHealth))
-			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
-		else if (attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerUnit))
-			resurrectInfo.count = defender->getCount();
-		else
-			return; //wrong subtype
-
-		BattleUnitsChanged addUnits;
-		addUnits.battleID = battle.getBattle()->getBattleID();
-		addUnits.changedStacks.emplace_back(resurrectInfo.id, UnitChanges::EOperation::ADD);
-		resurrectInfo.save(addUnits.changedStacks.back().data);
-
-		BattleUnitsChanged removeUnits;
-		removeUnits.battleID = battle.getBattle()->getBattleID();
-		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
-		gameHandler->sendAndApply(removeUnits);
-		gameHandler->sendAndApply(addUnits);
-
-		// send empty event to client
-		// temporary(?) workaround to force animations to trigger
-		StacksInjured fakeEvent;
-		fakeEvent.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(fakeEvent);
-	}
-
-	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
-	{
-		int chanceToTrigger = 0;
-		int amountToDie = 0;
-
-		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
-		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
-			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)));
-			int percentageToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
-			amountToDie = defender->getCount() * percentageToDie / 100;
-		}
-		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
-		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
-			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)));
-			amountToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
-		}
-
-		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
-			return;
-
-		BattleStackAttacked bsa;
-		bsa.attackerID = -1;
-		bsa.stackAttacked = defender->unitId();
-		bsa.damageAmount = amountToDie * defender->getMaxHealth();
-		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
-		bsa.spellID = SpellID::SLAYER;
-		defender->prepareAttacked(bsa, gameHandler->getRandomGenerator());
-
-		StacksInjured si;
-		si.battleID = battle.getBattle()->getBattleID();
-		si.stacks.push_back(bsa);
-
-		gameHandler->sendAndApply(si);
-		sendGenericKilledLog(battle, defender, bsa.killedAmount, false);
-	}
+	if(defender->alive())
+		attackCasting(battle, payload.ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
 }
 
-void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo & healInfo, int distance, bool secondary) const
+void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const battle::Unit * def, int distance, bool secondary) const
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1576,60 +1389,20 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	//life drain handling
-	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving() && attackerState->getTotalHealth() != attackerState->getAvailableHealth())
-	{
-		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
-		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
-	}
-
-	//soul steal handling
-	if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL) && def->isLiving())
-	{
-		//we can have two bonuses - one with subtype 0 and another with subtype 1
-		//try to use permanent first, use only one of two
-		for(const auto & subtype : { BonusCustomSubtype::soulStealBattle, BonusCustomSubtype::soulStealPermanent})
-		{
-			if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL, subtype))
-			{
-				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(BonusType::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
-				bool permanent = subtype == BonusCustomSubtype::soulStealPermanent;
-				healInfo += attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
-				break;
-			}
-		}
-	}
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
-	//fire shield handling
-	if(!bat.shot() &&
-		!def->isClone() &&
-		def->hasBonusOfType(BonusType::FIRE_SHIELD) &&
-		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
-		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
-		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::FIRE)) < 100 &&
-		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
-			)
-	{
-		//H3 reflects Fire Shield from pre-mitigation damage, so a high-defense target still reflects a meaningful amount
-		BattleAttackInfo unmitigated = bai;
-		unmitigated.ignoreDefenseFactors = true;
-		int64_t reflectedBase = battle.calculateDmgRange(unmitigated).damage.max;
+	// reported to scripts that reflect damage, such as fire shield. Only computable here, while the
+	// attack info is in scope
+	BattleAttackInfo unmitigated = bai;
+	unmitigated.ignoreDefenseFactors = true;
 
-		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), reflectedBase) * def->valOfBonuses(BonusType::FIRE_SHIELD)) / 100;
-		fireShield.emplace_back(def, fireShieldDamage);
-	}
-}
-
-void BattleActionProcessor::sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple)
-{
-	if(killed > 0)
-	{
-		BattleLogMessage blm;
-		blm.battleID = battle.getBattle()->getBattleID();
-		addGenericKilledLog(blm, defender, killed, multiple);
-		gameHandler->sendAndApply(blm);
-	}
+	AttackedTarget target;
+	target.unit = def;
+	target.damage = bsa.damageAmount;
+	target.killed = bsa.killedAmount;
+	target.damageBeforeDefense = battle.calculateDmgRange(unmitigated).damage.max;
+	target.healthBeforeAttack = def->getAvailableHealth();
+	payload.targets.push_back(target);
 }
 
 void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple) const
@@ -1667,39 +1440,6 @@ void BattleActionProcessor::addGenericDamageLog(BattleLogMessage& blm, const std
 	attackerState->addNameReplacement(text);
 	text.replaceNumber(damageDealt);
 	blm.lines.push_back(std::move(text));
-}
-
-void BattleActionProcessor::addGenericDrainedLifeLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState>& attackerState, const CStack* defender, int64_t drainedLife) const
-{
-	MetaString text;
-	attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
-	attackerState->addNameReplacement(text);
-	text.replaceNumber(drainedLife);
-
-	if (defender)
-		defender->addNameReplacement(text);
-	else
-		text.replaceTextID("core.genrltxt.43"); // creatures
-
-	blm.lines.push_back(std::move(text));
-}
-
-void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState>& attackerState, const CStack* defender, int64_t resurrected) const
-{
-	if (resurrected > 0)
-	{
-		MetaString & ms = blm.lines.back();
-
-		if (resurrected == 1)
-		{
-			ms.appendLocalString(EMetaText::GENERAL_TXT, 363);		// "\n and one rises from the dead."
-		}
-		else
-		{
-			ms.appendLocalString(EMetaText::GENERAL_TXT, 364);		// "\n and %d rise from the dead."
-			ms.replaceNumber(resurrected);
-		}
-	}
 }
 
 bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -1753,48 +1493,148 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	return makeBattleActionImpl(battle, ba);
 }
 
-void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
+void BattleActionProcessor::runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other)
 {
-	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
-	for (const auto & bonus : *bonuses)
+	const auto parameters = bonus.parameters->toCustom<BonusParametersOnCombatEvent>();
+
+	for (const auto & effect : parameters.effects)
 	{
-		const auto parameters = bonus->parameters->toCustom<BonusParametersOnCombatEvent>();
+		const auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
+		const auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
 
-		for (const auto & effect : parameters.effects)
+		if (bonusEffect)
 		{
-			auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
-			auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
+			SetStackEffect sse;
+			sse.battleID = battle.getBattle()->getBattleID();
+			std::vector<Bonus> bonuses{*bonusEffect->bonus};
+			if (bonusEffect->targetEnemy && other)
+				sse.toAdd.emplace_back(other->unitId(), bonuses);
+			if (!bonusEffect->targetEnemy)
+				sse.toAdd.emplace_back(self->unitId(), bonuses);
+			gameHandler->sendAndApply(sse);
+		}
+		if (spellEffect)
+		{
+			const CSpell * spell = spellEffect->spell.toSpell();
+			spells::AbilityCaster spellCaster(self, spellEffect->masteryLevel);
 
-			if (bonusEffect)
-			{
-				SetStackEffect sse;
-				sse.battleID = battle.getBattle()->getBattleID();
-				std::vector<Bonus> bonuses{*bonusEffect->bonus};
-				if (bonusEffect->targetEnemy && secondary)
-					sse.toAdd.emplace_back(secondary->unitId(), bonuses);
-				if (!bonusEffect->targetEnemy)
-					sse.toAdd.emplace_back(target->unitId(), bonuses);
-				gameHandler->sendAndApply(sse);
-			}
-			if (spellEffect)
-			{
-				const CSpell * spell = spellEffect->spell.toSpell();
-				spells::AbilityCaster spellCaster(target, spellEffect->masteryLevel);
+			spells::Target spellTarget;
+			if (spellEffect->targetEnemy && other)
+				spellTarget.emplace_back(other);
+			if (!spellEffect->targetEnemy)
+				spellTarget.emplace_back(self);
 
-				spells::Target spellTarget;
-				if (spellEffect->targetEnemy && secondary)
-					spellTarget.emplace_back(secondary);
-				if (!spellEffect->targetEnemy)
-					spellTarget.emplace_back(target);
+			spells::BattleCast castParameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
 
-				spells::BattleCast parameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
+			auto m = spell->battleMechanics(&castParameters);
 
-				auto m = spell->battleMechanics(&parameters);
+			if(m->canBeCastAt(spellTarget))
+				castParameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
+		}
+	}
+}
 
-				if(m->canBeCastAt(spellTarget))
-					parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
-			}
+void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const
+{
+	auto add = [&pending, event, self, other](const std::shared_ptr<const Bonus> & bonus, int priority, const ICombatEventScript * script)
+	{
+		PendingTrigger trigger;
+		trigger.event = event;
+		trigger.self = self->unitId();
+		trigger.other = other ? other->unitId() : -1;
+		trigger.priority = priority;
+		trigger.bonus = bonus;
+		trigger.script = script;
+		pending.push_back(trigger);
+	};
+
+	// predefined reactions name the event they react to in their subtype, and declare no priority
+	for (const auto & bonus : *self->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event))))
+	{
+		// what to do is the entire content of such a bonus, and the schema requires it, so one
+		// without it is content that already failed validation and reacts to nothing
+		if (bonus->parameters)
+			add(bonus, 0, nullptr);
+	}
+
+	// a script instead reacts to every event it implements, so which script to run - the subtype -
+	// is not part of the selector here
+	for (const auto & bonus : *self->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	{
+		ScriptID scriptID = bonus->subtype.as<ScriptID>();
+
+		// content declaring a script that does not exist, or one of another kind - reported on load,
+		// and there is nothing to run for it here
+		if (!scriptID.hasValue())
+		{
+			logMod->warn("Unit '%s' carries a combat event trigger that names no script!", self->getDescription());
+			continue;
 		}
 
+		const auto & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+		if (!script.combatEventScript)
+		{
+			logMod->warn("Unit '%s' carries a combat event trigger running script '%s', which is not a combat event script!", self->getDescription(), script.scriptId);
+			continue;
+		}
+
+		if (script.combatEventScript->handlesEvent(battle, event))
+			add(bonus, script.priority, script.combatEventScript.get());
 	}
+}
+
+void BattleActionProcessor::runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload)
+{
+	std::ranges::stable_sort(pending, {}, &PendingTrigger::priority);
+
+	// Combat events are only fired from battle actions, and neither the script API nor the spell
+	// casts below can start one - both only emit netpacks. Adding a binding that re-enters this
+	// class (making a unit attack or move) would make this recursive and need a depth guard.
+	for (const auto & trigger : pending)
+	{
+		// an earlier reaction may have removed either unit - transmutation replaces the stack it
+		// hits - so both are looked up again rather than kept as pointers. A removed unit is left
+		// behind as a ghost with no bonuses and no health, which is why every script that acts on
+		// one has to check that it is still alive
+		const battle::Unit * self = battle.battleGetUnitByID(trigger.self);
+		if (!self)
+			continue;
+
+		const battle::Unit * other = trigger.other == -1 ? nullptr : battle.battleGetUnitByID(trigger.other);
+
+		if (!trigger.script)
+		{
+			runPredefinedReaction(battle, *trigger.bonus, self, other);
+			continue;
+		}
+
+		JsonNode parameters;
+		if (trigger.bonus->parameters)
+			parameters = trigger.bonus->parameters->toCustom<JsonNode>();
+
+		// value of this bonus alone - another bonus running the same script is a reaction of its own,
+		// with its own value, rather than something to sum into this one
+		parameters["val"].Integer() = trigger.bonus->val;
+
+		trigger.script->run(gameHandler->spellcastEnvironment(), battle, trigger.event, self, other, parameters, payload);
+	}
+}
+
+void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary, const CombatEventPayload & payload)
+{
+	std::vector<PendingTrigger> pending;
+	collectEventTriggers(battle, pending, event, target, secondary);
+	runEventTriggers(battle, pending, payload);
+}
+
+void BattleActionProcessor::processAttackTriggers(const CBattleInfoCallback & battle, CombatEventType attackerEvent, CombatEventType targetEvent, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)
+{
+	std::vector<PendingTrigger> pending;
+	collectEventTriggers(battle, pending, attackerEvent, attacker, defender);
+
+	for(const AttackedTarget & target : payload.targets)
+		collectEventTriggers(battle, pending, targetEvent, target.unit, attacker);
+
+	runEventTriggers(battle, pending, payload);
 }

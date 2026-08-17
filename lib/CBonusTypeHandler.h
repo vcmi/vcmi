@@ -51,8 +51,8 @@ public:
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
 	std::vector<JsonNode> loadLegacyData() override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 	const std::string & bonusToString(BonusType bonus) const;
 
@@ -62,6 +62,8 @@ public:
 	std::vector<BonusType> getAllObjets() const;
 private:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
+	std::string combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
+	std::string describeParameter(const JsonNode & value, const std::string & entityType) const;
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
 	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType

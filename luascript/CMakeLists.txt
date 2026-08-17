@@ -8,7 +8,9 @@ set(lualib_SRCS
 		LuaScriptInstance.cpp
 		LuaContext.cpp
 		LuaScriptPool.cpp
+		LuaScriptFactory.cpp
 		LuaSpellEffect.cpp
+		LuaCombatEventScript.cpp
 		LuaStack.cpp
 
 		api/adventure/Calendar.cpp
@@ -61,7 +63,9 @@ set(lualib_HDRS
 		LuaScriptInstance.h
 		LuaContext.h
 		LuaSpellEffect.h
+		LuaCombatEventScript.h
 		LuaScriptPool.h
+		LuaScriptFactory.h
 		LuaStack.h
 		LuaWrapper.h
 

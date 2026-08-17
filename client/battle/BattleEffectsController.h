@@ -17,6 +17,7 @@
 
 class BattleAction;
 struct BattleTriggerEffect;
+struct BattleAnimationPlayed;
 
 class CAnimation;
 class Canvas;
@@ -70,8 +71,10 @@ public:
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect effect, const BattleHex & destTile);
 	void displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile, float transparencyFactor = 1.f);
+	void displayAnimation(const AnimationPath & animation, const AudioPath & soundFile, const BattleHexArray & destTiles, float transparencyFactor = 1.f);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
+	void battleAnimationPlayed(const BattleAnimationPlayed & pack);
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 

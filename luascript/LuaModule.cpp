@@ -11,9 +11,9 @@
 #include "LuaModule.h"
 
 #include "LuaMapEventDispatcher.h"
+#include "LuaScriptFactory.h"
 #include "LuaScriptInstance.h"
 #include "LuaScriptPool.h"
-#include "LuaSpellEffect.h"
 
 #include "api/DocExport.h"
 
@@ -21,24 +21,28 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/modding/ModScope.h"
-#include "../lib/spells/effects/SpellEffectService.h"
+#include "../lib/scripting/ScriptService.h"
 
 namespace scripting
 {
 
-LuaModule::LuaModule() = default;
+LuaModule::LuaModule()
+	: store(std::make_unique<LuaScriptStore>(*this))
+{
+}
+
 LuaModule::~LuaModule() = default;
 
-void LuaModule::installScripting(spells::effects::SpellEffectService * spellEffects)
+void LuaModule::installScripting(ScriptService & scripts)
 {
-	luaSpellEffects = std::make_shared<spells::effects::LuaSpellEffectFactory>(*this);
-	spellEffects->registerFactory("lua", luaSpellEffects);
+	factory = std::make_shared<LuaScriptFactory>(*store);
+	scripts.registerFactory(factory);
 }
 
 std::unique_ptr<Pool> LuaModule::createPoolInstance(const Environment * ENV) const
 {
 	auto result = std::make_unique<LuaScriptPool>(*this, ENV);
-	luaSpellEffects->registerScripts(result.get());
+	store->registerScripts(result.get());
 	return result;
 }
 

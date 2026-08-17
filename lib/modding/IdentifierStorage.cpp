@@ -44,12 +44,6 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "damageTypeRanged", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementLand", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementSea", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareGorgon", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareCommander", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareNoRangePenalty", 2);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangePenalty", 3);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareObstaclePenalty", 4);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangeObstaclePenalty", 5);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthRegular", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthSpecial", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsMonsters", 0);
@@ -57,12 +51,6 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsTowns", 2);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityBattleWide", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityEnemyHero", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerHealth", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerUnit", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillPercentage", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillAmount", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealPermanent", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealBattle", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", -1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementTeleporting", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel1", 1);

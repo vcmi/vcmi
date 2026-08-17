@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "IBattleInfoCallback.h"
+#include <vcmi/Creature.h>
 #include <vcmi/Entity.h>
 
 #include "../Enums.h"
@@ -54,6 +55,16 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"hex",  "Hex to test for reachability."}
 		}, {},
 		"True if the given hex is reachable by the given unit either on current turn or on any future turns.");
+	R.function<&IBattleInfoCallbackProxy::isAccessibleForNewUnit>("isAccessibleForNewUnit",
+		{
+			{"hex",      "Hex the unit would be placed on. For a double-wide creature this is its front hex."},
+			{"creature", "Creature that would be placed there."},
+			{"side",     "Battle side the unit would belong to, which decides where its second hex goes."}
+		}, {},
+		"True if a unit of the given creature could be placed on the given hex. Use before summoning "
+		"a unit; unlike `isAccessibleForUnit` it needs no existing unit to ask about.");
+	R.function<&IBattleInfoCallbackProxy::getFieldWidth>("getFieldWidth", {},
+		"Returns the number of hex columns on the battlefield, including the two edge columns that units cannot stand on.");
 	R.function<&IBattleInfoCallbackProxy::hasPenaltyOnLine>("hasPenaltyOnLine",
 		{
 			{"from",      "Origin hex of the ranged attack."},
@@ -62,6 +73,25 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"checkMoat", "Pass true to count crossing a moat as a penalty source."}
 		}, {},
 		"True if a ranged attack along this line crosses a wall or moat (per the flags).");
+	R.function<&IBattleInfoCallbackProxy::isMeleeAttackPossible>("isMeleeAttackPossible",
+		{
+			{"attacker", "Unit that would strike."},
+			{"defender", "Unit that would be struck."}
+		}, {},
+		"True if the attacker stands where it could hit the defender in melee. False for units that "
+		"an area attack reached without being adjacent to them, such as a dragon breath's second target.");
+	R.function<&IBattleInfoCallbackProxy::hasDistancePenalty>("hasDistancePenalty",
+		{
+			{"shooter", "Unit making the ranged attack."},
+			{"target",  "Unit being shot at."}
+		}, {},
+		"True if the shooter is too far from the target for a full-strength shot.");
+	R.function<&IBattleInfoCallbackProxy::hasWallPenalty>("hasWallPenalty",
+		{
+			{"shooter", "Unit making the ranged attack."},
+			{"target",  "Unit being shot at."}
+		}, {},
+		"True if a town wall stands between the shooter and the target.");
 	R.function<&IBattleInfoCallbackProxy::getUnitByPos>("getUnitByPos",
 		{
 			{"hex",       "Hex to inspect for a unit."},
@@ -104,18 +134,43 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 
 bool IBattleInfoCallbackProxy::isAccessibleForUnit(const IBattleInfoCallback & object, const battle::Unit & unit, BattleHex hex)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->getAccessibility(&unit).accessible(hex, &unit);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.getAccessibility(&unit).accessible(hex, &unit);
+}
+
+bool IBattleInfoCallbackProxy::isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side);
+}
+
+int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
+{
+	return GameConstants::BFIELD_WIDTH;
 }
 
 bool IBattleInfoCallbackProxy::hasPenaltyOnLine(const IBattleInfoCallback & object, BattleHex from, BattleHex dest, bool checkWall, bool checkMoat)
 {
-	const auto * cb = dynamic_cast<const CBattleInfoCallback *>(&object);
-	if(!cb)
-		return false;
-	return cb->battleHasPenaltyOnLine(from, dest, checkWall, checkMoat);
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasPenaltyOnLine(from, dest, checkWall, checkMoat);
+}
+
+bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.isMeleeAttackPossible(&attacker, &defender);
+}
+
+bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasDistancePenalty(&shooter, shooter.getPosition(), target.getPosition());
+}
+
+bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleHasWallPenalty(&shooter, shooter.getPosition(), target.getPosition());
 }
 
 int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)

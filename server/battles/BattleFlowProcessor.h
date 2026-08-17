@@ -44,14 +44,11 @@ class BattleFlowProcessor : boost::noncopyable
 	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
-	void summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
-	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);
 	void activateNextStack(const CBattleInfoCallback & battle);
 	void startNextRound(const CBattleInfoCallback & battle, bool isFirstRound);
 
-	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
