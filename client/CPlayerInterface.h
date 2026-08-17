@@ -202,6 +202,7 @@ public: // public interface for use by client via GAME->interface() access
 	void viewWorldMap() override;
 	void showQuestLog() override;
 	void showScenarioEventJournal() override;
+	void scenarioEventJournalChanged() override;
 	void showThievesGuildWindow (const CGObjectInstance * obj) override;
 	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;

@@ -1816,7 +1816,15 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ENGINE->windows().createAndPushWindow<CQuestLog>(GAME->interface()->cb->getMyQuests());
+	const auto quests = cb->getMyQuests();
+	if(quests.empty())
+	{
+		const auto entries = cb->getMyScenarioEventJournal();
+		if(!entries.empty())
+			ENGINE->windows().createAndPushWindow<CScenarioEventJournal>(entries);
+		return;
+	}
+	ENGINE->windows().createAndPushWindow<CQuestLog>(quests);
 }
 
 void CPlayerInterface::showScenarioEventJournal()
@@ -1831,6 +1839,13 @@ void CPlayerInterface::showScenarioEventJournal()
 	}
 
 	ENGINE->windows().createAndPushWindow<CScenarioEventJournal>(entries);
+}
+
+void CPlayerInterface::scenarioEventJournalChanged()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(adventureInt)
+		adventureInt->updateActiveState();
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)

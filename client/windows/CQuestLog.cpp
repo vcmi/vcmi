@@ -26,6 +26,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/ScenarioEventJournalEntry.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -130,8 +131,24 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
-	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
+	description = std::make_shared<CTextBox>("", Rect(205, DESCRIPTION_TOP, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
+	auto questsTab = std::make_shared<CToggleButton>(Point(205, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	auto eventsTab = std::make_shared<CToggleButton>(Point(400, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
+	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
+	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
+	eventsTab->block(GAME->interface()->cb->getMyScenarioEventJournal().empty());
+	journalTabs = std::make_shared<CToggleGroup>([this](int tab)
+	{
+		if(tab == 1)
+		{
+			close();
+			GAME->interface()->showScenarioEventJournal();
+		}
+	});
+	journalTabs->addToggle(0, questsTab);
+	journalTabs->addToggle(1, eventsTab);
+	journalTabs->setSelected(0);
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(32);
 
@@ -295,7 +312,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 			comps.push_back(c);
 		}
 
-		componentsBox = std::make_shared<CComponentBox>(comps, Rect(202, 20+descriptionHeight+15, 391, DESCRIPTION_HEIGHT_MAX-(20+descriptionHeight)));
+		componentsBox = std::make_shared<CComponentBox>(comps, Rect(202, DESCRIPTION_TOP + descriptionHeight + 15, 391, 115));
 	}
 	description->resize(Point(385, descriptionHeight));
 

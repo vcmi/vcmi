@@ -132,6 +132,11 @@ void ApplyClientNetPackVisitor::visitSetResources(SetResources & pack)
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::receivedResource);
 }
 
+void ApplyClientNetPackVisitor::visitAddScenarioEventJournalEntry(AddScenarioEventJournalEntry & pack)
+{
+	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::scenarioEventJournalChanged);
+}
+
 void ApplyClientNetPackVisitor::visitSetHeroExperience(SetHeroExperience & pack)
 {
 	const CGHeroInstance * h = cl.gameInfo().getHero(pack.id);

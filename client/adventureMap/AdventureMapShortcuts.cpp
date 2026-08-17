@@ -80,7 +80,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
 		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
-		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
+		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewJournal(), [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_SCENARIO_EVENT_JOURNAL, optionInMapView(), [this]() { this->showScenarioEventJournal(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
@@ -658,9 +658,10 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 			GAME->interface()->moveHero(h, path);
 }
 
-bool AdventureMapShortcuts::optionCanViewQuests()
+bool AdventureMapShortcuts::optionCanViewJournal()
 {
-	return optionInMapView() && !GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->quests.empty();
+	const auto * playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID);
+	return optionInMapView() && (!playerState->quests.empty() || !GAME->interface()->cb->getMyScenarioEventJournal().empty());
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()

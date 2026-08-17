@@ -25,6 +25,7 @@ struct QuestInfo;
 
 class CButton;
 class CToggleButton;
+class CToggleGroup;
 class CComponentBox;
 class LRClickableAreaWText;
 class CButton;
@@ -35,7 +36,8 @@ class CSlider;
 class CLabel;
 
 const int QUEST_COUNT = 6;
-const int DESCRIPTION_HEIGHT_MAX = 355;
+const int DESCRIPTION_TOP = 64;
+const int DESCRIPTION_HEIGHT_MAX = 309;
 
 class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
@@ -94,6 +96,7 @@ class CQuestLog : public CWindowObject
 	std::shared_ptr<CQuestMinimap> minimap;
 	std::shared_ptr<CSlider> slider; //scrolls quests
 	std::shared_ptr<CButton> ok;
+	std::shared_ptr<CToggleGroup> journalTabs;
 
 public:
 	CQuestLog(const std::vector<QuestInfo> & Quests);

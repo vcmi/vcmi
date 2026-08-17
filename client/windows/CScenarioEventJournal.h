@@ -19,6 +19,7 @@
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
 
 class CButton;
+class CToggleGroup;
 class CComponentBox;
 class CSlider;
 
@@ -53,7 +54,8 @@ public:
 class CScenarioEventJournal : public CWindowObject
 {
 	static constexpr int VISIBLE_ENTRY_COUNT = 6;
-	static constexpr int DESCRIPTION_HEIGHT = 355;
+	static constexpr int DESCRIPTION_TOP = 64;
+	static constexpr int DESCRIPTION_HEIGHT = 309;
 
 	int selectedLabel = -1;
 	const std::vector<ScenarioEventJournalEntry> entries;
@@ -63,6 +65,7 @@ class CScenarioEventJournal : public CWindowObject
 	std::shared_ptr<CScenarioEventJournalMinimap> minimap;
 	std::shared_ptr<CSlider> slider;
 	std::shared_ptr<CButton> ok;
+	std::shared_ptr<CToggleGroup> journalTabs;
 
 	void selectEntry(size_t entryIndex, int labelIndex);
 	void recreateEntryList(int firstVisible);

@@ -77,6 +77,7 @@ public:
 	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
 	virtual void showScenarioEventJournal(){};
+	virtual void scenarioEventJournalChanged(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const FowTilesType &pos){};
 	virtual void tileRevealed(const FowTilesType &pos){};
