@@ -377,7 +377,7 @@ void CSettingsView::fillValidScalingRange()
 
 static QStringList getAvailableRenderingDrivers()
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_InitSubSystem(SDL_INIT_VIDEO);
 	QStringList result;
 
 	result += QString(); // empty value for autoselection
@@ -391,7 +391,7 @@ static QStringList getAvailableRenderingDrivers()
 			result += QString::fromLatin1(info.name);
 	}
 
-	SDL_Quit();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	return result;
 }
 
@@ -400,7 +400,7 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 	// Ugly workaround since we don't actually need SDL in Launcher
 	// However Qt at the moment provides no way to query list of available resolutions
 	QVector<QSize> result;
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_InitSubSystem(SDL_INIT_VIDEO);
 
 	int modesCount = SDL_GetNumDisplayModes(displayIndex);
 
@@ -422,7 +422,7 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 
 	result.erase(std::ranges::unique(result).end(), result.end());
 
-	SDL_Quit();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	return result;
 }
