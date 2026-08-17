@@ -261,6 +261,19 @@ void CButton::onButtonClicked()
 	callback();
 }
 
+void CButton::playClickSound(bool released)
+{
+	// on touch the pressed state is already shown on finger-down, so sound is played on click instead
+	// otherwise long press or panning would also sound like a click
+	bool playOnRelease = ENGINE->input().getCurrentInputMode() == InputMode::TOUCH;
+
+	if(!soundDisabled && released == playOnRelease)
+	{
+		ENGINE->sound().playSound(soundBase::button);
+		ENGINE->input().hapticFeedback();
+	}
+}
+
 void CButton::clickPressed(const Point & cursorPosition)
 {
 	if(isBlocked())
@@ -268,28 +281,23 @@ void CButton::clickPressed(const Point & cursorPosition)
 
 	if (getState() != EButtonState::PRESSED)
 	{
-		if (!soundDisabled)
-		{
-			ENGINE->sound().playSound(soundBase::button);
-			ENGINE->input().hapticFeedback();
-		}
+		playClickSound(false);
 		setState(EButtonState::PRESSED);
 	}
-	else if(!soundDisabled && ENGINE->input().getCurrentInputMode() == InputMode::TOUCH)
-	{
-		ENGINE->sound().playSound(soundBase::button);
-		ENGINE->input().hapticFeedback();
-	}
+}
+
+bool CButton::isHoverHighlighted() const
+{
+	// touch input has no real hovering - highlight would remain visible after finger is lifted
+	return hoverable && isHovered() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH;
 }
 
 void CButton::clickReleased(const Point & cursorPosition)
 {
 	if (getState() == EButtonState::PRESSED)
 	{
-		if(hoverable && isHovered())
-			setState(EButtonState::HIGHLIGHTED);
-		else
-			setState(EButtonState::NORMAL);
+		playClickSound(true);
+		setState(isHoverHighlighted() ? EButtonState::HIGHLIGHTED : EButtonState::NORMAL);
 
 		onButtonClicked();
 	}
@@ -298,12 +306,7 @@ void CButton::clickReleased(const Point & cursorPosition)
 void CButton::clickCancel(const Point & cursorPosition)
 {
 	if (getState() == EButtonState::PRESSED)
-	{
-		if(hoverable && isHovered())
-			setState(EButtonState::HIGHLIGHTED);
-		else
-			setState(EButtonState::NORMAL);
-	}
+		setState(isHoverHighlighted() ? EButtonState::HIGHLIGHTED : EButtonState::NORMAL);
 }
 
 void CButton::showPopupWindow(const Point & cursorPosition)
@@ -316,13 +319,11 @@ void CButton::showPopupWindow(const Point & cursorPosition)
 
 void CButton::onTouchPress(bool on)
 {
-	if(isBlocked())
-		return;
-
+	// touch press only shows click state, actual click is handled on finger-up
 	if(on)
-		setState(EButtonState::PRESSED);
-	else if(getState() == EButtonState::PRESSED)
-		setState(EButtonState::NORMAL);
+		clickPressed(ENGINE->getCursorPosition());
+	else
+		clickCancel(ENGINE->getCursorPosition());
 }
 
 void CButton::hover (bool on)
@@ -512,10 +513,9 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (canActivate())
+	if (canActivate() && getState() != EButtonState::PRESSED)
 	{
-		ENGINE->sound().playSound(soundBase::button);
-		ENGINE->input().hapticFeedback();
+		playClickSound(false);
 		setState(EButtonState::PRESSED);
 	}
 }
@@ -531,6 +531,7 @@ void CToggleButton::clickReleased(const Point & cursorPosition)
 
 	if (getState() == EButtonState::PRESSED && canActivate())
 	{
+		playClickSound(true);
 		onButtonClicked();
 		setSelected(!isSelected());
 	}
