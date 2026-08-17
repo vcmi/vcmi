@@ -38,7 +38,7 @@ class CScenarioEventJournalMinimap : public CMinimap
 	int3 location = int3(-1, -1, -1);
 	std::shared_ptr<CPicture> marker;
 
-	void markerClicked();
+	void markerClicked() const;
 
 	void clickPressed(const Point & cursorPosition) override {};
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override {};

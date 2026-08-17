@@ -69,7 +69,7 @@ void CScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
 	redraw();
 }
 
-void CScenarioEventJournalMinimap::markerClicked()
+void CScenarioEventJournalMinimap::markerClicked() const
 {
 	adventureInt->centerOnTile(location);
 }

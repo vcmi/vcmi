@@ -32,7 +32,6 @@ class ResourceSet;
 class CGHeroInstance;
 class CArmedInstance;
 class CGTownInstance;
-class ResourceSet;
 class CCreatureSet;
 class CGObjectInstance;
 class IObjectInterface;
