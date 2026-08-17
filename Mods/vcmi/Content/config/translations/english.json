@@ -303,6 +303,7 @@
 	"vcmi.adventureMap.noTownWithMarket": "There are no available marketplaces!",
 	"vcmi.adventureMap.scenarioEventJournal.empty": "No scenario event messages have been recorded yet.",
 	"vcmi.adventureMap.scenarioEventJournal.event": "Scenario event",
+	"vcmi.adventureMap.scenarioEventJournal.title": "Event journal",
 	"vcmi.adventureMap.noTownWithTavern": "There are no available towns with taverns!",
 	"vcmi.adventureMap.playerAttacked": "Player has been attacked: %s",
 	"vcmi.adventureMap.quickLoad.help": "{Quick Load}\n\nLoads the game state from a quick save slot.",
