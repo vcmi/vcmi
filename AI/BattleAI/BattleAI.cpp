@@ -95,7 +95,12 @@ BattleAction CBattleAI::useHealingTent(const BattleID & battleID, const CStack *
 
 void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
+	tacticsHandler->onTacticsStarted();
+}
+
+void CBattleAI::actionFinished(const BattleID & battleID, const BattleAction & action)
+{
+	tacticsHandler->onActionFinished(action);
 }
 
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
@@ -244,6 +249,8 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 {
 	LOG_TRACE(logAi);
 	side = Side;
+	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
+	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
 }
 
 void CBattleAI::print(const std::string &text) const
