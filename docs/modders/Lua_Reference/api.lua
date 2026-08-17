@@ -519,13 +519,14 @@ function BattleServer:castSpell(battle, caster, spell, target, effectValue) end
 ---@param ignoreImmunity boolean # Pass true to affect units that are immune to the spell.
 function BattleServer:applySpellEffects(battle, caster, spell, target, spellLevel, effectDuration, ignoreImmunity) end
 
----Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a visual to a change the script made itself. The animation plays after whatever is currently animating has finished, rather than overlapping it.
+---Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a visual to a change the script made itself. The animation plays after whatever is currently animating has finished, rather than overlapping it. A deferred animation instead plays together with the animations of the next change the script makes, e.g. the flinch of a unit it damages right after - and is dropped if no such change follows.
 ---@param battle Battle # Battle the animation is played in.
 ---@param target Destination[] # Units and hexes the animation is played on, one copy each.
 ---@param animation string # Resource name of the animation to play, e.g. `SP06_`.
 ---@param sound string # Resource name of the sound to play alongside it, or an empty string for none.
 ---@param transparency number # Opacity of the animation, from 0 for invisible to 1 for opaque.
-function BattleServer:showBattleAnimation(battle, target, animation, sound, transparency) end
+---@param deferred boolean? # Pass true to hold the animation back until the next change the script makes, so that both play at once.
+function BattleServer:showBattleAnimation(battle, target, animation, sound, transparency, deferred) end
 
 ---Makes the client play back pending unit changes. Needed after adding or removing units outside of an attack, which otherwise produce no animation.
 ---@param battle Battle # Battle whose units were changed.

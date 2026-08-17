@@ -206,11 +206,14 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"target",       "Units and hexes the animation is played on, one copy each."},
 			{"animation",    "Resource name of the animation to play, e.g. `SP06_`."},
 			{"sound",        "Resource name of the sound to play alongside it, or an empty string for none."},
-			{"transparency", "Opacity of the animation, from 0 for invisible to 1 for opaque."}
+			{"transparency", "Opacity of the animation, from 0 for invisible to 1 for opaque."},
+			{"deferred",     "Pass true to hold the animation back until the next change the script makes, so that both play at once."}
 		}, {},
 		"Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a "
 		"visual to a change the script made itself. The animation plays after whatever is currently "
-		"animating has finished, rather than overlapping it.");
+		"animating has finished, rather than overlapping it. A deferred animation instead plays "
+		"together with the animations of the next change the script makes, e.g. the flinch of a "
+		"unit it damages right after - and is dropped if no such change follows.");
 	R.function<&ServerCallbackProxy::refreshBattleUnits>("refreshBattleUnits",
 		{{"battle", "Battle whose units were changed."}}, {},
 		"Makes the client play back pending unit changes. Needed after adding or removing units "
@@ -271,13 +274,14 @@ void ServerCallbackProxy::castSpell(ServerCallback & object, const IBattleInfoCa
 	cast.cast(&object, destinations);
 }
 
-void ServerCallbackProxy::showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency)
+void ServerCallbackProxy::showBattleAnimation(ServerCallback & object, const IBattleInfoCallback & battle, const std::vector<battle::Destination> & target, const std::string & animation, const std::string & sound, double transparency, std::optional<bool> deferred)
 {
 	BattleAnimationPlayed pack;
 	pack.battleID = battle.getBattle()->getBattleID();
 	pack.animation = AnimationPath::builtin(animation);
 	pack.sound = sound.empty() ? AudioPath() : AudioPath::builtin(sound);
 	pack.transparency = static_cast<float>(transparency);
+	pack.deferred = deferred.value_or(false);
 
 	for(const auto & destination : target)
 	{

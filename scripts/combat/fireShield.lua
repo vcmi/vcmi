@@ -65,9 +65,11 @@ function Script:onAfterAttacked(server, battle, unit, other, payload)
 
 	if damage <= 0 then return end
 
+	-- deferred so that the flames and the flinch of the burned attacker start on the same frame
+	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 1.0, true)
+
 	local dealt, killed = server:damageUnit(battle, other, damage)
 
-	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 1.0)
 	BattleLog.spellDamage(server, battle, spell, other, dealt, killed)
 end
 

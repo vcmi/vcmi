@@ -37,10 +37,12 @@ function Script:onAfterAttack(server, battle, unit, other)
 
 	if toKill <= 0 then return end
 
+	-- deferred so that the spell effect and the death animation start on the same frame
+	server:showBattleAnimation(battle, { { unit = other } }, ANIMATION, SOUND, 1.0, true)
+
 	-- the top creature of the stack may already be wounded, so this can kill one more than asked
 	local _, killed = server:damageUnit(battle, other, toKill * other:getMaxHealth())
 
-	server:showBattleAnimation(battle, { { unit = other } }, ANIMATION, SOUND, 1.0)
 	BattleLog.creaturesPerish(server, battle, other, killed)
 end
 

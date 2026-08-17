@@ -78,6 +78,16 @@ void BattleEffectsController::battleAnimationPlayed(const BattleAnimationPlayed 
 	if(tiles.empty())
 		return;
 
+	// queued into the same stage as the hit animations of the pack that follows, so that both start
+	// on the same frame instead of one after the other
+	if(pack.deferred)
+	{
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, animation = pack.animation, sound = pack.sound, tiles, transparency = pack.transparency](){
+			displayAnimation(animation, sound, tiles, transparency);
+		});
+		return;
+	}
+
 	owner.checkForAnimations();
 	displayAnimation(pack.animation, pack.sound, tiles, pack.transparency);
 	owner.waitForAnimations();

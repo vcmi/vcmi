@@ -169,13 +169,14 @@ Applies the effects of a spell to the given units, and nothing else. Unlike cast
 
 ### showBattleAnimation
 
-Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a visual to a change the script made itself. The animation plays after whatever is currently animating has finished, rather than overlapping it.
+Plays a one-shot animation on the battlefield. Changes no game state, so use it to give a visual to a change the script made itself. The animation plays after whatever is currently animating has finished, rather than overlapping it. A deferred animation instead plays together with the animations of the next change the script makes, e.g. the flinch of a unit it damages right after - and is dropped if no such change follows.
 
 - param `battle`: [`Battle`](Battle.md) — Battle the animation is played in.
 - param `target`: `Destination[]` — Units and hexes the animation is played on, one copy each.
 - param `animation`: `string` — Resource name of the animation to play, e.g. `SP06_`.
 - param `sound`: `string` — Resource name of the sound to play alongside it, or an empty string for none.
 - param `transparency`: `number` — Opacity of the animation, from 0 for invisible to 1 for opaque.
+- param `deferred`: `boolean?` — Pass true to hold the animation back until the next change the script makes, so that both play at once.
 
 ### refreshBattleUnits
 

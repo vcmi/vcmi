@@ -531,6 +531,11 @@ struct DLL_LINKAGE BattleAnimationPlayed : public CPackForClient
 	std::vector<Target> targets;
 	float transparency = 1.0f;
 
+	/// Play together with the animations of the next pack instead of on its own, e.g. so that fire
+	/// shield flames and the flinch of the burned attacker start on the same frame. Nothing is
+	/// played at all unless such a pack follows.
+	bool deferred = false;
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
@@ -538,6 +543,7 @@ struct DLL_LINKAGE BattleAnimationPlayed : public CPackForClient
 		h & sound;
 		h & targets;
 		h & transparency;
+		h & deferred;
 		assert(battleID != BattleID::NONE);
 	}
 
