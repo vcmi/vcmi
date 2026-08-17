@@ -28,6 +28,9 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 		h & title;
 		h & message;
 		h & location;
-		h & resources;
+		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL_RESOURCES))
+			h & resources;
+		else
+			resources = {};
 	}
 };

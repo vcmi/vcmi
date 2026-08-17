@@ -54,12 +54,13 @@ enum class ESerializationVersion : int32_t
 	COMBAT_ABILITY_SCRIPTS, // combat abilities that became combat scripts are converted on load; spell effects and combat scripts share one registry, so bonus subtype saves the script as a string
 	GAME_SESSION_DIRECTORY, // persistent per-game save directory and campaign start time
 	SCENARIO_EVENT_JOURNAL, // per-player history of triggered scenario event messages
+	SCENARIO_EVENT_JOURNAL_RESOURCES, // resource changes stored in scenario event journal entries
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SCENARIO_EVENT_JOURNAL,
+	CURRENT = SCENARIO_EVENT_JOURNAL_RESOURCES,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
