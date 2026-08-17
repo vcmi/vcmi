@@ -179,6 +179,9 @@ public:
 	/// Spell scroll pickup containing the given spell.
 	TinyH3MBuilder & scroll(const int3 & pos, SpellID spell);
 
+	/// Fixed creature dwelling owned by `owner`.
+	TinyH3MBuilder & dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner);
+
 	// ---- quest objects -------------------------------------------------
 
 	/// Keymaster Tent. Subid encodes the keymaster colour (0..7).
