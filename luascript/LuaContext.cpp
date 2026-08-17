@@ -206,21 +206,18 @@ void LuaContext::cleanupGlobals()
 
 bool LuaContext::hasFunction(const std::string & name)
 {
-	std::lock_guard guard(mutex);
 	if(!scriptTable)
 		return false;
 	LuaStack S(L);
 	scriptTable->push();
 	lua_getfield(L, -1, name.c_str());
 	bool result = S.isFunction(-1);
-	S.clear();
+	S.restoreInitialTop();
 	return result;
 }
 
 void LuaContext::initialize()
 {
-	std::lock_guard guard(mutex);
-
 	std::shared_ptr<LuaReference> head;
 
 	for(const auto & layer : script->layers)
@@ -286,13 +283,6 @@ void LuaContext::installChunkEnvWithBase(LuaReference & base)
 	lua_setupvalue(L, -2, 1);
 #endif
 	// Stack: ..., chunk
-}
-
-int LuaContext::errorRetVoid(const std::string & message)
-{
-	logScript->error(message);
-	lua_settop(L, 0);
-	return 0;
 }
 
 std::string LuaContext::toStringRaw(int index)
