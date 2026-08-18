@@ -47,7 +47,6 @@ public:
 	ReturnType callFunction(const std::string & name, Args&&... args);
 
 private:
-	std::mutex mutex;
 	lua_State * L;
 
 	const LuaScriptInstance * script;
@@ -70,9 +69,6 @@ private:
 	/// Replaces the environment of the chunk on top of the stack so that the global `Base`
 	/// resolves to the given base table, while other globals fall back through __index = _G.
 	void installChunkEnvWithBase(LuaReference & base);
-
-	//log error and return nil from LuaCFunction
-	int errorRetVoid(const std::string & message);
 
 	std::string toStringRaw(int index);
 
@@ -111,8 +107,6 @@ ReturnType LuaContext::callFunction(const std::string & name, Args&&... args)
 template<typename ReturnType, typename... Args>
 ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const JsonNode * self, const std::string & name, Args&&... args)
 {
-	std::lock_guard guard(mutex);
-
 	if(!ref)
 	{
 		if constexpr (!std::is_void_v<ReturnType>)
@@ -125,11 +119,11 @@ ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const
 
 	ref->push();                       // stack: (table)
 	lua_getfield(L, -1, name.c_str()); // stack: (table), (function)
-	lua_replace(L, 1);                 // stack: (function)
+	lua_remove(L, -2);                 // stack: (function)
 
 	if(!S.isFunction(-1))
 	{
-		S.clear();
+		S.restoreInitialTop();
 		logScript->error("Script '%s': function '%s' not found", script->getIdentifier(), name);
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -149,12 +143,13 @@ ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const
 		++argc;
 	}
 
-	(S << ... << args);
+	// cast to void: with an empty pack the fold collapses to a bare `S`
+	(void)(S << ... << args);
 
 	if(lua_pcall(L, argc, 1, 0))
 	{
 		std::string error = lua_tostring(L, -1);
-		S.clear();
+		S.restoreInitialTop();
 		logScript->error("Script '%s', function '%s': %s", script->getIdentifier(), name, error);
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -171,7 +166,7 @@ ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const
 		}
 		catch(const LuaApiException & e)
 		{
-			S.clear();
+			S.restoreInitialTop();
 			logScript->error("Script '%s', function '%s' returned unexpected value: %s", script->getIdentifier(), name, e.what());
 			return ReturnType{};
 		}
@@ -180,7 +175,7 @@ ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const
 	}
 	else
 	{
-		S.clear();
+		S.restoreInitialTop();
 		return;
 	}
 }
