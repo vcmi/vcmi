@@ -98,6 +98,7 @@ constexpr int stoneGolem = 33;
 constexpr int efreet = 52;
 constexpr int efreetSultan = 53;
 constexpr int fireElemental = 114;
+constexpr int hornedDemon = 49;
 constexpr int waterElemental = 115;
 constexpr int goldGolem = 116;
 constexpr int diamondGolem = 117;
@@ -160,3 +161,43 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, FireShieldTest, ::testing::Values(
 	FireShieldCase{"efreetSultanVulnerableExpert", efreetSultan, pikeman, fireMagic, expert, orbOfVulnerability, 900}
 ),
 	[](const ::testing::TestParamInfo<FireShieldCase> & info) { return info.param.name; });
+
+/// Every scenario above blesses the attacker, which collapses its damage range and hides which end
+/// of that range the reflection is taken from. This one leaves the range open.
+class FireShieldRollTest : public BattleTestFixture
+{
+};
+
+TEST_F(FireShieldRollTest, reflectsTheBlowThatLandedRatherThanTheBestPossibleRoll)
+{
+	startGame();
+
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID::FIRE_SHIELD);
+	attackerSideHero->mana = 9999;
+
+	startBattle();
+
+	// horned demons on both sides: 10 attack against 10 defence, and nothing else either stack
+	// carries touches the damage, so what the blow deals is what it would deal undefended
+	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(hornedDemon), BattleHex(leftHex), 5000);
+	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(hornedDemon), BattleHex(rightHex), 1000);
+	ASSERT_NE(shielded, nullptr);
+	ASSERT_NE(attacking, nullptr);
+
+	blockRetaliation(attacking);
+	ASSERT_TRUE(castOn(attackerSideHero, SpellID::FIRE_SHIELD, shielded));
+
+	const int64_t shieldedHealthBefore = shielded->getAvailableHealth();
+	const int64_t attackingHealthBefore = attacking->getAvailableHealth();
+
+	ASSERT_TRUE(attack(attacking, BattleHex(leftHex)));
+
+	const int64_t dealt = shieldedHealthBefore - shielded->getAvailableHealth();
+	const int64_t reflected = attackingHealthBefore - attacking->getAvailableHealth();
+
+	// 1000 demons deal 7 to 9 each, and the reflection would follow the 9000 end if it were taken
+	// from the range rather than from the roll
+	ASSERT_LT(dealt, 9000);
+	EXPECT_EQ(reflected, dealt * 20 / 100);
+}

@@ -1383,24 +1383,21 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	bai.luckyStrike  = bat.lucky();
 	bai.unluckyStrike  = bat.unlucky();
 
+	auto range = battle.calculateDmgRange(bai);
 	{
-		auto range = battle.calculateDmgRange(bai);
 		bsa.damageAmount = battle.getBattle()->getActualDamage(range.damage, attackerState->getCount(), gameHandler->getRandomGenerator());
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
-	// reported to scripts that reflect damage, such as fire shield. Only computable here, while the
-	// attack info is in scope
-	BattleAttackInfo unmitigated = bai;
-	unmitigated.ignoreDefenseFactors = true;
-
 	AttackedTarget target;
 	target.unit = def;
 	target.damage = bsa.damageAmount;
 	target.killed = bsa.killedAmount;
-	target.damageBeforeDefense = battle.calculateDmgRange(unmitigated).damage.max;
+	// scripts that reflect a strike, such as fire shield, work from the blow that actually landed,
+	// so the roll is scaled back up by what the defences took off it rather than rolled again
+	target.damageBeforeDefense = bsa.damageAmount * range.damageBeforeDefense.max / range.damage.max;
 	target.healthBeforeAttack = def->getAvailableHealth();
 	payload.targets.push_back(target);
 }

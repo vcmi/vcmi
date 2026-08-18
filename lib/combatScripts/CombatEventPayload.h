@@ -33,7 +33,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 		s("unit",   unit,   "Unit that was hit.");
 		s("damage", damage, "Damage dealt to it.");
 		s("killed", killed, "How many of its creatures died.");
-		s("damageBeforeDefense", damageBeforeDefense, "Highest damage the attack could have dealt to it with the defence of the target ignored.");
+		s("damageBeforeDefense", damageBeforeDefense, "Damage this same blow would have dealt with the defences of the target ignored.");
 		s("healthBeforeAttack", healthBeforeAttack, "Health the unit had left before the attack landed.");
 	}
 };

@@ -562,31 +562,31 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 {
 	DamageRange damageBase = getBaseDamageStack();
 
-	auto attackFactors = getAttackFactors();
-
 	double attackFactorTotal = 1.0;
 	double defenseFactorTotal = 1.0;
 
-	for (auto & factor : attackFactors)
+	for (auto & factor : getAttackFactors())
 		attackFactorTotal += factor;
 
-	if(!info.ignoreDefenseFactors)
-		for (auto & factor : getDefenseFactors())
-			defenseFactorTotal *= (1 - std::min(1.0, factor));
-
-	double resultingFactor = attackFactorTotal * defenseFactorTotal;
+	for (auto & factor : getDefenseFactors())
+		defenseFactorTotal *= (1 - std::min(1.0, factor));
 
 	int64_t cap = getDamageCap();
 
-	auto dmin = std::max<int64_t>(1.0, std::floor(damageBase.min * resultingFactor));
-	auto dmax = std::max<int64_t>(1.0, std::floor(damageBase.max * resultingFactor));
+	auto applyFactor = [cap](int64_t base, double factor)
+	{
+		return std::min(cap, std::max<int64_t>(1, std::floor(base * factor)));
+	};
 
-	dmin = std::min(dmin, cap);
-	dmax = std::min(dmax, cap);
+	DamageRange damageDealt{
+		applyFactor(damageBase.min, attackFactorTotal * defenseFactorTotal),
+		applyFactor(damageBase.max, attackFactorTotal * defenseFactorTotal)
+	};
 
-	DamageRange damageDealt{ dmin, dmax };
+	DamageRange damageBeforeDefense{
+		applyFactor(damageBase.min, attackFactorTotal),
+		applyFactor(damageBase.max, attackFactorTotal)
+	};
 
-	DamageRange killsDealt = getCasualties(damageDealt);
-
-	return DamageEstimation{damageDealt, killsDealt};
+	return DamageEstimation{damageDealt, getCasualties(damageDealt), damageBeforeDefense};
 }
