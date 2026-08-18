@@ -19,6 +19,11 @@ struct BattleAttackInfo;
 struct DamageRange;
 struct DamageEstimation;
 
+namespace battle
+{
+class Unit;
+}
+
 class DLL_LINKAGE DamageCalculator
 {
 	const CBattleInfoCallback & callback;
@@ -33,8 +38,12 @@ class DLL_LINKAGE DamageCalculator
 	DamageRange getBaseDamageBlessCurse() const;
 	DamageRange getBaseDamageStack() const;
 
+	/// Amount of defense that the given unit makes its opponent ignore, as a negative number.
+	int getDefenseIgnored(const battle::Unit * reducer, int defense) const;
+
 	int getActorAttackBase() const;
 	int getActorAttackEffective() const;
+	int getActorAttackFrenzy() const;
 	int getActorAttackSlayer() const;
 	int getActorAttackIgnored() const;
 	int getTargetDefenseBase() const;

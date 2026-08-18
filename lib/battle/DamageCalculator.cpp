@@ -136,7 +136,24 @@ int DamageCalculator::getActorAttackBase() const
 
 int DamageCalculator::getActorAttackEffective() const
 {
-	return getActorAttackBase() + getActorAttackSlayer() + getActorAttackIgnored();
+	return getActorAttackBase() + getActorAttackFrenzy() + getActorAttackSlayer() + getActorAttackIgnored();
+}
+
+/// Frenzy trades the defense of its bearer for attack. How much defense there is to trade is decided
+/// by the unit being attacked, so the conversion happens here rather than on the unit itself.
+int DamageCalculator::getActorAttackFrenzy() const
+{
+	const std::string cachingStrFrenzy = "type_IN_FRENZY";
+	static const auto selectorFrenzy = Selector::type()(BonusType::IN_FRENZY);
+
+	int frenzy = info.attacker->valOfBonuses(selectorFrenzy, cachingStrFrenzy);
+
+	if(frenzy == 0)
+		return 0;
+
+	int defense = info.attacker->getDefense(info.shooting);
+
+	return frenzy * (defense + getDefenseIgnored(info.defender, defense)) / 100;
 }
 
 int DamageCalculator::getActorAttackIgnored() const
@@ -176,6 +193,13 @@ int DamageCalculator::getActorAttackSlayer() const
 
 int DamageCalculator::getTargetDefenseBase() const
 {
+	const std::string cachingStrFrenzy = "type_IN_FRENZY";
+	static const auto selectorFrenzy = Selector::type()(BonusType::IN_FRENZY);
+
+	// a frenzied unit has traded its whole defense away for attack
+	if(info.defender->hasBonus(selectorFrenzy, cachingStrFrenzy))
+		return 0;
+
 	return info.defender->getDefense(info.shooting);
 }
 
@@ -186,12 +210,17 @@ int DamageCalculator::getTargetDefenseEffective() const
 
 int DamageCalculator::getTargetDefenseIgnored() const
 {
-	double multDefenceReduction = battleBonusValue(info.attacker, Selector::type()(BonusType::ENEMY_DEFENCE_REDUCTION)) / 100.0;
+	return getDefenseIgnored(info.attacker, getTargetDefenseBase());
+}
+
+int DamageCalculator::getDefenseIgnored(const battle::Unit * reducer, int defense) const
+{
+	double multDefenceReduction = battleBonusValue(reducer, Selector::type()(BonusType::ENEMY_DEFENCE_REDUCTION)) / 100.0;
 
 	if(multDefenceReduction > 0)
 	{
-		int reduction = std::floor(multDefenceReduction * getTargetDefenseBase()) + 1;
-		return -std::min(reduction,getTargetDefenseBase());
+		int reduction = std::floor(multDefenceReduction * defense) + 1;
+		return -std::min(reduction, defense);
 	}
 	return 0;
 }
@@ -355,19 +384,8 @@ double DamageCalculator::getDefenseRangePenaltiesFactor() const
 		BattleHex attackerPos = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
 		BattleHex defenderPos = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
 
-		const std::string cachingStrAdvAirShield = "isAdvancedAirShield";
-		auto isAdvancedAirShield = [](const Bonus* bonus)
-		{
-			return bonus->source == BonusSource::SPELL_EFFECT
-					&& bonus->sid == BonusSourceID(SpellID(SpellID::AIR_SHIELD))
-					&& bonus->val >= MasteryLevel::ADVANCED;
-		};
-
-		const bool distPenalty = callback.battleHasDistancePenalty(info.attacker, attackerPos, defenderPos);
-
-		if(distPenalty || info.defender->hasBonus(isAdvancedAirShield, cachingStrAdvAirShield))
+		if(callback.battleHasDistancePenalty(info.attacker, attackerPos, defenderPos))
 			return 0.5;
-
 	}
 	else
 	{
