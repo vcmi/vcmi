@@ -109,7 +109,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 
 bool BattleInterface::isInTacticsMode()
 {
-	return tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() == 0; 
+	return tacticianInterface && tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() > 0;
 }
 
 void BattleInterface::playIntroSoundAndUnlockInterface()
