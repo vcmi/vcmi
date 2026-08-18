@@ -881,3 +881,22 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, SlayerDamageTest, ::testing::Values(
 	SlayerCase{"targetIsNoKing",       MasteryLevel::EXPERT,   demon, 7500}
 ),
 	[](const ::testing::TestParamInfo<SlayerCase> & info) { return info.param.name; });
+
+// ---- sign of a factor ---------------------------------------------------------------------------
+
+/// A factor is read by its sign rather than by where it came from, so a mod that gives a
+/// damage-raising bonus a negative value gets a mitigating factor out of it - and mitigation
+/// multiplies rather than eating into the other boosts. Granted directly because nothing in the
+/// game ships a bonus with such a value.
+TEST_F(DamageCalculatorTest, ABoostTurnedNegativeMitigatesInsteadOfCancellingOtherBoosts)
+{
+	auto * source = attacker(hornedDemon);
+	grant(source, BonusType::GENERAL_DAMAGE_PREMY, 100);
+	grant(source, BonusType::PERCENTAGE_DAMAGE_BOOST, -25, BonusSubtypeID(BonusCustomSubtype::damageTypeMelee));
+
+	// 700 doubled and then cut by a quarter. Were the two summed instead, this would be 1225
+	auto result = estimate(source, defender(hornedDemon));
+
+	EXPECT_EQ(result.damage.min, 1050);
+	EXPECT_EQ(result.damage.max, 1350);
+}

@@ -482,7 +482,10 @@ double DamageCalculator::getDefenseMindFactor() const
 	return 0.0;
 }
 
-std::vector<double> DamageCalculator::getAttackFactors() const
+/// Every factor of the attack, as a signed share of the base damage: a factor that raises the
+/// damage is positive, one that lowers it negative. It is the sign that decides how a factor enters
+/// the formula, not where it came from - a mod is free to give any of them the value that flips it.
+std::vector<double> DamageCalculator::getDamageFactors() const
 {
 	return {
 		getAttackSkillFactor(),
@@ -495,24 +498,18 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackDoubleDamageFactor(),
 		getAttackHateCreatureFactor(),
 		getAttackHateTraitFactor(),
-		getAttackRevengeFactor()
-	};
-}
-
-std::vector<double> DamageCalculator::getDefenseFactors() const
-{
-	return {
-		getDefenseSkillFactor(),
-		getDefenseArmorerFactor(),
-		getDefenseMagicShieldFactor(),
-		getDefenseRangePenaltiesFactor(),
-		getDefenseObstacleFactor(),
-		getDefenseBlindParalysisFactor(),
-		getDefenseUnluckyFactor(),
-		getDefenseForgetfulnessFactor(),
-		getDefensePetrificationFactor(),
-		getDefenseMagicFactor(),
-		getDefenseMindFactor()
+		getAttackRevengeFactor(),
+		-getDefenseSkillFactor(),
+		-getDefenseArmorerFactor(),
+		-getDefenseMagicShieldFactor(),
+		-getDefenseRangePenaltiesFactor(),
+		-getDefenseObstacleFactor(),
+		-getDefenseBlindParalysisFactor(),
+		-getDefenseUnluckyFactor(),
+		-getDefenseForgetfulnessFactor(),
+		-getDefensePetrificationFactor(),
+		-getDefenseMagicFactor(),
+		-getDefenseMindFactor()
 	};
 }
 
@@ -565,11 +562,15 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	double attackFactorTotal = 1.0;
 	double defenseFactorTotal = 1.0;
 
-	for (auto & factor : getAttackFactors())
-		attackFactorTotal += factor;
-
-	for (auto & factor : getDefenseFactors())
-		defenseFactorTotal *= (1 - std::min(1.0, factor));
+	// factors that raise the damage add up, factors that lower it multiply, and a factor of zero
+	// belongs to neither group
+	for (double factor : getDamageFactors())
+	{
+		if(factor > 0)
+			attackFactorTotal += factor;
+		else if(factor < 0)
+			defenseFactorTotal *= (1 + std::max(-1.0, factor));
+	}
 
 	int64_t cap = getDamageCap();
 

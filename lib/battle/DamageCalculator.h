@@ -75,8 +75,8 @@ class DLL_LINKAGE DamageCalculator
 	double getDefenseMindFactor() const;
 	int64_t getDamageCap() const;
 
-	std::vector<double> getAttackFactors() const;
-	std::vector<double> getDefenseFactors() const;
+	/// Every factor of the attack, signed - positive raises the damage, negative lowers it.
+	std::vector<double> getDamageFactors() const;
 public:
 	DamageCalculator(const CBattleInfoCallback & callback, const BattleAttackInfo & info ):
 		callback(callback),
