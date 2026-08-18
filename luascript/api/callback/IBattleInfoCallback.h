@@ -43,8 +43,7 @@ public:
 	static bool isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender);
 	static bool hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex);
 	static bool hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex);
-	static std::vector<int64_t> getKeepDamageRange(const IBattleInfoCallback & object);
-	static std::vector<int64_t> getTowerDamageRange(const IBattleInfoCallback & object);
+	static std::vector<int64_t> getTurretDamageRange(const IBattleInfoCallback & object, const battle::Unit & turret);
 	static bool isToReverse(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender, std::optional<BattleHex> attackerHex, std::optional<BattleHex> defenderHex);
 	static const battle::Unit * getUnitByPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyAlive);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getAllObstacles(const IBattleInfoCallback & object);

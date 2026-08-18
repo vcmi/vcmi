@@ -22,6 +22,7 @@ class DLL_LINKAGE ScriptHandler final : public IHandlerBase, public ScriptServic
 public:
 	const ScriptTypeDescription & getById(ScriptID scriptID) const override;
 	std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const override;
+	const IDamageCalculatorScript * getDamageCalculator() const override;
 
 	void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const override;
 
@@ -35,5 +36,6 @@ public:
 
 private:
 	std::shared_ptr<IScriptFactory> factory;
+	std::shared_ptr<IDamageCalculatorScript> damageCalculator;
 	std::vector<ScriptTypeDescription> scripts;
 };

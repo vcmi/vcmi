@@ -58,6 +58,15 @@
 		},
 		"description" : ""
 	},
+	"damageCalculator" : {
+		"implements" : "damageCalculator",
+		"script" : "combat/damageCalculator",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		}
+	},
 	"fireShield" : {
 		"implements" : "combatEvent",
 		"script" : "combat/fireShield",

@@ -15,6 +15,7 @@
 #include "../constants/EntityIdentifiers.h"
 
 class ICombatEventScript;
+class IDamageCalculatorScript;
 class JsonNode;
 class TextIdentifier;
 
@@ -36,6 +37,7 @@ public:
 	/// One creator per script kind. Returning null is a load error, which the handler reports
 	/// rather than passing on.
 	virtual std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const = 0;
+	virtual std::shared_ptr<IDamageCalculatorScript> createDamageCalculatorScript(const std::string & scriptId) const = 0;
 	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const = 0;
 };
 
@@ -57,6 +59,10 @@ public:
 	/// `owner` identifies whoever holds this instance and prefixes the generated text IDs;
 	/// when it is empty only validation runs, since there is no stable key to register under.
 	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const = 0;
+
+	/// The damage calculator of the game, or null when no script declares one - in which case the
+	/// engine falls back on its own.
+	virtual const IDamageCalculatorScript * getDamageCalculator() const = 0;
 
 	virtual void registerFactory(std::shared_ptr<IScriptFactory> factory) = 0;
 };

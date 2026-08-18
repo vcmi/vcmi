@@ -17,7 +17,7 @@ end
 
 --- First bonus of the given type carried by the unit, or nil.
 local function bonusOfType(unit, type)
-	local found = unit:getBonuses(function(bonus) return bonus:getType() == type end)
+	local found = unit:getBonusesOfType(type)
 
 	if found:size() == 0 then return nil end
 

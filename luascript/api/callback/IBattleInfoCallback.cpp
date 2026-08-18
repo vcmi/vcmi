@@ -107,13 +107,13 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"True if the attacker would have to turn around to reach the defender, which is what makes "
 		"the blow come from behind.");
-	R.function<&IBattleInfoCallbackProxy::getKeepDamageRange>("getKeepDamageRange",
-		{"Minimum and maximum damage of one shot, empty when no town is being defended."},
-		"Damage the keep of the defended town shoots for. TEMPORARY - a pair of numbers rather than "
-		"a damage range of its own, pending a town binding worth the name.");
-	R.function<&IBattleInfoCallbackProxy::getTowerDamageRange>("getTowerDamageRange",
-		{"Minimum and maximum damage of one shot, empty when no town is being defended."},
-		"Damage the lesser towers of the defended town shoot for. TEMPORARY, see getKeepDamageRange.");
+	R.function<&IBattleInfoCallbackProxy::getTurretDamageRange>("getTurretDamageRange",
+		{{"turret", "Tower whose shot is being measured."}},
+		{"Minimum and maximum damage of one shot, empty when the unit is no tower of a defended town."},
+		"Damage the given tower of the defended town shoots for. TEMPORARY - the keep and the lesser "
+		"towers are told apart here rather than in script, because the hexes that identify them are "
+		"sentinels the script cannot name, and it returns a pair of numbers rather than a damage "
+		"range of its own. Both are pending a town binding worth the name.");
 	R.function<&IBattleInfoCallbackProxy::getUnitByPos>("getUnitByPos",
 		{
 			{"hex",       "Hex to inspect for a unit."},
@@ -195,28 +195,19 @@ bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object
 	return cb.battleHasWallPenalty(&shooter, shooterHex.value_or(shooter.getPosition()), targetHex.value_or(target.getPosition()));
 }
 
-namespace
+std::vector<int64_t> IBattleInfoCallbackProxy::getTurretDamageRange(const IBattleInfoCallback & object, const battle::Unit & turret)
 {
-std::vector<int64_t> asPair(const DamageRange & range)
-{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	const auto * town = cb.battleGetDefendedTown();
+
+	if(!town || !turret.isTurret())
+		return {};
+
+	const DamageRange range = turret.getPosition() == BattleHex(BattleHex::CASTLE_CENTRAL_TOWER)
+		? town->getKeepDamageRange()
+		: town->getTowerDamageRange();
+
 	return {range.min, range.max};
-}
-}
-
-std::vector<int64_t> IBattleInfoCallbackProxy::getKeepDamageRange(const IBattleInfoCallback & object)
-{
-	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	const auto * town = cb.battleGetDefendedTown();
-
-	return town ? asPair(town->getKeepDamageRange()) : std::vector<int64_t>{};
-}
-
-std::vector<int64_t> IBattleInfoCallbackProxy::getTowerDamageRange(const IBattleInfoCallback & object)
-{
-	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	const auto * town = cb.battleGetDefendedTown();
-
-	return town ? asPair(town->getTowerDamageRange()) : std::vector<int64_t>{};
 }
 
 bool IBattleInfoCallbackProxy::isToReverse(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender, std::optional<BattleHex> attackerHex, std::optional<BattleHex> defenderHex)

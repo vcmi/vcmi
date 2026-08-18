@@ -58,6 +58,8 @@ public:
 	static void registerMethods(MethodRegistrar & R);
 
 	static int32_t size(const BonusList & list);
+	static int32_t totalValue(const BonusList & list);
+	static int filter(lua_State * L);
 	static Bonus getBonus(const BonusList & list, int32_t index);
 };
 

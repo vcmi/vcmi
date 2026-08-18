@@ -776,6 +776,7 @@ set(lib_MAIN_HEADERS
 
 	combatScripts/CombatEventPayload.h
 	combatScripts/ICombatEventScript.h
+	combatScripts/IDamageCalculatorScript.h
 
 	scripting/ScriptHandler.h
 	scripting/ScriptService.h

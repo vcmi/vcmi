@@ -3,9 +3,9 @@ local BattleLog = require("battleLog")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
-function Script:sumBonusVal(unit, filterFn)
+function Script:sumBonusVal(bonuses, filterFn)
 	local total = 0
-	local list = unit:getBonuses(filterFn)
+	local list = bonuses:filter(filterFn)
 	for i = 1, list:size() do
 		total = total + list:getBonus(i):getVal()
 	end
@@ -15,18 +15,17 @@ end
 function Script:isReceptive(mechanics, unit)
 	local spell = mechanics:getSpell()
 	if spell:isMagical() then
-		if self:sumBonusVal(unit, function(b)
-			return b:getType() == "SPELL_DAMAGE_REDUCTION" and b:getSubtype() == "any"
+		if self:sumBonusVal(unit:getBonusesOfType("SPELL_DAMAGE_REDUCTION"), function(b)
+			return b:getSubtype() == "any"
 		end) >= 100 then
 			return false
 		end
 	end
 	for _, school in ipairs(spell:getSchools()) do
-		if self:sumBonusVal(unit, function(b)
+		if self:sumBonusVal(unit:getBonusesOfType("SPELL_DAMAGE_REDUCTION"), function(b)
 			local sub = b:getSubtype()
 			if sub == "any" then return false end
-			return b:getType() == "SPELL_DAMAGE_REDUCTION"
-				and LIBRARY:getSpellSchoolByName(sub) == school
+			return LIBRARY:getSpellSchoolByName(sub) == school
 		end) >= 100 then
 			return false
 		end

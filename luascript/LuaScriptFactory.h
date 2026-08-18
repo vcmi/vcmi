@@ -48,6 +48,7 @@ public:
 	void initialize(const ScriptTypeDescription & description) override;
 
 	std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const override;
+	std::shared_ptr<IDamageCalculatorScript> createDamageCalculatorScript(const std::string & scriptId) const override;
 	std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const override;
 
 private:

@@ -28,6 +28,12 @@ class BonusBearerBindings
 public:
 	static void registerMethods(MethodRegistrar & R)
 	{
+		R.template function<&getBonusesOfType>("getBonusesOfType",
+			{{"type", "Bonus type to collect, by its json key - \"SLAYER\", \"JOUSTING\", ..."}},
+			{"Bonuses of that type affecting the bearer."},
+			"Returns the bonuses of one type affecting the bearer. Prefer this over `getBonuses` "
+			"whenever the type is known: the engine both caches this query and answers it without "
+			"handing every unrelated bonus to the script.");
 		R.template cfunction<&getBonuses>("getBonuses",
 			{{"predicate", "fun(b: Bonus): boolean", "Selector — called for each bonus on the bearer; bonus is kept when it returns true."}},
 			{"BonusList", "Bonuses for which the predicate returned true."},
@@ -35,6 +41,29 @@ public:
 	}
 
 private:
+	/// Resolving a bonus type by name goes through the identifier storage, which sweeps every mod
+	/// scope for candidates - affordable while content loads, not once per query of a battle. The
+	/// answer never changes, so each thread keeps the ones it has asked for.
+	static BonusType decodeType(const std::string & type)
+	{
+		thread_local std::unordered_map<std::string, BonusType> known;
+
+		auto entry = known.find(type);
+
+		if(entry != known.end())
+			return entry->second;
+
+		auto decoded = static_cast<BonusType>(BonusTypeID::decode(type));
+		known.emplace(type, decoded);
+
+		return decoded;
+	}
+
+	static BonusList getBonusesOfType(const Leaf & bearer, const std::string & type)
+	{
+		return *bearer.getBonusesOfType(decodeType(type));
+	}
+
 	static int getBonuses(lua_State * L)
 	{
 		LuaStack S(L);

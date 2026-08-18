@@ -109,6 +109,14 @@ void BonusListProxy::registerMethods(MethodRegistrar & R)
 {
 	R.function<&BonusListProxy::size>("size", {},
 		"Returns the number of bonuses in this list.");
+	R.function<&BonusListProxy::totalValue>("totalValue", {},
+		"Returns the value of the whole list as the engine computes it, which is not a plain sum - "
+		"percentages, independent floors and ceilings all combine by their own rules.");
+	R.cfunction<&BonusListProxy::filter>("filter",
+		{{"predicate", "fun(b: Bonus): boolean", "Selector — called for each bonus of the list; bonus is kept when it returns true."}},
+		{"BonusList", "Bonuses for which the predicate returned true."},
+		"Returns the bonuses of this list the predicate accepts. Use to narrow a list down before "
+		"`totalValue`, which combines what is left by the rules of the engine rather than adding it up.");
 	R.function<&BonusListProxy::getBonus>("getBonus",
 		{{"index", "1-based position of the bonus to fetch."}},
 		{"Bonus stored at the given position."},
@@ -118,6 +126,41 @@ void BonusListProxy::registerMethods(MethodRegistrar & R)
 int32_t BonusListProxy::size(const BonusList & list)
 {
 	return static_cast<int32_t>(list.size());
+}
+
+int32_t BonusListProxy::totalValue(const BonusList & list)
+{
+	return list.totalValue();
+}
+
+int BonusListProxy::filter(lua_State * L)
+{
+	LuaStack S(L);
+
+	BonusList list;
+	S.get(1, list);
+
+	if(!lua_isfunction(L, 2))
+	{
+		S.clear();
+		return 0;
+	}
+
+	BonusList result;
+	for(const auto & bonus : list)
+	{
+		lua_pushvalue(L, 2);
+		S.push(*bonus);
+		lua_call(L, 1, 1);
+		const bool keep = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+		if(keep)
+			result.push_back(bonus);
+	}
+
+	S.clear();
+	S.push(result);
+	return 1;
 }
 
 Bonus BonusListProxy::getBonus(const BonusList & list, int32_t index)
