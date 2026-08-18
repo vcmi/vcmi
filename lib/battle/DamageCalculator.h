@@ -50,7 +50,8 @@ class DLL_LINKAGE DamageCalculator
 	int getTargetDefenseEffective() const;
 	int getTargetDefenseIgnored() const;
 
-	double getAttackSkillFactor() const;
+	/// Attack against defense, signed: positive when the attacker has the upper hand.
+	double getAttackDefenseFactor() const;
 	double getAttackOffenseArcheryFactor() const;
 	double getAttackBlessFactor() const;
 	double getAttackLuckFactor() const;
@@ -62,7 +63,6 @@ class DLL_LINKAGE DamageCalculator
 	double getAttackRevengeFactor() const;
 	double getAttackFromBackFactor() const;
 
-	double getDefenseSkillFactor() const;
 	double getDefenseArmorerFactor() const;
 	double getDefenseMagicShieldFactor() const;
 	double getDefenseRangePenaltiesFactor() const;

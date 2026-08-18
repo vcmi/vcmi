@@ -23,6 +23,126 @@
 
 #include <vcmi/spells/Spell.h>
 
+// TEMPORARY - per-factor profiling, to be deleted along with the Lua migration it feeds.
+// Tracy zones are not used here: a zone costs about as much as the factor it would measure, and at
+// 22 zones per estimate the trace outgrows what the profiler can take.
+#ifdef VCMI_PROFILE_DAMAGE_FACTORS
+
+#include <x86intrin.h>
+
+namespace
+{
+constexpr std::array factorNames = {
+	"attackDefense", "offenseArchery", "bless", "luck", "jousting", "fromBack", "deathBlow",
+	"doubleDamage", "hateCreature", "hateTrait", "revenge",
+	"armorer", "magicShield", "rangePenalties", "obstacle", "blindParalysis",
+	"unlucky", "forgetfulness", "petrification", "magic", "mind"
+};
+
+struct FactorTotals
+{
+	std::array<uint64_t, factorNames.size()> cycles{};
+	uint64_t calls = 0;
+};
+
+std::mutex profileMutex;
+FactorTotals retiredTotals;
+std::vector<const FactorTotals *> liveTotals;
+
+/// One thread's numbers. Registered while the thread lives so that a dump can reach it, merged into
+/// the retired totals once it does not.
+struct ThreadTotals : FactorTotals
+{
+	ThreadTotals()
+	{
+		std::lock_guard lock(profileMutex);
+		liveTotals.push_back(this);
+	}
+
+	~ThreadTotals()
+	{
+		std::lock_guard lock(profileMutex);
+		for(size_t i = 0; i < cycles.size(); ++i)
+			retiredTotals.cycles[i] += cycles[i];
+		retiredTotals.calls += calls;
+		std::erase(liveTotals, this);
+	}
+};
+
+thread_local ThreadTotals threadTotals;
+
+/// Reading the live threads races with them, which for a profiling table costs a rounding error at
+/// worst. The alternative - an atomic per factor per estimate - would cost more than it measures.
+void dumpFactors()
+{
+	std::lock_guard lock(profileMutex);
+
+	FactorTotals sum = retiredTotals;
+	for(const auto * thread : liveTotals)
+	{
+		for(size_t i = 0; i < sum.cycles.size(); ++i)
+			sum.cycles[i] += thread->cycles[i];
+		sum.calls += thread->calls;
+	}
+
+	if(sum.calls == 0)
+		return;
+
+	uint64_t total = 0;
+	for(auto value : sum.cycles)
+		total += value;
+
+	fprintf(stderr, "\n=== damage factors: %llu estimates, %llu cycles in factors ===\n",
+		static_cast<unsigned long long>(sum.calls), static_cast<unsigned long long>(total));
+
+	for(size_t i = 0; i < factorNames.size(); ++i)
+	{
+		fprintf(stderr, "%-16s %8.1f cycles/estimate %6.2f%%\n", factorNames[i],
+			static_cast<double>(sum.cycles[i]) / sum.calls,
+			100.0 * sum.cycles[i] / std::max<uint64_t>(1, total));
+	}
+	fflush(stderr);
+}
+
+/// Dumps as it goes rather than only at exit: a profiling run is normally stopped with a signal, and
+/// a killed process runs no static destructors.
+void countEstimate()
+{
+	static std::atomic<uint64_t> sinceLastDump = 0;
+
+	++threadTotals.calls;
+
+	if(sinceLastDump.fetch_add(1) % 2000000 == 1999999)
+		dumpFactors();
+}
+
+struct ProfileDump
+{
+	~ProfileDump() { dumpFactors(); }
+};
+
+ProfileDump profileDump;
+
+template<typename Factor>
+double profileFactor(size_t index, Factor && factor)
+{
+	uint64_t start = __rdtsc();
+	double result = factor();
+	threadTotals.cycles[index] += __rdtsc() - start;
+	return result;
+}
+}
+
+#define FACTOR(index, call) profileFactor(index, [&]{ return call; })
+#define COUNT_ESTIMATE() countEstimate()
+
+#else
+
+#define FACTOR(index, call) (call)
+#define COUNT_ESTIMATE() ((void)0)
+
+#endif
+
 DamageRange DamageCalculator::getBaseDamageSingle() const
 {
 	int64_t minDmg = 0.0;
@@ -225,7 +345,9 @@ int DamageCalculator::getDefenseIgnored(const battle::Unit * reducer, int defens
 	return 0;
 }
 
-double DamageCalculator::getAttackSkillFactor() const
+/// Attack met with defense. The surplus raises the damage and the shortfall lowers it, which is one
+/// comparison rather than two now that the sign of a factor is what decides how it applies.
+double DamageCalculator::getAttackDefenseFactor() const
 {
 	int attackAdvantage = getActorAttackEffective() - getTargetDefenseEffective();
 
@@ -234,11 +356,19 @@ double DamageCalculator::getAttackSkillFactor() const
 		// FIXME: use cb to acquire these settings
 		const double attackMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
 		const double attackMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
-		const double attackFactor = std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
 
-		return attackFactor;
+		return std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
 	}
-	return 0.f;
+
+	if(attackAdvantage < 0)
+	{
+		const double defenseMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
+		const double defenseMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
+
+		return -std::min(defenseMultiplier * -attackAdvantage, defenseMultiplierCap);
+	}
+
+	return 0.0;
 }
 
 double DamageCalculator::getAttackBlessFactor() const
@@ -334,23 +464,6 @@ double DamageCalculator::getAttackRevengeFactor() const
 		return sqrt(static_cast<double>((totalStackCount + 1) * creatureHealth) / (currentStackHealth + creatureHealth) - 1);
 	}
 
-	return 0.0;
-}
-
-double DamageCalculator::getDefenseSkillFactor() const
-{
-	int defenseAdvantage = getTargetDefenseEffective() - getActorAttackEffective();
-
-	//bonus from attack/defense skills
-	if(defenseAdvantage > 0) //decreasing dmg
-	{
-		// FIXME: use cb to acquire these settings
-		const double defenseMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
-		const double defenseMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
-
-		const double dec = std::min(defenseMultiplier * defenseAdvantage, defenseMultiplierCap);
-		return dec;
-	}
 	return 0.0;
 }
 
@@ -488,28 +601,27 @@ double DamageCalculator::getDefenseMindFactor() const
 std::vector<double> DamageCalculator::getDamageFactors() const
 {
 	return {
-		getAttackSkillFactor(),
-		getAttackOffenseArcheryFactor(),
-		getAttackBlessFactor(),
-		getAttackLuckFactor(),
-		getAttackJoustingFactor(),
-		getAttackFromBackFactor(),
-		getAttackDeathBlowFactor(),
-		getAttackDoubleDamageFactor(),
-		getAttackHateCreatureFactor(),
-		getAttackHateTraitFactor(),
-		getAttackRevengeFactor(),
-		-getDefenseSkillFactor(),
-		-getDefenseArmorerFactor(),
-		-getDefenseMagicShieldFactor(),
-		-getDefenseRangePenaltiesFactor(),
-		-getDefenseObstacleFactor(),
-		-getDefenseBlindParalysisFactor(),
-		-getDefenseUnluckyFactor(),
-		-getDefenseForgetfulnessFactor(),
-		-getDefensePetrificationFactor(),
-		-getDefenseMagicFactor(),
-		-getDefenseMindFactor()
+		FACTOR(0, getAttackDefenseFactor()),
+		FACTOR(1, getAttackOffenseArcheryFactor()),
+		FACTOR(2, getAttackBlessFactor()),
+		FACTOR(3, getAttackLuckFactor()),
+		FACTOR(4, getAttackJoustingFactor()),
+		FACTOR(5, getAttackFromBackFactor()),
+		FACTOR(6, getAttackDeathBlowFactor()),
+		FACTOR(7, getAttackDoubleDamageFactor()),
+		FACTOR(8, getAttackHateCreatureFactor()),
+		FACTOR(9, getAttackHateTraitFactor()),
+		FACTOR(10, getAttackRevengeFactor()),
+		FACTOR(11, -getDefenseArmorerFactor()),
+		FACTOR(12, -getDefenseMagicShieldFactor()),
+		FACTOR(13, -getDefenseRangePenaltiesFactor()),
+		FACTOR(14, -getDefenseObstacleFactor()),
+		FACTOR(15, -getDefenseBlindParalysisFactor()),
+		FACTOR(16, -getDefenseUnluckyFactor()),
+		FACTOR(17, -getDefenseForgetfulnessFactor()),
+		FACTOR(18, -getDefensePetrificationFactor()),
+		FACTOR(19, -getDefenseMagicFactor()),
+		FACTOR(20, -getDefenseMindFactor())
 	};
 }
 
@@ -557,6 +669,8 @@ int64_t DamageCalculator::getDamageCap() const
 
 DamageEstimation DamageCalculator::calculateDmgRange() const
 {
+	COUNT_ESTIMATE();
+
 	DamageRange damageBase = getBaseDamageStack();
 
 	double attackFactorTotal = 1.0;
