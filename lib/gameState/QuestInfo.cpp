@@ -29,6 +29,12 @@ const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 	return source ? source->getActiveQuest() : nullptr;
 }
 
+bool QuestInfo::isDisplayable(IGameInfoCallback *cb) const
+{
+	const auto * quest = getQuest(cb);
+	return quest && quest->mission != Rewardable::Limiter{};
+}
+
 const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const
 {
 	if(const auto * obj = std::get_if<ObjectInstanceID>(&identity))

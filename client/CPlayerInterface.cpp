@@ -1819,7 +1819,7 @@ void CPlayerInterface::showQuestLog()
 	auto quests = cb->getMyQuests();
 	vstd::erase_if(quests, [this](const QuestInfo & quest)
 	{
-		return quest.getQuest(cb.get()) == nullptr;
+		return !quest.isDisplayable(cb.get());
 	});
 	if(quests.empty())
 	{

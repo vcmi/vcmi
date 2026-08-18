@@ -166,11 +166,7 @@ void CQuestLog::recreateLabelList()
 	{
 		auto questPtr = quests[i].getQuest(GAME->interface()->cb.get());
 		auto questObject = quests[i].getObject(GAME->interface()->cb.get());
-		if(!questPtr)
-			continue;
-
-		// Quests without mision don't have text for them and can't be displayed
-		if (questPtr->mission == Rewardable::Limiter{})
+		if(!quests[i].isDisplayable(GAME->interface()->cb.get()))
 			continue;
 
 		MetaString text;

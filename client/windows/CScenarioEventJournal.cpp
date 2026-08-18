@@ -93,7 +93,11 @@ CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJour
 	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
 	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
-	questsTab->block(GAME->interface()->cb->getMyQuests().empty());
+	const auto quests = GAME->interface()->cb->getMyQuests();
+	questsTab->block(std::none_of(quests.begin(), quests.end(), [](const QuestInfo & quest)
+	{
+		return quest.isDisplayable(GAME->interface()->cb.get());
+	}));
 	journalTabs = std::make_shared<CToggleGroup>([this](int tab)
 	{
 		if(tab == 0)

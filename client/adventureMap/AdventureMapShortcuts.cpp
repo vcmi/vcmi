@@ -38,6 +38,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -661,7 +662,11 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 bool AdventureMapShortcuts::optionCanViewJournal()
 {
 	const auto * playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID);
-	return optionInMapView() && (!playerState->quests.empty() || !GAME->interface()->cb->getMyScenarioEventJournal().empty());
+	const bool hasDisplayableQuest = std::any_of(playerState->quests.begin(), playerState->quests.end(), [](const QuestInfo & quest)
+	{
+		return quest.isDisplayable(GAME->interface()->cb.get());
+	});
+	return optionInMapView() && (hasDisplayableQuest || !GAME->interface()->cb->getMyScenarioEventJournal().empty());
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
