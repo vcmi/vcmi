@@ -80,6 +80,12 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the current hit points of living creatures of this unit.");
 	R.method<&Unit::getCount>("getCount", {},
 		"Returns the number of creatures currently alive in the stack.");
+	R.method<&Unit::getFirstHPleft>("getFirstHPleft", {},
+        "Returns the health left of the first creature in the unit stack.");
+	R.method<&Unit::isShooter>("isShooter", {},
+        "True if the stack can shoot in general, even if out of ammo. See canShoot to check if unit can shoot right now.");
+	R.method<&Unit::isTurret>("isTurret", {},
+		"True if the stack is one of the towers of a besieged town.");
 	R.method<&ACreature::getMaxHealth, Unit>("getMaxHealth", {},
 		"Returns the maximum hit points of a single creature in the stack.");
 	R.method<&Unit::coversPos>("coversPos",

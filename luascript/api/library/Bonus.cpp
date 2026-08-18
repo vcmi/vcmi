@@ -37,6 +37,9 @@ void BonusProxy::registerMethods(MethodRegistrar & R)
 		"Returns the JSON key identifying the entity that granted this bonus.");
 	R.function<&BonusProxy::getSource>("getSource", {},
 		"Returns the source category (artifact, creature ability, spell, ...) of the bonus.");
+	R.function<&BonusProxy::getEffectRange>("getEffectRange", {},
+		"Returns the kind of combat the bonus is limited to. A bonus that applies to melee only is "
+		"silently absent while shooting, and the other way round.");
 	R.function<&BonusProxy::getDuration>("getDuration", {},
 		"Returns the list of duration flags currently set on the bonus.");
 	R.function<&BonusProxy::getValType>("getValType", {},
@@ -62,6 +65,7 @@ si32        BonusProxy::getVal(const Bonus & b)        { return b.val; }
 std::string BonusProxy::getSubtype(const Bonus & b)    { return b.subtype.toString(); }
 std::string BonusProxy::getSourceID(const Bonus & b)   { return b.sid.toString(); }
 BonusSource     BonusProxy::getSource(const Bonus & b)  { return b.source; }
+BonusLimitEffect BonusProxy::getEffectRange(const Bonus & b) { return b.effectRange; }
 BonusValueType  BonusProxy::getValType(const Bonus & b) { return b.valType; }
 std::string BonusProxy::getStacking(const Bonus & b)   { return b.stacking; }
 si16        BonusProxy::getTurnsRemain(const Bonus & b) { return b.turnsRemain; }

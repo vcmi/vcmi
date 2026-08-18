@@ -115,6 +115,7 @@ Registry::Registry()
 	registerLuaName<BonusDuration::BonusDuration>("BonusDuration");
 	registerLuaName<BonusSource>("BonusSource");
 	registerLuaName<BonusValueType>("BonusValueType");
+	registerLuaName<BonusLimitEffect>("BonusLimitEffect");
 	registerLuaName<CObstacleInstance::EObstacleType>("ObstacleType");
 	registerLuaName<EWallPart>("WallPart");
 	registerLuaName<BattleSide>("BattleSide");

@@ -36,6 +36,7 @@ public:
 	static std::string getSubtype(const Bonus & b);
 	static std::string getSourceID(const Bonus & b);
 	static BonusSource getSource(const Bonus & b);
+	static BonusLimitEffect getEffectRange(const Bonus & b);
 	static std::vector<BonusDuration::BonusDuration> getDuration(const Bonus & b);
 	static BonusValueType getValType(const Bonus & b);
 	static std::string getStacking(const Bonus & b);

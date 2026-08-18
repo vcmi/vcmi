@@ -1,0 +1,16 @@
+// Scripts that exist only to be probed by tests.
+{
+	"apiProbe" :
+	{
+		"implements" : "combatEvent",
+		"script" : "combat/apiProbe",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" :
+		{
+			"properties" : {},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	}
+}

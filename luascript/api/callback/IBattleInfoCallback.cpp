@@ -29,6 +29,7 @@
 #include "../../../lib/battle/CBattleInfoEssentials.h"
 #include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/BattleFieldHandler.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 
 namespace scripting::api
 {
@@ -82,16 +83,37 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		"an area attack reached without being adjacent to them, such as a dragon breath's second target.");
 	R.function<&IBattleInfoCallbackProxy::hasDistancePenalty>("hasDistancePenalty",
 		{
-			{"shooter", "Unit making the ranged attack."},
-			{"target",  "Unit being shot at."}
+			{"shooter",    "Unit making the ranged attack."},
+			{"target",     "Unit being shot at."},
+			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
+			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
 		}, {},
-		"True if the shooter is too far from the target for a full-strength shot.");
+		"True if the shooter is too far from the target for a full-strength shot. The hexes are "
+		"what makes this answerable for an attack that has not happened, such as the ones an AI weighs.");
 	R.function<&IBattleInfoCallbackProxy::hasWallPenalty>("hasWallPenalty",
 		{
-			{"shooter", "Unit making the ranged attack."},
-			{"target",  "Unit being shot at."}
+			{"shooter",    "Unit making the ranged attack."},
+			{"target",     "Unit being shot at."},
+			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
+			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
 		}, {},
 		"True if a town wall stands between the shooter and the target.");
+	R.function<&IBattleInfoCallbackProxy::isToReverse>("isToReverse",
+		{
+			{"attacker",    "Unit that would strike."},
+			{"defender",    "Unit that would be struck."},
+			{"attackerHex", "Hex to strike from; nil uses where the attacker stands."},
+			{"defenderHex", "Hex to strike at; nil uses where the defender stands."}
+		}, {},
+		"True if the attacker would have to turn around to reach the defender, which is what makes "
+		"the blow come from behind.");
+	R.function<&IBattleInfoCallbackProxy::getKeepDamageRange>("getKeepDamageRange",
+		{"Minimum and maximum damage of one shot, empty when no town is being defended."},
+		"Damage the keep of the defended town shoots for. TEMPORARY - a pair of numbers rather than "
+		"a damage range of its own, pending a town binding worth the name.");
+	R.function<&IBattleInfoCallbackProxy::getTowerDamageRange>("getTowerDamageRange",
+		{"Minimum and maximum damage of one shot, empty when no town is being defended."},
+		"Damage the lesser towers of the defended town shoot for. TEMPORARY, see getKeepDamageRange.");
 	R.function<&IBattleInfoCallbackProxy::getUnitByPos>("getUnitByPos",
 		{
 			{"hex",       "Hex to inspect for a unit."},
@@ -161,16 +183,46 @@ bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback &
 	return cb.isMeleeAttackPossible(&attacker, &defender);
 }
 
-bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex)
 {
 	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	return cb.battleHasDistancePenalty(&shooter, shooter.getPosition(), target.getPosition());
+	return cb.battleHasDistancePenalty(&shooter, shooterHex.value_or(shooter.getPosition()), targetHex.value_or(target.getPosition()));
 }
 
-bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target)
+bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex)
 {
 	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	return cb.battleHasWallPenalty(&shooter, shooter.getPosition(), target.getPosition());
+	return cb.battleHasWallPenalty(&shooter, shooterHex.value_or(shooter.getPosition()), targetHex.value_or(target.getPosition()));
+}
+
+namespace
+{
+std::vector<int64_t> asPair(const DamageRange & range)
+{
+	return {range.min, range.max};
+}
+}
+
+std::vector<int64_t> IBattleInfoCallbackProxy::getKeepDamageRange(const IBattleInfoCallback & object)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	const auto * town = cb.battleGetDefendedTown();
+
+	return town ? asPair(town->getKeepDamageRange()) : std::vector<int64_t>{};
+}
+
+std::vector<int64_t> IBattleInfoCallbackProxy::getTowerDamageRange(const IBattleInfoCallback & object)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	const auto * town = cb.battleGetDefendedTown();
+
+	return town ? asPair(town->getTowerDamageRange()) : std::vector<int64_t>{};
+}
+
+bool IBattleInfoCallbackProxy::isToReverse(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender, std::optional<BattleHex> attackerHex, std::optional<BattleHex> defenderHex)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.isToReverse(&attacker, &defender, attackerHex.value_or(attacker.getPosition()), defenderHex.value_or(defender.getPosition()));
 }
 
 int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)
