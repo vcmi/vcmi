@@ -21,8 +21,6 @@
 #include "../IGameSettings.h"
 #include "../GameLibrary.h"
 
-#include <vcmi/spells/Spell.h>
-
 DamageRange DamageCalculator::getBaseDamageSingle() const
 {
 	int64_t minDmg = 0.0;
@@ -355,19 +353,10 @@ double DamageCalculator::getDefenseRangePenaltiesFactor() const
 		BattleHex attackerPos = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
 		BattleHex defenderPos = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
 
-		const std::string cachingStrAdvAirShield = "isAdvancedAirShield";
-		auto isAdvancedAirShield = [](const Bonus* bonus)
-		{
-			return bonus->source == BonusSource::SPELL_EFFECT
-					&& bonus->sid == BonusSourceID(SpellID(SpellID::AIR_SHIELD))
-					&& bonus->val >= MasteryLevel::ADVANCED;
-		};
-
 		const bool distPenalty = callback.battleHasDistancePenalty(info.attacker, attackerPos, defenderPos);
 
-		if(distPenalty || info.defender->hasBonus(isAdvancedAirShield, cachingStrAdvAirShield))
+		if(distPenalty)
 			return 0.5;
-
 	}
 	else
 	{
