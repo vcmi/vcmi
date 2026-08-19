@@ -51,15 +51,14 @@ class JournalWindow : public CWindowObject
 	std::shared_ptr<CSlider> slider;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CToggleGroup> journalTabs;
+	std::shared_ptr<CTextBox> description;
+	std::shared_ptr<CComponentBox> componentsBox;
 
 	void selectItem(size_t itemIndex);
 	void recreateItemList(int firstVisible);
 	void sliderMoved(int newPosition);
 
 protected:
-	std::shared_ptr<CTextBox> description;
-	std::shared_ptr<CComponentBox> componentsBox;
-
 	explicit JournalWindow(EJournalMode mode);
 
 	void initializeItems();
