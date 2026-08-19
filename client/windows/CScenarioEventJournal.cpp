@@ -27,21 +27,6 @@
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CScenarioEventJournalLabel::CScenarioEventJournalLabel(const Rect & position, const std::string & text)
-	: CMultiLineLabel(position, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text)
-{
-}
-
-void CScenarioEventJournalLabel::clickPressed(const Point & cursorPosition)
-{
-	callback();
-}
-
-void CScenarioEventJournalLabel::showAll(Canvas & to)
-{
-	CMultiLineLabel::showAll(to);
-}
-
 CScenarioEventJournalMinimap::CScenarioEventJournalMinimap(const Rect & position)
 	: CMinimap(position)
 {
@@ -81,79 +66,28 @@ void CScenarioEventJournalMinimap::showAll(Canvas & to)
 }
 
 CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries)
-	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog"))
+	: CJournalWindow(EJournalMode::EVENTS)
 	, entries(journalEntries)
 {
 	OBJECT_CONSTRUCTION;
 
 	minimap = std::make_shared<CScenarioEventJournalMinimap>(Rect(12, 12, 169, 169));
-	description = std::make_shared<CTextBox>("", Rect(205, EVENT_DESCRIPTION_TOP, 385, EVENT_DESCRIPTION_HEIGHT), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CScenarioEventJournal::close, this), EShortcut::GLOBAL_RETURN);
-	auto questsTab = std::make_shared<CToggleButton>(Point(193, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
-	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
-	const auto quests = GAME->interface()->cb->getMyQuests();
-	questsTab->block(std::none_of(quests.begin(), quests.end(), [](const QuestInfo & quest)
-	{
-		return quest.isDisplayable(GAME->interface()->cb.get());
-	}));
-	journalTabs = std::make_shared<CToggleGroup>([this](int tab)
-	{
-		if(tab == 0)
-		{
-			close();
-			GAME->interface()->showQuestLog();
-		}
-	});
-	journalTabs->addToggle(0, questsTab);
-	journalTabs->addToggle(1, eventsTab);
-	journalTabs->setSelected(1);
-	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CScenarioEventJournal::sliderMoved, this, _1), VISIBLE_ENTRY_COUNT, static_cast<int>(entries.size()), 0, Orientation::VERTICAL, CSlider::BROWN);
-	slider->setPanningStep(32);
-
-	for(size_t i = 0; i < entries.size(); ++i)
-	{
-		const auto & entry = entries[i];
-		const std::string title = entry.title.empty()
-			? LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.event")
-			: entry.title;
-		const std::string day = LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entry.day);
-		auto label = std::make_shared<CScenarioEventJournalLabel>(Rect(13, 195, 149, 31), title + "\n" + day);
-		label->callback = [this, i]()
-		{
-			selectEntry(i, static_cast<int>(i));
-			redraw();
-		};
-		labels.push_back(label);
-	}
-
-	const int firstVisible = std::max(0, static_cast<int>(entries.size()) - VISIBLE_ENTRY_COUNT);
-	recreateEntryList(firstVisible);
-	selectEntry(entries.size() - 1, static_cast<int>(entries.size() - 1));
-
-	if(entries.size() > VISIBLE_ENTRY_COUNT)
-	{
-		slider->block(false);
-		slider->scrollTo(firstVisible);
-	}
-	else
-	{
-		slider->block(true);
-		slider->scrollToMin();
-	}
+	initializeItems();
 }
 
-void CScenarioEventJournal::selectEntry(size_t entryIndex, int labelIndex)
+size_t CScenarioEventJournal::getItemCount() const
 {
-	selectedLabel = labelIndex;
-	const auto & entry = entries.at(entryIndex);
+	return entries.size();
+}
 
-	if(description->slider)
-		description->slider->scrollToMin();
-	description->setText(entry.message.toString());
+std::string CScenarioEventJournal::getItemText(size_t itemIndex) const
+{
+	return LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entries.at(itemIndex).day);
+}
 
-	componentsBox.reset();
+void CScenarioEventJournal::onItemSelected(size_t itemIndex)
+{
+	const auto & entry = entries.at(itemIndex);
 	std::vector<GameResID> changedResources;
 	for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
@@ -170,47 +104,11 @@ void CScenarioEventJournal::selectEntry(size_t entryIndex, int labelIndex)
 		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, subtitle, componentSize));
 	}
 
-	if(components.empty())
-	{
-		description->resize(Point(385, EVENT_DESCRIPTION_HEIGHT));
-	}
-	else
-	{
-		const int descriptionHeight = EVENT_DESCRIPTION_HEIGHT - 130;
-		description->resize(Point(385, descriptionHeight));
-		OBJECT_CONSTRUCTION;
-		componentsBox = std::make_shared<CComponentBox>(components, Rect(205, EVENT_DESCRIPTION_TOP + descriptionHeight + 15, 385, 115));
-	}
-
+	setContent(entry.message.toString(), std::move(components));
 	minimap->setLocation(entry.location);
 }
 
-void CScenarioEventJournal::recreateEntryList(int firstVisible)
+void CScenarioEventJournal::updateMinimap()
 {
-	for(size_t i = 0; i < labels.size(); ++i)
-	{
-		labels[i]->pos = Rect(pos.x + 14, pos.y + 195 + (static_cast<int>(i) - firstVisible) * 32, 151, 31);
-		if(static_cast<int>(i) >= firstVisible && static_cast<int>(i) < firstVisible + VISIBLE_ENTRY_COUNT)
-			labels[i]->enable();
-		else
-			labels[i]->disable();
-	}
-}
-
-void CScenarioEventJournal::sliderMoved(int newPosition)
-{
-	recreateEntryList(newPosition);
-	redraw();
-}
-
-void CScenarioEventJournal::showAll(Canvas & to)
-{
-	CWindowObject::showAll(to);
-	if(selectedLabel >= 0 && selectedLabel < labels.size() && !labels[selectedLabel]->isDisabled())
-	{
-		Rect selection = Rect::createAround(labels[selectedLabel]->pos, 1);
-		selection.x -= 2;
-		selection.w += 2;
-		to.drawBorder(selection, Colors::METALLIC_GOLD);
-	}
+	minimap->update();
 }

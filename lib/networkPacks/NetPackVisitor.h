@@ -57,7 +57,6 @@ public:
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
-	virtual void visitAddScenarioEventJournalEntry(AddScenarioEventJournalEntry & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
 	virtual void visitChangeTactics(ChangeTactics & pack) {}
 	virtual void visitChangeTownName(ChangeTownName & pack) {}

@@ -9,10 +9,8 @@
  */
 #pragma once
 
-#include "CWindowObject.h"
+#include "CJournalWindow.h"
 
-#include "../widgets/TextControls.h"
-#include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 #include "../adventureMap/CMinimap.h"
 
@@ -23,32 +21,10 @@ class CStackInstance;
 class CGHeroInstance;
 struct QuestInfo;
 
-class CButton;
-class CToggleButton;
-class CToggleGroup;
-class CComponentBox;
-class LRClickableAreaWText;
-class CButton;
 class CPicture;
 class CCreaturePic;
 class LRClickableAreaWTextComp;
-class CSlider;
 class CLabel;
-
-const int QUEST_COUNT = 6;
-const int DESCRIPTION_TOP = 64;
-const int DESCRIPTION_HEIGHT_MAX = 309;
-
-class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
-{
-public:
-	std::function<void()> callback;
-
-	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA &Color = Colors::WHITE, const std::string &Text =  "")
-		: CMultiLineLabel (position, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, Text){};
-	void clickPressed(const Point & cursorPosition) override;
-	void showAll(Canvas & to) override;
-};
 
 class CQuestIcon : public CAnimImage
 {
@@ -84,30 +60,18 @@ public:
 	void showAll(Canvas & to) override;
 };
 
-class CQuestLog : public CWindowObject
+class CQuestLog : public CJournalWindow
 {
-	int questIndex;
 	const QuestInfo * currentQuest;
-	std::shared_ptr<CComponentBox> componentsBox;
 
 	const std::vector<QuestInfo> quests;
-	std::vector<std::shared_ptr<CQuestLabel>> labels;
-	std::shared_ptr<CTextBox> description;
 	std::shared_ptr<CQuestMinimap> minimap;
-	std::shared_ptr<CSlider> slider; //scrolls quests
-	std::shared_ptr<CButton> ok;
-	std::shared_ptr<CToggleGroup> journalTabs;
+
+	size_t getItemCount() const override;
+	std::string getItemText(size_t itemIndex) const override;
+	void onItemSelected(size_t itemIndex) override;
+	void updateMinimap() override;
 
 public:
 	CQuestLog(const std::vector<QuestInfo> & Quests);
-
-	~CQuestLog(){};
-
-	void selectQuest (int which, int labelId);
-	void updateMinimap (int which){};
-	void printDescription (int which){};
-	void sliderMoved (int newpos);
-	void recreateLabelList();
-	void recreateQuestList (int pos);
-	void showAll (Canvas & to) override;
 };

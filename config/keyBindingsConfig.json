@@ -28,7 +28,6 @@
 		"adventureNextObject":      "N",
 		"adventureNextTown":        "T",
 		"adventureQuestLog":        "Q",
-		"adventureScenarioEventJournal": "Ctrl+J",
 		"adventureQuitGame":        "Ctrl+Q",
 		"adventureReplayTurn":      "Ctrl+R",
 		"adventureRestartGame":     "R",

@@ -82,7 +82,6 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewJournal(), [this]() { this->showQuestlog(); } },
-		{ EShortcut::ADVENTURE_SCENARIO_EVENT_JOURNAL, optionInMapView(), [this]() { this->showScenarioEventJournal(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
@@ -179,11 +178,6 @@ void AdventureMapShortcuts::switchMapLevel()
 void AdventureMapShortcuts::showQuestlog()
 {
 	GAME->interface()->showQuestLog();
-}
-
-void AdventureMapShortcuts::showScenarioEventJournal() const
-{
-	GAME->interface()->showScenarioEventJournal();
 }
 
 void AdventureMapShortcuts::showWiki()

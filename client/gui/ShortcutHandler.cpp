@@ -216,7 +216,6 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureToggleMapLevel",  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{"adventureKingdomOverview", EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
 		{"adventureQuestLog",        EShortcut::ADVENTURE_QUEST_LOG       },
-		{"adventureScenarioEventJournal", EShortcut::ADVENTURE_SCENARIO_EVENT_JOURNAL},
 		{"adventureCastSpell",       EShortcut::ADVENTURE_CAST_SPELL      },
 		{"adventureThievesGuild",    EShortcut::ADVENTURE_THIEVES_GUILD   },
 		{"adventureExitWorldView",   EShortcut::ADVENTURE_EXIT_WORLD_VIEW },

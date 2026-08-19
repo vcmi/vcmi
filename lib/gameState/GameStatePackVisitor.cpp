@@ -118,10 +118,18 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
-void GameStatePackVisitor::visitAddScenarioEventJournalEntry(AddScenarioEventJournalEntry & pack)
+void GameStatePackVisitor::visitInfoWindow(InfoWindow & pack)
 {
+	if(!pack.journalInfo || pack.text.toString().empty())
+		return;
+
 	assert(vstd::contains(gs.players, pack.player));
-	gs.players.at(pack.player).scenarioEventJournal.push_back(pack.entry);
+	ScenarioEventJournalEntry entry;
+	entry.day = gs.day;
+	entry.message = pack.text;
+	entry.location = pack.journalInfo->location;
+	entry.resources = pack.journalInfo->resources;
+	gs.players.at(pack.player).scenarioEventJournal.push_back(std::move(entry));
 }
 
 void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)

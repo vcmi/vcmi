@@ -850,21 +850,6 @@ void CGameHandler::addQuest(const PlayerColor & player, const QuestInfo & quest)
 	sendAndApply(aq);
 }
 
-void CGameHandler::addScenarioEventJournalEntry(const PlayerColor & player, const std::string & title, const MetaString & message, const int3 & location, const ResourceSet & resources)
-{
-	if(message.toString().empty())
-		return;
-
-	AddScenarioEventJournalEntry pack;
-	pack.player = player;
-	pack.entry.day = gameState().day;
-	pack.entry.title = title;
-	pack.entry.message = message;
-	pack.entry.location = location;
-	pack.entry.resources = resources;
-	sendAndApply(pack);
-}
-
 bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker, const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *h = gameInfo().getHero(hid);

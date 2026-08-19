@@ -16,7 +16,6 @@
 struct DLL_LINKAGE ScenarioEventJournalEntry
 {
 	ui32 day = 0;
-	std::string title;
 	MetaString message;
 	int3 location = int3(-1, -1, -1);
 	TResources resources;
@@ -25,12 +24,21 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 	void serialize(Handler & h)
 	{
 		h & day;
-		h & title;
 		h & message;
 		h & location;
-		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL_RESOURCES))
-			h & resources;
-		else
-			resources = {};
+		h & resources;
+	}
+};
+
+struct DLL_LINKAGE ScenarioEventJournalInfo
+{
+	int3 location = int3(-1, -1, -1);
+	TResources resources;
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & location;
+		h & resources;
 	}
 };

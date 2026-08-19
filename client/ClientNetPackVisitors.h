@@ -28,7 +28,6 @@ public:
 	}
 
 	void visitSetResources(SetResources & pack) override;
-	void visitAddScenarioEventJournalEntry(AddScenarioEventJournalEntry & pack) override;
 	void visitSetPrimarySkill(SetPrimarySkill & pack) override;
 	void visitSetHeroExperience(SetHeroExperience & pack) override;
 	void visitSetSecSkill(SetSecSkill & pack) override;

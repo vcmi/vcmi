@@ -76,7 +76,6 @@ public:
 	void changeSpells(const CGHeroInstance *, bool, const std::set<SpellID> &) override {}
 	void setResearchedSpells(const CGTownInstance *, int, const std::vector<SpellID> &, bool) override {}
 	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override { builtStructures.emplace_back(townID, building); }
-	void addScenarioEventJournalEntry(const PlayerColor &, const std::string &, const MetaString &, const int3 &, const ResourceSet &) override {}
 	void createBoat(const int3 &, BoatId, PlayerColor) override {}
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}

@@ -44,7 +44,6 @@ class AdventureMapShortcuts
 	void viewStatistic();
 	void switchMapLevel();
 	void showQuestlog();
-	void showScenarioEventJournal() const;
 	void toggleTrackHero();
 	void toggleGrid();
 	void toggleVisitable();

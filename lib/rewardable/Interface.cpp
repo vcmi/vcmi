@@ -278,6 +278,7 @@ void Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEven
 		iw.text = vi.message;
 		vi.reward.loadComponents(iw.components, contextHero);
 		iw.type = configuration.infoWindowType;
+		configureInfoWindow(iw, contextHero, index);
 		if(!iw.components.empty() || !iw.text.toString().empty())
 			gameEvents.showInfoDialog(&iw);
 	}
@@ -285,6 +286,10 @@ void Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEven
 	if(markAsVisit)
 		markAsVisited(gameEvents, contextHero);
 	grantReward(gameEvents, index, contextHero);
+}
+
+void Rewardable::Interface::configureInfoWindow(InfoWindow &, const CGHeroInstance *, int) const
+{
 }
 
 void Rewardable::Interface::selectRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const

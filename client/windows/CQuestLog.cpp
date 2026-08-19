@@ -35,16 +35,6 @@ struct QuestInfo;
 
 class CAdvmapInterface;
 
-void CQuestLabel::clickPressed(const Point & cursorPosition)
-{
-	callback();
-}
-
-void CQuestLabel::showAll(Canvas & to)
-{
-	CMultiLineLabel::showAll (to);
-}
-
 CQuestIcon::CQuestIcon (const AnimationPath &defname, int index, int x, int y) :
 	CAnimImage(defname, index, 0, x, y)
 {
@@ -122,204 +112,65 @@ void CQuestMinimap::showAll(Canvas & to)
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
-	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog")),
-	questIndex(0),
-	currentQuest(nullptr),
-	quests(Quests)
+	: CJournalWindow(EJournalMode::QUESTS)
+	, currentQuest(nullptr)
+	, quests(Quests)
 {
 	OBJECT_CONSTRUCTION;
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
-	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
-	description = std::make_shared<CTextBox>("", Rect(205, DESCRIPTION_TOP, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
-	auto questsTab = std::make_shared<CToggleButton>(Point(193, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
-	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
-	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
-	eventsTab->block(GAME->interface()->cb->getMyScenarioEventJournal().empty());
-	journalTabs = std::make_shared<CToggleGroup>([this](int tab)
+	initializeItems();
+}
+
+size_t CQuestLog::getItemCount() const
+{
+	return quests.size();
+}
+
+std::string CQuestLog::getItemText(size_t itemIndex) const
+{
+	const auto & questInfo = quests.at(itemIndex);
+	const auto * quest = questInfo.getQuest(GAME->interface()->cb.get());
+	const auto * questObject = questInfo.getObject(GAME->interface()->cb.get());
+
+	MetaString text;
+	quest->getQuestlogText(GAME->interface()->cb.get(), text, false);
+	if(questInfo.hasObjectInstance())
 	{
-		if(tab == 1)
+		const auto * source = questObject ? questObject->asQuestSource() : nullptr;
+		const std::string giver = source ? source->getQuestGiverName() : "";
+		if(!giver.empty())
 		{
-			close();
-			GAME->interface()->showScenarioEventJournal();
+			MetaString toSeer;
+			toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
+			toSeer.replaceRawString(giver);
+			text.replaceRawString(toSeer.toString());
 		}
-	});
-	journalTabs->addToggle(0, questsTab);
-	journalTabs->addToggle(1, eventsTab);
-	journalTabs->setSelected(0);
-	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
-	slider->setPanningStep(32);
-
-	recreateLabelList();
-	recreateQuestList(0);
+		else if(questObject)
+			text.replaceRawString(questObject->getObjectName());
+	}
+	return text.toString();
 }
 
-void CQuestLog::recreateLabelList()
+void CQuestLog::onItemSelected(size_t itemIndex)
 {
-	OBJECT_CONSTRUCTION;
-	labels.clear();
-
-	int currentLabel = 0;
-	for (int i = 0; i < quests.size(); ++i)
-	{
-		auto questPtr = quests[i].getQuest(GAME->interface()->cb.get());
-		auto questObject = quests[i].getObject(GAME->interface()->cb.get());
-		if(!quests[i].isDisplayable(GAME->interface()->cb.get()))
-			continue;
-
-		MetaString text;
-		questPtr->getQuestlogText(GAME->interface()->cb.get(), text, false);
-		if (quests[i].hasObjectInstance())
-		{
-			const auto * source = questObject ? questObject->asQuestSource() : nullptr;
-			std::string giver = source ? source->getQuestGiverName() : "";
-			if (!giver.empty())
-			{
-				MetaString toSeer;
-				toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
-				toSeer.replaceRawString(giver);
-				text.replaceRawString(toSeer.toString());
-			}
-			else if(questObject)
-				text.replaceRawString(questObject->getObjectName()); //get name of the object
-		}
-		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
-		label->disable();
-
-		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);
-		labels.push_back(label);
-
-		// Select latest quest
-		selectQuest(i, currentLabel);
-
-		currentLabel = static_cast<int>(labels.size());
-	}
-
-	slider->setAmount(currentLabel);
-	if (currentLabel > QUEST_COUNT)
-	{
-		slider->block(false);
-		slider->scrollToMax();
-	}
-	else
-	{
-		slider->block(true);
-		slider->scrollToMin();
-	}
-}
-
-void CQuestLog::showAll(Canvas & to)
-{
-	CWindowObject::showAll(to);
-	if(questIndex >= 0 && questIndex < labels.size())
-	{
-		//TODO: use child object to selection rect
-		Rect rect = Rect::createAround(labels[questIndex]->pos, 1);
-		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
-		rect.w += 2;
-		to.drawBorder(rect, Colors::METALLIC_GOLD);
-	}
-}
-
-void CQuestLog::recreateQuestList (int newpos)
-{
-	for (int i = 0; i < labels.size(); ++i)
-	{
-		labels[i]->pos = Rect (pos.x + 14, pos.y + 195 + (i-newpos) * 32, 151, 31);
-		if (i >= newpos && i < newpos + QUEST_COUNT)
-			labels[i]->enable();
-		else
-			labels[i]->disable();
-	}
-	minimap->update();
-}
-
-void CQuestLog::selectQuest(int which, int labelId)
-{
-	questIndex = labelId;
-	currentQuest = &quests[which];
+	currentQuest = &quests.at(itemIndex);
 	minimap->setQuest(currentQuest);
 
 	MetaString text;
 	std::vector<Component> components;
 	currentQuest->getQuest(GAME->interface()->cb.get())->getVisitText(GAME->interface()->cb.get(), text, components, true);
-	if(description->slider)
-		description->slider->scrollToMin(); // scroll text to start position
-	description->setText(text.toString()); //TODO: use special log entry text
-
-	componentsBox.reset();
-
-	int componentsSize = static_cast<int>(components.size());
-	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
-	if(componentsSize)
-	{
-		CComponent::ESize imageSize = CComponent::large;
-		if (componentsSize > 4)
-		{
-			imageSize = CComponent::small; // Only small icons can be used for resources as 4+ icons take too much space
-			descriptionHeight -= 155;
-		}
-		else
-			descriptionHeight -= 130;
-		/*switch (currentQuest->quest->missionType)
-		{
-			case Quest::MISSION_ARMY:
-			{
-				if (componentsSize > 4)
-					descriptionHeight -= 195;
-				else
-					descriptionHeight -= 100;
-
-				break;
-			}
-			case Quest::MISSION_ART:
-			{
-				if (componentsSize > 4)
-					descriptionHeight -= 190;
-				else
-					descriptionHeight -= 90;
-
-				break;
-			}
-			case Quest::MISSION_PRIMARY_STAT:
-			case Quest::MISSION_RESOURCES:
-			{
-				if (componentsSize > 4)
-				{
-					imageSize = CComponent::small; // Only small icons can be used for resources as 4+ icons take too much space
-					descriptionHeight -= 140;
-				}
-				else
-					descriptionHeight -= 125;
-
-				break;
-			}
-			default:
-				descriptionHeight -= 115;
-				break;
-		}*/
-
-		OBJECT_CONSTRUCTION;
-
-		std::vector<std::shared_ptr<CComponent>> comps;
-		for(auto & component : components)
-		{
-			auto c = std::make_shared<CComponent>(component, imageSize);
-			comps.push_back(c);
-		}
-
-		componentsBox = std::make_shared<CComponentBox>(comps, Rect(202, DESCRIPTION_TOP + descriptionHeight + 15, 391, 115));
-	}
-	description->resize(Point(385, descriptionHeight));
+	const auto imageSize = components.size() > 4 ? CComponent::small : CComponent::large;
+	std::vector<std::shared_ptr<CComponent>> componentWidgets;
+	for(const auto & component : components)
+		componentWidgets.push_back(std::make_shared<CComponent>(component, imageSize));
+	setContent(text.toString(), std::move(componentWidgets), components.size() > 4 ? 155 : 130);
 
 	minimap->update();
 	redraw();
 }
 
-void CQuestLog::sliderMoved(int newpos)
+void CQuestLog::updateMinimap()
 {
-	recreateQuestList(newpos); //move components
-	redraw();
+	minimap->update();
 }

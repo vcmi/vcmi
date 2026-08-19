@@ -9,30 +9,12 @@
  */
 #pragma once
 
-#include "CWindowObject.h"
+#include "CJournalWindow.h"
 
 #include "../adventureMap/CMinimap.h"
 #include "../widgets/Images.h"
-#include "../widgets/MiscWidgets.h"
-#include "../widgets/TextControls.h"
 
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
-
-class CButton;
-class CToggleGroup;
-class CComponentBox;
-class CSlider;
-
-class CScenarioEventJournalLabel : public LRClickableAreaWText, public CMultiLineLabel
-{
-public:
-	std::function<void()> callback;
-
-	CScenarioEventJournalLabel(const Rect & position, const std::string & text);
-
-	void clickPressed(const Point & cursorPosition) override;
-	void showAll(Canvas & to) override;
-};
 
 class CScenarioEventJournalMinimap : public CMinimap
 {
@@ -51,28 +33,16 @@ public:
 	void showAll(Canvas & to) override;
 };
 
-class CScenarioEventJournal : public CWindowObject
+class CScenarioEventJournal : public CJournalWindow
 {
-	static constexpr int VISIBLE_ENTRY_COUNT = 6;
-	static constexpr int EVENT_DESCRIPTION_TOP = 64;
-	static constexpr int EVENT_DESCRIPTION_HEIGHT = 309;
-
-	int selectedLabel = -1;
 	const std::vector<ScenarioEventJournalEntry> entries;
-	std::vector<std::shared_ptr<CScenarioEventJournalLabel>> labels;
-	std::shared_ptr<CTextBox> description;
-	std::shared_ptr<CComponentBox> componentsBox;
 	std::shared_ptr<CScenarioEventJournalMinimap> minimap;
-	std::shared_ptr<CSlider> slider;
-	std::shared_ptr<CButton> ok;
-	std::shared_ptr<CToggleGroup> journalTabs;
 
-	void selectEntry(size_t entryIndex, int labelIndex);
-	void recreateEntryList(int firstVisible);
-	void sliderMoved(int newPosition);
+	size_t getItemCount() const override;
+	std::string getItemText(size_t itemIndex) const override;
+	void onItemSelected(size_t itemIndex) override;
+	void updateMinimap() override;
 
 public:
 	explicit CScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries);
-
-	void showAll(Canvas & to) override;
 };

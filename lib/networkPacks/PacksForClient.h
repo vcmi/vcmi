@@ -623,20 +623,6 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE AddScenarioEventJournalEntry : public CPackForClient
-{
-	PlayerColor player;
-	ScenarioEventJournalEntry entry;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & player;
-		h & entry;
-	}
-};
-
 struct DLL_LINKAGE ChangeFormation : public CPackForClient
 {
 	ObjectInstanceID hid;
@@ -1219,6 +1205,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient, public scripting::ApiShar
 	std::vector<Component> components;
 	PlayerColor player;
 	ui16 soundID = 0;
+	std::optional<ScenarioEventJournalInfo> journalInfo;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1229,6 +1216,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient, public scripting::ApiShar
 		h & components;
 		h & player;
 		h & soundID;
+		h & journalInfo;
 	}
 	InfoWindow() = default;
 };
