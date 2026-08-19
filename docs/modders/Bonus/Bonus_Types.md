@@ -219,7 +219,7 @@ Unit affected by this bonus will be transformed into creature other than Skeleto
 
 Allows mixing of creatures of different factions in affected armies without penalty to morale. All mixable alignments count as a single one, so such army also receives the morale bonus for troops of one alignment
 
-- subtype: alignment that can be mixed - `alignmentGood`, `alignmentEvil`, `alignmentNeutral` or `alignmentNone`. Factions that have no town of their own, such as neutral creatures, belong to `alignmentNone`
+- subtype: alignment that can be mixed - `alignmentGood`, `alignmentEvil`, `alignmentNeutral` or `alignmentNone`. Factions that declare `none` as their alignment, such as neutral creatures, belong to `alignmentNone`
 
 Use one bonus per alignment that should be mixable. Angelic Alliance uses `alignmentGood` and `alignmentNeutral`, Temple of Loyalty uses all four.
 

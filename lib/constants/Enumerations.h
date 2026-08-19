@@ -15,7 +15,7 @@ enum class EAlignment : int8_t
 	GOOD = 0,
 	EVIL,
 	NEUTRAL,
-	NONE /// faction that has no town of its own, e.g. neutral creatures - belongs to no alignment at all
+	NONE /// faction that belongs to no alignment at all and never mixes with the others, e.g. neutral creatures
 };
 
 namespace BuildingSubID
