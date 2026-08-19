@@ -82,8 +82,9 @@ end
 --- Damage of a single creature, before anything about this particular blow is taken into account.
 function Script:getBaseDamageSingle(info)
 	local attacker = info.attacker
+	local isTurret = attacker:isTurret()
 
-	if attacker:isTurret() then
+	if isTurret then
 		local turretDamage = info.battle:getTurretDamageRange(attacker)
 
 		if #turretDamage == 2 then
@@ -99,7 +100,7 @@ function Script:getBaseDamageSingle(info)
 		minDamage, maxDamage = maxDamage, minDamage
 	end
 
-	if hasBonusOfType(info.attackerBonuses, "SIEGE_WEAPON") and not attacker:isTurret() then
+	if hasBonusOfType(info.attackerBonuses, "SIEGE_WEAPON") and not isTurret then
 		-- a ballista fires for its damage times the attack of the hero owning it
 		-- only what the hero itself brings counts, so the two sources are asked after in turn
 		local heroAttack = attacker:getBonusesValue({type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.artifact})
@@ -270,6 +271,8 @@ end
 
 --- Hate of the creature being struck.
 function Script:getHateCreatureFactor(info)
+	if not hasBonusOfType(info.attackerBonuses, "HATE") then return 0 end
+
 	local hatedKey = info.defender:getCreature():getJsonKey()
 
 	return valueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
@@ -319,7 +322,7 @@ function Script:getRangePenaltyFactor(info)
 		return 0
 	end
 
-	if info.attacker:isShooter() and not hasBonusOfType(info.attackerBonuses, "NO_MELEE_PENALTY") then return 0.5 end
+	if not hasBonusOfType(info.attackerBonuses, "NO_MELEE_PENALTY") and info.attacker:isShooter() then return 0.5 end
 
 	return 0
 end
@@ -362,16 +365,17 @@ end
 
 --- Magic elementals do half damage to what shrugs off high-level magic.
 function Script:getMagicFactor(info)
-	if info.attacker:getCreature():getJsonKey() ~= MAGIC_ELEMENTAL then return 0 end
+	-- the immunity is what makes this rare, and asking after it costs nothing
 	if valueOfType(info.defender, info.defenderBonuses, "LEVEL_SPELL_IMMUNITY") < 5 then return 0 end
+	if info.attacker:getCreature():getJsonKey() ~= MAGIC_ELEMENTAL then return 0 end
 
 	return 0.5
 end
 
 --- Psychic elementals do half damage to what has no mind to attack.
 function Script:getMindFactor(info)
-	if info.attacker:getCreature():getJsonKey() ~= PSYCHIC_ELEMENTAL then return 0 end
 	if not hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
+	if info.attacker:getCreature():getJsonKey() ~= PSYCHIC_ELEMENTAL then return 0 end
 
 	return 0.5
 end
@@ -414,15 +418,20 @@ function Script:getDamageCap(info)
 	return idiv(info.defender:getMaxHealth() * percentage, 100)
 end
 
---- How many creatures a blow of this size kills.
-function Script:getCasualties(info, damage)
+--- How many creatures blows of this size kill. Both ends of the range are answered at once, since
+--- what decides it - the health and the size of the target - is the same for either.
+function Script:getCasualties(info, lowDamage, highDamage)
 	local firstHealth = info.defender:getFirstHPleft()
+	local creatureHealth = info.defender:getMaxHealth()
+	local count = info.defender:getCount()
 
-	if damage < firstHealth then return 0 end
+	local function killedBy(damage)
+		if damage < firstHealth then return 0 end
 
-	local killed = 1 + math.floor((damage - firstHealth) / info.defender:getMaxHealth())
+		return math.min(1 + math.floor((damage - firstHealth) / creatureHealth), count)
+	end
 
-	return math.min(killed, info.defender:getCount())
+	return killedBy(lowDamage), killedBy(highDamage)
 end
 
 function Script:calculate(battle, info)
@@ -453,12 +462,11 @@ function Script:calculate(battle, info)
 	local damageMin = apply(baseMin, raising * lowering)
 	local damageMax = apply(baseMax, raising * lowering)
 
+	local killsMin, killsMax = self:getCasualties(info, damageMin, damageMax)
+
 	return {
 		damage = { min = damageMin, max = damageMax },
-		kills = {
-			min = self:getCasualties(info, damageMin),
-			max = self:getCasualties(info, damageMax)
-		},
+		kills = { min = killsMin, max = killsMax },
 		-- what the blow would have been worth had the target no defences at all, which is what an
 		-- ability reflecting a strike works from
 		damageBeforeDefense = { min = apply(baseMin, raising), max = apply(baseMax, raising) }
