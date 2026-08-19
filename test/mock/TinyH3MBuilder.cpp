@@ -199,6 +199,18 @@ TinyH3MBuilder & TinyH3MBuilder::playerActive(PlayerColor color)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::TOWN;
+	spec.subid         = MapObjectSubID(faction.getNum());
+	spec.position      = pos;
+	spec.owner         = owner;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
 {
 	ObjectSpec spec;

@@ -120,6 +120,9 @@ public:
 	/// object that ownership-validates against canAnyonePlay (towns, heroes).
 	TinyH3MBuilder & playerActive(PlayerColor color);
 
+	/// Append a fixed-faction Town object owned by `owner`.
+	TinyH3MBuilder & town(const int3 & pos, FactionID faction, PlayerColor owner);
+
 	/// Append a Random Town object owned by `owner`. Builder auto-registers the
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
 	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);

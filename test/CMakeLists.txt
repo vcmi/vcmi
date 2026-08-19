@@ -115,6 +115,7 @@ set(test_SRCS
 		texts/TextOperationsTest.cpp
 
 		mock/BattleFake.cpp
+		mock/GameHandlerTestServer.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
  		mock/mock_MapServiceTinyH3M.cpp
@@ -142,6 +143,7 @@ set(test_HEADERS
 		server/battles/BattleTestFixture.h
 
 		mock/BattleFake.h
+		mock/GameHandlerTestServer.h
 		mock/mock_BonusBearer.h
 		mock/mock_CStack.h
 		mock/mock_IGameEventCallback.h
@@ -176,6 +178,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/DefenceBehaviorTest.cpp
 		nullkiller2/Behaviors/EscapeBehaviorTest.cpp
 		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
+		nullkiller2/Behaviors/GatherArmyBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
