@@ -78,9 +78,9 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		return;
 	}
 
-	const auto kind = bonusSubtypeKind(type);
+	const auto entityType = bonusSubtypeEntityType(type);
 
-	if(kind == BonusSubtypeKind::NONE)
+	if(entityType == EntityTypeEnum::NONE)
 		case BonusType::FREE_SHOOTING:
 		case BonusType::ALIGNMENT_MIX: // alignment
 	{
@@ -91,9 +91,9 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 	// deferred, unlike the runtime decodeBonusSubtype: while content loads the identifier this
 	// names may belong to a mod that has not been read yet
-	LIBRARY->identifiers()->requestIdentifier(bonusSubtypeEntity(kind), node, [&subtype, kind](int32_t identifier)
+	LIBRARY->identifiers()->requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
 	{
-		subtype = bonusSubtypeOf(kind, identifier);
+		subtype = bonusSubtypeOf(entityType, identifier);
 	});
 }
 
