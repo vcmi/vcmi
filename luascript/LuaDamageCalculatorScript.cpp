@@ -17,6 +17,7 @@
 
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/Unit.h"
+#include "../lib/bonuses/BonusFilter.h"
 #include "../lib/bonuses/BonusList.h"
 #include "../lib/bonuses/BonusSelector.h"
 #include "../lib/CBonusTypeHandler.h"
@@ -61,15 +62,20 @@ void LuaDamageCalculatorScript::ensureDeclared(const CBattleInfoCallback & battl
 
 std::unordered_map<std::string, bool> LuaDamageCalculatorScript::carriedBonuses(const battle::Unit * unit) const
 {
-    std::unordered_set<BonusType> present;
+	// asked once per unit per attack, so it is worth having the bonus system keep the answer. The
+	// key comes from an empty filter, which is what a script asking for every bonus compiles to -
+	// both then share the one cached list
+	static const auto allBonuses = BonusFilter{}.compile();
 
-	const auto bonuses = unit->getAllBonuses(Selector::all);
+	std::unordered_set<BonusType> present;
+
+	const auto bonuses = unit->getAllBonuses(allBonuses.first, allBonuses.second);
 	for(const auto & bonus : *bonuses)
 		present.insert(bonus->type);
 
-    std::unordered_map<std::string, bool> result;
+	std::unordered_map<std::string, bool> result;
 	for(const auto & [type, name] : declared)
-        if(present.contains(type))
+		if(present.contains(type))
 			result.emplace(name, true);
 
 	return result;

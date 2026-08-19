@@ -46,8 +46,14 @@ std::pair<CSelector, std::string> BonusFilter::compile() const
 	if(sourceType)
 	{
 		selector = selector.And(Selector::sourceTypeSel(*sourceType));
-		cachingString += "_source_" + std::to_string(static_cast<int>(*sourceType));
+		cachingString += cachingString.empty() ? "source_" : "_source_";
+		cachingString += std::to_string(static_cast<int>(*sourceType));
 	}
+
+	// an empty key is not cached at all, and a filter that names nothing is asked often enough -
+	// once per unit per attack, by the damage calculator - to be worth a key of its own
+	if(cachingString.empty())
+		cachingString = "all";
 
 	return {selector, cachingString};
 }
