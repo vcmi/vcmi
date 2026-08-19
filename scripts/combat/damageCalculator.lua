@@ -113,6 +113,12 @@ local function valueInThisCombat(unit, present, type, shooting)
 	end):totalValue()
 end
 
+--- Whether the unit carries this bonus. Reading the table directly does the same, but goes unnoticed
+--- when the type was never declared - this says so instead.
+function Script:carriesBonus(present, type)
+	return hasBonusOfType(present, type)
+end
+
 -- ---- what the creatures themselves deal ------------------------------------------------------
 
 --- Damage of a single creature, before anything about this particular blow is taken into account.

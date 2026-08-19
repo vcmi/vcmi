@@ -17,6 +17,7 @@ Every script, whatever it does, is declared the same way - in the `scripts` sect
 
 - [Spell Effect Scripts](Spell_Effect_Scripts.md) - `"implements" : "spellEffect"`, an effect of a spell, such as the built-in `core:damage` or `core:summon`
 - [Combat Event Scripts](Combat_Event_Scripts.md) - `"implements" : "combatEvent"`, a reaction to events happening to a unit in combat, such as Fire Shield or Death Stare
+- [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, what an attack is worth. Unlike the other two there is one of these for the whole game, and a mod changes the rules by patching it rather than by declaring its own
 
 ## Shared format
 
@@ -26,6 +27,8 @@ Fields every script declares, whatever its type:
 - `script` - path to the source, relative to the `SCRIPTS/` directory of the mod, without the extension. Sources are kept in a directory per type, so `spells/damage` or `combat/lifeDrain`
 - `patches` - other sources stacked over the base one, in the order given, so that a mod can change a script it does not own instead of replacing it. Declare it as an empty list when the script has none, so that other mods have a place to append to
 - `schema` - a json schema validating the parameters every user of this script passes to it. Errors are reported when the game loads, naming whoever passed the bad parameters. Declare an empty, closed one when the script takes no parameters, rather than leaving it out
+
+A `damageCalculator` script declares nothing beyond the shared fields - nothing runs alongside it and nothing shows it to the player.
 
 Fields a `combatEvent` script declares on top of those:
 
