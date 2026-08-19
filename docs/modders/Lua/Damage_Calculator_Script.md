@@ -38,7 +38,7 @@ Script.__index = Script
 
 --- Some creatures take more from a blow they never saw coming
 function Script:getFromBackFactor(info)
-	local value = self:bonusValue(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
+	local value = self:getBonusValueOfType(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
 
 	if value == 0 then return 0 end
 	if not info.battle:isToReverse(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0 end
@@ -81,7 +81,7 @@ Each patch keeps to one rule. That is what lets a mod drop or replace a single o
 - `attackerHex`, `defenderHex` - where the blow happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
 - `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of blow this is. Random roll-based abilities are only set when actual calculation is performed by server
 - `chargeDistance` - hexes crossed to reach the target, which is what jousting scales with
-- `attackerBonuses`, `defenderBonuses` - which of the [declared bonus types](#declaring-what-you-look-at) each unit carries. Read them through `self:carriesBonus(info.attackerBonuses, "JOUSTING")`
+- `attackerBonuses`, `defenderBonuses` - which of the [declared bonus types](#declaring-what-you-look-at) each unit carries. Read them through `self:hasBonusOfType(info.attackerBonuses, "JOUSTING")`
 - `attackFactorPerPoint`, `attackFactorCap`, `defenseFactorPerPoint`, `defenseFactorCap` - the tuning constants from `gameConfig.json`, so the script needs no access to settings
 
 It answers with a table of three ranges:
@@ -116,18 +116,29 @@ This script runs on every attack the game resolves **and on every attack an AI c
 
 ```lua
 -- good: the query only happens for a unit that actually has the bonus
-if not self:carriesBonus(info.attackerBonuses, "JOUSTING") then return 0 end
+if not self:hasBonusOfType(info.attackerBonuses, "JOUSTING") then return 0 end
 
 return info.chargeDistance * info.attacker:getBonusesValue({type = "JOUSTING"}) / 100
 ```
 
-`carriesBonus` reads the same table you could read yourself - `info.attackerBonuses.JOUSTING` does the same job - but it also complains when the type was never declared, instead of quietly answering "not there".
+`hasBonusOfType` reads the same table you could read yourself - `info.attackerBonuses.JOUSTING` does the same job - but it also complains when the type was never declared, instead of quietly answering "not there".
+
+Four helpers do the check and the query in one step, so a factor rarely needs to write both:
+
+| | |
+|---|---|
+| `self:hasBonusOfType(present, type)` | whether the unit carries it at all |
+| `self:getBonusValueOfType(unit, present, type)` | what every bonus of that type is worth together |
+| `self:getBonusValueOfSubtype(unit, present, type, subtype)` | the same, narrowed to one subtype |
+| `self:getBonusValueOfTypeAndRange(unit, present, type, shooting)` | the same, counting only what applies to this kind of blow |
+
+Each answers 0 without asking the engine when the snapshot says the type is absent, which is the usual case. `present` is `info.attackerBonuses` or `info.defenderBonuses`, whichever unit is being asked about.
 
 **Put the cheapest test first.** Conditions are evaluated left to right, so order them by what they cost:
 
 ```lua
 -- good: a table read rules out almost every unit before anything is asked
-if not self:carriesBonus(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
+if not self:hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
 if info.attacker:getCreature():getJsonKey() ~= "core:psychicElemental" then return 0 end
 ```
 
@@ -153,7 +164,7 @@ if info.defender:hasBonuses({type = "MIND_IMMUNITY"}) then ... end
 if info.defender:getBonuses({type = "MIND_IMMUNITY"}):size() > 0 then ... end
 ```
 
-**Say as much as you can in the filter.** Type, subtype and source are all matched by the engine, and a query the engine can describe is also a query it can cache. Only what the filter cannot express - "from anything except a spell", "whichever of these applies in melee" - belongs in a `filter` afterwards:
+**Say as much as you can in the filter.** Type, subtype, source and the kind of blow are all matched by the engine, and a query the engine can describe is also a query it can cache. Only what the filter cannot express - "from anything except a spell" - belongs in a `filter` afterwards:
 
 ```lua
 -- good: the engine finds them
@@ -163,11 +174,20 @@ info.defender:getBonusesValue({
     sourceType = ENUM.BonusSource.spellEffect
 })
 
--- only when equality is not enough
+-- only when the filter cannot say it
 info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION"}):filter(function(bonus)
     return bonus:getSource() ~= ENUM.BonusSource.spellEffect
 end):totalValue()
 ```
+
+**`shooting` leaves out what does not count for this blow.** A bonus limited to melee is absent from a shot and the other way round, and one limited to neither always counts. Pass the flag of the attack straight through rather than reading `getEffectRange` yourself:
+
+```lua
+-- good
+info.defender:getBonusesValue({type = "ENEMY_ATTACK_REDUCTION", shooting = info.shooting})
+```
+
+It asks for the kind of blow rather than for an effect range, because "counts in melee" is two effect ranges at once - and asking for them one at a time would add the two answers up instead of combining them the way the engine does.
 
 **Do not build tables you do not need.** A factor that returns 0 for most attacks should return it before creating anything.
 

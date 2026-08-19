@@ -36,7 +36,7 @@ private:
 	mutable std::vector<std::pair<BonusType, std::string>> declared;
 
 	void ensureDeclared(const CBattleInfoCallback & battle) const;
-	std::map<std::string, bool> carriedBonuses(const battle::Unit * unit) const;
+    std::unordered_map<std::string, bool> carriedBonuses(const battle::Unit * unit) const;
 
 	std::shared_ptr<LuaContext> contextOf(const CBattleInfoCallback & battle) const;
 };

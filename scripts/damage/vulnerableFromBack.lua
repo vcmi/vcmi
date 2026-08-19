@@ -1,12 +1,10 @@
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Some creatures take more from a blow they never saw coming. Nothing of Heroes 3 does, so the
---- rule is kept apart from the calculator that would otherwise ask after it on every attack.
-
---- How much more the target takes when the attacker had to turn around to reach it.
+--- Mod feature: creature receives additional damage when it is hit from the back (e.g. when it needs to turn around)
+--- NOTE: ability has another hardcoded part - such creature will not turn around to face the attacker
 function Script:getFromBackFactor(info)
-	local value = self:bonusValue(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
+	local value = self:getBonusValueOfType(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
 
 	if value == 0 then return 0 end
 	if not info.battle:isToReverse(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0 end

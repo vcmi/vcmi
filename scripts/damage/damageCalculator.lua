@@ -2,17 +2,11 @@ local Script = {}
 Script.__index = Script
 Script.type = "damageCalculator"
 
---- Decides what one blow is worth. The engine asks this once per estimate, both for a blow being
---- dealt and for one an AI is only weighing, and takes the whole answer from here - the damage of
---- the creatures, everything that raises or lowers it, and the casualties that follow.
----
---- Every factor is a signed share of the base damage: positive raises it, negative lowers it. What
---- decides how a factor applies is its sign alone, not where it came from, so a mod is free to give
---- any of them the value that flips it. The ones that raise the damage add up; the ones that lower
---- it multiply, each taking its share of what is left.
----
---- A mod extends this through a patch: write a factor of its own and hand it to `addDamageFactor`,
---- or override any single step below.
+--- Script that computes total damage dealt by one unit to another during combat
+
+--- Core logic is: game computes base damage, applies all damage modifiers (factors) to it, and computes resulting damage range
+
+--- A mod extends this through a patch: write a factor of its own and hand it to `addDamageFactor`, or override any single step below.
 
 local DAMAGE_TYPE_ALL = "damageTypeAll"
 local DAMAGE_TYPE_MELEE = "damageTypeMelee"
@@ -36,22 +30,20 @@ local function divideAndRound(dividend, divisor)
 	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
 end
 
---- Bonus types this calculator asks after, as a set. The engine reports which of them each of the
---- two units carries, and answers nothing about the rest - a unit carries some eighteen kinds of
---- bonus and this wants three of them, so naming them is what keeps the report small.
+--- Optimization - list of bonuses that engine will check for presence before passing them to Lua
+--- Allows quick estimation of whether damage factor is active in the first place
 Script.declaredBonuses = {}
 
---- The factors of a blow, each named by the method computing it. Named rather than held as a
---- function, so that a patch overriding one of them is the one that runs.
+--- All known damage factors, calculated on script initialization
 Script.damageFactors = {}
 
---- Declares a bonus type the script asks after. A patch that adds a factor of its own declares
---- whatever that factor looks at, or the check below will not find it.
+--- Allows script patch to request additional bonus for engine to report
+--- NOTE: must be done in script body, not in function. See built-in patches for examples
 function Script:declareBonus(type)
 	self.declaredBonuses[type] = true
 end
 
---- Adds a factor to the blow, by the name of the method computing it.
+--- Adds another damage modifier factor to attack, by the name of the method computing it.
 function Script:addDamageFactor(method)
 	if self[method] == nil then
 		error("damage calculator is given a factor " .. method .. ", which is not one of its methods")
@@ -66,7 +58,7 @@ function Script:addDamageFactor(method)
 	table.insert(self.damageFactors, method)
 end
 
---- The declared types by name, which is the form the engine asks for them in.
+--- Function that engine uses to collect list of requested bonuses 
 function Script:bonusTypes()
 	local types = {}
 
@@ -77,13 +69,8 @@ function Script:bonusTypes()
 	return types
 end
 
--- Every query starts at the snapshot of bonus types the engine sends along with the attack. Most of
--- what is asked after below is simply not there, and answering that from a table costs nothing;
--- only when the snapshot says a bonus exists is the engine asked what it is worth.
-
---- Whether the unit carries this bonus at all. The engine reports only what a unit carries, so a
---- missing entry means "not carried" - unless the type was never declared, in which case nothing was
---- ever looked for and answering "no" would quietly cost damage.
+--- Optimization support - quickly check whether bonus is present on unit
+--- Can only be used on bonuses declared via `declareBonus` call
 local function hasBonusOfType(present, type)
 	-- a patch declares into this very table, so what a patch added is seen here too
 	if not Script.declaredBonuses[type] then
@@ -94,45 +81,50 @@ local function hasBonusOfType(present, type)
 end
 
 --- Value of every bonus of this type on the unit, combined the way the engine combines them.
-local function valueOfType(unit, present, type)
+local function getBonusValueOfType(unit, present, type)
 	if not hasBonusOfType(present, type) then return 0 end
 
 	return unit:getBonusesValue({type = type})
 end
 
 --- Value of the bonuses of this type that carry the given subtype.
-local function valueOfSubtype(unit, present, type, subtype)
+local function getBonusValueOfSubtype(unit, present, type, subtype)
 	if not hasBonusOfType(present, type) then return 0 end
 
 	return unit:getBonusesValue({type = type, subtype = subtype})
 end
 
 --- Value of the bonuses of this type that count in the kind of combat being fought. A bonus limited
---- to melee is simply absent from a shot, and the other way round. Sorted out here rather than by
---- the filter, which knows equality only.
-local function valueInThisCombat(unit, present, type, shooting)
+--- to melee is simply absent from a shot, and the other way round.
+local function getBonusValueOfTypeAndRange(unit, present, type, shooting)
 	if not hasBonusOfType(present, type) then return 0 end
 
-	return unit:getBonuses({type = type}):filter(function(bonus)
-		local range = bonus:getEffectRange()
-
-		if range == ENUM.BonusLimitEffect.noLimit then return true end
-		if shooting then return range == ENUM.BonusLimitEffect.onlyDistanceFight end
-
-		return range == ENUM.BonusLimitEffect.onlyMeleeFight
-	end):totalValue()
+	return unit:getBonusesValue({type = type, shooting = shooting})
 end
+
+-- The same four, as methods - a patch is a chunk of its own and cannot see the locals above. The
+-- base script keeps calling the locals, which spares it a walk up the whole chain of patches.
 
 --- Whether the unit carries this bonus. Reading the table directly does the same, but goes unnoticed
 --- when the type was never declared - this says so instead.
-function Script:carriesBonus(present, type)
+function Script:hasBonusOfType(present, type)
 	return hasBonusOfType(present, type)
 end
 
 --- Value of every bonus of this type the unit carries. Answers 0 without asking the engine when the
 --- unit has none, which is the usual case.
-function Script:bonusValue(unit, present, type)
-	return valueOfType(unit, present, type)
+function Script:getBonusValueOfType(unit, present, type)
+	return getBonusValueOfType(unit, present, type)
+end
+
+--- Value of the bonuses of this type that carry the given subtype.
+function Script:getBonusValueOfSubtype(unit, present, type, subtype)
+	return getBonusValueOfSubtype(unit, present, type, subtype)
+end
+
+--- Value of the bonuses of this type that count in the kind of combat being fought.
+function Script:getBonusValueOfTypeAndRange(unit, present, type, shooting)
+	return getBonusValueOfTypeAndRange(unit, present, type, shooting)
 end
 
 -- ---- what the creatures themselves deal ------------------------------------------------------
@@ -159,8 +151,8 @@ function Script:getBaseDamageBlessCurse(info)
 	local cursed = hasBonusOfType(info.attackerBonuses, "ALWAYS_MINIMUM_DAMAGE")
 	local blessed = hasBonusOfType(info.attackerBonuses, "ALWAYS_MAXIMUM_DAMAGE")
 
-	local shift = valueOfType(attacker, info.attackerBonuses, "ALWAYS_MAXIMUM_DAMAGE")
-		- valueOfType(attacker, info.attackerBonuses, "ALWAYS_MINIMUM_DAMAGE")
+	local shift = getBonusValueOfType(attacker, info.attackerBonuses, "ALWAYS_MAXIMUM_DAMAGE")
+		- getBonusValueOfType(attacker, info.attackerBonuses, "ALWAYS_MINIMUM_DAMAGE")
 
 	local minDamage, maxDamage = self:getBaseDamageSingle(info)
 
@@ -188,7 +180,7 @@ end
 
 --- Defense the reducer makes its opponent ignore, as a negative number.
 function Script:getDefenseIgnored(info, reducer, present, defense)
-	local reduction = valueInThisCombat(reducer, present, "ENEMY_DEFENCE_REDUCTION", info.shooting) / 100
+	local reduction = getBonusValueOfTypeAndRange(reducer, present, "ENEMY_DEFENCE_REDUCTION", info.shooting) / 100
 
 	if reduction <= 0 then return 0 end
 
@@ -198,7 +190,7 @@ end
 --- Frenzy trades the defense of its bearer for attack. How much defense there is to trade is
 --- decided by the unit being attacked, which is why the conversion happens here.
 function Script:getAttackFromFrenzy(info)
-	local frenzy = valueOfType(info.attacker, info.attackerBonuses, "IN_FRENZY")
+	local frenzy = getBonusValueOfType(info.attacker, info.attackerBonuses, "IN_FRENZY")
 
 	if frenzy == 0 then return 0 end
 
@@ -218,7 +210,7 @@ function Script:getAttackFromSlayer(info)
 	local effect = slayer:getBonus(1)
 	local mastery = effect:getParametersAsNumber()
 
-	if mastery >= valueOfType(info.defender, info.defenderBonuses, "KING") then return effect:getVal() end
+	if mastery >= getBonusValueOfType(info.defender, info.defenderBonuses, "KING") then return effect:getVal() end
 
 	return 0
 end
@@ -265,11 +257,11 @@ end
 function Script:getOffenseArcheryFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
-	return valueOfSubtype(info.attacker, info.attackerBonuses, "PERCENTAGE_DAMAGE_BOOST", subtype) / 100
+	return getBonusValueOfSubtype(info.attacker, info.attackerBonuses, "PERCENTAGE_DAMAGE_BOOST", subtype) / 100
 end
 
 function Script:getBlessFactor(info)
-	return valueOfType(info.attacker, info.attackerBonuses, "GENERAL_DAMAGE_PREMY") / 100
+	return getBonusValueOfType(info.attacker, info.attackerBonuses, "GENERAL_DAMAGE_PREMY") / 100
 end
 
 function Script:getLuckFactor(info)
@@ -281,7 +273,7 @@ function Script:getJoustingFactor(info)
 	if not hasBonusOfType(info.attackerBonuses, "JOUSTING") then return 0 end
 	if hasBonusOfType(info.defenderBonuses, "CHARGE_IMMUNITY") then return 0 end
 
-	return info.chargeDistance * valueOfType(info.attacker, info.attackerBonuses, "JOUSTING") / 100
+	return info.chargeDistance * getBonusValueOfType(info.attacker, info.attackerBonuses, "JOUSTING") / 100
 end
 
 function Script:getDeathBlowFactor(info)
@@ -293,7 +285,7 @@ function Script:getDoubleDamageFactor(info)
 
 	local ownKey = info.attacker:getCreature():getJsonKey()
 
-	return valueOfSubtype(info.attacker, info.attackerBonuses, "BONUS_DAMAGE_PERCENTAGE", ownKey) / 100
+	return getBonusValueOfSubtype(info.attacker, info.attackerBonuses, "BONUS_DAMAGE_PERCENTAGE", ownKey) / 100
 end
 
 --- Hate of the creature being struck.
@@ -302,7 +294,7 @@ function Script:getHateCreatureFactor(info)
 
 	local hatedKey = info.defender:getCreature():getJsonKey()
 
-	return valueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
+	return getBonusValueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
 end
 
 --- Armorer and everything else that lessens every kind of blow, other than being petrified.
@@ -318,7 +310,7 @@ end
 function Script:getMagicShieldFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
-	return -valueOfSubtype(info.defender, info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
+	return -getBonusValueOfSubtype(info.defender, info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
 end
 
 --- Shooting too far, or shooting at all with something meant for melee.
@@ -343,7 +335,7 @@ end
 
 --- Blindness and paralysis, which leave their bearer striking feebly.
 function Script:getBlindParalysisFactor(info)
-	return -valueInThisCombat(info.attacker, info.attackerBonuses, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
+	return -getBonusValueOfTypeAndRange(info.attacker, info.attackerBonuses, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
 end
 
 function Script:getUnluckyFactor(info)
@@ -356,7 +348,7 @@ function Script:getForgetfulnessFactor(info)
 
 	if not hasBonusOfType(info.attackerBonuses, "FORGETFULL") then return 0 end
 
-	return -math.min(valueOfType(info.attacker, info.attackerBonuses, "FORGETFULL"), 100) / 100
+	return -math.min(getBonusValueOfType(info.attacker, info.attackerBonuses, "FORGETFULL"), 100) / 100
 end
 
 --- A petrified creature takes half of everything, which is not armour and does not count as it.

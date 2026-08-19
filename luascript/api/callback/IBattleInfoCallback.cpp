@@ -88,8 +88,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
 			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
 		}, {},
-		"True if the shooter is too far from the target for a full-strength shot. The hexes are "
-		"what makes this answerable for an attack that has not happened, such as the ones an AI weighs.");
+        "True if the shooter is too far from the target for a full-strength shot. "
+        "Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
 	R.function<&IBattleInfoCallbackProxy::hasWallPenalty>("hasWallPenalty",
 		{
 			{"shooter",    "Unit making the ranged attack."},
@@ -105,9 +105,9 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"attackerHex", "Hex to strike from; nil uses where the attacker stands."},
 			{"defenderHex", "Hex to strike at; nil uses where the defender stands."}
 		}, {},
-		"True if the attacker would have to turn around to reach the defender, which is what makes "
-		"the blow come from behind.");
-	R.function<&IBattleInfoCallbackProxy::getTurretDamageRange>("getTurretDamageRange",
+        "True if the attacker would have to turn around to strike the defender. "
+        "Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
+    R.function<&IBattleInfoCallbackProxy::getTurretDamageRange>("getTurretDamageRange",
 		{{"turret", "Tower whose shot is being measured."}},
 		{"Minimum and maximum damage of one shot, empty when the unit is no tower of a defended town."},
 		"Damage the given tower of the defended town shoots for. TEMPORARY - the keep and the lesser "

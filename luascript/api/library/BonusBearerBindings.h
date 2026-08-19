@@ -52,13 +52,14 @@ private:
 	{
 		// Compiling a filter resolves identifiers, which is a sweep of every mod scope. The answer
 		// never changes, so each thread keeps the ones it has been asked for.
-		using Key = std::tuple<std::string, std::string, int>;
+		using Key = std::tuple<std::string, std::string, int, int>;
 		thread_local std::map<Key, std::pair<CSelector, std::string>> known;
 
 		Key key{
 			filter.type.value_or(std::string{}),
 			filter.subtype.value_or(std::string{}),
-			filter.sourceType ? static_cast<int>(*filter.sourceType) : -1
+			filter.sourceType ? static_cast<int>(*filter.sourceType) : -1,
+			filter.shooting ? static_cast<int>(*filter.shooting) : -1
 		};
 
 		auto entry = known.find(key);

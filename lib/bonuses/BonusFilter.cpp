@@ -25,6 +25,14 @@ std::pair<CSelector, std::string> BonusFilter::compile() const
 	// engine already asked is answered from the same cached list
 	std::string cachingString;
 
+	auto appendKey = [&cachingString](const std::string & part)
+	{
+		if(!cachingString.empty())
+			cachingString += '_';
+
+		cachingString += part;
+	};
+
 	if(type)
 	{
 		const auto decoded = static_cast<BonusType>(BonusTypeID::decode(*type));
@@ -34,20 +42,27 @@ std::pair<CSelector, std::string> BonusFilter::compile() const
 			const auto decodedSubtype = decodeBonusSubtype(decoded, *subtype);
 
 			selector = Selector::typeSubtype(decoded, decodedSubtype);
-			cachingString = "type_" + std::to_string(static_cast<int>(decoded)) + "_" + std::to_string(decodedSubtype.getNum());
+			appendKey("type_" + std::to_string(static_cast<int>(decoded)) + "_" + std::to_string(decodedSubtype.getNum()));
 		}
 		else
 		{
 			selector = Selector::type()(decoded);
-			cachingString = "type_" + std::to_string(static_cast<int>(decoded));
+			appendKey("type_" + std::to_string(static_cast<int>(decoded)));
 		}
 	}
 
 	if(sourceType)
 	{
 		selector = selector.And(Selector::sourceTypeSel(*sourceType));
-		cachingString += cachingString.empty() ? "source_" : "_source_";
-		cachingString += std::to_string(static_cast<int>(*sourceType));
+		appendKey("source_" + std::to_string(static_cast<int>(*sourceType)));
+	}
+
+	if(shooting)
+	{
+		const auto limited = *shooting ? BonusLimitEffect::ONLY_DISTANCE_FIGHT : BonusLimitEffect::ONLY_MELEE_FIGHT;
+
+		selector = selector.And(Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(limited)));
+		appendKey(*shooting ? "ranged" : "melee");
 	}
 
 	// an empty key is not cached at all, and a filter that names nothing is asked often enough -

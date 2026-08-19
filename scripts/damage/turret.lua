@@ -1,9 +1,7 @@
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- The towers of a besieged town shoot for what the town says rather than for what their creature
---- says, the keep harder than the two lesser ones.
-
+--- Arrow Towers have custom logic for determining their base damage
 function Script:getBaseDamageSingle(info)
 	if not info.attacker:isTurret() then return Base.getBaseDamageSingle(self, info) end
 

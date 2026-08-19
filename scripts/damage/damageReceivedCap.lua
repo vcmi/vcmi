@@ -1,12 +1,9 @@
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- A ceiling on what one blow may take off a stack, whatever the blow is worth. Nothing of Heroes 3
---- carries it.
-
---- Most damage the target can take from one blow, as a share of the health of one creature.
+--- HotA change of skills: The War Machine cannot be dealt more than 40% of its Health as Damage from any single damage source. 
 function Script:getDamageCap(info)
-	local percentage = self:bonusValue(info.defender, info.defenderBonuses, "DAMAGE_RECEIVED_CAP")
+	local percentage = self:getBonusValueOfType(info.defender, info.defenderBonuses, "DAMAGE_RECEIVED_CAP")
 
 	if percentage <= 0 then return Base.getDamageCap(self, info) end
 

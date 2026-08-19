@@ -1,12 +1,10 @@
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Hatred of a trait rather than of a creature - of everything that shoots, of everything undead.
---- Nothing of Heroes 3 hates that way; its hatreds name the creature, which the calculator handles.
-
---- Hate of something the creature being struck happens to be.
+--- Support for "Creature deals increased damage to creatures with specific bonus"
+--- Mod only, not used by Heroes 3
 function Script:getHateTraitFactor(info)
-	if not self:carriesBonus(info.attackerBonuses, "HATES_TRAIT") then return 0 end
+	if not self:hasBonusOfType(info.attackerBonuses, "HATES_TRAIT") then return 0 end
 
 	return info.attacker:getBonuses({type = "HATES_TRAIT"}):filter(function(hate)
 		-- the subtype of a hate names a bonus type, and any type at all may be hated - so this one
