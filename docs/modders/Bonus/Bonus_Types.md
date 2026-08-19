@@ -667,6 +667,8 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 ### VULNERABLE_FROM_BACK
 
+DEPRECATED. Nothing in Heroes 3 uses it, and the rule that reads it lives in `damage/vulnerableFromBack` - a patch stacked over the [damage calculator](../Lua/Damage_Calculator_Script.md) rather than part of it. The bonus still works, and the engine has no plans to drop it, but a mod building an ability of this kind is better off declaring a bonus of its own and a patch that reads it: that way the rule says what the mod means by it, and the calculator does not ask after it on every attack of every battle.
+
 When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
 
 - val: additional damage for attacks from behind, percentage (0-100)
@@ -679,6 +681,8 @@ Affected unit will deal more damage when attacking specific creature
 - val - additional damage, percentage
 
 ### HATES_TRAIT
+
+DEPRECATED. Nothing in Heroes 3 uses it, and the rule that reads it lives in `damage/hatesTrait` - a patch stacked over the [damage calculator](../Lua/Damage_Calculator_Script.md) rather than part of it. The bonus still works, and the engine has no plans to drop it, but a mod building an ability of this kind is better off declaring a bonus of its own and a patch that reads it: that way the rule says what the mod means by it, and the calculator does not ask after it on every attack of every battle.
 
 Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
 
@@ -788,6 +792,8 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeAll: all damage will be reduced
 
 ### DAMAGE_RECEIVED_CAP
+
+DEPRECATED. Nothing in Heroes 3 uses it, and the rule that reads it lives in `damage/damageReceivedCap` - a patch stacked over the [damage calculator](../Lua/Damage_Calculator_Script.md) rather than part of it. The bonus still works, and the engine has no plans to drop it, but a mod building an ability of this kind is better off declaring a bonus of its own and a patch that reads it: that way the rule says what the mod means by it, and the calculator does not ask after it on every attack of every battle.
 
 Limits maximal damage received by affected units based on max hp (HotA war machines)
 
@@ -940,11 +946,15 @@ Affected unit will attack additional times if killed creatures in target unit du
 
 ### ENEMY_ATTACK_REDUCTION
 
+DEPRECATED. Nothing in Heroes 3 uses it, and the rule that reads it lives in `damage/enemyAttackReduction` - a patch stacked over the [damage calculator](../Lua/Damage_Calculator_Script.md) rather than part of it. The bonus still works, and the engine has no plans to drop it, but a mod building an ability of this kind is better off declaring a bonus of its own and a patch that reads it: that way the rule says what the mod means by it, and the calculator does not ask after it on every attack of every battle.
+
 Affected unit will ignore specified percentage of attacked unit attack (Nix)
 
 - val: amount of attack points to ignore, percentage
 
 ### REVENGE
+
+DEPRECATED. Nothing in Heroes 3 uses it, and the rule that reads it lives in `damage/revenge` - a patch stacked over the [damage calculator](../Lua/Damage_Calculator_Script.md) rather than part of it. The bonus still works, and the engine has no plans to drop it, but a mod building an ability of this kind is better off declaring a bonus of its own and a patch that reads it: that way the rule says what the mod means by it, and the calculator does not ask after it on every attack of every battle.
 
 Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle (formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`. Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
 
