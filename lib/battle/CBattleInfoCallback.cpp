@@ -1113,26 +1113,6 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 	return false;
 }
 
-/// Every bonus type the unit carries, collected in one pass rather than by asking after each type
-/// in turn - a script that gates its queries on this asks after a good twenty of them.
-static std::map<std::string, bool> collectBonusTypes(const battle::Unit * unit)
-{
-	std::set<BonusType> present;
-
-	// held rather than iterated in place: the list is shared and would be freed before the loop
-	const auto bonuses = unit->getAllBonuses(Selector::all);
-
-	for(const auto & bonus : *bonuses)
-		present.insert(bonus->type);
-
-	std::map<std::string, bool> result;
-
-	for(const auto & type : present)
-		result.emplace(LIBRARY->bth->bonusToString(type), true);
-
-	return result;
-}
-
 DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
 {
 
@@ -1148,8 +1128,6 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 		// attack being weighed reads the same as one being dealt
 		payload.attackerHex = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
 		payload.defenderHex = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
-		payload.attackerBonuses = collectBonusTypes(info.attacker);
-		payload.defenderBonuses = collectBonusTypes(info.defender);
 		payload.chargeDistance = info.chargeDistance;
 		payload.shooting = info.shooting;
 		payload.luckyStrike = info.luckyStrike;

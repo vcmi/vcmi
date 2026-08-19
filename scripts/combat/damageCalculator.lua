@@ -39,33 +39,69 @@ local function divideAndRound(dividend, divisor)
 	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
 end
 
+--- Bonus types this calculator asks after. The engine reports which of them each of the two units
+--- carries, and answers nothing about the rest - a unit carries some eighteen kinds of bonus and
+--- this wants three of them, so naming them is what keeps the report small.
+--- A patch that adds a factor of its own must add whatever it asks after here.
+function Script:bonusTypes()
+	return {
+		"SIEGE_WEAPON", "PRIMARY_SKILL", "ALWAYS_MINIMUM_DAMAGE", "ALWAYS_MAXIMUM_DAMAGE",
+		"IN_FRENZY", "KING", "SLAYER", "ENEMY_ATTACK_REDUCTION", "ENEMY_DEFENCE_REDUCTION",
+		"PERCENTAGE_DAMAGE_BOOST", "GENERAL_DAMAGE_PREMY", "JOUSTING", "CHARGE_IMMUNITY",
+		"VULNERABLE_FROM_BACK", "BONUS_DAMAGE_PERCENTAGE", "HATE", "HATES_TRAIT", "REVENGE",
+		"GENERAL_DAMAGE_REDUCTION", "NO_MELEE_PENALTY", "GENERAL_ATTACK_REDUCTION", "FORGETFULL",
+		"LEVEL_SPELL_IMMUNITY", "MIND_IMMUNITY", "DAMAGE_RECEIVED_CAP"
+	}
+end
+
 -- Every query starts at the snapshot of bonus types the engine sends along with the attack. Most of
 -- what is asked after below is simply not there, and answering that from a table costs nothing;
 -- only when the snapshot says a bonus exists is the engine asked what it is worth.
 
+--- The declared types, as a set. Built from whatever `bonusTypes` finally resolves to, so a patch
+--- that adds types of its own is accounted for.
+local declared
+
+local function rememberDeclared(script)
+	if declared then return end
+
+	declared = {}
+
+	for _, type in ipairs(script:bonusTypes()) do
+		declared[type] = true
+	end
+end
+
+--- Whether the unit carries this bonus at all. The engine reports only what a unit carries, so a
+--- missing entry means "not carried" - unless the type was never declared, in which case nothing was
+--- ever looked for and answering "no" would quietly cost damage.
+local function hasBonusOfType(present, type)
+	if not declared[type] then
+		error("damage calculator asks after bonus " .. type .. ", which it does not declare in bonusTypes")
+	end
+
+	return present[type] == true
+end
+
 --- Value of every bonus of this type on the unit, combined the way the engine combines them.
 local function valueOfType(unit, present, type)
-	if not present[type] then return 0 end
+	if not hasBonusOfType(present, type) then return 0 end
 
 	return unit:getBonusesValue({type = type})
 end
 
 --- Value of the bonuses of this type that carry the given subtype.
 local function valueOfSubtype(unit, present, type, subtype)
-	if not present[type] then return 0 end
+	if not hasBonusOfType(present, type) then return 0 end
 
 	return unit:getBonusesValue({type = type, subtype = subtype})
-end
-
-local function hasBonusOfType(present, type)
-	return present[type] == true
 end
 
 --- Value of the bonuses of this type that count in the kind of combat being fought. A bonus limited
 --- to melee is simply absent from a shot, and the other way round. Sorted out here rather than by
 --- the filter, which knows equality only.
 local function valueInThisCombat(unit, present, type, shooting)
-	if not present[type] then return 0 end
+	if not hasBonusOfType(present, type) then return 0 end
 
 	return unit:getBonuses({type = type}):filter(function(bonus)
 		local range = bonus:getEffectRange()
@@ -283,8 +319,9 @@ function Script:getHateTraitFactor(info)
 	if not hasBonusOfType(info.attackerBonuses, "HATES_TRAIT") then return 0 end
 
 	return info.attacker:getBonuses({type = "HATES_TRAIT"}):filter(function(hate)
-		-- the subtype of a hate names a bonus type, which the hated unit is known by carrying
-		return hasBonusOfType(info.defenderBonuses, hate:getSubtype())
+		-- the subtype of a hate names a bonus type, and any type at all may be hated - so this one
+		-- question cannot be answered from the snapshot, which only speaks of declared types
+		return info.defender:getBonuses({type = hate:getSubtype()}):size() > 0
 	end):totalValue() / 100
 end
 
@@ -438,6 +475,8 @@ function Script:calculate(battle, info)
 	-- the battle answers the queries that depend on where the blow happens; it rides along with the
 	-- rest of the attack rather than in a global, which a script shared between threads must not have
 	info.battle = battle
+
+	rememberDeclared(self)
 
 	local baseMin, baseMax = self:getBaseDamage(info)
 

@@ -39,9 +39,10 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 	bool deathBlow = false;
 	bool doubleDamage = false;
 
-	/// Which bonus types each of the two carries at all, by json key. A script reads this before
-	/// asking anything: most of what a damage factor looks for is not there, and a bonus that is
-	/// not there is answered without leaving the script.
+	/// Of the bonus types the script declares, which each of the two carries. Filled in by the
+	/// script layer rather than here, since what is worth reporting is the script's own business.
+	/// A script reads this before asking anything: most of what a damage factor looks for is not
+	/// there, and a bonus that is not there is answered without leaving the script.
 	std::map<std::string, bool> attackerBonuses;
 	std::map<std::string, bool> defenderBonuses;
 
@@ -111,5 +112,7 @@ class DLL_LINKAGE IDamageCalculatorScript
 public:
 	virtual ~IDamageCalculatorScript() = default;
 
-	virtual DamageEstimation calculate(const CBattleInfoCallback & battle, const DamageAttackInfo & info) const = 0;
+	/// `info` arrives with everything the engine knows and is completed by the implementation, which
+	/// is what lets a script be told only about the bonuses it asked for.
+	virtual DamageEstimation calculate(const CBattleInfoCallback & battle, DamageAttackInfo & info) const = 0;
 };
