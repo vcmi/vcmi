@@ -11,7 +11,7 @@ function Script:getHateTraitFactor(info)
 	return info.attacker:getBonuses({type = "HATES_TRAIT"}):filter(function(hate)
 		-- the subtype of a hate names a bonus type, and any type at all may be hated - so this one
 		-- question cannot be answered from the snapshot, which only speaks of declared types
-		return info.defender:getBonuses({type = hate:getSubtype()}):size() > 0
+		return info.defender:hasBonuses({type = hate:getSubtype()})
 	end):totalValue() / 100
 end
 

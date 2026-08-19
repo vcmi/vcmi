@@ -143,6 +143,16 @@ local armour = 0
 for i = 1, list:size() do armour = armour + list:getBonus(i):getVal() end
 ```
 
+**Ask whether rather than which**, when the answer is all you need. `hasBonuses` says yes or no without the list ever being built for the script:
+
+```lua
+-- good
+if info.defender:hasBonuses({type = "MIND_IMMUNITY"}) then ... end
+
+-- bad: the whole list is handed over just to be counted
+if info.defender:getBonuses({type = "MIND_IMMUNITY"}):size() > 0 then ... end
+```
+
 **Say as much as you can in the filter.** Type, subtype and source are all matched by the engine, and a query the engine can describe is also a query it can cache. Only what the filter cannot express - "from anything except a spell", "whichever of these applies in melee" - belongs in a `filter` afterwards:
 
 ```lua
