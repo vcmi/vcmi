@@ -392,7 +392,7 @@ std::string BattleSiegeController::getTowersInfoText() const
 	const auto fortifications = town->fortificationsLevel();
 	std::string result;
 
-	auto appendTower = [&](EWallVisual::EWallVisual creaturePiece, EWallPart wallPart, int towerHealth, const DamageRange & damage, const std::string & nameTextID)
+	auto appendTower = [&](EWallVisual::EWallVisual creaturePiece, EWallPart wallPart, int towerHealth, const std::string & nameTextID)
 	{
 		if(towerHealth <= 0)
 			return; // tower not built
@@ -405,19 +405,18 @@ std::string BattleSiegeController::getTowersInfoText() const
 		}
 		else
 		{
-			// towers use town-specific damage ranges, not the turret creature's own damage
 			const CStack * turret = getTurretStack(creaturePiece);
 			result += (boost::format(LIBRARY->generaltexth->translate("core.genrltxt.155"))
 				% name
 				% turret->getAttack(true) // NOTE: H3 bug - tower attack always shows 10, but has no effect. VCMI shows 0
-				% damage.min
-				% damage.max).str();
+				% turret->getMinDamage(true)
+				% turret->getMaxDamage(true)).str();
 		}
 	};
 
-	appendTower(EWallVisual::KEEP_BATTLEMENT,   EWallPart::KEEP,         fortifications.citadelHealth,   town->getKeepDamageRange(),  "vcmi.battleWindow.siegeTower.keep");
-	appendTower(EWallVisual::UPPER_BATTLEMENT,  EWallPart::UPPER_TOWER,  fortifications.upperTowerHealth, town->getTowerDamageRange(), "vcmi.battleWindow.siegeTower.upper");
-	appendTower(EWallVisual::BOTTOM_BATTLEMENT, EWallPart::BOTTOM_TOWER, fortifications.lowerTowerHealth, town->getTowerDamageRange(), "vcmi.battleWindow.siegeTower.lower");
+	appendTower(EWallVisual::KEEP_BATTLEMENT,   EWallPart::KEEP,         fortifications.citadelHealth,    "vcmi.battleWindow.siegeTower.keep");
+	appendTower(EWallVisual::UPPER_BATTLEMENT,  EWallPart::UPPER_TOWER,  fortifications.upperTowerHealth, "vcmi.battleWindow.siegeTower.upper");
+	appendTower(EWallVisual::BOTTOM_BATTLEMENT, EWallPart::BOTTOM_TOWER, fortifications.lowerTowerHealth, "vcmi.battleWindow.siegeTower.lower");
 
 	return result;
 }

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Order in which combat events reach Lua scripts. Nested boxes are loops; dashed boxes are alternative branches. Coordinates are absolute: adding an event means inserting a pill plus its text, then shifting what follows down and growing the enclosing rects. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="804" viewBox="0 0 1180 804" font-family="Segoe UI, DejaVu Sans, Helvetica, Arial, sans-serif">
+  <rect width="1180" height="804" fill="#ffffff"/>
+  <rect x="16" y="16" width="1148" height="772" rx="10" fill="#fbfcfe" stroke="#5b7fa6" stroke-width="1.5"/>
+  <text x="30" y="36" font-size="14" fill="#5b7fa6" font-weight="600">the whole combat</text>
+  <rect x="30" y="46" width="122" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="41" y="63" font-size="13.5" fill="#123a5c" font-weight="600">onBattleSetup</text>
+  <text x="164" y="63" font-size="12.5" fill="#555555">every unit, dead ones included - before anything else happens</text>
+  <text x="42" y="91" font-size="12.5" fill="#777777" font-style="italic">moats are placed, tactics phase is played</text>
+  <rect x="30" y="101" width="122" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="41" y="118" font-size="13.5" fill="#123a5c" font-weight="600">onBattleStart</text>
+  <text x="164" y="118" font-size="12.5" fill="#555555">every unit present, after tactics</text>
+  <text x="42" y="146" font-size="12.5" fill="#777777" font-style="italic">opening battle spells are cast</text>
+  <rect x="30" y="156" width="1120" height="618" rx="10" fill="#f6faf5" stroke="#5e8f5e" stroke-width="1.5"/>
+  <text x="44" y="176" font-size="14" fill="#5e8f5e" font-weight="600">for every combat round - until one side is defeated</text>
+  <rect x="44" y="186" width="114" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="55" y="203" font-size="13.5" fill="#123a5c" font-weight="600">onRoundStart</text>
+  <text x="170" y="203" font-size="12.5" fill="#555555">every living unit; skipped in round 1, which onBattleStart covers</text>
+  <rect x="44" y="216" width="1092" height="544" rx="10" fill="#fdf9f1" stroke="#a8843c" stroke-width="1.5"/>
+  <text x="58" y="236" font-size="14" fill="#a8843c" font-weight="600">for every unit turn - the unit performs exactly one of these actions</text>
+  <rect x="58" y="246" width="258" height="140" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="72" y="265" font-size="13" fill="#8d5fa0" font-weight="600">wait</text>
+  <rect x="72" y="273" width="68" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="83" y="290" font-size="13.5" fill="#123a5c" font-weight="600">onWait</text>
+  <rect x="326" y="246" width="258" height="140" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="340" y="265" font-size="13" fill="#8d5fa0" font-weight="600">defend</text>
+  <rect x="340" y="273" width="83" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="351" y="290" font-size="13.5" fill="#123a5c" font-weight="600">onDefend</text>
+  <rect x="594" y="246" width="258" height="140" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="608" y="265" font-size="13" fill="#8d5fa0" font-weight="600">move</text>
+  <rect x="608" y="273" width="114" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="619" y="290" font-size="13.5" fill="#123a5c" font-weight="600">onBeforeMove</text>
+  <text x="620" y="318" font-size="12.5" fill="#777777" font-style="italic">the unit walks</text>
+  <rect x="608" y="328" width="106" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="619" y="345" font-size="13.5" fill="#123a5c" font-weight="600">onAfterMove</text>
+  <rect x="862" y="246" width="258" height="140" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="876" y="265" font-size="13" fill="#8d5fa0" font-weight="600">cast a spell or heal</text>
+  <text x="888" y="288" font-size="12.5" fill="#777777" font-style="italic">an adjacent caster walks to its</text>
+  <text x="888" y="307" font-size="12.5" fill="#777777" font-style="italic">target first - no move events</text>
+  <text x="888" y="332" font-size="12.5" fill="#777777" font-style="italic">the spell is cast</text>
+  <rect x="876" y="342" width="137" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="887" y="359" font-size="13.5" fill="#123a5c" font-weight="600">onUnitSpellcast</text>
+  <rect x="58" y="396" width="1064" height="350" rx="10" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="72" y="416" font-size="14" fill="#8d5fa0" font-weight="600">or an attack - all three forms fire the same events</text>
+  <rect x="72" y="426" width="338" height="85" rx="9" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="86" y="445" font-size="13" fill="#4f7d8c" font-weight="600">attack without moving</text>
+  <text x="98" y="468" font-size="12.5" fill="#777777" font-style="italic">the unit is already next to its target</text>
+  <rect x="420" y="426" width="338" height="85" rx="9" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="434" y="445" font-size="13" fill="#4f7d8c" font-weight="600">move and attack</text>
+  <text x="446" y="468" font-size="12.5" fill="#777777" font-style="italic">the unit steps into melee range - this</text>
+  <text x="446" y="487" font-size="12.5" fill="#777777" font-style="italic">movement fires no move events</text>
+  <rect x="768" y="426" width="338" height="85" rx="9" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="782" y="445" font-size="13" fill="#4f7d8c" font-weight="600">shoot</text>
+  <text x="794" y="468" font-size="12.5" fill="#777777" font-style="italic">a ranged retaliation takes this same path</text>
+  <rect x="72" y="521" width="1036" height="211" rx="10" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.5"/>
+  <text x="86" y="541" font-size="14" fill="#4f7d8c" font-weight="600">for every attack of the action - first strike, every strike or shot, counterattack</text>
+  <rect x="86" y="551" width="129" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="97" y="568" font-size="13.5" fill="#123a5c" font-weight="600">onBeforeAttack</text>
+  <text x="227" y="568" font-size="12.5" fill="#555555">on the attacker</text>
+  <rect x="86" y="581" width="145" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="97" y="598" font-size="13.5" fill="#123a5c" font-weight="600">onBeforeAttacked</text>
+  <text x="243" y="598" font-size="12.5" fill="#555555">on every unit the attack will reach - one group with the above, ordered by script priority</text>
+  <text x="98" y="626" font-size="12.5" fill="#777777" font-style="italic">damage is rolled and applied, to the target and to any secondary targets</text>
+  <rect x="86" y="636" width="122" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="97" y="653" font-size="13.5" fill="#123a5c" font-weight="600">onAfterAttack</text>
+  <text x="220" y="653" font-size="12.5" fill="#555555">on the attacker, even if it died meanwhile</text>
+  <rect x="86" y="666" width="137" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
+  <text x="97" y="683" font-size="13.5" fill="#123a5c" font-weight="600">onAfterAttacked</text>
+  <text x="235" y="683" font-size="12.5" fill="#555555">on every unit that was hit, even if killed - one group again, ordered by script priority</text>
+  <text x="86" y="709" font-size="11.5" fill="#8a6a2a">A reaction to the before-events may kill either side: the damage is then skipped, but the after-events still fire.</text>
+</svg>

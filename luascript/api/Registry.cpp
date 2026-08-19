@@ -34,6 +34,7 @@
 #include "spells/Problem.h"
 #include "library/Artifact.h"
 #include "library/Bonus.h"
+#include "library/Building.h"
 #include "library/BonusDescriptor.h"
 #include "callback/IBattleInfoCallback.h"
 #include "library/Creature.h"
@@ -62,6 +63,7 @@ Registry::Registry()
 {
 	registerPrivate<ServicesProxy>();
 	registerPrivate<ArtifactProxy>();
+	registerPrivate<BuildingProxy>();
 	registerPrivate<BonusProxy>();
 	registerPrivate<BonusListProxy>();
 	registerPrivate<CreatureProxy>();

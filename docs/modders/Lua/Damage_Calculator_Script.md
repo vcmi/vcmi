@@ -8,7 +8,7 @@ Unlike the other script types there is exactly **one** damage calculator in a ga
 "damageCalculator" : {
     "implements" : "damageCalculator",
     "script" : "damage/damageCalculator",
-    "patches" : [ "damage/turret", "damage/siegeWeapon", ... ],
+    "patches" : [ "damage/siegeWeapon", "damage/magicElemental", ... ],
     "schema" : { "properties" : {}, "additionalProperties" : false }
 }
 ```

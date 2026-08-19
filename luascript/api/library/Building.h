@@ -1,5 +1,5 @@
 /*
- * TownInstance.h, part of VCMI engine
+ * Building.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -13,22 +13,22 @@
 #include "../../LuaWrapper.h"
 #include "../MethodRegistrar.h"
 
-#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/entities/building/CBuilding.h"
 
 namespace scripting::api
 {
 
-class TownInstanceProxy : public RawPointerWrapper<const CGTownInstance, TownInstanceProxy>
+class BuildingProxy : public RawPointerWrapper<const CBuilding, BuildingProxy>
 {
-
 public:
-	static constexpr std::string_view luaName = "TownInstance";
+	static constexpr std::string_view luaName = "Building";
 	static constexpr std::string_view luaDescription =
-		"A town on the adventure map. Provides its owner and what has been built in it.";
+		"A building of a town, as `TownInstance:getBuildings` reports it.";
 
 	static void registerMethods(MethodRegistrar & R);
 
-	static std::vector<const CBuilding *> getBuildings(const CGTownInstance & town);
+	static std::string getJsonKey(const CBuilding & building);
+	static bool isUpgrade(const CBuilding & building);
 };
 
 }

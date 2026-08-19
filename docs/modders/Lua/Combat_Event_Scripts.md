@@ -106,8 +106,11 @@ Handlers:
 - `onBeforeMove` - called before `unit` starts movement
 - `onAfterMove` - called after `unit` ends movement
 - `onUnitSpellcast` - called after `unit` casts a spell
+- `onBattleSetup` - called once for every unit as the battle is laid out, before tactics and before anything else happens to it. `other` is nil
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over and before any opening spell is cast. `other` is nil
 - `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil
+
+![Order in which combat events fire](Combat_Event_Flow.svg)
 
 The attack events always fire in this order, once per attack:
 
