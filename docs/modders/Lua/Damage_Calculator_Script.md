@@ -7,11 +7,13 @@ Unlike the other script types there is exactly **one** damage calculator in a ga
 ```json
 "damageCalculator" : {
     "implements" : "damageCalculator",
-    "script" : "combat/damageCalculator",
-    "patches" : [ ],
+    "script" : "damage/damageCalculator",
+    "patches" : [ "damage/turret", "damage/siegeWeapon", ... ],
     "schema" : { "properties" : {}, "additionalProperties" : false }
 }
 ```
+
+Sources of this type live in the `damage/` directory, and the rules VCMI itself keeps out of the base script are stacked over it as patches - which is also the worked example of how to write one.
 
 `priority` and `description` are not used - nothing else reacts alongside it, and nothing shows it to the player.
 
@@ -55,6 +57,10 @@ return Script
 Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. Writing `self:method(...)` dispatches back into your own patch and loops forever.
 
 Every step is a method and can be overridden the same way: `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, or any single factor such as `getJoustingFactor`.
+
+Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` answer "nothing" in the base script, because nothing in Heroes 3 lowers the attack of whoever strikes it or caps the damage a blow may deal - the rules that do live in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
+
+Each patch keeps to one rule. That is what lets a mod drop or replace a single one of them without touching anything else, and it is worth following in mod patches too.
 
 ## What the script is given
 

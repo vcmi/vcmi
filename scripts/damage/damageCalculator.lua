@@ -18,9 +18,6 @@ local DAMAGE_TYPE_ALL = "damageTypeAll"
 local DAMAGE_TYPE_MELEE = "damageTypeMelee"
 local DAMAGE_TYPE_RANGED = "damageTypeRanged"
 
-local MAGIC_ELEMENTAL = "core:magicElemental"
-local PSYCHIC_ELEMENTAL = "core:psychicElemental"
-
 --- Integer division as the engine does it, rounding towards zero.
 local function idiv(dividend, divisor)
 	local quotient = dividend / divisor
@@ -45,12 +42,10 @@ end
 --- A patch that adds a factor of its own must add whatever it asks after here.
 function Script:bonusTypes()
 	return {
-		"SIEGE_WEAPON", "PRIMARY_SKILL", "ALWAYS_MINIMUM_DAMAGE", "ALWAYS_MAXIMUM_DAMAGE",
-		"IN_FRENZY", "KING", "SLAYER", "ENEMY_ATTACK_REDUCTION", "ENEMY_DEFENCE_REDUCTION",
-		"PERCENTAGE_DAMAGE_BOOST", "GENERAL_DAMAGE_PREMY", "JOUSTING", "CHARGE_IMMUNITY",
-		"VULNERABLE_FROM_BACK", "BONUS_DAMAGE_PERCENTAGE", "HATE", "HATES_TRAIT", "REVENGE",
-		"GENERAL_DAMAGE_REDUCTION", "NO_MELEE_PENALTY", "GENERAL_ATTACK_REDUCTION", "FORGETFULL",
-		"LEVEL_SPELL_IMMUNITY", "MIND_IMMUNITY", "DAMAGE_RECEIVED_CAP"
+		"ALWAYS_MINIMUM_DAMAGE", "ALWAYS_MAXIMUM_DAMAGE", "IN_FRENZY", "KING", "SLAYER",
+		"ENEMY_DEFENCE_REDUCTION", "PERCENTAGE_DAMAGE_BOOST", "GENERAL_DAMAGE_PREMY", "JOUSTING",
+		"CHARGE_IMMUNITY", "BONUS_DAMAGE_PERCENTAGE", "HATE", "GENERAL_DAMAGE_REDUCTION",
+		"NO_MELEE_PENALTY", "GENERAL_ATTACK_REDUCTION", "FORGETFULL"
 	}
 end
 
@@ -119,20 +114,17 @@ function Script:carriesBonus(present, type)
 	return hasBonusOfType(present, type)
 end
 
+--- Value of every bonus of this type the unit carries. Answers 0 without asking the engine when the
+--- unit has none, which is the usual case.
+function Script:bonusValue(unit, present, type)
+	return valueOfType(unit, present, type)
+end
+
 -- ---- what the creatures themselves deal ------------------------------------------------------
 
 --- Damage of a single creature, before anything about this particular blow is taken into account.
 function Script:getBaseDamageSingle(info)
 	local attacker = info.attacker
-	local isTurret = attacker:isTurret()
-
-	if isTurret then
-		local turretDamage = info.battle:getTurretDamageRange(attacker)
-
-		if #turretDamage == 2 then
-			return turretDamage[1], turretDamage[2]
-		end
-	end
 
 	local minDamage = attacker:getMinDamage(info.shooting)
 	local maxDamage = attacker:getMaxDamage(info.shooting)
@@ -140,16 +132,6 @@ function Script:getBaseDamageSingle(info)
 	if minDamage > maxDamage then
 		-- a mod got them the wrong way round; swapping keeps bless and curse meaningful
 		minDamage, maxDamage = maxDamage, minDamage
-	end
-
-	if hasBonusOfType(info.attackerBonuses, "SIEGE_WEAPON") and not isTurret then
-		-- a ballista fires for its damage times the attack of the hero owning it
-		-- only what the hero itself brings counts, so the two sources are asked after in turn
-		local heroAttack = attacker:getBonusesValue({type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.artifact})
-			+ attacker:getBonusesValue({type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.heroBaseSkill})
-
-		minDamage = minDamage * (heroAttack + 1)
-		maxDamage = maxDamage * (heroAttack + 1)
 	end
 
 	return minDamage, maxDamage
@@ -226,13 +208,10 @@ function Script:getAttackFromSlayer(info)
 	return 0
 end
 
---- Attack the target makes its attacker lose, as a negative number.
+--- Attack the target makes its attacker lose, as a negative number. Nothing of the game does this -
+--- the rule lives in a patch, and this is the hook it hangs on.
 function Script:getAttackIgnored(info, attackBase)
-	local reduction = valueInThisCombat(info.defender, info.defenderBonuses, "ENEMY_ATTACK_REDUCTION", info.shooting)
-
-	if reduction <= 0 then return 0 end
-
-	return -math.min(divideAndRound(attackBase * reduction, 100), attackBase)
+	return 0
 end
 
 function Script:getAttack(info)
@@ -290,15 +269,6 @@ function Script:getJoustingFactor(info)
 	return info.chargeDistance * valueOfType(info.attacker, info.attackerBonuses, "JOUSTING") / 100
 end
 
-function Script:getFromBackFactor(info)
-	local value = valueOfType(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
-
-	if value == 0 then return 0 end
-	if not info.battle:isToReverse(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0 end
-
-	return value / 100
-end
-
 function Script:getDeathBlowFactor(info)
 	return info.deathBlow and 1.0 or 0
 end
@@ -318,27 +288,6 @@ function Script:getHateCreatureFactor(info)
 	local hatedKey = info.defender:getCreature():getJsonKey()
 
 	return valueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
-end
-
---- Hate of something the creature being struck happens to be, such as a shooter.
-function Script:getHateTraitFactor(info)
-	if not hasBonusOfType(info.attackerBonuses, "HATES_TRAIT") then return 0 end
-
-	return info.attacker:getBonuses({type = "HATES_TRAIT"}):filter(function(hate)
-		-- the subtype of a hate names a bonus type, and any type at all may be hated - so this one
-		-- question cannot be answered from the snapshot, which only speaks of declared types
-		return info.defender:getBonuses({type = hate:getSubtype()}):size() > 0
-	end):totalValue() / 100
-end
-
---- A worn-down stack strikes harder, the HotA Haspid ability.
-function Script:getRevengeFactor(info)
-	if not hasBonusOfType(info.attackerBonuses, "REVENGE") then return 0 end
-
-	local attacker = info.attacker
-	local creatureHealth = attacker:getMaxHealth()
-
-	return math.sqrt((attacker:getBaseAmount() + 1) * creatureHealth / (attacker:getAvailableHealth() + creatureHealth) - 1)
 end
 
 --- Armorer and everything else that lessens every kind of blow, other than being petrified.
@@ -406,23 +355,6 @@ function Script:getPetrificationFactor(info)
 	}) / 100
 end
 
---- Magic elementals do half damage to what shrugs off high-level magic.
-function Script:getMagicFactor(info)
-	-- the immunity is what makes this rare, and asking after it costs nothing
-	if valueOfType(info.defender, info.defenderBonuses, "LEVEL_SPELL_IMMUNITY") < 5 then return 0 end
-	if info.attacker:getCreature():getJsonKey() ~= MAGIC_ELEMENTAL then return 0 end
-
-	return 0.5
-end
-
---- Psychic elementals do half damage to what has no mind to attack.
-function Script:getMindFactor(info)
-	if not hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
-	if info.attacker:getCreature():getJsonKey() ~= PSYCHIC_ELEMENTAL then return 0 end
-
-	return 0.5
-end
-
 --- Every factor of this blow, signed. A patch appends its own to what this returns.
 function Script:getFactors(info)
 	return {
@@ -431,12 +363,9 @@ function Script:getFactors(info)
 		self:getBlessFactor(info),
 		self:getLuckFactor(info),
 		self:getJoustingFactor(info),
-		self:getFromBackFactor(info),
 		self:getDeathBlowFactor(info),
 		self:getDoubleDamageFactor(info),
 		self:getHateCreatureFactor(info),
-		self:getHateTraitFactor(info),
-		self:getRevengeFactor(info),
 		-self:getArmorerFactor(info),
 		-self:getMagicShieldFactor(info),
 		-self:getRangePenaltyFactor(info),
@@ -444,21 +373,16 @@ function Script:getFactors(info)
 		-self:getBlindParalysisFactor(info),
 		-self:getUnluckyFactor(info),
 		-self:getForgetfulnessFactor(info),
-		-self:getPetrificationFactor(info),
-		-self:getMagicFactor(info),
-		-self:getMindFactor(info)
+		-self:getPetrificationFactor(info)
 	}
 end
 
 -- ---- what comes out of it all ----------------------------------------------------------------
 
---- Most damage the target can take from one blow, whatever the blow is worth.
+--- Most damage the target can take from one blow, whatever the blow is worth. Nothing of the game
+--- caps it, so the rule lives in a patch and this is the hook it hangs on.
 function Script:getDamageCap(info)
-	local percentage = valueOfType(info.defender, info.defenderBonuses, "DAMAGE_RECEIVED_CAP")
-
-	if percentage <= 0 then return math.huge end
-
-	return idiv(info.defender:getMaxHealth() * percentage, 100)
+	return math.huge
 end
 
 --- How many creatures blows of this size kill. Both ends of the range are answered at once, since

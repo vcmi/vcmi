@@ -60,8 +60,23 @@
 	},
 	"damageCalculator" : {
 		"implements" : "damageCalculator",
-		"script" : "combat/damageCalculator",
-		"patches" : [ ],
+		"script" : "damage/damageCalculator",
+		"patches" : [
+			// what the towers of a besieged town and the war machines shoot for, which is decided
+			// before anything about the blow itself
+			"damage/turret",
+			"damage/siegeWeapon",
+			// creatures that halve their damage against a kind of target, named outright
+			"damage/magicElemental",
+			"damage/psychicElemental",
+			// rules no creature or spell of Heroes 3 uses, kept apart so that the calculator does
+			// not ask after them on every attack
+			"damage/vulnerableFromBack",
+			"damage/hatesTrait",
+			"damage/revenge",
+			"damage/enemyAttackReduction",
+			"damage/damageReceivedCap"
+		],
 		"schema" : {
 			"properties" : {},
 			"additionalProperties" : false
