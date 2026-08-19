@@ -304,9 +304,14 @@ void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstan
 	}
 }
 
-void CGEvent::configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance *, int rewardIndex) const
+void CGEvent::configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance *, int) const
 {
-	infoWindow.journalInfo = ScenarioEventJournalInfo{visitablePos(), configuration.info.at(rewardIndex).reward.resources};
+	infoWindow.journalInfo = ScenarioEventJournalInfo{visitablePos()};
+}
+
+void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
+{
+	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
 void CGEvent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -333,7 +338,7 @@ void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * 
 			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
-		iw.journalInfo = ScenarioEventJournalInfo{visitablePos(), TResources()};
+		iw.journalInfo = ScenarioEventJournalInfo{visitablePos()};
 		gameEvents.showInfoDialog(&iw);
 		gameEvents.startBattle(h, this);
 	}

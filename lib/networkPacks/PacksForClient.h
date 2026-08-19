@@ -1216,7 +1216,8 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient, public scripting::ApiShar
 		h & components;
 		h & player;
 		h & soundID;
-		h & journalInfo;
+		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL))
+			h & journalInfo;
 	}
 	InfoWindow() = default;
 };

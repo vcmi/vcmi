@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../ResourceSet.h"
 #include "../int3.h"
+#include "../networkPacks/Component.h"
 #include "../texts/MetaString.h"
 
 struct DLL_LINKAGE ScenarioEventJournalEntry
@@ -18,7 +18,7 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 	ui32 day = 0;
 	MetaString message;
 	int3 location = int3(-1, -1, -1);
-	TResources resources;
+	std::vector<Component> components;
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -26,19 +26,17 @@ struct DLL_LINKAGE ScenarioEventJournalEntry
 		h & day;
 		h & message;
 		h & location;
-		h & resources;
+		h & components;
 	}
 };
 
 struct DLL_LINKAGE ScenarioEventJournalInfo
 {
 	int3 location = int3(-1, -1, -1);
-	TResources resources;
 
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & location;
-		h & resources;
 	}
 };

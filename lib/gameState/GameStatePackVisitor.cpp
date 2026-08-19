@@ -128,7 +128,7 @@ void GameStatePackVisitor::visitInfoWindow(InfoWindow & pack)
 	entry.day = gs.day;
 	entry.message = pack.text;
 	entry.location = pack.journalInfo->location;
-	entry.resources = pack.journalInfo->resources;
+	entry.components = pack.components;
 	gs.players.at(pack.player).scenarioEventJournal.push_back(std::move(entry));
 }
 

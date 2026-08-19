@@ -60,7 +60,7 @@ public:
 	void showAll(Canvas & to) override;
 };
 
-class CQuestLog : public CJournalWindow
+class CQuestLog : public JournalWindow
 {
 	const QuestInfo * currentQuest;
 

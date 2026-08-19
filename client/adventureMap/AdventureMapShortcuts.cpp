@@ -655,12 +655,7 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 
 bool AdventureMapShortcuts::optionCanViewJournal()
 {
-	const auto * playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID);
-	const bool hasDisplayableQuest = std::any_of(playerState->quests.begin(), playerState->quests.end(), [](const QuestInfo & quest)
-	{
-		return quest.isDisplayable(GAME->interface()->cb.get());
-	});
-	return optionInMapView() && (hasDisplayableQuest || !GAME->interface()->cb->getMyScenarioEventJournal().empty());
+	return optionInMapView() && GAME->interface()->hasJournalEntries();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()

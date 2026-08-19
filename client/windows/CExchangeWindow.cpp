@@ -165,6 +165,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[0]->block(!GAME->interface()->hasJournalEntries());
+	questlogButton[1]->block(!GAME->interface()->hasJournalEntries());
 
 	Rect barRect(5, 578, 725, 18);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
@@ -427,4 +429,3 @@ void CExchangeWindow::updateArtifacts()
 		luck[leftRight]->set(hero);
 	}
 }
-

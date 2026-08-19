@@ -26,12 +26,12 @@ enum class EJournalMode : uint8_t
 	EVENTS
 };
 
-class CJournalLabel : public LRClickableAreaWText, public CMultiLineLabel
+class JournalLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
 public:
 	std::function<void()> callback;
 
-	CJournalLabel(const Rect & position, const std::string & text);
+	JournalLabel(const Rect & position, const std::string & text);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
@@ -39,7 +39,7 @@ public:
 
 /// Shared journal window chrome and list controller. Derived classes provide the
 /// quest/event model and update their minimap when an item is selected.
-class CJournalWindow : public CWindowObject
+class JournalWindow : public CWindowObject
 {
 	static constexpr int VISIBLE_ITEM_COUNT = 6;
 	static constexpr int DESCRIPTION_TOP = 64;
@@ -47,7 +47,7 @@ class CJournalWindow : public CWindowObject
 
 	EJournalMode mode;
 	int selectedLabel = -1;
-	std::vector<std::shared_ptr<CJournalLabel>> labels;
+	std::vector<std::shared_ptr<JournalLabel>> labels;
 	std::shared_ptr<CSlider> slider;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CToggleGroup> journalTabs;
@@ -60,7 +60,7 @@ protected:
 	std::shared_ptr<CTextBox> description;
 	std::shared_ptr<CComponentBox> componentsBox;
 
-	explicit CJournalWindow(EJournalMode mode);
+	explicit JournalWindow(EJournalMode mode);
 
 	void initializeItems();
 	void setContent(const std::string & text, std::vector<std::shared_ptr<CComponent>> components, int componentAreaHeight = 130);

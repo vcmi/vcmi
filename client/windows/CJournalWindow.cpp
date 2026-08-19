@@ -26,40 +26,36 @@
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CJournalLabel::CJournalLabel(const Rect & position, const std::string & text)
+JournalLabel::JournalLabel(const Rect & position, const std::string & text)
 	: CMultiLineLabel(position, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text)
 {
 }
 
-void CJournalLabel::clickPressed(const Point & cursorPosition)
+void JournalLabel::clickPressed(const Point & cursorPosition)
 {
 	callback();
 }
 
-void CJournalLabel::showAll(Canvas & to)
+void JournalLabel::showAll(Canvas & to)
 {
 	CMultiLineLabel::showAll(to);
 }
 
-CJournalWindow::CJournalWindow(EJournalMode mode)
+JournalWindow::JournalWindow(EJournalMode mode)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog"))
 	, mode(mode)
 {
 	OBJECT_CONSTRUCTION;
 
 	description = std::make_shared<CTextBox>("", Rect(205, DESCRIPTION_TOP, 385, DESCRIPTION_HEIGHT), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CJournalWindow::close, this), EShortcut::GLOBAL_RETURN);
+	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&JournalWindow::close, this), EShortcut::GLOBAL_RETURN);
 	auto questsTab = std::make_shared<CToggleButton>(Point(193, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
 	auto eventsTab = std::make_shared<CToggleButton>(Point(411, 18), AnimationPath::builtin("settingsWindow/button190"), CButton::tooltip(), nullptr);
 	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
 
-	const auto quests = GAME->interface()->cb->getMyQuests();
-	questsTab->block(std::none_of(quests.begin(), quests.end(), [](const QuestInfo & quest)
-	{
-		return quest.isDisplayable(GAME->interface()->cb.get());
-	}));
-	eventsTab->block(GAME->interface()->cb->getMyScenarioEventJournal().empty());
+	questsTab->block(!GAME->interface()->hasDisplayableQuests());
+	eventsTab->block(!GAME->interface()->hasScenarioEventJournalEntries());
 
 	journalTabs = std::make_shared<CToggleGroup>([this](int selectedMode)
 	{
@@ -76,17 +72,17 @@ CJournalWindow::CJournalWindow(EJournalMode mode)
 	journalTabs->addToggle(static_cast<int>(EJournalMode::EVENTS), eventsTab);
 	journalTabs->setSelected(static_cast<int>(mode));
 
-	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CJournalWindow::sliderMoved, this, _1), VISIBLE_ITEM_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
+	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&JournalWindow::sliderMoved, this, _1), VISIBLE_ITEM_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(32);
 }
 
-void CJournalWindow::initializeItems()
+void JournalWindow::initializeItems()
 {
 	OBJECT_CONSTRUCTION;
 
 	for(size_t i = 0; i < getItemCount(); ++i)
 	{
-		auto label = std::make_shared<CJournalLabel>(Rect(13, 195, 149, 31), getItemText(i));
+		auto label = std::make_shared<JournalLabel>(Rect(13, 195, 149, 31), getItemText(i));
 		label->callback = [this, i]()
 		{
 			selectItem(i);
@@ -112,13 +108,13 @@ void CJournalWindow::initializeItems()
 	}
 }
 
-void CJournalWindow::selectItem(size_t itemIndex)
+void JournalWindow::selectItem(size_t itemIndex)
 {
 	selectedLabel = static_cast<int>(itemIndex);
 	onItemSelected(itemIndex);
 }
 
-void CJournalWindow::setContent(const std::string & text, std::vector<std::shared_ptr<CComponent>> components, int componentAreaHeight)
+void JournalWindow::setContent(const std::string & text, std::vector<std::shared_ptr<CComponent>> components, int componentAreaHeight)
 {
 	if(description->slider)
 		description->slider->scrollToMin();
@@ -135,7 +131,7 @@ void CJournalWindow::setContent(const std::string & text, std::vector<std::share
 	description->resize(Point(385, descriptionHeight));
 }
 
-void CJournalWindow::recreateItemList(int firstVisible)
+void JournalWindow::recreateItemList(int firstVisible)
 {
 	for(size_t i = 0; i < labels.size(); ++i)
 	{
@@ -148,13 +144,13 @@ void CJournalWindow::recreateItemList(int firstVisible)
 	updateMinimap();
 }
 
-void CJournalWindow::sliderMoved(int newPosition)
+void JournalWindow::sliderMoved(int newPosition)
 {
 	recreateItemList(newPosition);
 	redraw();
 }
 
-void CJournalWindow::showAll(Canvas & to)
+void JournalWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 	if(selectedLabel < 0 || selectedLabel >= labels.size())

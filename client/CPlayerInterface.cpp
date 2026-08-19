@@ -1824,8 +1824,7 @@ void CPlayerInterface::showQuestLog()
 	if(quests.empty())
 	{
 		const auto entries = cb->getMyScenarioEventJournal();
-		if(!entries.empty())
-			ENGINE->windows().createAndPushWindow<CScenarioEventJournal>(entries);
+		ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
 		return;
 	}
 	ENGINE->windows().createAndPushWindow<CQuestLog>(quests);
@@ -1835,14 +1834,26 @@ void CPlayerInterface::showScenarioEventJournal()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	const auto entries = cb->getMyScenarioEventJournal();
+	ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+}
 
-	if(entries.empty())
+bool CPlayerInterface::hasDisplayableQuests() const
+{
+	const auto quests = cb->getMyQuests();
+	return std::any_of(quests.begin(), quests.end(), [this](const QuestInfo & quest)
 	{
-		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.scenarioEventJournal.empty"), {}, playerID);
-		return;
-	}
+		return quest.isDisplayable(cb.get());
+	});
+}
 
-	ENGINE->windows().createAndPushWindow<CScenarioEventJournal>(entries);
+bool CPlayerInterface::hasScenarioEventJournalEntries() const
+{
+	return !cb->getMyScenarioEventJournal().empty();
+}
+
+bool CPlayerInterface::hasJournalEntries() const
+{
+	return hasDisplayableQuests() || hasScenarioEventJournalEntries();
 }
 
 void CPlayerInterface::scenarioEventJournalChanged()

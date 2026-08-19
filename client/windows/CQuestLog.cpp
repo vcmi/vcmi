@@ -112,7 +112,7 @@ void CQuestMinimap::showAll(Canvas & to)
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
-	: CJournalWindow(EJournalMode::QUESTS)
+	: JournalWindow(EJournalMode::QUESTS)
 	, currentQuest(nullptr)
 	, quests(Quests)
 {

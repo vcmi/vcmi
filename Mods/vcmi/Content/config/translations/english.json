@@ -301,7 +301,6 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns": "Moving here will cost {%POINTS} points. {%REMAINING} points will remain after moving.",
 	"vcmi.adventureMap.movementPointsHeroInfo": "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.noTownWithMarket": "There are no available marketplaces!",
-	"vcmi.adventureMap.scenarioEventJournal.empty": "No scenario event messages have been recorded yet.",
 	"vcmi.adventureMap.journal.quests": "Quests",
 	"vcmi.adventureMap.journal.events": "Events",
 	"vcmi.adventureMap.noTownWithTavern": "There are no available towns with taverns!",

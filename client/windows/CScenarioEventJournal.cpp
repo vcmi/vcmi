@@ -23,16 +23,14 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/entities/ResourceTypeHandler.h"
-#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CScenarioEventJournalMinimap::CScenarioEventJournalMinimap(const Rect & position)
+ScenarioEventJournalMinimap::ScenarioEventJournalMinimap(const Rect & position)
 	: CMinimap(position)
 {
 }
 
-void CScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
+void ScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
 {
 	location = newLocation;
 	marker.reset();
@@ -51,64 +49,53 @@ void CScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
 	const Point markerPosition = tileToPixels(location);
 	marker = std::make_shared<CPicture>(ImagePath::builtin("minimapIcons/generic"), markerPosition);
 	marker->moveBy(Point(-marker->pos.w / 2, -marker->pos.h / 2));
-	marker->addLClickCallback(std::bind(&CScenarioEventJournalMinimap::markerClicked, this));
+	marker->addLClickCallback(std::bind(&ScenarioEventJournalMinimap::markerClicked, this));
 	redraw();
 }
 
-void CScenarioEventJournalMinimap::markerClicked() const
+void ScenarioEventJournalMinimap::markerClicked() const
 {
 	adventureInt->centerOnTile(location);
 }
 
-void CScenarioEventJournalMinimap::showAll(Canvas & to)
+void ScenarioEventJournalMinimap::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 }
 
-CScenarioEventJournal::CScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries)
-	: CJournalWindow(EJournalMode::EVENTS)
+ScenarioEventJournal::ScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries)
+	: JournalWindow(EJournalMode::EVENTS)
 	, entries(journalEntries)
 {
 	OBJECT_CONSTRUCTION;
 
-	minimap = std::make_shared<CScenarioEventJournalMinimap>(Rect(12, 12, 169, 169));
+	minimap = std::make_shared<ScenarioEventJournalMinimap>(Rect(12, 12, 169, 169));
 	initializeItems();
 }
 
-size_t CScenarioEventJournal::getItemCount() const
+size_t ScenarioEventJournal::getItemCount() const
 {
 	return entries.size();
 }
 
-std::string CScenarioEventJournal::getItemText(size_t itemIndex) const
+std::string ScenarioEventJournal::getItemText(size_t itemIndex) const
 {
 	return LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entries.at(itemIndex).day);
 }
 
-void CScenarioEventJournal::onItemSelected(size_t itemIndex)
+void ScenarioEventJournal::onItemSelected(size_t itemIndex)
 {
 	const auto & entry = entries.at(itemIndex);
-	std::vector<GameResID> changedResources;
-	for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
-	{
-		if(entry.resources[resource] != 0)
-			changedResources.push_back(resource);
-	}
-
 	std::vector<std::shared_ptr<CComponent>> components;
-	const auto componentSize = changedResources.size() > 4 ? CComponent::small : CComponent::large;
-	for(const auto & resource : changedResources)
-	{
-		const auto value = entry.resources[resource];
-		const std::string subtitle = (value > 0 ? "+" : "") + std::to_string(value);
-		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, subtitle, componentSize));
-	}
+	const auto componentSize = entry.components.size() > 4 ? CComponent::small : CComponent::large;
+	for(const auto & component : entry.components)
+		components.push_back(std::make_shared<CComponent>(component, componentSize));
 
 	setContent(entry.message.toString(), std::move(components));
 	minimap->setLocation(entry.location);
 }
 
-void CScenarioEventJournal::updateMinimap()
+void ScenarioEventJournal::updateMinimap()
 {
 	minimap->update();
 }
