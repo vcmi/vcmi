@@ -4,14 +4,6 @@ Script.__index = Script
 --- Hatred of a trait rather than of a creature - of everything that shoots, of everything undead.
 --- Nothing of Heroes 3 hates that way; its hatreds name the creature, which the calculator handles.
 
-function Script:bonusTypes()
-	local types = Base.bonusTypes(self)
-
-	table.insert(types, "HATES_TRAIT")
-
-	return types
-end
-
 --- Hate of something the creature being struck happens to be.
 function Script:getHateTraitFactor(info)
 	if not self:carriesBonus(info.attackerBonuses, "HATES_TRAIT") then return 0 end
@@ -23,12 +15,7 @@ function Script:getHateTraitFactor(info)
 	end):totalValue() / 100
 end
 
-function Script:getFactors(info)
-	local factors = Base.getFactors(self, info)
-
-	table.insert(factors, self:getHateTraitFactor(info))
-
-	return factors
-end
+Script:declareBonus("HATES_TRAIT")
+Script:addDamageFactor("getHateTraitFactor")
 
 return Script

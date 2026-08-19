@@ -11,14 +11,6 @@ local function divideAndRound(dividend, divisor)
 	return math.floor((dividend + half - 1) / divisor)
 end
 
-function Script:bonusTypes()
-	local types = Base.bonusTypes(self)
-
-	table.insert(types, "ENEMY_ATTACK_REDUCTION")
-
-	return types
-end
-
 --- Attack the target makes its attacker lose, as a negative number.
 function Script:getAttackIgnored(info, attackBase)
 	if not self:carriesBonus(info.defenderBonuses, "ENEMY_ATTACK_REDUCTION") then return 0 end
@@ -37,5 +29,7 @@ function Script:getAttackIgnored(info, attackBase)
 
 	return -math.min(divideAndRound(attackBase * reduction, 100), attackBase)
 end
+
+Script:declareBonus("ENEMY_ATTACK_REDUCTION")
 
 return Script

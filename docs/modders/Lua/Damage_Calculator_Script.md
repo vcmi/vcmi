@@ -32,31 +32,46 @@ The two totals are multiplied together. This is why a single -50% never quite ha
 
 **3. Casualties.** How many creatures the resulting damage kills, given the health left on the first one.
 
-## Changing the rules
+## Adding a factor
 
-Write a patch, list it in `patches`, and override the one step you care about. `Base` is the script you are stacked over:
+Write a patch, list it in `patches`, write the factor as a method of it, and hand its name to `addDamageFactor`:
 
 ```lua
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Trolls hit twice as hard under a full moon.
-function Script:getFactors(info)
-    local factors = Base.getFactors(self, info)
+--- Trolls hit harder under a full moon.
+function Script:getMoonFuryFactor(info)
+    local value = self:bonusValue(info.attacker, info.attackerBonuses, "MYMOD_MOON_FURY")
 
-    if isFullMoon() and info.attacker:getCreature():getJsonKey() == "myMod:troll" then
-        table.insert(factors, 1.0)
-    end
+    if value == 0 then return 0 end
+    if not isFullMoon() then return 0 end
 
-    return factors
+    return value / 100
 end
+
+Script:declareBonus("MYMOD_MOON_FURY")
+Script:addDamageFactor("getMoonFuryFactor")
 
 return Script
 ```
 
-Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. Writing `self:method(...)` dispatches back into your own patch and loops forever.
+Two lines register it: `declareBonus` for every bonus type the factor reads - see [declaring what you look at](#declaring-what-you-look-at) - and `addDamageFactor` for the factor itself. The order factors are added in does not matter; what a factor is worth is decided by its sign, so **return a negative number to lower the damage** and a positive one to raise it.
 
-Every step is a method and can be overridden the same way: `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, or any single factor such as `getJoustingFactor`.
+`addDamageFactor` is given the *name* of the method rather than the method itself, so that a patch stacked later can override it and be the one that runs.
+
+## Changing a rule
+
+Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ... Those factors answer signed as your own does, so the ones that lessen a blow, `getArmorerFactor` among them, answer a negative number.
+
+```lua
+--- Jousting counts the whole charge here, not only what was crossed in one turn.
+function Script:getJoustingFactor(info)
+    return Base.getJoustingFactor(self, info) * 2
+end
+```
+
+Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. Writing `self:method(...)` dispatches back into your own patch and loops forever.
 
 Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` answer "nothing" in the base script, because nothing in Heroes 3 lowers the attack of whoever strikes it or caps the damage a blow may deal - the rules that do live in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
 
@@ -90,22 +105,10 @@ return {
 Reading a bonus means asking the engine, and the engine is on the other side of the language boundary. To keep that from happening twenty times per attack, the script declares which bonus types it looks at, and the engine reports which of them each unit actually carries:
 
 ```lua
-function Script:bonusTypes()
-    return { "JOUSTING", "HATE", "IN_FRENZY", ... }
-end
+Script:declareBonus("MYMOD_MOON_FURY")
 ```
 
-A patch that adds a factor of its own **must add whatever it looks at**, or the check will not find it:
-
-```lua
-function Script:bonusTypes()
-    local types = Base.bonusTypes(self)
-    table.insert(types, "MYMOD_MOON_FURY")
-    return types
-end
-```
-
-Asking about a type that was never declared raises an error naming it, rather than quietly answering "not there" and costing damage.
+A patch **must declare whatever its factor looks at**, or the check will not find it. Asking about a type that was never declared raises an error naming it, rather than quietly answering "not there" and costing damage.
 
 ## Writing a factor that does not slow the game down
 

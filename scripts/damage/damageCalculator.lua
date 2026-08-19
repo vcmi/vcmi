@@ -11,8 +11,8 @@ Script.type = "damageCalculator"
 --- any of them the value that flips it. The ones that raise the damage add up; the ones that lower
 --- it multiply, each taking its share of what is left.
 ---
---- A mod extends this through a patch: override `getFactors` and append to what `Base` returned, or
---- override any single step below.
+--- A mod extends this through a patch: write a factor of its own and hand it to `addDamageFactor`,
+--- or override any single step below.
 
 local DAMAGE_TYPE_ALL = "damageTypeAll"
 local DAMAGE_TYPE_MELEE = "damageTypeMelee"
@@ -36,43 +36,58 @@ local function divideAndRound(dividend, divisor)
 	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
 end
 
---- Bonus types this calculator asks after. The engine reports which of them each of the two units
---- carries, and answers nothing about the rest - a unit carries some eighteen kinds of bonus and
---- this wants three of them, so naming them is what keeps the report small.
---- A patch that adds a factor of its own must add whatever it asks after here.
+--- Bonus types this calculator asks after, as a set. The engine reports which of them each of the
+--- two units carries, and answers nothing about the rest - a unit carries some eighteen kinds of
+--- bonus and this wants three of them, so naming them is what keeps the report small.
+Script.declaredBonuses = {}
+
+--- The factors of a blow, each named by the method computing it. Named rather than held as a
+--- function, so that a patch overriding one of them is the one that runs.
+Script.damageFactors = {}
+
+--- Declares a bonus type the script asks after. A patch that adds a factor of its own declares
+--- whatever that factor looks at, or the check below will not find it.
+function Script:declareBonus(type)
+	self.declaredBonuses[type] = true
+end
+
+--- Adds a factor to the blow, by the name of the method computing it.
+function Script:addDamageFactor(method)
+	if self[method] == nil then
+		error("damage calculator is given a factor " .. method .. ", which is not one of its methods")
+	end
+
+	for _, name in ipairs(self.damageFactors) do
+		if name == method then
+			error("damage calculator is given the factor " .. method .. " twice")
+		end
+	end
+
+	table.insert(self.damageFactors, method)
+end
+
+--- The declared types by name, which is the form the engine asks for them in.
 function Script:bonusTypes()
-	return {
-		"ALWAYS_MINIMUM_DAMAGE", "ALWAYS_MAXIMUM_DAMAGE", "IN_FRENZY", "KING", "SLAYER",
-		"ENEMY_DEFENCE_REDUCTION", "PERCENTAGE_DAMAGE_BOOST", "GENERAL_DAMAGE_PREMY", "JOUSTING",
-		"CHARGE_IMMUNITY", "BONUS_DAMAGE_PERCENTAGE", "HATE", "GENERAL_DAMAGE_REDUCTION",
-		"NO_MELEE_PENALTY", "GENERAL_ATTACK_REDUCTION", "FORGETFULL"
-	}
+	local types = {}
+
+	for type in pairs(self.declaredBonuses) do
+		table.insert(types, type)
+	end
+
+	return types
 end
 
 -- Every query starts at the snapshot of bonus types the engine sends along with the attack. Most of
 -- what is asked after below is simply not there, and answering that from a table costs nothing;
 -- only when the snapshot says a bonus exists is the engine asked what it is worth.
 
---- The declared types, as a set. Built from whatever `bonusTypes` finally resolves to, so a patch
---- that adds types of its own is accounted for.
-local declared
-
-local function rememberDeclared(script)
-	if declared then return end
-
-	declared = {}
-
-	for _, type in ipairs(script:bonusTypes()) do
-		declared[type] = true
-	end
-end
-
 --- Whether the unit carries this bonus at all. The engine reports only what a unit carries, so a
 --- missing entry means "not carried" - unless the type was never declared, in which case nothing was
 --- ever looked for and answering "no" would quietly cost damage.
 local function hasBonusOfType(present, type)
-	if not declared[type] then
-		error("damage calculator asks after bonus " .. type .. ", which it does not declare in bonusTypes")
+	-- a patch declares into this very table, so what a patch added is seen here too
+	if not Script.declaredBonuses[type] then
+		error("damage calculator asks after bonus " .. type .. ", which it never declared")
 	end
 
 	return present[type] == true
@@ -294,7 +309,7 @@ end
 function Script:getArmorerFactor(info)
 	if not hasBonusOfType(info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION") then return 0 end
 
-	return info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION", subtype = DAMAGE_TYPE_ALL}):filter(function(bonus)
+	return -info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION", subtype = DAMAGE_TYPE_ALL}):filter(function(bonus)
 		return bonus:getSource() ~= ENUM.BonusSource.spellEffect
 	end):totalValue() / 100
 end
@@ -303,36 +318,36 @@ end
 function Script:getMagicShieldFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
-	return valueOfSubtype(info.defender, info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
+	return -valueOfSubtype(info.defender, info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
 end
 
 --- Shooting too far, or shooting at all with something meant for melee.
 function Script:getRangePenaltyFactor(info)
 	if info.shooting then
-		if info.battle:hasDistancePenalty(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0.5 end
+		if info.battle:hasDistancePenalty(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return -0.5 end
 
 		return 0
 	end
 
-	if not hasBonusOfType(info.attackerBonuses, "NO_MELEE_PENALTY") and info.attacker:isShooter() then return 0.5 end
+	if not hasBonusOfType(info.attackerBonuses, "NO_MELEE_PENALTY") and info.attacker:isShooter() then return -0.5 end
 
 	return 0
 end
 
 function Script:getObstacleFactor(info)
 	if not info.shooting then return 0 end
-	if info.battle:hasWallPenalty(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0.5 end
+	if info.battle:hasWallPenalty(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return -0.5 end
 
 	return 0
 end
 
 --- Blindness and paralysis, which leave their bearer striking feebly.
 function Script:getBlindParalysisFactor(info)
-	return valueInThisCombat(info.attacker, info.attackerBonuses, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
+	return -valueInThisCombat(info.attacker, info.attackerBonuses, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
 end
 
 function Script:getUnluckyFactor(info)
-	return info.unluckyStrike and 0.5 or 0
+	return info.unluckyStrike and -0.5 or 0
 end
 
 --- Forgetfulness, which only spoils shooting.
@@ -341,40 +356,23 @@ function Script:getForgetfulnessFactor(info)
 
 	if not hasBonusOfType(info.attackerBonuses, "FORGETFULL") then return 0 end
 
-	return math.min(valueOfType(info.attacker, info.attackerBonuses, "FORGETFULL"), 100) / 100
+	return -math.min(valueOfType(info.attacker, info.attackerBonuses, "FORGETFULL"), 100) / 100
 end
 
 --- A petrified creature takes half of everything, which is not armour and does not count as it.
 function Script:getPetrificationFactor(info)
 	if not hasBonusOfType(info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION") then return 0 end
 
-	return info.defender:getBonusesValue({
+	return -info.defender:getBonusesValue({
 		type = "GENERAL_DAMAGE_REDUCTION",
 		subtype = DAMAGE_TYPE_ALL,
 		sourceType = ENUM.BonusSource.spellEffect
 	}) / 100
 end
 
---- Every factor of this blow, signed. A patch appends its own to what this returns.
-function Script:getFactors(info)
-	return {
-		self:getAttackDefenseFactor(info),
-		self:getOffenseArcheryFactor(info),
-		self:getBlessFactor(info),
-		self:getLuckFactor(info),
-		self:getJoustingFactor(info),
-		self:getDeathBlowFactor(info),
-		self:getDoubleDamageFactor(info),
-		self:getHateCreatureFactor(info),
-		-self:getArmorerFactor(info),
-		-self:getMagicShieldFactor(info),
-		-self:getRangePenaltyFactor(info),
-		-self:getObstacleFactor(info),
-		-self:getBlindParalysisFactor(info),
-		-self:getUnluckyFactor(info),
-		-self:getForgetfulnessFactor(info),
-		-self:getPetrificationFactor(info)
-	}
+--- Every factor of this blow, by name. A patch adds its own with `addDamageFactor`.
+function Script:getFactors()
+	return self.damageFactors
 end
 
 -- ---- what comes out of it all ----------------------------------------------------------------
@@ -406,14 +404,14 @@ function Script:calculate(battle, info)
 	-- rest of the attack rather than in a global, which a script shared between threads must not have
 	info.battle = battle
 
-	rememberDeclared(self)
-
 	local baseMin, baseMax = self:getBaseDamage(info)
 
 	local raising = 1.0
 	local lowering = 1.0
 
-	for _, factor in ipairs(self:getFactors(info)) do
+	for _, method in ipairs(self:getFactors()) do
+		local factor = self[method](self, info)
+
 		if factor > 0 then
 			raising = raising + factor
 		elseif factor < 0 then
@@ -440,6 +438,26 @@ function Script:calculate(battle, info)
 		-- ability reflecting a strike works from
 		damageBeforeDefense = { min = apply(baseMin, raising), max = apply(baseMax, raising) }
 	}
+end
+
+-- ---- what this calculator is made of ---------------------------------------------------------
+
+for _, type in ipairs({
+	"ALWAYS_MINIMUM_DAMAGE", "ALWAYS_MAXIMUM_DAMAGE", "IN_FRENZY", "KING", "SLAYER",
+	"ENEMY_DEFENCE_REDUCTION", "PERCENTAGE_DAMAGE_BOOST", "GENERAL_DAMAGE_PREMY", "JOUSTING",
+	"CHARGE_IMMUNITY", "BONUS_DAMAGE_PERCENTAGE", "HATE", "GENERAL_DAMAGE_REDUCTION",
+	"NO_MELEE_PENALTY", "GENERAL_ATTACK_REDUCTION", "FORGETFULL"
+}) do
+	Script:declareBonus(type)
+end
+
+for _, factor in ipairs({
+	"getAttackDefenseFactor", "getOffenseArcheryFactor", "getBlessFactor", "getLuckFactor",
+	"getJoustingFactor", "getDeathBlowFactor", "getDoubleDamageFactor", "getHateCreatureFactor",
+	"getArmorerFactor", "getMagicShieldFactor", "getRangePenaltyFactor", "getObstacleFactor",
+	"getBlindParalysisFactor", "getUnluckyFactor", "getForgetfulnessFactor", "getPetrificationFactor"
+}) do
+	Script:addDamageFactor(factor)
 end
 
 return Script

@@ -4,14 +4,6 @@ Script.__index = Script
 --- A ballista fires for its own damage times the attack of the hero owning it. Towers carry the same
 --- bonus and are not affected - what they shoot for is decided by the town.
 
-function Script:bonusTypes()
-	local types = Base.bonusTypes(self)
-
-	table.insert(types, "SIEGE_WEAPON")
-
-	return types
-end
-
 function Script:getBaseDamageSingle(info)
 	local minDamage, maxDamage = Base.getBaseDamageSingle(self, info)
 
@@ -24,5 +16,7 @@ function Script:getBaseDamageSingle(info)
 
 	return minDamage * (heroAttack + 1), maxDamage * (heroAttack + 1)
 end
+
+Script:declareBonus("SIEGE_WEAPON")
 
 return Script
