@@ -61,7 +61,6 @@ set(lib_MAIN_SRCS
 	battle/CObstacleInstance.cpp
 	battle/CPlayerBattleCallback.cpp
 	battle/CUnitState.cpp
-	battle/DamageCalculator.cpp
 	battle/Destination.cpp
 	battle/IBattleState.cpp
 	battle/ReachabilityInfo.cpp
@@ -465,7 +464,6 @@ set(lib_MAIN_HEADERS
 	battle/CObstacleInstance.h
 	battle/CPlayerBattleCallback.h
 	battle/CUnitState.h
-	battle/DamageCalculator.h
 	battle/Destination.h
 	battle/IBattleInfoCallback.h
 	battle/IBattleState.h

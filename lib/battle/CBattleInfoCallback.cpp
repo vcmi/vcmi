@@ -16,7 +16,6 @@
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
-#include "DamageCalculator.h"
 #include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../bonuses/BonusParameters.h"
@@ -1118,33 +1117,30 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 
 	const auto * script = LIBRARY->scriptTypes()->getDamageCalculator();
 
-	if(script)
-	{
-		DamageAttackInfo payload;
+	// core declares one, and there is no rule for what an attack is worth without it
+	if(!script)
+		throw std::runtime_error("No damage calculator script is loaded!");
 
-		payload.attacker = info.attacker;
-		payload.defender = info.defender;
-		// the script is told where the blow happens rather than left to work it out, so that an
-		// attack being weighed reads the same as one being dealt
-		payload.attackerHex = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
-		payload.defenderHex = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
-		payload.chargeDistance = info.chargeDistance;
-		payload.shooting = info.shooting;
-		payload.luckyStrike = info.luckyStrike;
-		payload.unluckyStrike = info.unluckyStrike;
-		payload.deathBlow = info.deathBlow;
-		payload.doubleDamage = info.doubleDamage;
-		payload.attackFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
-		payload.attackFactorCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
-		payload.defenseFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
-		payload.defenseFactorCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
+	DamageAttackInfo payload;
 
-		return script->calculate(*this, payload);
-	}
+	payload.attacker = info.attacker;
+	payload.defender = info.defender;
+	// the script is told where the blow happens rather than left to work it out, so that an
+	// attack being weighed reads the same as one being dealt
+	payload.attackerHex = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
+	payload.defenderHex = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
+	payload.chargeDistance = info.chargeDistance;
+	payload.shooting = info.shooting;
+	payload.luckyStrike = info.luckyStrike;
+	payload.unluckyStrike = info.unluckyStrike;
+	payload.deathBlow = info.deathBlow;
+	payload.doubleDamage = info.doubleDamage;
+	payload.attackFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
+	payload.attackFactorCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
+	payload.defenseFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
+	payload.defenseFactorCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
 
-	DamageCalculator calculator(*this, info);
-
-	return calculator.calculateDmgRange();
+	return script->calculate(*this, payload);
 }
 
 DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPosition, DamageEstimation * retaliationDmg) const
