@@ -116,9 +116,8 @@
 
 #include "../lib/spells/CSpell.h"
 
-#include "../lib/texts/TextOperations.h"
-
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 
 
 // The macro below is used to mark functions that are called by client when game state changes.
@@ -144,11 +143,10 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new ConditionalWait();
 	cingconsole = new CInGameConsole();
-	autosaveCount = 0;
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
-	hasQuickSave = checkQuickLoadingGame();
+	hasQuickSave = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -164,6 +162,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 {
 	cb = CB;
 	env = ENV;
+	hasQuickSave = checkQuickLoadingGame();
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
@@ -255,49 +254,11 @@ void CPlayerInterface::performAutosave()
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getCalendar().getCurrentDay() % frequency == 0)
 	{
-		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
-		std::string prefix = std::string();
-
-		if(usePrefix)
-		{
-			prefix = settings["general"]["savePrefix"].String();
-			if(prefix.empty())
-			{
-				std::string name = cb->getMapHeader()->name.toString();
-				int txtlen = TextOperations::getUnicodeCharactersCount(name);
-
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 14));
-				auto const & isSymbolIllegal = [&](char c) {
-					static const std::string forbiddenChars("\\/:*?\"<>| ");
-
-					bool charForbidden = forbiddenChars.find(c) != std::string::npos;
-					bool charNonprintable = static_cast<unsigned char>(c) < static_cast<unsigned char>(' ');
-
-					return charForbidden || charNonprintable;
-				};
-				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
-
-				prefix = vstd::getFormattedDateTime(cb->getStartInfo()->startTime, "%Y-%m-%d_%H-%M") + "_" + name + "/";
-			}
-		}
-
-		autosaveCount++;
-
-		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
-		if(autosaveCountLimit > 0)
-		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
-			autosaveCount %= autosaveCountLimit;
-		}
-		else
-		{
-			auto calendar = cb->getCalendar();
-			std::string stringifiedDate = std::to_string(calendar.getMonth())
-					+ std::to_string(calendar.getWeek())
-					+ std::to_string(calendar.getDayOfWeek());
-
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
-		}
+		const auto calendar = cb->getCalendar();
+		const auto autosaveCountLimit = static_cast<int>(settings["general"]["autosaveCountLimit"].Integer());
+		cb->saveAutosave(
+			SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar),
+			autosaveCountLimit);
 	}
 }
 
@@ -2023,12 +1984,14 @@ void CPlayerInterface::proposeLoadingGame()
 
 void CPlayerInterface::quickSaveGame()
 {
+	const std::string quickSavePath = getQuickSavePath();
+
 	// notify player about saving
 	MetaString txt;
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
-	txt.replaceRawString(QUICKSAVE_PATH);
+	txt.replaceRawString(quickSavePath);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
-	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
+	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)
 		adventureInt->updateActiveState();
@@ -2036,24 +1999,25 @@ void CPlayerInterface::quickSaveGame()
 
 bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 {
-	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	const std::string quickSavePath = getQuickSavePath();
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(quickSavePath, EResType::SAVEGAME)))
 	{
 		if(verbose)
-			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->error("No quicksave file found at %s", quickSavePath);
 		else
-			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->trace("No quicksave file found at %s", quickSavePath);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
 		return false;
 	}
-	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	auto error = GAME->server().canQuickLoadGame(quickSavePath);
 	if(error)
 	{
 		if(verbose)
-			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->error("Cannot quick load game at %s: %s", quickSavePath, *error);
 		else
-			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->trace("Cannot quick load game at %s: %s", quickSavePath, *error);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
@@ -2067,12 +2031,18 @@ void CPlayerInterface::proposeQuickLoadingGame()
 	if(!checkQuickLoadingGame(true))
 		return;
 
-	auto onYes = [this]() -> void
+	const std::string quickSavePath = getQuickSavePath();
+	auto onYes = [quickSavePath]() -> void
 	{
-		GAME->server().quickLoadGame(QUICKSAVE_PATH);
+		GAME->server().quickLoadGame(quickSavePath);
 	};
 
 	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
+}
+
+std::string CPlayerInterface::getQuickSavePath() const
+{
+	return SavegamePath::getPath(*cb->getStartInfo(), *cb->getMapHeader(), "Quicksave");
 }
 
 bool CPlayerInterface::capturedAllEvents()

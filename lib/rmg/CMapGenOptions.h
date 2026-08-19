@@ -12,6 +12,7 @@
 
 #include "../GameConstants.h"
 #include "../serializer/Serializeable.h"
+#include "../texts/MetaString.h"
 #include "CRmgTemplate.h"
 
 namespace vstd
@@ -140,6 +141,7 @@ public:
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
 	void setMapTemplate(const std::string & name);
+	MetaString getMapName() const;
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 

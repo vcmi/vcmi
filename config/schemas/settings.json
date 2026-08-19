@@ -27,6 +27,8 @@
 				"language",
 				"gameDataLanguage",
 				"lastSave",
+				"lastScenarioSave",
+				"lastCampaignSave",
 				"lastSettingsTab",
 				"lastCampaign",
 				"lastDifficulty",
@@ -38,8 +40,6 @@
 				"hapticFeedback",
 				"longTouchTimeMilliseconds",
 				"autosaveCountLimit",
-				"useSavePrefix",
-				"savePrefix",
 				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
@@ -91,6 +91,14 @@
 					"type" : "string",
 					"default" : "NEWGAME"
 				},
+				"lastScenarioSave" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"lastCampaignSave" : {
+					"type" : "string",
+					"default" : ""
+				},
 				"lastSettingsTab" : {
 					"type" : "number",
 					"default" : 0
@@ -138,14 +146,6 @@
 				"autosaveCountLimit" : {
 					"type" : "number",
 					"default": 5
-				},
-				"useSavePrefix" : {
-					"type": "boolean",
-					"default": true
-				},
-				"savePrefix" : {
-					"type": "string",
-					"default": ""
 				},
 				"startTurnAutosave" : {
 					"type": "boolean",

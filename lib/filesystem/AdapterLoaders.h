@@ -76,6 +76,7 @@ public:
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(const std::string & filename, bool update = false) override;
+	bool removeResource(const ResourcePath & resourceName) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;

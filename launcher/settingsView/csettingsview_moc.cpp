@@ -243,9 +243,6 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
-	ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
-	ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
-
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
 
@@ -299,9 +296,9 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
-	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
-
-	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
+	const bool autosaveEnabled = settings["general"]["saveFrequency"].Integer() > 0;
+	setCheckbuttonState(ui->buttonAutoSave, autosaveEnabled);
+	ui->spinBoxAutoSaveLimit->setEnabled(autosaveEnabled);
 
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
@@ -656,6 +653,7 @@ void CSettingsView::on_buttonAutoSave_toggled(bool value)
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = value ? 1 : 0;
 	updateCheckbuttonText(ui->buttonAutoSave);
+	ui->spinBoxAutoSaveLimit->setEnabled(value);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -810,24 +808,10 @@ void CSettingsView::on_buttonVSync_toggled(bool value)
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 }
 
-void CSettingsView::on_buttonAutoSavePrefix_toggled(bool value)
-{
-	Settings node = settings.write["general"]["useSavePrefix"];
-	node->Bool() = value;
-	ui->lineEditAutoSavePrefix->setEnabled(value);
-	updateCheckbuttonText(ui->buttonAutoSavePrefix);
-}
-
 void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
 {
 	Settings node = settings.write["general"]["autosaveCountLimit"];
 	node->Float() = arg1;
-}
-
-void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString & arg1)
-{
-	Settings node = settings.write["general"]["savePrefix"];
-	node->String() = arg1.toStdString();
 }
 
 void CSettingsView::on_sliderReservedArea_valueChanged(int arg1)

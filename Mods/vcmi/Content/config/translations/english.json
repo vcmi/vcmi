@@ -1082,6 +1082,7 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton": "Setup...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel": "Team Alignments",
 	"vcmi.randomMapTab.widgets.templateLabel": "Template",
+	"vcmi.savingScreen.autosaveNameWarning": "This name is reserved for autosaves and may be overwritten or removed automatically. Save anyway?",
 	"vcmi.selectionTab.campaignSets.help": "Multiple campaigns bundeled as set",
 	"vcmi.selectionTab.campaignSets.hover": "Campaign sets",
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "Failed to load file! Unknown entity '%s' found! File may not be compatible with currently installed version of mods!",

@@ -172,6 +172,17 @@ const IGameSettings & CGameState::getSettings() const
 	return map->getSettings();
 }
 
+void CGameState::setSaveDirectory(const std::string & value)
+{
+	scenarioOps->saveDirectory = value;
+	initialOpts->saveDirectory = value;
+
+	if(scenarioOps->campState)
+		scenarioOps->campState->setSaveDirectory(value);
+	if(initialOpts->campState)
+		initialOpts->campState->setSaveDirectory(value);
+}
+
 void CGameState::preInit(Services * newServices)
 {
 	services = newServices;
@@ -354,10 +365,8 @@ void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomG
 				const std::string templateName = options->getMapTemplate()->getName();
 				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 
-				const std::string fileName = boost::str(boost::format("%s_%s.vmap") % dt % templateName );
+				const std::string fileName = boost::str(boost::format("%s_%s.vmap") % templateName % dt);
 				const auto fullPath = path / fileName;
-
-				map->name.appendRawString(boost::str(boost::format(" %s") % dt));
 
 				mapService->saveMap(map, fullPath);
 

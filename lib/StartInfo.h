@@ -136,6 +136,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	TPlayerInfos playerInfos; //color indexed
 
 	time_t startTime;
+	std::string saveDirectory;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
@@ -172,6 +173,10 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
+		if(h.hasFeature(Handler::Version::GAME_SESSION_DIRECTORY))
+			h & saveDirectory;
+		else if(!h.saving)
+			saveDirectory.clear();
 	}
 
 	StartInfo()

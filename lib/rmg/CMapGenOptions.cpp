@@ -724,6 +724,16 @@ bool CMapGenOptions::arePlayersCustomized() const
 	return customizedPlayers;
 }
 
+MetaString CMapGenOptions::getMapName() const
+{
+	if(mapTemplate)
+		return MetaString::createFromRawString(mapTemplate->getName());
+
+	MetaString result;
+	result.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	return result;
+}
+
 std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 {
 	int3 tplSize(width, height, levels);

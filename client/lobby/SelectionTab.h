@@ -96,6 +96,7 @@ public:
 
 	SelectionTab(ESelectionScreen Type);
 	void toggleMode();
+	void setCurrentFolder(std::string folder);
 
 	void clickReleased(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
@@ -113,10 +114,11 @@ public:
 	void updateListItems();
 	int getLine() const;
 	int getLine(const Point & position) const;
-	void selectFileName(std::string fname);
-	void selectNewestFile();
+	bool selectFileName(std::string fname);
+	void selectNewestFile(bool skipAutosaves = false);
 	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void setRequiredHumanPlayers(size_t players);
+	void rememberSave(const std::string & savePath) const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
 	bool checkNameFilter(const std::string & fullstring) const;
@@ -140,13 +142,21 @@ private:
 
 	bool enableUiEnhancements;
 	std::shared_ptr<CButton> buttonCampaignSet;
+	std::unordered_set<ResourcePath> resourceFiles;
+	std::unordered_map<std::string, std::optional<bool>> folderCompatibility;
 
 	auto checkSubfolder(std::string path);
 	size_t getRequiredHumanPlayers() const;
 	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
+	bool isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const;
+	std::optional<bool> isFolderCompatible(const std::string & folderName, const std::vector<ResourcePath> & files);
+	std::string getLastSaveSettingName() const;
+	bool openSaveDirectory(std::string folder);
+	void restoreLastSave();
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourcePath> & files);
+	void parseCurrentFolder();
 	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);

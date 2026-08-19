@@ -39,6 +39,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/bonuses/BonusParameters.h"
 #include "../lib/callback/GameRandomizer.h"
+#include "../lib/campaign/CampaignState.h"
 
 #include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/entities/artifact/ArtifactUtils.h"
@@ -49,6 +50,7 @@
 #include "../lib/entities/hero/CHeroHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 
 #include "../lib/gameState/CGameState.h"
 
@@ -582,6 +584,8 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	gs->preInit(LIBRARY);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, *randomizer, progressTracking);
+	const auto * startInfo = gs->getStartInfo();
+	gs->setSaveDirectory(SavegamePath::generateGameDirectoryName(*startInfo, *gs->getMapHeader()));
 	logGlobal->info("Gamestate initialized!");
 
 	for (const auto & elem : gameState().players)
@@ -1064,7 +1068,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		gameInfo().getPlayerState(h->getOwner())->human &&
 	   (guardian || objectToVisit) &&
 	   movementMode == EMovementMode::STANDARD)
-		save("Saves/BeforeVisitSave", PlayerColor::CANNOT_DETERMINE);
+	{
+		const auto savePath = SavegamePath::getPath(
+			*gameInfo().getStartInfo(), *gameInfo().getMapHeader(), "BeforeVisitSave");
+		save(savePath, PlayerColor::CANNOT_DETERMINE);
+	}
 
 	if (!transit && embarking)
 	{
@@ -1722,7 +1730,75 @@ bool CGameHandler::responseStatistic(PlayerColor player)
 	return true;
 }
 
-void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess)
+namespace
+{
+struct AutosaveFile
+{
+	ResourcePath path;
+	std::time_t lastWrite;
+};
+
+std::string getDirectoryName(const std::string & path)
+{
+	const size_t separator = path.find_last_of("/\\");
+	return separator == std::string::npos ? std::string() : path.substr(0, separator);
+}
+
+void pruneAutosaves(const ResourcePath & currentAutosave, int countLimit)
+{
+	if(countLimit <= 0 || !SavegamePath::isAutosaveName(currentAutosave.getOriginalName()))
+		return;
+
+	const std::string gameDirectory = getDirectoryName(currentAutosave.getName());
+	auto * filesystem = CResourceHandler::get("local");
+	std::vector<AutosaveFile> autosaves;
+	const auto resources = filesystem->getFilteredFiles([&gameDirectory](const ResourcePath & resource)
+	{
+		return resource.getType() == EResType::SAVEGAME
+			&& getDirectoryName(resource.getName()) == gameDirectory
+			&& SavegamePath::isAutosaveName(resource.getOriginalName());
+	});
+
+	for(const auto & resource : resources)
+	{
+		try
+		{
+			autosaves.push_back({resource, filesystem->getLastWriteTime(resource)});
+		}
+		catch(const boost::filesystem::filesystem_error & e)
+		{
+			logGlobal->warn("Failed to get modification time of autosave %s: %s",
+				resource.getOriginalName(), e.what());
+		}
+	}
+
+	if(autosaves.size() <= static_cast<size_t>(countLimit))
+		return;
+
+	std::ranges::sort(autosaves, [&currentAutosave](const AutosaveFile & left, const AutosaveFile & right)
+	{
+		if(left.lastWrite != right.lastWrite)
+			return left.lastWrite < right.lastWrite;
+		if(left.path == currentAutosave)
+			return false;
+		if(right.path == currentAutosave)
+			return true;
+		return left.path < right.path;
+	});
+
+	const size_t filesToRemove = autosaves.size() - static_cast<size_t>(countLimit);
+	for(size_t index = 0; index < filesToRemove; ++index)
+	{
+		if(filesystem->removeResource(autosaves[index].path))
+			logGlobal->info("Removed old autosave %s", autosaves[index].path.getOriginalName());
+		else
+			logGlobal->warn("Failed to remove old autosave %s", autosaves[index].path.getOriginalName());
+	}
+}
+
+}
+
+void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit)
 {
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
@@ -1744,7 +1820,10 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 		gameState().saveGame(save);
 		logGlobal->info("Saving server state");
 		save.save(*this);
-		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
+		const auto saveFile = *CResourceHandler::get("local")->getResourceName(savePath);
+		save.write(saveFile);
+
+		pruneAutosaves(savePath, autosaveCountLimit);
 
 		if(playerToNotifyOnSuccess.isValidPlayer())
 		{
@@ -1780,6 +1859,10 @@ void CGameHandler::load(const StartInfo &info)
 
 	gs->preInit(LIBRARY);
 	gs->updateOnLoad(info);
+	auto * startInfo = gs->getStartInfo();
+	if(startInfo->campState && startInfo->campState->getStartTime() == 0)
+		startInfo->campState->setStartTime(startInfo->startTime);
+	gs->setSaveDirectory(SavegamePath::generateGameDirectoryName(*startInfo, *gs->getMapHeader()));
 
 	configureReplayLog(false);
 }

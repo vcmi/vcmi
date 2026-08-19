@@ -37,6 +37,9 @@ set(test_SRCS
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
 
+		filesystem/FilesystemTest.cpp
+		filesystem/SavegamePathTest.cpp
+
 		game/BattleSpellCastTest.cpp
 		game/HeroRecruitmentTest.cpp
 		game/HeroSecondarySkillsTest.cpp

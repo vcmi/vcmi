@@ -762,13 +762,15 @@ struct DLL_LINKAGE RequestStatistic : public CPackForServer
 struct DLL_LINKAGE SaveGame : public CPackForServer
 {
 	SaveGame() = default;
-	SaveGame(std::string Fname, bool NotifySuccess)
+	SaveGame(std::string Fname, bool NotifySuccess, int AutosaveCountLimit = 0)
 		: fname(std::move(Fname))
 		, notifySuccess(NotifySuccess)
+		, autosaveCountLimit(AutosaveCountLimit)
 	{
 	}
 	std::string fname;
 	bool notifySuccess = false;
+	int autosaveCountLimit = 0;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -777,6 +779,7 @@ struct DLL_LINKAGE SaveGame : public CPackForServer
 		h & static_cast<CPackForServer &>(*this);
 		h & notifySuccess;
 		h & fname;
+		h & autosaveCountLimit;
 	}
 };
 

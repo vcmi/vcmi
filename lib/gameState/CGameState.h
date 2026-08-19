@@ -164,6 +164,7 @@ public:
 	{
 		return initialOpts.get();
 	}
+	void setSaveDirectory(const std::string & value);
 
 	CMap & getMap()
 	{

@@ -45,6 +45,7 @@ set(lib_SRCS
 )
 
 set(lib_MAIN_SRCS
+	filesystem/SavegamePath.cpp
 
 	battle/AccessibilityInfo.cpp
 	battle/BattleAction.cpp
@@ -398,6 +399,8 @@ set(lib_HEADERS
 )
 
 set(lib_MAIN_HEADERS
+	filesystem/SavegamePath.h
+
 	../include/vstd/ContainerUtils.h
 	../include/vstd/RNG.h
 

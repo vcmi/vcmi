@@ -141,8 +141,10 @@ RandomMapTab::RandomMapTab():
 		w->addCallback([&]()
 		{
 			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
-			(static_cast<CLobbyScreen *>(parent))->tabSel->showRandom = true;
-			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
+			auto selectionTab = (static_cast<CLobbyScreen *>(parent))->tabSel;
+			selectionTab->showRandom = true;
+			selectionTab->setCurrentFolder("RandomMaps/");
+			selectionTab->filter(0, true);
 		});
 	}
 
@@ -273,7 +275,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	mapInfo->mapHeader->name = mapGenOptions->getMapName();
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 
 	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)

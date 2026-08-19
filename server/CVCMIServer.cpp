@@ -296,7 +296,10 @@ bool CVCMIServer::prepareToStartGame()
 		{
 		case EStartMode::CAMPAIGN:
 			logNetwork->info("Preparing to start new campaign");
-			si->startTime = std::time(nullptr);
+			if(si->campState->getStartTime() == 0)
+				si->campState->setStartTime(std::time(nullptr));
+			si->startTime = si->campState->getStartTime();
+			si->saveDirectory = si->campState->getSaveDirectory();
 			si->fileURI = mi->fileURI;
 			si->campState->setCurrentMap(campaignMap);
 			si->campState->setCurrentMapBonus(campaignBonus);
@@ -306,6 +309,7 @@ bool CVCMIServer::prepareToStartGame()
 		case EStartMode::NEW_GAME:
 			logNetwork->info("Preparing to start new game");
 			si->startTime = std::time(nullptr);
+			si->saveDirectory.clear();
 			si->fileURI = mi->fileURI;
 			newGH->init(si.get(), progressTracking);	// may throw
 			started = true;
