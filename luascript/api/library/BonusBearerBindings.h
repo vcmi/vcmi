@@ -13,6 +13,7 @@
 #include "../MethodRegistrar.h"
 #include "../../LuaStack.h"
 #include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/BonusFilter.h"
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/BonusSelector.h"
 #include "../../../lib/bonuses/IBonusBearer.h"
@@ -21,78 +22,61 @@ namespace scripting::api
 {
 
 /// Shared bindings for proxies whose underlying C++ type derives from IBonusBearer.
-/// Exposes a predicate-filtered enumeration of bonuses on the bearer.
 template<class Leaf>
 class BonusBearerBindings
 {
 public:
 	static void registerMethods(MethodRegistrar & R)
 	{
-		R.template function<&getBonusesOfType>("getBonusesOfType",
-			{{"type", "Bonus type to collect, by its json key - \"SLAYER\", \"JOUSTING\", ..."}},
-			{"Bonuses of that type affecting the bearer."},
-			"Returns the bonuses of one type affecting the bearer. Prefer this over `getBonuses` "
-			"whenever the type is known: the engine both caches this query and answers it without "
-			"handing every unrelated bonus to the script.");
-		R.template cfunction<&getBonuses>("getBonuses",
-			{{"predicate", "fun(b: Bonus): boolean", "Selector — called for each bonus on the bearer; bonus is kept when it returns true."}},
-			{"BonusList", "Bonuses for which the predicate returned true."},
-			"Returns all bonuses affecting the bearer for which the predicate returns true.");
+		R.template function<&getBonuses>("getBonuses",
+			{{"filter", "Which bonuses to collect. An empty filter collects every one of them."}},
+			{"Bonuses of the bearer the filter describes."},
+			"Returns the bonuses of the bearer that match the filter. Narrow the filter as far as it "
+			"goes before sorting the rest out in script - what the filter describes is answered from "
+			"a cache, what the script sorts out afterwards is not.");
+		R.template function<&getBonusesValue>("getBonusesValue",
+			{{"filter", "Which bonuses to count. An empty filter counts every one of them."}},
+			{"Value of the matching bonuses taken together."},
+			"Returns what the matching bonuses are worth together. Not a plain sum - percentages, "
+			"independent floors and ceilings combine by the rules of the engine. Prefer this over "
+			"adding up `getBonuses` yourself, which crosses into the script once per bonus.");
 	}
 
 private:
-	/// Resolving a bonus type by name goes through the identifier storage, which sweeps every mod
-	/// scope for candidates - affordable while content loads, not once per query of a battle. The
-	/// answer never changes, so each thread keeps the ones it has asked for.
-	static BonusType decodeType(const std::string & type)
+	/// Compiling a filter resolves identifiers, which is a sweep of every mod scope. The answer
+	/// never changes, so each thread keeps the ones it has been asked for.
+	static const std::pair<CSelector, std::string> & compile(const BonusFilter & filter)
 	{
-		thread_local std::unordered_map<std::string, BonusType> known;
+		using Key = std::tuple<std::string, std::string, int>;
 
-		auto entry = known.find(type);
+		thread_local std::map<Key, std::pair<CSelector, std::string>> known;
 
-		if(entry != known.end())
-			return entry->second;
+		Key key{
+			filter.type.value_or(std::string{}),
+			filter.subtype.value_or(std::string{}),
+			filter.sourceType ? static_cast<int>(*filter.sourceType) : -1
+		};
 
-		auto decoded = static_cast<BonusType>(BonusTypeID::decode(type));
-		known.emplace(type, decoded);
+		auto entry = known.find(key);
 
-		return decoded;
+		if(entry == known.end())
+			entry = known.emplace(key, filter.compile()).first;
+
+		return entry->second;
 	}
 
-	static BonusList getBonusesOfType(const Leaf & bearer, const std::string & type)
+	static BonusList getBonuses(const Leaf & bearer, const BonusFilter & filter)
 	{
-		return *bearer.getBonusesOfType(decodeType(type));
+		const auto & [selector, cachingString] = compile(filter);
+
+		return *bearer.getBonuses(selector, cachingString);
 	}
 
-	static int getBonuses(lua_State * L)
+	static int32_t getBonusesValue(const Leaf & bearer, const BonusFilter & filter)
 	{
-		LuaStack S(L);
-		const Leaf * bearer = nullptr;
-		S.get(1, bearer);
+		const auto & [selector, cachingString] = compile(filter);
 
-		if(!bearer || !lua_isfunction(L, 2))
-		{
-			S.clear();
-			return 0;
-		}
-
-		auto allBonuses = bearer->getAllBonuses(Selector::all);
-
-		BonusList result;
-		for(const auto & bonus : *allBonuses)
-		{
-			lua_pushvalue(L, 2);
-			S.push(*bonus);
-			lua_call(L, 1, 1);
-			const bool keep = lua_toboolean(L, -1);
-			lua_pop(L, 1);
-			if(keep)
-				result.push_back(bonus);
-		}
-
-		S.clear();
-		S.push(result);
-		return 1;
+		return bearer.valOfBonuses(selector, cachingString);
 	}
 };
 

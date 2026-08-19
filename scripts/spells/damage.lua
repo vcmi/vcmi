@@ -15,14 +15,12 @@ end
 function Script:isReceptive(mechanics, unit)
 	local spell = mechanics:getSpell()
 	if spell:isMagical() then
-		if self:sumBonusVal(unit:getBonusesOfType("SPELL_DAMAGE_REDUCTION"), function(b)
-			return b:getSubtype() == "any"
-		end) >= 100 then
+		if unit:getBonusesValue({type = "SPELL_DAMAGE_REDUCTION", subtype = "any"}) >= 100 then
 			return false
 		end
 	end
 	for _, school in ipairs(spell:getSchools()) do
-		if self:sumBonusVal(unit:getBonusesOfType("SPELL_DAMAGE_REDUCTION"), function(b)
+		if self:sumBonusVal(unit:getBonuses({type = "SPELL_DAMAGE_REDUCTION"}), function(b)
 			local sub = b:getSubtype()
 			if sub == "any" then return false end
 			return LIBRARY:getSpellSchoolByName(sub) == school

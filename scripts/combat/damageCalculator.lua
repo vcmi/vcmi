@@ -14,11 +14,9 @@ Script.type = "damageCalculator"
 --- A mod extends this through a patch: override `getFactors` and append to what `Base` returned, or
 --- override any single step below.
 
--- Custom bonus subtypes have no names of their own - they reach a script as the plain number they
--- are stored as.
-local DAMAGE_TYPE_ALL = "-1"
-local DAMAGE_TYPE_MELEE = "0"
-local DAMAGE_TYPE_RANGED = "1"
+local DAMAGE_TYPE_ALL = "damageTypeAll"
+local DAMAGE_TYPE_MELEE = "damageTypeMelee"
+local DAMAGE_TYPE_RANGED = "damageTypeRanged"
 
 local MAGIC_ELEMENTAL = "core:magicElemental"
 local PSYCHIC_ELEMENTAL = "core:psychicElemental"
@@ -41,46 +39,41 @@ local function divideAndRound(dividend, divisor)
 	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
 end
 
--- Every query below asks for one bonus type, which is what `getBonusesOfType` is for: the engine
--- caches it and hands over only the bonuses of that type, rather than every bonus the unit carries
--- for a script-side predicate to reject. Anything finer - a subtype, a source, a combat limit - is
--- then sorted out over the handful of bonuses that came back.
+-- Every query starts at the snapshot of bonus types the engine sends along with the attack. Most of
+-- what is asked after below is simply not there, and answering that from a table costs nothing;
+-- only when the snapshot says a bonus exists is the engine asked what it is worth.
 
 --- Value of every bonus of this type on the unit, combined the way the engine combines them.
-local function valueOfType(unit, type)
-	return unit:getBonusesOfType(type):totalValue()
+local function valueOfType(unit, present, type)
+	if not present[type] then return 0 end
+
+	return unit:getBonusesValue({type = type})
 end
 
 --- Value of the bonuses of this type that carry the given subtype.
-local function valueOfSubtype(unit, type, subtype)
-	return unit:getBonusesOfType(type):filter(function(bonus)
-		return bonus:getSubtype() == subtype
-	end):totalValue()
+local function valueOfSubtype(unit, present, type, subtype)
+	if not present[type] then return 0 end
+
+	return unit:getBonusesValue({type = type, subtype = subtype})
 end
 
-local function hasBonusOfType(unit, type)
-	return unit:getBonusesOfType(type):size() > 0
+local function hasBonusOfType(present, type)
+	return present[type] == true
 end
 
 --- Value of the bonuses of this type that count in the kind of combat being fought. A bonus limited
---- to melee is simply absent from a shot, and the other way round.
-local function valueInThisCombat(unit, type, shooting)
-	return unit:getBonusesOfType(type):filter(function(bonus)
+--- to melee is simply absent from a shot, and the other way round. Sorted out here rather than by
+--- the filter, which knows equality only.
+local function valueInThisCombat(unit, present, type, shooting)
+	if not present[type] then return 0 end
+
+	return unit:getBonuses({type = type}):filter(function(bonus)
 		local range = bonus:getEffectRange()
 
 		if range == ENUM.BonusLimitEffect.noLimit then return true end
 		if shooting then return range == ENUM.BonusLimitEffect.onlyDistanceFight end
 
 		return range == ENUM.BonusLimitEffect.onlyMeleeFight
-	end):totalValue()
-end
-
---- Value of the bonuses of this type and subtype that come from a spell, or of those that do not.
-local function valueOfSubtypeFromSpell(unit, type, subtype, fromSpell)
-	return unit:getBonusesOfType(type):filter(function(bonus)
-		local isSpell = bonus:getSource() == ENUM.BonusSource.spellEffect
-
-		return bonus:getSubtype() == subtype and isSpell == fromSpell
 	end):totalValue()
 end
 
@@ -106,14 +99,11 @@ function Script:getBaseDamageSingle(info)
 		minDamage, maxDamage = maxDamage, minDamage
 	end
 
-	if hasBonusOfType(attacker, "SIEGE_WEAPON") and not attacker:isTurret() then
+	if hasBonusOfType(info.attackerBonuses, "SIEGE_WEAPON") and not attacker:isTurret() then
 		-- a ballista fires for its damage times the attack of the hero owning it
-		local heroAttack = attacker:getBonusesOfType("PRIMARY_SKILL"):filter(function(bonus)
-			local source = bonus:getSource()
-
-			return bonus:getSubtype() == "attack"
-				and (source == ENUM.BonusSource.artifact or source == ENUM.BonusSource.heroBaseSkill)
-		end):totalValue()
+		-- only what the hero itself brings counts, so the two sources are asked after in turn
+		local heroAttack = attacker:getBonusesValue({type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.artifact})
+			+ attacker:getBonusesValue({type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.heroBaseSkill})
 
 		minDamage = minDamage * (heroAttack + 1)
 		maxDamage = maxDamage * (heroAttack + 1)
@@ -126,10 +116,11 @@ end
 function Script:getBaseDamageBlessCurse(info)
 	local attacker = info.attacker
 
-	local curse = attacker:getBonusesOfType("ALWAYS_MINIMUM_DAMAGE")
-	local bless = attacker:getBonusesOfType("ALWAYS_MAXIMUM_DAMAGE")
+	local cursed = hasBonusOfType(info.attackerBonuses, "ALWAYS_MINIMUM_DAMAGE")
+	local blessed = hasBonusOfType(info.attackerBonuses, "ALWAYS_MAXIMUM_DAMAGE")
 
-	local shift = bless:totalValue() - curse:totalValue()
+	local shift = valueOfType(attacker, info.attackerBonuses, "ALWAYS_MAXIMUM_DAMAGE")
+		- valueOfType(attacker, info.attackerBonuses, "ALWAYS_MINIMUM_DAMAGE")
 
 	local minDamage, maxDamage = self:getBaseDamageSingle(info)
 
@@ -137,10 +128,10 @@ function Script:getBaseDamageBlessCurse(info)
 	maxDamage = math.max(1, maxDamage + shift)
 
 	-- both at once is a contradiction no spell of the game can produce; they cancel out
-	if curse:size() > 0 and bless:size() > 0 then return minDamage, maxDamage end
+	if cursed and blessed then return minDamage, maxDamage end
 
-	if curse:size() > 0 then return minDamage, minDamage end
-	if bless:size() > 0 then return maxDamage, maxDamage end
+	if cursed then return minDamage, minDamage end
+	if blessed then return maxDamage, maxDamage end
 
 	return minDamage, maxDamage
 end
@@ -156,8 +147,8 @@ end
 -- ---- attack against defense ------------------------------------------------------------------
 
 --- Defense the reducer makes its opponent ignore, as a negative number.
-function Script:getDefenseIgnored(info, reducer, defense)
-	local reduction = valueInThisCombat(reducer, "ENEMY_DEFENCE_REDUCTION", info.shooting) / 100
+function Script:getDefenseIgnored(info, reducer, present, defense)
+	local reduction = valueInThisCombat(reducer, present, "ENEMY_DEFENCE_REDUCTION", info.shooting) / 100
 
 	if reduction <= 0 then return 0 end
 
@@ -167,34 +158,34 @@ end
 --- Frenzy trades the defense of its bearer for attack. How much defense there is to trade is
 --- decided by the unit being attacked, which is why the conversion happens here.
 function Script:getAttackFromFrenzy(info)
-	local frenzy = valueOfType(info.attacker, "IN_FRENZY")
+	local frenzy = valueOfType(info.attacker, info.attackerBonuses, "IN_FRENZY")
 
 	if frenzy == 0 then return 0 end
 
 	local defense = info.attacker:getDefense(info.shooting)
 
-	return idiv(frenzy * (defense + self:getDefenseIgnored(info, info.defender, defense)), 100)
+	return idiv(frenzy * (defense + self:getDefenseIgnored(info, info.defender, info.defenderBonuses, defense)), 100)
 end
 
 --- Slayer only reaches a king it is strong enough for.
 function Script:getAttackFromSlayer(info)
-	if not hasBonusOfType(info.defender, "KING") then return 0 end
+	if not hasBonusOfType(info.defenderBonuses, "KING") then return 0 end
 
-	local slayer = info.attacker:getBonusesOfType("SLAYER")
+	local slayer = info.attacker:getBonuses({type = "SLAYER"})
 
 	if slayer:size() == 0 then return 0 end
 
 	local effect = slayer:getBonus(1)
 	local mastery = effect:getParametersAsNumber()
 
-	if mastery >= valueOfType(info.defender, "KING") then return effect:getVal() end
+	if mastery >= valueOfType(info.defender, info.defenderBonuses, "KING") then return effect:getVal() end
 
 	return 0
 end
 
 --- Attack the target makes its attacker lose, as a negative number.
 function Script:getAttackIgnored(info, attackBase)
-	local reduction = valueInThisCombat(info.defender, "ENEMY_ATTACK_REDUCTION", info.shooting)
+	local reduction = valueInThisCombat(info.defender, info.defenderBonuses, "ENEMY_ATTACK_REDUCTION", info.shooting)
 
 	if reduction <= 0 then return 0 end
 
@@ -209,11 +200,11 @@ end
 
 function Script:getDefense(info)
 	-- a frenzied unit has traded its whole defense away for attack
-	if hasBonusOfType(info.defender, "IN_FRENZY") then return 0 end
+	if hasBonusOfType(info.defenderBonuses, "IN_FRENZY") then return 0 end
 
 	local base = info.defender:getDefense(info.shooting)
 
-	return base + self:getDefenseIgnored(info, info.attacker, base)
+	return base + self:getDefenseIgnored(info, info.attacker, info.attackerBonuses, base)
 end
 
 -- ---- the factors -----------------------------------------------------------------------------
@@ -237,11 +228,11 @@ end
 function Script:getOffenseArcheryFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
-	return valueOfSubtype(info.attacker, "PERCENTAGE_DAMAGE_BOOST", subtype) / 100
+	return valueOfSubtype(info.attacker, info.attackerBonuses, "PERCENTAGE_DAMAGE_BOOST", subtype) / 100
 end
 
 function Script:getBlessFactor(info)
-	return valueOfType(info.attacker, "GENERAL_DAMAGE_PREMY") / 100
+	return valueOfType(info.attacker, info.attackerBonuses, "GENERAL_DAMAGE_PREMY") / 100
 end
 
 function Script:getLuckFactor(info)
@@ -250,14 +241,14 @@ end
 
 function Script:getJoustingFactor(info)
 	if info.chargeDistance <= 0 then return 0 end
-	if not hasBonusOfType(info.attacker, "JOUSTING") then return 0 end
-	if hasBonusOfType(info.defender, "CHARGE_IMMUNITY") then return 0 end
+	if not hasBonusOfType(info.attackerBonuses, "JOUSTING") then return 0 end
+	if hasBonusOfType(info.defenderBonuses, "CHARGE_IMMUNITY") then return 0 end
 
-	return info.chargeDistance * valueOfType(info.attacker, "JOUSTING") / 100
+	return info.chargeDistance * valueOfType(info.attacker, info.attackerBonuses, "JOUSTING") / 100
 end
 
 function Script:getFromBackFactor(info)
-	local value = valueOfType(info.defender, "VULNERABLE_FROM_BACK")
+	local value = valueOfType(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
 
 	if value == 0 then return 0 end
 	if not info.battle:isToReverse(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0 end
@@ -274,27 +265,29 @@ function Script:getDoubleDamageFactor(info)
 
 	local ownKey = info.attacker:getCreature():getJsonKey()
 
-	return valueOfSubtype(info.attacker, "BONUS_DAMAGE_PERCENTAGE", ownKey) / 100
+	return valueOfSubtype(info.attacker, info.attackerBonuses, "BONUS_DAMAGE_PERCENTAGE", ownKey) / 100
 end
 
 --- Hate of the creature being struck.
 function Script:getHateCreatureFactor(info)
 	local hatedKey = info.defender:getCreature():getJsonKey()
 
-	return valueOfSubtype(info.attacker, "HATE", hatedKey) / 100
+	return valueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
 end
 
 --- Hate of something the creature being struck happens to be, such as a shooter.
 function Script:getHateTraitFactor(info)
-	return info.attacker:getBonusesOfType("HATES_TRAIT"):filter(function(hate)
+	if not hasBonusOfType(info.attackerBonuses, "HATES_TRAIT") then return 0 end
+
+	return info.attacker:getBonuses({type = "HATES_TRAIT"}):filter(function(hate)
 		-- the subtype of a hate names a bonus type, which the hated unit is known by carrying
-		return hasBonusOfType(info.defender, hate:getSubtype())
+		return hasBonusOfType(info.defenderBonuses, hate:getSubtype())
 	end):totalValue() / 100
 end
 
 --- A worn-down stack strikes harder, the HotA Haspid ability.
 function Script:getRevengeFactor(info)
-	if not hasBonusOfType(info.attacker, "REVENGE") then return 0 end
+	if not hasBonusOfType(info.attackerBonuses, "REVENGE") then return 0 end
 
 	local attacker = info.attacker
 	local creatureHealth = attacker:getMaxHealth()
@@ -304,14 +297,18 @@ end
 
 --- Armorer and everything else that lessens every kind of blow, other than being petrified.
 function Script:getArmorerFactor(info)
-	return valueOfSubtypeFromSpell(info.defender, "GENERAL_DAMAGE_REDUCTION", DAMAGE_TYPE_ALL, false) / 100
+	if not hasBonusOfType(info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION") then return 0 end
+
+	return info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION", subtype = DAMAGE_TYPE_ALL}):filter(function(bonus)
+		return bonus:getSource() ~= ENUM.BonusSource.spellEffect
+	end):totalValue() / 100
 end
 
 --- Shield and air shield: each lessens one kind of blow and ignores the other.
 function Script:getMagicShieldFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
-	return valueOfSubtype(info.defender, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
+	return valueOfSubtype(info.defender, info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION", subtype) / 100
 end
 
 --- Shooting too far, or shooting at all with something meant for melee.
@@ -322,7 +319,7 @@ function Script:getRangePenaltyFactor(info)
 		return 0
 	end
 
-	if info.attacker:isShooter() and not hasBonusOfType(info.attacker, "NO_MELEE_PENALTY") then return 0.5 end
+	if info.attacker:isShooter() and not hasBonusOfType(info.attackerBonuses, "NO_MELEE_PENALTY") then return 0.5 end
 
 	return 0
 end
@@ -336,7 +333,7 @@ end
 
 --- Blindness and paralysis, which leave their bearer striking feebly.
 function Script:getBlindParalysisFactor(info)
-	return valueInThisCombat(info.attacker, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
+	return valueInThisCombat(info.attacker, info.attackerBonuses, "GENERAL_ATTACK_REDUCTION", info.shooting) / 100
 end
 
 function Script:getUnluckyFactor(info)
@@ -347,22 +344,26 @@ end
 function Script:getForgetfulnessFactor(info)
 	if not info.shooting then return 0 end
 
-	local forgetful = info.attacker:getBonusesOfType("FORGETFULL")
+	if not hasBonusOfType(info.attackerBonuses, "FORGETFULL") then return 0 end
 
-	if forgetful:size() == 0 then return 0 end
-
-	return math.min(forgetful:totalValue(), 100) / 100
+	return math.min(valueOfType(info.attacker, info.attackerBonuses, "FORGETFULL"), 100) / 100
 end
 
 --- A petrified creature takes half of everything, which is not armour and does not count as it.
 function Script:getPetrificationFactor(info)
-	return valueOfSubtypeFromSpell(info.defender, "GENERAL_DAMAGE_REDUCTION", DAMAGE_TYPE_ALL, true) / 100
+	if not hasBonusOfType(info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION") then return 0 end
+
+	return info.defender:getBonusesValue({
+		type = "GENERAL_DAMAGE_REDUCTION",
+		subtype = DAMAGE_TYPE_ALL,
+		sourceType = ENUM.BonusSource.spellEffect
+	}) / 100
 end
 
 --- Magic elementals do half damage to what shrugs off high-level magic.
 function Script:getMagicFactor(info)
 	if info.attacker:getCreature():getJsonKey() ~= MAGIC_ELEMENTAL then return 0 end
-	if valueOfType(info.defender, "LEVEL_SPELL_IMMUNITY") < 5 then return 0 end
+	if valueOfType(info.defender, info.defenderBonuses, "LEVEL_SPELL_IMMUNITY") < 5 then return 0 end
 
 	return 0.5
 end
@@ -370,7 +371,7 @@ end
 --- Psychic elementals do half damage to what has no mind to attack.
 function Script:getMindFactor(info)
 	if info.attacker:getCreature():getJsonKey() ~= PSYCHIC_ELEMENTAL then return 0 end
-	if not hasBonusOfType(info.defender, "MIND_IMMUNITY") then return 0 end
+	if not hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
 
 	return 0.5
 end
@@ -406,7 +407,7 @@ end
 
 --- Most damage the target can take from one blow, whatever the blow is worth.
 function Script:getDamageCap(info)
-	local percentage = valueOfType(info.defender, "DAMAGE_RECEIVED_CAP")
+	local percentage = valueOfType(info.defender, info.defenderBonuses, "DAMAGE_RECEIVED_CAP")
 
 	if percentage <= 0 then return math.huge end
 

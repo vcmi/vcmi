@@ -39,6 +39,12 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 	bool deathBlow = false;
 	bool doubleDamage = false;
 
+	/// Which bonus types each of the two carries at all, by json key. A script reads this before
+	/// asking anything: most of what a damage factor looks for is not there, and a bonus that is
+	/// not there is answered without leaving the script.
+	std::map<std::string, bool> attackerBonuses;
+	std::map<std::string, bool> defenderBonuses;
+
 	// tuning constants of the game, handed over rather than looked up so that the script needs no
 	// access to the settings
 	double attackFactorPerPoint = 0.0;
@@ -53,6 +59,8 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 		s("defender", defender, "Unit receiving it.");
 		s("attackerHex", attackerHex, "Hex the blow is dealt from.");
 		s("defenderHex", defenderHex, "Hex the blow lands on.");
+		s("attackerBonuses", attackerBonuses, "Bonus types the attacker carries.");
+		s("defenderBonuses", defenderBonuses, "Bonus types the defender carries.");
 		s("chargeDistance", chargeDistance, "Hexes crossed to reach the target, which is what jousting scales with.");
 		s("shooting", shooting, "Whether the blow is a shot.");
 		s("luckyStrike", luckyStrike, "Whether luck struck.");

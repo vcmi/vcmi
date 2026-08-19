@@ -1397,7 +1397,9 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	target.killed = bsa.killedAmount;
 	// scripts that reflect a strike, such as fire shield, work from the blow that actually landed,
 	// so the roll is scaled back up by what the defences took off it rather than rolled again
-	target.damageBeforeDefense = bsa.damageAmount * range.damageBeforeDefense.max / range.damage.max;
+	target.damageBeforeDefense = range.damage.max > 0
+		? bsa.damageAmount * range.damageBeforeDefense.max / range.damage.max
+		: 0;
 	target.healthBeforeAttack = def->getAvailableHealth();
 	payload.targets.push_back(target);
 }

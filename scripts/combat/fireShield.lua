@@ -19,7 +19,7 @@ local FIRE_SCHOOL = "fire"
 --- the damage pipeline, because a fully immune attacker should not even produce a battle log entry.
 function Script:isImmune(attacker)
 	local function immuneBy(type, predicate)
-		return attacker:getBonusesOfType(type):filter(function(bonus)
+		return attacker:getBonuses({type = type}):filter(function(bonus)
 			return bonus:getSubtype() == FIRE_SCHOOL and (predicate == nil or predicate(bonus))
 		end):size() > 0
 	end

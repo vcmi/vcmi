@@ -86,4 +86,28 @@ public:
 };
 
 using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool, BonusTypeID, ScriptID>;
+
+/// What the subtype of a bonus names. Decided by the type of the bonus alone, which is what lets a
+/// subtype be given as a plain identifier - "core:devil", "damageTypeMelee" - with no say in which
+/// kind of thing that identifier is.
+enum class BonusSubtypeKind
+{
+	NONE,
+	CUSTOM,
+	SPELL,
+	CREATURE,
+	PRIMARY_SKILL,
+	TERRAIN,
+	RESOURCE,
+	SPELL_SCHOOL,
+	BONUS_TYPE,
+	SCRIPT
+};
+
+DLL_LINKAGE BonusSubtypeKind bonusSubtypeKind(BonusType type);
+/// Name of the identifier namespace subtypes of this kind are resolved in, empty for NONE.
+DLL_LINKAGE std::string bonusSubtypeEntity(BonusSubtypeKind kind);
+DLL_LINKAGE BonusSubtypeID bonusSubtypeOf(BonusSubtypeKind kind, int32_t index);
+/// Subtype named by this identifier for this bonus type. Throws when the identifier names nothing.
+DLL_LINKAGE BonusSubtypeID decodeBonusSubtype(BonusType type, const std::string & identifier);
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;

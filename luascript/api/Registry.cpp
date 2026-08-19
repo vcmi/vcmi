@@ -11,6 +11,7 @@
 
 #include "Registry.h"
 #include "SerializableRegistar.h"
+#include "../../lib/bonuses/BonusFilter.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/Destination.h"
@@ -97,6 +98,7 @@ Registry::Registry()
 	registerSerializable<LuaMetaString>();
 	registerSerializable<LuaComponent>();
 	registerSerializable<BonusDescriptor>();
+	registerSerializable<BonusFilter>();
 	registerSerializable<SpellObstacleDescriptor>();
 
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
