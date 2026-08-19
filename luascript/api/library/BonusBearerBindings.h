@@ -31,24 +31,22 @@ public:
 		R.template function<&getBonuses>("getBonuses",
 			{{"filter", "Which bonuses to collect. An empty filter collects every one of them."}},
 			{"Bonuses of the bearer the filter describes."},
-			"Returns the bonuses of the bearer that match the filter. Narrow the filter as far as it "
-			"goes before sorting the rest out in script - what the filter describes is answered from "
-			"a cache, what the script sorts out afterwards is not.");
+            "Returns the bonuses of the bearer that match the filter. "
+            "For cases where called want more precise control, please use filter for initial pass and use separate :filter predicate");
 		R.template function<&getBonusesValue>("getBonusesValue",
 			{{"filter", "Which bonuses to count. An empty filter counts every one of them."}},
 			{"Value of the matching bonuses taken together."},
 			"Returns what the matching bonuses are worth together. Not a plain sum - percentages, "
 			"independent floors and ceilings combine by the rules of the engine. Prefer this over "
-			"adding up `getBonuses` yourself, which crosses into the script once per bonus.");
+            "adding up `getBonuses` where possible.");
 	}
 
 private:
-	/// Compiling a filter resolves identifiers, which is a sweep of every mod scope. The answer
-	/// never changes, so each thread keeps the ones it has been asked for.
 	static const std::pair<CSelector, std::string> & compile(const BonusFilter & filter)
 	{
+        // Compiling a filter resolves identifiers, which is a sweep of every mod scope. The answer
+        // never changes, so each thread keeps the ones it has been asked for.
 		using Key = std::tuple<std::string, std::string, int>;
-
 		thread_local std::map<Key, std::pair<CSelector, std::string>> known;
 
 		Key key{

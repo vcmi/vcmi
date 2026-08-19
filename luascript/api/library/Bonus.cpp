@@ -110,17 +110,16 @@ void BonusListProxy::registerMethods(MethodRegistrar & R)
 	R.function<&BonusListProxy::size>("size", {},
 		"Returns the number of bonuses in this list.");
 	R.function<&BonusListProxy::totalValue>("totalValue", {},
-		"Returns the value of the whole list as the engine computes it, which is not a plain sum - "
-		"percentages, independent floors and ceilings all combine by their own rules.");
+        "Computes total value of bonuses in the list, accounting for bonus value types");
 	R.cfunction<&BonusListProxy::filter>("filter",
 		{{"predicate", "fun(b: Bonus): boolean", "Selector — called for each bonus of the list; bonus is kept when it returns true."}},
 		{"BonusList", "Bonuses for which the predicate returned true."},
 		"Returns the bonuses of this list the predicate accepts. Use to narrow a list down before "
-		"`totalValue`, which combines what is left by the rules of the engine rather than adding it up.");
+        "`totalValue`, which combines what is left by the rules of the engine.");
 	R.function<&BonusListProxy::getBonus>("getBonus",
 		{{"index", "1-based position of the bonus to fetch."}},
 		{"Bonus stored at the given position."},
-		"Returns the bonus at the given 1-based index. Throws if the index is out of range.");
+        "Returns the bonus at the given 1-based index. Aborts the script if the index is out of range.");
 }
 
 int32_t BonusListProxy::size(const BonusList & list)

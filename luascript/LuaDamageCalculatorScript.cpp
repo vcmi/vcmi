@@ -59,24 +59,17 @@ void LuaDamageCalculatorScript::ensureDeclared(const CBattleInfoCallback & battl
 	});
 }
 
-std::map<std::string, bool> LuaDamageCalculatorScript::carriedBonuses(const battle::Unit * unit) const
+std::unordered_map<std::string, bool> LuaDamageCalculatorScript::carriedBonuses(const battle::Unit * unit) const
 {
-	std::set<BonusType> present;
+    std::unordered_set<BonusType> present;
 
-	// one pass over the bonuses of the unit rather than a query per declared type, of which there
-	// are two dozen. Held rather than iterated in place: the list is shared and would be freed first
 	const auto bonuses = unit->getAllBonuses(Selector::all);
-
 	for(const auto & bonus : *bonuses)
 		present.insert(bonus->type);
 
-	std::map<std::string, bool> result;
-
-	// only what the unit carries is worth sending: of the two dozen types the script declares an
-	// interest in, a unit has about three. Whether a type was declared at all is something the
-	// script knows on its own, so nothing is gained by reporting the absent ones
+    std::unordered_map<std::string, bool> result;
 	for(const auto & [type, name] : declared)
-		if(present.count(type) != 0)
+        if(present.contains(type))
 			result.emplace(name, true);
 
 	return result;

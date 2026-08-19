@@ -62,15 +62,12 @@
 		"implements" : "damageCalculator",
 		"script" : "damage/damageCalculator",
 		"patches" : [
-			// what the towers of a besieged town and the war machines shoot for, which is decided
-			// before anything about the blow itself
+			// special cases for H3 scenarios
 			"damage/turret",
 			"damage/siegeWeapon",
-			// creatures that halve their damage against a kind of target, named outright
 			"damage/magicElemental",
 			"damage/psychicElemental",
-			// rules no creature or spell of Heroes 3 uses, kept apart so that the calculator does
-			// not ask after them on every attack
+			// mod-only logic, to be removed after migration
 			"damage/vulnerableFromBack",
 			"damage/hatesTrait",
 			"damage/revenge",

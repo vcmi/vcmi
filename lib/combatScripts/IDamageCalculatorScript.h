@@ -39,12 +39,9 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 	bool deathBlow = false;
 	bool doubleDamage = false;
 
-	/// Of the bonus types the script declares, which each of the two carries. Filled in by the
-	/// script layer rather than here, since what is worth reporting is the script's own business.
-	/// A script reads this before asking anything: most of what a damage factor looks for is not
-	/// there, and a bonus that is not there is answered without leaving the script.
-	std::map<std::string, bool> attackerBonuses;
-	std::map<std::string, bool> defenderBonuses;
+    /// List of bonuses that are present on attacker/defender and script declared as interested in
+    std::unordered_map<std::string, bool> attackerBonuses;
+    std::unordered_map<std::string, bool> defenderBonuses;
 
 	// tuning constants of the game, handed over rather than looked up so that the script needs no
 	// access to the settings

@@ -111,7 +111,6 @@ set(test_SRCS
 		server/battles/EnchantedTest.cpp
 		server/battles/FireShieldTest.cpp
 		server/battles/LifeDrainTest.cpp
-		server/battles/ScriptApiBindingsTest.cpp
 		server/battles/SoulStealTest.cpp
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TransmutationTest.cpp

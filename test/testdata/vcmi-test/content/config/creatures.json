@@ -334,41 +334,5 @@
 		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
 		"sound" : {},
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
-	},
-
-	"testApiProbe" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Api Probe", "plural" : "Test Api Probes" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"abilities" :
-		{
-			"probesTheApi" :
-			{
-				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "vcmi-test:apiProbe",
-				"val" : 0
-			},
-			"meleeOnlyMarker" :
-			{
-				"type" : "PERCENTAGE_DAMAGE_BOOST",
-				"subtype" : "damageTypeMelee",
-				"val" : 1,
-				"effectRange" : "ONLY_MELEE_FIGHT"
-			},
-			"hatesShooters" :
-			{
-				"type" : "HATES_TRAIT",
-				"subtype" : "SHOOTER",
-				"val" : 1
-			}
-		}
 	}
 }

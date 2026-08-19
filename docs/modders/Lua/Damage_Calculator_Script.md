@@ -1,6 +1,6 @@
 # Damage Calculator Script
 
-Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script decides what an attack is worth - the damage of the creatures, everything that raises or lowers it, and how many creatures die.
+Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script decides what an attack is worth - the damage of the creatures, everything that raises or lowers it, and estimation on how many creatures die.
 
 Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and nothing grants it: the engine asks it about every attack, whether the blow is being dealt or an AI is only weighing it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-the-rules) over it rather than by declaring one of its own.
 
@@ -13,24 +13,20 @@ Unlike the other script types there is exactly **one** damage calculator in a ga
 }
 ```
 
-Sources of this type live in the `damage/` directory, and the rules VCMI itself keeps out of the base script are stacked over it as patches - which is also the worked example of how to write one.
-
-`priority` and `description` are not used - nothing else reacts alongside it, and nothing shows it to the player.
-
 ## How damage is worked out
 
 Every attack goes through the same three steps.
 
 **1. Base damage.** What the creatures themselves deal, min and max, multiplied by how many of them are alive. Bless and curse collapse that range onto one of its ends, a ballista multiplies it by the attack of its hero.
 
-**2. Factors.** Everything that changes the blow is a *factor* - a signed share of the base damage. **Positive raises it, negative lowers it.** What decides how a factor applies is its sign alone, not where it came from:
+**2. Factors.** Everything that multiples base damage is a *factor* - a signed share of the base damage. **Positive raises it, negative lowers it.** What decides how a factor applies is its sign alone, not where it came from:
 
 - factors that raise the damage **add up**: attack over defence (+5% per point), offence (+30%), luck (+100%) give `1 + 0.05×points + 0.3 + 1.0`
 - factors that lower it **multiply**, each taking its share of what is left: armourer (-15%) and a shooting penalty (-50%) give `0.85 × 0.5`
 
 The two totals are multiplied together. This is why a single -50% never quite halves the damage twice, and why giving a "boost" a negative value turns it into a mitigation rather than cancelling out other boosts.
 
-**3. Casualties.** How many creatures the resulting damage kills, given the health left on the first one.
+**3. Casualties.** How many creatures the resulting damage kills, given the health left on the first one. This is only used for damage preview in UI, and for AI estimation - engine instead rolls damage within specified range.
 
 ## Adding a factor
 
@@ -40,18 +36,18 @@ Write a patch, list it in `patches`, write the factor as a method of it, and han
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Trolls hit harder under a full moon.
-function Script:getMoonFuryFactor(info)
-    local value = self:bonusValue(info.attacker, info.attackerBonuses, "MYMOD_MOON_FURY")
+--- Some creatures take more from a blow they never saw coming
+function Script:getFromBackFactor(info)
+	local value = self:bonusValue(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
 
-    if value == 0 then return 0 end
-    if not isFullMoon() then return 0 end
+	if value == 0 then return 0 end
+	if not info.battle:isToReverse(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return 0 end
 
-    return value / 100
+	return value / 100
 end
 
-Script:declareBonus("MYMOD_MOON_FURY")
-Script:addDamageFactor("getMoonFuryFactor")
+Script:declareBonus("VULNERABLE_FROM_BACK")
+Script:addDamageFactor("getFromBackFactor")
 
 return Script
 ```
@@ -62,10 +58,10 @@ Two lines register it: `declareBonus` for every bonus type the factor reads - se
 
 ## Changing a rule
 
-Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ... Those factors answer signed as your own does, so the ones that lessen a blow, `getArmorerFactor` among them, answer a negative number.
+Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ... 
 
 ```lua
---- Jousting counts the whole charge here, not only what was crossed in one turn.
+--- Make Jousting twice stronger, from any source.
 function Script:getJoustingFactor(info)
     return Base.getJoustingFactor(self, info) * 2
 end
@@ -75,15 +71,15 @@ Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. 
 
 Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` answer "nothing" in the base script, because nothing in Heroes 3 lowers the attack of whoever strikes it or caps the damage a blow may deal - the rules that do live in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
 
-Each patch keeps to one rule. That is what lets a mod drop or replace a single one of them without touching anything else, and it is worth following in mod patches too.
+Each patch keeps to one rule. That is what lets a mod drop or replace a single one of them without touching anything else, and while it is not required, it is worth following in mod patches too.
 
 ## What the script is given
 
 `Script:calculate(battle, info)` receives the battle and one table describing the attack:
 
 - `attacker`, `defender` - the two units. See [Unit](API_Reference.md#unit)
-- `attackerHex`, `defenderHex` - where the blow happens. Already resolved, so an attack that has not happened yet reads like any other. Pass them to `battle:hasDistancePenalty` and friends rather than asking the units where they stand
-- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of blow this is
+- `attackerHex`, `defenderHex` - where the blow happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
+- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of blow this is. Random roll-based abilities are only set when actual calculation is performed by server
 - `chargeDistance` - hexes crossed to reach the target, which is what jousting scales with
 - `attackerBonuses`, `defenderBonuses` - which of the [declared bonus types](#declaring-what-you-look-at) each unit carries. Read them through `self:carriesBonus(info.attackerBonuses, "JOUSTING")`
 - `attackFactorPerPoint`, `attackFactorCap`, `defenseFactorPerPoint`, `defenseFactorCap` - the tuning constants from `gameConfig.json`, so the script needs no access to settings
@@ -105,7 +101,7 @@ return {
 Reading a bonus means asking the engine, and the engine is on the other side of the language boundary. To keep that from happening twenty times per attack, the script declares which bonus types it looks at, and the engine reports which of them each unit actually carries:
 
 ```lua
-Script:declareBonus("MYMOD_MOON_FURY")
+Script:declareBonus("VULNERABLE_FROM_BACK")
 ```
 
 A patch **must declare whatever its factor looks at**, or the check will not find it. Asking about a type that was never declared raises an error naming it, rather than quietly answering "not there" and costing damage.
