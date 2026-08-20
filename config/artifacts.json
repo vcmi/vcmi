@@ -1925,12 +1925,14 @@
 			"alignmentMixGood" : {
 				"type" : "ALIGNMENT_MIX",
 				"subtype" : "alignmentGood",
+				"propagator" : "PLAYER",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
 			"alignmentMixNeutral" : {
 				"type" : "ALIGNMENT_MIX",
 				"subtype" : "alignmentNeutral",
+				"propagator" : "PLAYER",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
