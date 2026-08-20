@@ -19,6 +19,20 @@ Every script, whatever it does, is declared the same way - in the `scripts` sect
 - [Combat Event Scripts](Combat_Event_Scripts.md) - `"implements" : "combatEvent"`, a reaction to events happening to a unit in combat, such as Fire Shield or Death Stare
 - [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, what an attack is worth. Unlike the other two there is one of these for the whole game, and a mod changes the rules by patching it rather than by declaring its own
 
+## What a script can reach
+
+Three globals are there whatever the script is:
+
+- `LIBRARY` - the game's content, looked up by identifier: creatures, heroes, factions, spells. See [Services](../Lua_Reference/Services.md)
+- `ENUM` - every enumeration the engine exports. See [Enums](../Lua_Reference/Enums.md)
+- `GAME` - the ongoing game session. See [Game](../Lua_Reference/Game.md)
+
+What each type of script is handed on top of those - a battle, a unit, a server to apply changes through - is described on its own page above.
+
+[**Lua API Reference**](../Lua_Reference/API.md) lists every class and enumeration the engine exposes, one page each. It is generated from the bindings themselves, so it is the one place that cannot fall behind them. `api.lua` next to it is a [Lua Language Server](https://luals.github.io/) stub - point `Lua.workspace.library` at it for completion and type checks while writing a script.
+
+VCMI also supports a subset of the Lua standard library; see [Lua Standard Library](Standard_Library.md) for what is in it.
+
 ## Shared format
 
 Fields every script declares, whatever its type:

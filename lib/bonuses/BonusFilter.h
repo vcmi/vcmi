@@ -22,8 +22,9 @@ struct DLL_LINKAGE BonusFilter final : public scripting::ApiSerializable<BonusFi
 {
 	static constexpr std::string_view luaName = "BonusFilter";
 	static constexpr std::string_view luaDescription =
-		"Which bonuses of a bearer a query is about, handed to `getBonuses` and `getBonusesValue` "
-		"as a plain table. Every field left out widens the answer, so `{}` asks for all of them.";
+		"Which bonuses of a bearer a query is about, handed to `getBonuses`, `getBonusesValue` and "
+		"`hasBonuses` as a plain table. Every field left out widens the answer, so `{}` asks for all "
+		"of them.";
 
 	/// json key of the bonus type, "SLAYER" and the like
 	std::optional<std::string> type;

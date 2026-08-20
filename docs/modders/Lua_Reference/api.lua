@@ -248,17 +248,33 @@ function Battle:hasPenaltyOnLine(from, dest, checkWall, checkMoat) end
 ---@return boolean
 function Battle:isMeleeAttackPossible(attacker, defender) end
 
----True if the shooter is too far from the target for a full-strength shot.
+---True if the shooter is too far from the target for a full-strength shot. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
 ---@param shooter Unit # Unit making the ranged attack.
 ---@param target Unit # Unit being shot at.
+---@param shooterHex BattleHex? # Hex to shoot from; nil uses where the shooter stands.
+---@param targetHex BattleHex? # Hex to shoot at; nil uses where the target stands.
 ---@return boolean
-function Battle:hasDistancePenalty(shooter, target) end
+function Battle:hasDistancePenalty(shooter, target, shooterHex, targetHex) end
 
----True if a town wall stands between the shooter and the target.
+---True if a town wall stands between the shooter and the target. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
 ---@param shooter Unit # Unit making the ranged attack.
 ---@param target Unit # Unit being shot at.
+---@param shooterHex BattleHex? # Hex to shoot from; nil uses where the shooter stands.
+---@param targetHex BattleHex? # Hex to shoot at; nil uses where the target stands.
 ---@return boolean
-function Battle:hasWallPenalty(shooter, target) end
+function Battle:hasWallPenalty(shooter, target, shooterHex, targetHex) end
+
+---True if the attacker would have to turn around to strike the defender. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
+---@param attacker Unit # Unit that would strike.
+---@param defender Unit # Unit that would be struck.
+---@param attackerHex BattleHex? # Hex to strike from; nil uses where the attacker stands.
+---@param defenderHex BattleHex? # Hex to strike at; nil uses where the defender stands.
+---@return boolean
+function Battle:isToReverse(attacker, defender, attackerHex, defenderHex) end
+
+---Returns the town being defended in this battle.
+---@return TownInstance # The besieged town, or nil when the battle is no siege.
+function Battle:getDefendedTown() end
 
 ---Returns the unit covering the given hex, or nil.
 ---@param hex BattleHex # Hex to inspect for a unit.
@@ -556,6 +572,10 @@ function Bonus:getSourceID() end
 ---@return BonusSource
 function Bonus:getSource() end
 
+---Returns the kind of combat the bonus is limited to. A bonus that applies to melee only is silently absent while shooting, and the other way round.
+---@return BonusLimitEffect
+function Bonus:getEffectRange() end
+
 ---Returns the list of duration flags currently set on the bonus.
 ---@return BonusDuration[]
 function Bonus:getDuration() end
@@ -607,6 +627,14 @@ function Bonus:getParametersAsVector() end
 ---@field propagationUpdater any # Updater applied to bonuses produced by this one's propagator.
 local BonusDescriptor = {}
 
+---Which bonuses of a bearer a query is about, handed to `getBonuses`, `getBonusesValue` and `hasBonuses` as a plain table. Every field left out widens the answer, so `{}` asks for all of them.
+---@class BonusFilter
+---@field type string? # Bonus type to look for, by its json key.
+---@field subtype string? # Subtype to look for, by its json key. Requires a type.
+---@field sourceType BonusSource? # Where the bonus has to come from - an artifact, a spell effect, ...
+---@field shooting boolean? # Kind of blow the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
+local BonusFilter = {}
+
 ---A collection of Bonus values returned by `getBonuses(...)`. Use `size()` and `getBonus(index)` to iterate. A copy of the engine's internal list at the moment of the call — changes to holder afterwards will not affect this snapshot.
 ---@class BonusList
 local BonusList = {}
@@ -615,10 +643,35 @@ local BonusList = {}
 ---@return integer
 function BonusList:size() end
 
----Returns the bonus at the given 1-based index. Throws if the index is out of range.
+---Computes total value of bonuses in the list, accounting for bonus value types
+---@return integer
+function BonusList:totalValue() end
+
+---Returns the bonuses of this list the predicate accepts. Use to narrow a list down before `totalValue`, which combines what is left by the rules of the engine.
+---@param predicate fun(b: Bonus): boolean # Selector — called for each bonus of the list; bonus is kept when it returns true.
+---@return BonusList # Bonuses for which the predicate returned true.
+function BonusList:filter(predicate) end
+
+---Returns the bonus at the given 1-based index. Aborts the script if the index is out of range.
 ---@param index integer # 1-based position of the bonus to fetch.
 ---@return Bonus # Bonus stored at the given position.
 function BonusList:getBonus(index) end
+
+---A building of a town, as `TownInstance:getBuildings` reports it.
+---@class Building
+local Building = {}
+
+---Returns the json key of this building, such as `core:fort`.
+---@return string # Identifier of this building, scoped by the mod providing it.
+function Building:getJsonKey() end
+
+---Returns which of the buildings known to the game this one is. Unlike the json key this is the same in every town, so it is what to test against when a rule speaks of a fort or a town hall rather than of one particular mod's version of it.
+---@return string? # "fort", "villageHall", ...; nil for a building the game has no name of its own for.
+function Building:getBuildingType() end
+
+---Whether this building is an upgrade of another, as a citadel is of a fort.
+---@return boolean # True when this building improves another one instead of standing on its own.
+function Building:isUpgrade() end
 
 ---Interprets an in-game day count using the map's calendar settings (days per week, weeks per month). Obtained from Game:getCalendar().
 ---@class Calendar
@@ -726,6 +779,7 @@ function Creature:isDoubleWide() end
 ---@field BonusDuration BonusDuration # Lifetime selectors used by Bonus / BonusDescriptor `duration`.
 ---@field BonusSource BonusSource # Origin classes used by Bonus / BonusDescriptor `sourceType`.
 ---@field BonusValueType BonusValueType # Combination rules used by Bonus / BonusDescriptor `valueType`.
+---@field BonusLimitEffect BonusLimitEffect # Kinds of combat a bonus is limited to, used by Bonus `effectRange`.
 ---@field ObstacleType ObstacleType # Obstacle categories used by SpellObstacleDescriptor `obstacleType`.
 ---@field WallPart WallPart # Town-wall sections referenced by siege APIs and `catapultAttack`.
 ---@field BattleSide BattleSide # Battlefield side identifiers: none / attacker / defender.
@@ -890,6 +944,17 @@ local BonusValueType = {
     independentMax = 6,
     ---Independent floor — wins if smaller than the accumulated value.
     independentMin = 7,
+}
+
+---Kinds of combat a bonus is limited to, used by Bonus `effectRange`.
+---@enum BonusLimitEffect
+local BonusLimitEffect = {
+    ---Applies to every kind of combat.
+    noLimit = 0,
+    ---Applies only while shooting.
+    onlyDistanceFight = 1,
+    ---Applies only in melee.
+    onlyMeleeFight = 2,
 }
 
 ---Obstacle categories used by SpellObstacleDescriptor `obstacleType`.
@@ -1109,10 +1174,20 @@ function HeroClass:getJsonKey() end
 ---@class HeroInstance
 local HeroInstance = {}
 
----Returns all bonuses affecting the bearer for which the predicate returns true.
----@param predicate fun(b: Bonus): boolean # Selector — called for each bonus on the bearer; bonus is kept when it returns true.
----@return BonusList # Bonuses for which the predicate returned true.
-function HeroInstance:getBonuses(predicate) end
+---Returns the bonuses of the bearer that match the filter. Say as much as the filter can express, since that is also what the engine can cache; narrow whatever is left with `BonusList:filter`.
+---@param filter BonusFilter # Which bonuses to collect. An empty filter collects every one of them.
+---@return BonusList # Bonuses of the bearer the filter describes.
+function HeroInstance:getBonuses(filter) end
+
+---Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
+---@return integer # Value of the matching bonuses taken together.
+function HeroInstance:getBonusesValue(filter) end
+
+---True if the bearer carries a bonus the filter describes. Prefer this over testing the size of `getBonuses`, which hands the whole list over to the script to answer a question the engine can answer on its own.
+---@param filter BonusFilter # Which bonuses to look for. An empty filter asks whether the bearer has any at all.
+---@return boolean # True if the bearer carries at least one matching bonus.
+function HeroInstance:hasBonuses(filter) end
 
 ---Returns the stack instance in the given army slot, or nil if the slot is empty.
 ---@param slot integer # Army slot to query (1-based).
@@ -1550,7 +1625,7 @@ function StackInstance:getType() end
 ---@return integer
 function StackInstance:getCount() end
 
----A town on the adventure map. Provides its owner and whether it is currently neutral.
+---A town on the adventure map. Provides its owner and what has been built in it.
 ---@class TownInstance
 local TownInstance = {}
 
@@ -1558,14 +1633,28 @@ local TownInstance = {}
 ---@return integer
 function TownInstance:getOwner() end
 
+---Returns the buildings that have been built in this town, upgrades of other buildings among them.
+---@return Building[] # Every building standing in this town.
+function TownInstance:getBuildings() end
+
 ---Represents a creature stack participating in the current battle. Provides access to the live combat state — position, owner, current health, applied bonuses, ability checks. To stage modifications, copy into a UnitState, edit it, then commit via server.
 ---@class Unit
 local Unit = {}
 
----Returns all bonuses affecting the bearer for which the predicate returns true.
----@param predicate fun(b: Bonus): boolean # Selector — called for each bonus on the bearer; bonus is kept when it returns true.
----@return BonusList # Bonuses for which the predicate returned true.
-function Unit:getBonuses(predicate) end
+---Returns the bonuses of the bearer that match the filter. Say as much as the filter can express, since that is also what the engine can cache; narrow whatever is left with `BonusList:filter`.
+---@param filter BonusFilter # Which bonuses to collect. An empty filter collects every one of them.
+---@return BonusList # Bonuses of the bearer the filter describes.
+function Unit:getBonuses(filter) end
+
+---Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
+---@return integer # Value of the matching bonuses taken together.
+function Unit:getBonusesValue(filter) end
+
+---True if the bearer carries a bonus the filter describes. Prefer this over testing the size of `getBonuses`, which hands the whole list over to the script to answer a question the engine can answer on its own.
+---@param filter BonusFilter # Which bonuses to look for. An empty filter asks whether the bearer has any at all.
+---@return boolean # True if the bearer carries at least one matching bonus.
+function Unit:hasBonuses(filter) end
 
 ---Returns the minimum damage one creature in the stack will deal.
 ---@param ranged boolean # True for ranged attack value, false for melee.
@@ -1656,6 +1745,22 @@ function Unit:getAvailableHealth() end
 ---Returns the number of creatures currently alive in the stack.
 ---@return integer
 function Unit:getCount() end
+
+---Returns the health left of the first creature in the unit stack.
+---@return integer
+function Unit:getFirstHPleft() end
+
+---True if the stack can shoot in general, even if out of ammo. See canShoot to check if unit can shoot right now.
+---@return boolean
+function Unit:isShooter() end
+
+---True if the stack is one of the towers of a besieged town.
+---@return boolean
+function Unit:isTurret() end
+
+---Which of the three towers of a besieged town this stack is.
+---@return string? # "keep", "upper" or "lower"; nil when the stack is no tower.
+function Unit:getTurretPart() end
 
 ---Returns the maximum hit points of a single creature in the stack.
 ---@return integer

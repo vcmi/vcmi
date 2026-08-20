@@ -83,9 +83,9 @@ When several bonuses on the same unit grant the same script, each of them runs t
 
 Parameters:
 
-- `server` - used to apply actual changes to the battle state. See [Server](API_Reference.md#server).
-- `battle` - state of the battle this event happened in. See [Battle](API_Reference.md#battle).
-- `unit` - the unit carrying the bonus, which this event happened to. See [Unit](API_Reference.md#unit).
+- `server` - used to apply actual changes to the battle state. See [BattleServer](../Lua_Reference/BattleServer.md).
+- `battle` - state of the battle this event happened in. See [Battle](../Lua_Reference/Battle.md).
+- `unit` - the unit carrying the bonus, which this event happened to. See [Unit](../Lua_Reference/Unit.md).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
 - `payload` - data about the attack that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
   - `ranged` - whether the attack was a shot

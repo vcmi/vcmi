@@ -4,11 +4,27 @@ A hero placed on the adventure map. Provides access to such information as owner
 
 ### getBonuses
 
-Returns all bonuses affecting the bearer for which the predicate returns true.
+Returns the bonuses of the bearer that match the filter. Say as much as the filter can express, since that is also what the engine can cache; narrow whatever is left with `BonusList:filter`.
 
-- param `predicate`: `fun(b: Bonus): boolean` — Selector — called for each bonus on the bearer; bonus is kept when it returns true.
+- param `filter`: [`BonusFilter`](BonusFilter.md) — Which bonuses to collect. An empty filter collects every one of them.
 
-- returns [`BonusList`](BonusList.md) — Bonuses for which the predicate returned true.
+- returns [`BonusList`](BonusList.md) — Bonuses of the bearer the filter describes.
+
+### getBonusesValue
+
+Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+
+- param `filter`: [`BonusFilter`](BonusFilter.md) — Which bonuses to count. An empty filter counts every one of them.
+
+- returns `integer` — Value of the matching bonuses taken together.
+
+### hasBonuses
+
+True if the bearer carries a bonus the filter describes. Prefer this over testing the size of `getBonuses`, which hands the whole list over to the script to answer a question the engine can answer on its own.
+
+- param `filter`: [`BonusFilter`](BonusFilter.md) — Which bonuses to look for. An empty filter asks whether the bearer has any at all.
+
+- returns `boolean` — True if the bearer carries at least one matching bonus.
 
 ### getStack
 

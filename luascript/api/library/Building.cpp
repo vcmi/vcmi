@@ -29,9 +29,6 @@ void BuildingProxy::registerMethods(MethodRegistrar & R)
 	R.function<&BuildingProxy::isUpgrade>("isUpgrade",
 		{"True when this building improves another one instead of standing on its own."},
 		"Whether this building is an upgrade of another, as a citadel is of a fort.");
-	R.method<&CBuilding::getNameTranslated>("getNameTranslated",
-		{"Name of this building in the player's language."},
-		"Returns the translated name of this building.");
 }
 
 std::string BuildingProxy::getJsonKey(const CBuilding & building)

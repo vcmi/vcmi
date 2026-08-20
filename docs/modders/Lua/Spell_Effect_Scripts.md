@@ -34,8 +34,8 @@ This function should return true if spell effect has at least one valid target o
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `problem` - storage for any "problems" with casting the spell. If spell can't be casted, reason for the failure must be added to the problem. See [SpellProblem](API_Reference.md#spellproblem).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `problem` - storage for any "problems" with casting the spell. If spell can't be casted, reason for the failure must be added to the problem. See [SpellProblem](../Lua_Reference/SpellProblem.md).
 
 Return value: boolean
 
@@ -47,11 +47,11 @@ This function should examine `aimPoint` and `spellTarget` to generate list of ta
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `aimPoint` - TODO. See [SpellTarget](API_Reference.md#spelltarget).
-- `spellTarget` - TODO. See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `aimPoint` - TODO. A `Destination[]`.
+- `spellTarget` - TODO. A `Destination[]`.
 
-Return value: [SpellTarget](API_Reference.md#spelltarget)
+Return value: `Destination[]`
 
 ### applicableTarget
 
@@ -61,9 +61,9 @@ This function should return true if spell can be cast on a specified target(s).
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `problem` - storage for any "problems" with casting the spell. If spell can't be casted, reason for the failure must be added to the problem. See [SpellProblem](API_Reference.md#spellproblem).
-- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget` See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `problem` - storage for any "problems" with casting the spell. If spell can't be casted, reason for the failure must be added to the problem. See [SpellProblem](../Lua_Reference/SpellProblem.md).
+- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget`. A `Destination[]`.
 
 Return value: boolean
 
@@ -75,10 +75,10 @@ This function should remove from `target` any destinations that should not recei
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget` See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget`. A `Destination[]`.
 
-Return value: [SpellTarget](API_Reference.md#spelltarget)
+Return value: `Destination[]`
 
 ### apply
 
@@ -88,9 +88,9 @@ This function performs actual cast of the spell and applies all effects caused b
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `server` - This parameter can be used to apply actual changes in a battle state [Server](API_Reference.md#server).
-- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget` See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `server` - This parameter can be used to apply actual changes in a battle state [BattleServer](../Lua_Reference/BattleServer.md).
+- `target` - Target (such as unit or hex) on which this spell is being cast, after convertion by `transformTarget`. A `Destination[]`.
 
 Return value: nothing
 
@@ -102,8 +102,8 @@ This function should return the health and unit count change the spell is predic
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `spellTarget` - Target (such as unit or hex) on which this spell is being cast. See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `spellTarget` - Target (such as unit or hex) on which this spell is being cast. A `Destination[]`.
 
 Return value: table with `hpDelta` and `unitsDelta` fields
 
@@ -115,11 +115,11 @@ This function should add to `hexes` any hexes that the spell affects, so that th
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
-- `hexes` - hexes collected so far. See [BattleHexArray](API_Reference.md#battlehexarray).
-- `spellTarget` - Target (such as unit or hex) on which this spell is being cast. See [SpellTarget](API_Reference.md#spelltarget).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `hexes` - hexes collected so far. See [BattleHexArray](../Lua_Reference/BattleHexArray.md).
+- `spellTarget` - Target (such as unit or hex) on which this spell is being cast. A `Destination[]`.
 
-Return value: [BattleHexArray](API_Reference.md#battlehexarray)
+Return value: [BattleHexArray](../Lua_Reference/BattleHexArray.md)
 
 ### adjustTargetTypes
 
@@ -129,7 +129,7 @@ This function should alter the list of target types that this effect accepts.
 
 Parameters:
 
-- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](API_Reference.md#spellmechanics).
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
 - `types` - target types collected so far
 
 Return value: list of target types

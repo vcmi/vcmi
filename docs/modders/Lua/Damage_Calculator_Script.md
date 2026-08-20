@@ -19,7 +19,7 @@ Every attack goes through the same three steps.
 
 **1. Base damage.** What the creatures themselves deal, min and max, multiplied by how many of them are alive. Bless and curse collapse that range onto one of its ends, a ballista multiplies it by the attack of its hero.
 
-**2. Factors.** Everything that multiples base damage is a *factor* - a signed share of the base damage. **Positive raises it, negative lowers it.** What decides how a factor applies is its sign alone, not where it came from:
+**2. Factors.** Everything that scales base damage is a *factor* - a signed share of the base damage. **Positive raises it, negative lowers it.** What decides how a factor applies is its sign alone, not where it came from:
 
 - factors that raise the damage **add up**: attack over defence (+5% per point), offence (+30%), luck (+100%) give `1 + 0.05×points + 0.3 + 1.0`
 - factors that lower it **multiply**, each taking its share of what is left: armourer (-15%) and a shooting penalty (-50%) give `0.85 × 0.5`
@@ -77,7 +77,7 @@ Each patch keeps to one rule. That is what lets a mod drop or replace a single o
 
 `Script:calculate(battle, info)` receives the battle and one table describing the attack:
 
-- `attacker`, `defender` - the two units. See [Unit](API_Reference.md#unit)
+- `attacker`, `defender` - the two units. See [Unit](../Lua_Reference/Unit.md)
 - `attackerHex`, `defenderHex` - where the blow happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
 - `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of blow this is. Random roll-based abilities are only set when actual calculation is performed by server
 - `chargeDistance` - hexes crossed to reach the target, which is what jousting scales with
