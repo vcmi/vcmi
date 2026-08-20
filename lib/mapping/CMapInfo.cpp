@@ -46,6 +46,7 @@ void CMapInfo::mapInit(const std::string & fname)
 	fileMetadataResource = resource;
 	mapHeader = mapService.loadMapHeader(resource);
 	countPlayers();
+	mapEntry = std::make_unique<MapListEntry>(mapHeader->makeListEntry());
 }
 
 void CMapInfo::saveInit(const ResourcePath & file)
@@ -61,6 +62,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
 	fileMetadataResource = file;
 	countPlayers();
+	mapEntry = std::make_unique<MapListEntry>(mapHeader->makeListEntry());
 
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!
@@ -73,30 +75,42 @@ void CMapInfo::campaignInit()
 	originalFileURI = resource.getOriginalName();
 	fileMetadataResource = resource;
 	campaign = CampaignHandler::getHeader(fileURI);
+	campaignEntry = std::make_unique<CampaignListEntry>(campaign->makeListEntry());
 }
 
 void CMapInfo::initFromCache(const std::string & fileURI_, BinaryDeserializer & h)
 {
 	fileURI = fileURI_;
 
-	mapHeader = std::make_unique<CMapHeader>();
-	h & *mapHeader;
+	mapEntry = std::make_unique<MapListEntry>();
+	h & *mapEntry;
+	amountOfPlayersOnMap = mapEntry->amountOfPlayersOnMap;
+	amountOfHumanControllablePlayers = mapEntry->amountOfHumanControllablePlayers;
+
+	mapHeader = [this]() {
+		CMapService mapService;
+		return mapService.loadMapHeader(ResourcePath(fileURI, EResType::MAP));
+	};
 
 	ResourcePath resource = ResourcePath(fileURI, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
 	fileMetadataResource = resource;
-
-	countPlayers();
 }
 
-void CMapInfo::initCampaignFromCache(const std::string & fileURI_, BinaryDeserializer & h, const std::string & modName)
+void CMapInfo::initCampaignFromCache(const std::string & fileURI_, BinaryDeserializer & h)
 {
 	fileURI = fileURI_;
+
+	campaignEntry = std::make_unique<CampaignListEntry>();
+	h & *campaignEntry;
+
+	campaign = [this]() {
+		return CampaignHandler::getHeader(fileURI);
+	};
 
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
 	fileMetadataResource = resource;
-	campaign = CampaignHandler::getHeaderFromCache(h, modName);
 }
 
 void CMapInfo::ensureFileMetadata() const
@@ -171,26 +185,30 @@ std::string CMapInfo::getNameForList() const
 		boost::split(path, originalFileURI, boost::is_any_of("\\/"));
 		return path[path.size()-1];
 	}
-	else
-	{
-		return getNameTranslated();
-	}
+
+	if(campaignEntry)
+		return campaignEntry->name.toString();
+
+	if(mapEntry)
+		return mapEntry->name.toString();
+
+	return getNameTranslated();
 }
 
 std::string CMapInfo::getDescriptionTranslated() const
 {
 	if(campaign)
 		return campaign->getDescriptionTranslated();
-	else
-		return mapHeader->description.toString();
+	return mapHeader->description.toString();
 }
 
 int CMapInfo::getMapSizeIconId() const
 {
-	if(!mapHeader)
+	if(!mapEntry && !mapHeader)
 		return 4;
 
-	switch(mapHeader->width)
+	const si32 width = mapEntry ? mapEntry->width : mapHeader->width;
+	switch(width)
 	{
 	case CMapHeader::MAP_SIZE_SMALL:
 		return 0;
@@ -213,29 +231,31 @@ int CMapInfo::getMapSizeIconId() const
 
 int CMapInfo::getMapSizeFormatIconId() const
 {
-	switch(mapHeader->version)
+	const EMapFormat version = mapEntry ? mapEntry->version : mapHeader->version;
+	switch(version)
 	{
-		case EMapFormat::ROE:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
-		case EMapFormat::AB:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
-		case EMapFormat::SOD:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
-		case EMapFormat::CHR:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
-		case EMapFormat::WOG:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
-		case EMapFormat::HOTA:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
-		case EMapFormat::VCMI:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
+	case EMapFormat::ROE:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
+	case EMapFormat::AB:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
+	case EMapFormat::SOD:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+	case EMapFormat::CHR:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
+	case EMapFormat::WOG:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
+	case EMapFormat::HOTA:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
+	case EMapFormat::VCMI:
+		return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
 	}
 	return 0;
 }
 
 std::string CMapInfo::getMapSizeName() const
 {
-	switch(mapHeader->width)
+	const si32 width = mapEntry ? mapEntry->width : mapHeader->width;
+	switch(width)
 	{
 	case CMapHeader::MAP_SIZE_SMALL:
 		return "S";

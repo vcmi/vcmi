@@ -108,56 +108,24 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		}
 	}
 
-	auto a = aaa->mapHeader.get();
-	auto b = bbb->mapHeader.get();
-	if(a && b) //if we are sorting scenarios
+	if(aaa->mapEntry && bbb->mapEntry) //if we are sorting scenarios
 	{
+		const auto & a = *aaa->mapEntry;
+		const auto & b = *bbb->mapEntry;
 		switch(sortBy)
 		{
 		case _format: //by map format (RoE, WoG, etc)
-			return (a->version < b->version);
-			break;
+			return (a.version < b.version);
 		case _loscon: //by loss conditions
-			return (a->defeatIconIndex < b->defeatIconIndex);
-			break;
+			return (a.defeatIconIndex < b.defeatIconIndex);
 		case _playerAm: //by player amount
-			int playerAmntB;
-			int humenPlayersB;
-			int playerAmntA;
-			int humenPlayersA;
-			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
-			for(int i = 0; i < 8; i++)
-			{
-				if(a->players[i].canHumanPlay)
-				{
-					playerAmntA++;
-					humenPlayersA++;
-				}
-				else if(a->players[i].canComputerPlay)
-				{
-					playerAmntA++;
-				}
-				if(b->players[i].canHumanPlay)
-				{
-					playerAmntB++;
-					humenPlayersB++;
-				}
-				else if(b->players[i].canComputerPlay)
-				{
-					playerAmntB++;
-				}
-			}
-			if(playerAmntB != playerAmntA)
-				return (playerAmntA < playerAmntB);
-			else
-				return (humenPlayersA < humenPlayersB);
-			break;
+			if(a.amountOfPlayersOnMap != b.amountOfPlayersOnMap)
+				return (a.amountOfPlayersOnMap < b.amountOfPlayersOnMap);
+			return (a.amountOfHumanControllablePlayers < b.amountOfHumanControllablePlayers);
 		case _size: //by size of map
-			return (a->width < b->width);
-			break;
+			return (a.width < b.width);
 		case _viccon: //by victory conditions
-			return (a->victoryIconIndex < b->victoryIconIndex);
-			break;
+			return (a.victoryIconIndex < b.victoryIconIndex);
 		case _name: //by name
 			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		case _fileName: //by filename
@@ -173,11 +141,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
+			return aaa->campaignEntry->scenariosCount < bbb->campaignEntry->scenariosCount;
 		case _name: //by name
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		default:
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		}
 	}
 }
@@ -640,7 +607,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 
 	for(auto elem : allItems)
 	{
-		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
+		if((elem->mapEntry && (!size || elem->mapEntry->width == size)) || tabType == ESelectionScreen::campaignList)
 		{
 			if(!isMapCompatibleWithLobbyPlayerCount(*elem))
 			{
@@ -972,7 +939,7 @@ void SelectionTab::restoreLastSelection()
 
 bool SelectionTab::isMapSupported(const CMapInfo & info)
 {
-	switch (info.mapHeader->version)
+	switch (info.mapEntry->version)
 	{
 		case EMapFormat::ROE:
 			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["supported"].Bool();
@@ -994,19 +961,11 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 
 bool SelectionTab::isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const
 {
-	if(tabType != ESelectionScreen::newGame || GAME->server().loadMode != ELoadMode::MULTI || !info.mapHeader)
+	if(tabType != ESelectionScreen::newGame || GAME->server().loadMode != ELoadMode::MULTI || !info.mapEntry)
 		return true;
 
 	const auto requiredHumanPlayersCount = getRequiredHumanPlayers();
-	size_t supportedHumanPlayers = 0;
-
-	for(const auto & player : info.mapHeader->players)
-	{
-		if(player.canHumanPlay)
-			++supportedHumanPlayers;
-	}
-
-	return supportedHumanPlayers >= requiredHumanPlayersCount;
+	return info.mapEntry->amountOfHumanControllablePlayers >= requiredHumanPlayersCount;
 }
 
 size_t SelectionTab::getRequiredHumanPlayers() const
@@ -1144,23 +1103,36 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 			{
 			case ELoadMode::SINGLE:
 				if(isCampaign || isTutorial)
+				{
 					mapInfo->mapHeader.reset();
+					mapInfo->mapEntry.reset();
+				}
 				break;
 			case ELoadMode::CAMPAIGN:
 				if(!isCampaign)
+				{
 					mapInfo->mapHeader.reset();
+					mapInfo->mapEntry.reset();
+				}
 				break;
 			case ELoadMode::TUTORIAL:
 				if(!isTutorial)
+				{
 					mapInfo->mapHeader.reset();
+					mapInfo->mapEntry.reset();
+				}
 				break;
 			case ELoadMode::MULTI:
 				if(!isMultiplayer)
+				{
 					mapInfo->mapHeader.reset();
+					mapInfo->mapEntry.reset();
+				}
 				break;
 			default:
 				assert(0);
 				mapInfo->mapHeader.reset();
+				mapInfo->mapEntry.reset();
 				break;
 			}
 
@@ -1250,7 +1222,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 							continue;
 
 						auto info = std::make_shared<ElementInfo>();
-						info->initCampaignFromCache(fileURI, deserializer, modID);
+						info->initCampaignFromCache(fileURI, deserializer);
 						info->name = info->getNameForList();
 
 						remainingFiles.erase(campRes);
@@ -1405,7 +1377,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	}
 
 	labelName->enable();
-	if(info->campaign)
+	if(info->campaignEntry)
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
@@ -1418,7 +1390,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << info->campaign->scenariosCount();
+		ostr << info->campaignEntry->scenariosCount;
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
@@ -1445,9 +1417,9 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 			iconFormat->setFrame(info->getMapSizeFormatIconId());
 		}
 		iconVictoryCondition->enable();
-		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
+		iconVictoryCondition->setFrame(info->mapEntry->victoryIconIndex, 0);
 		iconLossCondition->enable();
-		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
+		iconLossCondition->setFrame(info->mapEntry->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
 		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));

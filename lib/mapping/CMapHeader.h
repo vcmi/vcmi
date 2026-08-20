@@ -21,9 +21,10 @@
 #include "../texts/TextLocalizationContainer.h"
 
 #include "MapDifficulty.h"
+#include "MapFormat.h"
 
 class CGObjectInstance;
-enum class EMapFormat : uint8_t;
+struct MapListEntry;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
@@ -326,6 +327,47 @@ public:
 		h & defeatIconIndex;
 		h & disposedHeroes;
 		h & translations;
+		if(!h.saving)
+			registerMapStrings();
+	}
+
+	/// Extracts the lightweight data required to display the map list.
+	MapListEntry makeListEntry() const;
+};
+
+/// Lightweight map metadata used only to render the map list. Unlike CMapHeader,
+/// this type never contains the expensive fields (allowed heroes/factions, ...).
+struct DLL_LINKAGE MapListEntry
+{
+	EMapFormat version = EMapFormat::SOD;
+	MetaString name;
+	si32 width = 72;
+	si32 height = 72;
+	bool battleOnly = false;
+	ui16 victoryIconIndex = 0;
+	ui16 defeatIconIndex = 0;
+	int amountOfPlayersOnMap = 0;
+	int amountOfHumanControllablePlayers = 0;
+	TextContainerRegistrable texts;
+	JsonNode translations;
+
+	void registerMapStrings();
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		h & texts;
+		h & version;
+		h & name;
+		h & width;
+		h & height;
+		if (h.version >= Handler::Version::BATTLE_ONLY)
+			h & battleOnly;
+		h & victoryIconIndex;
+		h & defeatIconIndex;
+		h & translations;
+		h & amountOfPlayersOnMap;
+		h & amountOfHumanControllablePlayers;
 		if(!h.saving)
 			registerMapStrings();
 	}

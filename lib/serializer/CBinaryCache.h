@@ -17,8 +17,8 @@
 /// Magic values used to identify binary metadata cache files.
 namespace BinaryCache
 {
-	inline constexpr const char * MAP_MAGIC = "VCMM";
-	inline constexpr const char * CAMPAIGN_MAGIC = "VCMC";
+	inline constexpr const char * MAP_MAGIC = "VCML";
+	inline constexpr const char * CAMPAIGN_MAGIC = "VCCL";
 }
 
 /// Writes map/campaign metadata into an in-memory binary cache buffer.

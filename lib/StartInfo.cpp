@@ -103,7 +103,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)
 		throw std::domain_error(LIBRARY->generaltexth->translate("core.genrltxt.529"));
-	
+
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
 	ModIncompatibility::ModList modList;
 	for(const auto & m : missingMods)

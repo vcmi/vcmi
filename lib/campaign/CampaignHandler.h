@@ -39,7 +39,6 @@ class DLL_LINKAGE CampaignHandler
 	static constexpr auto VCMP_HEADER_FILE_NAME = "header.json";
 public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
-	static std::unique_ptr<Campaign> getHeaderFromCache(BinaryDeserializer & h, const std::string & modName);
 
 	static std::shared_ptr<CampaignState> getCampaign(const std::string & name); //name - name of appropriate file
 

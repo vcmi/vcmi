@@ -9,10 +9,15 @@
  */
 #pragma once
 
+#include <memory>
+
+#include "../Lazy.h"
 #include "../serializer/Serializeable.h"
 #include "../filesystem/ResourcePath.h"
 
 struct StartInfo;
+struct MapListEntry;
+struct CampaignListEntry;
 
 class CMapHeader;
 class Campaign;
@@ -25,8 +30,10 @@ class BinaryDeserializer;
 class DLL_LINKAGE CMapInfo : public Serializeable
 {
 public:
-	std::unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
-	std::unique_ptr<Campaign> campaign; //may be nullptr if scenario
+	Lazy<CMapHeader> mapHeader; // may be empty if campaign; materialized lazily when accessed
+	Lazy<Campaign> campaign; // may be empty if scenario; materialized lazily when accessed
+	std::unique_ptr<MapListEntry> mapEntry; // lightweight list data, always present before mapHeader is materialized
+	std::unique_ptr<CampaignListEntry> campaignEntry; // lightweight list data, always present before campaign is materialized
 	std::unique_ptr<StartInfo> scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string originalFileURI; // no need to serialize
@@ -49,7 +56,7 @@ public:
 	void campaignInit();
 	void countPlayers();
 	void initFromCache(const std::string & fileURI, BinaryDeserializer & h);
-	void initCampaignFromCache(const std::string & fileURI, BinaryDeserializer & h, const std::string & modName);
+	void initCampaignFromCache(const std::string & fileURI, BinaryDeserializer & h);
 	
 	std::string getNameTranslated() const;
 	std::string getNameForList() const;

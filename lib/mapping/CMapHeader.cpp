@@ -141,7 +141,7 @@ ui8 CMapHeader::levels() const
 	return mapLayers.size();
 }
 
-void CMapHeader::registerMapStrings()
+static void registerMapStringsImpl(TextContainerRegistrable & texts, JsonNode & translations, const MetaString & name)
 {
 	//get supported languages. Assuming that translation containing most strings is the base language
 	std::set<std::string, std::less<>> mapLanguages;
@@ -199,6 +199,43 @@ void CMapHeader::registerMapStrings()
 	
 	for(auto & s : data.Struct())
 		texts.registerString("map", TextIdentifier(s.first), s.second.String());
+}
+
+void CMapHeader::registerMapStrings()
+{
+	registerMapStringsImpl(texts, translations, name);
+}
+
+void MapListEntry::registerMapStrings()
+{
+	registerMapStringsImpl(texts, translations, name);
+}
+
+MapListEntry CMapHeader::makeListEntry() const
+{
+	MapListEntry entry;
+	entry.version = version;
+	entry.name = name;
+	entry.width = width;
+	entry.height = height;
+	entry.battleOnly = battleOnly;
+	entry.victoryIconIndex = victoryIconIndex;
+	entry.defeatIconIndex = defeatIconIndex;
+	entry.texts = texts;
+	entry.translations = translations;
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		if(players[i].canHumanPlay)
+		{
+			entry.amountOfPlayersOnMap++;
+			entry.amountOfHumanControllablePlayers++;
+		}
+		else if(players[i].canComputerPlay)
+		{
+			entry.amountOfPlayersOnMap++;
+		}
+	}
+	return entry;
 }
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)

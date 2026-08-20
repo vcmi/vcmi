@@ -74,12 +74,13 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-std::unique_ptr<Campaign> CampaignHandler::getHeaderFromCache(BinaryDeserializer & h, const std::string & modName)
+CampaignListEntry Campaign::makeListEntry() const
 {
-	auto ret = std::make_unique<Campaign>();
-	h & *ret;
-	ret->modName = modName;
-	return ret;
+	CampaignListEntry entry;
+	entry.name = name;
+	entry.scenariosCount = scenariosCount();
+	entry.textContainer = textContainer;
+	return entry;
 }
 
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
