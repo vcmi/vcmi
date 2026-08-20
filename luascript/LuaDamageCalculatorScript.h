@@ -33,10 +33,11 @@ private:
 	/// Bonus types the script declares an interest in, with the key each is reported under. Asked
 	/// for once - the answer is a property of the script, and the script does not change.
 	mutable std::once_flag declaredOnce;
-	mutable std::vector<std::pair<BonusType, std::string>> declared;
+	mutable std::unordered_map<BonusType, std::string> declared;
 
 	void ensureDeclared(const CBattleInfoCallback & battle) const;
-    std::unordered_map<std::string, bool> carriedBonuses(const battle::Unit * unit) const;
+	/// Which of the declared types this unit carries, as the lookup table the script reads.
+	std::unordered_map<std::string, bool> carriedBonuses(const battle::Unit * unit) const;
 
 	std::shared_ptr<LuaContext> contextOf(const CBattleInfoCallback & battle) const;
 };

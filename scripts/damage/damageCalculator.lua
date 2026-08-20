@@ -21,15 +21,6 @@ local function idiv(dividend, divisor)
 	return math.floor(quotient)
 end
 
---- The engine's own rounding of a division: not quite to nearest, it takes half a step less.
-local function divideAndRound(dividend, divisor)
-	if dividend >= 0 then
-		return idiv(dividend + idiv(divisor, 2) - 1, divisor)
-	end
-
-	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
-end
-
 --- Optimization - list of bonuses that engine will check for presence before passing them to Lua
 --- Allows quick estimation of whether damage factor is active in the first place
 Script.declaredBonuses = {}
@@ -105,6 +96,16 @@ end
 -- The same four, as methods - a patch is a chunk of its own and cannot see the locals above. The
 -- base script keeps calling the locals, which spares it a walk up the whole chain of patches.
 
+--- The engine's own rounding of a division: not quite to nearest, it takes half a step less.
+--- Here for patches that reproduce a rule the engine rounds this way.
+function Script:divideAndRound(dividend, divisor)
+	if dividend >= 0 then
+		return idiv(dividend + idiv(divisor, 2) - 1, divisor)
+	end
+
+	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
+end
+
 --- Whether the unit carries this bonus. Reading the table directly does the same, but goes unnoticed
 --- when the type was never declared - this says so instead.
 function Script:hasBonusOfType(present, type)
@@ -137,8 +138,10 @@ function Script:getBaseDamageSingle(info)
 	local maxDamage = attacker:getMaxDamage(info.shooting)
 
 	if minDamage > maxDamage then
-		-- a mod got them the wrong way round; swapping keeps bless and curse meaningful
-		minDamage, maxDamage = maxDamage, minDamage
+		-- the config of a creature is caught when it loads, so what reaches here is a bonus that
+		-- turned the range around
+		error("creature " .. attacker:getCreature():getJsonKey() .. " has minimal damage ("
+			.. minDamage .. ") greater than maximal damage (" .. maxDamage .. ")")
 	end
 
 	return minDamage, maxDamage

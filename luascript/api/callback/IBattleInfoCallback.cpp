@@ -88,8 +88,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
 			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
 		}, {},
-        "True if the shooter is too far from the target for a full-strength shot. "
-        "Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
+		"True if the shooter is too far from the target for a full-strength shot. "
+		"Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
 	R.function<&IBattleInfoCallbackProxy::hasWallPenalty>("hasWallPenalty",
 		{
 			{"shooter",    "Unit making the ranged attack."},
@@ -97,7 +97,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
 			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
 		}, {},
-		"True if a town wall stands between the shooter and the target.");
+		"True if a town wall stands between the shooter and the target. "
+		"Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
 	R.function<&IBattleInfoCallbackProxy::isToReverse>("isToReverse",
 		{
 			{"attacker",    "Unit that would strike."},
@@ -105,8 +106,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"attackerHex", "Hex to strike from; nil uses where the attacker stands."},
 			{"defenderHex", "Hex to strike at; nil uses where the defender stands."}
 		}, {},
-        "True if the attacker would have to turn around to strike the defender. "
-        "Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
+		"True if the attacker would have to turn around to strike the defender. "
+		"Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
 	R.function<&IBattleInfoCallbackProxy::getDefendedTown>("getDefendedTown",
 		{"The besieged town, or nil when the battle is no siege."},
 		"Returns the town being defended in this battle.");

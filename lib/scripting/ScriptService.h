@@ -60,8 +60,8 @@ public:
 	/// when it is empty only validation runs, since there is no stable key to register under.
 	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const = 0;
 
-	/// The damage calculator of the game, or null when no script declares one - in which case the
-	/// engine falls back on its own.
+	/// The damage calculator of the game, or null when no script declares one - which leaves no rule
+	/// for what an attack is worth, so whoever asks for one throws.
 	virtual const IDamageCalculatorScript * getDamageCalculator() const = 0;
 
 	virtual void registerFactory(std::shared_ptr<IScriptFactory> factory) = 0;

@@ -31,8 +31,9 @@ public:
 		R.template function<&getBonuses>("getBonuses",
 			{{"filter", "Which bonuses to collect. An empty filter collects every one of them."}},
 			{"Bonuses of the bearer the filter describes."},
-			"Returns the bonuses of the bearer that match the filter. "
-			"For cases where called want more precise control, please use filter for initial pass and use separate :filter predicate");
+			"Returns the bonuses of the bearer that match the filter. Say as much as the filter can "
+			"express, since that is also what the engine can cache; narrow whatever is left with "
+			"`BonusList:filter`.");
 		R.template function<&getBonusesValue>("getBonusesValue",
 			{{"filter", "Which bonuses to count. An empty filter counts every one of them."}},
 			{"Value of the matching bonuses taken together."},

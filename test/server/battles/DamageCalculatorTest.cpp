@@ -821,8 +821,8 @@ TEST_F(DamageCalculatorTest, FrenzyConvertsTheWholeDefenceIntoAttack)
 	EXPECT_EQ(estimate(source, defender(angel)).damage.min, 10000);
 }
 
-/// An expert frenzy converts half again as much, for 50 attack against 20 defense.
-TEST_F(DamageCalculatorTest, ExpertFrenzyConvertsHalfAgainAsMuchDefence)
+/// An advanced frenzy converts half again as much, for 50 attack against 20 defense.
+TEST_F(DamageCalculatorTest, AdvancedFrenzyConvertsHalfAgainAsMuchDefence)
 {
 	auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::FRENZY), source, MasteryLevel::ADVANCED);

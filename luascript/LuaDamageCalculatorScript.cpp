@@ -53,7 +53,18 @@ void LuaDamageCalculatorScript::ensureDeclared(const CBattleInfoCallback & battl
 		auto names = contextOf(battle)->callMethod<std::vector<std::string>>("bonusTypes", noParameters);
 
 		for(const auto & name : names)
-			declared.emplace_back(static_cast<BonusType>(BonusTypeID::decode(name)), name);
+		{
+			// a script naming a type that does not exist is a mod's typo, and costs it only the one
+			// factor that reads it - the rest of the calculator has no business failing over it
+			try
+			{
+				declared.emplace(static_cast<BonusType>(BonusTypeID::decode(name)), name);
+			}
+			catch(const std::exception &)
+			{
+				logMod->error("Damage calculator declares an interest in bonus '%s', which is no bonus type! Every factor reading it will find nothing.", name);
+			}
+		}
 
 		if(declared.empty())
 			logMod->warn("Damage calculator declares no bonus types! Every factor that gates on one will find nothing.");
@@ -67,16 +78,16 @@ std::unordered_map<std::string, bool> LuaDamageCalculatorScript::carriedBonuses(
 	// both then share the one cached list
 	static const auto allBonuses = BonusFilter{}.compile();
 
-	std::unordered_set<BonusType> present;
+	std::unordered_map<std::string, bool> result;
 
 	const auto bonuses = unit->getAllBonuses(allBonuses.first, allBonuses.second);
 	for(const auto & bonus : *bonuses)
-		present.insert(bonus->type);
+	{
+		auto entry = declared.find(bonus->type);
 
-	std::unordered_map<std::string, bool> result;
-	for(const auto & [type, name] : declared)
-		if(present.contains(type))
-			result.emplace(name, true);
+		if(entry != declared.end())
+			result.emplace(entry->second, true);
+	}
 
 	return result;
 }

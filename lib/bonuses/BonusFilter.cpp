@@ -12,9 +12,6 @@
 
 #include "BonusFilter.h"
 
-#include "../GameLibrary.h"
-#include "../CBonusTypeHandler.h"
-
 std::pair<CSelector, std::string> BonusFilter::compile() const
 {
 	if(subtype && !type)

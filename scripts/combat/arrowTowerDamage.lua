@@ -16,11 +16,13 @@ local DEFAULTS = { keepBase = 10, towerBase = 6, perBuilding = 2 }
 --- Buildings that count towards the damage of the towers. Heroes 3 counts the town hall but not
 --- the village hall it replaces, ignores the fort line, and counts a building only once however
 --- often it has been upgraded.
+--- Asked by building type rather than by json key, so that a mod town's fort counts for as much as
+--- the fort of a core town.
 local function countsTowardsDamage(building)
-	local key = building:getJsonKey()
+	local buildingType = building:getBuildingType()
 
-	if key == "core:villageHall" or key == "core:fort" then return false end
-	if key == "core:townHall" then return true end
+	if buildingType == "villageHall" or buildingType == "fort" then return false end
+	if buildingType == "townHall" then return true end
 
 	return not building:isUpgrade()
 end

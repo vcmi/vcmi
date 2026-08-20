@@ -28,6 +28,7 @@ public:
 	static void registerMethods(MethodRegistrar & R);
 
 	static std::string getJsonKey(const CBuilding & building);
+	static std::optional<std::string> getBuildingType(const CBuilding & building);
 	static bool isUpgrade(const CBuilding & building);
 };
 

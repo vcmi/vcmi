@@ -185,20 +185,20 @@ public:
 		}
 	}
 
-    template<typename T>
-    void push(const std::unordered_map<std::string, T> & value)
-    {
-        lua_newtable(L);
-        int tableIndex = lua_gettop(L);
+	template<typename T>
+	void push(const std::unordered_map<std::string, T> & value)
+	{
+		lua_newtable(L);
+		int tableIndex = lua_gettop(L);
 
-        for (const auto &entry : value)
-        {
-            push(entry.second);
-            lua_setfield(L, tableIndex, entry.first.c_str());
-        }
-    }
+		for(const auto & entry : value)
+		{
+			push(entry.second);
+			lua_setfield(L, tableIndex, entry.first.c_str());
+		}
+	}
 
-    template<typename E>
+	template<typename E>
 	void push(const api::EnumGroup<E> & group)
 	{
 		lua_newtable(L);
