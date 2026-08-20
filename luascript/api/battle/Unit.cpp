@@ -87,7 +87,7 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.method<&Unit::isTurret>("isTurret", {},
 		"True if the stack is one of the towers of a besieged town.");
 	R.function<&UnitProxy::getTurretPart>("getTurretPart",
-		{"\"keep\", \"upper\" or \"lower\"; nil when the stack is no tower."},
+        {" 'keep', 'upper' or 'lower'; nil when the stack is no tower."},
 		"Which of the three towers of a besieged town this stack is.");
 	R.method<&ACreature::getMaxHealth, Unit>("getMaxHealth", {},
 		"Returns the maximum hit points of a single creature in the stack.");

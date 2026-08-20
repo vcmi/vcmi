@@ -66,7 +66,7 @@ private:
 		auto entry = known.find(key);
 
 		if(entry == known.end())
-			entry = known.emplace(key, filter.compile()).first;
+			entry = known.try_emplace(key, filter.compile()).first;
 
 		return entry->second;
 	}

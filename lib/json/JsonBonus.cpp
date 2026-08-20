@@ -81,8 +81,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	const auto entityType = bonusSubtypeEntityType(type);
 
 	if(entityType == EntityTypeEnum::NONE)
-		case BonusType::FREE_SHOOTING:
-		case BonusType::ALIGNMENT_MIX: // alignment
 	{
 		logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
 		subtype = BonusSubtypeID();

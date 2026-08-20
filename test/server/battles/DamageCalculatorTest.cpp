@@ -195,9 +195,7 @@ TEST_F(DamageCalculatorTest, DefenseAdvantageIsCappedAtSeventyPercent)
 {
 	defenderSideHero->setPrimarySkill(PrimarySkill::DEFENSE, 100, ChangeValueMode::ABSOLUTE); // -250%, capped
 
-	// FIXME: -70% of 5000 is 1500. The cap reaches the calculator as a value a fraction above 0.7
-	// rather than as the double nearest to it, so the product lands just under 1500 and is floored.
-	EXPECT_EQ(estimate(attacker(angel), defender(angel)).damage.min, 1499);
+	EXPECT_EQ(estimate(attacker(angel), defender(angel)).damage.min, 1500);
 }
 
 /// Behemoths strip part of the defense of whatever they hit, and the ancient ones strip more.
@@ -346,8 +344,8 @@ TEST_F(DamageCalculatorTest, JoustingNeedsAChargeToApply)
 /// 5 defense against 16 attack is what the rest of the number is.
 TEST_F(DamageCalculatorTest, ChargeImmunityBlocksJousting)
 {
-	auto * source = attacker(champion);
-	auto * target = defender(pikeman);
+	const auto * source = attacker(champion);
+	const auto * target = defender(pikeman);
 
 	EXPECT_EQ(estimate(source, target, 4).damage.min, 3100);
 	EXPECT_EQ(estimate(source, target, 4).damage.max, 3875);
@@ -372,14 +370,14 @@ TEST_F(DamageCalculatorTest, HateIsIgnoredAgainstEveryOtherCreature)
 /// everything that shoots - which a sharpshooter does, and a horned demon does not.
 TEST_F(DamageCalculatorTest, HatedTraitAddsDamageAgainstCreaturesCarryingIt)
 {
-	auto * source = attacker("vcmi-test:testDamageTraitHater");
+	const auto * source = attacker("vcmi-test:testDamageTraitHater");
 
 	EXPECT_EQ(estimate(source, defender(sharpshooter)).damage.min, 1500);
 }
 
 TEST_F(DamageCalculatorTest, HatedTraitIsIgnoredAgainstCreaturesWithoutIt)
 {
-	auto * source = attacker("vcmi-test:testDamageTraitHater");
+	const auto * source = attacker("vcmi-test:testDamageTraitHater");
 
 	EXPECT_EQ(estimate(source, defender(hornedDemon)).damage.min, 1000);
 }
@@ -408,8 +406,8 @@ TEST_F(DamageCalculatorTest, RevengeGrowsAsTheStackIsWornDown)
 TEST_F(DamageCalculatorTest, VulnerableFromBackAppliesWhenTheAttackerHasToTurnAround)
 {
 	// the attacker stands on the far side of its target, so it has to reverse in order to strike
-	auto * source = attacker(hornedDemon, stackSize, BattleHex(behindHex));
-	auto * target = defender("vcmi-test:testDamageVulnerableBack");
+	const auto * source = attacker(hornedDemon, stackSize, BattleHex(behindHex));
+	const auto * target = defender("vcmi-test:testDamageVulnerableBack");
 
 	auto result = estimate(source, target);
 
@@ -419,8 +417,8 @@ TEST_F(DamageCalculatorTest, VulnerableFromBackAppliesWhenTheAttackerHasToTurnAr
 
 TEST_F(DamageCalculatorTest, VulnerableFromBackIsIgnoredFromTheFront)
 {
-	auto * source = attacker(hornedDemon);
-	auto * target = defender("vcmi-test:testDamageVulnerableBack");
+	const auto * source = attacker(hornedDemon);
+	const auto * target = defender("vcmi-test:testDamageVulnerableBack");
 
 	auto result = estimate(source, target);
 
@@ -456,7 +454,7 @@ TEST_P(DamageReductionTest, reducesDamageOfTheMatchingAttack)
 	const auto & scenario = GetParam();
 
 	// titans shoot and ignore the melee penalty, so the same pair works for both kinds of attack
-	auto * target = defender(titan);
+	const auto * target = defender(titan);
 
 	// both spells are for the caster's own side, so the shielded stack is shielded by its own hero
 	cast(defenderSideHero, scenario.spell, target, scenario.mastery);
@@ -482,7 +480,7 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, DamageReductionTest, ::testing::Values(
 /// leave 1000 rather than 2000 were the two counted together.
 TEST_F(DamageCalculatorTest, PetrificationReducesDamageWithoutCountingAsArmorer)
 {
-	auto * target = defender(titan);
+	const auto * target = defender(titan);
 	cast(attackerSideHero, SpellID::STONE_GAZE, target);
 
 	EXPECT_EQ(estimate(attacker(titan), target).damage.min, 2000);
@@ -491,7 +489,7 @@ TEST_F(DamageCalculatorTest, PetrificationReducesDamageWithoutCountingAsArmorer)
 /// Blindness lowers the attack of whoever is under it, whatever they strike.
 TEST_F(DamageCalculatorTest, BlindnessLowersTheDamageOfItsBearer)
 {
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 
 	// a hostile spell, so it is the other hero that casts it
 	cast(defenderSideHero, SpellID::BLIND, source, MasteryLevel::BASIC);
@@ -525,7 +523,7 @@ TEST_F(DamageCalculatorTest, AttackReductionRespectsItsCombatLimiter)
 /// to mind spells, which the spell refuses to be cast on.
 TEST_F(DamageCalculatorTest, ForgetfulnessHalvesRangedDamage)
 {
-	auto * source = attacker(medusa);
+	const auto * source = attacker(medusa);
 	cast(defenderSideHero, SpellID::FORGETFULNESS, source);
 
 	EXPECT_EQ(estimate(source, defender(medusa), 0, true).damage.min, 300);
@@ -533,7 +531,7 @@ TEST_F(DamageCalculatorTest, ForgetfulnessHalvesRangedDamage)
 
 TEST_F(DamageCalculatorTest, ForgetfulnessIsIgnoredInMelee)
 {
-	auto * source = attacker(medusa);
+	const auto * source = attacker(medusa);
 	cast(defenderSideHero, SpellID::FORGETFULNESS, source);
 
 	EXPECT_EQ(estimate(source, defender(medusa)).damage.min, 600);
@@ -565,8 +563,8 @@ TEST_P(RangePenaltyDamageTest, halvesPenalisedAttacks)
 {
 	const auto & scenario = GetParam();
 
-	auto * source = attacker(scenario.shooter, stackSize, BattleHex(scenario.distant ? nearEdgeHex : attackerHex));
-	auto * target = defender(scenario.target, stackSize, BattleHex(scenario.distant ? farEdgeHex : defenderHex));
+	const auto * source = attacker(scenario.shooter, stackSize, BattleHex(scenario.distant ? nearEdgeHex : attackerHex));
+	const auto * target = defender(scenario.target, stackSize, BattleHex(scenario.distant ? farEdgeHex : defenderHex));
 
 	auto result = estimate(source, target, 0, scenario.shooting);
 
@@ -656,7 +654,7 @@ TEST_F(DamageCalculatorTest, ArtilleryIsIgnoredOnAnOrdinaryShot)
 
 TEST_F(DamageCalculatorTest, BlessCollapsesTheRangeOntoItsMaximum)
 {
-	auto * source = attacker(titan);
+	const auto * source = attacker(titan);
 	cast(attackerSideHero, SpellID(SpellID::BLESS), source);
 
 	auto result = estimate(source, defender(titan));
@@ -667,7 +665,7 @@ TEST_F(DamageCalculatorTest, BlessCollapsesTheRangeOntoItsMaximum)
 
 TEST_F(DamageCalculatorTest, CurseCollapsesTheRangeOntoItsMinimum)
 {
-	auto * source = attacker(titan);
+	const auto * source = attacker(titan);
 
 	// a hostile spell, so it is the other hero that casts it
 	cast(defenderSideHero, SpellID(SpellID::CURSE), source);
@@ -682,7 +680,7 @@ TEST_F(DamageCalculatorTest, CurseCollapsesTheRangeOntoItsMinimum)
 /// what makes an expert blessing worth more than a plain one.
 TEST_F(DamageCalculatorTest, ExpertBlessAddsAPointBeforeCollapsing)
 {
-	auto * source = attacker(titan);
+	const auto * source = attacker(titan);
 	cast(attackerSideHero, SpellID(SpellID::BLESS), source, MasteryLevel::EXPERT); // 40..60 becomes 41..61
 
 	auto result = estimate(source, defender(titan));
@@ -693,7 +691,7 @@ TEST_F(DamageCalculatorTest, ExpertBlessAddsAPointBeforeCollapsing)
 
 TEST_F(DamageCalculatorTest, ExpertCurseTakesAPointBeforeCollapsing)
 {
-	auto * source = attacker(titan);
+	const auto * source = attacker(titan);
 	cast(defenderSideHero, SpellID(SpellID::CURSE), source, MasteryLevel::EXPERT); // 40..60 becomes 39..59
 
 	auto result = estimate(source, defender(titan));
@@ -740,7 +738,7 @@ TEST_P(CasualtiesTest, countsWholeCreaturesOnly)
 {
 	const auto & scenario = GetParam();
 
-	auto * source = attacker(angel, scenario.attackerCount);
+	const auto * source = attacker(angel, scenario.attackerCount);
 	auto * target = defender(angel, scenario.defenderCount);
 
 	if(scenario.woundTopCreature > 0)
@@ -773,7 +771,7 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, CasualtiesTest, ::testing::Values(
 /// a second time.
 TEST_F(DamageCalculatorTest, AirShieldOnlyReducesDamageByItsOwnValue)
 {
-	auto * target = defender(titan);
+	const auto * target = defender(titan);
 	cast(defenderSideHero, SpellID::AIR_SHIELD, target, MasteryLevel::EXPERT);
 
 	// the two stacks stand next to each other, so nothing but the spell can penalise the shot
@@ -783,8 +781,8 @@ TEST_F(DamageCalculatorTest, AirShieldOnlyReducesDamageByItsOwnValue)
 /// A shot from across the field is penalised the once, whether or not the target is shielded.
 TEST_F(DamageCalculatorTest, AirShieldDoesNotDeepenTheDistancePenalty)
 {
-	auto * source = attacker(titan, stackSize, BattleHex(nearEdgeHex));
-	auto * target = defender(titan, stackSize, BattleHex(farEdgeHex));
+	const auto * source = attacker(titan, stackSize, BattleHex(nearEdgeHex));
+	const auto * target = defender(titan, stackSize, BattleHex(farEdgeHex));
 	cast(defenderSideHero, SpellID::AIR_SHIELD, target, MasteryLevel::EXPERT);
 
 	EXPECT_EQ(estimate(source, target, 0, true).damage.min, 1000);
@@ -797,7 +795,7 @@ TEST_F(DamageCalculatorTest, AirShieldDoesNotDeepenTheDistancePenalty)
 /// takes off leaves 11 to convert, for 31 attack against 17 defense.
 TEST_F(DamageCalculatorTest, FrenzyBoostIsBuiltOnTheDefenceABehemothLeaves)
 {
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::FRENZY), source);
 
 	EXPECT_EQ(estimate(source, defender(behemoth)).damage.min, 8500);
@@ -806,7 +804,7 @@ TEST_F(DamageCalculatorTest, FrenzyBoostIsBuiltOnTheDefenceABehemothLeaves)
 /// An ancient behemoth takes off 17, leaving 3 to convert, for 23 attack against 19 defense.
 TEST_F(DamageCalculatorTest, FrenzyBoostIsBuiltOnTheDefenceAnAncientBehemothLeaves)
 {
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::FRENZY), source);
 
 	EXPECT_EQ(estimate(source, defender(ancientBehemoth)).damage.min, 6000);
@@ -815,7 +813,7 @@ TEST_F(DamageCalculatorTest, FrenzyBoostIsBuiltOnTheDefenceAnAncientBehemothLeav
 /// Against anything without such an ability the whole defense is converted.
 TEST_F(DamageCalculatorTest, FrenzyConvertsTheWholeDefenceIntoAttack)
 {
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::FRENZY), source); // 20 attack plus 20 defense against 20
 
 	EXPECT_EQ(estimate(source, defender(angel)).damage.min, 10000);
@@ -824,7 +822,7 @@ TEST_F(DamageCalculatorTest, FrenzyConvertsTheWholeDefenceIntoAttack)
 /// An advanced frenzy converts half again as much, for 50 attack against 20 defense.
 TEST_F(DamageCalculatorTest, AdvancedFrenzyConvertsHalfAgainAsMuchDefence)
 {
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::FRENZY), source, MasteryLevel::ADVANCED);
 
 	EXPECT_EQ(estimate(source, defender(angel)).damage.min, 12500);
@@ -833,7 +831,7 @@ TEST_F(DamageCalculatorTest, AdvancedFrenzyConvertsHalfAgainAsMuchDefence)
 /// And the unit that spent its defense has none left when it is the one being hit.
 TEST_F(DamageCalculatorTest, FrenzyLeavesItsBearerWithNoDefence)
 {
-	auto * target = defender(angel);
+	const auto * target = defender(angel);
 	cast(defenderSideHero, SpellID(SpellID::FRENZY), target);
 
 	// 20 attack against no defense at all is worth +100%
@@ -863,7 +861,7 @@ TEST_P(SlayerDamageTest, appliesOnlyWithinItsMastery)
 {
 	const auto & scenario = GetParam();
 
-	auto * source = attacker(angel);
+	const auto * source = attacker(angel);
 	cast(attackerSideHero, SpellID(SpellID::SLAYER), source, scenario.mastery);
 
 	EXPECT_EQ(estimate(source, defender(scenario.target)).damage.min, scenario.expected) << scenario.name;

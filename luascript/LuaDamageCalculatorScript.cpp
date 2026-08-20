@@ -35,13 +35,7 @@ LuaDamageCalculatorScript::~LuaDamageCalculatorScript() = default;
 
 std::shared_ptr<LuaContext> LuaDamageCalculatorScript::contextOf(const CBattleInfoCallback & battle) const
 {
-	//TODO: find a way to avoid dynamic casting
-	auto genericContext = battle.getScriptContextPool().getContext(script);
-	auto luaContext = std::dynamic_pointer_cast<LuaContext>(genericContext);
-	if(!luaContext)
-		throw std::runtime_error("Failed to execute Lua damage calculator! Context not available!");
-
-	return luaContext;
+	return LuaContext::of(battle.getScriptContextPool(), script);
 }
 
 void LuaDamageCalculatorScript::ensureDeclared(const CBattleInfoCallback & battle) const
@@ -58,9 +52,9 @@ void LuaDamageCalculatorScript::ensureDeclared(const CBattleInfoCallback & battl
 			// factor that reads it - the rest of the calculator has no business failing over it
 			try
 			{
-				declared.emplace(static_cast<BonusType>(BonusTypeID::decode(name)), name);
+				declared.try_emplace(static_cast<BonusType>(BonusTypeID::decode(name)), name);
 			}
-			catch(const std::exception &)
+			catch(const IdentifierResolutionException &)
 			{
 				logMod->error("Damage calculator declares an interest in bonus '%s', which is no bonus type! Every factor reading it will find nothing.", name);
 			}
@@ -86,7 +80,7 @@ std::unordered_map<std::string, bool> LuaDamageCalculatorScript::carriedBonuses(
 		auto entry = declared.find(bonus->type);
 
 		if(entry != declared.end())
-			result.emplace(entry->second, true);
+			result.try_emplace(entry->second, true);
 	}
 
 	return result;

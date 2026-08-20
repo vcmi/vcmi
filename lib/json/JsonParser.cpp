@@ -537,17 +537,30 @@ bool JsonParser::extractFloat(JsonNode & node)
 		//extract fractional part
 		isFloat = true;
 		pos++;
-		double fractMult = 0.1;
 
 		if(settings.mode < JsonParsingSettings::JsonFormatMode::JSON5 && (input[pos] < '0' || input[pos] > '9'))
 			return error("Decimal part expected!");
 
+		// largest integer a double still holds exactly
+		static constexpr si64 maxExactMantissa = 1LL << 53;
+
+		si64 mantissa = integerPart;
+		int fractionDigits = 0;
+
 		while(input[pos] >= '0' && input[pos] <= '9')
 		{
-			result = result + fractMult * (input[pos] - '0');
-			fractMult /= 10;
+			// once the mantissa is full, further digits can no longer change the resulting double
+			if(mantissa <= (maxExactMantissa - 9) / 10)
+			{
+				mantissa = mantissa * 10 + (input[pos] - '0');
+				fractionDigits++;
+			}
 			pos++;
 		}
+
+		// scaling the digits back down in one step keeps the single rounding that gives the double
+		// nearest to the written number - adding digit by digit lands an ULP off for values like 0.7
+		result = static_cast<double>(mantissa) / std::pow(10, fractionDigits);
 	}
 
 	if(input[pos] == 'e')

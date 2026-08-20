@@ -166,6 +166,8 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 		case BonusType::SPELLS_OF_LEVEL:
 		case BonusType::CREATURE_GROWTH:
 		case BonusType::ON_COMBAT_EVENT:
+        case BonusType::FREE_SHOOTING:
+        case BonusType::ALIGNMENT_MIX: // alignment
 			return EntityTypeEnum::CUSTOM;
 		default:
 			return EntityTypeEnum::NONE;

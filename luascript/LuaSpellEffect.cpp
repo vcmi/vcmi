@@ -102,13 +102,7 @@ void LuaSpellEffect::initImpl(JsonNode data)
 
 std::shared_ptr<scripting::LuaContext> LuaSpellEffect::resolveScript(const Mechanics * m) const
 {
-	//TODO: find a way to avoid dynamic casting
-	auto genericContext = m->battle()->getScriptContextPool().getContext(script);
-	auto luaContext = std::dynamic_pointer_cast<scripting::LuaContext>(genericContext);
-	if(!luaContext)
-		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
-
-	return luaContext;
+	return scripting::LuaContext::of(m->battle()->getScriptContextPool(), script);
 }
 
 }

@@ -2,7 +2,7 @@
 
 Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script decides what an attack is worth - the damage of the creatures, everything that raises or lowers it, and estimation on how many creatures die.
 
-Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and nothing grants it: the engine asks it about every attack, whether the blow is being dealt or an AI is only weighing it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-the-rules) over it rather than by declaring one of its own.
+Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and nothing grants it: the engine asks it about every attack, whether the blow is being dealt or an AI is only weighing it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-a-rule) over it rather than by declaring one of its own.
 
 ```json
 "damageCalculator" : {
@@ -58,7 +58,7 @@ Two lines register it: `declareBonus` for every bonus type the factor reads - se
 
 ## Changing a rule
 
-Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ... 
+Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ...
 
 ```lua
 --- Make Jousting twice stronger, from any source.
@@ -125,8 +125,8 @@ return info.chargeDistance * info.attacker:getBonusesValue({type = "JOUSTING"}) 
 
 Four helpers do the check and the query in one step, so a factor rarely needs to write both:
 
-| | |
-|---|---|
+| function | description |
+| -------- | ----------- |
 | `self:hasBonusOfType(present, type)` | whether the unit carries it at all |
 | `self:getBonusValueOfType(unit, present, type)` | what every bonus of that type is worth together |
 | `self:getBonusValueOfSubtype(unit, present, type, subtype)` | the same, narrowed to one subtype |

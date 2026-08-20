@@ -59,13 +59,7 @@ LuaCombatEventScript::~LuaCombatEventScript() = default;
 
 std::shared_ptr<LuaContext> LuaCombatEventScript::contextOf(const CBattleInfoCallback & battle) const
 {
-	//TODO: find a way to avoid dynamic casting
-	auto genericContext = battle.getScriptContextPool().getContext(script);
-	auto luaContext = std::dynamic_pointer_cast<LuaContext>(genericContext);
-	if(!luaContext)
-		throw std::runtime_error("Failed to execute Lua combat script! Context not available!");
-
-	return luaContext;
+	return LuaContext::of(battle.getScriptContextPool(), script);
 }
 
 bool LuaCombatEventScript::handlesEvent(const CBattleInfoCallback & battle, CombatEventType event) const

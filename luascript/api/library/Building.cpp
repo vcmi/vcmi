@@ -22,7 +22,7 @@ void BuildingProxy::registerMethods(MethodRegistrar & R)
 		{"Identifier of this building, scoped by the mod providing it."},
 		"Returns the json key of this building, such as `core:fort`.");
 	R.function<&BuildingProxy::getBuildingType>("getBuildingType",
-		{"\"fort\", \"villageHall\", ...; nil for a building the game has no name of its own for."},
+        {"'fort', 'villageHall', ...; nil for a building the game has no name of its own for."},
 		"Returns which of the buildings known to the game this one is. Unlike the json key this is "
 		"the same in every town, so it is what to test against when a rule speaks of a fort or a "
 		"town hall rather than of one particular mod's version of it.");

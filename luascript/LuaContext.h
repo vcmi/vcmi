@@ -29,6 +29,10 @@ public:
 	LuaContext(const LuaScriptInstance * source, const Environment * env_);
 	~LuaContext();
 
+	/// The context the given pool holds for the given script.
+	/// TODO: find a way to avoid dynamic casting
+	static std::shared_ptr<LuaContext> of(const Pool & pool, const Script * script);
+
 	/// Runs script once to perform its initialization
 	void initialize();
 
