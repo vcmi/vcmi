@@ -50,7 +50,10 @@ private:
 		REPLACE_TEXTID_STRING,
 		REPLACE_NUMBER,
 		REPLACE_POSITIVE_NUMBER,
-		APPEND_EOL
+		APPEND_EOL,
+		// new values must be appended - numeric values are part of save format
+		REPLACE_TOKEN_TEXTID,
+		REPLACE_TOKEN_NUMBER
 	};
 
 	std::vector<EMessage> message;
@@ -88,6 +91,10 @@ public:
 	void appendNamePlural(const CreatureID & id);
 	void appendEOL();
 
+	/// Appends all content of another MetaString. Note that any replacement stored in
+	/// `other` will act on the combined text, including the part contributed by this string
+	void append(const MetaString & other);
+
 	/// Replaces first '%s' placeholder in string with specified local string
 	void replaceLocalString(EMetaText type, ui32 serial);
 	/// Replaces first '%s' placeholder in string with specified fixed, untranslated string
@@ -98,6 +105,11 @@ public:
 	void replaceNumber(int64_t txt);
 	/// Replaces first '%+d' placeholder in string with specified number using '+' sign as prefix
 	void replacePositiveNumber(int64_t txt);
+
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with string ID that will be translated in output
+	void replaceTokenTextID(const std::string & token, const std::string & value);
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified number
+	void replaceTokenNumber(const std::string & token, int64_t value);
 
 	void replaceName(const ArtifactID & id);
 	void replaceName(const FactionID& id);
