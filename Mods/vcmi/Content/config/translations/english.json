@@ -29,6 +29,8 @@
 	"core.bonus.FLYING.description": "{Flying}\nThis unit flies and ignores battlefield obstacles while moving.",
 	"core.bonus.FLYING.description.bonusSubtype.movementTeleporting": "{Teleportation}\nThis unit can teleport to any hex and ignore battlefield obstacles.",
 	"core.bonus.FREE_SHOOTING.description": "{Point-Blank Shot}\nAdjacent enemies do not block this unit's ranged attacks.",
+	"core.bonus.FREE_SHOOTING.description.bonusSubtype.freeShootingNoPenalty": "{Point-Blank Shot}\nAdjacent enemies do not block this unit's ranged attacks.",
+	"core.bonus.FREE_SHOOTING.description.bonusSubtype.freeShootingExceptAdjacent": "{Point-Blank Shot}\nAdjacent enemies do not block this unit's ranged attacks, but can only be attacked in melee.",
 	"core.bonus.GARGOYLE.description": "{Gargoyle}\nThis unit cannot be raised from the dead or healed.",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description": "{Damage Reduction}\nReduces physical damage from both melee and ranged attacks by ${val}%.",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeMelee": "{Damage Reduction (Melee)}\nReduces physical damage from melee attacks by ${val}%.",

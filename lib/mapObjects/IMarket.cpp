@@ -23,13 +23,18 @@ bool IMarket::allowsTrade(const EMarketMode mode) const
 	return vstd::contains(availableModes(), mode);
 }
 
+double IMarket::getMarketExchangeEffectiveness() const
+{
+	return std::min((getMarketEfficiency() + 1.0) / 20.0, 0.5);
+}
+
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
 {
 	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 		{
-			double effectiveness = std::min((getMarketEfficiency() + 1.0) / 20.0, 0.5);
+			double effectiveness = getMarketExchangeEffectiveness();
 
 			double r = GameResID(id1).toResource()->getPrice(); //value of given resource
 			double g = GameResID(id2).toResource()->getPrice() / effectiveness; //value of wanted resource

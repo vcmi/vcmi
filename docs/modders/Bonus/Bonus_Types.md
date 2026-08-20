@@ -215,9 +215,15 @@ Unit affected by this bonus will be transformed into creature other than Skeleto
 
 - subtype: type of creature to which this unit should be converted
 
-### NONEVIL_ALIGNMENT_MIX
+### ALIGNMENT_MIX
 
-Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale (Angelic Alliance effect)
+Allows mixing of creatures of different factions in affected armies without penalty to morale. All mixable alignments count as a single one, so such army also receives the morale bonus for troops of one alignment
+
+- subtype: alignment that can be mixed - `alignmentGood`, `alignmentEvil`, `alignmentNeutral` or `alignmentNone`. Factions that declare `none` as their alignment, such as neutral creatures, belong to `alignmentNone`
+
+Use one bonus per alignment that should be mixable. Angelic Alliance uses `alignmentGood` and `alignmentNeutral`, Temple of Loyalty uses all four.
+
+Replaces `NONEVIL_ALIGNMENT_MIX`, which is deprecated but still supported and acts as `alignmentGood` plus `alignmentNeutral`.
 
 ### SURRENDER_DISCOUNT
 
@@ -823,6 +829,11 @@ Affected unit will deal full damage when shooting over walls in sieges. Does not
 ### FREE_SHOOTING
 
 Affected unit can use ranged attack even when blocked by enemy unit, like with Bow of the Sharpshooter relic
+
+- subtype: `bonusSubtype.freeShootingNoPenalty` (default) - unit may also shoot at units standing next to it, like with Bow of the Sharpshooter relic
+- subtype: `bonusSubtype.freeShootingExceptAdjacent` - units standing next to affected unit can only be attacked in melee, like HotA Steel Elves
+
+If unit has both variants of this bonus, `bonusSubtype.freeShootingNoPenalty` takes priority. Bonus with no subtype set behaves as `bonusSubtype.freeShootingNoPenalty`.
 
 ### BLOCKS_RETALIATION
 

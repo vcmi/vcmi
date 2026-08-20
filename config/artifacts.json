@@ -1922,8 +1922,15 @@
 	"angelicAlliance":
 	{
 		"bonuses" : {
-			"alignmentMix" : {
-				"type" : "NONEVIL_ALIGNMENT_MIX",
+			"alignmentMixGood" : {
+				"type" : "ALIGNMENT_MIX",
+				"subtype" : "alignmentGood",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			"alignmentMixNeutral" : {
+				"type" : "ALIGNMENT_MIX",
+				"subtype" : "alignmentNeutral",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},

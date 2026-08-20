@@ -32,6 +32,42 @@
 #include "../networkPacks/StackLocation.h"
 #include "../spells/CSpell.h"
 
+void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus)
+{
+	if(bonus.type != BonusType::ALIGNMENT_MIX && bonus.type != BonusType::NONEVIL_ALIGNMENT_MIX)
+		return;
+
+	if(auto * army = dynamic_cast<CArmedInstance *>(node))
+		army->updateMoraleBonusFromArmy();
+
+	//bonus given to a player is inherited by all armies that he owns
+	if(auto * player = dynamic_cast<PlayerState *>(node))
+		updateMoraleForPlayer(player->color);
+}
+
+void GameStatePackVisitor::updateMoraleForPlayer(const PlayerColor & player)
+{
+	auto * playerState = gs.getPlayerState(player, false);
+	if(!playerState)
+		return;
+
+	for(auto * hero : playerState->getHeroes())
+		hero->updateMoraleBonusFromArmy();
+	for(auto * town : playerState->getTowns())
+		town->updateMoraleBonusFromArmy();
+}
+
+void GameStatePackVisitor::updateMoraleOnArtifactChange(const ObjectInstanceID & artHolder)
+{
+	auto * army = dynamic_cast<CArmedInstance *>(gs.getObjInstance(artHolder));
+	if(!army)
+		return;
+
+	army->updateMoraleBonusFromArmy();
+
+	//troop-mixing artifact may be propagated to the player, in which case all armies that he owns are affected
+	updateMoraleForPlayer(army->getOwner());
+}
 
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
@@ -269,6 +305,8 @@ void GameStatePackVisitor::visitGiveBonus(GiveBonus & pack)
 
 	auto b = std::make_shared<Bonus>(pack.bonus);
 	cbsn->addNewBonus(b);
+
+	updateMoraleOnTroopMixingBonusChange(cbsn, *b);
 }
 
 void GameStatePackVisitor::visitChangeObjPos(ChangeObjPos & pack)
@@ -374,16 +412,21 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	}
 
 	BonusList &bonuses = node->getExportedBonusList();
+	std::shared_ptr<Bonus> removedBonus;
 
 	for(const auto & b : bonuses)
 	{
 		if(b->source == pack.source && b->sid == pack.id)
 		{
 			pack.bonus = *b; //backup bonus (to show to interfaces later)
+			removedBonus = b;
 			node->removeBonus(b);
 			break;
 		}
 	}
+
+	if(removedBonus)
+		updateMoraleOnTroopMixingBonusChange(node, *removedBonus);
 }
 
 void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
@@ -894,6 +937,7 @@ void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 	assert(art->canBePutAt(hero, pack.al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, pack.al.slot));
 	gs.getMap().putArtifactInstance(*hero, art->getId(), pack.al.slot);
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pack)
@@ -936,6 +980,7 @@ void GameStatePackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pack)
 		}
 		gs.getMap().removeArtifactInstance(*artSet, slot);
 	}
+	updateMoraleOnArtifactChange(pack.artHolder);
 }
 
 void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
@@ -977,6 +1022,9 @@ void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		bulkArtsPut(pack.artsPack1, artInitialSetRight, *leftSet);
 	}
 	bulkArtsPut(pack.artsPack0, artInitialSetLeft, *rightSet);
+
+	updateMoraleOnArtifactChange(pack.srcArtHolder);
+	updateMoraleOnArtifactChange(pack.dstArtHolder);
 }
 
 void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
@@ -1063,6 +1111,7 @@ void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 
 	// Put new combined artifacts
 	gs.getMap().putArtifactInstance(*artSet, combinedArt->getId(), pack.al.slot);
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
@@ -1083,6 +1132,7 @@ void GameStatePackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack
 		gs.getMap().putArtifactInstance(*hero, part.getArtifact()->getId(), slot);
 	}
 	gs.getMap().eraseArtifactInstance(disassembledArt->getId());
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitHeroVisit(HeroVisit & pack)
@@ -1112,11 +1162,20 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 {
 	gs.day = pack.day;
 
+	// Troop-mixing bonuses (e.g. Temple of Loyalty) may expire now, so army morale of their owners must be recomputed afterwards
+	std::vector<CArmedInstance *> troopMixingArmies;
+	for(auto * army : gs.getMap().getObjects<CArmedInstance>())
+		if(army->hasBonusOfType(BonusType::ALIGNMENT_MIX) || army->hasBonusOfType(BonusType::NONEVIL_ALIGNMENT_MIX))
+			troopMixingArmies.push_back(army);
+
 	// Update bonuses before doing anything else so hero don't get more MP than needed
 	gs.globalEffects.removeBonusesRecursive(Bonus::OneDay); //works for children -> all game objs
 	gs.globalEffects.reduceBonusDurations(Bonus::NDays);
 	gs.globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
+
+	for(auto * army : troopMixingArmies)
+		army->updateMoraleBonusFromArmy();
 
 	for(auto & manaPack : pack.heroesMana)
 		manaPack.visit(*this);

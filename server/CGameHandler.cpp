@@ -3405,6 +3405,10 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, PlayerColor player, GameResID toSell, GameResID toBuy)
 {
+	const auto & tradeableResources = market->availableItemsIds(EMarketMode::RESOURCE_RESOURCE);
+	if(!vstd::contains(tradeableResources, TradeItemBuy(toSell)) || !vstd::contains(tradeableResources, TradeItemBuy(toBuy)))
+		COMPLAIN_RET("Market does not trade this resource!");
+
 	TResourceCap haveToSell = gameInfo().getPlayerState(player)->resources[toSell];
 
 	vstd::amin(amountToSell, haveToSell); //can't trade more resources than have

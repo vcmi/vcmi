@@ -23,7 +23,7 @@ class JsonNode;
 	BONUS_NAME(SIGHT_RADIUS) \
 	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
 	BONUS_NAME(MANA_PERCENTAGE_REGENERATION) /*all mana points are replenished every day*/  \
-	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
+	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*DEPRECATED, use ALIGNMENT_MIX with good and neutral subtypes instead*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
@@ -210,6 +210,7 @@ class JsonNode;
 	BONUS_NAME(DIPLOMACY_ARMY_STRENGTH_MULTIPLIER) /*Scales army strength as seen by neutral creatures deciding to join or flee, and by Thieves Guild; val - multiplier in percent*/\
 	BONUS_NAME(BATTLE_CAN_SURRENDER) /*val - permission to surrender, sum of all modifiers below zero blocks surrendering, e.g. -100 for shackles of war*/\
 	BONUS_NAME(COMBAT_EVENT_TRIGGER) /* Runs a combat script on every combat event that happens to bearer */ \
+	BONUS_NAME(ALIGNMENT_MIX) /*creatures of alignment in subtype can be mixed with other mixable alignments without morale penalty*/\
 
 	/* end of list */
 

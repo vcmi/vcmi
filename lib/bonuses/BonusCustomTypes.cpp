@@ -30,6 +30,8 @@ const BonusCustomSubtype BonusCustomSubtype::immunityBattleWide(0);
 const BonusCustomSubtype BonusCustomSubtype::immunityEnemyHero(1);
 const BonusCustomSubtype BonusCustomSubtype::movementFlying(-1);
 const BonusCustomSubtype BonusCustomSubtype::movementTeleporting(1);
+const BonusCustomSubtype BonusCustomSubtype::freeShootingNoPenalty(0);
+const BonusCustomSubtype BonusCustomSubtype::freeShootingExceptAdjacent(1);
 
 const BonusCustomSource BonusCustomSource::undeadMoraleDebuff(-2);
 
@@ -41,6 +43,11 @@ BonusCustomSubtype BonusCustomSubtype::spellLevel(int level)
 BonusCustomSubtype BonusCustomSubtype::creatureLevel(int level)
 {
 	return BonusCustomSubtype(level);
+}
+
+BonusCustomSubtype BonusCustomSubtype::alignment(EAlignment alignment)
+{
+	return BonusCustomSubtype(static_cast<int32_t>(alignment));
 }
 
 si32 BonusCustomSubtype::decode(const std::string & identifier)

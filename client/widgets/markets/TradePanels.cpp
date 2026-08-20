@@ -262,12 +262,15 @@ bool TradePanelBase::isHighlighted() const
 }
 
 ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
-	const UpdateSlotsFunctor & updateSubtitles)
+	const UpdateSlotsFunctor & updateSubtitles, const std::vector<GameResID> & tradeableResources)
 	: clickPressedCallback(std::move(clickPressedCallback))
 {
 	OBJECT_CONSTRUCTION;
 
-	resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
+	if(tradeableResources.empty())
+		resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
+	else
+		resourcesForTrade = tradeableResources;
 
 	const auto goldIt = std::find(resourcesForTrade.begin(), resourcesForTrade.end(), GameResID::GOLD);
 	if(goldIt != resourcesForTrade.end())

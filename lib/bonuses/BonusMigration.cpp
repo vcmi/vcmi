@@ -131,6 +131,9 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		return true;
 	}
 
+	// NOTE: NONEVIL_ALIGNMENT_MIX is also deprecated, but can not be converted here - it maps to two
+	// ALIGNMENT_MIX bonuses. It is handled by CArmedInstance instead
+
 	std::string_view script = lookup(retiredAbilities, withoutScope(ability["type"].String()));
 
 	if(script.empty())

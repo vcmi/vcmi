@@ -14,7 +14,8 @@ enum class EAlignment : int8_t
 	ANY = -1,
 	GOOD = 0,
 	EVIL,
-	NEUTRAL
+	NEUTRAL,
+	NONE /// faction that belongs to no alignment at all and never mixes with the others, e.g. neutral creatures
 };
 
 namespace BuildingSubID

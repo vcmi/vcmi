@@ -15,6 +15,7 @@
 
 #include "../../bonuses/BonusCache.h"
 #include "../../bonuses/CBonusSystemNode.h"
+#include "../../constants/Enumerations.h"
 
 #include <vcmi/Entity.h>
 
@@ -25,7 +26,10 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet, public IConstBonusProvider
 {
 private:
-	BonusValueCache nonEvilAlignmentMix;
+	BonusValueCache alignmentMix;
+
+	/// Returns true if creatures of this alignment can be mixed with others without morale penalty
+	bool canMixAlignment(EAlignment alignment) const;
 
 	void attachUnitsToArmy();
 

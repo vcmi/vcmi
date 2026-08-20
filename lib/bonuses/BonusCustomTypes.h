@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
 #include "BonusEnum.h"
 
@@ -56,8 +57,12 @@ public:
 	static const BonusCustomSubtype movementFlying; // -1
 	static const BonusCustomSubtype movementTeleporting; // 1
 
+	static const BonusCustomSubtype freeShootingNoPenalty; // 0
+	static const BonusCustomSubtype freeShootingExceptAdjacent; // 1
+
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
+	static BonusCustomSubtype alignment(EAlignment alignment);
 };
 
 class DLL_LINKAGE BonusTypeID : public EntityIdentifier<BonusTypeID>

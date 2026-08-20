@@ -178,6 +178,10 @@
 
 	"FREE_SHOOTING":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.freeShootingNoPenalty" : null,
+			"bonusSubtype.freeShootingExceptAdjacent" : null,
+		}
 	},
 	
 	"FULL_MAP_DARKNESS":
@@ -626,6 +630,7 @@
 	{
 	},
 
+	"ALIGNMENT_MIX" : {},
 	"ALWAYS_MINIMUM_DAMAGE" : {},
 	"ATTACKS_NEAREST_CREATURE" : {},
 	"BLOCK_ALL_MAGIC" : {},
