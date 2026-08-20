@@ -5,13 +5,22 @@
 ### Key Changes
 
 * Changed project name to "VCMI - Open Heroes 3"
+* Implemented support for enemy turn replay
 * Added initial support for Lua scripting
 * Added support for Heroes 3 Demo, with most of game features disabled
 * Map editor is now available on Android systems and on iPads
 * Added support for HotA 1.8 campaigns
-* Added support for Lithuanian language
+* Added support for HotA scripting (Extended Event System)
+* Added support for Lithuanian and Norwegian languages
 * Added support for HotA Quest Gates, Seer Huts with multiple quests, and quests limited by game difficulty
+* Implemented better save management logic, with each game storing its saves, including autosaves, in a dedicated directory
+* Added Scenario Event Journal that records all messages from all events the player receives since the start of the game, available from the Quest Log
+
+### Other
+
+* VCMI can now run in the background on Android, allowing hosting a multiplayer session even when switching focus to another app
 * It is now possible to select the map layer type for random maps, for example creating a map with two underground layers
+* It is now possible to manage VCMI data locally with file managers on Android
 
 ### Stability
 
@@ -21,12 +30,12 @@
 * Fixed possible freeze on entering name in high scores screen
 * Fixed possible crashes if multiple Dungeon towns with a built Scholar Academy level up multiple heroes at once on map start or on an event
 * Fixed crashes on loading some custom user-made maps with objects outside of map bounds
+* Fixed possible crash on starting VCMI campaigns with some configurations of starting bonuses
 
 ### Interface
 
 * Added shortcuts to Blacksmith(L), Shipyard(Y), Unit upgrade dialog (Shift+U / Ctrl+U)
 * Added a radial wheel to the town screen to open commonly accessed buildings
-* Game will now check VCMI version and mod list for compatibility for local LAN games
 * Fixed possible UI flickering when hero receives multiple level-up dialogs at once
 * Wiki: Game objects added in Heroes 3 expansions are now marked as such
 * Wiki: Special artifacts like Spellbook are now visible in the artifact list
@@ -35,34 +44,41 @@
 * Fixed duplicated Mystic Pond description on left click
 * Implemented paid commander resurrection on town visit
 * Game will now show whether the commander is dead in its unit window
-* Scenario selection screen is now correctly centered if UI enhancements are on
 * Added inertia scrolling to keybindings menu
 * Added status bar to Garrison window
 * Added warning message when trying to take units from Garrison with non-removable units
 * Added sound for sacrificing creatures via the Skeleton Transformer
 * Hover text on creature growth icons in the town window will now show both growth and available units
 * Added click effects for buttons on systems with a touchscreen
+* Heroes will now appear with semi-transparency when behind other map objects
+* Made fuzzy text search (adventure map objects, spells, maps) less tolerant for more logical results
+* Fixed non-functioning switching between equipped, misc, and backpack artifact categories on the kingdom overview screen
+
+### Interface - Pregame
+
+* Added option to search for maps or saves on the map selection screen
+* Game will now check VCMI version and mod list for compatibility for local LAN games
+* Scenario selection screen is now correctly centered if UI enhancements are on
+* Fixed selected skills not applying correctly in battle-only mode
+* Game will now load the list of available maps in parallel to improve load time
 
 ### Interface - Combat
 
-* Added Earthquake animation
 * It is now possible to target units by clicking on them in the battle queue
-* Fixed a bug that caused town gates during siege to open before the unit is adjacent to the gate
 * Added hover text for quick spell buttons
 * Spellbook can now support unlimited custom spell schools with some UI overlap
-* Damage-dealing spells will now correctly update the stack amount box when the spell actually hits, not on cast
+* Fixed inability to set a spell from a modded school onto the quick spell panel
 * Damage estimation for units that hit multiple targets now shows total damage and kills, not just the primary target
-* Fixed spellcasters that cast spells that affect all units to always turn left before casting
 * Improved movement range highlight images to make them easier to see on dark terrains like Lava
-* Obstacles like Quicksands will now correctly appear below units, not on top of them
-* Fixed walls incorrectly showing up as damaged if they start with health greater than the H3 value
 * Entering combat with Tactics active for the first time will now show a tutorial message similar to H3
-* Fixed positioning of spell projectile hit destination
 * Autocombat can now be cancelled via mouse click
-* Low morale effect now additionally triggers hit effect, in line with H3
 * Fixed text in battle log freezing on pressing the defend button
 * It is no longer possible to retreat or surrender if it triggers scenario loss
 * Added hotkeys to toggle grid, mouse shadow, movement shadow, and stack info, with a corresponding toggle in settings
+
+### Interface - Combat Animations
+
+* Added Earthquake animation
 * Implemented Chain Lightning effect, where the lightning bolt jumps between affected units
 * Implemented support for the H3 gate overlay that contains gate chains - they now appear on top of the units standing inside the gates.
 * Implemented animation of the gates opening/closing
@@ -72,14 +88,22 @@
 * Added missing spell effect for Remove Obstacle spell
 * Sacrifice now shows the correct animation for the sacrificed unit
 * Removal of units from the battlefield, including Sacrifice, now uses a fade-out effect, not an instant removal
+* Low morale effect now additionally triggers hit effect, in line with H3
+* Obstacles like Quicksands will now correctly appear below units, not on top of them
+* Fixed walls incorrectly showing up as damaged if they start with health greater than the H3 value
+* Walls, gates, and towers now switch to their destroyed image mid-explosion, when hidden by the blast (matching H3), instead of switching afterwards
+* Fixed positioning of spell projectile hit destination
+* Fixed spellcasters that cast spells that affect all units to always turn left before casting
 * Fixed timing of obstacle placement (Fire Wall, Force Field) - casting animation, fade-in, and replacement with the permanent obstacle now sync correctly, with no visible glitches
 * Fixed randomly reproducible bug where some spells like Magic Arrow could play the hit effect before the projectile is fired by the hero
-* Walls, gates, and towers now switch to their destroyed image mid-explosion, when hidden by the blast (matching H3), instead of switching afterwards
+* Fixed a bug that caused town gates during siege to open before the unit is adjacent to the gate
+* Damage-dealing spells will now correctly update the stack amount box when the spell actually hits, not on cast
 * Improved timing of bloodlust effect to better match H3
 * Hero animation is now paused while spell animation is playing, in line with H3
 
 ### Mechanics
 
+* Added support for Diplomat's Cloak (HotA feature)
 * Added support for Airships (HotA feature)
 * Game will now correctly handle cases where the map loss condition is "hero is lost", but the hero only joins the player midway, when rescued from prison (H3 behavior)
 * Fixed handling of the daily cast limit for spells that only give bonuses to the player (modded spells only)
@@ -87,6 +111,10 @@
 * Fixed Adela's Bless specialty rounding.
 * Fixed non-functioning healing-spell specialties.
 * When a Seer Hut quest component occupies the same slot as its combined artifact (e.g. Sword of Judgement for Angelic Alliance), the game now correctly detects it and auto-disassembles the artifact
+* Added support for Temple of Loyalty (HotA)
+* Added support for Warlock's Lab (HotA)
+* It is no longer possible to disembark onto dug-out holes (a game setting is provided to opt out of this change)
+* Changed Mysticism hero specialty rounding to match Heroes 3
 
 ### Mechanics - Combat
 
@@ -102,11 +130,17 @@
 * Fire Shield now uses damage from before defence damage reductions are applied
 * Orb of Inhibition now blocks all active abilities of units with a non-zero level
 * Poison effect will no longer trigger on Waiting, only on taking an actual turn
+* Added full support for the Steel Elves (HotA) ability
+* Petrify effect can now be dispelled by Cure
+* Fixed Arrow Tower damage calculation to be in line with Heroes 3
+* Fire Shield from multiple sources, such as the spell and the Efreeti ability, will no longer stack. Instead, the strongest version will be active
 
 ### Random Maps Generator
 
 * Improved initial placement of zones to reduce the number of monoliths on 2-level maps
 * Generator will no longer repeat the last 10 obstacles, to improve visual diversity of biomes
+* Fixed a bug where a town entrance could be blocked by a zone border on small maps
+* Town hints are now used in zones without towns to specify available content (e.g. dwellings)
 
 ### Adventure AI
 
@@ -122,16 +156,20 @@
 * Fixed AI failing to explore isolated parts of the map via teleports
 * AI heroes no longer treat nearby guarded tiles as part of the pickup danger itself if they can be accessed without combat
 * A garrison hero can now be used for a defensive counterattack if the hero is not locked and the threat is urgent.
+* Fixed a bug where AI would attempt to perform actions using heroes it no longer has
 * Fixed a bug where AI could ignore an owned town that was capturable by an enemy on the opponent's next turn if the town had no defending hero but could hire one from its tavern
 * Fixed a bug that could result in AI attempting to explore remote locations when equivalent options exist nearby
 * Fixed a bug where AI would dismiss a low-value unit to free up a slot when attempting to purchase new units in town, even if the army already contains the same unit
 * Fixed a bug where AI would prefer an upgrade with a lower AI value instead of an upgrade with a higher AI value
 * Fixed a bug where AI could leave a scout with a suboptimal unit instead of picking the unit with the lowest AI value (if units are equal with regard to other relevant parameters)
+* Improved performance of the Nullkiller AI pathfinder
+* AI will now correctly attempt to perform upgrades of the army garrisoned in a town
 
 ### Combat AI
 
 * Removed support for old versions of MMAI mod
 * Added support for additional, siege-only models for MMAI
+* Battle AI and MMAI can now use basic tactics logic
 
 ### Launcher
 
@@ -140,6 +178,7 @@
 * Fixed inability to import .zip archives on Google TV
 * Fixed the Launcher's behavior when connecting or disconnecting additional displays
 * Added Tears of Ashan to the list of recommended mods in the Launcher
+* It is now possible to start the game with "Start" or "A" on a gamepad from the Launcher
 
 ### Map Editor
 
@@ -150,7 +189,7 @@
 * Fixed possible crash in the template editor on adding a connection before two zones are placed
 * Fixed cases that would cause "Export As" or "Save As" to fail silently
 
-### Modding
+### Modding - General
 
 * Added support for defining custom tags for secondary skills. Migrated all existing boolean flags to use tags.
 * Added secondary skill tags to exclude a skill from Scholar, University, or Witch Hut
@@ -160,22 +199,41 @@
 * Added configurable battle log message for spells with the `core:timed` effect
 * Video codec `AV1` is now supported for in-game video files
 * It is now possible to use `ogg/opus` format for game music and sounds
+* Added support for custom icons in the adventure map interface for custom map layers
+* Configurable map objects can now specify reset periods using `days`, `weeks` or `months`, not just `period`. This logic is aware of the configurable week length
+* Added support for the `resources` property for markets, which limits which resources are available for trade
+* Added support for the `effectiveness` property for markets, which bypasses the usual "N markets" formula
+
+### Modding - Bonus System
+
 * Added `LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE` bonus that defines the chance to learn a spell before combat
 * Added `LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE` bonus that defines the maximum level of spell that can be learned before combat
 * Added `SURRENDER_MARKETPLACE_ACCESS` to allow opening the marketplace when the player doesn't have enough gold to pay to leave battle
-* Removed unfinished ERM scripting support
-* Added initial support for Lua scripting
-* Configurable map objects can now specify reset periods using `days`, `weeks` or `months`, not just `period`. This logic is aware of the configurable week length
-* It is now possible to create custom implementations of existing spell effect types, such as `core:damage`, either from scratch or by extending the built-in effects
-* It is now possible to 'patch' existing spell effect types, such as `core:damage`
-* It is now possible to define new spell effect types
-* All spell effects are now defined in Lua
+* Added `DIPLOMACY_ARMY_STRENGTH_MULTIPLIER` that provides an army strength modifier for the join-or-flee decision of neutral creatures
+* Added `COMBAT_EVENT_TRIGGER` bonus that allows attaching combat scripts to units
 * Added hero specialty shortcut `spellScalingPercentage` (with optional `spellScalingVal`) — a damage/heal spell specialty that scales with hero level per target creature level (for `SPECIAL_SPELL_LEV` -> `SPECIAL_SPELL_SCALING` specialties)
 * Added hero specialty shortcut `spellFixedAdditive` (with optional `spellFixedValues`) — a buff/debuff spell specialty with a fixed per-tier amount (for `SPECIAL_PECULIAR_ENCHANT`-like specialties)
 * `SPECIAL_PECULIAR_ENCHANT` can now specify an explicit per-creature-tier array of bonus values in `addInfo`, instead of only the standard 3/3/2/2/1/1/0 bracket.
 * New `SPECIAL_SPELL_SCALING` bonus type for spell-power specialties that require H3-correct per-target-level rounding.
 * `FORGETFULL` bonus now uses percentage of units that can't shoot as `val`, not hardcoded mastery level
 * `SLAYER` bonus now uses `val` for the attack bonus, and `addInfo` for spell mastery (e.g. affected `KING` level)
+* Replaced `BATTLE_NO_FLEEING` with more configurable `BATTLE_CAN_FLEE` and `BATTLE_CAN_SURRENDER` bonuses
+* Replaced `NONEVIL_ALIGNMENT_MIX` with more detailed `ALIGNMENT_MIX`
+* Bonus `FREE_SHOOTING` now supports `bonusSubtype.freeShootingNoPenalty` and `bonusSubtype.freeShootingExceptAdjacent` as subtypes
+* Added `none` alignment, as distinct from the `neutral` alignment (unaffected by Angelic Alliance and Clover Fields)
+* Bonus `ACID_BREATH` has been removed. Identical functionality can be implemented with the `SPELL_AFTER_ATTACK` bonus
+* Deprecated `SOUL_STEAL`, `TRANSMUTATION`, `SUMMON_GUARDIANS`, and `DESTRUCTION` bonuses
+
+### Modding - Scripting
+
+* All spell effects are now defined in Lua
+* Removed unfinished ERM scripting support
+* Added initial support for Lua scripting
+* It is now possible to create custom implementations of existing spell effect types, such as `core:damage`, either from scratch or by extending the built-in effects
+* It is now possible to 'patch' existing spell effect types, such as `core:damage`
+* Implemented support for scriptable combat events, to replace the `ON_COMBAT_EVENT` bonus that was limited in its actions
+* Fire Shield, Life Drain, Death Stare, and Enchanted are now implemented in Lua and can be customized by mods
+* Soul Steal, Transmutation, Summon Guardians, and Destruction are now implemented in Lua and are now deprecated - mods are expected to provide their own scripts for this logic
 
 ## 1.7.4 -> 1.7.5
 
