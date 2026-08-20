@@ -776,8 +776,8 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 		//removing all spells effects
 		auto selector = [](const Bonus * b)
 		{
-			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>().toSpell()->isPersistent();
+			//Special case: persistent effects, such as DISRUPTING_RAY, survive death
+			return b->source == BonusSource::SPELL_EFFECT && !b->sid.as<SpellID>().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
