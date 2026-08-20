@@ -1649,6 +1649,12 @@ void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
 	checkVictoryLossConditionsForAll();
 }
 
+void CGameHandler::sendAndApply(CArtifactOperationPack & pack)
+{
+	sendAndApply(static_cast<CPackForClient &>(pack));
+	checkVictoryLossConditionsForAll();
+}
+
 void CGameHandler::sendAndApply(SetResources & pack)
 {
 	sendAndApply(static_cast<CPackForClient &>(pack));
@@ -3238,8 +3244,6 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		da.al = dstLoc;
 		sendAndApply(da);
 	}
-
-	checkVictoryLossConditionsForPlayer(hero->getOwner());
 
 	return true;
 }
