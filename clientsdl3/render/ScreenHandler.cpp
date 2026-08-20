@@ -863,6 +863,11 @@ void ScreenHandler::clearReleasedLayers()
 
 Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 {
+	// the software driver rasterizes a render target on the CPU, which is slower than the
+	// surface blitting it would replace - the same reason the layers stay on surfaces there
+	if(!isGpuRenderingEnabled())
+		return Canvas(size, CanvasScalingPolicy::AUTO);
+
 	const Point pixels = size * getScalingFactor();
 	SDL_Texture * target = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, pixels.x, pixels.y);
 

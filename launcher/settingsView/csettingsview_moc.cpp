@@ -393,7 +393,15 @@ static QStringList getAvailableRenderingDrivers()
 	{
 #ifdef VCMI_SDL3
 		const char * driver = SDL_GetRenderDriver(it);
-		if (driver != nullptr)
+
+		// "vulkan" is not stable enough to use, and "gpu" holds on to every rendering operation
+		// queued into a render target until a present, which the map cache fills thousands of
+		// at a time - https://github.com/libsdl-org/SDL/issues/15799
+		const bool usable = driver != nullptr
+			&& QLatin1String(driver) != QLatin1String("vulkan")
+			&& QLatin1String(driver) != QLatin1String("gpu");
+
+		if (usable)
 			result += QString::fromLatin1(driver);
 #else
 		SDL_RendererInfo info;
