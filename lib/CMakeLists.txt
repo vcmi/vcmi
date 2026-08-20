@@ -574,6 +574,7 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
+	gameState/ScenarioEventJournalEntry.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CDefaultObjectTypeHandler.h

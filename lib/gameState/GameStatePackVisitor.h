@@ -86,6 +86,7 @@ public:
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
 	void visitSetCommanderProperty(SetCommanderProperty & pack) override;
 	void visitAddQuest(AddQuest & pack) override;
+	void visitInfoWindow(InfoWindow & pack) override;
 	void visitChangeFormation(ChangeFormation & pack) override;
 	void visitChangeTactics(ChangeTactics & pack) override;
 	void visitChangeTownName(ChangeTownName & pack) override;

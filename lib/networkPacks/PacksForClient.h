@@ -23,6 +23,7 @@
 #include "../gameState/EVictoryLossCheckResult.h"
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
+#include "../gameState/ScenarioEventJournalEntry.h"
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
@@ -1204,6 +1205,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient, public scripting::ApiShar
 	std::vector<Component> components;
 	PlayerColor player;
 	ui16 soundID = 0;
+	std::optional<ScenarioEventJournalInfo> journalInfo;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1214,6 +1216,8 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient, public scripting::ApiShar
 		h & components;
 		h & player;
 		h & soundID;
+		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL))
+			h & journalInfo;
 	}
 	InfoWindow() = default;
 };

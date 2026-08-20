@@ -97,6 +97,11 @@ std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 	return gameState().getPlayerState(*getPlayerID())->quests;
 }
 
+std::vector<ScenarioEventJournalEntry> CPlayerSpecificInfoCallback::getMyScenarioEventJournal() const
+{
+	return gameState().getPlayerState(*getPlayerID())->scenarioEventJournal;
+}
+
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);

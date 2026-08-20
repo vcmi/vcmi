@@ -30,6 +30,8 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	explicit QuestInfo(CompoundMapObjectID type) : identity(type) {}
 
 	const Quest * getQuest(IGameInfoCallback *cb) const;
+	/// True when this entry resolves to a quest with content that can be shown in the quest log.
+	bool isDisplayable(IGameInfoCallback *cb) const;
 	/// The source object for an instance quest; nullptr for a shared type quest.
 	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
 

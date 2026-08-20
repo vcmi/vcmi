@@ -24,11 +24,15 @@ const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 	if(const auto * type = std::get_if<CompoundMapObjectID>(&identity))
 		return LIBRARY->objtypeh->getHandlerFor(*type)->getTypeQuest();
 
-	const auto * source = getObject(cb)->asQuestSource();
-	const Quest * quest = source ? source->getActiveQuest() : nullptr;
-	assert(quest);
+	const auto * object = getObject(cb);
+	const auto * source = object ? object->asQuestSource() : nullptr;
+	return source ? source->getActiveQuest() : nullptr;
+}
 
-	return quest;
+bool QuestInfo::isDisplayable(IGameInfoCallback *cb) const
+{
+	const auto * quest = getQuest(cb);
+	return quest && quest->mission != Rewardable::Limiter{};
 }
 
 const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const

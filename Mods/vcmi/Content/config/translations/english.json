@@ -301,6 +301,8 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns": "Moving here will cost {%POINTS} points. {%REMAINING} points will remain after moving.",
 	"vcmi.adventureMap.movementPointsHeroInfo": "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.noTownWithMarket": "There are no available marketplaces!",
+	"vcmi.adventureMap.journal.quests": "Quests",
+	"vcmi.adventureMap.journal.events": "Events",
 	"vcmi.adventureMap.noTownWithTavern": "There are no available towns with taverns!",
 	"vcmi.adventureMap.playerAttacked": "Player has been attacked: %s",
 	"vcmi.adventureMap.quickLoad.help": "{Quick Load}\n\nLoads the game state from a quick save slot.",

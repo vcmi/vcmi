@@ -1076,7 +1076,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createQuestWindow() const
 	canvas.drawColor(r, Colors::BLACK);
 	canvas.drawBorder(r, borderColor);
 
-	r = Rect(193, 11, 408, 376);
+	r = Rect(193, 57, 408, 330);
 	canvas.drawColorBlended(r, rectangleColor);
 	canvas.drawBorder(r, borderColor);
 

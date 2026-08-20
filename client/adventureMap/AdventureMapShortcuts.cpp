@@ -38,6 +38,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -80,7 +81,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
 		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
-		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
+		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewJournal(), [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
@@ -652,9 +653,9 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 			GAME->interface()->moveHero(h, path);
 }
 
-bool AdventureMapShortcuts::optionCanViewQuests()
+bool AdventureMapShortcuts::optionCanViewJournal()
 {
-	return optionInMapView() && !GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->quests.empty();
+	return optionInMapView() && GAME->interface()->hasJournalEntries();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()

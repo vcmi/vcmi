@@ -88,7 +88,7 @@ public:
 
 	std::vector<AdventureMapShortcutState> getShortcuts();
 
-	bool optionCanViewQuests();
+	bool optionCanViewJournal();
 	bool optionCanToggleLevel();
 	int optionMapLevel();
 	bool optionHeroSleeping();

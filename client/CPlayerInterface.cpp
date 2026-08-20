@@ -63,6 +63,7 @@
 #include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
+#include "windows/CScenarioEventJournal.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
@@ -1815,7 +1816,51 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ENGINE->windows().createAndPushWindow<CQuestLog>(GAME->interface()->cb->getMyQuests());
+	auto quests = cb->getMyQuests();
+	vstd::erase_if(quests, [this](const QuestInfo & quest)
+	{
+		return !quest.isDisplayable(cb.get());
+	});
+	if(quests.empty())
+	{
+		const auto entries = cb->getMyScenarioEventJournal();
+		ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+		return;
+	}
+	ENGINE->windows().createAndPushWindow<CQuestLog>(quests);
+}
+
+void CPlayerInterface::showScenarioEventJournal()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	const auto entries = cb->getMyScenarioEventJournal();
+	ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+}
+
+bool CPlayerInterface::hasDisplayableQuests() const
+{
+	const auto quests = cb->getMyQuests();
+	return std::any_of(quests.begin(), quests.end(), [this](const QuestInfo & quest)
+	{
+		return quest.isDisplayable(cb.get());
+	});
+}
+
+bool CPlayerInterface::hasScenarioEventJournalEntries() const
+{
+	return !cb->getMyScenarioEventJournal().empty();
+}
+
+bool CPlayerInterface::hasJournalEntries() const
+{
+	return hasDisplayableQuests() || hasScenarioEventJournalEntries();
+}
+
+void CPlayerInterface::scenarioEventJournalChanged()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(adventureInt)
+		adventureInt->updateActiveState();
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)

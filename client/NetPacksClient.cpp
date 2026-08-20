@@ -662,6 +662,8 @@ void ApplyFirstClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 {
 	std::string str = pack.text.toString();
+	if(pack.journalInfo)
+		callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::scenarioEventJournalChanged);
 
 	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, pack.type, str, pack.components,(soundBase::soundID)pack.soundID))
 		logNetwork->warn("We received InfoWindow for not our player...");

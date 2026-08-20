@@ -78,6 +78,7 @@ public:
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 protected:
 	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	void configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance * contextHero, int rewardIndex) const override;
 	
 	void init() override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
