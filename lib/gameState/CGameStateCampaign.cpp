@@ -28,6 +28,7 @@
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../modding/IdentifierStorage.h"
 #include "mapping/MapFormatSettings.h"
 
 #include <vstd/RNG.h>
@@ -385,6 +386,27 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 
 void CGameStateCampaign::replaceHeroesPlaceholders()
 {
+	auto campaignState = gameState->scenarioOps->campState;
+
+	// Dragon's Blood scenario 4 ("Blood Thirsty") turns the crossed-over Mutare into Mutare Drake.
+	// Neither the campaign header bonuses nor this map's disposedHeroes carry this transformation -
+	// it is a hardcoded rule of the original campaign, same as the Yog Wizard / Gem Sorceress cases below.
+	// Resolved directly from config (not cached campaign-header state) so it also applies when resuming
+	// a save made mid-scenario-3, whose in-memory campaign header was deserialized rather than re-parsed.
+	bool becomesMutareDrake = false;
+	HeroTypeID mutareID;
+	HeroTypeID mutareDrakeID;
+	if (boost::starts_with(campaignState->getFilename(), "DATA/BLOOD") && campaignState->currentScenario()->getNum() == 3)
+	{
+		const JsonNode & overrides = LIBRARY->mapFormat->campaignOverrides(campaignState->getFilename());
+		if (!overrides["heroMutareDrake"].isNull())
+		{
+			mutareID = HeroTypeID(HeroTypeID::decode("mutare"));
+			mutareDrakeID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroMutareDrake"]));
+			becomesMutareDrake = true;
+		}
+	}
+
 	for(const auto & campaignHeroReplacement : campaignHeroReplacements)
 	{
 		if (!campaignHeroReplacement.heroPlaceholderId.hasValue())
@@ -392,6 +414,30 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 
 		auto heroPlaceholder = gameState->map->getObject(campaignHeroReplacement.heroPlaceholderId);
 		auto heroToPlace = campaignHeroReplacement.hero;
+
+		// Campaign placeholders bypass the map loader path that normally applies these overrides.
+		for(const auto & disposedHero : gameState->map->disposedHeroes)
+		{
+			if(disposedHero.heroId == heroToPlace->getHeroTypeID())
+			{
+				heroToPlace->nameCustomTextId = disposedHero.name;
+				heroToPlace->customPortraitSource = disposedHero.portrait;
+				break;
+			}
+		}
+
+		if (becomesMutareDrake && heroToPlace->getHeroTypeID() == mutareID)
+		{
+			heroToPlace->setHeroType(mutareDrakeID);
+
+			CampaignScenarioID currentScenario = *campaignState->currentScenario();
+			for (auto skill : {PrimarySkill::ATTACK, PrimarySkill::DEFENSE})
+			{
+				auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL,
+					BonusSource::CAMPAIGN_BONUS, 4, BonusSourceID(currentScenario), BonusSubtypeID(skill));
+				heroToPlace->addNewBonus(bonus);
+			}
+		}
 
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
