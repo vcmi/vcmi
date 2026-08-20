@@ -220,6 +220,16 @@ TEST_F(DamageCalculatorTest, EnemyAttackReductionLowersEffectiveAttack)
 	EXPECT_EQ(estimate(attacker(angel), target).damage.min, 3750);
 }
 
+/// What survives the reduction is rounded down, so a share that does not divide evenly costs the
+/// attacker the whole point rather than half of one.
+TEST_F(DamageCalculatorTest, EnemyAttackReductionRoundsTheRemainingAttackDown)
+{
+	auto * target = defender(angel);
+	grant(target, BonusType::ENEMY_ATTACK_REDUCTION, 57); // 43% of 20 attack is 8.6, leaving 8
+
+	EXPECT_EQ(estimate(attacker(angel), target).damage.min, 3500);
+}
+
 // ---- hero secondary skills ---------------------------------------------------------------------
 
 namespace

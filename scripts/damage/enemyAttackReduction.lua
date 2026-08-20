@@ -9,8 +9,10 @@ function Script:getAttackIgnored(info, attackBase)
 
 	if reduction <= 0 then return 0 end
 
-    -- rounded down as Hota does it
-	return -math.min(self:divideAndRound(attackBase * reduction, 100), attackBase)
+	-- Hota rounds down what is left of the attack, so the ignored share rounds up
+	local kept = math.max(0, math.floor(attackBase * (100 - reduction) / 100))
+
+	return kept - attackBase
 end
 
 Script:declareBonus("ENEMY_ATTACK_REDUCTION")
