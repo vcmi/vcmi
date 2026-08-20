@@ -78,6 +78,15 @@ void MetaString::appendEOL()
 	message.push_back(EMessage::APPEND_EOL);
 }
 
+void MetaString::append(const MetaString & other)
+{
+	vstd::concatenate(message, other.message);
+	vstd::concatenate(localStrings, other.localStrings);
+	vstd::concatenate(exactStrings, other.exactStrings);
+	vstd::concatenate(stringsTextID, other.stringsTextID);
+	vstd::concatenate(numbers, other.numbers);
+}
+
 void MetaString::replaceLocalString(EMetaText type, ui32 serial)
 {
 	message.push_back(EMessage::REPLACE_LOCAL_STRING);
@@ -106,6 +115,20 @@ void MetaString::replacePositiveNumber(int64_t txt)
 {
 	message.push_back(EMessage::REPLACE_POSITIVE_NUMBER);
 	numbers.push_back(txt);
+}
+
+void MetaString::replaceTokenTextID(const std::string & token, const std::string & value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_TEXTID);
+	exactStrings.push_back(token);
+	stringsTextID.push_back(value);
+}
+
+void MetaString::replaceTokenNumber(const std::string & token, int64_t value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_NUMBER);
+	exactStrings.push_back(token);
+	numbers.push_back(value);
 }
 
 void MetaString::clear()
@@ -198,6 +221,12 @@ DLL_LINKAGE std::string MetaString::toString() const
 				else
 					boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_TEXTID:
+				boost::replace_first(dst, exactStrings.at(exSt++), LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
+				break;
+			case EMessage::REPLACE_TOKEN_NUMBER:
+				boost::replace_first(dst, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
+				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
 				assert(0);
@@ -251,6 +280,12 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				break;
 			case EMessage::REPLACE_NUMBER:
 				lista.replace(lista.find("%d"), 2, std::to_string(numbers.at(nums++)));
+				break;
+			case EMessage::REPLACE_TOKEN_TEXTID:
+				boost::replace_first(lista, exactStrings.at(exSt++), LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
+				break;
+			case EMessage::REPLACE_TOKEN_NUMBER:
+				boost::replace_first(lista, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", int(message.at(i)));
@@ -403,7 +438,7 @@ void MetaString::replaceName(const FactionID & id)
 
 void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
 {
-	replaceTextID(LIBRARY->objtypeh->getObjectName(id, subId));
+	replaceTextID(LIBRARY->objtypeh->getObjectNameTextID(id, subId));
 }
 
 void MetaString::replaceName(const PlayerColor & id)
