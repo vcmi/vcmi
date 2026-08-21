@@ -11,6 +11,8 @@
 
 #include "GameEngineUser.h"
 
+#include "Translator.h"
+
 class CServerHandler;
 class GlobalLobbyClient;
 class CPlayerInterface;
@@ -30,6 +32,7 @@ public:
 
 class GameInstance final : boost::noncopyable, public IGameEngineUser
 {
+	Translator translatorInstance;
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
 	std::shared_ptr<CMainMenu> mainMenuInstance;
@@ -43,6 +46,7 @@ public:
 
 	CServerHandler & server();
 	CMapHandler & map();
+	const ITranslator & translator() const;
 
 	std::shared_ptr<CMainMenu> mainmenu();
 	CPlayerInterface * interface();

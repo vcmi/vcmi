@@ -43,6 +43,11 @@ CServerHandler & GameInstance::server()
 	return *serverInstance;
 }
 
+const ITranslator & GameInstance::translator() const
+{
+	return translatorInstance;
+}
+
 CMapHandler & GameInstance::map()
 {
 	if (!mapInstance)

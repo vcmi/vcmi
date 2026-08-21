@@ -14,6 +14,7 @@
 #include "Settings.h"
 #include "AIMemory.h"
 #include "DeepDecomposer.h"
+#include "Translator.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 #include "../Analyzers/BuildAnalyzer.h"
 #include "../Analyzers/ArmyManager.h"
@@ -86,6 +87,7 @@ private:
 	ObjectInstanceID targetObject;
 	HeroMap<HeroLockedReason> lockedHeroes;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
+	Translator translatorInstance;
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
@@ -123,6 +125,8 @@ public:
 	void init(const std::shared_ptr<CCallback> & cbInput, AIGateway * aiGwInput);
 	virtual void makeTurn();
 	bool updateStateAndExecutePriorityPass(Goals::TGoalVec& tempResults, int passIndex);
+	/// Resolver for text rendered into AI logs
+	const ITranslator & translator() const { return translatorInstance; }
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
 	HeroPtr getActiveHero() { return HeroPtr(activeHero, cc.get()); }
