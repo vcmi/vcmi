@@ -20,6 +20,15 @@ using namespace ::testing;
 
 class MetaStringTest : public Test {};
 
+// emptiness is decided from the stored operations alone - resolving to find out would need a
+// translator that most callers do not have, and would fail outright on map text
+TEST_F(MetaStringTest, EmptyIgnoresContentThatRendersToNothing)
+{
+	EXPECT_TRUE(MetaString().empty());
+	EXPECT_TRUE(MetaString::createFromRawString("").empty());
+	EXPECT_FALSE(MetaString::createFromRawString("text").empty());
+}
+
 TEST_F(MetaStringTest, Append)
 {
 	MetaString suffix;

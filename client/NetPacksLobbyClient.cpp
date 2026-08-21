@@ -214,6 +214,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
+	// the previous lobby state - and the map info its texts lived in - is gone now
+	handler.installLobbyTexts();
 	if(handler.mapToStart && handler.mi)
 	{
 		handler.startMapAfterConnection(nullptr);

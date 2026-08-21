@@ -81,7 +81,9 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 	assert(!identifierModContext.empty());
 	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-//	assert(allowsStringOverride() || stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+	// re-registering the same text is not a conflict - a spell effect defined in "base" is registered
+	// once per spell level, but its identifier does not include the level
+	assert(allowsStringOverride() || !identifierExists(UID) || stringsLocalizations.at(UID.get()).translatedText == localized);
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{

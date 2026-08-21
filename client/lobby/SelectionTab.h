@@ -11,6 +11,7 @@
 
 #include "CSelectionBase.h"
 class CMap;
+#include "../Translator.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
@@ -32,6 +33,8 @@ class ElementInfo : public CMapInfo
 public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
+	/// Entries outlive the tab that listed them, so each one keeps its own texts installed
+	std::vector<TranslatorOverlay> textOverlays;
 	std::string folderName = "";
 	std::string name = "";
 	bool isFolder = false;

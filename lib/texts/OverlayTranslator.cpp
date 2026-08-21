@@ -16,6 +16,10 @@
 
 const std::string & OverlayTranslator::translateString(const TextIdentifier & identifier) const
 {
+	// same order as the client translator - a translation mod's override outranks the map's own text
+	if(LIBRARY->generaltexth->identifierExists(identifier))
+		return LIBRARY->generaltexth->translateString(identifier);
+
 	if(overlay.identifierExists(identifier))
 		return overlay.translateString(identifier);
 
