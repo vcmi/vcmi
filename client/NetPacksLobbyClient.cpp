@@ -163,8 +163,18 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 {
 	assert(handler.getState() == EClientState::GAMEPLAY);
 
+	const bool campaignRestart = handler.si->campState != nullptr;
 	handler.restartGameplay();
-	handler.sendStartGame();
+
+	if(campaignRestart)
+	{
+		handler.setState(EClientState::LOBBY_CAMPAIGN);
+		ENGINE->windows().createAndPushWindow<CLobbyScreen>(ESelectionScreen::campaignList, true);
+	}
+	else
+	{
+		handler.sendStartGame();
+	}
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)

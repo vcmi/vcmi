@@ -155,7 +155,10 @@ CBonusSelection::CBonusSelection()
 	}
 
 	// Ensure campaign map info is synchronized even if player doesn't click any region manually.
-	GAME->server().setCampaignMap(GAME->server().campaignMap);
+	// A restarted campaign already has synchronized map info and its previous bonus
+	// should remain selected until the player chooses another one.
+	if(GAME->server().campaignBonus == -1)
+		GAME->server().setCampaignMap(GAME->server().campaignMap);
 }
 
 void CBonusSelection::createBonusesIcons()
@@ -400,10 +403,16 @@ void CBonusSelection::createBonusesIcons()
 		});
 		bonusButton->setRedrawParent(true);
 
+		std::shared_ptr<IImage> bonusOverlayImage;
 		if(picNumber != -1)
-			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
+			bonusOverlayImage = ENGINE->renderHandler().loadImage(AnimationPath::builtin(picName), picNumber, 0, EImageBlitMode::COLORKEY);
 		else
-			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
+			bonusOverlayImage = ENGINE->renderHandler().loadImage(ImagePath::builtin(picName), EImageBlitMode::COLORKEY);
+
+		if(GAME->server().getState() == EClientState::GAMEPLAY)
+			bonusOverlayImage->setEffectColor(ColorRGBA(128, 128, 128, ColorRGBA::ALPHA_OPAQUE));
+
+		bonusButton->setOverlay(std::make_shared<CPicture>(bonusOverlayImage, Point()));
 
 		// Add right-click popup with component for supported bonus types when UI enhancements are enabled
 		if(useComponentPopup)
@@ -531,8 +540,29 @@ void CBonusSelection::createBonusesIcons()
 		groupBonusesLabels.push_back(bonusButtonLabel);
 	}
 
-	if(getCampaign()->getBonusID(GAME->server().campaignMap))
-		groupBonuses->setSelected(*getCampaign()->getBonusID(GAME->server().campaignMap));
+	int selectedBonus = GAME->server().campaignBonus;
+	if(selectedBonus == -1)
+	{
+		if(auto campaignBonus = getCampaign()->getBonusID(GAME->server().campaignMap))
+			selectedBonus = *campaignBonus;
+	}
+
+	if(selectedBonus != -1)
+	{
+		groupBonuses->setSelectedSilent(selectedBonus);
+
+		// A loaded campaign may contain a previous selection before the lobby
+		// has restored it. Send it once; subsequent state refreshes use the
+		// synchronized lobby value without invoking this callback again.
+		if(GAME->server().campaignBonus == -1 && GAME->server().getState() != EClientState::GAMEPLAY)
+			GAME->server().setCampaignBonus(selectedBonus);
+	}
+
+	if(GAME->server().getState() == EClientState::GAMEPLAY)
+	{
+		for(const auto & bonus : groupBonuses->buttons)
+			bonus.second->setEnabled(false);
+	}
 }
 
 void CBonusSelection::updateAfterStateChange()
