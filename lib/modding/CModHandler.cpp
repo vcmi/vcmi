@@ -130,7 +130,7 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
 	try
 	{
-		auto activeMode = modManager->getActiveMods();
+		const auto & activeMode = modManager->getActiveMods();
 		for(const auto & modID : std::views::reverse(activeMode))
 		{
 			if(CResourceHandler::get(modID)->existsResource(name))
