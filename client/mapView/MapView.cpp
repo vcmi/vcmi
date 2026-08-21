@@ -69,16 +69,11 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 		// frame, since any widget redrawing its background would fill it back in. Thread safe.
 		target.drawColor(pos, ColorRGBA(0, 0, 0, 0));
 
-		// redraw() can reach us from the network thread, where every GPU call fails - defer the
-		// drawing to the next frame, which always runs on the GUI thread.
-		if(!ENGINE->amIGuiThread())
-		{
-			gpuFullUpdatePending = true;
-			return;
-		}
+		// a redraw arriving from another thread is queued by CIntObject::redraw() and reaches us
+		// from the next frame instead, so by here the GL context is ours
+		assert(ENGINE->amIGuiThread());
 
-		renderGpu(fullUpdate || gpuFullUpdatePending);
-		gpuFullUpdatePending = false;
+		renderGpu(fullUpdate);
 		return;
 	}
 
