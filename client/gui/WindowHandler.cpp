@@ -114,6 +114,7 @@ void WindowHandler::requestRedraw(CIntObject * object)
 
 void WindowHandler::cancelRedraw(CIntObject * object)
 {
+	// every destroyed widget passes here, so the common case must not take the lock
 	if(!hasPendingRedraws)
 		return;
 

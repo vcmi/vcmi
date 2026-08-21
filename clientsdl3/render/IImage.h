@@ -108,8 +108,7 @@ public:
 	// New methods go below this line: inserting a virtual above shifts every later
 	// vtable slot, which silently misdispatches translation units that were not rebuilt.
 
-	/// Same as draw(), but onto the renderer's current target instead of a surface.
-	/// Returns false if this image cannot be drawn that way and the caller must fall back.
+	/// Like draw(), but onto the renderer's current target. False when there is no texture yet.
 	virtual bool drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const = 0;
 
 	virtual ~IImage() = default;

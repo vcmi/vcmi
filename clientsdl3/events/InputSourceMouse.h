@@ -12,6 +12,7 @@
 
 #include "lib/Point.h"
 
+union SDL_Event;
 struct SDL_MouseWheelEvent;
 struct SDL_MouseMotionEvent;
 struct SDL_MouseButtonEvent;
@@ -31,6 +32,9 @@ class InputSourceMouse
 	float wheelAccumulatedY;
 public:
 	InputSourceMouse();
+
+	/// SDL3 leaves mouse coordinates in window space, unlike SDL2. Ignores any other event.
+	static void convertToRenderCoordinates(SDL_Event & event);
 
 	void handleEventMouseMotion(const SDL_MouseMotionEvent & current);
 	void handleEventMouseButtonDown(const SDL_MouseButtonEvent & current);

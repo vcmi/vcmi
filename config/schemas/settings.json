@@ -272,9 +272,8 @@
 				},
 				"driver" : {
 					"type" : "string",
-					"defaultWindows" : "",
-					"default" : "opengl",
-					"description" : "preferred graphics backend driver name"
+					"default" : "",
+					"description" : "preferred graphics backend driver name, empty to let SDL choose"
 				},
 				"displayIndex" : {
 					"type" : "number",

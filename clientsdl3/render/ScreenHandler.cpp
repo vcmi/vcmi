@@ -820,8 +820,7 @@ Canvas ScreenHandler::getScreenCanvas() const
 
 bool ScreenHandler::isGpuRenderingEnabled() const
 {
-	// A colour scheme is a per-pixel transform of the finished frame, which needs a fragment
-	// shader - only SDL's "gpu" driver has one, so everything stays on the surface path.
+	// no GPU path with the software driver, nor with a colour scheme - that needs a shader
 	return gpuRenderingSupported && colorScheme == ColorScheme::NONE;
 }
 

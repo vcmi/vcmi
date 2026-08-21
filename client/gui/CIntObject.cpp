@@ -246,9 +246,8 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			// On the GPU path only the rendering thread may draw, but redraw() is reachable from the
-			// network thread - ask for the repaint instead of performing it.
-			if(ENGINE->screenHandler().isGpuRenderingEnabled() && !ENGINE->amIGuiThread())
+			// redraw() is reachable from the network thread, but the screen belongs to this one
+			if(!ENGINE->amIGuiThread())
 			{
 				ENGINE->windows().requestRedraw(this);
 				return;

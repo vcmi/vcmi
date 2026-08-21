@@ -434,20 +434,8 @@ void InputHandler::fetchEvents()
 
 	while(SDL_PollEvent(&ev))
 	{
-		// SDL2 scaled mouse coordinates to the renderer logical size on its own, SDL3 leaves
-		// them in window coordinates. Touch events stay normalized and are left alone.
-		if (mainRenderer != nullptr)
-		{
-			switch(ev.type)
-			{
-				case SDL_EVENT_MOUSE_MOTION:
-				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-				case SDL_EVENT_MOUSE_BUTTON_UP:
-				case SDL_EVENT_MOUSE_WHEEL:
-					SDL_ConvertEventToRenderCoordinates(mainRenderer, &ev);
-					break;
-			}
-		}
+		// touch events stay normalized and are left alone
+		InputSourceMouse::convertToRenderCoordinates(ev);
 
 		preprocessEvent(ev);
 	}

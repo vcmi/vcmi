@@ -95,7 +95,7 @@ void BasicMapView::renderGpu(bool fullUpdate)
 	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
 	Canvas targetClipped(layer, pos);
 
-	// tick() normally filled the cache already, early enough for the GPU to have finished
+	// tick() normally filled the cache; a scroll, zoom or level change since then invalidates it
 	if(!tilesCache->isUpdatedThisFrame())
 		tilesCache->update(controller->getContext());
 
@@ -106,9 +106,12 @@ void BasicMapView::tick(uint32_t msPassed)
 {
 	controller->tick(msPassed);
 
+	// tick() only ever runs from the timer dispatch, which is part of the frame
+	assert(ENGINE->amIGuiThread());
+
 	// Draw the tiles into the cache now, so the GPU can work while the rest of the frame is
 	// prepared - reading the cache straight after writing it stalls until that drawing is done.
-	if(gpuLayerEligible && ENGINE->amIGuiThread() && ENGINE->screenHandler().isGpuRenderingEnabled())
+	if(gpuLayerEligible && ENGINE->screenHandler().isGpuRenderingEnabled())
 	{
 		tilesCache->update(controller->getContext());
 #ifndef VCMI_MOBILE

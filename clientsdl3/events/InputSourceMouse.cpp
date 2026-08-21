@@ -12,6 +12,7 @@
 #include "InputSourceMouse.h"
 #include "InputHandler.h"
 
+#include "CMT.h"
 #include "GameEngine.h"
 #include "gui/EventDispatcher.h"
 #include "gui/MouseButton.h"
@@ -23,6 +24,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_render.h>
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
@@ -32,6 +34,22 @@ InputSourceMouse::InputSourceMouse()
 	,wheelAccumulatedY(.0f)
 {
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+}
+
+void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
+{
+	if(mainRenderer == nullptr)
+		return;
+
+	switch(event.type)
+	{
+		case SDL_EVENT_MOUSE_MOTION:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+		case SDL_EVENT_MOUSE_WHEEL:
+			SDL_ConvertEventToRenderCoordinates(mainRenderer, &event);
+			break;
+	}
 }
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)

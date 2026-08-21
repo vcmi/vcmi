@@ -22,15 +22,6 @@
 /// Comfortably more than a screenful of distinct strings, so nothing in use is evicted
 static constexpr size_t cacheSizeLimit = 4096;
 
-bool TextTextureCache::Key::operator<(const Key & other) const
-{
-	if(font != other.font)
-		return font < other.font;
-	if(color != other.color)
-		return color < other.color;
-	return text < other.text;
-}
-
 TextTextureCache & TextTextureCache::get()
 {
 	static TextTextureCache instance;
@@ -53,6 +44,7 @@ Point TextTextureCache::getAlignmentOffset(EFonts font, ETextAlignment alignment
 
 std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const ColorRGBA & color, const std::string & text)
 {
+	// not a ColorRGBA: that orders itself by mean brightness, colliding different colours
 	const uint32_t packedColor = (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
 	Key key{ static_cast<int>(font), packedColor, text };
 

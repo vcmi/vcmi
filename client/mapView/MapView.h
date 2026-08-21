@@ -30,8 +30,7 @@ protected:
 
 	std::shared_ptr<MapViewModel> createModel(const Point & dimensions) const;
 
-	/// Only the adventure map owns the GPU layer; the puzzle map is drawn inside a window
-	/// above it and must stay in the software screen
+	/// Only the adventure map owns a layer - the puzzle map draws into its window's target
 	const bool gpuLayerEligible;
 
 	/// Set when a redraw reached us off the GUI thread and had to skip the GPU drawing,
