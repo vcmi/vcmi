@@ -56,15 +56,26 @@ void MapViewCache::ensureCanvases()
 {
 	const bool useGpu = useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled();
 
-	if(terrain && canvasesOnGpu == useGpu)
+	// on the GPU the cache keeps its tiles unscaled and scales them while blitting, which spares
+	// the per-tile render target the scaling used to go through
+	model->setCacheAtNativeSize(useGpu);
+
+	const Point cacheDimensions = model->getCacheDimensionsPixels();
+
+	// only the native cache changes size during play - it follows the number of visible tiles,
+	// while the ready-scaled one is measured from the window and stays as it was
+	const bool dimensionsStale = useGpu && cachedCanvasDimensions != cacheDimensions;
+
+	if(terrain && canvasesOnGpu == useGpu && !dimensionsStale)
 		return;
 
 	// Must run on the rendering thread: this object is constructed while handling a
 	// netpack, and creating a texture there would move the GL context off the GUI thread
 	canvasesOnGpu = useGpu;
+	cachedCanvasDimensions = cacheDimensions;
 
-	intermediate = createCanvas(Point(32, 32));
-	terrain = createCanvas(model->getCacheDimensionsPixels());
+	intermediate = createCanvas(MapViewModel::getNativeTileSize());
+	terrain = createCanvas(cacheDimensions);
 	terrainTransition = createCanvas(model->getPixelsVisibleDimensions());
 
 	// the new canvases are empty, so nothing cached about the old ones still holds
@@ -159,14 +170,14 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 	const uint32_t placeholdersBefore = ENGINE->renderHandler().getPlaceholderDrawCount();
 
-	if(model->getSingleTileSize() == Point(32, 32))
+	if(model->getCacheTileSize() == MapViewModel::getNativeTileSize())
 	{
 		mapRenderer->renderTile(*context, target, coordinates);
 	}
 	else
 	{
 		mapRenderer->renderTile(*context, *intermediate, coordinates);
-		target.drawScaled(*intermediate, Point(0, 0), model->getSingleTileSize());
+		target.drawScaled(*intermediate, Point(0, 0), model->getCacheTileSize());
 	}
 
 	if(context->filterGrayscale())
@@ -238,6 +249,7 @@ void MapViewCache::renderCachedTiles(Canvas & target)
 {
 	const Rect tilesRect = model->getTilesTotalRect();
 	const Point tileSize = model->getSingleTileSize();
+	const Point cacheTileSize = model->getCacheTileSize();
 	const int width = tilesRect.w;
 	const int height = tilesRect.h;
 
@@ -273,14 +285,18 @@ void MapViewCache::renderCachedTiles(Canvas & target)
 			if(column.second > 0 && row.second > 0)
 			{
 				Rect cacheArea(
-					column.first * tileSize.x,
-					row.first * tileSize.y,
-					column.second * tileSize.x,
-					row.second * tileSize.y);
+					column.first * cacheTileSize.x,
+					row.first * cacheTileSize.y,
+					column.second * cacheTileSize.x,
+					row.second * cacheTileSize.y);
 
 				Point targetPosition = origin + Point(offsetX * tileSize.x, offsetY * tileSize.y);
+				Point targetSize(column.second * tileSize.x, row.second * tileSize.y);
 
-				target.draw(Canvas(*terrain, cacheArea), targetPosition);
+				if(cacheTileSize == tileSize)
+					target.draw(Canvas(*terrain, cacheArea), targetPosition);
+				else
+					target.drawScaled(Canvas(*terrain, cacheArea), targetPosition, targetSize);
 			}
 			offsetY += row.second;
 		}
@@ -317,7 +333,11 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 				Canvas source = getTile(tile);
 				Rect targetRect = model->getTargetTileArea(tile);
-				target.draw(source, targetRect.topLeft());
+
+				if(model->getCacheTileSize() == model->getSingleTileSize())
+					target.draw(source, targetRect.topLeft());
+				else
+					target.drawScaled(source, targetRect.topLeft(), targetRect.dimensions());
 
 				if (!fullRedraw)
 					tilesUpToDate[cacheX][cacheY] = true;
