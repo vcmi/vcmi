@@ -84,7 +84,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					else
 						message.appendRawString(LIBRARY->generaltexth->allTexts[732]); // You possess all of the components needed to assemble the
 					message.replaceName(ArtifactID(combinedArt->getId()));
-					GAME->interface()->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
+					GAME->interface()->showYesNoDialog(message.toString(&GAME->translator()), [&assembleConfirmed, hero, slot, combinedArt]()
 						{
 							assembleConfirmed = true;
 							GAME->interface()->cb->assembleArtifacts(hero->id, slot, true, combinedArt->getId());
@@ -122,7 +122,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 		message.appendEOL();
 		message.appendEOL();
 		message.appendRawString(LIBRARY->generaltexth->allTexts[733]); // Do you wish to disassemble this artifact?
-		GAME->interface()->showYesNoDialog(message.toString(), [hero, slot]()
+		GAME->interface()->showYesNoDialog(message.toString(&GAME->translator()), [hero, slot]()
 			{
 				GAME->interface()->cb->assembleArtifacts(hero->id, slot, false, ArtifactID());
 			}, nullptr);

@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "SavegamePath.h"
 
+#include "../GameLibrary.h"
 #include "../StartInfo.h"
 #include "../callback/Calendar.h"
 #include "../campaign/CampaignState.h"
@@ -48,7 +49,7 @@ std::string getGameName(const StartInfo & startInfo, const CMapHeader & mapHeade
 {
 	if(startInfo.campState)
 		return sanitizeMapName(startInfo.getCampaignName());
-	return sanitizeMapName(mapHeader.name.toString());
+	return sanitizeMapName(mapHeader.name.toString(LIBRARY->translator()));
 }
 
 std::string getStoredDirectory(const StartInfo & startInfo)

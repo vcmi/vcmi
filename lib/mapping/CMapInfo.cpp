@@ -109,7 +109,7 @@ std::string CMapInfo::getNameTranslated() const
 	else if(mapHeader && !mapHeader->name.empty())
 	{
 		mapHeader->registerMapStrings();
-		return mapHeader->name.toString();
+		return mapHeader->name.toString(LIBRARY->translator());
 	}
 	else
 		return LIBRARY->generaltexth->allTexts[508];
@@ -135,7 +135,7 @@ std::string CMapInfo::getDescriptionTranslated() const
 	if(campaign)
 		return campaign->getDescriptionTranslated();
 	else
-		return mapHeader->description.toString();
+		return mapHeader->description.toString(LIBRARY->translator());
 }
 
 int CMapInfo::getMapSizeIconId() const

@@ -13,6 +13,7 @@
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -240,12 +241,12 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->sendQueryResolved(queryID);
 	if(hlu.skills.empty())
 	{
-		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getObjectName().toString());
+		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getObjectName().toString(LIBRARY->translator()));
 		gh->levelUpHero(hero);
 		return;
 	}
 
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName().toString(), answer.value());
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName().toString(LIBRARY->translator()), answer.value());
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
@@ -309,12 +310,12 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->sendQueryResolved(queryID);
 	if(clu.skills.empty())
 	{
-		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getObjectName().toString());
+		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getObjectName().toString(LIBRARY->translator()));
 		gh->levelUpCommander(hero->getCommander());
 		return;
 	}
 
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName().toString(), answer.value());
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName().toString(LIBRARY->translator()), answer.value());
 	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 

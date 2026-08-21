@@ -23,6 +23,7 @@ class SecondarySkill;
 class SpellID;
 class FactionID;
 class GameResID;
+class ITranslator;
 using TQuantity = si32;
 
 /// Strings classes that can be used as replacement in MetaString
@@ -63,7 +64,7 @@ private:
 	std::vector<std::string> stringsTextID;
 	std::vector<int64_t> numbers;
 
-	std::string getLocalString(const std::pair<EMetaText, ui32> & txt) const;
+	std::string getLocalString(const ITranslator * translator, const std::pair<EMetaText, ui32> & txt) const;
 
 public:
 	/// Creates MetaString and appends provided raw string to it
@@ -130,10 +131,11 @@ public:
 	void clear();
 
 	///used to handle loot from creature bank
-	std::string buildList() const;
+	std::string buildList(const ITranslator * translator) const;
 
-	/// Convert all stored values into a single, user-readable string
-	std::string toString() const;
+	/// Convert all stored values into a single, user-readable string.
+	/// Translator must not be null - use LIBRARY->translator() if no better one is at hand
+	std::string toString(const ITranslator * translator) const;
 
 	/// Returns true if current string is empty
 	bool empty() const;

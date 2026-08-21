@@ -200,7 +200,7 @@ void CLobbyScreen::updateCompatibilityNotice(size_t requiredHumanPlayers)
 		MetaString warningText;
 		warningText.appendTextID("vcmi.lobby.system.hidingIncompatibleMaps");
 		warningText.replaceNumber(requiredHumanPlayers);
-		const std::string warningTextFormatted = warningText.toString();
+		const std::string warningTextFormatted = warningText.toString(&GAME->translator());
 
 		if(lastCompatibilityNotice != warningTextFormatted)
 		{
@@ -313,7 +313,7 @@ void CLobbyScreen::startCampaign()
 		message.appendTextID("vcmi.client.errors.invalidMap");
 		message.replaceRawString(e.what());
 
-		CInfoWindow::showInfoDialog(message.toString(), {});
+		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
 	}
 }
 

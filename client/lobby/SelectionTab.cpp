@@ -582,8 +582,8 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		std::string mapVersion;
 		if(tabType != ESelectionScreen::campaignList)
 		{
-			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
-			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
+			author = curItems[py]->mapHeader->author.toString(&GAME->translator()) + (!curItems[py]->mapHeader->authorContact.toString(&GAME->translator()).empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString(&GAME->translator()) + ">") : "");
+			mapVersion = curItems[py]->mapHeader->mapVersion.toString(&GAME->translator());
 			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
 		}
 		else
@@ -1410,7 +1410,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 	{
 		MetaString text = MetaString::createFromTextID("vcmi.lobby.deleteUnsupportedSave");
 		text.replaceNumber(files.size());
-		CInfoWindow::showYesNoDialog(text.toString(), std::vector<std::shared_ptr<CComponent>>(), [files](){
+		CInfoWindow::showYesNoDialog(text.toString(&GAME->translator()), std::vector<std::shared_ptr<CComponent>>(), [files](){
 			for(auto & file : files)
 			{
 				LobbyDelete ld;

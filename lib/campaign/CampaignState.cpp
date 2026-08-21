@@ -45,27 +45,27 @@ CampaignVersion CampaignHeader::getFormat() const
 
 std::string CampaignHeader::getDescriptionTranslated() const
 {
-	return description.toString();
+	return description.toString(LIBRARY->translator());
 }
 
 std::string CampaignHeader::getNameTranslated() const
 {
-	return name.toString();
+	return name.toString(LIBRARY->translator());
 }
 
 std::string CampaignHeader::getAuthor() const
 {
-	return authorContact.toString();
+	return authorContact.toString(LIBRARY->translator());
 }
 
 std::string CampaignHeader::getAuthorContact() const
 {
-	return authorContact.toString();
+	return authorContact.toString(LIBRARY->translator());
 }
 
 std::string CampaignHeader::getCampaignVersion() const
 {
-	return campaignVersion.toString();
+	return campaignVersion.toString(LIBRARY->translator());
 }
 
 time_t CampaignHeader::getCreationDateTime() const

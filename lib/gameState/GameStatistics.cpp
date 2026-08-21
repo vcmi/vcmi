@@ -71,7 +71,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	scenarioHighScores.parameters.push_back(param);
 	scenarioHighScores.isCampaign = false;
 
-	data.map = gs->getMap().name.toString();
+	data.map = gs->getMap().name.toString(LIBRARY->translator());
 	data.timestamp = std::time(nullptr);
 	data.day = gs->getCalendar().getCurrentDay();
 	data.player = ps->color;

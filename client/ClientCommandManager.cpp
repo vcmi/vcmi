@@ -503,7 +503,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName().toString() + "\n");
+		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName().toString(&GAME->translator()) + "\n");
 		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");

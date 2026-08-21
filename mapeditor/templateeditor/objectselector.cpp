@@ -23,6 +23,7 @@
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../translator.h"
 
 ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	ui(new Ui::ObjectSelector),
@@ -71,7 +72,7 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 			{
 				auto templ = templates.at(0);
 				auto temporaryObj(factory->create(controller.getCallback(), templ));
-				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString().c_str());
+				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()).c_str());
 				name = translated;
 			}
 			catch(...) {}

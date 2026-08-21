@@ -521,7 +521,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				OwnedObjectInfo & info = visibleObjects[object->subID];
 				if(info.count++ == 0)
 				{
-					info.hoverText = object->getObjectName().toString();
+					info.hoverText = object->getObjectName().toString(&GAME->translator());
 					info.imagePath = kingdomOverviewImage;
 					info.imageID = 0;
 				}
@@ -531,7 +531,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				OwnedObjectInfo & info = visibleObjects[object->subID];
 				if(info.count++ == 0)
 				{
-					info.hoverText = object->getObjectName().toString();
+					info.hoverText = object->getObjectName().toString(&GAME->translator());
 					info.imageID = object->subID;
 				}
 			}
@@ -544,7 +544,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo & info = visibleObjects[iter->second];
 			if(info.count++ == 0)
 			{
-				info.hoverText = object->getObjectName().toString();
+				info.hoverText = object->getObjectName().toString(&GAME->translator());
 				info.imageID = iter->second;
 			}
 		}

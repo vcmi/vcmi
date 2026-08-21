@@ -1100,7 +1100,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	std::string str = text.toString();
+	std::string str = text.toString(&GAME->translator());
 
 	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();
@@ -1196,8 +1196,8 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	const std::string localTitle = title.toString();
-	const std::string localDescription = description.toString();
+	const std::string localTitle = title.toString(&GAME->translator());
+	const std::string localDescription = description.toString(&GAME->translator());
 
 	std::vector<int> tempList;
 	tempList.reserve(objectGuiOrdered.size());
@@ -1869,7 +1869,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	{
 		MetaString txt;
 		obj->getProblemText(txt);
-		showInfoDialog(txt.toString());
+		showInfoDialog(txt.toString(&GAME->translator()));
 	}
 	else
 		showShipyardDialog(obj);
@@ -2035,7 +2035,7 @@ void CPlayerInterface::quickSaveGame()
 	MetaString txt;
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
 	txt.replaceRawString(quickSavePath);
-	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
+	GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
 	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)

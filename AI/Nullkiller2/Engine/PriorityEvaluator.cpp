@@ -1201,7 +1201,7 @@ public:
 		logAi->trace("buildEvaluationContext ExchangeSwapTownHeroesContextBuilder %s affected objects: %d", swapCommand.toString(), swapCommand.getAffectedObjects().size());
 		for (auto obj : swapCommand.getAffectedObjects())
 		{
-			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectName().toString());
+			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectName().toString(&evaluationContext.evaluator.aiNk->translator()));
 		}
 		if (garrisonHero)
 			logAi->debug("with %s and %d", garrisonHero->getNameTranslated(), int(swapCommand.getLockingReason()));

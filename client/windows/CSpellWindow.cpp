@@ -91,10 +91,10 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, const std::f
 	onLeft = funcL;
 	auto hoverTextTmp = MetaString::createFromTextID("vcmi.spellBook.tab.hover");
 	hoverTextTmp.replaceTextID(textId);
-	hoverText = hoverTextTmp.toString();
+	hoverText = hoverTextTmp.toString(&GAME->translator());
 	auto helpTextTmp = MetaString::createFromTextID("vcmi.spellBook.tab.help");
 	helpTextTmp.replaceTextID(textId);
-	helpText = helpTextTmp.toString();
+	helpText = helpTextTmp.toString(&GAME->translator());
 	owner = _owner;
 }
 

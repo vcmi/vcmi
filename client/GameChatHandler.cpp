@@ -75,7 +75,7 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 		formatted.replaceRawString(senderName);
 		formatted.replaceRawString(messageText);
 
-		lobby->card->chat->addNewMessage(formatted.toString());
+		lobby->card->chat->addNewMessage(formatted.toString(&GAME->translator()));
 		if (!lobby->card->showChat)
 				lobby->toggleChat();
 	}

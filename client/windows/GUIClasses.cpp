@@ -186,7 +186,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		MetaString recruitText;
 		recruitText.appendTextID("core.tcommand.21");
 		recruitText.replaceNamePlural(card->creature->getId());
-		title->setText(recruitText.toString());
+		title->setText(recruitText.toString(&GAME->translator()));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -218,7 +218,7 @@ void CRecruitmentWindow::buy()
 			message.replaceName(newWarMachine);
 
 			GAME->interface()->showYesNoDialog(
-				message.toString(),
+				message.toString(&GAME->translator()),
 				[this, crid](){ onRecruit(crid, slider->getValue()); if(level >= 0) close();},
 				nullptr
 			);
@@ -709,7 +709,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		message.replaceNumber(GAME->interface()->cb->howManyHeroes(true));
 
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(EButtonState::NORMAL, message.toString());
+		recruit->addHoverText(EButtonState::NORMAL, message.toString(&GAME->translator()));
 		recruit->block(true);
 	}
 	else if(GAME->interface()->cb->howManyHeroes(false) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
@@ -718,7 +718,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		message.appendTextID("core.tvrninfo.1");
 		message.replaceNumber(GAME->interface()->cb->howManyHeroes(false));
 
-		recruit->addHoverText(EButtonState::NORMAL, message.toString());
+		recruit->addHoverText(EButtonState::NORMAL, message.toString(&GAME->translator()));
 		recruit->block(true);
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->getVisitingHero())
@@ -1172,7 +1172,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 		const int mapObjectWidthPx = static_cast<int>(uni->appearance->getWidth()) * 32; // map object tile width in pixels
 		const int renderedWidthPx = titlePic->getPosition().w;
 		mapObjectTitleOffsetX = std::max(0, (renderedWidthPx - mapObjectWidthPx) / 2);
-		titleStr = uni->getObjectName().toString();
+		titleStr = uni->getObjectName().toString(&GAME->translator());
 		speechStr = uni->getSpeechTranslated();
 	}
 	else
@@ -1300,7 +1300,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
-		titleText = !customTitle.empty() ? customTitle.toString() : LIBRARY->generaltexth->allTexts[709];
+		titleText = !customTitle.empty() ? customTitle.toString(&GAME->translator()) : LIBRARY->generaltexth->allTexts[709];
 	else
 	{
 		//assume that this is joining monsters dialog
@@ -1342,7 +1342,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName().toString());
+	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName().toString(&GAME->translator()));
 
 	heroPic = std::make_shared<CHeroArea>(30, 60, hero);
 
@@ -1789,7 +1789,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	for(size_t i = 0; i < _items.size(); i++)
 	{
-		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName().toString();
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName().toString(&GAME->translator());
 		trimTextIfTooWide(objectName, false);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}

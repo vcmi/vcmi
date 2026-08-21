@@ -104,7 +104,7 @@ std::string CTransferResources::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.165");
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		message.replaceName(PlayerColor(offerTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

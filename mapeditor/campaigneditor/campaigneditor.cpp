@@ -39,6 +39,7 @@ using namespace MapEditor;
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../translator.h"
 
 CampaignEditor::CampaignEditor(EditorCallback * cb, QWidget * parent): QWidget{parent},
 	ui(new Ui::CampaignEditor),
@@ -469,7 +470,7 @@ std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		QMessageBox::critical(parent, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		QMessageBox::critical(parent, tr("Failed to open map"), QString::fromStdString(errorMsg.toString(&Translator::instance())));
 		return nullptr;
 	}
 	catch(const std::exception & e)

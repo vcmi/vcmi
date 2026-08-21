@@ -98,7 +98,7 @@ void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const s
 	// 3) arbitrary selected left and right margins
 	int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-	auto splitText = CMessage::breakText(formatted.toString(), maxWidth, FONT_MEDIUM);
+	auto splitText = CMessage::breakText(formatted.toString(&GAME->translator()), maxWidth, FONT_MEDIUM);
 
 	for(const auto & entry : splitText)
 		texts.push_back({entry, 0});

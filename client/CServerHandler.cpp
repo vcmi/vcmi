@@ -639,7 +639,7 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 		message.appendRawString("\n");
 		message.appendTextID("vcmi.lobby.system.reason");
 		message.replaceRawString(e.what());
-		showServerError(message.toString());
+		showServerError(message.toString(&GAME->translator()));
 		return false;
 	}
 

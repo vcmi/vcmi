@@ -623,7 +623,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 
 	std::string extraText;
 	if(gameState().currentRumor.type == RumorState::TYPE_NONE)
-		return text.toString();
+		return text.toString(LIBRARY->translator());
 
 	auto rumor = gameState().currentRumor.last.at(gameState().currentRumor.type);
 	switch(gameState().currentRumor.type)
@@ -637,7 +637,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 
 		break;
 	case RumorState::TYPE_MAP:
-		text.replaceRawString(gameState().getMap().rumors[rumor.first].text.toString());
+		text.replaceRawString(gameState().getMap().rumors[rumor.first].text.toString(LIBRARY->translator()));
 		break;
 
 	case RumorState::TYPE_RAND:
@@ -645,7 +645,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 		break;
 	}
 
-	return text.toString();
+	return text.toString(LIBRARY->translator());
 }
 
 PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

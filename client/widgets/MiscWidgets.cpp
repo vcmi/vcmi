@@ -171,7 +171,7 @@ void CHeroArea::showPopupWindow(const Point & cursorPosition)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		ENGINE->statusbar()->write(hero->getObjectName().toString());
+		ENGINE->statusbar()->write(hero->getObjectName().toString(&GAME->translator()));
 	else
 		ENGINE->statusbar()->clear();
 }
@@ -265,7 +265,7 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
-			logGlobal->warn("%s has stack in slot %d", army.name.toString(), slot.first.getNum());
+			logGlobal->warn("%s has stack in slot %d", army.name.toString(&GAME->translator()), slot.first.getNum());
 			continue;
 		}
 
@@ -302,7 +302,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name.toString());
+	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name.toString(&GAME->translator()));
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -320,7 +320,7 @@ void CGarrisonTooltip::init(const InfoAboutArmy& army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name.toString());
+	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name.toString(&GAME->translator()));
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(14, 48));
@@ -396,7 +396,7 @@ void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 {
 	OBJECT_CONSTRUCTION;
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name.toString());
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name.toString(&GAME->translator()));
 
 	if(hero.details)
 	{
@@ -526,7 +526,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name.toString());
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name.toString(&GAME->translator()));
 
 	if(townInfo.details)
 	{
@@ -576,7 +576,7 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	bool isHeroSelected = GAME->interface()->localState->getCurrentHero() != nullptr;
 	std::string textContent = (isHeroSelected
 			? creature->getPopupText(GAME->interface()->localState->getCurrentHero())
-			: creature->getPopupText(GAME->interface()->playerID)).toString();
+			: creature->getPopupText(GAME->interface()->playerID)).toString(&GAME->translator());
 
 	//TODO: window is bigger than OH3
 	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:

@@ -400,7 +400,7 @@ void ObjectClusterizer::clusterize()
 	{
 		auto blocker = aiNk->cc->getObj(pair.first);
 
-		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName().toString(), blocker->visitablePos().toString(), pair.second->objects.size());
+		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName().toString(&aiNk->translator()), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NK2AI_TRACE_LEVEL >= 1
 		for(auto obj : pair.second->getObjects(aiNk->cc.get()))

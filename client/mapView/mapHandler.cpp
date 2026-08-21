@@ -62,7 +62,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	{
 		if(object->coveringAt(pos) && object->isTile2Terrain())
 		{
-			result = object->getObjectName().toString();
+			result = object->getObjectName().toString(&GAME->translator());
 			break;
 		}
 	}

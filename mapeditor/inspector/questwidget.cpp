@@ -29,6 +29,7 @@
 #include <vcmi/HeroClass.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
+#include "../translator.h"
 
 QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *parent) :
 	QDialog(parent),
@@ -49,7 +50,7 @@ QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *pare
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
-		auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
+		auto * item = new QTableWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 		item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
 		ui->lResources->setItem(i, 0, item);
 		auto * spinBox = new QSpinBox;
@@ -134,7 +135,7 @@ QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *pare
 	{
 		MetaString str;
 		str.appendName(color);
-		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
@@ -464,7 +465,7 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 			continue;
 		MetaString str;
 		str.appendName(resource);
-		resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(quest.mission.resources[resource]);
+		resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString(&Translator::instance()))).arg(quest.mission.resources[resource]);
 	}
 	textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
 
@@ -515,7 +516,7 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	{
 		MetaString str;
 		str.appendName(player);
-		playersList += QString::fromStdString(str.toString());
+		playersList += QString::fromStdString(str.toString(&Translator::instance()));
 	}
 	textList += QObject::tr("Players: %1").arg(playersList.join(", "));
 

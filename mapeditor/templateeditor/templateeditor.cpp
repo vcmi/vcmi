@@ -31,6 +31,7 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../../lib/texts/MetaString.h"
+#include "../translator.h"
 
 TemplateEditor::TemplateEditor(QWidget * parent): QWidget{parent},
 	ui(new Ui::TemplateEditor)
@@ -409,7 +410,7 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 		{
 			MetaString str;
 			str.appendName(color);
-			ui->comboBoxZoneOwner->addItem(QString::fromStdString(str.toString()), QVariant(static_cast<int>(color + 1)));
+			ui->comboBoxZoneOwner->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(static_cast<int>(color + 1)));
 		}
 		for (int i = 0; i < ui->comboBoxZoneOwner->count(); ++i)
 			if (ui->comboBoxZoneOwner->itemData(i).toInt() == static_cast<int>(*zone->getOwner()))

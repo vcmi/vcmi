@@ -27,6 +27,7 @@ class CModHandler;
 class CContentHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
+class ITranslator;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
 class ResourceTypeHandler;
@@ -70,6 +71,11 @@ public:
 	const IGameSettings * engineSettings() const override;
 	const spells::SchoolService * spellSchools() const override;
 	const ScriptService * scriptTypes() const override;
+	/// Static-store-only resolver, for code that has no access to a real translator.
+	/// Transitional: it can not see map or campaign texts, so prefer passing the
+	/// translator of whoever renders the text.
+	const ITranslator * translator() const;
+
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 
