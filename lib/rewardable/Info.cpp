@@ -350,7 +350,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			loot.replaceName(creature.getId(), creature.getCount());
 		}
 
-		target.replaceRawString(loot.buildList());
+		target.replaceRawString(loot.buildList(LIBRARY->translator()));
 	}
 	else
 	{

@@ -12,6 +12,7 @@
 #include "ui_loseconditions.h"
 #include "../mapcontroller.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../translator.h"
 
 LoseConditions::LoseConditions(QWidget *parent) :
 	AbstractSettings(parent),
@@ -30,7 +31,7 @@ void LoseConditions::initialize(MapController & c)
 	AbstractSettings::initialize(c);
 
 	//loss messages
-	ui->defeatMessageEdit->setText(QString::fromStdString(controller->map()->defeatMessage.toString()));
+	ui->defeatMessageEdit->setText(QString::fromStdString(controller->map()->defeatMessage.toString(&Translator::instance())));
 
 	//loss conditions
 	const std::array<std::string, 5> conditionStringsLose = {

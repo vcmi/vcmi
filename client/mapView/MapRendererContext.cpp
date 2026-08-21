@@ -368,7 +368,7 @@ MapTextOverlay MapRendererAdventureContext::overlayText(const int3 & coordinates
 	if(object->ID == Obj::EVENT)
 		return {};
 
-	return { object->getObjectName().toString(), getObjectOverlayColor(object) };
+	return { object->getObjectName().toString(&GAME->translator()), getObjectOverlayColor(object) };
 }
 
 bool MapRendererAdventureContext::showBorder() const

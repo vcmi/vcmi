@@ -362,7 +362,7 @@ void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 	{
 		const auto & newWeek = *pack.newWeekNotification;
 
-		std::string str = newWeek.text.toString();
+		std::string str = newWeek.text.toString(&GAME->translator());
 		callAllInterfaces(cl, &CGameInterface::showInfoDialog, newWeek.type, str, newWeek.components,(soundBase::soundID)newWeek.soundID);
 	}
 }
@@ -661,7 +661,7 @@ void ApplyFirstClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 
 void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 {
-	std::string str = pack.text.toString();
+	std::string str = pack.text.toString(&GAME->translator());
 	if(pack.journalInfo)
 		callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::scenarioEventJournalChanged);
 
@@ -722,7 +722,7 @@ void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
 
 void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
 {
-	std::string str = pack.text.toString();
+	std::string str = pack.text.toString(&GAME->translator());
 
 	if(!callOnlyThatInterface(cl, pack.player, &CGameInterface::showBlockingDialog, str, pack.components, pack.queryID, (soundBase::soundID)pack.soundID, pack.selection(), pack.cancel(), pack.safeToAutoaccept()))
 		logNetwork->warn("We received YesNoDialog for not our player...");
@@ -942,9 +942,9 @@ void ApplyClientNetPackVisitor::visitQueryResolved(QueryResolved & pack)
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
 	// usually used to receive error messages from server
-	logNetwork->error("System message: %s", pack.text.toString());
+	logNetwork->error("System message: %s", pack.text.toString(&GAME->translator()));
 
-	GAME->server().getGameChat().onNewSystemMessageReceived(pack.text.toString());
+	GAME->server().getGameChat().onNewSystemMessageReceived(pack.text.toString(&GAME->translator()));
 }
 
 void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)

@@ -98,6 +98,11 @@ const SkillService * GameLibrary::skills() const
 	return skillh.get();
 }
 
+const ITranslator * GameLibrary::translator() const
+{
+	return generaltexth.get();
+}
+
 const IBonusTypeHandler * GameLibrary::getBth() const
 {
 	return bth.get();

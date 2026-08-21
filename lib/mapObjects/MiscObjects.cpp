@@ -818,7 +818,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					ynd.text.appendLocalString(EMetaText::GENERAL_TXT, 420);
 					ynd.text.replaceRawString("");
 					// TODO: server-side resolution, remove once MetaString supports nested replacement
-					ynd.text.replaceRawString(getArmyDescription().toString());
+					ynd.text.replaceRawString(getArmyDescription().toString(LIBRARY->translator()));
 					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				}
 				gameEvents.showBlockingDialog(this, &ynd);

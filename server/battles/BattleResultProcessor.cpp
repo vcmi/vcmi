@@ -144,7 +144,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
 	if (gh->gameInfo().getObjInstance(army->id) == nullptr)
-		throw std::runtime_error("Object " + army->getObjectName().toString() + " is not on the map!");
+		throw std::runtime_error("Object " + army->getObjectName().toString(LIBRARY->translator()) + " is not on the map!");
 
 	for (const auto & ncount : newStackCounts)
 	{

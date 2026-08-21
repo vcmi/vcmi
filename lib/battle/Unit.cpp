@@ -271,7 +271,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
 	text.replaceName(creatureId(), getCount());
 
-	return text.toString();
+	return text.toString(LIBRARY->translator());
 }
 
 int Unit::getRawSurrenderCost() const

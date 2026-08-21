@@ -359,7 +359,7 @@ void CBonusSelection::createBonusesIcons()
 					logGlobal->warn("No superhero! How could it be transferred?");
 				picNumber = superhero ? superhero->getIconIndex() : 0;
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 719);
-				desc.replaceRawString(getCampaign()->scenario(bonusValue.scenario).scenarioName.toString());
+				desc.replaceRawString(getCampaign()->scenario(bonusValue.scenario).scenarioName.toString(&GAME->translator()));
 				break;
 			}
 
@@ -392,7 +392,7 @@ void CBonusSelection::createBonusesIcons()
 			 bonusType == CampaignBonusType::MONSTER ||
 			 (bonusType == CampaignBonusType::HERO && bonus.getValue<CampaignBonusStartingHero>().hero != HeroTypeID::CAMP_RANDOM.getNum()));
 		
-		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(), desc.toString());
+		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(&GAME->translator()), desc.toString(&GAME->translator()));
 
 		auto bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), tooltip, nullptr, EShortcut::NONE, false, [this](){
 			if(buttonStart->isActive() && !buttonStart->isBlocked())	
@@ -710,7 +710,7 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	if(labelPos)
 	{
 		auto mapHeader = GAME->server().si->campState->getMapHeader(idOfMapAndRegion);
-		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString());
+		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString(&GAME->translator()));
 	}
 }
 
@@ -782,6 +782,6 @@ void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 	auto & text = GAME->server().si->campState->scenario(idOfMapAndRegion).regionText;
 	if(!labelOnly && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && !text.empty())
 	{
-		CRClickPopup::createAndPush(text.toString());
+		CRClickPopup::createAndPush(text.toString(&GAME->translator()));
 	}
 }

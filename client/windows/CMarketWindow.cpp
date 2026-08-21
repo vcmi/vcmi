@@ -204,7 +204,7 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 				return building->getNameTranslated();
 		}
 	}
-	return GAME->interface()->cb->getObj(marketId)->getObjectName().toString();
+	return GAME->interface()->cb->getObj(marketId)->getObjectName().toString(&GAME->translator());
 }
 
 ImagePath CMarketWindow::getImagePathBasedOnResources(std::string name)

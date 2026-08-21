@@ -248,7 +248,7 @@ std::string CAltarCreatures::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.484");
 		message.replaceNamePlural(CreatureID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

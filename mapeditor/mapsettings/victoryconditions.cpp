@@ -21,6 +21,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../inspector/townbuildingswidget.h" //to convert BuildingID to string
+#include "../translator.h"
 
 VictoryConditions::VictoryConditions(QWidget *parent) :
 	AbstractSettings(parent),
@@ -34,7 +35,7 @@ void VictoryConditions::initialize(MapController & c)
 	AbstractSettings::initialize(c);
 
 	//victory message
-	ui->victoryMessageEdit->setText(QString::fromStdString(controller->map()->victoryMessage.toString()));
+	ui->victoryMessageEdit->setText(QString::fromStdString(controller->map()->victoryMessage.toString(&Translator::instance())));
 
 	//victory conditions
 	const std::array<std::string, 9> conditionStringsWin = {
@@ -413,7 +414,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 				{
 					MetaString str;
 					str.appendName(GameResID(resType));
-					auto resName = QString::fromStdString(str.toString());
+					auto resName = QString::fromStdString(str.toString(&Translator::instance()));
 					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType.getNum()));
 				}
 			}

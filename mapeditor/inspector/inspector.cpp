@@ -41,6 +41,7 @@
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
 #include "townspellswidget.h"
+#include "../translator.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(MapController & controller, CGObjectInstance * o, const PlayerColor & pl)
@@ -909,7 +910,7 @@ QTableWidgetItem * Inspector::addProperty(const TextIdentifier & value)
 
 QTableWidgetItem * Inspector::addProperty(const MetaString & value)
 {
-	return addProperty(value.toString());
+	return addProperty(value.toString(&Translator::instance()));
 }
 
 QTableWidgetItem * Inspector::addProperty(const QString & value)
@@ -936,7 +937,7 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 	MetaString playerStr;
 	playerStr.appendName(value);
 	if(value.isValidPlayer())
-		str = QString::fromStdString(playerStr.toString());
+		str = QString::fromStdString(playerStr.toString(&Translator::instance()));
 
 	auto * item = new QTableWidgetItem(str);
 	item->setFlags(Qt::NoItemFlags);
@@ -948,7 +949,7 @@ QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
 	MetaString str;
 	str.appendName(value);
-	auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
+	auto * item = new QTableWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(value.getNum()));
 	return item;
@@ -1065,6 +1066,6 @@ OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
 		{
 			MetaString str;
 			str.appendName(PlayerColor(p));
-			options.push_back({QString::fromStdString(str.toString()), QVariant::fromValue(PlayerColor(p).getNum()) });
+			options.push_back({QString::fromStdString(str.toString(&Translator::instance())), QVariant::fromValue(PlayerColor(p).getNum()) });
 		}
 }

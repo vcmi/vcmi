@@ -1685,7 +1685,7 @@ void CGameHandler::wrongPlayerMessage(GameConnectionID connectionID, const CPack
 	auto str = MetaString::createFromTextID("vcmi.server.errors.wrongIdentified");
 	str.replaceName(pack->player);
 	str.replaceName(expectedplayer);
-	logNetwork->error(str.toString());
+	logNetwork->error(str.toString(LIBRARY->translator()));
 
 	playerMessages->sendSystemMessage(connectionID, str);
 }
@@ -3732,7 +3732,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 {
 	using events::ObjectVisitStarted;
 
-	logGlobal->debug("%s visits %s (%d)", h->nodeName(), visitedObject->getObjectName().toString(), visitedObject->ID);
+	logGlobal->debug("%s visits %s (%d)", h->nodeName(), visitedObject->getObjectName().toString(LIBRARY->translator()), visitedObject->ID);
 
 	if (getVisitingHero(visitedObject) != nullptr)
 	{

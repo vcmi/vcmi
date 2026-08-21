@@ -112,7 +112,7 @@ std::string CArtifactsBuying::getTraderText()
 		message.replaceNumber(bidQty);
 		message.replaceTextID(bidQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

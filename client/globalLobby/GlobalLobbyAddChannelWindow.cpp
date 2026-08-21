@@ -61,7 +61,7 @@ GlobalLobbyAddChannelWindow::GlobalLobbyAddChannelWindow()
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 	labelTitle = std::make_shared<CLabel>(
-		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.channel.add").toString()
+		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.channel.add").toString(&GAME->translator())
 		);
 
 	const auto & allLanguages = Languages::getLanguageList();

@@ -19,6 +19,7 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/campaign/CampaignState.h"
+#include "GameInstance.h"
 
 Discord::Discord() :
 	enabled(settings["general"]["enableDiscordRichPresence"].Bool())
@@ -103,7 +104,7 @@ void Discord::setPlayingStatus(std::shared_ptr<StartInfo> si, const CMap * map, 
 		if(player.canHumanPlay)
 			humanPlayersCount++;
 	std::string title = "Playing " + std::string(isCampaign ? "Campaign" : "Map") + (isMulti ? " (Multiplayer)" : " (Singleplayer)");
-	std::string subTitle = std::string(isCampaign ? si->campState->getNameTranslated() + " - " : "") + map->name.toString();
+	std::string subTitle = std::string(isCampaign ? si->campState->getNameTranslated() + " - " : "") + map->name.toString(&GAME->translator());
 	setStatus(subTitle, title, {humanInterfacesCount, isMulti ? humanPlayersCount : 0});
 #endif
 }

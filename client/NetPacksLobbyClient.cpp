@@ -125,7 +125,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientD
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
-	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message.toString());
+	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message.toString(&GAME->translator()));
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
@@ -261,7 +261,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 		return;
 	
 	lobby->buttonStart->block(false);
-	handler.showServerError(pack.message.toString());
+	handler.showServerError(pack.message.toString(&GAME->translator()));
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)

@@ -115,7 +115,7 @@ std::string CFreelancerGuild::getTraderText()
 			message.replaceNameSingular(bidTradePanel->getHighlightedItemId());
 		else
 			message.replaceNamePlural(bidTradePanel->getHighlightedItemId());
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

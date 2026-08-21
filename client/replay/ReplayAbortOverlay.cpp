@@ -21,6 +21,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/texts/MetaString.h"
+#include "../GameInstance.h"
 
 ReplayAbortOverlay::ReplayAbortOverlay(std::function<void()> onAbort, std::function<void(bool)> onPause)
 	: onAbort(std::move(onAbort))
@@ -39,14 +40,14 @@ ReplayAbortOverlay::ReplayAbortOverlay(std::function<void()> onAbort, std::funct
 	abortButton = std::make_shared<CButton>(
 		Point(6, 6),
 		AnimationPath::builtin("settingsWindow/button80"),
-		std::make_pair("", MetaString::createFromTextID("vcmi.replay.abort.help").toString()),
+		std::make_pair("", MetaString::createFromTextID("vcmi.replay.abort.help").toString(&GAME->translator())),
 		[this](){ abortReplay(); });
-	abortButton->setTextOverlay(MetaString::createFromTextID("vcmi.replay.abort").toString(), FONT_MEDIUM, Colors::YELLOW);
+	abortButton->setTextOverlay(MetaString::createFromTextID("vcmi.replay.abort").toString(&GAME->translator()), FONT_MEDIUM, Colors::YELLOW);
 
 	pauseButton = std::make_shared<CButton>(
 		Point(91, 6),
 		AnimationPath::builtin("settingsWindow/button80"),
-		std::make_pair("", MetaString::createFromTextID("vcmi.replay.pause.help").toString()),
+		std::make_pair("", MetaString::createFromTextID("vcmi.replay.pause.help").toString(&GAME->translator())),
 		[this](){ togglePause(); });
 	updatePauseLabel();
 
@@ -68,7 +69,7 @@ ReplayAbortOverlay::ReplayAbortOverlay(std::function<void()> onAbort, std::funct
 		1, static_cast<int>(heroMoveTimes.size()), currentIndex, Orientation::HORIZONTAL, CSlider::BROWN);
 
 	speedLabel = std::make_shared<CLabel>(pos.w / 2, 72, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-		MetaString::createFromTextID("vcmi.replay.speed").toString());
+		MetaString::createFromTextID("vcmi.replay.speed").toString(&GAME->translator()));
 
 	addUsedEvents(KEYBOARD);
 }
@@ -102,7 +103,7 @@ void ReplayAbortOverlay::setSpeed(int index)
 
 void ReplayAbortOverlay::updatePauseLabel()
 {
-	const std::string text = MetaString::createFromTextID(paused ? "vcmi.replay.resume" : "vcmi.replay.pause").toString();
+	const std::string text = MetaString::createFromTextID(paused ? "vcmi.replay.resume" : "vcmi.replay.pause").toString(&GAME->translator());
 	pauseButton->setTextOverlay(text, FONT_MEDIUM, Colors::YELLOW);
 }
 

@@ -777,7 +777,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			object->rmgValue = oi->value;
 			if(oi->templates.empty())
 			{
-				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName().toString());
+				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName().toString(LIBRARY->translator()));
 				if (oi->destroyObject)
 					oi->destroyObject(*object);
 				continue;

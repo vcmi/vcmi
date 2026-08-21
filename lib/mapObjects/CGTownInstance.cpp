@@ -1218,7 +1218,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 	formatter.appendRawString(format);
 	formatter.replacePositiveNumber(count);
 
-	description = formatter.toString();
+	description = formatter.toString(LIBRARY->translator());
 }
 
 GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): count(_count)
@@ -1228,7 +1228,7 @@ GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): co
 	formatter.replaceRawString(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTranslated());
 	formatter.replacePositiveNumber(count);
 
-	description = formatter.toString();
+	description = formatter.toString(LIBRARY->translator());
 }
 
 GrowthInfo::Entry::Entry(int _count, std::string fullDescription):

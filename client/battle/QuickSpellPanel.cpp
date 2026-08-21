@@ -30,6 +30,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
+#include "../GameInstance.h"
 
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 	: CIntObject(0)
@@ -115,7 +116,7 @@ void QuickSpellPanel::create()
 			MetaString tooltip;
 			tooltip.appendTextID("core.genrltxt.26");
 			tooltip.replaceName(id);
-			hoverText = tooltip.toString();
+			hoverText = tooltip.toString(&GAME->translator());
 		}
 		else
 			hoverText = LIBRARY->generaltexth->translate("vcmi.battleWindow.quickSpell.emptySlot");

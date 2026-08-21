@@ -602,7 +602,7 @@ void BattleWindow::bSurrenderf()
 	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name.toString();
+		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name.toString(&GAME->translator());
 		if(enemyHeroName.empty())
 		{
 			// army without a hero, e.g. neutral monsters - strongest of their remaining units speaks on their behalf
@@ -807,7 +807,7 @@ void BattleWindow::bSpellf()
 			const auto artID = blockingBonus->sid.as<ArtifactID>();
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name.toString();
+			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name.toString(&GAME->translator());
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[683])

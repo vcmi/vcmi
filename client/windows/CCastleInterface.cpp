@@ -1061,7 +1061,7 @@ void CCastleBuildings::enterRewardable(BuildingID building)
 		message.appendTextID("core.genrltxt.273"); // only visiting heroes may visit %s
 		message.replaceTextID(town->getTown()->buildings.at(building)->getNameTextID());
 
-		GAME->interface()->showInfoDialog(message.toString());
+		GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 	}
 	else
 	{
@@ -1389,11 +1389,11 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		ENGINE->statusbar()->write(message.toString());
+		ENGINE->statusbar()->write(message.toString(&GAME->translator()));
 	}
 	else
 	{
-		ENGINE->statusbar()->clearIfMatching(message.toString());
+		ENGINE->statusbar()->clearIfMatching(message.toString(&GAME->translator()));
 	}
 }
 
@@ -1439,7 +1439,7 @@ std::string CCreaInfo::genGrowthText()
 		descr.appendRawString(entry.description);
 	}
 
-	return descr.toString();
+	return descr.toString(&GAME->translator());
 }
 
 void CCreaInfo::showPopupWindow(const Point & cursorPosition)
@@ -1982,7 +1982,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	nameString.appendTextID("core.hallinfo.7");
 	nameString.replaceTextID(building->getNameTextID());
 
-	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, nameString.toString());
+	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, nameString.toString(&GAME->translator()));
 	description = std::make_shared<CTextBox>(building->getDescriptionTranslated(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
 	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, ETextAlignment::CENTER);
 
@@ -2006,7 +2006,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 				message.appendRawString("%d");
 
 			message.replaceNumber(building->resources[i]);
-			components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, message.toString(), CComponent::small));
+			components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, message.toString(&GAME->translator()), CComponent::small));
 		}
 	}
 
@@ -2023,11 +2023,11 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		tooltipNo.appendTextID("core.genrltxt.596");
 		tooltipNo.replaceTextID(building->getNameTextID());
 
-		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString()), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
+		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString(&GAME->translator())), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state != EBuildingState::ALLOWED || GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
 
-		cancel = std::make_shared<CButton>(Point(290, 445), AnimationPath::builtin("ICANCEL"), CButton::tooltip(tooltipNo.toString()), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
+		cancel = std::make_shared<CButton>(Point(290, 445), AnimationPath::builtin("ICANCEL"), CButton::tooltip(tooltipNo.toString(&GAME->translator())), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
 	}
 }
@@ -2399,7 +2399,7 @@ CMageGuildScreen::ScrollAllSpells::ScrollAllSpells(Point position, const std::st
 	description.appendTextID("core.genrltxt.714");
 	description.replaceRawString(buildingName);
 
-	text = std::make_shared<LRClickableAreaWText>(Rect(Point(), pos.dimensions()), description.toString(), description.toString() );
+	text = std::make_shared<LRClickableAreaWText>(Rect(Point(), pos.dimensions()), description.toString(&GAME->translator()), description.toString(&GAME->translator()) );
 }
 
 CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId)
@@ -2510,11 +2510,11 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, ArtifactID aid, ArtifactID e
 
 	std::string costString = std::to_string(aid.toEntity(LIBRARY)->getPrice());
 
-	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleString.toString());
+	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleString.toString(&GAME->translator()));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, costString);
-	buy = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30.DEF"), CButton::tooltip(buyText.toString()), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
-	cancel = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(cancelText.toString()), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	buy = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30.DEF"), CButton::tooltip(buyText.toString(&GAME->translator())), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	cancel = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(cancelText.toString(&GAME->translator())), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	if(possible)
 	{
@@ -2527,7 +2527,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, ArtifactID aid, ArtifactID e
 
 			buy->addCallback([=](){
 				GAME->interface()->showYesNoDialog(
-					message.toString(),
+					message.toString(&GAME->translator()),
 					[hid, aid](){ GAME->interface()->cb->buyArtifact(GAME->interface()->cb->getHero(hid),aid); },
 					nullptr);
 			});

@@ -49,7 +49,7 @@ namespace
 		MetaString text = MetaString::createFromTextID(turn.ongoing ? "vcmi.replay.turnOngoing" : "vcmi.replay.turn");
 		text.replaceNumber(turn.day);
 		text.replaceRawString(playerName);
-		return text.toString();
+		return text.toString(&GAME->translator());
 	}
 
 	void startReplay(ReplaySequence sequence)

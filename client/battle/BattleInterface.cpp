@@ -592,7 +592,7 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 {
 	for(const auto & line : battleLog)
 	{
-		std::string formatted = line.toString();
+		std::string formatted = line.toString(&GAME->translator());
 		boost::algorithm::trim(formatted);
 		appendBattleLog(formatted);
 	}

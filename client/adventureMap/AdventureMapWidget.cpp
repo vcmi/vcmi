@@ -543,7 +543,7 @@ void AdventureMapWidget::updateMapLayerButtonsHelp()
 			replaceText(hoverText);
 			auto helpText = MetaString::createFromTextID("vcmi.adventureMap.layer.help");
 			replaceText(helpText);
-			w->setHelp({hoverText.toString(), helpText.toString()});
+			w->setHelp({hoverText.toString(&GAME->translator()), helpText.toString(&GAME->translator())});
 			
 			// Refresh hover state using current cursor position so statusbar updates immediately
 			Point cursor = ENGINE->getCursorPosition();

@@ -449,7 +449,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		auto donorHero = campaignHeroReplacement.hero;
 
 		if (!donorHero)
-			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
+			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString(LIBRARY->translator()));
 
 		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
 		for (auto const & artLocation : std::views::reverse(campaignHeroReplacement.transferrableArtifacts))

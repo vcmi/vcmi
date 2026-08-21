@@ -237,9 +237,9 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 			guiComponents.push_back(std::make_shared<CComponent>(component, CComponent::medium));
 
 		if(GAME->interface()->localState->getCurrentHero())
-			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()).toString(), guiComponents);
+			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()).toString(&GAME->translator()), guiComponents);
 		else
-			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->playerID).toString(), guiComponents);
+			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->playerID).toString(&GAME->translator()), guiComponents);
 	}
 }
 
@@ -436,7 +436,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 	pos.h = 200 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, teleporter->getPopupText(GAME->interface()->playerID).toString());
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, teleporter->getPopupText(GAME->interface()->playerID).toString(&GAME->translator()));
 	minimap = std::make_shared<MinimapWithIcons>(Point(0,0));
 
 	const auto & entrances = teleporter->getAllEntrances();
@@ -478,8 +478,8 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGObjectInstance * 
 	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keyObject->getObjectName().toString());
-	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, QuestSource::keymasterVisitedText(keyObject, GAME->interface()->playerID).toString());
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keyObject->getObjectName().toString(&GAME->translator()));
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, QuestSource::keymasterVisitedText(keyObject, GAME->interface()->playerID).toString(&GAME->translator()));
 	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
 
 	const auto allObjects = GAME->interface()->cb->getAllVisitableObjs();
@@ -518,8 +518,8 @@ ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
 	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectName().toString());
-	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectDescription(GAME->interface()->playerID).toString());
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectName().toString(&GAME->translator()));
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectDescription(GAME->interface()->playerID).toString(&GAME->translator()));
 	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
 
 	const auto allObjects = GAME->interface()->cb->getAllVisitableObjs();
@@ -552,7 +552,7 @@ SearchPopup::SearchPopup(std::vector<const CGObjectInstance *> objs)
 	if(!objs.size())
 		return;
 
-	auto name = GAME->interface()->cb->getObjInstance(objs.at(0)->id)->getObjectName().toString();
+	auto name = GAME->interface()->cb->getObjInstance(objs.at(0)->id)->getObjectName().toString(&GAME->translator());
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, name);

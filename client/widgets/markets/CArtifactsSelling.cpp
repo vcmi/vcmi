@@ -164,7 +164,7 @@ std::string CArtifactsSelling::getTraderText()
 		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

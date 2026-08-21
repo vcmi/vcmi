@@ -189,7 +189,7 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 		return;
 	}
 
-	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString() || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
+	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString(LIBRARY->translator()) || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString(LIBRARY->translator()))
 	{
 		if(currentVote == ECurrentChatVote::NONE)
 		{
@@ -197,14 +197,14 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 			return;
 		}
 
-		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString())
+		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString(LIBRARY->translator()))
 		{
 			awaitingPlayers.erase(player);
 			if(awaitingPlayers.empty())
 				finishVoting();
 			return;
 		}
-		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
+		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString(LIBRARY->translator()))
 		{
 			abortVoting();
 			return;
