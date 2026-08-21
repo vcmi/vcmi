@@ -102,9 +102,13 @@ void MapViewCache::invalidate(const std::shared_ptr<IMapRendererContext> & conte
 	}
 }
 
-/// Terrain animation is unstaggered, so every animated tile goes dirty on the same frame. Only
-/// this many are redrawn per frame, the rest keep their old checksum and follow in the next ones.
-static constexpr int animatedTileRedrawBudget = 64;
+/// Terrain animation is unstaggered, so every animated tile goes dirty on the same frame. Drawing
+/// them all at once overruns the frame, so the burst is spread over this many frames.
+static constexpr int animationCatchUpFrames = 4;
+
+/// Smallest share a frame redraws. The share follows the number of dirty tiles, so it only grows
+/// past this when a step dirties more than the old fixed cap could serve before the next one.
+static constexpr int animationRedrawShareMinimum = 64;
 
 /// Indices of the terrain and river components of MapRenderer::getTileChecksum()
 static constexpr size_t terrainChecksumIndex = 1;
@@ -143,6 +147,8 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 	if(animationOnly)
 	{
+		++animatedTilesDirty;
+
 		if(animatedTilesRedrawn >= animatedTileRedrawBudget)
 			return;
 
@@ -200,11 +206,19 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 	// Refresh whatever the renderer can resolve once instead of per tile
 	mapRenderer->prepareFrame(*context);
 
+	const int share = std::max(animationRedrawShareMinimum, (animatedTilesDirtyBefore + animationCatchUpFrames - 1) / animationCatchUpFrames);
+
+	// within a burst the share may only grow - the dirty count falls as tiles are drawn
+	animatedTileRedrawBudget = drainingAnimationBurst ? std::max(animatedTileRedrawBudget, share) : share;
 	animatedTilesRedrawn = 0;
+	animatedTilesDirty = 0;
 
 	for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		for(int x = dimensions.left(); x < dimensions.right(); ++x)
 			updateTile(context, {x, y, model->getLevel()});
+
+	drainingAnimationBurst = animatedTilesDirty > animatedTilesRedrawn;
+	animatedTilesDirtyBefore = animatedTilesDirty;
 
 	cachedSize = model->getSingleTileSize();
 	cachedLevel = model->getLevel();
