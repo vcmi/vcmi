@@ -263,7 +263,7 @@ void Unit::addNameReplacement(MetaString & text, TQuantity count) const
 	text.replaceName(creatureId(), count);
 }
 
-std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
+std::string Unit::formatGeneralMessage(const int32_t baseTextId, const ITranslator * translator) const
 {
 	const int32_t textId = LIBRARY->generaltexth->pluralText(baseTextId, getCount());
 
@@ -271,7 +271,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
 	text.replaceName(creatureId(), getCount());
 
-	return text.toString(LIBRARY->translator());
+	return text.toString(translator);
 }
 
 int Unit::getRawSurrenderCost() const

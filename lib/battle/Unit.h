@@ -25,6 +25,8 @@ class MetaString;
 class JsonNode;
 class JsonSerializeFormat;
 
+class ITranslator;
+
 namespace battle
 {
 
@@ -164,7 +166,7 @@ public:
 	void addText(MetaString & text, EMetaText type, int32_t serial) const;
 	void addNameReplacement(MetaString & text) const;
 	void addNameReplacement(MetaString & text, TQuantity count) const;
-	std::string formatGeneralMessage(const int32_t baseTextId) const;
+	std::string formatGeneralMessage(const int32_t baseTextId, const ITranslator * translator) const;
 
 	int getRawSurrenderCost() const;
 

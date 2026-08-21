@@ -171,7 +171,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		}
 		
 		if(!loot.empty())
-			text.replaceRawString(loot.buildList(LIBRARY->translator()));
+			text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(missionKind == EQuestMission::KILL_HERO)
@@ -197,7 +197,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
 		}
-		text.replaceRawString(loot.buildList(LIBRARY->translator()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(!mission.creatures.empty())
@@ -208,7 +208,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
 		}
-		text.replaceRawString(loot.buildList(LIBRARY->translator()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(mission.resources.nonZero())
@@ -223,7 +223,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 				loot.replaceName(i);
 			}
 		}
-		text.replaceRawString(loot.buildList(LIBRARY->translator()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(!mission.players.empty())
@@ -232,7 +232,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		for(auto & p : mission.players)
 			loot.appendName(p);
 		
-		text.replaceRawString(loot.buildList(LIBRARY->translator()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(lastDay >= 0)

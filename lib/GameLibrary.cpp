@@ -98,7 +98,7 @@ const SkillService * GameLibrary::skills() const
 	return skillh.get();
 }
 
-const ITranslator * GameLibrary::translator() const
+const ITranslator * GameLibrary::staticTexts() const
 {
 	return generaltexth.get();
 }

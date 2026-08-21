@@ -134,7 +134,7 @@ public:
 	std::string buildList(const ITranslator * translator) const;
 
 	/// Convert all stored values into a single, user-readable string.
-	/// Translator must not be null - use LIBRARY->translator() if no better one is at hand
+	/// Translator must not be null - use LIBRARY->staticTexts() if no better one is at hand
 	std::string toString(const ITranslator * translator) const;
 
 	/// Returns true if current string is empty

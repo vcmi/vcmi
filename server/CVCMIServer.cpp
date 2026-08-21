@@ -450,7 +450,7 @@ void CVCMIServer::announcePack(CPackForLobby & pack)
 
 void CVCMIServer::announceMessage(const MetaString & txt)
 {
-	logNetwork->info("Show message: %s", txt.toString(LIBRARY->translator()));
+	logNetwork->info("Show message: %s", txt.toString(LIBRARY->staticTexts()));
 	LobbyShowMessage cm;
 	cm.message = txt;
 	announcePack(cm);
@@ -465,7 +465,7 @@ void CVCMIServer::announceMessage(const std::string & txt)
 
 void CVCMIServer::announceTxt(const MetaString & txt, const std::string & playerName)
 {
-	logNetwork->info("%s says: %s", playerName, txt.toString(LIBRARY->translator()));
+	logNetwork->info("%s says: %s", playerName, txt.toString(LIBRARY->staticTexts()));
 	LobbyChatMessage cm;
 	cm.playerName = playerName;
 	cm.message = txt;

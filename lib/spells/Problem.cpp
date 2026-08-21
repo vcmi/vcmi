@@ -26,7 +26,7 @@ void ProblemImpl::add(MetaString && description, Severity severity)
 void ProblemImpl::getAll(std::vector<std::string> & target) const
 {
 	for(const auto & p : data)
-		target.push_back(p.first.toString(LIBRARY->translator()));
+		target.push_back(p.first.toString(LIBRARY->staticTexts()));
 }
 
 //void ProblemImpl::getMostSevere(std::vector<std::string> & target) const

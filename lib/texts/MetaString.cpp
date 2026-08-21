@@ -145,7 +145,7 @@ bool MetaString::empty() const
 {
 	// emptiness depends on what the ops render to, and callers have no translator at
 	// hand - the static store is enough since an overlay never renders empty text
-	return message.empty() || toString(LIBRARY->translator()).empty();
+	return message.empty() || toString(LIBRARY->staticTexts()).empty();
 }
 
 std::string MetaString::getLocalString(const ITranslator * translator, const std::pair<EMetaText, ui32> & txt) const

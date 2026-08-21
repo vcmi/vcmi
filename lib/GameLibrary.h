@@ -71,10 +71,10 @@ public:
 	const IGameSettings * engineSettings() const override;
 	const spells::SchoolService * spellSchools() const override;
 	const ScriptService * scriptTypes() const override;
-	/// Static-store-only resolver, for code that has no access to a real translator.
-	/// Transitional: it can not see map or campaign texts, so prefer passing the
-	/// translator of whoever renders the text.
-	const ITranslator * translator() const;
+	/// Resolver over the static text store: mod-defined text that every side shares.
+	/// It can not see map or campaign texts - anything a specific player reads must be
+	/// rendered with that player's translator instead.
+	const ITranslator * staticTexts() const;
 
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
