@@ -21,14 +21,21 @@ class CSavingScreen : public CSelectionBase
 public:
 	std::shared_ptr<CMapInfo> localMi;
 
-	CSavingScreen();
+	CSavingScreen(bool pauseGame = true, std::function<void()> onClose = {});
 
 	void changeSelection(std::shared_ptr<CMapInfo> to);
 	void saveGame();
+	void saveFinished(bool success);
 
 	const CMapInfo * getMapInfo() override;
 	const StartInfo * getStartInfo() override;
 	
 protected:
 	void close() override;
+
+private:
+	bool pauseGame;
+	bool saving = false;
+	std::string pendingSavePath;
+	std::function<void()> onClose;
 };

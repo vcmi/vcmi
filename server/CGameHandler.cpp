@@ -779,6 +779,36 @@ void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
+	if(resume)
+	{
+		const bool completedGame = std::ranges::any_of(gameState().players, [](const auto & playerState)
+		{
+			return playerState.second.human && playerState.second.status == EPlayerStatus::WINNER;
+		});
+
+		if(completedGame)
+		{
+			StatisticDataSet finalStatistic = *statistics;
+			addStatistics(finalStatistic);
+
+			for(const auto & [player, state] : gameState().players)
+			{
+				if(!state.human || state.status == EPlayerStatus::INGAME)
+					continue;
+
+				PlayerEndsGame gameEnd;
+				gameEnd.player = player;
+				gameEnd.victoryLossCheckResult = state.status == EPlayerStatus::WINNER
+					? EVictoryLossCheckResult::victory({}, {})
+					: EVictoryLossCheckResult::defeat({}, {});
+				gameEnd.statistic = finalStatistic;
+				gameEnd.resumeGameEnd = true;
+				sendAndApply(gameEnd);
+			}
+			return;
+		}
+	}
+
 	if (!resume)
 	{
 		onNewTurn();
@@ -3897,10 +3927,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 
-			if(p->human)
-			{
-				gameServer().setState(EServerState::SHUTDOWN);
-			}
+			// Keep the server available for a post-victory save. It will shut down when the host disconnects.
 		}
 		else
 		{
