@@ -485,7 +485,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 		{
 			bindRenderTarget();
 			Point topLeft = transformPos(position) + TextTextureCache::getAlignmentOffset(font, alignment, text);
-			if(!image->drawTexture(GpuResources::get().renderer(), nullptr, topLeft, nullptr, Colors::WHITE_TRUE, SDL_ALPHA_OPAQUE, EImageBlitMode::SIMPLE))
+			if(!image->drawTexture(GpuResources::get().renderer(), nullptr, topLeft, nullptr, Colors::WHITE_TRUE, SDL_ALPHA_OPAQUE, EImageBlitMode::SIMPLE, ImageFlip{}))
 				logGpuIssueOnce("rendered text has no texture representation");
 		}
 		return;

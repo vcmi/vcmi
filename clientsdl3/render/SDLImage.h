@@ -66,8 +66,8 @@ public:
 
 	void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
-	bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
-	bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
+	bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const override;
+	bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const override;
 
 	/// Returns a GPU texture holding this image, or nullptr if one cannot be created.
 	/// Owned by this image; never destroy the returned pointer.

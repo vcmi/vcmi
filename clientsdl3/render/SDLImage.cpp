@@ -204,7 +204,7 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 	return texture;
 }
 
-bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
+bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const
 {
 	if(upscalingInProgress || !surf)
 		return false;
@@ -239,6 +239,14 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 	else
 		destShift = marginsScaled;
 
+	// mirroring moves the cropped-away margin to the opposite side. Only reached without a source
+	// rectangle, which is what ScalableImageShared asks to mirror.
+	if(flip.x)
+		destShift.x = scaleTo.x - destScale.x - destShift.x;
+
+	if(flip.y)
+		destShift.y = scaleTo.y - destScale.y - destShift.y;
+
 	destShift += dest;
 
 	if(sourceRect.w <= 0 || sourceRect.h <= 0 || destScale.x <= 0 || destScale.y <= 0)
@@ -261,15 +269,22 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 	SDL_FRect sdlSource = CSDL_Ext::toSDLFloat(sourceRect);
 	SDL_FRect sdlTarget = CSDL_Ext::toSDLFloat(Rect(destShift, destScale));
 
-	SDL_RenderTexture(renderer, source, &sdlSource, &sdlTarget);
+	if(flip.any())
+	{
+		const auto mode = static_cast<SDL_FlipMode>((flip.x ? SDL_FLIP_HORIZONTAL : 0) | (flip.y ? SDL_FLIP_VERTICAL : 0));
+		SDL_RenderTextureRotated(renderer, source, &sdlSource, &sdlTarget, 0.0, nullptr, mode);
+	}
+	else
+		SDL_RenderTexture(renderer, source, &sdlSource, &sdlTarget);
+
 	return true;
 }
 
-bool SDLImageShared::drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
+bool SDLImageShared::drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const
 {
 	// drawing at native size is the scaled path with a scale of one, and the geometry
 	// there reduces exactly to the unscaled case
-	return scaledDrawTexture(renderer, palette, dimensions(), dest, src, colorMultiplier, alpha, mode);
+	return scaledDrawTexture(renderer, palette, dimensions(), dest, src, colorMultiplier, alpha, mode, flip);
 }
 
 void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const
