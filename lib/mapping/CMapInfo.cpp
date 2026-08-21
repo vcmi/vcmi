@@ -45,6 +45,7 @@ void CMapInfo::mapInit(const std::string & fname)
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
+	mapHeader->registerMapStrings();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 	countPlayers();
@@ -57,6 +58,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	mapHeader = std::make_unique<CMapHeader>();
 	scenarioOptionsOfSave = std::make_unique<StartInfo>();
 	lf.load(*mapHeader);
+	mapHeader->registerMapStrings();
 	lf.load(*scenarioOptionsOfSave);
 
 	fileURI = file.getName(); // Name without file extension
@@ -102,20 +104,17 @@ void CMapInfo::countPlayers()
 				amountOfHumanPlayersInSave++;
 }
 
-std::string CMapInfo::getNameTranslated() const
+std::string CMapInfo::getNameTranslated(const ITranslator * translator) const
 {
-	if(campaign && !campaign->getNameTranslated().empty())
-		return campaign->getNameTranslated();
+	if(campaign && !campaign->getNameTranslated(translator).empty())
+		return campaign->getNameTranslated(translator);
 	else if(mapHeader && !mapHeader->name.empty())
-	{
-		mapHeader->registerMapStrings();
-		return mapHeader->name.toString(LIBRARY->translator());
-	}
+		return mapHeader->name.toString(translator);
 	else
 		return LIBRARY->generaltexth->allTexts[508];
 }
 
-std::string CMapInfo::getNameForList() const
+std::string CMapInfo::getNameForList(const ITranslator * translator) const
 {
 	if(scenarioOptionsOfSave)
 	{
@@ -126,16 +125,16 @@ std::string CMapInfo::getNameForList() const
 	}
 	else
 	{
-		return getNameTranslated();
+		return getNameTranslated(translator);
 	}
 }
 
-std::string CMapInfo::getDescriptionTranslated() const
+std::string CMapInfo::getDescriptionTranslated(const ITranslator * translator) const
 {
 	if(campaign)
-		return campaign->getDescriptionTranslated();
+		return campaign->getDescriptionTranslated(translator);
 	else
-		return mapHeader->description.toString(LIBRARY->translator());
+		return mapHeader->description.toString(translator);
 }
 
 int CMapInfo::getMapSizeIconId() const

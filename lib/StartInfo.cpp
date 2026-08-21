@@ -81,10 +81,10 @@ PlayerSettings * StartInfo::getPlayersSettings(PlayerConnectionID connectedPlaye
 	return nullptr;
 }
 
-std::string StartInfo::getCampaignName() const
+std::string StartInfo::getCampaignName(const ITranslator * translator) const
 {
-	if(!campState->getNameTranslated().empty())
-		return campState->getNameTranslated();
+	if(!campState->getNameTranslated(translator).empty())
+		return campState->getNameTranslated(translator);
 	else
 		return LIBRARY->generaltexth->allTexts[508];
 }

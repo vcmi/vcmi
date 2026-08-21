@@ -48,7 +48,7 @@ std::string sanitizeMapName(std::string name)
 std::string getGameName(const StartInfo & startInfo, const CMapHeader & mapHeader)
 {
 	if(startInfo.campState)
-		return sanitizeMapName(startInfo.getCampaignName());
+		return sanitizeMapName(startInfo.getCampaignName(LIBRARY->translator()));
 	return sanitizeMapName(mapHeader.name.toString(LIBRARY->translator()));
 }
 

@@ -30,6 +30,7 @@ class CGHeroInstance;
 class CBinaryReader;
 class CInputStream;
 class CMap;
+class ITranslator;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
@@ -71,16 +72,16 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	bool difficultyChosenByPlayer = false;
 	bool restrictGarrisonsAI = false;
 
-	TextContainerRegistrable textContainer;
+	TextLocalizationContainer textContainer;
 public:
 	bool playerSelectedDifficulty() const;
 	CampaignVersion getFormat() const;
 
-	std::string getDescriptionTranslated() const;
-	std::string getNameTranslated() const;
-	std::string getAuthor() const;
-	std::string getAuthorContact() const;
-	std::string getCampaignVersion() const;
+	std::string getDescriptionTranslated(const ITranslator * translator) const;
+	std::string getNameTranslated(const ITranslator * translator) const;
+	std::string getAuthor(const ITranslator * translator) const;
+	std::string getAuthorContact(const ITranslator * translator) const;
+	std::string getCampaignVersion(const ITranslator * translator) const;
 	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
@@ -96,7 +97,7 @@ public:
 	bool restrictedGarrisonsForAI() const;
 
 	const CampaignRegions & getRegions() const;
-	TextContainerRegistrable & getTexts();
+	TextLocalizationContainer & getTexts();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -242,8 +243,7 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
-	/// List of previously loaded campaign maps, to prevent translation of transferred hero names getting lost after their original map has been completed
-	std::map<CampaignScenarioID, TextContainerRegistrable> mapTranslations;
+	std::map<CampaignScenarioID, TextLocalizationContainer> mapTranslations;
 
 	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
@@ -272,6 +272,10 @@ public:
 	std::optional<CampaignScenarioID> lastScenario() const;
 
 	std::optional<CampaignScenarioID> currentScenario() const;
+	/// Texts of every scenario loaded so far. They stay resolvable for the whole campaign
+	/// so that heroes transferred out of a finished scenario keep their names
+	const std::map<CampaignScenarioID, TextLocalizationContainer> & getScenarioTexts() const { return mapTranslations; }
+
 	std::set<CampaignScenarioID> conqueredScenarios() const;
 	std::time_t getStartTime() const;
 	void setStartTime(std::time_t value);

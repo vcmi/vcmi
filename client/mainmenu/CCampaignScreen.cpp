@@ -39,6 +39,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../GameInstance.h"
 
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	: CWindowObject(BORDERED), campaignSet(name)
@@ -157,7 +158,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	if(CResourceHandler::get()->existsResource(ResourcePath(campFile, EResType::CAMPAIGN)))
 	{
 		auto header = CampaignHandler::getHeader(campFile);
-		hoverText = header->getNameTranslated();
+		hoverText = header->getNameTranslated(&GAME->translator());
 
 		if (persistentStorage["completedCampaigns"][header->getFilename()].Bool())
 			status = CCampaignScreen::COMPLETED;

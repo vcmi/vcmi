@@ -12,6 +12,7 @@
 #include "MapInfoCallback.h"
 
 struct SThievesGuildInfo;
+class ITranslator;
 class Player;
 
 class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback
@@ -89,7 +90,7 @@ public:
 
 	int howManyTowns(PlayerColor Player) const;
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
-	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
+	std::string getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const;
 	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;
 	bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 
