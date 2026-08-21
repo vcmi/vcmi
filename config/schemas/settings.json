@@ -43,6 +43,7 @@
 				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
+				"showSaveDialogOnVictory",
 				"audioMuteFocus",
 				"enableOverlay",
 				"lastKindomInterface",
@@ -152,6 +153,10 @@
 					"default": false
 				},
 				"enableUiEnhancements" : {
+					"type": "boolean",
+					"default": true
+				},
+				"showSaveDialogOnVictory" : {
 					"type": "boolean",
 					"default": true
 				},
