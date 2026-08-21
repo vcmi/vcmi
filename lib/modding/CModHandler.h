@@ -45,6 +45,9 @@ public:
 	/// Returns assumed encoding of language of mod that provides selected file resource
 	std::string findResourceEncoding(const ResourcePath & name) const;
 
+	/// Same as findResourceEncoding, for callers that have already located the providing mod
+	std::string getResourceEncoding(const ResourcePath & name, const TModID & modName) const;
+
 	std::string getModLanguage(const TModID & modId) const;
 
 	std::set<TModID> getModDependencies(const TModID & modId) const;

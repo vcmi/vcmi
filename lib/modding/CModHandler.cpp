@@ -159,8 +159,12 @@ std::string CModHandler::findResourceLanguage(const ResourcePath & name) const
 
 std::string CModHandler::findResourceEncoding(const ResourcePath & resource) const
 {
-	std::string modName = findResourceOrigin(resource);
-	std::string modLanguage = findResourceLanguage(resource);
+	return getResourceEncoding(resource, findResourceOrigin(resource));
+}
+
+std::string CModHandler::getResourceEncoding(const ResourcePath & resource, const TModID & modName) const
+{
+	std::string modLanguage = getModLanguage(modName);
 
 	bool potentiallyUserMadeContent = resource.getType() == EResType::MAP || resource.getType() == EResType::CAMPAIGN;
 	if (potentiallyUserMadeContent && modName == ModScope::scopeBuiltin() && modLanguage == "english")
