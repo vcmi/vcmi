@@ -67,47 +67,47 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"meteorShowerImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
+				"subtype" : "meteorShower"
 			},
 			"lightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.lightningBolt",
+				"subtype" : "lightningBolt",
 				"val" : 100
 			},
 			"chainLightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.chainLightning",
+				"subtype" : "chainLightning",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
+				"subtype" : "armageddon",
 				"val" : 100
 			},
 			"oppositeEarth" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.earthElemental",
+				"subtype" : "earthElemental",
 				"val" : 100
 			},
 			"oppositeMagma" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.magmaElemental",
+				"subtype" : "magmaElemental",
 				"val" : 100
 			}
 
@@ -136,7 +136,7 @@
 		"shots" : 24,
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
@@ -147,56 +147,56 @@
 			"spellcaster":
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectAir",
+				"subtype" : "protectAir",
 				"val" : 2
 			},
-			"spellPower" : 
+			"spellPower" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
 				"val" : 6
 			},
-			"spellPoints" : 
+			"spellPoints" :
 			{
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"meteorShowerImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
+				"subtype" : "meteorShower"
 			},
 			"lightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.lightningBolt",
+				"subtype" : "lightningBolt",
 				"val" : 100
 			},
 			"chainLightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.chainLightning",
+				"subtype" : "chainLightning",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
+				"subtype" : "armageddon",
 				"val" : 100
 			},
 			"oppositeEarth" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.earthElemental",
+				"subtype" : "earthElemental",
 				"val" : 100
 			},
 			"oppositeMagma" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.magmaElemental",
+				"subtype" : "magmaElemental",
 				"val" : 100
 			}
 		},
@@ -229,64 +229,64 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"immuneToIceBolt" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.iceBolt"
+				"subtype" : "iceBolt"
 			},
 			"immuneToFrostRing" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.frostRing"
+				"subtype" : "frostRing"
 			},
 			"fireballVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
+				"subtype" : "fireball",
 				"val" : 100
 			},
 			"infernoVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
+				"subtype" : "inferno",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
+				"subtype" : "armageddon",
 				"val" : 100
 			},
 			"fireShieldVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
+				"subtype" : "fireShield",
 				"val" : 100
 			},
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
+				"subtype" : "fireWallTrigger",
 				"val" : 100
 			},
 			"oppositeFire" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.fireElemental",
+				"subtype" : "fireElemental",
 				"val" : 100
 			},
 			"oppositeEnergy" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.energyElemental",
+				"subtype" : "energyElemental",
 				"val" : 100
 			}
 		},
@@ -315,7 +315,7 @@
 		"shots" : 24,
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
@@ -326,73 +326,73 @@
 			"spellcaster":
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectWater",
+				"subtype" : "protectWater",
 				"val" : 2
 			},
-			"spellPower" : 
+			"spellPower" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
 				"val" : 6
 			},
-			"spellPoints" : 
+			"spellPoints" :
 			{
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"immuneToIceBolt" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.iceBolt"
+				"subtype" : "iceBolt"
 			},
 			"immuneToFrostRing" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.frostRing"
+				"subtype" : "frostRing"
 			},
 			"fireballVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
+				"subtype" : "fireball",
 				"val" : 100
 			},
 			"infernoVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
+				"subtype" : "inferno",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
+				"subtype" : "armageddon",
 				"val" : 100
 			},
 			"fireShieldVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
+				"subtype" : "fireShield",
 				"val" : 100
 			},
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
+				"subtype" : "fireWallTrigger",
 				"val" : 100
 			},
 			"oppositeFire" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.fireElemental",
+				"subtype" : "fireElemental",
 				"val" : 100
 			},
 			"oppositeEnergy" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.energyElemental",
+				"subtype" : "energyElemental",
 				"val" : 100
 			}
 		},
@@ -423,41 +423,41 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
-			"immuneToFire" : 
+			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
 			"iceBoltVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
+				"subtype" : "iceBolt",
 				"val" : 100
 			},
 			"frostRingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.frostRing",
+				"subtype" : "frostRing",
 				"val" : 100
 			},
 			"oppositeWater" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.waterElemental",
+				"subtype" : "waterElemental",
 				"val" : 100
 			},
 			"oppositeIce" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.iceElemental",
+				"subtype" : "iceElemental",
 				"val" : 100
 			}
 		},
@@ -484,7 +484,7 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
@@ -495,50 +495,50 @@
 			"spellcaster" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectFire",
+				"subtype" : "protectFire",
 				"val" : 2
 			},
-			"spellPower" : 
+			"spellPower" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
 				"val" : 6
 			},
-			"spellPoints" : 
+			"spellPoints" :
 			{
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
-			"immuneToFire" : 
+			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
 			"iceBoltVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
+				"subtype" : "iceBolt",
 				"val" : 100
 			},
 			"frostRingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.frostRing",
+				"subtype" : "frostRing",
 				"val" : 100
 			},
 			"oppositeWater" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.waterElemental",
+				"subtype" : "waterElemental",
 				"val" : 100
 			},
 			"oppositeIce" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.iceElemental",
+				"subtype" : "iceElemental",
 				"val" : 100
 			}
 		},
@@ -564,45 +564,45 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"lightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
+				"subtype" : "lightningBolt"
 			},
 			"chainLightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
+				"subtype" : "chainLightning"
 			},
 			"armageddonImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
+				"subtype" : "armageddon"
 			},
 			"meteorShowerVulnerability" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
+				"subtype" : "meteorShower",
 				"val" : 100
 			},
 			"oppositeAir" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.airElemental",
+				"subtype" : "airElemental",
 				"val" : 100
 			},
 			"oppositeStorm" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.stormElemental",
+				"subtype" : "stormElemental",
 				"val" : 100
 			}
 		},
@@ -629,61 +629,61 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
 			"spellcaster":
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.protectEarth",
+				"subtype" : "protectEarth",
 				"val" : 2
 			},
-			"spellPower" : 
+			"spellPower" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
 				"val" : 6
 			},
-			"spellPoints" : 
+			"spellPoints" :
 			{
 				"type" : "CASTS",
 				"val" : 3
 			},
-			"immuneToMind" : 
+			"immuneToMind" :
 			{
 				"type" : "MIND_IMMUNITY"
 			},
 			"lightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
+				"subtype" : "lightningBolt"
 			},
 			"chainLightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
+				"subtype" : "chainLightning"
 			},
 			"armageddonImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
+				"subtype" : "armageddon"
 			},
 			"meteorShowerVulnerability" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
+				"subtype" : "meteorShower",
 				"val" : 100
 			},
 			"oppositeAir" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.airElemental",
+				"subtype" : "airElemental",
 				"val" : 100
 			},
 			"oppositeStorm" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.stormElemental",
+				"subtype" : "stormElemental",
 				"val" : 100
 			}
 		},
@@ -709,7 +709,7 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
@@ -750,7 +750,7 @@
 		"faction": "conflux",
 		"abilities":
 		{
-			"nonLiving" : 
+			"nonLiving" :
 			{
 				"type" : "NON_LIVING"
 			},
@@ -804,7 +804,7 @@
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise
 			{
@@ -848,7 +848,7 @@
 				"type" : "CASTS",
 				"val" : 1
 			},
-			"rebirth" : 
+			"rebirth" :
 			{
 				"type" : "REBIRTH",
 				"val" : 20
@@ -856,7 +856,7 @@
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise
 			{

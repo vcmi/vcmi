@@ -16,7 +16,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -56,7 +56,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:castleMoatTrigger",
@@ -70,7 +70,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -111,7 +111,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -151,7 +151,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:rampartMoatTrigger",
@@ -165,7 +165,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -206,7 +206,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : true,
 						"trap" : false,
 						"triggerAbility" : "core:landMineTrigger",
@@ -256,7 +256,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -296,7 +296,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:infernoMoatTrigger",
@@ -310,7 +310,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -351,7 +351,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -391,7 +391,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:necropolisMoatTrigger",
@@ -405,7 +405,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -446,7 +446,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -486,7 +486,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:dungeonMoatTrigger",
@@ -500,7 +500,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -541,7 +541,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -581,7 +581,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:strongholdMoatTrigger",
@@ -595,7 +595,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}
@@ -636,7 +636,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -676,7 +676,7 @@
 				"targetModifier":{"smart":false},
 				"battleEffects":{
 					"moat":{
-						"type":"core:moat",
+						"type":"moat",
 						"hidden" : false,
 						"trap" : true,
 						"triggerAbility" : "core:fortressMoatTrigger",
@@ -690,7 +690,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"valueType" : "ADDITIVE_VALUE"
 							}
 						}

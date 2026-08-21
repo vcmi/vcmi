@@ -161,7 +161,7 @@
 						{
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
 							"bonusSourceType" : "SPELL_EFFECT",
-							"bonusSourceID" : "spell.bless"
+							"bonusSourceID" : "bless"
 						}
 					],
 					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",
@@ -258,7 +258,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

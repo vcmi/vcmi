@@ -11,7 +11,7 @@
 				"range" : "X",
 				"battleEffects" : {
 					"obstacle" : {
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : true,
 						"passable" : true,
 						"trap" : true,
@@ -80,7 +80,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -118,7 +118,7 @@
 				"range" : "X",
 				"battleEffects" : {
 					"obstacle" : {
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : true,
 						"passable" : true,
 						"trap" : false,
@@ -176,7 +176,7 @@
 				},
 				"battleEffects":{
 					"obstacle":{
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : false,
 						"passable" : false,
 						"trap" : false,
@@ -261,7 +261,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -302,7 +302,7 @@
 				},
 				"battleEffects":{
 					"obstacle":{
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : false,
 						"passable" : true,
 						"trap" : false,
@@ -369,7 +369,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"catapult":{
-						"type":"core:catapult",
+						"type":"catapult",
 						"targetsToAttack": 2,
 						"chanceToCrit" : 0,
 						"chanceToNormalHit" : 100
@@ -414,7 +414,7 @@
 				},
 				"battleEffects":{
 					"dispel":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"optional":false,
 						"ignoreImmunity" : true,
 						"dispelNegative":true,
@@ -461,13 +461,13 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"heal",
 						"healPower":"permanent",
 						"optional":true
 					},
 					"cure":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"optional":true,
 						"dispelNegative":true,
 						"dispelNeutral":false,
@@ -481,7 +481,7 @@
 			}
 		},
 		"counters" : {
-			"spell.stoneGaze": true
+			"stoneGaze": true
 		},
 		"flags" : {
 			"positive": true
@@ -502,13 +502,13 @@
 				"range" : "0",
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"resurrect",
 						"healPower":"oneBattle",
 						"minFullUnits" : 1
 					},
 					"cure":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"indirect": true,
 						"optional":true,
 						"dispelNegative":true,
@@ -562,7 +562,7 @@
 				"range" : "0",
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"resurrect",
 						"healPower":"permanent",
 						"minFullUnits" : 1

@@ -16,7 +16,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects" : {
 					"petrification" : {
-						"type" : "core:timed",
+						"type" : "timed",
 						"battleLogSingular" : "@core.genrltxt.558",
 						"battleLogPlural" : "@core.genrltxt.559",
 						"bonus" : {
@@ -75,7 +75,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects" : {
 					"poisoning" : {
-						"type" : "core:timed",
+						"type" : "timed",
 						"battleLogSingular" : "@core.genrltxt.561",
 						"battleLogPlural" : "@core.genrltxt.562",
 						"bonus" : {
@@ -124,7 +124,7 @@
 				"range" : "0",
 				"battleEffects" : {
 					"binding" : {
-						"type" : "core:timed",
+						"type" : "timed",
 						"battleLogSingular" : "@core.genrltxt.560",
 						"battleLogPlural" : "@core.genrltxt.560",
 						"bonus" : {
@@ -160,20 +160,20 @@
 				"targetModifier":{"smart":true},
 				"battleEffects" : {
 					"illness" : {
-						"type" : "core:timed",
+						"type" : "timed",
 						"battleLogSingular" : "@core.genrltxt.553",
 						"battleLogPlural" : "@core.genrltxt.554",
 						"bonus" : {
 							"attack" : {
 								"val" : -2,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.attack",
+								"subtype" : "attack",
 								"duration" : "N_TURNS"
 							},
 							"defence" : {
 								"val" : -2,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"duration" : "N_TURNS"
 							}
 						}
@@ -209,7 +209,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects" : {
 					"paralysis" : {
-						"type" : "core:timed",
+						"type" : "timed",
 						"battleLogSingular" : "@core.genrltxt.563",
 						"battleLogPlural" : "@core.genrltxt.564",
 						"bonus" : {
@@ -305,7 +305,7 @@
 				"range" : "0-1",
 				"battleEffects":{
 					"damage":{
-						"type":"core:damage"
+						"type":"damage"
 					}
 				}
 			}
@@ -340,7 +340,7 @@
 				"range" : "0",
 				"battleEffects":{
 					"damage":{
-						"type":"core:damage"
+						"type":"damage"
 					}
 				}
 			}
@@ -364,7 +364,7 @@
 			"base":{
 				"battleEffects":{
 					"dispel":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"ignoreImmunity" : true,
 						"dispelNegative":false,
 						"dispelNeutral":false,
@@ -393,7 +393,7 @@
 			"base":{
 				"battleEffects":{
 					"destruction":{
-						"type":"core:damage",
+						"type":"damage",
 						"killByCount": true
 					}
 				},
@@ -427,14 +427,14 @@
 			"base":{
 				"battleEffects":{
 					"timed":{
-						"type":"core:timed",
+						"type":"timed",
 						"cumulative":true,
 						"ignoreImmunity" : true,
 						"bonus" :{
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primarySkill.defence",
+								"subtype" : "defence",
 								"duration" : "PERMANENT",
 								"valueType" : "ADDITIVE_VALUE"
 							}
@@ -464,7 +464,7 @@
 			"base":{
 				"battleEffects":{
 					"damage":{
-						"type":"core:damage",
+						"type":"damage",
 						"ignoreImmunity" : true
 					}
 				},
@@ -494,7 +494,7 @@
 				"range" : "0-1",
 				"battleEffects":{
 					"damage":{
-						"type":"core:damage"
+						"type":"damage"
 					}
 				}
 			}

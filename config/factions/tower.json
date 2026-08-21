@@ -200,7 +200,7 @@
 				},
 				"grail":          { 
 					"bonuses": [
-						{ "type": "PRIMARY_SKILL", "subtype": "primarySkill.knowledge", "val": 15 },
+						{ "type": "PRIMARY_SKILL", "subtype": "knowledge", "val": 15 },
 						{ "type": "COMBAT_MANA_BONUS", "val": 150 },
 						{ "type": "FULL_MAP_SCOUTING" }
 					]

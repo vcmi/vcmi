@@ -253,7 +253,7 @@
 			"binds" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.bind",
+				"subtype" : "bind",
 				"val" : 100
 			}
 		},
@@ -283,7 +283,7 @@
 			"binds" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.bind",
+				"subtype" : "bind",
 				"val" : 100
 			}
 		},
@@ -313,7 +313,7 @@
 			"blinds" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.blind",
+				"subtype" : "blind",
 				"val" : 20,
 				"addInfo" : [3,0]
 			},
@@ -350,7 +350,7 @@
 			"blinds" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.blind",
+				"subtype" : "blind",
 				"val" : 20,
 				"addInfo" : [3,0]
 			},
@@ -388,7 +388,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -440,7 +440,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"

@@ -106,7 +106,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "spellSchool.air",
+						"subtype" : "air",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -149,7 +149,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "spellSchool.fire",
+						"subtype" : "fire",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -192,7 +192,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "spellSchool.water",
+						"subtype" : "water",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -235,7 +235,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "spellSchool.earth",
+						"subtype" : "earth",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -277,7 +277,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"spellImmunity":{
-						"type":"core:timed",
+						"type":"timed",
 						"bonus":{
 							"levelSpellImmunity":{
 								"val" : 3,
@@ -288,7 +288,7 @@
 						}
 					},
 					"dispel":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"optional":true,
 						"dispelNegative":true,
 						"dispelNeutral":true,
@@ -390,7 +390,7 @@
 			}
 		},
 		"counters" : {
-			"spell.curse": true
+			"curse": true
 		},
 		"flags" : {
 			"positive": true
@@ -444,7 +444,7 @@
 			}
 		},
 		"counters" : {
-			"spell.bless": true
+			"bless": true
 		},
 		"flags" : {
 			"negative": true
@@ -478,7 +478,7 @@
 					"primarySkill" : {
 						"val" : 3,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.attack",
+						"subtype" : "attack",
 						"effectRange" : "ONLY_MELEE_FIGHT",
 						"duration" : "N_TURNS"
 					}
@@ -501,7 +501,7 @@
 			}
 		},
 		"counters" : {
-			"spell.weakness": true
+			"weakness": true
 		},
 		"flags" : {
 			"positive": true
@@ -529,7 +529,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.attack",
+						"subtype" : "attack",
 						"val" : 3,
 						"effectRange" : "ONLY_DISTANCE_FIGHT",
 						"duration" : "N_TURNS"
@@ -578,7 +578,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.attack",
+						"subtype" : "attack",
 						"val" : -3,
 						"duration" : "N_TURNS"
 					}
@@ -602,7 +602,7 @@
 			}
 		},
 		"counters" : {
-			"spell.bloodlust": true
+			"bloodlust": true
 		},
 		"flags" : {
 			"negative": true
@@ -625,7 +625,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.defence",
+						"subtype" : "defence",
 						"val" : 3,
 						"duration" : "N_TURNS"
 					}
@@ -669,7 +669,7 @@
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.defence",
+						"subtype" : "defence",
 						"val" : -3,
 						"valueType" : "ADDITIVE_VALUE",
 						"duration" : "PERMANENT"
@@ -713,13 +713,13 @@
 				"effects" : {
 					"attack" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.attack",
+						"subtype" : "attack",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.defence",
+						"subtype" : "defence",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
@@ -801,7 +801,7 @@
 			}
 		},
 		"counters" : {
-			"spell.sorrow":true
+			"sorrow":true
 		},
 		"flags" : {
 			"positive": true
@@ -855,7 +855,7 @@
 			}
 		},
 		"counters" : {
-			"spell.mirth":true
+			"mirth":true
 		},
 		"flags" : {
 			"negative": true
@@ -909,7 +909,7 @@
 			}
 		},
 		"counters" : {
-			"spell.misfortune": true
+			"misfortune": true
 		},
 		"flags" : {
 			"positive": true
@@ -961,7 +961,7 @@
 			}
 		},
 		"counters" : {
-			"spell.fortune":true
+			"fortune":true
 		},
 		"flags" : {
 			"negative": true
@@ -1013,7 +1013,7 @@
 			}
 		},
 		"counters" : {
-			"spell.slow": true
+			"slow": true
 		},
 		"flags" : {
 			"positive": true
@@ -1064,7 +1064,7 @@
 			}
 		},
 		"counters" : {
-			"spell.haste":true
+			"haste":true
 		},
 		"flags" : {
 			"negative": true
@@ -1263,7 +1263,7 @@
 			}
 		},
 		"counters" : {
-			"spell.hypnotize": true
+			"hypnotize": true
 		},
 		"flags" : {
 			"negative": true
@@ -1329,7 +1329,7 @@
 			}
 		},
 		"counters" : {
-			"spell.berserk": true
+			"berserk": true
 		},
 		"targetCondition" : {
 			"allOf" : {

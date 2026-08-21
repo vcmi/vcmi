@@ -20,7 +20,7 @@
 			"base":{
 				"range" : "0",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":true}
 			}
@@ -53,7 +53,7 @@
 			"base":{
 				"range" : "0",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":true}
 			}
@@ -79,7 +79,7 @@
 			"base":{
 				"range" : "0",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":true}
 			}
@@ -105,7 +105,7 @@
 			"base":{
 				"range" : "0",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":true}
 			}
@@ -144,7 +144,7 @@
 				"range" : "0",
 				"battleEffects" : {
 					"directDamage" : {
-						"type" : "core:damage",
+						"type" : "damage",
 						"chainFactor" : 0.5,
 						"chainLength" : 4
 					}
@@ -185,7 +185,7 @@
 			"base":{
 				"range" : "1",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -213,7 +213,7 @@
 			"base":{
 				"range" : "0,1",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -241,7 +241,7 @@
 			"base":{
 				"range" : "0-2",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -269,7 +269,7 @@
 			"base":{
 				"range" : "0,1",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -297,7 +297,7 @@
 			"base":{
 				"range" : "X",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -327,7 +327,7 @@
 			"base":{
 				"range" : "X",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -356,7 +356,7 @@
 			"base":{
 				"range" : "X",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":false}
 			}
@@ -382,7 +382,7 @@
 			"base":{
 				"range" : "0",
 				"battleEffects" : {
-					"directDamage" : {"type":"core:damage"}
+					"directDamage" : {"type":"damage"}
 				},
 				"targetModifier":{"smart":true}
 			}

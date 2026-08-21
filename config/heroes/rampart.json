@@ -39,7 +39,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -206,7 +206,7 @@
 			"bonuses" : {
 				"fortune" : {
 					"addInfo" : 3,
-					"subtype" : "spell.fortune",
+					"subtype" : "fortune",
 					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
