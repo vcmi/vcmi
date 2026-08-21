@@ -490,7 +490,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 
 		auto hero = campaignState->crossoverDeserialize(node, gameState->map.get());
 
-		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 		campaignHeroReplacements.emplace_back(hero, placeholder->id);
 	}
@@ -526,7 +526,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
-			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 			campaignHeroReplacements.emplace_back(hero, placeholder->id);
 		}

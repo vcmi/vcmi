@@ -37,6 +37,7 @@
 #include "../../lib/IGameSettings.h"
 
 #include <vstd/DateUtils.h>
+#include "../GameInstance.h"
 
 std::string CStatisticScreen::getDay(int d)
 {
@@ -61,7 +62,7 @@ CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 	buttonSelect = std::make_shared<CButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ onSelectButton(); });
 	buttonSelect->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	buttonCsvSave = std::make_shared<CButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ ENGINE->input().copyToClipBoard(statistic.toCsv("\t")); });
+	buttonCsvSave = std::make_shared<CButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ ENGINE->input().copyToClipBoard(statistic.toCsv("\t", &GAME->translator())); });
 	buttonCsvSave->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.statisticWindow.tsvCopy"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	mainContent = getContent(OVERVIEW, EGameResID::NONE);

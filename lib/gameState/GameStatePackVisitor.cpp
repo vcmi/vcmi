@@ -180,7 +180,7 @@ void GameStatePackVisitor::visitChangeTactics(ChangeTactics & pack)
 
 void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
 {
-	gs.getTown(pack.tid)->setCustomName(pack.name);
+	gs.getTown(pack.tid)->setCustomName(gs.getMap(), pack.name);
 }
 
 void GameStatePackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)

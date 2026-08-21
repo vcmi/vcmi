@@ -385,10 +385,10 @@ void CGTownInstance::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroIn
 	if(getVisitingHero() == h)
 	{
 		gameEvents.stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
+		logGlobal->trace("%s correctly left town %s", h->getNameTextID(), getNameTextID());
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), getNameTranslated());
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTextID(), getNameTextID());
 }
 
 MetaString CGTownInstance::getObjectName() const
@@ -396,8 +396,7 @@ MetaString CGTownInstance::getObjectName() const
 	if(ID == Obj::RANDOM_TOWN )
 		return CGObjectInstance::getObjectName();
 
-	MetaString result;
-	result.appendTextID(getNameTextID());
+	MetaString result = MetaString::createFromTextID(getNameTextID());
 	result.appendRawString(", ");
 	result.appendTextID(getTown()->faction->getNameTextID());
 	return result;
@@ -888,11 +887,6 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 	return townAndVis;
 }
 
-std::string CGTownInstance::getNameTranslated() const
-{
-	return customName.empty() ? LIBRARY->generaltexth->translate(nameTextId) : customName;
-}
-
 std::string CGTownInstance::getNameTextID() const
 {
 	return nameTextId;
@@ -903,9 +897,10 @@ void CGTownInstance::setNameTextId( const std::string & newName )
 	nameTextId = newName;
 }
 
-void CGTownInstance::setCustomName( const std::string & newName )
+void CGTownInstance::setCustomName(CMap & map, const std::string & newName)
 {
-	customName = newName;
+	// "map" prefix keeps repeated renames out of the duplicate-registration assert
+	nameTextId = mapRegisterLocalizedString("map", map, TextIdentifier("map", "town", instanceName, "name"), newName);
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const
@@ -980,7 +975,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 		return getTown()->buildings.at(buildingID)->resources;
 	else
 	{
-		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), anchorPos().toString(), buildingID.toEnum());
+		logGlobal->error("Town %s at %s has no possible building %d!", getNameTextID(), anchorPos().toString(), buildingID.toEnum());
 		return TResources();
 	}
 
@@ -1049,7 +1044,7 @@ void CGTownInstance::addHeroToStructureVisitors(IGameEventCallback & gameEvents,
 	else
 	{
 		//should never ever happen
-		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTranslated(), structureInstanceID);
+		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTextID(), structureInstanceID);
 		throw std::runtime_error("unexpected hero in CGTownInstance::addHeroToStructureVisitors");
 	}
 }
@@ -1257,7 +1252,7 @@ GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): co
 {
 	MetaString formatter;
 	formatter.appendRawString("%s %+d");
-	formatter.replaceRawString(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTranslated());
+	formatter.replaceRawString(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
 	formatter.replacePositiveNumber(count);
 
 	description = formatter.toString(LIBRARY->translator());

@@ -539,25 +539,25 @@ void CHeroGSlot::hover(bool on)
 		if(isSelected())//view NNN
 		{
 			temp = LIBRARY->generaltexth->tcommands[4];
-			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
+			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 		}
 		else if(other->hero && other->isSelected())//exchange
 		{
 			temp = LIBRARY->generaltexth->tcommands[7];
-			boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
-			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
+			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
+			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
 		}
 		else// select NNN (in ZZZ)
 		{
 			if(upg)//down - visiting
 			{
 				temp = LIBRARY->generaltexth->tcommands[32];
-				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
+				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 			}
 			else //up - garrison
 			{
 				temp = LIBRARY->generaltexth->tcommands[12];
-				boost::algorithm::replace_first(temp,"%s",hero->getNameTranslated());
+				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 			}
 		}
 	}
@@ -566,7 +566,7 @@ void CHeroGSlot::hover(bool on)
 		if(other->isSelected() && other->hero) //move NNNN
 		{
 			temp = LIBRARY->generaltexth->tcommands[6];
-			boost::algorithm::replace_first(temp,"%s",other->hero->getNameTranslated());
+			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
 		}
 		else //empty
 		{
@@ -1138,7 +1138,7 @@ void CCastleBuildings::enterDwelling(int level)
 	if (level < 0 || level >= town->creatures.size() || town->creatures[level].second.empty())
 	{
 		assert(0);
-		logGlobal->error("Attempt to enter into invalid dwelling of level %d in town %s (%s)", level, town->getNameTranslated(), town->getFaction()->getNameTranslated());
+		logGlobal->error("Attempt to enter into invalid dwelling of level %d in town %s (%s)", level, GAME->translator().translate(town->getNameTextID()), town->getFaction()->getNameTranslated());
 		return;
 	}
 
@@ -1524,7 +1524,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->setRedrawParent(true);
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
-	title = std::make_shared<CTextInputWithConfirm>(Rect(83, 386, 140, 20), FONT_MEDIUM, ETextAlignment::TOPLEFT, town->getNameTranslated(), true, [this](){ 
+	title = std::make_shared<CTextInputWithConfirm>(Rect(83, 386, 140, 20), FONT_MEDIUM, ETextAlignment::TOPLEFT, GAME->translator().translate(town->getNameTextID()), true, [this](){ 
 		std::string name = title->getText();
 		std::string originalName = LIBRARY->generaltexth->translate(town->getNameTextID());
 		if(name == originalName)

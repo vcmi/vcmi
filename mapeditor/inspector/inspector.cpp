@@ -332,8 +332,8 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(static_cast<int>(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(static_cast<int>(EHeroGender::FEMALE))}};
 		addProperty<std::string>(QObject::tr("Gender"), (o->gender == EHeroGender::FEMALE ? QObject::tr("FEMALE") : QObject::tr("MALE")).toStdString(), delegate , false);
 	}
-	addProperty(QObject::tr("Name"), o->getNameTranslated(), false);
-	addProperty(QObject::tr("Biography"), o->getBiographyTranslated(), new MessageDelegate, false);
+	addProperty(QObject::tr("Name"), Translator::instance().translate(o->getNameTextID()), false);
+	addProperty(QObject::tr("Biography"), Translator::instance().translate(o->getBiographyTextID()), new MessageDelegate, false);
 	addProperty(QObject::tr("Portrait"), PropertyEditorPlaceholder(), new PortraitDelegate(*o), false);
 
 	auto * delegate = new HeroSkillsDelegate(*o);
@@ -371,7 +371,7 @@ void Inspector::updateProperties(CGTownInstance * o)
 {
 	if(!o) return;
 
-	addProperty(QObject::tr("Town name"), o->getNameTranslated(), false);
+	addProperty(QObject::tr("Town name"), Translator::instance().translate(o->getNameTextID()), false);
 
 	auto * delegate = new TownBuildingsDelegate(*o);
 	addProperty(QObject::tr("Buildings"), PropertyEditorPlaceholder(), delegate, false);

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../texts/MetaString.h"
 
 class CGameState;
 
@@ -23,7 +24,8 @@ public:
 	bool hasGrail;
 	bool allEnemiesDefeated;
 	std::string campaignName;
-	std::string scenarioName;
+	/// map name lives in a map overlay, so it stays unresolved until the client displays it
+	MetaString scenarioName;
 	std::string playerName;
 
 	template <typename Handler> void serialize(Handler &h)

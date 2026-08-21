@@ -542,13 +542,13 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % hero->getNameTranslated()));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % GAME->translator().translate(hero->getNameTextID())));
 
 	//%s is now a level %d %s.
 	std::string levelTitleText = LIBRARY->generaltexth->translate("core.genrltxt.445");
-	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
+	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getNameTextID()));
 	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
+	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getClassNameTextID()));
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
@@ -766,7 +766,7 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 		auto heroFromMapPool = GAME->server().client->gameState().getMap().tryGetFromHeroPool(h.first);
 		auto hero = heroFromMapPool ? heroFromMapPool : h.second;
 
-		texts.push_back(hero->getNameTranslated());
+		texts.push_back(GAME->translator().translate(hero->getNameTextID()));
 
 		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex(), 0, EImageBlitMode::OPAQUE);
 		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
@@ -865,7 +865,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
 
 		}
 
@@ -910,7 +910,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 	if(H)
 	{
 		hoverName = LIBRARY->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",H->getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s",GAME->translator().translate(H->getNameTextID()));
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
@@ -918,9 +918,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 				artifs--;
 
 		description = LIBRARY->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
+		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getNameTextID()));
 		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", h->getClassNameTranslated());
+		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getClassNameTextID()));
 		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());

@@ -61,7 +61,7 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 	{
 		MetaString text;
 		text.appendLocalString(EMetaText::ADVOB_TXT, cond ? posId : negId);
-		text.replaceRawString(h->getNameTranslated());
+		text.replaceTextID(h->getNameTextID());
 		return text;
 	};
 	
@@ -143,7 +143,7 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
 		
 		txt.replaceRawString(loot.buildList(LIBRARY->translator()));
-		txt.replaceRawString(h->getNameTranslated());
+		txt.replaceTextID(h->getNameTextID());
 	}
 	sendInfoWindow(txt, temp);
 	

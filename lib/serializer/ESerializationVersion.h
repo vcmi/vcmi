@@ -59,7 +59,9 @@ enum class ESerializationVersion : int32_t
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SCENARIO_EVENT_JOURNAL,
+	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
+
+	CURRENT = TOWN_NAME_TEXT_ID,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

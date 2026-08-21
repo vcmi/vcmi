@@ -441,7 +441,7 @@ void Nullkiller::reserveRequiredTownDefenders()
 		if(!defender || getHeroLockedReason(defender) != HeroLockedReason::NOT_LOCKED)
 			continue;
 
-		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
+		logAi->debug("Reserving %s as defender of %s", defender->getNameTextID(), town->getNameTextID());
 		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
 	}
 }

@@ -35,7 +35,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 
 	auto spell = getSpell();
 
-	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getNameTranslated(), hero->getNameTranslated());
+	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getNameTextID(), hero->getNameTextID());
 
 	if(!spell->isAdventure())
 		throw cannotFulfillGoalException(spell->getNameTranslated() + " is not an adventure spell.");
@@ -58,7 +58,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 		}
 
 		if(town->getVisitingHero())
-			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTranslated());
+			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTextID());
 	}
 
 	if (hero->isGarrisoned())

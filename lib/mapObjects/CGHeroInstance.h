@@ -137,16 +137,15 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	std::string getBiographyTranslated() const;
+	// no *Translated() accessors: a map may rename this hero, so its name lives in a
+	// map overlay that only the rendering side can resolve
 	std::string getBiographyTextID() const;
 
 	std::string getNameTextID() const;
-	std::string getNameTranslated() const;
 
 	HeroTypeID getPortraitSource() const;
 	int32_t getIconIndex() const;
 
-	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
 
 	bool inBoat() const;

@@ -22,9 +22,9 @@ using namespace Goals;
 std::string RecruitHero::toString() const
 {
 	if(heroToBuy)
-		return "Recruit " + heroToBuy->getNameTranslated() + " at " + town->getNameTranslated();
+		return "Recruit " + heroToBuy->getNameTextID() + " at " + town->getNameTextID();
 	else
-		return "Recruit hero at " + town->getNameTranslated();
+		return "Recruit hero at " + town->getNameTextID();
 }
 
 void RecruitHero::accept(AIGateway * aiGw)
@@ -36,7 +36,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
 
-	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTextID(), t->visitablePos().toString());
 
 	const auto heroes = aiGw->cc->getAvailableHeroes(t);
 	if(!heroes.size())

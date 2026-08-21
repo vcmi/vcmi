@@ -517,10 +517,10 @@ void CMap::checkForObjectives()
 					{
 						const auto * town = dynamic_cast<const CGTownInstance *>(objects[cond.objectID].get());
 						if(town)
-							event.onFulfill.replaceRawString(town->getNameTranslated());
+							event.onFulfill.replaceTextID(town->getNameTextID());
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
 						if(hero)
-							event.onFulfill.replaceRawString(hero->getNameTranslated());
+							event.onFulfill.replaceTextID(hero->getNameTextID());
 					}
 					break;
 
@@ -544,7 +544,7 @@ void CMap::checkForObjectives()
 					{
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
 						if(hero)
-							event.onFulfill.replaceRawString(hero->getNameTranslated());
+							event.onFulfill.replaceTextID(hero->getNameTextID());
 					}
 					break;
 				case EventCondition::TRANSPORT:

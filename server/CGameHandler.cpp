@@ -148,7 +148,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 
 	// give primary skill
-	logGlobal->trace("%s got level %d", hero->getNameTranslated(), hero->level);
+	logGlobal->trace("%s got level %d", hero->getNameTextID(), hero->level);
 	auto primarySkill = randomizer->rollPrimarySkillForLevelup(hero);
 
 	SetPrimarySkill sps;
@@ -1008,7 +1008,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards,
 								EVisitDest visitDest, ELEaveTile leavingTile) -> bool
 	{
-		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->getNameTranslated() % tmh.start.toString() % tmh.end.toString());
+		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->getNameTextID() % tmh.start.toString() % tmh.end.toString());
 
 		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
 		queries->addQuery(moveQuery);
@@ -1038,7 +1038,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		}
 
 		queries->popIfTop(moveQuery);
-		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
+		logGlobal->trace("Hero %s ends movement", h->getNameTextID());
 		return result != TryMoveHero::FAILED;
 	};
 
@@ -2309,7 +2309,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!t->getTown()->buildings.count(requestedID))
 		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->getFaction()->getNameTranslated() % requestedID);
 	if(t->hasBuilt(requestedID))
-		COMPLAIN_RETF("Building %s is already built in %s", t->getTown()->buildings.at(requestedID)->getNameTranslated() % t->getNameTranslated());
+		COMPLAIN_RETF("Building %s is already built in %s", t->getTown()->buildings.at(requestedID)->getNameTranslated() % t->getNameTextID());
 
 	const auto & requestedBuilding = t->getTown()->buildings.at(requestedID);
 
