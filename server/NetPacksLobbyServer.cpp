@@ -238,6 +238,11 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestar
 {
 	for(const auto & connection : srv.activeConnections)
 		connection->enterLobbyConnectionMode();
+
+	// LobbyRestartGame is propagated in both directions rather than being a
+	// CLobbyPackToServer, so the generic lobby-state propagation does not run.
+	// Campaign restarts need the refreshed state to rebuild bonus selection.
+	srv.updateAndPropagateLobbyState();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)

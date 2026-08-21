@@ -592,6 +592,23 @@ void CToggleGroup::setSelected(int id)
 	selectionChanged(id);
 }
 
+void CToggleGroup::setSelectedSilent(int id)
+{
+	if(id == selectedID)
+		return;
+
+	int oldSelection = selectedID;
+	selectedID = id;
+
+	if(buttons.count(oldSelection))
+		buttons[oldSelection]->setSelectedSilent(false);
+
+	if(buttons.count(id))
+		buttons[id]->setSelectedSilent(true);
+
+	redraw();
+}
+
 void CToggleGroup::setSelectedOnly(int id)
 {
 	for(const auto & button : buttons)

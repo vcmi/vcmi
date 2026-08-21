@@ -32,6 +32,7 @@
 #include "../windows/InfoWindows.h"
 #include "../windows/CHeroOverview.h"
 #include "../windows/CCreatureWindow.h"
+#include "../render/CanvasImage.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
@@ -64,13 +65,19 @@
 #include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
 
+namespace
+{
+const ColorRGBA READ_ONLY_COLOR(128, 128, 128, ColorRGBA::ALPHA_OPAQUE);
+}
+
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
 	return GAME->server().si->campState;
 }
 
-CBonusSelection::CBonusSelection()
+CBonusSelection::CBonusSelection(bool readOnly)
 	: CWindowObject(BORDERED)
+	, readOnly(readOnly)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -100,13 +107,16 @@ CBonusSelection::CBonusSelection()
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
-	bool videoButtonActive = GAME->server().getState() == EClientState::GAMEPLAY;
-	int availableSpace = videoButtonActive ? 225 : 285;
+	int availableSpace = readOnly ? 225 : 285;
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 276, 286, 112), 1);
 
-	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[71]);
+	const ColorRGBA bonusLabelColor = readOnly
+		? READ_ONLY_COLOR
+		: Colors::WHITE;
+	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, bonusLabelColor,
+		LIBRARY->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, &GAME->server(), _1));
 
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
@@ -144,7 +154,7 @@ CBonusSelection::CBonusSelection()
 	if (!getCampaign()->getMusic().empty())
 		ENGINE->music().playMusic( getCampaign()->getMusic(), true, false);
 
-	if(GAME->server().getState() != EClientState::GAMEPLAY && settings["general"]["enableUiEnhancements"].Bool())
+	if(!readOnly && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
@@ -155,7 +165,10 @@ CBonusSelection::CBonusSelection()
 	}
 
 	// Ensure campaign map info is synchronized even if player doesn't click any region manually.
-	GAME->server().setCampaignMap(GAME->server().campaignMap);
+	// A restarted campaign already has synchronized map info and its previous bonus
+	// should remain selected until the player chooses another one.
+	if(GAME->server().campaignBonus == -1 && !readOnly)
+		GAME->server().setCampaignMap(GAME->server().campaignMap);
 }
 
 void CBonusSelection::createBonusesIcons()
@@ -166,6 +179,12 @@ void CBonusSelection::createBonusesIcons()
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, &GAME->server(), _1));
 	groupBonuses->setRedrawParent(true);
+	int selectedBonus = GAME->server().campaignBonus;
+	if(selectedBonus == -1)
+	{
+		if(auto campaignBonus = getCampaign()->getBonusID(GAME->server().campaignMap))
+			selectedBonus = *campaignBonus;
+	}
 
 	auto getBuildingID = [this](const CampaignBonusBuilding & bonusValue) -> std::pair<FactionID, BuildingID> {
 		FactionID faction;
@@ -400,10 +419,22 @@ void CBonusSelection::createBonusesIcons()
 		});
 		bonusButton->setRedrawParent(true);
 
+		std::shared_ptr<IImage> bonusOverlayImage;
 		if(picNumber != -1)
-			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
+			bonusOverlayImage = ENGINE->renderHandler().loadImage(AnimationPath::builtin(picName), picNumber, 0, EImageBlitMode::COLORKEY);
 		else
-			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
+			bonusOverlayImage = ENGINE->renderHandler().loadImage(ImagePath::builtin(picName), EImageBlitMode::COLORKEY);
+
+		if(readOnly)
+		{
+			auto grayscaleImage = ENGINE->renderHandler().createImage(bonusOverlayImage->dimensions(), CanvasScalingPolicy::AUTO);
+			auto grayscaleCanvas = grayscaleImage->getCanvas();
+			grayscaleCanvas.draw(bonusOverlayImage, Point());
+			grayscaleCanvas.applyGrayscale();
+			bonusOverlayImage = grayscaleImage;
+		}
+
+		bonusButton->setOverlay(std::make_shared<CPicture>(bonusOverlayImage, Point()));
 
 		// Add right-click popup with component for supported bonus types when UI enhancements are enabled
 		if(useComponentPopup)
@@ -495,7 +526,8 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		Point iconSize(58, 64);
-		auto bonusButtonLabel = std::make_shared<CLabel>(473 + iconSize.x + i * 68, 455 + iconSize.y, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+		auto bonusButtonLabel = std::make_shared<CLabel>(473 + iconSize.x + i * 68, 455 + iconSize.y,
+			FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, readOnly ? READ_ONLY_COLOR : Colors::WHITE);
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
 			switch(bonusType)
@@ -525,19 +557,33 @@ void CBonusSelection::createBonusesIcons()
 			}
 		}
 
-		if(GAME->server().campaignBonus == i)
-			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
+		if(selectedBonus == i)
+			bonusButton->setBorderColor(readOnly ? READ_ONLY_COLOR : Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);
 		groupBonusesLabels.push_back(bonusButtonLabel);
 	}
 
-	if(getCampaign()->getBonusID(GAME->server().campaignMap))
-		groupBonuses->setSelected(*getCampaign()->getBonusID(GAME->server().campaignMap));
+	if(selectedBonus != -1)
+	{
+		groupBonuses->setSelectedSilent(selectedBonus);
+
+		// A loaded campaign may contain a previous selection before the lobby
+		// has restored it. Send it once; subsequent state refreshes use the
+		// synchronized lobby value without invoking this callback again.
+		if(GAME->server().campaignBonus == -1 && !readOnly)
+			GAME->server().setCampaignBonus(selectedBonus);
+	}
+
+	if(readOnly)
+	{
+		for(const auto & bonus : groupBonuses->buttons)
+			bonus.second->setEnabled(false);
+	}
 }
 
 void CBonusSelection::updateAfterStateChange()
 {
-	if(GAME->server().getState() != EClientState::GAMEPLAY)
+	if(!readOnly)
 	{
 		buttonRestart->disable();
 		buttonVideo->disable();
@@ -592,7 +638,7 @@ void CBonusSelection::updateAfterStateChange()
 
 void CBonusSelection::goBack()
 {
-	if(GAME->server().getState() != EClientState::GAMEPLAY)
+	if(!readOnly)
 	{
 		ENGINE->windows().popWindows(2);
 		GAME->mainmenu()->playMusic();

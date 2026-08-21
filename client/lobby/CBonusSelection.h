@@ -33,9 +33,11 @@ class LRClickableArea;
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject
 {
+	const bool readOnly;
+
 public:
 	std::shared_ptr<CampaignState> getCampaign();
-	CBonusSelection();
+	explicit CBonusSelection(bool readOnly = false);
 
 	class CRegion
 		: public CIntObject
