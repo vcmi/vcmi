@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CVideoHandler.h"
+#include "../render/GpuResources.h"
 
 #ifdef ENABLE_VIDEO
 
@@ -205,7 +206,7 @@ void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 	// save a conversion, but leaves it to the renderer, which picks the colorspace itself.
 	if (useTextureOutput)
 	{
-		textureRGB = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
+		textureRGB = SDL_CreateTexture(GpuResources::get().renderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
 
 		if (textureRGB == nullptr)
 			logGlobal->warn("Failed to create video texture, falling back to software: %s", SDL_GetError());
@@ -380,7 +381,7 @@ bool CVideoInstance::renderFrame(const Point & position)
 	SDL_FRect destination{ static_cast<float>(position.x), static_cast<float>(position.y),
 	                       static_cast<float>(dimensions.x), static_cast<float>(dimensions.y) };
 
-	return SDL_RenderTexture(mainRenderer, frame, nullptr, &destination);
+	return SDL_RenderTexture(GpuResources::get().renderer(), frame, nullptr, &destination);
 }
 
 void CVideoInstance::show(const Point & position, SDL_Surface * to)

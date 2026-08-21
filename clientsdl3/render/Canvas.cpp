@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "Canvas.h"
+#include "GpuResources.h"
 
 #include "GameEngine.h"
 #include "../media/IVideoPlayer.h"
@@ -130,42 +131,6 @@ Canvas Canvas::createOwningRenderTarget(SDL_Texture * renderTarget, const Point 
 	return Canvas(renderTarget, size, scalingPolicy, true);
 }
 
-namespace
-{
-/// Scratch texture that surface-backed canvases are uploaded through - one per copy would cost
-/// a GPU allocation and a full upload every time, so a single one is grown and reused.
-/// SDL_UpdateTexture flushes any batch still referring to it, so several copies per frame work.
-SDL_Texture * uploadTexture = nullptr;
-Point uploadTextureSize;
-uint32_t uploadTextureGeneration = 0;
-}
-
-static SDL_Texture * acquireUploadTexture(const Point & size)
-{
-	const bool sameRenderer = uploadTexture && uploadTextureGeneration == mainRendererGeneration;
-
-	if(sameRenderer && uploadTextureSize.x >= size.x && uploadTextureSize.y >= size.y)
-		return uploadTexture;
-
-	// never shrink - a smaller region can always be uploaded into a corner of a larger texture
-	const Point wanted = sameRenderer ? Point(std::max(size.x, uploadTextureSize.x), std::max(size.y, uploadTextureSize.y)) : size;
-
-	SDL_Texture * created = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, wanted.x, wanted.y);
-
-	if(!created)
-		return nullptr;
-
-	// textures of a destroyed renderer are gone with it and must not be touched
-	if(sameRenderer)
-		SDL_DestroyTexture(uploadTexture);
-
-	uploadTexture = created;
-	uploadTextureSize = wanted;
-	uploadTextureGeneration = mainRendererGeneration;
-
-	return uploadTexture;
-}
-
 /// Uploads one region of a surface into the shared texture, which then holds it at its origin.
 /// Returns nullptr when the surface is not in the format our canvases use.
 static SDL_Texture * uploadSurfaceRegion(SDL_Surface * surface, const Rect & area)
@@ -173,7 +138,7 @@ static SDL_Texture * uploadSurfaceRegion(SDL_Surface * surface, const Rect & are
 	if(surface->format != SDL_PIXELFORMAT_ARGB8888 || area.w <= 0 || area.h <= 0)
 		return nullptr;
 
-	SDL_Texture * texture = acquireUploadTexture(area.dimensions());
+	SDL_Texture * texture = GpuResources::get().acquireUploadTexture(area.dimensions());
 
 	if(!texture)
 		return nullptr;
@@ -190,14 +155,18 @@ static SDL_Texture * uploadSurfaceRegion(SDL_Surface * surface, const Rect & are
 
 void Canvas::bindRenderTarget() const
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// switching targets flushes the batch, so only do it when it actually changes
-	if(SDL_GetRenderTarget(mainRenderer) != renderTarget)
-		if(!SDL_SetRenderTarget(mainRenderer, renderTarget))
+	if(SDL_GetRenderTarget(renderer) != renderTarget)
+		if(!SDL_SetRenderTarget(renderer, renderTarget))
 			logGpuIssueOnce(std::string("SDL_SetRenderTarget failed: ") + SDL_GetError());
 }
 
 void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint32_t blendMode, uint8_t alpha)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	bindRenderTarget();
 
 	SDL_FRect source = CSDL_Ext::toSDLFloat(image.renderArea);
@@ -210,7 +179,7 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		SDL_Texture * shared = uploadSurfaceRegion(image.surface, image.renderArea);
 
 		// an unexpected surface format still has to go through a conversion of its own
-		SDL_Texture * uploaded = shared ? shared : SDL_CreateTextureFromSurface(mainRenderer, image.surface);
+		SDL_Texture * uploaded = shared ? shared : SDL_CreateTextureFromSurface(renderer, image.surface);
 
 		if(!uploaded)
 		{
@@ -226,7 +195,7 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		SDL_SetTextureAlphaMod(uploaded, alpha);
 		SDL_SetTextureScaleMode(uploaded, SDL_SCALEMODE_NEAREST);
 
-		if(!SDL_RenderTexture(mainRenderer, uploaded, &source, &target))
+		if(!SDL_RenderTexture(renderer, uploaded, &source, &target))
 			logGpuIssueOnce(std::string("SDL_RenderTexture failed for uploaded surface: ") + SDL_GetError());
 
 		if(!shared)
@@ -240,7 +209,7 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 	// matches SDL_BlitSurfaceScaled on the surface path; see the note in SDLImageShared
 	SDL_SetTextureScaleMode(image.renderTarget, SDL_SCALEMODE_NEAREST);
 
-	if(!SDL_RenderTexture(mainRenderer, image.renderTarget, &source, &target))
+	if(!SDL_RenderTexture(renderer, image.renderTarget, &source, &target))
 		logGpuIssueOnce(std::string("SDL_RenderTexture failed: ") + SDL_GetError());
 
 	SDL_SetTextureAlphaMod(image.renderTarget, SDL_ALPHA_OPAQUE);
@@ -270,7 +239,7 @@ Canvas::~Canvas()
 	// owners are released on whichever thread drops them, and a texture may only be
 	// destroyed on the rendering thread
 	if(ownsRenderTarget && renderTarget)
-		destroyTextureDeferred(renderTarget);
+		GpuResources::get().destroyTextureDeferred(renderTarget);
 }
 
 void Canvas::drawViaScratchSurface(const Point & pos, const Point & size, const std::function<void(SDL_Surface *)> & render)
@@ -307,7 +276,7 @@ void Canvas::draw(const IImage& image, const Point & pos)
 		bindRenderTarget();
 
 		// an image that is still upscaling, or that the driver refused, has no texture yet
-		if(!image.drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
+		if(!image.drawTexture(GpuResources::get().renderer(), transformPos(pos), nullptr, getScalingFactor()))
 			drawViaScratchSurface(pos, image.dimensions(), [&](SDL_Surface * target){ image.draw(target, Point(0, 0), nullptr, getScalingFactor()); });
 		return;
 	}
@@ -324,7 +293,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 	if(renderTarget)
 	{
 		bindRenderTarget();
-		if(!image->drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
+		if(!image->drawTexture(GpuResources::get().renderer(), transformPos(pos), nullptr, getScalingFactor()))
 			drawViaScratchSurface(pos, image->dimensions(), [&](SDL_Surface * target){ image->draw(target, Point(0, 0), nullptr, getScalingFactor()); });
 		return;
 	}
@@ -342,7 +311,7 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const
 	if(renderTarget)
 	{
 		bindRenderTarget();
-		if(!image->drawTexture(mainRenderer, transformPos(pos), &realSourceRect, getScalingFactor()))
+		if(!image->drawTexture(GpuResources::get().renderer(), transformPos(pos), &realSourceRect, getScalingFactor()))
 			drawViaScratchSurface(pos, sourceRect.dimensions(), [&](SDL_Surface * target){ image->draw(target, Point(0, 0), &realSourceRect, getScalingFactor()); });
 		return;
 	}
@@ -396,14 +365,16 @@ void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & t
 
 void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	Point point = transformPos(dest);
 
 	if(renderTarget)
 	{
 		bindRenderTarget();
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
-		SDL_RenderPoint(mainRenderer, point.x, point.y);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+		SDL_RenderPoint(renderer, point.x, point.y);
 		return;
 	}
 	CSDL_Ext::putPixelWithoutRefreshIfInSurf(surface, point.x, point.y, color.r, color.g, color.b, color.a);
@@ -411,10 +382,12 @@ void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	if(renderTarget)
 	{
 		bindRenderTarget();
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 		const Point start = transformPos(from);
 		const Point end = transformPos(dest);
@@ -429,8 +402,8 @@ void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & 
 			Point segmentFrom = start + (end - start) * i / segments;
 			Point segmentTo = start + (end - start) * (i + 1) / segments;
 
-			SDL_SetRenderDrawColor(mainRenderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
-			SDL_RenderLine(mainRenderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
+			SDL_SetRenderDrawColor(renderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
+			SDL_RenderLine(renderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
 		}
 		return;
 	}
@@ -440,18 +413,20 @@ void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & 
 
 void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	if(renderTarget)
 	{
 		bindRenderTarget();
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
 		for(int i = 0; i < width * getScalingFactor(); ++i)
 		{
 			SDL_FRect ring = CSDL_Ext::toSDLFloat(realTarget.resize(-i));
-			SDL_RenderRect(mainRenderer, &ring);
+			SDL_RenderRect(renderer, &ring);
 		}
 		return;
 	}
@@ -461,14 +436,16 @@ void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	if(renderTarget)
 	{
 		// SDL has no dashed primitive; approximate with alternating short segments
 		bindRenderTarget();
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
 		const auto dashedLine = [&](Point from, Point to)
 		{
@@ -479,7 +456,7 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 			{
 				Point a = from + (to - from) * i / std::max(1, length);
 				Point b = from + (to - from) * std::min(i + dash, length) / std::max(1, length);
-				SDL_RenderLine(mainRenderer, a.x, a.y, b.x, b.y);
+				SDL_RenderLine(renderer, a.x, a.y, b.x, b.y);
 			}
 		};
 
@@ -502,13 +479,13 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 	{
 		// The font stack writes glyphs into a surface, which a render target cannot accept,
 		// so the string is rasterized once and drawn as a texture from then on
-		auto image = TextTextureCache::get().getImage(font, colorDest, text);
+		auto image = GpuResources::get().textCache().getImage(font, colorDest, text);
 
 		if(image)
 		{
 			bindRenderTarget();
 			Point topLeft = transformPos(position) + TextTextureCache::getAlignmentOffset(font, alignment, text);
-			if(!image->drawTexture(mainRenderer, nullptr, topLeft, nullptr, Colors::WHITE_TRUE, SDL_ALPHA_OPAQUE, EImageBlitMode::SIMPLE))
+			if(!image->drawTexture(GpuResources::get().renderer(), nullptr, topLeft, nullptr, Colors::WHITE_TRUE, SDL_ALPHA_OPAQUE, EImageBlitMode::SIMPLE))
 				logGpuIssueOnce("rendered text has no texture representation");
 		}
 		return;
@@ -554,15 +531,17 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 
 void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	if(renderTarget)
 	{
 		bindRenderTarget();
 		SDL_FRect rect = CSDL_Ext::toSDLFloat(realTarget);
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
-		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
-		SDL_RenderFillRect(mainRenderer, &rect);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+		SDL_RenderFillRect(renderer, &rect);
 		return;
 	}
 
@@ -571,15 +550,17 @@ void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	if(renderTarget)
 	{
 		bindRenderTarget();
 		SDL_FRect rect = CSDL_Ext::toSDLFloat(realTarget);
-		SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(mainRenderer, color.r, color.g, color.b, color.a);
-		SDL_RenderFillRect(mainRenderer, &rect);
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+		SDL_RenderFillRect(renderer, &rect);
 		return;
 	}
 
@@ -604,7 +585,7 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 			if(renderTarget)
 			{
 				bindRenderTarget();
-				image->drawTexture(mainRenderer, at, nullptr, getScalingFactor());
+				image->drawTexture(GpuResources::get().renderer(), at, nullptr, getScalingFactor());
 			}
 			else
 				image->draw(surface, at, nullptr, getScalingFactor());
@@ -625,7 +606,7 @@ ColorRGBA Canvas::getPixel(const Point & position) const
 		bindRenderTarget();
 
 		SDL_Rect probe{ position.x, position.y, 1, 1 };
-		SDL_Surface * pixel = SDL_RenderReadPixels(mainRenderer, &probe);
+		SDL_Surface * pixel = SDL_RenderReadPixels(GpuResources::get().renderer(), &probe);
 
 		if(!pixel)
 		{
@@ -656,6 +637,8 @@ static SDL_Rect toClipRect(const Rect & rect)
 
 CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	const Rect scaled = rect * ENGINE->screenHandler().getScalingFactor();
 
 	if(canvas.isRenderTarget())
@@ -669,14 +652,14 @@ CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): su
 		// An active clip may well be empty, so only SDL_RenderClipEnabled separates it from having
 		// none - going by the rectangle would discard the clip this guard is nested in
 		SDL_Rect previous{};
-		hadClipRect = SDL_RenderClipEnabled(mainRenderer) && SDL_GetRenderClipRect(mainRenderer, &previous);
+		hadClipRect = SDL_RenderClipEnabled(renderer) && SDL_GetRenderClipRect(renderer, &previous);
 
 		// the clip is in target pixels, so it has to carry the canvas' own offset
 		const Rect area = Rect(scaled.topLeft() + canvas.renderArea.topLeft(), scaled.dimensions()).intersect(canvas.renderArea);
 		oldRect = hadClipRect ? CSDL_Ext::fromSDL(previous) : area;
 
 		SDL_Rect clip = toClipRect(hadClipRect ? oldRect.intersect(area) : area);
-		SDL_SetRenderClipRect(mainRenderer, &clip);
+		SDL_SetRenderClipRect(renderer, &clip);
 		return;
 	}
 
@@ -686,6 +669,8 @@ CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): su
 
 CanvasClipRectGuard::~CanvasClipRectGuard()
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	if(onRenderTarget)
 	{
 		// the clip belongs to whichever target is bound, so restore it on ours
@@ -695,10 +680,10 @@ CanvasClipRectGuard::~CanvasClipRectGuard()
 		if(hadClipRect)
 		{
 			SDL_Rect restored = toClipRect(oldRect);
-			SDL_SetRenderClipRect(mainRenderer, &restored);
+			SDL_SetRenderClipRect(renderer, &restored);
 		}
 		else
-			SDL_SetRenderClipRect(mainRenderer, nullptr);
+			SDL_SetRenderClipRect(renderer, nullptr);
 		return;
 	}
 

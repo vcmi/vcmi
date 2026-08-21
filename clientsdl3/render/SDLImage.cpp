@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "SDLImage.h"
+#include "GpuResources.h"
 #include "RenderHandler.h"
 
 #include "SDLImageLoader.h"
@@ -164,22 +165,24 @@ void SDLImageShared::dropTexture() const
 {
 	// destroying the renderer already destroyed everything it owned, so a stale
 	// generation means the pointer must be dropped rather than freed
-	if(texture && textureGeneration == mainRendererGeneration)
-		destroyTextureDeferred(texture);
+	if(texture && textureGeneration == GpuResources::get().generation())
+		GpuResources::get().destroyTextureDeferred(texture);
 
 	texture = nullptr;
 }
 
 SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 {
-	if(upscalingInProgress || surf == nullptr || mainRenderer == nullptr)
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
+	if(upscalingInProgress || surf == nullptr || renderer == nullptr)
 		return nullptr;
 
 	// an upscaled image is plain RGBA - the palette never reaches its texture, so keying the
 	// cache on it would rebuild the texture for every instance that shares the image
 	SDL_Palette * effectivePalette = CSDL_Ext::getPalette(surf) ? palette : nullptr;
 
-	if(texture && textureGeneration == mainRendererGeneration && texturePalette == effectivePalette)
+	if(texture && textureGeneration == GpuResources::get().generation() && texturePalette == effectivePalette)
 		return texture;
 
 	dropTexture();
@@ -187,7 +190,7 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 	if(effectivePalette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	texture = SDL_CreateTextureFromSurface(mainRenderer, surf);
+	texture = SDL_CreateTextureFromSurface(renderer, surf);
 
 	if(CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
@@ -196,7 +199,7 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 		logGlobal->error("Failed to create texture from image! %s", SDL_GetError());
 
 	texturePalette = effectivePalette;
-	textureGeneration = mainRendererGeneration;
+	textureGeneration = GpuResources::get().generation();
 
 	return texture;
 }

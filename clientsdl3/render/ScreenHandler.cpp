@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "ScreenHandler.h"
+#include "GpuResources.h"
 
 #include "SDL_Extensions.h"
 
@@ -40,25 +41,6 @@
 #endif
 
 #include <SDL3/SDL.h>
-
-// TODO: should be made into a private members of ScreenHandler
-SDL_Renderer * mainRenderer = nullptr;
-uint32_t mainRendererGeneration = 1;
-
-namespace
-{
-std::mutex pendingTextureMutex;
-std::vector<SDL_Texture *> pendingTextureDestruction;
-}
-
-void destroyTextureDeferred(SDL_Texture * texture)
-{
-	if(!texture)
-		return;
-
-	std::lock_guard lock(pendingTextureMutex);
-	pendingTextureDestruction.push_back(texture);
-}
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -116,6 +98,8 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 
 Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// SDL_GetRenderScale no longer reflects the logical presentation in SDL3, so let the
 	// renderer convert - interface coordinates have to be in its (upscaled) space first.
 	int scaling = getScalingFactor();
@@ -125,8 +109,8 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 	float x1;
 	float y1;
 
-	SDL_RenderCoordinatesToWindow(mainRenderer, input.x * scaling, input.y * scaling, &x0, &y0);
-	SDL_RenderCoordinatesToWindow(mainRenderer, (input.x + input.w) * scaling, (input.y + input.h) * scaling, &x1, &y1);
+	SDL_RenderCoordinatesToWindow(renderer, input.x * scaling, input.y * scaling, &x0, &y0);
+	SDL_RenderCoordinatesToWindow(renderer, (input.x + input.w) * scaling, (input.y + input.h) * scaling, &x1, &y1);
 
 	Rect result;
 	result.x = x0;
@@ -201,11 +185,13 @@ Point ScreenHandler::getLogicalResolution() const
 
 Point ScreenHandler::getRenderResolution() const
 {
-	assert(mainRenderer != nullptr);
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
+	assert(renderer != nullptr);
 
 	Point result;
 	// not the "current" size - that one reports the letterboxed logical area, not the window
-	SDL_GetRenderOutputSize(mainRenderer, &result.x, &result.y);
+	SDL_GetRenderOutputSize(renderer, &result.x, &result.y);
 
 	return result;
 }
@@ -386,9 +372,9 @@ void ScreenHandler::initializeWindow()
 
 	// create first available renderer if no preferred one is set
 	std::string preferredDriver = getPreferredRenderingDriver();
-	mainRenderer = SDL_CreateRenderer(mainWindow, preferredDriver.empty() ? nullptr : preferredDriver.c_str());
+	GpuResources::get().setRenderer(SDL_CreateRenderer(mainWindow, preferredDriver.empty() ? nullptr : preferredDriver.c_str()));
 
-	if(mainRenderer == nullptr)
+	if(GpuResources::get().renderer() == nullptr)
 	{
 		const char * error = SDL_GetError();
 		std::string messagePattern = "Failed to create SDL renderer. Reason: %s";
@@ -396,12 +382,12 @@ void ScreenHandler::initializeWindow()
 		handleFatalError(message, true);
 	}
 
-	SDL_SetRenderVSync(mainRenderer, settings["video"]["vsync"].Bool() ? 1 : SDL_RENDERER_VSYNC_DISABLED);
+	SDL_SetRenderVSync(GpuResources::get().renderer(), settings["video"]["vsync"].Bool() ? 1 : SDL_RENDERER_VSYNC_DISABLED);
 
 	selectUpscalingFilter();
 	selectDownscalingFilter();
 
-	logGlobal->info("Created renderer %s", SDL_GetRendererName(mainRenderer));
+	logGlobal->info("Created renderer %s", SDL_GetRendererName(GpuResources::get().renderer()));
 }
 
 EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
@@ -460,14 +446,16 @@ void ScreenHandler::selectDownscalingFilter()
 	auto filterName = settings["video"]["downscalingFilter"].String();
 	auto scaleMode = scaleModes.count(filterName) ? scaleModes.at(filterName) : SDL_SCALEMODE_LINEAR;
 
-	SDL_SetDefaultTextureScaleMode(mainRenderer, scaleMode);
+	SDL_SetDefaultTextureScaleMode(GpuResources::get().renderer(), scaleMode);
 	logGlobal->debug("Selected downscaling filter %s", filterName);
 }
 
 void ScreenHandler::initializeScreenBuffers()
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	auto logicalSize = getPreferredLogicalResolution() * getScalingFactor();
-	SDL_SetRenderLogicalPresentation(mainRenderer, logicalSize.x, logicalSize.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	SDL_SetRenderLogicalPresentation(renderer, logicalSize.x, logicalSize.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	screen = SDL_CreateSurface(logicalSize.x, logicalSize.y, SDL_PIXELFORMAT_ARGB8888);
 	if(nullptr == screen)
@@ -478,7 +466,7 @@ void ScreenHandler::initializeScreenBuffers()
 	//No blending for screen itself. Required for proper cursor rendering.
 	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
 
-	screenTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, logicalSize.x, logicalSize.y);
+	screenTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, logicalSize.x, logicalSize.y);
 
 	if(nullptr == screenTexture)
 	{
@@ -714,21 +702,25 @@ void ScreenHandler::destroyScreenBuffers()
 
 void ScreenHandler::clearLayer(size_t index)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// the bottom layer is what everything else is composited onto, so it stays opaque;
 	// the layers above it must start transparent to let it show through
 	const bool bottom = index == 0;
 
-	SDL_SetRenderTarget(mainRenderer, layerTextures[index]);
-	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, bottom ? 255 : 0);
-	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderTarget(renderer, layerTextures[index]);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, bottom ? 255 : 0);
+	SDL_RenderClear(renderer);
 }
 
 void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// The software driver supports render targets too, but rasterizes them on the CPU -
 	// going through textures there is slower than the surface blitting it would replace.
-	const std::string driver = SDL_GetRendererName(mainRenderer);
+	const std::string driver = SDL_GetRendererName(renderer);
 	if(driver == "software")
 	{
 		logGlobal->info("Software renderer in use - keeping the surface rendering path");
@@ -738,7 +730,7 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 	// every SDL3 renderer can render to a texture, so unlike SDL2 there is nothing to probe for
 	for(size_t i = 0; i < layerTextures.size(); ++i)
 	{
-		layerTextures[i] = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+		layerTextures[i] = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
 
 		if(nullptr == layerTextures[i])
 		{
@@ -750,13 +742,13 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 		clearLayer(i);
 	}
 
-	SDL_SetRenderTarget(mainRenderer, nullptr);
+	SDL_SetRenderTarget(renderer, nullptr);
 
 	// the layers are drawn first and the software screen is blended over them, so the screen
 	// texture must stop being opaque for them to show through its transparent holes
 	SDL_SetTextureBlendMode(screenTexture, SDL_BLENDMODE_BLEND);
 
-	screenTarget = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
+	screenTarget = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, logicalSize.x, logicalSize.y);
 
 	if(nullptr == screenTarget)
 	{
@@ -766,11 +758,11 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 
 	// composited over the layers, so it must blend and start out fully transparent
 	SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderTarget(mainRenderer, screenTarget);
-	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
-	SDL_RenderClear(mainRenderer);
-	SDL_SetRenderTarget(mainRenderer, nullptr);
+	SDL_SetRenderTarget(renderer, screenTarget);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
+	SDL_SetRenderTarget(renderer, nullptr);
 
 	gpuRenderingSupported = true;
 	logGlobal->info("GPU rendering enabled, using driver '%s'", driver);
@@ -778,12 +770,9 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 
 void ScreenHandler::destroyWindow()
 {
-	if(nullptr != mainRenderer)
+	if(nullptr != GpuResources::get().renderer())
 	{
-		SDL_DestroyRenderer(mainRenderer);
-		mainRenderer = nullptr;
-		// every texture created from the old renderer is now dangling
-		++mainRendererGeneration;
+		GpuResources::get().destroyRenderer();
 	}
 
 	if(nullptr != mainWindow)
@@ -805,9 +794,11 @@ ScreenHandler::~ScreenHandler()
 
 void ScreenHandler::clearScreen()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
-	SDL_RenderPresent(mainRenderer);
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+	SDL_RenderPresent(renderer);
 }
 
 Canvas ScreenHandler::getScreenCanvas() const
@@ -857,18 +848,20 @@ void ScreenHandler::clearReleasedLayers()
 		layerActive[i] = false;
 	}
 
-	SDL_SetRenderTarget(mainRenderer, nullptr);
+	SDL_SetRenderTarget(GpuResources::get().renderer(), nullptr);
 }
 
 Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// the software driver rasterizes a render target on the CPU, which is slower than the
 	// surface blitting it would replace - the same reason the layers stay on surfaces there
 	if(!isGpuRenderingEnabled())
 		return Canvas(size, CanvasScalingPolicy::AUTO);
 
 	const Point pixels = size * getScalingFactor();
-	SDL_Texture * target = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, pixels.x, pixels.y);
+	SDL_Texture * target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, pixels.x, pixels.y);
 
 	if(!target)
 	{
@@ -880,12 +873,12 @@ Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 
 	// a fresh render target holds undefined contents - start it transparent so that
 	// blending the first sprites onto it produces the same result as the surface path
-	SDL_Texture * previousTarget = SDL_GetRenderTarget(mainRenderer);
-	SDL_SetRenderTarget(mainRenderer, target);
-	SDL_SetRenderDrawBlendMode(mainRenderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
-	SDL_RenderClear(mainRenderer);
-	SDL_SetRenderTarget(mainRenderer, previousTarget);
+	SDL_Texture * previousTarget = SDL_GetRenderTarget(renderer);
+	SDL_SetRenderTarget(renderer, target);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
+	SDL_SetRenderTarget(renderer, previousTarget);
 
 	return Canvas::createOwningRenderTarget(target, size, CanvasScalingPolicy::AUTO);
 }
@@ -922,33 +915,32 @@ void ScreenHandler::updateScreenTexture()
 
 void ScreenHandler::flushRenderCommands()
 {
-	SDL_FlushRenderer(mainRenderer);
+	SDL_FlushRenderer(GpuResources::get().renderer());
 }
 
 void ScreenHandler::presentScreenTexture()
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// a layer may still be bound from rendering into it
-	SDL_SetRenderTarget(mainRenderer, nullptr);
+	SDL_SetRenderTarget(renderer, nullptr);
 
 	{
-		std::lock_guard lock(pendingTextureMutex);
-		for(SDL_Texture * texture : pendingTextureDestruction)
-			SDL_DestroyTexture(texture);
-		pendingTextureDestruction.clear();
+		GpuResources::get().processPendingTextureDestruction();
 	}
 
 	// the draw color is left over from whatever was rendered last, and this clear also
 	// covers the letterbox bars around the reserved area
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
 
 	for(size_t i = 0; i < layerTextures.size(); ++i)
 		if(layerTextures[i] && layerActive[i])
-			SDL_RenderTexture(mainRenderer, layerTextures[i], nullptr, nullptr);
+			SDL_RenderTexture(renderer, layerTextures[i], nullptr, nullptr);
 
-	SDL_RenderTexture(mainRenderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
+	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
-	SDL_RenderPresent(mainRenderer);
+	SDL_RenderPresent(renderer);
 }
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const

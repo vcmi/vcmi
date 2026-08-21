@@ -40,8 +40,6 @@ class TextTextureCache
 	std::map<Key, std::list<Entry>::iterator> entries;
 
 public:
-	static TextTextureCache & get();
-
 	/// Image holding the rendered string, or null if it could not be produced.
 	/// Its top left corner is the string's top left, so callers apply alignment themselves.
 	std::shared_ptr<SDLImageShared> getImage(EFonts font, const ColorRGBA & color, const std::string & text);
