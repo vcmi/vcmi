@@ -62,6 +62,9 @@ class MapViewCache
 	/// surface path, and a cache built for one path cannot be drawn onto the other.
 	bool canvasesOnGpu = false;
 
+	/// Size the cache canvas was created for - at native tile size it follows the zoom level
+	Point cachedCanvasDimensions;
+
 	/// Set by update(), cleared by render(). Lets a caller that already filled the cache
 	/// this frame skip doing it again, which would re-checksum every visible tile.
 	bool updatedThisFrame = false;
