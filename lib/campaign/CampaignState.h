@@ -65,6 +65,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	HeroTypeID yogWizardID;
 	HeroTypeID gemSorceressID;
+	HeroTypeID mutareDrakeID;
 
 	int hotaVersion = 0; // not serialized - loading only
 	int numberOfScenarios = 0;
@@ -93,6 +94,7 @@ public:
 
 	HeroTypeID getYogWizardID() const;
 	HeroTypeID getGemSorceressID() const;
+	HeroTypeID getMutareDrakeID() const;
 	bool restrictedGarrisonsForAI() const;
 
 	const CampaignRegions & getRegions() const;
@@ -122,6 +124,11 @@ public:
 		h & outroVideo;
 		h & yogWizardID;
 		h & gemSorceressID;
+
+		if(h.hasFeature(Handler::Version::MUTARE_DRAKE_OVERRIDE))
+			h & mutareDrakeID;
+		else if(!h.saving)
+			mutareDrakeID = HeroTypeID();
 	}
 };
 
