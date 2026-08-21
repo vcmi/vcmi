@@ -204,12 +204,20 @@ void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 
 	// Both paths decode to ARGB8888, the format of the screen texture. A YUV texture would
 	// save a conversion, but leaves it to the renderer, which picks the colorspace itself.
+	const Point nativeSize(getCodecContext()->width, getCodecContext()->height);
+
 	if (useTextureOutput)
 	{
-		textureRGB = SDL_CreateTexture(GpuResources::get().renderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
+		// The texture holds the video at its own resolution and renderFrame() stretches it to
+		// dimensions while drawing. Scaling here instead would make swscale filter every pixel
+		// of the enlarged frame on the CPU, once per frame - at an upscaling factor of two that
+		// is four times the work for a result the GPU produces for free.
+		textureRGB = SDL_CreateTexture(GpuResources::get().renderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, nativeSize.x, nativeSize.y);
 
 		if (textureRGB == nullptr)
 			logGlobal->warn("Failed to create video texture, falling back to software: %s", SDL_GetError());
+		else
+			SDL_SetTextureScaleMode(textureRGB, SDL_SCALEMODE_LINEAR);
 	}
 
 	// without a texture the frames are drawn through a surface instead - a video with neither
@@ -217,8 +225,11 @@ void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 	if (textureRGB == nullptr)
 		surface = CSDL_Ext::newSurface(dimensions);
 
+	// a surface is blitted as it is, so that path has no one to scale for it
+	scaledSize = textureRGB ? nativeSize : dimensions;
+
 	sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
-						 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
+						 scaledSize.x, scaledSize.y, AV_PIX_FMT_RGB32,
 						 SWS_BICUBIC, nullptr, nullptr, nullptr);
 
 	if (sws == nullptr)
@@ -300,7 +311,7 @@ bool CVideoInstance::loadNextFrame()
 
 	if(textureRGB)
 	{
-		av_image_alloc(data, linesize, dimensions.x, dimensions.y, AV_PIX_FMT_RGB32, 1);
+		av_image_alloc(data, linesize, scaledSize.x, scaledSize.y, AV_PIX_FMT_RGB32, 1);
 		sws_scale(sws, frame->data, frame->linesize, 0, getCodecContext()->height, data, linesize);
 		SDL_UpdateTexture(textureRGB, nullptr, data[0], linesize[0]);
 		av_freep(&data[0]);

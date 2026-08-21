@@ -72,7 +72,12 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	struct SwsContext * sws = nullptr;
 	SDL_Texture * textureRGB = nullptr;
 	SDL_Surface * surface = nullptr;
+	/// Size the video is drawn at, in physical pixels
 	Point dimensions;
+
+	/// Size swscale produces. The video's own resolution while a texture carries it, since the
+	/// GPU does the scaling then; the full display size only for the surface fallback.
+	Point scaledSize;
 
 	/// video playback start time point
 	bool startTimeInitialized;
