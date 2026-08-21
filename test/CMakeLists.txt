@@ -188,7 +188,6 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
-		nullkiller2/Engine/TranslatorTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp
 		nullkiller2/Goals/CompositionTest.cpp
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp

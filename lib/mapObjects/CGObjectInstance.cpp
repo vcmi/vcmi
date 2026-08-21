@@ -275,6 +275,11 @@ void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const Obj
 	gameEvents.giveHeroBonus(&gbonus);
 }
 
+std::string CGObjectInstance::getObjectNameTextID() const
+{
+	return LIBRARY->objtypeh->getObjectNameTextID(ID, subID);
+}
+
 MetaString CGObjectInstance::getObjectName() const
 {
 	return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, subID));

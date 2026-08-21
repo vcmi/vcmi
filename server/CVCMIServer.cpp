@@ -24,6 +24,7 @@
 #include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
+#include "../lib/texts/OverlayTranslator.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -680,7 +681,11 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			// TODO: handle this somehow?
 		}
 		else
-			roomDescription = mi->getNameTranslated(LIBRARY->translator());
+		{
+			// lobby metadata is built server-side, so it resolves the map's own texts
+			const OverlayTranslator translator(mi->mapHeader->texts);
+			roomDescription = mi->getNameTranslated(&translator);
+		}
 
 		lobbyProcessor->sendChangeRoomDescription(roomDescription);
 	}

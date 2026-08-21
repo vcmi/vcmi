@@ -17,6 +17,7 @@
 #include "../campaign/CampaignState.h"
 #include "Filesystem.h"
 #include "../mapping/CMapHeader.h"
+#include "../texts/OverlayTranslator.h"
 #include "../texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
@@ -47,9 +48,12 @@ std::string sanitizeMapName(std::string name)
 
 std::string getGameName(const StartInfo & startInfo, const CMapHeader & mapHeader)
 {
+	// a save directory is named on whichever machine writes it, so it has to resolve the
+	// map's own embedded text rather than wait for a player-facing translator
+	const OverlayTranslator translator(mapHeader.texts);
 	if(startInfo.campState)
-		return sanitizeMapName(startInfo.getCampaignName(LIBRARY->translator()));
-	return sanitizeMapName(mapHeader.name.toString(LIBRARY->translator()));
+		return sanitizeMapName(startInfo.getCampaignName(&translator));
+	return sanitizeMapName(mapHeader.name.toString(&translator));
 }
 
 std::string getStoredDirectory(const StartInfo & startInfo)
