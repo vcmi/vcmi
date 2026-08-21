@@ -671,7 +671,7 @@ void CGameState::adjustObjectsToMapBounds()
 		const auto newVisitablePos = obj->visitablePos();
 		logGlobal->warn(
 			"Object %s has out of map bounds visitable position %s. Shifted to %s.",
-			obj->getObjectName().toString(LIBRARY->translator()), oldVisitablePos.toString(), newVisitablePos.toString());
+			obj->getObjectNameTextID(), oldVisitablePos.toString(), newVisitablePos.toString());
 	}
 }
 

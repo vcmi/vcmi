@@ -157,16 +157,16 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.outroVideo = VideoPath::fromJson(reader["outroVideo"]);
 }
 
-JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header)
+JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header, const ITranslator * translator)
 {
 	JsonNode node;
 	node["version"].Integer() = static_cast<ui64>(CampaignVersion::VCMI);
 	node["regions"] = header.campaignRegions.toJson();
-	node["name"].String() = header.name.toString(LIBRARY->translator());
-	node["description"].String() = header.description.toString(LIBRARY->translator());
-	node["author"].String() = header.author.toString(LIBRARY->translator());
-	node["authorContact"].String() = header.authorContact.toString(LIBRARY->translator());
-	node["campaignVersion"].String() = header.campaignVersion.toString(LIBRARY->translator());
+	node["name"].String() = header.name.toString(translator);
+	node["description"].String() = header.description.toString(translator);
+	node["author"].String() = header.author.toString(translator);
+	node["authorContact"].String() = header.authorContact.toString(translator);
+	node["campaignVersion"].String() = header.campaignVersion.toString(translator);
 	node["creationDateTime"].Integer() = header.creationDateTime;
 	node["allowDifficultySelection"].Bool() = header.difficultyChosenByPlayer;
 	node["music"].String() = header.music.getName();
@@ -215,9 +215,9 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
-JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario, const ITranslator * translator)
 {
-	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
+	auto prologEpilogWriter = [translator](const CampaignScenarioPrologEpilog & elem) -> JsonNode
 	{
 		JsonNode node;
 		if(elem.hasPrologEpilog)
@@ -225,7 +225,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 			node["video"].Vector() = JsonVector{ JsonNode(elem.prologVideo.first.getName()), JsonNode(elem.prologVideo.second.getName()) };
 			node["music"].String() = elem.prologMusic.getName();
 			node["voice"].String() = elem.prologVoice.getName();
-			node["text"].String() = elem.prologText.toString(LIBRARY->translator());
+			node["text"].String() = elem.prologText.toString(translator);
 		}
 		return node;
 	};
@@ -236,7 +236,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
-	node["regionText"].String() = scenario.regionText.toString(LIBRARY->translator());
+	node["regionText"].String() = scenario.regionText.toString(translator);
 	node["prolog"] = prologEpilogWriter(scenario.prolog);
 	node["epilog"] = prologEpilogWriter(scenario.epilog);
 

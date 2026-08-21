@@ -95,7 +95,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		if(objToVisit && !force && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
 #if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectName().toString());
+			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectNameTextID());
 #endif
 			continue;
 		}
@@ -150,8 +150,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
-			objToVisit ? objToVisit->getObjectName().toString() : path.targetTile().toString(),
-			hero->getObjectName().toString(),
+			objToVisit ? objToVisit->getObjectNameTextID() : path.targetTile().toString(),
+			hero->getNameTextID(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
@@ -231,7 +231,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 					continue;
 
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Checking object %s, %s", objToVisit->getObjectName().toString(), objToVisit->visitablePos().toString());
+				logAi->trace("Checking object %s, %s", objToVisit->getObjectNameTextID(), objToVisit->visitablePos().toString());
 #endif
 
 				// FIXME: Mircea: This one uses the deleted hero

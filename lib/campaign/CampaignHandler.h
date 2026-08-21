@@ -12,6 +12,8 @@
 #include "CampaignState.h" // Convenience include - not required for build, but required for any user of CampaignHandler
 #include "../filesystem/ResourcePath.h"
 
+class ITranslator;
+
 class DLL_LINKAGE CampaignHandler
 {
 	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier);
@@ -42,6 +44,6 @@ public:
 	static std::shared_ptr<CampaignState> getCampaign(const std::string & name); //name - name of appropriate file
 
 	//writer for VCMI campaigns (*.vcmp)
-	static JsonNode writeHeaderToJson(CampaignHeader & header);
-	static JsonNode writeScenarioToJson(const CampaignScenario & scenario);
+	static JsonNode writeHeaderToJson(CampaignHeader & header, const ITranslator * translator);
+	static JsonNode writeScenarioToJson(const CampaignScenario & scenario, const ITranslator * translator);
 };

@@ -138,6 +138,9 @@ public:
 	/// Returns generic name of object, without any player-specific info
 	virtual MetaString getObjectName() const;
 
+	/// Language-neutral identity of this object type, for logs and other developer-facing text
+	std::string getObjectNameTextID() const;
+
 	/// Returns hover name for situation when there are no selected heroes. Default = object name
 	virtual MetaString getHoverText(PlayerColor player) const;
 	/// Returns hero-specific hover name, including visited/not visited info. Default = player-specific name

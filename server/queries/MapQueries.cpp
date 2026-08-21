@@ -241,12 +241,12 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->sendQueryResolved(queryID);
 	if(hlu.skills.empty())
 	{
-		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getObjectName().toString(LIBRARY->translator()));
+		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getNameTextID());
 		gh->levelUpHero(hero);
 		return;
 	}
 
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName().toString(LIBRARY->translator()), answer.value());
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getNameTextID(), answer.value());
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
@@ -310,12 +310,12 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->sendQueryResolved(queryID);
 	if(clu.skills.empty())
 	{
-		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getObjectName().toString(LIBRARY->translator()));
+		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getNameTextID());
 		gh->levelUpCommander(hero->getCommander());
 		return;
 	}
 
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName().toString(LIBRARY->translator()), answer.value());
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getNameTextID(), answer.value());
 	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 

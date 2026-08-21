@@ -94,7 +94,7 @@ const CGObjectInstance * ObjectActor::getActorObject() const
 
 std::string ObjectActor::toString() const
 {
-	return object->getObjectName().toString(LIBRARY->translator()) + " at " + object->visitablePos().toString();
+	return object->getObjectNameTextID() + " at " + object->visitablePos().toString();
 }
 
 HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * aiNk)

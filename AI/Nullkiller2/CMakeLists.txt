@@ -48,7 +48,6 @@ set(Nullkiller2_SRCS
 		Markers/DefendTown.cpp
 		Markers/ExplorationPoint.cpp
 		Engine/Nullkiller.cpp
-		Engine/Translator.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
 		Engine/ResourceTrader.cpp
@@ -129,7 +128,6 @@ set(Nullkiller2_HEADERS
 		Markers/DefendTown.h
 		Markers/ExplorationPoint.h
 		Engine/Nullkiller.h
-		Engine/Translator.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
 		Engine/ResourceTrader.h
