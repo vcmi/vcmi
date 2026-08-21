@@ -64,7 +64,17 @@ struct DLL_LINKAGE StatisticDataSetEntry
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & map;
+		if(h.hasFeature(Handler::Version::RECORD_TEXTS_METASTRING))
+		{
+			h & map;
+		}
+		else
+		{
+			// older saves stored the name already rendered in the writer's language
+			std::string legacyMap;
+			h & legacyMap;
+			map = MetaString::createFromRawString(legacyMap);
+		}
 		h & timestamp;
 		h & day;
 		h & player;
