@@ -267,12 +267,19 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"stackHealth" : {
-						"val" : -50,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"age" : {
+						"type" : "timed",
+						"battleLogSingular" : "@core.genrltxt.551",
+						"battleLogPlural" : "@core.genrltxt.552",
+						"bonus" : {
+							"stackHealth" : {
+								"val" : -50,
+								"type" : "STACK_HEALTH",
+								"valueType" : "PERCENT_TO_ALL",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			}
