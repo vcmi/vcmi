@@ -33,6 +33,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// Helper field to generate specialties for heroes after loading is complete
 	mutable std::vector<SpecialtyToGenerate> skillSpecialtiesToGenerate;
 
+	/// All non-special heroes, filled in once loading is complete
+	std::set<HeroTypeID> defaultAllowed;
+
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
@@ -60,7 +63,7 @@ public:
 	CHeroHandler();
 	~CHeroHandler();
 
-	std::set<HeroTypeID> getDefaultAllowed() const;
+	const std::set<HeroTypeID> & getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

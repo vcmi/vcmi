@@ -460,19 +460,17 @@ ui32 CHeroHandler::maxSupportedLevel() const
 	return expPerLevel.size();
 }
 
-std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const
+const std::set<HeroTypeID> & CHeroHandler::getDefaultAllowed() const
 {
-	std::set<HeroTypeID> result;
-
-	for(auto & hero : objects)
-		if (hero && !hero->special)
-			result.insert(hero->getId());
-
-	return result;
+	return defaultAllowed;
 }
 
 void CHeroHandler::afterLoadFinalization()
 {
+	for(const auto & hero : objects)
+		if (hero && !hero->special)
+			defaultAllowed.insert(hero->getId());
+
 	auto prepSpec = [](HeroTypeID hero, std::shared_ptr<Bonus> bonus)
 	{
 		bonus->duration = BonusDuration::PERMANENT;
