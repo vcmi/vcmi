@@ -59,6 +59,10 @@ class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
+	/// Loader that provides the resource, or nullptr. Every lookup goes through here,
+	/// so that a resource is located exactly once per query
+	const ISimpleResourceLoader * getLoader(const ResourcePath & resourceName) const;
+
 	//FIXME: this is only compile fix, should be removed in the end
 	CFilesystemList(CFilesystemList &) = delete;
 	CFilesystemList &operator=(CFilesystemList &) = delete;
