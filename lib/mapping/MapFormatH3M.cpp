@@ -3045,10 +3045,11 @@ std::string CMapLoaderH3M::readBasicString()
 std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIdentifier)
 {
 	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
-	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	if(mapString.empty())
 		return "";
+
+	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	return mapRegisterLocalizedString(modName, *mapHeader, fullIdentifier, mapString);
 }
