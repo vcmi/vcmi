@@ -79,6 +79,8 @@ class CPlayerInterface : public CGameInterface
 	};
 
 	std::list<PendingDialog> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
+	std::function<void(bool)> saveRequestCallback;
+	std::map<int, std::function<void(bool)>> pendingSaveRequests;
 	bool delayQueuedDialogsUntilInputSettles = false;
 	bool levelUpChainPendingContinuation = false;
 
@@ -154,6 +156,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void availableCreaturesChanged(const CGDwelling *town) override;
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
+	void requestSent(const CPackForServer * pack, int requestID) override;
 	void requestRealized(PackageApplied *pa) override;
 	void queryResolved(QueryID queryID) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
@@ -226,6 +229,7 @@ public: // public interface for use by client via GAME->interface() access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	void saveGame(const std::string & path, std::function<void(bool)> onComplete);
 	bool checkQuickLoadingGame(bool verbose = false);
 	void proposeQuickLoadingGame();
 	void quickSaveGame();

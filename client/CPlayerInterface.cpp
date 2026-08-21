@@ -1337,7 +1337,17 @@ void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHer
 	ENGINE->windows().pushWindow(cgw);
 }
 
-void CPlayerInterface::requestRealized( PackageApplied *pa )
+void CPlayerInterface::requestSent(const CPackForServer * pack, int requestID)
+{
+	if(dynamic_cast<const SaveGame *>(pack) && saveRequestCallback)
+	{
+		auto callback = std::move(saveRequestCallback);
+		saveRequestCallback = {};
+		pendingSaveRequests.emplace(requestID, std::move(callback));
+	}
+}
+
+void CPlayerInterface::requestRealized(PackageApplied * pa)
 {
 	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
 		movementController->onMoveHeroApplied();
@@ -1345,6 +1355,17 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
 		movementController->onQueryReplyApplied();
+	}
+
+	if(pa->packType == CTypeList::getInstance().getTypeID<SaveGame>(nullptr))
+	{
+		auto callback = pendingSaveRequests.find(pa->requestID);
+		if(callback != pendingSaveRequests.end())
+		{
+			auto onComplete = std::move(callback->second);
+			pendingSaveRequests.erase(callback);
+			onComplete(pa->result);
+		}
 	}
 }
 
@@ -2025,6 +2046,19 @@ void CPlayerInterface::proposeLoadingGame()
 		},
 		nullptr
 	);
+}
+
+void CPlayerInterface::saveGame(const std::string & path, std::function<void(bool)> onComplete)
+{
+	assert(!saveRequestCallback);
+	saveRequestCallback = std::move(onComplete);
+	cb->save(path, false);
+
+	if(saveRequestCallback)
+	{
+		auto failedCallback = std::move(saveRequestCallback);
+		failedCallback(false);
+	}
 }
 
 void CPlayerInterface::quickSaveGame()

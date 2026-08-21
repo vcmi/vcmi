@@ -530,11 +530,13 @@ void CGameHandler::handleReceivedPack(GameConnectionID connection, CPackForServe
 
 		if(result)
 			logGlobal->trace("Message %s successfully applied!", typeid(pack).name());
+		else if(dynamic_cast<SaveGame *>(&pack))
+			logGlobal->warn("Failed to apply save request");
 		else
 			complain((boost::format("Got false in applying %s... that request must have been fishy!")
 				% typeid(pack).name()).str());
 
-		sendPackageResponse(true);
+		sendPackageResponse(result);
 	}
 }
 
@@ -1807,13 +1809,10 @@ void pruneAutosaves(const ResourcePath & currentAutosave, int countLimit)
 
 }
 
-void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit)
+bool CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit)
 {
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
-	const auto savefname = savePath.getOriginalName() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
-
 	std::string filenameWithoutPath;
 	auto pos = filename.find_last_of("/\\");
 	if (pos != std::string::npos)
@@ -1825,6 +1824,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
+		const auto savefname = savePath.getOriginalName() + ".vsgm1";
+		CResourceHandler::get("local")->createResource(savefname);
+
 		CSaveFile save;
 		gameState().saveGame(save);
 		logGlobal->info("Saving server state");
@@ -1841,6 +1843,7 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 			sendAndApply(iw);
 		}
 		logGlobal->info("Game has been successfully saved!");
+		return true;
 	}
 	catch(std::exception &e)
 	{
@@ -1851,6 +1854,7 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 			sendAndApply(iw);
 		}
 		logGlobal->error("Failed to save game: %s", e.what());
+		return false;
 	}
 }
 
