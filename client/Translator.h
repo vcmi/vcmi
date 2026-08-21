@@ -21,10 +21,23 @@ class Translator final : public ITranslator
 	std::vector<const TextLocalizationContainer *> overlays;
 
 public:
-	/// Installing the same source twice is a no-op, so callers need not track what is already up
+	/// Prefer TranslatorOverlay - an overlay left installed past the life of its container dangles
 	void install(const TextLocalizationContainer & source);
 	void uninstall(const TextLocalizationContainer & source);
-	void uninstallAll();
 
 	const std::string & translateString(const TextIdentifier & identifier) const override;
+};
+
+/// Keeps a text container installed in the client translator for exactly as long as this object
+/// lives. Whoever owns the container owns the overlay, so the two can never drift apart.
+class TranslatorOverlay final
+{
+	const TextLocalizationContainer * source = nullptr;
+
+public:
+	TranslatorOverlay() = default;
+	explicit TranslatorOverlay(const TextLocalizationContainer & source);
+	TranslatorOverlay(TranslatorOverlay && other) noexcept;
+	TranslatorOverlay & operator=(TranslatorOverlay && other) noexcept;
+	~TranslatorOverlay();
 };

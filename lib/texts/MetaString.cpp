@@ -55,8 +55,12 @@ void MetaString::appendLocalString(EMetaText type, ui32 serial)
 
 void MetaString::appendRawString(const std::string & value)
 {
-	message.push_back(EMessage::APPEND_RAW_STRING);
-	exactStrings.push_back(value);
+	// appending nothing has to leave no trace, so that emptiness can be told from the ops alone
+	if (!value.empty())
+	{
+		message.push_back(EMessage::APPEND_RAW_STRING);
+		exactStrings.push_back(value);
+	}
 }
 
 void MetaString::appendTextID(const std::string & value)
@@ -143,9 +147,9 @@ void MetaString::clear()
 
 bool MetaString::empty() const
 {
-	// emptiness depends on what the ops render to, and callers have no translator at
-	// hand - the static store is enough since an overlay never renders empty text
-	return message.empty() || toString(LIBRARY->staticTexts()).empty();
+	// resolving here would need a translator the callers do not have, and for map text the static
+	// store alone cannot answer - it holds no map strings, so every check would report a failed lookup
+	return message.empty();
 }
 
 std::string MetaString::getLocalString(const ITranslator * translator, const std::pair<EMetaText, ui32> & txt) const

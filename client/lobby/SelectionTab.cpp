@@ -1479,9 +1479,9 @@ void SelectionTab::installTexts(size_t offset)
 	{
 		const auto & item = allItems[i];
 		if(item->mapHeader)
-			GAME->translator().install(item->mapHeader->texts);
+			item->textOverlays.emplace_back(item->mapHeader->texts);
 		if(item->campaign)
-			GAME->translator().install(item->campaign->getTexts());
+			item->textOverlays.emplace_back(item->campaign->getTexts());
 
 		item->name = item->getNameForList(&GAME->translator());
 	}
