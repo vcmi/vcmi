@@ -197,7 +197,7 @@ void AIGateway::artifactDisassembled(const ArtifactLocation & al)
 
 void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
-	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
+	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName().toString() : std::string("n/a")));
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
@@ -600,11 +600,11 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					answer = false;
 				}
 
-				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), heroPtr.nameOrDefault(), ratio);
+				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName().toString(), heroPtr.nameOrDefault(), ratio);
 
 				if(cc->getObj(goalObjectID, false))
 				{
-					logAi->trace("AI expected %s", cc->getObj(goalObjectID, false)->getObjectName());
+					logAi->trace("AI expected %s", cc->getObj(goalObjectID, false)->getObjectName().toString());
 				}
 
 				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
@@ -803,7 +803,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", heroPtr->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", heroPtr->getNameTranslated() % obj->getObjectName().toString() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -981,7 +981,7 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cc->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName().toString() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
@@ -1289,7 +1289,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				{
 					cc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName().toString());
 				}
 				if (cc->getResourceAmount(GameResID(g.resID)))
 					throw goalFulfilledException(sptr(g)); //we traded all we needed

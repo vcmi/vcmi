@@ -929,7 +929,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 
 			//create object to extract name
 			auto temporaryObj(factory->create(controller.getCallback(), templ));
-			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().toString().c_str()) : subGroupName;
 			itemType->setText(translated);
 
 			//add parameters

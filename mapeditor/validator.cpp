@@ -153,7 +153,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifactType()) == 0)
 					{
-						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
+						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().toString().c_str()), false });
 					}
 				}
 			}

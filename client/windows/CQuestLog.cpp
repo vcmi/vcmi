@@ -147,7 +147,7 @@ std::string CQuestLog::getItemText(size_t itemIndex) const
 			text.replaceRawString(toSeer.toString());
 		}
 		else if(questObject)
-			text.replaceRawString(questObject->getObjectName());
+			text.replaceRawString(questObject->getObjectName().toString());
 	}
 	return text.toString();
 }

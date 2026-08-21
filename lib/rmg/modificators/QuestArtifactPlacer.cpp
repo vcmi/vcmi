@@ -145,7 +145,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 				continue;
 
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s (desired value %u)",
-				objectToReplace->getObjectName(),
+				objectToReplace->getObjectName().toString(),
 				objectToReplace->anchorPos().toString(),
 				LIBRARY->artifacts()->getById(questRequest.id)->getNameTranslated(),
 				questRequest.desiredValue);

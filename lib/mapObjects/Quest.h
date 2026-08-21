@@ -208,7 +208,7 @@ public:
 
 	// "Visited / not visited" popup text for a keymaster tent or border guard/gate;
 	// kept here for the cross-DLL client KeymasterPopup caller.
-	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
+	static MetaString keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
 	std::string getVisitScriptHandler() const override;
 
@@ -270,10 +270,10 @@ public:
 	std::string getQuestGiverName() const override { return seerName; }
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-	std::string getPopupText(PlayerColor player) const override;
-	std::string getPopupText(const CGHeroInstance * hero) const override;
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
@@ -294,7 +294,7 @@ public:
 protected:
 	/// Object name / seer header followed by the active quest's rollover; onHover
 	/// picks the short hover variant, otherwise the longer description variant.
-	std::string buildText(PlayerColor player, bool onHover) const;
+	MetaString buildText(PlayerColor player, bool onHover) const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -362,8 +362,8 @@ public:
 
 	bool wasVisited(PlayerColor player) const override;
 
-	std::string getObjectName() const override;
-	std::string getHoverText(PlayerColor player) const override;
+	MetaString getObjectName() const override;
+	MetaString getHoverText(PlayerColor player) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h)

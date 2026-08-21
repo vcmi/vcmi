@@ -95,7 +95,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		if(heroInfo.portraitSource.isValid()) //attacking hero
 		{
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.getIconIndex(), 0, xs[static_cast<int>(i)], 38));
-			sideNames[static_cast<int>(i)] = heroInfo.name;
+			sideNames[static_cast<int>(i)] = heroInfo.name.toString();
 		}
 		else
 		{

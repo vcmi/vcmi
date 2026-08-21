@@ -539,7 +539,7 @@ void AdventureMapShortcuts::search(bool next)
 	// count of elements for each group (map is already sorted)
 	std::map<std::pair<std::string, ColorRGBA>, int> mapObjCount;
 	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName(), getColor(obj->ID)}]++;
+		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString(), getColor(obj->ID)}]++;
 
 	// convert to vector for indexed access
 	std::vector<std::pair<std::pair<std::string, ColorRGBA>, int>> textCountList;
@@ -565,7 +565,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
 			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString())
 					selVisitableObjInstances.push_back(obj->id);
 
 			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj.first)
@@ -575,7 +575,7 @@ void AdventureMapShortcuts::search(bool next)
 
 			auto objInst = GAME->interface()->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
-			searchLast = objInst->getObjectName();
+			searchLast = objInst->getObjectName().toString();
 		};
 	auto openObjMap = [textCountList](int index)
 		{
@@ -584,7 +584,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<const CGObjectInstance *> selVisitableObjInstances;
 			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString())
 					selVisitableObjInstances.push_back(obj);
 
 			ENGINE->windows().createAndPushWindow<SearchPopup>(selVisitableObjInstances);

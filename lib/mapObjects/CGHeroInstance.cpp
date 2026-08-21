@@ -599,33 +599,34 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 	}
 }
 
-std::string CGHeroInstance::getObjectName() const
+MetaString CGHeroInstance::getObjectName() const
 {
-	if(ID != Obj::PRISON)
-	{
-		std::string hoverName = LIBRARY->generaltexth->allTexts[15];
-		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
-		return hoverName;
-	}
-	else
-		return LIBRARY->objtypeh->getObjectName(ID, 0);
+	if(ID == Obj::PRISON)
+		return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, 0));
+
+	MetaString hoverName;
+	hoverName.appendLocalString(EMetaText::GENERAL_TXT, 15);
+	hoverName.replaceTextID(getNameTextID());
+	hoverName.replaceTextID(getClassNameTextID());
+	return hoverName;
 }
 
-std::string CGHeroInstance::getHoverText(PlayerColor player) const
+MetaString CGHeroInstance::getHoverText(PlayerColor player) const
 {
-	std::string hoverText = CArmedInstance::getHoverText(player) + getMovementPointsTextIfOwner(player);
+	MetaString hoverText = CArmedInstance::getHoverText(player);
+	hoverText.append(getMovementPointsTextIfOwner(player));
 	return hoverText;
 }
 
-std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
+MetaString CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
 {
-	std::string output = "";
+	MetaString output;
 	if(player == getOwner())
 	{
-		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
-		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit()));
-		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
+		output.appendRawString(" ");
+		output.appendTextID("vcmi.adventureMap.movementPointsHeroInfo");
+		output.replaceTokenNumber("%POINTS", movementPointsLimit());
+		output.replaceTokenNumber("%REMAINING", movementPointsRemaining());
 	}
 
 	return output;

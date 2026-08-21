@@ -309,9 +309,9 @@ public:
 
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	std::string getObjectName() const override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getMovementPointsTextIfOwner(PlayerColor player) const;
+	MetaString getObjectName() const override;
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getMovementPointsTextIfOwner(PlayerColor player) const;
 
 	TObjectTypeHandler getObjectHandler() const override;
 

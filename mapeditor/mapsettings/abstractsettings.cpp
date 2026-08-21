@@ -125,7 +125,7 @@ std::string AbstractSettings::getMonsterName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto monster = dynamic_cast<const CGCreature*>(map.objects.at(objectIdx).get()))
 	{
-		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->anchorPos().toString());
+		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName().toString() % monster->anchorPos().toString());
 	}
 	return name;
 }

@@ -540,7 +540,7 @@ bool ObjectManager::createRequiredObjects()
 			for (auto* instance : rmgNearObject.instances())
 			{
 				logGlobal->error("Failed to connect nearby object %s at %s",
-					instance->object().getObjectName(), instance->getPosition(true).toString());
+					instance->object().getObjectName().toString(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
 		}

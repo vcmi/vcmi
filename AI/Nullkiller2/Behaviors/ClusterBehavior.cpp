@@ -51,7 +51,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, const
 #if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace(
 		"Checking cluster %s %s, found %d paths",
-		cluster->blocker->getObjectName(),
+		cluster->blocker->getObjectName().toString(),
 		cluster->blocker->visitablePos().toString(),
 		paths.size());
 #endif

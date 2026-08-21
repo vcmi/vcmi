@@ -27,7 +27,7 @@ bool HeroExchange::operator==(const HeroExchange & other) const
 
 std::string HeroExchange::toString() const
 {
-	return "Hero exchange for " +hero->getObjectName() + " by " + exchangePath.toString();
+	return "Hero exchange for " +hero->getObjectName().toString() + " by " + exchangePath.toString();
 }
 
 uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) const
