@@ -54,14 +54,15 @@ enum class ESerializationVersion : int32_t
 	COMBAT_ABILITY_SCRIPTS, // combat abilities that became combat scripts are converted on load; spell effects and combat scripts share one registry, so bonus subtype saves the script as a string
 	GAME_SESSION_DIRECTORY, // persistent per-game save directory and campaign start time
 	SCENARIO_EVENT_JOURNAL, // per-player history of triggered scenario event messages and components
+	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
+	RECORD_TEXTS_METASTRING, // highscore scenario name and statistics map name are stored unresolved, to be rendered by the reader
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
 
-	CURRENT = TOWN_NAME_TEXT_ID,
+	CURRENT = RECORD_TEXTS_METASTRING,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

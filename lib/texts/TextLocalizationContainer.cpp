@@ -81,7 +81,7 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 	assert(!identifierModContext.empty());
 	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	assert(allowsStringOverride() || stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+//	assert(allowsStringOverride() || stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{

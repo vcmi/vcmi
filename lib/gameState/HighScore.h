@@ -37,7 +37,17 @@ public:
 		h & hasGrail;
 		h & allEnemiesDefeated;
 		h & campaignName;
-		h & scenarioName;
+		if(h.hasFeature(Handler::Version::RECORD_TEXTS_METASTRING))
+		{
+			h & scenarioName;
+		}
+		else
+		{
+			// older saves stored the name already rendered in the writer's language
+			std::string legacyScenarioName;
+			h & legacyScenarioName;
+			scenarioName = MetaString::createFromRawString(legacyScenarioName);
+		}
 		h & playerName;
 	}
 };
