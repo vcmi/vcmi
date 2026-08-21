@@ -1052,7 +1052,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			if(h->inBoat() && !object->isBlockedVisitable() && !h->getBoat()->onboardVisitAllowed)
 				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
 
-			if (object != h && object->isBlockedVisitable() && !object->passableFor(h))
+            const auto * questSource = object->asQuestSource();
+			const bool stopsHero = object->isBlockedVisitable() || (questSource && questSource->requiresQuestToPass());
+
+			if (object != h && stopsHero && !object->passableFor(h))
 			{
 				EVisitDest visitDest = VISIT_DEST;
 				if(h->inBoat() && !h->getBoat()->onboardVisitAllowed)
@@ -1641,6 +1644,12 @@ void CGameHandler::sendQueryResolved(QueryID queryID)
 }
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
+{
+	sendAndApply(static_cast<CPackForClient &>(pack));
+	checkVictoryLossConditionsForAll();
+}
+
+void CGameHandler::sendAndApply(CArtifactOperationPack & pack)
 {
 	sendAndApply(static_cast<CPackForClient &>(pack));
 	checkVictoryLossConditionsForAll();
@@ -3235,8 +3244,6 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		da.al = dstLoc;
 		sendAndApply(da);
 	}
-
-	checkVictoryLossConditionsForPlayer(hero->getOwner());
 
 	return true;
 }

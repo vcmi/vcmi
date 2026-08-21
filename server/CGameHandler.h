@@ -32,6 +32,7 @@ struct StartInfo;
 struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
+struct CArtifactOperationPack;
 struct CGarrisonOperationPack;
 struct SetResources;
 struct NewStructures;
@@ -280,6 +281,7 @@ public:
 	void configureReplayLog(bool gameIsNew);
 
 	void sendAndApply(CPackForClient & pack) override;
+	void sendAndApply(CArtifactOperationPack & pack);
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);
 	void sendAndApply(NewStructures & pack);
