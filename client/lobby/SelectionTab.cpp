@@ -483,7 +483,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			}
 
 			if(!curItems[py]->isFolder)
-				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + getFullFileURI(*curItems[py]), std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
@@ -595,7 +595,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 		ENGINE->windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->name,
-			curItems[py]->fullFileURI,
+			getFullFileURI(*curItems[py]),
 			creationDateTime,
 			author,
 			mapVersion,
@@ -1469,6 +1469,23 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
 }
+}
+
+std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
+{
+	EResType resType = EResType::SAVEGAME;
+	if(tabType == ESelectionScreen::newGame)
+		resType = EResType::MAP;
+	if(tabType == ESelectionScreen::campaignList)
+		resType = EResType::CAMPAIGN;
+
+	const ResourcePath resource(item.fileURI, resType);
+
+	// entry may have been deleted from disk since the list was built
+	if(!CResourceHandler::get()->existsResource(resource))
+		return item.fileURI;
+
+	return CResourceHandler::get()->getFullFileURI(resource);
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)
 {

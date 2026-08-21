@@ -43,7 +43,6 @@ void CMapInfo::mapInit(const std::string & fname)
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -61,7 +60,6 @@ void CMapInfo::saveInit(const ResourcePath & file)
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
-	fullFileURI = CResourceHandler::get()->getFullFileURI(file); // Includes absolute path + extension
 	countPlayers();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -75,7 +73,6 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
