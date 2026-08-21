@@ -519,7 +519,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 			if(!hero || hero->getNameTranslated().empty()) continue;
 			const auto * mapHero = findMapHero(hero->getId());
 			const auto name = (mapHero && !mapHero->nameCustomTextId.empty())
-				? mapHero->getNameTranslated() : hero->getNameTranslated();
+				? GAME->translator().translate(mapHero->getNameTextID()) : hero->getNameTranslated();
 			const auto iconFrame = (mapHero && mapHero->customPortraitSource.isValid())
 				? (size_t)mapHero->getPortraitSource().toHeroType()->getIconIndex()
 				: (size_t)hero->getIconIndex();

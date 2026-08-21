@@ -30,7 +30,7 @@ void TownPortalAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) co
 
 std::string TownPortalAction::toString() const
 {
-	return "Town Portal to " + target->getNameTranslated();
+	return "Town Portal to " + target->getNameTextID();
 }
 /*
 bool TownPortalAction::canAct(const CGHeroInstance * hero, const AIPathNode * source) const

@@ -176,7 +176,7 @@ TEST(QuestKind, classifiedByLimiterShape)
 	EXPECT_EQ(classify([](Quest &){}),                                                                        EQuestMission::NONE);
 	EXPECT_EQ(classify([](Quest & q){ q.mission.heroLevel = 5; }),                                            EQuestMission::LEVEL);
 	EXPECT_EQ(classify([](Quest & q){ q.mission.primary[0] = 3; }),                                           EQuestMission::PRIMARY_SKILL);
-	EXPECT_EQ(classify([](Quest & q){ q.mission.destroyedObjects.emplace_back(0); q.heroName = "Bob"; }),     EQuestMission::KILL_HERO);
+	EXPECT_EQ(classify([](Quest & q){ q.mission.destroyedObjects.emplace_back(0); q.heroNameTextID = "Bob"; }),     EQuestMission::KILL_HERO);
 	EXPECT_EQ(classify([](Quest & q){ q.mission.destroyedObjects.emplace_back(0); q.stackToKill = CreatureID(0); }), EQuestMission::KILL_CREATURE);
 	EXPECT_EQ(classify([](Quest & q){ q.mission.artifacts.push_back(ArtifactID(0)); }),                       EQuestMission::ARTIFACT);
 	EXPECT_EQ(classify([](Quest & q){ q.mission.creatures.emplace_back(CreatureID(0), 1); }),                 EQuestMission::ARMY);

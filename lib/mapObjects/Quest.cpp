@@ -66,7 +66,7 @@ const std::array<MissionKindEntry, 16> missionKinds = {{
 	{ EQuestMission::KEYMASTER,              "keymaster",      [](const Quest & q){ return !q.mission.requiredKeys.empty(); } },
 	{ EQuestMission::LEVEL,                  "heroLevel",      [](const Quest & q){ return q.mission.heroLevel > 0; } },
 	{ EQuestMission::PRIMARY_SKILL,          "primarySkill",   [](const Quest & q){ return std::any_of(q.mission.primary.begin(), q.mission.primary.end(), [](si32 s){ return s != 0; }); } },
-	{ EQuestMission::KILL_HERO,              "killHero",       [](const Quest & q){ return !q.mission.destroyedObjects.empty() && !q.heroName.empty(); } },
+	{ EQuestMission::KILL_HERO,              "killHero",       [](const Quest & q){ return !q.mission.destroyedObjects.empty() && !q.heroNameTextID.empty(); } },
 	{ EQuestMission::KILL_CREATURE,          "killCreature",   [](const Quest & q){ return !q.mission.destroyedObjects.empty() && q.stackToKill != CreatureID::NONE; } },
 	{ EQuestMission::ARTIFACT,               "bringArt",       [](const Quest & q){ return !q.mission.artifacts.empty(); } },
 	{ EQuestMission::ARMY,                   "bringCreature",  [](const Quest & q){ return !q.mission.creatures.empty(); } },
@@ -306,8 +306,8 @@ bool Quest::isToll() const
 
 void Quest::addKillTargetReplacements(MetaString &out) const
 {
-	if(!heroName.empty())
-		out.replaceRawString(heroName);
+	if(!heroNameTextID.empty())
+		out.replaceTextID(heroNameTextID);
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
@@ -524,7 +524,7 @@ void SeerHut::setObjToKill()
 		}
 		else if(const auto * hero = dynamic_cast<const CGHeroInstance *>(target))
 		{
-			q.heroName = hero->getNameTranslated();
+			q.heroNameTextID = hero->getNameTextID();
 			q.heroPortrait = hero->getPortraitSource();
 		}
 	}

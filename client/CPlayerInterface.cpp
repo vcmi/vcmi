@@ -384,7 +384,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", GAME->translator().translate(hero->getNameTextID()) % playerID);
 
 	// if hero is not in town garrison
 	if (vstd::contains(localState->getWanderingHeroes(), hero))

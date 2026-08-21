@@ -40,7 +40,7 @@ bool recoverStaleDimensionDoorAction(
 
 	logAi->debug(
 		"Skipping stale Dimension Door plan for hero %s towards %s. Replanning.",
-		hero->getNameTranslated(),
+		hero->getNameTextID(),
 		destination.toString());
 	aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 	aiGw->nullkiller->invalidatePathfinderData();
@@ -194,7 +194,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node->coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTextID(), node->coord.toString());
 
 		try
 		{
@@ -258,7 +258,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						logAi->error(
 							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
-							hero->getNameTranslated(),
+							hero->getNameTextID(),
 							node->coord.toString());
 
 						return;
@@ -268,7 +268,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						logAi->debug(
 							"Stopping stale hero chain for %s: expected immediate move to %s, but live path now takes %d turns with %d MP left",
-							hero->getNameTranslated(),
+							hero->getNameTextID(),
 							node->coord.toString(),
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
@@ -322,7 +322,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 							if(isOk && path.nodes.front().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node->coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTextID(), hero->movementPointsRemaining(), node->coord.toString());
 
 								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
@@ -341,7 +341,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			{
 				logAi->error(
 					"Unable to complete chain. Expected hero %s to arrive to %s but he is at %s",
-					hero->getNameTranslated(),
+					hero->getNameTextID(),
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
@@ -369,7 +369,7 @@ std::string ExecuteHeroChain::toString() const
 #if NK2AI_TRACE_LEVEL >= 1
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.toString();
 #else
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTextID();
 #endif
 }
 
@@ -377,7 +377,7 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 {
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
 
 		return true;
 	}

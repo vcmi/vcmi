@@ -1990,7 +1990,7 @@ const AIPathNodeInfo & AIPath::targetNode() const
 	if(nodes.size() < 2)
 	{
 		logAi->error("AIPath::targetNode path reconstruction issue: targetHero %s doesn't match first node hero %s, path size: %d",
-			targetHero->getNameTranslated(), node.targetHero->getNameTranslated(), nodes.size());
+			targetHero->getNameTextID(), node.targetHero->getNameTextID(), nodes.size());
 		throw std::runtime_error("AIPath::targetNode path reconstruction issue");
 	}
 
@@ -2057,10 +2057,10 @@ uint64_t AIPath::getTotalArmyLoss() const
 std::string AIPath::toString() const
 {
 	std::stringstream str;
-	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)turn() << ": ";
+	str << targetHero->getNameTextID() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)turn() << ": ";
 
 	for(const auto & node : nodes)
-		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
+		str << node.targetHero->getNameTextID() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();
 }

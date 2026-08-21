@@ -371,7 +371,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 	if(aiNk->isHeroLocked(garrisonHero) || shouldReserveTownDefender(*town, *garrisonHero, threats, aiNk->settings->getSafeAttackRatio()))
 	{
-		logAi->trace("Hero %s in garrison of town %s is supposed to defend the town", garrisonHero->getNameTranslated(), town->getNameTranslated());
+		logAi->trace("Hero %s in garrison of town %s is supposed to defend the town", garrisonHero->getNameTextID(), town->getNameTextID());
 		return true;
 	}
 
@@ -379,7 +379,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	{
 		if(aiNk->cc->getHeroCount(aiNk->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
 		{
-			logAi->trace("Extracting hero %s from garrison of town %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
+			logAi->trace("Extracting hero %s from garrison of town %s", garrisonHero->getNameTextID(), town->getNameTextID());
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 			return false;
 		}

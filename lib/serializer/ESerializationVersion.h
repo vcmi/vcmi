@@ -55,12 +55,13 @@ enum class ESerializationVersion : int32_t
 	GAME_SESSION_DIRECTORY, // persistent per-game save directory and campaign start time
 	SCENARIO_EVENT_JOURNAL, // per-player history of triggered scenario event messages and components
 	MUTARE_DRAKE_OVERRIDE, // campaign header stores hero type override used for Mutare Drake crossover bonus targeting
+	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = MUTARE_DRAKE_OVERRIDE,
+	CURRENT = TOWN_NAME_TEXT_ID,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

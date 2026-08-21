@@ -719,7 +719,7 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 	{
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 183); // % has found treasure
-		iw.text.replaceRawString(h->getNameTranslated());
+		iw.text.replaceTextID(h->getNameTextID());
 		gameEvents.showInfoDialog(&iw);
 	}
 }

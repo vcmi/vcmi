@@ -372,7 +372,7 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 
 	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
 	{
-		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTranslated(), tmh.end.toString());
+		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTextID(), tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
 		gh->visitObjectOnTile(*gh->gameInfo().getTile(hero->convertToVisitablePos(tmh.end)), hero);

@@ -1204,7 +1204,7 @@ public:
 			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectName().toString(&evaluationContext.evaluator.aiNk->translator()));
 		}
 		if (garrisonHero)
-			logAi->debug("with %s and %d", garrisonHero->getNameTranslated(), int(swapCommand.getLockingReason()));
+			logAi->debug("with %s and %d", garrisonHero->getNameTextID(), int(swapCommand.getLockingReason()));
 
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{

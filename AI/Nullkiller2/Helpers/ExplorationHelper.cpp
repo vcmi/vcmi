@@ -188,7 +188,7 @@ bool ExplorationHelper::scanMap()
 			}
 		});
 
-	logAi->debug("Exploration scan visible area perimeter for hero %s", hero->getNameTranslated());
+	logAi->debug("Exploration scan visible area perimeter for hero %s", hero->getNameTextID());
 
 	for(const int3 & tile : edgeTiles)
 	{
@@ -201,7 +201,7 @@ bool ExplorationHelper::scanMap()
 	}
 
 	allowDeadEndCancellation = false;
-	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTranslated());
+	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTextID());
 
 	auto potentialTiles = ts->fogOfWarMap;
 	std::vector<int3> tilesToExploreFrom = edgeTiles;

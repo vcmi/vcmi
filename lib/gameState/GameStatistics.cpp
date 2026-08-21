@@ -71,7 +71,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	scenarioHighScores.parameters.push_back(param);
 	scenarioHighScores.isCampaign = false;
 
-	data.map = gs->getMap().name.toString(LIBRARY->translator());
+	data.map = gs->getMap().name;
 	data.timestamp = std::time(nullptr);
 	data.day = gs->getCalendar().getCurrentDay();
 	data.player = ps->color;
@@ -112,7 +112,8 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 
 void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
 {
-	handler.serializeString("map", map);
+	// MetaString::jsonDeserialize still accepts the plain string this field used to be
+	handler.serializeStruct("map", map);
 	handler.serializeInt("timestamp", timestamp);
 	handler.serializeInt("day", day);
 	handler.serializeId("player", player, PlayerColor::CANNOT_DETERMINE);
@@ -183,7 +184,7 @@ void StatisticDataSet::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-std::string StatisticDataSet::toCsv(std::string sep) const
+std::string StatisticDataSet::toCsv(std::string sep, const ITranslator * translator) const
 {
 	std::stringstream ss;
 
@@ -233,7 +234,7 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 
 	for(auto & entry : data)
 	{
-		ss << entry.map << sep;
+		ss << entry.map.toString(translator) << sep;
 		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H:%M:%S") << sep;
 		ss << entry.day << sep;
 		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << sep;
@@ -279,14 +280,14 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 	return ss.str();
 }
 
-std::string StatisticDataSet::writeCsv() const
+std::string StatisticDataSet::writeCsv(const ITranslator * translator) const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
 	boost::filesystem::create_directories(outPath);
 
 	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
 	std::ofstream file(filePath.c_str());
-	std::string csv = toCsv(";");
+	std::string csv = toCsv(";", translator);
 	file << csv;
 
 	return filePath.string();

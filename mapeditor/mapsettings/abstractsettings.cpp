@@ -93,7 +93,7 @@ std::string AbstractSettings::getTownName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto town = dynamic_cast<const CGTownInstance*>(map.objects.at(objectIdx).get()))
 	{
-		name = town->getNameTranslated();
+		name = Translator::instance().translate(town->getNameTextID());
 		
 		if(name.empty())
 			name = town->getTown()->faction->getNameTranslated();
@@ -106,7 +106,7 @@ std::string AbstractSettings::getHeroName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto hero = dynamic_cast<const CGHeroInstance*>(map.objects.at(objectIdx).get()))
 	{
-		name = hero->getNameTranslated();
+		name = Translator::instance().translate(hero->getNameTextID());
 	}
 	else if(auto placeholder = dynamic_cast<const CGHeroPlaceholder*>(map.objects.at(objectIdx).get()))
 	{

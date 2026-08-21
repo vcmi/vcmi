@@ -265,7 +265,7 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner()).toString(&GAME->translator());
+	return boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % GAME->translator().translate(hero->getNameTextID()) % GAME->translator().translate(hero->getClassNameTextID())) + hero->getMovementPointsTextIfOwner(hero->getOwner()).toString(&GAME->translator());
 }
 
 void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)

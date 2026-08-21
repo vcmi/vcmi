@@ -43,7 +43,7 @@ HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerCol
 		if(ps && otherPlayer != player && !ps->checkVanquished())
 			param.allEnemiesDefeated = false;
 	}
-	param.scenarioName = gs->getMapHeader()->name.toString(LIBRARY->translator());
+	param.scenarioName = gs->getMapHeader()->name;
 	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
 
 	return param;

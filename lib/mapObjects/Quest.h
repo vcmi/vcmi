@@ -69,7 +69,7 @@ public:
 	ui8 completedOption = 0;
 	CreatureID stackToKill;
 	ui8 stackDirection = 0;
-	std::string heroName; //backup of hero name
+	std::string heroNameTextID; //backup of hero name identifier, the hero itself is gone by then
 	HeroTypeID heroPortrait;
 
 	MetaString firstVisitText;
@@ -116,7 +116,7 @@ public:
 		h & textOption;
 		h & stackToKill;
 		h & stackDirection;
-		h & heroName;
+		h & heroNameTextID;
 		h & heroPortrait;
 		h & firstVisitText;
 		h & nextVisitText;
