@@ -32,7 +32,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resourceName) const
 {
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 
 	assert(fileList.contains(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
@@ -42,7 +42,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resou
 
 bool CFilesystemLoader::existsResource(const ResourcePath & resourceName) const
 {
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 	return fileList.contains(resourceName);
 }
 
@@ -55,7 +55,7 @@ std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const 
 {
 	assert(existsResource(resourceName));
 
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 	return baseDirectory / fileList.at(resourceName);
 }
 
@@ -71,7 +71,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
 	std::unordered_set<ResourcePath> foundID;
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 
 	for (auto & file : fileList)
 	{
