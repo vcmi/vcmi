@@ -899,10 +899,9 @@ void BattleFieldController::show(Canvas & to)
 		// has to stop covering it. Safe from any thread - it only writes into the surface.
 		to.drawColor(pos, ColorRGBA(0, 0, 0, 0));
 
-		// the GL context belongs to the rendering thread, but redraw() can reach us from the
-		// network thread while handling a netpack; the next frame repaints the layer anyway
-		if(!ENGINE->amIGuiThread())
-			return;
+		// a redraw arriving from another thread is queued by CIntObject::redraw() and reaches us
+		// from the next frame instead, so by here the GL context is ours
+		assert(ENGINE->amIGuiThread());
 
 		Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::BATTLE);
 		renderBattlefield(layer);

@@ -33,10 +33,6 @@ protected:
 	/// Only the adventure map owns a layer - the puzzle map draws into its window's target
 	const bool gpuLayerEligible;
 
-	/// Set when a redraw reached us off the GUI thread and had to skip the GPU drawing,
-	/// so that the next frame on the GUI thread repaints the whole map layer
-	bool gpuFullUpdatePending = false;
-
 	void render(Canvas & target, bool fullUpdate);
 
 	/// Draws the map into the GPU layer instead of into the screen surface
