@@ -216,7 +216,7 @@ public:
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
-	std::string getObjectName() const override;
+	MetaString getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 

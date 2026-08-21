@@ -92,7 +92,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 		objid = obj->id.getNum();
 
 #if NK2AI_TRACE_LEVEL >= 1
-		targetName = obj->getObjectName() + tile.toString();
+		targetName = obj->getObjectName().toString() + tile.toString();
 #else
 		targetName = obj->getTypeName() + tile.toString();
 #endif

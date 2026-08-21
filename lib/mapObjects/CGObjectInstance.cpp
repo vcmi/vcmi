@@ -174,7 +174,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 			logGlobal->warn(
 				"CGObjectInstance::setType: object %s at %s has non-visitable template '%s'; "
 				"skipping old corner offset adjustment",
-				getObjectName(), pos.toString(), appearance->stringID);
+				getObjectName().toString(), pos.toString(), appearance->stringID);
 		}
 	}
 
@@ -275,9 +275,9 @@ void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const Obj
 	gameEvents.giveHeroBonus(&gbonus);
 }
 
-std::string CGObjectInstance::getObjectName() const
+MetaString CGObjectInstance::getObjectName() const
 {
-	return LIBRARY->objtypeh->getObjectName(ID, subID);
+	return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, subID));
 }
 
 std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) const
@@ -307,24 +307,27 @@ std::optional<AudioPath> CGObjectInstance::getRemovalSound(vstd::RNG & rng) cons
 	return std::nullopt;
 }
 
-std::string CGObjectInstance::getHoverText(PlayerColor player) const
+MetaString CGObjectInstance::getHoverText(PlayerColor player) const
 {
 	auto text = getObjectName();
 	if (tempOwner.isValidPlayer())
-		text += "\n" + LIBRARY->generaltexth->arraytxt[23 + tempOwner.getNum()];
+	{
+		text.appendEOL();
+		text.appendLocalString(EMetaText::ARRAY_TXT, 23 + tempOwner.getNum());
+	}
 	return text;
 }
 
-std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
+MetaString CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
 {
 	return getHoverText(hero->tempOwner);
 }
 
-std::string CGObjectInstance::getPopupText(PlayerColor player) const
+MetaString CGObjectInstance::getPopupText(PlayerColor player) const
 {
 	return getHoverText(player);
 }
-std::string CGObjectInstance::getPopupText(const CGHeroInstance * hero) const
+MetaString CGObjectInstance::getPopupText(const CGHeroInstance * hero) const
 {
 	return getHoverText(hero);
 }

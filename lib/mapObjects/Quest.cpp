@@ -39,10 +39,12 @@
 
 #include <vstd/RNG.h>
 
-static std::string visitedTxt(const bool visited)
+static MetaString visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return LIBRARY->generaltexth->translate("core.genrltxt", id);
+	MetaString result;
+	result.appendLocalString(EMetaText::GENERAL_TXT, id);
+	return result;
 }
 
 namespace
@@ -597,7 +599,7 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	syncActiveReward();
 }
 
-std::string SeerHut::buildText(PlayerColor player, bool onHover) const
+MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
@@ -608,19 +610,19 @@ std::string SeerHut::buildText(PlayerColor player, bool onHover) const
 		text.replaceRawString(seerName);
 	}
 	else
-		text.appendRawString(getObjectName());
+		text.append(getObjectName());
 
 	if(questActive && getQuest().mission != Rewardable::Limiter{})
 	{
 		getQuest().getHoverText(cb, text, onHover);
 	}
-	return text.toString();
+	return text;
 }
 
-std::string SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
-std::string SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
-std::string SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
-std::string SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
+MetaString SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
+MetaString SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
+MetaString SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
+MetaString SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
 
 std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
 {
@@ -815,19 +817,26 @@ void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	getQuest().serializeJson(handler, "quest");
 }
 
-std::string QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
+MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
 {
 	return visitedTxt(keyObject->cb->getPlayerState(player)->wasKeymasterVisited(keyObject->subID));
 }
 
-std::string KeymasterTent::getHoverText(PlayerColor player) const
+MetaString KeymasterTent::getHoverText(PlayerColor player) const
 {
-	return getObjectName() + "\n" + visitedTxt(cb->getPlayerState(player)->wasKeymasterVisited(subID));
+	MetaString result = getObjectName();
+	result.appendEOL();
+	result.append(visitedTxt(cb->getPlayerState(player)->wasKeymasterVisited(subID)));
+	return result;
 }
 
-std::string KeymasterTent::getObjectName() const
+MetaString KeymasterTent::getObjectName() const
 {
-	return LIBRARY->generaltexth->translate("core.tentcolr", subID.getNum()) + " " + CGObjectInstance::getObjectName();
+	MetaString result;
+	result.appendTextID(TextIdentifier("core.tentcolr", subID.getNum()).get());
+	result.appendRawString(" ");
+	result.append(CGObjectInstance::getObjectName());
+	return result;
 }
 
 bool KeymasterTent::wasVisited (PlayerColor player) const

@@ -1517,7 +1517,7 @@ void AINodeStorage::calculateTownPortal(
 			if(nodeOptional.has_value())
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
-				logAi->trace("Adding town portal node at %s", targetTown->getObjectName());
+				logAi->trace("Adding town portal node at %s", targetTown->getObjectName().toString());
 #endif
 				output.push_back(nodeOptional.value());
 			}

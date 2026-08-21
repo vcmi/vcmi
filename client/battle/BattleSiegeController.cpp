@@ -43,7 +43,7 @@ const std::string & BattleSiegeController::getSiegePrefix() const
 		return siegePrefixes.at(currentLayer);
 	else
 	{
-		logGlobal->warn("No siege prefix for town %s for layer %s found, fallback", town->getObjectName(), MapLayerId::encode(currentLayer));
+		logGlobal->warn("No siege prefix for town %s for layer %s found, fallback", town->getObjectName().toString(), MapLayerId::encode(currentLayer));
 		if(siegePrefixes.count(MapLayerId::UNKNOWN))
 			return siegePrefixes.at(MapLayerId::UNKNOWN);
 		if(siegePrefixes.count(MapLayerId::SURFACE))

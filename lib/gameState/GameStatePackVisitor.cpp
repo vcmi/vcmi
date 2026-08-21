@@ -432,7 +432,7 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objectID);
-	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectName());
+	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectName().toString());
 
 	if (pack.initiator.isValidPlayer())
 		gs.getPlayerState(pack.initiator)->destroyedObjects.insert(pack.objectID);
@@ -761,7 +761,7 @@ void GameStatePackVisitor::visitNewObject(NewObject & pack)
 	if (newArmy)
 		newArmy->attachToBonusSystem(gs);
 
-	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectName());
+	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectName().toString());
 }
 
 void GameStatePackVisitor::visitNewArtifact(NewArtifact & pack)

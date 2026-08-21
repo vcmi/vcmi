@@ -391,12 +391,16 @@ void CGTownInstance::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroIn
 		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), getNameTranslated());
 }
 
-std::string CGTownInstance::getObjectName() const
+MetaString CGTownInstance::getObjectName() const
 {
 	if(ID == Obj::RANDOM_TOWN )
 		return CGObjectInstance::getObjectName();
 
-	return getNameTranslated() + ", " + getTown()->faction->getNameTranslated();
+	MetaString result;
+	result.appendTextID(getNameTextID());
+	result.appendRawString(", ");
+	result.appendTextID(getTown()->faction->getNameTextID());
+	return result;
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const

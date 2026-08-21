@@ -1172,7 +1172,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 		const int mapObjectWidthPx = static_cast<int>(uni->appearance->getWidth()) * 32; // map object tile width in pixels
 		const int renderedWidthPx = titlePic->getPosition().w;
 		mapObjectTitleOffsetX = std::max(0, (renderedWidthPx - mapObjectWidthPx) / 2);
-		titleStr = uni->getObjectName();
+		titleStr = uni->getObjectName().toString();
 		speechStr = uni->getSpeechTranslated();
 	}
 	else
@@ -1342,7 +1342,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName());
+	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName().toString());
 
 	heroPic = std::make_shared<CHeroArea>(30, 60, hero);
 
@@ -1789,7 +1789,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	for(size_t i = 0; i < _items.size(); i++)
 	{
-		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName();
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName().toString();
 		trimTextIfTooWide(objectName, false);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}

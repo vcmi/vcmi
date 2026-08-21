@@ -15,6 +15,7 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../filesystem/ResourcePath.h"
 #include "../int3.h"
+#include "../texts/MetaString.h"
 
 #include <vcmi/scripting/ApiTags.h>
 
@@ -135,15 +136,15 @@ public:
 	virtual int3 getVisitableOffset() const;
 
 	/// Returns generic name of object, without any player-specific info
-	virtual std::string getObjectName() const;
+	virtual MetaString getObjectName() const;
 
 	/// Returns hover name for situation when there are no selected heroes. Default = object name
-	virtual std::string getHoverText(PlayerColor player) const;
+	virtual MetaString getHoverText(PlayerColor player) const;
 	/// Returns hero-specific hover name, including visited/not visited info. Default = player-specific name
-	virtual std::string getHoverText(const CGHeroInstance * hero) const;
+	virtual MetaString getHoverText(const CGHeroInstance * hero) const;
 
-	virtual std::string getPopupText(PlayerColor player) const;
-	virtual std::string getPopupText(const CGHeroInstance * hero) const;
+	virtual MetaString getPopupText(PlayerColor player) const;
+	virtual MetaString getPopupText(const CGHeroInstance * hero) const;
 
 	virtual std::vector<Component> getPopupComponents(PlayerColor player) const;
 	virtual std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const;

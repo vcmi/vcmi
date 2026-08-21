@@ -155,7 +155,7 @@ void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
 
 void TimedEvent::insertObjectToDelete(const CGObjectInstance * obj)
 {
-	QString objectLabel = QString("%1, x: %2, y: %3, z: %4").arg(QString::fromStdString(obj->getObjectName())).arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z);
+	QString objectLabel = QString("%1, x: %2, y: %3, z: %4").arg(QString::fromStdString(obj->getObjectName().toString())).arg(obj->pos.x).arg(obj->pos.y).arg(obj->pos.z);
 	auto * item = new QListWidgetItem(objectLabel);
 	item->setData(MapEditorRoles::ObjectInstanceIDRole, QVariant::fromValue(obj->id.num));
 	ui->deletedObjects->addItem(item);

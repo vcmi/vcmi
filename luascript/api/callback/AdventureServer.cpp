@@ -282,7 +282,7 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 	if(dynamic_cast<const QuestGate *>(&target))
 	{
 		// TODO: decide what finishing a quest means for a passage gate; refuse rather than guess
-		logScript->warn("finishQuestOrRemoveObject: Quest Gate '%s' is not yet supported, ignoring", target.getObjectName());
+		logScript->warn("finishQuestOrRemoveObject: Quest Gate '%s' is not yet supported, ignoring", target.getObjectName().toString());
 		return;
 	}
 	if(dynamic_cast<const QuestGuard *>(&target))
@@ -297,7 +297,7 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 		return;
 	}
 
-	throw LuaApiException("finishQuestOrRemoveObject: object '" + target.getObjectName() + "' is not a quest source");
+	throw LuaApiException("finishQuestOrRemoveObject: object '" + target.getObjectName().toString() + "' is not a quest source");
 }
 
 void AdventureServerProxy::markQuestProposed(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player)
@@ -310,7 +310,7 @@ void AdventureServerProxy::addToQuestLog(IGameEventCallback & object, const CGOb
 	const auto * questSource = dynamic_cast<const IQuestSource *>(&target);
 	if(!questSource)
 	{
-		logScript->error("addToQuestLog: object '%s' is not a quest source", target.getObjectName());
+		logScript->error("addToQuestLog: object '%s' is not a quest source", target.getObjectName().toString());
 		return;
 	}
 	object.addQuest(player, questSource->getQuestIdentity());
@@ -469,7 +469,7 @@ void AdventureServerProxy::grantCreaturesToHire(IGameEventCallback & object, con
 {
 	if(level < 0 || level >= static_cast<int>(town.creatures.size()))
 	{
-		logScript->error("grantCreaturesToHire: town '%s' has no creature tier %d", town.getObjectName(), level);
+		logScript->error("grantCreaturesToHire: town '%s' has no creature tier %d", town.getObjectName().toString(), level);
 		return;
 	}
 
@@ -524,7 +524,7 @@ void AdventureServerProxy::spawnCombat(IGameEventCallback & object, const CGObje
 	const auto * armedHost = dynamic_cast<const CArmedInstance *>(&host);
 	if(!armedHost)
 	{
-		logScript->error("startCombat: host object '%s' can not hold an army", host.getObjectName());
+		logScript->error("startCombat: host object '%s' can not hold an army", host.getObjectName().toString());
 		return;
 	}
 

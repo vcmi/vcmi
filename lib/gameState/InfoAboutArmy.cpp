@@ -112,7 +112,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	initFromArmy(h, detailed);
 
 	hclass = h->getHeroClass();
-	name = h->getNameTranslated();
+	name = MetaString::createFromTextID(h->getNameTextID());
 	portraitSource = h->getPortraitSource();
 
 	if(detailed)
@@ -157,7 +157,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	army = ArmyDescriptor(t->getUpperArmy(), detailed);
 	built = t->built;
 	fortLevel = t->fortLevel();
-	name = t->getNameTranslated();
+	name = MetaString::createFromTextID(t->getNameTextID());
 	tType = t->getTown();
 
 	details.reset();

@@ -3725,7 +3725,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 {
 	using events::ObjectVisitStarted;
 
-	logGlobal->debug("%s visits %s (%d)", h->nodeName(), visitedObject->getObjectName(), visitedObject->ID);
+	logGlobal->debug("%s visits %s (%d)", h->nodeName(), visitedObject->getObjectName().toString(), visitedObject->ID);
 
 	if (getVisitingHero(visitedObject) != nullptr)
 	{
