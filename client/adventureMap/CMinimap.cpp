@@ -33,7 +33,7 @@
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool showHeroesSeparately) const
+ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroes) const
 {
 	const TerrainTile * tile = GAME->interface()->cb->getTile(pos, false);
 
@@ -52,7 +52,7 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool showHeroesSepara
 			if(player == PlayerColor::NEUTRAL)
 				return graphics->neutralColor;
 
-			if (showHeroesSeparately && obj->ID == MapObjectID::HERO)
+			if (minimapShowHeroes && obj->ID == MapObjectID::HERO)
 				continue;
 
 			if (player.isValidPlayer())
@@ -66,20 +66,20 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool showHeroesSepara
 		return tile->getTerrain()->minimapUnblocked;
 }
 
-void CMinimapInstance::refreshTile(const int3 &tile, bool showHeroesSeparately)
+void CMinimapInstance::refreshTile(const int3 &tile, bool minimapShowHeroes)
 {
 	if (level == tile.z)
-		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile, showHeroesSeparately));
+		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile, minimapShowHeroes));
 }
 
 void CMinimapInstance::redrawMinimap()
 {
 	int3 mapSizes = GAME->interface()->cb->getMapSize();
-	const bool showHeroesSeparately = settings["adventure"]["minimapShowHeroes"].Bool();
+	const bool minimapShowHeroes = settings["adventure"]["minimapShowHeroes"].Bool();
 
 	for (int y = 0; y < mapSizes.y; ++y)
 		for (int x = 0; x < mapSizes.x; ++x)
-			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level), showHeroesSeparately));
+			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level), minimapShowHeroes));
 }
 
 CMinimapInstance::CMinimapInstance(const Point & position, const Point & dimensions, int Level):
@@ -190,25 +190,8 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 
 void CMinimap::drawBackgroundAroundMap(Canvas & to) const
 {
-	const Rect & widget = aiShield->pos;
-
-	// the map is centered inside the widget, so at most one axis actually has a border
-	const int leftWidth = pos.x - widget.x;
-	const int rightWidth = widget.right() - pos.right();
-	const int topHeight = pos.y - widget.y;
-	const int bottomHeight = widget.bottom() - pos.bottom();
-
-	if(topHeight > 0)
-		to.drawColor(Rect(widget.x, widget.y, widget.w, topHeight), Colors::BLACK);
-
-	if(bottomHeight > 0)
-		to.drawColor(Rect(widget.x, pos.bottom(), widget.w, bottomHeight), Colors::BLACK);
-
-	if(leftWidth > 0)
-		to.drawColor(Rect(widget.x, pos.y, leftWidth, pos.h), Colors::BLACK);
-
-	if(rightWidth > 0)
-		to.drawColor(Rect(pos.right(), pos.y, rightWidth, pos.h), Colors::BLACK);
+	// cheaper than working out the bands, and the minimap is drawn over it right afterwards
+	to.drawColor(aiShield->pos, Colors::BLACK);
 }
 
 void CMinimap::showAll(Canvas & to)
@@ -318,10 +301,10 @@ void CMinimap::updateTiles(const FowTilesType & positions)
 {
 	if(minimap)
 	{
-		const bool showHeroesSeparately = settings["adventure"]["minimapShowHeroes"].Bool();
+		const bool minimapShowHeroes = settings["adventure"]["minimapShowHeroes"].Bool();
 
 		for (auto const & tile : positions)
-			minimap->refreshTile(tile, showHeroesSeparately);
+			minimap->refreshTile(tile, minimapShowHeroes);
 	}
 
 	redraw();

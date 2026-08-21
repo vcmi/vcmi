@@ -14,6 +14,7 @@
 
 /// Keeps recently used assets alive under a memory budget, so that an asset is not decoded
 /// again right after its last user dropped it.
+/// Reached from several threads: netpacks load assets, workers upscale them.
 class MemoryBudgetedCache
 {
 public:

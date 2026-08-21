@@ -291,8 +291,7 @@ void Canvas::draw(IVideoInstance & video, const Point & pos)
 	{
 		bindRenderTarget();
 
-		// videos opened while the GPU path is active decode straight into a texture;
-		// anything else still has to go through a surface
+		// only a video opened while the GPU path was active decodes into a texture
 		if(!video.renderFrame(transformPos(pos)))
 			drawViaScratchSurface(pos, video.size(), [&video](SDL_Surface * target){ video.show(Point(0, 0), target); });
 		return;
@@ -306,6 +305,8 @@ void Canvas::draw(const IImage& image, const Point & pos)
 	if(renderTarget)
 	{
 		bindRenderTarget();
+
+		// an image that is still upscaling, or that the driver refused, has no texture yet
 		if(!image.drawTexture(mainRenderer, transformPos(pos), nullptr, getScalingFactor()))
 			drawViaScratchSurface(pos, image.dimensions(), [&](SDL_Surface * target){ image.draw(target, Point(0, 0), nullptr, getScalingFactor()); });
 		return;

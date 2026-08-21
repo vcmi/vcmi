@@ -105,9 +105,6 @@ public:
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
 	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
-	/// This backend renders in software only, so there is never a GPU representation
-	virtual bool drawTexture(SDL_Renderer *, const Point &, const Rect *, int) const { return false; }
-
 	virtual ~IImage() = default;
 };
 

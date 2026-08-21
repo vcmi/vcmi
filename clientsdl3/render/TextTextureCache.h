@@ -26,7 +26,7 @@ class TextTextureCache
 		uint32_t color;
 		std::string text;
 
-		bool operator<(const Key & other) const;
+		auto operator<=>(const Key & other) const = default;
 	};
 
 	struct Entry
