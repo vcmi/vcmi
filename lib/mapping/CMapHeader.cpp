@@ -159,7 +159,7 @@ void CMapHeader::registerMapStrings()
 	
 	if(maxStrings == 0 || mapLanguages.empty())
 	{
-		logGlobal->trace("Map %s doesn't have any supported translation", name.toString(LIBRARY->translator()));
+		logGlobal->trace("Map %s doesn't have any supported translation", name.toString(LIBRARY->staticTexts()));
 		return;
 	}
 	

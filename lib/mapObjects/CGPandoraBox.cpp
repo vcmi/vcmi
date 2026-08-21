@@ -142,7 +142,7 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 		else
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
 		
-		txt.replaceRawString(loot.buildList(LIBRARY->translator()));
+		txt.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 		txt.replaceTextID(h->getNameTextID());
 	}
 	sendInfoWindow(txt, temp);

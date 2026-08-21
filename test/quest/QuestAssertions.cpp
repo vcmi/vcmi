@@ -30,15 +30,15 @@ void expectQuestMission(const Quest & actual, const ExpectedMission & expected,
 
 	if(!expected.firstVisitText.empty())
 	{
-		EXPECT_EQ(expected.firstVisitText, actual.firstVisitText.toString(LIBRARY->translator()));
+		EXPECT_EQ(expected.firstVisitText, actual.firstVisitText.toString(LIBRARY->staticTexts()));
 	}
 	if(!expected.nextVisitText.empty())
 	{
-		EXPECT_EQ(expected.nextVisitText, actual.nextVisitText.toString(LIBRARY->translator()));
+		EXPECT_EQ(expected.nextVisitText, actual.nextVisitText.toString(LIBRARY->staticTexts()));
 	}
 	if(!expected.completedText.empty())
 	{
-		EXPECT_EQ(expected.completedText, actual.completedText.toString(LIBRARY->translator()));
+		EXPECT_EQ(expected.completedText, actual.completedText.toString(LIBRARY->staticTexts()));
 	}
 }
 

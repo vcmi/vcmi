@@ -41,6 +41,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../GameInstance.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -676,7 +677,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.lucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45, &GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
 	}
@@ -684,7 +685,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.unlucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44, &GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
 	}
@@ -694,7 +695,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		if (defender)
 		{
 			owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, defender, info]() {
-				owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
+				owner.appendBattleLog(info.attacker->formatGeneralMessage(365, &GAME->translator()));
 				owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 			});
 		}

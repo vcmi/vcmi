@@ -174,7 +174,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 			logGlobal->warn(
 				"CGObjectInstance::setType: object %s at %s has non-visitable template '%s'; "
 				"skipping old corner offset adjustment",
-				getObjectName().toString(LIBRARY->translator()), pos.toString(), appearance->stringID);
+				getObjectName().toString(LIBRARY->staticTexts()), pos.toString(), appearance->stringID);
 		}
 	}
 

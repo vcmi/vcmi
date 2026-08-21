@@ -157,7 +157,7 @@ void CStackInstance::setCount(TQuantity newCount)
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus> & bonus) const
 {
 	if(!bonus->description.empty())
-		return bonus->description.toString(LIBRARY->translator());
+		return bonus->description.toString(LIBRARY->staticTexts());
 	else
 		return LIBRARY->getBth()->bonusToString(bonus, this);
 }

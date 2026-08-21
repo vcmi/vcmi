@@ -30,7 +30,7 @@ TEST_F(MetaStringTest, Append)
 	text.appendRawString("hello");
 	text.append(suffix);
 
-	ASSERT_EQ(text.toString(LIBRARY->translator()), "hello world42");
+	ASSERT_EQ(text.toString(LIBRARY->staticTexts()), "hello world42");
 }
 
 TEST_F(MetaStringTest, AppendedReplacementActsOnCombinedText)
@@ -42,7 +42,7 @@ TEST_F(MetaStringTest, AppendedReplacementActsOnCombinedText)
 	text.appendRawString("hello %s");
 	text.append(suffix);
 
-	ASSERT_EQ(text.toString(LIBRARY->translator()), "hello there");
+	ASSERT_EQ(text.toString(LIBRARY->staticTexts()), "hello there");
 }
 
 TEST_F(MetaStringTest, ReplaceToken)
@@ -53,7 +53,7 @@ TEST_F(MetaStringTest, ReplaceToken)
 	text.replaceTokenTextID("%REMAINING", TextIdentifier("core.genrltxt", 1).get());
 
 	// only the first occurrence of a token is replaced, matching the '%s' ops
-	ASSERT_EQ(text.toString(LIBRARY->translator()), "100 of " + LIBRARY->generaltexth->translate("core.genrltxt", 1) + ", %POINTS");
+	ASSERT_EQ(text.toString(LIBRARY->staticTexts()), "100 of " + LIBRARY->generaltexth->translate("core.genrltxt", 1) + ", %POINTS");
 }
 
 TEST_F(MetaStringTest, ReplaceTokenSurvivesSerialization)
@@ -70,7 +70,7 @@ TEST_F(MetaStringTest, ReplaceTokenSurvivesSerialization)
 	restored.jsonDeserialize(json);
 
 	ASSERT_EQ(restored, text);
-	ASSERT_EQ(restored.toString(LIBRARY->translator()), text.toString(LIBRARY->translator()));
+	ASSERT_EQ(restored.toString(LIBRARY->staticTexts()), text.toString(LIBRARY->staticTexts()));
 }
 
 }
