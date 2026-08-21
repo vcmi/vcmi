@@ -22,12 +22,6 @@
 /// Comfortably more than a screenful of distinct strings, so nothing in use is evicted
 static constexpr size_t cacheSizeLimit = 4096;
 
-TextTextureCache & TextTextureCache::get()
-{
-	static TextTextureCache instance;
-	return instance;
-}
-
 Point TextTextureCache::getAlignmentOffset(EFonts font, ETextAlignment alignment, const std::string & text)
 {
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);

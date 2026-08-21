@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CursorSoftware.h"
+#include "GpuResources.h"
 
 #include "GameEngine.h"
 #include "IScreenHandler.h"
@@ -38,7 +39,7 @@ void CursorSoftware::render()
 	destRect.w = cursorSurface->w;
 	destRect.h = cursorSurface->h;
 
-	SDL_RenderTexture(mainRenderer, cursorTexture, nullptr, &destRect);
+	SDL_RenderTexture(GpuResources::get().renderer(), cursorTexture, nullptr, &destRect);
 }
 
 void CursorSoftware::createTexture(const Point & dimensions)
@@ -50,7 +51,7 @@ void CursorSoftware::createTexture(const Point & dimensions)
 		SDL_DestroySurface(cursorSurface);
 
 	cursorSurface = CSDL_Ext::newSurface(dimensions);
-	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
+	cursorTexture = SDL_CreateTexture(GpuResources::get().renderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
 
 	SDL_SetSurfaceBlendMode(cursorSurface, SDL_BLENDMODE_NONE);
 	SDL_SetTextureBlendMode(cursorTexture, SDL_BLENDMODE_BLEND);

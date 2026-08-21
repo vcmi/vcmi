@@ -22,6 +22,7 @@ set(vcmisdl3_SRCS
 	render/CBitmapHandler.cpp
 	render/Canvas.cpp
 	render/CanvasImage.cpp
+	render/GpuResources.cpp
 	render/CBitmapFont.cpp
 	render/CTrueTypeFont.cpp
 	render/CursorHardware.cpp
@@ -57,6 +58,7 @@ set(vcmisdl3_HEADERS
 	render/MemoryBudgetedCache.h
 	render/Canvas.h
 	render/CanvasImage.h
+	render/GpuResources.h
 	render/IImage.h
 	render/IScreenHandler.h
 	render/CBitmapFont.h

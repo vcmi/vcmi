@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CanvasImage.h"
+#include "GpuResources.h"
 
 #include "CMT.h"
 #include "GameEngine.h"
@@ -29,8 +30,8 @@ CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
 
 void CanvasImage::invalidateTexture() const
 {
-	if(texture && textureGeneration == mainRendererGeneration)
-		destroyTextureDeferred(texture);
+	if(texture && textureGeneration == GpuResources::get().generation())
+		GpuResources::get().destroyTextureDeferred(texture);
 
 	texture = nullptr;
 }
@@ -40,7 +41,7 @@ bool CanvasImage::drawTexture(SDL_Renderer * renderer, const Point & pos, const 
 	if(!surface || !renderer)
 		return false;
 
-	if(!texture || textureGeneration != mainRendererGeneration)
+	if(!texture || textureGeneration != GpuResources::get().generation())
 	{
 		invalidateTexture();
 		texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -52,7 +53,7 @@ bool CanvasImage::drawTexture(SDL_Renderer * renderer, const Point & pos, const 
 		}
 
 		SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-		textureGeneration = mainRendererGeneration;
+		textureGeneration = GpuResources::get().generation();
 	}
 
 	SDL_FRect source = CSDL_Ext::toSDLFloat(src ? *src : Rect(0, 0, surface->w, surface->h));

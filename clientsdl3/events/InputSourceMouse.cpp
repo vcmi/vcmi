@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "InputSourceMouse.h"
+#include "../render/GpuResources.h"
 #include "InputHandler.h"
 
 #include "CMT.h"
@@ -38,7 +39,7 @@ InputSourceMouse::InputSourceMouse()
 
 void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
 {
-	if(mainRenderer == nullptr)
+	if(GpuResources::get().renderer() == nullptr)
 		return;
 
 	switch(event.type)
@@ -47,7 +48,7 @@ void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 		case SDL_EVENT_MOUSE_WHEEL:
-			SDL_ConvertEventToRenderCoordinates(mainRenderer, &event);
+			SDL_ConvertEventToRenderCoordinates(GpuResources::get().renderer(), &event);
 			break;
 	}
 }
