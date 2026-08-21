@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "ITranslator.h"
 #include "TextIdentifier.h"
 
 class JsonNode;
@@ -22,7 +23,7 @@ struct ExportedStrings
 	std::vector<std::string> overridenMods;
 };
 
-class DLL_LINKAGE TextLocalizationContainer
+class DLL_LINKAGE TextLocalizationContainer : public ITranslator
 {
 protected:
 	static std::recursive_mutex globalTextMutex;
@@ -73,16 +74,8 @@ public:
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 	void registerString(const std::string & identifierModContext, const std::string & localizedStringModContext, const TextIdentifier & UID, const std::string & localized);
 
-	/// returns translated version of a string that can be displayed to user
-	template<typename  ... Args>
-	std::string translate(std::string arg1, Args ... args) const
-	{
-		TextIdentifier id(arg1, args ...);
-		return translateString(id);
-	}
-
 	/// converts identifier into user-readable string
-	const std::string & translateString(const TextIdentifier & identifier) const;
+	const std::string & translateString(const TextIdentifier & identifier) const override;
 
 	/// Debug method, returns all currently stored texts
 	/// Format: [mod ID][string ID] -> human-readable text
