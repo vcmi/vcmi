@@ -286,17 +286,25 @@ bool ScalableImageShared::anyVariantLoading(int scalingFactor, const ScalableIma
 }
 
 template<typename DrawScaled, typename DrawNative>
-bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImageParameters & parameters, const DrawScaled & drawScaled, const DrawNative & drawNative)
+bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImageParameters & parameters, bool mirrorWhileDrawing, const DrawScaled & drawScaled, const DrawNative & drawNative)
 {
+	// either the caller mirrors as it draws and gets the plain image, or it gets a mirrored copy
+	const ImageFlip flip = mirrorWhileDrawing ? ImageFlip{parameters.flipVertical, parameters.flipHorizontal} : ImageFlip{};
+
+	const auto & pick = [&](FlippedImages & images) -> const ImageType &
+	{
+		return mirrorWhileDrawing ? images[0] : selectFlipped(images, parameters);
+	};
+
 	if (anyVariantLoading(scalingFactor, parameters))
 	{
 		// upscaling is still running - the 1x image is stretched to stand in for it
 		RenderHandler::notifyPlaceholderDrawn();
 
-		bool drawn = drawScaled(selectFlipped(scaled[1].body, parameters), parameters.colorMultiplier, parameters.alphaValue);
+		bool drawn = drawScaled(pick(scaled[1].body), parameters.colorMultiplier, parameters.alphaValue, flip);
 
 		if (parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
-			drawn = drawScaled(selectFlipped(scaled[1].body, parameters), parameters.effectColorMultiplier, parameters.alphaValue) && drawn;
+			drawn = drawScaled(pick(scaled[1].body), parameters.effectColorMultiplier, parameters.alphaValue, flip) && drawn;
 
 		return drawn;
 	}
@@ -305,36 +313,37 @@ bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImagePar
 	bool drawn = true;
 
 	if (variant.shadow.at(0))
-		drawn = drawNative(selectFlipped(variant.shadow, parameters), Colors::WHITE_TRUE, parameters.alphaValue) && drawn;
+		drawn = drawNative(pick(variant.shadow), Colors::WHITE_TRUE, parameters.alphaValue, flip) && drawn;
 
 	if (parameters.player != PlayerColor::CANNOT_DETERMINE && variant.playerColored.at(1 + parameters.player.getNum()))
 	{
-		drawn = drawNative(variant.playerColored.at(1 + parameters.player.getNum()), Colors::WHITE_TRUE, parameters.alphaValue) && drawn;
+		// the player-coloured variant has never been mirrored - keep it that way here
+		drawn = drawNative(variant.playerColored.at(1 + parameters.player.getNum()), Colors::WHITE_TRUE, parameters.alphaValue, ImageFlip{}) && drawn;
 	}
 	else
 	{
 		if (variant.body.at(0))
-			drawn = drawNative(selectFlipped(variant.body, parameters), parameters.colorMultiplier, parameters.alphaValue) && drawn;
+			drawn = drawNative(pick(variant.body), parameters.colorMultiplier, parameters.alphaValue, flip) && drawn;
 
 		if (variant.bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
-			drawn = drawNative(selectFlipped(variant.bodyGrayscale, parameters), parameters.effectColorMultiplier, parameters.alphaValue) && drawn;
+			drawn = drawNative(pick(variant.bodyGrayscale), parameters.effectColorMultiplier, parameters.alphaValue, flip) && drawn;
 	}
 
 	if (variant.overlay.at(0))
-		drawn = drawNative(selectFlipped(variant.overlay, parameters), parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255) && drawn;
+		drawn = drawNative(pick(variant.overlay), parameters.ovelayColorMultiplier, static_cast<int>(parameters.alphaValue) * parameters.ovelayColorMultiplier.a / 255, flip) && drawn;
 
 	return drawn;
 }
 
 void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
-	forEachLayer(scalingFactor, parameters,
-		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha)
+	forEachLayer(scalingFactor, parameters, false,
+		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha, const ImageFlip &)
 		{
 			image->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, color, alpha, locator.layer);
 			return true;
 		},
-		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha)
+		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha, const ImageFlip &)
 		{
 			image->draw(where, parameters.palette, dest, src, color, alpha, locator.layer);
 			return true;
@@ -343,14 +352,18 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 
 bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & dest, const Rect * src, const ScalableImageParameters & parameters, int scalingFactor)
 {
-	return forEachLayer(scalingFactor, parameters,
-		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha)
+	// mirroring during the draw needs the whole image: a source rectangle would have to be
+	// mirrored along with it, so those keep taking the mirrored copy
+	const bool mirrorWhileDrawing = src == nullptr;
+
+	return forEachLayer(scalingFactor, parameters, mirrorWhileDrawing,
+		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha, const ImageFlip & flip)
 		{
-			return image->scaledDrawTexture(renderer, parameters.palette, dimensions() * scalingFactor, dest, src, color, alpha, locator.layer);
+			return image->scaledDrawTexture(renderer, parameters.palette, dimensions() * scalingFactor, dest, src, color, alpha, locator.layer, flip);
 		},
-		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha)
+		[&](const ImageType & image, const ColorRGBA & color, uint8_t alpha, const ImageFlip & flip)
 		{
-			return image->drawTexture(renderer, parameters.palette, dest, src, color, alpha, locator.layer);
+			return image->drawTexture(renderer, parameters.palette, dest, src, color, alpha, locator.layer, flip);
 		});
 }
 

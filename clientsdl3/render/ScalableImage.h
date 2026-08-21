@@ -85,9 +85,9 @@ class ScalableImageShared final : public ICacheableAsset, public std::enable_sha
 	static const ImageType & selectFlipped(FlippedImages & images, const ScalableImageParameters & parameters);
 
 	/// Walks the composed layers back to front: drawScaled while an upscale is pending, drawNative
-	/// otherwise. Both take (const ImageType &, const ColorRGBA &, uint8_t) -> bool, conjoined.
+	/// otherwise. Both take (const ImageType &, const ColorRGBA &, uint8_t, const ImageFlip &) -> bool, conjoined.
 	template<typename DrawScaled, typename DrawNative>
-	bool forEachLayer(int scalingFactor, const ScalableImageParameters & parameters, const DrawScaled & drawScaled, const DrawNative & drawNative);
+	bool forEachLayer(int scalingFactor, const ScalableImageParameters & parameters, bool mirrorWhileDrawing, const DrawScaled & drawScaled, const DrawNative & drawNative);
 
 	/// True while any variant needed for this draw is still being upscaled, in which case
 	/// only the 1x image may be used

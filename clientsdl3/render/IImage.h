@@ -23,6 +23,17 @@ class ColorFilter;
 class ISharedImage;
 
 /// Defines which blit method will be selected when image is used for rendering
+/// Mirroring applied while an image is drawn, so that a mirrored image needs no mirrored copy.
+/// Named after the axis the pixels move along, unlike ISharedImage::horizontalFlip() which is
+/// named after the axis it mirrors about.
+struct ImageFlip
+{
+	bool x = false; ///< left becomes right
+	bool y = false; ///< top becomes bottom
+
+	bool any() const { return x || y; }
+};
+
 enum class EImageBlitMode : uint8_t
 {
 	/// Preferred for images that don't need any background
@@ -150,7 +161,7 @@ public:
 	// New methods go below this line, see the note in IImage above
 
 	/// Same as draw(), but onto the renderer's current target. False if no texture is available.
-	virtual bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
-	virtual bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
+	virtual bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const = 0;
+	virtual bool scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & scaleTo, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const = 0;
 
 };
