@@ -684,6 +684,17 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
+	// map and campaign texts are inert data - the client is what makes them resolvable.
+	// Campaign overlays of earlier scenarios stay installed, so heroes transferred from
+	// them keep their names in later scenarios
+	GAME->translator().install(gameState->getMap().texts);
+	if(si->campState)
+	{
+		GAME->translator().install(si->campState->getTexts());
+		for(const auto & scenarioTexts : si->campState->getScenarioTexts())
+			GAME->translator().install(scenarioTexts.second);
+	}
+
 	gameplayReplayer = std::make_unique<GameplayReplayer>();
 
 	if (isGuest())
@@ -754,6 +765,9 @@ void CServerHandler::endGameplay()
 
 		gameplayReplayer.reset();
 	}
+
+	// the map is about to go away, so its overlay must not outlive it
+	GAME->translator().uninstallAll();
 
 	client->endNetwork();
 	client->finishGameplay();
@@ -841,7 +855,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	param.campaignName = cs->getNameTranslated();
+	param.campaignName = cs->getNameTranslated(&GAME->translator());
 	cs->highscoreParameters.push_back(param);
 	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
 	campaignScoreCalculator->isCampaign = true;

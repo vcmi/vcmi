@@ -271,7 +271,8 @@ public:
 	
 	/// translations for map to be transferred over network
 	JsonNode translations;
-	TextContainerRegistrable texts;
+	/// Inert text data owned by this map; the rendering side installs it as an overlay
+	TextLocalizationContainer texts;
 	
 	void registerMapStrings();
 

@@ -43,7 +43,7 @@ CServerHandler & GameInstance::server()
 	return *serverInstance;
 }
 
-const ITranslator & GameInstance::translator() const
+Translator & GameInstance::translator()
 {
 	return translatorInstance;
 }

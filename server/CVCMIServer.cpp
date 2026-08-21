@@ -680,7 +680,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			// TODO: handle this somehow?
 		}
 		else
-			roomDescription = mi->getNameTranslated();
+			roomDescription = mi->getNameTranslated(LIBRARY->translator());
 
 		lobbyProcessor->sendChangeRoomDescription(roomDescription);
 	}

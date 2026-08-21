@@ -245,9 +245,9 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 	mission.loadComponents(components, h);
 
 	if(firstVisit)
-		iwText.appendRawString(firstVisitText.toString(LIBRARY->translator()));
+		iwText.append(firstVisitText);
 	else if(failRequirements)
-		iwText.appendRawString(nextVisitText.toString(LIBRARY->translator()));
+		iwText.append(nextVisitText);
 	
 	if(lastDay >= 0)
 		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
@@ -263,7 +263,7 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 		ms.appendRawString("\n\n");
 
 	if(missionKind == EQuestMission::HOTA_SCRIPTED)
-		ms.appendRawString(scriptHintText.toString(LIBRARY->translator()));
+		ms.append(scriptHintText);
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(3), textOption).get());
 
@@ -275,7 +275,7 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(missionKind == EQuestMission::HOTA_SCRIPTED)
-		ms.appendRawString(scriptHintText.toString(LIBRARY->translator()));
+		ms.append(scriptHintText);
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(4), textOption).get());
 
@@ -285,7 +285,7 @@ void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool o
 
 void Quest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText) const
 {
-	iwText.appendRawString(completedText.toString(LIBRARY->translator()));
+	iwText.append(completedText);
 	
 	std::vector<Component> components;
 	addTextReplacements(cb, iwText, components);

@@ -253,8 +253,8 @@ void InfoCard::changeSelection()
 		return;
 
 	labelSaveDate->setText(mapInfo->date);
-	mapName->setText(mapInfo->getNameTranslated());
-	mapDescription->setText(mapInfo->getDescriptionTranslated());
+	mapName->setText(mapInfo->getNameTranslated(&GAME->translator()));
+	mapDescription->setText(mapInfo->getDescriptionTranslated(&GAME->translator()));
 
 	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)

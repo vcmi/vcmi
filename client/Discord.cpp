@@ -104,7 +104,7 @@ void Discord::setPlayingStatus(std::shared_ptr<StartInfo> si, const CMap * map, 
 		if(player.canHumanPlay)
 			humanPlayersCount++;
 	std::string title = "Playing " + std::string(isCampaign ? "Campaign" : "Map") + (isMulti ? " (Multiplayer)" : " (Singleplayer)");
-	std::string subTitle = std::string(isCampaign ? si->campState->getNameTranslated() + " - " : "") + map->name.toString(&GAME->translator());
+	std::string subTitle = std::string(isCampaign ? si->campState->getNameTranslated(&GAME->translator()) + " - " : "") + map->name.toString(&GAME->translator());
 	setStatus(subTitle, title, {humanInterfacesCount, isMulti ? humanPlayersCount : 0});
 #endif
 }

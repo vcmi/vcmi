@@ -46,7 +46,7 @@ public:
 
 	CServerHandler & server();
 	CMapHandler & map();
-	const ITranslator & translator() const;
+	Translator & translator();
 
 	std::shared_ptr<CMainMenu> mainmenu();
 	CPlayerInterface * interface();

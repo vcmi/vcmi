@@ -12,9 +12,29 @@
 
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextLocalizationContainer.h"
+
+void Translator::install(const TextLocalizationContainer & source)
+{
+	if(!vstd::contains(overlays, &source))
+		overlays.push_back(&source);
+}
+
+void Translator::uninstall(const TextLocalizationContainer & source)
+{
+	vstd::erase(overlays, &source);
+}
+
+void Translator::uninstallAll()
+{
+	overlays.clear();
+}
 
 const std::string & Translator::translateString(const TextIdentifier & identifier) const
 {
-	// overlays are still owned by the static store; they move here in a later step
+	for(auto overlay = overlays.rbegin(); overlay != overlays.rend(); ++overlay)
+		if((*overlay)->identifierExists(identifier))
+			return (*overlay)->translateString(identifier);
+
 	return LIBRARY->generaltexth->translateString(identifier);
 }

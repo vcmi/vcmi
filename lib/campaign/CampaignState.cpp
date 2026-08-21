@@ -43,29 +43,29 @@ CampaignVersion CampaignHeader::getFormat() const
 	return version;
 }
 
-std::string CampaignHeader::getDescriptionTranslated() const
+std::string CampaignHeader::getDescriptionTranslated(const ITranslator * translator) const
 {
-	return description.toString(LIBRARY->translator());
+	return description.toString(translator);
 }
 
-std::string CampaignHeader::getNameTranslated() const
+std::string CampaignHeader::getNameTranslated(const ITranslator * translator) const
 {
-	return name.toString(LIBRARY->translator());
+	return name.toString(translator);
 }
 
-std::string CampaignHeader::getAuthor() const
+std::string CampaignHeader::getAuthor(const ITranslator * translator) const
 {
-	return authorContact.toString(LIBRARY->translator());
+	return authorContact.toString(translator);
 }
 
-std::string CampaignHeader::getAuthorContact() const
+std::string CampaignHeader::getAuthorContact(const ITranslator * translator) const
 {
-	return authorContact.toString(LIBRARY->translator());
+	return authorContact.toString(translator);
 }
 
-std::string CampaignHeader::getCampaignVersion() const
+std::string CampaignHeader::getCampaignVersion(const ITranslator * translator) const
 {
-	return campaignVersion.toString(LIBRARY->translator());
+	return campaignVersion.toString(translator);
 }
 
 time_t CampaignHeader::getCreationDateTime() const
@@ -118,7 +118,7 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
-TextContainerRegistrable & CampaignHeader::getTexts()
+TextLocalizationContainer & CampaignHeader::getTexts()
 {
 	return textContainer;
 }
@@ -220,7 +220,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated(LIBRARY->translator()));
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();

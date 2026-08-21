@@ -77,6 +77,9 @@ class SelectionTab : public CIntObject
 
 	JsonNode campaignSets;
 public:
+	/// Installs the text overlays of newly parsed entries and fills in their display names
+	void installTexts(size_t offset);
+
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
 	std::string curFolder;

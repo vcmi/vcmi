@@ -38,6 +38,7 @@
 #include "inspector/inspector.h"
 #include "GameLibrary.h"
 #include "PlayerSelectionDialog.h"
+#include "translator.h"
 
 MapController::MapController(QObject * parent)
 	: QObject(parent)
@@ -231,9 +232,15 @@ void MapController::repairMap(CMap * map)
 
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
+	if(_map)
+		Translator::instance().uninstall(_map->texts);
+
 	cmap->cb = _cb.get();
 	_map = std::move(cmap);
 	_cb->setMap(_map.get());
+
+	// map texts are inert data - the editor has to install them to render map-defined names
+	Translator::instance().install(_map->texts);
 	
 	repairMap();
 	

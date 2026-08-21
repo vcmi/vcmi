@@ -304,7 +304,7 @@ void CampaignEditor::on_actionOpenSet_triggered()
 	for(auto const & campaign : sets.value(selectedSet))
 	{
 		auto c = CampaignHandler::getHeader(campaign.getName());
-		campaigns.insert(QString::fromStdString(c->getNameTranslated()), campaign);
+		campaigns.insert(QString::fromStdString(c->getNameTranslated(&Translator::instance())), campaign);
 	}
 
 	QString selectedCampaign = QInputDialog::getItem(this, tr("Open Campaign"), tr("Select Campaign"), campaigns.keys(), 0, false, &ok);
