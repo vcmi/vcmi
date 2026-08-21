@@ -433,6 +433,7 @@ namespace LogicalExpressionDetail
 	};
 
 	std::string DLL_LINKAGE getTextForOperator(const std::string & operation);
+	std::string DLL_LINKAGE getTextForSeparator(const std::string & separator);
 
 	/// Prints expression in human-readable format
 	template<typename ContainedClass>
@@ -442,7 +443,8 @@ namespace LogicalExpressionDetail
 
 		std::function<std::string(const typename Base::Value &)> classPrinter;
 		std::unique_ptr<TestVisitor<ContainedClass>> statusTest;
-		mutable std::string prefix;
+		/// set while printing anything below the outermost expression
+		mutable bool nested = false;
 
 		template<typename Operator>
 		std::string formatString(std::string toFormat, const Operator & expr) const
@@ -453,13 +455,60 @@ namespace LogicalExpressionDetail
 			return toFormat;
 		}
 
-		std::string printExpressionList(const std::vector<typename Base::Variant> & element) const
+		/// true for a branch the player has already fulfilled, so it has nothing left to ask for
+		bool isRedundant(const typename Base::Value &) const
+		{
+			return false;
+		}
+
+		bool isRedundant(const typename Base::OperatorAll & element) const
+		{
+			return std::ranges::all_of(element.expressions, [this](const typename Base::Variant & entry){ return isRedundant(entry); });
+		}
+
+		bool isRedundant(const typename Base::OperatorAny & element) const
+		{
+			return std::ranges::any_of(element.expressions, [this](const typename Base::Variant & entry){ return isRedundant(entry); });
+		}
+
+		bool isRedundant(const typename Base::OperatorNone & element) const
+		{
+			return element.expressions.empty();
+		}
+
+		bool isRedundant(const typename Base::Variant & element) const
+		{
+			return std::visit([this](const auto & entry){ return this->isRedundant(entry); }, element);
+		}
+
+		std::vector<typename Base::Variant> pendingEntries(const std::vector<typename Base::Variant> & element) const
+		{
+			std::vector<typename Base::Variant> ret;
+			std::ranges::copy_if(element, std::back_inserter(ret), [this](const typename Base::Variant & entry){ return !isRedundant(entry); });
+			return ret;
+		}
+
+		std::string printNested(const typename Base::Variant & element) const
+		{
+			bool wasNested = nested;
+			nested = true;
+			std::string ret = std::visit(*this, element);
+			nested = wasNested;
+			return ret;
+		}
+
+		std::string join(const std::vector<typename Base::Variant> & element, const std::string & separator) const
 		{
 			std::string ret;
-			prefix.push_back('\t');
-			for (auto & expr : element)
-				ret += prefix + std::visit(*this, expr) + "\n";
-			prefix.pop_back();
+			for (const auto & entry : element)
+			{
+				std::string entryText = printNested(entry);
+				if (entryText.empty())
+					continue;
+				if (!ret.empty())
+					ret += separator;
+				ret += entryText;
+			}
 			return ret;
 		}
 	public:
@@ -474,20 +523,63 @@ namespace LogicalExpressionDetail
 
 		std::string operator()(const typename Base::OperatorAny & element) const
 		{
-			return formatString(getTextForOperator("anyOf"), element) + "\n"
-					+ printExpressionList(element.expressions);
+			if (isRedundant(element))
+				return ""; // one of the alternatives is already built
+
+			auto entries = pendingEntries(element.expressions);
+			if (entries.size() == 1)
+				return printNested(entries.front());
+
+			// "A + B, C" would read as three alternatives, so groups get a stronger separator
+			bool hasGroups = std::ranges::any_of(entries, [](const typename Base::Variant & entry)
+			{
+				return !std::holds_alternative<typename Base::Value>(entry);
+			});
+
+			return formatString(getTextForOperator("anyOf"), element) + " "
+					+ join(entries, getTextForSeparator(hasGroups ? "or" : "list"));
 		}
 
 		std::string operator()(const typename Base::OperatorAll & element) const
 		{
-			return formatString(getTextForOperator("allOf"), element) + "\n"
-					+ printExpressionList(element.expressions);
+			auto entries = pendingEntries(element.expressions);
+			if (entries.empty())
+				return "";
+			if (entries.size() == 1)
+				return printNested(entries.front());
+
+			if (nested)
+				return join(entries, getTextForSeparator("and"));
+
+			// outermost list: all plain buildings on one line, every operator on a line of its own
+			std::vector<typename Base::Variant> values;
+			std::vector<typename Base::Variant> operators;
+			for (const auto & entry : entries)
+			{
+				if (std::holds_alternative<typename Base::Value>(entry))
+					values.push_back(entry);
+				else
+					operators.push_back(entry);
+			}
+
+			std::string ret = join(values, getTextForSeparator("list"));
+			for (const auto & entry : operators)
+			{
+				std::string entryText = printNested(entry);
+				if (entryText.empty())
+					continue;
+				if (!ret.empty())
+					ret += "\n";
+				ret += entryText;
+			}
+			return ret;
 		}
 
 		std::string operator()(const typename Base::OperatorNone & element) const
 		{
-			return formatString(getTextForOperator("noneOf"), element) + "\n"
-					+ printExpressionList(element.expressions);
+			// a fulfilled entry is exactly what makes a noneOf fail, so nothing is filtered out here
+			return formatString(getTextForOperator("noneOf"), element) + " "
+					+ join(element.expressions, getTextForSeparator("list"));
 		}
 
 		std::string operator()(const typename Base::Value & element) const
