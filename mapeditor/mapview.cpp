@@ -651,6 +651,13 @@ void MapView::dropEvent(QDropEvent * event)
 	
 	if(sc->selectionObjectsView.newObject)
 	{
+		//the drop position is authoritative: the last dragMoveEvent may lag far behind it
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		moveNewObjectTo(event->position().toPoint());
+#else
+		moveNewObjectTo(event->pos());
+#endif
+
 		QString errorMsg;
 		if(controller->canPlaceObject(sc->selectionObjectsView.newObject.get(), errorMsg))
 		{
@@ -668,23 +675,27 @@ void MapView::dropEvent(QDropEvent * event)
 	event->acceptProposedAction();
 }
 
-void MapView::dragMoveEvent(QDragMoveEvent * event)
+void MapView::moveNewObjectTo(const QPoint & viewportPos)
 {
 	auto * sc = static_cast<MapScene*>(scene());
-	if(!sc)
+	if(!sc || !sc->selectionObjectsView.newObject)
 		return;
-	
-	auto rect = event->answerRect();
-	auto pos = mapToScene(rect.bottomRight()); //TODO: do we need to check size?
+
+	auto pos = mapToScene(viewportPos);
 	int3 tile(pos.x() / 32 + 1, pos.y() / 32 + 1, sc->level);
-	
-	if(sc->selectionObjectsView.newObject)
-	{
-		sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
-		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject.get());
-		sc->selectionObjectsView.setShift(tile.x, tile.y);
-	}
-	
+
+	sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
+	sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject.get());
+	sc->selectionObjectsView.setShift(tile.x, tile.y);
+}
+
+void MapView::dragMoveEvent(QDragMoveEvent * event)
+{
+	if(!scene())
+		return;
+
+	moveNewObjectTo(event->answerRect().bottomRight()); //TODO: do we need to check size?
+
 	event->acceptProposedAction();
 }
 
