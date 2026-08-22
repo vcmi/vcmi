@@ -202,6 +202,10 @@ ArtifactID GameRandomizer::rollArtifact(std::set<ArtifactID> potentialPicks)
 		return ArtifactID::GRAIL;
 	}
 
+	// initMapObjects() may call rollArtifact() concurrently from multiple worker threads via
+	// ParallelInitRandomizer; protect both the allocatedArtifacts bookkeeping and the shared RNG draw
+	std::lock_guard<std::mutex> lock(artifactRollMutex);
+
 	// Find how many times least used artifacts were picked by randomizer
 	int leastUsedTimes = std::numeric_limits<int>::max();
 	for(const auto & artifact : potentialPicks)

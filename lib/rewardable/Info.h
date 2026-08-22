@@ -10,8 +10,12 @@
 
 #pragma once
 
+#include <atomic>
+
 #include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
+
+#include <vstd/ProfilerMacros.h>
 
 class MetaString;
 class IGameInfoCallback;
@@ -68,10 +72,42 @@ public:
 
 	void init(const JsonNode & objectConfig, const std::string & objectTextID);
 
+	PERF_ONLY(
+	/// Logs (via logProfiling) a phase-by-phase breakdown of time spent in configureObject() calls
+	/// accumulated since the last call, then resets the accumulators. Diagnostic only.
+	static void logAndResetInitProfilingStats();
+	)
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & parameters;
 	}
 };
+
+PERF_ONLY(
+/// configureObject() may run concurrently for multiple objects on worker threads (see
+/// CGameState::initMapObjects()), so these accumulators must support concurrent increments -
+/// hence std::atomic rather than plain int64_t. Reset (in logAndResetInitProfilingStats) always
+/// happens back on the main thread, after the parallel work has joined.
+struct InfoConfigureProfilingStats
+{
+	std::atomic<int64_t> calls = 0;
+	std::atomic<int64_t> variablesUs = 0;
+	std::atomic<int64_t> rewardsUs = 0;
+	std::atomic<int64_t> messagesUs = 0;
+	std::atomic<int64_t> resetInfoUs = 0;
+	std::atomic<int64_t> visitLimiterUs = 0;
+
+	void reset()
+	{
+		calls = 0;
+		variablesUs = 0;
+		rewardsUs = 0;
+		messagesUs = 0;
+		resetInfoUs = 0;
+		visitLimiterUs = 0;
+	}
+};
+)
 
 }

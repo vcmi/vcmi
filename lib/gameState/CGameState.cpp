@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CGameState.h"
 
+#include <vstd/ProfilerMacros.h>
+
 #include "EVictoryLossCheckResult.h"
 #include "InfoAboutArmy.h"
 #include "TavernHeroesPool.h"
@@ -28,6 +30,8 @@
 #include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
+#include "../CCreatureHandler.h"
+#include "../CRandomGenerator.h"
 #include "../bonuses/BonusParameters.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
@@ -62,6 +66,7 @@
 #include "../networkPacks/NetPacksBase.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
+#include "../rewardable/Info.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CLoadFile.h"
@@ -73,6 +78,9 @@
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
+
+#include <tbb/combinable.h>
+#include <tbb/parallel_for.h>
 
 std::shared_mutex CGameState::mutex;
 
@@ -522,13 +530,209 @@ void CGameState::initRandomFactionsForPlayers(vstd::RNG & randomGenerator)
 	}
 }
 
+namespace
+{
+	/// True if object->pickRandomObject() must run on the main thread, in the object's fixed
+	/// map order, rather than concurrently with other objects. There are two distinct reasons:
+	/// - CGTownInstance: CGDwelling looks up a linked town by instance name/identifier and
+	///   expects it to already be randomized (see CGDwelling::randomizeFaction), so every town
+	///   must be resolved before any (parallel-bucket) dwelling runs.
+	/// - CGArtifact and CGHeroInstance(RANDOM_HERO): these draw from randomizer state that is
+	///   shared *across* object instances (GameRandomizer::allocatedArtifacts least-used-artifact
+	///   bias map, and CGameState's unused-hero-type pool respectively), so their relative draw
+	///   order must stay fixed to remain reproducible.
+	/// Everything else (creatures, resources, dwellings, non-random heroes, ...) only ever
+	/// touches its own, already-parsed data plus stateless LIBRARY content, and is safe to
+	/// randomize concurrently using a private RNG stream (see ParallelObjectRandomizer below).
+	bool objectNeedsSerialRandomization(const CGObjectInstance * object)
+	{
+		if (dynamic_cast<const CGTownInstance *>(object))
+			return true;
+
+		if (dynamic_cast<const CGArtifact *>(object))
+			return true;
+
+		if (const auto * hero = dynamic_cast<const CGHeroInstance *>(object))
+			return hero->ID == Obj::RANDOM_HERO;
+
+		return false;
+	}
+
+	/// IGameRandomizer used to randomize a single map object on a worker thread. Wraps a
+	/// private RNG stream, seeded once on the main thread (from the real randomizer) before
+	/// any worker thread starts, so concurrent objects never contend on shared state and
+	/// results stay reproducible regardless of actual thread scheduling.
+	///
+	/// Only rollCreature()/getDefault() are implemented for real: those are the only
+	/// IGameRandomizer members reachable from the pickRandomObject() overrides that
+	/// objectNeedsSerialRandomization() allows into the parallel bucket (CGDwelling,
+	/// CGCreature, CGResource). Everything else throws as a correctness safety net - hitting
+	/// one would mean an object was misclassified into the parallel bucket.
+	class ParallelObjectRandomizer final : public IGameRandomizer
+	{
+		CRandomGenerator generator;
+
+	public:
+		explicit ParallelObjectRandomizer(int seed)
+			: generator(seed)
+		{
+		}
+
+		CreatureID rollCreature() override
+		{
+			std::vector<CreatureID> allowed;
+			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+			{
+				const auto * creaturePtr = creatureID.toCreature();
+				if(creaturePtr->excludeFromRandomization)
+					continue;
+				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+					continue;
+				allowed.push_back(creaturePtr->getId());
+			}
+
+			if(allowed.empty())
+				throw std::runtime_error("Cannot pick a random creature!");
+
+			return *RandomGeneratorUtil::nextItem(allowed, generator);
+		}
+
+		CreatureID rollCreature(int tier) override
+		{
+			std::vector<CreatureID> allowed;
+			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+			{
+				const auto * creaturePtr = creatureID.toCreature();
+				if(creaturePtr->excludeFromRandomization)
+					continue;
+				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+					continue;
+				if(creaturePtr->getLevel() == tier)
+					allowed.push_back(creaturePtr->getId());
+			}
+
+			if(allowed.empty())
+				throw std::runtime_error("Cannot pick a random creature!");
+
+			return *RandomGeneratorUtil::nextItem(allowed, generator);
+		}
+
+		vstd::RNG & getDefault() override
+		{
+			return generator;
+		}
+
+		[[noreturn]] static const char * unsupportedMessage(const char * what)
+		{
+			throw std::logic_error(std::string("ParallelObjectRandomizer: ") + what + "() is not supported - object should have been in the serial randomization bucket");
+		}
+
+		ArtifactID rollArtifact() override { unsupportedMessage("rollArtifact"); }
+		ArtifactID rollArtifact(EArtifactClass) override { unsupportedMessage("rollArtifact"); }
+		ArtifactID rollArtifact(std::set<ArtifactID>) override { unsupportedMessage("rollArtifact"); }
+		std::vector<ArtifactID> rollMarketArtifactSet() override { unsupportedMessage("rollMarketArtifactSet"); }
+		PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance *) override { unsupportedMessage("rollPrimarySkillForLevelup"); }
+		SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance *, const std::set<SecondarySkill> &) override { unsupportedMessage("rollSecondarySkillForLevelup"); }
+		std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance *) override { unsupportedMessage("rollSecondarySkills"); }
+	};
+
+	/// IGameRandomizer used to initialize a single map object (CGObjectInstance::initObj) on a
+	/// worker thread during CGameState::initMapObjects(). Same private-RNG-stream approach as
+	/// ParallelObjectRandomizer above for rollCreature()/getDefault(), reseeded once on the main
+	/// thread so those draws stay reproducible regardless of thread scheduling.
+	///
+	/// Unlike ParallelObjectRandomizer, the rollArtifact() overloads are delegated straight
+	/// through to the real (shared) gameRandomizer instead of being rejected: initObj()
+	/// implementations that grant artifacts (CGArtifact, Rewardable::Info-driven objects and
+	/// town buildings, ...) need GameRandomizer's cross-object "least used artifact" bias
+	/// bookkeeping (allocatedArtifacts), which only exists on that single shared instance.
+	/// GameRandomizer now internally serializes access to that state (see
+	/// GameRandomizer::artifactRollMutex), so concurrent delegation from multiple worker threads
+	/// is memory-safe. Note this does trade away full determinism for artifact-granting objects
+	/// specifically: unlike the seed-split creature/RNG draws, the *order* in which concurrently
+	/// running objects reach the shared rollArtifact() call - and therefore which of them wins a
+	/// "least used so far" pick when several are tied - depends on actual thread scheduling.
+	class ParallelInitRandomizer final : public IGameRandomizer
+	{
+		CRandomGenerator generator;
+		IGameRandomizer & sharedRandomizer;
+
+	public:
+		ParallelInitRandomizer(int seed, IGameRandomizer & sharedRandomizer)
+			: generator(seed)
+			, sharedRandomizer(sharedRandomizer)
+		{
+		}
+
+		CreatureID rollCreature() override
+		{
+			std::vector<CreatureID> allowed;
+			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+			{
+				const auto * creaturePtr = creatureID.toCreature();
+				if(creaturePtr->excludeFromRandomization)
+					continue;
+				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+					continue;
+				allowed.push_back(creaturePtr->getId());
+			}
+
+			if(allowed.empty())
+				throw std::runtime_error("Cannot pick a random creature!");
+
+			return *RandomGeneratorUtil::nextItem(allowed, generator);
+		}
+
+		CreatureID rollCreature(int tier) override
+		{
+			std::vector<CreatureID> allowed;
+			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+			{
+				const auto * creaturePtr = creatureID.toCreature();
+				if(creaturePtr->excludeFromRandomization)
+					continue;
+				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+					continue;
+				if(creaturePtr->getLevel() == tier)
+					allowed.push_back(creaturePtr->getId());
+			}
+
+			if(allowed.empty())
+				throw std::runtime_error("Cannot pick a random creature!");
+
+			return *RandomGeneratorUtil::nextItem(allowed, generator);
+		}
+
+		vstd::RNG & getDefault() override
+		{
+			return generator;
+		}
+
+		ArtifactID rollArtifact() override { return sharedRandomizer.rollArtifact(); }
+		ArtifactID rollArtifact(EArtifactClass type) override { return sharedRandomizer.rollArtifact(type); }
+		ArtifactID rollArtifact(std::set<ArtifactID> filtered) override { return sharedRandomizer.rollArtifact(std::move(filtered)); }
+
+		[[noreturn]] static const char * unsupportedMessage(const char * what)
+		{
+			throw std::logic_error(std::string("ParallelInitRandomizer: ") + what + "() is not supported during object initialization");
+		}
+
+		std::vector<ArtifactID> rollMarketArtifactSet() override { unsupportedMessage("rollMarketArtifactSet"); }
+		PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance *) override { unsupportedMessage("rollPrimarySkillForLevelup"); }
+		SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance *, const std::set<SecondarySkill> &) override { unsupportedMessage("rollSecondarySkillForLevelup"); }
+		std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance *) override { unsupportedMessage("rollSecondarySkills"); }
+	};
+}
+
 void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tRandomizing objects");
+
+	std::vector<CGObjectInstance *> serialObjects;
+	std::vector<CGObjectInstance *> parallelObjects;
+
 	for(const auto & object : map->getObjects())
 	{
-		object->pickRandomObject(gameRandomizer);
-
 		//handle Favouring Winds - mark tiles under it
 		if(object->ID == Obj::FAVORABLE_WINDS)
 		{
@@ -541,7 +745,33 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 				}
 			}
 		}
+
+		if(objectNeedsSerialRandomization(object))
+			serialObjects.push_back(object);
+		else
+			parallelObjects.push_back(object);
 	}
+
+	// Serial pass: towns first (existence dependency for CGDwelling), then artifacts and
+	// random-heroes (shared randomizer state) - see objectNeedsSerialRandomization().
+	for(auto * object : serialObjects)
+		object->pickRandomObject(gameRandomizer);
+
+	// Parallel pass: seed one private RNG per object up-front, serially and in fixed map
+	// order (so the result is reproducible regardless of actual thread scheduling), then
+	// randomize all of them concurrently.
+	std::vector<int> seeds(parallelObjects.size());
+	for(size_t i = 0; i < parallelObjects.size(); ++i)
+		seeds[i] = gameRandomizer.getDefault().nextInt();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, parallelObjects.size()), [&](const tbb::blocked_range<size_t> & r)
+	{
+		for(size_t i = r.begin(); i != r.end(); ++i)
+		{
+			ParallelObjectRandomizer localRandomizer(seeds[i]);
+			parallelObjects[i]->pickRandomObject(localRandomizer);
+		}
+	});
 
 	for(auto & obj : map->getObjects<CGPandoraBox>())
 		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
@@ -718,6 +948,11 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
 
+	PERF_ONLY(
+	auto profilingPoolStart = std::chrono::steady_clock::now();
+	int64_t profilingInitHeroTotalUs = 0;
+	)
+
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
 		CGHeroInstance * heroInPool = map->tryGetFromHeroPool(htype);
@@ -732,9 +967,17 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 			heroInPool = newHeroPtr.get();
 		}
 		map->generateUniqueInstanceName(heroInPool);
-		heroInPool->initHero(gameRandomizer);
+		PERF_MEASURE(profilingInitHeroTotalUs, heroInPool->initHero(gameRandomizer););
 		heroesPool->addHeroToPool(htype);
 	}
+
+	PERF_ONLY(
+	auto profilingPoolTotalUs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - profilingPoolStart).count();
+	logProfiling->info("initHeroes pool: %d heroes, total loop %d us, sum(initHero) %d us, avg(initHero) %d us",
+		static_cast<int>(heroesToCreate.size()), static_cast<int>(profilingPoolTotalUs), static_cast<int>(profilingInitHeroTotalUs),
+		heroesToCreate.empty() ? 0 : static_cast<int>(profilingInitHeroTotalUs / static_cast<int64_t>(heroesToCreate.size())));
+	CGHeroInstance::logAndResetInitProfilingStats();
+	)
 
 	for(auto & elem : map->disposedHeroes)
 		heroesPool->setAvailability(elem.heroId, elem.players);
@@ -1004,13 +1247,73 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
 
-	for(auto & obj : map->getObjects())
-		obj->initObj(gameRandomizer);
+	PERF_ONLY(
+	auto profilingStart = std::chrono::steady_clock::now();
+	std::map<std::string, int64_t> profilingPerTypeUs;
+	std::map<std::string, int64_t> profilingPerTypeCount;
+	// Per-thread accumulators: profilingPerTypeUs/Count below are plain (non-atomic) maps and
+	// are only ever touched from the main thread, after the parallel_for below has fully
+	// joined - see the combine_each() merge following it.
+	tbb::combinable<std::map<std::string, int64_t>> profilingPerTypeUsTL;
+	tbb::combinable<std::map<std::string, int64_t>> profilingPerTypeCountTL;
+	)
+
+	auto objects = map->getObjects();
+
+	// Seed one private RNG per object up-front, serially and in fixed map order (so the result
+	// is reproducible regardless of actual thread scheduling), then initialize all objects
+	// concurrently - same pattern as the parallel bucket in randomizeMapObjects() above.
+	// Artifact rolls are the one exception: they're delegated through to the shared
+	// gameRandomizer (now internally mutex-protected) rather than seed-split, since they share
+	// bias-tracking state across objects - see ParallelInitRandomizer for details/tradeoffs.
+	std::vector<int> seeds(objects.size());
+	for(size_t i = 0; i < objects.size(); ++i)
+		seeds[i] = gameRandomizer.getDefault().nextInt();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, objects.size()), [&](const tbb::blocked_range<size_t> & r)
+	{
+		for(size_t i = r.begin(); i != r.end(); ++i)
+		{
+			auto & obj = objects[i];
+			ParallelInitRandomizer localRandomizer(seeds[i], gameRandomizer);
+
+			PERF_ONLY(profilingPerTypeCountTL.local()[typeid(*obj).name()] += 1;)
+			PERF_MEASURE(profilingPerTypeUsTL.local()[typeid(*obj).name()], obj->initObj(localRandomizer););
+		}
+	});
+
+	PERF_ONLY(
+	profilingPerTypeCountTL.combine_each([&](const std::map<std::string, int64_t> & threadLocalMap)
+	{
+		for (auto & kv : threadLocalMap)
+			profilingPerTypeCount[kv.first] += kv.second;
+	});
+	profilingPerTypeUsTL.combine_each([&](const std::map<std::string, int64_t> & threadLocalMap)
+	{
+		for (auto & kv : threadLocalMap)
+			profilingPerTypeUs[kv.first] += kv.second;
+	});
+
+	auto profilingTotalUs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - profilingStart).count();
+	logProfiling->info("initMapObjects: %d objects, total %d us", static_cast<int>(objects.size()), static_cast<int>(profilingTotalUs));
+	for (auto & kv : profilingPerTypeUs)
+		logProfiling->info("  %s: n=%d us=%d", kv.first.c_str(), static_cast<int>(profilingPerTypeCount[kv.first]), static_cast<int>(kv.second));
+	Rewardable::Info::logAndResetInitProfilingStats();
+	)
 
 	logGlobal->debug("\tObject initialization done");
 	// getObjects<SeerHut>() already yields exactly seer huts + quest guards
 	for(auto & q : map->getObjects<SeerHut>())
 		q->setObjToKill();
+
+	// Deferred until every object exists (see CGMonolith::assignTeleportChannel comment).
+	// getObjects<CGMonolith>() also yields CGSubterraneanGate instances (same hierarchy), but
+	// those override assignTeleportChannel() as a no-op since they're paired below instead.
+	// Must run before CGSubterraneanGate::postInit() to keep channel ID allocation order
+	// identical to the previous initObj-time behavior.
+	for(auto & obj : map->getObjects<CGMonolith>())
+		obj->assignTeleportChannel();
+
 	CGSubterraneanGate::postInit(this); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized

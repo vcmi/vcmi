@@ -26,6 +26,19 @@
 
 #include <vstd/RNG.h>
 
+PERF_ONLY(
+static Rewardable::InfoConfigureProfilingStats infoConfigureProfilingStats;
+
+void Rewardable::Info::logAndResetInitProfilingStats()
+{
+	auto & s = infoConfigureProfilingStats;
+	logProfiling->info("configureObject phases (n=%d us): variables=%d rewards=%d messages=%d resetInfo=%d visitLimiter=%d",
+		static_cast<int>(s.calls.load()), static_cast<int>(s.variablesUs.load()), static_cast<int>(s.rewardsUs.load()),
+		static_cast<int>(s.messagesUs.load()), static_cast<int>(s.resetInfoUs.load()), static_cast<int>(s.visitLimiterUs.load()));
+	s.reset();
+}
+)
+
 namespace {
 	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier, EMetaText textSource = EMetaText::ADVOB_TXT )
 	{
@@ -439,57 +452,65 @@ void Rewardable::Info::configureRewards(
 
 void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb) const
 {
+	PERF_ONLY(infoConfigureProfilingStats.calls += 1;)
+
 	object.info.clear();
 	object.variables.values.clear();
 
-	configureVariables(object, gameRandomizer, cb, parameters["variables"]);
+	PERF_MEASURE(infoConfigureProfilingStats.variablesUs, configureVariables(object, gameRandomizer, cb, parameters["variables"]););
 
-	configureRewards(object, gameRandomizer, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, gameRandomizer, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, gameRandomizer, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
-
-	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
-	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
-	object.notVisitedTooltip = loadMessage(parameters["notVisitedTooltip"], TextIdentifier(objectTextID, "notVisitedTooltip"), EMetaText::GENERAL_TXT);
-	object.visitedTooltip = loadMessage(parameters["visitedTooltip"], TextIdentifier(objectTextID, "visitedTooltip"), EMetaText::GENERAL_TXT);
-
-	if (object.notVisitedTooltip.empty())
-		object.notVisitedTooltip.appendTextID("core.genrltxt.353");
-
-	if (object.visitedTooltip.empty())
-		object.visitedTooltip.appendTextID("core.genrltxt.352");
-
-	if (!parameters["onVisitedMessage"].isNull())
+	PERF_MEASURE(infoConfigureProfilingStats.rewardsUs,
 	{
-		Rewardable::VisitInfo onVisited;
-		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
-		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
-		replaceTextPlaceholders(onVisited.message, object.variables);
+		configureRewards(object, gameRandomizer, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+		configureRewards(object, gameRandomizer, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+		configureRewards(object, gameRandomizer, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	});
 
-		object.info.push_back(onVisited);
-	}
-
-	if (!parameters["onEmptyMessage"].isNull())
+	PERF_MEASURE(infoConfigureProfilingStats.messagesUs,
 	{
-		Rewardable::VisitInfo onEmpty;
-		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
-		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
-		replaceTextPlaceholders(onEmpty.message, object.variables);
+		object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
+		object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
+		object.notVisitedTooltip = loadMessage(parameters["notVisitedTooltip"], TextIdentifier(objectTextID, "notVisitedTooltip"), EMetaText::GENERAL_TXT);
+		object.visitedTooltip = loadMessage(parameters["visitedTooltip"], TextIdentifier(objectTextID, "visitedTooltip"), EMetaText::GENERAL_TXT);
 
-		object.info.push_back(onEmpty);
-	}
+		if (object.notVisitedTooltip.empty())
+			object.notVisitedTooltip.appendTextID("core.genrltxt.353");
 
-	if (!parameters["onGuardedMessage"].isNull())
-	{
-		Rewardable::VisitInfo onGuarded;
-		onGuarded.visitType = Rewardable::EEventType::EVENT_GUARDED;
-		onGuarded.message = loadMessage(parameters["onGuardedMessage"], TextIdentifier(objectTextID, "onGuarded"));
-		replaceTextPlaceholders(onGuarded.message, object.variables);
+		if (object.visitedTooltip.empty())
+			object.visitedTooltip.appendTextID("core.genrltxt.352");
 
-		object.info.push_back(onGuarded);
-	}
+		if (!parameters["onVisitedMessage"].isNull())
+		{
+			Rewardable::VisitInfo onVisited;
+			onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
+			onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
+			replaceTextPlaceholders(onVisited.message, object.variables);
 
-	configureResetInfo(object, gameRandomizer, object.resetParameters, parameters["resetParameters"]);
+			object.info.push_back(onVisited);
+		}
+
+		if (!parameters["onEmptyMessage"].isNull())
+		{
+			Rewardable::VisitInfo onEmpty;
+			onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
+			onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
+			replaceTextPlaceholders(onEmpty.message, object.variables);
+
+			object.info.push_back(onEmpty);
+		}
+
+		if (!parameters["onGuardedMessage"].isNull())
+		{
+			Rewardable::VisitInfo onGuarded;
+			onGuarded.visitType = Rewardable::EEventType::EVENT_GUARDED;
+			onGuarded.message = loadMessage(parameters["onGuardedMessage"], TextIdentifier(objectTextID, "onGuarded"));
+			replaceTextPlaceholders(onGuarded.message, object.variables);
+
+			object.info.push_back(onGuarded);
+		}
+	});
+
+	PERF_MEASURE(infoConfigureProfilingStats.resetInfoUs, configureResetInfo(object, gameRandomizer, object.resetParameters, parameters["resetParameters"]););
 
 	object.canRefuse = parameters["canRefuse"].Bool();
 	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
@@ -501,7 +522,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 		object.infoWindowType = EInfoWindowMode::AUTO;
 	else
 		object.infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
-	
+
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
@@ -511,7 +532,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 			break;
 		}
 	}
-	
+
 	auto selectMode = parameters["selectMode"].String();
 	for(int i = 0; i < Rewardable::SelectModeString.size(); ++i)
 	{
@@ -522,9 +543,11 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 		}
 	}
 
-	if (object.visitMode == Rewardable::VISIT_LIMITER)
-		configureLimiter(object, gameRandomizer, cb, object.visitLimiter, parameters["visitLimiter"]);
-
+	PERF_MEASURE(infoConfigureProfilingStats.visitLimiterUs,
+	{
+		if (object.visitMode == Rewardable::VISIT_LIMITER)
+			configureLimiter(object, gameRandomizer, cb, object.visitLimiter, parameters["visitLimiter"]);
+	});
 }
 
 bool Rewardable::Info::givesResources() const

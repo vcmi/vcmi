@@ -10,6 +10,7 @@
 #pragma once
 
 #include <vcmi/spells/Caster.h>
+#include <vstd/ProfilerMacros.h>
 
 #include "IOwnableObject.h"
 
@@ -254,6 +255,12 @@ public:
 	void initHero(IGameRandomizer & gameRandomizer, bool isFake = false);
 	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID, bool isFake = false);
 
+	PERF_ONLY(
+	/// Logs (via logProfiling) a phase-by-phase breakdown of time spent in initHero() calls
+	/// accumulated since the last call, then resets the accumulators. Diagnostic only.
+	static void logAndResetInitProfilingStats();
+	)
+
 	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
 	void initExp(vstd::RNG & rand);
@@ -375,3 +382,20 @@ public:
 			attachCommanderToArmy();
 	}
 };
+
+PERF_ONLY(
+struct HeroInitProfilingStats
+{
+	int64_t calls = 0;
+	int64_t appearanceSpellsUs = 0;
+	int64_t artifactsUs = 0;
+	int64_t primarySkillsUs = 0;
+	int64_t initArmyUs = 0;
+	int64_t expLevelUpUs = 0;
+	int64_t bonusParseUs = 0;
+	int64_t commanderUs = 0;
+	int64_t specialtyUs = 0;
+	int64_t secondarySkillsUs = 0;
+	int64_t finalUs = 0;
+};
+)

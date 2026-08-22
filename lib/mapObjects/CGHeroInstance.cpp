@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CGHeroInstance.h"
 
+#include <vstd/ProfilerMacros.h>
+
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
@@ -54,6 +56,20 @@
 #include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
 #include "CConfigHandler.h"
+
+PERF_ONLY(
+static HeroInitProfilingStats heroInitProfilingStats;
+
+void CGHeroInstance::logAndResetInitProfilingStats()
+{
+	auto & s = heroInitProfilingStats;
+	logProfiling->info("initHero phases (n=%d us): appearance/spells=%d artifacts=%d primarySkills=%d initArmy=%d expLevelUp=%d bonusParse=%d commander=%d specialty=%d secondarySkills=%d final=%d",
+		static_cast<int>(s.calls), static_cast<int>(s.appearanceSpellsUs), static_cast<int>(s.artifactsUs), static_cast<int>(s.primarySkillsUs),
+		static_cast<int>(s.initArmyUs), static_cast<int>(s.expLevelUpUs), static_cast<int>(s.bonusParseUs), static_cast<int>(s.commanderUs),
+		static_cast<int>(s.specialtyUs), static_cast<int>(s.secondarySkillsUs), static_cast<int>(s.finalUs));
+	s = HeroInitProfilingStats{};
+}
+)
 
 const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 
@@ -376,103 +392,135 @@ void CGHeroInstance::updateAppearance()
 void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 {
 	assert(validTypes(true));
-	
-	if (gender == EHeroGender::DEFAULT)
-		gender = getHeroType()->gender;
 
-	if (ID == Obj::HERO)
-	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-		appearance = handler->getTemplates().front();
-	}
+	PERF_ONLY(heroInitProfilingStats.calls += 1;)
 
-	if(!vstd::contains(spells, SpellID::PRESET))
+	PERF_MEASURE(heroInitProfilingStats.appearanceSpellsUs,
 	{
-		// hero starts with default spells
-		for(const auto & spellID : getHeroType()->spells)
-			spells.insert(spellID);
-	}
-	else //remove placeholder
-		spells -= SpellID::PRESET;
+		if (gender == EHeroGender::DEFAULT)
+			gender = getHeroType()->gender;
 
-	if(!vstd::contains(spells, SpellID::SPELLBOOK_PRESET))
-	{
-		// hero starts with default spellbook presence status
-		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook	&& !isFake)
+		if (ID == Obj::HERO)
 		{
-			auto artifact = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
-			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
+			appearance = handler->getTemplates().front();
 		}
-	}
-	else
-		spells -= SpellID::SPELLBOOK_PRESET;
 
-	if(!getArt(ArtifactPosition::MACH4) && !isFake)
-	{
-		auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);
-		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
-	}
-
-	if(!hasBonusFrom(BonusSource::HERO_BASE_SKILL))
-	{
-		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+		if(!vstd::contains(spells, SpellID::PRESET))
 		{
-			pushPrimSkill(static_cast<PrimarySkill>(g), getHeroClass()->primarySkillInitial[g]);
+			// hero starts with default spells
+			for(const auto & spellID : getHeroType()->spells)
+				spells.insert(spellID);
 		}
-	}
-	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1)) //set secondary skills to default
-		secSkills = getHeroType()->secSkillsInit;
+		else //remove placeholder
+			spells -= SpellID::PRESET;
+	});
 
-	setFormation(EArmyFormation::LOOSE);
-	if (!stacksCount()) //standard army//initial army
+	PERF_MEASURE(heroInitProfilingStats.artifactsUs,
 	{
-		initArmy(gameRandomizer.getDefault());
-	}
-	assert(validTypes());
+		if(!vstd::contains(spells, SpellID::SPELLBOOK_PRESET))
+		{
+			// hero starts with default spellbook presence status
+			if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook	&& !isFake)
+			{
+				auto artifact = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
+				putArtifact(ArtifactPosition::SPELLBOOK, artifact);
+			}
+		}
+		else
+			spells -= SpellID::SPELLBOOK_PRESET;
 
-	if (patrol.patrolling)
-		patrol.initialPos = visitablePos();
+		if(!getArt(ArtifactPosition::MACH4) && !isFake)
+		{
+			auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);
+			putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
+		}
+	});
 
-	if(exp == UNINITIALIZED_EXPERIENCE)
+	PERF_MEASURE(heroInitProfilingStats.primarySkillsUs,
 	{
-		initExp(gameRandomizer.getDefault());
-	}
-	else
+		if(!hasBonusFrom(BonusSource::HERO_BASE_SKILL))
+		{
+			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+			{
+				pushPrimSkill(static_cast<PrimarySkill>(g), getHeroClass()->primarySkillInitial[g]);
+			}
+		}
+		if(secSkills.size() == 1 && secSkills[0] == (std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1))) //set secondary skills to default
+			secSkills = getHeroType()->secSkillsInit;
+	});
+
+	PERF_MEASURE(heroInitProfilingStats.initArmyUs,
 	{
-		levelUpAutomatically(gameRandomizer);
-	}
+		setFormation(EArmyFormation::LOOSE);
+		if (!stacksCount()) //standard army//initial army
+		{
+			initArmy(gameRandomizer.getDefault());
+		}
+		assert(validTypes());
+
+		if (patrol.patrolling)
+			patrol.initialPos = visitablePos();
+	});
+
+	PERF_MEASURE(heroInitProfilingStats.expLevelUpUs,
+	{
+		if(exp == UNINITIALIZED_EXPERIENCE)
+		{
+			initExp(gameRandomizer.getDefault());
+		}
+		else
+		{
+			levelUpAutomatically(gameRandomizer);
+		}
+	});
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
-	// must be done separately from global bonuses since recruitable heroes in taverns 
+	// must be done separately from global bonuses since recruitable heroes in taverns
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : LIBRARY->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
-	const JsonNode & baseBonuses = cb->getSettings().getValue(EGameSettings::BONUSES_PER_HERO);
-	for(const auto & b : baseBonuses.Struct())
+	PERF_MEASURE(heroInitProfilingStats.bonusParseUs,
 	{
-		auto bonus = JsonUtils::parseBonus(b.second);
-		bonus->source = BonusSource::HERO_BASE_SKILL;
-		bonus->sid = BonusSourceID(id);
-		bonus->duration = BonusDuration::PERMANENT;
-		addNewBonus(bonus);
-	}
+		const JsonNode & baseBonuses = cb->getSettings().getValue(EGameSettings::BONUSES_PER_HERO);
+		for(const auto & b : baseBonuses.Struct())
+		{
+			auto bonus = JsonUtils::parseBonus(b.second);
+			bonus->source = BonusSource::HERO_BASE_SKILL;
+			bonus->sid = BonusSourceID(id);
+			bonus->duration = BonusDuration::PERMANENT;
+			addNewBonus(bonus);
+		}
+	});
 
-	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
+	PERF_MEASURE(heroInitProfilingStats.commanderUs,
 	{
-		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
-		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
-		commander->giveTotalStackExperience(exp); //after our exp is set
-	}
+		if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
+		{
+			commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
+			commander->setArmy(getArmy()); //TODO: separate function for setting commanders
+			commander->giveTotalStackExperience(exp); //after our exp is set
+		}
+	});
 
-	//copy active (probably growing) bonuses from hero prototype to hero object
-	for(const std::shared_ptr<Bonus> & b : getHeroType()->specialty)
-		addNewBonus(b);
+	PERF_MEASURE(heroInitProfilingStats.specialtyUs,
+	{
+		//copy active (probably growing) bonuses from hero prototype to hero object
+		for(const std::shared_ptr<Bonus> & b : getHeroType()->specialty)
+			addNewBonus(b);
+	});
 
-	//initialize bonuses
-	recreateSecondarySkillsBonuses();
+	PERF_MEASURE(heroInitProfilingStats.secondarySkillsUs,
+	{
+		//initialize bonuses
+		recreateSecondarySkillsBonuses();
+	});
 
-	movement = movementPointsLimit();
-	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
+	PERF_MEASURE(heroInitProfilingStats.finalUs,
+	{
+		movement = movementPointsLimit();
+		mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
+	});
 }
 
 void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
