@@ -530,11 +530,13 @@ void CGameHandler::handleReceivedPack(GameConnectionID connection, CPackForServe
 
 		if(result)
 			logGlobal->trace("Message %s successfully applied!", typeid(pack).name());
+		else if(dynamic_cast<SaveGame *>(&pack))
+			logGlobal->warn("Failed to apply save request");
 		else
 			complain((boost::format("Got false in applying %s... that request must have been fishy!")
 				% typeid(pack).name()).str());
 
-		sendPackageResponse(true);
+		sendPackageResponse(result);
 	}
 }
 
@@ -776,6 +778,36 @@ void CGameHandler::onNewTurn()
 void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
+
+	if(resume)
+	{
+		const bool completedGame = std::ranges::any_of(gameState().players, [](const auto & playerState)
+		{
+			return playerState.second.human && playerState.second.status == EPlayerStatus::WINNER;
+		});
+
+		if(completedGame)
+		{
+			StatisticDataSet finalStatistic = *statistics;
+			addStatistics(finalStatistic);
+
+			for(const auto & [player, state] : gameState().players)
+			{
+				if(!state.human || state.status == EPlayerStatus::INGAME)
+					continue;
+
+				PlayerEndsGame gameEnd;
+				gameEnd.player = player;
+				gameEnd.victoryLossCheckResult = state.status == EPlayerStatus::WINNER
+					? EVictoryLossCheckResult::victory({}, {})
+					: EVictoryLossCheckResult::defeat({}, {});
+				gameEnd.statistic = finalStatistic;
+				gameEnd.resumeGameEnd = true;
+				sendAndApply(gameEnd);
+			}
+			return;
+		}
+	}
 
 	if (!resume)
 	{
@@ -1807,13 +1839,10 @@ void pruneAutosaves(const ResourcePath & currentAutosave, int countLimit)
 
 }
 
-void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit)
+bool CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit)
 {
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
-	const auto savefname = savePath.getOriginalName() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
-
 	std::string filenameWithoutPath;
 	auto pos = filename.find_last_of("/\\");
 	if (pos != std::string::npos)
@@ -1825,6 +1854,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
+		const auto savefname = savePath.getOriginalName() + ".vsgm1";
+		CResourceHandler::get("local")->createResource(savefname);
+
 		CSaveFile save;
 		gameState().saveGame(save);
 		logGlobal->info("Saving server state");
@@ -1841,6 +1873,7 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 			sendAndApply(iw);
 		}
 		logGlobal->info("Game has been successfully saved!");
+		return true;
 	}
 	catch(std::exception &e)
 	{
@@ -1851,6 +1884,7 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 			sendAndApply(iw);
 		}
 		logGlobal->error("Failed to save game: %s", e.what());
+		return false;
 	}
 }
 
@@ -3893,10 +3927,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 
-			if(p->human)
-			{
-				gameServer().setState(EServerState::SHUTDOWN);
-			}
+			// Keep the server available for a post-victory save. It will shut down when the host disconnects.
 		}
 		else
 		{

@@ -12,6 +12,7 @@
 
 #include "Client.h"
 #include "CPlayerInterface.h"
+#include "lobby/CSavingScreen.h"
 #include "windows/GUIClasses.h"
 #include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
@@ -405,7 +406,8 @@ void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 
 void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 {
-	callAllInterfaces(cl, &IGameEventsReceiver::gameOver, pack.player, pack.victoryLossCheckResult);
+	if(!pack.resumeGameEnd)
+		callAllInterfaces(cl, &IGameEventsReceiver::gameOver, pack.player, pack.victoryLossCheckResult);
 
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
@@ -420,7 +422,27 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 		}
 
 		if(!pack.silentEnd)
-			GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		{
+			auto finishGame = [player = pack.player, victory = pack.victoryLossCheckResult.victory(), statistic = pack.statistic]()
+			{
+				GAME->server().showHighScoresAndEndGameplay(player, victory, statistic);
+			};
+
+			const bool completedGame = std::ranges::any_of(cl.gameState().players, [](const auto & playerState)
+			{
+				return playerState.second.status == EPlayerStatus::WINNER;
+			});
+			const bool showSaveDialog = !pack.resumeGameEnd
+				&& completedGame
+				&& GAME->server().isHost()
+				&& settings["general"]["showSaveDialogOnVictory"].Bool()
+				&& settings["session"]["testmap"].isNull();
+
+			if(showSaveDialog)
+				ENGINE->windows().createAndPushWindow<CSavingScreen>(false, std::move(finishGame));
+			else
+				finishGame();
+		}
 		else
 		{
 			GAME->server().endGameplay();
@@ -929,9 +951,9 @@ void ApplyClientNetPackVisitor::visitEndAction(EndAction & pack)
 
 void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 {
-	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::requestRealized, &pack);
 	if(!cl.waitingRequest.tryRemovingElement(pack.requestID))
 		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
+	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::requestRealized, &pack);
 }
 
 void ApplyClientNetPackVisitor::visitQueryResolved(QueryResolved & pack)

@@ -16,6 +16,7 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 
@@ -28,8 +29,10 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
 
-CSavingScreen::CSavingScreen()
+CSavingScreen::CSavingScreen(bool pauseGame, std::function<void()> onClose)
 	: CSelectionBase(ESelectionScreen::saveGame)
+	, pauseGame(pauseGame)
+	, onClose(std::move(onClose))
 {
 	OBJECT_CONSTRUCTION;
 	center(pos);
@@ -46,7 +49,8 @@ CSavingScreen::CSavingScreen()
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 	
-	GAME->interface()->gamePause(true);
+	if(pauseGame)
+		GAME->interface()->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -73,8 +77,14 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 void CSavingScreen::close()
 {
-	GAME->interface()->gamePause(false);
+	if(pauseGame)
+		GAME->interface()->gamePause(false);
+
+	auto closeCallback = std::move(onClose);
 	CSelectionBase::close();
+
+	if(closeCallback)
+		ENGINE->dispatchMainThread(std::move(closeCallback));
 }
 
 void CSavingScreen::saveGame()
@@ -86,9 +96,26 @@ void CSavingScreen::saveGame()
 
 	auto overWrite = [this, path]() -> void
 	{
-		tabSel->rememberSave(path);
-		GAME->interface()->cb->save(path, true);
-		close();
+		if(!onClose)
+		{
+			tabSel->rememberSave(path);
+			GAME->interface()->cb->save(path, true);
+			close();
+			return;
+		}
+
+		saving = true;
+		pendingSavePath = path;
+		buttonStart->block(true);
+		buttonBack->block(true);
+		GAME->interface()->saveGame(path, [](bool success)
+		{
+			ENGINE->dispatchMainThread([success]()
+			{
+				if(auto savingScreen = ENGINE->windows().topWindow<CSavingScreen>())
+					savingScreen->saveFinished(success);
+			});
+		});
 	};
 
 	auto confirmOverwrite = [this, path, overWrite]()
@@ -112,4 +139,25 @@ void CSavingScreen::saveGame()
 	}
 	else
 		confirmOverwrite();
+}
+
+void CSavingScreen::saveFinished(bool success)
+{
+	if(!saving)
+		return;
+
+	saving = false;
+	if(success)
+	{
+		tabSel->rememberSave(pendingSavePath);
+		close();
+		return;
+	}
+
+	buttonStart->block(false);
+	buttonBack->block(false);
+
+	std::string message = LIBRARY->generaltexth->allTexts[9];
+	boost::algorithm::replace_first(message, "%s", tabSel->inputName->getText());
+	GAME->interface()->showInfoDialog(message);
 }
