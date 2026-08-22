@@ -1525,27 +1525,27 @@ Je nutné vybrat offline instalátor z GOGu.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidává vylepšení rozhraní a hratelnosti, například lepší rozhraní pro náhodné mapy, tlačítka pro opětovnou návštěvu a vyhledávání na mapě dobrodružství, rychlou výměnu mezi hrdiny, ikony bonusů a imunit a akce v bitvě</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyladěné fanouškovské rozšíření, které přidává města Zátoku, Továrnu a Bulwark, nové kampaně, hrdiny, artefakty, objekty na mapě, dovednosti Interference a Runes, úpravy vyvážení a nové terény, přičemž zůstává věrné Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozšiřuje Heroes III o velitele, zkušenosti oddílů a artefakty jednotek, mnoho nových artefaktů pro hrdiny a velitele, další systémy rozvoje a interaktivní objekty na mapě dobrodružství</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Tears of Ashan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Fanouškovské rozšíření inspirované Heroes V, které do Heroes III přidává alternativní vylepšení jednotek, magii světla a temnoty, dovednost Gating, vyšší limit sekundárních dovedností a přepracovanou hratelnost frakce Conflux</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
@@ -1794,7 +1794,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litevština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
