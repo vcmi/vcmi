@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{A sebezhetőség gömbje}\nSemlegesíti minden lény természetes varázsellenállását a csatamezőn.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{További támadások}\nEz a lény még ${val} alkalommal támadhat.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{További ellencsapások}\nEz a lény még ${val} alkalommal tehet ellencsapást.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Szomszédos varázshasználó}\nEz a lény képes elmondani a(z) ${subtype.spell} varázslatot a célpontja mellett állva.",
