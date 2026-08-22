@@ -14,6 +14,7 @@
 #include <SDL_gamecontroller.h>
 
 #include "../../lib/Point.h"
+#include "ControllerPromptFamily.h"
 #include "../gui/Shortcut.h"
 
 /// Class that handles game controller input from SDL events
@@ -24,6 +25,7 @@ class InputSourceGameController
 
 	std::map<int, GameControllerPtr> gameControllerMap;
 	std::set<SDL_GameControllerAxis> pressedAxes;
+	int activeController = -1;
 
 	std::chrono::steady_clock::time_point lastCheckTime;
 	double cursorAxisValueX;
@@ -58,6 +60,9 @@ class InputSourceGameController
 
 public:
 	InputSourceGameController();
+	void setActiveController(int instanceID);
+	bool isAxisMotionActive(const SDL_ControllerAxisEvent & axis) const;
+	ControllerPrompt::Family getActiveControllerPromptFamily() const;
 	void tryOpenAllGameControllers();
 	void handleEventDeviceAdded(const SDL_ControllerDeviceEvent & device);
 	void handleEventDeviceRemoved(const SDL_ControllerDeviceEvent & device);
