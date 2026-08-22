@@ -186,12 +186,6 @@ public:
 	void addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID bid);
 
-	/// Returns damage range for secondary towers of this town
-	DamageRange getTowerDamageRange() const;
-
-	/// Returns damage range for central tower(keep) of this town
-	DamageRange getKeepDamageRange() const;
-
 	const CTown * getTown() const;
 	const CFaction * getFaction() const;
 

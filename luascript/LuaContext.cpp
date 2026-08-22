@@ -94,6 +94,16 @@ int LuaContext::luaPrint(lua_State *L) {
 	return 0;
 }
 
+std::shared_ptr<LuaContext> LuaContext::of(const Pool & pool, const Script * script)
+{
+	auto context = std::dynamic_pointer_cast<LuaContext>(pool.getContext(script));
+
+	if(!context)
+		throw std::runtime_error("Failed to execute Lua script '" + script->getIdentifier() + "'! Context not available!");
+
+	return context;
+}
+
 LuaContext::LuaContext(const LuaScriptInstance * source, const Environment * env_):
 	L(luaL_newstate()),
 	script(source),

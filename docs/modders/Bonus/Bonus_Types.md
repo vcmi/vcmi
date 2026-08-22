@@ -667,6 +667,8 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 ### VULNERABLE_FROM_BACK
 
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/vulnerableFromBack.lua`
+
 When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
 
 - val: additional damage for attacks from behind, percentage (0-100)
@@ -679,6 +681,8 @@ Affected unit will deal more damage when attacking specific creature
 - val - additional damage, percentage
 
 ### HATES_TRAIT
+
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/hatesTrait.lua`
 
 Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
 
@@ -788,6 +792,8 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeAll: all damage will be reduced
 
 ### DAMAGE_RECEIVED_CAP
+
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/damageReceivedCap.lua`
 
 Limits maximal damage received by affected units based on max hp (HotA war machines)
 
@@ -940,11 +946,15 @@ Affected unit will attack additional times if killed creatures in target unit du
 
 ### ENEMY_ATTACK_REDUCTION
 
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/enemyAttackReduction.lua`
+
 Affected unit will ignore specified percentage of attacked unit attack (Nix)
 
 - val: amount of attack points to ignore, percentage
 
 ### REVENGE
+
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/revenge.lua`
 
 Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle (formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`. Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
 

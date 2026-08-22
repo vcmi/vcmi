@@ -195,4 +195,13 @@ EnumGroup<BonusValueType> Enums::exportBonusValueType() const
 	}};
 }
 
+EnumGroup<BonusLimitEffect> Enums::exportBonusLimitEffect() const
+{
+	return {{
+		{ "noLimit",            BonusLimitEffect::NO_LIMIT,             "Applies to every kind of combat." },
+		{ "onlyDistanceFight",  BonusLimitEffect::ONLY_DISTANCE_FIGHT,  "Applies only while shooting." },
+		{ "onlyMeleeFight",     BonusLimitEffect::ONLY_MELEE_FIGHT,     "Applies only in melee." },
+	}};
+}
+
 }

@@ -78,138 +78,21 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		return;
 	}
 
-	switch (type)
+	const auto entityType = bonusSubtypeEntityType(type);
+
+	if(entityType == EntityTypeEnum::NONE)
 	{
-		case BonusType::MAGIC_SCHOOL_SKILL:
-		case BonusType::SPELL_DAMAGE:
-		case BonusType::SPELLS_OF_SCHOOL:
-		case BonusType::SPELL_DAMAGE_REDUCTION:
-		case BonusType::SPELL_SCHOOL_IMMUNITY:
-		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
-			{
-				subtype = SpellSchool(identifier);
-			});
-			break;
-		}
-		case BonusType::HATES_TRAIT:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "bonus", node, [&subtype](int32_t identifier)
-			{
-				subtype = BonusType(identifier);
-			});
-			break;
-		}
-		case BonusType::NO_TERRAIN_PENALTY:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
-			{
-				subtype = TerrainId(identifier);
-			});
-			break;
-		}
-		case BonusType::COMBAT_EVENT_TRIGGER:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "script", node, [&subtype](int32_t identifier)
-			{
-				subtype = ScriptID(identifier);
-			});
-			break;
-		}
-		case BonusType::PRIMARY_SKILL:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
-			{
-				subtype = PrimarySkill(identifier);
-			});
-			break;
-		}
-		case BonusType::IMPROVED_NECROMANCY:
-		case BonusType::HERO_GRANTS_ATTACKS:
-		case BonusType::BONUS_DAMAGE_CHANCE:
-		case BonusType::BONUS_DAMAGE_PERCENTAGE:
-		case BonusType::SPECIAL_UPGRADE:
-		case BonusType::HATE:
-		case BonusType::MANUAL_CONTROL:
-		case BonusType::SKELETON_TRANSFORMER_TARGET:
-		case BonusType::DEITYOFFIRE:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
-			{
-				subtype = CreatureID(identifier);
-			});
-			break;
-		}
-		case BonusType::SPELL_IMMUNITY:
-		case BonusType::SPELL_DURATION:
-		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
-		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
-		case BonusType::SPECIAL_SPELL_LEV:
-		case BonusType::SPECIAL_SPELL_SCALING:
-		case BonusType::SPECIFIC_SPELL_DAMAGE:
-		case BonusType::SPECIFIC_SPELL_RANGE:
-		case BonusType::SPELL:
-		case BonusType::OPENING_BATTLE_SPELL:
-		case BonusType::SPELL_LIKE_ATTACK:
-		case BonusType::CATAPULT:
-		case BonusType::CATAPULT_EXTRA_SHOTS:
-		case BonusType::HEALER:
-		case BonusType::SPELLCASTER:
-		case BonusType::ENCHANTER:
-		case BonusType::SPELL_AFTER_ATTACK:
-		case BonusType::SPELL_BEFORE_ATTACK:
-		case BonusType::SPECIFIC_SPELL_POWER:
-		case BonusType::MORE_DAMAGE_FROM_SPELL:
-		case BonusType::ADJACENT_SPELLCASTER:
-		case BonusType::NOT_ACTIVE:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
-			{
-				subtype = SpellID(identifier);
-			});
-			break;
-		}
-		case BonusType::GENERATE_RESOURCE:
-		case BonusType::RESOURCES_CONSTANT_BOOST:
-		case BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
-			{
-				subtype = GameResID(identifier);
-			});
-			break;
-		}
-		case BonusType::MOVEMENT:
-		case BonusType::WATER_WALKING:
-		case BonusType::FLYING_MOVEMENT:
-		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
-		case BonusType::CREATURE_DAMAGE:
-		case BonusType::FLYING:
-		case BonusType::FIRST_STRIKE:
-		case BonusType::FREE_SHOOTING:
-		case BonusType::GENERAL_DAMAGE_REDUCTION:
-		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::REBIRTH:
-		case BonusType::VISIONS:
-		case BonusType::SPELLS_OF_LEVEL: // spell level
-		case BonusType::CREATURE_GROWTH: // creature level
-		case BonusType::ON_COMBAT_EVENT:
-		case BonusType::ALIGNMENT_MIX: // alignment
-		{
-			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
-			{
-				subtype = BonusCustomSubtype(identifier);
-			});
-			break;
-		}
-		default:
-		{
-			logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
-			subtype =  BonusSubtypeID();
-		}
+		logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
+		subtype = BonusSubtypeID();
+		return;
 	}
+
+	// deferred, unlike the runtime decodeBonusSubtype: while content loads the identifier this
+	// names may belong to a mod that has not been read yet
+	LIBRARY->identifiers()->requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
+	{
+		subtype = bonusSubtypeOf(entityType, identifier);
+	});
 }
 
 static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value)

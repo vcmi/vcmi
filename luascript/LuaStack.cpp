@@ -88,6 +88,11 @@ void LuaStack::push(bool value)
 	lua_pushboolean(L, value);
 }
 
+void LuaStack::push(double value)
+{
+	lua_pushnumber(L, value);
+}
+
 void LuaStack::push(const char * value)
 {
 	lua_pushstring(L, value);

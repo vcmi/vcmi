@@ -18,12 +18,14 @@
 #include "../../networkPacks/TradeItem.h"
 #include "../../rewardable/Info.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 class CTown;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
 /// contains all mechanics-related data about town structures
-class DLL_LINKAGE CBuilding
+class DLL_LINKAGE CBuilding : public scripting::ApiRawPointer<CBuilding>
 {
 	std::string modScope;
 	std::string identifier;

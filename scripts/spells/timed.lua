@@ -33,9 +33,7 @@ end
 
 --- Shifts every buffered bonus value by a per-target-tier amount (weakness/slayer-style).
 function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
-	local peculiar = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_PECULIAR_ENCHANT" and b:getSubtype() == spellKey
-	end)
+	local peculiar = hero:getBonuses({type = "SPECIAL_PECULIAR_ENCHANT", subtype = spellKey})
 	if peculiar:size() == 0 then return end
 
 	local bonus = peculiar:getBonus(1)
@@ -61,9 +59,7 @@ end
 
 --- Adds a flat amount to every buffered bonus value (Aenain-style).
 function Script:applyAddValueEnchant(mechanics, hero, buffer, tier, spellKey)
-	local addVal = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_ADD_VALUE_ENCHANT" and b:getSubtype() == spellKey
-	end)
+	local addVal = hero:getBonuses({type = "SPECIAL_ADD_VALUE_ENCHANT", subtype = spellKey})
 	if addVal:size() == 0 then return end
 
 	local addAmount = addVal:getBonus(1):getParametersAsNumber()
@@ -74,9 +70,7 @@ end
 
 --- Overwrites every buffered bonus value with a fixed amount (Daremyth-style).
 function Script:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)
-	local fixedVal = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_FIXED_VALUE_ENCHANT" and b:getSubtype() == spellKey
-	end)
+	local fixedVal = hero:getBonuses({type = "SPECIAL_FIXED_VALUE_ENCHANT", subtype = spellKey})
 	if fixedVal:size() == 0 then return end
 
 	local fixedAmount = fixedVal:getBonus(1):getParametersAsNumber()
@@ -88,9 +82,7 @@ end
 --- Scales every buffered bonus value by a per-target-tier percentage (Solmyr-style
 --- SPECIAL_SPELL_SCALING, matching CGHeroInstance::getSpellBonus but for buff/debuff vals).
 function Script:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
-	local scaling = hero:getBonuses(function(b)
-		return b:getType() == "SPECIAL_SPELL_SCALING" and b:getSubtype() == spellKey
-	end)
+	local scaling = hero:getBonuses({type = "SPECIAL_SPELL_SCALING", subtype = spellKey})
 	if scaling:size() == 0 then return end
 
 	local percent = scaling:getBonus(1):getVal() * math.floor(hero:getLevel() / tier)

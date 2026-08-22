@@ -18,6 +18,7 @@
 
 struct CObstacleInstance;
 class CBattleInfoCallback;
+class CGTownInstance;
 class Creature;
 
 namespace scripting::api
@@ -41,8 +42,10 @@ public:
 	static int getFieldWidth(const IBattleInfoCallback & object);
 	static bool hasPenaltyOnLine(const IBattleInfoCallback & object, BattleHex from, BattleHex dest, bool checkWall, bool checkMoat);
 	static bool isMeleeAttackPossible(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender);
-	static bool hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target);
-	static bool hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target);
+	static bool hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex);
+	static bool hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex);
+	static const CGTownInstance * getDefendedTown(const IBattleInfoCallback & object);
+	static bool isToReverse(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender, std::optional<BattleHex> attackerHex, std::optional<BattleHex> defenderHex);
 	static const battle::Unit * getUnitByPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyAlive);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getAllObstacles(const IBattleInfoCallback & object);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getObstaclesOnPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyBlocking);

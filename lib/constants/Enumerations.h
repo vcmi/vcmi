@@ -172,26 +172,6 @@ enum class PlayerRelations : int8_t
 	SAME_PLAYER
 };
 
-enum class EMetaclass : int8_t
-{
-	INVALID = 0,
-	ARTIFACT,
-	CREATURE,
-	FACTION,
-	EXPERIENCE,
-	HERO,
-	HEROCLASS,
-	LUCK,
-	MANA,
-	MORALE,
-	MOVEMENT,
-	OBJECT,
-	PRIMARY_SKILL,
-	SECONDARY_SKILL,
-	SPELL,
-	RESOURCE
-};
-
 enum class EHealLevel: int8_t
 {
 	HEAL,
@@ -278,4 +258,5 @@ enum class CombatEventType : int8_t
 	UNIT_SPELLCAST = 9,
 	BATTLE_START = 10,
 	ROUND_START = 11,
+	BATTLE_SETUP = 12,
 };

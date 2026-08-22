@@ -59,6 +59,11 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 
 void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 {
+	// before anything acts and before tactics, so that a unit whose stats depend on the battle it
+	// finds itself in - an arrow tower reading its town - is right from the first frame the player sees
+	for(const CStack * stack : battle.battleGetAllStacks(true))
+		owner->processBattleEventTriggers(battle, CombatEventType::BATTLE_SETUP, stack, nullptr);
+
 	tryPlaceMoats(battle);
 
 	gameHandler->turnTimerHandler->onBattleStart(battle.getBattle()->getBattleID());

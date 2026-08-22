@@ -3,31 +3,27 @@ local BattleLog = require("battleLog")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
-function Script:sumBonusVal(unit, filterFn)
-	local total = 0
-	local list = unit:getBonuses(filterFn)
-	for i = 1, list:size() do
-		total = total + list:getBonus(i):getVal()
-	end
-	return total
-end
-
 function Script:isReceptive(mechanics, unit)
 	local spell = mechanics:getSpell()
 	if spell:isMagical() then
-		if self:sumBonusVal(unit, function(b)
-			return b:getType() == "SPELL_DAMAGE_REDUCTION" and b:getSubtype() == "any"
-		end) >= 100 then
+		if unit:getBonusesValue({type = "SPELL_DAMAGE_REDUCTION", subtype = "any"}) >= 100 then
 			return false
 		end
 	end
+	local reductions = unit:getBonuses({type = "SPELL_DAMAGE_REDUCTION"})
 	for _, school in ipairs(spell:getSchools()) do
-		if self:sumBonusVal(unit, function(b)
+		-- the subtype of each names a school, and telling apart the school it names from the "any"
+		-- that covers all of them is not something the filter can ask for
+		local matching = reductions:filter(function(b)
 			local sub = b:getSubtype()
 			if sub == "any" then return false end
-			return b:getType() == "SPELL_DAMAGE_REDUCTION"
-				and LIBRARY:getSpellSchoolByName(sub) == school
-		end) >= 100 then
+			return LIBRARY:getSpellSchoolByName(sub) == school
+		end)
+		local total = 0
+		for i = 1, matching:size() do
+			total = total + matching:getBonus(i):getVal()
+		end
+		if total >= 100 then
 			return false
 		end
 	end

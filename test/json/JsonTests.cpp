@@ -207,3 +207,28 @@ TEST_F(ScriptSchemaTest, spellEffectNeedsNoDescriptionOrPriority)
 		"schema" : { "properties" : {}, "additionalProperties" : false }
 	})"));
 }
+
+TEST(JsonTest, floatsMatchTheNearestDouble)
+{
+	constexpr char text[] = R"({ "a" : 0.7, "b" : 1.75, "c" : -0.15, "d" : 1234.5678, "e" : 1e3 })";
+
+	JsonNode json(text, std::size(text), "Test");
+
+	EXPECT_EQ(json["a"].Float(), 0.7);
+	EXPECT_EQ(json["b"].Float(), 1.75);
+	EXPECT_EQ(json["c"].Float(), -0.15);
+	EXPECT_EQ(json["d"].Float(), 1234.5678);
+	EXPECT_EQ(json["e"].Float(), 1e3);
+}
+
+TEST(JsonTest, floatsWithMoreDigitsThanADoubleHoldsDoNotOverflow)
+{
+	constexpr char text[] = R"({ "a" : 0.12345678901234567890123456789, "b" : 9007199254740993.5 })";
+
+	JsonNode json(text, std::size(text), "Test");
+
+	// digits past what a double holds are dropped, so the value is only near - what matters is that
+	// gathering them never overflows the mantissa into a number of the wrong magnitude or sign
+	EXPECT_NEAR(json["a"].Float() / 0.12345678901234567890123456789, 1.0, 1e-15);
+	EXPECT_NEAR(json["b"].Float() / 9007199254740993.5, 1.0, 1e-15);
+}

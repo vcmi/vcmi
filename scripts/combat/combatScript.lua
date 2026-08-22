@@ -8,7 +8,7 @@ Script.type = "combatScript"
 ---
 --- The handlers, all of them `function Script:on<Event>(server, battle, unit, other, payload)`:
 --- onBeforeAttack, onAfterAttack, onBeforeAttacked, onAfterAttacked, onWait, onDefend,
---- onBeforeMove, onAfterMove, onUnitSpellcast, onBattleStart, onRoundStart.
+--- onBeforeMove, onAfterMove, onUnitSpellcast, onBattleSetup, onBattleStart, onRoundStart.
 --- See docs/modders/Lua/Combat_Event_Scripts.md for what each of them means.
 ---
 --- In every handler `unit` is the bearer of the bonus and `other` is the unit on the opposite
