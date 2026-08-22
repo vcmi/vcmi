@@ -284,8 +284,8 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 	if(moveType == EPathNodeAction::BLOCKING_VISIT)
 		return {};
 
-	// flying movement sound
-	if(hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
+	// flying movement sound, unless hero is actually on a boat
+	if(hero->hasBonusOfType(BonusType::FLYING_MOVEMENT) && !hero->inBoat())
 		return AudioPath::builtin("HORSE10.wav");
 
 	auto prevTile = GAME->interface()->cb->getTile(posPrev);
