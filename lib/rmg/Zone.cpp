@@ -83,6 +83,26 @@ void Zone::setPos(const int3 &Pos)
 	pos = Pos;
 }
 
+int3 Zone::getGridPosition() const
+{
+	return gridPosition;
+}
+
+void Zone::setGridPosition(const int3 & cell)
+{
+	gridPosition = cell;
+}
+
+float3 Zone::getPlacementCenter() const
+{
+	return placementCenter;
+}
+
+void Zone::setPlacementCenter(const float3 & c)
+{
+	placementCenter = c;
+}
+
 ThreadSafeProxy<rmg::Area> Zone::area()
 {
 	return ThreadSafeProxy<rmg::Area>(dArea, areaMutex);

@@ -23,6 +23,11 @@ class Zone;
 class CZonePlacer;
 class IGameInfoCallback;
 
+namespace rmg
+{
+class ConnectionReport;
+}
+
 using JsonVector = std::vector<JsonNode>;
 
 /// The map generator creates a map randomly.
@@ -51,6 +56,19 @@ public:
 		std::vector<int> questRewardValues;
 		int seerHutValue;
 		bool singleThread;
+		int zonePlacementAttempts;
+		int zonePlacementScoreDirect;
+		int zonePlacementScoreGate;
+		int zonePlacementScoreMonolith;
+		bool zonePlacementHexGrid;
+		bool zonePlacementHubFirst;
+		bool zonePlacementSaPolish;
+		float zonePlacementCrossAlignWeight;
+		bool zonePlacementCapacityBalance;
+		int zonePlacementCapacityIterations;
+		float zonePlacementCapacityGain;
+		int zonePlacementMaxGateDistance;
+		bool zonePlacementRandomOrientation;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
@@ -63,6 +81,14 @@ public:
 	std::unique_ptr<CMap> generate();
 
 	int getNextMonlithIndex();
+
+	/// Reserve a subterranean gate pair at the given tiles (on different levels). In-game gates pair by
+	/// nearest 2D distance (CGSubterraneanGate::postInit), so a pair placed off a shared column must stay
+	/// each other's nearest gate. Validates the candidate against all previously reserved gates and, if it
+	/// would keep every gate paired with its intended partner, commits it and returns true. Thread-safe;
+	/// called from the parallel connection-placement phase. posA/posB are final map positions.
+	bool reserveGatePair(const int3 & posA, const int3 & posB);
+
 	int getPrisonsRemaining() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
@@ -71,6 +97,14 @@ public:
 	void unbanQuestArt(const ArtifactID & id);
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
+
+	rmg::ConnectionReport & getConnectionReport();
+
+	/// Debug metric: how far zones ended up from their intended (template-proportional) tile share.
+	/// For each zone ratio = actualTiles / expectedTiles (expected = level tiles * size^2 / sum size^2);
+	/// returns the smallest and largest ratio across all zones (1.0 = exactly as intended). false if
+	/// unavailable. Captured during generate() before the zones are torn down, so call after generate().
+	bool zoneSizeDeviation(double & minRatio, double & maxRatio) const;
 
 	int getRandomSeed() const;
 	
@@ -81,10 +115,24 @@ private:
 	Config config;
 	std::unique_ptr<RmgMap> map;
 	std::shared_ptr<CZonePlacer> placer;
-	
+	std::unique_ptr<rmg::ConnectionReport> connectionReport;
+
+	// Zone-size deviation captured during generate() (before the zones are cleared); read by zoneSizeDeviation().
+	bool sizeDeviationValid = false;
+	double sizeDeviationMin = 0.0;
+	double sizeDeviationMax = 0.0;
+	void captureZoneSizeDeviation();
+
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
+
+	// Subterranean gate pairing registry (see reserveGatePair). Each entry is a placed gate and the squared
+	// 2D distance to its committed partner; used to guarantee off-column gate pairs keep the intended pairing.
+	struct ReservedGate { int3 pos; int pairingDistanceSqr; };
+	std::vector<ReservedGate> reservedGates;
+	std::mutex gateReservationMutex;
+
 	std::vector<ArtifactID> questArtifacts;
 
 	/// Generation methods

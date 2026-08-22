@@ -30,6 +30,7 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "ConnectionReport.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
@@ -47,7 +48,69 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 	loadConfig();
 	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
-	placer = std::make_shared<CZonePlacer>(*map);
+	placer = std::make_shared<CZonePlacer>(*map,
+		config.zonePlacementAttempts, config.zonePlacementScoreDirect, config.zonePlacementScoreGate, config.zonePlacementScoreMonolith,
+		config.zonePlacementHexGrid, config.zonePlacementHubFirst, config.zonePlacementSaPolish,
+		config.zonePlacementCrossAlignWeight, config.zonePlacementCapacityBalance, config.zonePlacementCapacityIterations,
+		config.zonePlacementCapacityGain, config.zonePlacementRandomOrientation);
+	connectionReport = std::make_unique<rmg::ConnectionReport>();
+}
+
+rmg::ConnectionReport & CMapGenerator::getConnectionReport()
+{
+	return *connectionReport;
+}
+
+void CMapGenerator::captureZoneSizeDeviation()
+{
+	// Zone "size" is a linear area weight: a zone should claim tiles in proportion to its size (a size-30
+	// zone twice the area of a size-15 one). Distribute each level's actually-claimed tiles by that share
+	// to get the expected tiles, then compare to the actual. Must run before generate() clears the zones.
+	struct Entry { double size; double actual; int level; };
+	std::vector<Entry> entries;
+	std::map<int, double> sumSize;
+	std::map<int, double> levelTiles;
+	for(const auto & [id, zone] : map->getZones())
+	{
+		const double size = static_cast<double>(zone->getSize());
+		if(size <= 0)
+			continue;
+		const double actual = static_cast<double>(zone->area()->getTilesVector().size());
+		const int level = zone->getCenter().z;
+		sumSize[level] += size;
+		levelTiles[level] += actual;
+		entries.push_back({size, actual, level});
+	}
+	sizeDeviationValid = false;
+	if(entries.empty())
+		return;
+
+	double minRatio = std::numeric_limits<double>::infinity();
+	double maxRatio = 0.0;
+	for(const auto & e : entries)
+	{
+		const double denom = sumSize[e.level];
+		const double expected = denom > 0 ? levelTiles[e.level] * e.size / denom : 0.0;
+		if(expected <= 0)
+			continue;
+		const double ratio = e.actual / expected;
+		minRatio = std::min(minRatio, ratio);
+		maxRatio = std::max(maxRatio, ratio);
+	}
+	if(std::isfinite(minRatio) == 0)
+		return;
+	sizeDeviationMin = minRatio;
+	sizeDeviationMax = maxRatio;
+	sizeDeviationValid = true;
+}
+
+bool CMapGenerator::zoneSizeDeviation(double & minRatio, double & maxRatio) const
+{
+	if(!sizeDeviationValid)
+		return false;
+	minRatio = sizeDeviationMin;
+	maxRatio = sizeDeviationMax;
+	return true;
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -89,6 +152,19 @@ void CMapGenerator::loadConfig()
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
+	config.zonePlacementAttempts = randomMapJson["zonePlacement"]["attempts"].Integer();
+	config.zonePlacementScoreDirect = randomMapJson["zonePlacement"]["scoreDirect"].Integer();
+	config.zonePlacementScoreGate = randomMapJson["zonePlacement"]["scoreSubterraneanGate"].Integer();
+	config.zonePlacementScoreMonolith = randomMapJson["zonePlacement"]["scoreMonolith"].Integer();
+	config.zonePlacementHexGrid = randomMapJson["zonePlacement"]["hexGrid"].Bool();
+	config.zonePlacementHubFirst = randomMapJson["zonePlacement"]["hubFirst"].Bool();
+	config.zonePlacementSaPolish = randomMapJson["zonePlacement"]["saPolish"].Bool();
+	config.zonePlacementCrossAlignWeight = randomMapJson["zonePlacement"]["crossAlignWeight"].Float();
+	config.zonePlacementCapacityBalance = randomMapJson["zonePlacement"]["capacityBalance"].Bool();
+	config.zonePlacementCapacityIterations = randomMapJson["zonePlacement"]["capacityIterations"].Integer();
+	config.zonePlacementCapacityGain = randomMapJson["zonePlacement"]["capacityGain"].Float();
+	config.zonePlacementMaxGateDistance = randomMapJson["zonePlacement"]["maxGateDistance"].Integer();
+	config.zonePlacementRandomOrientation = randomMapJson["zonePlacement"]["randomOrientation"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -133,6 +209,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		Load::Progress::step(3);
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
+		captureZoneSizeDeviation(); //debug metric: record final vs intended zone sizes before zones are torn down
 		map->getZones().clear();
 
 		// undo manager keeps pointers to object that might be removed during gameplay. Remove them to prevent any hanging pointer after gameplay
@@ -434,6 +511,8 @@ void CMapGenerator::fillZones()
 		pool.wait();
 	}
 
+	connectionReport->dump();
+
 	for (const auto& it : map->getZones())
 	{
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
@@ -517,6 +596,38 @@ int CMapGenerator::getNextMonlithIndex()
 			}
 		}
 	}
+}
+
+bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
+{
+	std::lock_guard<std::mutex> lock(gateReservationMutex);
+
+	// Squared 2D distance between the two ends of this pair (z is ignored - gates pair across levels).
+	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
+
+	// Admissible only if, for every already-reserved gate on the opposite level, both new gates stay
+	// strictly farther away than (a) their own partner and (b) that gate's committed partner. This keeps
+	// each gate's nearest opposite-level gate equal to its intended partner, so postInit pairs them
+	// correctly. Ties (equal distances) are rejected, since postInit breaks them by placement order.
+	auto conflicts = [&](const int3 & pos)
+	{
+		for(const auto & g : reservedGates)
+		{
+			if(g.pos.z == pos.z)
+				continue; // same level never pairs
+			const int d = static_cast<int>(g.pos.dist2dSQ(pos));
+			if(d <= pairSqr || d <= g.pairingDistanceSqr)
+				return true;
+		}
+		return false;
+	};
+
+	if(conflicts(posA) || conflicts(posB))
+		return false;
+
+	reservedGates.push_back({posA, pairSqr});
+	reservedGates.push_back({posB, pairSqr});
+	return true;
 }
 
 std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
