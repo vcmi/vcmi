@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    </resources>
+    <string name="server_name">Máy chủ VCMI</string>
+    <string name="shortcut_play">Chơi VCMI</string>
+    <string name="shortcut_editor">Mở VCMI Editor</string>
+</resources>
