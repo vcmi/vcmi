@@ -65,13 +65,15 @@ function Script:onBattleSetup(server, battle, unit, other)
 	if town == nil then return end
 
 	local minDamage, maxDamage = self:getDamageRange(town, turretPart)
+	local creatureKey = unit:getCreature():getJsonKey()
 
 	server:addUnitBonus(battle, unit, {
 		type = "CREATURE_DAMAGE",
 		subtype = "creatureDamageMin",
 		val = minDamage,
 		duration = "ONE_BATTLE",
-		sourceType = "CREATURE_ABILITY"
+		sourceType = "CREATURE_ABILITY",
+		sourceID = creatureKey
 	}, false)
 
 	server:addUnitBonus(battle, unit, {
@@ -79,7 +81,8 @@ function Script:onBattleSetup(server, battle, unit, other)
 		subtype = "creatureDamageMax",
 		val = maxDamage,
 		duration = "ONE_BATTLE",
-		sourceType = "CREATURE_ABILITY"
+		sourceType = "CREATURE_ABILITY",
+		sourceID = creatureKey
 	}, false)
 end
 
