@@ -85,8 +85,19 @@ public:
 	std::set<MapObjectID> knownObjects() const;
 	std::set<MapObjectSubID> knownSubObjects(MapObjectID primaryID) const;
 
+	/// noexcept, allocation-free equivalents of knownObjects().count(type) and
+	/// knownSubObjects(type).count(subtype) - use on hot paths (e.g. map loading) that only need
+	/// a single membership check, to avoid rebuilding a throwaway std::set just to test it
+	bool hasObject(MapObjectID type) const noexcept;
+	bool hasSubObject(MapObjectID type, MapObjectSubID subtype) const noexcept;
+
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
+	/// same as getHandlerFor(MapObjectID, MapObjectSubID), but returns nullptr instead of throwing
+	/// and logging an error if no such object is registered - use on hot paths (e.g. map loading)
+	/// that already handle the "unknown object" case themselves, to avoid the cost of both a
+	/// redundant knownSubObjects() lookup and an exception-based control flow
+	TObjectTypeHandler getHandlerForOrNull(MapObjectID type, MapObjectSubID subtype) const noexcept;
 	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;

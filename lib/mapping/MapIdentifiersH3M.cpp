@@ -142,7 +142,10 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 	if (objectTemplate.id == Obj::ARTIFACT)
 		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
 
-	if (LIBRARY->objtypeh->knownObjects().count(objectTemplate.id) == 0)
+	// Called once per object template (not per object instance), but still avoid knownObjects()/
+	// knownSubObjects(), which rebuild a throwaway std::set just to test membership, in favor of
+	// direct noexcept lookups.
+	if (!LIBRARY->objtypeh->hasObject(objectTemplate.id))
 	{
 		logGlobal->warn("Unknown object found: %d | %d (%s)", objectTemplate.id, objectTemplate.subid, objectTemplate.animationFile.getName());
 
@@ -151,7 +154,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 	}
 	else
 	{
-		if (LIBRARY->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
+		if (!LIBRARY->objtypeh->hasSubObject(objectTemplate.id, objectTemplate.subid))
 		{
 			logGlobal->warn("Unknown subobject found: %d | %d", objectTemplate.id, objectTemplate.subid);
 			objectTemplate.subid = {};

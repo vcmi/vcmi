@@ -383,6 +383,22 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	throw std::out_of_range(errorString);
 }
 
+TObjectTypeHandler CObjectClassesHandler::getHandlerForOrNull(MapObjectID type, MapObjectSubID subtype) const noexcept
+{
+	if (type.getNum() < 0 || type.getNum() >= static_cast<int32_t>(mapObjectTypes.size()) || mapObjectTypes[type.getNum()] == nullptr)
+		return nullptr;
+
+	auto subID = subtype.getNum();
+	if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER || type == Obj::SPELL_SCROLL)
+		subID = 0;
+
+	const auto & handlers = mapObjectTypes[type.getNum()]->objectTypeHandlers;
+	if (subID < 0 || subID >= static_cast<int32_t>(handlers.size()))
+		return nullptr;
+
+	return handlers[subID];
+}
+
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
 	std::optional<si32> id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
@@ -487,6 +503,21 @@ std::set<MapObjectSubID> CObjectClassesHandler::knownSubObjects(MapObjectID prim
 			ret.insert(entry->subtype);
 
 	return ret;
+}
+
+bool CObjectClassesHandler::hasObject(MapObjectID type) const noexcept
+{
+	return type.getNum() >= 0 && type.getNum() < static_cast<int32_t>(mapObjectTypes.size()) && mapObjectTypes[type.getNum()] != nullptr;
+}
+
+bool CObjectClassesHandler::hasSubObject(MapObjectID type, MapObjectSubID subtype) const noexcept
+{
+	if (!hasObject(type))
+		return false;
+
+	const auto & handlers = mapObjectTypes[type.getNum()]->objectTypeHandlers;
+	auto subID = subtype.getNum();
+	return subID >= 0 && subID < static_cast<int32_t>(handlers.size()) && handlers[subID] != nullptr;
 }
 
 void CObjectClassesHandler::beforeValidate(JsonNode & object)

@@ -21,6 +21,8 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../modding/IdentifierStorage.h"
 
+#include <mutex>
+#include <unordered_map>
 
 static bool isOnVisitableFromTopList(Obj identifier, int type)
 {
@@ -130,17 +132,42 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 
 void ObjectTemplate::readMsk()
 {
-	ResourcePath resID("Sprites/" + animationFile.getName(), EResType::MASK);
+	// Looking up and loading a .msk file just to read its 2-byte size header is a relatively
+	// expensive operation (CFilesystemList::existsResource()/load() linearly scan every
+	// registered resource loader), and the same animationFile is frequently reused across many
+	// object templates (both within a single map and across the whole game content database).
+	// Cache the result per animation path for the lifetime of the process to avoid repeating
+	// that lookup for paths we've already resolved.
+	static std::mutex mskCacheMutex;
+	static std::unordered_map<std::string, std::pair<ui8, ui8>> mskCache;
+
+	const std::string & key = animationFile.getName();
+
+	{
+		std::lock_guard<std::mutex> lock(mskCacheMutex);
+		auto it = mskCache.find(key);
+		if (it != mskCache.end())
+		{
+			setSize(it->second.first, it->second.second);
+			return;
+		}
+	}
+
+	ResourcePath resID("Sprites/" + key, EResType::MASK);
+	std::pair<ui8, ui8> size{8, 6}; // maximum possible size of H3 object //TODO: remove hardcode and move this data into modding system
 
 	if (CResourceHandler::get()->existsResource(resID))
 	{
 		auto msk = CResourceHandler::get()->load(resID)->readAll();
-		setSize(msk.first.get()[0], msk.first.get()[1]);
+		size = {msk.first.get()[0], msk.first.get()[1]};
 	}
-	else //maximum possible size of H3 object //TODO: remove hardcode and move this data into modding system
+
 	{
-		setSize(8, 6);
+		std::lock_guard<std::mutex> lock(mskCacheMutex);
+		mskCache[key] = size;
 	}
+
+	setSize(size.first, size.second);
 }
 
 void ObjectTemplate::readMap(CBinaryReader & reader)

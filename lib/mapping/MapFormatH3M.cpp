@@ -11,6 +11,9 @@
 #include "StdInc.h"
 #include "MapFormatH3M.h"
 
+#include <mutex>
+#include <unordered_map>
+
 #include "CCastleEvent.h"
 #include "CMap.h"
 #include "HotaScriptConverter.h"
@@ -1049,6 +1052,13 @@ void CMapLoaderH3M::readObjectTemplates()
 	originalTemplates.reserve(defAmount);
 	remappedTemplates.reserve(defAmount);
 
+	// Diagnostic-only check (warns about maps referencing missing animation files). The same
+	// animation path is frequently reused by many templates within one map (and across maps);
+	// cache the (fairly expensive - CFilesystemList::existsResource() linearly scans every
+	// registered loader) lookup per path for the lifetime of the process to avoid repeating it.
+	static std::mutex existsCacheMutex;
+	static std::unordered_map<std::string, bool> existsCache;
+
 	// Read custom defs
 	for(int defID = 0; defID < defAmount; ++defID)
 	{
@@ -1059,7 +1069,21 @@ void CMapLoaderH3M::readObjectTemplates()
 		reader->remapTemplate(*remapped);
 		remappedTemplates.push_back(remapped);
 
-		if (!CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/")))
+		const std::string & animName = remapped->animationFile.getName();
+		bool exists;
+		{
+			std::lock_guard<std::mutex> lock(existsCacheMutex);
+			auto it = existsCache.find(animName);
+			if (it != existsCache.end())
+				exists = it->second;
+			else
+			{
+				exists = CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/"));
+				existsCache[animName] = exists;
+			}
+		}
+
+		if (!exists)
 			logMod->warn("Template animation %s of type (%d %d) is missing!", remapped->animationFile.getOriginalName(), remapped->id, remapped->subid );
 	}
 }
@@ -1455,8 +1479,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readResource(const int3 & mapPo
 
 	if (objectTemplate->id != Obj::RANDOM_RESOURCE)
 	{
-		const auto & baseHandler = LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid);
-		const auto & ourHandler = std::dynamic_pointer_cast<ResourceInstanceConstructor>(baseHandler);
+		// Runs once per resource object instance (one of the most numerous filler object types on
+		// real maps), so use the noexcept lookup instead of the throwing/logging getHandlerFor().
+		// Object type registration guarantees any RESOURCE handler is a ResourceInstanceConstructor,
+		// so a static_pointer_cast is safe here and avoids the RTTI cost of dynamic_pointer_cast.
+		auto baseHandler = LIBRARY->objtypeh->getHandlerForOrNull(objectTemplate->id, objectTemplate->subid);
+		if (!baseHandler)
+			throw std::runtime_error("Failed to find object handler for resource object " + std::to_string(objectTemplate->id.getNum()) + "::" + std::to_string(objectTemplate->subid.getNum()));
+
+		const auto & ourHandler = std::static_pointer_cast<ResourceInstanceConstructor>(baseHandler);
 
 		object->amount *= ourHandler->getAmountMultiplier();
 	}
@@ -1625,8 +1656,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaBattleLocation(const in
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	if(LIBRARY->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
-		return LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(map->cb, objectTemplate);
+	// Called for essentially every object on the map (directly or via the read*() wrappers below),
+	// so avoid knownSubObjects()+getHandlerFor(), which together rebuild a throwaway std::set and
+	// then redundantly repeat the same lookup, in favor of a single non-throwing lookup.
+	if(auto handler = LIBRARY->objtypeh->getHandlerForOrNull(objectTemplate->id, objectTemplate->subid))
+		return handler->create(map->cb, objectTemplate);
 
 	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
 	return std::make_shared<CGObjectInstance>(map->cb);
