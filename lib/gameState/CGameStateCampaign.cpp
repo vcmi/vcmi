@@ -383,8 +383,25 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 	}
 }
 
+void CGameStateCampaign::transformMutareIntoDrakeIfApplicable(CGHeroInstance & hero, const CampaignState & campaignState) const
+{
+	// Dragon's Blood scenario 4 ("Blood Thirsty") turns the crossed-over Mutare into Mutare Drake.
+	if (!campaignState.getMutareDrakeID().hasValue())
+		return;
+	if (!boost::starts_with(campaignState.getFilename(), "DATA/BLOOD") || campaignState.currentScenario()->getNum() != 3)
+		return;
+	if (hero.getHeroTypeID() != HeroTypeID(HeroTypeID::decode("mutare")))
+		return;
+
+	hero.setHeroType(campaignState.getMutareDrakeID());
+	hero.setPrimarySkill(PrimarySkill::ATTACK, 4, ChangeValueMode::RELATIVE);
+	hero.setPrimarySkill(PrimarySkill::DEFENSE, 4, ChangeValueMode::RELATIVE);
+}
+
 void CGameStateCampaign::replaceHeroesPlaceholders()
 {
+	auto campaignState = gameState->scenarioOps->campState;
+
 	for(const auto & campaignHeroReplacement : campaignHeroReplacements)
 	{
 		if (!campaignHeroReplacement.heroPlaceholderId.hasValue())
@@ -392,6 +409,8 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 
 		auto heroPlaceholder = gameState->map->getObject(campaignHeroReplacement.heroPlaceholderId);
 		auto heroToPlace = campaignHeroReplacement.hero;
+
+		transformMutareIntoDrakeIfApplicable(*heroToPlace, *campaignState);
 
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
