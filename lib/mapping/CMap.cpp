@@ -613,9 +613,13 @@ void CMap::generateUniqueInstanceName(CGObjectInstance * target)
 	//this gives object unique name even if objects are removed later
 	auto uid = uidCounter++;
 
-	boost::format fmt("%s_%d");
-	fmt % target->getTypeName() % uid;
-	target->instanceName = fmt.str();
+	// boost::format is significantly slower than plain concatenation for a pattern this trivial
+	// (this runs once per object loaded/placed, so it matters on large maps) - build the
+	// "<typeName>_<uid>" string directly instead.
+	std::string name = target->getTypeName();
+	name += '_';
+	name += std::to_string(uid);
+	target->instanceName = std::move(name);
 }
 
 void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)

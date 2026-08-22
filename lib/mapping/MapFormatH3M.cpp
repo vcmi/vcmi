@@ -12,7 +12,10 @@
 #include "MapFormatH3M.h"
 
 #include <mutex>
+#include <thread>
 #include <unordered_map>
+
+#include <tbb/concurrent_queue.h>
 
 #include "CCastleEvent.h"
 #include "CMap.h"
@@ -2263,40 +2266,113 @@ void CMapLoaderH3M::readObjects()
 {
 	uint32_t objectsCount = reader->readUInt32();
 
-	for(uint32_t i = 0; i < objectsCount; ++i)
+	// readObject() below must stay on this thread and run strictly in order - it consumes bytes
+	// from a shared stream cursor, so each object's decode depends on the previous one having
+	// finished. But once an object is fully decoded, its "finalization" (assigning fields,
+	// generating its unique instance name, inserting it into the map) never touches the stream
+	// again. Profiling on a large real-world map (64k+ objects) showed finalization costs about as
+	// much in aggregate as decoding does, so run it on a second thread concurrently with decoding
+	// the next object, handed off through a FIFO queue so instance names/ids are still assigned in
+	// the same deterministic order a purely sequential loop would produce.
+	struct PendingObject
 	{
-		int3 mapPosition = reader->readInt3();
-		assert(map->isInTheMap(mapPosition) || map->isInTheMap(mapPosition - int3(0,8,0)) || map->isInTheMap(mapPosition - int3(8,0,0)) || map->isInTheMap(mapPosition - int3(8,8,0)));
+		std::shared_ptr<CGObjectInstance> object;
+		std::shared_ptr<ObjectTemplate> remappedTemplate;
+		int3 mapPosition;
+		ObjectInstanceID newObjectID;
+	};
 
-		uint32_t defIndex = reader->readUInt32();
+	// allocateUniqueInstanceID() (called below, on this thread) reserves each object's slot in
+	// map->objects via push_back(); addNewObject() (called on the finalize thread) later writes
+	// into that already-reserved slot by index. Pre-reserving capacity for the whole object count
+	// guarantees push_back() here never reallocates the vector's backing storage, so the two
+	// threads only ever touch disjoint elements of it and never race on its internals.
+	map->objects.reserve(map->objects.size() + objectsCount);
 
-		std::shared_ptr<ObjectTemplate> originalTemplate = originalTemplates.at(defIndex);
-		std::shared_ptr<ObjectTemplate> remappedTemplate = remappedTemplates.at(defIndex);
-		auto originalID = originalTemplate->id;
-		auto originalSubID = originalTemplate->subid;
-		reader->skipZero(5);
+	tbb::concurrent_bounded_queue<PendingObject> pendingQueue;
+	pendingQueue.set_capacity(256);
 
-		ObjectInstanceID newObjectID = map->allocateUniqueInstanceID();
-		auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, newObjectID);
+	std::exception_ptr finalizeException;
 
-		if(!newObject)
-			continue;
-
-		newObject->setAnchorPos(mapPosition);
-		newObject->ID = remappedTemplate->id;
-		newObject->id = newObjectID;
-		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
+	std::thread finalizeThread([this, &pendingQueue, &finalizeException]()
+	{
+		PendingObject pending;
+		while (true)
 		{
-			newObject->subID = remappedTemplate->subid;
+			pendingQueue.pop(pending);
+			if (!pending.object)
+				break; // sentinel - decode side is done, successfully or not
+
+			if (finalizeException)
+				continue; // already failed - keep draining so the producer never blocks on a full queue
+
+			try
+			{
+				CGObjectInstance * newObject = pending.object.get();
+
+				newObject->setAnchorPos(pending.mapPosition);
+				newObject->ID = pending.remappedTemplate->id;
+				newObject->id = pending.newObjectID;
+				if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
+				{
+					newObject->subID = pending.remappedTemplate->subid;
+				}
+				newObject->appearance = pending.remappedTemplate;
+
+				if (newObject->isVisitable() && !map->isInTheMap(newObject->visitablePos()))
+					logGlobal->error("Map '%s': Object at %s - outside of map borders!", mapName, pending.mapPosition.toString());
+
+				map->generateUniqueInstanceName(newObject);
+				map->addNewObject(pending.object);
+			}
+			catch (...)
+			{
+				finalizeException = std::current_exception();
+			}
 		}
-		newObject->appearance = remappedTemplate;
+	});
 
-		if (newObject->isVisitable() && !map->isInTheMap(newObject->visitablePos()))
-			logGlobal->error("Map '%s': Object at %s - outside of map borders!", mapName, mapPosition.toString());
+	{
+		// Guarantees the finalize thread is signalled to stop and joined before this scope exits -
+		// whether the loop below finishes normally or an exception propagates out of it - so we
+		// never read finalizeException (below) while the finalize thread might still be writing it,
+		// and never leave a joinable thread dangling on an exceptional path.
+		struct FinalizeThreadGuard
+		{
+			tbb::concurrent_bounded_queue<PendingObject> & queue;
+			std::thread & thread;
+			~FinalizeThreadGuard()
+			{
+				queue.push(PendingObject{});
+				thread.join();
+			}
+		} finalizeGuard{pendingQueue, finalizeThread};
 
-		map->generateUniqueInstanceName(newObject.get());
-		map->addNewObject(newObject);
+		for(uint32_t i = 0; i < objectsCount; ++i)
+		{
+			int3 mapPosition = reader->readInt3();
+			assert(map->isInTheMap(mapPosition) || map->isInTheMap(mapPosition - int3(0,8,0)) || map->isInTheMap(mapPosition - int3(8,0,0)) || map->isInTheMap(mapPosition - int3(8,8,0)));
+
+			uint32_t defIndex = reader->readUInt32();
+
+			std::shared_ptr<ObjectTemplate> originalTemplate = originalTemplates.at(defIndex);
+			std::shared_ptr<ObjectTemplate> remappedTemplate = remappedTemplates.at(defIndex);
+			auto originalID = originalTemplate->id;
+			auto originalSubID = originalTemplate->subid;
+			reader->skipZero(5);
+
+			ObjectInstanceID newObjectID = map->allocateUniqueInstanceID();
+			auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, newObjectID);
+
+			if(!newObject)
+				continue;
+
+			pendingQueue.push(PendingObject{newObject, remappedTemplate, mapPosition, newObjectID});
+		}
 	}
+
+	if (finalizeException)
+		std::rethrow_exception(finalizeException);
 }
 
 void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven, const int3 & position)
