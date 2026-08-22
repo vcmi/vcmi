@@ -81,10 +81,36 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 	// third - add all detected text files from this mod into checksum
 	const auto & filesystem = CResourceHandler::get(modName);
 
-	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
+	// Engine-level state files that happen to live under config/ (and therefore land in the
+	// same CONFIG/* resource namespace as real mod content) but are not mod content at all -
+	// they are runtime/user state the engine itself rewrites (settings.json, persistentStorage.json,
+	// keyBindingsConfig.json) or the mod manager's own persisted state (modSettings.json). The
+	// latter is what makes this self-referential for the builtin "core" scope specifically:
+	// afterLoad() persists every active mod's validated checksum - including "core"'s - into
+	// modSettings.json, and modSettings.json's own hash feeds into "core"'s checksum on the next
+	// run. Without this exclusion, saving a validated checksum for "core" always invalidates
+	// itself, so isModValidationNeeded() can never skip revalidation of "core" content. Exclude
+	// all engine state files defensively, not just modSettings.json, since none of them represent
+	// actual mod content.
+	static const std::set<std::string> engineStateFiles = {
+		"CONFIG/MODSETTINGS", "CONFIG/TESTMODSETTINGS", "CONFIG/SETTINGS",
+		"CONFIG/PERSISTENTSTORAGE", "CONFIG/KEYBINDINGSCONFIG"
+	};
+
+	auto unorderedFiles = filesystem->getFilteredFiles([](const ResourcePath & resID)
 	{
-		return resID.getType() == EResType::JSON && boost::starts_with(resID.getName(), "CONFIG");
+		return resID.getType() == EResType::JSON && boost::starts_with(resID.getName(), "CONFIG")
+			&& !engineStateFiles.count(resID.getName());
 	});
+
+	// getFilteredFiles() returns an unordered_set, whose iteration order is not guaranteed to be
+	// stable across runs/processes (depends on hash bucket layout) - sort into a deterministic
+	// order first so this checksum is reproducible run-to-run for identical mod content. Without
+	// this, any consumer that persists/compares this checksum across runs (e.g. the validated-
+	// checksum revalidation-skip mechanism above) would see spurious mismatches even when nothing
+	// actually changed.
+	std::vector<ResourcePath> files(unorderedFiles.begin(), unorderedFiles.end());
+	std::sort(files.begin(), files.end());
 
 	for (const ResourcePath & file : files)
 	{
