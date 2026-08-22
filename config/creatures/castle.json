@@ -395,13 +395,13 @@
 			"hateDevils" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.devil",
+				"subtype" : "devil",
 				"val" : 50
 			},
 			"hateArchDevils" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.archDevil",
+				"subtype" : "archDevil",
 				"val" : 50
 			}
 		},
@@ -436,13 +436,13 @@
 			"resurrects" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.resurrection",
+				"subtype" : "resurrection",
 				"val" : 3
 			},
-			"resurrection100hp" : 
+			"resurrection100hp" :
 			{
 				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.resurrection",
+				"subtype" : "resurrection",
 				"val" : 100
 			},
 			"spellpoints" :
@@ -465,13 +465,13 @@
 			"hateDevils" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.devil",
+				"subtype" : "devil",
 				"val" : 50
 			},
 			"hateArchDevils" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.archDevil",
+				"subtype" : "archDevil",
 				"val" : 50
 			}
 		},

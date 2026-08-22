@@ -117,20 +117,13 @@ function Script:describeEffect(server, battle, unit, bonuses)
 	-- Age spell: STACK_HEALTH bonus with negative val gets a custom message
 	for _, nb in pairs(bonuses) do
 		if nb.type == "STACK_HEALTH" and (nb.val or 0) < 0 then
-			local healthBonuses = unit:getBonuses(function(b)
-				return b:getType() == "STACK_HEALTH"
-			end)
-			local oldHealth = 0
-			for i = 1, healthBonuses:size() do
-				oldHealth = oldHealth + healthBonuses:getBonus(i):getVal()
-			end
-			local lost = oldHealth - (oldHealth + nb.val)
-			local ageTextID = unit:getCount() == 1
-				and "core.genrltxt.551"
-				or  "core.genrltxt.552"
+			local oldHealth = unit:getMaxHealth()
+			local lost = oldHealth - math.floor((oldHealth * (100 + nb.val)) / 100)
+			local count = unit:getCount()
+			local ageTextID = count == 1 and self.battleLogSingular or self.battleLogPlural
 			server:appendLog(battle, {
 				append         = { ageTextID },
-				replaceStrings = { unit:getCreature():getNameTextID(unit:getCount()) },
+				replaceStrings = { unit:getCreature():getNameTextID(count) },
 				replaceNumbers = { lost }
 			})
 			return

@@ -307,12 +307,12 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spell.catapultShot",
+					"subtype" : "catapultShot",
 					"type" : "CATAPULT_EXTRA_SHOTS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
-					"subtype" : "creature.catapult",
+					"subtype" : "catapult",
 					"type" : "MANUAL_CONTROL",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
@@ -388,7 +388,7 @@
 				},
 				"power" : {
 					"type" : "IMPROVED_NECROMANCY",
-					"subtype" : "creature.skeleton",
+					"subtype" : "skeleton",
 					"addInfo" : 0
 				}
 			}
@@ -420,7 +420,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -451,7 +451,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spellSchool.fire",
+					"subtype" : "fire",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -482,7 +482,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spellSchool.air",
+					"subtype" : "air",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -513,7 +513,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spellSchool.water",
+					"subtype" : "water",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -544,7 +544,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spellSchool.earth",
+					"subtype" : "earth",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -633,29 +633,29 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "creature.ballista",
+					"subtype" : "ballista",
 					"type" : "BONUS_DAMAGE_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
 				"val2" : {
-					"subtype" : "creature.ballista",
+					"subtype" : "ballista",
 					"type" : "HERO_GRANTS_ATTACKS",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
-					"subtype" : "creature.ballista",
+					"subtype" : "ballista",
 					"type" : "MANUAL_CONTROL",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl2" : {
-					"subtype" : "creature.arrowTower",
+					"subtype" : "arrowTower",
 					"type" : "MANUAL_CONTROL",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
 				"damagePower" : {
-					"subtype" : "creature.ballista",
+					"subtype" : "ballista",
 					"type" : "BONUS_DAMAGE_PERCENTAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
@@ -808,7 +808,7 @@
 			"effects" : {
 				"main" : {
 					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
+					"subtype" : "any",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -866,12 +866,12 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : "spell.firstAid",
+					"subtype" : "firstAid",
 					"type" : "SPECIFIC_SPELL_POWER",
 					"valueType" : "BASE_NUMBER"
 				},
 				"ctrl" : {
-					"subtype" : "creature.firstAidTent",
+					"subtype" : "firstAidTent",
 					"type" : "MANUAL_CONTROL",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"

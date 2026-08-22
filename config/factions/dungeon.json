@@ -211,7 +211,7 @@
 						]
 					}
 				},
-				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.spellpower", "val": 12 } ] },
+				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "spellpower", "val": 12 } ] },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },

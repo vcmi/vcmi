@@ -104,7 +104,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"mercury" : {
-					"subtype" : "resource.mercury",
+					"subtype" : "mercury",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1
 				}
@@ -192,7 +192,7 @@
 			"bonuses" : {
 				"fortune" : {
 					"addInfo" : 3,
-					"subtype" : "spell.fortune",
+					"subtype" : "fortune",
 					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
@@ -257,7 +257,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

@@ -108,10 +108,10 @@
 			{
 				"type" : "UNDEAD"
 			},
-			"castDisease" : 
+			"castDisease" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.disease",
+				"subtype" : "disease",
 				"val" : 20
 			}
 		}
@@ -131,7 +131,7 @@
 			{
 				"type" : "FLYING"
 			},
-			"regenerate" : 
+			"regenerate" :
 			{
 				"type" : "HP_REGENERATION",
 				"val" : 50
@@ -169,7 +169,7 @@
 			{
 				"type" : "FLYING"
 			},
-			"regenerate" : 
+			"regenerate" :
 			{
 				"type" : "HP_REGENERATION",
 				"val" : 50
@@ -210,7 +210,7 @@
 			{
 				"type" : "FLYING"
 			},
-			"noRetalitation" : 
+			"noRetalitation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			}
@@ -248,7 +248,7 @@
 			{
 				"type" : "FLYING"
 			},
-			"noRetalitation" : 
+			"noRetalitation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
@@ -296,7 +296,7 @@
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
-				"subtype" : "spell.deathCloud"
+				"subtype" : "deathCloud"
 			}
 		},
 		"upgrades": ["powerLich"],
@@ -339,7 +339,7 @@
 			"deathCloud" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
-				"subtype" : "spell.deathCloud"
+				"subtype" : "deathCloud"
 			}
 		},
 		"graphics" :
@@ -377,7 +377,7 @@
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.curse",
+				"subtype" : "curse",
 				"val" : 20
 			}
 		},
@@ -412,7 +412,7 @@
 			"curses" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.curse",
+				"subtype" : "curse",
 				"val" : 20
 			},
 			"deathStrike" :
@@ -511,7 +511,7 @@
 			"age" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.age",
+				"subtype" : "age",
 				"val" : 20
 			},
 			"decreaseMorale" :

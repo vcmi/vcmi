@@ -188,7 +188,7 @@
 						]
 					}
 				},
-				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.attack", "val": 20 } ] },
+				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "attack", "val": 20 } ] },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
