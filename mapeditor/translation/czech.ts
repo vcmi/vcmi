@@ -1574,22 +1574,22 @@ Chcete to udělat nyní?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení vrstev mapy</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Úroveň</translation>
+        <translation>Úroveň</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrstva mapy</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň %1</translation>
     </message>
 </context>
 <context>
@@ -2683,7 +2683,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhodné</translation>
     </message>
 </context>
 <context>
@@ -3466,7 +3466,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor nelze otevřít!</translation>
     </message>
 </context>
 <context>
@@ -3474,27 +3474,27 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Učenec</translation>
+        <translation>Učenec</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhodné</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Kouzlo</translation>
+        <translation>Kouzlo</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor map nedokázal načíst určenou úroveň kouzla pro tento typ svatyně</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Určená úroveň kouzla %1 je pro tento typ svatyně neplatná</translation>
     </message>
 </context>
 <context>
@@ -5020,37 +5020,37 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chata vědmy na x: %1 y: %2 ve vrstvě %3 obsahuje neplatnou odměnu.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chatu vědmy na x: %1 y: %2 ve vrstvě %3 nelze v editoru ověřit.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Učenec na x: %1 y: %2 ve vrstvě %3 obsahuje neplatnou odměnu.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Učenec na x: %1 y: %2 ve vrstvě %3 uděluje odměnu zakázanou nastavením mapy. Je to záměr?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Učence na x: %1 y: %2 ve vrstvě %3 nelze v editoru ověřit.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Svatyně na x: %1 y: %2 ve vrstvě %3 obsahuje neplatné kouzlo.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Svatyně na x: %1 y: %2 ve vrstvě %3 uděluje kouzlo zakázané nastavením mapy. Je to záměr?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="276"/>
@@ -5239,7 +5239,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrstva</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>

@@ -1574,22 +1574,22 @@ Szeretné ezt most megtenni?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Térképréteg-beállítások</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Szint</translation>
+        <translation>Szint</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Térképréteg</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. szint</translation>
     </message>
 </context>
 <context>
@@ -2681,7 +2681,7 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Véletlenszerű</translation>
     </message>
 </context>
 <context>
@@ -3464,7 +3464,7 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült megnyitni a szerkesztőt!</translation>
     </message>
 </context>
 <context>
@@ -3472,27 +3472,27 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Tudós</translation>
+        <translation>Tudós</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Véletlenszerű</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Varázslat</translation>
+        <translation>Varázslat</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>A térképszerkesztő nem tudta beolvasni az ehhez a szentélytípushoz szánt varázslatszintet</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Az ehhez a szentélytípushoz szánt %1. varázslatszint érvénytelen</translation>
     </message>
 </context>
 <context>
@@ -5018,37 +5018,37 @@ B zóna: %2
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy boszorkánykunyhó az x: %1, y: %2 koordinátákon, a %3. rétegen, érvénytelen jutalommal rendelkezik.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy boszorkánykunyhót az x: %1, y: %2 koordinátákon, a %3. rétegen, a szerkesztő nem tudott érvényesíteni.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy tudós az x: %1, y: %2 koordinátákon, a %3. rétegen, érvénytelen jutalommal rendelkezik.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy tudós az x: %1, y: %2 koordinátákon, a %3. rétegen olyan jutalmat ad, amelyet a térképbeállítás tilt. Ez szándékos?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy tudóst az x: %1, y: %2 koordinátákon, a %3. rétegen, a szerkesztő nem tudott érvényesíteni.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy szentély az x: %1, y: %2 koordinátákon, a %3. rétegen, érvénytelen jutalommal rendelkezik.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy szentély az x: %1, y: %2 koordinátákon, a %3. rétegen olyan jutalmat ad, amelyet a térképbeállítás tilt. Ez szándékos?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="276"/>
@@ -5237,7 +5237,7 @@ B zóna: %2
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Réteg</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>

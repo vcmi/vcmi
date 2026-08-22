@@ -1574,7 +1574,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenebenen-Konfiguration</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
@@ -1584,12 +1584,12 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenebene</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Level %1</translation>
     </message>
 </context>
 <context>
@@ -2682,7 +2682,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished">Zufall</translation>
+        <translation>Zufall</translation>
     </message>
 </context>
 <context>
@@ -3465,7 +3465,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor kann nicht geöffnet werden!</translation>
     </message>
 </context>
 <context>
@@ -3473,27 +3473,27 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Gelehrter</translation>
+        <translation>Gelehrter</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Zufall</translation>
+        <translation>Zufall</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Zauberspruch</translation>
+        <translation>Zauberspruch</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Karteneditor konnte die vorgesehene Zauberstufe für diesen Schrein-Typ nicht lesen</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgesehene Zauberstufe %1 ist für diesen Schrein-Typ ungültig</translation>
     </message>
 </context>
 <context>
@@ -5019,37 +5019,37 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Hexenhütte bei x: %1 y: %2 auf Ebene %3 enthält eine ungültige Belohnung.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Hexenhütte bei x: %1 y: %2 auf Ebene %3 kann vom Karteneditor nicht validiert werden.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Gelehrter bei x: %1 y: %2 auf Ebene %3 enthält eine ungültige Belohnung.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Gelehrter bei x: %1 y: %2 auf Ebene %3 enthält eine Belohnung, die gemäß den Karteneinstellungen verboten ist. Ist dies beabsichtigt?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Gelehrter bei x: %1 y: %2 auf Ebene %3 kann vom Editor nicht validiert werden.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Schrein bei x: %1 y: %2 auf Ebene %3 enthält einen ungültigen Zauberspruch.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Schrein bei x: %1 y: %2 auf Ebene %3 gewährt einen Zauber, der gemäß den Karteneinstellungen verboten ist. Ist dies beabsichtigt?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="276"/>
@@ -5238,7 +5238,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ebene</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>
