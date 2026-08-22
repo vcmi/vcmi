@@ -402,6 +402,8 @@ private:
 		if(length < 0)
 		{
 			int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
+			if(stringID < 0 || stringID >= static_cast<int32_t>(loadedStrings.size()))
+				throw std::runtime_error("Invalid string reference in binary data");
 			data = loadedStrings[stringID];
 		}
 		if(length == 0)
