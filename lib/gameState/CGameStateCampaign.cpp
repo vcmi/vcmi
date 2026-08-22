@@ -386,11 +386,6 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameStateCampaign::transformMutareIntoDrakeIfApplicable(CGHeroInstance & hero, const CampaignState & campaignState) const
 {
 	// Dragon's Blood scenario 4 ("Blood Thirsty") turns the crossed-over Mutare into Mutare Drake.
-	// Neither the campaign header bonuses nor this map's disposedHeroes carry this transformation -
-	// it is a hardcoded rule of the original campaign, same as the Yog Wizard artifact grant in initHeroes()
-	// below. mutareDrakeID itself is populated the same way as yogWizardID/gemSorceressID, but unlike Yog,
-	// Gem Sorceress has no corresponding case anywhere in this file - her ID is only read by
-	// CGHeroInstance::isCampaignGem(), a passive identity check with no associated action.
 	if (!campaignState.getMutareDrakeID().hasValue())
 		return;
 	if (!boost::starts_with(campaignState.getFilename(), "DATA/BLOOD") || campaignState.currentScenario()->getNum() != 3)
