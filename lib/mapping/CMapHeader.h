@@ -271,15 +271,16 @@ public:
 	
 	/// translations for map to be transferred over network
 	JsonNode translations;
-	/// Inert text data owned by this map; the rendering side installs it as an overlay
-	TextLocalizationContainer texts;
-	
+	/// Inert text data of this map; the rendering side installs it as an overlay and shares
+	/// ownership of it, so the container outlives a map that is torn down while still installed
+	std::shared_ptr<TextLocalizationContainer> texts = std::make_shared<TextLocalizationContainer>();
+
 	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		h & texts;
+		h & *texts;
 		h & version;
 		h & mods;
 		h & name;

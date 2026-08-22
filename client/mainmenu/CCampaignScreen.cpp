@@ -39,7 +39,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/texts/OverlayTranslator.h"
+#include "../../lib/texts/CompositeTranslator.h"
 #include "../GameInstance.h"
 
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
@@ -160,7 +160,8 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	{
 		auto header = CampaignHandler::getHeader(campFile);
 		// the header is local to this scope, so its own texts are the only place its name lives
-		const OverlayTranslator translator(header->getTexts());
+		CompositeTranslator translator;
+		translator.install(header->getTexts());
 		hoverText = header->getNameTranslated(&translator);
 
 		if (persistentStorage["completedCampaigns"][header->getFilename()].Bool())

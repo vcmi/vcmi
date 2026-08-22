@@ -59,11 +59,11 @@ void StartingBonus::initControls()
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance*>(map->objects.at(heroID.getNum()).get());
 		if(hero->getOwner() == color || color == PlayerColor::CANNOT_DETERMINE)
-			heroSelection.emplace(hero->getHeroTypeID(), Translator::instance().translate(hero->getNameTextID()));
+			heroSelection.try_emplace(hero->getHeroTypeID(), Translator::instance().translate(hero->getNameTextID()));
 	}
-	heroSelection.emplace(HeroTypeID::CAMP_STRONGEST, tr("Strongest").toStdString());
-	heroSelection.emplace(HeroTypeID::CAMP_GENERATED, tr("Generated").toStdString());
-	heroSelection.emplace(HeroTypeID::CAMP_RANDOM, tr("Random").toStdString());
+	heroSelection.try_emplace(HeroTypeID::CAMP_STRONGEST, tr("Strongest").toStdString());
+	heroSelection.try_emplace(HeroTypeID::CAMP_GENERATED, tr("Generated").toStdString());
+	heroSelection.try_emplace(HeroTypeID::CAMP_RANDOM, tr("Random").toStdString());
 
 	for(auto & hero : heroSelection)
 	{

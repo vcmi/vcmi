@@ -1338,7 +1338,7 @@ void CMapLoaderJson::readTranslations()
 					: TextIdentifier("map", actualMapName, str.first);
 				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();
 			}
-			mapHeader->texts.loadTranslationOverrides("map", preferredLanguage, translationOverrides);
+			mapHeader->texts->loadTranslationOverrides("map", preferredLanguage, translationOverrides);
 		}
 	}
 }

@@ -117,7 +117,7 @@ class DLL_LINKAGE StatisticDataSet
 public:
 	void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData);
-	std::string toCsv(std::string sep, const ITranslator * translator) const;
+	std::string toCsv(const std::string & sep, const ITranslator * translator) const;
 	std::string writeCsv(const ITranslator * translator) const;
 
 	void serializeJson(JsonSerializeFormat & handler);

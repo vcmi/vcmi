@@ -1685,7 +1685,7 @@ void CGameHandler::wrongPlayerMessage(GameConnectionID connectionID, const CPack
 	auto str = MetaString::createFromTextID("vcmi.server.errors.wrongIdentified");
 	str.replaceName(pack->player);
 	str.replaceName(expectedplayer);
-	logNetwork->error(str.toString(LIBRARY->staticTexts()));
+	logNetwork->error("Expected player %s but got player %s!", expectedplayer.toString(), pack->player.toString());
 
 	playerMessages->sendSystemMessage(connectionID, str);
 }

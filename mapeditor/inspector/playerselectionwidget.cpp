@@ -46,7 +46,7 @@ void PlayerSelectionWidget::populateCheckboxes()
         MetaString name;
         name.appendName(color);
 
-        QCheckBox *box = new QCheckBox(QString::fromStdString(name.toString(&Translator::instance())), this);
+        auto * box = new QCheckBox(QString::fromStdString(name.toString(&Translator::instance())), this);
         ui->checkboxLayout->addWidget(box);
         colorCheckboxes[color] = box;
     }

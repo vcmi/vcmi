@@ -124,7 +124,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, const 
 	if (text.empty())
 		return "";
 
-	target.getTexts().registerString(modName, stringID, text);
+	target.getTexts()->registerString(modName, stringID, text);
 	return stringID.get();
 }
 

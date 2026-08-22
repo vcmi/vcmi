@@ -480,7 +480,7 @@ void Nullkiller::lockHero(const CGHeroInstance * hero, HeroLockedReason lockReas
 	// assigning another reason replaces the previous state.
 	logAi->debug(
 		"Setting lock reason for hero %s to %s (was %s).",
-		hero->getNameTranslated(),
+        hero->getNameTextID(),
 		heroLockReasonName(lockReason),
 		heroLockReasonName(getHeroLockedReason(hero)));
 	lockedHeroes[hero] = lockReason;
@@ -493,7 +493,7 @@ void Nullkiller::unlockHero(const CGHeroInstance * hero)
 
 	logAi->debug(
 		"Clearing lock for hero %s (was %s).",
-		hero->getNameTranslated(),
+        hero->getNameTextID(),
 		heroLockReasonName(getHeroLockedReason(hero)));
 
 	lockedHeroes.erase(hero);

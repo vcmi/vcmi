@@ -159,7 +159,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
 	mapToStart = nullptr;
-	// si is replaced below, so anything overlaid from the previous lobby is about to be freed
+	// si is replaced below - texts of the previous lobby must not shadow those of the next one
 	lobbyTextOverlays.clear();
 	hotseatMode = false;
 	battleMode = false;
@@ -778,7 +778,7 @@ void CServerHandler::endGameplay()
 		gameplayReplayer.reset();
 	}
 
-	// the map is about to go away, so its overlay must not outlive it
+	// nothing renders this map's texts any more, and the next game must not see them
 	gameplayTextOverlays.clear();
 
 	client->endNetwork();

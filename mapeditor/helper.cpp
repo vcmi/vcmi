@@ -181,7 +181,7 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 
 void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename)
 {
-	Translator translator;
+	CompositeTranslator translator;
 	translator.install(campaignState->getTexts());
 	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState, &translator);
 	

@@ -144,7 +144,7 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, ExportedStr
 	}
 }
 
-std::string TextLocalizationContainer::getModLanguage(const std::string & modContext)
+std::string TextLocalizationContainer::getModLanguage(const std::string & modContext) const
 {
 	if (modContext == "core")
 		return CGeneralTextHandler::getInstalledLanguage();
@@ -156,5 +156,3 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 	for(auto & s : stringsLocalizations)
 		dest.Struct()[s.first].String() = s.second.translatedText;
 }
-
-

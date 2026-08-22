@@ -184,7 +184,7 @@ void StatisticDataSet::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-std::string StatisticDataSet::toCsv(std::string sep, const ITranslator * translator) const
+std::string StatisticDataSet::toCsv(const std::string & sep, const ITranslator * translator) const
 {
 	std::stringstream ss;
 

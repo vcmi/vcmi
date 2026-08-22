@@ -156,7 +156,7 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 
 void GameStatePackVisitor::visitInfoWindow(InfoWindow & pack)
 {
-	if(!pack.journalInfo || pack.text.toString(LIBRARY->staticTexts()).empty())
+	if(!pack.journalInfo || pack.text.empty())
 		return;
 
 	assert(vstd::contains(gs.players, pack.player));

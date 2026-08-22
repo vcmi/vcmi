@@ -94,7 +94,20 @@ CampaignEditor::CampaignEditor(EditorCallback * cb, QWidget * parent): QWidget{p
 
 CampaignEditor::~CampaignEditor()
 {
+	setCampaign(nullptr);
 	delete ui;
+}
+
+void CampaignEditor::setCampaign(std::shared_ptr<CampaignState> newState)
+{
+	if(campaignState)
+		Translator::instance().uninstall(*campaignState->getTexts());
+
+	campaignState = std::move(newState);
+
+	// campaign texts are inert data - the editor has to install them to render campaign-defined text
+	if(campaignState)
+		Translator::instance().install(campaignState->getTexts());
 }
 
 void CampaignEditor::redraw()
@@ -240,14 +253,14 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaign
 
 void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
 {
-	campaignState = Helper::openCampaignInternal(filenameSelect);
+	setCampaign(Helper::openCampaignInternal(filenameSelect));
 	selectedScenario = *campaignState->allScenarios().begin();
 
 	for(auto const & scenario : campaignState->allScenarios())
 	{
 		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
 		{
-			campaignState.reset();
+			setCampaign(nullptr);
 			selectedScenario = CampaignScenarioID::NONE;
 			return;
 		}
@@ -304,7 +317,9 @@ void CampaignEditor::on_actionOpenSet_triggered()
 	for(auto const & campaign : sets.value(selectedSet))
 	{
 		auto c = CampaignHandler::getHeader(campaign.getName());
-		campaigns.insert(QString::fromStdString(c->getNameTranslated(&Translator::instance())), campaign);
+		CompositeTranslator translator;
+		translator.install(c->getTexts());
+		campaigns.insert(QString::fromStdString(c->getNameTranslated(&translator)), campaign);
 	}
 
 	QString selectedCampaign = QInputDialog::getItem(this, tr("Open Campaign"), tr("Select Campaign"), campaigns.keys(), 0, false, &ok);
@@ -312,7 +327,7 @@ void CampaignEditor::on_actionOpenSet_triggered()
 	if(!ok)
 		return;
 
-	campaignState = CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName());
+	setCampaign(CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName()));
 	selectedScenario = *campaignState->allScenarios().begin();
 
 	redraw();
@@ -350,7 +365,7 @@ void CampaignEditor::on_actionNew_triggered()
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 
-	campaignState = std::make_unique<CampaignState>();
+	setCampaign(std::make_shared<CampaignState>());
 	campaignState->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
 	for (int i = 0; i < campaignState->campaignRegions.regions.size(); i++)
 	{

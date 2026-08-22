@@ -134,12 +134,21 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 
 ScenarioProperties::~ScenarioProperties()
 {
+	if(map)
+		Translator::instance().uninstall(*map->texts);
 	delete ui;
 }
 
 void ScenarioProperties::reloadMapRelatedUi()
 {
+	if(map)
+		Translator::instance().uninstall(*map->texts);
+
 	map = campaignState->getMap(scenario, cb);
+
+	// the scenario map carries the names this dialog shows - its own and those of its heroes
+	if(map)
+		Translator::instance().install(map->texts);
 
 	ui->lineEditMapFile->setText(QString::fromStdString(campaignState->scenarios.at(scenario).mapName));
 	ui->lineEditScenarioName->setText(map ? QString::fromStdString(map->name.toString(&Translator::instance())) : tr("No map"));

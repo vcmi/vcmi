@@ -305,8 +305,8 @@ set(lib_MAIN_SRCS
 
 	texts/CGeneralTextHandler.cpp
 	texts/CLegacyConfigParser.cpp
+	texts/CompositeTranslator.cpp
 	texts/MetaString.cpp
-	texts/OverlayTranslator.cpp
 	texts/TextLocalizationContainer.cpp
 
 	BasicTypes.cpp
@@ -791,10 +791,10 @@ set(lib_MAIN_HEADERS
 	texts/CGeneralTextHandler.h
 	texts/Languages.h
 	texts/CLegacyConfigParser.h
+	texts/CompositeTranslator.h
+	texts/ITranslator.h
 	texts/MetaString.h
 	texts/TextIdentifier.h
-	texts/ITranslator.h
-	texts/OverlayTranslator.h
 	texts/TextLocalizationContainer.h
 
 	AsyncRunner.h

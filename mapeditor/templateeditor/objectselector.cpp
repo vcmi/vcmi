@@ -72,7 +72,7 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 			{
 				auto templ = templates.at(0);
 				auto temporaryObj(factory->create(controller.getCallback(), templ));
-				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()).c_str());
+				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()));
 				name = translated;
 			}
 			catch(...) {}

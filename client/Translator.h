@@ -9,35 +9,18 @@
  */
 #pragma once
 
-#include "../lib/texts/ITranslator.h"
-
 class TextLocalizationContainer;
 
-/// Client-side resolver of text identifiers. Composes the immutable static text store
-/// with the map and campaign text overlays installed while a game or the picker is up.
-class Translator final : public ITranslator
-{
-	/// Searched back to front, so a later install shadows an earlier one
-	std::vector<const TextLocalizationContainer *> overlays;
-
-public:
-	/// Prefer TranslatorOverlay - an overlay left installed past the life of its container dangles
-	void install(const TextLocalizationContainer & source);
-	void uninstall(const TextLocalizationContainer & source);
-
-	const std::string & translateString(const TextIdentifier & identifier) const override;
-};
-
 /// Keeps a text container installed in the client translator for exactly as long as this object
-/// lives. Whoever owns the container owns the overlay, so the two can never drift apart.
+/// lives, sharing ownership of it in the meantime.
 class TranslatorOverlay final
 {
-	const TextLocalizationContainer * source = nullptr;
+	std::shared_ptr<const TextLocalizationContainer> source;
 
 public:
 	TranslatorOverlay() = default;
-	explicit TranslatorOverlay(const TextLocalizationContainer & source);
-	TranslatorOverlay(TranslatorOverlay && other) noexcept;
-	TranslatorOverlay & operator=(TranslatorOverlay && other) noexcept;
+	explicit TranslatorOverlay(std::shared_ptr<const TextLocalizationContainer> source);
+	/// these are kept in vectors, so growing one must hand the install over instead of copying it
+	TranslatorOverlay(TranslatorOverlay && other) noexcept = default;
 	~TranslatorOverlay();
 };

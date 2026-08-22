@@ -1220,7 +1220,7 @@ GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): co
 {
 	MetaString formatter;
 	formatter.appendRawString("%s %+d");
-	formatter.replaceRawString(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
+	formatter.replaceTextID(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
 	formatter.replacePositiveNumber(count);
 
 	description = formatter.toString(LIBRARY->staticTexts());
