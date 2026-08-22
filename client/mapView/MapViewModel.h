@@ -19,8 +19,15 @@ class MapViewModel
 
 	int mapLevel = 0;
 
+	/// Whether the cache stores its tiles unscaled and scales them while blitting
+	bool cacheAtNativeSize = false;
+
 public:
+	/// size a tile is rendered at before any scaling
+	static Point getNativeTileSize();
+
 	void setTileSize(const Point & newValue);
+	void setCacheAtNativeSize(bool newValue);
 	void setViewCenter(const Point & newValue);
 	void setViewDimensions(const Point & newValue);
 	void setLevel(int newLevel);
@@ -33,6 +40,10 @@ public:
 
 	/// returns current size of map tile in pixels
 	Point getSingleTileSize() const;
+
+	/// returns size a map tile occupies in the cache, which is its native size when the cache
+	/// scales while blitting and the on-screen size otherwise
+	Point getCacheTileSize() const;
 
 	/// returns center point of map view, in Map coordinates
 	Point getMapViewCenter() const;

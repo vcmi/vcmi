@@ -17,11 +17,11 @@
 #include "../../widgets/TextControls.h"
 #include "../../widgets/GraphicalPrimitiveCanvas.h"
 
-#include "../../render/Canvas.h"
-#include "../../render/CanvasImage.h"
-#include "../../render/IRenderHandler.h"
-#include "../../render/Colors.h"
-#include "../../render/IImage.h"
+#include "render/Canvas.h"
+#include "render/CanvasImage.h"
+#include "render/IRenderHandler.h"
+#include "render/Colors.h"
+#include "render/IImage.h"
 
 #include "../../GameEngine.h"
 #include "../../gui/WindowHandler.h"

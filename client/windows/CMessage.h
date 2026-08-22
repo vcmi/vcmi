@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../render/EFont.h"
+#include "render/EFont.h"
 #include "../../lib/GameConstants.h"
 
 struct SDL_Surface;

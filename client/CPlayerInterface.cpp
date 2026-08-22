@@ -27,8 +27,8 @@
 #include "battle/BattleResultWindow.h"
 #include "battle/BattleWindow.h"
 
-#include "eventsSDL/InputHandler.h"
-#include "eventsSDL/NotificationHandler.h"
+#include "events/InputHandler.h"
+#include "events/NotificationHandler.h"
 
 #include "GameEngine.h"
 #include "GameInstance.h"
@@ -171,6 +171,11 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 
 	adventureInt.reset(new AdventureMapInterface());
 	adventureInt->onCurrentPlayerChanged(playerID);
+}
+
+bool CPlayerInterface::isHeroMoving() const
+{
+	return movementController->isHeroMoving();
 }
 
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)

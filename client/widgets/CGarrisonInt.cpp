@@ -18,7 +18,7 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
-#include "../render/IImage.h"
+#include "render/IImage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CWindowWithArtifacts.h"
 #include "../windows/GUIClasses.h"

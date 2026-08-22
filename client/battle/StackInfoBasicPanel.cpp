@@ -21,7 +21,7 @@
 #include "../../lib/texts/TextOperations.h"
 
 StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
-	: CIntObject(0)
+	: BattleSidePanel(0)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -138,10 +138,5 @@ void StackInfoBasicPanel::update(const CStack * updatedInfo)
 	labelsMultiline.clear();
 
 	initializeData(updatedInfo);
-}
-
-void StackInfoBasicPanel::show(Canvas & to)
-{
-	showAll(to);
-	CIntObject::show(to);
+	redraw();
 }

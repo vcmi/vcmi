@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "BattleFieldController.h"
 
 #include "BattleActionsController.h"
@@ -26,12 +27,13 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../render/CAnimation.h"
+#include "render/CAnimation.h"
 #include "../gui/CursorHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
@@ -162,8 +164,6 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	pos.w = background->width();
 	pos.h = background->height();
 
-	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()), CanvasScalingPolicy::AUTO);
-
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
 }
@@ -280,6 +280,7 @@ void BattleFieldController::showPopupWindow(const Point & cursorPosition)
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: render battlefield");
 	Rect renderPos = pos;
 	renderPos.x += shakeOffset.x;
 	renderPos.y += shakeOffset.y;
@@ -296,6 +297,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: background");
 	if (owner.stacksController->getActiveStack() != nullptr )
 		showBackgroundImageWithHexes(canvas);
 	else
@@ -326,13 +328,55 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 	}
 }
 
+void BattleFieldController::deactivate()
+{
+	// Released on deactivation rather than in the destructor, which runs after the window is
+	// already gone. A window that is merely covered reclaims the layer on the next redraw.
+	ENGINE->screenHandler().releaseLayer(GpuRenderLayer::BATTLE);
+	CIntObject::deactivate();
+}
+
+bool BattleFieldController::usesGpuLayer() const
+{
+	return ENGINE->screenHandler().isGpuRenderingEnabled();
+}
+
+void BattleFieldController::ensureBackgroundCanvas()
+{
+	if(backgroundWithHexes)
+		return;
+
+	const Point size(background->width(), background->height());
+
+	// the backend decides whether this is a render target or a plain surface
+	if(usesGpuLayer())
+		backgroundWithHexes = std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
+	else
+		backgroundWithHexes = std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
+}
+
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: background with hexes");
+	if(backgroundNeedsRebuild)
+		rebuildBackgroundWithHexes();
+
 	canvas.draw(*backgroundWithHexes, Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
 {
+	VCMI_PROFILE_N("Battle: rebuild hex background");
+	// Only marks the background stale - callers are netpack handlers on the network thread,
+	// which must not take the GL context away from the rendering thread.
+	backgroundNeedsRebuild = true;
+}
+
+void BattleFieldController::rebuildBackgroundWithHexes()
+{
+	backgroundNeedsRebuild = false;
+	ensureBackgroundCanvas();
+
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	if(activeStack)
 		availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
@@ -600,6 +644,7 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
+	VCMI_PROFILE_N("Battle: highlighted hexes");
 	BattleHexArray rangedFullDamageLimitHexes;
 	BattleHexArray shootingRangeLimitHexes;
 
@@ -827,6 +872,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 
 void BattleFieldController::updateAccessibleHexes()
 {
+	VCMI_PROFILE_N("Battle: update accessible hexes");
 	auto accessibility = owner.getBattle()->getAccessibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
@@ -840,11 +886,13 @@ bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 
 void BattleFieldController::showAll(Canvas & to)
 {
+	VCMI_PROFILE_N("Battle: show all");
 	show(to);
 }
 
 void BattleFieldController::tick(uint32_t msPassed)
 {
+	VCMI_PROFILE_N("Battle: tick");
 	updateShake();
 	updateAccessibleHexes();
 	owner.stacksController->tick(msPassed);
@@ -854,6 +902,26 @@ void BattleFieldController::tick(uint32_t msPassed)
 
 void BattleFieldController::show(Canvas & to)
 {
+	VCMI_PROFILE_N("Battle: show");
+	if(usesGpuLayer())
+	{
+		// the battlefield is composited from its own GPU layer, so the software screen only
+		// has to stop covering it. Safe from any thread - it only writes into the surface.
+		to.drawColor(pos, ColorRGBA(0, 0, 0, 0));
+
+		// a redraw arriving from another thread is queued by CIntObject::redraw() and reaches us
+		// from the next frame instead, so by here the GL context is ours
+		assert(ENGINE->amIGuiThread());
+
+		Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::BATTLE);
+		renderBattlefield(layer);
+
+		if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
+			layer.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
+
+		return;
+	}
+
 	CanvasClipRectGuard guard(to, pos);
 
 	renderBattlefield(to);

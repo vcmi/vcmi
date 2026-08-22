@@ -11,8 +11,8 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
-#include "../render/Colors.h"
-#include "../render/EFont.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 class IImage;

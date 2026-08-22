@@ -16,10 +16,19 @@
 #include "CServerHandler.h"
 #include "CFocusableHelper.h"
 
+#ifdef VCMI_SDL3
+// this file only calls SDL_main(); the entry point is client_main() in main.m
+#define SDL_MAIN_NOIMPL
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_system.h>
+#else
 #include <SDL_main.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
 #include <SDL_system.h>
+#endif
 
 #import <UIKit/UIKit.h>
 
@@ -63,9 +72,15 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 		{
 			// copied from -[SDLUIKitDelegate postFinishLaunch]
 			SDL_SetMainReady();
+#ifdef VCMI_SDL3
+			SDL_SetiOSEventPump(true);
+			result = SDL_main(argc, argv);
+			SDL_SetiOSEventPump(false);
+#else
 			SDL_iOSSetEventPump(SDL_TRUE);
 			result = SDL_main(argc, argv);
 			SDL_iOSSetEventPump(SDL_FALSE);
+#endif
 		}
 		else
 		{
@@ -75,7 +90,11 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 				exit(0);
 			}];
 			// calls UIApplicationMain internally, never returns
+#ifdef VCMI_SDL3
+			result = SDL_RunApp(argc, argv, SDL_main, nullptr);
+#else
 			result = SDL_UIKitRunApp(argc, argv, SDL_main);
+#endif
 		}
 
 		cleanup();

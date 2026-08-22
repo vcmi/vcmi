@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "GameEngine.h"
 #include "GameLibrary.h"
 #include "Discord.h"
@@ -18,7 +19,7 @@
 #include "gui/FramerateManager.h"
 #include "gui/WindowHandler.h"
 #include "gui/EventDispatcher.h"
-#include "eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 #include "media/CMusicHandler.h"
 #include "media/CSoundHandler.h"
@@ -30,8 +31,8 @@
 #include "render/Colors.h"
 #include "render/IFont.h"
 #include "render/EFont.h"
-#include "renderSDL/ScreenHandler.h"
-#include "renderSDL/RenderHandler.h"
+#include "render/ScreenHandler.h"
+#include "render/RenderHandler.h"
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
@@ -39,8 +40,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-
-#include <SDL_render.h>
 
 std::unique_ptr<GameEngine> ENGINE;
 
@@ -95,7 +94,8 @@ GameEngine::GameEngine()
 
 void GameEngine::handleEvents()
 {
-	events().dispatchTimer(framerate().getElapsedMilliseconds());
+	VCMI_PROFILE_N("Engine: handle events");
+	events().dispatchTimer(framerate().consumeElapsedMilliseconds());
 
 	//player interface may want special event handling
 	if(engineUser->capturedAllEvents())
@@ -113,22 +113,49 @@ void GameEngine::fakeMouseMove()
 
 [[noreturn]] void GameEngine::mainLoop()
 {
+	VCMI_PROFILE_THREAD("GUI");
+	VCMI_PROFILE_PLOT_LINE("Engine: frames per second");
+	VCMI_PROFILE_PLOT_LINE("Engine: frame time (ms)");
+
 	for (;;)
 	{
+		VCMI_PROFILE_N("Engine: main loop iteration");
 		input().fetchEvents();
+
+		// A frame with nothing new to show would still hold interfaceMutex, which is the lock the
+		// network thread needs to produce the next one. The time bound is only a safety net.
+		const auto now = std::chrono::steady_clock::now();
+
+		if(!engineUser->wantsFrameRendered() && now - lastFrameRendered < maxFrameSkipDuration)
+			continue; // this frame does not happen at all, its content comes with the next one
+
+		lastFrameRendered = now;
 		updateFrame();
 		screenHandlerInstance->presentScreenTexture();
-		framerate().framerateDelay(); // holds a constant FPS
+
+		{
+			VCMI_PROFILE_N("Engine: framerate delay");
+			framerate().framerateDelay(); // holds a constant FPS
+		}
+
+		VCMI_PROFILE_PLOT_FLOAT("Engine: frames per second", framerate().getFramerate());
+		VCMI_PROFILE_PLOT_FLOAT("Engine: frame time (ms)", framerate().getElapsedMilliseconds());
+		VCMI_PROFILE_PLOT("Engine: open windows", windows().count());
 	}
 }
 
 void GameEngine::updateFrame()
 {
+	VCMI_PROFILE_N("Engine: update frame");
 	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	engineUser->onUpdate();
 
 	handleEvents();
+
+	// before the redraw, so that a window that was only covered can reclaim its layer
+	screenHandlerInstance->clearReleasedLayers();
+
 	windows().simpleRedraw();
 
 	if (settings["video"]["performanceOverlay"]["show"].Bool())
@@ -202,6 +229,7 @@ bool GameEngine::isDemoData() const
 
 void GameEngine::drawPerformanceOverlay()
 {
+	VCMI_PROFILE_N("Engine: performance overlay");
 	auto font = EFonts::FONT_SMALL;
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
@@ -296,6 +324,7 @@ void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 
 void GameEngine::onScreenResize(bool resolutionChanged, bool windowResized)
 {
+	VCMI_PROFILE_N("Engine: screen resize");
 	if(resolutionChanged)
 		if(!screenHandler().onScreenResize(windowResized))
 			return;

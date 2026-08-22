@@ -16,7 +16,7 @@
 #include "../../GameInstance.h"
 #include "../../CPlayerInterface.h"
 #include "../../PlayerLocalState.h"
-#include "../../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Images.h"
@@ -43,7 +43,8 @@ AdventureOptionsTab::AdventureOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", ENGINE->input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("touchscreen", ENGINE->input().inputModeUsesGestures());
+	addConditional("pen", ENGINE->input().getCurrentInputMode() == InputMode::PEN);
 	addConditional("keyboardMouse", ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
 	addConditional("controller", ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE

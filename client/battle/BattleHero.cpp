@@ -19,9 +19,9 @@
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/IRenderHandler.h"
 #include "../windows/CSpellWindow.h"
 
 #include "../../lib/CConfigHandler.h"

@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "MapRenderer.h"
 
 #include "IMapRendererContext.h"
@@ -19,12 +20,12 @@
 #include "../GameInstance.h"
 #include "../Client.h"
 #include "../GameEngine.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
-#include "../render/Colors.h"
-#include "../render/Graphics.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
+#include "render/Colors.h"
+#include "render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"
@@ -100,11 +101,15 @@ struct NeighborTilesInfo
 
 MapTileStorage::MapTileStorage(size_t capacity)
 	: animations(capacity)
+	, groupCounts(capacity)
 {
 }
 
-void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode)
+void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode, bool preloadAllFrames)
 {
+	for(auto & rotation : groupCounts[index])
+		rotation.clear();
+
 	auto & terrainAnimations = animations[index];
 
 	for(auto & entry : terrainAnimations)
@@ -124,6 +129,21 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 
 	if (terrainAnimations[3])
 		terrainAnimations[3]->horizontalFlip();
+
+	if (!preloadAllFrames)
+		return;
+
+	// Runs while the map is being set up, off the rendering thread, so that the cost is
+	// paid once behind the loading screen rather than by gameplay frames.
+	for(const auto & animation : terrainAnimations)
+	{
+		if (!animation)
+			continue;
+
+		for(size_t group = 0; animation->size(group) > 0; ++group)
+			for(size_t frame = 0; frame < animation->size(group); ++frame)
+				animation->getImage(frame, group);
+	}
 }
 
 std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex)
@@ -135,7 +155,7 @@ std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIn
 		return nullptr;
 }
 
-int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+int MapTileStorage::computeGroupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex) const
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
 	if (animation)
@@ -145,17 +165,31 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 	return 1;
 }
 
+int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
+{
+	auto & cached = groupCounts[fileIndex][rotationIndex];
+
+	if (cached.size() <= imageIndex)
+		cached.resize(imageIndex + 1, -1);
+
+	if (cached[imageIndex] < 0)
+		cached[imageIndex] = computeGroupCount(fileIndex, rotationIndex, imageIndex);
+
+	return cached[imageIndex];
+}
+
 MapRendererTerrain::MapRendererTerrain()
 	: storage(LIBRARY->terrainTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map terrains");
 	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
-		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
+		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE, !terrain->paletteAnimation.empty());
 	logGlobal->debug("Done loading map terrains");
 }
 
 void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: terrain");
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
 	int32_t terrainIndex = mapTile.getTerrainID().getNum();
@@ -189,12 +223,13 @@ MapRendererRiver::MapRendererRiver()
 {
 	logGlobal->debug("Loading map rivers");
 	for(const auto & river : LIBRARY->riverTypeHandler->objects)
-		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
+		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY, !river->paletteAnimation.empty());
 	logGlobal->debug("Done loading map rivers");
 }
 
 void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: river");
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
 	if(!mapTile.hasRiver())
@@ -230,6 +265,7 @@ MapRendererRoad::MapRendererRoad()
 
 void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: road");
 	const int3 coordinatesAbove = coordinates - int3(0, 1, 0);
 
 	if(context.isInMap(coordinatesAbove))
@@ -308,6 +344,7 @@ size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const i
 
 void MapRendererBorder::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: border");
 	if (context.showBorder())
 	{
 		const auto & image = animation->getImage(getIndexForTile(context, coordinates));
@@ -341,11 +378,9 @@ MapRendererFow::MapRendererFow()
 	}
 }
 
-void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const NeighborTilesInfo & neighborInfo)
 {
 	assert(!context.isVisible(coordinates));
-
-	const NeighborTilesInfo neighborInfo(context, coordinates);
 
 	int retBitmapID = neighborInfo.getBitmapID(); // >=0 -> partial hide, <0 - full hide
 	if(retBitmapID < 0)
@@ -367,12 +402,11 @@ void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, 
 	}
 }
 
-uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates, const NeighborTilesInfo & neighborInfo)
 {
 	if (context.showSpellRange(coordinates))
 		return 0xff - 2;
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
 	int retBitmapID = neighborInfo.getBitmapID();
 	if(retBitmapID < 0)
 		return 0xff - 1;
@@ -534,13 +568,14 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance, double transparencyFactor)
 {
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)), transparencyFactor);
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)), transparencyFactor);
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)), transparencyFactor);
+	// only the images are shared across tiles - transparency and offset stay per-tile
+	for(const auto & image : getObjectImages(context, instance))
+		renderImage(context, target, coordinates, instance, image, transparencyFactor);
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: objects");
 	const CGObjectInstance * activeHero = nullptr;
 	bool activeHeroCovered = false;
 
@@ -569,8 +604,72 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 		renderObject(context, target, coordinates, activeHero, activeHeroTransparency);
 }
 
+void MapRendererObjects::prepareFrame()
+{
+	checksumInfoCache.clear();
+	renderImageCache.clear();
+}
+
+const MapRendererObjects::ObjectImages & MapRendererObjects::getObjectImages(IMapRendererContext & context, const CGObjectInstance * object)
+{
+	auto it = renderImageCache.find(object->id.getNum());
+	if(it != renderImageCache.end())
+		return it->second;
+
+	// Which image each layer resolves to is fixed for the whole pass: the animation clock
+	// does not advance inside one, and no object can change while it runs under the lock.
+	ObjectImages images = {
+		getImageToRender(context, object, getBaseAnimation(object)),
+		getImageToRender(context, object, getFlagAnimation(object)),
+		getImageToRender(context, object, getOverlayAnimation(object))
+	};
+
+	return renderImageCache.emplace(object->id.getNum(), std::move(images)).first->second;
+}
+
+const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex)
+{
+	const uint64_t key = (static_cast<uint64_t>(object->id.getNum()) << 32) | groupIndex;
+
+	auto it = checksumInfoCache.find(key);
+	if(it != checksumInfoCache.end())
+		return it->second;
+
+	ObjectChecksumInfo info;
+
+	// The image index depends on the animation clock, which does not advance during a
+	// single pass, so the image - and therefore its size - is fixed for the whole pass.
+	const auto & base = getBaseAnimation(object);
+	if(base && base->size(groupIndex) > 1)
+	{
+		const auto & image = base->getImage(context.objectImageIndex(object->id, base->size(groupIndex)), groupIndex);
+		if(image)
+		{
+			info.baseAnimated = true;
+			info.baseDimensions = image->dimensions();
+		}
+	}
+
+	const auto & flag = getFlagAnimation(object);
+	if(flag && flag->size(groupIndex) > 1)
+	{
+		const auto & image = flag->getImage(context.objectImageIndex(object->id, flag->size(groupIndex)), groupIndex);
+		if(image)
+		{
+			info.flagAnimated = true;
+			info.flagDimensions = image->dimensions();
+		}
+	}
+
+	return checksumInfoCache.emplace(key, info).first->second;
+}
+
 uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
+	// objects covering one tile no longer advance their animation at the same moment, so
+	// every animated one has to feed the checksum instead of just the first
+	uint8_t result = 0xff-1;
+
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
@@ -582,29 +681,18 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 			continue;
 		}
 
-		size_t groupIndex = context.objectGroupIndex(objectInstance->id);
-		Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
+		const size_t groupIndex = context.objectGroupIndex(objectInstance->id);
+		const Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
+		const auto & info = getChecksumInfo(context, objectInstance, groupIndex);
 
-		auto base = getBaseAnimation(objectInstance);
-		auto flag = getFlagAnimation(objectInstance);
+		const bool baseVisible = info.baseAnimated && offsetPixels.x < info.baseDimensions.x && offsetPixels.y < info.baseDimensions.y;
+		const bool flagVisible = info.flagAnimated && offsetPixels.x < info.flagDimensions.x && offsetPixels.y < info.flagDimensions.y;
 
-		if (base && base->size(groupIndex) > 1)
-		{
-			auto imageIndex = context.objectImageIndex(objectID, base->size(groupIndex));
-			auto image = base->getImage(imageIndex, groupIndex);
-			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
-				return context.objectImageIndex(objectID, 250);
-		}
-
-		if (flag && flag->size(groupIndex) > 1)
-		{
-			auto imageIndex = context.objectImageIndex(objectID, flag->size(groupIndex));
-			auto image = flag->getImage(imageIndex, groupIndex);
-			if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
-				return context.objectImageIndex(objectID, 250);
-		}
+		// odd multiplier, so a frame advancing by one always changes the result
+		if(baseVisible || flagVisible)
+			result = result * 31 + context.objectImageIndex(objectID, 250);
 	}
-	return 0xff-1;
+	return result;
 }
 
 MapRendererOverlay::MapRendererOverlay()
@@ -620,6 +708,7 @@ MapRendererOverlay::MapRendererOverlay()
 
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: overlay");
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
@@ -731,10 +820,26 @@ size_t MapRendererPath::selectImageArrow(bool reachableToday, const int3 & curr,
 
 void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: path");
 	size_t imageID = selectImage(context, coordinates);
 
 	if (imageID < pathNodes->size() && settings["adventure"]["showMovePath"].Bool())
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
+}
+
+void MapRendererPath::prepareFrame(IMapRendererContext & context)
+{
+	cachedPath = context.currentPath();
+	cachedPathTiles.clear();
+
+	if(!cachedPath)
+		return;
+
+	cachedPathTiles.reserve(cachedPath->nodes.size());
+	for(const auto & node : cachedPath->nodes)
+		cachedPathTiles.push_back(node.coord);
+
+	std::ranges::sort(cachedPathTiles);
 }
 
 size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & coordinates)
@@ -744,8 +849,13 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 		return node.coord == coordinates;
 	};
 
-	const auto * path = context.currentPath();
+	const auto * path = cachedPath;
 	if(!path)
+		return std::numeric_limits<size_t>::max();
+
+	// Nearly every tile of the view is off the path; reject those without touching the
+	// node list. Tiles that pass still go through the same search as before.
+	if(!std::ranges::binary_search(cachedPathTiles, coordinates))
 		return std::numeric_limits<size_t>::max();
 
 	const auto & iter = std::ranges::find_if(path->nodes, functor);
@@ -778,8 +888,15 @@ uint8_t MapRendererPath::checksum(IMapRendererContext & context, const int3 & co
 	return selectImage(context, coordinates) & 0xff;
 }
 
+void MapRenderer::prepareFrame(IMapRendererContext & context)
+{
+	rendererPath.prepareFrame(context);
+	rendererObjects.prepareFrame();
+}
+
 MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & context, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: checksum");
 	// computes basic checksum to determine whether tile needs an update
 	// if any component gives different value, tile will be updated
 	TileChecksum result;
@@ -791,11 +908,17 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 		return result;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const bool visible = context.isVisible(coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	// Neighbour visibility costs eight queries and is only consulted for hidden tiles, so it is
+	// skipped for the common case of a visible one - which the old code built and discarded.
+	std::optional<NeighborTilesInfo> neighborInfo;
+	if(!visible)
+		neighborInfo.emplace(context, coordinates);
+
+	if(!visible && neighborInfo->areAllHidden())
 	{
-		result[7] = rendererFow.checksum(context, coordinates);
+		result[7] = rendererFow.checksum(context, coordinates, *neighborInfo);
 	}
 	else
 	{
@@ -808,25 +931,30 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 		result[5] = rendererPath.checksum(context, coordinates);
 		result[6] = rendererOverlay.checksum(context, coordinates);
 
-		if(!context.isVisible(coordinates))
-			result[7] = rendererFow.checksum(context, coordinates);
+		if(!visible)
+			result[7] = rendererFow.checksum(context, coordinates, *neighborInfo);
 	}
 	return result;
 }
 
 void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	VCMI_PROFILE_N("MapTile: render");
 	if(!context.isInMap(coordinates))
 	{
 		rendererBorder.renderTile(context, target, coordinates);
 		return;
 	}
 
-	const NeighborTilesInfo neighborInfo(context, coordinates);
+	const bool visible = context.isVisible(coordinates);
 
-	if(!context.isVisible(coordinates) && neighborInfo.areAllHidden())
+	std::optional<NeighborTilesInfo> neighborInfo;
+	if(!visible)
+		neighborInfo.emplace(context, coordinates);
+
+	if(!visible && neighborInfo->areAllHidden())
 	{
-		rendererFow.renderTile(context, target, coordinates);
+		rendererFow.renderTile(context, target, coordinates, *neighborInfo);
 	}
 	else
 	{
@@ -842,7 +970,7 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 		rendererPath.renderTile(context, target, coordinates);
 		rendererOverlay.renderTile(context, target, coordinates);
 
-		if(!context.isVisible(coordinates))
-			rendererFow.renderTile(context, target, coordinates);
+		if(!visible)
+			rendererFow.renderTile(context, target, coordinates, *neighborInfo);
 	}
 }

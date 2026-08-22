@@ -13,14 +13,14 @@
 #include "BattleInterface.h"
 #include "BattleFieldController.h"
 
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/EFont.h"
-#include "../render/IFont.h"
-#include "../render/IRenderHandler.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../GameEngine.h"
-#include "../render/Graphics.h"
+#include "render/Graphics.h"
 
 BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 	BattleRenderer::RendererRef & target,

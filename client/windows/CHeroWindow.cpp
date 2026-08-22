@@ -30,7 +30,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
-#include "../render/IRenderHandler.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"

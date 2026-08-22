@@ -13,10 +13,10 @@
 #include "Images.h"
 #include "TextControls.h"
 
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
-#include "../render/IImage.h"
+#include "render/IImage.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/GameLibrary.h"

@@ -19,7 +19,7 @@
 #include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../media/IMusicPlayer.h"
+#include "media/IMusicPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "BattleSidePanel.h"
 
 class CStack;
 
@@ -17,7 +17,7 @@ class CLabel;
 class CMultiLineLabel;
 class CAnimImage;
 
-class StackInfoBasicPanel : public CIntObject
+class StackInfoBasicPanel : public BattleSidePanel
 {
 private:
 	std::shared_ptr<CPicture> background;
@@ -28,8 +28,6 @@ private:
 
 public:
 	StackInfoBasicPanel(const CStack * stack, bool initializeBackground);
-
-	void show(Canvas & to) override;
 
 	void initializeData(const CStack * stack);
 	void update(const CStack * updatedInfo);

@@ -13,10 +13,10 @@
 #include "IVideoHolder.h"
 
 #include "../GameEngine.h"
-#include "../media/ISoundPlayer.h"
-#include "../media/IVideoPlayer.h"
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
+#include "media/ISoundPlayer.h"
+#include "media/IVideoPlayer.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/Filesystem.h"

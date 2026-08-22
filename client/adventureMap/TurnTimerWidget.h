@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../render/Colors.h"
+#include "render/Colors.h"
 #include "../../lib/TurnTimerInfo.h"
 
 class CAnimImage;

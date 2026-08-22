@@ -1,0 +1,242 @@
+/*
+ * CBitmapHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
+#include "render/CBitmapHandler.h"
+
+#include "SDL_Extensions.h"
+
+#include "lib/ExceptionsCommon.h"
+#include "lib/filesystem/Filesystem.h"
+#include "lib/vcmi_endian.h"
+
+#include <SDL3_image/SDL_image.h>
+
+namespace BitmapHandler
+{
+	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
+
+	SDL_Surface * loadBitmapFromDir(const ImagePath & path);
+}
+
+bool isPCX(const ui8 *header)//check whether file can be PCX according to header
+{
+	ui32 fSize  = read_le_u32(header + 0);
+	ui32 width  = read_le_u32(header + 4);
+	ui32 height = read_le_u32(header + 8);
+	return fSize == width*height || fSize == width*height*3;
+}
+
+enum Epcxformat
+{
+	PCX8B,
+	PCX24B
+};
+
+SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
+{
+	SDL_Surface * ret;
+
+	Epcxformat format;
+	int it=0;
+
+	ui32 fSize = read_le_u32(pcx + it); it+=4;
+	ui32 width = read_le_u32(pcx + it); it+=4;
+	ui32 height = read_le_u32(pcx + it); it+=4;
+
+	if (fSize==width*height*3)
+		format=PCX24B;
+	else if (fSize==width*height)
+		format=PCX8B;
+	else
+		return nullptr;
+
+	if (format==PCX8B)
+	{
+		ret = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
+		SDL_Palette * palette = ret ? SDL_CreateSurfacePalette(ret) : nullptr;
+
+		if (palette == nullptr)
+		{
+			SDL_DestroySurface(ret);
+			return nullptr;
+		}
+
+		it = 0xC;
+		for (int i=0; i<(int)height; i++)
+		{
+			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width);
+			it+= width;
+		}
+
+		//palette - last 256*3 bytes
+		it = (int)size-256*3;
+		for (int i=0;i<256;i++)
+		{
+			SDL_Color tp;
+			tp.r = pcx[it++];
+			tp.g = pcx[it++];
+			tp.b = pcx[it++];
+			tp.a = SDL_ALPHA_OPAQUE;
+			palette->colors[i] = tp;
+		}
+	}
+	else
+	{
+		ret = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_BGR24);
+
+		if (ret == nullptr)
+			return nullptr;
+
+		//it == 0xC;
+		for (int i=0; i<(int)height; i++)
+		{
+			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width*3);
+			it+= width*3;
+		}
+
+	}
+	return ret;
+}
+
+SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
+{
+	if (!CResourceHandler::get()->existsResource(path))
+	{
+		return nullptr;
+	}
+
+	SDL_Surface * ret=nullptr;
+
+	try {
+		auto readFile = CResourceHandler::get()->load(path)->readAll();
+
+		if (isPCX(readFile.first.get()))
+		{//H3-style PCX
+			ret = loadH3PCX(readFile.first.get(), readFile.second);
+			if (!ret)
+			{
+				logGlobal->error("Failed to open %s as H3 PCX!", path.getOriginalName());
+				return nullptr;
+			}
+		}
+		else
+		{ //loading via SDL_Image
+			ret = IMG_Load_IO(
+					  //create SDL_IOStream with our data (will be deleted by SDL)
+					  SDL_IOFromConstMem((void*)readFile.first.get(), readFile.second),
+					  true); // mark it for auto-deleting
+			if (!ret)
+			{
+				logGlobal->error("Failed to open %s via SDL_Image", path.getOriginalName());
+				logGlobal->error("Reason: %s", SDL_GetError());
+				return nullptr;
+			}
+
+			SDL_Palette * palette = CSDL_Ext::getPalette(ret);
+			if (palette)
+			{
+				// SDL3_image leaves paletted png's indexed and stores their tRNS transparency as palette
+				// alpha, while SDL2_image expanded those to RGBA - do that here to keep one code path.
+				bool paletteHasTransparency = false;
+				for (int i = 0; i < palette->ncolors; i++)
+					if (palette->colors[i].a != SDL_ALPHA_OPAQUE)
+						paletteHasTransparency = true;
+
+				if (paletteHasTransparency)
+				{
+					SDL_Surface * expanded = SDL_ConvertSurface(ret, SDL_PIXELFORMAT_ARGB8888);
+					SDL_DestroySurface(ret);
+					ret = expanded;
+
+					if (!ret)
+					{
+						logGlobal->error("Failed to expand %s into a surface with alpha channel", path.getOriginalName());
+						logGlobal->error("Reason: %s", SDL_GetError());
+						return nullptr;
+					}
+				}
+				else
+				{
+					// set correct value for alpha\unused channel
+					for (int i=0; i < palette->ncolors; i++)
+						palette->colors[i].a = SDL_ALPHA_OPAQUE;
+				}
+			}
+		}
+	}
+	catch (const DataLoadingException & e)
+	{
+		logGlobal->error("%s", e.what());
+		return nullptr;
+	}
+
+	// When modifying anything here please check two use cases:
+	// 1) Vampire mansion in Necropolis (not 1st color is transparent)
+	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
+	// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
+	// 4) special case - there are 2 .bmp images that have semi-transparency (CCELLGRD.BMP & CCELLSHD.BMP)
+	SDL_Palette * palette = CSDL_Ext::getPalette(ret);
+
+	if (palette &&
+		palette->colors[0].r == 255 &&
+		palette->colors[0].g ==   0 &&
+		palette->colors[0].b == 255 )
+	{
+		constexpr std::array shadow =
+		{
+			SDL_Color{   0,   0,   0,   0},// 100% - transparency
+			SDL_Color{   0,   0,   0,  32},//  75% - shadow border,
+			SDL_Color{   0,   0,   0, 128},//  50% - shadow body
+		};
+
+		CSDL_Ext::setColorKey(ret, palette->colors[0]);
+
+		palette->colors[0] = shadow[0];
+		palette->colors[1] = shadow[1];
+		palette->colors[4] = shadow[2];
+	}
+	else if (palette)
+	{
+		CSDL_Ext::setDefaultColorKeyPresize(ret);
+	}
+	else if (CSDL_Ext::getFormat(ret)->Amask)
+	{
+		SDL_SetSurfaceBlendMode(ret, SDL_BLENDMODE_BLEND);
+	}
+	else // always set
+	{
+		CSDL_Ext::setDefaultColorKey(ret);
+	}
+	return ret;
+}
+
+SDL_Surface * BitmapHandler::loadBitmap(const ImagePath & fname)
+{
+	if(fname.empty())
+	{
+		logGlobal->warn("Call to loadBitmap with void fname!");
+		return nullptr;
+	}
+
+	SDL_Surface * bitmap = loadBitmapFromDir(fname);
+	if (bitmap != nullptr)
+		return bitmap;
+
+	SDL_Surface * bitmapData = loadBitmapFromDir(fname.addPrefix("DATA/"));
+	if (bitmapData != nullptr)
+		return bitmapData;
+
+	SDL_Surface * bitmapSprites = loadBitmapFromDir(fname.addPrefix("SPRITES/"));
+	if (bitmapSprites != nullptr)
+		return bitmapSprites;
+
+	logGlobal->error("Error: Failed to find file %s", fname.getOriginalName());
+	return nullptr;
+}

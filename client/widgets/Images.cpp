@@ -13,13 +13,13 @@
 #include "MiscWidgets.h"
 
 #include "../GameEngine.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/ColorFilter.h"
-#include "../render/Colors.h"
-#include "../eventsSDL/InputHandler.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/ColorFilter.h"
+#include "render/Colors.h"
+#include "events/InputHandler.h"
 
 #include "../battle/BattleInterface.h"
 

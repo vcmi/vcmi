@@ -11,7 +11,7 @@
 #include "ImageLocator.h"
 
 #include "../GameEngine.h"
-#include "IScreenHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "../../lib/json/JsonNode.h"
 

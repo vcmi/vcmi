@@ -12,7 +12,7 @@
 #include "../../../gui/CIntObject.h"
 #include "../../../widgets/Images.h"
 #include "../../../widgets/VideoWidget.h"
-#include "../../../render/CanvasImage.h"
+#include "render/CanvasImage.h"
 
 class Canvas;
 

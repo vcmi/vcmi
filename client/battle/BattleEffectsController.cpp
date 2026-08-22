@@ -19,10 +19,10 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
-#include "../media/ISoundPlayer.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/Graphics.h"
+#include "media/ISoundPlayer.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/Graphics.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"

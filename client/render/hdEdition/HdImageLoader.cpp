@@ -13,18 +13,35 @@
 #include "PakLoader.h"
 #include "DdsFormat.h"
 
+#ifdef VCMI_SDL3
+#include <SDL3_image/SDL_image.h>
+#else
 #include <SDL_image.h>
+#endif
 #include <unordered_set>
 
 #include "../../GameEngine.h"
 #include "../CBitmapHandler.h"
-#include "../IScreenHandler.h"
-#include "../../renderSDL/SDLImage.h"
-#include "../../renderSDL/SDL_Extensions.h"
+#include "render/IScreenHandler.h"
+#include "render/SDLImage.h"
+#include "render/SDL_Extensions.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/filesystem/CCompressedStream.h"
 #include "../../../lib/filesystem/CMemoryStream.h"
+
+namespace
+{
+/// SDL3 renamed SDL_FreeSurface, so the shared code uses one spelling for both backends
+void destroySurface(SDL_Surface * surface)
+{
+#ifdef VCMI_SDL3
+	SDL_DestroySurface(surface);
+#else
+	SDL_FreeSurface(surface);
+#endif
+}
+}
 
 const std::unordered_set<std::string> animToSkip = {
 	// skip menu buttons (RoE)
@@ -69,9 +86,9 @@ HdImageLoader::HdImageLoader()
 HdImageLoader::~HdImageLoader()
 {
 	if(flagImg[0])
-		SDL_FreeSurface(flagImg[0]);
+		destroySurface(flagImg[0]);
 	if(flagImg[1])
-		SDL_FreeSurface(flagImg[1]);
+		destroySurface(flagImg[1]);
 }
 
 void HdImageLoader::loadFlagData()
@@ -128,7 +145,7 @@ std::shared_ptr<SDLImageShared> HdImageLoader::getImage(const ImagePath & path, 
 
 		auto img = std::make_shared<SDLImageShared>(surf);
 
-		SDL_FreeSurface(surf);
+		destroySurface(surf);
 
 		return img;
 	}
@@ -158,9 +175,9 @@ std::shared_ptr<SDLImageShared> HdImageLoader::getImage(const ImagePath & path, 
 		img->setFullSize(fullSize * scalingFactor);
 	img->setMargins((margins - Point(image.spriteOffsetX, image.spriteOffsetY)) * scalingFactor);
 
-	SDL_FreeSurface(surfCropped);
+	destroySurface(surfCropped);
 	if(surfRotated)
-		SDL_FreeSurface(surfRotated);
+		destroySurface(surfRotated);
 	
 	return img;
 }

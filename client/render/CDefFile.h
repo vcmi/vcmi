@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "ICacheableAsset.h"
+
 #include "../../lib/vcmi_endian.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
@@ -19,7 +21,7 @@ struct SDL_Color;
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
-class CDefFile
+class CDefFile : public ICacheableAsset
 {
 public:
 	PACKED_STRUCT_BEGIN
@@ -42,11 +44,15 @@ private:
 	std::map<size_t, std::vector <std::string> > name;
 
 	std::unique_ptr<ui8[]>       data;
+	size_t                       dataSize = 0;
 	std::unique_ptr<SDL_Color[]> palette;
 
 public:
 	CDefFile(const AnimationPath & Name);
-	~CDefFile();
+
+	/// Estimated memory footprint, for cache accounting
+	size_t bytesUsed() const override;
+	~CDefFile() override;
 
 	//load frame as SDL_Surface
 	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;

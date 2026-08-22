@@ -19,9 +19,9 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 
-#include "../render/IRenderHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/IImage.h"
+#include "render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
 
 #include "../widgets/CComponent.h"
 

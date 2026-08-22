@@ -9,16 +9,17 @@
  */
 
 #include "StdInc.h"
+#include "Profiler.h"
 #include "CursorHandler.h"
 
 #include "GameEngine.h"
 #include "FramerateManager.h"
-#include "../renderSDL/CursorSoftware.h"
-#include "../renderSDL/CursorHardware.h"
-#include "../render/CAnimation.h"
-#include "../render/IImage.h"
-#include "../render/IScreenHandler.h"
-#include "../render/IRenderHandler.h"
+#include "render/CursorSoftware.h"
+#include "render/CursorHardware.h"
+#include "render/CAnimation.h"
+#include "render/IImage.h"
+#include "render/IScreenHandler.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
@@ -241,6 +242,7 @@ std::shared_ptr<IImage> CursorHandler::getCurrentImage()
 
 void CursorHandler::updateAnimatedCursor()
 {
+	VCMI_PROFILE_N("Cursor: advance animation");
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
 	frameTime += ENGINE->framerate().getElapsedMilliseconds() / 1000.f;
@@ -264,6 +266,7 @@ void CursorHandler::updateAnimatedCursor()
 
 void CursorHandler::render()
 {
+	VCMI_PROFILE_N("Cursor: render");
 	if(!showing)
 		return;
 
@@ -272,6 +275,7 @@ void CursorHandler::render()
 
 void CursorHandler::update()
 {
+	VCMI_PROFILE_N("Cursor: update");
 	if(!showing)
 		return;
 
@@ -306,6 +310,7 @@ Cursor::ShowType CursorHandler::getShowType() const
 
 void CursorHandler::changeCursor(Cursor::ShowType newShowType)
 {
+	VCMI_PROFILE_N("Cursor: change");
 	if(newShowType == showType)
 		return;
 

@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "BattleInterface.h"
 
 #include "BattleActionsController.h"
@@ -32,9 +33,9 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../media/IMusicPlayer.h"
-#include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
+#include "render/Canvas.h"
 #include "../windows/CTutorialWindow.h"
 
 #include "../../lib/BattleFieldHandler.h"
@@ -208,6 +209,7 @@ BattleInterface::~BattleInterface()
 
 void BattleInterface::redrawBattlefield()
 {
+	VCMI_PROFILE_N("Battle: redraw battlefield");
 	fieldController->redrawBackgroundWithHexes();
 	ENGINE->windows().totalRedraw();
 }

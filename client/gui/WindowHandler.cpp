@@ -8,18 +8,20 @@
  *
  */
 #include "StdInc.h"
+#include "Profiler.h"
 #include "WindowHandler.h"
 
 #include "GameEngine.h"
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
-#include "../render/Colors.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
+#include "render/Colors.h"
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
+	VCMI_PROFILE_N("Windows: pop window");
 	if (windowsStack.back() != top)
 		throw std::runtime_error("Attempt to pop non-top window from stack!");
 
@@ -34,6 +36,7 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 
 void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 {
+	VCMI_PROFILE_N("Windows: push window");
 	if (newInt == nullptr)
 		throw std::runtime_error("Attempt to push null window onto windows stack!");
 
@@ -99,11 +102,56 @@ bool WindowHandler::isTopWindow(IShowActivatable * window) const
 
 void WindowHandler::totalRedraw()
 {
+	VCMI_PROFILE_N("Windows: total redraw");
 	totalRedrawRequested = true;
+}
+
+void WindowHandler::requestRedraw(CIntObject * object)
+{
+	std::lock_guard lock(pendingRedrawMutex);
+
+	if(!vstd::contains(pendingRedraws, object))
+		pendingRedraws.push_back(object);
+
+	hasPendingRedraws = true;
+}
+
+void WindowHandler::cancelRedraw(CIntObject * object)
+{
+	// every destroyed widget passes here, so the common case must not take the lock
+	if(!hasPendingRedraws)
+		return;
+
+	std::lock_guard lock(pendingRedrawMutex);
+	vstd::erase(pendingRedraws, object);
+	hasPendingRedraws = !pendingRedraws.empty();
+}
+
+void WindowHandler::processPendingRedraws()
+{
+	VCMI_PROFILE_N("Windows: pending redraws");
+	std::vector<CIntObject *> pending;
+
+	{
+		std::lock_guard lock(pendingRedrawMutex);
+		pending.swap(pendingRedraws);
+		hasPendingRedraws = false;
+	}
+
+	if(pending.empty())
+		return;
+
+	VCMI_PROFILE_PLOT("Windows: deferred repaints", pending.size());
+
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
+
+	for(CIntObject * object : pending)
+		object->showAll(target);
 }
 
 void WindowHandler::totalRedrawImpl()
 {
+	VCMI_PROFILE_N("Windows: total redraw (draw)");
 	logGlobal->debug("totalRedraw requested!");
 
 	Canvas target = ENGINE->screenHandler().getScreenCanvas();
@@ -117,6 +165,9 @@ void WindowHandler::totalRedrawImpl()
 
 void WindowHandler::simpleRedraw()
 {
+	VCMI_PROFILE_N("Windows: simple redraw");
+	processPendingRedraws();
+
 	if (totalRedrawRequested)
 		totalRedrawImpl();
 	else
@@ -127,6 +178,7 @@ void WindowHandler::simpleRedraw()
 
 void WindowHandler::simpleRedrawImpl()
 {
+	VCMI_PROFILE_N("Windows: simple redraw (draw)");
 	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	if(!windowsStack.empty())
@@ -138,6 +190,7 @@ void WindowHandler::simpleRedrawImpl()
 
 void WindowHandler::onScreenResize()
 {
+	VCMI_PROFILE_N("Windows: screen resize");
 	for(const auto & entry : windowsStack)
 		entry->onScreenResize();
 
@@ -146,6 +199,7 @@ void WindowHandler::onScreenResize()
 
 void WindowHandler::onFrameRendered()
 {
+	VCMI_PROFILE_N("Windows: on frame rendered");
 	disposed.clear();
 }
 

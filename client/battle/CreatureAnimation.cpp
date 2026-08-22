@@ -14,11 +14,11 @@
 #include "../../lib/CCreatureHandler.h"
 
 #include "../GameEngine.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/ColorFilter.h"
-#include "../render/Colors.h"
-#include "../render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/ColorFilter.h"
+#include "render/Colors.h"
+#include "render/IRenderHandler.h"
 
 static const ColorRGBA creatureBlueBorder = { 0, 255, 255, 255 };
 static const ColorRGBA creatureGoldBorder = { 255, 255, 0, 255 };

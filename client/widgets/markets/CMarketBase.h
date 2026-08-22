@@ -11,8 +11,8 @@
 
 #include "TradePanels.h"
 #include "../Slider.h"
-#include "../../render/EFont.h"
-#include "../../render/Colors.h"
+#include "render/EFont.h"
+#include "render/Colors.h"
 
 class IMarket;
 

@@ -14,6 +14,8 @@
 #include "CMT.h"
 #include "CServerHandler.h"
 #include "GameEngine.h"
+#include "adventureMap/AdventureMapInterface.h"
+#include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "mainmenu/CMainMenu.h"
@@ -113,6 +115,24 @@ bool GameInstance::capturedAllEvents()
 		return interfaceInstance->capturedAllEvents();
 	else
 		return false;
+}
+
+bool GameInstance::wantsFrameRendered()
+{
+	// Only the plain adventure map may skip a frame: a battle or a window above it animates on
+	// its own, and the hero keeps counting as moving while they are up.
+	if (CPlayerInterface::battleInt)
+		return true;
+
+	if (!adventureInt || !ENGINE->windows().isTopWindow(adventureInt))
+		return true;
+
+	// between two steps of a walking hero nothing moves, and rendering it only delays the
+	// netpacks that would start the next step
+	if (interfaceInstance && mapInstance && interfaceInstance->isHeroMoving())
+		return mapInstance->hasOngoingAnimations();
+
+	return true;
 }
 
 void GameInstance::onShutdownRequested(bool ask)

@@ -11,12 +11,14 @@
 
 #include "../windows/CWindowObject.h"
 
+#include "BattleSidePanel.h"
+
 class CLabel;
 class CAnimImage;
 
 struct InfoAboutHero;
 
-class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
+class HeroInfoBasicPanel : public BattleSidePanel //extracted from InfoWindow to fit better as non-popup embed element
 {
 private:
 	std::shared_ptr<CPicture> background;
@@ -25,8 +27,6 @@ private:
 
 public:
 	HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground = true);
-
-	void show(Canvas & to) override;
 
 	void initializeData(const InfoAboutHero & hero);
 	void update(const InfoAboutHero & updatedInfo);
