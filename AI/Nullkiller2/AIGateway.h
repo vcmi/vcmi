@@ -78,6 +78,7 @@ public:
 	ObjectInstanceID selectedObject;
 
 	std::unique_ptr<Nullkiller> nullkiller;
+	std::atomic_bool oneWayPortalStateDirty = false;
 
 	AIGateway();
 	~AIGateway();
@@ -154,6 +155,7 @@ public:
 	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
 	void makeTurn();
+	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
