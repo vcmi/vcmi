@@ -3,4 +3,12 @@
     <string name="server_name">Serwer VCMI</string>
     <string name="shortcut_play">Zagraj w VCMI</string>
     <string name="shortcut_editor">Uruchom Edytor VCMI</string>
+    <string name="notification_game_title">VCMI</string>
+    <string name="notification_quit">Zamknij</string>
+    <string name="quit_title">Zamknij VCMI</string>
+    <string name="notification_permission_title">Powiadomienia są wyłączone</string>
+    <string name="notification_permission_denied">VCMI potrzebuje uprawnienia do powiadomień, aby informować Cię o rozpoczęciu tury lub otrzymaniu wiadomości czatu, gdy gra działa w tle. Bez tego uprawnienia gra nadal działa, ale nie będziesz otrzymać powiadomień.</string>
+    <string name="notification_permission_settings">Ustawienia</string>
+    <string name="quit_message">Czy na pewno chcesz zakończyć grę? Niezapisane postępy zostaną utracone.</string>
+    <string name="data_folder_name">Dane VCMI</string>
 </resources>
