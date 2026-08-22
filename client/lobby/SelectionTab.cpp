@@ -1469,7 +1469,6 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
 }
-}
 
 std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 {
@@ -1486,6 +1485,7 @@ std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 		return item.fileURI;
 
 	return CResourceHandler::get()->getFullFileURI(resource);
+}
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)
 {
