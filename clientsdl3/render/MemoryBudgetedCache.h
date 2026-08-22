@@ -25,7 +25,7 @@ private:
 	struct Entry
 	{
 		Key key;
-		std::shared_ptr<const ICacheableAsset> value;
+		std::shared_ptr<ICacheableAsset> value;
 		size_t bytes;
 	};
 
@@ -35,14 +35,23 @@ private:
 	size_t usedBytes = 0;
 	size_t budgetBytes = 0;
 
-	/// Moves entries over budget into `evicted`, to be released by the caller
-	void evict(std::vector<std::shared_ptr<const ICacheableAsset>> & evicted)
+	/// Assets stored since the last re-measure. Walking every entry is not free, so it happens
+	/// on a stride rather than on every store.
+	size_t storesSinceRefresh = 0;
+	static constexpr size_t storesBetweenRefreshes = 512;
+
+	/// Assets this cache gave up. Held until the rendering thread reclaims them: another owner may
+	/// still point at one, and only that thread may free what a draw could be reading.
+	std::vector<std::shared_ptr<ICacheableAsset>> evictedAssets;
+
+	/// Moves entries over budget out of the index and onto the reclaim list
+	void evict()
 	{
 		while(usedBytes > budgetBytes && !order.empty())
 		{
 			Entry & oldest = order.back();
 			usedBytes -= oldest.bytes;
-			evicted.push_back(std::move(oldest.value));
+			evictedAssets.push_back(std::move(oldest.value));
 			index.erase(oldest.key);
 			order.pop_back();
 		}
@@ -51,26 +60,22 @@ private:
 public:
 	void setBudget(size_t bytes)
 	{
-		std::vector<std::shared_ptr<const ICacheableAsset>> evicted;
-		{
-			std::lock_guard lock(mutex);
-			budgetBytes = bytes;
-			evict(evicted);
-		}
+		std::lock_guard lock(mutex);
+		budgetBytes = bytes;
+		evict();
 	}
 
-	/// Retains value as most recently used. Its size is re-taken on every access, since
-	/// assets grow lazily as scaled variants are generated.
-	void store(const Key & key, const std::shared_ptr<const ICacheableAsset> & value)
+	/// Retains value as most recently used. Its size is re-taken here and, for entries nobody
+	/// looks up again, by the periodic refresh - assets grow lazily as scaled variants are
+	/// generated and textures uploaded.
+	void store(const Key & key, const std::shared_ptr<ICacheableAsset> & value)
 	{
 		if(!value)
 			return;
 
 		const size_t bytes = value->bytesUsed();
 
-		// released after the lock: destroying an asset frees SDL surfaces, which should
-		// not happen while other threads wait on the mutex
-		std::vector<std::shared_ptr<const ICacheableAsset>> evicted;
+		bool refreshDue = false;
 
 		{
 			std::lock_guard lock(mutex);
@@ -90,18 +95,55 @@ public:
 			}
 
 			usedBytes += bytes;
-			evict(evicted);
+			evict();
+
+			refreshDue = ++storesSinceRefresh >= storesBetweenRefreshes;
+			if(refreshDue)
+				storesSinceRefresh = 0;
 		}
+
+		// outside the lock - it takes the same one
+		if(refreshDue)
+			refresh();
+	}
+
+	/// Re-measures every entry and evicts what no longer fits. An asset is stored right after it
+	/// is loaded, long before its scaled variants exist and its texture has been uploaded, and
+	/// nothing re-measures it while another owner keeps it from being looked up again - so
+	/// without this the budget is compared against a fraction of what is really held.
+	void refresh()
+	{
+		std::lock_guard lock(mutex);
+
+		usedBytes = 0;
+		for(Entry & entry : order)
+		{
+			entry.bytes = entry.value->bytesUsed();
+			usedBytes += entry.bytes;
+		}
+
+		evict();
+	}
+
+	/// Hands over what was evicted since the last call, for the rendering thread to reclaim
+	std::vector<std::shared_ptr<ICacheableAsset>> takeEvicted()
+	{
+		std::lock_guard lock(mutex);
+
+		std::vector<std::shared_ptr<ICacheableAsset>> result;
+		result.swap(evictedAssets);
+		return result;
 	}
 
 	void clear()
 	{
-		std::list<Entry> evicted;
+		std::list<Entry> dropped;
 		{
 			std::lock_guard lock(mutex);
-			evicted.swap(order);
+			dropped.swap(order);
 			index.clear();
 			usedBytes = 0;
+			evictedAssets.clear();
 		}
 	}
 };

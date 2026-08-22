@@ -15,5 +15,10 @@ class ICacheableAsset
 public:
 	virtual size_t bytesUsed() const = 0;
 
+	/// Frees whatever the asset can build again on demand. Called when a cache drops the asset
+	/// while another owner still holds it - without this, evicting only releases a pointer.
+	/// Rendering thread only.
+	virtual void releaseMemory() {}
+
 	virtual ~ICacheableAsset() = default;
 };

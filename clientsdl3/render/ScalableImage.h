@@ -79,6 +79,10 @@ class ScalableImageShared final : public ICacheableAsset, public std::enable_sha
 	/// Locator of this image, for loading additional (e.g. upscaled) images
 	const SharedImageLocator locator;
 
+	/// Set when releaseMemory() dropped the generated variants. The next draw builds them again,
+	/// standing in with the stretched 1x image until that finishes.
+	bool variantsReleased = false;
+
 	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const;
 
 	/// Picks the variant matching the requested flips, generating it on first use
@@ -109,6 +113,7 @@ public:
 
 	/// Estimated memory footprint, for cache accounting
 	size_t bytesUsed() const override;
+	void releaseMemory() override;
 
 	std::shared_ptr<ScalableImageInstance> createImageReference();
 

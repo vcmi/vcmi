@@ -291,6 +291,14 @@ bool ScalableImageShared::forEachLayer(int scalingFactor, const ScalableImagePar
 	// either the caller mirrors as it draws and gets the plain image, or it gets a mirrored copy
 	const ImageFlip flip = mirrorWhileDrawing ? ImageFlip{parameters.flipVertical, parameters.flipHorizontal} : ImageFlip{};
 
+	// something is being drawn from us again after the memory cache gave us up - build back what
+	// it takes. The upscale runs on a worker, so the check below stands in until it lands.
+	if(variantsReleased)
+	{
+		variantsReleased = false;
+		loadScaledImages(scalingFactor, parameters.player);
+	}
+
 	const auto & pick = [&](FlippedImages & images) -> const ImageType &
 	{
 		return mirrorWhileDrawing ? images[0] : selectFlipped(images, parameters);
@@ -365,6 +373,20 @@ bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & des
 		{
 			return image->drawTexture(renderer, parameters.palette, dest, src, color, alpha, locator.layer, flip);
 		});
+}
+
+void ScalableImageShared::releaseMemory()
+{
+	// The source at scale 1 stays: everything else is generated from it, and dropping it would
+	// turn a rebuild into a file decode. The rest - upscales, mirrored copies, player colours,
+	// grayscale - is what actually weighs, and it can all be made again.
+	std::shared_ptr<const ISharedImage> source = scaled[1].body[0];
+
+	for(ScaledImage & variant : scaled)
+		variant = ScaledImage{};
+
+	scaled[1].body[0] = source;
+	variantsReleased = true;
 }
 
 size_t ScalableImageShared::bytesUsed() const

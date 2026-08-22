@@ -72,6 +72,12 @@ uint32_t RenderHandler::getPlaceholderDrawCount() const
 	return placeholderDraws;
 }
 
+void RenderHandler::reclaimEvictedAssets()
+{
+	for(const auto & asset : retainedAssets.takeEvicted())
+		asset->releaseMemory();
+}
+
 RenderHandler::RenderHandler()
 	:assetGenerator(std::make_unique<AssetGenerator>())
 {

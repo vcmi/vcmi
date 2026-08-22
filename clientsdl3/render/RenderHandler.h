@@ -65,6 +65,7 @@ public:
 	static void notifyPlaceholderDrawn();
 
 	uint32_t getPlaceholderDrawCount() const override;
+	void reclaimEvictedAssets() override;
 
 	RenderHandler();
 	~RenderHandler();

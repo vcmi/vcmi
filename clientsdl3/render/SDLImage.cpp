@@ -421,7 +421,15 @@ size_t SDLImageShared::bytesUsed() const
 	if(SDL_Palette * palette = CSDL_Ext::getPalette(surf))
 		paletteBytes = static_cast<size_t>(palette->ncolors) * sizeof(SDL_Color);
 
-	return pixelBytes + paletteBytes + sizeof(SDLImageShared);
+	// The texture holds the same pixels a second time, always 32 bit and belonging to this image
+	// alone. It comes out of the same RAM as everything else on a mobile GPU, so leaving it out
+	// would let the budget govern half of what an image really costs - and for a palette image,
+	// where the surface is a quarter of the texture, closer to a fifth.
+	size_t textureBytes = 0;
+	if(texture != nullptr)
+		textureBytes = static_cast<size_t>(surf->w) * surf->h * 4;
+
+	return pixelBytes + paletteBytes + textureBytes + sizeof(SDLImageShared);
 }
 
 bool SDLImageShared::isLoading() const
