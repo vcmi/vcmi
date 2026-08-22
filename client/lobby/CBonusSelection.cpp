@@ -61,6 +61,7 @@
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/CompositeTranslator.h"
 #include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
 
@@ -709,8 +710,11 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	auto labelPos = campDsc.getLabelPosition(id);
 	if(labelPos)
 	{
+		// this header is loaded just for the label, so its texts are never installed anywhere
 		auto mapHeader = GAME->server().si->campState->getMapHeader(idOfMapAndRegion);
-		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString(&GAME->translator()));
+		CompositeTranslator translator;
+		translator.install(mapHeader->texts);
+		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString(&translator));
 	}
 }
 

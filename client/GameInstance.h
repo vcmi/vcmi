@@ -11,7 +11,7 @@
 
 #include "GameEngineUser.h"
 
-#include "Translator.h"
+#include "../lib/texts/CompositeTranslator.h"
 
 class CServerHandler;
 class GlobalLobbyClient;
@@ -32,7 +32,10 @@ public:
 
 class GameInstance final : boost::noncopyable, public IGameEngineUser
 {
-	Translator translatorInstance;
+	/// Only the overlay may compose the translator, so the concrete type stays out of reach
+	friend class TranslatorOverlay;
+
+	std::unique_ptr<CompositeTranslator> translatorInstance;
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
 	std::shared_ptr<CMainMenu> mainMenuInstance;
@@ -46,7 +49,7 @@ public:
 
 	CServerHandler & server();
 	CMapHandler & map();
-	Translator & translator();
+	ITranslator & translator();
 
 	std::shared_ptr<CMainMenu> mainmenu();
 	CPlayerInterface * interface();

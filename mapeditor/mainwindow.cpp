@@ -55,9 +55,9 @@
 #include "validator.h"
 #include "helper.h"
 #include "campaigneditor/campaigneditor.h"
+#include "translator.h"
 #ifdef ENABLE_TEMPLATE_EDITOR
 #include "templateeditor/templateeditor.h"
-#include "translator.h"
 #endif
 #include "editorfiledialog.h"
 

@@ -72,7 +72,8 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	bool difficultyChosenByPlayer = false;
 	bool restrictGarrisonsAI = false;
 
-	TextLocalizationContainer textContainer;
+	/// Shared with the rendering side, which installs it as an overlay - see CMapHeader::texts
+	std::shared_ptr<TextLocalizationContainer> textContainer = std::make_shared<TextLocalizationContainer>();
 public:
 	bool playerSelectedDifficulty() const;
 	CampaignVersion getFormat() const;
@@ -97,7 +98,7 @@ public:
 	bool restrictedGarrisonsForAI() const;
 
 	const CampaignRegions & getRegions() const;
-	TextLocalizationContainer & getTexts();
+	const std::shared_ptr<TextLocalizationContainer> & getTexts();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -116,7 +117,7 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
-		h & textContainer;
+		h & *textContainer;
 		h & loadingBackground;
 		h & videoRim;
 		h & introVideo;
@@ -243,7 +244,7 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
-	std::map<CampaignScenarioID, TextLocalizationContainer> mapTranslations;
+	std::map<CampaignScenarioID, std::shared_ptr<TextLocalizationContainer>> mapTranslations;
 
 	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
@@ -274,7 +275,7 @@ public:
 	std::optional<CampaignScenarioID> currentScenario() const;
 	/// Texts of every scenario loaded so far. They stay resolvable for the whole campaign
 	/// so that heroes transferred out of a finished scenario keep their names
-	const std::map<CampaignScenarioID, TextLocalizationContainer> & getScenarioTexts() const { return mapTranslations; }
+	const std::map<CampaignScenarioID, std::shared_ptr<TextLocalizationContainer>> & getScenarioTexts() const { return mapTranslations; }
 
 	std::set<CampaignScenarioID> conqueredScenarios() const;
 	std::time_t getStartTime() const;
@@ -325,6 +326,22 @@ public:
 
 	std::vector<HighScoreParameter> highscoreParameters;
 
+	/// Scenario texts are stored by value - the pointers exist only so that the rendering side
+	/// can share ownership of them, which is not something a save needs to know about
+	template <typename Handler> void serializeTranslations(Handler & h)
+	{
+		std::map<CampaignScenarioID, TextLocalizationContainer> translations;
+
+		for(const auto & entry : mapTranslations)
+			translations[entry.first] = *entry.second;
+
+		h & translations;
+
+		if(!h.saving)
+			for(auto & entry : translations)
+				mapTranslations[entry.first] = std::make_shared<TextLocalizationContainer>(std::move(entry.second));
+	}
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -335,7 +352,7 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
-		h & mapTranslations;
+		serializeTranslations(h);
 		h & highscoreParameters;
 
 		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))

@@ -156,5 +156,3 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 	for(auto & s : stringsLocalizations)
 		dest.Struct()[s.first].String() = s.second.translatedText;
 }
-
-

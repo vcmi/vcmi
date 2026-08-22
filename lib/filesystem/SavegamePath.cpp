@@ -17,7 +17,7 @@
 #include "../campaign/CampaignState.h"
 #include "Filesystem.h"
 #include "../mapping/CMapHeader.h"
-#include "../texts/OverlayTranslator.h"
+#include "../texts/CompositeTranslator.h"
 #include "../texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
@@ -50,9 +50,15 @@ std::string getGameName(const StartInfo & startInfo, const CMapHeader & mapHeade
 {
 	// a save directory is named on whichever machine writes it, so it has to resolve the
 	// map's own embedded text rather than wait for a player-facing translator
-	const OverlayTranslator translator(mapHeader.texts);
+	CompositeTranslator translator;
 	if(startInfo.campState)
+	{
+		// the campaign name is registered in the campaign's own container, not in the map's
+		translator.install(startInfo.campState->getTexts());
 		return sanitizeMapName(startInfo.getCampaignName(&translator));
+	}
+
+	translator.install(mapHeader.texts);
 	return sanitizeMapName(mapHeader.name.toString(&translator));
 }
 

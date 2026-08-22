@@ -111,7 +111,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::vector<std::string> localPlayerNames;
 
 	/// Texts of the map and campaign being set up. Rebuilt on every lobby update, since each one
-	/// replaces the lobby state - and with it the objects these overlays point at
+	/// replaces the lobby state, and texts of the map that is gone must stop shadowing the new one
 	std::vector<TranslatorOverlay> lobbyTextOverlays;
 	/// Texts of the running game, dropped when it ends
 	std::vector<TranslatorOverlay> gameplayTextOverlays;

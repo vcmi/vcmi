@@ -55,7 +55,7 @@ std::string CampaignHeader::getNameTranslated(const ITranslator * translator) co
 
 std::string CampaignHeader::getAuthor(const ITranslator * translator) const
 {
-	return authorContact.toString(translator);
+	return author.toString(translator);
 }
 
 std::string CampaignHeader::getAuthorContact(const ITranslator * translator) const
@@ -118,7 +118,7 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
-TextLocalizationContainer & CampaignHeader::getTexts()
+const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts()
 {
 	return textContainer;
 }
@@ -220,7 +220,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated(LIBRARY->staticTexts()));
+	logGlobal->info("Scenario %d of campaign %s has been completed", currentMap->getNum(), getFilename());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
@@ -295,6 +295,7 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 
+	// the loaded map is handed over to the caller, but its texts stay resolvable for the whole campaign
 	mapTranslations[scenarioId] = result->texts;
 	return result;
 }

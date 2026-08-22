@@ -233,7 +233,7 @@ void MapController::repairMap(CMap * map)
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	if(_map)
-		Translator::instance().uninstall(_map->texts);
+		Translator::instance().uninstall(*_map->texts);
 
 	cmap->cb = _cb.get();
 	_map = std::move(cmap);
