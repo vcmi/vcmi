@@ -25,6 +25,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
+#include <tbb/parallel_for.h>
+
 CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
 	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
@@ -277,10 +279,19 @@ void CModHandler::load()
 
 	validationPassed.insert(activeMods.begin(), activeMods.end());
 
-	for(const TModID & modName : activeMods)
+	// computeChecksum() only reads each mod's own already-mounted filesystem (hashing its
+	// CONFIG json files) - independent per mod, with no shared mutable state between mods at
+	// this point (all mod filesystems were already mounted earlier, in loadModFilesystems()).
+	// Compute into a plain vector in parallel, then transfer into modChecksums sequentially,
+	// since concurrent writes to different keys of the same std::map are not safe (insertion
+	// can rebalance the tree) even though the values being computed are fully independent.
+	std::vector<uint32_t> checksums(activeMods.size());
+	tbb::parallel_for(size_t(0), activeMods.size(), [this, &activeMods, &checksums](size_t i)
 	{
-		modChecksums[modName] = this->modManager->computeChecksum(modName);
-	}
+		checksums[i] = this->modManager->computeChecksum(activeMods[i]);
+	});
+	for (size_t i = 0; i < activeMods.size(); ++i)
+		modChecksums[activeMods[i]] = checksums[i];
 
 	for(const TModID & modName : activeMods)
 	{
