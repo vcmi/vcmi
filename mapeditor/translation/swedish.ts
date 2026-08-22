@@ -26,7 +26,7 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation>&lt;font color=&apos;red&apos;&gt;De visade färdigheterna utgår från standardimplementeringen av häxstugan. Moddar kan ändra detta.&lt;/font&gt;</translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Visade färdigheter utgår från standardimplementeringen av häxkojan. Moddar kan skriva över den.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -1574,22 +1574,22 @@ Vill du göra det nu ?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartlagerkonfiguration</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Nivå</translation>
+        <translation>Nivå</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartlager</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nivå %1</translation>
     </message>
 </context>
 <context>
@@ -2682,7 +2682,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Slumpvis</translation>
     </message>
 </context>
 <context>
@@ -3465,7 +3465,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Det går inte att öppna redigeraren!</translation>
     </message>
 </context>
 <context>
@@ -3473,27 +3473,27 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Lärd man</translation>
+        <translation>Lärd Man</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Slumpvis</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Trollformel</translation>
+        <translation>Trollformel</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartredigeraren kunde inte läsa av den avsedda trollformelnivån för denna typ av helgedom</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Den angivna trollformelnivån %1 för denna typ av helgedom är ogiltig</translation>
     </message>
 </context>
 <context>
@@ -5019,37 +5019,37 @@ Vakt: %3</translation>
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>En häxkoja vid x: %1 y: %2 på lager %3 innehåller en ogiltig belöning.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>En häxkoja vid x: %1 y: %2 på %3 kan inte valideras av redigeraren.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>En lärd man vid x: %1 y: %2 på lager %3 innehåller en ogiltig belöning.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>En lärd man vid x: %1 y: %2 på lager %3 ger en belöning som är förbjuden av kartinställningen. Är detta avsiktligt?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>En lärd man vid x: %1 y: %2 på lager %3 kan inte valideras av redigeraren.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>En helgedom vid x: %1 y: %2 på lager %3 innehåller en ogiltig trollformel.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>En helgedom vid x: %1 y: %2 på lager %3 ger en trollformel som är förbjuden av kartinställningen. Är detta avsiktligt?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="276"/>
@@ -5238,7 +5238,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Lager</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>
