@@ -1212,6 +1212,14 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
+	// collected before the blow lands: a stack that dies to it loses its spell effects, and a shield
+	// that was up when the stack was struck answers the strike that killed it
+	std::vector<PendingTrigger> reactions;
+	collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACK, attacker, defender);
+
+	for(const AttackedTarget & target : payload.targets)
+		collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
+
 	gameHandler->sendAndApply(bat);
 
 	{
@@ -1241,7 +1249,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// priority alone decides what runs first, which is how life drain heals before a fire shield can
 	// burn the attacker down and how a death stare only lands after it. Not gated on anyone being
 	// alive: a reflecting ability answers a lethal blow while dying, so each reaction decides for itself
-	processAttackTriggers(battle, CombatEventType::AFTER_ATTACK, CombatEventType::AFTER_ATTACKED, attacker, defender, payload);
+	runEventTriggers(battle, reactions, payload);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
