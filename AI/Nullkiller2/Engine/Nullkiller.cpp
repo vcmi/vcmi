@@ -441,7 +441,7 @@ void Nullkiller::reserveRequiredTownDefenders()
 		if(!defender || getHeroLockedReason(defender) != HeroLockedReason::NOT_LOCKED)
 			continue;
 
-		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
+		logAi->debug("Reserving %s as defender of %s", defender->getNameTextID(), town->getNameTextID());
 		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
 	}
 }
@@ -523,7 +523,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path, const CGHeroInstance *
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
 #if NK2AI_TRACE_LEVEL >= 1
-		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getObjectName(), path.toString());
+		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getNameTextID(), path.toString());
 #endif
 		return true;
 	}
@@ -538,7 +538,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path, const CGHeroInstance *
 				continue;
 
 #if NK2AI_TRACE_LEVEL >= 1
-			logAi->trace("Hero %s is locked by %d. Discarding %s", path.targetHero->getObjectName(), (int)lockReason,  path.toString());
+			logAi->trace("Hero %s is locked by %d. Discarding %s", path.targetHero->getNameTextID(), (int)lockReason,  path.toString());
 #endif
 			return true;
 		}

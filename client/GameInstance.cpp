@@ -14,6 +14,7 @@
 #include "CMT.h"
 #include "CServerHandler.h"
 #include "GameEngine.h"
+#include "Translator.h"
 #include "mapView/mapHandler.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "mainmenu/CMainMenu.h"
@@ -28,7 +29,8 @@
 std::unique_ptr<GameInstance> GAME = nullptr;
 
 GameInstance::GameInstance()
-	: serverInstance(std::make_unique<CServerHandler>())
+	: translatorInstance(std::make_unique<CompositeTranslator>())
+	, serverInstance(std::make_unique<CServerHandler>())
 	, interfaceInstance(nullptr)
 {
 }
@@ -41,6 +43,11 @@ CServerHandler & GameInstance::server()
 		throw std::runtime_error("Invalid access to GameInstance::server");
 
 	return *serverInstance;
+}
+
+ITranslator & GameInstance::translator()
+{
+	return *translatorInstance;
 }
 
 CMapHandler & GameInstance::map()

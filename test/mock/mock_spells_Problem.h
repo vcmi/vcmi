@@ -13,6 +13,7 @@
 #include <vcmi/spells/Magic.h>
 
 #include "../../lib/texts/MetaString.h"
+#include "../../lib/GameLibrary.h"
 
 namespace spells
 {
@@ -25,7 +26,7 @@ public:
 		//TODO: do something with description
 		add(severity);
 
-		log.push_back(description.toString());
+		log.push_back(description.toString(LIBRARY->staticTexts()));
 	}
 	MOCK_METHOD1(add, void(Severity));
 	MOCK_CONST_METHOD1(getAll, void(std::vector<std::string> &));

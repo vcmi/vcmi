@@ -430,7 +430,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		auto donorHero = campaignHeroReplacement.hero;
 
 		if (!donorHero)
-			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
+			throw std::runtime_error("Failed to find hero to take artifacts from!");
 
 		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
 		for (auto const & artLocation : std::views::reverse(campaignHeroReplacement.transferrableArtifacts))
@@ -490,7 +490,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 
 		auto hero = campaignState->crossoverDeserialize(node, gameState->map.get());
 
-		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 		campaignHeroReplacements.emplace_back(hero, placeholder->id);
 	}
@@ -526,7 +526,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
-			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 			campaignHeroReplacements.emplace_back(hero, placeholder->id);
 		}

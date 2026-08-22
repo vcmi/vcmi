@@ -32,6 +32,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../GameInstance.h"
 
 BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)
@@ -141,10 +142,10 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	switch(action.actionType)
 	{
 	case EActionType::WAIT:
-		owner.appendBattleLog(stack->formatGeneralMessage(136));
+		owner.appendBattleLog(stack->formatGeneralMessage(136, &GAME->translator()));
 		break;
 	case EActionType::BAD_MORALE:
-		owner.appendBattleLog(stack->formatGeneralMessage(-34));
+		owner.appendBattleLog(stack->formatGeneralMessage(-34, &GAME->translator()));
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
 		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
 		break;

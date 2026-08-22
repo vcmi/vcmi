@@ -11,6 +11,7 @@
 #include "generalsettings.h"
 #include "ui_generalsettings.h"
 #include "../mapcontroller.h"
+#include "../translator.h"
 
 GeneralSettings::GeneralSettings(QWidget *parent) :
 	AbstractSettings(parent),
@@ -27,12 +28,12 @@ GeneralSettings::~GeneralSettings()
 void GeneralSettings::initialize(MapController & c)
 {
 	AbstractSettings::initialize(c);
-	ui->mapNameEdit->setText(QString::fromStdString(controller->map()->name.toString()));
-	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller->map()->description.toString()));
-	ui->authorEdit->setText(QString::fromStdString(controller->map()->author.toString()));
-	ui->authorContactEdit->setText(QString::fromStdString(controller->map()->authorContact.toString()));
+	ui->mapNameEdit->setText(QString::fromStdString(controller->map()->name.toString(&Translator::instance())));
+	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller->map()->description.toString(&Translator::instance())));
+	ui->authorEdit->setText(QString::fromStdString(controller->map()->author.toString(&Translator::instance())));
+	ui->authorContactEdit->setText(QString::fromStdString(controller->map()->authorContact.toString(&Translator::instance())));
 	ui->mapCreationDateTimeEdit->setDateTime(QDateTime::fromSecsSinceEpoch(controller->map()->creationDateTime));
-	ui->mapVersionEdit->setText(QString::fromStdString(controller->map()->mapVersion.toString()));
+	ui->mapVersionEdit->setText(QString::fromStdString(controller->map()->mapVersion.toString(&Translator::instance())));
 	ui->heroLevelLimit->setValue(controller->map()->levelLimit);
 	ui->heroLevelLimitCheck->setChecked(controller->map()->levelLimit);
 

@@ -39,7 +39,7 @@ bool ArmyUpgrade::operator==(const ArmyUpgrade & other) const
 
 std::string ArmyUpgrade::toString() const
 {
-	return "Army upgrade at " + upgrader->getObjectName() + upgrader->visitablePos().toString();
+	return "Army upgrade at " + upgrader->getObjectNameTextID() + upgrader->visitablePos().toString();
 }
 
 }

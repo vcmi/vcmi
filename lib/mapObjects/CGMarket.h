@@ -25,8 +25,8 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open trading window
 	void initObj(IGameRandomizer & gameRandomizer) override;//set skills for trade
 
-	std::string getPopupText(PlayerColor player) const override;
-	std::string getPopupText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
 
 	///IMarket
 	ObjectInstanceID getObjInstanceID() const override;

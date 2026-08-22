@@ -14,6 +14,7 @@
 struct StartInfo;
 
 class CMapHeader;
+class ITranslator;
 class Campaign;
 class ResourcePath;
 
@@ -51,9 +52,9 @@ public:
 	void campaignInit();
 	void countPlayers();
 	
-	std::string getNameTranslated() const;
-	std::string getNameForList() const;
-	std::string getDescriptionTranslated() const;
+	std::string getNameTranslated(const ITranslator * translator) const;
+	std::string getNameForList(const ITranslator * translator) const;
+	std::string getDescriptionTranslated(const ITranslator * translator) const;
 	int getMapSizeIconId() const;
 	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;

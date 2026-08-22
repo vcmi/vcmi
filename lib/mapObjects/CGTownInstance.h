@@ -48,8 +48,7 @@ public:
 
 private:
 	friend class CTownInstanceConstructor;
-	std::string nameTextId; // name of town
-	std::string customName;
+	std::string nameTextId; // identifier of town name, registered in the map text container
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
@@ -80,7 +79,12 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
-		h & customName;
+		if(!h.hasFeature(Handler::Version::TOWN_NAME_TEXT_ID))
+		{
+			// pre-migration saves stored the player's rename as free-form text;
+			// CGameState::updateOnLoad registers it and drops it
+			h & legacyCustomName;
+		}
 		h & built;
 		h & destroyed;
 		h & identifier;
@@ -127,10 +131,13 @@ public:
 	const CGHeroInstance * getVisitingHero() const;
 	const CGHeroInstance * getGarrisonHero() const;
 
-	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
+
+	/// Only set when loading a pre-TOWN_NAME_TEXT_ID save, consumed by CGameState::updateOnLoad
+	std::string legacyCustomName;
 	void setNameTextId(const std::string & newName);
-	void setCustomName(const std::string & newName);
+	/// Registers the player-chosen name in the map text container and points this town at it
+	void setCustomName(CMap & map, const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +223,7 @@ public:
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
-	std::string getObjectName() const override;
+	MetaString getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 

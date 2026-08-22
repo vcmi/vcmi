@@ -127,7 +127,7 @@ std::string CMarketResources::getTraderText()
 		message.replaceNumber(bidQty);
 		message.replaceRawString(bidQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

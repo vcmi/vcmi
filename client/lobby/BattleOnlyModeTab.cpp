@@ -625,7 +625,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectUnit");
 			str.replaceNumber(i + 1);
-			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6 + i * 36, 78));
+			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->disable();
 		}
 		else
@@ -728,7 +728,7 @@ void BattleOnlyModeHeroSelector::setSecSkillIcons()
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectSkill");
 			str.replaceNumber(i + 1);
-			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
+			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
 			selectedSecSkillInput[i]->disable();
 		}
 		else
@@ -850,7 +850,7 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectArtifact");
 			str.replaceTextID("vcmi.lobby.battleOnlyModeSelectArtifact." + std::to_string(artPos[i]));
-			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
+			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
 		}
 		else
 		{

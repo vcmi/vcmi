@@ -11,6 +11,7 @@
 #include "rumorsettings.h"
 #include "ui_rumorsettings.h"
 #include "../mapcontroller.h"
+#include "../translator.h"
 
 RumorSettings::RumorSettings(QWidget *parent) :
 	AbstractSettings(parent),
@@ -30,7 +31,7 @@ void RumorSettings::initialize(MapController & c)
 	for(auto & rumor : controller->map()->rumors)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(rumor.name));
-		item->setData(Qt::UserRole, QVariant(QString::fromStdString(rumor.text.toString())));
+		item->setData(Qt::UserRole, QVariant(QString::fromStdString(rumor.text.toString(&Translator::instance()))));
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 		ui->rumors->addItem(item);
 	}

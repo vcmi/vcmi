@@ -616,14 +616,14 @@ EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbos
 	return ps->status;
 }
 
-std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
+std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const
 {
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, 216);
 
 	std::string extraText;
 	if(gameState().currentRumor.type == RumorState::TYPE_NONE)
-		return text.toString();
+		return text.toString(translator);
 
 	auto rumor = gameState().currentRumor.last.at(gameState().currentRumor.type);
 	switch(gameState().currentRumor.type)
@@ -637,7 +637,8 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 
 		break;
 	case RumorState::TYPE_MAP:
-		text.replaceRawString(gameState().getMap().rumors[rumor.first].text.toString());
+		// rumor text is map-defined, so only the caller's translator can resolve it
+		text.replaceRawString(gameState().getMap().rumors[rumor.first].text.toString(translator));
 		break;
 
 	case RumorState::TYPE_RAND:
@@ -645,7 +646,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 		break;
 	}
 
-	return text.toString();
+	return text.toString(translator);
 }
 
 PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

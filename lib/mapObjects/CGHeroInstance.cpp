@@ -498,7 +498,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 		if(stack.creature == CreatureID::NONE)
 		{
-			logGlobal->error("Hero %s has invalid creature in initial army", getNameTranslated());
+			logGlobal->error("Hero %s has invalid creature in initial army", getNameTextID());
 			continue;
 		}
 
@@ -524,11 +524,11 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 					putArtifact(slot, artifact);
 				}
 				else
-					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
+					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTextID(), slot.toEnum(), aid.toEnum());
 			}
 			else
 			{
-				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTranslated());
+				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTextID());
 			}
 		}
 		else
@@ -599,33 +599,34 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 	}
 }
 
-std::string CGHeroInstance::getObjectName() const
+MetaString CGHeroInstance::getObjectName() const
 {
-	if(ID != Obj::PRISON)
-	{
-		std::string hoverName = LIBRARY->generaltexth->allTexts[15];
-		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
-		return hoverName;
-	}
-	else
-		return LIBRARY->objtypeh->getObjectName(ID, 0);
+	if(ID == Obj::PRISON)
+		return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, 0));
+
+	MetaString hoverName;
+	hoverName.appendLocalString(EMetaText::GENERAL_TXT, 15);
+	hoverName.replaceTextID(getNameTextID());
+	hoverName.replaceTextID(getClassNameTextID());
+	return hoverName;
 }
 
-std::string CGHeroInstance::getHoverText(PlayerColor player) const
+MetaString CGHeroInstance::getHoverText(PlayerColor player) const
 {
-	std::string hoverText = CArmedInstance::getHoverText(player) + getMovementPointsTextIfOwner(player);
+	MetaString hoverText = CArmedInstance::getHoverText(player);
+	hoverText.append(getMovementPointsTextIfOwner(player));
 	return hoverText;
 }
 
-std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
+MetaString CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
 {
-	std::string output = "";
+	MetaString output;
 	if(player == getOwner())
 	{
-		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
-		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit()));
-		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
+		output.appendRawString(" ");
+		output.appendTextID("vcmi.adventureMap.movementPointsHeroInfo");
+		output.replaceTokenNumber("%POINTS", movementPointsLimit());
+		output.replaceTokenNumber("%REMAINING", movementPointsRemaining());
 	}
 
 	return output;
@@ -935,7 +936,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
+			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
 		}
 		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
@@ -945,7 +946,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{
 			//hero has this spell in spellbook
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
-			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
+			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTextID());
 		}
 	}
 	return !getSourcesForSpell(spell->getId()).empty();
@@ -964,19 +965,19 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 
 	if(spell->isSpecial())
 	{
-		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTextID());
 		return false;//special spells can not be learned
 	}
 
 	if(spell->isCreatureAbility())
 	{
-		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTextID());
 		return false;//creature abilities can not be learned
 	}
 
 	if(!allowBanned && !cb->isAllowed(spell->getId()))
 	{
-		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTextID());
 		return false;//banned spells should not be learned
 	}
 
@@ -1202,16 +1203,6 @@ int32_t CGHeroInstance::getIconIndex() const
 	return getPortraitSource().toEntity(LIBRARY)->getIconIndex();
 }
 
-std::string CGHeroInstance::getNameTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getNameTextID());
-}
-
-std::string CGHeroInstance::getClassNameTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getClassNameTextID());
-}
-
 std::string CGHeroInstance::getClassNameTextID() const
 {
 	if (isCampaignGem())
@@ -1229,11 +1220,6 @@ std::string CGHeroInstance::getNameTextID() const
 	// FIXME: called by logging from some specialties (mods?) before type is set on deserialization
 	// assert(0);
 	return "";
-}
-
-std::string CGHeroInstance::getBiographyTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getBiographyTextID());
 }
 
 std::string CGHeroInstance::getBiographyTextID() const

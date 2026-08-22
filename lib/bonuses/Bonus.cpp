@@ -94,7 +94,7 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 			descriptionHelper.appendRawString(" +" + std::to_string(valueToShow));
 	}
 
-	return descriptionHelper.toString();
+	return descriptionHelper.toString(LIBRARY->staticTexts());
 }
 
 JsonNode Bonus::toJsonNode() const
@@ -119,7 +119,7 @@ JsonNode Bonus::toJsonNode() const
 	if(!stacking.empty())
 		root["stacking"].String() = stacking;
 	if(!description.empty())
-		root["description"].String() = description.toString();
+		root["description"].String() = description.toString(LIBRARY->staticTexts());
 	if(effectRange != BonusLimitEffect::NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
 	if(duration != BonusDuration::PERMANENT)

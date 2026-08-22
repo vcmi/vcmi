@@ -22,6 +22,7 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../lib/json/JsonKeyExtractor.h"
+#include "translator.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),
@@ -153,7 +154,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifactType()) == 0)
 					{
-						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
+						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().toString(&Translator::instance()).c_str()), false });
 					}
 				}
 			}

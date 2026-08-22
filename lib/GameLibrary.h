@@ -27,6 +27,7 @@ class CModHandler;
 class CContentHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
+class ITranslator;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
 class ResourceTypeHandler;
@@ -70,6 +71,11 @@ public:
 	const IGameSettings * engineSettings() const override;
 	const spells::SchoolService * spellSchools() const override;
 	const ScriptService * scriptTypes() const override;
+	/// Resolver over the static text store: mod-defined text that every side shares.
+	/// It can not see map or campaign texts - anything a specific player reads must be
+	/// rendered with that player's translator instead.
+	const ITranslator * staticTexts() const;
+
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 

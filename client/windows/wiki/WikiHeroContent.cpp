@@ -37,6 +37,7 @@
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "WikiWindow.h"
 #include "../InfoWindows.h"
+#include "../../GameInstance.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Layout constants
@@ -75,7 +76,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	widgets.push_back(std::make_shared<CLabel>(
 		W / 2, curY,
 		FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-		(mapHero && !mapHero->nameCustomTextId.empty()) ? mapHero->getNameTranslated() : hero->getNameTranslated()));
+		(mapHero && !mapHero->nameCustomTextId.empty()) ? GAME->translator().translate(mapHero->getNameTextID()) : hero->getNameTranslated()));
 	curY += 26;
 
 	{
@@ -139,7 +140,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		}
 
 		const std::string bio = (mapHero && !mapHero->biographyCustomTextId.empty())
-			? mapHero->getBiographyTranslated()
+			? GAME->translator().translate(mapHero->getBiographyTextID())
 			: hero->getBiographyTranslated();
 		if(!bio.empty())
 		{

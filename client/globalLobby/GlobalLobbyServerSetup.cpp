@@ -102,7 +102,7 @@ void GlobalLobbyServerSetup::updateDescription()
 	description.replaceTextID("vcmi.lobby.room.description.limit");
 	description.replaceNumber(togglePlayerLimit->getSelected());
 
-	labelDescription->setText(description.toString());
+	labelDescription->setText(description.toString(&GAME->translator()));
 }
 
 void GlobalLobbyServerSetup::onPlayerLimitChanged(int value)

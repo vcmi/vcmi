@@ -39,6 +39,9 @@ public:
 /// Handles all text-related data in game
 class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 {
+	/// the static store is filled once during load; a duplicate afterwards is a content bug
+	bool allowsStringOverride() const override { return false; }
+
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
 	JsonNode roeMapping;

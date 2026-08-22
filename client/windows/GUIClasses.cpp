@@ -186,7 +186,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		MetaString recruitText;
 		recruitText.appendTextID("core.tcommand.21");
 		recruitText.replaceNamePlural(card->creature->getId());
-		title->setText(recruitText.toString());
+		title->setText(recruitText.toString(&GAME->translator()));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -218,7 +218,7 @@ void CRecruitmentWindow::buy()
 			message.replaceName(newWarMachine);
 
 			GAME->interface()->showYesNoDialog(
-				message.toString(),
+				message.toString(&GAME->translator()),
 				[this, crid](){ onRecruit(crid, slider->getValue()); if(level >= 0) close();},
 				nullptr
 			);
@@ -542,13 +542,13 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % hero->getNameTranslated()));
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % GAME->translator().translate(hero->getNameTextID())));
 
 	//%s is now a level %d %s.
 	std::string levelTitleText = LIBRARY->generaltexth->translate("core.genrltxt.445");
-	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
+	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getNameTextID()));
 	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
+	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getClassNameTextID()));
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
@@ -686,7 +686,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[38]);
 
-	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj, &GAME->translator()), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
@@ -709,7 +709,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		message.replaceNumber(GAME->interface()->cb->howManyHeroes(true));
 
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(EButtonState::NORMAL, message.toString());
+		recruit->addHoverText(EButtonState::NORMAL, message.toString(&GAME->translator()));
 		recruit->block(true);
 	}
 	else if(GAME->interface()->cb->howManyHeroes(false) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
@@ -718,7 +718,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		message.appendTextID("core.tvrninfo.1");
 		message.replaceNumber(GAME->interface()->cb->howManyHeroes(false));
 
-		recruit->addHoverText(EButtonState::NORMAL, message.toString());
+		recruit->addHoverText(EButtonState::NORMAL, message.toString(&GAME->translator()));
 		recruit->block(true);
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->getVisitingHero())
@@ -766,7 +766,7 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 		auto heroFromMapPool = GAME->server().client->gameState().getMap().tryGetFromHeroPool(h.first);
 		auto hero = heroFromMapPool ? heroFromMapPool : h.second;
 
-		texts.push_back(hero->getNameTranslated());
+		texts.push_back(GAME->translator().translate(hero->getNameTextID()));
 
 		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex(), 0, EImageBlitMode::OPAQUE);
 		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
@@ -865,7 +865,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
 
 		}
 
@@ -910,7 +910,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 	if(H)
 	{
 		hoverName = LIBRARY->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",H->getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s",GAME->translator().translate(H->getNameTextID()));
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
@@ -918,9 +918,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 				artifs--;
 
 		description = LIBRARY->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
+		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getNameTextID()));
 		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", h->getClassNameTranslated());
+		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getClassNameTextID()));
 		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
@@ -1172,7 +1172,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 		const int mapObjectWidthPx = static_cast<int>(uni->appearance->getWidth()) * 32; // map object tile width in pixels
 		const int renderedWidthPx = titlePic->getPosition().w;
 		mapObjectTitleOffsetX = std::max(0, (renderedWidthPx - mapObjectWidthPx) / 2);
-		titleStr = uni->getObjectName();
+		titleStr = uni->getObjectName().toString(&GAME->translator());
 		speechStr = uni->getSpeechTranslated();
 	}
 	else
@@ -1300,7 +1300,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
-		titleText = !customTitle.empty() ? customTitle.toString() : LIBRARY->generaltexth->allTexts[709];
+		titleText = !customTitle.empty() ? customTitle.toString(&GAME->translator()) : LIBRARY->generaltexth->allTexts[709];
 	else
 	{
 		//assume that this is joining monsters dialog
@@ -1342,7 +1342,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName());
+	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName().toString(&GAME->translator()));
 
 	heroPic = std::make_shared<CHeroArea>(30, 60, hero);
 
@@ -1789,7 +1789,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	for(size_t i = 0; i < _items.size(); i++)
 	{
-		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName();
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName().toString(&GAME->translator());
 		trimTextIfTooWide(objectName, false);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}

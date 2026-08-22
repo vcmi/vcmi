@@ -34,6 +34,7 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 #include "../lib/serializer/CSaveFile.h"
+#include "translator.h"
 
 CloseButtonPositioner::CloseButtonPositioner(QDialog * parent, QToolButton * btn)
 	: QObject(parent), dialog(parent), closeButton(btn)
@@ -180,7 +181,9 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 
 void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename)
 {
-	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState);
+	CompositeTranslator translator;
+	translator.install(campaignState->getTexts());
+	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState, &translator);
 	
 	auto io = std::make_shared<CDefaultIOApi>();
 	auto saver = std::make_shared<CZipSaver>(io, filename.toStdString());
@@ -203,7 +206,7 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 		auto stream = saver->addFile(mapName);
 		stream->write(reinterpret_cast<const ui8 *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
 
-		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaignState->scenario(scenario)));
+		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaignState->scenario(scenario), &translator));
 		jsonCampaign["scenarios"].Vector().back()["map"].String() = mapName;
 	}
 

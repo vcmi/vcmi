@@ -16,6 +16,7 @@
 #include "entities/hero/CHero.h"
 #include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "texts/ITranslator.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
@@ -54,8 +55,12 @@ void MetaString::appendLocalString(EMetaText type, ui32 serial)
 
 void MetaString::appendRawString(const std::string & value)
 {
-	message.push_back(EMessage::APPEND_RAW_STRING);
-	exactStrings.push_back(value);
+	// appending nothing has to leave no trace, so that emptiness can be told from the ops alone
+	if (!value.empty())
+	{
+		message.push_back(EMessage::APPEND_RAW_STRING);
+		exactStrings.push_back(value);
+	}
 }
 
 void MetaString::appendTextID(const std::string & value)
@@ -76,6 +81,15 @@ void MetaString::appendNumber(int64_t value)
 void MetaString::appendEOL()
 {
 	message.push_back(EMessage::APPEND_EOL);
+}
+
+void MetaString::append(const MetaString & other)
+{
+	vstd::concatenate(message, other.message);
+	vstd::concatenate(localStrings, other.localStrings);
+	vstd::concatenate(exactStrings, other.exactStrings);
+	vstd::concatenate(stringsTextID, other.stringsTextID);
+	vstd::concatenate(numbers, other.numbers);
 }
 
 void MetaString::replaceLocalString(EMetaText type, ui32 serial)
@@ -108,6 +122,20 @@ void MetaString::replacePositiveNumber(int64_t txt)
 	numbers.push_back(txt);
 }
 
+void MetaString::replaceTokenTextID(const std::string & token, const std::string & value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_TEXTID);
+	exactStrings.push_back(token);
+	stringsTextID.push_back(value);
+}
+
+void MetaString::replaceTokenNumber(const std::string & token, int64_t value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_NUMBER);
+	exactStrings.push_back(token);
+	numbers.push_back(value);
+}
+
 void MetaString::clear()
 {
 	exactStrings.clear();
@@ -119,10 +147,12 @@ void MetaString::clear()
 
 bool MetaString::empty() const
 {
-	return message.empty() || toString().empty();
+	// resolving here would need a translator the callers do not have, and for map text the static
+	// store alone cannot answer - it holds no map strings, so every check would report a failed lookup
+	return message.empty();
 }
 
-std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) const
+std::string MetaString::getLocalString(const ITranslator * translator, const std::pair<EMetaText, ui32> & txt) const
 {
 	EMetaText type = txt.first;
 	int ser = txt.second;
@@ -130,21 +160,23 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 	switch(type)
 	{
 		case EMetaText::GENERAL_TXT:
-			return LIBRARY->generaltexth->translate("core.genrltxt", ser);
+			return translator->translate("core.genrltxt", ser);
 		case EMetaText::ARRAY_TXT:
-			return LIBRARY->generaltexth->translate("core.arraytxt", ser);
+			return translator->translate("core.arraytxt", ser);
 		case EMetaText::ADVOB_TXT:
-			return LIBRARY->generaltexth->translate("core.advevent", ser);
+			return translator->translate("core.advevent", ser);
 		case EMetaText::JK_TXT:
-			return LIBRARY->generaltexth->translate("core.jktext", ser);
+			return translator->translate("core.jktext", ser);
 		default:
 			logGlobal->error("Failed string substitution because type is %d", static_cast<int>(type));
 			return "#@#";
 	}
 }
 
-DLL_LINKAGE std::string MetaString::toString() const
+DLL_LINKAGE std::string MetaString::toString(const ITranslator * translator) const
 {
+	assert(translator != nullptr);
+
 	std::string dst;
 
 	size_t exSt = 0;
@@ -161,10 +193,10 @@ DLL_LINKAGE std::string MetaString::toString() const
 				dst += exactStrings.at(exSt++);
 				break;
 			case EMessage::APPEND_LOCAL_STRING:
-				dst += getLocalString(localStrings.at(loSt++));
+				dst += getLocalString(translator, localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				dst += LIBRARY->generaltexth->translate(stringsTextID.at(textID++));
+				dst += translator->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
 				dst += std::to_string(numbers.at(nums++));
@@ -176,10 +208,10 @@ DLL_LINKAGE std::string MetaString::toString() const
 				boost::replace_first(dst, "%s", exactStrings.at(exSt++));
 				break;
 			case EMessage::REPLACE_LOCAL_STRING:
-				boost::replace_first(dst, "%s", getLocalString(localStrings.at(loSt++)));
+				boost::replace_first(dst, "%s", getLocalString(translator, localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				boost::replace_first(dst, "%s", LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
+				boost::replace_first(dst, "%s", translator->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
 				boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
@@ -198,6 +230,12 @@ DLL_LINKAGE std::string MetaString::toString() const
 				else
 					boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_TEXTID:
+				boost::replace_first(dst, exactStrings.at(exSt++), translator->translate(stringsTextID.at(textID++)));
+				break;
+			case EMessage::REPLACE_TOKEN_NUMBER:
+				boost::replace_first(dst, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
+				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
 				assert(0);
@@ -207,8 +245,10 @@ DLL_LINKAGE std::string MetaString::toString() const
 	return dst;
 }
 
-DLL_LINKAGE std::string MetaString::buildList() const
+DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) const
 {
+	assert(translator != nullptr);
+
 	size_t exSt = 0;
 	size_t loSt = 0;
 	size_t nums = 0;
@@ -219,7 +259,7 @@ DLL_LINKAGE std::string MetaString::buildList() const
 		if(i > 0 && (message.at(i) == EMessage::APPEND_RAW_STRING || message.at(i) == EMessage::APPEND_LOCAL_STRING))
 		{
 			if(exSt == exactStrings.size() - 1)
-				lista += LIBRARY->generaltexth->allTexts[141]; //" and "
+				lista += translator->translate("core.genrltxt", 141); //" and "
 			else
 				lista += ", ";
 		}
@@ -229,10 +269,10 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				lista += exactStrings.at(exSt++);
 				break;
 			case EMessage::APPEND_LOCAL_STRING:
-				lista += getLocalString(localStrings.at(loSt++));
+				lista += getLocalString(translator, localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				lista += LIBRARY->generaltexth->translate(stringsTextID.at(textID++));
+				lista += translator->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
 				lista += std::to_string(numbers.at(nums++));
@@ -244,13 +284,19 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				lista.replace(lista.find("%s"), 2, exactStrings.at(exSt++));
 				break;
 			case EMessage::REPLACE_LOCAL_STRING:
-				lista.replace(lista.find("%s"), 2, getLocalString(localStrings.at(loSt++)));
+				lista.replace(lista.find("%s"), 2, getLocalString(translator, localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				lista.replace(lista.find("%s"), 2, LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
+				lista.replace(lista.find("%s"), 2, translator->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
 				lista.replace(lista.find("%d"), 2, std::to_string(numbers.at(nums++)));
+				break;
+			case EMessage::REPLACE_TOKEN_TEXTID:
+				boost::replace_first(lista, exactStrings.at(exSt++), translator->translate(stringsTextID.at(textID++)));
+				break;
+			case EMessage::REPLACE_TOKEN_NUMBER:
+				boost::replace_first(lista, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", int(message.at(i)));
@@ -403,7 +449,7 @@ void MetaString::replaceName(const FactionID & id)
 
 void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
 {
-	replaceTextID(LIBRARY->objtypeh->getObjectName(id, subId));
+	replaceTextID(LIBRARY->objtypeh->getObjectNameTextID(id, subId));
 }
 
 void MetaString::replaceName(const PlayerColor & id)

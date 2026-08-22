@@ -1201,10 +1201,10 @@ public:
 		logAi->trace("buildEvaluationContext ExchangeSwapTownHeroesContextBuilder %s affected objects: %d", swapCommand.toString(), swapCommand.getAffectedObjects().size());
 		for (auto obj : swapCommand.getAffectedObjects())
 		{
-			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectName());
+			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectNameTextID());
 		}
 		if (garrisonHero)
-			logAi->debug("with %s and %d", garrisonHero->getNameTranslated(), int(swapCommand.getLockingReason()));
+			logAi->debug("with %s and %d", garrisonHero->getNameTextID(), int(swapCommand.getLockingReason()));
 
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{

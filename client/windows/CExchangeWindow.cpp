@@ -58,7 +58,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	auto genTitle = [](const CGHeroInstance * h)
 	{
 		boost::format fmt(LIBRARY->generaltexth->allTexts[138]);
-		fmt % h->getNameTranslated() % h->level % h->getClassNameTranslated();
+		fmt % GAME->translator().translate(h->getNameTextID()) % h->level % GAME->translator().translate(h->getClassNameTextID());
 		return boost::str(fmt);
 	};
 
@@ -151,7 +151,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		spellPointsAreas[b]->hoverText = LIBRARY->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = LIBRARY->generaltexth->allTexts[205];
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->getNameTranslated());
+		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", GAME->translator().translate(hero->getNameTextID()));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->mana));
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->manaLimit()));
 

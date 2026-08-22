@@ -11,6 +11,9 @@
 
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../texts/MetaString.h"
+
+class ITranslator;
 
 class PlayerState;
 class CGameState;
@@ -20,7 +23,8 @@ struct TeamState;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
-	std::string map;
+	/// map name lives in a map overlay, so it stays unresolved until it is displayed or exported
+	MetaString map;
 	time_t timestamp;
     int day;
     PlayerColor player;
@@ -60,7 +64,17 @@ struct DLL_LINKAGE StatisticDataSetEntry
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & map;
+		if(h.hasFeature(Handler::Version::RECORD_TEXTS_METASTRING))
+		{
+			h & map;
+		}
+		else
+		{
+			// older saves stored the name already rendered in the writer's language
+			std::string legacyMap;
+			h & legacyMap;
+			map = MetaString::createFromRawString(legacyMap);
+		}
 		h & timestamp;
 		h & day;
 		h & player;
@@ -103,8 +117,8 @@ class DLL_LINKAGE StatisticDataSet
 public:
 	void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData);
-	std::string toCsv(std::string sep) const;
-	std::string writeCsv() const;
+	std::string toCsv(std::string sep, const ITranslator * translator) const;
+	std::string writeCsv(const ITranslator * translator) const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 

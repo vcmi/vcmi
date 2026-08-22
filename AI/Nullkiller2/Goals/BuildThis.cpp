@@ -43,7 +43,7 @@ bool BuildThis::operator==(const BuildThis & other) const
 
 std::string BuildThis::toString() const
 {
-	return "Build " + buildingInfo.name + " in " + town->getNameTranslated();
+	return "Build " + buildingInfo.name + " in " + town->getNameTextID();
 }
 
 void BuildThis::accept(AIGateway * aiGw)
@@ -55,7 +55,7 @@ void BuildThis::accept(AIGateway * aiGw)
 		if(aiGw->cc->canBuildStructure(town, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				aiGw->playerID, town->getTown()->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->anchorPos().toString());
+				aiGw->playerID, town->getTown()->buildings.at(b)->getNameTextID(), town->getNameTextID(), town->anchorPos().toString());
 			aiGw->cc->buildBuilding(town, b);
 
 			return;

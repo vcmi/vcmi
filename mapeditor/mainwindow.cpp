@@ -55,6 +55,7 @@
 #include "validator.h"
 #include "helper.h"
 #include "campaigneditor/campaigneditor.h"
+#include "translator.h"
 #ifdef ENABLE_TEMPLATE_EDITOR
 #include "templateeditor/templateeditor.h"
 #endif
@@ -598,7 +599,7 @@ bool EditorMainWindow::openMap(const QString & filenameSelect)
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString(&Translator::instance())));
 		return false;
 	}
 
@@ -929,7 +930,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 
 			//create object to extract name
 			auto temporaryObj(factory->create(controller.getCallback(), templ));
-			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()).c_str()) : subGroupName;
 			itemType->setText(translated);
 
 			//add parameters

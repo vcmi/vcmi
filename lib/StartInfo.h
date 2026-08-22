@@ -23,6 +23,7 @@
 #include "ResourceSet.h"
 
 class CMapGenOptions;
+class ITranslator;
 class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
@@ -152,7 +153,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	PlayerSettings * getPlayersSettings(PlayerConnectionID connectedPlayerId);
 
 	// TODO: Must be client-side
-	std::string getCampaignName() const;
+	std::string getCampaignName(const ITranslator * translator) const;
 
 	/// Controls check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
 	bool restrictedGarrisonsForAI() const;

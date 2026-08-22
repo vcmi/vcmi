@@ -211,8 +211,8 @@ void CHeroWindow::updateArtifacts()
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
 
-	name->setText(curHero->getNameTranslated());
-	title->setText((boost::format(LIBRARY->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
+	name->setText(GAME->translator().translate(curHero->getNameTextID()));
+	title->setText((boost::format(LIBRARY->generaltexth->allTexts[342]) % curHero->level % GAME->translator().translate(curHero->getClassNameTextID())).str());
 
 	specArea->text = curHero->getHeroType()->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->getHeroType()->imageIndex);
@@ -222,9 +222,9 @@ void CHeroWindow::updateArtifacts()
 	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->heroscrn[25]);
 	tacticsButton->setSelectedSilent(curHero->tacticFormationEnabled);
 
-	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->getClassNameTranslated()));
-	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->getClassNameTranslated());
-	portraitArea->text = curHero->getBiographyTranslated();
+	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->heroscrn[16]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID())));
+	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID()));
+	portraitArea->text = GAME->translator().translate(curHero->getBiographyTextID());
 	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
@@ -301,7 +301,7 @@ void CHeroWindow::updateArtifacts()
 
 	//printing spell points, boost::format can't be used due to locale issues
 	spellPointsArea->text = LIBRARY->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", curHero->getNameTranslated());
+	boost::replace_first(spellPointsArea->text, "%s", GAME->translator().translate(curHero->getNameTextID()));
 	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->mana));
 	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->manaLimit()));
 

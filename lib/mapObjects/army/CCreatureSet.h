@@ -12,6 +12,8 @@
 #include "CSimpleArmy.h"
 #include "CStackInstance.h"
 
+#include "../../texts/MetaString.h"
+
 #include "serializer/Serializeable.h"
 
 class CStackInstance;
@@ -127,8 +129,8 @@ public:
 	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
 	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
-	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
-	std::string getArmyDescription() const;
+	MetaString getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
+	MetaString getArmyDescription() const;
 	bool hasStackAtSlot(const SlotID & slot) const;
 
 	bool contains(const CStackInstance * stack) const;

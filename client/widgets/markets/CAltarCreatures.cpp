@@ -35,7 +35,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
 		LIBRARY->generaltexth->zelp[585], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
-		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % GAME->translator().translate(hero->getNameTextID()))));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[479]));
 	texts.emplace_back(std::make_unique<CTextBox>(LIBRARY->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	offerSlider->moveTo(pos.topLeft() + Point(231, 481));
@@ -248,7 +248,7 @@ std::string CAltarCreatures::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.484");
 		message.replaceNamePlural(CreatureID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{
