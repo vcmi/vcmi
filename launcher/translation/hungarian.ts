@@ -1515,27 +1515,27 @@ Az offline GOG-telepítőt kell kiválasztania.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Kezelőfelületi és játékmenetbeli fejlesztéseket tartalmaz, például a véletlenszerű térképekhez tartozó továbbfejlesztett felületet, az kalandtérképhez tartozó „Újra megtekintés” és „Keresés” gombokat, a hősök gyors cseréjét, a bónusz- és immunitás-ikonokat, valamint a csatában végrehajtható műveleteket</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy kifinomult, rajongók által készített kiegészítő, amely hozzáadja Cove, Factory és Bulwark városait, új hadjáratokat, hősöket, varázstárgyakat, térképi elemeket, a „Zavarás” és „Rúna” képességeket, egyensúlyi javításokat és új tereptípusokat, miközben hű marad a Heroes III szelleméhez</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kibővíti a Heroes III játékélményét parancsnokokkal, halmozható tapasztalattal, halmozható tárgyakkal, számos új hős- és parancsnoki tárggyal, további fejlődési rendszerekkel és interaktív kalandtérkép-objektumokkal</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Ashan könnyei</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>A Heroes V ihlette, rajongók által készített kiegészítő, amely alternatív lényfejlesztéseket, fény- és sötét mágiát, áthívást, magasabb másodlagos képességkorlátot, valamint a Conflux átalakított játékmenetét adja hozzá a Heroes III játékhoz</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
@@ -1772,7 +1772,7 @@ Bin (%n bájt):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litván</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
