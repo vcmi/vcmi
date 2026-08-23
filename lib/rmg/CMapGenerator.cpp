@@ -533,10 +533,9 @@ bool CMapGenerator::canReserveGatePairLocked(const int3 & posA, const int3 & pos
 	// Squared 2D distance between the two ends of this pair (z is ignored - gates pair across levels).
 	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
 
-	// Admissible only if, for every already-reserved gate on the opposite level, both new gates stay
-	// strictly farther away than (a) their own partner and (b) that gate's committed partner. This keeps
-	// each gate's nearest opposite-level gate equal to its intended partner, so postInit pairs them
-	// correctly. Ties (equal distances) are rejected, since postInit breaks them by placement order.
+	// Admissible only if both new gates stay strictly farther from every reserved opposite-level gate than
+	// from their own partner, and than that gate is from its partner - that keeps every gate's nearest
+	// opposite-level gate equal to its intended one. Ties are rejected, postInit breaks them by order.
 	auto conflicts = [&](const int3 & pos)
 	{
 		for(const auto & g : reservedGates)

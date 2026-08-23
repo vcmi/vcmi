@@ -51,11 +51,8 @@ private:
 	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const int mapLevels);
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 
-	// Roll and store a random dihedral symmetry (one of 4 rotations plus optional horizontal/vertical
-	// flip) and apply it to the finished zone centers. On a square map these are isometries, so same-level
-	// connectivity is preserved - the map just faces a random way. Without this a fixed template graph
-	// always yields the same layout. The stored orientation is replayed onto the Penrose vertex field in
-	// assignZones so cross-level footprint overlaps (subterranean gates) are preserved too.
+	// Roll a random dihedral symmetry and apply it to the finished zone centers, so that a fixed template
+	// graph does not always yield the same-looking layout. Connectivity is preserved - it is an isometry.
 	void applyRandomOrientation(const TZoneMap & zones, vstd::RNG * rand);
 	// Apply the stored orientation to a point in normalized [0,1] space (identity if none was rolled).
 	std::pair<float, float> orientNormalized(float x, float y) const;
@@ -67,8 +64,7 @@ private:
 	ConnectivityCounts classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const;
 
 	// One level's tile assignment: iterate a per-zone additive weight so each zone's claimed tile count
-	// converges to its target (proportional to size, a linear area weight), then paint the tiles.
-	// Keeps the Penrose vertices (organic borders) and the zone centers (adjacency).
+	// converges to its target share, then paint the tiles.
 	void assignTilesCapacityBalanced(int level, int width, int height,
 		const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const;
 

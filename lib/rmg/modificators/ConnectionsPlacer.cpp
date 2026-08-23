@@ -350,17 +350,15 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 bool ConnectionsPlacer::gatePairingOk(const GatePair & gates) const
 {
-	// In game, gates pair up by nearest 2D distance, so a candidate pair must stay nearer to each other than
-	// to any gate already placed. Checked during the search, so that a conflicting tile is merely skipped
-	// instead of costing the whole connection.
+	// Checked during the search, so that a conflicting tile is merely skipped instead of costing the
+	// whole connection.
 	return generator.canReserveGatePair(gates.gate1.getVisitablePosition(), gates.gate2.getVisitablePosition());
 }
 
 bool ConnectionsPlacer::commitGatePair(const rmg::ZoneConnection & connection, GatePair & gates, rmg::Path & path1, rmg::Path & path2)
 {
-	// Positions are chosen (placeAndConnectObject only searches - it does not mark tiles) before this runs.
-	// Reserve the pairing, then place for real. Another zone may have reserved a conflicting pair since the
-	// search, so this can still fail.
+	// placeAndConnectObject only searched, it did not mark any tiles yet. Another zone may have reserved a
+	// conflicting pair in the meantime, so reserving can still fail here.
 	if(!generator.reserveGatePair(gates.gate1.getVisitablePosition(), gates.gate2.getVisitablePosition()))
 		return false;
 
@@ -420,10 +418,9 @@ bool ConnectionsPlacer::placeGatePairOffColumn(const rmg::ZoneConnection & conne
 				disk.emplace_back(dx, dy, 0);
 
 	// Any tile of this zone may host gate1 - the weight function rejects those with no partner in reach.
-	// Take the first fit rather than scoring every candidate: each evaluation runs a full nested object
-	// placement, so an exhaustive search costs one of those per tile of the zone. DISTANCE (without WEIGHT)
-	// still stops at the first fit, but walks tiles from the zone center outwards instead of in coordinate
-	// order, which would pin every gate to a corner.
+	// Each evaluation runs a full nested object placement, so scoring every candidate would cost one of
+	// those per tile. DISTANCE stops at the first fit, walking outwards from the zone center rather than
+	// in coordinate order, which would pin every gate to a corner.
 	rmg::Path path2(gates.otherZone.area().get());
 	rmg::Path path1 = gates.manager.placeAndConnectObject(zone.areaPossible().get(), gates.gate1, [this, &gates, &otherPossible, &disk, &path2](const int3 & tile)
 	{

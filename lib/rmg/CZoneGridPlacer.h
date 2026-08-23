@@ -101,11 +101,9 @@ private:
 	/// Cell of this grid whose center is closest to a normalized position. Levels have differently sized
 	/// grids, so comparing cells across levels only makes sense through normalized positions.
 	int3 nearestCell(const std::pair<double, double> & normPos, size_t gridSize) const;
-	/// Simulated-annealing polish of the whole placement (all levels jointly). Swaps zone<->cell
-	/// assignments within each level to bring connected same-level zones into adjacent cells, to align
-	/// cross-level partners, and to keep repulsive pairs apart. Doing cross-level alignment discretely
-	/// lets it be satisfied by rearrangement instead of a continuous force that drags zones off their
-	/// same-level neighbours. Operates in place on the grids.
+	/// Simulated-annealing polish of the placement, in place and across all levels jointly: swaps
+	/// zone<->cell assignments within each level to make connected zones adjacent (or, across levels,
+	/// aligned) while keeping repulsive pairs apart.
 	void annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const;
 
 	const RmgMap & map;

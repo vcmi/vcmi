@@ -94,8 +94,8 @@ int3 CZoneGridPlacer::nearestCell(const std::pair<double, double> & normPos, siz
 
 void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const
 {
-	// Gather the current placement across all levels into a flat working state. Every zone's level is
-	// fixed (a surface zone stays on the surface); only its cell within that level's grid can change.
+	// Flat working state over all levels. A zone's level is fixed here - only its cell can change, so
+	// cross-level partners are realigned by rearranging same-level assignments, never by changing level.
 	std::vector<std::shared_ptr<Zone>> zonesAll;
 	std::vector<std::vector<std::shared_ptr<Zone>>> zonesByLevel(mapLevels);
 	std::vector<std::vector<int3>> emptyByLevel(mapLevels);
@@ -137,17 +137,14 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 	}
 
 	constexpr float crossAlignWeight = 6.0f; // reward for cross-level partners sharing a normalized cell
-	// Repulsion is only a tie-break. Pulling one connected pair a cell apart costs 1, so each weight is
-	// divided by the number of repulsive partners a zone can have - everything a single zone can gain by
-	// moving away from all of them stays below that, and separation is never traded for a lost adjacency.
+	// Repulsion is only a tie-break: pulling one connected pair a cell apart costs 1, so the total a zone
+	// can gain from all its repulsive partners must stay below that - hence the cap, divided per partner.
 	constexpr float repulsionCap = 0.5f;
 	constexpr float connectionRepulsion = repulsionCap / 4; // a zone rarely has more than a few repulsive connections
 	const float playerRepulsionWeight = playerRepulsion * repulsionCap / std::max<size_t>(2, playerZones.size());
 
-	// Cost of one zone's edges. Same-level edges: 0 when the connected zone is adjacent, else grows with
-	// grid distance. Cross-level edges: crossAlignWeight times the normalized-center distance to the
-	// partner. Repulsive pairs pay the inverse of their distance. Every term is symmetric in both
-	// endpoints, so the incremental delta of a move stays consistent with the total.
+	// Cost of one zone's edges. Every term must stay symmetric in both endpoints, otherwise the
+	// incremental delta of a move would drift away from the total.
 	auto zoneCost = [&](const std::shared_ptr<Zone> & z) -> float
 	{
 		float cost = 0;
@@ -207,8 +204,6 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 
 	for (int i = 0; i < iterations; ++i, temperature *= cooling)
 	{
-		// Pick a zone; every move keeps it on its own level, so cross-level partners are only ever
-		// realigned by rearranging same-level assignments - never by pulling a zone to another level.
 		const auto & z = zonesAll[rand->nextInt(0, static_cast<int>(zonesAll.size()) - 1)];
 		const int level = pos[z->getId()].z;
 		auto & empties = emptyByLevel[level];
@@ -599,10 +594,8 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 	std::vector<bool> levelHasZones(mapLevels, false);
 	std::map<TRmgTemplateZoneId, int3> placedPositions;
 
-	// Highest-degree zones go first, so each level's hub lands (centred) before its neighbours and every
-	// later zone finds its higher-degree anchors already placed. The shuffle breaks equal degrees randomly
-	// rather than by id, so a template with several equally-connected candidates (e.g. Grond's five
-	// degree-4 zones) settles on a hub that differs by seed instead of always the lowest-id zone.
+	// Highest-degree zones go first, so each level's hub lands centrally and every later zone finds its
+	// anchors already placed. Shuffle first so equal degrees are broken by seed rather than by zone id.
 	std::vector<std::shared_ptr<Zone>> order;
 	order.reserve(zones.size());
 	for (const auto & pair : zones)

@@ -142,10 +142,8 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
 
-	// Snapshot the pristine per-zone state (original, un-prescaled sizes and centers) so every
-	// attempt starts identically. prepareZones prescales sizes in place, so each attempt must
-	// restore the original size before prescaling again - otherwise sizes compound across attempts.
-	// Independent attempts also keep this parallelizable later.
+	// prepareZones prescales sizes in place, so every attempt must start from the original size -
+	// otherwise sizes compound across attempts.
 	std::map<std::shared_ptr<Zone>, float3> pristineCenter;
 	std::map<std::shared_ptr<Zone>, int> pristineSize;
 	for(const auto & zone : zones)
@@ -312,10 +310,8 @@ void CZonePlacer::applyRandomOrientation(const TZoneMap & zones, vstd::RNG * ran
 	if(orientRotation == 0 && !orientFlipH && !orientFlipV)
 		return; //identity
 
-	// Reorient center/pos (they feed the tessellation); assignZones replays the same isometry onto the
-	// Penrose vertices so footprints - and thus cross-level gate overlaps - transform with the zones
-	// instead of being reshuffled against a fixed vertex field. Diagnostic snapshots (grid cells,
-	// placement centers) are left as-is: their consumers compare zones relatively, which any isometry preserves.
+	// Only center/pos are reoriented here; assignZones replays the same isometry onto the Penrose
+	// vertices, so footprints - and thus cross-level gate overlaps - transform along with the zones.
 	for(const auto & zonePair : zones)
 	{
 		const auto & zone = zonePair.second;
@@ -616,8 +612,8 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 
 CZonePlacer::ConnectivityCounts CZonePlacer::classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const
 {
-	//Predict, from geometry alone, how each connection would be realized. This is the signal
-	//placement can actually influence; the real outcome is decided later by ConnectionsPlacer.
+	//Predict from geometry alone - this is the signal placement can influence, the real outcome is
+	//decided later by ConnectionsPlacer.
 	//How far a same-level pair may sit and still be predicted "connectable", as a multiple of touching distance
 	constexpr float attractionReachScore = 1.5f;
 
@@ -832,9 +828,8 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	int levels = map.levels();
 
 	// Find current center of mass for each zone. Move zone to that center to balance zones sizes.
-	// Water zones are left out: WaterAdopter builds their area from scratch out of tiles carved off
-	// land zones, so anything the tessellation hands them only overlaps a land zone - and a water zone
-	// winning no vertices would trip the empty-zone check below.
+	// Water zones are left out: WaterAdopter builds their area from tiles carved off land zones, so
+	// anything the tessellation hands them would only overlap a land zone.
 	std::vector<RmgMap::Zones> zonesOnLevel;
 	for(int level = 0; level < levels; level++)
 	{
@@ -882,9 +877,8 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 
 		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
 
-		// Replay the orientation rolled in applyRandomOrientation onto the vertex field, so oriented zones
-		// claim the rotated-equivalent vertices. Keeps the tessellation an exact isometry of the un-oriented
-		// one, preserving cross-level overlaps that would otherwise be reshuffled into monoliths.
+		// Orient the vertex field too, so oriented zones claim the rotated-equivalent vertices. Otherwise
+		// cross-level overlaps get reshuffled against a fixed vertex field and degrade into monoliths.
 		if(orientRotation != 0 || orientFlipH || orientFlipV)
 		{
 			std::set<Point2D> oriented;
@@ -947,8 +941,7 @@ void CZonePlacer::assignTilesCapacityBalanced(int level, int width, int height,
 	}
 	const size_t numVertices = vertexTile.size();
 
-	// Each zone's target share of the level, proportional to size (size is a linear area weight:
-	// a size-30 zone should claim twice the tiles of a size-15 one).
+	// Each zone's target share of the level. Zone size is a linear area weight, so it is proportional.
 	std::vector<double> target(numZones, 0.0);
 	double sumSize = 0;
 	for(size_t z = 0; z < numZones; ++z)

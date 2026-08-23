@@ -33,8 +33,7 @@ public:
 	bool shouldGenerateRoad(const rmg::ZoneConnection& connection) const;
 	
 protected:
-	/// The pair of subterranean gates being positioned for one cross-level connection, plus everything the
-	/// placement strategies need to search for tiles and to commit them.
+	/// The two subterranean gates of one cross-level connection, with everything needed to place them.
 	struct GatePair
 	{
 		Zone & otherZone;
