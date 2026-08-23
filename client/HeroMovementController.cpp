@@ -68,6 +68,11 @@ void HeroMovementController::onBattleStarted()
 
 void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
+	// let any dialog describing this teleportation (e.g. Whirlpool's stack-loss message) be
+	// acknowledged by the player first, so the camera still centers on the adventure map
+	// once the hero actually gets moved
+	GAME->interface()->waitWhileDialog();
+
 	if (impassable || exits.empty()) //FIXME: why we even have this dialog in such case?
 	{
 		GAME->interface()->cb->selectionMade(-1, askID);
