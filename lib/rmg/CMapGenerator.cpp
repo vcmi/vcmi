@@ -526,10 +526,8 @@ int CMapGenerator::getNextMonlithIndex()
 	}
 }
 
-bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
+bool CMapGenerator::canReserveGatePairLocked(const int3 & posA, const int3 & posB) const
 {
-	std::lock_guard<std::mutex> lock(gateReservationMutex);
-
 	// Squared 2D distance between the two ends of this pair (z is ignored - gates pair across levels).
 	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
 
@@ -550,9 +548,23 @@ bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
 		return false;
 	};
 
-	if(conflicts(posA) || conflicts(posB))
+	return !conflicts(posA) && !conflicts(posB);
+}
+
+bool CMapGenerator::canReserveGatePair(const int3 & posA, const int3 & posB) const
+{
+	std::lock_guard<std::mutex> lock(gateReservationMutex);
+	return canReserveGatePairLocked(posA, posB);
+}
+
+bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
+{
+	std::lock_guard<std::mutex> lock(gateReservationMutex);
+
+	if(!canReserveGatePairLocked(posA, posB))
 		return false;
 
+	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
 	reservedGates.push_back({posA, pairSqr});
 	reservedGates.push_back({posB, pairSqr});
 	return true;

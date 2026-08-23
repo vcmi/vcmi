@@ -66,10 +66,14 @@ public:
 
 	int getNextMonlithIndex();
 
+	/// True if a subterranean gate pair at the given tiles would keep every gate paired with its intended
+	/// partner. Use it while searching for gate positions; the result may go stale once another thread
+	/// reserves, so reserveGatePair still has to be checked.
+	bool canReserveGatePair(const int3 & posA, const int3 & posB) const;
+
 	/// Reserve a subterranean gate pair at the given tiles (on different levels). In-game gates pair by
-	/// nearest 2D distance (CGSubterraneanGate::postInit), so a pair placed off a shared column must stay
-	/// each other's nearest gate. Validates the candidate against all previously reserved gates and, if it
-	/// would keep every gate paired with its intended partner, commits it and returns true. Thread-safe;
+	/// nearest 2D distance (CGSubterraneanGate::postInit), so a pair must stay each other's nearest gate.
+	/// Commits the pair and returns true, or returns false if it would break some pairing. Thread-safe;
 	/// called from the parallel connection-placement phase. posA/posB are final map positions.
 	bool reserveGatePair(const int3 & posA, const int3 & posB);
 
@@ -97,10 +101,13 @@ private:
 	int monolithIndex;
 
 	// Subterranean gate pairing registry (see reserveGatePair). Each entry is a placed gate and the squared
-	// 2D distance to its committed partner; used to guarantee off-column gate pairs keep the intended pairing.
+	// 2D distance to its committed partner; used to guarantee gate pairs keep the intended pairing.
 	struct ReservedGate { int3 pos; int pairingDistanceSqr; };
 	std::vector<ReservedGate> reservedGates;
-	std::mutex gateReservationMutex;
+	mutable std::mutex gateReservationMutex;
+
+	/// canReserveGatePair without taking the lock.
+	bool canReserveGatePairLocked(const int3 & posA, const int3 & posB) const;
 
 	std::vector<ArtifactID> questArtifacts;
 
