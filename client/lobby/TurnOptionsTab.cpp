@@ -11,8 +11,22 @@
 #include "StdInc.h"
 #include "TurnOptionsTab.h"
 
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+
+namespace
+{
+void extendButtonHitArea(const std::shared_ptr<CToggleButton> & button, const std::shared_ptr<CLabel> & label)
+{
+	if(button && label)
+		button->pos = button->pos.include(label->pos);
+}
+}
+
 TurnOptionsTab::TurnOptionsTab()
 	: OptionsTabBase(JsonPath::builtin("config/widgets/turnOptionsTab.json"))
 {
-
+	extendButtonHitArea(widget<CToggleButton>("buttonTurnTimerAccumulate"), widget<CLabel>("labelTurnTimerAccumulate"));
+	extendButtonHitArea(widget<CToggleButton>("buttonUnitTimerAccumulate"), widget<CLabel>("labelUnitTimerAccumulate"));
+	extendButtonHitArea(widget<CToggleButton>("buttonSimturnsAI"), widget<CLabel>("labelSimturnsAI"));
 }
