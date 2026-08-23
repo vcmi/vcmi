@@ -48,6 +48,15 @@
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
+namespace
+{
+std::string getRoadWidgetName(const std::string & jsonKey)
+{
+	const auto separator = jsonKey.find(':');
+	return jsonKey.substr(separator == std::string::npos ? 0 : separator + 1);
+}
+}
+
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable(),
 	templateIndex(0)
@@ -135,6 +144,7 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
+	extendRoadButtonHitAreas();
 
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
@@ -214,6 +224,32 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	loadOptions();
+}
+
+void RandomMapTab::extendRoadButtonHitAreas()
+{
+	std::vector<std::shared_ptr<CToggleButton>> roadButtons;
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	{
+		if(auto button = widget<CToggleButton>(getRoadWidgetName(road->getJsonKey())))
+			roadButtons.push_back(button);
+	}
+
+	if(roadButtons.size() < 2)
+		return;
+
+	std::ranges::sort(roadButtons, {}, [](const auto & button)
+	{
+		return button->pos.x;
+	});
+
+	for(size_t index = 1; index < roadButtons.size(); ++index)
+	{
+		auto & previousButton = roadButtons[index - 1];
+		previousButton->pos.w = std::max(previousButton->pos.w, roadButtons[index]->pos.x - previousButton->pos.x);
+	}
+
+	roadButtons.back()->pos.w = std::max(roadButtons.back()->pos.w, roadButtons[roadButtons.size() - 2]->pos.w);
 }
 
 void RandomMapTab::onToggleMapSize(int btnId)
@@ -508,10 +544,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
-		std::string jsonKey = r->getJsonKey();
-		std::string identifier = jsonKey.substr(jsonKey.find(':')+1);
-
-		if(auto w = widget<CToggleButton>(identifier))
+		if(auto w = widget<CToggleButton>(getRoadWidgetName(r->getJsonKey())))
 		{
 			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
