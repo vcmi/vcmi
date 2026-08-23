@@ -431,6 +431,8 @@ void Campaign::overrideCampaign()
 		gemSorceressID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroGemSorceress"]));
 	if(!overrides["heroYogWizard"].isNull())
 		yogWizardID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroYogWizard"]));
+	if(!overrides["heroMutareDrake"].isNull())
+		mutareDrakeID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroMutareDrake"]));
 
 	restrictGarrisonsAI	= overrides["restrictedGarrisonsForAI"].Bool();
 }
@@ -475,6 +477,10 @@ bool CampaignState::isCampaignFinished() const
 HeroTypeID CampaignHeader::getYogWizardID() const
 {
 	return yogWizardID;
+}
+HeroTypeID CampaignHeader::getMutareDrakeID() const
+{
+	return mutareDrakeID;
 }
 HeroTypeID CampaignHeader::getGemSorceressID() const
 {
