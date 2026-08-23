@@ -362,7 +362,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 
 		std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
 		auto commonArea = zone.areaPossible().get() * (otherZone->areaPossible().get() + zShift);
-		const int maxGateDistance = generator.getConfig().zonePlacementMaxGateDistance;
+		const int maxGateDistance = generator.getConfig().zonePlacement.maxGateDistance;
 
 		assert(zone.getModificator<ObjectManager>());
 		auto & manager = *zone.getModificator<ObjectManager>();

@@ -23,9 +23,8 @@ class CZoneGridPlacer
 public:
 	using ZoneMap = std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
 	using DistanceMap = std::map<int, std::map<int, size_t>>;
-	using ScaleForceFn = std::function<float(const std::shared_ptr<Zone> &, const std::shared_ptr<Zone> &)>;
 
-	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones, bool hexGrid = false, bool hubFirst = false, bool saPolish = false, float crossAlignWeight = 0.0f);
+	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion);
 
 	void placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const;
 
@@ -36,13 +35,9 @@ private:
 	{
 		int3 bestPos;
 		bool foundPos = false;
-		double score = 0.0;
-		bool hasScore = false;
+		double score = 0.0; // best value of whichever criterion the search used; 0 for an unconstrained seed
 	};
 
-	GridType & getGridForLevel(std::vector<std::unique_ptr<GridType>> & grids, int level) const;
-	static void getRandomGridCorner(vstd::RNG * rand, size_t gridSize, size_t & x, size_t & y);
-	static void getRandomGridEdge(vstd::RNG * rand, size_t gridSize, size_t & x, size_t & y);
 	/// True if cell x,y are in [0, gridSize); z is ignored.
 	static bool isWithinGrid(const int3 & cell, size_t gridSize);
 	static bool betterByPrimaryThenTie(
@@ -62,10 +57,9 @@ private:
 		const std::shared_ptr<Zone> & zone,
 		const GridType & grid,
 		size_t gridSize) const;
-	float sumWeightedDistanceToPlacedZones(
+	float sumDistanceToPlacedZones(
 		const GridType & grid,
 		size_t gridSize,
-		const std::shared_ptr<Zone> & zone,
 		size_t freeX,
 		size_t freeY) const;
 	float sumDistanceToAnchorsScaled(
@@ -80,8 +74,7 @@ private:
 		const GridType & grid,
 		size_t gridSize,
 		int level,
-		bool levelHasZones,
-		vstd::RNG * rand) const;
+		bool levelHasZones) const;
 	PlacementDecision findPlacementWithAnchors(
 		const std::shared_ptr<Zone> & zone,
 		const std::vector<std::shared_ptr<Zone>> & anchors,
@@ -95,34 +88,27 @@ private:
 		int level,
 		size_t gridSize,
 		const PlacementDecision & decision) const;
-	void logInitialGrid(
-		const std::vector<std::unique_ptr<GridType>> & grids,
-		const std::vector<size_t> & gridSizes,
-		int mapLevels) const;
 	void setInitialZoneCenters(
 		const std::vector<std::unique_ptr<GridType>> & grids,
 		const std::vector<size_t> & gridSizes,
 		int mapLevels,
 		vstd::RNG * rand) const;
 
-	/// Grid distance between two cells: hex (cube) distance on a hex grid, Manhattan on a square grid.
-	/// Connected zones are "adjacent" (satisfied) when this equals 1.
+	/// Hex (cube) distance between two cells. Connected zones are "adjacent" when this equals 1.
 	int cellDistance(const int3 & a, const int3 & b) const;
-	/// Deterministic normalized (0..1) center of a grid cell, matching setInitialZoneCenters (minus jitter).
-	/// Used to measure cross-level partner alignment in the same continuous space where gates get placed.
-	std::pair<double, double> normalizedCellCenter(const int3 & cell, size_t gridSize) const;
+	/// Normalized (0..1) position of a point in a grid cell; offsets are fractions of the cell (0.5 = center).
+	std::pair<double, double> normalizedCellPos(const int3 & cell, size_t gridSize, double offsetX = 0.5, double offsetY = 0.5) const;
+	/// Cell of this grid whose center is closest to a normalized position. Levels have differently sized
+	/// grids, so comparing cells across levels only makes sense through normalized positions.
+	int3 nearestCell(const std::pair<double, double> & normPos, size_t gridSize) const;
 	/// Simulated-annealing polish of the whole placement (all levels jointly). Swaps zone<->cell
-	/// assignments within each level to bring connected same-level zones into adjacent cells, while a
-	/// cross-level term (crossAlignWeight) rewards cross-level partners sharing the same normalized cell.
-	/// Doing cross-level alignment discretely lets it be satisfied by rearrangement instead of a continuous
-	/// force that drags zones off their same-level neighbours. Operates in place on the grids.
+	/// assignments within each level to bring connected same-level zones into adjacent cells, to align
+	/// cross-level partners, and to keep repulsive pairs apart. Doing cross-level alignment discretely
+	/// lets it be satisfied by rearrangement instead of a continuous force that drags zones off their
+	/// same-level neighbours. Operates in place on the grids.
 	void annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const;
 
 	const RmgMap & map;
 	const DistanceMap & distancesBetweenZones;
-	ScaleForceFn scaleForceBetweenZones;
-	bool hexGrid;  // seed zones on a hex (6-neighbour) grid instead of a square (4-orthogonal) one
-	bool hubFirst; // place zones in descending-degree order, highest-degree hub first at the grid centre
-	bool saPolish; // simulated-annealing pass to improve connected-zone adjacency after construction
-	float crossAlignWeight; // SA reward for cross-level partners sharing a normalized cell (0 = ignore cross-level)
+	float playerRepulsion; // strength of the preference for keeping player starts apart (0 = off)
 };

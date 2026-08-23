@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CMapGenOptions.h"
+#include "ZonePlacementConfig.h"
 #include "../LoadProgress.h"
 
 class MetaString;
@@ -51,19 +52,7 @@ public:
 		std::vector<int> questRewardValues;
 		int seerHutValue;
 		bool singleThread;
-		int zonePlacementAttempts;
-		int zonePlacementScoreDirect;
-		int zonePlacementScoreGate;
-		int zonePlacementScoreMonolith;
-		bool zonePlacementHexGrid;
-		bool zonePlacementHubFirst;
-		bool zonePlacementSaPolish;
-		float zonePlacementCrossAlignWeight;
-		bool zonePlacementCapacityBalance;
-		int zonePlacementCapacityIterations;
-		float zonePlacementCapacityGain;
-		int zonePlacementMaxGateDistance;
-		bool zonePlacementRandomOrientation;
+		ZonePlacementConfig zonePlacement;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);

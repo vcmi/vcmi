@@ -47,11 +47,7 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 	loadConfig();
 	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
-	placer = std::make_shared<CZonePlacer>(*map,
-		config.zonePlacementAttempts, config.zonePlacementScoreDirect, config.zonePlacementScoreGate, config.zonePlacementScoreMonolith,
-		config.zonePlacementHexGrid, config.zonePlacementHubFirst, config.zonePlacementSaPolish,
-		config.zonePlacementCrossAlignWeight, config.zonePlacementCapacityBalance, config.zonePlacementCapacityIterations,
-		config.zonePlacementCapacityGain, config.zonePlacementRandomOrientation);
+	placer = std::make_shared<CZonePlacer>(*map, config.zonePlacement);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -93,19 +89,13 @@ void CMapGenerator::loadConfig()
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
-	config.zonePlacementAttempts = randomMapJson["zonePlacement"]["attempts"].Integer();
-	config.zonePlacementScoreDirect = randomMapJson["zonePlacement"]["scoreDirect"].Integer();
-	config.zonePlacementScoreGate = randomMapJson["zonePlacement"]["scoreSubterraneanGate"].Integer();
-	config.zonePlacementScoreMonolith = randomMapJson["zonePlacement"]["scoreMonolith"].Integer();
-	config.zonePlacementHexGrid = randomMapJson["zonePlacement"]["hexGrid"].Bool();
-	config.zonePlacementHubFirst = randomMapJson["zonePlacement"]["hubFirst"].Bool();
-	config.zonePlacementSaPolish = randomMapJson["zonePlacement"]["saPolish"].Bool();
-	config.zonePlacementCrossAlignWeight = randomMapJson["zonePlacement"]["crossAlignWeight"].Float();
-	config.zonePlacementCapacityBalance = randomMapJson["zonePlacement"]["capacityBalance"].Bool();
-	config.zonePlacementCapacityIterations = randomMapJson["zonePlacement"]["capacityIterations"].Integer();
-	config.zonePlacementCapacityGain = randomMapJson["zonePlacement"]["capacityGain"].Float();
-	config.zonePlacementMaxGateDistance = randomMapJson["zonePlacement"]["maxGateDistance"].Integer();
-	config.zonePlacementRandomOrientation = randomMapJson["zonePlacement"]["randomOrientation"].Bool();
+	const auto & zonePlacementJson = randomMapJson["zonePlacement"];
+	config.zonePlacement.attempts = zonePlacementJson["attempts"].Integer();
+	config.zonePlacement.scoreDirect = zonePlacementJson["scoreDirect"].Integer();
+	config.zonePlacement.scoreGate = zonePlacementJson["scoreSubterraneanGate"].Integer();
+	config.zonePlacement.scoreMonolith = zonePlacementJson["scoreMonolith"].Integer();
+	config.zonePlacement.maxGateDistance = zonePlacementJson["maxGateDistance"].Integer();
+	config.zonePlacement.playerRepulsion = zonePlacementJson["playerRepulsion"].Float();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const

@@ -119,6 +119,8 @@ public:
 	int getGuardStrength() const;
 	rmg::EConnectionType getConnectionType() const;
 	rmg::ERoadOption getRoadOption() const;
+	/// True if this connection has to be realized as an actual passage between two distinct zones.
+	bool needsPassage() const;
 	void setRoadOption(rmg::ERoadOption roadOption);
 
 	void serializeJson(JsonSerializeFormat & handler);
