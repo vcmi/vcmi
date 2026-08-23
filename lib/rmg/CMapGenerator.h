@@ -64,6 +64,7 @@ public:
 	
 	std::unique_ptr<CMap> generate();
 
+	/// Next unused two-way monolith subtype. Thread-safe; called from the parallel connection-placement phase.
 	int getNextMonlithIndex();
 
 	/// True if a subterranean gate pair at the given tiles would keep every gate paired with its intended
@@ -99,6 +100,7 @@ private:
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
+	std::mutex monolithIndexMutex;
 
 	// Subterranean gate pairing registry (see reserveGatePair). Each entry is a placed gate and the squared
 	// 2D distance to its committed partner; used to guarantee gate pairs keep the intended pairing.

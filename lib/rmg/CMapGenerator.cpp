@@ -506,6 +506,8 @@ void CMapGenerator::addHeaderInfo()
 
 int CMapGenerator::getNextMonlithIndex()
 {
+	std::lock_guard<std::mutex> lock(monolithIndexMutex);
+
 	while (true)
 	{
 		if (monolithIndex >= LIBRARY->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
