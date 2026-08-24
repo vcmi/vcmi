@@ -32,6 +32,12 @@ Returns the source category (artifact, creature ability, spell, ...) of the bonu
 
 - returns [`BonusSource`](BonusSource.md)
 
+### getEffectRange
+
+Returns the kind of combat the bonus is limited to. A bonus that applies to melee only is silently absent while shooting, and the other way round.
+
+- returns [`BonusLimitEffect`](BonusLimitEffect.md)
+
 ### getDuration
 
 Returns the list of duration flags currently set on the bonus.

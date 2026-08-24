@@ -175,29 +175,8 @@ TEST_F(UnitStateTest, getDefense)
 	EXPECT_EQ(subject.getDefense(true), DEFAULT_DEFENCE);
 }
 
-TEST_F(UnitStateTest, attackWithFrenzy)
-{
-	setDefaultExpectations();
-
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, BonusSourceID()));
-
-	int expectedAttack = static_cast<int>(DEFAULT_ATTACK + 0.5 * DEFAULT_DEFENCE);
-
-	EXPECT_EQ(subject.getAttack(false), expectedAttack);
-	EXPECT_EQ(subject.getAttack(true), expectedAttack);
-}
-
-TEST_F(UnitStateTest, defenceWithFrenzy)
-{
-	setDefaultExpectations();
-
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, BonusSourceID()));
-
-	int expectedDefence = 0;
-
-	EXPECT_EQ(subject.getDefense(false), expectedDefence);
-	EXPECT_EQ(subject.getDefense(true), expectedDefence);
-}
+// Frenzy no longer moves these two - what it converts depends on the unit being attacked, so it is
+// resolved by the damage calculator and covered by DamageCalculatorTest.
 
 TEST_F(UnitStateTest, additionalAttack)
 {

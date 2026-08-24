@@ -193,7 +193,6 @@ const UnitBonusValuesProxy::SelectorsArray * UnitBonusValuesProxy::generateSelec
 		attack.And(selectorRanged),//ATTACK_RANGED,
 		defence.And(selectorMelee),//DEFENCE_MELEE,
 		defence.And(selectorRanged),//DEFENCE_RANGED,
-		Selector::type()(BonusType::IN_FRENZY),//IN_FRENZY,
 		Selector::type()(BonusType::HYPNOTIZED),//HYPNOTIZED,
 		Selector::type()(BonusType::FORGETFULL),//FORGETFULL,
 		Selector::type()(BonusType::FREE_SHOOTING).Or(Selector::type()(BonusType::SIEGE_WEAPON)),//HAS_FREE_SHOOTING,

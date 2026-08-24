@@ -73,21 +73,42 @@ True if the attacker stands where it could hit the defender in melee. False for 
 
 ### hasDistancePenalty
 
-True if the shooter is too far from the target for a full-strength shot.
+True if the shooter is too far from the target for a full-strength shot. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
 
 - param `shooter`: [`Unit`](Unit.md) — Unit making the ranged attack.
 - param `target`: [`Unit`](Unit.md) — Unit being shot at.
+- param `shooterHex`: [`BattleHex?`](BattleHex.md) — Hex to shoot from; nil uses where the shooter stands.
+- param `targetHex`: [`BattleHex?`](BattleHex.md) — Hex to shoot at; nil uses where the target stands.
 
 - returns `boolean`
 
 ### hasWallPenalty
 
-True if a town wall stands between the shooter and the target.
+True if a town wall stands between the shooter and the target. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
 
 - param `shooter`: [`Unit`](Unit.md) — Unit making the ranged attack.
 - param `target`: [`Unit`](Unit.md) — Unit being shot at.
+- param `shooterHex`: [`BattleHex?`](BattleHex.md) — Hex to shoot from; nil uses where the shooter stands.
+- param `targetHex`: [`BattleHex?`](BattleHex.md) — Hex to shoot at; nil uses where the target stands.
 
 - returns `boolean`
+
+### isToReverse
+
+True if the attacker would have to turn around to strike the defender. Optionally, perform calculation assuming that units are at specified positions instead of their current ones.
+
+- param `attacker`: [`Unit`](Unit.md) — Unit that would strike.
+- param `defender`: [`Unit`](Unit.md) — Unit that would be struck.
+- param `attackerHex`: [`BattleHex?`](BattleHex.md) — Hex to strike from; nil uses where the attacker stands.
+- param `defenderHex`: [`BattleHex?`](BattleHex.md) — Hex to strike at; nil uses where the defender stands.
+
+- returns `boolean`
+
+### getDefendedTown
+
+Returns the town being defended in this battle.
+
+- returns [`TownInstance`](TownInstance.md) — The besieged town, or nil when the battle is no siege.
 
 ### getUnitByPos
 

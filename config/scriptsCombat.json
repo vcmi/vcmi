@@ -58,6 +58,41 @@
 		},
 		"description" : ""
 	},
+	"arrowTowerDamage" : {
+		"implements" : "combatEvent",
+		"script" : "combat/arrowTowerDamage",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {
+				"keepBase" : { "type" : "number", "description" : "damage of the keep in a town with nothing built" },
+				"towerBase" : { "type" : "number", "description" : "damage of the two lesser towers in a town with nothing built" },
+				"perBuilding" : { "type" : "number", "description" : "damage each building adds to the keep; the lesser towers get half of it" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"damageCalculator" : {
+		"implements" : "damageCalculator",
+		"script" : "damage/damageCalculator",
+		"patches" : [
+			// special cases for H3 scenarios
+			"damage/siegeWeapon",
+			"damage/magicElemental",
+			"damage/psychicElemental",
+			// mod-only logic, to be removed after migration
+			"damage/vulnerableFromBack",
+			"damage/hatesTrait",
+			"damage/revenge",
+			"damage/enemyAttackReduction",
+			"damage/damageReceivedCap"
+		],
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		}
+	},
 	"fireShield" : {
 		"implements" : "combatEvent",
 		"script" : "combat/fireShield",

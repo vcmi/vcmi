@@ -61,7 +61,6 @@ set(lib_MAIN_SRCS
 	battle/CObstacleInstance.cpp
 	battle/CPlayerBattleCallback.cpp
 	battle/CUnitState.cpp
-	battle/DamageCalculator.cpp
 	battle/Destination.cpp
 	battle/IBattleState.cpp
 	battle/ReachabilityInfo.cpp
@@ -75,6 +74,7 @@ set(lib_MAIN_SRCS
 	bonuses/BonusList.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
+	bonuses/BonusFilter.cpp
 	bonuses/BonusMigration.cpp
 	bonuses/BonusParameters.cpp
 	bonuses/CBonusSystemNode.cpp
@@ -464,7 +464,6 @@ set(lib_MAIN_HEADERS
 	battle/CObstacleInstance.h
 	battle/CPlayerBattleCallback.h
 	battle/CUnitState.h
-	battle/DamageCalculator.h
 	battle/Destination.h
 	battle/IBattleInfoCallback.h
 	battle/IBattleState.h
@@ -481,6 +480,7 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusList.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
+	bonuses/BonusFilter.h
 	bonuses/BonusMigration.h
 	bonuses/BonusParameters.h
 	bonuses/CBonusSystemNode.h
@@ -776,6 +776,7 @@ set(lib_MAIN_HEADERS
 
 	combatScripts/CombatEventPayload.h
 	combatScripts/ICombatEventScript.h
+	combatScripts/IDamageCalculatorScript.h
 
 	scripting/ScriptHandler.h
 	scripting/ScriptService.h

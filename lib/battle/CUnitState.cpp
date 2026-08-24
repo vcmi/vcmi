@@ -736,37 +736,18 @@ int CUnitState::getAttack(bool ranged) const
 		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_RANGED):
 		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_MELEE);
 
-	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
-	if(frenzy != 0)
-	{
-		int defence = ranged ?
-			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
-
-		int frenzyBonus = frenzy * defence / 100;
-		attack += frenzyBonus;
-	}
-
 	vstd::amax(attack, 0);
 	return attack;
 }
 
 int CUnitState::getDefense(bool ranged) const
 {
-	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+	int defence = ranged ?
+					  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+					  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
 
-	if(frenzy != 0)
-	{
-		return 0;
-	}
-	else
-	{
-		int defence = ranged ?
-						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
-		vstd::amax(defence, 0);
-		return defence;
-	}
+	vstd::amax(defence, 0);
+	return defence;
 }
 
 std::shared_ptr<Unit> CUnitState::acquire() const

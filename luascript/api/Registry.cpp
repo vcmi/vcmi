@@ -11,6 +11,7 @@
 
 #include "Registry.h"
 #include "SerializableRegistar.h"
+#include "../../lib/bonuses/BonusFilter.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/Destination.h"
@@ -33,6 +34,7 @@
 #include "spells/Problem.h"
 #include "library/Artifact.h"
 #include "library/Bonus.h"
+#include "library/Building.h"
 #include "library/BonusDescriptor.h"
 #include "callback/IBattleInfoCallback.h"
 #include "library/Creature.h"
@@ -61,6 +63,7 @@ Registry::Registry()
 {
 	registerPrivate<ServicesProxy>();
 	registerPrivate<ArtifactProxy>();
+	registerPrivate<BuildingProxy>();
 	registerPrivate<BonusProxy>();
 	registerPrivate<BonusListProxy>();
 	registerPrivate<CreatureProxy>();
@@ -97,6 +100,7 @@ Registry::Registry()
 	registerSerializable<LuaMetaString>();
 	registerSerializable<LuaComponent>();
 	registerSerializable<BonusDescriptor>();
+	registerSerializable<BonusFilter>();
 	registerSerializable<SpellObstacleDescriptor>();
 
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
@@ -115,6 +119,7 @@ Registry::Registry()
 	registerLuaName<BonusDuration::BonusDuration>("BonusDuration");
 	registerLuaName<BonusSource>("BonusSource");
 	registerLuaName<BonusValueType>("BonusValueType");
+	registerLuaName<BonusLimitEffect>("BonusLimitEffect");
 	registerLuaName<CObstacleInstance::EObstacleType>("ObstacleType");
 	registerLuaName<EWallPart>("WallPart");
 	registerLuaName<BattleSide>("BattleSide");

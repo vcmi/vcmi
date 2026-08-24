@@ -27,6 +27,8 @@ ScriptKind parseKind(const std::string & name)
 		return ScriptKind::SPELL_EFFECT;
 	if(name == "combatEvent")
 		return ScriptKind::COMBAT_EVENT;
+	if(name == "damageCalculator")
+		return ScriptKind::DAMAGE_CALCULATOR;
 
 	return ScriptKind::INVALID;
 }
@@ -47,6 +49,11 @@ std::shared_ptr<spells::effects::Effect> ScriptHandler::createSpellEffect(Script
 		logMod->error("Scripting host can not provide spell effects, required by '%s'!", description.scriptId);
 
 	return effect;
+}
+
+const IDamageCalculatorScript * ScriptHandler::getDamageCalculator() const
+{
+	return damageCalculator.get();
 }
 
 void ScriptHandler::registerFactory(std::shared_ptr<IScriptFactory> newFactory)
@@ -99,6 +106,21 @@ void ScriptHandler::loadObject(const std::string & scope, const std::string & na
 		// nothing to gain by carrying on with the load
 		if(!description.combatEventScript)
 			throw std::runtime_error("Scripting host can not provide combat event scripts, required by '" + description.scriptId + "'!");
+	}
+
+	if(description.kind == ScriptKind::DAMAGE_CALCULATOR)
+	{
+		description.damageCalculatorScript = factory->createDamageCalculatorScript(description.scriptId);
+
+		if(!description.damageCalculatorScript)
+			throw std::runtime_error("Scripting host can not provide damage calculator scripts, required by '" + description.scriptId + "'!");
+
+		// the game has one damage calculator, so a second declaration is a mod fighting the one
+		// already in place. Extending it is what `patches` is for
+		if(damageCalculator)
+			logMod->error("Script '%s' declares a second damage calculator, which will be ignored!", description.scriptId);
+		else
+			damageCalculator = description.damageCalculatorScript;
 	}
 
 	registerObject(scope, "script", name, data, scripts.size());

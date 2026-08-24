@@ -4,7 +4,8 @@ Script.__index = Script
 
 function Script:getDispelableBonuses(mechanics, unit)
 	local currentSpellKey = mechanics:getSpell():getJsonKey()
-	return unit:getBonuses(function(bonus)
+	-- no filter describes this: what makes a bonus dispelable is the spell that granted it
+	return unit:getBonuses({}):filter(function(bonus)
 		if bonus:getSource() ~= ENUM.BonusSource.spellEffect then return false end
 		if bonus:getSourceID() == currentSpellKey then return false end
 		local sourceSpell = LIBRARY:getSpellByName(bonus:getSourceID())

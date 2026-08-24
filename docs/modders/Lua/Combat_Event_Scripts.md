@@ -83,15 +83,15 @@ When several bonuses on the same unit grant the same script, each of them runs t
 
 Parameters:
 
-- `server` - used to apply actual changes to the battle state. See [Server](API_Reference.md#server).
-- `battle` - state of the battle this event happened in. See [Battle](API_Reference.md#battle).
-- `unit` - the unit carrying the bonus, which this event happened to. See [Unit](API_Reference.md#unit).
+- `server` - used to apply actual changes to the battle state. See [BattleServer](../Lua_Reference/BattleServer.md).
+- `battle` - state of the battle this event happened in. See [Battle](../Lua_Reference/Battle.md).
+- `unit` - the unit carrying the bonus, which this event happened to. See [Unit](../Lua_Reference/Unit.md).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
 - `payload` - data about the attack that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
   - `ranged` - whether the attack was a shot
   - `isCounter` - whether the attack is a counterattack, either a first strike or a regular retaliation
   - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first blow and `1` for the second of a double attack. A counterattack is its own side's attack `0`
-  - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` the attack could have dealt with the target's defence ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
+  - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` this same blow would have dealt with the target's defences ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
 
   A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
@@ -106,8 +106,11 @@ Handlers:
 - `onBeforeMove` - called before `unit` starts movement
 - `onAfterMove` - called after `unit` ends movement
 - `onUnitSpellcast` - called after `unit` casts a spell
+- `onBattleSetup` - called once for every unit as the battle is laid out, before tactics and before anything else happens to it. `other` is nil
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over and before any opening spell is cast. `other` is nil
 - `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil
+
+![Order in which combat events fire](Combat_Event_Flow.svg)
 
 The attack events always fire in this order, once per attack:
 

@@ -80,6 +80,15 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the current hit points of living creatures of this unit.");
 	R.method<&Unit::getCount>("getCount", {},
 		"Returns the number of creatures currently alive in the stack.");
+	R.method<&Unit::getFirstHPleft>("getFirstHPleft", {},
+		"Returns the health left of the first creature in the unit stack.");
+	R.method<&Unit::isShooter>("isShooter", {},
+		"True if the stack can shoot in general, even if out of ammo. See canShoot to check if unit can shoot right now.");
+	R.method<&Unit::isTurret>("isTurret", {},
+		"True if the stack is one of the towers of a besieged town.");
+	R.function<&UnitProxy::getTurretPart>("getTurretPart",
+        {" 'keep', 'upper' or 'lower'; nil when the stack is no tower."},
+		"Which of the three towers of a besieged town this stack is.");
 	R.method<&ACreature::getMaxHealth, Unit>("getMaxHealth", {},
 		"Returns the maximum hit points of a single creature in the stack.");
 	R.method<&Unit::coversPos>("coversPos",
@@ -107,6 +116,18 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 const Creature * UnitProxy::getCreature(const Unit & unit)
 {
 	return unit.creatureId().toEntity(LIBRARY);
+}
+
+std::optional<std::string> UnitProxy::getTurretPart(const Unit & unit)
+{
+	// a tower never moves, so the sentinel hex it was placed on is what tells the three apart
+	switch(unit.getPosition().toInt())
+	{
+		case BattleHex::CASTLE_CENTRAL_TOWER: return "keep";
+		case BattleHex::CASTLE_UPPER_TOWER:   return "upper";
+		case BattleHex::CASTLE_BOTTOM_TOWER:  return "lower";
+		default:                              return std::nullopt;
+	}
 }
 
 BattleHexArray UnitProxy::getHexes(const Unit & unit)

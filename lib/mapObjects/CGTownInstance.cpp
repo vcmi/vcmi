@@ -423,38 +423,6 @@ void CGTownInstance::initializeConfigurableBuildings(IGameRandomizer & gameRando
 	}
 }
 
-DamageRange CGTownInstance::getTowerDamageRange() const
-{
-	// http://heroes.thelazy.net/wiki/Arrow_tower
-	// base damage, irregardless of town level
-	static constexpr int baseDamage = 6;
-	// extra damage, for each building in town
-	static constexpr int extraDamage = 2;
-
-	const int minDamage = baseDamage + extraDamage * (getTownLevel() / 2);
-
-	return {
-		minDamage,
-		minDamage * 2
-	};
-}
-
-DamageRange CGTownInstance::getKeepDamageRange() const
-{
-	// http://heroes.thelazy.net/wiki/Arrow_tower
-	// base damage, irregardless of town level
-	static constexpr int baseDamage = 10;
-	// extra damage, for each building in town
-	static constexpr int extraDamage = 2;
-
-	const int minDamage = baseDamage + extraDamage * getTownLevel();
-
-	return {
-		minDamage,
-		minDamage * 2
-	};
-}
-
 FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 {
 	if(getOwner().isValidPlayer())

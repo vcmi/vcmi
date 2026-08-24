@@ -37,6 +37,9 @@ void BonusProxy::registerMethods(MethodRegistrar & R)
 		"Returns the JSON key identifying the entity that granted this bonus.");
 	R.function<&BonusProxy::getSource>("getSource", {},
 		"Returns the source category (artifact, creature ability, spell, ...) of the bonus.");
+	R.function<&BonusProxy::getEffectRange>("getEffectRange", {},
+		"Returns the kind of combat the bonus is limited to. A bonus that applies to melee only is "
+		"silently absent while shooting, and the other way round.");
 	R.function<&BonusProxy::getDuration>("getDuration", {},
 		"Returns the list of duration flags currently set on the bonus.");
 	R.function<&BonusProxy::getValType>("getValType", {},
@@ -62,6 +65,7 @@ si32        BonusProxy::getVal(const Bonus & b)        { return b.val; }
 std::string BonusProxy::getSubtype(const Bonus & b)    { return b.subtype.toString(); }
 std::string BonusProxy::getSourceID(const Bonus & b)   { return b.sid.toString(); }
 BonusSource     BonusProxy::getSource(const Bonus & b)  { return b.source; }
+BonusLimitEffect BonusProxy::getEffectRange(const Bonus & b) { return b.effectRange; }
 BonusValueType  BonusProxy::getValType(const Bonus & b) { return b.valType; }
 std::string BonusProxy::getStacking(const Bonus & b)   { return b.stacking; }
 si16        BonusProxy::getTurnsRemain(const Bonus & b) { return b.turnsRemain; }
@@ -105,15 +109,57 @@ void BonusListProxy::registerMethods(MethodRegistrar & R)
 {
 	R.function<&BonusListProxy::size>("size", {},
 		"Returns the number of bonuses in this list.");
+	R.function<&BonusListProxy::totalValue>("totalValue", {},
+		"Computes total value of bonuses in the list, accounting for bonus value types");
+	R.cfunction<&BonusListProxy::filter>("filter",
+		{{"predicate", "fun(b: Bonus): boolean", "Selector — called for each bonus of the list; bonus is kept when it returns true."}},
+		{"BonusList", "Bonuses for which the predicate returned true."},
+		"Returns the bonuses of this list the predicate accepts. Use to narrow a list down before "
+		"`totalValue`, which combines what is left by the rules of the engine.");
 	R.function<&BonusListProxy::getBonus>("getBonus",
 		{{"index", "1-based position of the bonus to fetch."}},
 		{"Bonus stored at the given position."},
-		"Returns the bonus at the given 1-based index. Throws if the index is out of range.");
+		"Returns the bonus at the given 1-based index. Aborts the script if the index is out of range.");
 }
 
 int32_t BonusListProxy::size(const BonusList & list)
 {
 	return static_cast<int32_t>(list.size());
+}
+
+int32_t BonusListProxy::totalValue(const BonusList & list)
+{
+	return list.totalValue();
+}
+
+int BonusListProxy::filter(lua_State * L)
+{
+	LuaStack S(L);
+
+	BonusList list;
+	S.get(1, list);
+
+	if(!lua_isfunction(L, 2))
+	{
+		S.clear();
+		return 0;
+	}
+
+	BonusList result;
+	for(const auto & bonus : list)
+	{
+		lua_pushvalue(L, 2);
+		S.push(*bonus);
+		lua_call(L, 1, 1);
+		const bool keep = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+		if(keep)
+			result.push_back(bonus);
+	}
+
+	S.clear();
+	S.push(result);
+	return 1;
 }
 
 Bonus BonusListProxy::getBonus(const BonusList & list, int32_t index)

@@ -87,3 +87,30 @@ public:
 
 using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool, BonusTypeID, ScriptID>;
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;
+
+/// Kind of entity an identifier names - a creature, a spell, a terrain, ... The same vocabulary as
+/// `Identifier::entityType()`, as an enum. Bonus subtypes are given as plain identifiers
+/// ("core:devil", "damageTypeMelee") with no say in what they name, so this is what the type of the
+/// bonus resolves to before such an identifier can be looked up.
+enum class EntityTypeEnum
+{
+	NONE,
+	CUSTOM,
+	SPELL,
+	CREATURE,
+	PRIMARY_SKILL,
+	TERRAIN,
+	RESOURCE,
+	SPELL_SCHOOL,
+	BONUS_TYPE,
+	SCRIPT
+};
+
+/// What the subtype of a bonus of this type names.
+DLL_LINKAGE EntityTypeEnum bonusSubtypeEntityType(BonusType type);
+/// Name this entity type is known by, which is what identifiers of it are resolved under. Empty for NONE.
+DLL_LINKAGE std::string entityTypeName(EntityTypeEnum entityType);
+/// Subtype holding the given index, as an identifier of this entity type.
+DLL_LINKAGE BonusSubtypeID bonusSubtypeOf(EntityTypeEnum entityType, int32_t index);
+/// Subtype named by this identifier for this bonus type. Throws when the identifier names nothing.
+DLL_LINKAGE BonusSubtypeID decodeBonusSubtype(BonusType type, const std::string & identifier);

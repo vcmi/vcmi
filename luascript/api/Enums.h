@@ -52,6 +52,7 @@ class Enums : public scripting::ApiSerializable<Enums>
 	EnumGroup<BonusDuration::BonusDuration> exportBonusDuration() const;
 	EnumGroup<BonusSource> exportBonusSource() const;
 	EnumGroup<BonusValueType> exportBonusValueType() const;
+	EnumGroup<BonusLimitEffect> exportBonusLimitEffect() const;
 	EnumGroup<CObstacleInstance::EObstacleType> exportObstacleType() const;
 	EnumGroup<EWallPart> exportWallPart() const;
 	EnumGroup<BattleSide> exportBattleSide() const;
@@ -77,6 +78,7 @@ public:
 		s("BonusDuration",    exportBonusDuration(),    "Lifetime selectors used by Bonus / BonusDescriptor `duration`.");
 		s("BonusSource",      exportBonusSource(),      "Origin classes used by Bonus / BonusDescriptor `sourceType`.");
 		s("BonusValueType",   exportBonusValueType(),   "Combination rules used by Bonus / BonusDescriptor `valueType`.");
+		s("BonusLimitEffect", exportBonusLimitEffect(), "Kinds of combat a bonus is limited to, used by Bonus `effectRange`.");
 		s("ObstacleType",     exportObstacleType(),     "Obstacle categories used by SpellObstacleDescriptor `obstacleType`.");
 		s("WallPart",         exportWallPart(),         "Town-wall sections referenced by siege APIs and `catapultAttack`.");
 		s("BattleSide",       exportBattleSide(),       "Battlefield side identifiers: none / attacker / defender.");

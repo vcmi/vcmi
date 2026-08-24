@@ -1212,6 +1212,14 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
+	// collected before the blow lands: a stack that dies to it loses its spell effects, and a shield
+	// that was up when the stack was struck answers the strike that killed it
+	std::vector<PendingTrigger> reactions;
+	collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACK, attacker, defender);
+
+	for(const AttackedTarget & target : payload.targets)
+		collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
+
 	gameHandler->sendAndApply(bat);
 
 	{
@@ -1241,7 +1249,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	// priority alone decides what runs first, which is how life drain heals before a fire shield can
 	// burn the attacker down and how a death stare only lands after it. Not gated on anyone being
 	// alive: a reflecting ability answers a lethal blow while dying, so each reaction decides for itself
-	processAttackTriggers(battle, CombatEventType::AFTER_ATTACK, CombatEventType::AFTER_ATTACKED, attacker, defender, payload);
+	runEventTriggers(battle, reactions, payload);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
@@ -1383,24 +1391,23 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	bai.luckyStrike  = bat.lucky();
 	bai.unluckyStrike  = bat.unlucky();
 
+	auto range = battle.calculateDmgRange(bai);
 	{
-		auto range = battle.calculateDmgRange(bai);
 		bsa.damageAmount = battle.getBattle()->getActualDamage(range.damage, attackerState->getCount(), gameHandler->getRandomGenerator());
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
-	// reported to scripts that reflect damage, such as fire shield. Only computable here, while the
-	// attack info is in scope
-	BattleAttackInfo unmitigated = bai;
-	unmitigated.ignoreDefenseFactors = true;
-
 	AttackedTarget target;
 	target.unit = def;
 	target.damage = bsa.damageAmount;
 	target.killed = bsa.killedAmount;
-	target.damageBeforeDefense = battle.calculateDmgRange(unmitigated).damage.max;
+	// scripts that reflect a strike, such as fire shield, work from the blow that actually landed,
+	// so the roll is scaled back up by what the defences took off it rather than rolled again
+	target.damageBeforeDefense = range.damage.max > 0
+		? bsa.damageAmount * range.damageBeforeDefense.max / range.damage.max
+		: 0;
 	target.healthBeforeAttack = def->getAvailableHealth();
 	payload.targets.push_back(target);
 }

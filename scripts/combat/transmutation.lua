@@ -11,11 +11,7 @@ Script.__index = Script
 ---  transmuteBy - "health" keeps the total health of the victim, "count" keeps its creature count
 
 function Script:isImmune(unit)
-	local immunities = unit:getBonuses(function(bonus)
-		return bonus:getType() == "TRANSMUTATION_IMMUNITY"
-	end)
-
-	return immunities:size() > 0
+	return unit:hasBonuses({type = "TRANSMUTATION_IMMUNITY"})
 end
 
 function Script:resultingCount(victim, creature)

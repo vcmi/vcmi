@@ -165,6 +165,9 @@
 	},
 	"arrowTower" :
 	{
+		// what a tower shoots for is decided by its town, and handed to it as a bonus when the
+		// battle is set up - see the arrowTowerDamage script
+		"damage" : { "min" : 0, "max" : 0 },
 		"special" : true,
 		"index": 149,
 		"level": 0,
@@ -181,7 +184,8 @@
 			"noLuck" : { "type" : "NO_LUCK" },
 			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
 			"noArcheryBonuses" : { "type" : "PERCENTAGE_DAMAGE_BOOST", "subtype" : "damageTypeRanged", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
-			"cpuControlled" : { "type" : "CPU_CONTROLLED" }
+			"cpuControlled" : { "type" : "CPU_CONTROLLED" },
+			"townDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "arrowTowerDamage" }
 		},
 		"graphics" :
 		{

@@ -267,5 +267,72 @@
 				"addInfo" : { "creature" : "core:wyvern" }
 			}
 		}
+	},
+
+	// The four damage factors that no Heroes 3 creature carries. Everything else the damage
+	// calculator scenarios need exists in the game already and is tested on the real unit.
+	// 10 attack and 10 defense match the horned demon they are pitted against, so neither side
+	// has an attack advantage and the factor under test is the only one at work.
+	"testDamageRevenge" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Avenger", "plural" : "Test Avengers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "revenge" : { "type" : "REVENGE" } }
+	},
+
+	"testDamageVulnerableBack" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Backstabbed", "plural" : "Test Backstabbed" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "vulnerableFromBack" : { "type" : "VULNERABLE_FROM_BACK", "val" : 50 } }
+	},
+
+	// Hates anything that shoots, which the sharpshooter it is pitted against does.
+	"testDamageTraitHater" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Trait Hater", "plural" : "Test Trait Haters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "hatesShooters" : { "type" : "HATES_TRAIT", "subtype" : "SHOOTER", "val" : 50 } }
+	},
+
+	// Caps incoming damage at 10% of one creature's health, low enough that the cap also has to
+	// suppress every kill.
+	"testDamageCapped" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Capped", "plural" : "Test Capped" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
 	}
 }

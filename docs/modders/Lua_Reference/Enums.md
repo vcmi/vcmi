@@ -44,6 +44,12 @@ Combination rules used by Bonus / BonusDescriptor `valueType`.
 
 - type: [`BonusValueType`](BonusValueType.md)
 
+### BonusLimitEffect
+
+Kinds of combat a bonus is limited to, used by Bonus `effectRange`.
+
+- type: [`BonusLimitEffect`](BonusLimitEffect.md)
+
 ### ObstacleType
 
 Obstacle categories used by SpellObstacleDescriptor `obstacleType`.
