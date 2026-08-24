@@ -793,10 +793,12 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	executeActionAsync("showGarrisonDialog", [this, up, down, questionID]()
 	{
-		if(!up->isLocked() && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cc->getStartInfo()->restrictedGarrisonsForAI())
-		{
+		const bool rewardTransfer = dynamic_cast<const Rewardable::Interface *>(up);
+		const bool ownedGarrison = up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed()
+			&& !cc->getStartInfo()->restrictedGarrisonsForAI();
+
+		if(!up->isLocked() && (rewardTransfer || ownedGarrison))
 			pickBestCreatures(down, up);
-		}
 
 		answerQuestion(questionID, 0);
 	});

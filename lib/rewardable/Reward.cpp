@@ -12,6 +12,7 @@
 #include "Reward.h"
 
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
@@ -41,6 +42,10 @@ Rewardable::Reward::Reward()
 	, spellCast(SpellID::NONE, MasteryLevel::NONE)
 {
 }
+
+Rewardable::Reward::Reward(const Reward &) = default;
+
+Rewardable::Reward & Rewardable::Reward::operator=(const Reward &) = default;
 
 Rewardable::Reward::~Reward() = default;
 
