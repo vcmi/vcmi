@@ -35,6 +35,26 @@ namespace NK2AI
 
 using namespace Goals;
 
+namespace
+{
+const char * heroLockReasonName(HeroLockedReason reason)
+{
+	switch(reason)
+	{
+	case HeroLockedReason::STARTUP:
+		return "startup";
+	case HeroLockedReason::DEFENCE:
+		return "defence";
+	case HeroLockedReason::HERO_CHAIN:
+		return "hero chain";
+	case HeroLockedReason::NOT_LOCKED:
+		return "not locked";
+	}
+
+	return "unknown reason";
+}
+}
+
 // while we play vcmieagles graph can be shared
 std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
@@ -442,7 +462,7 @@ void Nullkiller::reserveRequiredTownDefenders()
 			continue;
 
 		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
-		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
+		lockHero(defender, HeroLockedReason::DEFENCE);
 	}
 }
 
@@ -456,6 +476,13 @@ void Nullkiller::lockHero(const CGHeroInstance * hero, HeroLockedReason lockReas
 	if(!hero)
 		return;
 
+	// Hero locks record one current reason for this turn. They are not nested;
+	// assigning another reason replaces the previous state.
+	logAi->debug(
+		"Setting lock reason for hero %s to %s (was %s).",
+		hero->getNameTranslated(),
+		heroLockReasonName(lockReason),
+		heroLockReasonName(getHeroLockedReason(hero)));
 	lockedHeroes[hero] = lockReason;
 }
 
@@ -463,6 +490,11 @@ void Nullkiller::unlockHero(const CGHeroInstance * hero)
 {
 	if(!hero)
 		return;
+
+	logAi->debug(
+		"Clearing lock for hero %s (was %s).",
+		hero->getNameTranslated(),
+		heroLockReasonName(getHeroLockedReason(hero)));
 
 	lockedHeroes.erase(hero);
 }
@@ -614,12 +646,24 @@ void Nullkiller::makeTurn()
 			return a->priority > b->priority;
 		});
 
+		bool hasAnySuccess = false;
 		if(selectedTasks.empty())
 		{
-			selectedTasks.push_back(taskptr(Goals::Invalid()));
+			if(hasUnlockedHeroWithMovement() && scanDepth != ScanDepth::ALL_FULL)
+			{
+				logAi->info(
+					"Pass %d: No worthwhile tasks found while unlocked heroes can still move. Increasing to ScanDepth::ALL_FULL",
+					pass);
+				scanDepth = ScanDepth::ALL_FULL;
+				useHeroChain = false;
+				hasAnySuccess = true;
+			}
+			else
+			{
+				logAi->debug("Pass %d: No worthwhile tasks found.", pass);
+			}
 		}
 
-		bool hasAnySuccess = false;
 		for(size_t selectedTaskIndex = 0; selectedTaskIndex < selectedTasks.size(); ++selectedTaskIndex)
 		{
 			const auto & selectedTask = selectedTasks[selectedTaskIndex];
@@ -655,16 +699,10 @@ void Nullkiller::makeTurn()
 
 			if(selectedTask->priority <= 0)
 			{
-				auto heroes = cc->getHeroesInfo();
-				const auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-					{
-						return h->movementPointsRemaining() > 100;
-					});
-
-				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+				if(hasUnlockedHeroWithMovement() && scanDepth != ScanDepth::ALL_FULL)
 				{
 					logAi->info(
-						"Pass %d: Heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
+						"Pass %d: Unlocked heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
 						pass,
 						taskDescription,
 						selectedTask->priority);
@@ -715,7 +753,11 @@ void Nullkiller::makeTurn()
 		hasAnySuccess |= ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
 		if(!hasAnySuccess)
 		{
-			logAi->trace("Nothing was done this turn pass. Ending turn.");
+			if(hasUnlockedHeroWithMovement())
+				logAi->debug("Pass %d: No worthwhile task was found at full scan depth. AI turn is complete.", pass);
+			else
+				logAi->debug("Pass %d: No unlocked mobile hero remains. AI turn is complete.", pass);
+
 			tracePlayerStatus(false);
 			return;
 		}
