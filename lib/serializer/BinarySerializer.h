@@ -51,8 +51,10 @@ public:
 	}
 
 private:
-	std::map<std::string, uint32_t> savedStrings;
-	std::map<const Serializeable*, uint32_t> savedPointers;
+	// unordered_map: only ever looked up / inserted by key, never iterated,
+	// so hash-map lookup (O(1) avg) is a safe drop-in win over the O(log n) tree lookup.
+	std::unordered_map<std::string, uint32_t> savedStrings;
+	std::unordered_map<const Serializeable*, uint32_t> savedPointers;
 	IBinaryWriter * writer;
 
 	static constexpr bool trackSerializedPointers = true;

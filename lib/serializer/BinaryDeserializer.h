@@ -54,8 +54,10 @@ private:
 	static constexpr bool trackSerializedPointers = true;
 
 	std::vector<std::string> loadedStrings;
-	std::map<uint32_t, Serializeable *> loadedPointers;
-	std::map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
+	// unordered_map: only ever looked up / inserted by key, never iterated,
+	// so hash-map lookup (O(1) avg) is a safe drop-in win over the O(log n) tree lookup.
+	std::unordered_map<uint32_t, Serializeable *> loadedPointers;
+	std::unordered_map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IBinaryReader * reader;
 
 	uint32_t readAndCheckLength()
