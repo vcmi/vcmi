@@ -222,6 +222,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 
 	logGlobal->debug("Initialization:");
 
+	// Diagnostic timing to get a broad picture of new-map-start cost breakdown. CStopWatch
+	// measures CPU time (std::clock()), not wall-clock, so stages that use tbb parallelism
+	// internally (e.g. initMapObjects) will show inflated numbers here relative to what the
+	// player actually experiences - treat these as relative/comparative, not wall-clock truth.
+	CStopWatch swInit;
+	CStopWatch swStage;
 	initScriptVariables();
 	// script `init` runs from here, so it sees the map before object randomization and hero placement -
 	// it can only bind handlers by instance name, not inspect object contents
@@ -234,20 +240,33 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	removeHeroPlaceholders();
 	initGrailPosition(randomGenerator);
 	initRandomFactionsForPlayers(randomGenerator);
+	logGlobal->debug("\tinit pre-randomize stages: %i ms", swStage.getDiff());
+
 	randomizeMapObjects(gameRandomizer);
+	logGlobal->debug("\trandomizeMapObjects: %i ms", swStage.getDiff());
+
 	placeStartingHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
 	adjustObjectsToMapBounds();
+	logGlobal->debug("\tplaceStartingHeroes..adjustObjectsToMapBounds: %i ms", swStage.getDiff());
+
 	initHeroes(gameRandomizer);
 	initStartingBonus(gameRandomizer);
+	logGlobal->debug("\tinitHeroes+initStartingBonus: %i ms", swStage.getDiff());
+
 	initTowns(randomGenerator);
 	initTownNames(randomGenerator);
 	placeHeroesInTowns();
+	logGlobal->debug("\tinitTowns..placeHeroesInTowns: %i ms", swStage.getDiff());
+
 	initMapObjects(gameRandomizer);
+	logGlobal->debug("\tinitMapObjects: %i ms", swStage.getDiff());
+
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
+	logGlobal->debug("\tbuildBonusSystemTree+initFogOfWar: %i ms", swStage.getDiff());
 
 	for(auto & elem : teams)
 	{
@@ -257,6 +276,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 	rebuildObjectControlHistory();
+	logGlobal->info("CGameState::init() post-map-load stages total: %i ms", swInit.getDiff());
 }
 
 void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -394,7 +414,9 @@ void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomG
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
+		CStopWatch swLoadMap;
 		map = mapService->loadMap(mapURI, this);
+		logGlobal->info("Loaded map file in %i ms.", swLoadMap.getDiff());
 	}
 }
 
@@ -2059,12 +2081,15 @@ std::vector<std::byte> CGameState::saveToMemory()
 	ReplayLog logBackup;
 	std::swap(logBackup, replayLog);
 
+	CStopWatch swSnapshot;
 	CMemorySerializer serializer;
 	serializer.oser & *this;
+	auto result = serializer.extractBuffer();
+	logGlobal->info("Replay: saveToMemory serialized %d bytes in %i ms", result.size(), swSnapshot.getDiff());
 
 	std::swap(logBackup, replayLog);
 
-	return serializer.extractBuffer();
+	return result;
 }
 
 void CGameState::loadFromMemory(std::vector<std::byte> data)
