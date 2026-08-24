@@ -216,6 +216,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/OneWayPortalBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 		nullkiller2/Behaviors/WaterExplorationBehaviorTest.cpp
+		nullkiller2/Engine/FuzzyHelperTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/ResourceTradingTurnTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
