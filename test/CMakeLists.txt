@@ -47,6 +47,8 @@ set(test_SRCS
 
 		json/JsonTests.cpp
 
+		modding/ModManagerChecksumTest.cpp
+
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
