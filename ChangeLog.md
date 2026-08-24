@@ -13,6 +13,12 @@
 * Added support for HotA Quest Gates, Seer Huts with multiple quests, and quests limited by game difficulty
 * It is now possible to select the map layer type for random maps, for example creating a map with two underground layers
 
+### Performance
+
+* Improved new game start performance by parallelizing map object initialization and .h3m map loading
+* Improved mod loading performance by parallelizing per-mod checksum computation
+* Fixed per-mod checksum computation being non-deterministic, which could trigger unneeded mod revalidation
+
 ### Stability
 
 * Fixed possible crash on shutdown
