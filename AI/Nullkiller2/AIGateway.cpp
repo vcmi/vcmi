@@ -201,7 +201,7 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
-		nullkiller->memory->markObjectVisited(visitedObj);
+		nullkiller->memory->markObjectVisited(visitedObj, *cc);
 		nullkiller->objectClusterizer->invalidate(visitedObj->id);
 	}
 
@@ -589,7 +589,9 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
-				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
+				RewardableObjectInfo rewardableInfo;
+				bool guardedRewardable = cc->getRewardableObjectInfo(topObj, rewardableInfo) && rewardableInfo.guardStrength > 0;
+				auto danger = guardedRewardable ? rewardableInfo.guardStrength : nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
 				auto ratio = static_cast<float>(danger) / heroPtr->getTotalStrength();
 
 				answer = true;
@@ -611,7 +613,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				{
 					answer = true;
 				}
-				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
+				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE || guardedRewardable)
 				{
 					bool dangerUnknown = danger == 0;
 					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
@@ -1178,7 +1180,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
-				nullkiller->memory->markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
+				nullkiller->memory->markObjectVisited(destTeleportObj, *cc); //FIXME: Monoliths are not correctly visited
 
 				continue;
 			}

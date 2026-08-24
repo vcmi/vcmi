@@ -185,6 +185,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
 		nullkiller2/Behaviors/GatherArmyBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Engine/FuzzyHelperTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp
