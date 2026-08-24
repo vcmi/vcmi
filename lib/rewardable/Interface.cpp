@@ -397,7 +397,7 @@ void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const C
 			}
 		}
 
-		if(!objectRemovalPossible && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+		if(!objectRemovalPossible && getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 			markAsScouted(gameEvents, h);
 	}
 	else
