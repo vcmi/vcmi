@@ -438,16 +438,6 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 {
 	const auto * c = retrieveCreature(&context.node);
 	if(c) {
-		if(alignment == EAlignment::GOOD && c->isGood())
-			return ILimiter::EDecision::ACCEPT;
-		if(alignment == EAlignment::EVIL && c->isEvil())
-			return ILimiter::EDecision::ACCEPT;
-		if(alignment == EAlignment::NEUTRAL && c->getAlignment() == EAlignment::NEUTRAL)
-			return ILimiter::EDecision::ACCEPT;
-		if(alignment == EAlignment::NONE && c->getAlignment() == EAlignment::NONE)
-			return ILimiter::EDecision::ACCEPT;
-
-
 		if(alignment == c->getAlignment())
 			return ILimiter::EDecision::ACCEPT;
 		return ILimiter::EDecision::DISCARD;
