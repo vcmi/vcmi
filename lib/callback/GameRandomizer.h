@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <mutex>
+
 #include "callback/IGameRandomizer.h"
 #include "CRandomGenerator.h"
 
@@ -85,6 +87,9 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
+	/// Guards allocatedArtifacts and the shared RNG draw in rollArtifact(), which may be invoked
+	/// concurrently from multiple worker threads during CGameState::initMapObjects()
+	std::mutex artifactRollMutex;
 
 	std::map<HeroTypeID, HeroSkillRandomizer> heroSkillSeed;
 

@@ -252,6 +252,11 @@ protected:
 public:
 	using CGTeleport::CGTeleport;
 
+	/// Pairs this monolith/whirlpool with its channel. Deferred until every map object exists
+	/// (called once, after the full initObj pass - see CGameState::initMapObjects), so it never
+	/// needs to special-case "peer not yet processed" the way initObj-time matching would.
+	virtual void assignTeleportChannel();
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTeleport&>(*this);
@@ -267,6 +272,10 @@ public:
 	using CGMonolith::CGMonolith;
 
 	static void postInit(IGameInfoCallback * cb);
+
+	/// no-op: subterranean gates are paired by postInit() above instead, using nearest-position
+	/// matching rather than channel search
+	void assignTeleportChannel() override {}
 
 	template <typename Handler> void serialize(Handler &h)
 	{

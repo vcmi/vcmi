@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "CMapEvent.h"
 #include "CMapHeader.h"
 #include "TerrainTile.h"
@@ -68,6 +70,14 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder, public IS
 
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
 	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
+	/// Guards concurrent id-assignment and insertion into artInstances, e.g. when object initialization
+	/// (CGameState::initMapObjects) creates artifact instances from multiple worker threads
+	std::mutex artInstancesMutex;
+	/// Guards concurrent mutation of TerrainTile::visitableObjects/blockingObjects in hideObject()/
+	/// showObject(), e.g. when CGameState::randomizeMapObjects() calls setType() (via pickRandomObject())
+	/// for multiple objects concurrently from worker threads - objects that share a tile would otherwise
+	/// race on the same per-tile vectors
+	std::mutex tileObjectsMutex;
 	/// All heroes that are currently free for recruitment in taverns and are not present on map
 	std::vector<std::shared_ptr<CGHeroInstance> > heroesPool;
 

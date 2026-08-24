@@ -249,6 +249,10 @@ CMap::~CMap()
 
 void CMap::hideObject(CGObjectInstance * obj)
 {
+	// randomizeMapObjects() may call this (via setType()) concurrently from multiple worker
+	// threads for objects that share a tile - guard the per-tile vector mutations below
+	std::lock_guard<std::mutex> lock(tileObjectsMutex);
+
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
@@ -268,6 +272,9 @@ void CMap::hideObject(CGObjectInstance * obj)
 
 void CMap::showObject(CGObjectInstance * obj)
 {
+	// see hideObject() above - same concurrent-callers hazard applies here
+	std::lock_guard<std::mutex> lock(tileObjectsMutex);
+
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
@@ -947,8 +954,13 @@ CArtifactInstance * CMap::createArtifactComponent(const ArtifactID & artId)
 	auto art = artId.toArtifact();
 	auto newArtifact = std::make_shared<CArtifactInstance>(cb, art);
 
-	newArtifact->setId(ArtifactInstanceID(artInstances.size()));
-	artInstances.push_back(newArtifact);
+	{
+		// initMapObjects() may create artifacts (e.g. rewardable objects) concurrently from multiple
+		// worker threads - id assignment and insertion must stay atomic with respect to each other
+		std::lock_guard<std::mutex> lock(artInstancesMutex);
+		newArtifact->setId(ArtifactInstanceID(artInstances.size()));
+		artInstances.push_back(newArtifact);
+	}
 
 	for (const auto & bonus : art->instanceBonuses)
 		newArtifact->addNewBonus(std::make_shared<Bonus>(*bonus, newArtifact->getId()));
