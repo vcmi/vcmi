@@ -66,9 +66,8 @@ void CBufferedStream::ensureSize(si64 size)
 	{
 		si64 initialSize = buffer.size();
 		si64 need = size - buffer.size();
-		// grow geometrically, but never by less than 512 bytes. Map headers are read field
-		// by field, so a step of exactly 'need' would decompress once per field - and 512
-		// covers 70% of h3m headers in a single step, their average size being ~550 bytes
+        // grow geometrically, but never by less than 512 bytes.
+        // 512 covers 70% of h3m headers in a single step, their average size being ~550 bytes
 		si64 currentStep = std::clamp<si64>(need, si64{512}, std::max<si64>(initialSize, si64{512}));
 
 		buffer.resize(initialSize + currentStep);

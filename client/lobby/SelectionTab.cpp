@@ -1480,10 +1480,6 @@ std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 
 	const ResourcePath resource(item.fileURI, resType);
 
-	// entry may have been deleted from disk since the list was built
-	if(!CResourceHandler::get()->existsResource(resource))
-		return item.fileURI;
-
 	return CResourceHandler::get()->getFullFileURI(resource);
 }
 

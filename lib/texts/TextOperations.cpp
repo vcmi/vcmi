@@ -26,7 +26,7 @@ const static int CHAR_PER_TYPO_ALLOWED = 4;
 /// between threads, hence one cache per thread rather than one global cache.
 static iconv_t getConversionDescriptor(const std::string & fromEncoding, const std::string & destEncoding)
 {
-	struct DescriptorCache
+    struct DescriptorCache : boost::noncopyable
 	{
 		std::map<std::pair<std::string, std::string>, iconv_t> descriptors;
 
@@ -45,7 +45,7 @@ static iconv_t getConversionDescriptor(const std::string & fromEncoding, const s
 
 	// failed opens are cached as well, to avoid retrying an encoding that iconv does not know
 	if(it == cache.descriptors.end())
-		it = cache.descriptors.emplace(key, iconv_open(destEncoding.c_str(), fromEncoding.c_str())).first;
+        it = cache.descriptors.try_emplace(key, iconv_open(destEncoding.c_str(), fromEncoding.c_str())).first;
 
 	return it->second;
 }

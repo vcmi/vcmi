@@ -55,7 +55,7 @@ TEST_F(TextOperationsTest, ToUnicodeReusesDescriptor)
 	std::atomic<int> failures = 0;
 	for(int i = 0; i < 8; ++i)
 	{
-		threads.emplace_back([&]
+        threads.emplace_back([&failures, &cyrillicCP1251, &cyrillicUtf8]
 		{
 			for(int j = 0; j < 1000; ++j)
 				if(TextOperations::toUnicode(cyrillicCP1251, "CP1251") != cyrillicUtf8)
