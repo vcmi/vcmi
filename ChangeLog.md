@@ -13,10 +13,6 @@
 * Added support for HotA Quest Gates, Seer Huts with multiple quests, and quests limited by game difficulty
 * It is now possible to select the map layer type for random maps, for example creating a map with two underground layers
 
-### Performance
-
-* Reduced overhead of JSON parsing and game state serialization by avoiding unnecessary reallocations
-
 ### Stability
 
 * Fixed possible crash on shutdown

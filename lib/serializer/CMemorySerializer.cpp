@@ -23,16 +23,7 @@ int CMemorySerializer::read(std::byte * data, unsigned size)
 int CMemorySerializer::write(const std::byte * data, unsigned size)
 {
 	auto oldSize = buffer.size(); //and the pos to write from
-	auto newSize = oldSize + size;
-
-	// write() is called once per primitive (often just 1-2 bytes at a time), so this runs
-	// a huge number of times while serializing a large object graph (e.g. a gamestate snapshot).
-	// Growing capacity geometrically here avoids relying on vector::resize() to do it for us,
-	// which is not guaranteed to grow with an amortized strategy the way push_back() does.
-	if(newSize > buffer.capacity())
-		buffer.reserve(std::max<size_t>(newSize, buffer.capacity() * 2));
-
-	buffer.resize(newSize);
+	buffer.resize(oldSize + size);
 	std::copy_n(data, size, buffer.data() + oldSize);
 	return size;
 }

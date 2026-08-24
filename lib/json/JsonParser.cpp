@@ -449,10 +449,9 @@ bool JsonParser::extractArray(JsonNode & node)
 
 	while(true)
 	{
-		// emplace_back() grows the vector's capacity geometrically (like push_back()),
-		// unlike resize(size()+1) which previously reallocated & copied on every single
-		// element - that used to cost ~50% of total JSON parsing time on large arrays.
-		node.Vector().emplace_back();
+		//NOTE: currently 50% of time is this vector resizing.
+		//May be useful to use list during parsing and then swap() all items to vector
+		node.Vector().resize(node.Vector().size() + 1);
 
 		if(!extractElement(node.Vector().back(), ']'))
 			return false;
