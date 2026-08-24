@@ -16,6 +16,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../../../lib/mapObjects/CGResource.h"
+#include "../../../lib/rewardable/Reward.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NK2AI
@@ -82,12 +83,11 @@ bool needToRecruitHero(const Nullkiller * aiNk, const CGTownInstance * startupTo
 		bool isGoldPile = dynamic_cast<const CGResource *>(obj)
 			&& dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD;
 
-		auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
-
-		if(rewardable)
+		RewardableObjectInfo rewardableInfo;
+		if(aiNk->cc->getRewardableObjectInfo(obj, rewardableInfo))
 		{
-			for(auto & info : rewardable->configuration.info)
-				if(info.reward.resources[EGameResID::GOLD] > 0)
+			for(const auto & reward : rewardableInfo.rewards)
+				if(reward.resources[EGameResID::GOLD] > 0)
 					isGoldPile = true;
 		}
 

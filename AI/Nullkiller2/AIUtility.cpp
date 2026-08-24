@@ -745,9 +745,8 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	if(obj->wasVisited(hero))
 		return false;
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
-
-	if(rewardable && rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+	RewardableObjectInfo rewardableInfo;
+	if(aiNk->cc->getRewardableObjectInfo(obj, rewardableInfo, hero) && rewardableInfo.scouted && !rewardableInfo.rewardAvailable)
 	{
 		return false;
 	}

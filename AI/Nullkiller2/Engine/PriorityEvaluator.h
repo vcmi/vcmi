@@ -8,6 +8,7 @@
 *
 */
 #pragma once
+
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
@@ -29,6 +30,10 @@ public:
 	RewardEvaluator(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
+	std::optional<uint64_t> getCreatureReward(
+		const CGObjectInstance * target,
+		const CGHeroInstance * hero,
+		const CCreatureSet * army) const;
 	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
@@ -77,6 +82,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isArmyUpgrade;
 	bool isHero;
 	bool isEnemy;
+	bool unusableCreatureBankReward;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // powerRatio = heroPower / totalPower. The ratio of a hero's army strength to the total power of all creatures available to the AI
 
