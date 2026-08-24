@@ -241,7 +241,10 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
-		nullkiller->memory->markObjectVisited(visitedObj);
+		const auto rewardableInfo = cc->getRewardableObjectInfo(visitedObj, visitor);
+		if(!rewardableInfo || (rewardableInfo->scouted && rewardableInfo->rewardAvailable.value_or(false) && !rewardableInfo->guarded))
+			nullkiller->memory->markObjectVisited(visitedObj);
+
 		nullkiller->objectClusterizer->invalidate(visitedObj->id);
 	}
 
@@ -676,12 +679,16 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
-				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
+
+				const auto rewardableInfo = cc->getRewardableObjectInfo(topObj, heroPtr.get());
+				const bool guardedRewardable = rewardableInfo && rewardableInfo->guarded;
+				const auto objectDanger = nullkiller->dangerEvaluator->evaluateDanger(topObj);
+				auto danger = guardedRewardable ? objectDanger : nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
 				auto ratio = static_cast<float>(danger) / heroPtr->estimateHeroCombatValue();
 
 				answer = true;
 
-				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
+				if(topObj->id != goalObjectID && objectDanger > 0)
 				{
 					// no if we do not aim to visit this object
 					answer = false;
@@ -701,7 +708,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				{
 					answer = true;
 				}
-				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
+				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE || guardedRewardable)
 				{
 					bool dangerUnknown = danger == 0;
 					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
