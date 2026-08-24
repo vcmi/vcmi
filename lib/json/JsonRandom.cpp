@@ -342,26 +342,54 @@ std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & va
 	return ret;
 }
 
-std::vector<JsonRandom::RandomStackInfo> JsonRandom::evaluateCreatures(const JsonNode & value, const Variables & variables)
+std::optional<std::vector<JsonRandom::RandomStackInfo>> JsonRandom::evaluateCreatures(const JsonNode & value)
 {
+	if(value.isNull())
+		return std::vector<RandomStackInfo>();
+	if(!value.isVector())
+		return std::nullopt;
+
 	std::vector<RandomStackInfo> ret;
 	for(const JsonNode & node : value.Vector())
 	{
+		if(!node.isStruct())
+			return std::nullopt;
+
 		RandomStackInfo info;
 
-		if(!node["amount"].isNull())
-			info.minAmount = info.maxAmount = static_cast<si32>(node["amount"].Float());
-		else
+		if(node["amount"].isNumber())
 		{
-			info.minAmount = static_cast<si32>(node["min"].Float());
-			info.maxAmount = static_cast<si32>(node["max"].Float());
+			const auto amount = node["amount"].Integer();
+			if(amount < 0 || amount > std::numeric_limits<si32>::max())
+				return std::nullopt;
+			info.minAmount = info.maxAmount = static_cast<si32>(amount);
 		}
-		CreatureID creatureID(LIBRARY->identifiers()->getIdentifier("creature", node["type"]).value());
-		const CCreature * crea = creatureID.toCreature();
-		info.allowedCreatures.push_back(crea);
-		if(node["upgradeChance"].Float() > 0)
+		else if(node["min"].isNumber() && node["max"].isNumber())
 		{
-			for(const auto & creaID : crea->upgrades)
+			const auto minAmount = node["min"].Integer();
+			const auto maxAmount = node["max"].Integer();
+			if(minAmount < 0 || maxAmount < minAmount || maxAmount > std::numeric_limits<si32>::max())
+				return std::nullopt;
+			info.minAmount = static_cast<si32>(minAmount);
+			info.maxAmount = static_cast<si32>(maxAmount);
+		}
+		else
+			return std::nullopt;
+
+		if(!node["type"].isString())
+			return std::nullopt;
+		const auto creatureID = LIBRARY->identifiers()->getIdentifier("creature", node["type"], true);
+		if(!creatureID)
+			return std::nullopt;
+		const auto * creature = CreatureID(*creatureID).toCreature();
+		if(!node["upgradeChance"].isNull() && !node["upgradeChance"].isNumber())
+			return std::nullopt;
+		const auto upgradeChance = node["upgradeChance"].Float();
+		if(upgradeChance < 100 || creature->upgrades.empty())
+			info.allowedCreatures.push_back(creature);
+		if(upgradeChance > 0)
+		{
+			for(const auto & creaID : creature->upgrades)
 				info.allowedCreatures.push_back(creaID.toCreature());
 		}
 		ret.push_back(info);

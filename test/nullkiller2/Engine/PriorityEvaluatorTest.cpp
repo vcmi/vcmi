@@ -9,16 +9,21 @@
 #include "StdInc.h"
 
 #include "AI/Nullkiller2/Analyzers/ArmyManager.h"
-#include "AI/Nullkiller2/Engine/PriorityEvaluator.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include "AI/Nullkiller2/Engine/PriorityEvaluator.h"
 #include "AI/Nullkiller2/Goals/Composition.h"
 #include "AI/Nullkiller2/Goals/ExecuteHeroChain.h"
 #include "AI/Nullkiller2/Markers/ExplorationPoint.h"
 
-#include "mock/TinyH3MBuilder.h"
-#include "nullkiller2/NullkillerTest.h"
-
+#include "lib/CPlayerState.h"
+#include "lib/callback/CCallback.h"
+#include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
+#include "lib/mapObjects/CRewardableObject.h"
+
+#include "mock/TinyH3MBuilder.h"
+#include "mock/TinyMapGameTest.h"
+#include "nullkiller2/NullkillerTest.h"
 
 namespace
 {
@@ -82,6 +87,75 @@ TEST_F(Nullkiller2_Engine_PriorityEvaluatorMap, lossBudgetScalesWithCommittedArm
 		context), 0.0f);
 }
 
+namespace
+{
+
+const int3 HERO_POSITION(5, 5, 0);
+
+TinyH3M::TinyH3MBuilder makeCreatureBankRewardMap()
+{
+	return TinyH3M::TinyH3MBuilder(EMapFormat::SOD)
+		.size(36, false)
+		.name("NK2CreatureBankReward")
+		.playerActive(PLAYER)
+		.hero(HERO_POSITION, HeroTypeID(HeroTypeID::decode("isra")), PLAYER)
+		.heroGarrison({
+			{CreatureID(CreatureID::decode("skeleton")), 1000},
+			{CreatureID(CreatureID::decode("walkingDead")), 500},
+			{CreatureID(CreatureID::decode("wight")), 300},
+			{CreatureID(CreatureID::decode("vampire")), 100},
+			{CreatureID(CreatureID::decode("lich")), 50},
+			{CreatureID(CreatureID::decode("blackKnight")), 25},
+			{CreatureID(CreatureID::decode("boneDragon")), 10}
+		});
+}
+
+class Nullkiller2_Engine_CreatureBankReward : public TinyMapGameTest
+{
+protected:
+	void SetUp() override
+	{
+		TinyMapGameTest::SetUp();
+		startWithMap(makeCreatureBankRewardMap());
+		hero = findHeroByOwner(PLAYER);
+		ASSERT_NE(hero, nullptr);
+
+		callback = makeCallback(PLAYER);
+		nullkiller.cc = callback;
+		nullkiller.armyManager = std::make_unique<NK2AI::ArmyManager>(callback.get(), &nullkiller);
+		bank = std::make_unique<CRewardableObject>(callback.get());
+		bank->ID = Obj::CREATURE_BANK;
+		bank->subID = MapObjectSubID(2); // Griffin Conservatory
+		bank->id = ObjectInstanceID(42);
+		bank->appearance = hero->appearance;
+		bank->setAnchorPos(hero->anchorPos());
+
+		auto & visitInfo = bank->configuration.info.emplace_back();
+		visitInfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		visitInfo.reward.guards.emplace_back(CreatureID(CreatureID::decode("griffin")), 50);
+		visitInfo.reward.creatures.emplace_back(CreatureID(CreatureID::decode("angel")), 1);
+	}
+
+	NK2AI::CreatureRewardValueInfo evaluateCreatureReward() const
+	{
+		NK2AI::RewardEvaluator evaluator(&nullkiller);
+		return evaluator.getCreatureReward({bank.get(), hero, hero, NK2AI::HeroRole::SCOUT, false});
+	}
+
+	void markBankScouted() const
+	{
+		auto teamID = gameState()->players.at(PLAYER).team;
+		gameState()->teams.at(teamID).scoutedObjects.insert(bank->id);
+	}
+
+	CGHeroInstance * hero = nullptr;
+	std::shared_ptr<CCallback> callback;
+	NK2AI::Nullkiller nullkiller;
+	std::unique_ptr<CRewardableObject> bank;
+};
+
+}
+
 TEST(Nullkiller2_Engine_PriorityEvaluator, enemyTownConquestBeatsOrdinaryHeroHunting)
 {
 	EXPECT_GT(NK2AI::evaluateEnemyTownConquestValue(0.8f, 3), 2.0f * 1.5f)
@@ -118,4 +192,60 @@ TEST(Nullkiller2_Engine_PriorityEvaluator, ordinaryTargetsKeepArmyLossLimit)
 		NK2AI::evaluateMaxArmyLossForConquest(0.35f, 5.25f, false),
 		0.35f)
 		<< "the relaxed loss cap is only for enemy-town conquest";
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, fullNecropolisArmyCannotUseAngelReward)
+{
+	ASSERT_EQ(hero->stacksCount(), GameConstants::ARMY_SIZE);
+	markBankScouted();
+
+	const auto reward = evaluateCreatureReward();
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::UNUSABLE);
+	EXPECT_EQ(reward.minMaxValue.first, 0);
+	EXPECT_EQ(reward.minMaxValue.second, 0);
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, fullArmyCanUseOnlyLargerCreatureBankRewardTiers)
+{
+	const CreatureID angel(CreatureID::decode("angel"));
+	const CreatureID pikeman(CreatureID::decode("pikeman"));
+	const int pikemanCount = angel.toCreature()->getAIValue() / pikeman.toCreature()->getAIValue() + 1;
+	const std::array<CreatureID, 7> castleCreatures = {
+		pikeman,
+		CreatureID(CreatureID::decode("archer")),
+		CreatureID(CreatureID::decode("griffin")),
+		CreatureID(CreatureID::decode("swordsman")),
+		CreatureID(CreatureID::decode("monk")),
+		CreatureID(CreatureID::decode("cavalier")),
+		CreatureID(CreatureID::decode("archangel"))
+	};
+
+	hero->clearSlots();
+	for(size_t i = 0; i < castleCreatures.size(); ++i)
+		ASSERT_TRUE(hero->setCreature(SlotID(static_cast<int>(i)), castleCreatures[i], i == 0 ? pikemanCount : 1000));
+	markBankScouted();
+
+	const auto reward = evaluateCreatureReward();
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::DEPENDS_ON_TIER);
+	EXPECT_EQ(reward.minMaxValue.first, 0);
+	EXPECT_GT(reward.minMaxValue.second, 0);
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, armyWithFreeSlotCanUseAngelReward)
+{
+	hero->eraseStack(SlotID(0));
+	markBankScouted();
+
+	const auto reward = evaluateCreatureReward();
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::USABLE);
+	EXPECT_GT(reward.minMaxValue.first, 0);
+	EXPECT_GT(reward.minMaxValue.second, reward.minMaxValue.first);
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, unscoutedCreatureRewardUsesPublicBankPossibilities)
+{
+	const auto reward = evaluateCreatureReward();
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::UNUSABLE);
+	EXPECT_EQ(reward.minMaxValue.first, 0);
+	EXPECT_EQ(reward.minMaxValue.second, 0);
 }

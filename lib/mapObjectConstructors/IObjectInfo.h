@@ -43,6 +43,7 @@ public:
 
 	virtual bool givesArtifacts() const { return false; }
 	virtual bool givesCreatures() const { return false; }
+	virtual bool givesOnlyCreatures() const { return false; }
 	virtual bool givesSpells() const { return false; }
 
 	virtual bool givesBonuses() const { return false; }

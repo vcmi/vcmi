@@ -584,12 +584,67 @@ bool Rewardable::Info::givesArtifacts() const
 
 bool Rewardable::Info::givesCreatures() const
 {
-	return testForKey(parameters, "spells");
+	return testForKey(parameters, "creatures");
+}
+
+bool Rewardable::Info::givesOnlyCreatures() const
+{
+	return givesCreatures()
+		&& !givesResources()
+		&& !givesExperience()
+		&& !givesMana()
+		&& !givesMovement()
+		&& !givesPrimarySkills()
+		&& !givesSecondarySkills()
+		&& !givesArtifacts()
+		&& !givesSpells()
+		&& !givesBonuses()
+		&& !testForKey(parameters, "heroExperience")
+		&& !testForKey(parameters, "heroLevel")
+		&& !testForKey(parameters, "commanderBonuses")
+		&& !testForKey(parameters, "playerBonuses")
+		&& !testForKey(parameters, "scrolls")
+		&& !testForKey(parameters, "spellCast")
+		&& !testForKey(parameters, "revealTiles")
+		&& !testForKey(parameters, "changeCreatures");
+}
+
+/// Empty outer vector means possibilities cannot be determined.
+/// Empty inner vector means this particular reward tier gives no creatures.
+/// Non-empty inner vector contains creature stacks granted by that tier.
+Rewardable::Info::CreatureRewardVariants Rewardable::Info::getPossibleCreatureRewards() const
+{
+	CreatureRewardVariants result;
+	if(!givesCreatures())
+		return result;
+
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		if(reward["creatures"].isNull())
+		{
+			result.emplace_back();
+			continue;
+		}
+
+		const auto creatures = JsonRandom::evaluateCreatures(reward["creatures"]);
+		if(!creatures)
+			return {};
+
+		CreatureReward creatureReward;
+		for(const auto & creature : *creatures)
+		{
+			if(creature.allowedCreatures.size() != 1 || creature.minAmount != creature.maxAmount)
+				return {};
+			creatureReward.emplace_back(creature.allowedCreatures.front()->getId(), creature.minAmount);
+		}
+		result.push_back(std::move(creatureReward));
+	}
+	return result;
 }
 
 bool Rewardable::Info::givesSpells() const
 {
-	return testForKey(parameters, "creatures");
+	return testForKey(parameters, "spells");
 }
 
 bool Rewardable::Info::givesBonuses() const

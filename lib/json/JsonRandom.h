@@ -14,6 +14,8 @@
 #include "ResourceSet.h"
 #include "callback/GameCallbackHolder.h"
 
+#include <optional>
+
 namespace vstd
 {
 class RNG;
@@ -72,7 +74,8 @@ public:
 	CreatureID loadCreatureType(const JsonNode & value, const Variables & variables);
 	CStackBasicDescriptor loadCreature(const JsonNode & value, const Variables & variables);
 	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, const Variables & variables);
-	std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value, const Variables & variables);
+	/// Returns static creature and amount ranges, or std::nullopt when the configuration requires runtime evaluation.
+	static std::optional<std::vector<RandomStackInfo>> evaluateCreatures(const JsonNode & value);
 
 	std::vector<PlayerColor> loadColors(const JsonNode & value, const Variables & variables);
 	std::vector<HeroTypeID> loadHeroes(const JsonNode & value);

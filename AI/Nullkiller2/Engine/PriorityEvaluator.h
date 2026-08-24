@@ -8,8 +8,14 @@
 *
 */
 #pragma once
+
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
+#include "mapObjects/CGObjectInstance.h"
+#include <cstdint>
+#include <utility>
+
+struct RewardableObjectInfo;
 
 namespace NK2AI
 {
@@ -21,6 +27,40 @@ class BuildingInfo;
 class Nullkiller;
 struct HitMapInfo;
 
+struct RewardEvaluationRequest
+{
+	const CGObjectInstance * target;
+	const CGHeroInstance * hero;
+	const CCreatureSet * army;
+	HeroRole heroRole;
+	bool considerRecruitmentCost;
+};
+
+struct CreatureRewardValueInfo
+{
+	enum class State : uint8_t
+	{
+		UNKNOWN, //value cannot be determined; pair is ignored
+		UNUSABLE, //no possible reward improves the army; pair is {0, 0}
+		DEPENDS_ON_TIER, //usefulness depends on the hidden bank tier; pair is {0, N}
+		USABLE //every possible reward improves the army; {N, N} is exact, {N, M} is a range
+	};
+	State state = State::UNKNOWN;
+	std::pair<uint64_t, uint64_t> minMaxValue = {0, 0};
+};
+
+struct RewardEvaluationResult
+{
+	int32_t goldReward = 0;
+	uint64_t armyReward = 0;
+	uint64_t armyGrowth = 0;
+	float skillReward = 0;
+	float strategicalValue = 0;
+	float conquestValue = 0;
+	int32_t goldCost = 0;
+	CreatureRewardValueInfo creatureReward;
+};
+
 class RewardEvaluator
 {
 public:
@@ -28,22 +68,30 @@ public:
 
 	RewardEvaluator(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
-	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
-	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
-	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
+	RewardEvaluationResult evaluateRewards(const RewardEvaluationRequest &) const;
+	CreatureRewardValueInfo getCreatureReward(const RewardEvaluationRequest &) const;
+	uint64_t getArmyGrowth(const RewardEvaluationRequest &) const;
+	int getGoldCost(const RewardEvaluationRequest &) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
 	float getNowResourceRequirementStrength(GameResID resType) const;
 	float getCombinedResourceRequirementStrength(const TResources & res) const;
-	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
+	float getStrategicalValue(const CGObjectInstance * target) const;
 	float getConquestValue(const CGObjectInstance* target) const;
 	float getTotalResourceRequirementStrength(GameResID resType) const;
-	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
-	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
-	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
 	float getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
+
+private:
+	uint64_t calculateRewardArmyValue(const RewardableObjectInfo *, const CreatureRewardValueInfo & creatureReward) const;
+	uint64_t getArmyReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const;
+	CreatureRewardValueInfo getCreatureReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	float calculateStrategicalRewardValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
+	float getStrategicalValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
+	float evaluateWitchHutSkillScore(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	float getSkillReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero, const RewardableObjectInfo * rewardableInfo) const;
 };
 
 struct DLL_EXPORT EvaluationContext
@@ -78,6 +126,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isHero;
 	bool isEnemy;
 	bool isOneWayPortalProbe;
+	bool unusableCreatureBankReward;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // Ratio of the committed army's strength to the total power of matching creatures available to the AI
 
