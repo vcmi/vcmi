@@ -9,14 +9,34 @@
  */
 #include "StdInc.h"
 
+#include "../mock/mock_IGameEventCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CGameInfoCallback.h"
 #include "../../lib/mapObjects/CRewardableObject.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace
 {
+
+class VisitorPackCapture : public GameEventCallbackMock
+{
+public:
+	VisitorPackCapture()
+		: GameEventCallbackMock(nullptr)
+	{
+	}
+
+	std::vector<ChangeObjectVisitors::VisitMode> modes;
+
+	void sendAndApply(CPackForClient & pack) override
+	{
+		const auto * visitors = dynamic_cast<ChangeObjectVisitors *>(&pack);
+		ASSERT_NE(visitors, nullptr);
+		modes.push_back(visitors->mode);
+	}
+};
 
 class GameInfoCallbackForTest : public CGameInfoCallback
 {
@@ -110,4 +130,32 @@ TEST(CRewardableObject, onceVisitStateIsKnownOnlyToScoutingTeam)
 	EXPECT_TRUE(object.wasVisited(visitor));
 	EXPECT_TRUE(object.wasVisited(ally));
 	EXPECT_FALSE(object.wasVisited(enemy));
+}
+
+TEST(CRewardableObject, failedRewardLimiterScoutsWithoutMarkingVisited)
+{
+	const PlayerColor visitor(0);
+	IGameInfoCallbackMock callback;
+	PlayerState player(&callback);
+	TeamState team;
+	CRewardableObject object(&callback);
+	CGHeroInstance hero(&callback);
+	VisitorPackCapture gameEvents;
+	// Arbitrary rewardable object instance; its type does not affect scouting.
+	object.id = ObjectInstanceID(42);
+	object.configuration.visitMode = Rewardable::VISIT_PLAYER_GLOBAL;
+	object.configuration.info.emplace_back();
+	object.configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	object.configuration.info.back().limiter.resources[GameResID::GOLD] = 1000;
+	hero.id = ObjectInstanceID(7);
+	hero.tempOwner = visitor;
+
+	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillRepeatedly(::testing::Return(&team));
+	EXPECT_CALL(callback, getPlayerState(visitor, ::testing::_)).WillRepeatedly(::testing::Return(&player));
+
+	object.onHeroVisit(gameEvents, &hero);
+
+	ASSERT_FALSE(gameEvents.modes.empty());
+	for(const auto mode : gameEvents.modes)
+		EXPECT_EQ(mode, ChangeObjectVisitors::VISITOR_SCOUTED);
 }
