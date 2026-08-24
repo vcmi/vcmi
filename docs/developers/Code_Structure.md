@@ -107,11 +107,15 @@ Here is list of threads including their name that can be seen in logging or in d
 - Client performs image upscaling in background thread to avoid visible freezes
 - AI main task (`NKAI::makeTurn`). This TBB task is created whenever AI stars a new turn, and ends when AI ends its turn. Majority of AI event processing is done in this thread, however some actions are either offloaded entirely as tbb task, or parallelized using methods like parallel_for.
 - AI helper tasks (`NKAI::<various>`). Adventure AI creates such tasks whenever it receives event that requires processing without locking network thread that initiated the call.
+- Map object initialization (`CGameState::initMapObjects`) parallelizes the per-object `initObj()` calls made while starting a new game via `parallel_for`, mirroring the pre-existing `randomizeMapObjects`/`ParallelObjectRandomizer` pattern. Each object gets its own seeded RNG stream so random rolls (e.g. `rollCreature`, `getDefault`) stay reproducible regardless of thread scheduling; shared state that became reachable concurrently (`CMap::artInstances`, `CMap::visitableObjects`/`blockingObjects`, `GameRandomizer::allocatedArtifacts`) is guarded accordingly.
+- Mod loading (`CModHandler::load`) parallelizes per-mod checksum computation via `parallel_for`, since each mod's checksum only reads that mod's own already-mounted filesystem and has no cross-mod dependency.
 
 ## Short-living threads
 
 - Autocombat initiation thread (`autofightingAI`). Combat AI usually runs on network thread, as reaction on unit taking turn netpack event. However initial activation of AI when player presses hotkey or button is done in input processing (`MainGUI`) thread. To avoid freeze when AI selects its first action, this action is done on a temporary thread
 
 - Initializition thread (`initialize`). On game start, to avoid delay in game loading, most of game library initialization is done in separate thread while main thread is playing intro movies.
+
+- H3M object finalization thread. While loading an `.h3m` map (`CMapLoaderH3M`), per-object finalization (field assignment, unique instance name/id assignment, insertion into `CMap::objects`) is handed off to a second thread through a bounded queue, so it overlaps with decoding of subsequent objects on the main thread. Both threads process objects in the same order a sequential loop would, so instance names/ids stay deterministic while decoding and finalization run concurrently.
 
 - Console command processing (`processCommand`). Some console commands that can be entered in game chat either take a long time to process or expect to run without holding any mutexes (like interface mutex). To avoid such problems, all commands entered in game chat are run in separate thread.
