@@ -367,6 +367,9 @@ void GameStatePackVisitor::visitChangeArtifactsCostume(ChangeArtifactsCostume & 
 
 void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 {
+	if(pack.resumeGameEnd)
+		return;
+
 	PlayerState *p = gs.getPlayerState(pack.player);
 	if(pack.victoryLossCheckResult.victory())
 	{

@@ -21,6 +21,7 @@
 #include "../CPlayerInterface.h"
 
 CCampaignInfoScreen::CCampaignInfoScreen()
+	: CBonusSelection(true)
 {
 	OBJECT_CONSTRUCTION;
 	localSi = std::make_unique<StartInfo>(*GAME->interface()->cb->getStartInfo());

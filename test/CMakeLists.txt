@@ -67,6 +67,7 @@ set(test_SRCS
 		quest/CQuestGateTest.cpp
 
 		netpacks/NetPackFixture.cpp
+		netpacks/PlayerEndsGameTest.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/AdventureSpellEffectTest.cpp

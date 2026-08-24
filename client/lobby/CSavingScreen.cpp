@@ -28,8 +28,10 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
 
-CSavingScreen::CSavingScreen()
+CSavingScreen::CSavingScreen(bool pauseGame, std::function<void()> onClose)
 	: CSelectionBase(ESelectionScreen::saveGame)
+	, pauseGame(pauseGame)
+	, onClose(std::move(onClose))
 {
 	OBJECT_CONSTRUCTION;
 	center(pos);
@@ -46,7 +48,8 @@ CSavingScreen::CSavingScreen()
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 	
-	GAME->interface()->gamePause(true);
+	if(pauseGame)
+		GAME->interface()->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -73,8 +76,14 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 void CSavingScreen::close()
 {
-	GAME->interface()->gamePause(false);
+	if(pauseGame)
+		GAME->interface()->gamePause(false);
+
+	auto closeCallback = std::move(onClose);
 	CSelectionBase::close();
+
+	if(closeCallback)
+		ENGINE->dispatchMainThread(std::move(closeCallback));
 }
 
 void CSavingScreen::saveGame()

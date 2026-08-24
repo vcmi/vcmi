@@ -546,6 +546,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	EVictoryLossCheckResult victoryLossCheckResult;
 	StatisticDataSet statistic;
 	bool silentEnd = false;
+	bool resumeGameEnd = false; // continue the already-applied end transition after loading a completed game
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -555,6 +556,8 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 		h & victoryLossCheckResult;
 		h & statistic;
 		h & silentEnd;
+		if(h.hasFeature(Handler::Version::GAME_END_TRANSITIONS))
+			h & resumeGameEnd;
 	}
 };
 
