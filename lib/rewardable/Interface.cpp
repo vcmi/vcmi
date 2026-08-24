@@ -338,6 +338,8 @@ void Rewardable::Interface::grantAllRewardsWithMessage(IGameEventCallback & game
 
 void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const
 {
+	bool visitModeParticipatesInScouting = configuration.visitMode != Rewardable::VISIT_PLAYER && configuration.visitMode != Rewardable::VISIT_PLAYER_GLOBAL;
+
 	if(!wasVisitedBefore(h))
 	{
 		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
@@ -397,14 +399,14 @@ void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const C
 			}
 		}
 
-		if(!objectRemovalPossible && getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+		if(!objectRemovalPossible && visitModeParticipatesInScouting && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 			markAsScouted(gameEvents, h);
 	}
 	else
 	{
 		logGlobal->debug("Revisiting already visited object");
 
-		if (!wasVisited(h->getOwner()))
+		if (visitModeParticipatesInScouting && !wasVisited(h->getOwner()))
 			markAsScouted(gameEvents, h);
 
 		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
