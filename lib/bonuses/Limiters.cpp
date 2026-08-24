@@ -95,7 +95,7 @@ ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &co
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
 		return ILimiter::EDecision::NOT_APPLICABLE;
-	
+
 	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyDirectOrIndirectUpgrade(c));
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
@@ -368,7 +368,7 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 		{
 			case BonusSource::CREATURE_ABILITY:
 				return bearer->getFactionID() == context.b.sid.as<CreatureID>().toCreature()->getFactionID() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
-			
+
 			case BonusSource::TOWN_STRUCTURE:
 				return bearer->getFactionID() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
@@ -442,9 +442,9 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 			return ILimiter::EDecision::ACCEPT;
 		if(alignment == EAlignment::EVIL && c->isEvil())
 			return ILimiter::EDecision::ACCEPT;
-		if(alignment == EAlignment::NEUTRAL && !c->isEvil() && !c->isGood())
+		if(alignment == EAlignment::NEUTRAL && c->getAlignment() == EAlignment::NEUTRAL)
 			return ILimiter::EDecision::ACCEPT;
-		if(alignment == EAlignment::NONE && LIBRARY->factions()->getById(c->getFactionID())->getAlignment() == EAlignment::NONE)
+		if(alignment == EAlignment::NONE && c->getAlignment() == EAlignment::NONE)
 			return ILimiter::EDecision::ACCEPT;
 
 		return ILimiter::EDecision::DISCARD;

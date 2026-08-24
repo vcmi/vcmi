@@ -100,7 +100,11 @@
 				"val" : 2,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.83",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" }]
+				"limiters": [
+					"anyOf",
+					{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" },
+					{ "type" : "CREATURE_FACTION_LIMITER", "faction" : "conflux" }
+				]
 			}
 		]
 	},

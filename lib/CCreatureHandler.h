@@ -156,6 +156,7 @@ public:
 
 	bool isGood () const;
 	bool isEvil () const;
+	EAlignment getAlignment () const;
 	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
