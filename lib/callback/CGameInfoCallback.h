@@ -10,6 +10,7 @@
 #pragma once
 
 #include "MapInfoCallback.h"
+#include "../rewardable/Reward.h"
 
 struct SThievesGuildInfo;
 class ITranslator;
@@ -18,7 +19,11 @@ class Player;
 struct DLL_LINKAGE RewardableObjectInfo
 {
 	bool scouted = false;
+	bool rewardAvailable = false;
+	bool rewardValueKnown = false;
 	uint64_t guardStrength = 0;
+	/// Player-visible reward values available to the context hero.
+	std::vector<Rewardable::Reward> rewards;
 };
 
 class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback

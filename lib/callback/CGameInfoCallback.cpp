@@ -139,6 +139,37 @@ bool CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object,
 
 	if(out.scouted)
 	{
+		const auto rewardIndices = rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		const bool guardedReward = std::any_of(
+			rewardable->configuration.info.begin(),
+			rewardable->configuration.info.end(),
+			[](const Rewardable::VisitInfo & info)
+			{
+				return info.visitType == Rewardable::EEventType::EVENT_FIRST_VISIT && !info.reward.guards.empty();
+			});
+		const bool showRewardPreview = !guardedReward && rewardable->configuration.showScoutedPreview;
+		out.rewardAvailable = !rewardIndices.empty();
+		out.rewardValueKnown = showRewardPreview;
+
+		if(guardedReward || showRewardPreview)
+		{
+			for(auto index : rewardIndices)
+			{
+				const auto & reward = rewardable->configuration.info[index].reward;
+				if(showRewardPreview)
+				{
+					out.rewards.push_back(reward);
+				}
+				else
+				{
+					Rewardable::Reward visibleReward;
+					visibleReward.resources = reward.resources;
+					visibleReward.creatures = reward.creatures;
+					out.rewards.push_back(std::move(visibleReward));
+				}
+			}
+		}
+
 		if(const auto * armed = dynamic_cast<const CArmedInstance *>(object))
 			out.guardStrength = armed->getArmyStrength();
 	}
