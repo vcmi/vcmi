@@ -12,6 +12,8 @@
 
 #include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
+#include <vector>
 
 class MetaString;
 class IGameInfoCallback;
@@ -47,6 +49,9 @@ class DLL_LINKAGE Info : public IObjectInfo
 	void configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & info, const JsonNode & source, const TextIdentifier & textIdentifier) const;
 	void configureResetInfo(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, Rewardable::ResetInfo & info, const JsonNode & source) const;
 public:
+	using CreatureReward = std::vector<CStackBasicDescriptor>;
+	using CreatureRewardVariants = std::vector<CreatureReward>;
+
 	const JsonNode & getParameters() const;
 
 	bool givesResources() const override;
@@ -60,6 +65,8 @@ public:
 
 	bool givesArtifacts() const override;
 	bool givesCreatures() const override;
+	bool givesOnlyCreatures() const override;
+	CreatureRewardVariants getPossibleCreatureRewards() const;
 	bool givesSpells() const override;
 
 	bool givesBonuses() const override;

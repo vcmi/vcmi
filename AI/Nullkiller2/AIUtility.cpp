@@ -783,14 +783,8 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	if(obj->wasVisited(hero))
 		return false;
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
-
-	if(rewardable && rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
-	{
-		return false;
-	}
-
-	return true;
+	const auto rewardableObjInfo = aiNk->cc->getRewardableObjectInfo(obj, hero);
+	return !rewardableObjInfo || !rewardableObjInfo->scouted || rewardableObjInfo->rewardAvailable != false;
 }
 
 bool townHasFreeTavern(const CGTownInstance * town)
