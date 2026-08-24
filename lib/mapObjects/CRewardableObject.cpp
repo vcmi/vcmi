@@ -34,7 +34,7 @@ const IObjectInterface * CRewardableObject::getObject() const
 
 void CRewardableObject::markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, hero->id);
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
 	gameEvents.sendAndApply(cov);
 }
 
