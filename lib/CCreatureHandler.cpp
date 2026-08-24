@@ -293,10 +293,6 @@ bool CCreature::isGood () const
 {
 	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
 }
-/**
- * Supplies the creature's alignment as defined by the faction it belongs to
- * @return The creature's alignment
- */
 EAlignment CCreature::getAlignment () const
 {
 	return LIBRARY->factions()->getById(faction)->getAlignment();

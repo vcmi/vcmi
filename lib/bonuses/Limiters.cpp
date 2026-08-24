@@ -447,6 +447,9 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 		if(alignment == EAlignment::NONE && c->getAlignment() == EAlignment::NONE)
 			return ILimiter::EDecision::ACCEPT;
 
+
+		if(alignment == c->getAlignment())
+			return ILimiter::EDecision::ACCEPT;
 		return ILimiter::EDecision::DISCARD;
 	}
 

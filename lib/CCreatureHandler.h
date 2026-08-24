@@ -156,6 +156,7 @@ public:
 
 	bool isGood () const;
 	bool isEvil () const;
+	/// Supplies the creature's alignment as defined by the faction it belongs to
 	EAlignment getAlignment () const;
 	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
