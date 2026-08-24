@@ -220,7 +220,7 @@ TEST_F(MoatApplyTest, AppliesBonuses)
 	EXPECT_EQ(capturedBonus.bonus.type, BonusType::PRIMARY_SKILL);
 	EXPECT_EQ(capturedBonus.bonus.val, -3);
 	EXPECT_EQ(capturedBonus.bonus.duration, BonusDuration::ONE_BATTLE);
-	EXPECT_EQ(capturedBonus.bonus.source, BonusSource::SPELL_EFFECT);
+    EXPECT_EQ(capturedBonus.bonus.source, BonusSource::OTHER);
 }
 
 }

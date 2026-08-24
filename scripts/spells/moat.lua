@@ -59,8 +59,7 @@ function Script:apply(mechanics, server, target)
 	for _, b in pairs(self.bonus or {}) do
 		local nb = deepCopyBonus(b)
 		nb.duration   = "ONE_BATTLE"
-		nb.sourceType = "SPELL_EFFECT"
-		nb.sourceID   = spell:getJsonKey()
+		nb.sourceType = "OTHER"
 		nb.limiters   = { type = "UNIT_ON_HEXES", hexes = flatHexes }
 		server:addBattleBonus(battle, nb)
 	end
