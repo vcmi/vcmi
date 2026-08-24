@@ -501,7 +501,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 		object.infoWindowType = EInfoWindowMode::AUTO;
 	else
 		object.infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
-
+	
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
@@ -511,7 +511,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 			break;
 		}
 	}
-
+	
 	auto selectMode = parameters["selectMode"].String();
 	for(int i = 0; i < Rewardable::SelectModeString.size(); ++i)
 	{
@@ -524,6 +524,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 
 	if (object.visitMode == Rewardable::VISIT_LIMITER)
 		configureLimiter(object, gameRandomizer, cb, object.visitLimiter, parameters["visitLimiter"]);
+
 }
 
 bool Rewardable::Info::givesResources() const

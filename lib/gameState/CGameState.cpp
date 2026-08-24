@@ -15,6 +15,7 @@
 #include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
 #include "GameStatePackVisitor.h"
+#include "ParallelObjectRandomizer.h"
 #include "SThievesGuildInfo.h"
 #include "QuestInfo.h"
 
@@ -28,8 +29,6 @@
 #include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
-#include "../CCreatureHandler.h"
-#include "../CRandomGenerator.h"
 #include "../bonuses/BonusParameters.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
@@ -64,7 +63,6 @@
 #include "../networkPacks/NetPacksBase.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
-#include "../rewardable/Info.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CLoadFile.h"
@@ -547,200 +545,6 @@ void CGameState::initRandomFactionsForPlayers(vstd::RNG & randomGenerator)
 			elem.second.castle = *iter;
 		}
 	}
-}
-
-namespace
-{
-	/// True if object->pickRandomObject() must run on the main thread, in the object's fixed
-	/// map order, rather than concurrently with other objects. There are two distinct reasons:
-	/// - CGTownInstance: CGDwelling looks up a linked town by instance name/identifier and
-	///   expects it to already be randomized (see CGDwelling::randomizeFaction), so every town
-	///   must be resolved before any (parallel-bucket) dwelling runs.
-	/// - CGArtifact and CGHeroInstance(RANDOM_HERO): these draw from randomizer state that is
-	///   shared *across* object instances (GameRandomizer::allocatedArtifacts least-used-artifact
-	///   bias map, and CGameState's unused-hero-type pool respectively), so their relative draw
-	///   order must stay fixed to remain reproducible.
-	/// Everything else (creatures, resources, dwellings, non-random heroes, ...) only ever
-	/// touches its own, already-parsed data plus stateless LIBRARY content, and is safe to
-	/// randomize concurrently using a private RNG stream (see ParallelObjectRandomizer below).
-	bool objectNeedsSerialRandomization(const CGObjectInstance * object)
-	{
-		if (dynamic_cast<const CGTownInstance *>(object))
-			return true;
-
-		if (dynamic_cast<const CGArtifact *>(object))
-			return true;
-
-		if (const auto * hero = dynamic_cast<const CGHeroInstance *>(object))
-			return hero->ID == Obj::RANDOM_HERO;
-
-		return false;
-	}
-
-	/// IGameRandomizer used to randomize a single map object on a worker thread. Wraps a
-	/// private RNG stream, seeded once on the main thread (from the real randomizer) before
-	/// any worker thread starts, so concurrent objects never contend on shared state and
-	/// results stay reproducible regardless of actual thread scheduling.
-	///
-	/// Only rollCreature()/getDefault() are implemented for real: those are the only
-	/// IGameRandomizer members reachable from the pickRandomObject() overrides that
-	/// objectNeedsSerialRandomization() allows into the parallel bucket (CGDwelling,
-	/// CGCreature, CGResource). Everything else throws as a correctness safety net - hitting
-	/// one would mean an object was misclassified into the parallel bucket.
-	class ParallelObjectRandomizer final : public IGameRandomizer
-	{
-		CRandomGenerator generator;
-
-	public:
-		explicit ParallelObjectRandomizer(int seed)
-			: generator(seed)
-		{
-		}
-
-		CreatureID rollCreature() override
-		{
-			std::vector<CreatureID> allowed;
-			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
-			{
-				const auto * creaturePtr = creatureID.toCreature();
-				if(creaturePtr->excludeFromRandomization)
-					continue;
-				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
-					continue;
-				allowed.push_back(creaturePtr->getId());
-			}
-
-			if(allowed.empty())
-				throw std::runtime_error("Cannot pick a random creature!");
-
-			return *RandomGeneratorUtil::nextItem(allowed, generator);
-		}
-
-		CreatureID rollCreature(int tier) override
-		{
-			std::vector<CreatureID> allowed;
-			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
-			{
-				const auto * creaturePtr = creatureID.toCreature();
-				if(creaturePtr->excludeFromRandomization)
-					continue;
-				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
-					continue;
-				if(creaturePtr->getLevel() == tier)
-					allowed.push_back(creaturePtr->getId());
-			}
-
-			if(allowed.empty())
-				throw std::runtime_error("Cannot pick a random creature!");
-
-			return *RandomGeneratorUtil::nextItem(allowed, generator);
-		}
-
-		vstd::RNG & getDefault() override
-		{
-			return generator;
-		}
-
-		[[noreturn]] static const char * unsupportedMessage(const char * what)
-		{
-			throw std::logic_error(std::string("ParallelObjectRandomizer: ") + what + "() is not supported - object should have been in the serial randomization bucket");
-		}
-
-		ArtifactID rollArtifact() override { unsupportedMessage("rollArtifact"); }
-		ArtifactID rollArtifact(EArtifactClass) override { unsupportedMessage("rollArtifact"); }
-		ArtifactID rollArtifact(std::set<ArtifactID>) override { unsupportedMessage("rollArtifact"); }
-		std::vector<ArtifactID> rollMarketArtifactSet() override { unsupportedMessage("rollMarketArtifactSet"); }
-		PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance *) override { unsupportedMessage("rollPrimarySkillForLevelup"); }
-		SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance *, const std::set<SecondarySkill> &) override { unsupportedMessage("rollSecondarySkillForLevelup"); }
-		std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance *) override { unsupportedMessage("rollSecondarySkills"); }
-	};
-
-	/// IGameRandomizer used to initialize a single map object (CGObjectInstance::initObj) on a
-	/// worker thread during CGameState::initMapObjects(). Same private-RNG-stream approach as
-	/// ParallelObjectRandomizer above for rollCreature()/getDefault(), reseeded once on the main
-	/// thread so those draws stay reproducible regardless of thread scheduling.
-	///
-	/// Unlike ParallelObjectRandomizer, the rollArtifact() overloads are delegated straight
-	/// through to the real (shared) gameRandomizer instead of being rejected: initObj()
-	/// implementations that grant artifacts (CGArtifact, Rewardable::Info-driven objects and
-	/// town buildings, ...) need GameRandomizer's cross-object "least used artifact" bias
-	/// bookkeeping (allocatedArtifacts), which only exists on that single shared instance.
-	/// GameRandomizer now internally serializes access to that state (see
-	/// GameRandomizer::artifactRollMutex), so concurrent delegation from multiple worker threads
-	/// is memory-safe. Note this does trade away full determinism for artifact-granting objects
-	/// specifically: unlike the seed-split creature/RNG draws, the *order* in which concurrently
-	/// running objects reach the shared rollArtifact() call - and therefore which of them wins a
-	/// "least used so far" pick when several are tied - depends on actual thread scheduling.
-	class ParallelInitRandomizer final : public IGameRandomizer
-	{
-		CRandomGenerator generator;
-		IGameRandomizer & sharedRandomizer;
-
-	public:
-		ParallelInitRandomizer(int seed, IGameRandomizer & sharedRandomizer)
-			: generator(seed)
-			, sharedRandomizer(sharedRandomizer)
-		{
-		}
-
-		CreatureID rollCreature() override
-		{
-			std::vector<CreatureID> allowed;
-			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
-			{
-				const auto * creaturePtr = creatureID.toCreature();
-				if(creaturePtr->excludeFromRandomization)
-					continue;
-				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
-					continue;
-				allowed.push_back(creaturePtr->getId());
-			}
-
-			if(allowed.empty())
-				throw std::runtime_error("Cannot pick a random creature!");
-
-			return *RandomGeneratorUtil::nextItem(allowed, generator);
-		}
-
-		CreatureID rollCreature(int tier) override
-		{
-			std::vector<CreatureID> allowed;
-			for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
-			{
-				const auto * creaturePtr = creatureID.toCreature();
-				if(creaturePtr->excludeFromRandomization)
-					continue;
-				if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
-					continue;
-				if(creaturePtr->getLevel() == tier)
-					allowed.push_back(creaturePtr->getId());
-			}
-
-			if(allowed.empty())
-				throw std::runtime_error("Cannot pick a random creature!");
-
-			return *RandomGeneratorUtil::nextItem(allowed, generator);
-		}
-
-		vstd::RNG & getDefault() override
-		{
-			return generator;
-		}
-
-		ArtifactID rollArtifact() override { return sharedRandomizer.rollArtifact(); }
-		ArtifactID rollArtifact(EArtifactClass type) override { return sharedRandomizer.rollArtifact(type); }
-		ArtifactID rollArtifact(std::set<ArtifactID> filtered) override { return sharedRandomizer.rollArtifact(std::move(filtered)); }
-
-		[[noreturn]] static const char * unsupportedMessage(const char * what)
-		{
-			throw std::logic_error(std::string("ParallelInitRandomizer: ") + what + "() is not supported during object initialization");
-		}
-
-		std::vector<ArtifactID> rollMarketArtifactSet() override { unsupportedMessage("rollMarketArtifactSet"); }
-		PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance *) override { unsupportedMessage("rollPrimarySkillForLevelup"); }
-		SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance *, const std::set<SecondarySkill> &) override { unsupportedMessage("rollSecondarySkillForLevelup"); }
-		std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance *) override { unsupportedMessage("rollSecondarySkills"); }
-	};
 }
 
 void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)

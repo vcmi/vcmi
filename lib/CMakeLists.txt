@@ -137,6 +137,7 @@ set(lib_MAIN_SRCS
 	gameState/GameStatePackVisitor.cpp
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/ParallelObjectRandomizer.cpp
 	gameState/QuestInfo.cpp
 	gameState/ReplayLog.cpp
 	gameState/RumorState.cpp
@@ -567,6 +568,7 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatePackVisitor.h
 	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
+	gameState/ParallelObjectRandomizer.h
 	gameState/ReplayLog.h
 	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h

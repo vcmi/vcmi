@@ -376,7 +376,7 @@ void CGHeroInstance::updateAppearance()
 void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 {
 	assert(validTypes(true));
-
+	
 	if (gender == EHeroGender::DEFAULT)
 		gender = getHeroType()->gender;
 
@@ -420,7 +420,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 			pushPrimSkill(static_cast<PrimarySkill>(g), getHeroClass()->primarySkillInitial[g]);
 		}
 	}
-	if(secSkills.size() == 1 && secSkills[0] == (std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1))) //set secondary skills to default
+	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::NONE, -1)) //set secondary skills to default
 		secSkills = getHeroType()->secSkillsInit;
 
 	setFormation(EArmyFormation::LOOSE);
@@ -443,7 +443,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	}
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
-	// must be done separately from global bonuses since recruitable heroes in taverns
+	// must be done separately from global bonuses since recruitable heroes in taverns 
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : LIBRARY->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
