@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 
+#include "../mock/mock_IGameEventCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
 
 #include "../../lib/CPlayerState.h"
@@ -18,6 +19,28 @@
 
 namespace
 {
+
+class VisitorPackCapture : public GameEventCallbackMock
+{
+public:
+	VisitorPackCapture()
+		: GameEventCallbackMock(nullptr)
+	{
+	}
+
+	std::vector<ChangeObjectVisitors::VisitMode> modes;
+
+	void setObjPropertyValue(ObjectInstanceID, ObjProperty, int32_t) override
+	{
+	}
+
+	void sendAndApply(CPackForClient & pack) override
+	{
+		const auto * visitors = dynamic_cast<ChangeObjectVisitors *>(&pack);
+		ASSERT_NE(visitors, nullptr);
+		modes.push_back(visitors->mode);
+	}
+};
 
 class GameInfoCallbackForTest : public CGameInfoCallback
 {
@@ -91,26 +114,104 @@ TEST(CRewardableObject, rewardValuesRespectScoutingVisibility)
 	EXPECT_TRUE(info->rewards.empty());
 }
 
-TEST(CRewardableObject, onceVisitStateIsKnownOnlyToScoutingTeam)
+TEST(CRewardableObject, onceVisitStateIsSharedOnlyWithClearingPlayersTeam)
 {
-	const PlayerColor visitor(0);
+	const PlayerColor player(0);
 	const PlayerColor ally(1);
 	const PlayerColor enemy(2);
 
 	IGameInfoCallbackMock callback;
+	PlayerState playerState(&callback);
+	PlayerState allyState(&callback);
+	PlayerState enemyState(&callback);
 	TeamState visitorsTeam;
 	TeamState enemyTeam;
 	CRewardableObject object(&callback);
 	object.id = ObjectInstanceID(42); // Arbitrary rewardable object instance used to track scouting.
 	object.configuration.visitMode = Rewardable::VISIT_ONCE;
+	object.configuration.info.emplace_back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	object.setPropertyDer(ObjProperty::REWARD_CLEARED, ObjPropertyID(NumericID(1)));
+	visitorsTeam.players.insert(player);
+	visitorsTeam.players.insert(ally);
+	enemyTeam.players.insert(enemy);
 	visitorsTeam.scoutedObjects.insert(object.id);
+	allyState.visitedObjects.insert(object.id);
 
-	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillOnce(::testing::Return(&visitorsTeam));
-	EXPECT_CALL(callback, getPlayerTeam(ally)).WillOnce(::testing::Return(&visitorsTeam));
-	EXPECT_CALL(callback, getPlayerTeam(enemy)).WillOnce(::testing::Return(&enemyTeam));
+	EXPECT_CALL(callback, getPlayerTeam(player)).WillRepeatedly(::testing::Return(&visitorsTeam));
+	EXPECT_CALL(callback, getPlayerTeam(enemy)).WillRepeatedly(::testing::Return(&enemyTeam));
+	EXPECT_CALL(callback, getPlayerState(player, ::testing::_)).WillRepeatedly(::testing::Return(&playerState));
+	EXPECT_CALL(callback, getPlayerState(ally, ::testing::_)).WillRepeatedly(::testing::Return(&allyState));
+	EXPECT_CALL(callback, getPlayerState(enemy, ::testing::_)).WillRepeatedly(::testing::Return(&enemyState));
 
-	EXPECT_TRUE(object.wasVisited(visitor));
-	EXPECT_TRUE(object.wasVisited(ally));
+	EXPECT_TRUE(object.wasVisited(player));
 	EXPECT_FALSE(object.wasVisited(enemy));
+
+	allyState.visitedObjects.erase(object.id);
+	enemyState.visitedObjects.insert(object.id);
+
+	EXPECT_FALSE(object.wasVisited(player));
+	EXPECT_TRUE(object.wasVisited(enemy));
+
+	CGHeroInstance hero(&callback);
+	hero.tempOwner = player;
+	GameInfoCallbackForTest infoCallback(player);
+	const auto info = infoCallback.getRewardableObjectInfo(&object, &hero);
+	ASSERT_TRUE(info);
+	EXPECT_EQ(info->rewardAvailable, true);
+}
+
+TEST(CRewardableObject, checkingEnemyClearedOnceObjectMarksItVisited)
+{
+	const PlayerColor visitor(0);
+	IGameInfoCallbackMock callback;
+	PlayerState player(&callback);
+	TeamState team;
+	CRewardableObject object(&callback);
+	CGHeroInstance hero(&callback);
+	VisitorPackCapture gameEvents;
+	object.id = ObjectInstanceID(42);
+	object.configuration.visitMode = Rewardable::VISIT_ONCE;
+	object.configuration.info.emplace_back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	object.configuration.info.back().reward.guards.emplace_back(CreatureID(CreatureID::decode("imp")), 1);
+	object.setPropertyDer(ObjProperty::REWARD_CLEARED, ObjPropertyID(NumericID(1)));
+	team.players.insert(visitor);
+	team.scoutedObjects.insert(object.id);
+	hero.id = ObjectInstanceID(7);
+	hero.tempOwner = visitor;
+
+	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillRepeatedly(::testing::Return(&team));
+	EXPECT_CALL(callback, getPlayerState(visitor, ::testing::_)).WillRepeatedly(::testing::Return(&player));
+
+	object.onHeroVisit(gameEvents, &hero);
+
+	ASSERT_EQ(gameEvents.modes.size(), 1);
+	EXPECT_EQ(gameEvents.modes.front(), ChangeObjectVisitors::VISITOR_ADD_HERO);
+}
+
+TEST(CRewardableObject, failedRewardLimiterScoutsWithoutMarkingVisited)
+{
+	const PlayerColor visitor(0);
+	IGameInfoCallbackMock callback;
+	PlayerState player(&callback);
+	TeamState team;
+	CRewardableObject object(&callback);
+	CGHeroInstance hero(&callback);
+	VisitorPackCapture gameEvents;
+	// Arbitrary rewardable object instance; its type does not affect scouting.
+	object.id = ObjectInstanceID(42);
+	object.configuration.visitMode = Rewardable::VISIT_PLAYER_GLOBAL;
+	object.configuration.info.emplace_back();
+	object.configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	object.configuration.info.back().limiter.resources[GameResID::GOLD] = 1000;
+	hero.id = ObjectInstanceID(7);
+	hero.tempOwner = visitor;
+
+	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillRepeatedly(::testing::Return(&team));
+	EXPECT_CALL(callback, getPlayerState(visitor, ::testing::_)).WillRepeatedly(::testing::Return(&player));
+
+	object.onHeroVisit(gameEvents, &hero);
+
+	ASSERT_FALSE(gameEvents.modes.empty());
+	for(const auto mode : gameEvents.modes)
+		EXPECT_EQ(mode, ChangeObjectVisitors::VISITOR_SCOUTED);
 }
