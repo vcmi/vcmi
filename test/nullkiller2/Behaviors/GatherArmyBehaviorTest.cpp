@@ -9,6 +9,7 @@
 #include "StdInc.h"
 
 #include "AI/Nullkiller2/AIGateway.h"
+#include "AI/Nullkiller2/Behaviors/GatherArmyBehavior.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
 #include "AI/Nullkiller2/Markers/HeroExchange.h"
 
@@ -82,6 +83,22 @@ TinyH3M::TinyH3MBuilder makeGarrisonUpgradeMap()
 	return builder;
 }
 
+TinyH3M::TinyH3MBuilder makeSharedUpgradeDestinationMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("NK2SharedUpgradeDestination")
+		.playerActive(PLAYER)
+		.playerActive(ENEMY)
+		.town({9, 5, 0}, FactionID::CASTLE, PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(HeroTypeID::decode("orrin")), PLAYER)
+		.hero({13, 5, 0}, HeroTypeID(HeroTypeID::decode("valeska")), PLAYER)
+		.town({30, 30, 0}, FactionID::CASTLE, ENEMY);
+
+	return builder;
+}
+
 TinyH3M::TinyH3MBuilder makeArmyExchangeMap()
 {
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
@@ -145,6 +162,64 @@ TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, upgradesPikemenCarriedByGarriso
 
 	ASSERT_NE(hero->getStackPtr(SlotID(0)), nullptr);
 	EXPECT_EQ(hero->getStackPtr(SlotID(0))->getCreatureID(), halberdier);
+}
+
+TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, reservesTownAcrossCompetingUpgradeRoutes)
+{
+	startWithMap(makeSharedUpgradeDestinationMap());
+
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(town, nullptr);
+	const CreatureID pikeman(CreatureID::decode("pikeman"));
+	const CreatureID halberdier(CreatureID::decode("halberdier"));
+	town->addBuilding(BuildingID::DWELL_LVL_1_UP);
+	town->creatures.at(0).second.push_back(halberdier);
+	grantResources(PLAYER, GameResID(GameResID::GOLD), 1000000);
+
+	const auto gateway = makeGateway(PLAYER);
+	const auto heroes = gateway->cc->getHeroesInfo();
+	ASSERT_EQ(heroes.size(), 2);
+	for(auto * hero : heroes)
+	{
+		auto * mutableHero = gameState()->getHero(hero->id);
+		mutableHero->clearSlots();
+		ASSERT_TRUE(mutableHero->setCreature(SlotID(0), pikeman, 1000));
+		mutableHero->setMovementPoints(2500);
+	}
+
+	gateway->nullkiller->heroManager->update();
+	NK2AI::PathfinderSettings settings;
+	settings.useHeroChain = false;
+	settings.useDimensionDoor = false;
+	gateway->nullkiller->pathfinder->updatePaths(
+		gateway->nullkiller->getHeroesForPathfinding(),
+		settings);
+
+	const auto goals = NK2AI::Goals::GatherArmyBehavior().decompose(gateway->nullkiller.get());
+	NK2AI::TaskPlan plan;
+	int upgradeRoutes = 0;
+	for(const auto & goal : goals)
+	{
+		const auto parts = goal->decompose(gateway->nullkiller.get());
+		const bool isUpgradeRoute = std::ranges::any_of(parts, [](const auto & part)
+		{
+			return part->goalType == NK2AI::Goals::ARMY_UPGRADE;
+		});
+		if(!isUpgradeRoute)
+			continue;
+
+		++upgradeRoutes;
+		EXPECT_TRUE(goal->asTask()->isObjectAffected(town->id))
+			<< "every route to the same town must claim that destination";
+		EXPECT_TRUE(vstd::contains(goal->asTask()->getAffectedObjects(), town->id))
+			<< "the destination claim must be visible to the task planner";
+		goal->asTask()->priority = static_cast<float>(100 - upgradeRoutes);
+		plan.mergeAndFilter(goal);
+	}
+
+	ASSERT_GE(upgradeRoutes, 2);
+	EXPECT_EQ(plan.getTasks().size(), 1)
+		<< "only one upgrade route may reserve a town in a planning batch";
 }
 
 TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, armyExchangeIsNotEvaluatedAsNewArmyGrowth)
