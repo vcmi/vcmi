@@ -74,12 +74,21 @@ CFilesystemList::~CFilesystemList()
 {
 }
 
-std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
+const ISimpleResourceLoader * CFilesystemList::getLoader(const ResourcePath & resourceName) const
 {
-	// load resource from last loader that have it (last overridden version)
+	// last loader that has the resource wins - it holds the last overridden version
 	for(const auto & loader : std::views::reverse(loaders))
 		if (loader->existsResource(resourceName))
-			return loader->load(resourceName);
+			return loader.get();
+
+	return nullptr;
+}
+
+std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
+{
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->load(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
@@ -87,10 +96,7 @@ std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourc
 
 bool CFilesystemList::existsResource(const ResourcePath & resourceName) const
 {
-	for(const auto & loader : loaders)
-		if (loader->existsResource(resourceName))
-			return true;
-	return false;
+	return getLoader(resourceName) != nullptr;
 }
 
 std::string CFilesystemList::getMountPoint() const
@@ -100,8 +106,9 @@ std::string CFilesystemList::getMountPoint() const
 
 std::optional<boost::filesystem::path> CFilesystemList::getResourceName(const ResourcePath & resourceName) const
 {
-	if (existsResource(resourceName))
-		return getResourcesWithName(resourceName).back()->getResourceName(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getResourceName(resourceName);
 	return std::optional<boost::filesystem::path>();
 }
 
@@ -206,9 +213,9 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 
 std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : std::views::reverse(loaders))
-		if (loader->existsResource(resourceName))
-			return loader->getFullFileURI(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getFullFileURI(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
@@ -216,9 +223,9 @@ std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) co
 
 std::time_t CFilesystemList::getLastWriteTime(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : std::views::reverse(loaders))
-		if (loader->existsResource(resourceName))
-			return loader->getLastWriteTime(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getLastWriteTime(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");

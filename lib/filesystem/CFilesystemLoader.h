@@ -47,7 +47,9 @@ private:
 	/** The base directory which is scanned and indexed. */
 	boost::filesystem::path baseDirectory;
 
-	mutable std::mutex fileListGuard;
+	// file list is rebuilt only when the game rescans a directory, while lookups happen from
+	// every thread that touches the filesystem - so readers must not exclude each other
+	mutable std::shared_mutex fileListGuard;
 	std::string mountPoint;
 	
 	size_t recursiveDepth;

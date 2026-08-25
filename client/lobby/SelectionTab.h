@@ -160,6 +160,8 @@ private:
 	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
+	/// Absolute path of an entry, resolved on demand - too expensive to compute for every listed file
+	std::string getFullFileURI(const ElementInfo & item) const;
 
 	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

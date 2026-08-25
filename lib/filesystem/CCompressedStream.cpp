@@ -66,9 +66,9 @@ void CBufferedStream::ensureSize(si64 size)
 	{
 		si64 initialSize = buffer.size();
 		si64 need = size - buffer.size();
-		// to avoid large number of calls at start
-		// this is often used to load h3m map headers, most of which are ~300 bytes in size
-		si64 currentStep = std::min<si64>(need, std::max<si64>(initialSize, si64{512}));
+        // grow geometrically, but never by less than 512 bytes.
+        // 512 covers 70% of h3m headers in a single step, their average size being ~550 bytes
+		si64 currentStep = std::clamp<si64>(need, si64{512}, std::max<si64>(initialSize, si64{512}));
 
 		buffer.resize(initialSize + currentStep);
 
