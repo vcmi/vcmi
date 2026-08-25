@@ -81,6 +81,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::GENERAL_WEEKS_PER_MONTH,                          "general",   "weeksPerMonth"                        },
 		{EGameSettings::HEROES_BACKPACK_CAP,                              "heroes",    "backpackSize"                         },
 		{EGameSettings::HEROES_BASE_SCOUNTING_RANGE,                      "heroes",    "baseScoutingRange"                    },
+		{EGameSettings::HEROES_MAXIMAL_PRIMARY_SKILLS,                    "heroes",    "maximalPrimarySkills"                 },
 		{EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS,                    "heroes",    "minimalPrimarySkills"                 },
 		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,                     "heroes",    "perPlayerOnMapCap"                    },
 		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,                      "heroes",    "perPlayerTotalCap"                    },

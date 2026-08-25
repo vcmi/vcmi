@@ -524,6 +524,8 @@
 			"tavernInvite"            : false,
 			// minimal primary skills for heroes
 			"minimalPrimarySkills": [ 0, 0, 1, 1],
+			// maximal primary skills for heroes. Values above this limit have no effect
+			"maximalPrimarySkills": [ 99, 99, 99, 99],
 
 			/// minimal movement cost from one tile to another while offroad. Also see BASE_TILE_MOVEMENT_COST bonus type
 			/// Also affects cost of Town Portal spell and movement cost when using Fly spell

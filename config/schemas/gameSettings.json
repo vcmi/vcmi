@@ -52,6 +52,7 @@
 				"startingStackChances" :          { "type" : "array" },
 				"backpackSize" :                  { "type" : "number" },
 				"tavernInvite" :                  { "type" : "boolean" },
+				"maximalPrimarySkills" :          { "type" : "array" },
 				"minimalPrimarySkills" :          { "type" : "array" },
 				"movementCostBase"  :             { "type" : "number" },
 				"movementPointsLand" :            { "type" : "array" },

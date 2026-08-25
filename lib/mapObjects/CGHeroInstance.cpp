@@ -1813,7 +1813,8 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(which.getNum());
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 	auto minSkillValue = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
-	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);
+	auto maxSkillValue = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MAXIMAL_PRIMARY_SKILLS, which.getNum());
+	return std::clamp(valOfBonuses(selector, cachingStr), minSkillValue, std::max(minSkillValue, maxSkillValue));
 }
 
 ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
