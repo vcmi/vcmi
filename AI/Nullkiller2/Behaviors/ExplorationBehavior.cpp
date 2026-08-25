@@ -483,10 +483,11 @@ std::optional<AIPath> findBestPortalPath(
 			continue;
 		}
 
-		if(path.getFirstBlockedAction())
+		if(const auto blockedAction = path.getFirstBlockedAction();
+			blockedAction && blockedAction->decompose(aiNk, hero)->invalid())
 		{
 			logAi->trace(
-				"One-way portal candidate %s rejected: route requires a blocked special action",
+				"One-way portal candidate %s rejected: route requires an unsupported blocked special action",
 				hero->getNameTextID());
 			continue;
 		}
@@ -558,7 +559,16 @@ std::optional<AIPath> findPortalProbePath(
 	const CGObjectInstance * entrance,
 	const Nullkiller * aiNk)
 {
-	const auto paths = aiNk->pathfinder->getPathInfo(entrance->visitablePos(), false);
+	const auto paths = aiNk->pathfinder->getPathInfo(
+		entrance->visitablePos(),
+		aiNk->isObjectGraphAllowed());
+	if(paths.empty())
+	{
+		logAi->trace(
+			"One-way portal %d at %s has no pathfinder route",
+			entrance->id.getNum(),
+			entrance->visitablePos().toString());
+	}
 	const auto reservation = aiNk->memory->getOneWayPortalReservation(entrance->id);
 	if(reservation)
 	{
@@ -607,7 +617,9 @@ std::optional<AIPath> findEntranceGuardPath(
 			continue;
 		}
 
-		const auto paths = aiNk->pathfinder->getPathInfo(destination, false);
+		const auto paths = aiNk->pathfinder->getPathInfo(
+			destination,
+			aiNk->isObjectGraphAllowed());
 		const auto path = findBestPortalPath(
 			paths,
 			aiNk,
@@ -715,9 +727,19 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			teleport ? teleport->channel.getNum() : -1,
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",
 			path->targetHero->getNameTextID());
-		tasks.push_back(sptr(Composition()
+		Composition composition;
+		composition
 			.addNext(OneWayPortalProbe(entrance->visitablePos()))
-			.addNext(ExecuteHeroChain(*path, entrance))));
+			.addNext(ExecuteHeroChain(*path, entrance));
+
+		if(const auto blockedAction = path->getFirstBlockedAction())
+		{
+			const auto prerequisite = blockedAction->decompose(aiNk, path->targetHero);
+			if(!prerequisite->invalid())
+				composition.addNext(prerequisite);
+		}
+
+		tasks.push_back(sptr(composition));
 	}
 }
 }
