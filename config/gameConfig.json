@@ -611,7 +611,7 @@
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05,
 			// limit of damage increase that can be achieved by overpowering attack points
-			"attackPointDamageFactorCap": 4.0,
+			"attackPointDamageFactorCap": 3.0,
 			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
 			"defensePointDamageFactor": 0.025,
 			// limit of damage reduction that can be achieved by overpowering defense points
