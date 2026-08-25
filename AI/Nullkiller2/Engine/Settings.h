@@ -32,7 +32,6 @@ namespace NK2AI
 		float maxArmyLossTarget;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
-		bool useOneWayMonoliths;
 		bool updateHitmapOnTileReveal;
 		bool openMap;
 
@@ -55,7 +54,6 @@ namespace NK2AI
 		int getPathfinderBucketSize() const { return pathfinderBucketSize; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
-		bool isOneWayMonolithUsageAllowed() const { return useOneWayMonoliths; }
 		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
 	};

@@ -39,6 +39,31 @@
 namespace NK2AI
 {
 
+namespace
+{
+const CGTeleport * findTeleport(
+	const std::vector<const CGObjectInstance *> & objects,
+	Obj type)
+{
+	const auto object = std::find_if(objects.begin(), objects.end(), [type](const CGObjectInstance * candidate)
+	{
+		return candidate->ID == type;
+	});
+
+	return object != objects.end() ? dynamic_cast<const CGTeleport *>(*object) : nullptr;
+}
+
+bool containsOwnedTown(
+	const std::vector<const CGObjectInstance *> & objects,
+	PlayerColor player)
+{
+	return vstd::contains_if(objects, [player](const CGObjectInstance * object)
+	{
+		return object->ID == Obj::TOWN && object->getOwner() == player;
+	});
+}
+}
+
 AIGateway::AIGateway()
 	:status(this)
 {
@@ -73,11 +98,26 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
-	const CGObjectInstance * o1 = vstd::frontOrNull(cc->getVisitableObjs(from, verbose));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cc->getVisitableObjs(to, verbose));
+	const auto fromObjects = cc->getVisitableObjs(from, verbose);
+	const auto toObjects = cc->getVisitableObjs(to, verbose);
+	const CGObjectInstance * o1 = vstd::frontOrNull(fromObjects);
+	const CGObjectInstance * o2 = vstd::frontOrNull(toObjects);
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
+		const auto * oneWayEntrance = findTeleport(fromObjects, Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		const auto * oneWayExit = findTeleport(toObjects, Obj::MONOLITH_ONE_WAY_EXIT);
+
+		if(hero && hero->getOwner() == playerID && oneWayEntrance && oneWayExit)
+		{
+			nullkiller->memory->recordOneWayPortalTraversal(
+				oneWayEntrance->id,
+				oneWayExit->id,
+				hero->id,
+				cc->getCalendar().getCurrentDay());
+			nullkiller->invalidatePaths();
+		}
+
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -101,6 +141,14 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		auto boat = dynamic_cast<const CGBoat *>(o1);
 		if(boat)
 			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+	}
+
+	if(hero
+		&& hero->getOwner() == playerID
+		&& nullkiller->memory->getOneWayPortalJourney(hero->id)
+		&& containsOwnedTown(toObjects, playerID))
+	{
+		nullkiller->memory->markOneWayPortalReturn(hero->id);
 	}
 }
 
@@ -1377,6 +1425,7 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 void AIGateway::lostHero(const HeroPtr & heroPtr) const
 {
 	logAi->debug("I lost my hero %s. It's best to forget and move on.", heroPtr.nameOrDefault());
+	nullkiller->memory->removeOneWayPortalHero(heroPtr.idOrNone());
 	nullkiller->invalidatePathfinderData();
 }
 

@@ -194,6 +194,23 @@ public:
 	/// Fixed creature dwelling owned by `owner`.
 	TinyH3MBuilder & dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner);
 
+	// ---- teleports ------------------------------------------------------
+
+	/// One-way monolith entrance. Matching entrance/exit subids form a channel.
+	TinyH3MBuilder & oneWayPortalEntrance(const int3 & pos, int channel);
+
+	/// One-way monolith exit. Matching entrance/exit subids form a channel.
+	TinyH3MBuilder & oneWayPortalExit(const int3 & pos, int channel);
+
+	/// Two-way monolith. Matching subids form a channel.
+	TinyH3MBuilder & twoWayPortal(const int3 & pos, int channel);
+
+	/// Subterranean gate. Gates are paired by the game during post-init.
+	TinyH3MBuilder & subterraneanGate(const int3 & pos);
+
+	/// Whirlpool. Matching subids form a channel.
+	TinyH3MBuilder & whirlpool(const int3 & pos, int channel);
+
 	// ---- quest objects -------------------------------------------------
 
 	/// Keymaster Tent. Subid encodes the keymaster colour (0..7).

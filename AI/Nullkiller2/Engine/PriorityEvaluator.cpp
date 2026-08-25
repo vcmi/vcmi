@@ -1464,6 +1464,9 @@ float PriorityEvaluator::evaluate(
 	const int priorityTier,
 	const EvaluationContext & evaluationContext)
 {
+	if(task->goalType == Goals::ATTACK_ONE_WAY_PORTAL_GUARD)
+		return priorityTier == PriorityTier::ESCAPE ? 1.0f : 0.0f;
+
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
 

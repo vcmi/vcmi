@@ -22,11 +22,17 @@ void AIMemory::removeFromMemory(const CGObjectInstance * obj)
 	//TODO: Find better way to handle hero boat removal
 	if(const auto * hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
+		removeOneWayPortalHero(hero->id);
+
 		if(hero->inBoat())
 		{
 			vstd::erase_if_present(visitableObjs, hero->getBoat()->id);
 			vstd::erase_if_present(alreadyVisited, hero->getBoat()->id);
 		}
+	}
+	else
+	{
+		removeOneWayPortalObject(obj->id);
 	}
 }
 
@@ -39,6 +45,8 @@ void AIMemory::removeFromMemory(const ObjectIdRef obj)
 
 	vstd::erase_if(visitableObjs, matchesId);
 	vstd::erase_if(alreadyVisited, matchesId);
+	removeOneWayPortalHero(obj.id);
+	removeOneWayPortalObject(obj.id);
 }
 
 void AIMemory::addSubterraneanGate(const CGObjectInstance * entrance, const CGObjectInstance * exit)
@@ -100,6 +108,148 @@ void AIMemory::removeInvisibleOrDeletedObjects(const CCallback & cc)
 
 	vstd::erase_if(visitableObjs, shouldBeErased);
 	vstd::erase_if(alreadyVisited, shouldBeErased);
+
+	vstd::erase_if(oneWayPortalReservations, [&](const auto & reservation)
+	{
+		return !cc.getHero(reservation.second);
+	});
+	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)
+	{
+		return !cc.getHero(journey.first);
+	});
+	vstd::erase_if(oneWayPortalUnreturnedEntrances, [&](const auto & journey)
+	{
+		return !cc.getHero(journey.first);
+	});
+}
+
+bool AIMemory::reserveOneWayPortal(ObjectInstanceID entrance, ObjectInstanceID hero)
+{
+	const auto reservation = oneWayPortalReservations.find(entrance);
+	if(reservation != oneWayPortalReservations.end() && reservation->second != hero)
+		return false;
+
+	oneWayPortalReservations[entrance] = hero;
+	logAi->debug("Reserved one-way portal %d for hero %d", entrance.getNum(), hero.getNum());
+	return true;
+}
+
+void AIMemory::clearOneWayPortalReservation(ObjectInstanceID entrance)
+{
+	if(oneWayPortalReservations.erase(entrance))
+		logAi->debug("Cleared reservation for one-way portal %d", entrance.getNum());
+}
+
+std::optional<ObjectInstanceID> AIMemory::getOneWayPortalReservation(ObjectInstanceID entrance) const
+{
+	const auto reservation = oneWayPortalReservations.find(entrance);
+	if(reservation == oneWayPortalReservations.end())
+		return std::nullopt;
+
+	return reservation->second;
+}
+
+void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
+{
+	clearOneWayPortalReservation(entrance);
+	probedOneWayPortals.insert(entrance);
+	oneWayPortalLastTraversalDay[entrance] = day;
+	observedOneWayPortalExits[entrance].insert(exit);
+	oneWayPortalJourneys[hero] = {entrance, exit};
+	oneWayPortalUnreturnedEntrances[hero].insert(entrance);
+
+	logAi->info(
+		"One-way portal probe: hero %d traveled from entrance %d to actual exit %d",
+		hero.getNum(),
+		entrance.getNum(),
+		exit.getNum());
+}
+
+bool AIMemory::wasOneWayPortalProbed(ObjectInstanceID entrance) const
+{
+	return vstd::contains(probedOneWayPortals, entrance);
+}
+
+bool AIMemory::wasOneWayPortalProbedToday(ObjectInstanceID entrance, int day) const
+{
+	const auto traversal = oneWayPortalLastTraversalDay.find(entrance);
+	return traversal != oneWayPortalLastTraversalDay.end() && traversal->second == day;
+}
+
+bool AIMemory::hasKnownOneWayPortalReturn(ObjectInstanceID entrance) const
+{
+	return vstd::contains(oneWayPortalsWithKnownReturn, entrance);
+}
+
+std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> AIMemory::getOneWayPortalJourney(ObjectInstanceID hero) const
+{
+	const auto journey = oneWayPortalJourneys.find(hero);
+	if(journey == oneWayPortalJourneys.end())
+		return std::nullopt;
+
+	return journey->second;
+}
+
+void AIMemory::markOneWayPortalReturn(ObjectInstanceID hero)
+{
+	const auto unreturned = oneWayPortalUnreturnedEntrances.find(hero);
+	if(unreturned == oneWayPortalUnreturnedEntrances.end())
+		return;
+
+	for(const auto entrance : unreturned->second)
+	{
+		oneWayPortalsWithKnownReturn.insert(entrance);
+		logAi->info(
+			"Hero %d demonstrated a return to an owned town after probing one-way portal %d",
+			hero.getNum(),
+			entrance.getNum());
+	}
+
+	oneWayPortalJourneys.erase(hero);
+	oneWayPortalUnreturnedEntrances.erase(unreturned);
+}
+
+void AIMemory::removeOneWayPortalHero(ObjectInstanceID hero)
+{
+	vstd::erase_if(oneWayPortalReservations, [&](const auto & reservation)
+	{
+		return reservation.second == hero;
+	});
+	oneWayPortalJourneys.erase(hero);
+	oneWayPortalUnreturnedEntrances.erase(hero);
+}
+
+void AIMemory::resetOneWayPortalState()
+{
+	oneWayPortalReservations.clear();
+	probedOneWayPortals.clear();
+	oneWayPortalLastTraversalDay.clear();
+	observedOneWayPortalExits.clear();
+	oneWayPortalJourneys.clear();
+	oneWayPortalUnreturnedEntrances.clear();
+	oneWayPortalsWithKnownReturn.clear();
+}
+
+void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)
+{
+	oneWayPortalReservations.erase(object);
+	probedOneWayPortals.erase(object);
+	oneWayPortalLastTraversalDay.erase(object);
+	observedOneWayPortalExits.erase(object);
+	oneWayPortalsWithKnownReturn.erase(object);
+
+	for(auto & observed : observedOneWayPortalExits)
+		observed.second.erase(object);
+
+	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)
+	{
+		return journey.second.first == object || journey.second.second == object;
+	});
+	vstd::erase_if(oneWayPortalUnreturnedEntrances, [&](auto & journey)
+	{
+		journey.second.erase(object);
+		return journey.second.empty();
+	});
 }
 
 std::vector<const CGObjectInstance *> AIMemory::visitableIdsToObjsVector(const CCallback & cc) const

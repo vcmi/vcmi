@@ -152,6 +152,27 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 	aiGw->nullkiller->objectClusterizer->reset();
 
 	auto targetObject = aiGw->cc->getObj(static_cast<ObjectInstanceID>(objid), false);
+	const auto * pathEntrance = getOneWayPortalEntranceInPath(chainPath, aiGw->nullkiller.get());
+	if(pathEntrance && (!targetObject || targetObject->id != pathEntrance->id))
+	{
+		throw cannotFulfillGoalException(
+			"Hero chain would accidentally enter a one-way portal.");
+	}
+
+	if(targetObject && targetObject->ID == Obj::MONOLITH_ONE_WAY_ENTRANCE)
+	{
+		if(!aiGw->nullkiller->memory->reserveOneWayPortal(targetObject->id, chainPath.targetHero->id))
+		{
+			throw cannotFulfillGoalException(
+				"One-way portal is already reserved for another hero.");
+		}
+
+		logAi->info(
+			"One-way portal intent: probe entrance %d with %s hero %s",
+			targetObject->id.getNum(),
+			aiGw->nullkiller->heroManager->getHeroRoleOrDefaultInefficient(chainPath.targetHero) == HeroRole::SCOUT ? "scout" : "main",
+			chainPath.targetHero->getNameTextID());
+	}
 
 	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
 	{

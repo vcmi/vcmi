@@ -408,6 +408,61 @@ TinyH3MBuilder & TinyH3MBuilder::dwelling(const int3 & pos, MapObjectSubID type,
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::oneWayPortalEntrance(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MONOLITH_ONE_WAY_ENTRANCE;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::oneWayPortalExit(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MONOLITH_ONE_WAY_EXIT;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::twoWayPortal(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MONOLITH_TWO_WAY;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::subterraneanGate(const int3 & pos)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::SUBTERRANEAN_GATE;
+	spec.subid         = MapObjectSubID(0);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::whirlpool(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::WHIRLPOOL;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::keymaster(const int3 & pos, int color)
 {
 	ObjectSpec spec;
@@ -1095,6 +1150,11 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 
 			case Obj::KEYMASTER:
 			case Obj::BORDERGUARD:
+			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+			case Obj::MONOLITH_ONE_WAY_EXIT:
+			case Obj::MONOLITH_TWO_WAY:
+			case Obj::SUBTERRANEAN_GATE:
+			case Obj::WHIRLPOOL:
 			case Obj::BOAT:
 				// readGeneric — no body bytes. Object-specific data lives in the template.
 				break;
