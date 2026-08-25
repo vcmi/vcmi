@@ -104,6 +104,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		const auto danger = path.getTotalDanger();
 		if (hero->getOwner() != nullkiller->playerID)
 			continue;
+		if(objToVisit && objToVisit->ID == Obj::BOAT && hero->inBoat())
+			continue;
 
 		if(nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
