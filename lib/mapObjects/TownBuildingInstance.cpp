@@ -162,6 +162,7 @@ bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * con
 			return !visitors.empty();
 		case Rewardable::VISIT_PLAYER:
 		case Rewardable::VISIT_PLAYER_GLOBAL:
+		case Rewardable::VISIT_TEAM_GLOBAL:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
 		{
@@ -202,6 +203,7 @@ bool TownRewardableBuildingInstance::wasVisited(PlayerColor player) const
 		case Rewardable::VISIT_HERO:
 		case Rewardable::VISIT_LIMITER:
 		case Rewardable::VISIT_PLAYER_GLOBAL:
+		case Rewardable::VISIT_TEAM_GLOBAL:
 			return false;
 		case Rewardable::VISIT_ONCE:
 		case Rewardable::VISIT_PLAYER:
@@ -220,4 +222,3 @@ void TownRewardableBuildingInstance::markAsScouted(IGameEventCallback & gameEven
 {
 	// no-op - town building is always 'scouted' by owner
 }
-

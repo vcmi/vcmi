@@ -11,8 +11,10 @@
 
 #include "../mock/mock_IGameEventCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
+#include "../mock/TinyMapGameTest.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/callback/CGameInfoCallback.h"
 #include "../../lib/mapObjects/CRewardableObject.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -67,6 +69,10 @@ public:
 
 private:
 	PlayerColor player;
+};
+
+class TeamGlobalVisitTest : public TinyMapGameTest
+{
 };
 
 }
@@ -186,6 +192,95 @@ TEST(CRewardableObject, checkingEnemyClearedOnceObjectMarksItVisited)
 
 	ASSERT_EQ(gameEvents.modes.size(), 1);
 	EXPECT_EQ(gameEvents.modes.front(), ChangeObjectVisitors::VISITOR_ADD_HERO);
+}
+
+TEST(CRewardableObject, globallyVisitedObjectInfoIsScoutedAndUnavailable)
+{
+	const PlayerColor ally(1);
+	IGameInfoCallbackMock objectCallback;
+	PlayerState allyState(&objectCallback);
+	TeamState team;
+	CRewardableObject object(&objectCallback);
+	CGHeroInstance hero(&objectCallback);
+	GameInfoCallbackForTest callback(ally);
+	object.ID = Obj::CARTOGRAPHER;
+	object.subID = MapObjectSubID(1);
+	object.id = ObjectInstanceID(42);
+	object.configuration.visitMode = Rewardable::VISIT_PLAYER_GLOBAL;
+	object.configuration.info.emplace_back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	hero.tempOwner = ally;
+	allyState.visitedObjectsGlobal.insert({object.ID, object.subID});
+
+	EXPECT_CALL(objectCallback, getPlayerState(ally, ::testing::_)).WillRepeatedly(::testing::Return(&allyState));
+	EXPECT_CALL(objectCallback, getPlayerTeam(ally)).WillRepeatedly(::testing::Return(&team));
+
+	EXPECT_TRUE(object.wasVisited(ally));
+	EXPECT_TRUE(object.wasScouted(ally));
+	auto info = callback.getRewardableObjectInfo(&object, &hero);
+	ASSERT_TRUE(info);
+	EXPECT_TRUE(info->scouted);
+	EXPECT_EQ(info->rewardAvailable, false);
+	EXPECT_TRUE(info->rewards.empty());
+
+	object.subID = MapObjectSubID(2);
+	info = callback.getRewardableObjectInfo(&object, &hero);
+	ASSERT_TRUE(info);
+	EXPECT_FALSE(info->scouted);
+	EXPECT_EQ(info->rewardAvailable, std::nullopt);
+}
+
+TEST_F(TeamGlobalVisitTest, teamGlobalVisitIsReadFromVisitingPlayersState)
+{
+	const PlayerColor visitor(0);
+	const PlayerColor ally(1);
+	const PlayerColor enemy(2);
+	const MapObjectSubID rewardableObjectType(1);
+	startWithMap(TinyH3M::TinyH3MBuilder(EMapFormat::SOD)
+		.size(36, false)
+		.name("TeamGlobalVisit")
+		.playerActive(visitor)
+		.playerActive(ally)
+		.playerActive(enemy)
+		.hero({5, 5, 0}, HeroTypeID(0), visitor)
+		.hero({7, 7, 0}, HeroTypeID(1), ally)
+		.hero({11, 11, 0}, HeroTypeID(2), enemy));
+
+	auto & visitorState = gameState()->players.at(visitor);
+	auto & allyState = gameState()->players.at(ally);
+	auto & enemyState = gameState()->players.at(enemy);
+	const TeamID visitorTeam = visitorState.team;
+	const TeamID allyTeam = allyState.team;
+	allyState.team = visitorTeam;
+	gameState()->teams.at(visitorTeam).players.insert(ally);
+	if(allyTeam != visitorTeam) gameState()->teams.at(allyTeam).players.erase(ally);
+
+	auto callback = makeCallback(visitor);
+	auto teamGlobalRewardableObject = std::make_shared<CRewardableObject>(callback.get());
+	teamGlobalRewardableObject->ID = Obj::EVENT;
+	teamGlobalRewardableObject->subID = rewardableObjectType;
+	teamGlobalRewardableObject->configuration.visitMode = Rewardable::VISIT_TEAM_GLOBAL;
+	teamGlobalRewardableObject->appearance = findHeroByOwner(visitor)->appearance;
+	teamGlobalRewardableObject->instanceName = "teamGlobalRewardableObject";
+	teamGlobalRewardableObject->setAnchorPos({9, 9, 0});
+	map()->addNewObject(teamGlobalRewardableObject);
+
+	ChangeObjectVisitors visit(ChangeObjectVisitors::VISITOR_ADD_HERO, teamGlobalRewardableObject->id, findHeroByOwner(visitor)->id);
+	gameState()->apply(visit);
+
+	EXPECT_EQ(visitorState.visitedObjectsGlobal.count({Obj::EVENT, rewardableObjectType}), 1);
+	EXPECT_EQ(allyState.visitedObjectsGlobal.count({Obj::EVENT, rewardableObjectType}), 0);
+	EXPECT_EQ(enemyState.visitedObjectsGlobal.count({Obj::EVENT, rewardableObjectType}), 0);
+	EXPECT_TRUE(teamGlobalRewardableObject->wasVisited(visitor));
+	EXPECT_TRUE(teamGlobalRewardableObject->wasVisited(ally));
+	teamGlobalRewardableObject->subID = MapObjectSubID(2);
+	EXPECT_FALSE(teamGlobalRewardableObject->wasVisited(ally));
+
+	teamGlobalRewardableObject->subID = rewardableObjectType;
+	ChangeObjectVisitors clearVisit(ChangeObjectVisitors::VISITOR_CLEAR, teamGlobalRewardableObject->id);
+	gameState()->apply(clearVisit);
+	EXPECT_EQ(visitorState.visitedObjectsGlobal.count({Obj::EVENT, rewardableObjectType}), 0);
+	EXPECT_FALSE(teamGlobalRewardableObject->wasVisited(visitor));
+	EXPECT_FALSE(teamGlobalRewardableObject->wasVisited(ally));
 }
 
 TEST(CRewardableObject, failedRewardLimiterScoutsWithoutMarkingVisited)
