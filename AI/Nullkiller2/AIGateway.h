@@ -25,6 +25,13 @@ class AsyncRunner;
 namespace NK2AI
 {
 
+enum class HeroMovementResult
+{
+	COMPLETE,
+	PROGRESSED,
+	BLOCKED
+};
+
 class AIStatus
 {
 	AIGateway * aiGw;
@@ -171,7 +178,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
+	HeroMovementResult moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	/// whether the server allows swapping garrison and visiting heroes of the town
 	bool canSwapGarrisonHero(const CGTownInstance * town) const;
 	void buildStructure(const CGTownInstance * t, BuildingID building);

@@ -157,20 +157,14 @@ std::optional<NeighbourExplorationTarget> ExploreNeighbourTile::findTarget(
 
 void ExploreNeighbourTile::accept(AIGateway * aiGw)
 {
-	bool moved = false;
-
 	for(int i = 0; i < tilesToExplore && aiGw->cc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
 	{
 		const auto target = findTarget(hero, aiGw->nullkiller.get());
 
-		if(!target || !aiGw->moveHeroToTile(target->tile, HeroPtr(hero, aiGw->cc.get())))
+		if(!target
+			|| aiGw->moveHeroToTile(target->tile, HeroPtr(hero, aiGw->cc.get())) != HeroMovementResult::COMPLETE)
 			return;
-
-		moved = true;
 	}
-
-	if(lockAfterMove && moved)
-		aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 }
 
 std::string ExploreNeighbourTile::toString() const

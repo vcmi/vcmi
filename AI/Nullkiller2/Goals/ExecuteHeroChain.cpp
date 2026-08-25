@@ -267,8 +267,8 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
 						|| targetNode->accessible == EPathAccessibility::FLYABLE)
 					{
-						logAi->error(
-							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
+						logAi->debug(
+							"Replanning stale hero chain for %s: immediate destination %s is no longer reachable",
 							hero->getNameTextID(),
 							node->coord.toString());
 
@@ -314,12 +314,17 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					continue;
 				}
 
+				const int3 movementStart = hero->visitablePos();
 				if(hero->movementPointsRemaining())
 				{
 					try
 					{
-						if(moveHeroToTile(aiGw, hero, node->coord))
+						const auto movementResult = moveHeroToTile(aiGw, hero, node->coord);
+						if(movementResult == HeroMovementResult::COMPLETE)
 						{
+							if(!heroPtr.isVerified())
+								throw cannotFulfillGoalException("Hero was lost!");
+
 							if(hero->visitablePos() != node->coord)
 							{
 								logAi->debug(
@@ -336,6 +341,26 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 							continue;
 						}
+
+						if(movementResult == HeroMovementResult::PROGRESSED)
+						{
+							logAi->debug(
+								"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+								hero->getNameTextID(),
+								node->coord.toString(),
+								hero->visitablePos().toString(),
+								hero->movementPointsRemaining());
+
+							aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+							return;
+						}
+
+						logAi->debug(
+							"Replanning stale hero chain for %s: no current path to %s",
+							hero->getNameTextID(),
+							node->coord.toString());
+
+						throw cannotFulfillGoalException("Hero cannot reach hero chain target.");
 					}
 					catch(const cannotFulfillGoalException &)
 					{
@@ -346,27 +371,37 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							throw cannotFulfillGoalException("Hero was lost!");
 						}
 
-						if(hero->movementPointsRemaining() > 0)
-						{
-							CGPath path;
-							bool isOk = aiGw->nullkiller->getPathsInfo(hero)->getPath(path, node->coord);
-
-							if(isOk && path.nodes.front().turns > 0)
-							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTextID(), hero->movementPointsRemaining(), node->coord.toString());
-
-								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-								return;
-							}
-						}
-
 						throw;
 					}
+				}
+
+				if(hero->visitablePos() != movementStart)
+				{
+					logAi->debug(
+						"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+						hero->getNameTextID(),
+						node->coord.toString(),
+						hero->visitablePos().toString(),
+						hero->movementPointsRemaining());
+
+					aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+					return;
 				}
 			}
 
 			if(node->coord == hero->visitablePos())
 				continue;
+
+			if(node->turns == 0 && !hero->movementPointsRemaining())
+			{
+				logAi->debug(
+					"Pausing hero chain for %s: movement towards %s exhausted at %s",
+					hero->getNameTextID(),
+					node->coord.toString(),
+					hero->visitablePos().toString());
+				aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+				return;
+			}
 
 			if(node->turns == 0)
 			{
@@ -404,7 +439,7 @@ std::string ExecuteHeroChain::toString() const
 #endif
 }
 
-bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
+HeroMovementResult ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
 {
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
@@ -413,7 +448,7 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 		if(aiGw->nullkiller->repeatsIdleInteraction(hero, tile))
 			throw cannotFulfillGoalException("Hero keeps targeting the tile it stands on.");
 
-		return true;
+		return HeroMovementResult::COMPLETE;
 	}
 
 	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc.get()));
