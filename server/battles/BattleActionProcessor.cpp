@@ -1388,7 +1388,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	BattleAttackInfo bai(attackerState.get(), def, distance, bat.shot());
 	bai.deathBlow = bat.deathBlow();
 	bai.doubleDamage = bat.ballistaDoubleDmg();
-	bai.luckyStrike  = bat.lucky();
+	bai.luckyStrike  = bat.lucky() && !secondary; // lucky strike only affects creature that was directly attacked
 	bai.unluckyStrike  = bat.unlucky();
 
 	auto range = battle.calculateDmgRange(bai);
