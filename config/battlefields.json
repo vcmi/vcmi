@@ -149,6 +149,11 @@
 				"type" : "BLOCK_MAGIC_ABOVE",
 				"val" : 1,
 				"valueType" : "INDEPENDENT_MIN"
+			},
+			{
+				"type" : "BLOCK_CREATURE_MAGIC",
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN"
 			}
 		]
 	},

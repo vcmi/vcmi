@@ -211,6 +211,7 @@ class JsonNode;
 	BONUS_NAME(BATTLE_CAN_SURRENDER) /*val - permission to surrender, sum of all modifiers below zero blocks surrendering, e.g. -100 for shackles of war*/\
 	BONUS_NAME(COMBAT_EVENT_TRIGGER) /* Runs a combat script on every combat event that happens to bearer */ \
 	BONUS_NAME(ALIGNMENT_MIX) /*creatures of alignment in subtype can be mixed with other mixable alignments without morale penalty*/\
+	BONUS_NAME(BLOCK_CREATURE_MAGIC) /*blocks casting of magical spells and abilities by creatures, eg. Cursed Ground*/ \
 
 	/* end of list */
 
