@@ -220,7 +220,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 #endif
 
 	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
-	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk);
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, upgrader, true);
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
