@@ -229,6 +229,29 @@ TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::shipyard(const int3 & pos, PlayerColor owner)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::SHIPYARD;
+	spec.subid         = MapObjectSubID(0);
+	spec.position      = pos;
+	spec.owner         = owner;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::boat(const int3 & pos)
+{
+	ObjectSpec spec;
+	spec.id = Obj::BOAT;
+	spec.subid = MapObjectSubID(0);
+	spec.position = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::hero(const int3 & pos, HeroTypeID type, PlayerColor owner)
 {
 	ObjectSpec spec;
@@ -1072,7 +1095,12 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 
 			case Obj::KEYMASTER:
 			case Obj::BORDERGUARD:
-				// readGeneric — no body bytes. Subid (keymaster colour) lives in the template.
+			case Obj::BOAT:
+				// readGeneric — no body bytes. Object-specific data lives in the template.
+				break;
+
+			case Obj::SHIPYARD:
+				w.writeUInt32(obj.owner == PlayerColor::NEUTRAL ? 255 : obj.owner.getNum());
 				break;
 
 			case Obj::BORDER_GATE:

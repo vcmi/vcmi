@@ -855,6 +855,14 @@ public:
 
 		int tilesDiscovered = task->value;
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
+		if(task->objid != -1)
+		{
+			const auto * object = evaluationContext.evaluator.aiNk->cc->getObj(
+				ObjectInstanceID(task->objid),
+				false);
+			if(dynamic_cast<const IShipyard *>(object))
+				evaluationContext.explorePriority = 1;
+		}
 
 		// Hidden exploration targets may have no visible object data yet.
 		if(evaluationContext.evaluator.aiNk->cc->isVisible(task->tile))
