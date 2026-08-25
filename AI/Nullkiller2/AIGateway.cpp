@@ -62,6 +62,62 @@ bool containsOwnedTown(
 		return object->ID == Obj::TOWN && object->getOwner() == player;
 	});
 }
+
+bool recoverLegacyOneWayPortalState(AIGateway & gateway)
+{
+	auto & memory = *gateway.nullkiller->memory;
+	if(memory.hasOneWayPortalState())
+		return false;
+
+	bool recovered = false;
+	for(const auto & channelEntry : memory.knownTeleportChannels)
+	{
+		const auto & channel = channelEntry.second;
+		for(const auto exitId : channel->exits)
+		{
+			const auto * exit = gateway.cc->getObj(exitId, false);
+			if(!exit
+				|| exit->ID != Obj::MONOLITH_ONE_WAY_EXIT
+				|| !gateway.cc->isVisible(exit->visitablePos()))
+			{
+				continue;
+			}
+
+			const auto heroes = gateway.cc->getHeroesInfo();
+			const auto hero = std::ranges::find_if(heroes, [exit](const CGHeroInstance * candidate)
+			{
+				return candidate->visitablePos().dist2d(exit->visitablePos()) <= 1;
+			});
+			if(hero == heroes.end())
+				continue;
+
+			for(const auto entranceId : channel->entrances)
+			{
+				const auto * entrance = gateway.cc->getObj(entranceId, false);
+				if(!entrance
+					|| entrance->ID != Obj::MONOLITH_ONE_WAY_ENTRANCE
+					|| !gateway.cc->isVisible(entrance->visitablePos()))
+				{
+					continue;
+				}
+
+				memory.recoverOneWayPortalTraversal(
+					entrance->id,
+					exit->id,
+					(*hero)->id,
+					gateway.cc->getCalendar().getCurrentDay());
+				logAi->info(
+					"Recovered one-way portal %d probe from hero %s beside exit %d",
+					entrance->id.getNum(),
+					(*hero)->getNameTextID(),
+					exit->id.getNum());
+				recovered = true;
+			}
+		}
+	}
+
+	return recovered;
+}
 }
 
 AIGateway::AIGateway()
@@ -115,6 +171,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 				oneWayExit->id,
 				hero->id,
 				cc->getCalendar().getCurrentDay());
+			oneWayPortalStateDirty = true;
 			nullkiller->invalidatePaths();
 		}
 
@@ -149,6 +206,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		&& containsOwnedTown(toObjects, playerID))
 	{
 		nullkiller->memory->markOneWayPortalReturn(hero->id);
+		oneWayPortalStateDirty = true;
 	}
 }
 
@@ -566,7 +624,28 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
+	if(const auto * playerState = cc->getPlayerState(playerID))
+	{
+		nullkiller->memory->loadOneWayPortalState(
+			(*playerState->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
+	}
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+	if(recoverLegacyOneWayPortalState(*this))
+		oneWayPortalStateDirty = true;
+}
+
+void AIGateway::saveOneWayPortalState()
+{
+	if(!oneWayPortalStateDirty.exchange(false))
+		return;
+
+	const auto * playerState = cc->getPlayerState(playerID);
+	if(!playerState)
+		return;
+
+	JsonNode localState = *playerState->playerLocalSettings;
+	nullkiller->memory->saveOneWayPortalState(localState["nullkiller2"]["oneWayPortals"]);
+	cc->saveLocalState(localState);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -825,6 +904,7 @@ void AIGateway::makeTurn()
 
 		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
+		saveOneWayPortalState();
 		const auto timeElapsedMs = timeElapsed(start);
 		if(timeElapsedMs > 5000)
 			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);

@@ -30,6 +30,7 @@
 #include "lib/mapping/CMapHeader.h"
 #include "lib/networkPacks/PacksForClient.h"
 #include "lib/networkPacks/PacksForServer.h"
+#include "lib/networkPacks/SaveLocalState.h"
 
 namespace
 {
@@ -55,6 +56,12 @@ public:
 
 	int sendRequest(const CPackForServer & request, PlayerColor, bool) override
 	{
+		if(const auto * localState = dynamic_cast<const SaveLocalState *>(&request))
+		{
+			*gameState->getPlayerState(localState->player)->playerLocalSettings = localState->data;
+			return ++requestID;
+		}
+
 		const auto * movement = dynamic_cast<const MoveHero *>(&request);
 		if(!movement)
 			return ++requestID;
@@ -341,6 +348,13 @@ public:
 		gateway->nullkiller->decomposer->reset();
 	}
 
+	void restartGateway()
+	{
+		gateway.reset();
+		client.reset();
+		preparePlanning();
+	}
+
 	NK2AI::Goals::TGoalVec decomposePortalBehavior()
 	{
 		preparePlanning();
@@ -385,6 +399,14 @@ public:
 		gameState->apply(move);
 		gateway->heroMoved(move, false);
 		ASSERT_EQ(hero.visitablePos(), exit.visitablePos());
+	}
+
+	void finishTurn()
+	{
+		for(auto * hero : heroesByStrength())
+			hero->setMovementPoints(0);
+
+		gateway->makeTurn();
 	}
 
 	void returnHeroToTown(CGHeroInstance & hero)
@@ -743,6 +765,65 @@ TEST_F(OneWayPortalBehaviorTest, CompletedProbeWithoutReturnDoesNotScheduleSecon
 
 	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
 		<< "a completed probe without a return route must suppress additional scouts";
+}
+
+TEST_F(OneWayPortalBehaviorTest, ReloadedProbeWithoutReturnDoesNotScheduleSecondScout)
+{
+	startWithMap(makeOneWayPortalMap({500, 1, 1}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+
+	auto * scout = heroesByStrength().back();
+	teleportHero(*scout, *entrance, *exit);
+	finishTurn();
+	advanceDay();
+	restartGateway();
+
+	EXPECT_TRUE(portalTasks(decomposePreparedPortalBehavior(), *entrance).empty())
+		<< "loading a save after a probe must not send another scout through the same portal";
+}
+
+TEST_F(OneWayPortalBehaviorTest, LegacySaveWithHeroBesideExitDoesNotScheduleSecondScout)
+{
+	startWithMap(makeOneWayPortalMap({500, 1, 1}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+
+	auto * scout = heroesByStrength().back();
+	moveToVisitable(*scout, exit->visitablePos() + int3(0, 1, 0));
+	restartGateway();
+
+	EXPECT_TRUE(portalTasks(decomposePreparedPortalBehavior(), *entrance).empty())
+		<< "loading an older save with a scout beside the exit must not send another scout";
+}
+
+TEST_F(OneWayPortalBehaviorTest, PortalProbeIsNotStarvedByDistantTreasure)
+{
+	auto builder = makeOneWayPortalMap({1}, false);
+	builder.resource({30, 30, 0}, GameResID::GOLD, 10000);
+	startWithMap(std::move(builder));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+	getClient().connectPortal(entrance->visitablePos(), exit->visitablePos());
+
+	getGateway().nullkiller->makeTurn();
+
+	EXPECT_TRUE(getClient().requested(entrance->visitablePos()))
+		<< "a safe one-way portal probe must execute before a distant treasure consumes the hero's turn";
 }
 
 TEST_F(OneWayPortalBehaviorTest, HiddenEntranceDoesNotForgetCompletedProbe)

@@ -11,6 +11,8 @@
 
 #include "AIMemory.h"
 
+#include "../../../lib/json/JsonNode.h"
+
 namespace NK2AI
 {
 
@@ -149,7 +151,7 @@ std::optional<ObjectInstanceID> AIMemory::getOneWayPortalReservation(ObjectInsta
 	return reservation->second;
 }
 
-void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
+void AIMemory::storeOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
 {
 	clearOneWayPortalReservation(entrance);
 	probedOneWayPortals.insert(entrance);
@@ -157,12 +159,22 @@ void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInst
 	observedOneWayPortalExits[entrance].insert(exit);
 	oneWayPortalJourneys[hero] = {entrance, exit};
 	oneWayPortalUnreturnedEntrances[hero].insert(entrance);
+}
+
+void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
+{
+	storeOneWayPortalTraversal(entrance, exit, hero, day);
 
 	logAi->info(
 		"One-way portal probe: hero %d traveled from entrance %d to actual exit %d",
 		hero.getNum(),
 		entrance.getNum(),
 		exit.getNum());
+}
+
+void AIMemory::recoverOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
+{
+	storeOneWayPortalTraversal(entrance, exit, hero, day);
 }
 
 bool AIMemory::wasOneWayPortalProbed(ObjectInstanceID entrance) const
@@ -228,6 +240,133 @@ void AIMemory::resetOneWayPortalState()
 	oneWayPortalJourneys.clear();
 	oneWayPortalUnreturnedEntrances.clear();
 	oneWayPortalsWithKnownReturn.clear();
+}
+
+bool AIMemory::hasOneWayPortalState() const
+{
+	return !probedOneWayPortals.empty()
+		|| !oneWayPortalJourneys.empty()
+		|| !oneWayPortalUnreturnedEntrances.empty()
+		|| !oneWayPortalsWithKnownReturn.empty();
+}
+
+void AIMemory::loadOneWayPortalState(const JsonNode & source)
+{
+	resetOneWayPortalState();
+	if(!source.isStruct())
+		return;
+
+	const auto readObjectId = [](const JsonNode & value) -> std::optional<ObjectInstanceID>
+	{
+		if(value.getType() != JsonNode::JsonType::DATA_INTEGER || value.Integer() < 0)
+			return std::nullopt;
+
+		return ObjectInstanceID(static_cast<int32_t>(value.Integer()));
+	};
+
+	const auto loadObjectSet = [&readObjectId](const JsonNode & values, auto & destination)
+	{
+		if(!values.isVector())
+			return;
+
+		for(const auto & value : values.Vector())
+		{
+			if(const auto object = readObjectId(value))
+				destination.insert(*object);
+		}
+	};
+
+	loadObjectSet(source["probedEntrances"], probedOneWayPortals);
+	loadObjectSet(source["returnEntrances"], oneWayPortalsWithKnownReturn);
+
+	if(source["lastTraversals"].isVector())
+	{
+		for(const auto & value : source["lastTraversals"].Vector())
+		{
+			const auto entrance = readObjectId(value["entrance"]);
+			if(entrance && value["day"].getType() == JsonNode::JsonType::DATA_INTEGER)
+				oneWayPortalLastTraversalDay[*entrance] = static_cast<int>(value["day"].Integer());
+		}
+	}
+
+	if(source["observedExits"].isVector())
+	{
+		for(const auto & value : source["observedExits"].Vector())
+		{
+			const auto entrance = readObjectId(value["entrance"]);
+			if(entrance)
+				loadObjectSet(value["exits"], observedOneWayPortalExits[*entrance]);
+		}
+	}
+
+	if(source["journeys"].isVector())
+	{
+		for(const auto & value : source["journeys"].Vector())
+		{
+			const auto hero = readObjectId(value["hero"]);
+			const auto entrance = readObjectId(value["entrance"]);
+			const auto exit = readObjectId(value["exit"]);
+			if(hero && entrance && exit)
+				oneWayPortalJourneys[*hero] = {*entrance, *exit};
+		}
+	}
+
+	if(source["unreturnedEntrances"].isVector())
+	{
+		for(const auto & value : source["unreturnedEntrances"].Vector())
+		{
+			const auto hero = readObjectId(value["hero"]);
+			if(hero)
+				loadObjectSet(value["entrances"], oneWayPortalUnreturnedEntrances[*hero]);
+		}
+	}
+}
+
+void AIMemory::saveOneWayPortalState(JsonNode & destination) const
+{
+	destination.clear();
+
+	const auto saveObjectSet = [](JsonNode & target, const auto & values)
+	{
+		for(const auto object : values)
+			target.Vector().emplace_back(object.getNum());
+	};
+
+	saveObjectSet(destination["probedEntrances"], probedOneWayPortals);
+	saveObjectSet(destination["returnEntrances"], oneWayPortalsWithKnownReturn);
+
+	for(const auto & [entrance, day] : oneWayPortalLastTraversalDay)
+	{
+		JsonNode value;
+		value["entrance"].Integer() = entrance.getNum();
+		value["day"].Integer() = day;
+		destination["lastTraversals"].Vector().push_back(std::move(value));
+	}
+
+	for(const auto & [entrance, exits] : observedOneWayPortalExits)
+	{
+		JsonNode value;
+		value["entrance"].Integer() = entrance.getNum();
+		saveObjectSet(value["exits"], exits);
+		destination["observedExits"].Vector().push_back(std::move(value));
+	}
+
+	for(const auto & [hero, journey] : oneWayPortalJourneys)
+	{
+		JsonNode value;
+		value["hero"].Integer() = hero.getNum();
+		value["entrance"].Integer() = journey.first.getNum();
+		value["exit"].Integer() = journey.second.getNum();
+		destination["journeys"].Vector().push_back(std::move(value));
+	}
+
+	for(const auto & [hero, entrances] : oneWayPortalUnreturnedEntrances)
+	{
+		JsonNode value;
+		value["hero"].Integer() = hero.getNum();
+		saveObjectSet(value["entrances"], entrances);
+		destination["unreturnedEntrances"].Vector().push_back(std::move(value));
+	}
 }
 
 void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)

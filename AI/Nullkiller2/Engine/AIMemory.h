@@ -12,6 +12,8 @@
 #include "../AIUtility.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+class JsonNode;
+
 namespace NK2AI
 {
 
@@ -44,6 +46,7 @@ public:
 	void clearOneWayPortalReservation(ObjectInstanceID entrance);
 	std::optional<ObjectInstanceID> getOneWayPortalReservation(ObjectInstanceID entrance) const;
 	void recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day);
+	void recoverOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day);
 	bool wasOneWayPortalProbed(ObjectInstanceID entrance) const;
 	bool wasOneWayPortalProbedToday(ObjectInstanceID entrance, int day) const;
 	bool hasKnownOneWayPortalReturn(ObjectInstanceID entrance) const;
@@ -51,12 +54,16 @@ public:
 	void markOneWayPortalReturn(ObjectInstanceID hero);
 	void removeOneWayPortalHero(ObjectInstanceID hero);
 	void resetOneWayPortalState();
+	bool hasOneWayPortalState() const;
+	void loadOneWayPortalState(const JsonNode & source);
+	void saveOneWayPortalState(JsonNode & destination) const;
 	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
 	std::vector<const CGObjectInstance *> visitableIdsToObjsVector(const CCallback & cc) const;
 	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
 	std::set<const CGObjectInstance *> visitableIdsToObjsSet(const CCallback & cc) const;
 
 private:
+	void storeOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day);
 	void removeOneWayPortalObject(ObjectInstanceID object);
 };
 
