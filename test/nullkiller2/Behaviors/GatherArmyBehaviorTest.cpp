@@ -10,6 +10,7 @@
 
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include "AI/Nullkiller2/Markers/HeroExchange.h"
 
 #include "mock/GameHandlerTestServer.h"
 #include "mock/TinyH3MBuilder.h"
@@ -81,6 +82,24 @@ TinyH3M::TinyH3MBuilder makeGarrisonUpgradeMap()
 	return builder;
 }
 
+TinyH3M::TinyH3MBuilder makeArmyExchangeMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("NK2ArmyExchange")
+		.playerActive(PLAYER)
+		.playerActive(ENEMY)
+		.town({9, 5, 0}, FactionID::CASTLE, PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(HeroTypeID::decode("orrin")), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 1000}})
+		.hero({6, 5, 0}, HeroTypeID(HeroTypeID::decode("valeska")), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 100}})
+		.town({30, 30, 0}, FactionID::CASTLE, ENEMY);
+
+	return builder;
+}
+
 class Nullkiller2_Behaviors_GatherArmyBehavior : public NullkillerTest
 {
 protected:
@@ -126,4 +145,46 @@ TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, upgradesPikemenCarriedByGarriso
 
 	ASSERT_NE(hero->getStackPtr(SlotID(0)), nullptr);
 	EXPECT_EQ(hero->getStackPtr(SlotID(0))->getCreatureID(), halberdier);
+}
+
+TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, armyExchangeIsNotEvaluatedAsNewArmyGrowth)
+{
+	startWithMap(makeArmyExchangeMap());
+
+	const auto gateway = makeGateway(PLAYER);
+	gateway->nullkiller->heroManager->update();
+	NK2AI::PathfinderSettings settings;
+	settings.useHeroChain = true;
+	settings.useDimensionDoor = false;
+	gateway->nullkiller->pathfinder->updatePaths(
+		gateway->nullkiller->getHeroesForPathfinding(),
+		settings);
+
+	const auto heroes = gateway->cc->getHeroesInfo();
+	ASSERT_EQ(heroes.size(), 2);
+	const auto receiver = std::ranges::find_if(heroes, [&](const auto * hero)
+	{
+		return gateway->nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero) == NK2AI::HeroRole::MAIN;
+	});
+	ASSERT_NE(receiver, heroes.end());
+	const auto carrierIterator = std::ranges::find_if(heroes, [&](const auto * hero)
+	{
+		return hero != *receiver;
+	});
+	ASSERT_NE(carrierIterator, heroes.end());
+	const auto * carrier = *carrierIterator;
+	const auto paths = gateway->nullkiller->pathfinder->getPathInfo({7, 5, 0});
+	const auto carrierPath = std::ranges::find_if(paths, [&](const auto & path)
+	{
+		return path.targetHero == carrier;
+	});
+	ASSERT_NE(carrierPath, paths.end());
+
+	const NK2AI::Goals::HeroExchange exchange(*receiver, *carrierPath);
+	ASSERT_GT(exchange.getReinforcementArmyStrength(gateway->nullkiller.get()), 0);
+	const auto exchangeGoal = NK2AI::Goals::sptr(exchange);
+	const auto context = gateway->nullkiller->priorityEvaluator->buildEvaluationContext(exchangeGoal);
+	EXPECT_TRUE(context.isExchange);
+	EXPECT_EQ(context.armyGrowth, 0)
+		<< "moving an existing army must not outrank tasks that create real growth or map progress";
 }

@@ -817,8 +817,10 @@ public:
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
 		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->getArmyStrength();
 
+		// An exchange only concentrates army which the player already owns. Treating the
+		// transferred strength as army growth makes recurring deliveries dominate tasks
+		// which create actual progress, regardless of how strong the receiver becomes.
 		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
-		evaluationContext.armyGrowth = additionalArmyStrength;
 		evaluationContext.movementCost = heroExchange.exchangePath.movementCost();
 		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
 		evaluationContext.heroRole = giverHeroRole;
