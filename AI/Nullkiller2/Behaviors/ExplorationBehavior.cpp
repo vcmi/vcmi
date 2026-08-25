@@ -12,14 +12,18 @@
 #include "../AIUtility.h"
 #include "../Goals/CaptureObject.h"
 #include "../Goals/Composition.h"
+#include "../Goals/BuildBoat.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExploreNeighbourTile.h"
 #include "../Goals/Invalid.h"
+#include "../Goals/SaveResources.h"
+#include "CaptureObjectsBehavior.h"
 #include "../Helpers/ExplorationHelper.h"
 #include "../Markers/ExplorationPoint.h"
 #include "ExplorationBehavior.h"
 
 #include "../../../lib/CPlayerState.h"
+#include "../../../lib/mapping/TerrainTile.h"
 
 namespace NK2AI
 {
@@ -40,6 +44,12 @@ BoatExplorationEvaluation evaluateBoatExplorationCandidate(const BoatExploration
 
 namespace
 {
+struct WaterExplorationTarget
+{
+	int3 tile;
+	int value = 0;
+};
+
 int countHiddenTilesAround(const Nullkiller * aiNk, const int3 & pos, const int sightRadius)
 {
 	const auto * teamState = aiNk->cc->getPlayerTeam(aiNk->playerID);
@@ -63,28 +73,320 @@ int countHiddenTilesAround(const Nullkiller * aiNk, const int3 & pos, const int 
 	return result;
 }
 
-std::optional<int> getBoatExplorationValue(const Nullkiller * aiNk, const CGObjectInstance * obj)
+std::optional<WaterExplorationTarget> findWaterExplorationTarget(
+	const Nullkiller * aiNk,
+	const int3 & start,
+	const int sightRadius)
 {
-	if(obj->ID != Obj::BOAT)
+	const auto * teamState = aiNk->cc->getPlayerTeam(aiNk->playerID);
+	const auto & fow = teamState->fogOfWarMap;
+	std::queue<int3> pending;
+	std::set<int3> visited;
+	pending.push(start);
+	visited.insert(start);
+
+	WaterExplorationTarget bestTarget;
+	while(!pending.empty())
+	{
+		const int3 current = pending.front();
+		pending.pop();
+
+		if(!aiNk->cc->isInTheMap(current) || !fow[current])
+			continue;
+
+		const auto * tile = aiNk->cc->getTile(current, false);
+		if(!tile || !tile->isWater())
+			continue;
+
+		const int explorationValue = countHiddenTilesAround(aiNk, current, sightRadius);
+		if(explorationValue > bestTarget.value)
+			bestTarget = {current, explorationValue};
+
+		for(const int3 & direction : int3::getDirs())
+		{
+			const int3 neighbour = current + direction;
+			if(aiNk->cc->isInTheMap(neighbour) && !visited.contains(neighbour))
+			{
+				visited.insert(neighbour);
+				pending.push(neighbour);
+			}
+		}
+	}
+
+	if(bestTarget.value <= 0)
+		return std::nullopt;
+	return bestTarget;
+}
+
+std::set<int3> getVisibleWaterComponent(const Nullkiller * aiNk, const int3 & start)
+{
+	const auto * teamState = aiNk->cc->getPlayerTeam(aiNk->playerID);
+	const auto & fow = teamState->fogOfWarMap;
+	std::queue<int3> pending;
+	std::set<int3> scheduled;
+	std::set<int3> result;
+	pending.push(start);
+	scheduled.insert(start);
+
+	while(!pending.empty())
+	{
+		const int3 current = pending.front();
+		pending.pop();
+		if(!aiNk->cc->isInTheMap(current) || !fow[current])
+			continue;
+
+		const auto * tile = aiNk->cc->getTile(current, false);
+		if(!tile || !tile->isWater())
+			continue;
+
+		result.insert(current);
+		for(const int3 & direction : int3::getDirs())
+		{
+			const int3 neighbour = current + direction;
+			if(aiNk->cc->isInTheMap(neighbour) && !scheduled.contains(neighbour))
+			{
+				scheduled.insert(neighbour);
+				pending.push(neighbour);
+			}
+		}
+	}
+
+	return result;
+}
+
+std::optional<WaterExplorationTarget> getVirtualBoatExplorationTarget(
+	const Nullkiller * aiNk,
+	const IShipyard * shipyard)
+{
+	if(!shipyard)
 		return std::nullopt;
 
-	const CGObjectInstance * topObj = aiNk->cc->getTopObj(obj->visitablePos());
-	BoatExplorationCandidate candidate;
-	candidate.available = topObj && topObj->id == obj->id;
-
-	if(!candidate.available)
+	const auto status = shipyard->shipyardStatus();
+	const int3 boatLocation = shipyard->bestLocation();
+	if(status != IBoatGenerator::GOOD || !boatLocation.isValid())
 		return std::nullopt;
 
-	int bestValue = 0;
+	WaterExplorationTarget bestTarget;
 	for(const CGHeroInstance * hero : aiNk->cc->getHeroesInfo())
-		bestValue = std::max(bestValue, countHiddenTilesAround(aiNk, obj->visitablePos(), hero->getSightRadius()));
+	{
+		const auto target = findWaterExplorationTarget(aiNk, boatLocation, hero->getSightRadius());
+		if(target && target->value > bestTarget.value)
+			bestTarget = *target;
+	}
+	if(bestTarget.value <= 0)
+		return std::nullopt;
 
-	candidate.hiddenTilesDiscovered = bestValue;
+	BoatExplorationCandidate candidate;
+	candidate.available = true;
+	candidate.hiddenTilesDiscovered = bestTarget.value;
 	const auto evaluation = evaluateBoatExplorationCandidate(candidate);
 	if(!evaluation.accepted)
 		return std::nullopt;
 
-	return evaluation.explorationValue;
+	bestTarget.value = evaluation.explorationValue;
+	return bestTarget;
+}
+
+bool hasUsableWaterTransport(
+	const Nullkiller * aiNk,
+	const WaterExplorationTarget & explorationTarget)
+{
+	const auto waterComponent = getVisibleWaterComponent(aiNk, explorationTarget.tile);
+	for(const CGHeroInstance * hero : aiNk->cc->getHeroesInfo())
+	{
+		if(hero->inBoat() && waterComponent.contains(hero->visitablePos()))
+			return true;
+	}
+
+	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	{
+		const auto * boat = aiNk->cc->getObj(objectId, false);
+		if(!boat || boat->ID != Obj::BOAT || !waterComponent.contains(boat->visitablePos()))
+			continue;
+
+		const auto * topObject = aiNk->cc->getTopObj(boat->visitablePos());
+		if(!topObject || topObject->id != boat->id)
+			continue;
+
+		const auto paths = aiNk->pathfinder->getPathInfo(
+			boat->visitablePos(),
+			aiNk->isObjectGraphAllowed());
+		const bool hasBoardingRoute = std::ranges::any_of(paths, [aiNk](const AIPath & path)
+		{
+			return path.targetHero->getOwner() == aiNk->playerID && !path.targetHero->inBoat();
+		});
+		if(hasBoardingRoute)
+			return true;
+	}
+
+	return false;
+}
+
+void addWaterExplorationTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
+{
+	struct Transport
+	{
+		int3 position;
+		const CGHeroInstance * sailingHero = nullptr;
+	};
+
+	std::vector<Transport> transports;
+	const auto heroes = aiNk->cc->getHeroesInfo();
+	for(const CGHeroInstance * hero : heroes)
+	{
+		if(hero->inBoat())
+			transports.push_back({hero->visitablePos(), hero});
+	}
+
+	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	{
+		const auto * boat = aiNk->cc->getObj(objectId, false);
+		if(!boat || boat->ID != Obj::BOAT)
+			continue;
+
+		const auto * topObject = aiNk->cc->getTopObj(boat->visitablePos());
+		if(topObject && topObject->id == boat->id)
+			transports.push_back({boat->visitablePos(), nullptr});
+	}
+
+	std::set<std::pair<ObjectInstanceID, int3>> addedRoutes;
+	for(const Transport & transport : transports)
+	{
+		for(const CGHeroInstance * hero : heroes)
+		{
+			if((transport.sailingHero && transport.sailingHero != hero)
+				|| (!transport.sailingHero && hero->inBoat()))
+			{
+				continue;
+			}
+
+			const auto explorationTarget = findWaterExplorationTarget(
+				aiNk,
+				transport.position,
+				hero->getSightRadius());
+			if(!explorationTarget || explorationTarget->tile == hero->visitablePos())
+				continue;
+
+			const auto route = std::make_pair(hero->id, explorationTarget->tile);
+			if(addedRoutes.contains(route))
+				continue;
+
+			auto paths = aiNk->pathfinder->getPathInfo(
+				explorationTarget->tile,
+				aiNk->isObjectGraphAllowed());
+			std::erase_if(paths, [hero](const AIPath & path)
+			{
+				return path.targetHero != hero;
+			});
+			const auto visitGoals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, nullptr, true);
+			bool added = false;
+			for(const auto & visitGoal : visitGoals)
+			{
+				if(visitGoal->invalid())
+					continue;
+
+				tasks.push_back(sptr(Composition()
+					.addNext(ExplorationPoint(explorationTarget->tile, explorationTarget->value))
+					.addNext(visitGoal)));
+				added = true;
+			}
+			if(added)
+				addedRoutes.insert(route);
+		}
+	}
+}
+
+void addVirtualBoatExplorationTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
+{
+	std::map<ObjectInstanceID, const IShipyard *> shipyards;
+	for(const CGTownInstance * town : aiNk->cc->getTownsInfo())
+		shipyards[town->id] = town;
+
+	for(const CGObjectInstance * object : aiNk->cc->getMyObjects())
+	{
+		const auto * shipyard = dynamic_cast<const IShipyard *>(object);
+		if(shipyard)
+			shipyards[object->id] = shipyard;
+	}
+
+	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	{
+		const auto * object = aiNk->cc->getObj(objectId, false);
+		const auto * shipyard = dynamic_cast<const IShipyard *>(object);
+		if(shipyard)
+			shipyards[objectId] = shipyard;
+	}
+
+	for(const auto & [objectId, shipyard] : shipyards)
+	{
+		const auto explorationTarget = getVirtualBoatExplorationTarget(aiNk, shipyard);
+		if(!explorationTarget)
+			continue;
+		if(hasUsableWaterTransport(aiNk, *explorationTarget))
+			continue;
+
+		const CGObjectInstance * shipyardObject = aiNk->cc->getObj(objectId, false);
+		if(!shipyardObject)
+			continue;
+
+		TResources boatCost;
+		shipyard->getBoatCost(boatCost);
+		const bool canAfford = aiNk->getFreeResources().canAfford(boatCost);
+		if(!canAfford && aiNk->getLockedResources().canAfford(boatCost))
+			continue;
+
+		ExplorationPoint explorationPoint(explorationTarget->tile, explorationTarget->value);
+		explorationPoint.setobjid(objectId.getNum());
+		const int3 shipyardPosition = shipyardObject->visitablePos();
+		const auto heroes = aiNk->cc->getHeroesInfo();
+		const auto heroAtShipyard = std::ranges::find_if(
+			heroes,
+			[shipyardPosition](const CGHeroInstance * hero)
+			{
+				return !hero->inBoat() && hero->visitablePos() == shipyardPosition;
+			});
+		const bool canBuildHere = aiNk->cc->getPlayerRelations(
+			aiNk->playerID,
+			shipyardObject->getOwner()) != PlayerRelations::ENEMIES;
+		if(heroAtShipyard != heroes.end() && canBuildHere)
+		{
+			Composition construction;
+			construction.addNext(explorationPoint);
+			if(canAfford)
+				construction.addNext(BuildBoat(shipyard));
+			else
+				construction.addNext(SaveResources(boatCost));
+			tasks.push_back(sptr(construction));
+			continue;
+		}
+
+		auto paths = aiNk->pathfinder->getPathInfo(
+			shipyardPosition,
+			aiNk->isObjectGraphAllowed());
+		std::erase_if(paths, [shipyardPosition](const AIPath & path)
+		{
+			return path.targetHero->inBoat()
+				|| path.targetHero->visitablePos() == shipyardPosition;
+		});
+		const auto visitGoals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, shipyardObject, true);
+		for(const auto & visitGoal : visitGoals)
+		{
+			if(visitGoal->invalid())
+				continue;
+
+			Composition exploration;
+			exploration.addNext(explorationPoint);
+			if(canAfford)
+			{
+				// Visiting an unowned shipyard transfers ownership synchronously. Build in the
+				// same execution sequence so another exploration pass cannot move the hero away.
+				exploration.addNextSequence({visitGoal, sptr(BuildBoat(shipyard))});
+			}
+			else
+				exploration.addNext(SaveResources(boatCost));
+			tasks.push_back(sptr(exploration));
+		}
+	}
 }
 }
 
@@ -97,6 +399,12 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
+	if(aiNk->isOpenMap())
+		return tasks;
+
+	addVirtualBoatExplorationTasks(tasks, aiNk);
+	addWaterExplorationTasks(tasks, aiNk);
+
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
 		const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
@@ -106,15 +414,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 		switch(obj->ID.num)
 		{
 			case Obj::BOAT:
-			{
-				if(auto explorationValue = getBoatExplorationValue(aiNk, obj))
-				{
-					tasks.push_back(sptr(Composition()
-						.addNext(ExplorationPoint(obj->visitablePos(), *explorationValue))
-						.addNext(CaptureObject(obj))));
-				}
 				break;
-			}
 			case Obj::REDWOOD_OBSERVATORY:
 			case Obj::PILLAR_OF_FIRE:
 			{
