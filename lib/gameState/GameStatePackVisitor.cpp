@@ -348,7 +348,10 @@ void GameStatePackVisitor::visitChangeObjectVisitors(ChangeObjectVisitors & pack
 				gs.getMap().tryGetFromHeroPool(heroID)->visitedObjects.erase(pack.object);
 
 			for(auto &elem : gs.players)
+			{
 				elem.second.visitedObjects.erase(pack.object);
+				elem.second.visitedObjectsGlobal.erase({objectPtr->ID, objectPtr->subID});
+			}
 
 			for(auto &elem : gs.teams)
 				elem.second.scoutedObjects.erase(pack.object);

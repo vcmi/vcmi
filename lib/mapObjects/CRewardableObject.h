@@ -82,7 +82,6 @@ public:
 
 	/// Returns true if object was scouted by player and he is aware of its internal state
 	bool wasScouted(PlayerColor player) const;
-	bool wasObjectTypeVisitedByTeam(PlayerColor player) const;
 
 	/// Returns player-known guard state
 	std::optional<GuardState> getGuardState(PlayerColor player) const;

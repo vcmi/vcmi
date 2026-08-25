@@ -884,7 +884,6 @@
 
 ### Mechanics - Adventure Map Objects
 
-* Purchasing map from a cartographer will now correctly mark all cartographers of this type as visited
 * Leaving units in cleared creature bank will no longer turn left creatures into guards of an empty bank
 * Visiting a configurable town building will now always show popup instead of displaying effect in inactive infobox of an adventure map
 * Fixed invalid positioning of Portal of Glory when selected as replacement for random dwelling on premade maps
