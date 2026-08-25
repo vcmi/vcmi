@@ -70,17 +70,23 @@ public:
 		if(!hero || movement->path.empty())
 			return ++requestID;
 
-		for(const int3 & destination : movement->path)
+		for(const int3 & requestedDestination : movement->path)
 		{
+			const bool stopPartway = partialMovementDestination.isValid();
+			const int3 destination = stopPartway
+				? hero->convertFromVisitablePos(partialMovementDestination)
+				: requestedDestination;
 			const int3 destinationTile = hero->convertToVisitablePos(destination);
 			requestedTiles.push_back(destinationTile);
 
 			TryMoveHero appliedMovement;
 			appliedMovement.id = hero->id;
 			appliedMovement.start = hero->pos;
-			appliedMovement.movePoints = hero->movementPointsRemaining();
+			appliedMovement.movePoints = stopPartway
+				? partialMovementPoints
+				: hero->movementPointsRemaining();
 
-			if(destinationTile == entrance)
+			if(!stopPartway && destinationTile == entrance)
 			{
 				appliedMovement.result = TryMoveHero::TELEPORTATION;
 				appliedMovement.end = hero->convertFromVisitablePos(exit);
@@ -92,6 +98,8 @@ public:
 			}
 
 			gameState->apply(appliedMovement);
+			if(stopPartway || appliedMovement.movePoints == 0)
+				break;
 		}
 
 		return ++requestID;
@@ -108,12 +116,20 @@ public:
 		return vstd::contains(requestedTiles, tile);
 	}
 
+	void stopMovementAt(const int3 & destination, int remainingMovementPoints = 0)
+	{
+		partialMovementDestination = destination;
+		partialMovementPoints = remainingMovementPoints;
+	}
+
 private:
 	std::shared_ptr<CGameState> gameState;
 	std::vector<int3> requestedTiles;
 	int3 entrance = int3(-1);
 	int3 exit = int3(-1);
 	int requestID = 0;
+	int3 partialMovementDestination = int3(-1);
+	int partialMovementPoints = 0;
 };
 
 TinyH3M::TinyH3MBuilder makeOneWayPortalMap(
@@ -140,6 +156,28 @@ TinyH3M::TinyH3MBuilder makeOneWayPortalMap(
 	builder.oneWayPortalEntrance({16, 10, 0}, PORTAL_CHANNEL);
 	for(int i = 0; i < exitCount; ++i)
 		builder.oneWayPortalExit({24 + i * 3, 24, 0}, PORTAL_CHANNEL);
+
+	return builder;
+}
+
+TinyH3M::TinyH3MBuilder makeBoatAssistedOneWayPortalMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("NK2BoatAssistedOneWayPortal")
+		.playerActive(PLAYER)
+		.hero({10, 22, 0}, HeroTypeID(0), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 100}})
+		.shipyard({10, 18, 0}, PLAYER)
+		.oneWayPortalEntrance({10, 6, 0}, PORTAL_CHANNEL)
+		.oneWayPortalExit({24, 24, 0}, PORTAL_CHANNEL);
+
+	for(int y = 8; y <= 17; ++y)
+	{
+		for(int x = 0; x < 36; ++x)
+			builder.terrain({x, y, 0}, TerrainId::WATER);
+	}
 
 	return builder;
 }
@@ -243,6 +281,11 @@ public:
 	{
 		ASSERT_TRUE(map->isInTheMap(tile)) << tile.toString();
 		teamState().fogOfWarMap[tile] = visible ? 1 : 0;
+	}
+
+	void setResource(GameResID resource, int amount)
+	{
+		gameState->players.at(PLAYER).resources[resource] = amount;
 	}
 
 	std::vector<CGHeroInstance *> heroesByStrength() const
@@ -499,6 +542,63 @@ TEST_F(OneWayPortalBehaviorTest, OneWayEntranceIsReachableButCannotBeUsedAsCorri
 		false);
 	EXPECT_TRUE(pathsPastEntrance.empty())
 		<< "ordinary plans must not treat a one-way entrance as a walkable corridor";
+}
+
+TEST_F(OneWayPortalBehaviorTest, BoatProbeReservesMissingResources)
+{
+	startWithMap(makeBoatAssistedOneWayPortalMap());
+	setAllTilesVisible(true);
+	setResource(EGameResID::WOOD, 7);
+	setResource(EGameResID::GOLD, 10000);
+
+	const auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	ASSERT_NE(entrance, nullptr);
+	const auto * shipyard = dynamic_cast<const IShipyard *>(objectByType(Obj::SHIPYARD));
+	ASSERT_NE(shipyard, nullptr);
+	ASSERT_EQ(shipyard->shipyardStatus(), IBoatGenerator::GOOD);
+
+	const auto goals = decomposePortalBehavior();
+	const auto probes = portalTasks(goals, *entrance);
+	ASSERT_EQ(probes.size(), 1)
+		<< "a portal probe behind a future boat must produce a resource-saving prerequisite";
+
+	const auto parts = probes.front()->decompose(getGateway().nullkiller.get());
+	ASSERT_FALSE(parts.empty());
+	EXPECT_EQ(parts.back()->goalType, NK2AI::Goals::SAVE_RESOURCES);
+
+	NK2AI::Goals::taskptr(*probes.front())->accept(&getGateway());
+	EXPECT_EQ(getGateway().nullkiller->getLockedResources()[EGameResID::WOOD], 10);
+	EXPECT_EQ(getGateway().nullkiller->getLockedResources()[EGameResID::GOLD], 1000);
+
+	const auto repeatedProbes = portalTasks(decomposePortalBehavior(), *entrance);
+	EXPECT_TRUE(repeatedProbes.empty())
+		<< "an existing boat reservation must not produce another resource-saving task";
+	EXPECT_EQ(getGateway().nullkiller->getLockedResources()[EGameResID::WOOD], 10);
+	EXPECT_EQ(getGateway().nullkiller->getLockedResources()[EGameResID::GOLD], 1000);
+}
+
+TEST_F(OneWayPortalBehaviorTest, PartialPortalRouteRetainsReservationAndLocksHero)
+{
+	startWithMap(makeOneWayPortalMap({100}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * hero = heroesByStrength().front();
+	ASSERT_NE(entrance, nullptr);
+	const auto probes = portalTasks(decomposePortalBehavior(), *entrance);
+	ASSERT_EQ(probes.size(), 1);
+
+	getClient().stopMovementAt(hero->visitablePos() + int3(1, 0, 0), 500);
+	EXPECT_NO_THROW(probes.front()->asTask()->accept(&getGateway()));
+	EXPECT_NE(hero->visitablePos(), entrance->visitablePos());
+	EXPECT_EQ(hero->movementPointsRemaining(), 500);
+	EXPECT_EQ(
+		getGateway().nullkiller->getHeroLockedReason(hero),
+		NK2AI::HeroLockedReason::HERO_CHAIN)
+		<< "a partially completed portal route must resume on a later planning pass";
+	EXPECT_EQ(
+		getGateway().nullkiller->memory->getOneWayPortalReservation(entrance->id),
+		std::optional<ObjectInstanceID>(hero->id));
 }
 
 TEST_F(OneWayPortalBehaviorTest, HiddenExitStillProducesScoutProbe)

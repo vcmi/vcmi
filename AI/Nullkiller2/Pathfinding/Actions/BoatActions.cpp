@@ -14,6 +14,7 @@
 #include "../../Goals/CaptureObject.h"
 #include "../../Goals/Invalid.h"
 #include "../../Goals/BuildBoat.h"
+#include "../../Goals/SaveResources.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../../../lib/spells/CSpell.h"
 #include "BoatActions.h"
@@ -34,7 +35,15 @@ namespace AIPathfinding
 		{
 			return Goals::sptr(Goals::CaptureObject(targetObject()));
 		}
-		
+
+		TResources boatCost;
+		shipyard->getBoatCost(boatCost);
+		if(aiNk->getLockedResources().canAfford(boatCost))
+			return Goals::sptr(Goals::Invalid());
+
+		if(!aiNk->getFreeResources().canAfford(boatCost))
+			return Goals::sptr(Goals::SaveResources(boatCost));
+
 		return Goals::sptr(Goals::Invalid());
 	}
 
