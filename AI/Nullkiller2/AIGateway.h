@@ -88,6 +88,7 @@ public:
 	std::atomic<bool> lastAdventureCastSucceeded = true;
 
 	std::unique_ptr<Nullkiller> nullkiller;
+	std::atomic_bool oneWayPortalStateDirty = false;
 
 	AIGateway();
 	~AIGateway();
@@ -166,6 +167,7 @@ public:
 	bool canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const;
 
 	void makeTurn();
+	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();

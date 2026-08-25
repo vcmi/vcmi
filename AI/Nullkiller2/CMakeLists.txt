@@ -48,6 +48,7 @@ set(Nullkiller2_SRCS
 		Markers/UnlockCluster.cpp
 		Markers/DefendTown.cpp
 		Markers/ExplorationPoint.cpp
+		Markers/OneWayPortalProbe.cpp
 		Engine/Nullkiller.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
@@ -129,6 +130,7 @@ set(Nullkiller2_HEADERS
 		Markers/UnlockCluster.h
 		Markers/DefendTown.h
 		Markers/ExplorationPoint.h
+		Markers/OneWayPortalProbe.h
 		Engine/Nullkiller.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
