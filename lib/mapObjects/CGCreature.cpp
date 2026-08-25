@@ -379,7 +379,8 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
+	//diplomacy of hero can not exceed what expert Diplomacy grants, even with bonus of easiest difficulty
+	int diplomacy = std::min<int>(h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS), MasteryLevel::EXPERT);
 	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < agression)

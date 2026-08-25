@@ -5,7 +5,15 @@
 		"pawn":
 		{
 			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000 },
-			"globalBonuses": [],
+			//on easiest difficulty wandering creatures act as if hero had one more level of Diplomacy
+			"globalBonuses": [
+				{
+					"type" : "WANDERING_CREATURES_JOIN_BONUS",
+					"val" : 1,
+					"valueType" : "BASE_NUMBER",
+					"sourceType" : "OTHER"
+				}
+			],
 			"battleBonuses": []
 		},
 		"knight":
