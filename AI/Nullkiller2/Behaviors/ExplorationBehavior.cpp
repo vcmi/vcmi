@@ -192,10 +192,9 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			// spend remaining MP on safe adjacent fog instead of ending the turn idle.
 			else if(const auto neighbourTarget = ExploreNeighbourTile::findTarget(hero, aiNk))
 			{
-				const bool strategicOnlyMove = neighbourTarget->tilesDiscovered == 0;
 				tasks.push_back(sptr(Composition()
 					.addNext(ExplorationPoint(neighbourTarget->tile, neighbourTarget->tilesDiscovered))
-					.addNext(ExploreNeighbourTile(hero, strategicOnlyMove ? 1 : 5, strategicOnlyMove))));
+					.addNext(ExploreNeighbourTile(hero, 5))));
 			}
 		}
 	}
