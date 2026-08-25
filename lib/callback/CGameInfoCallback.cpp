@@ -135,11 +135,14 @@ bool CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object,
 		return false;
 
 	auto player = getPlayerID();
+	const bool visited = hero ? rewardable->wasVisited(hero) : player.has_value() && rewardable->wasVisited(*player);
 	out.scouted = !player.has_value() || rewardable->wasScouted(*player);
 
 	if(out.scouted)
 	{
-		const auto rewardIndices = rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		std::vector<ui32> rewardIndices;
+		if(!visited)
+			rewardIndices = rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 		const bool guardedReward = std::any_of(
 			rewardable->configuration.info.begin(),
 			rewardable->configuration.info.end(),
