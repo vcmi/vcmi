@@ -1070,7 +1070,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		}
 	}
 
-	// calculate number of creatures raised - low level units contribute at 50% rate
+	// calculate number of creatures raised - killed units contribute proportionally to their health, up to health of raised creature
 	const double raisedUnitHealth = selectedCreature.toCreature()->getMaxHealth();
 	double raisedUnits = 0;
 	for(const auto & casualty : casualties)
