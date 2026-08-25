@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "AIGateway.h"
+#include "Engine/Nullkiller.h"
 #include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
@@ -30,6 +31,20 @@
 
 namespace NK2AI
 {
+
+const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type)
+{
+	const auto object = std::ranges::find(objects, type, &CGObjectInstance::ID);
+	return object != objects.end() ? *object : nullptr;
+}
+
+bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk)
+{
+	const auto heroes = aiNk->cc->getHeroesInfo();
+	return aiNk->cc->getTownsInfo().empty()
+		&& heroes.size() == 1
+		&& heroes.front() == hero;
+}
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {

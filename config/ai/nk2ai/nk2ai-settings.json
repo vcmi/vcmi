@@ -13,7 +13,6 @@
 	// maxGoldPressure: used for determining if the AI player has a problem with gold or not, determining what it can do with it
 	// updateHitmapOnTileReveal: used for DangerHitMapAnalyzer, you'll probably never need to touch that
 	// useTroopsFromGarrisons: allows AI to use troops from garrisons together with cc->getStartInfo()->restrictedGarrisonsForAI()
-	// useOneWayMonoliths: allows AI to use one way Monoliths (2026.01.03 currently buggy, so false)
 	// openMap: allows AI to see the entire map from the beginning, like a cheat. Requires a LOOOOOT more CPU
 	// allowObjectGraph: it's an internal mechanism for openMap
 	// pathfinderBucketsCount: buckets don't exist anymore, but this value is multiplied with pathfinderBucketSize to give the total alloed nodes per position
@@ -50,7 +49,6 @@
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
-		"useOneWayMonoliths" : false,
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
@@ -72,7 +70,6 @@
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
-		"useOneWayMonoliths" : false,
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
@@ -94,7 +91,6 @@
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
-		"useOneWayMonoliths" : false,
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
@@ -116,7 +112,6 @@
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
-		"useOneWayMonoliths" : false,
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
@@ -138,7 +133,6 @@
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
-		"useOneWayMonoliths" : false,
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,

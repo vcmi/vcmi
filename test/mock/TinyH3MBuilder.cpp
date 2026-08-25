@@ -428,6 +428,28 @@ TinyH3MBuilder & TinyH3MBuilder::dwelling(const int3 & pos, MapObjectSubID type,
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::oneWayPortalEntrance(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MONOLITH_ONE_WAY_ENTRANCE;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::oneWayPortalExit(const int3 & pos, int channel)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MONOLITH_ONE_WAY_EXIT;
+	spec.subid         = MapObjectSubID(channel);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::keymaster(const int3 & pos, int color)
 {
 	ObjectSpec spec;
@@ -1123,7 +1145,9 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 
 			case Obj::KEYMASTER:
 			case Obj::BORDERGUARD:
-				// readGeneric — no body bytes. Subid (keymaster colour) lives in the template.
+			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+			case Obj::MONOLITH_ONE_WAY_EXIT:
+				// readGeneric — no body bytes. Object-specific data lives in the template.
 				break;
 
 			case Obj::BORDER_GATE:

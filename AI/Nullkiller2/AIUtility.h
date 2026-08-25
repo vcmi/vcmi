@@ -222,6 +222,9 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
+const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type);
+/// True if the player has no towns and this hero is the only one left
+bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk);
 
 template <class T>
 class SharedPool
