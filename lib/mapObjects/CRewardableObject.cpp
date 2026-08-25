@@ -185,19 +185,8 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 
 bool CRewardableObject::wasScouted(PlayerColor player) const
 {
-	if(wasObjectTypeVisitedByTeam(player)) return true;
+	if(configuration.getVisitMode() == Rewardable::VISIT_PLAYER_GLOBAL && wasVisited(player)) return true;
 	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
-}
-
-bool CRewardableObject::wasObjectTypeVisitedByTeam(PlayerColor player) const
-{
-	if(configuration.getVisitMode() != Rewardable::VISIT_PLAYER_GLOBAL) return false;
-	return std::ranges::any_of(
-		cb->getPlayerTeam(player)->players,
-		[this](PlayerColor teamMember)
-		{
-			return wasVisited(teamMember);
-		});
 }
 
 bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
