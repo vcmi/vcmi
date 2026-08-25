@@ -135,12 +135,25 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 	}
 
-	if(hero
-		&& hero->getOwner() == playerID
-		&& nullkiller->memory->getOneWayPortalJourney(hero->id)
-		&& containsOwnedTown(toObjects, playerID))
+	if(hero && hero->getOwner() == playerID)
 	{
-		nullkiller->memory->markOneWayPortalReturn(hero->id);
+		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
+		if(journey && containsOwnedTown(toObjects, playerID))
+		{
+			nullkiller->memory->markOneWayPortalReturn(hero->id);
+		}
+		else if(journey)
+		{
+			const auto * exit = cc->getObj(journey->second, false);
+			if(exit && from == exit->visitablePos() && to != from)
+			{
+				nullkiller->memory->completeOneWayPortalJourney(hero->id);
+				logAi->debug(
+					"Hero %s completed the landing from one-way portal %d",
+					hero->getNameTextID(),
+					journey->first.getNum());
+			}
+		}
 	}
 }
 
@@ -592,6 +605,16 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	nullkiller->init(callback, this);
 	nullkiller->memory->loadOneWayPortalState(
 		(*cc->getPlayerState(playerID)->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
+	for(const auto * hero : cc->getHeroesInfo())
+	{
+		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
+		if(!journey)
+			continue;
+
+		const auto * exit = cc->getObj(journey->second, false);
+		if(exit && hero->visitablePos() != exit->visitablePos())
+			nullkiller->memory->completeOneWayPortalJourney(hero->id);
+	}
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 }
 

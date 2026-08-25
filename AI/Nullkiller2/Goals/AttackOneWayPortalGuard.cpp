@@ -94,12 +94,41 @@ void AttackOneWayPortalGuard::accept(AIGateway * aiGw)
 	if(!currentGuard || currentGuard->id != ObjectInstanceID(objid))
 		throw cannotFulfillGoalException("One-way portal exit is no longer blocked by the recorded guard.");
 
+	// a trapping guard is only found for a hero standing on the exit of its recorded journey
+	const auto journey = aiGw->nullkiller->memory->getOneWayPortalJourney(hero->id);
+
 	logAi->info(
 		"One-way portal intent: forced exit fight by hero %s against guard %d",
 		hero->getNameTextID(),
 		objid);
 
-	if(aiGw->moveHeroToTile(tile, heroPtr) != HeroMovementResult::COMPLETE)
+	const uint64_t guardDanger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(currentGuard);
+	const uint64_t heroStrength = static_cast<uint64_t>(
+		getNormalizedHeroStrength(hero) * hero->estimateCombatValue());
+	auto recordFailureIfHeroWasLost = [&]()
+	{
+		if(heroPtr.isVerified(false))
+			return;
+
+		aiGw->nullkiller->memory->recordOneWayPortalGuardFailure(
+			journey->first,
+			guardDanger,
+			heroStrength);
+	};
+
+	HeroMovementResult movementResult = HeroMovementResult::BLOCKED;
+	try
+	{
+		movementResult = aiGw->moveHeroToTile(tile, heroPtr);
+	}
+	catch(...)
+	{
+		recordFailureIfHeroWasLost();
+		throw;
+	}
+
+	recordFailureIfHeroWasLost();
+	if(movementResult != HeroMovementResult::COMPLETE)
 		throw cannotFulfillGoalException("Unable to attack the one-way portal exit guard this turn.");
 }
 

@@ -147,6 +147,7 @@ void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInst
 	clearOneWayPortalReservation(entrance);
 	oneWayPortalLastTraversalDay[entrance] = day;
 	observedOneWayPortalExits[entrance].insert(exit);
+	oneWayPortalGuardFailures.erase(entrance);
 	oneWayPortalJourneys[hero] = {entrance, exit};
 	oneWayPortalUnreturnedEntrances[hero].insert(entrance);
 
@@ -173,6 +174,42 @@ bool AIMemory::hasKnownOneWayPortalReturn(ObjectInstanceID entrance) const
 	return vstd::contains(oneWayPortalsWithKnownReturn, entrance);
 }
 
+bool AIMemory::hasActiveOneWayPortalJourney(ObjectInstanceID entrance) const
+{
+	return vstd::contains_if(oneWayPortalJourneys, [entrance](const auto & journey)
+	{
+		return journey.second.first == entrance;
+	});
+}
+
+std::vector<ObjectInstanceID> AIMemory::getUnreturnedOneWayPortalHeroes(ObjectInstanceID entrance) const
+{
+	std::vector<ObjectInstanceID> result;
+	for(const auto & [hero, entrances] : oneWayPortalUnreturnedEntrances)
+	{
+		if(entrances.contains(entrance))
+			result.push_back(hero);
+	}
+	return result;
+}
+
+void AIMemory::recordOneWayPortalGuardFailure(
+	ObjectInstanceID entrance,
+	uint64_t guardDanger,
+	uint64_t failedHeroStrength)
+{
+	oneWayPortalGuardFailures[entrance] = {guardDanger, failedHeroStrength};
+}
+
+std::optional<std::pair<uint64_t, uint64_t>> AIMemory::getOneWayPortalGuardFailure(ObjectInstanceID entrance) const
+{
+	const auto failure = oneWayPortalGuardFailures.find(entrance);
+	if(failure == oneWayPortalGuardFailures.end())
+		return std::nullopt;
+
+	return failure->second;
+}
+
 std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> AIMemory::getOneWayPortalJourney(ObjectInstanceID hero) const
 {
 	const auto journey = oneWayPortalJourneys.find(hero);
@@ -180,6 +217,11 @@ std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> AIMemory::getOneWay
 		return std::nullopt;
 
 	return journey->second;
+}
+
+bool AIMemory::completeOneWayPortalJourney(ObjectInstanceID hero)
+{
+	return oneWayPortalJourneys.erase(hero) != 0;
 }
 
 void AIMemory::markOneWayPortalReturn(ObjectInstanceID hero)
@@ -216,6 +258,7 @@ void AIMemory::resetOneWayPortalState()
 	oneWayPortalReservations.clear();
 	oneWayPortalLastTraversalDay.clear();
 	observedOneWayPortalExits.clear();
+	oneWayPortalGuardFailures.clear();
 	oneWayPortalJourneys.clear();
 	oneWayPortalUnreturnedEntrances.clear();
 	oneWayPortalsWithKnownReturn.clear();
@@ -249,6 +292,24 @@ void AIMemory::loadOneWayPortalState(const JsonNode & source)
 	{
 		if(const auto entrance = readObjectId(value["entrance"]))
 			oneWayPortalLastTraversalDay[*entrance] = static_cast<int>(value["day"].Integer());
+	}
+
+	for(const auto & value : source["guardFailures"].Vector())
+	{
+		const auto entrance = readObjectId(value["entrance"]);
+		if(!entrance
+			|| value["danger"].getType() != JsonNode::JsonType::DATA_INTEGER
+			|| value["heroStrength"].getType() != JsonNode::JsonType::DATA_INTEGER
+			|| value["danger"].Integer() < 0
+			|| value["heroStrength"].Integer() < 0)
+		{
+			continue;
+		}
+
+		oneWayPortalGuardFailures[*entrance] = {
+			static_cast<uint64_t>(value["danger"].Integer()),
+			static_cast<uint64_t>(value["heroStrength"].Integer())
+		};
 	}
 
 	for(const auto & value : source["journeys"].Vector())
@@ -287,6 +348,15 @@ void AIMemory::saveOneWayPortalState(JsonNode & destination) const
 		destination["lastTraversals"].Vector().push_back(std::move(value));
 	}
 
+	for(const auto & [entrance, failure] : oneWayPortalGuardFailures)
+	{
+		JsonNode value;
+		value["entrance"].Integer() = entrance.getNum();
+		value["danger"].Integer() = static_cast<int64_t>(failure.first);
+		value["heroStrength"].Integer() = static_cast<int64_t>(failure.second);
+		destination["guardFailures"].Vector().push_back(std::move(value));
+	}
+
 	for(const auto & [hero, journey] : oneWayPortalJourneys)
 	{
 		JsonNode value;
@@ -310,6 +380,7 @@ void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)
 	oneWayPortalReservations.erase(object);
 	oneWayPortalLastTraversalDay.erase(object);
 	observedOneWayPortalExits.erase(object);
+	oneWayPortalGuardFailures.erase(object);
 	oneWayPortalsWithKnownReturn.erase(object);
 
 	for(auto & observed : observedOneWayPortalExits)
