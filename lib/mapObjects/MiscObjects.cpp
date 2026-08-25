@@ -617,16 +617,20 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 				targetstack = (i->first);
 		}
 
-		auto countToTake = static_cast<TQuantity>(h->getStackCount(targetstack) * 0.5);
-		vstd::amax(countToTake, 1);
+		auto countToTake = static_cast<TQuantity>((h->getStackCount(targetstack) + 1) / 2); // 50%, rounded up
+		if(h->stacksCount() == 1)
+			vstd::amin(countToTake, h->getStackCount(targetstack) - 1); // hero never loses his last creature
 
-		InfoWindow iw;
-		iw.type = EInfoWindowMode::AUTO;
-		iw.player = h->tempOwner;
-		iw.text.appendTextID("core.advevent.168");
-		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
-		gameEvents.showInfoDialog(&iw);
-		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
+		if(countToTake > 0)
+		{
+			InfoWindow iw;
+			iw.type = EInfoWindowMode::AUTO;
+			iw.player = h->tempOwner;
+			iw.text.appendTextID("core.advevent.168");
+			iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
+			gameEvents.showInfoDialog(&iw);
+			gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
+		}
 	}
 	else
 	{
