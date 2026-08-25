@@ -18,6 +18,7 @@
 #include "../Goals/Invalid.h"
 #include "../Helpers/ExplorationHelper.h"
 #include "../Markers/ExplorationPoint.h"
+#include "../Markers/OneWayPortalProbe.h"
 #include "ExplorationBehavior.h"
 
 #include "../../../lib/CPlayerState.h"
@@ -353,7 +354,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",
 			path->targetHero->getNameTextID());
 		tasks.push_back(sptr(Composition()
-			.addNext(ExplorationPoint(entrance->visitablePos(), 1))
+			.addNext(OneWayPortalProbe(entrance->visitablePos()))
 			.addNext(ExecuteHeroChain(*path, entrance))));
 	}
 }

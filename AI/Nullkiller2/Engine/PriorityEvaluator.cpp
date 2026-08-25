@@ -36,6 +36,7 @@
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
+#include "../Markers/OneWayPortalProbe.h"
 
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
@@ -97,6 +98,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isArmyUpgrade(false),
 	isHero(false),
 	isEnemy(false),
+	isOneWayPortalProbe(false),
 	explorePriority(0),
 	powerRatio(0)
 {
@@ -907,6 +909,16 @@ public:
 	}
 };
 
+class OneWayPortalProbeEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType == Goals::ONE_WAY_PORTAL_PROBE)
+			evaluationContext.isOneWayPortalProbe = true;
+	}
+};
+
 class AdventureSpellCastEvaluator : public IEvaluationContextBuilder
 {
 public:
@@ -1364,6 +1376,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<AdventureSpellCastEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<OneWayPortalProbeEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(const Goals::TSubgoal & goal) const
@@ -1695,6 +1708,14 @@ float PriorityEvaluator::evaluate(
 				score *= evaluationContext.closestWayRatio;
 				score = evaluateMovement(score, evaluationContext.movementCost);
 
+				break;
+			}
+			case ONE_WAY_PORTAL_PROBE:
+			{
+				if(!evaluationContext.isOneWayPortalProbe)
+					return 0;
+
+				score = evaluateMovement(1.0f, evaluationContext.movementCost);
 				break;
 			}
 			case DEFEND: //Defend whatever if nothing else is to do

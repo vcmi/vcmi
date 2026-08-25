@@ -11,6 +11,8 @@
 
 #include "AIMemory.h"
 
+#include "../../../lib/json/JsonNode.h"
+
 namespace NK2AI
 {
 
@@ -143,7 +145,6 @@ std::optional<ObjectInstanceID> AIMemory::getOneWayPortalReservation(ObjectInsta
 void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInstanceID exit, ObjectInstanceID hero, int day)
 {
 	clearOneWayPortalReservation(entrance);
-	probedOneWayPortals.insert(entrance);
 	oneWayPortalLastTraversalDay[entrance] = day;
 	observedOneWayPortalExits[entrance].insert(exit);
 	oneWayPortalJourneys[hero] = {entrance, exit};
@@ -158,7 +159,7 @@ void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInst
 
 bool AIMemory::wasOneWayPortalProbed(ObjectInstanceID entrance) const
 {
-	return vstd::contains(probedOneWayPortals, entrance);
+	return vstd::contains(oneWayPortalLastTraversalDay, entrance);
 }
 
 bool AIMemory::wasOneWayPortalProbedToday(ObjectInstanceID entrance, int day) const
@@ -213,7 +214,6 @@ void AIMemory::removeOneWayPortalHero(ObjectInstanceID hero)
 void AIMemory::resetOneWayPortalState()
 {
 	oneWayPortalReservations.clear();
-	probedOneWayPortals.clear();
 	oneWayPortalLastTraversalDay.clear();
 	observedOneWayPortalExits.clear();
 	oneWayPortalJourneys.clear();
@@ -221,10 +221,93 @@ void AIMemory::resetOneWayPortalState()
 	oneWayPortalsWithKnownReturn.clear();
 }
 
+void AIMemory::loadOneWayPortalState(const JsonNode & source)
+{
+	resetOneWayPortalState();
+
+	// state written by another AI version may lack a field, which must not turn into the valid object ID 0
+	const auto readObjectId = [](const JsonNode & value) -> std::optional<ObjectInstanceID>
+	{
+		if(value.getType() != JsonNode::JsonType::DATA_INTEGER || value.Integer() < 0)
+			return std::nullopt;
+
+		return ObjectInstanceID(static_cast<int32_t>(value.Integer()));
+	};
+
+	const auto loadObjectSet = [&readObjectId](const JsonNode & values, auto & destination)
+	{
+		for(const auto & value : values.Vector())
+		{
+			if(const auto object = readObjectId(value))
+				destination.insert(*object);
+		}
+	};
+
+	loadObjectSet(source["returnEntrances"], oneWayPortalsWithKnownReturn);
+
+	for(const auto & value : source["lastTraversals"].Vector())
+	{
+		if(const auto entrance = readObjectId(value["entrance"]))
+			oneWayPortalLastTraversalDay[*entrance] = static_cast<int>(value["day"].Integer());
+	}
+
+	for(const auto & value : source["journeys"].Vector())
+	{
+		const auto hero = readObjectId(value["hero"]);
+		const auto entrance = readObjectId(value["entrance"]);
+		const auto exit = readObjectId(value["exit"]);
+		if(hero && entrance && exit)
+			oneWayPortalJourneys[*hero] = {*entrance, *exit};
+	}
+
+	for(const auto & value : source["unreturnedEntrances"].Vector())
+	{
+		if(const auto hero = readObjectId(value["hero"]))
+			loadObjectSet(value["entrances"], oneWayPortalUnreturnedEntrances[*hero]);
+	}
+}
+
+void AIMemory::saveOneWayPortalState(JsonNode & destination) const
+{
+	destination.clear();
+
+	const auto saveObjectSet = [](JsonNode & target, const auto & values)
+	{
+		for(const auto object : values)
+			target.Vector().emplace_back(object.getNum());
+	};
+
+	saveObjectSet(destination["returnEntrances"], oneWayPortalsWithKnownReturn);
+
+	for(const auto & [entrance, day] : oneWayPortalLastTraversalDay)
+	{
+		JsonNode value;
+		value["entrance"].Integer() = entrance.getNum();
+		value["day"].Integer() = day;
+		destination["lastTraversals"].Vector().push_back(std::move(value));
+	}
+
+	for(const auto & [hero, journey] : oneWayPortalJourneys)
+	{
+		JsonNode value;
+		value["hero"].Integer() = hero.getNum();
+		value["entrance"].Integer() = journey.first.getNum();
+		value["exit"].Integer() = journey.second.getNum();
+		destination["journeys"].Vector().push_back(std::move(value));
+	}
+
+	for(const auto & [hero, entrances] : oneWayPortalUnreturnedEntrances)
+	{
+		JsonNode value;
+		value["hero"].Integer() = hero.getNum();
+		saveObjectSet(value["entrances"], entrances);
+		destination["unreturnedEntrances"].Vector().push_back(std::move(value));
+	}
+}
+
 void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)
 {
 	oneWayPortalReservations.erase(object);
-	probedOneWayPortals.erase(object);
 	oneWayPortalLastTraversalDay.erase(object);
 	observedOneWayPortalExits.erase(object);
 	oneWayPortalsWithKnownReturn.erase(object);

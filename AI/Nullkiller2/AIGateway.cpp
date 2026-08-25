@@ -590,7 +590,16 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
+	nullkiller->memory->loadOneWayPortalState(
+		(*cc->getPlayerState(playerID)->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+}
+
+void AIGateway::saveOneWayPortalState()
+{
+	JsonNode localState = *cc->getPlayerState(playerID)->playerLocalSettings;
+	nullkiller->memory->saveOneWayPortalState(localState["nullkiller2"]["oneWayPortals"]);
+	cc->saveLocalState(localState);
 }
 
 void AIGateway::yourTurn(QuestionID questionID)
@@ -864,6 +873,7 @@ void AIGateway::makeTurn()
 
 		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
+		saveOneWayPortalState();
 		const auto timeElapsedMs = timeElapsed(start);
 		if(timeElapsedMs > 5000)
 			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);

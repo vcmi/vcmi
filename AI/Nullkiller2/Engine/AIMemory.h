@@ -12,6 +12,8 @@
 #include "../AIUtility.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+class JsonNode;
+
 namespace NK2AI
 {
 
@@ -19,7 +21,6 @@ class AIMemory
 {
 private:
 	std::map<ObjectInstanceID, ObjectInstanceID> oneWayPortalReservations;
-	std::set<ObjectInstanceID> probedOneWayPortals;
 	std::map<ObjectInstanceID, int> oneWayPortalLastTraversalDay;
 	std::map<ObjectInstanceID, std::set<ObjectInstanceID>> observedOneWayPortalExits;
 	std::map<ObjectInstanceID, std::pair<ObjectInstanceID, ObjectInstanceID>> oneWayPortalJourneys;
@@ -51,6 +52,8 @@ public:
 	void markOneWayPortalReturn(ObjectInstanceID hero);
 	void removeOneWayPortalHero(ObjectInstanceID hero);
 	void resetOneWayPortalState();
+	void loadOneWayPortalState(const JsonNode & source);
+	void saveOneWayPortalState(JsonNode & destination) const;
 	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
 	std::vector<const CGObjectInstance *> visitableIdsToObjsVector(const CCallback & cc) const;
 	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
