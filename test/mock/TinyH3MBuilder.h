@@ -107,6 +107,9 @@ public:
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
 
+	/// Override terrain for one tile. Tiles not specified here remain grass.
+	TinyH3MBuilder & terrain(const int3 & pos, TerrainId type);
+
 	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
 	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
 	TinyH3MBuilder & withScript(std::string lua) { mapScript = std::move(lua); return *this; }
@@ -353,6 +356,7 @@ private:
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
 
 	std::array<bool, 8> playerEnabled{};
+	std::map<int3, TerrainId> terrainOverrides;
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;
 	std::vector<ObjectSpec>                              objects;
 	uint32_t                                             nextWireIdentifier = 1;

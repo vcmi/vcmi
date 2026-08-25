@@ -187,6 +187,12 @@ TinyH3MBuilder & TinyH3MBuilder::difficulty(EMapDifficulty d)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::terrain(const int3 & pos, TerrainId type)
+{
+	terrainOverrides[pos] = type;
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::hotaVersion(uint32_t version)
 {
 	hotaFormatVersion = version;
@@ -906,16 +912,23 @@ void TinyH3MBuilder::writeTerrain(TinyH3MWriter & w) const
 	// wrong though it loads fine. Use view 0x31 (49) — a known plain-grass tile
 	// from H3's tileset. Real maps put pseudo-random view bytes here.
 	const int levels = twoLevel ? 2 : 1;
-	const size_t tiles = static_cast<size_t>(sideLength) * sideLength * levels;
-	for(size_t i = 0; i < tiles; ++i)
+	for(int z = 0; z < levels; ++z)
 	{
-		w.writeUInt8(2);    // terrain type = GRASS in H3M ordering
-		w.writeUInt8(0x31); // terView — plain-grass tile
-		w.writeUInt8(0);    // river type
-		w.writeUInt8(0);    // river dir
-		w.writeUInt8(0);    // road type
-		w.writeUInt8(0);    // road dir
-		w.writeUInt8(0);    // extTileFlags
+		for(int y = 0; y < sideLength; ++y)
+		{
+			for(int x = 0; x < sideLength; ++x)
+			{
+				const auto override = terrainOverrides.find(int3(x, y, z));
+				const TerrainId type = override == terrainOverrides.end() ? TerrainId::GRASS : override->second;
+				w.writeUInt8(static_cast<uint8_t>(type.getNum()));
+				w.writeUInt8(type == TerrainId::GRASS ? 0x31 : 0);
+				w.writeUInt8(0); // river type
+				w.writeUInt8(0); // river dir
+				w.writeUInt8(0); // road type
+				w.writeUInt8(0); // road dir
+				w.writeUInt8(0); // extTileFlags
+			}
+		}
 	}
 }
 

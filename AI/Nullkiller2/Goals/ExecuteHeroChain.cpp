@@ -256,11 +256,11 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
 						|| targetNode->accessible == EPathAccessibility::FLYABLE)
 					{
-						logAi->error(
-							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
+						logAi->debug(
+							"Replanning stale hero chain for %s: immediate destination %s is no longer reachable",
 							hero->getNameTextID(),
 							node->coord.toString());
-
+						aiGw->nullkiller->invalidatePathfinderData();
 						return;
 					}
 
@@ -273,38 +273,54 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
+						aiGw->nullkiller->invalidatePathfinderData();
 						return;
 					}
 				}
 
-				auto findWhirlpool = [&aiGw](const int3 & pos) -> ObjectInstanceID
-				{
-					auto objs = aiGw->cc->getVisitableObjs(pos);
-					auto whirlpool = std::find_if(objs.begin(), objs.end(), [](const CGObjectInstance * o)->bool
-						{
-							return o->ID == Obj::WHIRLPOOL;
-						});
-
-					return whirlpool != objs.end() ? dynamic_cast<const CGWhirlpool *>(*whirlpool)->id : ObjectInstanceID(-1);
-				};
-
-				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
-				auto targetWhirlpool = findWhirlpool(node->coord);
-
-				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
-				{
-					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
-					continue;
-				}
-
+				const int3 movementStart = hero->visitablePos();
 				if(hero->movementPointsRemaining())
 				{
 					try
 					{
-						if(moveHeroToTile(aiGw, hero, node->coord))
+						const auto movementResult = moveHeroToTile(aiGw, hero, node->coord);
+						if(movementResult == HeroMovementResult::COMPLETE)
 						{
+							if(!heroPtr.isVerified())
+								throw cannotFulfillGoalException("Hero was lost!");
+
+							if(node->coord != hero->visitablePos())
+							{
+								logAi->debug(
+									"Replanning hero chain for %s after interaction at %s moved him to %s",
+									hero->getNameTextID(),
+									node->coord.toString(),
+									hero->visitablePos().toString());
+								return;
+							}
+
 							continue;
 						}
+
+						if(movementResult == HeroMovementResult::PROGRESSED)
+						{
+							logAi->debug(
+								"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+								hero->getNameTextID(),
+								node->coord.toString(),
+								hero->visitablePos().toString(),
+								hero->movementPointsRemaining());
+
+							aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+							return;
+						}
+
+						logAi->debug(
+							"Replanning stale hero chain for %s: no current path to %s",
+							hero->getNameTextID(),
+							node->coord.toString());
+						aiGw->nullkiller->invalidatePathfinderData();
+						return;
 					}
 					catch(const cannotFulfillGoalException &)
 					{
@@ -315,27 +331,37 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							throw cannotFulfillGoalException("Hero was lost!");
 						}
 
-						if(hero->movementPointsRemaining() > 0)
-						{
-							CGPath path;
-							bool isOk = aiGw->nullkiller->getPathsInfo(hero)->getPath(path, node->coord);
-
-							if(isOk && path.nodes.front().turns > 0)
-							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTextID(), hero->movementPointsRemaining(), node->coord.toString());
-
-								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-								return;
-							}
-						}
-
 						throw;
 					}
+				}
+
+				if(hero->visitablePos() != movementStart)
+				{
+					logAi->debug(
+						"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+						hero->getNameTextID(),
+						node->coord.toString(),
+						hero->visitablePos().toString(),
+						hero->movementPointsRemaining());
+
+					aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+					return;
 				}
 			}
 
 			if(node->coord == hero->visitablePos())
 				continue;
+
+			if(node->turns == 0 && !hero->movementPointsRemaining())
+			{
+				logAi->debug(
+					"Pausing hero chain for %s: movement towards %s exhausted at %s",
+					hero->getNameTextID(),
+					node->coord.toString(),
+					hero->visitablePos().toString());
+				aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+				return;
+			}
 
 			if(node->turns == 0)
 			{
@@ -345,7 +371,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero chain did not reach its immediate destination.");
 			}
 			
 			// no exception means we were not able to reach the tile
@@ -373,13 +399,13 @@ std::string ExecuteHeroChain::toString() const
 #endif
 }
 
-bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
+HeroMovementResult ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
 {
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
 
-		return true;
+		return HeroMovementResult::COMPLETE;
 	}
 
 	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc.get()));
