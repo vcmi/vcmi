@@ -445,12 +445,81 @@ bool isBetterPortalPath(const AIPath & candidate, const AIPath & current)
 	return candidate.targetHero->getTotalStrength() < current.targetHero->getTotalStrength();
 }
 
+uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army)
+{
+	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->getArmyStrength());
+}
+
+bool isBetterPortalReinforcementPath(const AIPath & candidate, const AIPath & current)
+{
+	const uint64_t candidateStrength = getPortalHeroStrength(candidate.targetHero, candidate.heroArmy);
+	const uint64_t currentStrength = getPortalHeroStrength(current.targetHero, current.heroArmy);
+	if(candidateStrength != currentStrength)
+		return candidateStrength > currentStrength;
+
+	return isBetterPortalPath(candidate, current);
+}
+
+std::optional<uint64_t> getStrongestUnreturnedPortalHeroStrength(
+	const CGObjectInstance * entrance,
+	const Nullkiller * aiNk)
+{
+	std::optional<uint64_t> result;
+	for(const ObjectInstanceID heroId : aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id))
+	{
+		const auto * hero = aiNk->cc->getHero(heroId);
+		if(!hero)
+			continue;
+
+		const uint64_t strength = getPortalHeroStrength(hero, hero);
+		if(!result || strength > *result)
+			result = strength;
+	}
+	return result;
+}
+
+bool hasEnemyObjectiveIsolatedBehindPortal(
+	const CGObjectInstance * entrance,
+	const Nullkiller * aiNk)
+{
+	const auto unreturnedHeroes = aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id);
+	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	{
+		const auto * object = aiNk->cc->getObj(objectId, false);
+		if(!object
+			|| (object->ID != Obj::TOWN && object->ID != Obj::HERO)
+			|| !object->getOwner().isValidPlayer()
+			|| aiNk->cc->getPlayerRelations(aiNk->playerID, object->getOwner()) != PlayerRelations::ENEMIES
+			|| !aiNk->cc->isVisible(object->visitablePos()))
+		{
+			continue;
+		}
+
+		const auto paths = aiNk->pathfinder->getPathInfo(
+			object->visitablePos(),
+			aiNk->isObjectGraphAllowed());
+		const bool reachableWithoutExpedition = vstd::contains_if(paths, [&](const AIPath & path)
+		{
+			return path.targetHero
+				&& path.targetHero->getOwner() == aiNk->playerID
+				&& !vstd::contains(unreturnedHeroes, path.targetHero->id)
+				&& !path.getFirstBlockedAction();
+		});
+		if(!reachableWithoutExpedition)
+			return true;
+	}
+	return false;
+}
+
 std::optional<AIPath> findBestPortalPath(
 	const std::vector<AIPath> & paths,
 	const Nullkiller * aiNk,
 	const CGObjectInstance * entrance,
 	std::optional<HeroRole> requiredRole,
-	std::optional<ObjectInstanceID> requiredHero)
+	std::optional<ObjectInstanceID> requiredHero,
+	std::optional<std::pair<uint64_t, uint64_t>> guardFailure = std::nullopt,
+	std::optional<uint64_t> minimumStrength = std::nullopt,
+	bool preferStrongest = false)
 {
 	std::optional<AIPath> result;
 
@@ -535,7 +604,47 @@ std::optional<AIPath> findBestPortalPath(
 			continue;
 		}
 
-		if(!result || isBetterPortalPath(path, *result))
+		const uint64_t heroStrength = getPortalHeroStrength(hero, path.heroArmy);
+		if(minimumStrength && heroStrength <= *minimumStrength)
+		{
+			logAi->trace(
+				"One-way portal reinforcement candidate %s rejected: strength %lld does not exceed expedition strength %lld",
+				hero->getNameTextID(),
+				static_cast<long long>(heroStrength),
+				static_cast<long long>(*minimumStrength));
+			continue;
+		}
+
+		if(guardFailure)
+		{
+			if(heroStrength <= guardFailure->second)
+			{
+				logAi->trace(
+					"One-way portal retry candidate %s rejected: strength %lld does not exceed failed hero strength %lld",
+					hero->getNameTextID(),
+					static_cast<long long>(heroStrength),
+					static_cast<long long>(guardFailure->second));
+				continue;
+			}
+
+			if(!isSafeToVisit(
+				hero,
+				path.heroArmy,
+				guardFailure->first,
+				aiNk->settings->getSafeAttackRatio()))
+			{
+				logAi->trace(
+					"One-way portal retry candidate %s rejected: remembered exit guard danger %lld is unsafe",
+					hero->getNameTextID(),
+					static_cast<long long>(guardFailure->first));
+				continue;
+			}
+		}
+
+		if(!result
+			|| (preferStrongest
+				? isBetterPortalReinforcementPath(path, *result)
+				: isBetterPortalPath(path, *result)))
 			result = path;
 	}
 
@@ -557,7 +666,9 @@ const CGObjectInstance * getVisibleEntranceGuard(
 
 std::optional<AIPath> findPortalProbePath(
 	const CGObjectInstance * entrance,
-	const Nullkiller * aiNk)
+	const Nullkiller * aiNk,
+	std::optional<std::pair<uint64_t, uint64_t>> guardFailure,
+	std::optional<uint64_t> minimumStrength)
 {
 	const auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
@@ -584,8 +695,18 @@ std::optional<AIPath> findPortalProbePath(
 			return std::nullopt;
 		}
 
-		if(auto reservedPath = findBestPortalPath(paths, aiNk, entrance, std::nullopt, reservation))
+		if(auto reservedPath = findBestPortalPath(
+			paths,
+			aiNk,
+			entrance,
+			std::nullopt,
+			reservation,
+			guardFailure,
+			minimumStrength,
+			minimumStrength.has_value()))
+		{
 			return reservedPath;
+		}
 
 		logAi->debug(
 			"Clearing stale one-way portal %d reservation for hero %d",
@@ -594,10 +715,21 @@ std::optional<AIPath> findPortalProbePath(
 		aiNk->memory->clearOneWayPortalReservation(entrance->id);
 	}
 
-	if(auto scoutPath = findBestPortalPath(paths, aiNk, entrance, HeroRole::SCOUT, std::nullopt))
-		return scoutPath;
+	if(!guardFailure && !minimumStrength)
+	{
+		if(auto scoutPath = findBestPortalPath(paths, aiNk, entrance, HeroRole::SCOUT, std::nullopt))
+			return scoutPath;
+	}
 
-	return findBestPortalPath(paths, aiNk, entrance, HeroRole::MAIN, std::nullopt);
+	return findBestPortalPath(
+		paths,
+		aiNk,
+		entrance,
+		HeroRole::MAIN,
+		std::nullopt,
+		guardFailure,
+		minimumStrength,
+		minimumStrength.has_value());
 }
 
 std::optional<AIPath> findEntranceGuardPath(
@@ -699,17 +831,34 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			continue;
 		}
 
-		if(aiNk->memory->wasOneWayPortalProbed(entrance->id)
-			&& !aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
+		if(aiNk->memory->hasActiveOneWayPortalJourney(entrance->id)
 			&& !desperation)
 		{
 			logAi->debug(
-				"Suppressing repeated traffic through one-way portal %d: no return route is known",
+				"Suppressing repeated traffic through one-way portal %d: an expedition is still active",
 				entrance->id.getNum());
 			continue;
 		}
 
-		const auto path = findPortalProbePath(entrance, aiNk);
+		const auto guardFailure = aiNk->memory->getOneWayPortalGuardFailure(entrance->id);
+		std::optional<uint64_t> reinforcementStrength;
+
+		if(aiNk->memory->wasOneWayPortalProbed(entrance->id)
+			&& !aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
+			&& !guardFailure
+			&& !desperation)
+		{
+			reinforcementStrength = getStrongestUnreturnedPortalHeroStrength(entrance, aiNk);
+			if(!reinforcementStrength || !hasEnemyObjectiveIsolatedBehindPortal(entrance, aiNk))
+			{
+				logAi->debug(
+					"Suppressing repeated traffic through one-way portal %d: no return route is known",
+					entrance->id.getNum());
+				continue;
+			}
+		}
+
+		const auto path = findPortalProbePath(entrance, aiNk, guardFailure, reinforcementStrength);
 		if(!path)
 		{
 			logAi->trace(
@@ -722,7 +871,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		const bool desperationProbe = isPortalDesperationHero(path->targetHero, entrance, aiNk);
 		logAi->info(
 			"One-way portal intent: %s entrance %d channel %d with %s hero %s",
-			desperationProbe ? "desperation" : "probe",
+			desperationProbe ? "desperation" : reinforcementStrength ? "reinforce" : "probe",
 			entrance->id.getNum(),
 			teleport ? teleport->channel.getNum() : -1,
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",

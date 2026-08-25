@@ -12,6 +12,7 @@
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/Behaviors/ExplorationBehavior.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include "AI/Nullkiller2/Goals/ExecuteHeroChain.h"
 #include "AI/Nullkiller2/Pathfinding/AIPathfinder.h"
 
 #include "mock/TinyH3MBuilder.h"
@@ -61,7 +62,6 @@ public:
 			*gameState->getPlayerState(localState->player)->playerLocalSettings = localState->data;
 			return ++requestID;
 		}
-
 		const auto * movement = dynamic_cast<const MoveHero *>(&request);
 		if(!movement)
 			return ++requestID;
@@ -202,6 +202,19 @@ TinyH3M::TinyH3MBuilder makeOneWayPortalBarrierMap()
 				builder.terrain({x, y, 0}, TerrainId::WATER);
 		}
 	}
+
+	return builder;
+}
+
+TinyH3M::TinyH3MBuilder makeIsolatedEnemyPortalMap()
+{
+	auto builder = makeOneWayPortalMap({500, 1});
+	builder
+		.playerActive(ENEMY)
+		.randomTown({30, 24, 0}, ENEMY);
+
+	for(int y = 0; y < 36; ++y)
+		builder.terrain({20, y, 0}, TerrainId::WATER);
 
 	return builder;
 }
@@ -442,6 +455,20 @@ public:
 		gameState->apply(move);
 		gateway->heroMoved(move, false);
 		ASSERT_EQ(hero.visitablePos(), exit.visitablePos());
+	}
+
+	void moveHero(CGHeroInstance & hero, const int3 & destination)
+	{
+		TryMoveHero move;
+		move.id = hero.id;
+		move.result = TryMoveHero::SUCCESS;
+		move.start = hero.pos;
+		move.end = hero.convertFromVisitablePos(destination);
+		move.movePoints = hero.movementPointsRemaining();
+
+		gameState->apply(move);
+		gateway->heroMoved(move, false);
+		ASSERT_EQ(hero.visitablePos(), destination);
 	}
 
 	void finishTurn()
@@ -867,6 +894,135 @@ TEST_F(OneWayPortalBehaviorTest, CompletedProbeWithoutReturnDoesNotScheduleSecon
 		<< "a completed probe without a return route must suppress additional scouts";
 }
 
+TEST_F(OneWayPortalBehaviorTest, StrongerMainReinforcesCompletedLandingForIsolatedEnemy)
+{
+	startWithMap(makeIsolatedEnemyPortalMap());
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+
+	const auto heroes = heroesByStrength();
+	ASSERT_EQ(heroes.size(), 2);
+	auto * main = heroes.front();
+	auto * scout = heroes.back();
+	teleportHero(*scout, *entrance, *exit);
+	advanceDay();
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
+		<< "a hero still resolving the portal landing must suppress another expedition";
+
+	moveHero(*scout, exit->visitablePos() + int3(1, 0, 0));
+	const auto reinforcements = portalTasks(decomposePortalBehavior(), *entrance);
+	ASSERT_EQ(reinforcements.size(), 1)
+		<< "an isolated enemy objective must allow one stronger main-force follow-up";
+	EXPECT_TRUE(reinforcements.front()->asTask()->isObjectAffected(main->id));
+	EXPECT_FALSE(reinforcements.front()->asTask()->isObjectAffected(scout->id));
+
+	teleportHero(*main, *entrance, *exit);
+	moveHero(*main, exit->visitablePos() + int3(0, 1, 0));
+	advanceDay();
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
+		<< "an expedition at the strongest available force must not cause portal flooding";
+}
+
+TEST_F(OneWayPortalBehaviorTest, FailedExitGuardAllowsStrongerMainRetry)
+{
+	startWithMap(makeOneWayPortalMap({500, 1, 1}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+
+	const auto heroes = heroesByStrength();
+	auto * failedScout = heroes.back();
+	teleportHero(*failedScout, *entrance, *exit);
+	getGateway().nullkiller->memory->recordOneWayPortalGuardFailure(
+		entrance->id,
+		1,
+		failedScout->getTotalStrength());
+	getGateway().nullkiller->memory->removeOneWayPortalHero(failedScout->id);
+	advanceDay();
+
+	const auto retries = portalTasks(decomposePortalBehavior(), *entrance);
+	ASSERT_EQ(retries.size(), 1)
+		<< "losing the exit fight must not permanently suppress a safe main-force retry";
+	EXPECT_TRUE(retries.front()->asTask()->isObjectAffected(heroes.front()->id));
+	EXPECT_FALSE(retries.front()->asTask()->isObjectAffected(heroes[1]->id));
+	EXPECT_FALSE(retries.front()->asTask()->isObjectAffected(failedScout->id));
+}
+
+TEST_F(OneWayPortalBehaviorTest, FailedExitGuardRejectsUnsafeRetry)
+{
+	startWithMap(makeOneWayPortalMap({100, 1}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+
+	auto * failedScout = heroesByStrength().back();
+	teleportHero(*failedScout, *entrance, *exit);
+	getGateway().nullkiller->memory->recordOneWayPortalGuardFailure(
+		entrance->id,
+		std::numeric_limits<uint64_t>::max() / 2,
+		failedScout->getTotalStrength());
+	getGateway().nullkiller->memory->removeOneWayPortalHero(failedScout->id);
+	advanceDay();
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
+		<< "a failed probe must not feed another hero to an overwhelmingly strong exit guard";
+}
+
+TEST(OneWayPortalMemoryTest, GuardFailureRoundTripsAndLegacyStateDefaultsSafely)
+{
+	const ObjectInstanceID entrance(17);
+	NK2AI::AIMemory saved;
+	saved.recordOneWayPortalGuardFailure(entrance, 12345, 6789);
+
+	JsonNode serialized;
+	saved.saveOneWayPortalState(serialized);
+	NK2AI::AIMemory loaded;
+	loaded.loadOneWayPortalState(serialized);
+	EXPECT_EQ(
+		loaded.getOneWayPortalGuardFailure(entrance),
+		std::make_optional(std::pair<uint64_t, uint64_t>(12345, 6789)));
+
+	JsonNode legacy;
+	legacy["probedEntrances"].Vector().emplace_back(entrance.getNum());
+	loaded.loadOneWayPortalState(legacy);
+	EXPECT_TRUE(loaded.wasOneWayPortalProbed(entrance));
+	EXPECT_FALSE(loaded.getOneWayPortalGuardFailure(entrance).has_value());
+}
+
+TEST(OneWayPortalMemoryTest, CompletedLandingKeepsSerializedNoReturnHistory)
+{
+	const ObjectInstanceID entrance(17);
+	const ObjectInstanceID exit(18);
+	const ObjectInstanceID hero(19);
+	NK2AI::AIMemory saved;
+	saved.recordOneWayPortalTraversal(entrance, exit, hero, 3);
+	ASSERT_TRUE(saved.hasActiveOneWayPortalJourney(entrance));
+	ASSERT_TRUE(saved.completeOneWayPortalJourney(hero));
+	EXPECT_FALSE(saved.hasActiveOneWayPortalJourney(entrance));
+	EXPECT_EQ(saved.getUnreturnedOneWayPortalHeroes(entrance), std::vector{hero});
+
+	JsonNode serialized;
+	saved.saveOneWayPortalState(serialized);
+	NK2AI::AIMemory loaded;
+	loaded.loadOneWayPortalState(serialized);
+	EXPECT_FALSE(loaded.hasActiveOneWayPortalJourney(entrance));
+	EXPECT_EQ(loaded.getUnreturnedOneWayPortalHeroes(entrance), std::vector{hero});
+}
+
 TEST_F(OneWayPortalBehaviorTest, ReloadedProbeWithoutReturnDoesNotScheduleSecondScout)
 {
 	startWithMap(makeOneWayPortalMap({500, 1, 1}));
@@ -883,8 +1039,13 @@ TEST_F(OneWayPortalBehaviorTest, ReloadedProbeWithoutReturnDoesNotScheduleSecond
 	finishTurn();
 	advanceDay();
 	restartGateway();
+	setTileVisible(exit->visitablePos(), false);
+	getGateway().tileHidden({exit->visitablePos()});
+	getClient().connectPortal(entrance->visitablePos(), exit->visitablePos());
 
-	EXPECT_TRUE(portalTasks(decomposePreparedPortalBehavior(), *entrance).empty())
+	getGateway().nullkiller->makeTurn();
+
+	EXPECT_FALSE(getClient().requested(entrance->visitablePos()))
 		<< "loading a save after a probe must not send another scout through the same portal";
 }
 
@@ -901,8 +1062,13 @@ TEST_F(OneWayPortalBehaviorTest, LegacySaveWithHeroBesideExitDoesNotScheduleSeco
 	auto * scout = heroesByStrength().back();
 	moveToVisitable(*scout, exit->visitablePos() + int3(0, 1, 0));
 	restartGateway();
+	setTileVisible(exit->visitablePos(), false);
+	getGateway().tileHidden({exit->visitablePos()});
+	getClient().connectPortal(entrance->visitablePos(), exit->visitablePos());
 
-	EXPECT_TRUE(portalTasks(decomposePreparedPortalBehavior(), *entrance).empty())
+	getGateway().nullkiller->makeTurn();
+
+	EXPECT_FALSE(getClient().requested(entrance->visitablePos()))
 		<< "loading an older save with a scout beside the exit must not send another scout";
 }
 

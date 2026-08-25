@@ -128,7 +128,34 @@ void AttackOneWayPortalGuard::accept(AIGateway * aiGw)
 		hero->getNameTextID(),
 		objid);
 
-	if(aiGw->moveHeroToTile(tile, heroPtr) != HeroMovementResult::COMPLETE)
+	const uint64_t guardDanger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(currentGuard);
+	const uint64_t heroStrength = static_cast<uint64_t>(
+		getNormalizedHeroStrength(hero) * hero->getArmyStrength());
+	auto recordFailureIfHeroWasLost = [&]()
+	{
+		if(heroPtr.isVerified(false))
+			return;
+
+		aiGw->nullkiller->memory->recordOneWayPortalGuardFailure(
+			journey->first,
+			guardDanger,
+			heroStrength);
+		aiGw->oneWayPortalStateDirty = true;
+	};
+
+	HeroMovementResult movementResult = HeroMovementResult::BLOCKED;
+	try
+	{
+		movementResult = aiGw->moveHeroToTile(tile, heroPtr);
+	}
+	catch(...)
+	{
+		recordFailureIfHeroWasLost();
+		throw;
+	}
+
+	recordFailureIfHeroWasLost();
+	if(movementResult != HeroMovementResult::COMPLETE)
 		throw cannotFulfillGoalException("Unable to attack the one-way portal exit guard this turn.");
 }
 
