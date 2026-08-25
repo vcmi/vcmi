@@ -132,6 +132,9 @@ public:
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
 	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);
 
+	/// Append a standalone shipyard owned by `owner`.
+	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
+
 	// ---- heroes --------------------------------------------------------
 
 	/// Place a fixed hero of the given type. All optional fields (name, experience,

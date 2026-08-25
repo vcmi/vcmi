@@ -100,7 +100,8 @@ TSubgoal ExplorationHelper::makeComposition() const
 
 bool shouldExploreNeighbourAfterExplorationGoal(Goals::EGoals goalType)
 {
-	return goalType != Goals::ADVENTURE_SPELL_CAST;
+	// A spell cast or an unmet route prerequisite has to return to the planner first
+	return goalType == Goals::EXECUTE_HERO_CHAIN;
 }
 
 DimensionDoorExplorationEvaluation evaluateDimensionDoorExplorationCandidate(
