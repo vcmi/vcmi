@@ -203,7 +203,7 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, reportsUnreachableLivePa
 	const auto callback = makeCallback(PLAYER);
 	const auto gateway = makeGateway(callback);
 
-	EXPECT_THROW(
+	EXPECT_EQ(
 		gateway->moveHeroToTile(unreachableTile, NK2AI::HeroPtr(hero, callback.get())),
-		NK2AI::cannotFulfillGoalException);
+		NK2AI::HeroMovementResult::BLOCKED);
 }

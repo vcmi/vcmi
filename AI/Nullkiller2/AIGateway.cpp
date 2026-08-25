@@ -1083,7 +1083,7 @@ bool AIGateway::canSwapGarrisonHero(const CGTownInstance * town) const
 	return town->getVisitingHero() || cc->getHeroCount(playerID, false) < cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 }
 
-bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
+HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
 	// a reply sent earlier, e.g. to a level-up, may open another question on the server,
 	// which would reject the movement
@@ -1136,8 +1136,8 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		nullkiller->getPathsInfo(heroPtr.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTextID(), dst.toString());
-			throw cannotFulfillGoalException("Hero cannot reach target tile.");
+			logAi->debug("Hero %s has no current path to %s.", heroPtr->getNameTextID(), dst.toString());
+			return HeroMovementResult::BLOCKED;
 		}
 		int i = (int)path.nodes.size() - 1;
 
@@ -1262,7 +1262,9 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			if(nextNode.turns)
 			{
 				//blockedHeroes.insert(h); //to avoid attempts of moving heroes with very little MPs
-				return false;
+				return startHpos == heroPtr->visitablePos()
+					? HeroMovementResult::BLOCKED
+					: HeroMovementResult::PROGRESSED;
 			}
 
 			if(nextCoord == heroPtr->visitablePos())
@@ -1314,14 +1316,14 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 	{
 		ret = ret || (dst == heroPtr->visitablePos());
 
-		if(startHpos == heroPtr->visitablePos() && !ret) //we didn't move and didn't reach the target
-		{
-			throw cannotFulfillGoalException("Invalid path found!");
-		}
-
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", heroPtr->getNameTextID(), startHpos.toString(), heroPtr->visitablePos().toString(), ret);
 	}
-	return ret;
+
+	if(ret)
+		return HeroMovementResult::COMPLETE;
+	if(heroPtr.isVerified() && startHpos != heroPtr->visitablePos())
+		return HeroMovementResult::PROGRESSED;
+	return HeroMovementResult::BLOCKED;
 }
 
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
