@@ -158,6 +158,8 @@ bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) con
 			return cb->getPlayerState(contextHero->getOwner())->visitedObjects.count(ObjectInstanceID(id)) != 0;
 		case Rewardable::VISIT_PLAYER_GLOBAL:
 			return cb->getPlayerState(contextHero->getOwner())->visitedObjectsGlobal.count({ID, subID}) != 0;
+		case Rewardable::VISIT_TEAM_GLOBAL:
+			return wasVisited(contextHero->getOwner());
 		case Rewardable::VISIT_BONUS:
 			return contextHero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID));
 		case Rewardable::VISIT_HERO:
@@ -187,6 +189,10 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 			return cb->getPlayerState(player)->visitedObjects.count(ObjectInstanceID(id)) != 0;
 		case Rewardable::VISIT_PLAYER_GLOBAL:
 			return cb->getPlayerState(player)->visitedObjectsGlobal.count({ID, subID}) != 0;
+		case Rewardable::VISIT_TEAM_GLOBAL:
+			for(PlayerColor teamPlayer : cb->getPlayerTeam(player)->players)
+				if(cb->getPlayerState(teamPlayer)->visitedObjectsGlobal.count({ID, subID}) != 0) return true;
+			return false;
 		default:
 			return false;
 	}
@@ -194,19 +200,12 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 
 bool CRewardableObject::wasScouted(PlayerColor player) const
 {
-	if(wasObjectTypeVisitedByTeam(player)) return true;
-	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
-}
+	const auto visitMode = configuration.getVisitMode();
+	const bool globalVisit = visitMode == Rewardable::VISIT_PLAYER_GLOBAL || visitMode == Rewardable::VISIT_TEAM_GLOBAL;
+	if(globalVisit && wasVisited(player))
+		return true;
 
-bool CRewardableObject::wasObjectTypeVisitedByTeam(PlayerColor player) const
-{
-	if(configuration.getVisitMode() != Rewardable::VISIT_PLAYER_GLOBAL) return false;
-	return std::ranges::any_of(
-		cb->getPlayerTeam(player)->players,
-		[this](PlayerColor teamMember)
-		{
-			return wasVisited(teamMember);
-		});
+	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
 }
 
 bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
@@ -253,7 +252,7 @@ MetaString CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHer
 	}
 	else
 	{
-		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE || configuration.visitMode == Rewardable::VISIT_PLAYER_GLOBAL)
+		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE || configuration.visitMode == Rewardable::VISIT_PLAYER_GLOBAL || configuration.visitMode == Rewardable::VISIT_TEAM_GLOBAL)
 			appendOnNewLine(wasVisited(player) ? configuration.visitedTooltip : configuration.notVisitedTooltip);
 	}
 	return result;
