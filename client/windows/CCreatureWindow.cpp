@@ -708,11 +708,14 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), ComponentType::EXPERIENCE);
 			expArea = area;
-			area->text = LIBRARY->generaltexth->allTexts[2];
+			MetaString expText;
+			expText.appendTextID("core.genrltxt.2");
+			expText.replaceNumber(commander->getExpRank());
+			expText.replaceNumber(LIBRARY->heroh->reqExp(commander->getExpRank() + 1));
+			expText.replaceNumber(commander->getAverageExperience());
+
+			area->text = expText.toString(&GAME->translator());
 			area->component.value = commander->getExpRank();
-			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
-			boost::replace_first(area->text, "%d", std::to_string(LIBRARY->heroh->reqExp(commander->getExpRank() + 1)));
-			boost::replace_first(area->text, "%d", std::to_string(commander->getAverageExperience()));
 		}
 		else
 		{

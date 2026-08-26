@@ -351,19 +351,26 @@ std::string InfoBoxHeroData::getHoverText()
 	switch (type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return boost::str(boost::format(LIBRARY->generaltexth->heroscrn[1]) % LIBRARY->generaltexth->primarySkillNames[index]);
+	{
+		MetaString hoverText;
+		hoverText.appendTextID("core.heroscrn.1");
+		hoverText.replaceTextID(TextIdentifier("core.priskill", index).get());
+		return hoverText.toString(&GAME->translator());
+	}
 	case HERO_MANA:
-		return LIBRARY->generaltexth->heroscrn[22];
+		return GAME->translator().translate("core.heroscrn.22");
 	case HERO_EXPERIENCE:
-		return LIBRARY->generaltexth->heroscrn[9];
+		return GAME->translator().translate("core.heroscrn.9");
 	case HERO_SPECIAL:
-		return LIBRARY->generaltexth->heroscrn[27];
+		return GAME->translator().translate("core.heroscrn.27");
 	case HERO_SECONDARY_SKILL:
 		if (hero->secSkills.size() > index)
 		{
-			std::string level = LIBRARY->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = hero->secSkills[index].first.toEntity(LIBRARY)->getNameTranslated();
-			return boost::str(boost::format(LIBRARY->generaltexth->heroscrn[21]) % level % skill);
+			MetaString hoverText;
+			hoverText.appendTextID("core.heroscrn.21");
+			hoverText.replaceTextID(TextIdentifier("core.skilllev", hero->secSkills[index].second - 1).get());
+			hoverText.replaceName(hero->secSkills[index].first);
+			return hoverText.toString(&GAME->translator());
 		}
 		else
 		{
@@ -396,17 +403,25 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	switch(type)
 	{
 	case HERO_MANA:
-		text = LIBRARY->generaltexth->allTexts[205];
-		boost::replace_first(text, "%s", GAME->translator().translate(hero->getNameTextID()));
-		boost::replace_first(text, "%d", std::to_string(hero->mana));
-		boost::replace_first(text, "%d", std::to_string(hero->manaLimit()));
+	{
+		MetaString message;
+		message.appendTextID("core.genrltxt.205");
+		message.replaceTextID(hero->getNameTextID());
+		message.replaceNumber(hero->mana);
+		message.replaceNumber(hero->manaLimit());
+		text = message.toString(&GAME->translator());
 		break;
+	}
 	case HERO_EXPERIENCE:
-		text = LIBRARY->generaltexth->allTexts[2];
-		boost::replace_first(text, "%d", std::to_string(hero->level));
-		boost::replace_first(text, "%d", std::to_string(LIBRARY->heroh->reqExp(hero->level+1)));
-		boost::replace_first(text, "%d", std::to_string(hero->exp));
+	{
+		MetaString message;
+		message.appendTextID("core.genrltxt.2");
+		message.replaceNumber(hero->level);
+		message.replaceNumber(LIBRARY->heroh->reqExp(hero->level + 1));
+		message.replaceNumber(hero->exp);
+		text = message.toString(&GAME->translator());
 		break;
+	}
 	default:
 		InfoBoxAbstractHeroData::prepareMessage(text, comp);
 		break;

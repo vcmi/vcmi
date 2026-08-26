@@ -295,11 +295,12 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
-			std::string msg = LIBRARY->generaltexth->allTexts[13];
-			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
+			MetaString msg;
+			msg.appendTextID("core.genrltxt.13");
+			msg.replaceRawString(cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
-			showInfoDialog(msg, cmp);
+			showInfoDialog(msg.toString(&GAME->translator()), cmp);
 		}
 		else
 		{
@@ -1596,12 +1597,13 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
 			adventureInt->onCurrentPlayerChanged(playerID);
-			std::string msg = LIBRARY->generaltexth->translate("vcmi.adventureMap.playerAttacked");
-			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
+			MetaString msg;
+			msg.appendTextID("vcmi.adventureMap.playerAttacked");
+			msg.replaceRawString(cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			makingTurn = true; //workaround for stiff showInfoDialog implementation
-			showInfoDialog(msg, cmp);
+			showInfoDialog(msg.toString(&GAME->translator()), cmp);
 			waitWhileDialog();
 			makingTurn = false;
 		}

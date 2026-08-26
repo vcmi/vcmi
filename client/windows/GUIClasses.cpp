@@ -542,17 +542,26 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % GAME->translator().translate(hero->getNameTextID())));
+	MetaString mainTitleText;
+	mainTitleText.appendTextID("core.genrltxt.444");
+	mainTitleText.replaceTextID(hero->getNameTextID());
+
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, mainTitleText.toString(&GAME->translator()));
 
 	//%s is now a level %d %s.
-	std::string levelTitleText = LIBRARY->generaltexth->translate("core.genrltxt.445");
-	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getNameTextID()));
-	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getClassNameTextID()));
+	MetaString levelTitleText;
+	levelTitleText.appendTextID("core.genrltxt.445");
+	levelTitleText.replaceTextID(hero->getNameTextID());
+	levelTitleText.replaceNumber(hero->level);
+	levelTitleText.replaceTextID(hero->getClassNameTextID());
 
-	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
+	MetaString skillValueText;
+	skillValueText.appendTextID(TextIdentifier("core.priskill", pskill.getNum()).get());
+	skillValueText.appendRawString(" +1");
+
+	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText.toString(&GAME->translator()));
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, skillValueText.toString(&GAME->translator()));
 }
 
 void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
@@ -1232,11 +1241,12 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	OBJECT_CONSTRUCTION;
 
 	int goldNeeded = GAME->interface()->cb->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
-	std::string text = LIBRARY->generaltexth->allTexts[608];
-	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
-
-	boost::replace_first(text, "%d", std::to_string(goldNeeded));
+	MetaString speechText;
+	speechText.appendTextID("core.genrltxt.608");
+	speechText.replaceTextID("core.skilllev.0");
+	speechText.replaceName(SKILL);
+	speechText.replaceNumber(goldNeeded);
+	std::string text = speechText.toString(&GAME->translator());
 
 	const int centerX = pos.w / 2;
 	const int speechFrameWidth = 414;
@@ -1256,13 +1266,22 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	costIcon->center(Point(pos.x + centerX, pos.y + 234));
 	cost = std::make_shared<CLabel>(centerX, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(goldNeeded));
 
-	std::string hoverText = LIBRARY->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", LIBRARY->generaltexth->levels[0]+ " " + SKILL.toEntity(LIBRARY)->getNameTranslated());
+	MetaString skillName;
+	skillName.appendTextID("core.skilllev.0");
+	skillName.appendRawString(" ");
+	skillName.appendTextID(SKILL.toEntity(LIBRARY)->getNameTextID());
 
-	text = LIBRARY->generaltexth->zelp[633].second;
-	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
-	boost::replace_first(text, "%d", std::to_string(goldNeeded));
+	MetaString hoverTextMessage;
+	hoverTextMessage.appendTextID("core.genrltxt.609");
+	hoverTextMessage.replaceRawString(skillName.toString(&GAME->translator()));
+	std::string hoverText = hoverTextMessage.toString(&GAME->translator());
+
+	MetaString helpText;
+	helpText.appendTextID("core.help.633.help");
+	helpText.replaceTextID("core.skilllev.0");
+	helpText.replaceName(SKILL);
+	helpText.replaceNumber(goldNeeded);
+	text = helpText.toString(&GAME->translator());
 
 	confirm = std::make_shared<CButton>(Point(centerX - 84, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [this, SKILL](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
 	confirm->block(!available);

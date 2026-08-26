@@ -305,17 +305,19 @@ void CHeroWindow::updateArtifacts()
 	manastr << curHero->mana << '/' << curHero->manaLimit();
 	manaValue->setText(manastr.str());
 
-	//printing experience - original format does not support ui64
-	expArea->text = LIBRARY->generaltexth->allTexts[2];
-	boost::replace_first(expArea->text, "%d", std::to_string(curHero->level));
-	boost::replace_first(expArea->text, "%d", std::to_string(LIBRARY->heroh->reqExp(curHero->level+1)));
-	boost::replace_first(expArea->text, "%d", std::to_string(curHero->exp));
+	MetaString expText;
+	expText.appendTextID("core.genrltxt.2");
+	expText.replaceNumber(curHero->level);
+	expText.replaceNumber(LIBRARY->heroh->reqExp(curHero->level + 1));
+	expText.replaceNumber(curHero->exp);
+	expArea->text = expText.toString(&GAME->translator());
 
-	//printing spell points, boost::format can't be used due to locale issues
-	spellPointsArea->text = LIBRARY->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", GAME->translator().translate(curHero->getNameTextID()));
-	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->mana));
-	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->manaLimit()));
+	MetaString spellPointsText;
+	spellPointsText.appendTextID("core.genrltxt.205");
+	spellPointsText.replaceTextID(curHero->getNameTextID());
+	spellPointsText.replaceNumber(curHero->mana);
+	spellPointsText.replaceNumber(curHero->manaLimit());
+	spellPointsArea->text = spellPointsText.toString(&GAME->translator());
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
