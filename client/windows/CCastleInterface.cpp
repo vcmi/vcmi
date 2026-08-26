@@ -538,12 +538,12 @@ void CHeroGSlot::hover(bool on)
 	{
 		if(isSelected())//view NNN
 		{
-			temp = LIBRARY->generaltexth->tcommands[4];
+			temp = LIBRARY->generaltexth->translate("core.tcommand.4");
 			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 		}
 		else if(other->hero && other->isSelected())//exchange
 		{
-			temp = LIBRARY->generaltexth->tcommands[7];
+			temp = LIBRARY->generaltexth->translate("core.tcommand.7");
 			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
 		}
@@ -551,12 +551,12 @@ void CHeroGSlot::hover(bool on)
 		{
 			if(upg)//down - visiting
 			{
-				temp = LIBRARY->generaltexth->tcommands[32];
+				temp = LIBRARY->generaltexth->translate("core.tcommand.32");
 				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 			}
 			else //up - garrison
 			{
-				temp = LIBRARY->generaltexth->tcommands[12];
+				temp = LIBRARY->generaltexth->translate("core.tcommand.12");
 				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
 			}
 		}
@@ -565,7 +565,7 @@ void CHeroGSlot::hover(bool on)
 	{
 		if(other->isSelected() && other->hero) //move NNNN
 		{
-			temp = LIBRARY->generaltexth->tcommands[6];
+			temp = LIBRARY->generaltexth->translate("core.tcommand.6");
 			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
 		}
 		else //empty
@@ -1030,7 +1030,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
 						if (town->creatures[town->getTown()->creatures.size()].second.empty())//No creatures
-							GAME->interface()->showInfoDialog(LIBRARY->generaltexth->tcommands[30]);
+							GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("core.tcommand.30"));
 						else
 							enterDwelling(town->getTown()->creatures.size());
 						return true;
@@ -1126,7 +1126,7 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 	}
 
 	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building.getNum());//will be deleted by selection window
-	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40], LIBRARY->generaltexth->jktexts[41], [availableTowns](int index){
+	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->translate("core.jktext.40"), LIBRARY->generaltexth->translate("core.jktext.41"), [availableTowns](int index){
 		GAME->interface()->castleInt->castleTeleport(availableTowns[index]);
 	}, 0, images);
 	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(GAME->interface()->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
@@ -1536,10 +1536,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), 0, 0, 15, 387);
 
-	exit = std::make_shared<CButton>(Point(744, 544), AnimationPath::builtin("TSBTNS"), CButton::tooltip(LIBRARY->generaltexth->tcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(744, 544), AnimationPath::builtin("TSBTNS"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.8")), [&](){close();}, EShortcut::GLOBAL_RETURN);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3]), [this]() { garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
+	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3")), [this]() { garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
@@ -1885,7 +1885,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	{
 		std::string toPrint;
 		if(state==EBuildingState::PREREQUIRES || state == EBuildingState::MISSING_BASE)
-			toPrint = LIBRARY->generaltexth->hcommands[5];
+			toPrint = LIBRARY->generaltexth->translate("core.hallinfo.5");
 		else if(state==EBuildingState::CANT_BUILD_TODAY)
 			toPrint = LIBRARY->generaltexth->allTexts[223];
 		else
@@ -1923,7 +1923,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->getTown()->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(LIBRARY->generaltexth->hcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.hallinfo.8")), [&](){close();}, EShortcut::GLOBAL_RETURN);
 
 	auto & boxList = town->getTown()->clientInfo.hallSlots;
 	boxes.resize(boxList.size());
@@ -2132,7 +2132,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	const auto & fortBuilding = town->getTown()->buildings.at(BuildingID(town->fortLevel()+6));
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
-	std::string text = boost::str(boost::format(LIBRARY->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
+	std::string text = boost::str(boost::format(LIBRARY->generaltexth->translate("core.castinfo.6")) % fortBuilding->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	std::vector<Point> positions =
@@ -2236,22 +2236,22 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 
 	if(getMyCreature() != nullptr)
 	{
-		hoverText = boost::str(boost::format(LIBRARY->generaltexth->tcommands[21]) % getMyCreature()->getNamePluralTranslated());
+		hoverText = boost::str(boost::format(LIBRARY->generaltexth->translate("core.tcommand.21")) % getMyCreature()->getNamePluralTranslated());
 		new CCreaturePic(159, 4, getMyCreature(), false);
 		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->getNamePluralTranslated(), 152);
 
 		Rect sizes(287, 4, 96, 18);
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[190], LIBRARY->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[190], LIBRARY->generaltexth->translate("core.castinfo.0"), getMyCreature()->getAttack(false)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[191], LIBRARY->generaltexth->fcommands[1], getMyCreature()->getDefense(false)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[191], LIBRARY->generaltexth->translate("core.castinfo.1"), getMyCreature()->getDefense(false)));
 		sizes.y+=21;
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[199], LIBRARY->generaltexth->fcommands[2], getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[199], LIBRARY->generaltexth->translate("core.castinfo.2"), getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[388], LIBRARY->generaltexth->fcommands[3], getMyCreature()->getMaxHealth()));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[388], LIBRARY->generaltexth->translate("core.castinfo.3"), getMyCreature()->getMaxHealth()));
 		sizes.y+=21;
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[193], LIBRARY->generaltexth->fcommands[4], getMyCreature()->valOfBonuses(BonusType::STACKS_SPEED)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[193], LIBRARY->generaltexth->translate("core.castinfo.4"), getMyCreature()->valOfBonuses(BonusType::STACKS_SPEED)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[194], LIBRARY->generaltexth->fcommands[5], town->creatureGrowth(level)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, LIBRARY->generaltexth->allTexts[194], LIBRARY->generaltexth->translate("core.castinfo.5"), town->creatureGrowth(level)));
 	}
 }
 
@@ -2512,7 +2512,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, ArtifactID aid, ArtifactID e
 	std::string costString = std::to_string(aid.toEntity(LIBRARY)->getPrice());
 
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleString.toString(&GAME->translator()));
-	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[43]);
+	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.jktext.43"));
 	costValue = std::make_shared<CLabel>(165, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, costString);
 	buy = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30.DEF"), CButton::tooltip(buyText.toString(&GAME->translator())), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	cancel = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(cancelText.toString(&GAME->translator())), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);

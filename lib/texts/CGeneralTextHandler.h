@@ -61,16 +61,9 @@ public:
 	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
 	//towns
-	LegacyTextContainer tcommands; //texts for town screen,
 	LegacyTextContainer hcommands; // town hall screen
-	LegacyTextContainer fcommands; // fort screen
-	LegacyTextContainer tavernInfo;
 
 	LegacyHelpContainer zelp;
-
-	//objects
-	LegacyTextContainer advobtxt;
-	LegacyTextContainer restypes; //names of resources
 
 	//sec skills
 	LegacyTextContainer levels;

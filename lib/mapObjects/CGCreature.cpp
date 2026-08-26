@@ -197,7 +197,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
-			std::string tmp = LIBRARY->generaltexth->advobtxt[90];
+			std::string tmp = LIBRARY->generaltexth->translate("core.advevent.90");
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getJoiningAmount()));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());

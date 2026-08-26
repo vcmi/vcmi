@@ -622,7 +622,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 
 	if (morale && node && node->unaffectedByMorale())
 	{
-		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
+		text += LIBRARY->generaltexth->translate("core.arraytxt.113"); //unaffected by morale
 		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))

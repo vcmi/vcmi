@@ -690,17 +690,17 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0], [this]() { if(!recruit->isBlocked()) recruitb(); });
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1], [this]() { if(!recruit->isBlocked()) recruitb(); });
 
-	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[37]);
+	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.37"));
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
 	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[38]);
+	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.38"));
 
 	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj, &GAME->translator()), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
+	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tvrninfo.7")), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
 	recruit = std::make_shared<CButton>(Point(272, 355), AnimationPath::builtin("TPTAV01.DEF"), CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
-	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
+	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tvrninfo.5")), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
 	if(!GAME->interface()->makingTurn)
 	{
@@ -708,7 +708,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
-		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[0]); //Cannot afford a Hero
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->translate("core.tvrninfo.0")); //Cannot afford a Hero
 		recruit->block(true);
 	}
 	else if(GAME->interface()->cb->howManyHeroes(true) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
@@ -732,7 +732,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->getVisitingHero())
 	{
-		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->translate("core.tvrninfo.2")); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
 	}
 	else
@@ -874,7 +874,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->translate("core.tvrninfo.3")) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
 
 		}
 
@@ -918,7 +918,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 
 	if(H)
 	{
-		hoverName = LIBRARY->generaltexth->tavernInfo[4];
+		hoverName = LIBRARY->generaltexth->translate("core.tvrninfo.4");
 		boost::algorithm::replace_first(hoverName,"%s",GAME->translator().translate(H->getNameTextID()));
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
@@ -993,8 +993,8 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[13]);
-	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[14]);
+	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.13"));
+	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.jktext.14"));
 }
 
 void CTransformerWindow::CItem::move()
@@ -1154,7 +1154,7 @@ void CUniversityWindow::CItem::update()
 
 	// needs to be on top of background bars
 	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(LIBRARY)->getNameTranslated());
-	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[0]);
+	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.skilllev.0"));
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
@@ -1260,7 +1260,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	name = std::make_shared<CLabel>(centerX, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, SKILL.toEntity(LIBRARY)->getNameTranslated());
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), SKILL.getNum()*3+3);
 	icon->center(Point(pos.x + centerX, pos.y + 71));
-	level = std::make_shared<CLabel>(centerX, 105, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[1]);
+	level = std::make_shared<CLabel>(centerX, 105, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.skilllev.1"));
 
 	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD));
 	costIcon->center(Point(pos.x + centerX, pos.y + 234));
@@ -1304,7 +1304,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	garr->showMoveUnitsOnHover = true;
 	{
-		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3], ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
+		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3"), ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
 		garr->addSplitBtn(split);
 	}
 	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.garrison.leave"), ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
@@ -1724,7 +1724,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		std::string text;
 		if(it.second == EAiTactic::NONE)
 		{
-			text = LIBRARY->generaltexth->arraytxt[172];
+			text = LIBRARY->generaltexth->translate("core.arraytxt.172");
 		}
 		else if(it.second != EAiTactic::RANDOM)
 		{

@@ -578,8 +578,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	statNames =
 	{
-		LIBRARY->generaltexth->primarySkillNames[0], //ATTACK
-		LIBRARY->generaltexth->primarySkillNames[1],//DEFENCE
+		LIBRARY->generaltexth->translate("core.priskill.0"), //ATTACK
+		LIBRARY->generaltexth->translate("core.priskill.1"),//DEFENCE
 		LIBRARY->generaltexth->allTexts[198],//SHOTS
 		LIBRARY->generaltexth->allTexts[199],//DAMAGE
 

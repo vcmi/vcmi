@@ -144,7 +144,7 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	case HERO_EXPERIENCE:
 		return TextOperations::formatMetric(getValue(), 6);
 	case HERO_SPECIAL:
-		return LIBRARY->generaltexth->jktexts[5];
+		return LIBRARY->generaltexth->translate("core.jktext.5");
 	case HERO_SECONDARY_SKILL:
 		{
 			si64 value = getValue();
@@ -168,7 +168,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	case HERO_MANA:
 		return LIBRARY->generaltexth->allTexts[387];
 	case HERO_EXPERIENCE:
-		return LIBRARY->generaltexth->jktexts[6];
+		return LIBRARY->generaltexth->translate("core.jktext.6");
 	case HERO_SPECIAL:
 		return LIBRARY->heroh->objects[getSubID()]->getSpecialtyNameTranslated();
 	case HERO_SECONDARY_SKILL:
@@ -709,11 +709,11 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	//Main control buttons
-	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(LIBRARY->generaltexth->overview[11], LIBRARY->generaltexth->overview[6]),
+	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.overview.11"), LIBRARY->generaltexth->translate("core.overview.6")),
 		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES_TAB);
 	btnHeroes->block(true);
 
-	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), AnimationPath::builtin("OVBUTN6.DEF"), CButton::tooltip(LIBRARY->generaltexth->overview[12], LIBRARY->generaltexth->overview[7]),
+	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), AnimationPath::builtin("OVBUTN6.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.overview.12"), LIBRARY->generaltexth->translate("core.overview.7")),
 		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS_TAB);
 
 	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(LIBRARY->generaltexth->allTexts[600]),
@@ -775,8 +775,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onC
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
 	title->setPlayerColor(GAME->interface()->playerID);
-	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[0]);
-	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[1]);
+	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.0"));
+	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.1"));
 
 	ui32 townCount = GAME->interface()->cb->howManyHeroes(false);
 	ui32 size = OVERVIEW_SIZE*116 + 19;
@@ -820,9 +820,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
 	title->setPlayerColor(GAME->interface()->playerID);
-	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[3]);
-	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[4]);
-	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[5]);
+	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.3"));
+	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.4"));
+	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.5"));
 
 	ui32 townCount = GAME->interface()->cb->howManyTowns();
 	ui32 size = OVERVIEW_SIZE*116 + 19;
@@ -1063,7 +1063,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	heroArea->addRClickCallback([this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, GAME->translator().translate(hero->getNameTextID()));
-	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[2]);
+	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.overview.2"));
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 	{

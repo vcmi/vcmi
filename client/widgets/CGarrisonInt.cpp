@@ -58,17 +58,17 @@ void CGarrisonSlot::hover (bool on)
 			{
 				if(owner->getSelection() == this)
 				{
-					temp = LIBRARY->generaltexth->tcommands[4]; //View %s
+					temp = LIBRARY->generaltexth->translate("core.tcommand.4"); //View %s
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature == creature)
 				{
-					temp = LIBRARY->generaltexth->tcommands[2]; //Combine %s armies
+					temp = LIBRARY->generaltexth->translate("core.tcommand.2"); //Combine %s armies
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
 				else if (owner->getSelection()->creature)
 				{
-					temp = LIBRARY->generaltexth->tcommands[7]; //Exchange %s with %s
+					temp = LIBRARY->generaltexth->translate("core.tcommand.7"); //Exchange %s with %s
 					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 				}
@@ -92,7 +92,7 @@ void CGarrisonSlot::hover (bool on)
 				}
 				else if(owner->showMoveUnitsOnHover)
 				{
-					temp = LIBRARY->generaltexth->tcommands[6]; //Move %s
+					temp = LIBRARY->generaltexth->translate("core.tcommand.6"); //Move %s
 				}
 				else if(isHeroOnMap)
 				{
@@ -100,11 +100,11 @@ void CGarrisonSlot::hover (bool on)
 				}
 				else if(upg == EGarrisonType::UPPER)
 				{
-					temp = LIBRARY->generaltexth->tcommands[12]; //Select %s (in garrison)
+					temp = LIBRARY->generaltexth->translate("core.tcommand.12"); //Select %s (in garrison)
 				}
 				else // Hero is visiting some object (town, mine, etc)
 				{
-					temp = LIBRARY->generaltexth->tcommands[32]; //Select %s (visiting)
+					temp = LIBRARY->generaltexth->translate("core.tcommand.32"); //Select %s (visiting)
 				}
 				boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
 			}
@@ -119,17 +119,17 @@ void CGarrisonSlot::hover (bool on)
 				  && owner->getSelection()->upg != upg	//we're moving it to the other garrison
 				  )
 				{
-					temp = LIBRARY->generaltexth->tcommands[5]; //Cannot move last army to garrison
+					temp = LIBRARY->generaltexth->translate("core.tcommand.5"); //Cannot move last army to garrison
 				}
 				else
 				{
-					temp = LIBRARY->generaltexth->tcommands[6]; //Move %s
+					temp = LIBRARY->generaltexth->translate("core.tcommand.6"); //Move %s
 					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
 				}
 			}
 			else
 			{
-				temp = LIBRARY->generaltexth->tcommands[11]; //Empty
+				temp = LIBRARY->generaltexth->translate("core.tcommand.11"); //Empty
 			}
 		}
 		ENGINE->statusbar()->write(temp);

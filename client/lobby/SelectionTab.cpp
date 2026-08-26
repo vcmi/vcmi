@@ -263,16 +263,16 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[229] + "}";
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.229") + "}";
 		tabTitleDelete = "{red|" + LIBRARY->generaltexth->translate("vcmi.lobby.deleteMapTitle") + "}";
 		break;
 	case ESelectionScreen::loadGame:
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[230] + "}";
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.230") + "}";
 		tabTitleDelete = "{red|" + LIBRARY->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::saveGame:
 		positionsToShow = enableUiEnhancements ? 15 : 16;
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[231] + "}";
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.231") + "}";
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = "{" + LIBRARY->generaltexth->allTexts[726] + "}";

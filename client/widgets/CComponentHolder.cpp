@@ -223,7 +223,7 @@ void CArtPlace::lockSlot(bool on)
 	else
 	{
 		image->setFrame(imageIndex);
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->translate("core.heroscrn.1"));
 		hoverText.replaceName(artId);
 		this->hoverText = hoverText.toString(&GAME->translator());
 	}
@@ -320,7 +320,7 @@ void CSecSkillPlace::setLevel(const uint8_t level)
 		const auto secSkill = skillId.toSkill();
 		image->setFrame(secSkill->getIconIndex(level - 1));
 		image->enable();
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[21]);
+		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->translate("core.heroscrn.21"));
 		hoverText.replaceRawString(LIBRARY->generaltexth->levels[level - 1]);
 		hoverText.replaceTextID(secSkill->getNameTextID());
 		this->hoverText = hoverText.toString(&GAME->translator());

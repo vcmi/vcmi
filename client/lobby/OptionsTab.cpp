@@ -1066,7 +1066,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
-	std::string labelHandicapText = hasHandicap() ? LIBRARY->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString(&GAME->translator());
+	std::string labelHandicapText = hasHandicap() ? LIBRARY->generaltexth->translate("core.arraytxt.210") : MetaString::createFromTextID("vcmi.lobby.handicap").toString(&GAME->translator());
 	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(55, 23, 46, 24), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
 	handicap = std::make_shared<LRClickableArea>(Rect(53, 23, 50, 24), [](){
 		if(!GAME->server().isHost())

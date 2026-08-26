@@ -73,7 +73,6 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(ENGINE->isRoeData() ? "HeroScr3" : "HeroScr4"))
 {
-	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 
 	OBJECT_CONSTRUCTION;
 	curHero = hero;
@@ -84,27 +83,27 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 559, 660, 19), 7, 559));
 
-	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.17")), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [this](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
 		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
-		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.28")), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
 	{
-		dismissLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		questlogLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		dismissLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->translate("core.jktext.8"), Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		questlogLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->translate("core.jktext.9"), Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.28")), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 	questlogButton->block(!GAME->interface()->hasJournalEntries());
 
 	formations = std::make_shared<CToggleGroup>(0);
-	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
-	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
+	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.23"), LIBRARY->generaltexth->translate("core.heroscrn.29")), 0, EShortcut::HERO_TIGHT_FORMATION));
+	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.24"), LIBRARY->generaltexth->translate("core.heroscrn.30")), 0, EShortcut::HERO_LOOSE_FORMATION));
 
 	if(hero->getCommander())
 	{
@@ -150,13 +149,13 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 5, 0, 242, 111));
 
 	specImage = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), 0, 0, 18, 180);
-	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), LIBRARY->generaltexth->heroscrn[27]);
+	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.27"));
 	specName = std::make_shared<CLabel>(69, 205);
 
-	expArea = std::make_shared<LRClickableAreaWText>(Rect(18, 228, 136, 42), LIBRARY->generaltexth->heroscrn[9]);
+	expArea = std::make_shared<LRClickableAreaWText>(Rect(18, 228, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.9"));
 	morale = std::make_shared<MoraleLuckBox>(true, Rect(175, 179, 53, 45));
 	luck = std::make_shared<MoraleLuckBox>(false, Rect(233, 179, 53, 45));
-	spellPointsArea = std::make_shared<LRClickableAreaWText>(Rect(162,228, 136, 42), LIBRARY->generaltexth->heroscrn[22]);
+	spellPointsArea = std::make_shared<LRClickableAreaWText>(Rect(162,228, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.22"));
 
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
@@ -185,14 +184,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	}
 
 	// various texts
-	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[1]));
-	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[2]));
-	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[3]));
-	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[4]));
+	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.1")));
+	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.2")));
+	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.3")));
+	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.4")));
 
-	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[5]));
-	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[6]));
-	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[7]));
+	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.5")));
+	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.6")));
+	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.7")));
 
 	addUsedEvents(KEYBOARD);
 	CHeroWindow::updateArtifacts();
@@ -211,7 +210,6 @@ void CHeroWindow::updateArtifacts()
 	OBJECT_CONSTRUCTION;
 
 	CWindowWithArtifacts::updateArtifacts();
-	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
 
 	name->setText(GAME->translator().translate(curHero->getNameTextID()));
@@ -225,8 +223,8 @@ void CHeroWindow::updateArtifacts()
 	specImage->setFrame(curHero->getHeroType()->imageIndex);
 	specName->setText(curHero->getHeroType()->getSpecialtyNameTranslated());
 
-	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
-	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->heroscrn[25]);
+	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.26"), LIBRARY->generaltexth->translate("core.heroscrn.31")), 0, EShortcut::HERO_TOGGLE_TACTICS);
+	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->translate("core.heroscrn.25"));
 	tacticsButton->setSelectedSilent(curHero->tacticFormationEnabled);
 
 	MetaString dismissText;
@@ -243,7 +241,7 @@ void CHeroWindow::updateArtifacts()
 		if(!garr)
 		{
 			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
-			std::string helpBox = heroscrn[32];
+			std::string helpBox = LIBRARY->generaltexth->translate("core.heroscrn.32");
 			boost::algorithm::replace_first(helpBox, "%s", LIBRARY->generaltexth->allTexts[43]);
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero, nullptr, removableTroops);
