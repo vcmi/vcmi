@@ -458,6 +458,12 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 			return object;
 	}
 
+	for(const auto & object : objects)
+	{
+		if(object && object->ID == type && object->anchorPos() == pos)
+			return object.get();
+	}
+
 	logGlobal->error("Failed to find object of type %d at %s", type.getNum(), pos.toString());
 	return nullptr;
 }
@@ -502,15 +508,8 @@ void CMap::checkForObjectives()
 				case EventCondition::CONTROL_CURRENT:
 					if(isInTheMap(cond.position))
 					{
-						for(const auto & objID : getTile(cond.position).visitableObjects)
-						{
-							const auto * object = getObject(objID);
-							if(object->ID == cond.objectType.as<MapObjectID>())
-							{
-								cond.objectID = object->id;
-								break;
-							}
-						}
+						if(const auto * object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>()))
+							cond.objectID = object->id;
 					}
 
 					if(cond.objectID != ObjectInstanceID::NONE)
