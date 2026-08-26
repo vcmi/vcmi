@@ -132,7 +132,10 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(30 + 70 * v, 109, 42, 64), ComponentType::PRIM_SKILL);
 		area->text = LIBRARY->generaltexth->arraytxt[2+v];
 		area->component.subType = PrimarySkill(v);
-		area->hoverText = boost::str(boost::format(LIBRARY->generaltexth->heroscrn[1]) % LIBRARY->generaltexth->primarySkillNames[v]);
+		MetaString hoverText;
+		hoverText.appendTextID("core.heroscrn.1");
+		hoverText.replaceTextID(TextIdentifier("core.priskill", v).get());
+		area->hoverText = hoverText.toString(&GAME->translator());
 		primSkillAreas.push_back(area);
 
 		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, ETextAlignment::CENTER);
@@ -212,7 +215,11 @@ void CHeroWindow::updateArtifacts()
 	assert(curHero);
 
 	name->setText(GAME->translator().translate(curHero->getNameTextID()));
-	title->setText((boost::format(LIBRARY->generaltexth->allTexts[342]) % curHero->level % GAME->translator().translate(curHero->getClassNameTextID())).str());
+	MetaString titleText;
+	titleText.appendTextID("core.genrltxt.342");
+	titleText.replaceNumber(curHero->level);
+	titleText.replaceTextID(curHero->getClassNameTextID());
+	title->setText(titleText.toString(&GAME->translator()));
 
 	specArea->text = curHero->getHeroType()->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->getHeroType()->imageIndex);
@@ -222,8 +229,13 @@ void CHeroWindow::updateArtifacts()
 	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->heroscrn[25]);
 	tacticsButton->setSelectedSilent(curHero->tacticFormationEnabled);
 
-	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->heroscrn[16]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID())));
-	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID()));
+	MetaString dismissText;
+	dismissText.appendTextID("core.heroscrn.16");
+	dismissText.replaceTextID(curHero->getNameTextID());
+	dismissText.replaceTextID(curHero->getClassNameTextID());
+
+	dismissButton->addHoverText(EButtonState::NORMAL, dismissText.toString(&GAME->translator()));
+	portraitArea->hoverText = curHero->getObjectName().toString(&GAME->translator());
 	portraitArea->text = GAME->translator().translate(curHero->getBiographyTextID());
 	portraitImage->setFrame(curHero->getIconIndex());
 
