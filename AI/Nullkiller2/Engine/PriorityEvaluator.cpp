@@ -39,6 +39,7 @@
 #include "../../../lib/spells/adventure/DimensionDoorEffect.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
+#include "../Goals/PrepareFreeSlotForCreatureReward.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 #include "../Markers/OneWayPortalProbe.h"
@@ -105,6 +106,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isEnemy(false),
 	isOneWayPortalProbe(false),
 	unusableCreatureBankReward(false),
+	preparesForCreatureBankReward(false),
 	explorePriority(0),
 	powerRatio(0)
 {
@@ -920,6 +922,27 @@ public:
 	}
 };
 
+class PrepareFreeSlotForCreatureRewardEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::PREPARE_FREE_SLOT_FOR_CREATURE_REWARD)
+			return;
+
+		const auto & preparation = dynamic_cast<Goals::PrepareFreeSlotForCreatureReward &>(*task);
+		const auto & path = preparation.getPath();
+		const auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
+		const auto armyStrength = std::max<uint64_t>(1, path.heroArmy->estimateCombatValue());
+		const auto armyLossRatio = static_cast<float>(path.getTotalArmyLoss()) / armyStrength;
+		vstd::amax(evaluationContext.armyLossRatio, armyLossRatio);
+		evaluationContext.movementCost += path.movementCost();
+		evaluationContext.movementCostByRole.at(static_cast<size_t>(heroRole)) += path.movementCost();
+		vstd::amax(evaluationContext.turn, path.turn());
+		evaluationContext.preparesForCreatureBankReward = true;
+	}
+};
+
 class ArmyUpgradeEvaluator : public IEvaluationContextBuilder
 {
 public:
@@ -1220,7 +1243,7 @@ public:
 				const auto objectInfo = target->getObjectHandler()->getObjectInfo();
 				evaluationContext.unusableCreatureBankReward |= objectInfo
 					&& rewards.creatureReward.state == CreatureRewardValueInfo::State::UNUSABLE
-					&& objectInfo->givesOnlyCreatures();
+					&& objectInfo->givesCreatures();
 			}
 
 			evaluationContext.goldReward += rewards.goldReward;
@@ -1481,6 +1504,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<PrepareFreeSlotForCreatureRewardEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
@@ -1573,7 +1597,8 @@ float PriorityEvaluator::evaluate(
 	if(task->goalType == Goals::ATTACK_ONE_WAY_PORTAL_GUARD)
 		return priorityTier == PriorityTier::ESCAPE ? 1.0f : 0.0f;
 
-	if(evaluationContext.unusableCreatureBankReward)
+	// hero will not improve army (7 strong stacks already) and no nearby hero that could take a stack to free a slot
+	if(evaluationContext.unusableCreatureBankReward && !evaluationContext.preparesForCreatureBankReward)
 		return 0;
 
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();

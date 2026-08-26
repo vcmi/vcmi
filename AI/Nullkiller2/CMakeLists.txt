@@ -43,6 +43,7 @@ set(Nullkiller2_SRCS
 		Goals/StayAtTown.cpp
 		Goals/ExploreNeighbourTile.cpp
 		Goals/AttackOneWayPortalGuard.cpp
+		Goals/PrepareFreeSlotForCreatureReward.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
@@ -122,6 +123,7 @@ set(Nullkiller2_HEADERS
 		Goals/StayAtTown.h
 		Goals/ExploreNeighbourTile.h
 		Goals/AttackOneWayPortalGuard.h
+		Goals/PrepareFreeSlotForCreatureReward.h
 		Helpers/DimensionDoorUtils.h
 		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
