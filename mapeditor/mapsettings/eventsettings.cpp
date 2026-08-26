@@ -16,6 +16,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../translator.h"
 
 QString toQString(const PlayerColor & player)
 {
@@ -84,7 +85,7 @@ QVariant toVariant(const CMapEvent & event)
 {
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
-	result["message"] = QString::fromStdString(event.message.toString());
+	result["message"] = QString::fromStdString(event.message.toString(&Translator::instance()));
 	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);

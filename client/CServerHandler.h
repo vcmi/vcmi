@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "Translator.h"
+
 #include "../lib/CStopWatch.h"
 
 #include "../lib/network/NetworkInterface.h"
@@ -107,6 +109,14 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GameplayReplayer> gameplayReplayer;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
+
+	/// Texts of the map and campaign being set up. Rebuilt on every lobby update, since each one
+	/// replaces the lobby state, and texts of the map that is gone must stop shadowing the new one
+	std::vector<TranslatorOverlay> lobbyTextOverlays;
+	/// Texts of the running game, dropped when it ends
+	std::vector<TranslatorOverlay> gameplayTextOverlays;
+
+	void installLobbyTexts();
 
 	std::thread threadNetwork;
 

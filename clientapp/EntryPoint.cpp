@@ -96,7 +96,7 @@ static void checkForModLoadingFailure()
 			messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
 			messageText.appendEOL();
 		}
-		CInfoWindow::showInfoDialog(messageText.toString(), {});
+		CInfoWindow::showInfoDialog(messageText.toString(&GAME->translator()), {});
 	}
 }
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include "../texts/MetaString.h"
 
 class CGTownInstance;
 class CHeroClass;
@@ -28,7 +29,7 @@ struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 struct DLL_LINKAGE InfoAboutArmy
 {
 	PlayerColor owner;
-	std::string name;
+	MetaString name;
 
 	ArmyDescriptor army;
 

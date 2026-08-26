@@ -15,6 +15,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGCreature.h"
+#include "../translator.h"
 
 //parses date for lose condition (1m 1w 1d)
 int expiredDate(const QString & date)
@@ -92,7 +93,7 @@ std::string AbstractSettings::getTownName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto town = dynamic_cast<const CGTownInstance*>(map.objects.at(objectIdx).get()))
 	{
-		name = town->getNameTranslated();
+		name = Translator::instance().translate(town->getNameTextID());
 		
 		if(name.empty())
 			name = town->getTown()->faction->getNameTranslated();
@@ -105,7 +106,7 @@ std::string AbstractSettings::getHeroName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto hero = dynamic_cast<const CGHeroInstance*>(map.objects.at(objectIdx).get()))
 	{
-		name = hero->getNameTranslated();
+		name = Translator::instance().translate(hero->getNameTextID());
 	}
 	else if(auto placeholder = dynamic_cast<const CGHeroPlaceholder*>(map.objects.at(objectIdx).get()))
 	{
@@ -125,7 +126,7 @@ std::string AbstractSettings::getMonsterName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto monster = dynamic_cast<const CGCreature*>(map.objects.at(objectIdx).get()))
 	{
-		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->anchorPos().toString());
+		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName().toString(&Translator::instance()) % monster->anchorPos().toString());
 	}
 	return name;
 }

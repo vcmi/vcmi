@@ -741,5 +741,5 @@ void ScreenHandler::screenShot() const
 	txt.appendTextID("vcmi.client.screenShot");
 	txt.replaceRawString(filePath.string());
 	if(GAME->interface())
-		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
+		GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
 }

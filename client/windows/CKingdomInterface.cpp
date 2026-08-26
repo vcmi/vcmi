@@ -397,7 +397,7 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	{
 	case HERO_MANA:
 		text = LIBRARY->generaltexth->allTexts[205];
-		boost::replace_first(text, "%s", hero->getNameTranslated());
+		boost::replace_first(text, "%s", GAME->translator().translate(hero->getNameTextID()));
 		boost::replace_first(text, "%d", std::to_string(hero->mana));
 		boost::replace_first(text, "%d", std::to_string(hero->manaLimit()));
 		break;
@@ -521,7 +521,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				OwnedObjectInfo & info = visibleObjects[object->subID];
 				if(info.count++ == 0)
 				{
-					info.hoverText = object->getObjectName();
+					info.hoverText = object->getObjectName().toString(&GAME->translator());
 					info.imagePath = kingdomOverviewImage;
 					info.imageID = 0;
 				}
@@ -531,7 +531,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				OwnedObjectInfo & info = visibleObjects[object->subID];
 				if(info.count++ == 0)
 				{
-					info.hoverText = object->getObjectName();
+					info.hoverText = object->getObjectName().toString(&GAME->translator());
 					info.imageID = object->subID;
 				}
 			}
@@ -544,7 +544,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo & info = visibleObjects[iter->second];
 			if(info.count++ == 0)
 			{
-				info.hoverText = object->getObjectName();
+				info.hoverText = object->getObjectName().toString(&GAME->translator());
 				info.imageID = iter->second;
 			}
 		}
@@ -861,7 +861,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 {
 	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 6);
-	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
+	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, GAME->translator().translate(town->getNameTextID()));
 
 	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[EGameResID::GOLD]));
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
@@ -990,7 +990,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	arts2->recActions = SHARE_POS;
 	backpack->recActions = SHARE_POS;
 
-	name = std::make_shared<CLabel>(75, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
+	name = std::make_shared<CLabel>(75, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, GAME->translator().translate(hero->getNameTextID()));
 
 	//layout is not trivial: MACH4 - catapult - excluded, MISC[x] rearranged
 	assert(arts1->arts.size() == 9);
@@ -1047,7 +1047,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
 	heroArea->addRClickCallback([this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 
-	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
+	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, GAME->translator().translate(hero->getNameTextID()));
 	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[2]);
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)

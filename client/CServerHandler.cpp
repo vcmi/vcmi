@@ -159,6 +159,8 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
 	mapToStart = nullptr;
+	// si is replaced below - texts of the previous lobby must not shadow those of the next one
+	lobbyTextOverlays.clear();
 	hotseatMode = false;
 	battleMode = false;
 	th = std::make_unique<CStopWatch>();
@@ -639,7 +641,7 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 		message.appendRawString("\n");
 		message.appendTextID("vcmi.lobby.system.reason");
 		message.replaceRawString(e.what());
-		showServerError(message.toString());
+		showServerError(message.toString(&GAME->translator()));
 		return false;
 	}
 
@@ -671,6 +673,16 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
+void CServerHandler::installLobbyTexts()
+{
+	lobbyTextOverlays.clear();
+
+	if(mi && mi->mapHeader)
+		lobbyTextOverlays.emplace_back(mi->mapHeader->texts);
+	if(si && si->campState)
+		lobbyTextOverlays.emplace_back(si->campState->getTexts());
+}
+
 void CServerHandler::enableLagCompensation(bool on)
 {
 	if (on)
@@ -683,6 +695,17 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
+
+	// map and campaign texts are inert data - the client is what makes them resolvable.
+	// Campaign overlays of earlier scenarios stay installed, so heroes transferred from
+	// them keep their names in later scenarios
+	gameplayTextOverlays.emplace_back(gameState->getMap().texts);
+	if(si->campState)
+	{
+		gameplayTextOverlays.emplace_back(si->campState->getTexts());
+		for(const auto & scenarioTexts : si->campState->getScenarioTexts())
+			gameplayTextOverlays.emplace_back(scenarioTexts.second);
+	}
 
 	gameplayReplayer = std::make_unique<GameplayReplayer>();
 
@@ -754,6 +777,9 @@ void CServerHandler::endGameplay()
 
 		gameplayReplayer.reset();
 	}
+
+	// nothing renders this map's texts any more, and the next game must not see them
+	gameplayTextOverlays.clear();
 
 	client->endNetwork();
 	client->finishGameplay();
@@ -841,7 +867,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	param.campaignName = cs->getNameTranslated();
+	param.campaignName = cs->getNameTranslated(&GAME->translator());
 	cs->highscoreParameters.push_back(param);
 	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
 	campaignScoreCalculator->isCampaign = true;
@@ -849,8 +875,12 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 
 	endGameplay();
 
+	// the game just took its campaign texts down with it, but the epilogue still has to render
+	// them - this keeps them up until the transition hands over to the next lobby
+	auto campaignTexts = std::make_shared<TranslatorOverlay>(ourCampaign->getTexts());
+
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [ourCampaign, campaignScoreCalculator, statistic]()
+	auto finisher = [ourCampaign, campaignScoreCalculator, statistic, campaignTexts]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{

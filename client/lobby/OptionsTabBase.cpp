@@ -362,7 +362,7 @@ void OptionsTabBase::recreate(bool campaign)
 		MetaString message;
 		message.appendTextID(Languages::getPluralFormTextID( LIBRARY->generaltexth->getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
-		return message.toString();
+		return message.toString(&GAME->translator());
 	};
 
 	//Simultaneous turns

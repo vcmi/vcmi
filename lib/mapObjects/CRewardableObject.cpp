@@ -202,86 +202,82 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 	}
 }
 
-std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const
+MetaString CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const
 {
-	std::string result = getObjectName();
+	MetaString result = getObjectName();
+
+	auto appendOnNewLine = [&result](const MetaString & text)
+	{
+		result.appendEOL();
+		result.append(text);
+	};
 
 	if (includeDescription)
 	{
 		if (!getDescriptionMessage(player, hero).empty())
-			result += "\n" + getDescriptionMessage(player, hero);
+			appendOnNewLine(getDescriptionMessage(player, hero));
 	}
 	else
 	{
 		// scouted version is included unconditionally into hover text (e.g. Shrines - "learn X spell")
 		if (!getScoutedDescriptionMessage(hero).empty())
-			result += "\n" + getDescriptionMessage(player, hero);
+			appendOnNewLine(getDescriptionMessage(player, hero));
 	}
 
 	if (hero)
 	{
 		if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
-		{
-			if (wasVisited(hero))
-				result += "\n" + configuration.visitedTooltip.toString();
-			else
-				result += "\n" + configuration.notVisitedTooltip.toString();
-		}
+			appendOnNewLine(wasVisited(hero) ? configuration.visitedTooltip : configuration.notVisitedTooltip);
 	}
 	else
 	{
 		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE || configuration.visitMode == Rewardable::VISIT_PLAYER_GLOBAL)
-		{
-			if (wasVisited(player))
-				result += "\n" + configuration.visitedTooltip.toString();
-			else
-				result += "\n" + configuration.notVisitedTooltip.toString();
-		}
+			appendOnNewLine(wasVisited(player) ? configuration.visitedTooltip : configuration.notVisitedTooltip);
 	}
 	return result;
 }
 
-std::string CRewardableObject::getHoverText(PlayerColor player) const
+MetaString CRewardableObject::getHoverText(PlayerColor player) const
 {
 	return getDisplayTextImpl(player, nullptr, false);
 }
 
-std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
+MetaString CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 {
 	return getDisplayTextImpl(hero->getOwner(), hero, false);
 }
 
-std::string CRewardableObject::getPopupText(PlayerColor player) const
+MetaString CRewardableObject::getPopupText(PlayerColor player) const
 {
 	return getDisplayTextImpl(player, nullptr, true);
 }
 
-std::string CRewardableObject::getPopupText(const CGHeroInstance * hero) const
+MetaString CRewardableObject::getPopupText(const CGHeroInstance * hero) const
 {
 	return getDisplayTextImpl(hero->getOwner(), hero, true);
 }
 
-std::string CRewardableObject::getScoutedDescriptionMessage(const CGHeroInstance * hero) const
+MetaString CRewardableObject::getScoutedDescriptionMessage(const CGHeroInstance * hero) const
 {
 	if (configuration.info.empty())
 		return {};
 
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty() || !configuration.info[0].description.empty())
-		return configuration.info[0].description.toString();
+		return configuration.info[0].description;
 
 	if (!configuration.info[rewardIndices.front()].description.empty())
-		return configuration.info[rewardIndices.front()].description.toString();
+		return configuration.info[rewardIndices.front()].description;
 
 	return {};
 }
 
-std::string CRewardableObject::getGenericDescriptionMessage() const
+MetaString CRewardableObject::getGenericDescriptionMessage() const
 {
-	return configuration.description.toString();
+	return configuration.description;
 }
 
-std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const
+MetaString CRewardableObject::getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const
 {
 	if (!wasScouted(player) || configuration.info.empty())
 		return getGenericDescriptionMessage();
@@ -405,7 +401,7 @@ void CRewardableObject::initializeGuards()
 	// Workaround for default creature banks strings that has placeholder for object name
 	// TODO: find better location for this code
 	for (auto & visitInfo : configuration.info)
-		visitInfo.message.replaceRawString(getObjectName());
+		visitInfo.message.replaceName(ID, subID);
 
 	for (auto const & visitInfo : configuration.info)
 	{

@@ -34,8 +34,8 @@ bool StayAtTown::operator==(const StayAtTown & other) const
 
 std::string StayAtTown::toString() const
 {
-	return "Stay at town " + town->getNameTranslated()
-		+ " hero " + hero->getNameTranslated()
+	return "Stay at town " + town->getNameTextID()
+		+ " hero " + hero->getNameTextID()
 		+ ", mana: " + std::to_string(hero->mana)
 		+ " / " + std::to_string(hero->manaLimit());
 }

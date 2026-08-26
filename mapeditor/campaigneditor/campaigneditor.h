@@ -55,6 +55,8 @@ private:
 	bool validate();
 	void saveCampaign();
 	void loadCampaignFile(const QString & filenameSelect);
+	/// Swaps in the campaign being edited, keeping its texts installed in the editor translator
+	void setCampaign(std::shared_ptr<CampaignState> newState);
 
 	void closeEvent(QCloseEvent *event) override;
 	void changeEvent(QEvent *event) override;

@@ -177,9 +177,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
 		default:
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
 		}
 	}
 }
@@ -582,14 +582,14 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		std::string mapVersion;
 		if(tabType != ESelectionScreen::campaignList)
 		{
-			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
-			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
+			author = curItems[py]->mapHeader->author.toString(&GAME->translator()) + (!curItems[py]->mapHeader->authorContact.toString(&GAME->translator()).empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString(&GAME->translator()) + ">") : "");
+			mapVersion = curItems[py]->mapHeader->mapVersion.toString(&GAME->translator());
 			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
 		}
 		else
 		{
-			author = curItems[py]->campaign->getAuthor() + (!curItems[py]->campaign->getAuthorContact().empty() ? (" <" + curItems[py]->campaign->getAuthorContact() + ">") : "");
-			mapVersion = curItems[py]->campaign->getCampaignVersion();
+			author = curItems[py]->campaign->getAuthor(&GAME->translator()) + (!curItems[py]->campaign->getAuthorContact(&GAME->translator()).empty() ? (" <" + curItems[py]->campaign->getAuthorContact(&GAME->translator()) + ">") : "");
+			mapVersion = curItems[py]->campaign->getCampaignVersion(&GAME->translator());
 			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
 		}
 
@@ -1195,7 +1195,6 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 			{
 				auto mapInfo = std::make_shared<ElementInfo>();
 				mapInfo->mapInit(file.getOriginalName());
-				mapInfo->name = mapInfo->getNameForList();
 
 				if (isMapSupported(*mapInfo))
 					allItems[offset + i] = mapInfo;
@@ -1208,6 +1207,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 	});
 
 	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d maps took %d ms", files.size(), timeElapsed.count());
@@ -1235,7 +1235,6 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 			{
 				auto mapInfo = std::make_shared<ElementInfo>();
 				mapInfo->saveInit(file);
-				mapInfo->name = mapInfo->getNameForList();
 
 				if(!isSaveCompatible(*mapInfo, loadMode))
 					mapInfo->mapHeader.reset();
@@ -1255,6 +1254,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 	});
 
 	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
 
 	std::vector<ResourcePath> unsupported;
 	for(size_t i = 0; i < filesVector.size(); i++)
@@ -1410,7 +1410,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 	{
 		MetaString text = MetaString::createFromTextID("vcmi.lobby.deleteUnsupportedSave");
 		text.replaceNumber(files.size());
-		CInfoWindow::showYesNoDialog(text.toString(), std::vector<std::shared_ptr<CComponent>>(), [files](){
+		CInfoWindow::showYesNoDialog(text.toString(&GAME->translator()), std::vector<std::shared_ptr<CComponent>>(), [files](){
 			for(auto & file : files)
 			{
 				LobbyDelete ld;
@@ -1442,7 +1442,6 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 				auto info = std::make_shared<ElementInfo>();
 				info->fileURI = file.getOriginalName();
 				info->campaignInit();
-				info->name = info->getNameForList();
 
 				if(info->campaign)
 				{
@@ -1465,6 +1464,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 	});
 
 	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
@@ -1481,6 +1481,23 @@ std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 	const ResourcePath resource(item.fileURI, resType);
 
 	return CResourceHandler::get()->getFullFileURI(resource);
+}
+
+void SelectionTab::installTexts(size_t offset)
+{
+	// map texts are inert data, so every listed entry has to be installed before its
+	// name or description can be rendered. Keys are namespaced per map, so the whole
+	// set can stay installed while the picker is open
+	for(size_t i = offset; i < allItems.size(); ++i)
+	{
+		const auto & item = allItems[i];
+		if(item->mapHeader)
+			item->textOverlays.emplace_back(item->mapHeader->texts);
+		if(item->campaign)
+			item->textOverlays.emplace_back(item->campaign->getTexts());
+
+		item->name = item->getNameForList(&GAME->translator());
+	}
 }
 
 std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)

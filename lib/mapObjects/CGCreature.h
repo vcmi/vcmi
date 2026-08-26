@@ -52,10 +52,10 @@ public:
 	bool refusedJoining = false;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-	std::string getPopupText(PlayerColor player) const override;
-	std::string getPopupText(const CGHeroInstance * hero) const override;
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
@@ -115,7 +115,7 @@ private:
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 	void giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
-	std::string getMonsterLevelText() const;
+	MetaString getMonsterLevelText() const;
 	int getDefaultNumberOfStacks(const CGHeroInstance * hero) const;
 	int getNumberOfStacksFromBonus(const CGHeroInstance * hero) const;
 	ui32 hashByPosition() const;

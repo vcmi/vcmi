@@ -28,6 +28,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/spells/CSpell.h"
+#include "../GameInstance.h"
 
 UnitActionPanel::UnitActionPanel(BattleInterface & owner)
 	: CIntObject(0)
@@ -77,7 +78,7 @@ void UnitActionPanel::testAndAddAction(const std::vector<PossiblePlayerBattleAct
 	MetaString tooltip;
 	tooltip.appendTextID(descriptionTextID);
 
-	auto button = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(tooltip.toString()), callback);
+	auto button = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(tooltip.toString(&GAME->translator())), callback);
 	button->setOverlay(std::make_shared<CPicture>(iconPath));
 	button->setHighlightedBorderColor(Colors::WHITE);
 	button->setAllowDeselection(true);
@@ -102,7 +103,7 @@ void UnitActionPanel::testAndAddSpell(const std::vector<PossiblePlayerBattleActi
 	tooltip.appendTextID("core.genrltxt.26");
 	tooltip.replaceName(spellFilter);
 
-	std::string hoverText = tooltip.toString();
+	std::string hoverText = tooltip.toString(&GAME->translator());
 	std::string description = spellFilter.toSpell()->getDescriptionTranslated(0);
 
 

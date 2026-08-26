@@ -24,6 +24,7 @@
 #include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
+#include "../lib/texts/CompositeTranslator.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -449,7 +450,7 @@ void CVCMIServer::announcePack(CPackForLobby & pack)
 
 void CVCMIServer::announceMessage(const MetaString & txt)
 {
-	logNetwork->info("Show message: %s", txt.toString());
+	logNetwork->info("Show message: %s", txt.toString(LIBRARY->staticTexts()));
 	LobbyShowMessage cm;
 	cm.message = txt;
 	announcePack(cm);
@@ -464,7 +465,7 @@ void CVCMIServer::announceMessage(const std::string & txt)
 
 void CVCMIServer::announceTxt(const MetaString & txt, const std::string & playerName)
 {
-	logNetwork->info("%s says: %s", playerName, txt.toString());
+	logNetwork->info("%s says: %s", playerName, txt.toString(LIBRARY->staticTexts()));
 	LobbyChatMessage cm;
 	cm.playerName = playerName;
 	cm.message = txt;
@@ -680,7 +681,12 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			// TODO: handle this somehow?
 		}
 		else
-			roomDescription = mi->getNameTranslated();
+		{
+			// lobby metadata is built server-side, so it resolves the map's own texts
+			CompositeTranslator translator;
+			translator.install(mi->mapHeader->texts);
+			roomDescription = mi->getNameTranslated(&translator);
+		}
 
 		lobbyProcessor->sendChangeRoomDescription(roomDescription);
 	}

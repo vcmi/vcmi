@@ -214,6 +214,7 @@ set(vcmiclientcommon_SRCS
 	ArtifactsUIController.cpp
 	GameEngine.cpp
 	GameInstance.cpp
+	Translator.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
@@ -472,6 +473,7 @@ set(vcmiclientcommon_HEADERS
 	GameEngine.h
 	GameEngineUser.h
 	GameInstance.h
+	Translator.h
 	PlayerLocalState.h
 	CServerHandler.h
 	Client.h

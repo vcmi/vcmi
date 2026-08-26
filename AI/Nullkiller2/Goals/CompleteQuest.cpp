@@ -103,7 +103,7 @@ std::string CompleteQuest::questToString() const
 	MetaString ms;
 	q.getQuest(&cc)->getQuestlogText(&cc, ms, false);
 
-	return ms.toString();
+	return ms.toString(LIBRARY->staticTexts());
 }
 
 TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const

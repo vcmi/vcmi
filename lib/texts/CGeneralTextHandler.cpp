@@ -346,7 +346,6 @@ std::string CGeneralTextHandler::getInstalledEncoding()
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(const std::string & prefix)
 {
-	std::lock_guard globalLock(globalTextMutex);
 	std::vector<std::string> result;
 
 	for(const auto & entry : stringsLocalizations)

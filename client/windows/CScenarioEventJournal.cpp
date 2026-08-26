@@ -91,7 +91,7 @@ void ScenarioEventJournal::onItemSelected(size_t itemIndex)
 	for(const auto & component : entry.components)
 		components.push_back(std::make_shared<CComponent>(component, componentSize));
 
-	setContent(entry.message.toString(), std::move(components));
+	setContent(entry.message.toString(&GAME->translator()), std::move(components));
 	minimap->setLocation(entry.location);
 }
 

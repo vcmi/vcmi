@@ -158,7 +158,7 @@ void AIGateway::showShipyardDialog(const IShipyard * obj)
 
 void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
+	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString(LIBRARY->staticTexts()));
 	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.toString(), player, player.toString(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 
 	// some whitespace to flush stream
@@ -197,7 +197,7 @@ void AIGateway::artifactDisassembled(const ArtifactLocation & al)
 
 void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
-	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
+	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectNameTextID() : std::string("n/a")));
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
@@ -248,8 +248,8 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	status.addQuery(
 		query,
 		boost::str(
-			boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner
-			% secondHero->getNameTranslated() % secondHero->tempOwner
+			boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTextID() % firstHero->tempOwner
+			% secondHero->getNameTextID() % secondHero->tempOwner
 		)
 	);
 
@@ -542,7 +542,7 @@ void AIGateway::yourTurn(QueryID queryID)
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
+	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTextID() % hero->level));
 	HeroPtr heroPtr(hero, cc.get());
 
 	executeActionAsync("heroGotLevel", [this, heroPtr, skills, queryID]()
@@ -600,11 +600,11 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					answer = false;
 				}
 
-				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), heroPtr.nameOrDefault(), ratio);
+				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectNameTextID(), heroPtr.nameOrDefault(), ratio);
 
 				if(cc->getObj(goalObjectID, false))
 				{
-					logAi->trace("AI expected %s", cc->getObj(goalObjectID, false)->getObjectName());
+					logAi->trace("AI expected %s", cc->getObj(goalObjectID, false)->getObjectNameTextID());
 				}
 
 				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
@@ -786,7 +786,7 @@ void AIGateway::makeTurn()
 		for (const auto *h : cc->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
+				logAi->warn("Hero %s has %d MP left", h->getNameTextID(), h->movementPointsRemaining());
 		}
 
 		endTurn();
@@ -803,7 +803,7 @@ void AIGateway::makeTurn()
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", heroPtr->getNameTranslated() % obj->getObjectName() % obj->anchorPos().toString());
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", heroPtr->getNameTextID() % obj->getObjectNameTextID() % obj->anchorPos().toString());
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
@@ -981,7 +981,7 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cc->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTextID() : "a army") % (presumedEnemy ? presumedEnemy->getObjectNameTextID() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
@@ -1051,7 +1051,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", heroPtr->getNameTranslated(), dst.toString());
+	logAi->debug("Moving hero %s to tile %s", heroPtr->getNameTextID(), dst.toString());
 	int3 startHpos = heroPtr->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1071,7 +1071,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		nullkiller->getPathsInfo(heroPtr.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTranslated(), dst.toString());
+			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTextID(), dst.toString());
 			return true;
 		}
 		int i = (int)path.nodes.size() - 1;
@@ -1238,7 +1238,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", heroPtr->getNameTranslated(), startHpos.toString(), heroPtr->visitablePos().toString(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", heroPtr->getNameTextID(), startHpos.toString(), heroPtr->visitablePos().toString(), ret);
 	}
 	return ret;
 }
@@ -1246,7 +1246,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", playerID, name, t->getNameTranslated(), t->anchorPos().toString());
+	logAi->debug("Player %d will build %s in town of %s at %s", playerID, name, t->getNameTextID(), t->anchorPos().toString());
 	cc->buildBuilding(t, building); //just do this;
 }
 
@@ -1289,7 +1289,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				{
 					cc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectNameTextID());
 				}
 				if (cc->getResourceAmount(GameResID(g.resID)))
 					throw goalFulfilledException(sptr(g)); //we traded all we needed

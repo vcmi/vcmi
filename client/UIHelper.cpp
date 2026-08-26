@@ -16,6 +16,7 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/ArtifactLocation.h"
 #include "../lib/CRandomGenerator.h"
+#include "GameInstance.h"
 
 std::vector<Component> UIHelper::getArtifactsComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack)
 {
@@ -59,21 +60,21 @@ std::string UIHelper::getNecromancyInfoWindowText(const CStackBasicDescriptor & 
 		text.appendLocalString(EMetaText::GENERAL_TXT, 146);
 	}
 	text.replaceName(stack);
-	return text.toString();
+	return text.toString(&GAME->translator());
 }
 
 std::string UIHelper::getArtifactsInfoWindowText()
 {
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, 30);
-	return text.toString();
+	return text.toString(&GAME->translator());
 }
 
 std::string UIHelper::getEagleEyeInfoWindowText(const CGHeroInstance & hero, const std::set<SpellID> & spells)
 {
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, 221); // Through eagle-eyed observation, %s is able to learn %s
-	text.replaceRawString(hero.getNameTranslated());
+	text.replaceRawString(GAME->translator().translate(hero.getNameTextID()));
 
 	auto curSpell = spells.begin();
 	text.replaceName(*curSpell++);
@@ -86,5 +87,5 @@ std::string UIHelper::getEagleEyeInfoWindowText(const CGHeroInstance & hero, con
 		text.appendName(*curSpell);
 	}
 	text.appendRawString(".");
-	return text.toString();
+	return text.toString(&GAME->translator());
 }

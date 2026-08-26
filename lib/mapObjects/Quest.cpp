@@ -39,10 +39,12 @@
 
 #include <vstd/RNG.h>
 
-static std::string visitedTxt(const bool visited)
+static MetaString visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return LIBRARY->generaltexth->translate("core.genrltxt", id);
+	MetaString result;
+	result.appendLocalString(EMetaText::GENERAL_TXT, id);
+	return result;
 }
 
 namespace
@@ -64,7 +66,7 @@ const std::array<MissionKindEntry, 16> missionKinds = {{
 	{ EQuestMission::KEYMASTER,              "keymaster",      [](const Quest & q){ return !q.mission.requiredKeys.empty(); } },
 	{ EQuestMission::LEVEL,                  "heroLevel",      [](const Quest & q){ return q.mission.heroLevel > 0; } },
 	{ EQuestMission::PRIMARY_SKILL,          "primarySkill",   [](const Quest & q){ return std::any_of(q.mission.primary.begin(), q.mission.primary.end(), [](si32 s){ return s != 0; }); } },
-	{ EQuestMission::KILL_HERO,              "killHero",       [](const Quest & q){ return !q.mission.destroyedObjects.empty() && !q.heroName.empty(); } },
+	{ EQuestMission::KILL_HERO,              "killHero",       [](const Quest & q){ return !q.mission.destroyedObjects.empty() && !q.heroNameTextID.empty(); } },
 	{ EQuestMission::KILL_CREATURE,          "killCreature",   [](const Quest & q){ return !q.mission.destroyedObjects.empty() && q.stackToKill != CreatureID::NONE; } },
 	{ EQuestMission::ARTIFACT,               "bringArt",       [](const Quest & q){ return !q.mission.artifacts.empty(); } },
 	{ EQuestMission::ARMY,                   "bringCreature",  [](const Quest & q){ return !q.mission.creatures.empty(); } },
@@ -169,7 +171,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		}
 		
 		if(!loot.empty())
-			text.replaceRawString(loot.buildList());
+			text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(missionKind == EQuestMission::KILL_HERO)
@@ -195,7 +197,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
 		}
-		text.replaceRawString(loot.buildList());
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(!mission.creatures.empty())
@@ -206,7 +208,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
 		}
-		text.replaceRawString(loot.buildList());
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(mission.resources.nonZero())
@@ -221,7 +223,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 				loot.replaceName(i);
 			}
 		}
-		text.replaceRawString(loot.buildList());
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(!mission.players.empty())
@@ -230,7 +232,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		for(auto & p : mission.players)
 			loot.appendName(p);
 		
-		text.replaceRawString(loot.buildList());
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	
 	if(lastDay >= 0)
@@ -243,9 +245,9 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 	mission.loadComponents(components, h);
 
 	if(firstVisit)
-		iwText.appendRawString(firstVisitText.toString());
+		iwText.append(firstVisitText);
 	else if(failRequirements)
-		iwText.appendRawString(nextVisitText.toString());
+		iwText.append(nextVisitText);
 	
 	if(lastDay >= 0)
 		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
@@ -261,7 +263,7 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 		ms.appendRawString("\n\n");
 
 	if(missionKind == EQuestMission::HOTA_SCRIPTED)
-		ms.appendRawString(scriptHintText.toString());
+		ms.append(scriptHintText);
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(3), textOption).get());
 
@@ -273,7 +275,7 @@ void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHo
 void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(missionKind == EQuestMission::HOTA_SCRIPTED)
-		ms.appendRawString(scriptHintText.toString());
+		ms.append(scriptHintText);
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(4), textOption).get());
 
@@ -283,7 +285,7 @@ void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool o
 
 void Quest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText) const
 {
-	iwText.appendRawString(completedText.toString());
+	iwText.append(completedText);
 	
 	std::vector<Component> components;
 	addTextReplacements(cb, iwText, components);
@@ -304,8 +306,8 @@ bool Quest::isToll() const
 
 void Quest::addKillTargetReplacements(MetaString &out) const
 {
-	if(!heroName.empty())
-		out.replaceRawString(heroName);
+	if(!heroNameTextID.empty())
+		out.replaceTextID(heroNameTextID);
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
@@ -522,7 +524,7 @@ void SeerHut::setObjToKill()
 		}
 		else if(const auto * hero = dynamic_cast<const CGHeroInstance *>(target))
 		{
-			q.heroName = hero->getNameTranslated();
+			q.heroNameTextID = hero->getNameTextID();
 			q.heroPortrait = hero->getPortraitSource();
 		}
 	}
@@ -597,7 +599,7 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	syncActiveReward();
 }
 
-std::string SeerHut::buildText(PlayerColor player, bool onHover) const
+MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
@@ -608,19 +610,19 @@ std::string SeerHut::buildText(PlayerColor player, bool onHover) const
 		text.replaceRawString(seerName);
 	}
 	else
-		text.appendRawString(getObjectName());
+		text.append(getObjectName());
 
 	if(questActive && getQuest().mission != Rewardable::Limiter{})
 	{
 		getQuest().getHoverText(cb, text, onHover);
 	}
-	return text.toString();
+	return text;
 }
 
-std::string SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
-std::string SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
-std::string SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
-std::string SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
+MetaString SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
+MetaString SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
+MetaString SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
+MetaString SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
 
 std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
 {
@@ -815,19 +817,26 @@ void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	getQuest().serializeJson(handler, "quest");
 }
 
-std::string QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
+MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
 {
 	return visitedTxt(keyObject->cb->getPlayerState(player)->wasKeymasterVisited(keyObject->subID));
 }
 
-std::string KeymasterTent::getHoverText(PlayerColor player) const
+MetaString KeymasterTent::getHoverText(PlayerColor player) const
 {
-	return getObjectName() + "\n" + visitedTxt(cb->getPlayerState(player)->wasKeymasterVisited(subID));
+	MetaString result = getObjectName();
+	result.appendEOL();
+	result.append(visitedTxt(cb->getPlayerState(player)->wasKeymasterVisited(subID)));
+	return result;
 }
 
-std::string KeymasterTent::getObjectName() const
+MetaString KeymasterTent::getObjectName() const
 {
-	return LIBRARY->generaltexth->translate("core.tentcolr", subID.getNum()) + " " + CGObjectInstance::getObjectName();
+	MetaString result;
+	result.appendTextID(TextIdentifier("core.tentcolr", subID.getNum()).get());
+	result.appendRawString(" ");
+	result.append(CGObjectInstance::getObjectName());
+	return result;
 }
 
 bool KeymasterTent::wasVisited (PlayerColor player) const

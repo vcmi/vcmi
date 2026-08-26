@@ -143,7 +143,7 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 	if (!targetName.empty())
 		templateText.replaceRawString(targetName);
 
-	std::string baseText = templateText.toString();
+	std::string baseText = templateText.toString(&GAME->translator());
 
 	if(value.unitsDelta > 0)
 	{

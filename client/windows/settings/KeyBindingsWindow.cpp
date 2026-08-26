@@ -45,7 +45,7 @@ KeyBindingsWindow::KeyBindingsWindow()
 		ENGINE->shortcuts().reloadShortcuts();
 	}, EShortcut::GLOBAL_ACCEPT);
 	labelTitle = std::make_shared<CLabel>(
-		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.button.hover").toString()
+		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.button.hover").toString(&GAME->translator())
 	);
 	backgroundRect = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, pos.w - 16, 348), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
 
@@ -61,10 +61,10 @@ KeyBindingsWindow::KeyBindingsWindow()
 	slider->setInertiaEnabled(true);
 	slider->setScrollBounds(Rect(-backgroundRect->pos.w + slider->pos.w, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
 
-	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.keyBindings.reset.help").toString()));
-	buttonReset->setOverlay(std::make_shared<CLabel>(0, 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.reset").toString()));
+	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.keyBindings.reset.help").toString(&GAME->translator())));
+	buttonReset->setOverlay(std::make_shared<CLabel>(0, 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.reset").toString(&GAME->translator())));
 	buttonReset->addCallback([this](){
-		GAME->interface()->showYesNoDialog(MetaString::createFromTextID("vcmi.keyBindings.resetConfirm").toString(), [this](){
+		GAME->interface()->showYesNoDialog(MetaString::createFromTextID("vcmi.keyBindings.resetConfirm").toString(&GAME->translator()), [this](){
 			resetKeyBinding();
 		}, nullptr);
 	});
@@ -94,7 +94,7 @@ void KeyBindingsWindow::fillList(int start)
 						str.replaceTextID("vcmi.keyBindings.keyBinding." + id);
 						str.replaceRawString(keyName);
 
-						GAME->interface()->showYesNoDialog(str.toString(), [this, group, id, keyName](){
+						GAME->interface()->showYesNoDialog(str.toString(&GAME->translator()), [this, group, id, keyName](){
 							setKeyBinding(id, group->first, keyName, true);
 						}, [this, group, id, keyName](){
 							setKeyBinding(id, group->first, keyName, false);
@@ -175,12 +175,12 @@ KeyBindingElement::KeyBindingElement(std::string id, JsonNode keys, int elem, st
 	}
 
 	labelName = std::make_shared<CLabel>(
-		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, MetaString::createFromTextID("vcmi.keyBindings.keyBinding." + id).toString(), 245
+		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, MetaString::createFromTextID("vcmi.keyBindings.keyBinding." + id).toString(&GAME->translator()), 245
 	);
 	labelKeys = std::make_shared<CLabel>(
 		250, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, keyBinding, 170
 	);
-	buttonEdit = std::make_shared<CButton>(Point(422, 3), AnimationPath::builtin("settingsWindow/button32"), std::make_pair("", MetaString::createFromTextID("vcmi.keyBindings.editButton.help").toString()));
+	buttonEdit = std::make_shared<CButton>(Point(422, 3), AnimationPath::builtin("settingsWindow/button32"), std::make_pair("", MetaString::createFromTextID("vcmi.keyBindings.editButton.help").toString(&GAME->translator())));
 	buttonEdit->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("settingsWindow/gear")));
 	buttonEdit->addCallback([id, func](){
 		ENGINE->windows().createAndPushWindow<KeyBindingsEditWindow>(id, [func](const std::string & id, const std::string & keyName){
@@ -202,7 +202,7 @@ KeyBindingElement::KeyBindingElement(std::string group, int elem)
 	pos.y += elem * LINE_HEIGHT;
 
 	labelName = std::make_shared<CLabel>(
-		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.group." + group).toString(), 300
+		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.group." + group).toString(&GAME->translator()), 300
 	);
 	if(elem < MAX_LINES - 1)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
@@ -210,7 +210,7 @@ KeyBindingElement::KeyBindingElement(std::string group, int elem)
 
 void KeyBindingElement::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(popupText.toString());
+	CRClickPopup::createAndPush(popupText.toString(&GAME->translator()));
 }
 
 KeyBindingsEditWindow::KeyBindingsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func)
@@ -226,7 +226,7 @@ KeyBindingsEditWindow::KeyBindingsEditWindow(const std::string & id, std::functi
 	str.replaceTextID("vcmi.keyBindings.keyBinding." + id);
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
-	text = std::make_shared<CTextBox>(str.toString(), Rect(0, 0, 250, 150), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(str.toString(&GAME->translator()), Rect(0, 0, 250, 150), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	updateShadow();
 	center();

@@ -92,6 +92,7 @@ public:
 	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	CompoundMapObjectID getCompoundIdentifier(const std::string & objectName) const;
 
+	std::string getObjectNameTextID(MapObjectID type, MapObjectSubID subtype) const;
 	std::string getObjectName(MapObjectID type, MapObjectSubID subtype) const;
 
 	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;

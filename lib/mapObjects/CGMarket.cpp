@@ -42,7 +42,7 @@ void CGMarket::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 	gameEvents.showObjectWindow(this, EOpenWindowMode::MARKET_WINDOW, h, true);
 }
 
-std::string CGMarket::getPopupText(PlayerColor player) const
+MetaString CGMarket::getPopupText(PlayerColor player) const
 {
 	if (!getMarketHandler()->hasDescription())
 		return getHoverText(player);
@@ -50,10 +50,10 @@ std::string CGMarket::getPopupText(PlayerColor player) const
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
 	message.replaceName(ID, subID);
 	message.replaceTextID(getMarketHandler()->getDescriptionTextID());
-	return message.toString();
+	return message;
 }
 
-std::string CGMarket::getPopupText(const CGHeroInstance * hero) const
+MetaString CGMarket::getPopupText(const CGHeroInstance * hero) const
 {
 	return getPopupText(hero->getOwner());
 }

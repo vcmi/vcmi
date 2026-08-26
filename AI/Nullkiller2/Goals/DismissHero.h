@@ -25,7 +25,7 @@ namespace Goals
 			: ElementarGoal(Goals::DISMISS_HERO)
 		{
 			sethero(hero);
-			heroName = hero->getNameTranslated();
+			heroName = hero->getNameTextID();
 		}
 
 		void accept(AIGateway * aiGw) override;

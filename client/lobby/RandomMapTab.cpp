@@ -821,11 +821,11 @@ SetSizeWindow::SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const C
 		templateTitle.replaceTextID("vcmi.randomMapTab.widgets.templateLabel");
 		templateTitle.replaceRawString(mapTemplate->getName());
 
-		titles.push_back(std::make_shared<CLabel>(10, 40, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, templateTitle.toString()));
+		titles.push_back(std::make_shared<CLabel>(10, 40, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, templateTitle.toString(&GAME->translator())));
 	}
 
-	sizeLabels.push_back(std::make_shared<CLabel>(10, 60, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, minSizeString.toString()));
-	sizeLabels.push_back(std::make_shared<CLabel>(10, 80, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, maxSizeString.toString()));
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 60, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, minSizeString.toString(&GAME->translator())));
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 80, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, maxSizeString.toString(&GAME->translator())));
 
 	const auto checkTemplateSize = [this, mapTemplate](const std::string &){
 		int3 mapSize {

@@ -65,7 +65,7 @@ std::string AbstractGoal::toString() const
 	}
 
 	if(hero)
-		desc += " (" + hero->getNameTranslated() + ")";
+		desc += " (" + hero->getNameTextID() + ")";
 
 	return desc;
 }

@@ -27,6 +27,7 @@ set(editor_SRCS
 		playerparams.cpp
 		scenelayer.cpp
 		mapcontroller.cpp
+		translator.cpp
 		validator.cpp
 		inspector/inspector.cpp
 		inspector/townbuildingswidget.cpp
@@ -103,6 +104,7 @@ set(editor_HEADERS
 		playerparams.h
 		scenelayer.h
 		mapcontroller.h
+		translator.h
 		validator.h
 		inspector/inspector.h
 		inspector/townbuildingswidget.h

@@ -43,29 +43,29 @@ CampaignVersion CampaignHeader::getFormat() const
 	return version;
 }
 
-std::string CampaignHeader::getDescriptionTranslated() const
+std::string CampaignHeader::getDescriptionTranslated(const ITranslator * translator) const
 {
-	return description.toString();
+	return description.toString(translator);
 }
 
-std::string CampaignHeader::getNameTranslated() const
+std::string CampaignHeader::getNameTranslated(const ITranslator * translator) const
 {
-	return name.toString();
+	return name.toString(translator);
 }
 
-std::string CampaignHeader::getAuthor() const
+std::string CampaignHeader::getAuthor(const ITranslator * translator) const
 {
-	return authorContact.toString();
+	return author.toString(translator);
 }
 
-std::string CampaignHeader::getAuthorContact() const
+std::string CampaignHeader::getAuthorContact(const ITranslator * translator) const
 {
-	return authorContact.toString();
+	return authorContact.toString(translator);
 }
 
-std::string CampaignHeader::getCampaignVersion() const
+std::string CampaignHeader::getCampaignVersion(const ITranslator * translator) const
 {
-	return campaignVersion.toString();
+	return campaignVersion.toString(translator);
 }
 
 time_t CampaignHeader::getCreationDateTime() const
@@ -118,7 +118,7 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
-TextContainerRegistrable & CampaignHeader::getTexts()
+const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts()
 {
 	return textContainer;
 }
@@ -220,7 +220,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
+	logGlobal->info("Scenario %d of campaign %s has been completed", currentMap->getNum(), getFilename());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
@@ -231,12 +231,12 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 
 		if (reservedHeroes.count(hero->getHeroTypeID()))
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTextID());
 			globalHeroPool[hero->getHeroTypeID()] = node;
 		}
 		else
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTextID());
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}
@@ -295,6 +295,7 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 
+	// the loaded map is handed over to the caller, but its texts stay resolvable for the whole campaign
 	mapTranslations[scenarioId] = result->texts;
 	return result;
 }

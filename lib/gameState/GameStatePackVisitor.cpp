@@ -156,7 +156,7 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 
 void GameStatePackVisitor::visitInfoWindow(InfoWindow & pack)
 {
-	if(!pack.journalInfo || pack.text.toString().empty())
+	if(!pack.journalInfo || pack.text.empty())
 		return;
 
 	assert(vstd::contains(gs.players, pack.player));
@@ -180,7 +180,7 @@ void GameStatePackVisitor::visitChangeTactics(ChangeTactics & pack)
 
 void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
 {
-	gs.getTown(pack.tid)->setCustomName(pack.name);
+	gs.getTown(pack.tid)->setCustomName(gs.getMap(), pack.name);
 }
 
 void GameStatePackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
@@ -432,7 +432,7 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objectID);
-	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectName());
+	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectNameTextID());
 
 	if (pack.initiator.isValidPlayer())
 		gs.getPlayerState(pack.initiator)->destroyedObjects.insert(pack.objectID);
@@ -761,7 +761,7 @@ void GameStatePackVisitor::visitNewObject(NewObject & pack)
 	if (newArmy)
 		newArmy->attachToBonusSystem(gs);
 
-	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectName());
+	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectNameTextID());
 }
 
 void GameStatePackVisitor::visitNewArtifact(NewArtifact & pack)

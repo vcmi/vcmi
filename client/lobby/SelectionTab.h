@@ -10,10 +10,11 @@
 #pragma once
 
 #include "CSelectionBase.h"
-class CMap;
+#include "../Translator.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
+class CMap;
 class CSlider;
 class CLabel;
 class CPicture;
@@ -32,6 +33,9 @@ class ElementInfo : public CMapInfo
 public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
+	/// Entries outlive the tab that listed them, so each one keeps its own texts installed.
+	/// The translator shares ownership of the containers, so a reloaded header can not strand them
+	std::vector<TranslatorOverlay> textOverlays;
 	std::string folderName = "";
 	std::string name = "";
 	bool isFolder = false;
@@ -76,6 +80,9 @@ class SelectionTab : public CIntObject
 	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
 
 	JsonNode campaignSets;
+
+	/// Installs the text overlays of newly parsed entries and fills in their display names
+	void installTexts(size_t offset);
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;

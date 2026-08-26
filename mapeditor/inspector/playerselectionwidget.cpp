@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
+#include "../translator.h"
 
 
 PlayerSelectionWidget::PlayerSelectionWidget(const std::set<PlayerColor>& currentSelection, QWidget* parent)
@@ -45,7 +46,7 @@ void PlayerSelectionWidget::populateCheckboxes()
         MetaString name;
         name.appendName(color);
 
-        QCheckBox *box = new QCheckBox(QString::fromStdString(name.toString()), this);
+        auto * box = new QCheckBox(QString::fromStdString(name.toString(&Translator::instance())), this);
         ui->checkboxLayout->addWidget(box);
         colorCheckboxes[color] = box;
     }

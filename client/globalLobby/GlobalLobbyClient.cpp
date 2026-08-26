@@ -367,7 +367,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 	activeInvites.insert(gameRoomID);
 	if(lobbyWindowPtr)
 	{
-		std::string message = MetaString::createFromTextID("vcmi.lobby.invite.notification").toString();
+		std::string message = MetaString::createFromTextID("vcmi.lobby.invite.notification").toString(&GAME->translator());
 		std::string time = TextOperations::getCurrentFormattedTimeLocal();
 
 		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);

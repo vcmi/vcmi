@@ -269,19 +269,16 @@ void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
 void Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
-	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
-	// show message only if it is not empty or in infobox
-	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
-	{
-		InfoWindow iw;
-		iw.player = contextHero->tempOwner;
-		iw.text = vi.message;
-		vi.reward.loadComponents(iw.components, contextHero);
-		iw.type = configuration.infoWindowType;
-		configureInfoWindow(iw, contextHero, index);
-		if(!iw.components.empty() || !iw.text.toString().empty())
-			gameEvents.showInfoDialog(&iw);
-	}
+	logGlobal->debug("Granting reward %d", index);
+
+	InfoWindow iw;
+	iw.player = contextHero->tempOwner;
+	iw.text = vi.message;
+	vi.reward.loadComponents(iw.components, contextHero);
+	iw.type = configuration.infoWindowType;
+	configureInfoWindow(iw, contextHero, index);
+	gameEvents.showInfoDialog(&iw);
+
 	// grant reward afterwards. Note that it may remove object
 	if(markAsVisit)
 		markAsVisited(gameEvents, contextHero);

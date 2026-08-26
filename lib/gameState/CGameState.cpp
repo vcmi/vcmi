@@ -313,6 +313,14 @@ void CGameState::updateOnLoad(const StartInfo & si)
 		players.at(i.first).human = i.second.isControlledByHuman();
 		logGlobal->debug("Player %d is controlled by %s, team %d", i.first.getNum(), i.second.isControlledByHuman() ? "human" : "AI", players.at(i.first).team.getNum());
 	}
+	// pre-TOWN_NAME_TEXT_ID saves carry renames as free-form text; move them into the map container
+	for(auto * town : getMap().getObjects<CGTownInstance>())
+		if(!town->legacyCustomName.empty())
+		{
+			town->setCustomName(getMap(), town->legacyCustomName);
+			town->legacyCustomName.clear();
+		}
+
 	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si.turnTimerInfo;
 	scenarioOps->simturnsInfo = si.simturnsInfo;
@@ -663,7 +671,7 @@ void CGameState::adjustObjectsToMapBounds()
 		const auto newVisitablePos = obj->visitablePos();
 		logGlobal->warn(
 			"Object %s has out of map bounds visitable position %s. Shifted to %s.",
-			obj->getObjectName(), oldVisitablePos.toString(), newVisitablePos.toString());
+			obj->getObjectNameTextID(), oldVisitablePos.toString(), newVisitablePos.toString());
 	}
 }
 
@@ -692,7 +700,7 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 		{
 			logGlobal->warn(
 				"initHeroes: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
-				hero->getNameTranslated(), pos.toString());
+				hero->getNameTextID(), pos.toString());
 			continue;
 		}
 

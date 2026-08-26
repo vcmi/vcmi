@@ -144,12 +144,12 @@ std::string CQuestLog::getItemText(size_t itemIndex) const
 			MetaString toSeer;
 			toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
 			toSeer.replaceRawString(giver);
-			text.replaceRawString(toSeer.toString());
+			text.replaceRawString(toSeer.toString(&GAME->translator()));
 		}
 		else if(questObject)
-			text.replaceRawString(questObject->getObjectName());
+			text.replaceRawString(questObject->getObjectName().toString(&GAME->translator()));
 	}
-	return text.toString();
+	return text.toString(&GAME->translator());
 }
 
 void CQuestLog::onItemSelected(size_t itemIndex)
@@ -164,7 +164,7 @@ void CQuestLog::onItemSelected(size_t itemIndex)
 	std::vector<std::shared_ptr<CComponent>> componentWidgets;
 	for(const auto & component : components)
 		componentWidgets.push_back(std::make_shared<CComponent>(component, imageSize));
-	setContent(text.toString(), std::move(componentWidgets), components.size() > 4 ? 155 : 130);
+	setContent(text.toString(&GAME->translator()), std::move(componentWidgets), components.size() > 4 ? 155 : 130);
 
 	minimap->update();
 	redraw();

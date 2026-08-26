@@ -125,7 +125,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientD
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
-	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message.toString());
+	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message.toString(&GAME->translator()));
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
@@ -214,6 +214,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
+	// the map info the previous texts came from is gone now
+	handler.installLobbyTexts();
 	if(handler.mapToStart && handler.mi)
 	{
 		handler.startMapAfterConnection(nullptr);
@@ -261,7 +263,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 		return;
 	
 	lobby->buttonStart->block(false);
-	handler.showServerError(pack.message.toString());
+	handler.showServerError(pack.message.toString(&GAME->translator()));
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
