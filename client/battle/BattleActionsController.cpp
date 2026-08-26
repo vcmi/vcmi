@@ -48,12 +48,13 @@ struct TextReplacement
 
 using TextReplacementList = std::vector<TextReplacement>;
 
-static std::string replacePlaceholders(std::string input, const TextReplacementList & format )
+static std::string replacePlaceholders(const std::string & input, const TextReplacementList & format )
 {
+	MetaString result = MetaString::createFromRawString(input);
 	for(const auto & entry : format)
-		boost::replace_all(input, entry.placeholder, entry.replacement);
+		result.replaceTokenRawString(entry.placeholder, entry.replacement);
 
-	return input;
+	return result.toString(&GAME->translator());
 }
 
 static std::string translatePlural(int amount, const std::string& baseTextID)

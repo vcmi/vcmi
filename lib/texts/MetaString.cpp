@@ -136,6 +136,13 @@ void MetaString::replaceTokenNumber(const std::string & token, int64_t value)
 	numbers.push_back(value);
 }
 
+void MetaString::replaceTokenRawString(const std::string & token, const std::string & value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_RAW_STRING);
+	exactStrings.push_back(token);
+	exactStrings.push_back(value);
+}
+
 void MetaString::clear()
 {
 	exactStrings.clear();
@@ -236,6 +243,13 @@ DLL_LINKAGE std::string MetaString::toString(const ITranslator * translator) con
 			case EMessage::REPLACE_TOKEN_NUMBER:
 				boost::replace_first(dst, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_RAW_STRING:
+			{
+				// token and value share one vector, so the reads must be sequenced
+				const std::string & token = exactStrings.at(exSt++);
+				boost::replace_first(dst, token, exactStrings.at(exSt++));
+				break;
+			}
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
 				assert(0);
@@ -309,6 +323,12 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 			case EMessage::REPLACE_TOKEN_NUMBER:
 				boost::replace_first(lista, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_RAW_STRING:
+			{
+				const std::string & token = exactStrings.at(exSt++);
+				boost::replace_first(lista, token, exactStrings.at(exSt++));
+				break;
+			}
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", int(message.at(i)));
 		}

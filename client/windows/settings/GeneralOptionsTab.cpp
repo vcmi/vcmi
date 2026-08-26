@@ -19,6 +19,7 @@
 
 #include "../../eventsSDL/InputHandler.h"
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Images.h"
@@ -48,46 +49,44 @@ static std::string scalingToEntryString( int scaling)
 
 static std::string scalingToLabelString( int scaling)
 {
-	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
-	boost::replace_all(string, "%p", std::to_string(scaling));
+	MetaString string;
+	string.appendTextID("vcmi.systemOptions.scalingButton.hover");
+	string.replaceTokenNumber("%p", scaling);
 
-	return string;
+	return string.toString(&GAME->translator());
 }
 
 static std::string longTouchToEntryString( int duration)
 {
-	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
-	boost::replace_all(string, "%d", std::to_string(duration));
+	MetaString string;
+	string.appendTextID("vcmi.systemOptions.longTouchMenu.entry");
+	string.replaceTokenNumber("%d", duration);
 
-	return string;
+	return string.toString(&GAME->translator());
 }
 
 static std::string longTouchToLabelString( int duration)
 {
-	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
-	boost::replace_all(string, "%d", std::to_string(duration));
+	MetaString string;
+	string.appendTextID("vcmi.systemOptions.longTouchButton.hover");
+	string.replaceTokenNumber("%d", duration);
 
-	return string;
+	return string.toString(&GAME->translator());
 }
 
 static std::string resolutionToEntryString( int w, int h)
 {
-	std::string string = "%wx%h";
-
-	boost::replace_all(string, "%w", std::to_string(w));
-	boost::replace_all(string, "%h", std::to_string(h));
-
-	return string;
+	return std::to_string(w) + 'x' + std::to_string(h);
 }
 
 static std::string resolutionToLabelString( int w, int h)
 {
-	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
+	MetaString string;
+	string.appendTextID("vcmi.systemOptions.resolutionButton.hover");
+	string.replaceTokenNumber("%w", w);
+	string.replaceTokenNumber("%h", h);
 
-	boost::replace_all(string, "%w", std::to_string(w));
-	boost::replace_all(string, "%h", std::to_string(h));
-
-	return string;
+	return string.toString(&GAME->translator());
 }
 
 GeneralOptionsTab::GeneralOptionsTab()

@@ -64,6 +64,15 @@ TEST_F(MetaStringTest, BuildListIgnoresReplacements)
 	ASSERT_EQ(list.buildList(&translator), "a and b");
 }
 
+TEST_F(MetaStringTest, ReplaceTokenRawStringHitsFirstOccurrenceOnly)
+{
+	MetaString text = MetaString::createFromRawString("%A and %A and %B");
+	text.replaceTokenRawString("%A", "x");
+	text.replaceTokenRawString("%B", "");
+
+	ASSERT_EQ(text.toString(&translator), "x and %A and ");
+}
+
 TEST_F(MetaStringTest, BuildListSingleEntry)
 {
 	MetaString list;

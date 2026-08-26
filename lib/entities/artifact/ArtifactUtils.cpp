@@ -237,8 +237,12 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 												: LIBRARY->generaltexth->translate("artifact.core.spellScroll.spellName.default");
 	const static std::string placeholder = "[spell name]";
 
-	if (replacement.empty())
-		boost::replace_all(description, placeholder + " ", replacement);	// in most languages if replacement is empty we need to remove additional space after placeholder
+	MetaString text = MetaString::createFromRawString(description);
 
-	boost::replace_all(description, placeholder, replacement);
+	if (replacement.empty())
+		text.replaceTokenRawString(placeholder + " ", replacement);	// in most languages if replacement is empty we need to remove additional space after placeholder
+
+	text.replaceTokenRawString(placeholder, replacement);
+
+	description = text.toString(LIBRARY->staticTexts());
 }

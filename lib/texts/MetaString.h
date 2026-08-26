@@ -54,7 +54,8 @@ private:
 		APPEND_EOL,
 		// new values must be appended - numeric values are part of save format
 		REPLACE_TOKEN_TEXTID,
-		REPLACE_TOKEN_NUMBER
+		REPLACE_TOKEN_NUMBER,
+		REPLACE_TOKEN_RAW_STRING
 	};
 
 	std::vector<EMessage> message;
@@ -111,6 +112,8 @@ public:
 	void replaceTokenTextID(const std::string & token, const std::string & value);
 	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified number
 	void replaceTokenNumber(const std::string & token, int64_t value);
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified fixed, untranslated string
+	void replaceTokenRawString(const std::string & token, const std::string & value);
 
 	void replaceName(const ArtifactID & id);
 	void replaceName(const FactionID& id);
