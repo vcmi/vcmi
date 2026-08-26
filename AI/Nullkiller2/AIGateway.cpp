@@ -23,6 +23,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -40,6 +41,7 @@
 #include "../../lib/CPlayerState.h"
 
 #include "AIGateway.h"
+#include "Engine/PriorityEvaluator.h"
 #include "Goals/Goals.h"
 
 namespace NK2AI
@@ -287,6 +289,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	LOG_TRACE(logAi);
 	auto firstHero = cc->getHero(hero1);
 	auto secondHero = cc->getHero(hero2);
+	const auto rewardPreparation = creatureBankRewardPreparation;
 
 	status.addQuestion(
 		question,
@@ -298,7 +301,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 	executeActionAsync(
 		"heroExchangeStarted",
-		[this, firstHero, secondHero, question]()
+		[this, firstHero, secondHero, question, rewardPreparation]()
 		{
 			auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 			{
@@ -312,6 +315,18 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			{
 				logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
 			}
+			else if(rewardPreparation
+				&& ((firstHero->id == rewardPreparation->rewardHero && secondHero->id == rewardPreparation->helperHero)
+					|| (secondHero->id == rewardPreparation->rewardHero && firstHero->id == rewardPreparation->helperHero)))
+			{
+				const auto * rewardHero = firstHero->id == rewardPreparation->rewardHero ? firstHero : secondHero;
+				const auto * helperHero = rewardHero == firstHero ? secondHero : firstHero;
+				const auto transferSlot = getWeakestTransferableStack(rewardHero, helperHero);
+				if(!transferSlot.validSlot())
+					logAi->warn("Unable to make room for creature bank reward on hero %s", rewardHero->getNameTextID());
+				else
+					cc->mergeOrSwapStacks(rewardHero, helperHero, transferSlot, helperHero->getSlotFor(rewardHero->getCreature(transferSlot)));
+			}
 			else
 			{
 				if(nullkiller->isActive(firstHero))
@@ -323,6 +338,16 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			answerQuestion(question, 0);
 		}
 	);
+}
+
+void AIGateway::beginCreatureBankRewardPreparation(ObjectInstanceID rewardHero, ObjectInstanceID helperHero)
+{
+	creatureBankRewardPreparation = CreatureBankRewardPreparation{rewardHero, helperHero};
+}
+
+void AIGateway::endCreatureBankRewardPreparation()
+{
+	creatureBankRewardPreparation.reset();
 }
 
 void AIGateway::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
@@ -714,6 +739,18 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
 
 					answer = !dangerUnknown && !dangerTooHigh;
+				}
+
+				if(answer && objType == Obj::CREATURE_BANK)
+				{
+					const auto objectInfo = topObj->getObjectHandler()->getObjectInfo();
+					if(objectInfo && objectInfo->givesCreatures())
+					{
+						const auto creatureReward = RewardEvaluator(nullkiller.get()).getCreatureReward({topObj, heroPtr.get(), heroPtr.get(), HeroRole::SCOUT, false});
+						if(creatureReward.state == CreatureRewardValueInfo::State::UNUSABLE
+							|| creatureReward.state == CreatureRewardValueInfo::State::DEPENDS_ON_TIER)
+							answer = false;
+					}
 				}
 			}
 
