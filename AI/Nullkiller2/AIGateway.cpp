@@ -34,6 +34,7 @@
 #include "../../lib/CPlayerState.h"
 
 #include "AIGateway.h"
+#include "Engine/PriorityEvaluator.h"
 #include "Goals/Goals.h"
 
 namespace NK2AI
@@ -268,6 +269,19 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			if(firstHero->tempOwner != secondHero->tempOwner)
 			{
 				logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
+			}
+			else if(const auto * target = cc->getObj(nullkiller->getTargetObject(), false);
+				target && target->ID == Obj::CREATURE_BANK && nullkiller->getTargetTile() != target->visitablePos())
+			{
+				const auto * helperHero = nullkiller->isActive(firstHero)
+					? firstHero
+					: nullkiller->isActive(secondHero) ? secondHero : nullptr;
+				const auto * rewardHero = helperHero == firstHero ? secondHero : firstHero;
+				const auto transferSlot = helperHero ? getWeakestTransferableStack(rewardHero, helperHero) : SlotID();
+				if(!transferSlot.validSlot())
+					logAi->warn("Unable to make room for creature bank reward on hero %s", rewardHero->getNameTextID());
+				else
+					cc->mergeOrSwapStacks(rewardHero, helperHero, transferSlot, helperHero->getSlotFor(rewardHero->getCreature(transferSlot)));
 			}
 			else
 			{
@@ -620,6 +634,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 					answer = !dangerUnknown && !dangerTooHigh;
 				}
+
+				if(answer && objType == Obj::CREATURE_BANK
+					&& RewardEvaluator(nullkiller.get()).getCreatureReward(topObj, heroPtr.get(), heroPtr.get()) == 0)
+					answer = false;
 			}
 
 			answerQuery(askID, answer ? 1 : 0);

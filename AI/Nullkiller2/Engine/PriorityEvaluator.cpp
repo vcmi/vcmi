@@ -34,6 +34,7 @@
 #include "../../../lib/spells/adventure/DimensionDoorEffect.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
+#include "../Goals/PrepareFreeSlotForCreatureBankReward.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 
@@ -98,6 +99,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isHero(false),
 	isEnemy(false),
 	unusableCreatureBankReward(false),
+	preparesForCreatureBankReward(false),
 	explorePriority(0),
 	powerRatio(0)
 {
@@ -848,6 +850,24 @@ public:
 	}
 };
 
+class PrepareFreeSlotForCreatureBankRewardEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::PREPARE_FREE_SLOT_FOR_CREATURE_BANK_REWARD)
+			return;
+
+		const auto & preparation = dynamic_cast<Goals::PrepareFreeSlotForCreatureBankReward &>(*task);
+		const auto & path = preparation.getPath();
+		const auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
+		evaluationContext.movementCost += path.movementCost();
+		evaluationContext.movementCostByRole.at(static_cast<size_t>(heroRole)) += path.movementCost();
+		vstd::amax(evaluationContext.turn, path.turn());
+		evaluationContext.preparesForCreatureBankReward = true;
+	}
+};
+
 class ArmyUpgradeEvaluator : public IEvaluationContextBuilder
 {
 public:
@@ -1394,6 +1414,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<PrepareFreeSlotForCreatureBankRewardEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
@@ -1482,7 +1503,8 @@ float PriorityEvaluator::evaluate(
 	const int priorityTier,
 	const EvaluationContext & evaluationContext)
 {
-	if(evaluationContext.unusableCreatureBankReward)
+	// hero will not improve army (7 strong stacks already) and no nearby hero that could take a stack to free a slot
+	if(evaluationContext.unusableCreatureBankReward && !evaluationContext.preparesForCreatureBankReward)
 		return 0;
 
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();

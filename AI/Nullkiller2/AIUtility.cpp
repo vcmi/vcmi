@@ -150,6 +150,22 @@ bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safe
 	return isSafeToVisit(h, h, dangerStrength, safeAttackRatio);
 }
 
+SlotID getWeakestTransferableStack(const CCreatureSet * source, const CCreatureSet * destination)
+{
+	SlotID result;
+	uint64_t weakestPower = std::numeric_limits<uint64_t>::max();
+	for(const auto & slot : source->Slots())
+	{
+		if(destination->getSlotFor(slot.second->getCreatureID()).validSlot() && slot.second->getPower() < weakestPower)
+		{
+			result = slot.first;
+			weakestPower = slot.second->getPower();
+		}
+	}
+
+	return result;
+}
+
 bool isObjectRemovable(const CGObjectInstance * obj)
 {
 	//FIXME: move logic to object property!
