@@ -249,6 +249,17 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 {
 	assert(translator != nullptr);
 
+	// only appends of a whole string form list entries - replacements act on an entry that is already in the list
+	auto isListEntry = [](EMessage message)
+	{
+		return message == EMessage::APPEND_RAW_STRING || message == EMessage::APPEND_LOCAL_STRING || message == EMessage::APPEND_TEXTID_STRING;
+	};
+
+	size_t lastEntry = 0;
+	for(size_t i = 0; i < message.size(); ++i)
+		if(isListEntry(message.at(i)))
+			lastEntry = i;
+
 	size_t exSt = 0;
 	size_t loSt = 0;
 	size_t nums = 0;
@@ -256,9 +267,9 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 	std::string lista;
 	for(int i = 0; i < message.size(); ++i)
 	{
-		if(i > 0 && (message.at(i) == EMessage::APPEND_RAW_STRING || message.at(i) == EMessage::APPEND_LOCAL_STRING))
+		if(i > 0 && isListEntry(message.at(i)))
 		{
-			if(exSt == exactStrings.size() - 1)
+			if(i == lastEntry)
 				lista += translator->translate("core.genrltxt", 141); //" and "
 			else
 				lista += ", ";
