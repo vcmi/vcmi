@@ -214,15 +214,18 @@ void CMinorResDataBar::show(Canvas & to)
 
 std::string CMinorResDataBar::buildDateString()
 {
-	std::string pattern = "%s: %d, %s: %d, %s: %d";
-
 	auto calendar = GAME->interface()->cb->getCalendar();
-	auto formatted = boost::format(pattern)
-		% LIBRARY->generaltexth->translate("core.genrltxt.62") % calendar.getMonth()
-		% LIBRARY->generaltexth->translate("core.genrltxt.63") % calendar.getWeek()
-		% LIBRARY->generaltexth->translate("core.genrltxt.64") % calendar.getDayOfWeek();
 
-	return boost::str(formatted);
+	MetaString date;
+	date.appendTextID("vcmi.adventureMap.dateFormat");
+	date.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+	date.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+	date.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+	date.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+	date.replaceTokenTextID("%DAY", "core.genrltxt.64");
+	date.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+
+	return date.toString(&GAME->translator());
 }
 
 void CMinorResDataBar::showAll(Canvas & to)
