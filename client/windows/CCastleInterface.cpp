@@ -948,7 +948,11 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				if(getHero())
 					ENGINE->windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
 				else
-					GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
+				{
+					MetaString message = MetaString::createFromTextID("core.genrltxt.273"); //Only visiting heroes may use the %s.
+					message.replaceTextID(b->getNameTextID());
+					GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
+				}
 				return true;
 		}
 	}
@@ -1077,7 +1081,9 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 	const CGHeroInstance *hero = town->getVisitingHero();
 	if(!hero)
 	{
-		GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[273]) % town->getTown()->buildings.find(building)->second->getNameTranslated()));
+		MetaString message = MetaString::createFromTextID("core.genrltxt.273"); //Only visiting heroes may use the %s.
+		message.replaceTextID(town->getTown()->buildings.at(building)->getNameTextID());
+		GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 		return;
 	}
 	auto art = artifactID.toArtifact();
@@ -2065,8 +2071,9 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 		}
 	case EBuildingState::MISSING_BASE:
 		{
-			std::string msg = LIBRARY->generaltexth->translate("vcmi.townHall.missingBase");
-			ret = boost::str(boost::format(msg) % town->getTown()->buildings.at(building->upgrade)->getNameTranslated());
+			MetaString message = MetaString::createFromTextID("vcmi.townHall.missingBase");
+			message.replaceTextID(town->getTown()->buildings.at(building->upgrade)->getNameTextID());
+			ret = message.toString(&GAME->translator());
 			break;
 		}
 	}
@@ -2132,8 +2139,9 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	const auto & fortBuilding = town->getTown()->buildings.at(BuildingID(town->fortLevel()+6));
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
-	std::string text = boost::str(boost::format(LIBRARY->generaltexth->translate("core.castinfo.6")) % fortBuilding->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
+	MetaString exitText = MetaString::createFromTextID("core.castinfo.6"); // Exit %s
+	exitText.replaceTextID(fortBuilding->getNameTextID());
+	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1"), CButton::tooltip(exitText.toString(&GAME->translator())), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	std::vector<Point> positions =
 	{
@@ -2236,7 +2244,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 
 	if(getMyCreature() != nullptr)
 	{
-		hoverText = boost::str(boost::format(LIBRARY->generaltexth->translate("core.tcommand.21")) % getMyCreature()->getNamePluralTranslated());
+		MetaString hoverTextMessage = MetaString::createFromTextID("core.tcommand.21"); // Recruit %s
+		hoverTextMessage.replaceNamePlural(getMyCreature()->getId());
+		hoverText = hoverTextMessage.toString(&GAME->translator());
 		new CCreaturePic(159, 4, getMyCreature(), false);
 		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->getNamePluralTranslated(), 152);
 

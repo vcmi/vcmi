@@ -779,14 +779,13 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_
 	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, title));
 
 	const bool useRange = value1 != value2;
-	std::string formatStr = useRange ? statFormats.at(static_cast<size_t>(index)) : "%d";
 
-	boost::format fmt(formatStr);
-	fmt % value1;
+	MetaString value = MetaString::createFromRawString(useRange ? statFormats.at(static_cast<size_t>(index)) : "%d");
+	value.replaceNumber(value1);
 	if(useRange)
-		fmt % value2;
+		value.replaceNumber(value2);
 
-	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, fmt.str()));
+	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, value.toString(&GAME->translator())));
 }
 
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)

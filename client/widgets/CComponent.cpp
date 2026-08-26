@@ -281,7 +281,12 @@ std::string CComponent::getSubtitle() const
 	{
 		case ComponentType::PRIM_SKILL:
 			if (data.value)
-				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % GAME->translator().translate("core.priskill", data.subType.getNum()));
+			{
+				MetaString subtitle = MetaString::createFromRawString("%+d %s");
+				subtitle.replacePositiveNumber(*data.value);
+				subtitle.replaceTextID("core.priskill", data.subType.getNum());
+				return subtitle.toString(&GAME->translator());
+			}
 			else
 				return GAME->translator().translate("core.priskill", data.subType.getNum());
 		case ComponentType::EXPERIENCE:
@@ -293,7 +298,12 @@ std::string CComponent::getSubtitle() const
 			return level;
 		}
 		case ComponentType::MANA:
-			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->allTexts[387]);
+		{
+			MetaString subtitle = MetaString::createFromRawString("%+d %s");
+			subtitle.replacePositiveNumber(data.value.value_or(0));
+			subtitle.replaceTextID("core.genrltxt.387"); // Spell Points
+			return subtitle.toString(&GAME->translator());
+		}
 		case ComponentType::SEC_SKILL:
 			if (data.value)
 				return GAME->translator().translate("core.skilllev", data.value.value_or(1)-1) + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
@@ -302,7 +312,11 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::RESOURCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::RESOURCE_PER_DAY:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[3]) % data.value.value_or(0));
+		{
+			MetaString subtitle = MetaString::createFromTextID("core.genrltxt.3"); // %d/day
+			subtitle.replaceNumber(data.value.value_or(0));
+			return subtitle.toString(&GAME->translator());
+		}
 		case ComponentType::CREATURE:
 		{
 			auto creature = LIBRARY->creh->getById(data.subType.as<CreatureID>());
@@ -320,9 +334,13 @@ std::string CComponent::getSubtitle() const
 			else
 				return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
 		case ComponentType::MORALE:
-			return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[384] % data.value.value_or(0));
 		case ComponentType::LUCK:
-			return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[385] % data.value.value_or(0));
+		{
+			MetaString subtitle = MetaString::createFromRawString("%s %+d");
+			subtitle.replaceTextID(data.type == ComponentType::MORALE ? "core.genrltxt.384" : "core.genrltxt.385"); // Morale / Luck
+			subtitle.replacePositiveNumber(data.value.value_or(0));
+			return subtitle.toString(&GAME->translator());
+		}
 		case ComponentType::NONE:
 		case ComponentType::HERO_PORTRAIT:
 			return "";

@@ -57,6 +57,13 @@ static std::string replacePlaceholders(const std::string & input, const TextRepl
 	return result.toString(&GAME->translator());
 }
 
+static std::string formatWithStackName(const std::string & textID, const CStack * stack)
+{
+	MetaString result = MetaString::createFromTextID(textID);
+	result.replaceName(stack->unitType()->getId(), stack->getCount());
+	return result.toString(&GAME->translator());
+}
+
 static std::string translatePlural(int amount, const std::string& baseTextID)
 {
 	if(amount == 1)
@@ -607,14 +614,17 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 	switch (action.get()) //display console message, realize selected action
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			return (boost::format(LIBRARY->generaltexth->allTexts[481]) % targetStack->getName()).str(); //Select %s
+			return formatWithStackName("core.genrltxt.481", targetStack); //Select %s
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
-			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
-				return (boost::format(LIBRARY->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
+		{
+			const CStack * activeStack = owner.stacksController->getActiveStack();
+			if (activeStack->hasBonusOfType(BonusType::FLYING))
+				return formatWithStackName("core.genrltxt.295", activeStack); //Fly %s here
 			else
-				return (boost::format(LIBRARY->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
+				return formatWithStackName("core.genrltxt.294", activeStack); //Move %s here
+		}
 
 		case PossiblePlayerBattleAction::ATTACK:
 		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
@@ -711,7 +721,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		}
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
+			return formatWithStackName("core.genrltxt.301", targetStack); //Cast a spell on %s
 
 		case PossiblePlayerBattleAction::TELEPORT:
 		{
@@ -746,7 +756,11 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		}
 
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
+		{
+			MetaString text = MetaString::createFromTextID("core.genrltxt.26"); //Cast %s
+			text.replaceName(action.spell());
+			return text.toString(&GAME->translator());
+		}
 
 		case PossiblePlayerBattleAction::HEAL:
 		{
@@ -760,7 +774,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return ""; // TODO
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return (boost::format(LIBRARY->generaltexth->allTexts[297]) % targetStack->getName()).str();
+			return formatWithStackName("core.genrltxt.297", targetStack); //View %s info.
 
 		case PossiblePlayerBattleAction::HERO_INFO:
 			return  LIBRARY->generaltexth->translate("core.genrltxt.417"); // "View Hero Stats"
@@ -788,8 +802,11 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 			return LIBRARY->generaltexth->allTexts[543]; //choose army to sacrifice
 			break;
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[181]) % action.spell().toSpell()->getNameTranslated()); //No room to place %s here
-			break;
+		{
+			MetaString text = MetaString::createFromTextID("core.genrltxt.181"); //No room to place %s here
+			text.replaceName(action.spell());
+			return text.toString(&GAME->translator());
+		}
 		default:
 			return "";
 	}

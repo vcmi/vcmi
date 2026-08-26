@@ -167,8 +167,12 @@ void CTradeableItem::hover(bool on)
 	switch(type)
 	{
 	case EType::CREATURE:
-		ENGINE->statusbar()->write(boost::str(boost::format(LIBRARY->generaltexth->allTexts[481]) % LIBRARY->creh->objects[id]->getNamePluralTranslated()));
+	{
+		MetaString message = MetaString::createFromTextID("core.genrltxt.481"); // Select %s
+		message.replaceNamePlural(CreatureID(id));
+		ENGINE->statusbar()->write(message.toString(&GAME->translator()));
 		break;
+	}
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)

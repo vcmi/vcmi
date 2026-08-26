@@ -57,9 +57,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	auto genTitle = [](const CGHeroInstance * h)
 	{
-		boost::format fmt(LIBRARY->generaltexth->allTexts[138]);
-		fmt % GAME->translator().translate(h->getNameTextID()) % h->level % GAME->translator().translate(h->getClassNameTextID());
-		return boost::str(fmt);
+		MetaString title = MetaString::createFromTextID("core.genrltxt.138"); // %s, Level %d %s
+		title.replaceTextID(h->getNameTextID());
+		title.replaceNumber(h->level);
+		title.replaceTextID(h->getClassNameTextID());
+		return title.toString(&GAME->translator());
 	};
 
 	titles[0] = std::make_shared<CLabel>(147, qeLayout ? 21 : 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));

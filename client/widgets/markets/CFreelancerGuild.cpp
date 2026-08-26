@@ -36,8 +36,10 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		LIBRARY->generaltexth->translate("object.core.freelancersGuild.name")));
+	MetaString heroCreatures = MetaString::createFromTextID("core.genrltxt.272"); // %s's Creatures
+	heroCreatures.replaceTextID(hero->getNameTextID());
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % GAME->translator().translate(hero->getNameTextID()))));
+		heroCreatures.toString(&GAME->translator())));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
 		LIBRARY->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
 	offerSlider->moveTo(pos.topLeft() + Point(232, 489));

@@ -638,7 +638,9 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 		if(team.empty())
 			continue;
 
-		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(LIBRARY->generaltexth->allTexts[656]) % (curIdx + 1)));
+		MetaString teamName = MetaString::createFromTextID("core.genrltxt.656"); // Team %d
+		teamName.replaceNumber(curIdx + 1);
+		labelGroupTeams->add(128, 65 + 50 * curIdx, teamName.toString(&GAME->translator()));
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{

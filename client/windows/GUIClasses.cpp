@@ -872,9 +872,13 @@ void CTavernWindow::show(Canvas & to)
 
 			heroDescription->setText(sel->description);
 
-			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->translate("core.tvrninfo.3")) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
+			{
+				MetaString hoverText = MetaString::createFromTextID("core.tvrninfo.3"); // Recruit %s the %s
+				hoverText.replaceTextID(sel->h->getNameTextID());
+				hoverText.replaceTextID(sel->h->getClassNameTextID());
+				recruit->addHoverText(EButtonState::NORMAL, hoverText.toString(&GAME->translator()));
+			}
 
 		}
 
