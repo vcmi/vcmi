@@ -161,7 +161,7 @@ std::string CArtifactsSelling::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
+		message.replaceTextID(offerQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
 		return message.toString(&GAME->translator());

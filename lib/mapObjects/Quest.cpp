@@ -156,7 +156,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			{
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(mission.primary[i]);
-				loot.replaceRawString(LIBRARY->generaltexth->primarySkillNames[i]);
+				loot.replaceTextID(TextIdentifier("core.priskill", i).get());
 			}
 		}
 		
@@ -187,7 +187,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	}
 	
 	if(!mission.heroes.empty())
-		text.replaceRawString(LIBRARY->heroh->getById(mission.heroes.front())->getNameTranslated());
+		text.replaceTextID(LIBRARY->heroh->getById(mission.heroes.front())->getNameTextID());
 	
 	if(!mission.artifacts.empty())
 	{

@@ -74,7 +74,7 @@ std::string UIHelper::getEagleEyeInfoWindowText(const CGHeroInstance & hero, con
 {
 	MetaString text;
 	text.appendTextID("core.genrltxt.221"); // Through eagle-eyed observation, %s is able to learn %s
-	text.replaceRawString(GAME->translator().translate(hero.getNameTextID()));
+	text.replaceTextID(hero.getNameTextID());
 
 	auto curSpell = spells.begin();
 	text.replaceName(*curSpell++);
