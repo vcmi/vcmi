@@ -889,7 +889,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		{
 			boost::format fmt("%s/%s");
 			fmt % levelStr;
-			fmt % LIBRARY->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
+			fmt % GAME->translator().translate("core.skilllev", 3+(schoolLevel-1));//lines 4-6
 			level->setText(fmt.str());
 		}
 		else

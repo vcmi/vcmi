@@ -217,7 +217,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			if (playerSettings.bonus == PlayerStartingBonus::RANDOM)
 					return LIBRARY->generaltexth->allTexts[522];
 
-			return LIBRARY->generaltexth->arraytxt[214 + static_cast<int>(playerSettings.bonus)];
+			return GAME->translator().translate("core.arraytxt", 214 + static_cast<int>(playerSettings.bonus));
 		}
 	}
 	return "";
@@ -1063,7 +1063,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		labelPlayerNameEdit = std::make_shared<CTextInputWithConfirm>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, name, false, [this](){ updateName(); });
 
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->arraytxt[206 + whoCanPlay]);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, GAME->translator().translate("core.arraytxt", 206 + whoCanPlay));
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
 	std::string labelHandicapText = hasHandicap() ? LIBRARY->generaltexth->translate("core.arraytxt.210") : MetaString::createFromTextID("vcmi.lobby.handicap").toString(&GAME->translator());

@@ -12,6 +12,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
@@ -78,7 +79,7 @@ void CHeroOverview::genControls()
 	r = Rect(borderOffset, 2 * borderOffset + yOffset + 64, 284, 20);
 	backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 	for(int i = 0; i < 4; i++)
-		labelSkillHeader.push_back(std::make_shared<CLabel>((r.w / 4) * i + 42, r.y + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[1 + i]));
+		labelSkillHeader.push_back(std::make_shared<CLabel>((r.w / 4) * i + 42, r.y + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, GAME->translator().translate("core.jktext", 1 + i)));
 
 	// skill
 	const int tmp[] = {0, 1, 2, 5};
@@ -214,7 +215,7 @@ void CHeroOverview::genControls()
 	{
 		secSkills.push_back(std::make_shared<CSecSkillPlace>(Point(302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset)),
 															 CSecSkillPlace::ImageSize::SMALL, skill.first, skill.second));
-		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->levels[skill.second - 1], 90));
+		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, GAME->translator().translate("core.skilllev", skill.second - 1), 90));
 		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*LIBRARY->skillh)[skill.first]->getNameTranslated(), 90));
 		i++;
 	}

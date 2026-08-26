@@ -1889,7 +1889,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else if(state==EBuildingState::CANT_BUILD_TODAY)
 			toPrint = LIBRARY->generaltexth->allTexts[223];
 		else
-			toPrint = LIBRARY->generaltexth->hcommands[static_cast<int>(state)];
+			toPrint = GAME->translator().translate("core.hallinfo", static_cast<int>(state));
 		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
 		ENGINE->statusbar()->write(toPrint);
 	}
@@ -2042,7 +2042,7 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 {
 	std::string ret;
 	if(state < EBuildingState::ALLOWED)
-		ret =  LIBRARY->generaltexth->hcommands[static_cast<int>(state)];
+		ret =  GAME->translator().translate("core.hallinfo", static_cast<int>(state));
 	switch (state)
 	{
 	case EBuildingState::ALREADY_PRESENT:

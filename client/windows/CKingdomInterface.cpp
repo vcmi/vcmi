@@ -149,7 +149,7 @@ std::string InfoBoxAbstractHeroData::getValueText()
 		{
 			si64 value = getValue();
 			if (value)
-				return LIBRARY->generaltexth->levels[value];
+				return GAME->translator().translate("core.skilllev", value);
 			else
 				return "";
 		}
@@ -164,7 +164,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	switch (type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return LIBRARY->generaltexth->primarySkillNames[getSubID()];
+		return GAME->translator().translate("core.priskill", getSubID());
 	case HERO_MANA:
 		return LIBRARY->generaltexth->allTexts[387];
 	case HERO_EXPERIENCE:
@@ -266,7 +266,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 		text = LIBRARY->heroh->objects[getSubID()]->getSpecialtyDescriptionTranslated();
 		break;
 	case HERO_PRIMARY_SKILL:
-		text = LIBRARY->generaltexth->arraytxt[2+getSubID()];
+		text = GAME->translator().translate("core.arraytxt", 2+getSubID());
 		comp = std::make_shared<CComponent>(ComponentType::PRIM_SKILL, PrimarySkill(getSubID()), getValue());
 		break;
 	case HERO_MANA:
@@ -1045,8 +1045,8 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	{
 		int stringID[3] = {259, 261, 262};
 
-		std::string hover = LIBRARY->generaltexth->overview[13+it];
-		std::string overlay = LIBRARY->generaltexth->overview[8+it];
+		std::string hover = GAME->translator().translate("core.overview", 13+it);
+		std::string overlay = GAME->translator().translate("core.overview", 8+it);
 
 		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), AnimationPath::builtin("OVBUTN3"), CButton::tooltip(hover, overlay), 0);
 		button->setTextOverlay(LIBRARY->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);

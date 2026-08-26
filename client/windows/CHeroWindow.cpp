@@ -129,7 +129,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	for(int v = 0; v < GameConstants::PRIMARY_SKILLS; ++v)
 	{
 		auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(30 + 70 * v, 109, 42, 64), ComponentType::PRIM_SKILL);
-		area->text = LIBRARY->generaltexth->arraytxt[2+v];
+		area->text = GAME->translator().translate("core.arraytxt", 2+v);
 		area->component.subType = PrimarySkill(v);
 		MetaString hoverText;
 		hoverText.appendTextID("core.heroscrn.1");
@@ -288,7 +288,7 @@ void CHeroWindow::updateArtifacts()
 		SecondarySkill skill = curHero->secSkills[g + offset].first;
 		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
-		std::string skillValue = LIBRARY->generaltexth->levels[level-1];
+		std::string skillValue = GAME->translator().translate("core.skilllev", level-1);
 
 		secSkillNames[g]->setText(skillName);
 		secSkillValues[g]->setText(skillValue);

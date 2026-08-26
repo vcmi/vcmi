@@ -51,22 +51,7 @@ public:
 	/// i.e. TENTCOLR.TXT (a SoD-specific file) is absent from the game data.
 	static bool isRoEData();
 	LegacyTextContainer allTexts;
-
-	LegacyTextContainer arraytxt;
-	LegacyTextContainer primarySkillNames;
-	LegacyTextContainer jktexts;
-	LegacyTextContainer heroscrn;
-	LegacyTextContainer overview;//text for Kingdom Overview window
-	LegacyTextContainer capColors; //names of player colors with first letter capitalized ("Red",...)
-	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
-
-	//towns
-	LegacyTextContainer hcommands; // town hall screen
-
 	LegacyHelpContainer zelp;
-
-	//sec skills
-	LegacyTextContainer levels;
 
 	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
 

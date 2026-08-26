@@ -292,7 +292,7 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
+					subtitle = GAME->translator().translate("core.arraytxt", 171 + 3 * (slot.second.getCount()));
 				}
 			}
 		}
@@ -615,10 +615,10 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
-	hoverText = LIBRARY->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	hoverText = GAME->translator().translate("core.heroscrn", hoverTextBase[morale] - mrlt);
 	component.type = componentType[morale];
-	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
-	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	text = GAME->translator().translate("core.arraytxt", textId[morale]);
+	boost::algorithm::replace_first(text,"%s",GAME->translator().translate("core.arraytxt", neutralDescr[morale]-mrlt));
 
 	if (morale && node && node->unaffectedByMorale())
 	{
@@ -653,7 +653,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			}
 		}
 		text = addInfo.empty() 
-			? text + LIBRARY->generaltexth->arraytxt[noneTxtId] 
+			? text + GAME->translator().translate("core.arraytxt", noneTxtId) 
 			: text + addInfo;
 	}
 	std::string imageName;

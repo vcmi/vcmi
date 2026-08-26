@@ -20,6 +20,7 @@
 #include "lib/modding/ModScope.h"
 #include "lib/modding/IdentifierStorage.h"
 #include "lib/spells/CSpellHandler.h"
+#include "../translator.h"
 
 ScholarWidget::ScholarWidget(CRewardableObject & scholar, MapController & controller, QWidget * parent)
 	: QDialog(parent), ui(new Ui::ScholarWidget), scholar(scholar), extractor(controller.getCallback()), controller(controller)
@@ -41,7 +42,7 @@ void ScholarWidget::loadData()
 {
 	for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
 	{
-		ui->pSkills->insertItem(i, QString::fromStdString(LIBRARY->generaltexth->primarySkillNames[i]));
+		ui->pSkills->insertItem(i, QString::fromStdString(Translator::instance().translate("core.priskill", i)));
 		ui->pSkills->setItemData(i, QString::fromStdString(NPrimarySkill::names[i]));
 	}
 	int ssi = 0;

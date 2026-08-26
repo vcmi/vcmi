@@ -13,6 +13,7 @@
 #include "Images.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
@@ -228,7 +229,7 @@ std::string CComponent::getDescription() const
 	switch(data.type)
 	{
 		case ComponentType::PRIM_SKILL:
-			return LIBRARY->generaltexth->arraytxt[2+data.subType.getNum()];
+			return GAME->translator().translate("core.arraytxt", 2+data.subType.getNum());
 		case ComponentType::EXPERIENCE:
 		case ComponentType::LEVEL:
 			return LIBRARY->generaltexth->allTexts[241];
@@ -253,9 +254,9 @@ std::string CComponent::getDescription() const
 		case ComponentType::SPELL:
 			return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
 		case ComponentType::MORALE:
-			return LIBRARY->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return GAME->translator().translate("core.heroscrn", 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0));
 		case ComponentType::LUCK:
-			return LIBRARY->generaltexth->heroscrn[ 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return GAME->translator().translate("core.heroscrn", 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0));
 		case ComponentType::BUILDING:
 		{
 			auto index = data.subType.as<BuildingTypeUniqueID>();
@@ -280,9 +281,9 @@ std::string CComponent::getSubtitle() const
 	{
 		case ComponentType::PRIM_SKILL:
 			if (data.value)
-				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->primarySkillNames[data.subType.getNum()]);
+				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % GAME->translator().translate("core.priskill", data.subType.getNum()));
 			else
-				return LIBRARY->generaltexth->primarySkillNames[data.subType.getNum()];
+				return GAME->translator().translate("core.priskill", data.subType.getNum());
 		case ComponentType::EXPERIENCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::LEVEL:
@@ -295,7 +296,7 @@ std::string CComponent::getSubtitle() const
 			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->allTexts[387]);
 		case ComponentType::SEC_SKILL:
 			if (data.value)
-				return LIBRARY->generaltexth->levels[data.value.value_or(1)-1] + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
+				return GAME->translator().translate("core.skilllev", data.value.value_or(1)-1) + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 			else
 				return LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 		case ComponentType::RESOURCE:
@@ -337,7 +338,7 @@ std::string CComponent::getSubtitle() const
 				return building->getNameTranslated();
 			}
 		case ComponentType::FLAG:
-			return LIBRARY->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
+			return GAME->translator().translate("vcmi.capitalColors", data.subType.as<PlayerColor>().getNum());
 		default:
 			assert(0);
 			return "";

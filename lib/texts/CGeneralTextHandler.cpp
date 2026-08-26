@@ -132,18 +132,8 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
-	hcommands        (*this, "core.hallinfo" ),
-	overview         (*this, "core.overview" ),
-	arraytxt         (*this, "core.arraytxt" ),
-	primarySkillNames(*this, "core.priskill" ),
-	jktexts          (*this, "core.jktext"   ),
-	turnDurations    (*this, "core.turndur"  ),
-	heroscrn         (*this, "core.heroscrn" ),
-	levels           (*this, "core.skilllev" ),
-	zelp             (*this, "core.help"     ),
 	allTexts         (*this, "core.genrltxt" ),
-	// pseudo-array, that don't have H3 file with same name
-	capColors        (*this, "vcmi.capitalColors"  ),
+	zelp             (*this, "core.help"     ),
 
 	roeMapping()
 {

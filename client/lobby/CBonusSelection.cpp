@@ -300,7 +300,7 @@ void CBonusSelection::createBonusesIcons()
 				for(int v = 0; v < toPrint.size(); ++v)
 				{
 					substitute += std::to_string(toPrint[v].second);
-					substitute += " " + LIBRARY->generaltexth->primarySkillNames[toPrint[v].first];
+					substitute += " " + GAME->translator().translate("core.priskill", toPrint[v].first);
 					if(v != toPrint.size() - 1)
 					{
 						substitute += ", ";

@@ -437,7 +437,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 				FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE,
 				sk->getNameTranslated()));
 			const std::string lvlStr = (level >= 1 && level <= 3)
-				? LIBRARY->generaltexth->levels[level - 1]
+				? GAME->translator().translate("core.skilllev", level - 1)
 				: std::to_string(level);
 			widgets.push_back(std::make_shared<CLabel>(
 				MARGIN + iconW + nameW + CELL_L, curY + rowH / 2 - 5,

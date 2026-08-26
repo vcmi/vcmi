@@ -1620,7 +1620,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		else
 			y = posY[g-9];
 
-		std::string text = LIBRARY->generaltexth->jktexts[24+g];
+		std::string text = GAME->translator().translate("core.jktext", 24+g);
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
 		if(settings["general"]["enableUiEnhancements"].Bool() && g >= 2 && g <= 4) // add icons instead of text (text is OH3 behavior)
 		{
@@ -1648,7 +1648,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[16+g]));
+		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, GAME->translator().translate("core.jktext", 16+g)));
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1698,7 +1698,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 				{
 					primSkillHeaders.push_back(std::make_shared<CLabel>(260 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMLEFT, Colors::WHITE, lines[i]));
 					primSkillHeadersArea.push_back(std::make_shared<LRClickableArea>(Rect(primSkillHeaders.back()->pos.x - pos.x, primSkillHeaders.back()->pos.y - pos.y - 11, 50, 11), nullptr, [i]{
-						CRClickPopup::createAndPush(LIBRARY->generaltexth->arraytxt[2 + i]);
+						CRClickPopup::createAndPush(GAME->translator().translate("core.arraytxt", 2 + i));
 					}));
 					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
 							   std::to_string(iter.second.details->primskills[i])));
@@ -1728,7 +1728,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		}
 		else if(it.second != EAiTactic::RANDOM)
 		{
-			text = LIBRARY->generaltexth->arraytxt[168 + static_cast<int>(it.second)];
+			text = GAME->translator().translate("core.arraytxt", 168 + static_cast<int>(it.second));
 		}
 
 		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text));

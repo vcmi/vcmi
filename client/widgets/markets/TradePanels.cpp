@@ -180,7 +180,7 @@ void CTradeableItem::hover(bool on)
 		ENGINE->statusbar()->write(GameResID(id).toResource()->getNameTranslated());
 		break;
 	case EType::PLAYER:
-		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(GAME->translator().translate("vcmi.capitalColors", id));
 		break;
 	}
 }
@@ -360,7 +360,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->setSelectionWidth(selectionWidth);
-		slot->subtitle->setText(LIBRARY->generaltexth->capColors[players[slotNum].num]);
+		slot->subtitle->setText(GAME->translator().translate("vcmi.capitalColors", players[slotNum].num));
 		slotNum++;
 	}
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::PLAYER, 0, 0);
