@@ -133,7 +133,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		area->component.subType = PrimarySkill(v);
 		MetaString hoverText;
 		hoverText.appendTextID("core.heroscrn.1");
-		hoverText.replaceTextID(TextIdentifier("core.priskill", v).get());
+		hoverText.replaceTextID("core.priskill", v);
 		area->hoverText = hoverText.toString(&GAME->translator());
 		primSkillAreas.push_back(area);
 

@@ -36,7 +36,7 @@ class KeyGuardInstanceConstructor final : public CDefaultObjectTypeHandler<Objec
 			Rewardable::VisitInfo vinfo;
 			vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 			vinfo.reward.removeObject = true;
-			vinfo.message.appendTextID(TextIdentifier("core", "advevent", 17).get());
+			vinfo.message.appendTextID("core.advevent", 17);
 			typeQuest.reward = vinfo;
 		}
 	}

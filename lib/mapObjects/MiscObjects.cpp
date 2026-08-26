@@ -180,7 +180,7 @@ ResourceSet CGMine::dailyIncome() const
 MetaString CGMine::getObjectName() const
 {
 	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
-		return MetaString::createFromTextID(TextIdentifier("core.minename", getObjTypeIndex()).get());
+		return MetaString::createFromTextID("core.minename", getObjTypeIndex());
 	else
 		return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
 }
@@ -218,7 +218,7 @@ void CGMine::flagMine(IGameEventCallback & gameEvents, const PlayerColor & playe
 	if(!descriptionTextID.empty())
 		iw.text.appendTextID(descriptionTextID);
 	else
-		iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get());
+		iw.text.appendTextID("core.mineevnt", producedResource.getNum());
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
 	gameEvents.showInfoDialog(&iw);

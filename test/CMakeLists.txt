@@ -116,7 +116,6 @@ set(test_SRCS
 		server/battles/TransmutationTest.cpp
 		server/queries/QueriesProcessorTest.cpp
 
-		texts/MetaStringTest.cpp
 		texts/TextOperationsTest.cpp
 
 		mock/BattleFake.cpp

@@ -118,7 +118,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(140, 32));
 		MetaString hoverText;
 		hoverText.appendTextID("core.heroscrn.1");
-		hoverText.replaceTextID(TextIdentifier("core.priskill", g).get());
+		hoverText.replaceTextID("core.priskill", g);
 
 		primSkillAreas[g]->text = GAME->translator().translate("core.arraytxt", 2 + g);
 		primSkillAreas[g]->component = Component( ComponentType::PRIM_SKILL, PrimarySkill(g));

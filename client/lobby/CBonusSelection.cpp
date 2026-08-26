@@ -315,7 +315,7 @@ void CBonusSelection::createBonusesIcons()
 				const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
 				const auto * skill = bonusValue.skill.toSkill();
 				desc.appendTextID("core.genrltxt.718");
-				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
+				desc.replaceTextID("core.skilllev", bonusValue.mastery - 1);
 				desc.replaceName(bonusValue.skill);
 				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
 					picName = skill->at(bonusValue.mastery).scenarioBonus;

@@ -321,7 +321,7 @@ void CSecSkillPlace::setLevel(const uint8_t level)
 		image->setFrame(secSkill->getIconIndex(level - 1));
 		image->enable();
 		auto hoverText = MetaString::createFromTextID("core.heroscrn.21");
-		hoverText.replaceTextID(TextIdentifier("core.skilllev", level - 1).get());
+		hoverText.replaceTextID("core.skilllev", level - 1);
 		hoverText.replaceTextID(secSkill->getNameTextID());
 		this->hoverText = hoverText.toString(&GAME->translator());
 		component.value = level;

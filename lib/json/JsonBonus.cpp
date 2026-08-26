@@ -796,7 +796,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 			}
 		}
 		if (ability["description"].isNumber())
-			b->description.appendTextID("core.arraytxt." + std::to_string(ability["description"].Integer()));
+			b->description.appendTextID("core.arraytxt", ability["description"].Integer());
 	}
 
 	if(!ability["icon"].isNull())

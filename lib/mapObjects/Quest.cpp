@@ -156,7 +156,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 			{
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(mission.primary[i]);
-				loot.replaceTextID(TextIdentifier("core.priskill", i).get());
+				loot.replaceTextID("core.priskill", i);
 			}
 		}
 		
@@ -250,7 +250,7 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 		iwText.append(nextVisitText);
 	
 	if(lastDay >= 0)
-		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
+		iwText.appendTextID("core.seerhut.time", textOption);
 	
 	addTextReplacements(cb, iwText, components);
 }
@@ -311,7 +311,7 @@ void Quest::addKillTargetReplacements(MetaString &out) const
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
-		out.replaceTextID(TextIdentifier("core", "arraytxt", 147 + stackDirection).get());
+		out.replaceTextID("core.arraytxt", 147 + stackDirection);
 	}
 }
 
@@ -571,15 +571,15 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 
 		if(q.missionKind == EQuestMission::NONE)
 		{
-			q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", q.completedOption).get());
+			q.firstVisitText.appendTextID("core.seerhut.empty", q.completedOption);
 		}
 		else if(q.missionKind == EQuestMission::KEYMASTER)
 		{
 			// border guard: "you need the key" shown on first and on every blocked revisit
 			if(q.firstVisitText.empty())
-				q.firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
+				q.firstVisitText.appendTextID("core.advevent", 18);
 			if(q.nextVisitText.empty())
-				q.nextVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
+				q.nextVisitText.appendTextID("core.advevent", 18);
 		}
 		else
 		{
@@ -606,7 +606,7 @@ MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 	MetaString text;
 	if(!seerName.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
 	{
-		text.appendTextID(TextIdentifier("core", "genrltxt", 347).get());
+		text.appendTextID("core.genrltxt", 347);
 		text.replaceRawString(seerName);
 	}
 	else
@@ -713,7 +713,7 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 	{
 		// no active quest: pick a valid "empty seer" flavour without one
 		ui8 emptyOption = allQuests().empty() ? 0 : allQuests().front()->completedOption;
-		iw.text.appendTextID(TextIdentifier("core", "seerhut", "empty", emptyOption).get());
+		iw.text.appendTextID("core.seerhut.empty", emptyOption);
 		if(!seerName.empty())
 			iw.text.replaceRawString(seerName);
 		gameEvents.showInfoDialog(&iw);
@@ -833,7 +833,7 @@ MetaString KeymasterTent::getHoverText(PlayerColor player) const
 MetaString KeymasterTent::getObjectName() const
 {
 	MetaString result;
-	result.appendTextID(TextIdentifier("core.tentcolr", subID.getNum()).get());
+	result.appendTextID("core.tentcolr", subID.getNum());
 	result.appendRawString(" ");
 	result.append(CGObjectInstance::getObjectName());
 	return result;
@@ -866,7 +866,7 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 	CRewardableObject::initObj(gameRandomizer);
 	getQuest().defineQuestName();
 	if(getQuest().firstVisitText.empty())
-		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
+		getQuest().firstVisitText.appendTextID("core.advevent", 18);
 }
 
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

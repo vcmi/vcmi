@@ -227,7 +227,7 @@ void VictoryConditions::update()
 		specialVictory.description.clear(); // TODO: display in quest window
 
 		controller->map()->victoryIconIndex = vicCondition;
-		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc." + std::to_string(vicCondition + 1));
+		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc", vicCondition + 1);
 		customMessage = false;
 
 		switch(vicCondition)

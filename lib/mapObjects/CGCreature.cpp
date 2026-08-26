@@ -137,7 +137,7 @@ MetaString CGCreature::getPopupText(const CGHeroInstance * hero) const
 		else if (ratio < 20)   choice = 10;
 		else                   choice = 11;
 
-		hoverName.appendTextID("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+		hoverName.appendTextID("vcmi.adventureMap.monsterThreat.levels", choice);
 	}
 	return hoverName;
 }

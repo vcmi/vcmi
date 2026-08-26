@@ -556,7 +556,7 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	levelTitleText.replaceTextID(hero->getClassNameTextID());
 
 	MetaString skillValueText;
-	skillValueText.appendTextID(TextIdentifier("core.priskill", pskill.getNum()).get());
+	skillValueText.appendTextID("core.priskill", pskill.getNum());
 	skillValueText.appendRawString(" +1");
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText.toString(&GAME->translator()));

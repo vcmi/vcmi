@@ -849,7 +849,7 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectArtifact");
-			str.replaceTextID("vcmi.lobby.battleOnlyModeSelectArtifact." + std::to_string(artPos[i]));
+			str.replaceTextID("vcmi.lobby.battleOnlyModeSelectArtifact", artPos[i]);
 			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
 		}
 		else

@@ -631,9 +631,9 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	case RumorState::TYPE_SPECIAL:
 		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);
 		if(rumor.first == RumorState::RUMOR_GRAIL)
-			text.replaceTextID(TextIdentifier("core", "arraytxt", 158 + rumor.second).get());
+			text.replaceTextID("core.arraytxt", 158 + rumor.second);
 		else
-			text.replaceTextID(TextIdentifier("core", "plcolors", rumor.second).get());
+			text.replaceTextID("core.plcolors", rumor.second);
 
 		break;
 	case RumorState::TYPE_MAP:
@@ -642,7 +642,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 		break;
 
 	case RumorState::TYPE_RAND:
-		text.replaceTextID(TextIdentifier("core", "randtvrn", rumor.first).get());
+		text.replaceTextID("core.randtvrn", rumor.first);
 		break;
 	}
 

@@ -40,6 +40,11 @@ MetaString MetaString::createFromTextID(const std::string & value)
 	return result;
 }
 
+MetaString MetaString::createFromTextID(const std::string & prefix, int index)
+{
+	return createFromTextID(prefix + '.' + std::to_string(index));
+}
+
 MetaString MetaString::createFromName(const GameResID& id)
 {
 	MetaString result;
@@ -70,6 +75,11 @@ void MetaString::appendTextID(const std::string & value)
 		message.push_back(EMessage::APPEND_TEXTID_STRING);
 		stringsTextID.push_back(value);
 	}
+}
+
+void MetaString::appendTextID(const std::string & prefix, int index)
+{
+	appendTextID(prefix + '.' + std::to_string(index));
 }
 
 void MetaString::appendNumber(int64_t value)
@@ -108,6 +118,11 @@ void MetaString::replaceTextID(const std::string & value)
 {
 	message.push_back(EMessage::REPLACE_TEXTID_STRING);
 	stringsTextID.push_back(value);
+}
+
+void MetaString::replaceTextID(const std::string & prefix, int index)
+{
+	replaceTextID(prefix + '.' + std::to_string(index));
 }
 
 void MetaString::replaceNumber(int64_t txt)
@@ -442,7 +457,7 @@ void MetaString::appendName(const SpellID & id)
 
 void MetaString::appendName(const PlayerColor & id)
 {
-	appendTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+	appendTextID("vcmi.capitalColors", id.getNum());
 }
 
 void MetaString::appendName(const CreatureID & id, TQuantity count)
@@ -485,7 +500,7 @@ void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subI
 
 void MetaString::replaceName(const PlayerColor & id)
 {
-	replaceTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+	replaceTextID("vcmi.capitalColors", id.getNum());
 }
 
 void MetaString::replaceName(const SecondarySkill & id)

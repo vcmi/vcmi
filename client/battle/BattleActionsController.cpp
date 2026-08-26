@@ -138,7 +138,7 @@ static std::string formatRetaliation(const DamageEstimation & estimation, bool m
 static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects::SpellEffectValue & value,
 										  const std::string & spellName, const std::string & targetName)
 {
-	auto templateText = MetaString::createFromTextID( "core.genrltxt." + std::to_string(gnrlTextID));
+	auto templateText = MetaString::createFromTextID("core.genrltxt", gnrlTextID);
 	if (!spellName.empty())
 		templateText.replaceRawString(spellName);
 	if (!targetName.empty())

@@ -354,7 +354,7 @@ std::string InfoBoxHeroData::getHoverText()
 	{
 		MetaString hoverText;
 		hoverText.appendTextID("core.heroscrn.1");
-		hoverText.replaceTextID(TextIdentifier("core.priskill", index).get());
+		hoverText.replaceTextID("core.priskill", index);
 		return hoverText.toString(&GAME->translator());
 	}
 	case HERO_MANA:
@@ -368,7 +368,7 @@ std::string InfoBoxHeroData::getHoverText()
 		{
 			MetaString hoverText;
 			hoverText.appendTextID("core.heroscrn.21");
-			hoverText.replaceTextID(TextIdentifier("core.skilllev", hero->secSkills[index].second - 1).get());
+			hoverText.replaceTextID("core.skilllev", hero->secSkills[index].second - 1);
 			hoverText.replaceName(hero->secSkills[index].first);
 			return hoverText.toString(&GAME->translator());
 		}
