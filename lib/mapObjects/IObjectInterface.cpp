@@ -141,16 +141,16 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	switch(shipyardStatus())
 	{
 	case BOAT_ALREADY_BUILT:
-		out.appendLocalString(EMetaText::GENERAL_TXT, 51);
+		out.appendTextID("core.genrltxt.51");
 		break;
 	case TILE_BLOCKED:
 		if(visitor)
 		{
-			out.appendLocalString(EMetaText::GENERAL_TXT, 134);
+			out.appendTextID("core.genrltxt.134");
 			out.replaceTextID(visitor->getNameTextID());
 		}
 		else
-			out.appendLocalString(EMetaText::ADVOB_TXT, 189);
+			out.appendTextID("core.advevent.189");
 		break;
 	case NO_WATER:
 		logGlobal->error("Shipyard without water at tile %s! ", getObject()->anchorPos().toString());

@@ -605,7 +605,7 @@ MetaString CGHeroInstance::getObjectName() const
 		return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, 0));
 
 	MetaString hoverName;
-	hoverName.appendLocalString(EMetaText::GENERAL_TXT, 15);
+	hoverName.appendTextID("core.genrltxt.15");
 	hoverName.replaceTextID(getNameTextID());
 	hoverName.replaceTextID(getClassNameTextID());
 	return hoverName;

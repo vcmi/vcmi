@@ -85,7 +85,7 @@ ESpellCastResult TownRelatedAdventureSpellEffect::onNoTownToSelect(SpellCastEnvi
 {
 	InfoWindow iw;
 	iw.player = parameters.caster->getCasterOwner();
-	iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
+	iw.text.appendTextID("core.genrltxt.124");
 	env->apply(iw);
 	return ESpellCastResult::CANCEL;
 }

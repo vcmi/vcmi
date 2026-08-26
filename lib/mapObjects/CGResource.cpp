@@ -120,7 +120,7 @@ void CGResource::collectRes(IGameEventCallback & gameEvents, const PlayerColor &
 	else
 	{
 		sii.type = EInfoWindowMode::INFO;
-		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
+		sii.text.appendTextID("core.advevent.113");
 		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);

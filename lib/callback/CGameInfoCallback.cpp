@@ -619,7 +619,7 @@ EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbos
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const
 {
 	MetaString text;
-	text.appendLocalString(EMetaText::GENERAL_TXT, 216);
+	text.appendTextID("core.genrltxt.216");
 
 	std::string extraText;
 	if(gameState().currentRumor.type == RumorState::TYPE_NONE)

@@ -730,7 +730,7 @@ MetaString CMapGenOptions::getMapName() const
 		return MetaString::createFromRawString(mapTemplate->getName());
 
 	MetaString result;
-	result.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	result.appendTextID("core.genrltxt.740");
 	return result;
 }
 

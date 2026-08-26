@@ -310,7 +310,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
-	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
+	text.appendTextID("core.genrltxt.541");
 	assert(caster);
 	text.replaceTextID(caster->getCasterNameTextID());
 
@@ -339,14 +339,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
-				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
+				text.appendTextID("core.genrltxt.536");
 				text.replaceName(b->sid.as<ArtifactID>());
 				text.replaceTextID(caster->getCasterNameTextID());
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
-				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
+				text.appendTextID("core.genrltxt.537");
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else
@@ -360,7 +360,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 	case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 		{
 			MetaString text;
-			text.appendLocalString(EMetaText::GENERAL_TXT, 185);
+			text.appendTextID("core.genrltxt.185");
 			target.add(std::move(text), spells::Problem::NORMAL);
 		}
 		break;
