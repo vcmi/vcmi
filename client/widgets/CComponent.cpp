@@ -293,9 +293,10 @@ std::string CComponent::getSubtitle() const
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::LEVEL:
 		{
-			std::string level = LIBRARY->generaltexth->allTexts[442];
-			boost::replace_first(level, "1", std::to_string(data.value.value_or(0)));
-			return level;
+			// H3 text has no placeholder - the literal '1' in "+1 Level" is the value to substitute
+			MetaString level = MetaString::createFromTextID("core.genrltxt.442");
+			level.replaceTokenNumber("1", data.value.value_or(0));
+			return level.toString(&GAME->translator());
 		}
 		case ComponentType::MANA:
 		{

@@ -617,8 +617,9 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = GAME->translator().translate("core.heroscrn", hoverTextBase[morale] - mrlt);
 	component.type = componentType[morale];
-	text = GAME->translator().translate("core.arraytxt", textId[morale]);
-	boost::algorithm::replace_first(text,"%s",GAME->translator().translate("core.arraytxt", neutralDescr[morale]-mrlt));
+	MetaString description = MetaString::createFromTextID("core.arraytxt", textId[morale]);
+	description.replaceTextID("core.arraytxt", neutralDescr[morale] - mrlt);
+	text = description.toString(&GAME->translator());
 
 	if (morale && node && node->unaffectedByMorale())
 	{

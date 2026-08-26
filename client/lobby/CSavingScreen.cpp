@@ -95,9 +95,9 @@ void CSavingScreen::saveGame()
 	{
 		if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
 		{
-			std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
-			boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
-			GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
+			MetaString hlp = MetaString::createFromTextID("core.genrltxt.493"); //%s exists. Overwrite?
+			hlp.replaceRawString(tabSel->inputName->getText());
+			GAME->interface()->showYesNoDialog(hlp.toString(&GAME->translator()), overWrite, nullptr);
 		}
 		else
 		{

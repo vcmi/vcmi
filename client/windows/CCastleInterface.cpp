@@ -533,48 +533,44 @@ void CHeroGSlot::hover(bool on)
 		return;
 	}
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
-	std::string temp;
+	MetaString temp;
 	if(hero)
 	{
 		if(isSelected())//view NNN
 		{
-			temp = LIBRARY->generaltexth->translate("core.tcommand.4");
-			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
+			temp.appendTextID("core.tcommand.4");
+			temp.replaceTextID(hero->getNameTextID());
 		}
 		else if(other->hero && other->isSelected())//exchange
 		{
-			temp = LIBRARY->generaltexth->translate("core.tcommand.7");
-			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
-			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
+			temp.appendTextID("core.tcommand.7");
+			temp.replaceTextID(hero->getNameTextID());
+			temp.replaceTextID(other->hero->getNameTextID());
 		}
 		else// select NNN (in ZZZ)
 		{
 			if(upg)//down - visiting
-			{
-				temp = LIBRARY->generaltexth->translate("core.tcommand.32");
-				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
-			}
+				temp.appendTextID("core.tcommand.32");
 			else //up - garrison
-			{
-				temp = LIBRARY->generaltexth->translate("core.tcommand.12");
-				boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(hero->getNameTextID()));
-			}
+				temp.appendTextID("core.tcommand.12");
+
+			temp.replaceTextID(hero->getNameTextID());
 		}
 	}
 	else //we are empty slot
 	{
 		if(other->isSelected() && other->hero) //move NNNN
 		{
-			temp = LIBRARY->generaltexth->translate("core.tcommand.6");
-			boost::algorithm::replace_first(temp,"%s",GAME->translator().translate(other->hero->getNameTextID()));
+			temp.appendTextID("core.tcommand.6");
+			temp.replaceTextID(other->hero->getNameTextID());
 		}
 		else //empty
 		{
-			temp = LIBRARY->generaltexth->allTexts[507];
+			temp.appendTextID("core.genrltxt.507");
 		}
 	}
-	if(temp.size())
-		ENGINE->statusbar()->write(temp);
+	if(!temp.empty())
+		ENGINE->statusbar()->write(temp.toString(&GAME->translator()));
 }
 
 void CHeroGSlot::clickPressed(const Point & cursorPosition)
@@ -688,10 +684,10 @@ void HeroSlots::swapArmies()
 	{
 		if (!town->getVisitingHero() && GAME->interface()->cb->howManyHeroes(false) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		{
-			std::string text = LIBRARY->generaltexth->translate("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
-			boost::algorithm::replace_first(text,"%d",std::to_string(GAME->interface()->cb->howManyHeroes(false)));
+			MetaString text = MetaString::createFromTextID("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
+			text.replaceNumber(GAME->interface()->cb->howManyHeroes(false));
 
-			GAME->interface()->showInfoDialog(text, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+			GAME->interface()->showInfoDialog(text.toString(&GAME->translator()), std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			allow = false;
 		}
 		else if (town->getGarrisonHero()->stacksCount() == 0)
@@ -1172,32 +1168,31 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), building)));
-	std::string descr = town->getTown()->buildings.find(building)->second->getDescriptionTranslated();
-	std::string hasNotProduced;
-	std::string hasProduced;
-
-	hasNotProduced = LIBRARY->generaltexth->allTexts[677];
-	hasProduced = LIBRARY->generaltexth->allTexts[678];
+	MetaString descr = MetaString::createFromTextID(town->getTown()->buildings.at(building)->getDescriptionTextID());
 
 	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
 		|| (upgrades != BuildingID::NONE
-			&& town->getTown()->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
+			&& town->getTown()->buildings.at(BuildingID(upgrades))->subId == BuildingSubID::MYSTIC_POND);
 
 	if(upgrades != BuildingID::NONE && upgrades != building)
-		descr += "\n\n"+town->getTown()->buildings.find(BuildingID(upgrades))->second->getDescriptionTranslated();
+	{
+		descr.appendRawString("\n\n");
+		descr.appendTextID(town->getTown()->buildings.at(BuildingID(upgrades))->getDescriptionTextID());
+	}
 
 	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
 	{
+		descr.appendRawString("\n\n");
 		if(town->bonusValue.first == 0) //Mystic Pond produced nothing;
-			descr += "\n\n" + hasNotProduced;
+			descr.appendTextID("core.genrltxt.677");
 		else //Mystic Pond produced something;
 		{
-			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr,"%s",GameResID(town->bonusValue.first).toResource()->getNameTranslated());
-			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
+			descr.appendTextID("core.genrltxt.678");
+			descr.replaceName(GameResID(town->bonusValue.first));
+			descr.replaceNumber(town->bonusValue.second);
 		}
 	}
-	GAME->interface()->showInfoDialog(descr, comps);
+	GAME->interface()->showInfoDialog(descr.toString(&GAME->translator()), comps);
 }
 
 void CCastleBuildings::enterMagesGuild()
@@ -1889,15 +1884,15 @@ void CHallInterface::CBuildingBox::hover(bool on)
 {
 	if(on)
 	{
-		std::string toPrint;
+		MetaString toPrint;
 		if(state==EBuildingState::PREREQUIRES || state == EBuildingState::MISSING_BASE)
-			toPrint = LIBRARY->generaltexth->translate("core.hallinfo.5");
+			toPrint.appendTextID("core.hallinfo.5");
 		else if(state==EBuildingState::CANT_BUILD_TODAY)
-			toPrint = LIBRARY->generaltexth->allTexts[223];
+			toPrint.appendTextID("core.genrltxt.223");
 		else
-			toPrint = GAME->translator().translate("core.hallinfo", static_cast<int>(state));
-		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
-		ENGINE->statusbar()->write(toPrint);
+			toPrint.appendTextID("core.hallinfo", static_cast<int>(state));
+		toPrint.replaceTextID(building->getNameTextID());
+		ENGINE->statusbar()->write(toPrint.toString(&GAME->translator()));
 	}
 	else
 	{
@@ -2046,18 +2041,18 @@ void CBuildWindow::buyFunc()
 
 std::string CBuildWindow::getTextForState(EBuildingState state)
 {
-	std::string ret;
+	MetaString ret;
 	if(state < EBuildingState::ALLOWED)
-		ret =  GAME->translator().translate("core.hallinfo", static_cast<int>(state));
+		ret.appendTextID("core.hallinfo", static_cast<int>(state));
 	switch (state)
 	{
 	case EBuildingState::ALREADY_PRESENT:
 	case EBuildingState::CANT_BUILD_TODAY:
 	case EBuildingState::NO_RESOURCES:
-		boost::algorithm::replace_first(ret, "%s", building->getNameTranslated());
+		ret.replaceTextID(building->getNameTextID());
 		break;
 	case EBuildingState::ALLOWED:
-		return LIBRARY->generaltexth->allTexts[219]; //all prereq. are met
+		return GAME->translator().translate("core.genrltxt.219"); //all prereq. are met
 	case EBuildingState::PREREQUIRES:
 		{
 			auto toStr = [&](const BuildingID build) -> std::string
@@ -2065,19 +2060,21 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 				return town->getTown()->buildings.at(build)->getNameTranslated();
 			};
 
-			ret = LIBRARY->generaltexth->allTexts[52];
-			ret += "\n" + town->genBuildingRequirements(building->bid).toString(toStr);
+			ret.clear();
+			ret.appendTextID("core.genrltxt.52");
+			ret.appendEOL();
+			ret.appendRawString(town->genBuildingRequirements(building->bid).toString(toStr));
 			break;
 		}
 	case EBuildingState::MISSING_BASE:
 		{
-			MetaString message = MetaString::createFromTextID("vcmi.townHall.missingBase");
-			message.replaceTextID(town->getTown()->buildings.at(building->upgrade)->getNameTextID());
-			ret = message.toString(&GAME->translator());
+			ret.clear();
+			ret.appendTextID("vcmi.townHall.missingBase");
+			ret.replaceTextID(town->getTown()->buildings.at(building->upgrade)->getNameTextID());
 			break;
 		}
 	}
-	return ret;
+	return ret.toString(&GAME->translator());
 }
 
 LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int min, int max)

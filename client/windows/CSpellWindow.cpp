@@ -820,8 +820,9 @@ void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 			dmgInfo.clear();
 		else
 		{
-			dmgInfo = LIBRARY->generaltexth->allTexts[343];
-			boost::algorithm::replace_first(dmgInfo, "%d", std::to_string(causedDmg));
+			MetaString dmgText = MetaString::createFromTextID("core.genrltxt.343");
+			dmgText.replaceNumber(causedDmg);
+			dmgInfo = dmgText.toString(&GAME->translator());
 		}
 
 		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));

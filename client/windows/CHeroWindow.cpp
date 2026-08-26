@@ -241,8 +241,9 @@ void CHeroWindow::updateArtifacts()
 		if(!garr)
 		{
 			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
-			std::string helpBox = LIBRARY->generaltexth->translate("core.heroscrn.32");
-			boost::algorithm::replace_first(helpBox, "%s", LIBRARY->generaltexth->allTexts[43]);
+			MetaString helpBoxText = MetaString::createFromTextID("core.heroscrn.32");
+			helpBoxText.replaceTextID("core.genrltxt.43");
+			std::string helpBox = helpBoxText.toString(&GAME->translator());
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero, nullptr, removableTroops);
 			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(LIBRARY->generaltexth->allTexts[256], helpBox), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);

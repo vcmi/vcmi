@@ -237,18 +237,18 @@ void CRecruitmentWindow::buy()
 		}
 		else
 		{
-			std::string txt;
+			MetaString txt;
 			if(dwelling->ID != Obj::TOWN)
 			{
-				txt = LIBRARY->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? LIBRARY->creh->objects[crid]->getNamePluralTranslated() : LIBRARY->creh->objects[crid]->getNameSingularTranslated());
+				txt.appendTextID("core.genrltxt.425"); //The %s would join your hero, but there aren't enough provisions to support them.
+				txt.replaceName(CreatureID(crid), slider->getValue());
 			}
 			else
 			{
-				txt = LIBRARY->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
+				txt.appendTextID("core.genrltxt.17"); //There is no room in the garrison for this army.
 			}
 
-			GAME->interface()->showInfoDialog(txt);
+			GAME->interface()->showInfoDialog(txt.toString(&GAME->translator()));
 			return;
 		}
 	}
@@ -428,9 +428,9 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, defaultRightAmount - rightMin, Orientation::HORIZONTAL);
 
-	std::string titleStr = LIBRARY->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(titleStr,"%s", creature->getNamePluralTranslated());
-	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
+	MetaString titleStr = MetaString::createFromTextID("core.genrltxt.256");
+	titleStr.replaceNamePlural(creature->getId());
+	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr.toString(&GAME->translator()));
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
@@ -922,19 +922,21 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 
 	if(H)
 	{
-		hoverName = LIBRARY->generaltexth->translate("core.tvrninfo.4");
-		boost::algorithm::replace_first(hoverName,"%s",GAME->translator().translate(H->getNameTextID()));
+		MetaString hoverNameText = MetaString::createFromTextID("core.tvrninfo.4");
+		hoverNameText.replaceTextID(H->getNameTextID());
+		hoverName = hoverNameText.toString(&GAME->translator());
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
 
-		description = LIBRARY->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getNameTextID()));
-		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getClassNameTextID()));
-		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
+		MetaString descriptionText = MetaString::createFromTextID("core.genrltxt.215");
+		descriptionText.replaceTextID(h->getNameTextID());
+		descriptionText.replaceNumber(h->level);
+		descriptionText.replaceTextID(h->getClassNameTextID());
+		descriptionText.replaceNumber(artifs);
+		description = descriptionText.toString(&GAME->translator());
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
 	}
@@ -1329,8 +1331,9 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		//assume that this is joining monsters dialog
 		if(up->Slots().size() > 0)
 		{
-			titleText = LIBRARY->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->getType()->getNamePluralTranslated());
+			MetaString joiningText = MetaString::createFromTextID("core.genrltxt.35");
+			joiningText.replaceNamePlural(up->Slots().begin()->second->getType()->getId());
+			titleText = joiningText.toString(&GAME->translator());
 		}
 		else
 		{
@@ -1562,14 +1565,10 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	if(!hero->getCreature(slot))//we don`t have creature here
 		return "";
 
-	std::string str = LIBRARY->generaltexth->allTexts[318];
-	int amount = hero->getStackCount(slot);
-	if(amount == 1)
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNameSingularTranslated());
-	else
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNamePluralTranslated());
+	MetaString str = MetaString::createFromTextID("core.genrltxt.318");
+	str.replaceName(hero->getCreature(slot)->getId(), hero->getStackCount(slot));
 
-	return str;
+	return str.toString(&GAME->translator());
 }
 
 CHillFortWindow::State CHillFortWindow::getState(SlotID slot)

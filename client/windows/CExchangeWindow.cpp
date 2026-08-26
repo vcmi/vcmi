@@ -147,18 +147,20 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.9");
-		experienceAreas[b]->text = LIBRARY->generaltexth->allTexts[2];
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->level));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(LIBRARY->heroh->reqExp(hero->level+1)));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->exp));
+		MetaString experienceText = MetaString::createFromTextID("core.genrltxt.2");
+		experienceText.replaceNumber(hero->level);
+		experienceText.replaceNumber(LIBRARY->heroh->reqExp(hero->level+1));
+		experienceText.replaceNumber(hero->exp);
+		experienceAreas[b]->text = experienceText.toString(&GAME->translator());
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		spellPointsAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.22");
-		spellPointsAreas[b]->text = LIBRARY->generaltexth->allTexts[205];
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", GAME->translator().translate(hero->getNameTextID()));
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->mana));
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->manaLimit()));
+		MetaString spellPointsText = MetaString::createFromTextID("core.genrltxt.205");
+		spellPointsText.replaceTextID(hero->getNameTextID());
+		spellPointsText.replaceNumber(hero->mana);
+		spellPointsText.replaceNumber(hero->manaLimit());
+		spellPointsAreas[b]->text = spellPointsText.toString(&GAME->translator());
 
 		morale[b] = std::make_shared<MoraleLuckBox>(true, Rect(Point(176 + 490 * b, 39), Point(32, 32)), true);
 		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);

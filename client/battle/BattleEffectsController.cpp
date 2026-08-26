@@ -121,10 +121,10 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			break;
 		case BonusType::MORALE:
 		{
-			std::string hlp = LIBRARY->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
+			MetaString hlp = MetaString::createFromTextID("core.genrltxt.33");
+			hlp.replaceName(stack->unitType()->getId(), stack->getCount());
 			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
-			owner.appendBattleLog(hlp);
+			owner.appendBattleLog(hlp.toString(&GAME->translator()));
 			break;
 		}
 		default:
