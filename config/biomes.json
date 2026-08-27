@@ -665,13 +665,6 @@
 		},
 		"templates" : ["AVLvol10", "AVLvol20", "AVLvol30", "AVLvol40", "AVLvol50"]
 	},
-	"templateSet192":{
-		"biome":{
-			"terrain" : "water",
-			"objectType" : "tree"
-		},
-		"templates" : ["AVLklp10", "AVLklp20"]
-	},
 	"templateSet193":{
 		"biome":{
 			"terrain" : "water",
