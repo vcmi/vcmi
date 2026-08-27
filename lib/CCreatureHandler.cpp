@@ -185,7 +185,7 @@ const TResources & CCreature::getFullRecruitCost() const
 	return cost;
 }
 
-bool CCreature::hasUpgrades() const 
+bool CCreature::hasUpgrades() const
 {
 	return !upgrades.empty();
 }
@@ -292,6 +292,10 @@ bool CCreature::isDoubleWide() const
 bool CCreature::isGood () const
 {
 	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
+}
+EAlignment CCreature::getAlignment () const
+{
+	return LIBRARY->factions()->getById(faction)->getAlignment();
 }
 
 /**
@@ -448,7 +452,7 @@ void CCreatureHandler::loadCommanders()
 	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
-	
+
 	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"]);
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
@@ -1063,7 +1067,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B':
 				b.type = BonusType::TWO_HEX_ATTACK_BREATH; break;
 			case 'c':
-				b.type = BonusType::JOUSTING; 
+				b.type = BonusType::JOUSTING;
 				b.val = 5;
 				break;
 			case 'D':
