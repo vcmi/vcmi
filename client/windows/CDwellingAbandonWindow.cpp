@@ -111,7 +111,7 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 	OBJECT_CONSTRUCTION;
 
 	pos.w = 540;
-	pos.h = 440;
+	pos.h = 406;
 	center();
 
 	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
@@ -139,15 +139,15 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 
 	minimap = std::make_shared<CDwellingAbandonMinimap>(Rect(295, 50, 180, 180));
 
-	infoBackground = std::make_shared<TransparentFilledRectangle>(Rect(246, 246, 278, 120), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
+	infoBackground = std::make_shared<TransparentFilledRectangle>(Rect(246, 246, 278, 86), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 
-	infoText = std::make_shared<CMultiLineLabel>(Rect(356, 256, 158, 100), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	infoText = std::make_shared<CMultiLineLabel>(Rect(356, 256, 158, 68), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-	abandonButton = std::make_shared<CButton>(Point(325, 376), AnimationPath::builtin("ICANCEL.DEF"),
+	abandonButton = std::make_shared<CButton>(Point(325, 342), AnimationPath::builtin("ICANCEL.DEF"),
 		CButton::tooltipLocalized("vcmi.kingdomOverview.abandonDwelling"), std::bind(&CDwellingAbandonWindow::abandon, this));
 	abandonButton->block(true);
 
-	closeButton = std::make_shared<CButton>(Point(395, 376), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(),
+	closeButton = std::make_shared<CButton>(Point(395, 342), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(),
 		std::bind(&CDwellingAbandonWindow::close, this), EShortcut::GLOBAL_RETURN);
 
 	if (!instances.empty())
