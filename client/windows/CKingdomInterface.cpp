@@ -605,11 +605,7 @@ void CKingdomInterface::COwnedObjectBox::clickPressed(const Point & cursorPositi
 	if(instances.empty())
 		return;
 
-	CKingdomInterface * kingdomInterface = parent;
-	ENGINE->windows().createAndPushWindow<CDwellingAbandonWindow>(instances, [kingdomInterface]()
-	{
-		kingdomInterface->refreshObjectsList();
-	});
+	ENGINE->windows().createAndPushWindow<CDwellingAbandonWindow>(instances);
 }
 
 std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)

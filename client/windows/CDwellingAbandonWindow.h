@@ -14,6 +14,7 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/CMinimap.h"
 #include "../../lib/int3.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 
 class CGObjectInstance;
 class CButton;
@@ -82,7 +83,6 @@ class CDwellingAbandonWindow : public CWindowObject
 	static constexpr int LIST_ITEM_WIDTH = 195;
 
 	std::vector<const CGObjectInstance *> instances;
-	std::function<void()> onChanged;
 
 	std::shared_ptr<FilledTexturePlayerColored> background;
 	std::shared_ptr<TransparentFilledRectangle> listBackground;
@@ -102,10 +102,16 @@ class CDwellingAbandonWindow : public CWindowObject
 	void sliderMoved(int newPos);
 	void selectItem(size_t index);
 	void updateInfo(const CGObjectInstance * obj);
+	void rebuildItems();
 	void abandon();
 
 public:
-	CDwellingAbandonWindow(const std::vector<const CGObjectInstance *> & Instances, const std::function<void()> & OnChanged);
+	explicit CDwellingAbandonWindow(const std::vector<const CGObjectInstance *> & Instances);
+
+	/// Called once the server has actually confirmed a relevant ownership change
+	/// (see CPlayerInterface::objectPropertyChanged). Removes the object from the
+	/// list if it's one of ours and refreshes the minimap.
+	void onOwnershipChanged(const ObjectInstanceID & id);
 
 	void showAll(Canvas & to) override;
 };

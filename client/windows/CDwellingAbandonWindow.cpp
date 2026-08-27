@@ -103,10 +103,9 @@ void CDwellingAbandonWindow::CInstanceItem::clickPressed(const Point & cursorPos
 	parent->selectItem(index);
 }
 
-CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectInstance *> & Instances, const std::function<void()> & OnChanged)
+CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectInstance *> & Instances)
 	: CWindowObject(BORDERED | PLAYER_COLORED)
 	, instances(Instances)
-	, onChanged(OnChanged)
 	, selected(-1)
 {
 	OBJECT_CONSTRUCTION;
@@ -136,14 +135,7 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 		listSlider->scrollToMin();
 	}
 
-	for (size_t i = 0; i < instances.size(); ++i)
-	{
-		const CGObjectInstance * obj = instances[i];
-		int3 tile = obj->visitablePos();
-		std::string itemText = obj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")";
-		items.push_back(std::make_shared<CInstanceItem>(this, i, Rect(LIST_ITEM_X, LIST_ITEM_Y, LIST_ITEM_WIDTH, LIST_ITEM_HEIGHT - 2), itemText));
-	}
-	recreateItemList(0);
+	rebuildItems();
 
 	minimap = std::make_shared<CDwellingAbandonMinimap>(Rect(295, 50, 180, 180));
 
@@ -218,6 +210,31 @@ void CDwellingAbandonWindow::updateInfo(const CGObjectInstance * obj)
 	infoText->setText(text);
 }
 
+void CDwellingAbandonWindow::rebuildItems()
+{
+	OBJECT_CONSTRUCTION;
+
+	items.clear();
+	for (size_t i = 0; i < instances.size(); ++i)
+	{
+		const CGObjectInstance * obj = instances[i];
+		int3 tile = obj->visitablePos();
+		std::string itemText = obj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")";
+		items.push_back(std::make_shared<CInstanceItem>(this, i, Rect(LIST_ITEM_X, LIST_ITEM_Y, LIST_ITEM_WIDTH, LIST_ITEM_HEIGHT - 2), itemText));
+	}
+
+	listSlider->setAmount(static_cast<int>(instances.size()));
+	if (instances.size() <= static_cast<size_t>(LIST_VISIBLE_COUNT))
+	{
+		listSlider->block(true);
+		listSlider->scrollToMin();
+	}
+	else
+		listSlider->block(false);
+
+	recreateItemList(0);
+}
+
 void CDwellingAbandonWindow::abandon()
 {
 	if (selected < 0 || selected >= static_cast<int>(instances.size()))
@@ -227,48 +244,42 @@ void CDwellingAbandonWindow::abandon()
 
 	GAME->interface()->showYesNoDialog(
 		LIBRARY->generaltexth->translate("vcmi.kingdomOverview.abandonDwelling.confirm"),
-		[this, obj]()
+		[obj]()
 		{
+			// Only sends the request - the list/minimap update once the server confirms
+			// the change, via onOwnershipChanged() (see CPlayerInterface::objectPropertyChanged).
 			GAME->interface()->cb->abandonObjectOwnership(obj);
-
-			instances.erase(std::remove(instances.begin(), instances.end(), obj), instances.end());
-
-			if (onChanged)
-				onChanged();
-
-			if (instances.empty())
-			{
-				close();
-				return;
-			}
-
-			selected = -1;
-			abandonButton->block(true);
-			minimap->setTile(int3(-1, -1, -1));
-
-			OBJECT_CONSTRUCTION;
-			items.clear();
-			for (size_t i = 0; i < instances.size(); ++i)
-			{
-				const CGObjectInstance * instanceObj = instances[i];
-				int3 tile = instanceObj->visitablePos();
-				std::string itemText = instanceObj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")";
-				items.push_back(std::make_shared<CInstanceItem>(this, i, Rect(LIST_ITEM_X, LIST_ITEM_Y, LIST_ITEM_WIDTH, LIST_ITEM_HEIGHT - 2), itemText));
-			}
-			listSlider->setAmount(static_cast<int>(instances.size()));
-			if (instances.size() <= static_cast<size_t>(LIST_VISIBLE_COUNT))
-			{
-				listSlider->block(true);
-				listSlider->scrollToMin();
-			}
-			else
-				listSlider->block(false);
-			recreateItemList(0);
-
-			selectItem(0);
 		},
 		nullptr
 	);
+}
+
+void CDwellingAbandonWindow::onOwnershipChanged(const ObjectInstanceID & id)
+{
+	auto it = std::find_if(instances.begin(), instances.end(), [&id](const CGObjectInstance * obj)
+	{
+		return obj->id == id;
+	});
+
+	if (it == instances.end())
+		return;
+
+	instances.erase(it);
+
+	if (instances.empty())
+	{
+		close();
+		return;
+	}
+
+	selected = -1;
+	abandonButton->block(true);
+	minimap->setTile(int3(-1, -1, -1));
+
+	rebuildItems();
+	selectItem(0);
+
+	redraw();
 }
 
 void CDwellingAbandonWindow::showAll(Canvas & to)

@@ -261,7 +261,6 @@ private:
 	//Internal functions used during construction
 	void generateButtons();
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
-	void refreshObjectsList();
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects, int line);
 
 	std::shared_ptr<CIntObject> createOwnedObject(size_t index);
@@ -275,6 +274,7 @@ public:
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 	void buildChanged() override;
+	void refreshObjectsList();
 };
 
 /// List item with town

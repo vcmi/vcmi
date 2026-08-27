@@ -57,6 +57,7 @@
 
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
+#include "windows/CDwellingAbandonWindow.h"
 #include "windows/CExchangeWindow.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CKingdomInterface.h"
@@ -1443,6 +1444,14 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 		std::set<int3> pos = obj->getBlockedPos();
 		FowTilesType upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);
+
+		for (auto ki : ENGINE->windows().findWindows<CKingdomInterface>())
+			ki->refreshObjectsList();
+
+		for (auto daw : ENGINE->windows().findWindows<CDwellingAbandonWindow>())
+			daw->onOwnershipChanged(sop->id);
+
+		ENGINE->windows().totalRedraw();
 
 		assert(cb->getTownsInfo().size() == localState->getOwnedTowns().size());
 	}
