@@ -16,7 +16,6 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
-#include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -86,21 +85,17 @@ void CDwellingAbandonMinimap::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-CDwellingAbandonWindow::CInstanceItem::CInstanceItem(CDwellingAbandonWindow * parent, size_t index)
-	: CIntObject(LCLICK)
+CDwellingAbandonWindow::CInstanceItem::CInstanceItem(CDwellingAbandonWindow * parent, size_t index, const Rect & position, const std::string & itemText)
+	: CIntObject(LCLICK, position.topLeft())
 	, parent(parent)
 	, index(index)
 {
 	OBJECT_CONSTRUCTION;
 
-	const CGObjectInstance * obj = parent->instances[index];
-	int3 tile = obj->visitablePos();
+	pos.w = position.w;
+	pos.h = position.h;
 
-	pos.w = 190;
-	pos.h = 20;
-
-	text = std::make_shared<CLabel>(4, pos.h / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE,
-		obj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")");
+	text = std::make_shared<CMultiLineLabel>(Rect(4, 0, position.w - 4, position.h), FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, itemText);
 }
 
 void CDwellingAbandonWindow::CInstanceItem::clickPressed(const Point & cursorPosition)
@@ -118,6 +113,7 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 
 	pos.w = 540;
 	pos.h = 440;
+	center();
 
 	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 
@@ -125,24 +121,29 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 	boost::algorithm::replace_first(headerText, "%s", instances.empty() ? "" : instances.front()->getObjectName());
 	title = std::make_shared<CLabel>(pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, headerText);
 
-	const int visibleItems = 6;
-	const int listHeight = visibleItems * 24;
+	const int listPanelHeight = LIST_VISIBLE_COUNT * LIST_ITEM_HEIGHT + 1;
+	const int listSliderLength = LIST_VISIBLE_COUNT * LIST_ITEM_HEIGHT;
+	const int listPanelWidth = LIST_ITEM_WIDTH + 3;
 
-	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(10, 46, 200, listHeight + 10), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
+	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(LIST_X, LIST_Y, listPanelWidth, listPanelHeight), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 
-	list = std::make_shared<CListBox>(std::bind(&CDwellingAbandonWindow::createItem, this, _1),
-		Point(14, 50), Point(0, 24), visibleItems, instances.size(), 0, 1, Rect(214, 50, listHeight, listHeight));
-
-	if (auto slider = list->getSlider())
+	listSlider = std::make_shared<CSlider>(Point(LIST_X + listPanelWidth - 1, LIST_ITEM_Y - 1), listSliderLength,
+		std::bind(&CDwellingAbandonWindow::sliderMoved, this, _1), LIST_VISIBLE_COUNT, static_cast<int>(instances.size()), 0, Orientation::VERTICAL, CSlider::BROWN);
+	listSlider->setPanningStep(LIST_ITEM_HEIGHT);
+	if (instances.size() <= static_cast<size_t>(LIST_VISIBLE_COUNT))
 	{
-		if (instances.size() > static_cast<size_t>(visibleItems))
-			slider->block(false);
-		else
-		{
-			slider->block(true);
-			slider->scrollToMin();
-		}
+		listSlider->block(true);
+		listSlider->scrollToMin();
 	}
+
+	for (size_t i = 0; i < instances.size(); ++i)
+	{
+		const CGObjectInstance * obj = instances[i];
+		int3 tile = obj->visitablePos();
+		std::string itemText = obj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")";
+		items.push_back(std::make_shared<CInstanceItem>(this, i, Rect(LIST_ITEM_X, LIST_ITEM_Y, LIST_ITEM_WIDTH, LIST_ITEM_HEIGHT - 2), itemText));
+	}
+	recreateItemList(0);
 
 	minimap = std::make_shared<CDwellingAbandonMinimap>(Rect(295, 50, 180, 180));
 
@@ -159,15 +160,24 @@ CDwellingAbandonWindow::CDwellingAbandonWindow(const std::vector<const CGObjectI
 
 	if (!instances.empty())
 		selectItem(0);
-
-	center();
 }
 
-std::shared_ptr<CIntObject> CDwellingAbandonWindow::createItem(size_t index)
+void CDwellingAbandonWindow::recreateItemList(int firstVisible)
 {
-	if (index < instances.size())
-		return std::make_shared<CInstanceItem>(this, index);
-	return std::shared_ptr<CIntObject>();
+	for (size_t i = 0; i < items.size(); ++i)
+	{
+		items[i]->moveTo(Point(pos.x + LIST_ITEM_X, pos.y + LIST_ITEM_Y + (static_cast<int>(i) - firstVisible) * LIST_ITEM_HEIGHT));
+		if (static_cast<int>(i) >= firstVisible && static_cast<int>(i) < firstVisible + LIST_VISIBLE_COUNT)
+			items[i]->enable();
+		else
+			items[i]->disable();
+	}
+	redraw();
+}
+
+void CDwellingAbandonWindow::sliderMoved(int newPos)
+{
+	recreateItemList(newPos);
 }
 
 void CDwellingAbandonWindow::selectItem(size_t index)
@@ -235,7 +245,26 @@ void CDwellingAbandonWindow::abandon()
 			selected = -1;
 			abandonButton->block(true);
 			minimap->setTile(int3(-1, -1, -1));
-			list->resize(instances.size());
+
+			OBJECT_CONSTRUCTION;
+			items.clear();
+			for (size_t i = 0; i < instances.size(); ++i)
+			{
+				const CGObjectInstance * instanceObj = instances[i];
+				int3 tile = instanceObj->visitablePos();
+				std::string itemText = instanceObj->getObjectName() + " (" + std::to_string(tile.x) + ", " + std::to_string(tile.y) + ")";
+				items.push_back(std::make_shared<CInstanceItem>(this, i, Rect(LIST_ITEM_X, LIST_ITEM_Y, LIST_ITEM_WIDTH, LIST_ITEM_HEIGHT - 2), itemText));
+			}
+			listSlider->setAmount(static_cast<int>(instances.size()));
+			if (instances.size() <= static_cast<size_t>(LIST_VISIBLE_COUNT))
+			{
+				listSlider->block(true);
+				listSlider->scrollToMin();
+			}
+			else
+				listSlider->block(false);
+			recreateItemList(0);
+
 			selectItem(0);
 		},
 		nullptr
@@ -251,13 +280,12 @@ void CDwellingAbandonWindow::showAll(Canvas & to)
 	if (creatureIcon)
 		to.drawBorder(Rect::createAround(creatureIcon->pos, 1), Colors::METALLIC_GOLD);
 
-	if (selected < 0)
+	if (selected < 0 || selected >= static_cast<int>(items.size()))
 		return;
 
-	auto item = list->getItem(static_cast<size_t>(selected));
-	if (!item)
+	if (items[selected]->isDisabled())
 		return;
 
-	Rect selection = Rect::createAround(item->pos, 1);
+	Rect selection = Rect::createAround(items[selected]->pos, 1);
 	to.drawBorder(selection, Colors::METALLIC_GOLD);
 }

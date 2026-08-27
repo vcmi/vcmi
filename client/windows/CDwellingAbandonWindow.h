@@ -11,15 +11,14 @@
 
 #include "CWindowObject.h"
 #include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "../adventureMap/CMinimap.h"
 #include "../../lib/int3.h"
 
 class CGObjectInstance;
-class CListBox;
-class CLabel;
-class CMultiLineLabel;
 class CButton;
 class CAnimImage;
+class CSlider;
 class FilledTexturePlayerColored;
 class TransparentFilledRectangle;
 
@@ -58,18 +57,29 @@ public:
 /// instances) and release it back to neutral ownership
 class CDwellingAbandonWindow : public CWindowObject
 {
+	/// A single clickable row in the instance list, positioned directly by recreateItemList().
+	/// The row's own pos spans the full width (used for the selection border and click area);
+	/// the text label inside it is inset a few pixels so it doesn't touch the row's edge.
 	class CInstanceItem : public CIntObject
 	{
 		CDwellingAbandonWindow * parent;
-		std::shared_ptr<CLabel> text;
+		std::shared_ptr<CMultiLineLabel> text;
 
 	public:
 		const size_t index;
 
-		CInstanceItem(CDwellingAbandonWindow * parent, size_t index);
+		CInstanceItem(CDwellingAbandonWindow * parent, size_t index, const Rect & position, const std::string & text);
 
 		void clickPressed(const Point & cursorPosition) override;
 	};
+
+	static constexpr int LIST_VISIBLE_COUNT = 6;
+	static constexpr int LIST_ITEM_HEIGHT = 24;
+	static constexpr int LIST_X = 10;
+	static constexpr int LIST_Y = 46;
+	static constexpr int LIST_ITEM_X = LIST_X + 1;
+	static constexpr int LIST_ITEM_Y = LIST_Y + 1;
+	static constexpr int LIST_ITEM_WIDTH = 195;
 
 	std::vector<const CGObjectInstance *> instances;
 	std::function<void()> onChanged;
@@ -78,7 +88,8 @@ class CDwellingAbandonWindow : public CWindowObject
 	std::shared_ptr<TransparentFilledRectangle> listBackground;
 	std::shared_ptr<TransparentFilledRectangle> infoBackground;
 	std::shared_ptr<CLabel> title;
-	std::shared_ptr<CListBox> list;
+	std::vector<std::shared_ptr<CInstanceItem>> items;
+	std::shared_ptr<CSlider> listSlider;
 	std::shared_ptr<CDwellingAbandonMinimap> minimap;
 	std::shared_ptr<CAnimImage> creatureIcon;
 	std::shared_ptr<CMultiLineLabel> infoText;
@@ -87,7 +98,8 @@ class CDwellingAbandonWindow : public CWindowObject
 
 	int selected;
 
-	std::shared_ptr<CIntObject> createItem(size_t index);
+	void recreateItemList(int firstVisible);
+	void sliderMoved(int newPos);
 	void selectItem(size_t index);
 	void updateInfo(const CGObjectInstance * obj);
 	void abandon();
