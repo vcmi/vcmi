@@ -403,10 +403,17 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 
 TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
-	for(auto teleportObj : cb->gameState().getMap().getObjects<CGMonolith>())
+	// teleportChannels only ever contains already-paired monoliths, same as before this searched
+	auto matches = [&](const ObjectInstanceID & objId) -> bool
 	{
-		if(vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
-			return teleportObj->channel;
+		const auto * obj = cb->getObj(objId);
+		return obj && vstd::contains(IDs, obj->ID) && obj->subID == SubID;
+	};
+
+	for(const auto & [channelID, channel] : cb->gameState().getMap().teleportChannels)
+	{
+		if(vstd::contains_if(channel->entrances, matches) || vstd::contains_if(channel->exits, matches))
+			return channelID;
 	}
 	return TeleportChannelID();
 }
@@ -460,21 +467,35 @@ void CGMonolith::teleportDialogAnswered(IGameEventCallback & gameEvents, const C
 
 void CGMonolith::initObj(IGameRandomizer & gameRandomizer)
 {
-	std::vector<Obj> IDs;
-	IDs.push_back(ID);
+	// channel pairing is deferred to assignTeleportChannel()
 	switch(ID.toEnum())
 	{
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		type = ENTRANCE;
-		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_EXIT);
 		break;
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 		type = EXIT;
-		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
 		break;
 	case Obj::MONOLITH_TWO_WAY:
 	default:
 		type = BOTH;
+		break;
+	}
+}
+
+void CGMonolith::assignTeleportChannel()
+{
+	std::vector<Obj> IDs;
+	IDs.push_back(ID);
+	switch(type)
+	{
+	case ENTRANCE:
+		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_EXIT);
+		break;
+	case EXIT:
+		IDs.emplace_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		break;
+	default:
 		break;
 	}
 

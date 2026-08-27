@@ -1016,6 +1016,11 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 		obj->initObj(gameRandomizer);
 
 	logGlobal->debug("\tObject initialization done");
+
+	// getObjects<CGMonolith>() also yields CGSubterraneanGate, paired separately below instead
+	for(auto & obj : map->getObjects<CGMonolith>())
+		obj->assignTeleportChannel();
+
 	// getObjects<SeerHut>() already yields exactly seer huts + quest guards
 	for(auto & q : map->getObjects<SeerHut>())
 		q->setObjToKill();
