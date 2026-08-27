@@ -41,10 +41,13 @@ std::array<int3, 6> hexNeighbourDirs(int row)
 }
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion,
+	const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, playerRepulsion(playerRepulsion)
+	, playerZones(playerZones)
+	, participatingPlayerZones(participatingPlayerZones)
 {
 }
 
@@ -122,26 +125,13 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 	if (zonesAll.size() < 3)
 		return;
 
-	// Zone starts of players actually taking part in the game. Their mutual separation is a weak
-	// preference, expressed the same way as a template-authored repulsive connection.
-	std::vector<TRmgTemplateZoneId> playerZones;
-	if (playerRepulsion > 0)
-	{
-		const auto & playerSettings = map.getMapGenOptions().getPlayersSettings();
-		for (const auto & z : zonesAll)
-		{
-			auto owner = z->getOwner();
-			if (z->getType() == ETemplateZoneType::PLAYER_START && owner && playerSettings.size() > static_cast<size_t>(*owner - 1))
-				playerZones.push_back(z->getId());
-		}
-	}
-
 	constexpr float crossAlignWeight = 6.0f; // reward for cross-level partners sharing a normalized cell
 	// Repulsion is only a tie-break: pulling one connected pair a cell apart costs 1, so the total a zone
 	// can gain from all its repulsive partners must stay below that - hence the cap, divided per partner.
 	constexpr float repulsionCap = 0.5f;
 	constexpr float connectionRepulsion = repulsionCap / 4; // a zone rarely has more than a few repulsive connections
-	const float playerRepulsionWeight = playerRepulsion * repulsionCap / std::max<size_t>(2, playerZones.size());
+	// halved on top of the per-partner split, because a pair of participating players counts double below
+	const float playerRepulsionWeight = playerRepulsion * repulsionCap / (2 * std::max<size_t>(2, playerZones.size()));
 
 	// Cost of one zone's edges. Every term must stay symmetric in both endpoints, otherwise the
 	// incremental delta of a move would drift away from the total.
@@ -151,9 +141,18 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 		const int3 zc = pos.at(z->getId());
 		const auto zCenter = normalizedCellPos(zc, gridSizes[zc.z]);
 
+		// Measured geometrically rather than in hex hops: every non-adjacent neighbour of a given cell is
+		// exactly 2 hops away, so hop count cannot tell a partner on the opposite side from one 120 degrees
+		// around. Normalized by one cell, so a repulsive pair sitting side by side still costs "weight".
+		const double cellSpan = 1.0 / gridSizes[zc.z];
 		auto repulsion = [&](const int3 & oc, float weight)
 		{
-			return oc.z == zc.z ? weight / std::max(1, cellDistance(zc, oc)) : 0.f;
+			if (oc.z != zc.z)
+				return 0.f;
+
+			const auto oCenter = normalizedCellPos(oc, gridSizes[oc.z]);
+			const double distance = std::hypot(zCenter.first - oCenter.first, zCenter.second - oCenter.second);
+			return static_cast<float>(weight * cellSpan / std::max(distance, cellSpan));
 		};
 
 		for (const auto & conn : z->getConnections())
@@ -180,10 +179,19 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 
 		if (vstd::contains(playerZones, z->getId()))
 		{
+			const bool weParticipate = vstd::contains(participatingPlayerZones, z->getId());
+			auto ourDistances = distancesBetweenZones.find(z->getId());
 			for (const auto & otherId : playerZones)
 			{
-				if (otherId != z->getId())
-					cost += repulsion(pos.at(otherId), playerRepulsionWeight);
+				//directly connected player zones are meant to touch, they must not be pushed apart
+				const bool connected = ourDistances != distancesBetweenZones.end()
+					&& ourDistances->second.count(otherId) && ourDistances->second.at(otherId) == 1;
+				if (otherId == z->getId() || connected)
+					continue;
+
+				//players in the game push twice as hard, so they end up at the far ends of the spread
+				const bool bothParticipate = weParticipate && vstd::contains(participatingPlayerZones, otherId);
+				cost += repulsion(pos.at(otherId), playerRepulsionWeight * (bothParticipate ? 2.f : 1.f));
 			}
 		}
 

@@ -138,6 +138,7 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	int mapLevels = map.getMapGenOptions().getLevels();
 
 	findPathsBetweenZones();
+	findPlayerZones(zones);
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -152,12 +153,13 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		pristineSize[zone.second] = zone.second->getSize();
 	}
 
-	CZoneGridPlacer gridPlacer(map, distancesBetweenZones, config.playerRepulsion);
+	CZoneGridPlacer gridPlacer(map, distancesBetweenZones, config.playerRepulsion, playerStartZones, participatingPlayerZones);
 
 	// Winning layout across all attempts (positions and per-attempt prescaled sizes).
 	std::map<std::shared_ptr<Zone>, float3> winningCenters;
 	std::map<std::shared_ptr<Zone>, int> winningSizes;
 	int winningScore = std::numeric_limits<int>::max();
+	float winningFitness = std::numeric_limits<float>::max();
 
 	const int attempts = std::max(1, config.attempts);
 	for(int attempt = 0; attempt < attempts; ++attempt)
@@ -258,12 +260,17 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		ConnectivityCounts counts = classifyConnections(zones, bestSolution);
 		const int score = counts.direct * config.scoreDirect + counts.gates * config.scoreGate + counts.monoliths * config.scoreMonolith;
 
-		logGlobal->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness distance %2.4f overlap %2.4f",
-			attempt + 1, attempts, score, counts.direct, counts.gates, counts.monoliths, bestTotalDistance, bestTotalOverlap);
+		//most templates connect same-level zones only, so every attempt scores the same - fall back on the
+		//relaxation fitness, otherwise the first attempt would always win and the rest would be wasted
+		const float fitness = (bestTotalDistance + 1) * (bestTotalOverlap + 1);
 
-		if(score < winningScore)
+		logGlobal->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness %2.4f (distance %2.4f overlap %2.4f)",
+			attempt + 1, attempts, score, counts.direct, counts.gates, counts.monoliths, fitness, bestTotalDistance, bestTotalOverlap);
+
+		if(score < winningScore || (score == winningScore && fitness < winningFitness))
 		{
 			winningScore = score;
+			winningFitness = fitness;
 			winningCenters = bestSolution;
 			winningSizes.clear();
 			for(const auto & zone : zones)
@@ -499,6 +506,26 @@ void CZonePlacer::prepareZones(const TZoneMap & zones, const TZoneVector & zones
 	}
 }
 
+void CZonePlacer::findPlayerZones(const TZoneMap & zones)
+{
+	playerStartZones.clear();
+	participatingPlayerZones.clear();
+
+	const auto & playerSettings = map.getMapGenOptions().getPlayersSettings();
+	for(const auto & zonePair : zones)
+	{
+		const auto type = zonePair.second->getType();
+		auto owner = zonePair.second->getOwner();
+		if(!owner || (type != ETemplateZoneType::PLAYER_START && type != ETemplateZoneType::CPU_START))
+			continue;
+
+		playerStartZones.insert(zonePair.first);
+		//zones of players above the chosen player count still exist, but only as neutral land
+		if(playerSettings.size() >= static_cast<size_t>(*owner))
+			participatingPlayerZones.insert(zonePair.first);
+	}
+}
+
 void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const
 {
 	for(const auto & zone : zones)
@@ -587,20 +614,46 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		}
 
 		//Always move repulsive zones away, no matter their distance
+		auto pushAwayFrom = [&](const std::shared_ptr<Zone> & otherZone, float scale)
+		{
+			float3 otherZoneCenter = otherZone->getCenter();
+
+			auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
+			float minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize;
+			float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
+			//zones in different graph components have no distance at all - still push them apart
+			localForce *= std::max<size_t>(1, distancesBetweenZones[zone.second->getId()][otherZone->getId()]);
+			forceVector -= localForce * scale;
+		};
+
 		//TODO: Consider z plane?
 		for (auto& connection : zone.second->getConnections())
 		{
 			if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
-			{
-				auto & otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
-				float3 otherZoneCenter = otherZone->getCenter();
+				pushAwayFrom(zones[connection.getOtherZoneId(zone.second->getId())], 1.f);
+		}
 
-				//TODO: Roll into lambda?
-				auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
-				float minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize;
-				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
-				localForce *= (distancesBetweenZones[zone.second->getId()][otherZone->getId()]);
-				forceVector -= localForce;
+		//Player starting zones push each other away too. This is what spreads them evenly over the map -
+		//four mutually repelling zones in a square map settle in its four corners. Zones of players
+		//actually in the game push twice as hard, so they claim the opposite ends of that spread.
+		if (config.playerRepulsion > 0 && vstd::contains(playerStartZones, zone.second->getId()))
+		{
+			const bool weParticipate = vstd::contains(participatingPlayerZones, zone.second->getId());
+			for (const auto & otherZone : zones)
+			{
+				if (otherZone.second == zone.second || otherZone.second->getCenter().z != pos.z
+					|| !vstd::contains(playerStartZones, otherZone.first))
+				{
+					continue;
+				}
+
+				//zones the template connects directly are meant to touch - pushing them apart would only
+				//turn their passage into a monolith
+				if (distancesBetweenZones[zone.second->getId()][otherZone.first] == 1)
+					continue;
+
+				const bool bothParticipate = weParticipate && vstd::contains(participatingPlayerZones, otherZone.first);
+				pushAwayFrom(otherZone.second, config.playerRepulsion * (bothParticipate ? 2.f : 1.f));
 			}
 		}
 

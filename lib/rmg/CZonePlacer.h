@@ -51,6 +51,9 @@ private:
 	void prepareZones(const TZoneMap & zones, const TZoneVector & zonesVector, const int mapLevels);
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 
+	// Collect the player starting zones, and among them the ones belonging to players in the game.
+	void findPlayerZones(const TZoneMap & zones);
+
 	// Roll a random dihedral symmetry and apply it to the finished zone centers, so that a fixed template
 	// graph does not always yield the same-looking layout. Connectivity is preserved - it is an isometry.
 	void applyRandomOrientation(const TZoneMap & zones, vstd::RNG * rand);
@@ -88,6 +91,9 @@ private:
 	//remember best solution
 	float bestTotalDistance;
 	float bestTotalOverlap;
+
+	std::set<TRmgTemplateZoneId> playerStartZones;
+	std::set<TRmgTemplateZoneId> participatingPlayerZones; //subset of playerStartZones
 
 	//distance [a][b] = number of zone connections required to travel between the zones
 	TDistanceMap distancesBetweenZones;
