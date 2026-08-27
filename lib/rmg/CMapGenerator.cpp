@@ -506,7 +506,7 @@ void CMapGenerator::addHeaderInfo()
 
 int CMapGenerator::getNextMonlithIndex()
 {
-	std::lock_guard<std::mutex> lock(monolithIndexMutex);
+	std::lock_guard lock(monolithIndexMutex);
 
 	while (true)
 	{
@@ -554,13 +554,13 @@ bool CMapGenerator::canReserveGatePairLocked(const int3 & posA, const int3 & pos
 
 bool CMapGenerator::canReserveGatePair(const int3 & posA, const int3 & posB) const
 {
-	std::lock_guard<std::mutex> lock(gateReservationMutex);
+	std::lock_guard lock(gateReservationMutex);
 	return canReserveGatePairLocked(posA, posB);
 }
 
 bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
 {
-	std::lock_guard<std::mutex> lock(gateReservationMutex);
+	std::lock_guard lock(gateReservationMutex);
 
 	if(!canReserveGatePairLocked(posA, posB))
 		return false;

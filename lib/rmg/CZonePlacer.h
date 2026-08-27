@@ -48,7 +48,7 @@ public:
 	const TDistanceMap & getDistanceMap();
 	
 private:
-	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const int mapLevels);
+	void prepareZones(const TZoneMap & zones, const TZoneVector & zonesVector, const int mapLevels);
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 
 	// Roll a random dihedral symmetry and apply it to the finished zone centers, so that a fixed template
@@ -65,8 +65,7 @@ private:
 
 	// One level's tile assignment: iterate a per-zone additive weight so each zone's claimed tile count
 	// converges to its target share, then paint the tiles.
-	void assignTilesCapacityBalanced(int level, int width, int height,
-		const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const;
+	void assignTilesCapacityBalanced(int level, const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const;
 
 private:
 	int width;

@@ -322,7 +322,7 @@ void CZonePlacer::applyRandomOrientation(const TZoneMap & zones, vstd::RNG * ran
 	}
 }
 
-void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const int mapLevels)
+void CZonePlacer::prepareZones(const TZoneMap & zones, const TZoneVector & zonesVector, const int mapLevels)
 {
 	std::map<int, float> totalSize; //make sure that sum of zone sizes on surface and uderground match size of the map
 
@@ -894,7 +894,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		levelZones.reserve(zonesOnLevel[level].size());
 		for(const auto & zone : zonesOnLevel[level])
 			levelZones.push_back(zone.second);
-		assignTilesCapacityBalanced(level, width, height, levelZones, vertices);
+		assignTilesCapacityBalanced(level, levelZones, vertices);
 	}
 
 	//set position (town position) to center of mass of irregular zone
@@ -922,8 +922,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	logGlobal->info("Finished zone colouring");
 }
 
-void CZonePlacer::assignTilesCapacityBalanced(int level, int width, int height,
-	const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const
+void CZonePlacer::assignTilesCapacityBalanced(int level, const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const
 {
 	const size_t numZones = levelZones.size();
 	if(numZones == 0 || vertices.empty())
@@ -1036,7 +1035,7 @@ void CZonePlacer::assignTilesCapacityBalanced(int level, int width, int height,
 
 	// A zone that won no vertex cannot be repaired into a usable one - a single vertex worth of tiles is
 	// too little for a town and its guards, so the failure would only resurface in a later modificator.
-	if(bestError == std::numeric_limits<double>::infinity())
+	if(std::isinf(bestError))
 		throw rmgException("Could not fit all zones on level " + std::to_string(level) + ", RMG template is inappropriate for map size");
 	vertexZone = bestVertexZone;
 
