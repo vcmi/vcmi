@@ -35,6 +35,7 @@ class CComponentBox;
 class LRClickableArea;
 class LRClickableAreaWText;
 class CTextInputWithConfirm;
+class TransparentFilledRectangle;
 
 /// Building "button"
 class CBuildingRect : public CShowableAnim
@@ -283,6 +284,8 @@ class CHallInterface : public CStatusbarWindow
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CAnimImage> mark;
 		std::shared_ptr<CLabel> name;
+		std::shared_ptr<TransparentFilledRectangle> queueRect;
+		std::shared_ptr<CLabel> queueNumber;
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
@@ -296,8 +299,12 @@ class CHallInterface : public CStatusbarWindow
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 	std::shared_ptr<CButton> exit;
 
+	void createBoxes();
 public:
 	CHallInterface(const CGTownInstance * Town);
+
+	const CGTownInstance * getTown() const { return town; }
+	void updateBoxes();
 };
 
 ///  Window where you can decide to buy a building or not
@@ -313,10 +320,12 @@ class CBuildWindow: public CStatusbarWindow
 	std::shared_ptr<CComponentBox> cost;
 
 	std::shared_ptr<CButton> buy;
+	std::shared_ptr<CButton> queue;
 	std::shared_ptr<CButton> cancel;
 
 	std::string getTextForState(EBuildingState state);
 	void buyFunc();
+	void queueFunc();
 public:
 	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, EBuildingState State, bool rightClick);
 };

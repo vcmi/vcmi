@@ -1028,6 +1028,21 @@ void CGTownInstance::battleFinished(IGameEventCallback & gameEvents, const CGHer
 
 void CGTownInstance::onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const
 {
+	if (!buildingsQueue.empty())
+	{
+		TResources refund;
+		for (const auto & bid : buildingsQueue)
+			if (getTown()->buildings.count(bid))
+				refund += getTown()->buildings.at(bid)->resources;
+
+		if (getOwner().isValidPlayer())
+			gameEvents.giveResources(getOwner(), refund);
+
+		SetTownBuildingQueue clearQueuePack;
+		clearQueuePack.tid = id;
+		gameEvents.sendAndApply(clearQueuePack);
+	}
+
 	setOwner(gameEvents, winner);
 	gameEvents.changeFogOfWar(getSightCenter(), getSightRadius(), winner, ETileVisibility::REVEALED);
 }

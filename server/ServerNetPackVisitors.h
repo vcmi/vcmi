@@ -44,6 +44,8 @@ public:
 	void visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack) override;
 	void visitDisbandCreature(DisbandCreature & pack) override;
 	void visitBuildStructure(BuildStructure & pack) override;
+	void visitEnqueueBuilding(EnqueueBuilding & pack) override;
+	void visitDequeueBuilding(DequeueBuilding & pack) override;
 	void visitSpellResearch(SpellResearch & pack) override;
 	void visitVisitTownBuilding(VisitTownBuilding & pack) override;
 	void visitRecruitCreatures(RecruitCreatures & pack) override;

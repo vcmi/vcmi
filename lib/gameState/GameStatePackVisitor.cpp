@@ -647,6 +647,12 @@ void GameStatePackVisitor::visitRazeStructures(RazeStructures & pack)
 	t->recreateBuildingsBonuses();
 }
 
+void GameStatePackVisitor::visitSetTownBuildingQueue(SetTownBuildingQueue & pack)
+{
+	CGTownInstance * t = gs.getTown(pack.tid);
+	t->buildingsQueue = pack.queue;
+}
+
 void GameStatePackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
 {
 	auto * dw = dynamic_cast<CGDwelling *>(gs.getObjInstance(pack.tid));

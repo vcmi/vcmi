@@ -133,6 +133,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::TEXTS_TERRAIN,                                    "textData",  "terrain"                              },
 		{EGameSettings::TOWNS_BASE_SCOUNTING_RANGE,                       "towns",     "baseScoutingRange"                    },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,                     "towns",     "buildingsPerTurnCap"                  },
+		{EGameSettings::TOWNS_BUILDING_QUEUE,                             "towns",     "buildingQueue"                        },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,                  "towns",     "startingDwellingChances"              },
 		{EGameSettings::TOWNS_SPELL_RESEARCH,                             "towns",     "spellResearch"                        },
 		{EGameSettings::TOWNS_SPELL_RESEARCH_COST,                        "towns",     "spellResearchCost"                    },

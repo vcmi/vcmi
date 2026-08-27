@@ -39,6 +39,7 @@ class NewTurnProcessor : boost::noncopyable
 	NewTurn generateNewTurnPack();
 	void handleTimeEvents(PlayerColor player);
 	void handleTownEvents(const CGTownInstance *town);
+	void processBuildingQueue(const CGTownInstance *town);
 
 	void updateNeutralTownGarrison(const CGTownInstance * t, int currentWeek) const;
 

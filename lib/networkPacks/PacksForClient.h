@@ -773,6 +773,20 @@ struct DLL_LINKAGE RazeStructures : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE SetTownBuildingQueue : public CPackForClient
+{
+	ObjectInstanceID tid;
+	std::vector<BuildingID> queue; //full replacement snapshot of buildings queued for future construction, in order
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & tid;
+		h & queue;
+	}
+};
+
 struct DLL_LINKAGE SetAvailableCreatures : public CPackForClient
 {
 	ObjectInstanceID tid;

@@ -297,6 +297,34 @@ struct DLL_LINKAGE RazeStructure : public BuildStructure
 	void visitTyped(ICPackVisitor & visitor) override;
 };
 
+struct DLL_LINKAGE EnqueueBuilding : public CPackForServer
+{
+	EnqueueBuilding() = default;
+	EnqueueBuilding(const ObjectInstanceID & TID, const BuildingID & BID)
+		: tid(TID)
+		, bid(BID)
+	{
+	}
+	ObjectInstanceID tid; //town id
+	BuildingID bid; //structure id
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & tid;
+		h & bid;
+	}
+};
+
+struct DLL_LINKAGE DequeueBuilding : public EnqueueBuilding
+{
+	using EnqueueBuilding::EnqueueBuilding;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+};
+
 struct DLL_LINKAGE SpellResearch : public CPackForServer
 {
 	SpellResearch() = default;

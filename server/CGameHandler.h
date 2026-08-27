@@ -237,7 +237,9 @@ public:
 	bool garrisonSwap(ObjectInstanceID tid);
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
 	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, int32_t cram, int32_t level, PlayerColor player);
-	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
+	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false, bool countsTowardsDailyCap=false);//force - for events: no cost, no checkings; countsTowardsDailyCap - forced build should still count against TOWNS_BUILDINGS_PER_TURN_CAP (used by the building queue)
+	bool enqueueBuilding(ObjectInstanceID tid, BuildingID bid);
+	bool dequeueBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool visitTownBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted);

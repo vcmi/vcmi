@@ -64,6 +64,7 @@ public:
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
 	virtual void visitNewStructures(NewStructures & pack) {}
 	virtual void visitRazeStructures(RazeStructures & pack) {}
+	virtual void visitSetTownBuildingQueue(SetTownBuildingQueue & pack) {}
 	virtual void visitSetAvailableCreatures(SetAvailableCreatures & pack) {}
 	virtual void visitSetHeroesInTown(SetHeroesInTown & pack) {}
 	virtual void visitHeroRecruited(HeroRecruited & pack) {}
@@ -137,6 +138,8 @@ public:
 	virtual void visitBuildStructure(BuildStructure & pack) {}
 	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}
 	virtual void visitRazeStructure(RazeStructure & pack) {}
+	virtual void visitEnqueueBuilding(EnqueueBuilding & pack) {}
+	virtual void visitDequeueBuilding(DequeueBuilding & pack) {}
 	virtual void visitSpellResearch(SpellResearch & pack) {}
 	virtual void visitRecruitCreatures(RecruitCreatures & pack) {}
 	virtual void visitUpgradeCreature(UpgradeCreature & pack) {}

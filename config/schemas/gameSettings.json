@@ -70,6 +70,7 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"buildingsPerTurnCap"  :                   { "type" : "number" },
+				"buildingQueue" :                          { "type" : "boolean" },
 				"startingDwellingChances" :                { "type" : "array" },
 				"spellResearch" :                          { "type" : "boolean" },
 				"spellResearchCost" :                      { "type" : "array" },

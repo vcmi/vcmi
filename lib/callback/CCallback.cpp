@@ -232,6 +232,29 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
+bool CCallback::enqueueBuilding(const CGTownInstance *town, BuildingID buildingID)
+{
+	if(town->tempOwner!=getPlayerID())
+		return false;
+
+	if(canBuildStructure(town, buildingID, true) != EBuildingState::ALLOWED)
+		return false;
+
+	EnqueueBuilding pack(town->id,buildingID);
+	sendRequest(pack);
+	return true;
+}
+
+bool CCallback::dequeueBuilding(const CGTownInstance *town, BuildingID buildingID)
+{
+	if(town->tempOwner!=getPlayerID())
+		return false;
+
+	DequeueBuilding pack(town->id,buildingID);
+	sendRequest(pack);
+	return true;
+}
+
 bool CCallback::visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=getPlayerID())

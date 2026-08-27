@@ -148,6 +148,22 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitEnqueueBuilding(EnqueueBuilding & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.tid);
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.enqueueBuilding(pack.tid, pack.bid);
+}
+
+void ApplyGhNetPackVisitor::visitDequeueBuilding(DequeueBuilding & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.tid);
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.dequeueBuilding(pack.tid, pack.bid);
+}
+
 void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.tid);

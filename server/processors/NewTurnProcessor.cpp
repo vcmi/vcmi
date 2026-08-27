@@ -161,6 +161,28 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 	}
 }
 
+void NewTurnProcessor::processBuildingQueue(const CGTownInstance * town)
+{
+	if (town->buildingsQueue.empty())
+		return;
+
+	if (!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::TOWNS_BUILDING_QUEUE))
+		return;
+
+	if (town->built >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+		return; // daily building cap already exhausted, try again next day
+
+	BuildingID next = town->buildingsQueue.front();
+
+	SetTownBuildingQueue pack;
+	pack.tid = town->id;
+	pack.queue = std::vector<BuildingID>(town->buildingsQueue.begin() + 1, town->buildingsQueue.end());
+	gameHandler->sendAndApply(pack);
+
+	if (town->getTown()->buildings.count(next) && !town->hasBuilt(next))
+		gameHandler->buildStructure(town->id, next, true, true); // force build, but still counts towards daily cap
+}
+
 void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 {
 	const auto * playerState = gameHandler->gameState().getPlayerState(which);
@@ -762,6 +784,15 @@ void NewTurnProcessor::onNewTurn()
 	bool newMonth = calendar.nextDay().getDayOfMonth() == 1;
 
 	gameHandler->sendAndApply(n);
+
+	if (!firstTurn)
+	{
+		for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+		{
+			const auto * t = gameHandler->gameState().getTown(townID);
+			processBuildingQueue(t);
+		}
+	}
 
 	if (newWeek)
 	{

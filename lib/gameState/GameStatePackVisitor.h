@@ -71,6 +71,7 @@ public:
 	void visitTryMoveHero(TryMoveHero & pack) override;
 	void visitNewStructures(NewStructures & pack) override;
 	void visitRazeStructures(RazeStructures & pack) override;
+	void visitSetTownBuildingQueue(SetTownBuildingQueue & pack) override;
 	void visitSetAvailableCreatures(SetAvailableCreatures & pack) override;
 	void visitSetHeroesInTown(SetHeroesInTown & pack) override;
 	void visitHeroRecruited(HeroRecruited & pack) override;

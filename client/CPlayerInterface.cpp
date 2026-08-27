@@ -672,6 +672,15 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 		cgh->buildChanged();
 }
 
+void CPlayerInterface::townBuildingQueueChanged(const CGTownInstance *town)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	for (auto hallWindow : ENGINE->windows().findWindows<CHallInterface>())
+		if (hallWindow->getTown() == town)
+			hallWindow->updateBoxes();
+}
+
 void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
 	movementController->onBattleStarted();

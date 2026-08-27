@@ -585,6 +585,12 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	GAME->map().onObjectInstantAdd(town, town->getOwner());
 }
 
+void ApplyClientNetPackVisitor::visitSetTownBuildingQueue(SetTownBuildingQueue & pack)
+{
+	const CGTownInstance * town = gs.getTown(pack.tid);
+	callInterfaceIfPresent(cl, town->getOwner(), &IGameEventsReceiver::townBuildingQueueChanged, town);
+}
+
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
 {
 	const CGDwelling * dw = static_cast<const CGDwelling*>(cl.gameInfo().getObj(pack.tid));

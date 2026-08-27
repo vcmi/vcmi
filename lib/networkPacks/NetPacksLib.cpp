@@ -246,6 +246,11 @@ void RazeStructures::visitTyped(ICPackVisitor & visitor)
 	visitor.visitRazeStructures(*this);
 }
 
+void SetTownBuildingQueue::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetTownBuildingQueue(*this);
+}
+
 void SetAvailableCreatures::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetAvailableCreatures(*this);
@@ -609,6 +614,16 @@ void VisitTownBuilding::visitTyped(ICPackVisitor & visitor)
 void RazeStructure::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRazeStructure(*this);
+}
+
+void EnqueueBuilding::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitEnqueueBuilding(*this);
+}
+
+void DequeueBuilding::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDequeueBuilding(*this);
 }
 
 void SpellResearch::visitTyped(ICPackVisitor & visitor)

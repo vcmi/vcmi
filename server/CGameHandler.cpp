@@ -2310,7 +2310,7 @@ void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID buil
 	buildStructure(townID, building, true);
 }
 
-bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)
+bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force, bool countsTowardsDailyCap)
 {
 	const CGTownInstance * t = gameInfo().getTown(tid);
 	if(!t)
@@ -2407,7 +2407,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Prepare structure (list of building ids will be filled later)
 	NewStructures ns;
 	ns.tid = tid;
-	ns.built = force ? t->built : (t->built+1);
+	ns.built = (force && !countsTowardsDailyCap) ? t->built : (t->built+1);
 
 	std::queue<const CBuilding*> buildingsToAdd;
 	buildingsToAdd.push(requestedBuilding.get());
@@ -2483,6 +2483,51 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	}
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
+	return true;
+}
+
+bool CGameHandler::enqueueBuilding(ObjectInstanceID tid, BuildingID bid)
+{
+	const CGTownInstance * t = gameInfo().getTown(tid);
+	if(!t)
+		COMPLAIN_RETF("No such town (ID=%s)!", tid);
+	if(!gameInfo().getSettings().getBoolean(EGameSettings::TOWNS_BUILDING_QUEUE))
+		COMPLAIN_RET("Building queue is disabled!");
+	if(!t->getTown()->buildings.count(bid))
+		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->getFaction()->getNameTranslated() % bid);
+	if(t->hasBuilt(bid))
+		COMPLAIN_RET("Building is already built!");
+	if(vstd::contains(t->buildingsQueue, bid))
+		COMPLAIN_RET("Building is already queued!");
+	if(gameState().canBuildStructure(t, bid, true) != EBuildingState::ALLOWED)
+		COMPLAIN_RET("Cannot queue that building!");
+
+	const auto & building = t->getTown()->buildings.at(bid);
+	giveResources(t->tempOwner, -building->resources);
+
+	SetTownBuildingQueue pack;
+	pack.tid = tid;
+	pack.queue = t->buildingsQueue;
+	pack.queue.push_back(bid);
+	sendAndApply(pack);
+	return true;
+}
+
+bool CGameHandler::dequeueBuilding(ObjectInstanceID tid, BuildingID bid)
+{
+	const CGTownInstance * t = gameInfo().getTown(tid);
+	if(!t)
+		COMPLAIN_RETF("No such town (ID=%s)!", tid);
+	if(!vstd::contains(t->buildingsQueue, bid))
+		COMPLAIN_RET("Building is not queued!");
+
+	giveResources(t->tempOwner, t->getTown()->buildings.at(bid)->resources);
+
+	SetTownBuildingQueue pack;
+	pack.tid = tid;
+	pack.queue = t->buildingsQueue;
+	vstd::erase_if(pack.queue, [bid](const BuildingID & queued){ return queued == bid; });
+	sendAndApply(pack);
 	return true;
 }
 

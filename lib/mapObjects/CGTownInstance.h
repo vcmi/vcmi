@@ -68,6 +68,7 @@ public:
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
+	std::vector<BuildingID> buildingsQueue; //buildings queued for future construction, in order; front is built next
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
 	int32_t spellResearchCounterDay;
 	int32_t spellResearchAcceptedCounter;
@@ -108,6 +109,9 @@ public:
 
 		if(h.hasFeature(Handler::Version::SPELL_RESEARCH_IMPROVEMENTS))
 			h & spellResearchPendingRerollsCounters;
+
+		if(h.hasFeature(Handler::Version::TOWN_BUILDING_QUEUE))
+			h & buildingsQueue;
 
 		if(!h.saving)
 		{

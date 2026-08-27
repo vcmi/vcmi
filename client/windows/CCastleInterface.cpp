@@ -28,6 +28,7 @@
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/CTextInput.h"
@@ -1875,6 +1876,18 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 		mark = std::make_shared<CAnimImage>(AnimationPath::builtin("TPTHCHK"), iconIndex[static_cast<int>(state)], 0, 136, 56);
 	name = std::make_shared<CLabel>(78, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->getNameTranslated(), 150);
 
+	auto queuePosition = vstd::find_pos(town->buildingsQueue, building->bid);
+	if(queuePosition != -1)
+	{
+		constexpr int queueBadgeMargin = 4;
+		constexpr int queueBadgeW = 15;
+		constexpr int queueBadgeH = 18;
+		Rect queueBadgeRect(pos.w - queueBadgeMargin - queueBadgeW, queueBadgeMargin, queueBadgeW, queueBadgeH);
+
+		queueRect = std::make_shared<TransparentFilledRectangle>(queueBadgeRect, ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
+		queueNumber = std::make_shared<CLabel>(queueBadgeRect.x + queueBadgeW / 2, queueBadgeRect.y + queueBadgeH / 2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(queuePosition + 1));
+	}
+
 	//todo: add support for all possible states
 	if(state >= EBuildingState::BUILDING_ERROR)
 		state = EBuildingState::FORBIDDEN;
@@ -1926,6 +1939,11 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->getTown()->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.hallinfo.8")), [&](){close();}, EShortcut::GLOBAL_RETURN);
 
+	createBoxes();
+}
+
+void CHallInterface::createBoxes()
+{
 	auto & boxList = town->getTown()->clientInfo.hallSlots;
 	boxes.resize(boxList.size());
 	for(size_t row=0; row<boxList.size(); row++) //for each row
@@ -1962,6 +1980,17 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 				boxes[row].push_back(std::make_shared<CBuildingBox>(posX, posY, town, building));
 		}
 	}
+}
+
+void CHallInterface::updateBoxes()
+{
+	OBJECT_CONSTRUCTION;
+
+	deactivate();
+	boxes.clear();
+	createBoxes();
+	activate();
+	redraw();
 }
 
 CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, EBuildingState state, bool rightClick):
@@ -2024,9 +2053,24 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		tooltipNo.appendTextID("core.genrltxt.596");
 		tooltipNo.replaceTextID(building->getNameTextID());
 
+		bool queueEnabled = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_BUILDING_QUEUE);
+		bool alreadyQueued = vstd::contains(town->buildingsQueue, building->bid);
+		bool queueable = GAME->interface()->cb->canBuildStructure(town, building->bid, true) == EBuildingState::ALLOWED;
+
 		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString(&GAME->translator())), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
-		buy->block(state != EBuildingState::ALLOWED || GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
+		buy->block(state != EBuildingState::ALLOWED || alreadyQueued || GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
+
+		if (queueEnabled && (alreadyQueued || queueable))
+		{
+			MetaString tooltipQueue;
+			tooltipQueue.appendTextID(alreadyQueued ? "vcmi.townStructure.queueCancel" : "vcmi.townStructure.queueAdd");
+			tooltipQueue.replaceTextID(building->getNameTextID());
+
+			queue = std::make_shared<CButton>(Point(167, 446), AnimationPath::builtin(alreadyQueued ? "ICANCEL" : "IBUY30"), CButton::tooltip(tooltipQueue.toString(&GAME->translator())), [&](){ queueFunc(); });
+			queue->setBorderColor(Colors::METALLIC_GOLD);
+			queue->block(GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
+		}
 
 		cancel = std::make_shared<CButton>(Point(290, 445), AnimationPath::builtin("ICANCEL"), CButton::tooltip(tooltipNo.toString(&GAME->translator())), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
@@ -2037,6 +2081,15 @@ void CBuildWindow::buyFunc()
 {
 	GAME->interface()->cb->buildBuilding(town,building->bid);
 	ENGINE->windows().popWindows(2); //we - build window and hall screen
+}
+
+void CBuildWindow::queueFunc()
+{
+	if (vstd::contains(town->buildingsQueue, building->bid))
+		GAME->interface()->cb->dequeueBuilding(town,building->bid);
+	else
+		GAME->interface()->cb->enqueueBuilding(town,building->bid);
+	close(); //keep the building overview open, just close this dialog
 }
 
 std::string CBuildWindow::getTextForState(EBuildingState state)
