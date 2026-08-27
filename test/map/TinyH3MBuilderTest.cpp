@@ -194,6 +194,7 @@ TEST(TinyH3MBuilderTest, HeroesPlacement)
 	EXPECT_EQ(fixed->getHeroTypeID(), HeroTypeID(0));
 	EXPECT_EQ(fixed->anchorPos(), int3(5, 5, 0));
 	EXPECT_EQ(random->anchorPos(), int3(6, 6, 0));
+	EXPECT_EQ(loaded.map->getObjectiveObjectFrom(fixed->anchorPos(), Obj::HERO), fixed);
 }
 
 TEST(TinyH3MBuilderTest, SpellScrollLoads)
