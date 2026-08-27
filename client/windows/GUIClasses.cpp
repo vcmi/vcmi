@@ -21,6 +21,7 @@
 
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -29,6 +30,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/CreatureCostBox.h"
+#include "../widgets/ControllerActionButton.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
@@ -1829,7 +1831,9 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 	title = std::make_shared<CLabel>(152, titleWidget_ ? 27 : 51, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, _title);
 	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _descr);
-	exit = std::make_shared<CButton>( Point(228, 402), AnimationPath::builtin(blue ? "MuBcanc" : "ICANCEL.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
+	exit = std::make_shared<CControllerActionButton>(Point(228, 402),
+		AnimationPath::builtin(blue ? "MuBcanc" : "ICANCEL.DEF"), CButton::tooltip(),
+		std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
 
 	if(titleWidget)
 	{
@@ -1843,7 +1847,9 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	if(list->getSlider())
 		list->getSlider()->setInertiaEnabled(true);
 
-	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin(blue ? "MuBchck" : "IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
+	ok = std::make_shared<CControllerActionButton>(Point(15, 402),
+		AnimationPath::builtin(blue ? "MuBchck" : "IOKAY.DEF"), CButton::tooltip(),
+		std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
 
 	if(!searchBoxEnabled)
@@ -1858,6 +1864,42 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 	searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
 	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
+}
+
+void CObjectListWindow::setControllerActionPrompts(const std::string & acceptActionText,
+	const std::string & cancelActionText)
+{
+	const auto buttonConfig = JsonPath::builtin("config/widgets/buttons/objectListControllerAction.json");
+	controllerActionPromptsConfigured = true;
+	const auto visibilityChanged = std::bind(&CObjectListWindow::updateControllerCursorVisibility, this);
+	ok->setControllerPrompt(buttonConfig, Point(15, 402), acceptActionText, visibilityChanged);
+	exit->setControllerPrompt(buttonConfig, Point(168, 402), cancelActionText, visibilityChanged);
+	updateControllerCursorVisibility();
+}
+
+void CObjectListWindow::activate()
+{
+	CWindowObject::activate();
+	updateControllerCursorVisibility();
+}
+
+void CObjectListWindow::deactivate()
+{
+	if(controllerActionPromptsConfigured)
+		ENGINE->cursor().setControllerNativeHidden(false);
+	CWindowObject::deactivate();
+}
+
+void CObjectListWindow::updateControllerCursorVisibility()
+{
+	if(!controllerActionPromptsConfigured)
+		return;
+
+	const bool shouldHide = isActive()
+		&& ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+		&& ok->isControllerPromptVisible()
+		&& exit->isControllerPromptVisible();
+	ENGINE->cursor().setControllerNativeHidden(shouldHide);
 }
 
 void CObjectListWindow::trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const
@@ -1988,6 +2030,9 @@ void CObjectListWindow::changeSelection(size_t which)
 
 void CObjectListWindow::keyPressed(EShortcut key)
 {
+	if(itemsVisible.empty())
+		return;
+
 	int sel = static_cast<int>(selected);
 
 	switch(key)

@@ -132,12 +132,14 @@ const JsonNode & ButtonBase::getCurrentConfig() const
 void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
 {
 	OBJECT_CONSTRUCTION;
+	const Point currentPosition = pos.topLeft();
 
 	config = std::make_unique<JsonNode>(jsonName);
 
 	image.reset();
 	configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 	pos = configurable->pos;
+	moveTo(currentPosition);
 
 	if (playerColoredButton)
 		image->setPlayerColor(GAME->interface()->playerID);
@@ -169,8 +171,10 @@ void ButtonBase::setStateImpl(EButtonState newState)
 	if (configurable)
 	{
 		OBJECT_CONSTRUCTION;
+		const Point currentPosition = pos.topLeft();
 		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 		pos = configurable->pos;
+		moveTo(currentPosition);
 
 		if (overlay)
 		{

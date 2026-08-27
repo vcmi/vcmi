@@ -41,6 +41,9 @@ CursorHandler::CursorHandler()
 	: cursor(createCursor())
 	, frameTime(0.f)
 	, showing(false)
+	, showingRequested(false)
+	, controllerNativeHidden(false)
+	, cursorImageUpdatePending(false)
 	, pos(0,0)
 	, dndObject(nullptr)
 {
@@ -109,7 +112,7 @@ void CursorHandler::set(const std::string & index)
 		cursorImage = loadedImages[currentCursor.image];
 	}
 
-	cursor->setImage(getCurrentImage(), getPivotOffset());
+	applyCursorImage();
 }
 
 void CursorHandler::set(Cursor::Map index)
@@ -206,7 +209,7 @@ void CursorHandler::set(Cursor::Spellcast index)
 void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 {
 	dndObject = image;
-	cursor->setImage(getCurrentImage(), getPivotOffset());
+	applyCursorImage();
 }
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
@@ -259,7 +262,19 @@ void CursorHandler::updateAnimatedCursor()
 
 	currentFrame = newFrame;
 	cursorImage = animation->getImage(currentFrame);
+	applyCursorImage();
+}
+
+void CursorHandler::applyCursorImage()
+{
+	if(controllerNativeHidden)
+	{
+		cursorImageUpdatePending = true;
+		return;
+	}
+
 	cursor->setImage(getCurrentImage(), getPivotOffset());
+	cursorImageUpdatePending = false;
 }
 
 void CursorHandler::render()
@@ -283,6 +298,7 @@ void CursorHandler::update()
 
 void CursorHandler::hide()
 {
+	showingRequested = false;
 	if (!showing)
 		return;
 
@@ -292,11 +308,26 @@ void CursorHandler::hide()
 
 void CursorHandler::show()
 {
-	if (showing)
+	showingRequested = true;
+	if(showing || controllerNativeHidden)
 		return;
 
 	showing = true;
 	cursor->setVisible(true);
+}
+
+void CursorHandler::setControllerNativeHidden(bool hidden)
+{
+	controllerNativeHidden = hidden;
+	if(!controllerNativeHidden && cursorImageUpdatePending)
+		applyCursorImage();
+
+	const bool shouldShow = showingRequested && !controllerNativeHidden;
+	if(showing == shouldShow)
+		return;
+
+	showing = shouldShow;
+	cursor->setVisible(showing);
 }
 
 Cursor::ShowType CursorHandler::getShowType() const
@@ -314,17 +345,17 @@ void CursorHandler::changeCursor(Cursor::ShowType newShowType)
 		case Cursor::ShowType::SOFTWARE:
 			cursor.reset(new CursorSoftware());
 			showType = Cursor::ShowType::SOFTWARE;
-			cursor->setImage(getCurrentImage(), getPivotOffset());
+			applyCursorImage();
 			break;
 		case Cursor::ShowType::HARDWARE:
 			cursor.reset(new CursorHardware());
 			showType = Cursor::ShowType::HARDWARE;
-			cursor->setImage(getCurrentImage(), getPivotOffset());
+			applyCursorImage();
 			break;
 	}
 }
 
 void CursorHandler::onScreenResize()
 {
-	cursor->setImage(getCurrentImage(), getPivotOffset());
+	applyCursorImage();
 }
