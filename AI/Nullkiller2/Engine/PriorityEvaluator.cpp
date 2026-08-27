@@ -1083,20 +1083,20 @@ public:
 			evaluationContext.heroRole = heroRole;
 
 		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->getPower()
-		float heroPower = 0;
+		float armyPower = 0;
 		float totalPower = 0;
 
 		// Map to store the aggregated power of creatures by CreatureID
 		std::map<CreatureID, float> totalPowerByCreatureID;
 
-		// Calculate hero power and total power by CreatureID
-		for (const auto & slot : hero->Slots())
+		// Calculate committed army power and total power by CreatureID
+		for (const auto & slot : army->Slots())
 		{
 			CreatureID creatureID = slot.second->getCreatureID();
 			float slotPower = slot.second->getPower();
 
-			// Add the power of this slot to the heroPower
-			heroPower += slotPower;
+			// Add the power of this slot to the committed army power
+			armyPower += slotPower;
 
 			// Accumulate the total power for the specific CreatureID
 			if (totalPowerByCreatureID.find(creatureID) == totalPowerByCreatureID.end())
@@ -1115,7 +1115,7 @@ public:
 		// Compute the power ratio if total power is greater than zero
 		if (totalPower > 0)
 		{
-			evaluationContext.powerRatio = heroPower / totalPower;
+			evaluationContext.powerRatio = armyPower / totalPower;
 		}
 
 		if (target)
@@ -1471,10 +1471,14 @@ float PriorityEvaluator::evaluate(
 		float score = 0;
 
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		const float maxWillingToLose = amIWithoutCastle ? 1
-									 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0
-										 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio
-										 : 1.0;
+		float maxWillingToLose = 1.0f;
+		if(!amIWithoutCastle && evaluationContext.powerRatio > 0)
+		{
+			// Convert the player-wide loss budget to a fraction of the committed army.
+			maxWillingToLose = std::min(
+				aiNk->settings->getMaxArmyLossTarget() / evaluationContext.powerRatio,
+				1.0f);
+		}
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
