@@ -52,12 +52,12 @@ std::string UIHelper::getNecromancyInfoWindowText(const CStackBasicDescriptor & 
 	MetaString text;
 	if(stack.getCount() > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{
-		text.appendLocalString(EMetaText::GENERAL_TXT, 145);
+		text.appendTextID("core.genrltxt.145");
 		text.replaceNumber(stack.getCount());
 	}
 	else // Practicing the dark arts of necromancy, ... (singular)
 	{
-		text.appendLocalString(EMetaText::GENERAL_TXT, 146);
+		text.appendTextID("core.genrltxt.146");
 	}
 	text.replaceName(stack);
 	return text.toString(&GAME->translator());
@@ -66,22 +66,22 @@ std::string UIHelper::getNecromancyInfoWindowText(const CStackBasicDescriptor & 
 std::string UIHelper::getArtifactsInfoWindowText()
 {
 	MetaString text;
-	text.appendLocalString(EMetaText::GENERAL_TXT, 30);
+	text.appendTextID("core.genrltxt.30");
 	return text.toString(&GAME->translator());
 }
 
 std::string UIHelper::getEagleEyeInfoWindowText(const CGHeroInstance & hero, const std::set<SpellID> & spells)
 {
 	MetaString text;
-	text.appendLocalString(EMetaText::GENERAL_TXT, 221); // Through eagle-eyed observation, %s is able to learn %s
-	text.replaceRawString(GAME->translator().translate(hero.getNameTextID()));
+	text.appendTextID("core.genrltxt.221"); // Through eagle-eyed observation, %s is able to learn %s
+	text.replaceTextID(hero.getNameTextID());
 
 	auto curSpell = spells.begin();
 	text.replaceName(*curSpell++);
 	for(int i = 1; i < spells.size(); i++, curSpell++)
 	{
 		if(i + 1 == spells.size())
-			text.appendLocalString(EMetaText::GENERAL_TXT, 141); // " and "
+			text.appendTextID("core.genrltxt.141"); // " and "
 		else
 			text.appendRawString(", ");
 		text.appendName(*curSpell);

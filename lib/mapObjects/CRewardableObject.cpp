@@ -401,7 +401,7 @@ void CRewardableObject::initializeGuards()
 	// Workaround for default creature banks strings that has placeholder for object name
 	// TODO: find better location for this code
 	for (auto & visitInfo : configuration.info)
-		visitInfo.message.replaceName(ID, subID);
+		visitInfo.message.replaceTextID(getObjectNameTextID());
 
 	for (auto const & visitInfo : configuration.info)
 	{

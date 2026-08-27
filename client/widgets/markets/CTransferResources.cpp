@@ -77,7 +77,7 @@ CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() cons
 		return MarketShowcasesParams
 		{
 			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getHighlightedItemId()},
-			ShowcaseParams {LIBRARY->generaltexth->capColors[offerTradePanel->getHighlightedItemId()], offerTradePanel->getHighlightedItemId()}
+			ShowcaseParams {GAME->translator().translate("vcmi.capitalColors", offerTradePanel->getHighlightedItemId()), offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};

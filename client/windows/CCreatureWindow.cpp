@@ -578,8 +578,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	statNames =
 	{
-		LIBRARY->generaltexth->primarySkillNames[0], //ATTACK
-		LIBRARY->generaltexth->primarySkillNames[1],//DEFENCE
+		LIBRARY->generaltexth->translate("core.priskill.0"), //ATTACK
+		LIBRARY->generaltexth->translate("core.priskill.1"),//DEFENCE
 		LIBRARY->generaltexth->allTexts[198],//SHOTS
 		LIBRARY->generaltexth->allTexts[199],//DAMAGE
 
@@ -708,11 +708,14 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), ComponentType::EXPERIENCE);
 			expArea = area;
-			area->text = LIBRARY->generaltexth->allTexts[2];
+			MetaString expText;
+			expText.appendTextID("core.genrltxt.2");
+			expText.replaceNumber(commander->getExpRank());
+			expText.replaceNumber(LIBRARY->heroh->reqExp(commander->getExpRank() + 1));
+			expText.replaceNumber(commander->getAverageExperience());
+
+			area->text = expText.toString(&GAME->translator());
 			area->component.value = commander->getExpRank();
-			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
-			boost::replace_first(area->text, "%d", std::to_string(LIBRARY->heroh->reqExp(commander->getExpRank() + 1)));
-			boost::replace_first(area->text, "%d", std::to_string(commander->getAverageExperience()));
 		}
 		else
 		{
@@ -776,14 +779,13 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_
 	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, title));
 
 	const bool useRange = value1 != value2;
-	std::string formatStr = useRange ? statFormats.at(static_cast<size_t>(index)) : "%d";
 
-	boost::format fmt(formatStr);
-	fmt % value1;
+	MetaString value = MetaString::createFromRawString(useRange ? statFormats.at(static_cast<size_t>(index)) : "%d");
+	value.replaceNumber(value1);
 	if(useRange)
-		fmt % value2;
+		value.replaceNumber(value2);
 
-	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, fmt.str()));
+	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, value.toString(&GAME->translator())));
 }
 
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)

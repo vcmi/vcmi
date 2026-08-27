@@ -60,7 +60,7 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 		if(!gameHandler->gameInfo().getPlayerSettings(player)->isControlledByAI())
 		{
 			MetaString txt;
-			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
+			txt.appendTextID("core.genrltxt.260");
 			broadcastSystemMessage(txt);
 		}
 

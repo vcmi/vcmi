@@ -274,6 +274,7 @@
 	"spellSchool.core.fire.name": "Fire",
 	"spellSchool.core.water.name": "Water",
 	"vcmi.adventureMap.confirmQuickLoadGame": "Are you sure you want to load the quicksave?",
+	"vcmi.adventureMap.dateFormat": "%MONTH: %MONTHNUMBER, %WEEK: %WEEKNUMBER, %DAY: %DAYNUMBER",
 	"vcmi.adventureMap.confirmRestartGame": "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.disembark.help": "{Disembark from airship}\n\nHero gets down from airship to the next tile.",
 	"vcmi.adventureMap.disembark.hover": "Disembark from airship",

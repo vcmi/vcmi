@@ -40,6 +40,11 @@ MetaString MetaString::createFromTextID(const std::string & value)
 	return result;
 }
 
+MetaString MetaString::createFromTextID(const std::string & prefix, int index)
+{
+	return createFromTextID(prefix + '.' + std::to_string(index));
+}
+
 MetaString MetaString::createFromName(const GameResID& id)
 {
 	MetaString result;
@@ -70,6 +75,11 @@ void MetaString::appendTextID(const std::string & value)
 		message.push_back(EMessage::APPEND_TEXTID_STRING);
 		stringsTextID.push_back(value);
 	}
+}
+
+void MetaString::appendTextID(const std::string & prefix, int index)
+{
+	appendTextID(prefix + '.' + std::to_string(index));
 }
 
 void MetaString::appendNumber(int64_t value)
@@ -110,6 +120,11 @@ void MetaString::replaceTextID(const std::string & value)
 	stringsTextID.push_back(value);
 }
 
+void MetaString::replaceTextID(const std::string & prefix, int index)
+{
+	replaceTextID(prefix + '.' + std::to_string(index));
+}
+
 void MetaString::replaceNumber(int64_t txt)
 {
 	message.push_back(EMessage::REPLACE_NUMBER);
@@ -134,6 +149,13 @@ void MetaString::replaceTokenNumber(const std::string & token, int64_t value)
 	message.push_back(EMessage::REPLACE_TOKEN_NUMBER);
 	exactStrings.push_back(token);
 	numbers.push_back(value);
+}
+
+void MetaString::replaceTokenRawString(const std::string & token, const std::string & value)
+{
+	message.push_back(EMessage::REPLACE_TOKEN_RAW_STRING);
+	exactStrings.push_back(token);
+	exactStrings.push_back(value);
 }
 
 void MetaString::clear()
@@ -236,6 +258,13 @@ DLL_LINKAGE std::string MetaString::toString(const ITranslator * translator) con
 			case EMessage::REPLACE_TOKEN_NUMBER:
 				boost::replace_first(dst, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_RAW_STRING:
+			{
+				// token and value share one vector, so the reads must be sequenced
+				const std::string & token = exactStrings.at(exSt++);
+				boost::replace_first(dst, token, exactStrings.at(exSt++));
+				break;
+			}
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
 				assert(0);
@@ -249,6 +278,17 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 {
 	assert(translator != nullptr);
 
+	// only appends of a whole string form list entries - replacements act on an entry that is already in the list
+	auto isListEntry = [](EMessage message)
+	{
+		return message == EMessage::APPEND_RAW_STRING || message == EMessage::APPEND_LOCAL_STRING || message == EMessage::APPEND_TEXTID_STRING;
+	};
+
+	size_t lastEntry = 0;
+	for(size_t i = 0; i < message.size(); ++i)
+		if(isListEntry(message.at(i)))
+			lastEntry = i;
+
 	size_t exSt = 0;
 	size_t loSt = 0;
 	size_t nums = 0;
@@ -256,9 +296,9 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 	std::string lista;
 	for(int i = 0; i < message.size(); ++i)
 	{
-		if(i > 0 && (message.at(i) == EMessage::APPEND_RAW_STRING || message.at(i) == EMessage::APPEND_LOCAL_STRING))
+		if(i > 0 && isListEntry(message.at(i)))
 		{
-			if(exSt == exactStrings.size() - 1)
+			if(i == lastEntry)
 				lista += translator->translate("core.genrltxt", 141); //" and "
 			else
 				lista += ", ";
@@ -298,6 +338,12 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 			case EMessage::REPLACE_TOKEN_NUMBER:
 				boost::replace_first(lista, exactStrings.at(exSt++), std::to_string(numbers.at(nums++)));
 				break;
+			case EMessage::REPLACE_TOKEN_RAW_STRING:
+			{
+				const std::string & token = exactStrings.at(exSt++);
+				boost::replace_first(lista, token, exactStrings.at(exSt++));
+				break;
+			}
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", int(message.at(i)));
 		}
@@ -411,7 +457,7 @@ void MetaString::appendName(const SpellID & id)
 
 void MetaString::appendName(const PlayerColor & id)
 {
-	appendTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+	appendTextID("vcmi.capitalColors", id.getNum());
 }
 
 void MetaString::appendName(const CreatureID & id, TQuantity count)
@@ -447,14 +493,9 @@ void MetaString::replaceName(const FactionID & id)
 	replaceTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
-void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
-{
-	replaceTextID(LIBRARY->objtypeh->getObjectNameTextID(id, subId));
-}
-
 void MetaString::replaceName(const PlayerColor & id)
 {
-	replaceTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+	replaceTextID("vcmi.capitalColors", id.getNum());
 }
 
 void MetaString::replaceName(const SecondarySkill & id)

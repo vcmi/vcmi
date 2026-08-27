@@ -417,7 +417,7 @@ void OptionsTabBase::recreate(bool campaign)
 				{
 					turnSlider->scrollTo(idx, false);
 					if(auto w = widget<CLabel>("labelTurnDurationValue"))
-						w->setText(LIBRARY->generaltexth->turnDurations[idx]);
+						w->setText(GAME->translator().translate("core.turndur", idx));
 				}
 			}
 		}

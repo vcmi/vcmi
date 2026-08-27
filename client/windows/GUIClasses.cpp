@@ -239,18 +239,18 @@ void CRecruitmentWindow::buy()
 		}
 		else
 		{
-			std::string txt;
+			MetaString txt;
 			if(dwelling->ID != Obj::TOWN)
 			{
-				txt = LIBRARY->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? LIBRARY->creh->objects[crid]->getNamePluralTranslated() : LIBRARY->creh->objects[crid]->getNameSingularTranslated());
+				txt.appendTextID("core.genrltxt.425"); //The %s would join your hero, but there aren't enough provisions to support them.
+				txt.replaceName(CreatureID(crid), slider->getValue());
 			}
 			else
 			{
-				txt = LIBRARY->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
+				txt.appendTextID("core.genrltxt.17"); //There is no room in the garrison for this army.
 			}
 
-			GAME->interface()->showInfoDialog(txt);
+			GAME->interface()->showInfoDialog(txt.toString(&GAME->translator()));
 			return;
 		}
 	}
@@ -430,9 +430,9 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	slider = std::make_shared<CSlider>(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPosition, defaultRightAmount - rightMin, Orientation::HORIZONTAL);
 
-	std::string titleStr = LIBRARY->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(titleStr,"%s", creature->getNamePluralTranslated());
-	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
+	MetaString titleStr = MetaString::createFromTextID("core.genrltxt.256");
+	titleStr.replaceNamePlural(creature->getId());
+	title = std::make_shared<CLabel>(150, 34, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleStr.toString(&GAME->translator()));
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
@@ -544,17 +544,26 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
-	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % GAME->translator().translate(hero->getNameTextID())));
+	MetaString mainTitleText;
+	mainTitleText.appendTextID("core.genrltxt.444");
+	mainTitleText.replaceTextID(hero->getNameTextID());
+
+	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, mainTitleText.toString(&GAME->translator()));
 
 	//%s is now a level %d %s.
-	std::string levelTitleText = LIBRARY->generaltexth->translate("core.genrltxt.445");
-	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getNameTextID()));
-	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", GAME->translator().translate(hero->getClassNameTextID()));
+	MetaString levelTitleText;
+	levelTitleText.appendTextID("core.genrltxt.445");
+	levelTitleText.replaceTextID(hero->getNameTextID());
+	levelTitleText.replaceNumber(hero->level);
+	levelTitleText.replaceTextID(hero->getClassNameTextID());
 
-	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
+	MetaString skillValueText;
+	skillValueText.appendTextID("core.priskill", pskill.getNum());
+	skillValueText.appendRawString(" +1");
+
+	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText.toString(&GAME->translator()));
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, skillValueText.toString(&GAME->translator()));
 }
 
 void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
@@ -683,17 +692,17 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0], [this]() { if(!recruit->isBlocked()) recruitb(); });
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1], [this]() { if(!recruit->isBlocked()) recruitb(); });
 
-	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[37]);
+	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.37"));
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
 	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[38]);
+	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.38"));
 
 	rumor = std::make_shared<CTextBox>(GAME->interface()->cb->getTavernRumor(tavernObj, &GAME->translator()), Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
+	cancel = std::make_shared<CButton>(Point(310, 428), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tvrninfo.7")), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
 	recruit = std::make_shared<CButton>(Point(272, 355), AnimationPath::builtin("TPTAV01.DEF"), CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
-	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
+	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tvrninfo.5")), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
 	if(!GAME->interface()->makingTurn)
 	{
@@ -701,7 +710,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
-		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[0]); //Cannot afford a Hero
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->translate("core.tvrninfo.0")); //Cannot afford a Hero
 		recruit->block(true);
 	}
 	else if(GAME->interface()->cb->howManyHeroes(true) >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
@@ -725,7 +734,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->getVisitingHero())
 	{
-		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
+		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->translate("core.tvrninfo.2")); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
 	}
 	else
@@ -865,9 +874,13 @@ void CTavernWindow::show(Canvas & to)
 
 			heroDescription->setText(sel->description);
 
-			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->tavernInfo[3]) % GAME->translator().translate(sel->h->getNameTextID()) % GAME->translator().translate(sel->h->getClassNameTextID())));
+			{
+				MetaString hoverText = MetaString::createFromTextID("core.tvrninfo.3"); // Recruit %s the %s
+				hoverText.replaceTextID(sel->h->getNameTextID());
+				hoverText.replaceTextID(sel->h->getClassNameTextID());
+				recruit->addHoverText(EButtonState::NORMAL, hoverText.toString(&GAME->translator()));
+			}
 
 		}
 
@@ -911,19 +924,21 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 
 	if(H)
 	{
-		hoverName = LIBRARY->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",GAME->translator().translate(H->getNameTextID()));
+		MetaString hoverNameText = MetaString::createFromTextID("core.tvrninfo.4");
+		hoverNameText.replaceTextID(H->getNameTextID());
+		hoverName = hoverNameText.toString(&GAME->translator());
 
 		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
 
-		description = LIBRARY->generaltexth->allTexts[215];
-		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getNameTextID()));
-		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", GAME->translator().translate(h->getClassNameTextID()));
-		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
+		MetaString descriptionText = MetaString::createFromTextID("core.genrltxt.215");
+		descriptionText.replaceTextID(h->getNameTextID());
+		descriptionText.replaceNumber(h->level);
+		descriptionText.replaceTextID(h->getClassNameTextID());
+		descriptionText.replaceNumber(artifs);
+		description = descriptionText.toString(&GAME->translator());
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
 	}
@@ -986,8 +1001,8 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[13]);
-	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->jktexts[14]);
+	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.13"));
+	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.jktext.14"));
 }
 
 void CTransformerWindow::CItem::move()
@@ -1147,7 +1162,7 @@ void CUniversityWindow::CItem::update()
 
 	// needs to be on top of background bars
 	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(LIBRARY)->getNameTranslated());
-	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[0]);
+	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.skilllev.0"));
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
@@ -1234,11 +1249,12 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	OBJECT_CONSTRUCTION;
 
 	int goldNeeded = GAME->interface()->cb->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
-	std::string text = LIBRARY->generaltexth->allTexts[608];
-	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
-
-	boost::replace_first(text, "%d", std::to_string(goldNeeded));
+	MetaString speechText;
+	speechText.appendTextID("core.genrltxt.608");
+	speechText.replaceTextID("core.skilllev.0");
+	speechText.replaceName(SKILL);
+	speechText.replaceNumber(goldNeeded);
+	std::string text = speechText.toString(&GAME->translator());
 
 	const int centerX = pos.w / 2;
 	const int speechFrameWidth = 414;
@@ -1252,19 +1268,28 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 	name = std::make_shared<CLabel>(centerX, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, SKILL.toEntity(LIBRARY)->getNameTranslated());
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), SKILL.getNum()*3+3);
 	icon->center(Point(pos.x + centerX, pos.y + 71));
-	level = std::make_shared<CLabel>(centerX, 105, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[1]);
+	level = std::make_shared<CLabel>(centerX, 105, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.skilllev.1"));
 
 	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD));
 	costIcon->center(Point(pos.x + centerX, pos.y + 234));
 	cost = std::make_shared<CLabel>(centerX, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(goldNeeded));
 
-	std::string hoverText = LIBRARY->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", LIBRARY->generaltexth->levels[0]+ " " + SKILL.toEntity(LIBRARY)->getNameTranslated());
+	MetaString skillName;
+	skillName.appendTextID("core.skilllev.0");
+	skillName.appendRawString(" ");
+	skillName.appendTextID(SKILL.toEntity(LIBRARY)->getNameTextID());
 
-	text = LIBRARY->generaltexth->zelp[633].second;
-	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
-	boost::replace_first(text, "%d", std::to_string(goldNeeded));
+	MetaString hoverTextMessage;
+	hoverTextMessage.appendTextID("core.genrltxt.609");
+	hoverTextMessage.replaceRawString(skillName.toString(&GAME->translator()));
+	std::string hoverText = hoverTextMessage.toString(&GAME->translator());
+
+	MetaString helpText;
+	helpText.appendTextID("core.help.633.help");
+	helpText.replaceTextID("core.skilllev.0");
+	helpText.replaceName(SKILL);
+	helpText.replaceNumber(goldNeeded);
+	text = helpText.toString(&GAME->translator());
 
 	confirm = std::make_shared<CButton>(Point(centerX - 84, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [this, SKILL](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
 	confirm->block(!available);
@@ -1287,7 +1312,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	garr->showMoveUnitsOnHover = true;
 	{
-		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3], ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
+		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3"), ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
 		garr->addSplitBtn(split);
 	}
 	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.garrison.leave"), ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
@@ -1308,8 +1333,9 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		//assume that this is joining monsters dialog
 		if(up->Slots().size() > 0)
 		{
-			titleText = LIBRARY->generaltexth->allTexts[35];
-			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->getType()->getNamePluralTranslated());
+			MetaString joiningText = MetaString::createFromTextID("core.genrltxt.35");
+			joiningText.replaceNamePlural(up->Slots().begin()->second->getType()->getId());
+			titleText = joiningText.toString(&GAME->translator());
 		}
 		else
 		{
@@ -1541,14 +1567,10 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 	if(!hero->getCreature(slot))//we don`t have creature here
 		return "";
 
-	std::string str = LIBRARY->generaltexth->allTexts[318];
-	int amount = hero->getStackCount(slot);
-	if(amount == 1)
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNameSingularTranslated());
-	else
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->getNamePluralTranslated());
+	MetaString str = MetaString::createFromTextID("core.genrltxt.318");
+	str.replaceName(hero->getCreature(slot)->getId(), hero->getStackCount(slot));
 
-	return str;
+	return str.toString(&GAME->translator());
 }
 
 CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
@@ -1603,7 +1625,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		else
 			y = posY[g-9];
 
-		std::string text = LIBRARY->generaltexth->jktexts[24+g];
+		std::string text = GAME->translator().translate("core.jktext", 24+g);
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
 		if(settings["general"]["enableUiEnhancements"].Bool() && g >= 2 && g <= 4) // add icons instead of text (text is OH3 behavior)
 		{
@@ -1631,7 +1653,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[16+g]));
+		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 21, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, GAME->translator().translate("core.jktext", 16+g)));
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1681,7 +1703,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 				{
 					primSkillHeaders.push_back(std::make_shared<CLabel>(260 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMLEFT, Colors::WHITE, lines[i]));
 					primSkillHeadersArea.push_back(std::make_shared<LRClickableArea>(Rect(primSkillHeaders.back()->pos.x - pos.x, primSkillHeaders.back()->pos.y - pos.y - 11, 50, 11), nullptr, [i]{
-						CRClickPopup::createAndPush(LIBRARY->generaltexth->arraytxt[2 + i]);
+						CRClickPopup::createAndPush(GAME->translator().translate("core.arraytxt", 2 + i));
 					}));
 					primSkillValues.push_back(std::make_shared<CLabel>(310 + 66 * counter, 407 + 11 * i, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE,
 							   std::to_string(iter.second.details->primskills[i])));
@@ -1707,11 +1729,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		std::string text;
 		if(it.second == EAiTactic::NONE)
 		{
-			text = LIBRARY->generaltexth->arraytxt[172];
+			text = LIBRARY->generaltexth->translate("core.arraytxt.172");
 		}
 		else if(it.second != EAiTactic::RANDOM)
 		{
-			text = LIBRARY->generaltexth->arraytxt[168 + static_cast<int>(it.second)];
+			text = GAME->translator().translate("core.arraytxt", 168 + static_cast<int>(it.second));
 		}
 
 		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text));

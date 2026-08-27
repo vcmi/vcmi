@@ -163,10 +163,10 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	{
 		curY += 16;
 		const std::vector<std::string> psNames = {
-			LIBRARY->generaltexth->jktexts[1],
-			LIBRARY->generaltexth->jktexts[2],
-			LIBRARY->generaltexth->jktexts[3],
-			LIBRARY->generaltexth->jktexts[4],
+			LIBRARY->generaltexth->translate("core.jktext.1"),
+			LIBRARY->generaltexth->translate("core.jktext.2"),
+			LIBRARY->generaltexth->translate("core.jktext.3"),
+			LIBRARY->generaltexth->translate("core.jktext.4"),
 		};
 		const int nStats = static_cast<int>(psNames.size());
 		const int tableW = W - MARGIN * 2;
@@ -437,7 +437,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 				FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE,
 				sk->getNameTranslated()));
 			const std::string lvlStr = (level >= 1 && level <= 3)
-				? LIBRARY->generaltexth->levels[level - 1]
+				? GAME->translator().translate("core.skilllev", level - 1)
 				: std::to_string(level);
 			widgets.push_back(std::make_shared<CLabel>(
 				MARGIN + iconW + nameW + CELL_L, curY + rowH / 2 - 5,

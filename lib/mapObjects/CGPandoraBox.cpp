@@ -138,9 +138,9 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 		}
 		
 		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].getCount() == 1)
-			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
+			txt.appendTextID("core.advevent.185");
 		else
-			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
+			txt.appendTextID("core.advevent.186");
 		
 		txt.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 		txt.replaceTextID(h->getNameTextID());
@@ -173,7 +173,7 @@ void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInst
 {
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
-	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
+	bd.text.appendTextID("core.advevent.14");
 	gameEvents.showBlockingDialog(this, &bd);
 }
 
@@ -337,7 +337,7 @@ void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * 
 		if(!message.empty())
 			iw.text = message;
 		else
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
+			iw.text.appendTextID("core.advevent.16");
 		iw.journalInfo = ScenarioEventJournalInfo{visitablePos()};
 		gameEvents.showInfoDialog(&iw);
 		gameEvents.startBattle(h, this);

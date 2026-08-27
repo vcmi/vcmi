@@ -56,7 +56,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 
 	for(int i = 0, index = 0; i < 5; ++i)
 	{
-		ui->comboBoxDefaultDifficulty->addItem(QString::fromStdString(LIBRARY->generaltexth->arraytxt[142 + i]), QVariant(i));
+		ui->comboBoxDefaultDifficulty->addItem(QString::fromStdString(Translator::instance().translate("core.arraytxt", 142 + i)), QVariant(i));
 		if(i == campaignState->scenarios.at(scenario).difficulty)
 			ui->comboBoxDefaultDifficulty->setCurrentIndex(index);
 		++index;

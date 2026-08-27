@@ -214,15 +214,18 @@ void CMinorResDataBar::show(Canvas & to)
 
 std::string CMinorResDataBar::buildDateString()
 {
-	std::string pattern = "%s: %d, %s: %d, %s: %d";
-
 	auto calendar = GAME->interface()->cb->getCalendar();
-	auto formatted = boost::format(pattern)
-		% LIBRARY->generaltexth->translate("core.genrltxt.62") % calendar.getMonth()
-		% LIBRARY->generaltexth->translate("core.genrltxt.63") % calendar.getWeek()
-		% LIBRARY->generaltexth->translate("core.genrltxt.64") % calendar.getDayOfWeek();
 
-	return boost::str(formatted);
+	MetaString date;
+	date.appendTextID("vcmi.adventureMap.dateFormat");
+	date.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+	date.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+	date.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+	date.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+	date.replaceTokenTextID("%DAY", "core.genrltxt.64");
+	date.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+
+	return date.toString(&GAME->translator());
 }
 
 void CMinorResDataBar::showAll(Canvas & to)
@@ -289,7 +292,7 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
+					subtitle = GAME->translator().translate("core.arraytxt", 171 + 3 * (slot.second.getCount()));
 				}
 			}
 		}
@@ -612,14 +615,15 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
-	hoverText = LIBRARY->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	hoverText = GAME->translator().translate("core.heroscrn", hoverTextBase[morale] - mrlt);
 	component.type = componentType[morale];
-	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
-	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	MetaString description = MetaString::createFromTextID("core.arraytxt", textId[morale]);
+	description.replaceTextID("core.arraytxt", neutralDescr[morale] - mrlt);
+	text = description.toString(&GAME->translator());
 
 	if (morale && node && node->unaffectedByMorale())
 	{
-		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
+		text += LIBRARY->generaltexth->translate("core.arraytxt.113"); //unaffected by morale
 		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
@@ -650,7 +654,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			}
 		}
 		text = addInfo.empty() 
-			? text + LIBRARY->generaltexth->arraytxt[noneTxtId] 
+			? text + GAME->translator().translate("core.arraytxt", noneTxtId) 
 			: text + addInfo;
 	}
 	std::string imageName;

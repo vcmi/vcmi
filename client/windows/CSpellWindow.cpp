@@ -731,7 +731,10 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
+			MetaString message = MetaString::createFromTextID("core.genrltxt.206"); // That spell costs %d spell points. Your hero only has %d spell points...
+			message.replaceNumber(spellCost);
+			message.replaceNumber(owner->myHero->mana);
+			GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 			return;
 		}
 
@@ -817,8 +820,9 @@ void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 			dmgInfo.clear();
 		else
 		{
-			dmgInfo = LIBRARY->generaltexth->allTexts[343];
-			boost::algorithm::replace_first(dmgInfo, "%d", std::to_string(causedDmg));
+			MetaString dmgText = MetaString::createFromTextID("core.genrltxt.343");
+			dmgText.replaceNumber(causedDmg);
+			dmgInfo = dmgText.toString(&GAME->translator());
 		}
 
 		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
@@ -830,7 +834,12 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % LIBRARY->generaltexth->allTexts[171+mySpell->getLevel()]));
+		{
+			MetaString message = MetaString::createFromRawString("%s (%s)");
+			message.replaceTextID(mySpell->getNameTextID());
+			message.replaceTextID("core.genrltxt", 171 + mySpell->getLevel());
+			owner->statusBar->write(message.toString(&GAME->translator()));
+		}
 		else
 			owner->statusBar->clear();
 	}
@@ -882,22 +891,23 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		name->setText(mySpell->getNameTranslated());
 
 		level->color = secondLineColor;
-		std::string levelStr = mySpell->getLevel() > 0 ? LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()]
-												   : LIBRARY->generaltexth->translate("vcmi.spellBook.zero_level.hint");
+		std::string levelTextID = mySpell->getLevel() > 0 ? TextIdentifier("core.genrltxt", 171 + mySpell->getLevel()).get()
+														  : "vcmi.spellBook.zero_level.hint";
 
 		if(schoolLevel > 0)
 		{
-			boost::format fmt("%s/%s");
-			fmt % levelStr;
-			fmt % LIBRARY->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
-			level->setText(fmt.str());
+			MetaString levelText = MetaString::createFromRawString("%s/%s");
+			levelText.replaceTextID(levelTextID);
+			levelText.replaceTextID("core.skilllev", 3 + (schoolLevel - 1)); //lines 4-6
+			level->setText(levelText.toString(&GAME->translator()));
 		}
 		else
-			level->setText(levelStr);
+			level->setText(GAME->translator().translate(levelTextID));
 
 		cost->color = secondLineColor;
-		boost::format costfmt("%s: %d");
-		costfmt % LIBRARY->generaltexth->allTexts[387] % spellCost;
-		cost->setText(costfmt.str());
+		MetaString costText = MetaString::createFromRawString("%s: %d");
+		costText.replaceTextID("core.genrltxt.387"); // Spell Points
+		costText.replaceNumber(spellCost);
+		cost->setText(costText.toString(&GAME->translator()));
 	}
 }

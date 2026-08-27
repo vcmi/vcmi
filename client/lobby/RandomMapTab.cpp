@@ -276,7 +276,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
 	mapInfo->mapHeader->name = mapGenOptions->getMapName();
-	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
+	mapInfo->mapHeader->description.appendTextID("core.genrltxt.741");
 
 	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
 		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);

@@ -398,20 +398,21 @@ std::string BattleSiegeController::getTowersInfoText() const
 		if(towerHealth <= 0)
 			return; // tower not built
 
-		const std::string name = LIBRARY->generaltexth->translate(nameTextID);
-
 		if(owner.getBattle()->battleGetWallState(wallPart) == EWallState::DESTROYED)
 		{
-			result += (boost::format(LIBRARY->generaltexth->translate("core.genrltxt.154")) % name).str();
+			MetaString text = MetaString::createFromTextID("core.genrltxt.154"); // The %s is destroyed.
+			text.replaceTextID(nameTextID);
+			result += text.toString(&GAME->translator());
 		}
 		else
 		{
 			const CStack * turret = getTurretStack(creaturePiece);
-			result += (boost::format(LIBRARY->generaltexth->translate("core.genrltxt.155"))
-				% name
-				% turret->getAttack(true) // NOTE: H3 bug - tower attack always shows 10, but has no effect. VCMI shows 0
-				% turret->getMinDamage(true)
-				% turret->getMaxDamage(true)).str();
+			MetaString text = MetaString::createFromTextID("core.genrltxt.155"); // The %s has an attack skill of %d and does %d-%d damage.
+			text.replaceTextID(nameTextID);
+			text.replaceNumber(turret->getAttack(true)); // NOTE: H3 bug - tower attack always shows 10, but has no effect. VCMI shows 0
+			text.replaceNumber(turret->getMinDamage(true));
+			text.replaceNumber(turret->getMaxDamage(true));
+			result += text.toString(&GAME->translator());
 		}
 	};
 

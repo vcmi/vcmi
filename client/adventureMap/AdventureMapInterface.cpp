@@ -843,14 +843,14 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 
 	totalMovementCost -= pathNode.moveRemains;
 
-	std::string result = LIBRARY->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
+	MetaString result;
+	result.appendTextID(TextIdentifier("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns").get());
+	result.replaceTokenNumber("%TURNS", pathNode.turns);
+	result.replaceTokenNumber("%POINTS", movementPointsLastTurnCost);
+	result.replaceTokenNumber("%REMAINING", remainingPointsAfterMove);
+	result.replaceTokenNumber("%TOTAL", totalMovementCost);
 
-	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
-	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
-	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
-	boost::replace_first(result, "%TOTAL", std::to_string(totalMovementCost));
-
-	ENGINE->statusbar()->write(result);
+	ENGINE->statusbar()->write(result.toString(&GAME->translator()));
 }
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)

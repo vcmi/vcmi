@@ -588,21 +588,12 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 	}
 }
 
-std::string CObjectClassesHandler::getObjectNameTextID(MapObjectID type, MapObjectSubID subtype) const
+std::string CObjectClassesHandler::getObjectGroupNameTextID(MapObjectID type) const
 {
-	const auto handler = getHandlerFor(type, subtype);
-	if (handler && handler->hasNameTextID())
-		return handler->getNameTextID();
-
 	if (mapObjectTypes.at(type.getNum()))
 		return mapObjectTypes.at(type.getNum())->getNameTextID();
 
 	return mapObjectTypes.front()->getNameTextID();
-}
-
-std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubID subtype) const
-{
-	return LIBRARY->generaltexth->translate(getObjectNameTextID(type, subtype));
 }
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const

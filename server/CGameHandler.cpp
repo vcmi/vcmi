@@ -365,7 +365,7 @@ void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TEx
 
 		InfoWindow iw;
 		iw.player = hero->tempOwner;
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
+		iw.text.appendTextID("core.genrltxt.1"); //can gain no more XP
 		iw.text.replaceTextID(hero->getNameTextID());
 		sendAndApply(iw);
 	}
@@ -1555,12 +1555,12 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.player = h1->tempOwner;
 		iw.components.emplace_back(ComponentType::SEC_SKILL, scholarSkill, scholarSkillLevel);
 
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
+		iw.text.appendTextID("core.genrltxt.139");//"%s, who has studied magic extensively,
 		iw.text.replaceTextID(h1->getNameTextID());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 140);//learns
+			iw.text.appendTextID("core.genrltxt.140");//learns
 			int size = cs2.spells.size();
 			for (auto it : cs2.spells)
 			{
@@ -1569,26 +1569,26 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				switch (size--)
 				{
 					case 2:
-						iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);
+						iw.text.appendTextID("core.genrltxt.141");
 					case 1:
 						break;
 					default:
 						iw.text.appendRawString(", ");
 				}
 			}
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 142);//from %s
+			iw.text.appendTextID("core.genrltxt.142");//from %s
 			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(cs2);
 		}
 
 		if (!cs1.spells.empty() && !cs2.spells.empty())
 		{
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);//and
+			iw.text.appendTextID("core.genrltxt.141");//and
 		}
 
 		if (!cs1.spells.empty())
 		{
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 147);//teaches
+			iw.text.appendTextID("core.genrltxt.147");//teaches
 			int size = cs1.spells.size();
 			for (auto it : cs1.spells)
 			{
@@ -1597,14 +1597,14 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				switch (size--)
 				{
 					case 2:
-						iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);
+						iw.text.appendTextID("core.genrltxt.141");
 					case 1:
 						break;
 					default:
 						iw.text.appendRawString(", ");
 				}
 			}
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 148);//from %s
+			iw.text.appendTextID("core.genrltxt.148");//from %s
 			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(cs1);
 		}
@@ -3983,7 +3983,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	{
 		ArtifactID grail = ArtifactID::GRAIL;
 
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the " ...
+		iw.text.appendTextID("core.genrltxt.58"); //"Congratulations! After spending many hours digging here, your hero has uncovered the " ...
 		iw.text.appendName(grail); // ... " The Grail"
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
 		giveHeroNewArtifact(h, grail, ArtifactPosition::FIRST_AVAILABLE); //give grail
@@ -3997,7 +3997,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	}
 	else
 	{
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
+		iw.text.appendTextID("core.genrltxt.59"); //"Nothing here. \n Where could it be?"
 		iw.soundID = soundBase::Dig;
 		sendAndApply(iw);
 	}

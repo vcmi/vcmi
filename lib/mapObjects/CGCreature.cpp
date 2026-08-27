@@ -95,16 +95,16 @@ MetaString CGCreature::getPopupText(const CGHeroInstance * hero) const
 		switch (decision)
 		{
 		case FIGHT:
-			ms.appendLocalString(EMetaText::GENERAL_TXT,246);
+			ms.appendTextID("core.genrltxt.246");
 			break;
 		case FLEE:
-			ms.appendLocalString(EMetaText::GENERAL_TXT,245);
+			ms.appendTextID("core.genrltxt.245");
 			break;
 		case JOIN_FOR_FREE:
-			ms.appendLocalString(EMetaText::GENERAL_TXT,243);
+			ms.appendTextID("core.genrltxt.243");
 			break;
 		default: //decision = cost in gold
-			ms.appendLocalString(EMetaText::GENERAL_TXT,244);
+			ms.appendTextID("core.genrltxt.244");
 			ms.replaceNumber(decision);
 			break;
 		}
@@ -137,7 +137,7 @@ MetaString CGCreature::getPopupText(const CGHeroInstance * hero) const
 		else if (ratio < 20)   choice = 10;
 		else                   choice = 11;
 
-		hoverName.appendTextID("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+		hoverName.appendTextID("vcmi.adventureMap.monsterThreat.levels", choice);
 	}
 	return hoverName;
 }
@@ -184,7 +184,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
+			ynd.text.appendTextID("core.advevent.86");
 			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
 			gameEvents.showBlockingDialog(this, &ynd);
 			break;
@@ -197,11 +197,10 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
-			std::string tmp = LIBRARY->generaltexth->advobtxt[90];
-			boost::algorithm::replace_first(tmp, "%d", std::to_string(getJoiningAmount()));
-			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
-			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
-			ynd.text.appendRawString(tmp);
+			ynd.text.appendTextID("core.advevent.90");
+			ynd.text.replaceNumber(getJoiningAmount());
+			ynd.text.replaceNumber(action);
+			ynd.text.replaceNamePlural(getCreature()->getId());
 			gameEvents.showBlockingDialog(this, &ynd);
 			break;
 		}
@@ -443,7 +442,7 @@ void CGCreature::joinDecision(IGameEventCallback & gameEvents, const CGHeroInsta
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT,29);  //You don't have enough gold
+			iw.text.appendTextID("core.genrltxt.29");  //You don't have enough gold
 			gameEvents.showInfoDialog(&iw);
 
 			//act as if player refused
@@ -509,7 +508,7 @@ void CGCreature::flee(IGameEventCallback & gameEvents, const CGHeroInstance * h)
 {
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
-	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
+	ynd.text.appendTextID("core.advevent.91");
 	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
 	gameEvents.showBlockingDialog(this, &ynd);
 }
@@ -718,7 +717,7 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 	if(!iw.components.empty())
 	{
 		iw.type = EInfoWindowMode::AUTO;
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 183); // % has found treasure
+		iw.text.appendTextID("core.advevent.183"); // % has found treasure
 		iw.text.replaceTextID(h->getNameTextID());
 		gameEvents.showInfoDialog(&iw);
 	}

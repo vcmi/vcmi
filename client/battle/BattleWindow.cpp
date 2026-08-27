@@ -602,19 +602,24 @@ void BattleWindow::bSurrenderf()
 	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name.toString(&GAME->translator());
-		if(enemyHeroName.empty())
+		MetaString surrenderMessage = MetaString::createFromTextID("core.genrltxt.32"); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
+		const InfoAboutHero enemyHero = owner.getBattle()->battleGetEnemyHero();
+		if(enemyHero.name.empty())
 		{
 			// army without a hero, e.g. neutral monsters - strongest of their remaining units speaks on their behalf
 			auto enemyStacks = owner.getBattle()->battleGetStacks(CPlayerBattleCallback::ONLY_ENEMY);
 			auto strongest = vstd::maxElementByFun(enemyStacks, [](const CStack * stack){ return stack->unitType()->getAIValue(); });
 
 			if(strongest != enemyStacks.end())
-				enemyHeroName = (*strongest)->unitType()->getNameSingularTranslated();
+				surrenderMessage.replaceNameSingular((*strongest)->unitType()->getId());
+			else
+				surrenderMessage.replaceRawString("");
 		}
+		else
+			surrenderMessage.replaceRawString(enemyHero.name.toString(&GAME->translator()));
 
-		std::string surrenderMessage = boost::str(boost::format(LIBRARY->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		owner.curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
+		surrenderMessage.replaceNumber(cost);
+		owner.curInt->showYesNoDialog(surrenderMessage.toString(&GAME->translator()), [this](){ reallySurrender(); }, nullptr);
 	}
 }
 
@@ -651,19 +656,20 @@ void BattleWindow::bFleef()
 	else
 	{
 		std::vector<std::shared_ptr<CComponent>> comps;
-		std::string heroName;
+		std::string heroNameTextID;
 		//calculating fleeing hero's name
 		if (owner.attackingHeroInstance)
 			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
-				heroName = GAME->translator().translate(owner.attackingHeroInstance->getNameTextID());
+				heroNameTextID = owner.attackingHeroInstance->getNameTextID();
 		if (owner.defendingHeroInstance)
 			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
-				heroName = GAME->translator().translate(owner.defendingHeroInstance->getNameTextID());
+				heroNameTextID = owner.defendingHeroInstance->getNameTextID();
 		//calculating text
-		auto txt = boost::format(LIBRARY->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
+		MetaString txt = MetaString::createFromTextID("core.genrltxt.340"); //The Shackles of War are present.  %s can not retreat!
+		txt.replaceTextID(heroNameTextID);
 
 		//printing message
-		owner.curInt->showInfoDialog(boost::str(txt), comps);
+		owner.curInt->showInfoDialog(txt.toString(&GAME->translator()), comps);
 	}
 }
 
@@ -805,13 +811,18 @@ void BattleWindow::bSpellf()
 		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
 			const auto artID = blockingBonus->sid.as<ArtifactID>();
+
+			//%s wields the %s, an ancient artifact which creates a pocket dead to all magic.
+			MetaString message = MetaString::createFromTextID("core.genrltxt.683");
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID, true) ? GAME->translator().translate(myHero->getNameTextID()) : owner.enemyHero().name.toString(&GAME->translator());
+			if(myHero->hasArt(artID, true))
+				message.replaceTextID(myHero->getNameTextID());
+			else
+				message.replaceRawString(owner.enemyHero().name.toString(&GAME->translator()));
+			message.replaceName(artID);
 
-			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[683])
-										% heroName % LIBRARY->artifacts()->getByIndex(artID)->getNameTranslated()));
+			GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 		}
 		else if(blockingBonus->source == BonusSource::OBJECT_TYPE)
 		{

@@ -662,15 +662,15 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 	switch (weekType)
 	{
 		case EWeekType::DOUBLE_GROWTH:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
+			iw.text.appendTextID("core.arraytxt.131");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			break;
 		case EWeekType::PLAGUE:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
+			iw.text.appendTextID("core.arraytxt.132");
 			break;
 		case EWeekType::BONUS_GROWTH:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
+			iw.text.appendTextID("core.arraytxt.134");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			break;
@@ -680,7 +680,7 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 			CreatureID upgradedCreature = creatureWeek;
 			if(base && !base->upgrades.empty())
 				upgradedCreature = *base->upgrades.rbegin();
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
+			iw.text.appendTextID("core.arraytxt.135");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replacePositiveNumber(additionalGrowth);
@@ -691,12 +691,12 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 		default:
 			if (newMonth)
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 130);
+				iw.text.appendTextID("core.arraytxt.130");
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(32, 41));
 			}
 			else
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 133);
+				iw.text.appendTextID("core.arraytxt.133");
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(43, 57));
 			}
 	}

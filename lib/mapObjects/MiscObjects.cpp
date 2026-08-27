@@ -103,7 +103,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 		if(!guardedMessageTextID.empty())
 			ynd.text.appendTextID(guardedMessageTextID);
 		else
-			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 187);
+			ynd.text.appendTextID("core.advevent.187");
 
 		gameEvents.showBlockingDialog(this, &ynd);
 		return;
@@ -180,7 +180,7 @@ ResourceSet CGMine::dailyIncome() const
 MetaString CGMine::getObjectName() const
 {
 	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
-		return MetaString::createFromTextID(TextIdentifier("core.minename", getObjTypeIndex()).get());
+		return MetaString::createFromTextID("core.minename", getObjTypeIndex());
 	else
 		return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
 }
@@ -200,7 +200,7 @@ MetaString CGMine::getHoverText(PlayerColor player) const
 	if(stacksCount())
 	{
 		hoverName.appendEOL();
-		hoverName.appendLocalString(EMetaText::GENERAL_TXT, 202); //Guarded by
+		hoverName.appendTextID("core.genrltxt.202"); //Guarded by
 		hoverName.appendRawString(" ");
 		hoverName.append(getArmyDescription());
 	}
@@ -218,7 +218,7 @@ void CGMine::flagMine(IGameEventCallback & gameEvents, const PlayerColor & playe
 	if(!descriptionTextID.empty())
 		iw.text.appendTextID(descriptionTextID);
 	else
-		iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get());
+		iw.text.appendTextID("core.mineevnt", producedResource.getNum());
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
 	gameEvents.showInfoDialog(&iw);
@@ -602,7 +602,7 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
+		iw.text.appendTextID("core.advevent.168");
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		gameEvents.showInfoDialog(&iw);
 		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
@@ -788,7 +788,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					iw.text = message;
 				else
 				{
-					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
+					iw.text.appendTextID("core.advevent.135");
 					iw.text.replaceName(spell);
 				}
 			}
@@ -797,7 +797,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		}
 		else
 		{
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 2);
+			iw.text.appendTextID("core.advevent.2");
 		}
 		gameEvents.showInfoDialog(&iw);
 		pick(gameEvents, h);
@@ -815,11 +815,11 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 				else
 				{
 					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
-					ynd.text.appendLocalString(EMetaText::GENERAL_TXT, 420);
+					ynd.text.appendTextID("core.genrltxt.420");
 					ynd.text.replaceRawString("");
 					// TODO: server-side resolution, remove once MetaString supports nested replacement
 					ynd.text.replaceRawString(getArmyDescription().toString(LIBRARY->staticTexts()));
-					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
+					ynd.text.replaceTextID("core.genrltxt.43"); // creatures
 				}
 				gameEvents.showBlockingDialog(this, &ynd);
 			}
@@ -1090,7 +1090,7 @@ void CGSirens::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 	if(h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID))) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,133);
+		iw.text.appendTextID("core.advevent.133");
 	}
 	else
 	{
@@ -1116,13 +1116,13 @@ void CGSirens::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 		if(xp)
 		{
 			xp = h->calculateXp(static_cast<int>(xp));
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
+			iw.text.appendTextID("core.advevent.132");
 			iw.text.replaceNumber(static_cast<int>(xp));
 			gameEvents.giveExperience(h, xp);
 		}
 		else
 		{
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT,134);
+			iw.text.appendTextID("core.advevent.134");
 		}
 	}
 	gameEvents.showInfoDialog(&iw);
@@ -1234,7 +1234,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 	if(!wasVisited(team))
 	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 96);
+		iw.text.appendTextID("core.advevent.96");
 		gameEvents.sendAndApply(iw);
 
 		// increment general visited obelisks counter
@@ -1249,7 +1249,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 	else
 	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 97);
+		iw.text.appendTextID("core.advevent.97");
 		gameEvents.sendAndApply(iw);
 	}
 
@@ -1318,7 +1318,7 @@ MetaString HillFort::getPopupText(PlayerColor player) const
 {
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
 
-	message.replaceName(ID, subID);
+	message.replaceTextID(getObjectNameTextID());
 	message.replaceTextID(getDescriptionToolTip());
 
 	return message;

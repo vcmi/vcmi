@@ -73,7 +73,6 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(ENGINE->isRoeData() ? "HeroScr3" : "HeroScr4"))
 {
-	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 
 	OBJECT_CONSTRUCTION;
 	curHero = hero;
@@ -84,27 +83,27 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 559, 660, 19), 7, 559));
 
-	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.17")), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [this](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
 		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
-		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.28")), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
 	{
-		dismissLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		questlogLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
-		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		dismissLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->translate("core.jktext.8"), Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		questlogLabel = std::make_shared<CTextBox>(LIBRARY->generaltexth->translate("core.jktext.9"), Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.28")), [this](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 	questlogButton->block(!GAME->interface()->hasJournalEntries());
 
 	formations = std::make_shared<CToggleGroup>(0);
-	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
-	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
+	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.23"), LIBRARY->generaltexth->translate("core.heroscrn.29")), 0, EShortcut::HERO_TIGHT_FORMATION));
+	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.24"), LIBRARY->generaltexth->translate("core.heroscrn.30")), 0, EShortcut::HERO_LOOSE_FORMATION));
 
 	if(hero->getCommander())
 	{
@@ -130,9 +129,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	for(int v = 0; v < GameConstants::PRIMARY_SKILLS; ++v)
 	{
 		auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(30 + 70 * v, 109, 42, 64), ComponentType::PRIM_SKILL);
-		area->text = LIBRARY->generaltexth->arraytxt[2+v];
+		area->text = GAME->translator().translate("core.arraytxt", 2+v);
 		area->component.subType = PrimarySkill(v);
-		area->hoverText = boost::str(boost::format(LIBRARY->generaltexth->heroscrn[1]) % LIBRARY->generaltexth->primarySkillNames[v]);
+		MetaString hoverText;
+		hoverText.appendTextID("core.heroscrn.1");
+		hoverText.replaceTextID("core.priskill", v);
+		area->hoverText = hoverText.toString(&GAME->translator());
 		primSkillAreas.push_back(area);
 
 		auto value = std::make_shared<CLabel>(53 + 70 * v, 166, FONT_SMALL, ETextAlignment::CENTER);
@@ -147,13 +149,13 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 5, 0, 242, 111));
 
 	specImage = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), 0, 0, 18, 180);
-	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), LIBRARY->generaltexth->heroscrn[27]);
+	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.27"));
 	specName = std::make_shared<CLabel>(69, 205);
 
-	expArea = std::make_shared<LRClickableAreaWText>(Rect(18, 228, 136, 42), LIBRARY->generaltexth->heroscrn[9]);
+	expArea = std::make_shared<LRClickableAreaWText>(Rect(18, 228, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.9"));
 	morale = std::make_shared<MoraleLuckBox>(true, Rect(175, 179, 53, 45));
 	luck = std::make_shared<MoraleLuckBox>(false, Rect(233, 179, 53, 45));
-	spellPointsArea = std::make_shared<LRClickableAreaWText>(Rect(162,228, 136, 42), LIBRARY->generaltexth->heroscrn[22]);
+	spellPointsArea = std::make_shared<LRClickableAreaWText>(Rect(162,228, 136, 42), LIBRARY->generaltexth->translate("core.heroscrn.22"));
 
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
@@ -182,14 +184,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	}
 
 	// various texts
-	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[1]));
-	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[2]));
-	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[3]));
-	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->jktexts[4]));
+	labels.push_back(std::make_shared<CLabel>(52, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.1")));
+	labels.push_back(std::make_shared<CLabel>(123, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.2")));
+	labels.push_back(std::make_shared<CLabel>(193, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.3")));
+	labels.push_back(std::make_shared<CLabel>(262, 99, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.4")));
 
-	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[5]));
-	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[6]));
-	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[7]));
+	labels.push_back(std::make_shared<CLabel>(69, 183, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.5")));
+	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.6")));
+	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.jktext.7")));
 
 	addUsedEvents(KEYBOARD);
 	CHeroWindow::updateArtifacts();
@@ -208,22 +210,30 @@ void CHeroWindow::updateArtifacts()
 	OBJECT_CONSTRUCTION;
 
 	CWindowWithArtifacts::updateArtifacts();
-	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
 
 	name->setText(GAME->translator().translate(curHero->getNameTextID()));
-	title->setText((boost::format(LIBRARY->generaltexth->allTexts[342]) % curHero->level % GAME->translator().translate(curHero->getClassNameTextID())).str());
+	MetaString titleText;
+	titleText.appendTextID("core.genrltxt.342");
+	titleText.replaceNumber(curHero->level);
+	titleText.replaceTextID(curHero->getClassNameTextID());
+	title->setText(titleText.toString(&GAME->translator()));
 
 	specArea->text = curHero->getHeroType()->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->getHeroType()->imageIndex);
 	specName->setText(curHero->getHeroType()->getSpecialtyNameTranslated());
 
-	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
-	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->heroscrn[25]);
+	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.26"), LIBRARY->generaltexth->translate("core.heroscrn.31")), 0, EShortcut::HERO_TOGGLE_TACTICS);
+	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->translate("core.heroscrn.25"));
 	tacticsButton->setSelectedSilent(curHero->tacticFormationEnabled);
 
-	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->heroscrn[16]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID())));
-	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % GAME->translator().translate(curHero->getNameTextID()) % GAME->translator().translate(curHero->getClassNameTextID()));
+	MetaString dismissText;
+	dismissText.appendTextID("core.heroscrn.16");
+	dismissText.replaceTextID(curHero->getNameTextID());
+	dismissText.replaceTextID(curHero->getClassNameTextID());
+
+	dismissButton->addHoverText(EButtonState::NORMAL, dismissText.toString(&GAME->translator()));
+	portraitArea->hoverText = curHero->getObjectName().toString(&GAME->translator());
 	portraitArea->text = GAME->translator().translate(curHero->getBiographyTextID());
 	portraitImage->setFrame(curHero->getIconIndex());
 
@@ -231,8 +241,9 @@ void CHeroWindow::updateArtifacts()
 		if(!garr)
 		{
 			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
-			std::string helpBox = heroscrn[32];
-			boost::algorithm::replace_first(helpBox, "%s", LIBRARY->generaltexth->allTexts[43]);
+			MetaString helpBoxText = MetaString::createFromTextID("core.heroscrn.32");
+			helpBoxText.replaceTextID("core.genrltxt.43");
+			std::string helpBox = helpBoxText.toString(&GAME->translator());
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero, nullptr, removableTroops);
 			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(LIBRARY->generaltexth->allTexts[256], helpBox), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
@@ -278,7 +289,7 @@ void CHeroWindow::updateArtifacts()
 		SecondarySkill skill = curHero->secSkills[g + offset].first;
 		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
-		std::string skillValue = LIBRARY->generaltexth->levels[level-1];
+		std::string skillValue = GAME->translator().translate("core.skilllev", level-1);
 
 		secSkillNames[g]->setText(skillName);
 		secSkillValues[g]->setText(skillValue);
@@ -293,17 +304,19 @@ void CHeroWindow::updateArtifacts()
 	manastr << curHero->mana << '/' << curHero->manaLimit();
 	manaValue->setText(manastr.str());
 
-	//printing experience - original format does not support ui64
-	expArea->text = LIBRARY->generaltexth->allTexts[2];
-	boost::replace_first(expArea->text, "%d", std::to_string(curHero->level));
-	boost::replace_first(expArea->text, "%d", std::to_string(LIBRARY->heroh->reqExp(curHero->level+1)));
-	boost::replace_first(expArea->text, "%d", std::to_string(curHero->exp));
+	MetaString expText;
+	expText.appendTextID("core.genrltxt.2");
+	expText.replaceNumber(curHero->level);
+	expText.replaceNumber(LIBRARY->heroh->reqExp(curHero->level + 1));
+	expText.replaceNumber(curHero->exp);
+	expArea->text = expText.toString(&GAME->translator());
 
-	//printing spell points, boost::format can't be used due to locale issues
-	spellPointsArea->text = LIBRARY->generaltexth->allTexts[205];
-	boost::replace_first(spellPointsArea->text, "%s", GAME->translator().translate(curHero->getNameTextID()));
-	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->mana));
-	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->manaLimit()));
+	MetaString spellPointsText;
+	spellPointsText.appendTextID("core.genrltxt.205");
+	spellPointsText.replaceTextID(curHero->getNameTextID());
+	spellPointsText.replaceNumber(curHero->mana);
+	spellPointsText.replaceNumber(curHero->manaLimit());
+	spellPointsArea->text = spellPointsText.toString(&GAME->translator());
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;

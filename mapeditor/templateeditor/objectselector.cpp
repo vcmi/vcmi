@@ -79,8 +79,9 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 
 			if(name.isEmpty())
 			{
-				auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(id, subId));
-				name = subGroupName;
+				// no object could be created, so fall back to the name of the type itself
+				auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(id);
+				name = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 			}
 
 			if(!name.isEmpty())

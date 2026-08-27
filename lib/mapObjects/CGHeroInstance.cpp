@@ -602,10 +602,10 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 MetaString CGHeroInstance::getObjectName() const
 {
 	if(ID == Obj::PRISON)
-		return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, 0));
+		return MetaString::createFromTextID(getObjectNameTextID());
 
 	MetaString hoverName;
-	hoverName.appendLocalString(EMetaText::GENERAL_TXT, 15);
+	hoverName.appendTextID("core.genrltxt.15");
 	hoverName.replaceTextID(getNameTextID());
 	hoverName.replaceTextID(getClassNameTextID());
 	return hoverName;

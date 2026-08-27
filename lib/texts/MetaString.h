@@ -54,7 +54,8 @@ private:
 		APPEND_EOL,
 		// new values must be appended - numeric values are part of save format
 		REPLACE_TOKEN_TEXTID,
-		REPLACE_TOKEN_NUMBER
+		REPLACE_TOKEN_NUMBER,
+		REPLACE_TOKEN_RAW_STRING
 	};
 
 	std::vector<EMessage> message;
@@ -71,6 +72,8 @@ public:
 	static MetaString createFromRawString(const std::string & value);
 	/// Creates MetaString and appends provided text ID string to it
 	static MetaString createFromTextID(const std::string & value);
+	/// Creates MetaString and appends text ID formed by appending index to provided prefix
+	static MetaString createFromTextID(const std::string & prefix, int index);
 	/// Creates MetaString and appends provided name string to it
 	static MetaString createFromName(const GameResID& id);
 
@@ -80,6 +83,8 @@ public:
 	void appendRawString(const std::string & value);
 	/// Appends text ID that will be translated in output
 	void appendTextID(const std::string & value);
+	/// Appends text ID formed by appending index to provided prefix, e.g. ("core.genrltxt", 5) -> "core.genrltxt.5"
+	void appendTextID(const std::string & prefix, int index);
 	/// Appends specified number to resulting string
 	void appendNumber(int64_t value);
 
@@ -102,6 +107,8 @@ public:
 	void replaceRawString(const std::string & txt);
 	/// Replaces first '%s' placeholder with string ID that will be translated in output
 	void replaceTextID(const std::string & value);
+	/// Replaces first '%s' placeholder with text ID formed by appending index to provided prefix
+	void replaceTextID(const std::string & prefix, int index);
 	/// Replaces first '%d' placeholder in string with specified number
 	void replaceNumber(int64_t txt);
 	/// Replaces first '%+d' placeholder in string with specified number using '+' sign as prefix
@@ -111,10 +118,11 @@ public:
 	void replaceTokenTextID(const std::string & token, const std::string & value);
 	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified number
 	void replaceTokenNumber(const std::string & token, int64_t value);
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified fixed, untranslated string
+	void replaceTokenRawString(const std::string & token, const std::string & value);
 
 	void replaceName(const ArtifactID & id);
 	void replaceName(const FactionID& id);
-	void replaceName(const MapObjectID & id, const MapObjectSubID & subId);
 	void replaceName(const PlayerColor& id);
 	void replaceName(const SecondarySkill& id);
 	void replaceName(const SpellID& id);

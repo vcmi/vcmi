@@ -78,7 +78,7 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
+		iw.text.appendTextID("core.genrltxt.336"); //%s tried to summon a boat, but failed.
 		iw.text.replaceTextID(parameters.caster->getCasterNameTextID());
 		env->apply(iw);
 		return ESpellCastResult::OK;
@@ -118,7 +118,7 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 335); //There are no boats to summon.
+		iw.text.appendTextID("core.genrltxt.335"); //There are no boats to summon.
 		env->apply(iw);
 		return ESpellCastResult::ERROR;
 	}

@@ -144,7 +144,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 		logGlobal->warn(
 			"CGObjectInstance::setType: object %s at %s has invalid visitablePos (null tile). "
 			"Skipping appearance update.",
-			LIBRARY->objtypeh->getObjectName(ID, newSubID), position.toString());
+			getObjectNameTextID(), position.toString());
 		return;
 		// skip visual/type update here which would fail; object is already on map with bad coords.
 	}
@@ -186,7 +186,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	{
 		logGlobal->warn(
 			"Object %s at %s has no templates suitable for terrain %s",
-			LIBRARY->objtypeh->getObjectName(ID, newSubID), visitablePos().toString(),
+			getObjectNameTextID(), visitablePos().toString(),
 			tile->getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
@@ -277,12 +277,16 @@ void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const Obj
 
 std::string CGObjectInstance::getObjectNameTextID() const
 {
-	return LIBRARY->objtypeh->getObjectNameTextID(ID, subID);
+	const auto handler = getObjectHandler();
+	if (handler && handler->hasNameTextID())
+		return handler->getNameTextID();
+
+	return LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
 }
 
 MetaString CGObjectInstance::getObjectName() const
 {
-	return MetaString::createFromTextID(LIBRARY->objtypeh->getObjectNameTextID(ID, subID));
+	return MetaString::createFromTextID(getObjectNameTextID());
 }
 
 std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) const

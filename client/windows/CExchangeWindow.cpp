@@ -57,9 +57,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	auto genTitle = [](const CGHeroInstance * h)
 	{
-		boost::format fmt(LIBRARY->generaltexth->allTexts[138]);
-		fmt % GAME->translator().translate(h->getNameTextID()) % h->level % GAME->translator().translate(h->getClassNameTextID());
-		return boost::str(fmt);
+		MetaString title = MetaString::createFromTextID("core.genrltxt.138"); // %s, Level %d %s
+		title.replaceTextID(h->getNameTextID());
+		title.replaceNumber(h->level);
+		title.replaceTextID(h->getClassNameTextID());
+		return title.toString(&GAME->translator());
 	};
 
 	titles[0] = std::make_shared<CLabel>(147, qeLayout ? 21 : 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
@@ -116,10 +118,13 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			primSkillAreas[g]->pos = Rect(Point(pos.x + 324, pos.y + 12 + 26 * g), Point(152, 22));
 		else
 			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(140, 32));
-		primSkillAreas[g]->text = LIBRARY->generaltexth->arraytxt[2+g];
+		MetaString hoverText;
+		hoverText.appendTextID("core.heroscrn.1");
+		hoverText.replaceTextID("core.priskill", g);
+
+		primSkillAreas[g]->text = GAME->translator().translate("core.arraytxt", 2 + g);
 		primSkillAreas[g]->component = Component( ComponentType::PRIM_SKILL, PrimarySkill(g));
-		primSkillAreas[g]->hoverText = LIBRARY->generaltexth->heroscrn[1];
-		boost::replace_first(primSkillAreas[g]->hoverText, "%s", LIBRARY->generaltexth->primarySkillNames[g]);
+		primSkillAreas[g]->hoverText = hoverText.toString(&GAME->translator());
 	}
 
 	//heroes related thing
@@ -136,24 +141,26 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
-		specialtyAreas[b]->hoverText = LIBRARY->generaltexth->heroscrn[27];
+		specialtyAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.27");
 		specialtyAreas[b]->text = hero->getHeroType()->getSpecialtyDescriptionTranslated();
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
-		experienceAreas[b]->hoverText = LIBRARY->generaltexth->heroscrn[9];
-		experienceAreas[b]->text = LIBRARY->generaltexth->allTexts[2];
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->level));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(LIBRARY->heroh->reqExp(hero->level+1)));
-		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", std::to_string(hero->exp));
+		experienceAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.9");
+		MetaString experienceText = MetaString::createFromTextID("core.genrltxt.2");
+		experienceText.replaceNumber(hero->level);
+		experienceText.replaceNumber(LIBRARY->heroh->reqExp(hero->level+1));
+		experienceText.replaceNumber(hero->exp);
+		experienceAreas[b]->text = experienceText.toString(&GAME->translator());
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
-		spellPointsAreas[b]->hoverText = LIBRARY->generaltexth->heroscrn[22];
-		spellPointsAreas[b]->text = LIBRARY->generaltexth->allTexts[205];
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", GAME->translator().translate(hero->getNameTextID()));
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->mana));
-		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%d", std::to_string(hero->manaLimit()));
+		spellPointsAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.22");
+		MetaString spellPointsText = MetaString::createFromTextID("core.genrltxt.205");
+		spellPointsText.replaceTextID(hero->getNameTextID());
+		spellPointsText.replaceNumber(hero->mana);
+		spellPointsText.replaceNumber(hero->manaLimit());
+		spellPointsAreas[b]->text = spellPointsText.toString(&GAME->translator());
 
 		morale[b] = std::make_shared<MoraleLuckBox>(true, Rect(Point(176 + 490 * b, 39), Point(32, 32)), true);
 		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);
@@ -163,8 +170,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
-	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[0]->block(!GAME->interface()->hasJournalEntries());
 	questlogButton[1]->block(!GAME->interface()->hasJournalEntries());
 
@@ -175,8 +182,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	garr = std::make_shared<CGarrisonInt>(Point(69, qeLayout ? 120 : 131), 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
-	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3]), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
-	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3]), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
+	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3")), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
+	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3")), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
 
 	if(qeLayout)
 	{

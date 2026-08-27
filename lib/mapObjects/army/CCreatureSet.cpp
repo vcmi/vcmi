@@ -365,7 +365,7 @@ MetaString CCreatureSet::getArmyDescription() const
 		if(it != stacks.begin())
 		{
 			if(std::next(it) == stacks.end())
-				text.appendLocalString(EMetaText::GENERAL_TXT, 237); // " and "
+				text.appendTextID("core.genrltxt.237"); // " and "
 			else
 				text.appendRawString(", ");
 		}

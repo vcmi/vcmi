@@ -223,7 +223,7 @@ void CBonusSelection::createBonusesIcons()
 				else
 					picNumber = bonusValue.spell.getNum();
 
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 				desc.replaceName(bonusValue.spell);
 				break;
 			}
@@ -231,7 +231,7 @@ void CBonusSelection::createBonusesIcons()
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
 				picNumber = bonusValue.creature.getNum() + 2;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+				desc.appendTextID("core.genrltxt.717");
 				desc.replaceNumber(bonusValue.amount);
 				desc.replaceNamePlural(bonusValue.creature);
 				break;
@@ -260,7 +260,7 @@ void CBonusSelection::createBonusesIcons()
 					picName = artifact->scenarioBonus;
 				else
 					picNumber = bonusValue.artifact.getNum();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 				desc.replaceName(bonusValue.artifact);
 				break;
 			}
@@ -273,7 +273,7 @@ void CBonusSelection::createBonusesIcons()
 				else
 					picNumber = bonusValue.spell.getNum();
 
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
+				desc.appendTextID("core.genrltxt.716");
 				desc.replaceName(bonusValue.spell);
 				break;
 			}
@@ -294,13 +294,13 @@ void CBonusSelection::createBonusesIcons()
 					}
 				}
 				picNumber = leadingSkill;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 
 				std::string substitute; //text to be printed instead of %s
 				for(int v = 0; v < toPrint.size(); ++v)
 				{
 					substitute += std::to_string(toPrint[v].second);
-					substitute += " " + LIBRARY->generaltexth->primarySkillNames[toPrint[v].first];
+					substitute += " " + GAME->translator().translate("core.priskill", toPrint[v].first);
 					if(v != toPrint.size() - 1)
 					{
 						substitute += ", ";
@@ -314,8 +314,8 @@ void CBonusSelection::createBonusesIcons()
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
 				const auto * skill = bonusValue.skill.toSkill();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
-				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
+				desc.appendTextID("core.genrltxt.718");
+				desc.replaceTextID("core.skilllev", bonusValue.mastery - 1);
 				desc.replaceName(bonusValue.skill);
 				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
 					picName = skill->at(bonusValue.mastery).scenarioBonus;
@@ -326,19 +326,19 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::RESOURCE:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusStartingResources>();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+				desc.appendTextID("core.genrltxt.717");
 
 				switch(bonusValue.resource)
 				{
 					case EGameResID::COMMON: //wood + ore
 					{
-						desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
+						desc.replaceTextID("core.genrltxt.721");
 						picNumber = 7;
 						break;
 					}
 					case EGameResID::RARE: //mercury + sulfur + crystal + gems
 					{
-						desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
+						desc.replaceTextID("core.genrltxt.722");
 						picNumber = 8;
 						break;
 					}
@@ -359,7 +359,7 @@ void CBonusSelection::createBonusesIcons()
 				if(!superhero)
 					logGlobal->warn("No superhero! How could it be transferred?");
 				picNumber = superhero ? superhero->getIconIndex() : 0;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 719);
+				desc.appendTextID("core.genrltxt.719");
 				desc.replaceRawString(getCampaign()->scenario(bonusValue.scenario).scenarioName.toString(&GAME->translator()));
 				break;
 			}
@@ -369,13 +369,13 @@ void CBonusSelection::createBonusesIcons()
 				const auto & bonusValue = bonus.getValue<CampaignBonusStartingHero>();
 				if(bonusValue.hero == HeroTypeID::CAMP_RANDOM.getNum())
 				{
-					desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
+					desc.appendTextID("core.genrltxt.720"); // Start with random hero
 					picNumber = -1;
 					picName = "CBONN1A3.BMP";
 				}
 				else
 				{
-					desc.appendLocalString(EMetaText::GENERAL_TXT, 715); // Start with %s
+					desc.appendTextID("core.genrltxt.715"); // Start with %s
 					desc.replaceTextID(bonusValue.hero.toHeroType()->getNameTextID());
 					picNumber = bonusValue.hero.getNum();
 				}

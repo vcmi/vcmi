@@ -468,7 +468,7 @@ std::string CUnitState::getCasterNameTextID() const
 
 void CUnitState::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
-	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
+	text.appendTextID("core.genrltxt.565");//The %s casts %s
 	//todo: use text 566 for single creature
 	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
