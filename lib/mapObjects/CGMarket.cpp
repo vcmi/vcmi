@@ -48,7 +48,7 @@ MetaString CGMarket::getPopupText(PlayerColor player) const
 		return getHoverText(player);
 
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
-	message.replaceName(ID, subID);
+	message.replaceTextID(getObjectNameTextID());
 	message.replaceTextID(getMarketHandler()->getDescriptionTextID());
 	return message;
 }

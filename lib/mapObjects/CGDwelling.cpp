@@ -233,7 +233,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			iw.type = EInfoWindowMode::AUTO;
 			iw.player = h->tempOwner;
 			iw.text.appendTextID("core.advevent.44"); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-			iw.text.replaceName(ID, subID);
+			iw.text.replaceTextID(getObjectNameTextID());
 			gameEvents.sendAndApply(iw);
 			return;
 		}
@@ -287,7 +287,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.appendTextID("core.advevent.35"); //{%s} Would you like to recruit %s?
-		bd.text.replaceName(ID, subID);
+		bd.text.replaceTextID(getObjectNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
 	}

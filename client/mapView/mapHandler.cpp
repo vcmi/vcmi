@@ -53,8 +53,9 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 {
 	const TerrainTile & t = map->getTile(pos);
 
+	// favorable winds are a tile property rather than an object, so there is no instance to ask for a name
 	if(t.hasFavorableWinds())
-		return LIBRARY->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+		return GAME->translator().translate(LIBRARY->objtypeh->getObjectGroupNameTextID(Obj::FAVORABLE_WINDS));
 
 	std::string result = t.getTerrain()->getNameTranslated();
 

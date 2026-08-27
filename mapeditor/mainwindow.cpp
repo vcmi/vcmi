@@ -902,7 +902,9 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(ID, secondaryID));
+		// object browser lists types, not placed objects, so the name is resolved without an instance
+		auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
+		auto subGroupName = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)

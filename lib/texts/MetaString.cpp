@@ -493,11 +493,6 @@ void MetaString::replaceName(const FactionID & id)
 	replaceTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
-void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
-{
-	replaceTextID(LIBRARY->objtypeh->getObjectNameTextID(id, subId));
-}
-
 void MetaString::replaceName(const PlayerColor & id)
 {
 	replaceTextID("vcmi.capitalColors", id.getNum());
