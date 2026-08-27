@@ -20,6 +20,7 @@
 #include "QuestInfo.h"
 
 #include "../GameSettings.h"
+#include "../ScopeGuard.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
@@ -228,7 +229,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	removeHeroPlaceholders();
 	initGrailPosition(randomGenerator);
 	initRandomFactionsForPlayers(randomGenerator);
-	randomizeMapObjects(gameRandomizer);
+	{
+		CMap::ParallelLoadGuards loadGuards;
+		map->enableParallelLoad(loadGuards);
+		auto disableGuard = vstd::makeScopeGuard([this](){ map->disableParallelLoad(); });
+		randomizeMapObjects(gameRandomizer);
+	}
 	placeStartingHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
@@ -238,7 +244,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	initTowns(randomGenerator);
 	initTownNames(randomGenerator);
 	placeHeroesInTowns();
-	initMapObjects(gameRandomizer);
+	{
+		CMap::ParallelLoadGuards loadGuards;
+		map->enableParallelLoad(loadGuards);
+		auto disableGuard = vstd::makeScopeGuard([this](){ map->disableParallelLoad(); });
+		initMapObjects(gameRandomizer);
+	}
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();

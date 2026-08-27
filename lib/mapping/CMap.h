@@ -68,14 +68,13 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder, public IS
 
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
 	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
-	/// Guards concurrent id-assignment and insertion into artInstances, e.g. when object initialization
-	/// (CGameState::initMapObjects) creates artifact instances from multiple worker threads
-	std::mutex artInstancesMutex;
-	/// Guards concurrent mutation of TerrainTile::visitableObjects/blockingObjects in hideObject()/
-	/// showObject(), e.g. when CGameState::randomizeMapObjects() calls setType() (via pickRandomObject())
-	/// for multiple objects concurrently from worker threads - objects that share a tile would otherwise
-	/// race on the same per-tile vectors
-	std::mutex tileObjectsMutex;
+
+	struct ParallelLoadGuards;
+	/// Set via enableParallelLoad() below
+	ParallelLoadGuards * activeParallelLoadGuards = nullptr;
+	/// Locks the given ParallelLoadGuards mutex if parallel loading is active, no-op otherwise
+	std::unique_lock<std::mutex> lockIfParallelLoad(std::mutex ParallelLoadGuards::* mutexPtr);
+
 	/// All heroes that are currently free for recruitment in taverns and are not present on map
 	std::vector<std::shared_ptr<CGHeroInstance> > heroesPool;
 
@@ -167,6 +166,17 @@ public:
 
 	/// Shows previously hiiden object on map
 	void showObject(CGObjectInstance * obj);
+
+	/// Mutexes for hideObject()/showObject()/createArtifactComponent(), used only between
+	/// enableParallelLoad()/disableParallelLoad() around randomizeMapObjects()/initMapObjects()
+	struct ParallelLoadGuards
+	{
+		std::mutex artInstancesMutex;
+		std::mutex tileObjectsMutex;
+	};
+
+	void enableParallelLoad(ParallelLoadGuards & guards) { activeParallelLoadGuards = &guards; }
+	void disableParallelLoad() { activeParallelLoadGuards = nullptr; }
 
 	/// Remove objects and shifts object indicies.
 	/// Only for use in map editor / RMG
