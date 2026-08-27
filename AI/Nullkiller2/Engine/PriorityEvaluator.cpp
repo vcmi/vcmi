@@ -1085,41 +1085,19 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->estimateCombatValue()
-		float heroPower = 0;
+		const float armyPower = army->estimateCombatValue();
 		float totalPower = 0;
 
-		// Map to store the aggregated power of creatures by CreatureID
-		std::map<CreatureID, float> totalPowerByCreatureID;
+		std::set<CreatureID> armyCreatures;
+		for(const auto & slot : army->Slots())
+			armyCreatures.insert(slot.second->getCreatureID());
 
-		// Calculate hero power and total power by CreatureID
-		for (const auto & slot : hero->Slots())
-		{
-			CreatureID creatureID = slot.second->getCreatureID();
-			float slotPower = slot.second->estimateCombatValue();
+		for(const auto & creatureID : armyCreatures)
+			totalPower += aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
 
-			// Add the power of this slot to the heroPower
-			heroPower += slotPower;
-
-			// Accumulate the total power for the specific CreatureID
-			if (totalPowerByCreatureID.find(creatureID) == totalPowerByCreatureID.end())
-			{
-				// First time encountering this CreatureID, retrieve total creatures' power
-				totalPowerByCreatureID[creatureID] = aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
-			}
-		}
-
-		// Calculate total power based on unique CreatureIDs
-		for (const auto& entry : totalPowerByCreatureID)
-		{
-			totalPower += entry.second;
-		}
-
-		// Compute the power ratio if total power is greater than zero
-		if (totalPower > 0)
-		{
-			evaluationContext.powerRatio = heroPower / totalPower;
-		}
+		// Planned army may hold creatures that are not owned yet, to be upgraded or bought on the way
+		if(armyPower > 0)
+			evaluationContext.powerRatio = totalPower > armyPower ? armyPower / totalPower : 1.0f;
 
 		if (target)
 		{
@@ -1474,10 +1452,14 @@ float PriorityEvaluator::evaluate(
 		float score = 0;
 
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		const float maxWillingToLose = amIWithoutCastle ? 1
-									 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0
-										 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio
-										 : 1.0;
+		float maxWillingToLose = 1.0f;
+		if(!amIWithoutCastle && evaluationContext.powerRatio > 0)
+		{
+			// Convert the player-wide loss budget to a fraction of the committed army.
+			maxWillingToLose = std::min(
+				aiNk->settings->getMaxArmyLossTarget() / evaluationContext.powerRatio,
+				1.0f);
+		}
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
