@@ -1045,26 +1045,32 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
 
-	auto objects = map->getObjects();
+	std::vector<CGObjectInstance *> serialObjects;
+	std::vector<CGObjectInstance *> parallelObjects;
 
-	// Seed one private RNG per object up-front, serially and in fixed map order (so the result
-	// is reproducible regardless of actual thread scheduling), then initialize all objects
-	// concurrently - same pattern as the parallel bucket in randomizeMapObjects() above.
-	// Artifact rolls are the one exception: they're delegated through to the shared
-	// gameRandomizer (now internally mutex-protected) rather than seed-split, since they share
-	// bias-tracking state across objects - see ParallelInitRandomizer for details/tradeoffs.
-	std::vector<int> seeds(objects.size());
-	for(size_t i = 0; i < objects.size(); ++i)
+	for(const auto & object : map->getObjects())
+	{
+		if(objectNeedsSerialInit(object))
+			serialObjects.push_back(object);
+		else
+			parallelObjects.push_back(object);
+	}
+
+	// Serial pass: see objectNeedsSerialInit()
+	for(auto * object : serialObjects)
+		object->initObj(gameRandomizer);
+
+	// Parallel pass: same pattern as randomizeMapObjects() above
+	std::vector<int> seeds(parallelObjects.size());
+	for(size_t i = 0; i < parallelObjects.size(); ++i)
 		seeds[i] = gameRandomizer.getDefault().nextInt();
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, objects.size()), [&](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, parallelObjects.size()), [&](const tbb::blocked_range<size_t> & r)
 	{
 		for(size_t i = r.begin(); i != r.end(); ++i)
 		{
-			auto & obj = objects[i];
-			ParallelInitRandomizer localRandomizer(seeds[i], gameRandomizer);
-
-			obj->initObj(localRandomizer);
+			ParallelObjectRandomizer localRandomizer(seeds[i]);
+			parallelObjects[i]->initObj(localRandomizer);
 		}
 	});
 

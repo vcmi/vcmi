@@ -14,9 +14,12 @@
 #include "../GameLibrary.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/MiscObjects.h"
 
 namespace
@@ -63,6 +66,21 @@ bool objectNeedsSerialRandomization(const CGObjectInstance * object)
 	return false;
 }
 
+bool objectNeedsSerialInit(const CGObjectInstance * object)
+{
+	if (dynamic_cast<const CRewardableObject *>(object))
+		return true;
+
+	// CGDwelling also covers CGTownInstance, which derives from it
+	if (dynamic_cast<const CGDwelling *>(object))
+		return true;
+
+	if (dynamic_cast<const CGMarket *>(object))
+		return true;
+
+	return false;
+}
+
 ParallelObjectRandomizer::ParallelObjectRandomizer(int seed)
 	: generator(seed)
 {
@@ -88,43 +106,12 @@ vstd::RNG & ParallelObjectRandomizer::getDefault()
 	throw std::logic_error(std::string(randomizerName) + ": " + what + "() is not supported " + reason);
 }
 
-static const char * OBJECT_RANDOMIZATION_REASON = "- object should have been in the serial randomization bucket";
-static const char * OBJECT_INIT_REASON = "during object initialization";
+static const char * UNSUPPORTED_REASON = "- object should have been in the serial bucket";
 
-ArtifactID ParallelObjectRandomizer::rollArtifact() { unsupported("ParallelObjectRandomizer", "rollArtifact", OBJECT_RANDOMIZATION_REASON); }
-ArtifactID ParallelObjectRandomizer::rollArtifact(EArtifactClass type) { unsupported("ParallelObjectRandomizer", "rollArtifact", OBJECT_RANDOMIZATION_REASON); }
-ArtifactID ParallelObjectRandomizer::rollArtifact(std::set<ArtifactID> filtered) { unsupported("ParallelObjectRandomizer", "rollArtifact", OBJECT_RANDOMIZATION_REASON); }
-std::vector<ArtifactID> ParallelObjectRandomizer::rollMarketArtifactSet() { unsupported("ParallelObjectRandomizer", "rollMarketArtifactSet", OBJECT_RANDOMIZATION_REASON); }
-PrimarySkill ParallelObjectRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero) { unsupported("ParallelObjectRandomizer", "rollPrimarySkillForLevelup", OBJECT_RANDOMIZATION_REASON); }
-SecondarySkill ParallelObjectRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) { unsupported("ParallelObjectRandomizer", "rollSecondarySkillForLevelup", OBJECT_RANDOMIZATION_REASON); }
-std::vector<SecondarySkill> ParallelObjectRandomizer::rollSecondarySkills(const CGHeroInstance * hero) { unsupported("ParallelObjectRandomizer", "rollSecondarySkills", OBJECT_RANDOMIZATION_REASON); }
-
-ParallelInitRandomizer::ParallelInitRandomizer(int seed, IGameRandomizer & sharedRandomizer)
-	: generator(seed)
-	, sharedRandomizer(sharedRandomizer)
-{
-}
-
-CreatureID ParallelInitRandomizer::rollCreature()
-{
-	return rollCreatureOfTier(generator, -1);
-}
-
-CreatureID ParallelInitRandomizer::rollCreature(int tier)
-{
-	return rollCreatureOfTier(generator, tier);
-}
-
-vstd::RNG & ParallelInitRandomizer::getDefault()
-{
-	return generator;
-}
-
-ArtifactID ParallelInitRandomizer::rollArtifact() { return sharedRandomizer.rollArtifact(); }
-ArtifactID ParallelInitRandomizer::rollArtifact(EArtifactClass type) { return sharedRandomizer.rollArtifact(type); }
-ArtifactID ParallelInitRandomizer::rollArtifact(std::set<ArtifactID> filtered) { return sharedRandomizer.rollArtifact(std::move(filtered)); }
-
-std::vector<ArtifactID> ParallelInitRandomizer::rollMarketArtifactSet() { unsupported("ParallelInitRandomizer", "rollMarketArtifactSet", OBJECT_INIT_REASON); }
-PrimarySkill ParallelInitRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero) { unsupported("ParallelInitRandomizer", "rollPrimarySkillForLevelup", OBJECT_INIT_REASON); }
-SecondarySkill ParallelInitRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) { unsupported("ParallelInitRandomizer", "rollSecondarySkillForLevelup", OBJECT_INIT_REASON); }
-std::vector<SecondarySkill> ParallelInitRandomizer::rollSecondarySkills(const CGHeroInstance * hero) { unsupported("ParallelInitRandomizer", "rollSecondarySkills", OBJECT_INIT_REASON); }
+ArtifactID ParallelObjectRandomizer::rollArtifact() { unsupported("ParallelObjectRandomizer", "rollArtifact", UNSUPPORTED_REASON); }
+ArtifactID ParallelObjectRandomizer::rollArtifact(EArtifactClass type) { unsupported("ParallelObjectRandomizer", "rollArtifact", UNSUPPORTED_REASON); }
+ArtifactID ParallelObjectRandomizer::rollArtifact(std::set<ArtifactID> filtered) { unsupported("ParallelObjectRandomizer", "rollArtifact", UNSUPPORTED_REASON); }
+std::vector<ArtifactID> ParallelObjectRandomizer::rollMarketArtifactSet() { unsupported("ParallelObjectRandomizer", "rollMarketArtifactSet", UNSUPPORTED_REASON); }
+PrimarySkill ParallelObjectRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero) { unsupported("ParallelObjectRandomizer", "rollPrimarySkillForLevelup", UNSUPPORTED_REASON); }
+SecondarySkill ParallelObjectRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) { unsupported("ParallelObjectRandomizer", "rollSecondarySkillForLevelup", UNSUPPORTED_REASON); }
+std::vector<SecondarySkill> ParallelObjectRandomizer::rollSecondarySkills(const CGHeroInstance * hero) { unsupported("ParallelObjectRandomizer", "rollSecondarySkills", UNSUPPORTED_REASON); }

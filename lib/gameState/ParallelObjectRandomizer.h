@@ -19,9 +19,13 @@ class CGObjectInstance;
 /// unused-hero-type pool).
 bool objectNeedsSerialRandomization(const CGObjectInstance * object);
 
-/// IGameRandomizer for randomizing one map object on a worker thread, using a private RNG
-/// stream seeded up-front on the main thread. Only rollCreature()/getDefault() are used by
-/// the parallel-bucket objects; everything else throws as a misuse safety net.
+/// True if the object's initObj() may roll an artifact, so must run serially for reproducibility
+bool objectNeedsSerialInit(const CGObjectInstance * object);
+
+/// IGameRandomizer for randomizing/initializing one map object (pickRandomObject()/initObj())
+/// on a worker thread, using a private RNG stream seeded up-front on the main thread. Only
+/// rollCreature()/getDefault() are used by the parallel-bucket objects; everything else throws
+/// as a misuse safety net.
 class ParallelObjectRandomizer final : public IGameRandomizer
 {
 	CRandomGenerator generator;
@@ -36,31 +40,6 @@ public:
 	ArtifactID rollArtifact() override;
 	ArtifactID rollArtifact(EArtifactClass type) override;
 	ArtifactID rollArtifact(std::set<ArtifactID> filtered) override;
-	std::vector<ArtifactID> rollMarketArtifactSet() override;
-	PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) override;
-	SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) override;
-	std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance * hero) override;
-};
-
-/// IGameRandomizer for CGObjectInstance::initObj() on a worker thread during initMapObjects().
-/// Like ParallelObjectRandomizer for creatures/RNG, but delegates rollArtifact() to the shared
-/// gameRandomizer since artifact-granting objects need its cross-object allocation bias state.
-class ParallelInitRandomizer final : public IGameRandomizer
-{
-	CRandomGenerator generator;
-	IGameRandomizer & sharedRandomizer;
-
-public:
-	ParallelInitRandomizer(int seed, IGameRandomizer & sharedRandomizer);
-
-	CreatureID rollCreature() override;
-	CreatureID rollCreature(int tier) override;
-	vstd::RNG & getDefault() override;
-
-	ArtifactID rollArtifact() override;
-	ArtifactID rollArtifact(EArtifactClass type) override;
-	ArtifactID rollArtifact(std::set<ArtifactID> filtered) override;
-
 	std::vector<ArtifactID> rollMarketArtifactSet() override;
 	PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) override;
 	SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) override;
