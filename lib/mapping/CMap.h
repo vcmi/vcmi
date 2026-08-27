@@ -69,12 +69,6 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder, public IS
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
 	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
 
-	struct ParallelLoadGuards;
-	/// Set via enableParallelLoad() below
-	ParallelLoadGuards * activeParallelLoadGuards = nullptr;
-	/// Locks the given ParallelLoadGuards mutex if parallel loading is active, no-op otherwise
-	std::unique_lock<std::mutex> lockIfParallelLoad(std::mutex ParallelLoadGuards::* mutexPtr);
-
 	/// All heroes that are currently free for recruitment in taverns and are not present on map
 	std::vector<std::shared_ptr<CGHeroInstance> > heroesPool;
 
@@ -178,6 +172,14 @@ public:
 	void enableParallelLoad(ParallelLoadGuards & guards) { activeParallelLoadGuards = &guards; }
 	void disableParallelLoad() { activeParallelLoadGuards = nullptr; }
 
+	/// Locks the given ParallelLoadGuards mutex if parallel loading is active, no-op otherwise
+	std::unique_lock<std::mutex> lockIfParallelLoad(std::mutex ParallelLoadGuards::* mutexPtr);
+
+private:
+	/// Set via enableParallelLoad() above
+	ParallelLoadGuards * activeParallelLoadGuards = nullptr;
+
+public:
 	/// Remove objects and shifts object indicies.
 	/// Only for use in map editor / RMG
 	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject);
