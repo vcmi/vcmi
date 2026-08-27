@@ -58,6 +58,21 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 	result = gh.removeObject(gh.gameInfo().getObj(pack.hid), pack.player);
 }
 
+void ApplyGhNetPackVisitor::visitAbandonObjectOwnership(AbandonObjectOwnership & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.oid);
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	const auto * obj = gh.gameInfo().getObj(pack.oid);
+	if (!obj || !obj->asOwnable() || dynamic_cast<const CGHeroInstance *>(obj) || dynamic_cast<const CGTownInstance *>(obj))
+	{
+		gh.throwNotAllowedAction(connection);
+	}
+
+	gh.setOwner(obj, PlayerColor::NEUTRAL);
+	result = true;
+}
+
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);

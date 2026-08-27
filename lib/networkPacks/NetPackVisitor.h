@@ -126,6 +126,7 @@ public:
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}
 	virtual void visitEndTurn(EndTurn & pack) {}
 	virtual void visitDismissHero(DismissHero & pack) {}
+	virtual void visitAbandonObjectOwnership(AbandonObjectOwnership & pack) {}
 	virtual void visitMoveHero(MoveHero & pack) {}
 	virtual void visitCastleTeleportHero(CastleTeleportHero & pack) {}
 	virtual void visitArrangeStacks(ArrangeStacks & pack) {}

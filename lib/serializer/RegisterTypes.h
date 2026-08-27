@@ -308,4 +308,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetScriptVariable>(267);
 	s.template registerType<SetQuestHint>(268);
 	s.template registerType<BattleAnimationPlayed>(269);
+	s.template registerType<AbandonObjectOwnership>(270);
 }

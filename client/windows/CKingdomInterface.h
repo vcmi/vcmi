@@ -210,12 +210,26 @@ private:
 		AnimationPath imagePath;
 		ui32 count;
 		std::string hoverText;
+		std::vector<const CGObjectInstance *> instances;
 		OwnedObjectInfo():
 			imageID(0),
 			count(0)
 		{}
 	};
 	std::vector<OwnedObjectInfo> objects;
+
+	/// InfoBox for an aggregated owned-object row that can be clicked to open the abandon-ownership picker
+	class COwnedObjectBox : public InfoBox
+	{
+		CKingdomInterface * parent;
+		std::vector<const CGObjectInstance *> instances;
+
+	public:
+		COwnedObjectBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data,
+			CKingdomInterface * Parent, std::vector<const CGObjectInstance *> Instances);
+
+		void clickPressed(const Point & cursorPosition) override;
+	};
 
 	std::shared_ptr<CListBox> dwellingsList;
 	std::shared_ptr<CTabbedInt> tabArea;
@@ -247,6 +261,7 @@ private:
 	//Internal functions used during construction
 	void generateButtons();
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
+	void refreshObjectsList();
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects, int line);
 
 	std::shared_ptr<CIntObject> createOwnedObject(size_t index);

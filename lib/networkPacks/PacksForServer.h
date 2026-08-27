@@ -44,6 +44,24 @@ struct DLL_LINKAGE DismissHero : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE AbandonObjectOwnership : public CPackForServer
+{
+	AbandonObjectOwnership() = default;
+	AbandonObjectOwnership(const ObjectInstanceID & OID)
+		: oid(OID)
+	{
+	}
+	ObjectInstanceID oid;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & oid;
+	}
+};
+
 struct DLL_LINKAGE MoveHero : public CPackForServer
 {
 	MoveHero() = default;

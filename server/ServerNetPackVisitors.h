@@ -35,6 +35,7 @@ public:
 	void visitGamePause(GamePause & pack) override;
 	void visitEndTurn(EndTurn & pack) override;
 	void visitDismissHero(DismissHero & pack) override;
+	void visitAbandonObjectOwnership(AbandonObjectOwnership & pack) override;
 	void visitMoveHero(MoveHero & pack) override;
 	void visitCastleTeleportHero(CastleTeleportHero & pack) override;
 	void visitArrangeStacks(ArrangeStacks & pack) override;

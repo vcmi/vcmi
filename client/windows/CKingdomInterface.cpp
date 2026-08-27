@@ -29,6 +29,7 @@
 #include "../widgets/ObjectLists.h"
 #include "CHeroWindow.h"
 #include "CMarketWindow.h"
+#include "CDwellingAbandonWindow.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -505,6 +506,13 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	idToImage[std::make_pair( 20, 0)] = 86;//Conflux
 	idToImage[std::make_pair( 87, 0)] = 87;//Harbor
 
+	auto canAbandonObject = [](const CGObjectInstance * object) -> bool
+	{
+		return object->asOwnable() != nullptr
+			&& dynamic_cast<const CGHeroInstance *>(object) == nullptr
+			&& dynamic_cast<const CGTownInstance *>(object) == nullptr;
+	};
+
 	std::map<int, OwnedObjectInfo> visibleObjects;
 	for(const CGObjectInstance * object : ownedObjects)
 	{
@@ -525,6 +533,8 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 					info.imagePath = kingdomOverviewImage;
 					info.imageID = 0;
 				}
+				if(canAbandonObject(object))
+					info.instances.push_back(object);
 			}
 			else if(object->ID == Obj::CREATURE_GENERATOR1)
 			{
@@ -534,6 +544,8 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 					info.hoverText = object->getObjectName();
 					info.imageID = object->subID;
 				}
+				if(canAbandonObject(object))
+					info.instances.push_back(object);
 			}
 		}
 
@@ -547,8 +559,11 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				info.hoverText = object->getObjectName();
 				info.imageID = iter->second;
 			}
+			if(canAbandonObject(object))
+				info.instances.push_back(object);
 		}
 	}
+	objects.clear();
 	objects.reserve(visibleObjects.size());
 
 	for(auto & element : visibleObjects)
@@ -566,9 +581,35 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 		OwnedObjectInfo & obj = objects[index];
 		std::string value = std::to_string(obj.count);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", obj.imagePath.empty() ? AnimationPath::builtin("FLAGPORT") : obj.imagePath, obj.imageID, obj.hoverText);
-		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
+		return std::make_shared<COwnedObjectBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data, this, obj.instances);
 	}
 	return std::shared_ptr<CIntObject>();
+}
+
+void CKingdomInterface::refreshObjectsList()
+{
+	OBJECT_CONSTRUCTION;
+	generateObjectsList(GAME->interface()->cb->getMyObjects());
+}
+
+CKingdomInterface::COwnedObjectBox::COwnedObjectBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data,
+	CKingdomInterface * Parent, std::vector<const CGObjectInstance *> Instances)
+	: InfoBox(position, Pos, Size, Data)
+	, parent(Parent)
+	, instances(std::move(Instances))
+{
+}
+
+void CKingdomInterface::COwnedObjectBox::clickPressed(const Point & cursorPosition)
+{
+	if(instances.empty())
+		return;
+
+	CKingdomInterface * kingdomInterface = parent;
+	ENGINE->windows().createAndPushWindow<CDwellingAbandonWindow>(instances, [kingdomInterface]()
+	{
+		kingdomInterface->refreshObjectsList();
+	});
 }
 
 std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)

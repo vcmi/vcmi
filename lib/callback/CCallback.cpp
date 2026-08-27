@@ -152,6 +152,15 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 	return true;
 }
 
+bool CCallback::abandonObjectOwnership(const CGObjectInstance * obj)
+{
+	if(getPlayerID()!=obj->tempOwner) return false;
+
+	AbandonObjectOwnership pack(obj->id);
+	sendRequest(pack);
+	return true;
+}
+
 bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)
 {
 	ExchangeArtifacts ea;

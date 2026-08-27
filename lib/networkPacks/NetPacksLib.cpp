@@ -556,6 +556,11 @@ void DismissHero::visitTyped(ICPackVisitor & visitor)
 	visitor.visitDismissHero(*this);
 }
 
+void AbandonObjectOwnership::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAbandonObjectOwnership(*this);
+}
+
 void MoveHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitMoveHero(*this);
