@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include <mutex>
-
 #include "CMapEvent.h"
 #include "CMapHeader.h"
 #include "TerrainTile.h"

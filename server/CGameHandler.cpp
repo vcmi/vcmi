@@ -29,7 +29,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CSoundBase.h"
-#include "../lib/CStopWatch.h"
 #include "../lib/GameConstants.h"
 #include "../lib/IGameSettings.h"
 #include "../lib/StartInfo.h"
@@ -584,11 +583,10 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	logGlobal->info("Using random seed: %d", randomizer->getDefault().nextInt());
 	gs->preInit(LIBRARY);
 	logGlobal->info("Gamestate created!");
-	CStopWatch swGsInit;
 	gs->init(&mapService, si, *randomizer, progressTracking);
 	const auto * startInfo = gs->getStartInfo();
 	gs->setSaveDirectory(SavegamePath::generateGameDirectoryName(*startInfo, *gs->getMapHeader()));
-	logGlobal->info("Gamestate initialized! (total %i ms)", swGsInit.getDiff());
+	logGlobal->info("Gamestate initialized!");
 
 	for (const auto & elem : gameState().players)
 		turnOrder->addPlayer(elem.first);

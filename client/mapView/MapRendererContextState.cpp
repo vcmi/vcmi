@@ -21,7 +21,6 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/CStopWatch.h"
 
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
@@ -33,10 +32,9 @@ MapRendererContextState::MapRendererContextState()
 	: objects(GAME->interface()->cb->getMapSize())
 {
 	logGlobal->debug("Loading map objects");
-	CStopWatch sw;
 	for(const auto & obj : GAME->map().getMap()->getObjects())
 		addObject(obj);
-	logGlobal->debug("Done loading map objects: %d objects in %i ms", GAME->map().getMap()->getObjects().size(), sw.getDiff());
+	logGlobal->debug("Done loading map objects");
 }
 
 void MapRendererContextState::addObject(const CGObjectInstance * obj)

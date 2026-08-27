@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include <mutex>
-
 #include "callback/IGameRandomizer.h"
 #include "CRandomGenerator.h"
 
