@@ -252,6 +252,9 @@ protected:
 public:
 	using CGTeleport::CGTeleport;
 
+	/// Pairs this monolith/whirlpool with its channel; called once every map object exists
+	virtual void assignTeleportChannel();
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTeleport&>(*this);
@@ -267,6 +270,9 @@ public:
 	using CGMonolith::CGMonolith;
 
 	static void postInit(IGameInfoCallback * cb);
+
+	/// no-op: gates are paired by postInit() above instead
+	void assignTeleportChannel() override {}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
