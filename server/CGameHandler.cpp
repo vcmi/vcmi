@@ -1173,13 +1173,30 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owner)
 {
 	PlayerColor oldOwner = gameState().getOwner(obj->id);
+	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+
+	//refund and clear any pending building queue - covers both a direct siege/capture and a player being eliminated
+	//and having their remaining towns unflagged to neutral, so a stale queue never survives an ownership change
+	if (town && !town->buildingsQueue.empty())
+	{
+		TResources refund;
+		for (const auto & bid : town->buildingsQueue)
+			if (town->getTown()->buildings.count(bid))
+				refund += town->getTown()->buildings.at(bid)->resources;
+
+		if (oldOwner.isValidPlayer())
+			giveResources(oldOwner, refund);
+
+		SetTownBuildingQueue clearQueuePack;
+		clearQueuePack.tid = town->id;
+		sendAndApply(clearQueuePack);
+	}
 
 	setObjPropertyID(obj->id, ObjProperty::OWNER, owner);
 
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
 
-	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
 		if(owner.isValidPlayer())

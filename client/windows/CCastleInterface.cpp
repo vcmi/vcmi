@@ -1867,7 +1867,7 @@ void CHallInterface::CQueueBadge::hover(bool on)
 		MetaString message;
 		message.appendTextID("vcmi.townStructure.queueCancel");
 		message.replaceTextID(town->getTown()->buildings.at(bid)->getNameTextID());
-		ENGINE->statusbar()->write(message.toString());
+		ENGINE->statusbar()->write(message.toString(&GAME->translator()));
 	}
 	else
 	{
