@@ -1180,9 +1180,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	if (town && !town->buildingsQueue.empty())
 	{
 		TResources refund;
-		for (const auto & bid : town->buildingsQueue)
-			if (town->getTown()->buildings.count(bid))
-				refund += town->getTown()->buildings.at(bid)->resources;
+		for (const auto & entry : town->buildingsQueue)
+			refund += entry.resources;
 
 		if (oldOwner.isValidPlayer())
 			giveResources(oldOwner, refund);
@@ -2514,7 +2513,7 @@ bool CGameHandler::enqueueBuilding(ObjectInstanceID tid, BuildingID bid)
 		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->getFaction()->getNameTranslated() % bid);
 	if(t->hasBuilt(bid))
 		COMPLAIN_RET("Building is already built!");
-	if(vstd::contains(t->buildingsQueue, bid))
+	if(t->isBuildingQueued(bid))
 		COMPLAIN_RET("Building is already queued!");
 
 	const auto & building = t->getTown()->buildings.at(bid);
@@ -2528,7 +2527,7 @@ bool CGameHandler::enqueueBuilding(ObjectInstanceID tid, BuildingID bid)
 	SetTownBuildingQueue pack;
 	pack.tid = tid;
 	pack.queue = t->buildingsQueue;
-	pack.queue.push_back(bid);
+	pack.queue.emplace_back(bid, building->resources); //lock in the cost paid now, so a later refund always matches what was actually charged
 	sendAndApply(pack);
 	return true;
 }
@@ -2538,15 +2537,17 @@ bool CGameHandler::dequeueBuilding(ObjectInstanceID tid, BuildingID bid)
 	const CGTownInstance * t = gameInfo().getTown(tid);
 	if(!t)
 		COMPLAIN_RETF("No such town (ID=%s)!", tid);
-	if(!vstd::contains(t->buildingsQueue, bid))
+
+	int position = t->getBuildingQueuePosition(bid);
+	if(position == -1)
 		COMPLAIN_RET("Building is not queued!");
 
-	giveResources(t->tempOwner, t->getTown()->buildings.at(bid)->resources);
+	giveResources(t->tempOwner, t->buildingsQueue[position].resources);
 
 	SetTownBuildingQueue pack;
 	pack.tid = tid;
 	pack.queue = t->buildingsQueue;
-	vstd::erase_if(pack.queue, [bid](const BuildingID & queued){ return queued == bid; });
+	pack.queue.erase(pack.queue.begin() + position);
 	sendAndApply(pack);
 
 	revalidateBuildingQueue(tid); //dequeuing may invalidate later entries that depended on this one (e.g. further upgrades in the same chain)
@@ -2560,30 +2561,28 @@ void CGameHandler::revalidateBuildingQueue(ObjectInstanceID tid)
 		return;
 
 	std::set<BuildingID> satisfied = t->getBuildings();
-	std::vector<BuildingID> validQueue;
+	std::vector<QueuedBuilding> validQueue;
 	TResources refund;
 
-	for(const auto & queuedId : t->buildingsQueue)
+	for(const auto & entry : t->buildingsQueue)
 	{
-		bool buildingExists = t->getTown()->buildings.count(queuedId) > 0;
-
 		auto buildTest = [&satisfied](const BuildingID & id) -> bool
 		{
 			return satisfied.count(id) > 0;
 		};
 
-		bool stillValid = buildingExists
-			&& !vstd::contains(t->forbiddenBuildings, queuedId)
-			&& t->genBuildingRequirements(queuedId).test(buildTest);
+		bool stillValid = t->getTown()->buildings.count(entry.building) > 0
+			&& !vstd::contains(t->forbiddenBuildings, entry.building)
+			&& t->genBuildingRequirements(entry.building).test(buildTest);
 
 		if(stillValid)
 		{
-			validQueue.push_back(queuedId);
-			satisfied.insert(queuedId);
+			validQueue.push_back(entry);
+			satisfied.insert(entry.building);
 		}
-		else if(buildingExists)
+		else
 		{
-			refund += t->getTown()->buildings.at(queuedId)->resources;
+			refund += entry.resources; //always refund the locked-in cost, even if the building type itself no longer exists in this town
 		}
 	}
 

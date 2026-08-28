@@ -2016,7 +2016,7 @@ void CHallInterface::createBoxes()
 					continue;
 				}
 
-				int queuePosition = vstd::find_pos(town->buildingsQueue, buildingID);
+				int queuePosition = town->getBuildingQueuePosition(buildingID);
 				if(queuePosition != -1)
 				{
 					building = current;
@@ -2111,7 +2111,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		tooltipNo.replaceTextID(building->getNameTextID());
 
 		bool queueEnabled = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_BUILDING_QUEUE);
-		bool alreadyQueued = vstd::contains(town->buildingsQueue, building->bid);
+		bool alreadyQueued = town->isBuildingQueued(building->bid);
 		bool queueable = GAME->interface()->cb->canBuildStructure(town, building->bid, true, true) == EBuildingState::ALLOWED;
 
 		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString(&GAME->translator())), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
@@ -2142,7 +2142,7 @@ void CBuildWindow::buyFunc()
 
 void CBuildWindow::queueFunc()
 {
-	if (vstd::contains(town->buildingsQueue, building->bid))
+	if (town->isBuildingQueued(building->bid))
 		GAME->interface()->cb->dequeueBuilding(town,building->bid);
 	else
 		GAME->interface()->cb->enqueueBuilding(town,building->bid);

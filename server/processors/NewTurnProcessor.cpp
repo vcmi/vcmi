@@ -172,11 +172,11 @@ void NewTurnProcessor::processBuildingQueue(const CGTownInstance * town)
 	if (town->built >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 		return; // daily building cap already exhausted, try again next day
 
-	BuildingID next = town->buildingsQueue.front();
+	BuildingID next = town->buildingsQueue.front().building;
 
 	SetTownBuildingQueue pack;
 	pack.tid = town->id;
-	pack.queue = std::vector<BuildingID>(town->buildingsQueue.begin() + 1, town->buildingsQueue.end());
+	pack.queue = std::vector<QueuedBuilding>(town->buildingsQueue.begin() + 1, town->buildingsQueue.end());
 	gameHandler->sendAndApply(pack);
 
 	if (town->getTown()->buildings.count(next) && !town->hasBuilt(next))

@@ -937,6 +937,20 @@ std::set<BuildingID> CGTownInstance::getBuildings() const
 	return builtBuildings;
 }
 
+bool CGTownInstance::isBuildingQueued(const BuildingID & buildingID) const
+{
+	return getBuildingQueuePosition(buildingID) != -1;
+}
+
+int CGTownInstance::getBuildingQueuePosition(const BuildingID & buildingID) const
+{
+	for(size_t i = 0; i < buildingsQueue.size(); ++i)
+		if(buildingsQueue[i].building == buildingID)
+			return static_cast<int>(i);
+
+	return -1;
+}
+
 TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 {
 	if (vstd::contains(getTown()->buildings, buildingID))

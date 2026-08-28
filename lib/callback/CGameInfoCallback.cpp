@@ -582,7 +582,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 
 	auto buildTest = [&](const BuildingID & id) -> bool
 	{
-		return t->hasBuilt(id) || (considerQueue && vstd::contains(t->buildingsQueue, id));
+		return t->hasBuilt(id) || (considerQueue && t->isBuildingQueued(id));
 	};
 
 	if (!t->genBuildingRequirements(ID).test(buildTest))

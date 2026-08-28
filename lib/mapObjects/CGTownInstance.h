@@ -11,6 +11,7 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
+#include "QueuedBuilding.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
@@ -68,7 +69,7 @@ public:
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
-	std::vector<BuildingID> buildingsQueue; //buildings queued for future construction, in order; front is built next
+	std::vector<QueuedBuilding> buildingsQueue; //buildings queued for future construction, in order; front is built next
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
 	int32_t spellResearchCounterDay;
 	int32_t spellResearchAcceptedCounter;
@@ -180,6 +181,8 @@ public:
 	void removeBuilding(const BuildingID & buildingID);
 	void removeAllBuildings();
 	std::set<BuildingID> getBuildings() const;
+	bool isBuildingQueued(const BuildingID & buildingID) const;
+	int getBuildingQueuePosition(const BuildingID & buildingID) const; //0-based, -1 if not queued
 
 	ResourceSet getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;

@@ -27,6 +27,7 @@
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
+#include "../mapObjects/QueuedBuilding.h"
 #include "../mapObjects/army/CSimpleArmy.h"
 #include "../spells/ViewSpellInt.h"
 
@@ -776,7 +777,7 @@ struct DLL_LINKAGE RazeStructures : public CPackForClient
 struct DLL_LINKAGE SetTownBuildingQueue : public CPackForClient
 {
 	ObjectInstanceID tid;
-	std::vector<BuildingID> queue; //full replacement snapshot of buildings queued for future construction, in order
+	std::vector<QueuedBuilding> queue; //full replacement snapshot of buildings queued for future construction, in order
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
