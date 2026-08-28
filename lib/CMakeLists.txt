@@ -700,6 +700,7 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
 	rmg/CZoneGridPlacer.h
+	rmg/ZonePlacementConfig.h
 	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
 	rmg/Zone.h

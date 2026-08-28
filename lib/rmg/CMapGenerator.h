@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CMapGenOptions.h"
+#include "ZonePlacementConfig.h"
 #include "../LoadProgress.h"
 
 class MetaString;
@@ -51,6 +52,7 @@ public:
 		std::vector<int> questRewardValues;
 		int seerHutValue;
 		bool singleThread;
+		ZonePlacementConfig zonePlacement;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
@@ -62,7 +64,18 @@ public:
 	
 	std::unique_ptr<CMap> generate();
 
+	/// Next unused two-way monolith subtype. Thread-safe; called from the parallel connection-placement phase.
 	int getNextMonlithIndex();
+
+	/// True if a subterranean gate pair at the given tiles would keep every gate paired with its intended
+	/// partner. For use while searching; the answer may go stale once another thread reserves.
+	bool canReserveGatePair(const int3 & posA, const int3 & posB) const;
+
+	/// Commit a subterranean gate pair at the given final map positions, false if it would break some
+	/// pairing. Gates pair by nearest 2D distance (CGSubterraneanGate::postInit), so a pair must stay
+	/// each other's nearest gate. Thread-safe; called from the parallel connection-placement phase.
+	bool reserveGatePair(const int3 & posA, const int3 & posB);
+
 	int getPrisonsRemaining() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
@@ -81,10 +94,20 @@ private:
 	Config config;
 	std::unique_ptr<RmgMap> map;
 	std::shared_ptr<CZonePlacer> placer;
-	
+
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
+	std::mutex monolithIndexMutex;
+
+	// Placed subterranean gates, each with the squared 2D distance to its committed partner (see reserveGatePair)
+	struct ReservedGate { int3 pos; int pairingDistanceSqr; };
+	std::vector<ReservedGate> reservedGates;
+	mutable std::mutex gateReservationMutex;
+
+	/// canReserveGatePair without taking the lock.
+	bool canReserveGatePairLocked(const int3 & posA, const int3 & posB) const;
+
 	std::vector<ArtifactID> questArtifacts;
 
 	/// Generation methods

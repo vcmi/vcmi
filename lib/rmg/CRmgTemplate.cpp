@@ -627,6 +627,14 @@ rmg::ERoadOption ZoneConnection::getRoadOption() const
 	return hasRoad;
 }
 
+bool ZoneConnection::needsPassage() const
+{
+	//repulsive connections are virtual, forced portals bring their own, self-connections are an intended portal
+	return zoneA != zoneB
+		&& connectionType != rmg::EConnectionType::REPULSIVE
+		&& connectionType != rmg::EConnectionType::FORCE_PORTAL;
+}
+
 void ZoneConnection::setRoadOption(rmg::ERoadOption roadOption)
 {
 	hasRoad = roadOption;
