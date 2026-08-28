@@ -529,7 +529,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 	return getTile(tile)->getDiggingStatus();
 }
 
-EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID, bool ignoreBuildingsPerTurnCap ) const
+EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID, bool ignoreBuildingsPerTurnCap, bool considerQueue ) const
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
@@ -582,7 +582,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 
 	auto buildTest = [&](const BuildingID & id) -> bool
 	{
-		return t->hasBuilt(id);
+		return t->hasBuilt(id) || (considerQueue && vstd::contains(t->buildingsQueue, id));
 	};
 
 	if (!t->genBuildingRequirements(ID).test(buildTest))

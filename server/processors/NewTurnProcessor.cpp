@@ -181,6 +181,8 @@ void NewTurnProcessor::processBuildingQueue(const CGTownInstance * town)
 
 	if (town->getTown()->buildings.count(next) && !town->hasBuilt(next))
 		gameHandler->buildStructure(town->id, next, true, true); // force build, but still counts towards daily cap
+
+	gameHandler->revalidateBuildingQueue(town->id); //defensive: drop any later entries that unexpectedly can no longer be satisfied
 }
 
 void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)

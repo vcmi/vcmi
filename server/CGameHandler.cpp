@@ -2499,10 +2499,13 @@ bool CGameHandler::enqueueBuilding(ObjectInstanceID tid, BuildingID bid)
 		COMPLAIN_RET("Building is already built!");
 	if(vstd::contains(t->buildingsQueue, bid))
 		COMPLAIN_RET("Building is already queued!");
-	if(gameState().canBuildStructure(t, bid, true) != EBuildingState::ALLOWED)
-		COMPLAIN_RET("Cannot queue that building!");
 
 	const auto & building = t->getTown()->buildings.at(bid);
+	if(building->mode != CBuilding::BUILD_NORMAL)
+		COMPLAIN_RET("This building can not be queued!");
+	if(gameState().canBuildStructure(t, bid, true, true) != EBuildingState::ALLOWED)
+		COMPLAIN_RET("Cannot queue that building!");
+
 	giveResources(t->tempOwner, -building->resources);
 
 	SetTownBuildingQueue pack;
@@ -2528,7 +2531,55 @@ bool CGameHandler::dequeueBuilding(ObjectInstanceID tid, BuildingID bid)
 	pack.queue = t->buildingsQueue;
 	vstd::erase_if(pack.queue, [bid](const BuildingID & queued){ return queued == bid; });
 	sendAndApply(pack);
+
+	revalidateBuildingQueue(tid); //dequeuing may invalidate later entries that depended on this one (e.g. further upgrades in the same chain)
 	return true;
+}
+
+void CGameHandler::revalidateBuildingQueue(ObjectInstanceID tid)
+{
+	const CGTownInstance * t = gameInfo().getTown(tid);
+	if(!t || t->buildingsQueue.empty())
+		return;
+
+	std::set<BuildingID> satisfied = t->getBuildings();
+	std::vector<BuildingID> validQueue;
+	TResources refund;
+
+	for(const auto & queuedId : t->buildingsQueue)
+	{
+		bool buildingExists = t->getTown()->buildings.count(queuedId) > 0;
+
+		auto buildTest = [&satisfied](const BuildingID & id) -> bool
+		{
+			return satisfied.count(id) > 0;
+		};
+
+		bool stillValid = buildingExists
+			&& !vstd::contains(t->forbiddenBuildings, queuedId)
+			&& t->genBuildingRequirements(queuedId).test(buildTest);
+
+		if(stillValid)
+		{
+			validQueue.push_back(queuedId);
+			satisfied.insert(queuedId);
+		}
+		else if(buildingExists)
+		{
+			refund += t->getTown()->buildings.at(queuedId)->resources;
+		}
+	}
+
+	if(validQueue.size() == t->buildingsQueue.size())
+		return; //nothing was invalidated
+
+	if(refund.nonZero() && t->tempOwner.isValidPlayer())
+		giveResources(t->tempOwner, refund);
+
+	SetTownBuildingQueue revalidatedPack;
+	revalidatedPack.tid = tid;
+	revalidatedPack.queue = validQueue;
+	sendAndApply(revalidatedPack);
 }
 
 bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)

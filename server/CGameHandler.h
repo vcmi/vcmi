@@ -240,6 +240,7 @@ public:
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false, bool countsTowardsDailyCap=false);//force - for events: no cost, no checkings; countsTowardsDailyCap - forced build should still count against TOWNS_BUILDINGS_PER_TURN_CAP (used by the building queue)
 	bool enqueueBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool dequeueBuilding(ObjectInstanceID tid, BuildingID bid);
+	void revalidateBuildingQueue(ObjectInstanceID tid); //drops (and refunds) queued buildings whose requirements are no longer satisfiable, e.g. after an earlier chain entry was dequeued
 	bool visitTownBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted);

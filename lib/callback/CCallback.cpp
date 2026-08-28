@@ -237,7 +237,7 @@ bool CCallback::enqueueBuilding(const CGTownInstance *town, BuildingID buildingI
 	if(town->tempOwner!=getPlayerID())
 		return false;
 
-	if(canBuildStructure(town, buildingID, true) != EBuildingState::ALLOWED)
+	if(canBuildStructure(town, buildingID, true, true) != EBuildingState::ALLOWED)
 		return false;
 
 	EnqueueBuilding pack(town->id,buildingID);

@@ -273,6 +273,20 @@ public:
 /// Hall window where you can build things
 class CHallInterface : public CStatusbarWindow
 {
+	/// Small clickable badge showing a queued building's position in the queue; click cancels that specific queue entry
+	class CQueueBadge : public CIntObject
+	{
+		const CGTownInstance * town;
+		BuildingID bid;
+
+		std::shared_ptr<TransparentFilledRectangle> rect;
+		std::shared_ptr<CLabel> number;
+	public:
+		CQueueBadge(const Rect & badgePos, const CGTownInstance * Town, BuildingID Bid, int displayNumber);
+		void hover(bool on) override;
+		void clickPressed(const Point & cursorPosition) override;
+	};
+
 	class CBuildingBox : public CIntObject
 	{
 		const CGTownInstance * town;
@@ -284,10 +298,10 @@ class CHallInterface : public CStatusbarWindow
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CAnimImage> mark;
 		std::shared_ptr<CLabel> name;
-		std::shared_ptr<TransparentFilledRectangle> queueRect;
-		std::shared_ptr<CLabel> queueNumber;
+		std::vector<std::shared_ptr<CQueueBadge>> queueBadges;
 	public:
-		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
+		//queuedChain: buildings from this slot's upgrade chain that are currently queued, in chain order, paired with their 0-based queue position
+		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building, const std::vector<std::pair<const CBuilding *, int>> & queuedChain);
 		void hover(bool on) override;
 		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;

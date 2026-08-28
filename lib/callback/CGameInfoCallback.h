@@ -91,7 +91,7 @@ public:
 	int howManyTowns(PlayerColor Player) const;
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
 	std::string getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const;
-	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID, bool ignoreBuildingsPerTurnCap = false) const;
+	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID, bool ignoreBuildingsPerTurnCap = false, bool considerQueue = false) const;
 	bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 
 	//from gs

@@ -1848,7 +1848,39 @@ void CCastleInterface::creaturesChangedEventHandler()
 	}
 }
 
-CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building):
+CHallInterface::CQueueBadge::CQueueBadge(const Rect & badgePos, const CGTownInstance * Town, BuildingID Bid, int displayNumber):
+	town(Town),
+	bid(Bid)
+{
+	OBJECT_CONSTRUCTION;
+	addUsedEvents(LCLICK | HOVER);
+	pos = badgePos + pos.topLeft();
+
+	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, badgePos.w, badgePos.h), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
+	number = std::make_shared<CLabel>(badgePos.w / 2, badgePos.h / 2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(displayNumber));
+}
+
+void CHallInterface::CQueueBadge::hover(bool on)
+{
+	if(on)
+	{
+		MetaString message;
+		message.appendTextID("vcmi.townStructure.queueCancel");
+		message.replaceTextID(town->getTown()->buildings.at(bid)->getNameTextID());
+		ENGINE->statusbar()->write(message.toString());
+	}
+	else
+	{
+		ENGINE->statusbar()->clear();
+	}
+}
+
+void CHallInterface::CQueueBadge::clickPressed(const Point & cursorPosition)
+{
+	GAME->interface()->cb->dequeueBuilding(town, bid);
+}
+
+CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building, const std::vector<std::pair<const CBuilding *, int>> & queuedChain):
 	town(Town),
 	building(Building)
 {
@@ -1876,16 +1908,28 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 		mark = std::make_shared<CAnimImage>(AnimationPath::builtin("TPTHCHK"), iconIndex[static_cast<int>(state)], 0, 136, 56);
 	name = std::make_shared<CLabel>(78, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->getNameTranslated(), 150);
 
-	auto queuePosition = vstd::find_pos(town->buildingsQueue, building->bid);
-	if(queuePosition != -1)
-	{
-		constexpr int queueBadgeMargin = 4;
-		constexpr int queueBadgeW = 15;
-		constexpr int queueBadgeH = 18;
-		Rect queueBadgeRect(pos.w - queueBadgeMargin - queueBadgeW, queueBadgeMargin, queueBadgeW, queueBadgeH);
+	//queue position badges, anchored to the top-right corner, read left-to-right in build order (like the battle queue);
+	//width of each badge is sized to fit its text since queue position can exceed 2 digits
+	constexpr int queueBadgeMargin = 4;
+	constexpr int queueBadgeH = 18;
+	constexpr int queueBadgeGap = 2;
+	constexpr int queueBadgePadding = 6;
 
-		queueRect = std::make_shared<TransparentFilledRectangle>(queueBadgeRect, ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
-		queueNumber = std::make_shared<CLabel>(queueBadgeRect.x + queueBadgeW / 2, queueBadgeRect.y + queueBadgeH / 2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(queuePosition + 1));
+	const auto & queueBadgeFont = ENGINE->renderHandler().loadFont(FONT_SMALL);
+	int queueBadgeRightEdge = pos.w - queueBadgeMargin;
+
+	for(size_t revIndex = 0; revIndex < queuedChain.size(); ++revIndex)
+	{
+		size_t i = queuedChain.size() - 1 - revIndex; //lay out right-to-left: newest (rightmost) first
+
+		int displayNumber = queuedChain[i].second + 1;
+		std::string text = std::to_string(displayNumber);
+		int badgeW = static_cast<int>(queueBadgeFont->getStringWidth(text)) + queueBadgePadding;
+		Rect badgeRect(queueBadgeRightEdge - badgeW, queueBadgeMargin, badgeW, queueBadgeH);
+
+		queueBadges.push_back(std::make_shared<CQueueBadge>(badgeRect, town, queuedChain[i].first->bid, displayNumber));
+
+		queueBadgeRightEdge = badgeRect.x - queueBadgeGap;
 	}
 
 	//todo: add support for all possible states
@@ -1915,6 +1959,11 @@ void CHallInterface::CBuildingBox::hover(bool on)
 
 void CHallInterface::CBuildingBox::clickPressed(const Point & cursorPosition)
 {
+	//queue badges overlap this box's own clickable area; let a badge handle its own click instead of also opening the build menu
+	for(const auto & badge : queueBadges)
+		if(badge->pos.isInside(cursorPosition))
+			return;
+
 	ENGINE->windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
 
@@ -1951,7 +2000,8 @@ void CHallInterface::createBoxes()
 		for(size_t col=0; col<boxList[row].size(); col++) //for each box
 		{
 			const CBuilding * building = nullptr;
-			for(auto & buildingID : boxList[row][col])//we are looking for the first not built structure
+			std::vector<std::pair<const CBuilding *, int>> queuedChain; //buildings from this slot already queued, in chain order, with their 0-based queue position
+			for(auto & buildingID : boxList[row][col])//we are looking for the first not built, not queued structure
 			{
 				if (!buildingID.hasValue())
 				{
@@ -1963,21 +2013,28 @@ void CHallInterface::createBoxes()
 				if(town->hasBuilt(buildingID))
 				{
 					building = current;
+					continue;
 				}
-				else
+
+				int queuePosition = vstd::find_pos(town->buildingsQueue, buildingID);
+				if(queuePosition != -1)
 				{
-					if(current->mode == CBuilding::BUILD_NORMAL)
-					{
-						building = current;
-						break;
-					}
+					building = current;
+					queuedChain.emplace_back(current, queuePosition);
+					continue;
+				}
+
+				if(current->mode == CBuilding::BUILD_NORMAL)
+				{
+					building = current;
+					break;
 				}
 			}
 			int posX = pos.w/2 - (int)boxList[row].size()*154/2 - ((int)boxList[row].size()-1)*20 + 194*(int)col;
 			int posY = 35 + 104*(int)row;
 
 			if(building)
-				boxes[row].push_back(std::make_shared<CBuildingBox>(posX, posY, town, building));
+				boxes[row].push_back(std::make_shared<CBuildingBox>(posX, posY, town, building, queuedChain));
 		}
 	}
 }
@@ -2055,7 +2112,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 		bool queueEnabled = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_BUILDING_QUEUE);
 		bool alreadyQueued = vstd::contains(town->buildingsQueue, building->bid);
-		bool queueable = GAME->interface()->cb->canBuildStructure(town, building->bid, true) == EBuildingState::ALLOWED;
+		bool queueable = GAME->interface()->cb->canBuildStructure(town, building->bid, true, true) == EBuildingState::ALLOWED;
 
 		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString(&GAME->translator())), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
