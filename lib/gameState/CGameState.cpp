@@ -15,10 +15,12 @@
 #include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
 #include "GameStatePackVisitor.h"
+#include "ParallelObjectRandomizer.h"
 #include "SThievesGuildInfo.h"
 #include "QuestInfo.h"
 
 #include "../GameSettings.h"
+#include "../ScopeGuard.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
@@ -73,6 +75,8 @@
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
+
+#include <tbb/parallel_for.h>
 
 std::shared_mutex CGameState::mutex;
 
@@ -213,7 +217,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	day = 0;
 
 	logGlobal->debug("Initialization:");
-
 	initScriptVariables();
 	// script `init` runs from here, so it sees the map before object randomization and hero placement -
 	// it can only bind handlers by instance name, not inspect object contents
@@ -226,7 +229,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	removeHeroPlaceholders();
 	initGrailPosition(randomGenerator);
 	initRandomFactionsForPlayers(randomGenerator);
-	randomizeMapObjects(gameRandomizer);
+	{
+		CMap::ParallelLoadGuards loadGuards;
+		map->enableParallelLoad(loadGuards);
+		auto disableGuard = vstd::makeScopeGuard([this](){ map->disableParallelLoad(); });
+		randomizeMapObjects(gameRandomizer);
+	}
 	placeStartingHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
@@ -236,7 +244,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	initTowns(randomGenerator);
 	initTownNames(randomGenerator);
 	placeHeroesInTowns();
-	initMapObjects(gameRandomizer);
+	{
+		CMap::ParallelLoadGuards loadGuards;
+		map->enableParallelLoad(loadGuards);
+		auto disableGuard = vstd::makeScopeGuard([this](){ map->disableParallelLoad(); });
+		initMapObjects(gameRandomizer);
+	}
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
@@ -533,10 +546,12 @@ void CGameState::initRandomFactionsForPlayers(vstd::RNG & randomGenerator)
 void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tRandomizing objects");
+
+	std::vector<CGObjectInstance *> serialObjects;
+	std::vector<CGObjectInstance *> parallelObjects;
+
 	for(const auto & object : map->getObjects())
 	{
-		object->pickRandomObject(gameRandomizer);
-
 		//handle Favouring Winds - mark tiles under it
 		if(object->ID == Obj::FAVORABLE_WINDS)
 		{
@@ -549,7 +564,33 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 				}
 			}
 		}
+
+		if(objectNeedsSerialRandomization(object))
+			serialObjects.push_back(object);
+		else
+			parallelObjects.push_back(object);
 	}
+
+	// Serial pass: towns first (existence dependency for CGDwelling), then artifacts and
+	// random-heroes (shared randomizer state) - see objectNeedsSerialRandomization().
+	for(auto * object : serialObjects)
+		object->pickRandomObject(gameRandomizer);
+
+	// Parallel pass: seed one private RNG per object up-front, serially and in fixed map
+	// order (so the result is reproducible regardless of actual thread scheduling), then
+	// randomize all of them concurrently.
+	std::vector<int> seeds(parallelObjects.size());
+	for(size_t i = 0; i < parallelObjects.size(); ++i)
+		seeds[i] = gameRandomizer.getDefault().nextInt();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, parallelObjects.size()), [&](const tbb::blocked_range<size_t> & r)
+	{
+		for(size_t i = r.begin(); i != r.end(); ++i)
+		{
+			ParallelObjectRandomizer localRandomizer(seeds[i]);
+			parallelObjects[i]->pickRandomObject(localRandomizer);
+		}
+	});
 
 	for(auto & obj : map->getObjects<CGPandoraBox>())
 		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
@@ -1012,13 +1053,48 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
 
-	for(auto & obj : map->getObjects())
-		obj->initObj(gameRandomizer);
+	std::vector<CGObjectInstance *> serialObjects;
+	std::vector<CGObjectInstance *> parallelObjects;
+
+	for(const auto & object : map->getObjects())
+	{
+		if(objectNeedsSerialInit(object))
+			serialObjects.push_back(object);
+		else
+			parallelObjects.push_back(object);
+	}
+
+	// Serial pass: see objectNeedsSerialInit()
+	for(auto * object : serialObjects)
+		object->initObj(gameRandomizer);
+
+	// Parallel pass: same pattern as randomizeMapObjects() above
+	std::vector<int> seeds(parallelObjects.size());
+	for(size_t i = 0; i < parallelObjects.size(); ++i)
+		seeds[i] = gameRandomizer.getDefault().nextInt();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, parallelObjects.size()), [&](const tbb::blocked_range<size_t> & r)
+	{
+		for(size_t i = r.begin(); i != r.end(); ++i)
+		{
+			ParallelObjectRandomizer localRandomizer(seeds[i]);
+			parallelObjects[i]->initObj(localRandomizer);
+		}
+	});
 
 	logGlobal->debug("\tObject initialization done");
 	// getObjects<SeerHut>() already yields exactly seer huts + quest guards
 	for(auto & q : map->getObjects<SeerHut>())
 		q->setObjToKill();
+
+	// Deferred until every object exists (see CGMonolith::assignTeleportChannel comment).
+	// getObjects<CGMonolith>() also yields CGSubterraneanGate instances (same hierarchy), but
+	// those override assignTeleportChannel() as a no-op since they're paired below instead.
+	// Must run before CGSubterraneanGate::postInit() to keep channel ID allocation order
+	// identical to the previous initObj-time behavior.
+	for(auto & obj : map->getObjects<CGMonolith>())
+		obj->assignTeleportChannel();
+
 	CGSubterraneanGate::postInit(this); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
