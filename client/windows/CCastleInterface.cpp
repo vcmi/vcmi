@@ -2124,8 +2124,9 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 			tooltipQueue.appendTextID(alreadyQueued ? "vcmi.townStructure.queueCancel" : "vcmi.townStructure.queueAdd");
 			tooltipQueue.replaceTextID(building->getNameTextID());
 
-			queue = std::make_shared<CButton>(Point(167, 446), AnimationPath::builtin(alreadyQueued ? "ICANCEL" : "IBUY30"), CButton::tooltip(tooltipQueue.toString(&GAME->translator())), [&](){ queueFunc(); });
+			queue = std::make_shared<CButton>(Point(167, 446), AnimationPath::builtin("buildStructureQueue/button"), CButton::tooltip(tooltipQueue.toString(&GAME->translator())), [&](){ queueFunc(); });
 			queue->setBorderColor(Colors::METALLIC_GOLD);
+			queue->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(alreadyQueued ? "buildStructureQueue/abort" : "buildStructureQueue/build")));
 			queue->block(GAME->interface()->playerID != town->tempOwner || !GAME->interface()->makingTurn);
 		}
 
