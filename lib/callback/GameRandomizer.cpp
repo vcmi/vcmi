@@ -116,12 +116,13 @@ bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageCha
 CreatureID GameRandomizer::rollCreature()
 {
 	std::vector<CreatureID> allowed;
+	const auto knownMonsters = LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER);
 	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
 	{
 		const auto * creaturePtr = creatureID.toCreature();
 		if(creaturePtr->excludeFromRandomization)
 			continue;
-		if(!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+		if(!knownMonsters.contains(creatureID.getNum()))
 			continue;
 		allowed.push_back(creaturePtr->getId());
 	}
@@ -135,13 +136,14 @@ CreatureID GameRandomizer::rollCreature()
 CreatureID GameRandomizer::rollCreature(int tier)
 {
 	std::vector<CreatureID> allowed;
+	const auto knownMonsters = LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER);
 	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
 	{
 		const auto * creaturePtr = creatureID.toCreature();
 		if(creaturePtr->excludeFromRandomization)
 			continue;
 
-		if (!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
+		if (!knownMonsters.contains(creatureID.getNum()))
 			continue;
 
 		if(creaturePtr->getLevel() == tier)
