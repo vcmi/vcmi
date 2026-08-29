@@ -342,7 +342,8 @@ std::optional<uint64_t> RewardEvaluator::getCreatureReward(
 		for(const auto & creature : reward.creatures)
 			creatures.addToSlot(creatures.getSlotFor(creature.getId()), creature.getId(), creature.getCount());
 
-		result = result.value_or(0) + aiNk->armyManager->howManyReinforcementsCanGet(hero, army, &creatures, terrain);
+		const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(hero, army, &creatures, terrain);
+		result = result.value_or(0) + (bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0);
 	}
 
 	return result;

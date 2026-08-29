@@ -147,6 +147,43 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, armyWithFreeSlotCanUseAngelReward)
 	EXPECT_GT(*reward, 0);
 }
 
+TEST_F(Nullkiller2_Engine_CreatureBankReward, moraleImprovementMakesWeakerRawRewardUsable)
+{
+	const std::array<CreatureID, 6> castleCreatures = {
+		CreatureID(CreatureID::decode("pikeman")),
+		CreatureID(CreatureID::decode("archer")),
+		CreatureID(CreatureID::decode("griffin")),
+		CreatureID(CreatureID::decode("swordsman")),
+		CreatureID(CreatureID::decode("monk")),
+		CreatureID(CreatureID::decode("cavalier"))
+	};
+	const CreatureID angel(CreatureID::decode("angel"));
+	const CreatureID centaur(CreatureID::decode("centaur"));
+	const int centaurCount = static_cast<int>(angel.toCreature()->getAIValue() / centaur.toCreature()->getAIValue() + 1);
+
+	hero->clearSlots();
+	for(size_t i = 0; i < castleCreatures.size(); ++i)
+		ASSERT_TRUE(hero->setCreature(SlotID(static_cast<int>(i)), castleCreatures[i], 100));
+	ASSERT_TRUE(hero->setCreature(SlotID(6), centaur, centaurCount));
+
+	CCreatureSet rewardArmy;
+	rewardArmy.addToSlot(SlotID(0), angel, 1);
+	const auto terrain = callback->getTile(bank->visitablePos())->getTerrainID();
+	const auto bestArmyInfo = nullkiller.armyManager->getBestArmyInfo(hero, hero, &rewardArmy, terrain);
+	uint64_t selectedRawStrength = 0;
+	for(const auto & slot : bestArmyInfo.army)
+		selectedRawStrength += slot.power;
+
+	ASSERT_LT(selectedRawStrength, hero->getArmyStrength());
+	ASSERT_GT(bestArmyInfo.sourceStrength, 0);
+	ASSERT_GT(bestArmyInfo.strengthGain, 0);
+
+	markBankScouted();
+	const auto reward = evaluateCreatureReward();
+	ASSERT_TRUE(reward.has_value());
+	EXPECT_EQ(*reward, bestArmyInfo.strengthGain);
+}
+
 TEST_F(Nullkiller2_Engine_CreatureBankReward, unscoutedCreatureRewardRemainsUnknown)
 {
 	EXPECT_EQ(evaluateCreatureReward(), std::nullopt);
