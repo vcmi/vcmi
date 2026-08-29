@@ -86,6 +86,88 @@ struct DLL_EXPORT EvaluationContext
 	float getMovementCost(HeroRole role) const;
 };
 
+struct DLL_LINKAGE PriorityEvaluationSettings
+{
+	int32_t priorityTier = 0;
+	bool daysWithoutCastle = false;
+	float maximumArmyLossTarget = 0;
+	int32_t dayOfWeek = 0;
+	int32_t daysInWeek = 0;
+};
+
+struct DLL_LINKAGE PriorityEvaluationGoal
+{
+	float movementCost = 0;
+	uint64_t danger = 0;
+	float closestWayRatio = 0;
+	float armyLossRatio = 0;
+	HeroRole heroRole = HeroRole::SCOUT;
+	uint8_t turn = 0;
+	float enemyHeroDangerRatio = 0;
+	float threat = 0;
+	float armyInvolvement = 0;
+	bool isDefend = false;
+	int threatTurns = 0;
+	bool isExchange = false;
+	bool isArmyUpgrade = false;
+	bool isHero = false;
+	bool isEnemy = false;
+	int explorePriority = 0;
+	float powerRatio = 0;
+};
+
+struct DLL_LINKAGE PriorityEvaluationRewards
+{
+	float armyReward = 0;
+	uint64_t armyGrowth = 0;
+	int32_t goldReward = 0;
+	int32_t goldCost = 0;
+	float skillReward = 0;
+	float strategicalValue = 0;
+	float conquestValue = 0;
+};
+
+struct DLL_LINKAGE PriorityEvaluationBuilding
+{
+	std::vector<int32_t> cost;
+	int64_t costMarketValue = 0;
+	bool isTradeBuilding = false;
+};
+
+struct DLL_LINKAGE PriorityEvaluationResourceState
+{
+	std::vector<int32_t> available;
+	std::vector<int32_t> dailyIncome;
+	int64_t lockedResourceMarketValue = 0;
+	bool goldPressureOverMax = false;
+	bool hasTownWithoutMarketplace = false;
+};
+
+struct DLL_LINKAGE PriorityEvaluationEscape
+{
+	bool hasHero = false;
+	int currentDangerTurn = 0;
+	uint64_t currentDanger = 0;
+	float currentThreat = 0;
+	float destinationThreat = 0;
+	uint64_t heroTotalStrength = 0;
+};
+
+/// Complete value-only input to the NK2 priority formula. Game callbacks and
+/// mutable objects are deliberately resolved before this boundary.
+struct DLL_LINKAGE PriorityEvaluationInput
+{
+	PriorityEvaluationSettings settings;
+	PriorityEvaluationGoal goal;
+	PriorityEvaluationRewards rewards;
+	PriorityEvaluationBuilding building;
+	PriorityEvaluationResourceState resourceState;
+	PriorityEvaluationEscape escape;
+};
+
+/// Pure compiled NK2 priority formula. Its result depends only on input.
+DLL_LINKAGE float evaluatePriority(const PriorityEvaluationInput & input);
+
 class IEvaluationContextBuilder
 {
 public:
@@ -104,6 +186,10 @@ public:
 	float evaluate(Goals::TSubgoal task, int priorityTier = BUILDINGS);
 	float evaluate(Goals::TSubgoal task, int priorityTier, const EvaluationContext & evaluationContext);
 	EvaluationContext buildEvaluationContext(const Goals::TSubgoal & goal) const;
+	PriorityEvaluationInput buildEvaluationInput(
+		Goals::TSubgoal task,
+		int priorityTier,
+		const EvaluationContext & evaluationContext) const;
 
 	enum PriorityTier : int32_t
 	{
@@ -122,10 +208,6 @@ private:
 
 	std::vector<std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 
-	static float evaluateMovement(float score, float movementCost);
-	static float evaluateArmyLossRatio(float score, float armyLossRatio, HeroRole heroRole);
-	static float evaluateSkillReward(float score, float skillReward, float armyInvolvement, float armyLossRatio);
-	static float evaluateConquestValue(float score, float conquestValue, float armyInvolvement);
 };
 
 }

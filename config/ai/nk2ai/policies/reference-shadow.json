@@ -1,0 +1,8 @@
+{
+	"schemaVersion": 1,
+	"name": "reference-shadow",
+	"type": "lua",
+	"script": "reference.lua",
+	"shadow": true,
+	"parameters": {}
+}
