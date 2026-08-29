@@ -51,6 +51,7 @@ private:
 	std::optional<int> getMapSizeForButtonId(int btnId) const;
 	bool isCustomSizeButtonId(int btnId) const;
 	void onToggleMapSize(int btnId);
+	void extendRoadButtonHitAreas();
 
 	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
