@@ -368,7 +368,8 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluatio
 		for(const auto & creature : creatures)
 			rewardArmy.addToSlot(rewardArmy.getSlotFor(creature.getId()), creature.getId(), creature.getCount());
 
-		return aiNk->armyManager->howManyReinforcementsCanGet(request.hero, request.army, &rewardArmy, terrain);
+		const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(request.hero, request.army, &rewardArmy, terrain);
+		return bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
 	};
 
 	uint64_t result = 0;
