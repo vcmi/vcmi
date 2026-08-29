@@ -14,6 +14,7 @@
 #include "mapview.h"
 #include "lib/modding/ModVerificationInfo.h"
 #include "../lib/callback/EditorCallback.h"
+#include "../lib/constants/EntityIdentifiers.h"
 
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 class EditorObstaclePlacer;
@@ -47,9 +48,14 @@ public:
 	MinimapScene * miniScene(int level);
 	
 	void resetMapHandler();
-	
+
 	void initializeMap();
 	void sceneForceUpdate();
+
+	/// Appends a new, empty level to the currently open map. Levels cannot be removed afterwards.
+	void addLevel(const MapLayerId & layerType);
+	/// False once the editor's fixed per-level UI storage (MAX_LEVELS) is exhausted.
+	bool canAddLevel() const;
 	
 	void commitTerrainChange(int level, const TerrainId & terrain);
 	void commitRoadOrRiverChange(int level, ui8 type, bool isRoad);

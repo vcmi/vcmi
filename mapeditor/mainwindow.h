@@ -117,6 +117,7 @@ private slots:
 	void on_actionRecreate_obstacles_triggered();
 
 	void on_actionMapLayer_triggered();
+	void on_actionAddLevel_triggered();
 
 	void on_actionCut_triggered();
 
@@ -190,6 +191,7 @@ private:
 	void parseCommandLine(ExtractionOptions & extractionOptions);
 
 	void updateRecentMenu(const QString & filenameSelect);
+	void refreshLevelComboBoxes();
 
 private:
 	Ui::EditorMainWindow * ui;

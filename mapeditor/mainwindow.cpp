@@ -560,16 +560,10 @@ void EditorMainWindow::initializeMap(bool isNew)
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
-	for(auto & box : levelComboBoxes)
-	{
-		box->clear();
-		for(int i = 0; i < controller.map()->levels(); i++)
-		{
-			box->addItems({ tr("Level %1: %2").arg(i + 1).arg(QString::fromStdString(controller.map()->mapLayers.at(i).toEntity(LIBRARY)->getNameTranslated())) });
-		}
-	}
+	refreshLevelComboBoxes();
 	ui->actionLevel->setEnabled(true);
 	ui->actionMapLayer->setEnabled(true);
+	ui->actionAddLevel->setEnabled(true);
 
 	//set minimal players count
 	if(isNew)
@@ -1514,6 +1508,62 @@ void EditorMainWindow::on_actionRecreate_obstacles_triggered()
 
 }
 
+
+void EditorMainWindow::refreshLevelComboBoxes()
+{
+	for(auto & box : levelComboBoxes)
+	{
+		box->clear();
+		for(int i = 0; i < controller.map()->levels(); i++)
+		{
+			box->addItems({ tr("Level %1: %2").arg(i + 1).arg(QString::fromStdString(controller.map()->mapLayers.at(i).toEntity(LIBRARY)->getNameTranslated())) });
+		}
+	}
+}
+
+void EditorMainWindow::on_actionAddLevel_triggered()
+{
+	if(!controller.map())
+		return;
+
+	if(!controller.canAddLevel())
+	{
+		QMessageBox::information(this, tr("Add level"), tr("This map already has the maximum number of levels supported by the editor."));
+		return;
+	}
+
+	QList<QPair<QString, MapLayerId>> layers;
+	for(const auto & layer : LIBRARY->mapLayerHandler->objects)
+		layers.append(qMakePair(QString::fromStdString(layer->getNameTranslated()), layer->getId()));
+
+	QStringList layerNames;
+	for(const auto & p : layers)
+		layerNames << p.first;
+
+	bool ok = false;
+	QString selected = QInputDialog::getItem(
+		this,
+		tr("Add level"),
+		tr("Select the type of the new level.\n\nWarning: levels cannot be removed once added."),
+		layerNames,
+		0,
+		false,
+		&ok
+	);
+
+	if(!ok)
+		return;
+
+	for(const auto & p : layers)
+	{
+		if(p.first == selected)
+		{
+			controller.addLevel(p.second);
+			refreshLevelComboBoxes();
+			break;
+		}
+	}
+}
 
 void EditorMainWindow::on_actionMapLayer_triggered()
 {
