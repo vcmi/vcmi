@@ -14,6 +14,8 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
+#include "../eventsSDL/InputHandler.h"
+
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
@@ -23,6 +25,7 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 	if (windowsStack.back() != top)
 		throw std::runtime_error("Attempt to pop non-top window from stack!");
 
+	ENGINE->input().clearControllerAxisMotion();
 	top->deactivate();
 	disposed.push_back(top);
 	windowsStack.pop_back();
@@ -40,6 +43,7 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if (vstd::contains(windowsStack, newInt))
 		throw std::runtime_error("Attempt to add already existing window to stack!");
 
+	ENGINE->input().clearControllerAxisMotion();
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
@@ -62,6 +66,7 @@ void WindowHandler::popWindows(int howMany)
 		return; //senseless but who knows...
 
 	assert(windowsStack.size() >= howMany);
+	ENGINE->input().clearControllerAxisMotion();
 	windowsStack.back()->deactivate();
 	for(int i = 0; i < howMany; i++)
 	{
@@ -197,4 +202,34 @@ void WindowHandler::attachAll(std::vector<std::shared_ptr<IShowActivatable>> win
 		windowsStack.back()->activate();
 
 	totalRedraw();
+}
+
+bool WindowHandler::dispatchControllerAxis(int instanceId, const std::vector<EShortcut> & actions, double value)
+{
+	for(auto iterator = windowsStack.rbegin(); iterator != windowsStack.rend(); ++iterator)
+	{
+		if(!(*iterator)->usesNativeControllerAxis())
+			continue;
+
+		// A modal above a native owner blocks the axis instead of delivering it through the window stack.
+		if(iterator != windowsStack.rbegin())
+			return true;
+		return (*iterator)->controllerAxisMoved(instanceId, actions, value);
+	}
+	return false;
+}
+
+void WindowHandler::resetControllerInput()
+{
+	const auto windows = windowsStack;
+	for(auto iterator = windows.rbegin(); iterator != windows.rend(); ++iterator)
+		(*iterator)->controllerInputReset();
+}
+
+bool WindowHandler::hasNativeControllerAxisContext() const
+{
+	return std::ranges::any_of(windowsStack, [](const auto & window)
+	{
+		return window->usesNativeControllerAxis();
+	});
 }

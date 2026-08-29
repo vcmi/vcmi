@@ -198,6 +198,7 @@ public:
 	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
+	void actionRejected();
 	void startAction(const BattleAction & action);
 	void stackReset(const CStack * stack);
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield

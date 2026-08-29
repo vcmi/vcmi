@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../adventureMap/TurnTimerWidget.h"
 #include "../gui/CursorHandler.h"
@@ -56,6 +57,43 @@
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+
+namespace
+{
+class BattleControllerStackWindow final : public CStackWindow
+{
+	bool holdToInspect;
+
+public:
+	BattleControllerStackWindow(const CStack * stack, bool holdToInspect)
+		: CStackWindow(stack, holdToInspect)
+		, holdToInspect(holdToInspect)
+	{
+	}
+
+	bool captureThisKey(EShortcut key) override
+	{
+		return ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+			&& (key == EShortcut::GLOBAL_ACCEPT || key == EShortcut::GLOBAL_CANCEL);
+	}
+
+	void keyPressed(EShortcut key) override
+	{
+		if(!holdToInspect && key == EShortcut::GLOBAL_ACCEPT)
+			close();
+		else
+			CStackWindow::keyPressed(key);
+	}
+
+	void keyReleased(EShortcut key) override
+	{
+		if(holdToInspect && key == EShortcut::GLOBAL_CANCEL)
+			close();
+		else
+			CStackWindow::keyReleased(key);
+	}
+};
+}
 
 BattleWindow::BattleWindow(BattleInterface & Owner)
 	: owner(Owner)
@@ -508,6 +546,11 @@ void BattleWindow::activate()
 	ENGINE->setStatusbar(console);
 	CIntObject::activate();
 	GAME->interface()->cingconsole->activate();
+	if(controllerInspectRestoreHex)
+	{
+		owner.fieldController->restoreControllerFocus(*controllerInspectRestoreHex);
+		controllerInspectRestoreHex.reset();
+	}
 }
 
 void BattleWindow::deactivate()
@@ -519,7 +562,23 @@ void BattleWindow::deactivate()
 
 bool BattleWindow::captureThisKey(EShortcut key)
 {
-	return owner.openingPlaying();
+	if(owner.openingPlaying())
+		return true;
+	if(ENGINE->input().getCurrentInputMode() != InputMode::CONTROLLER)
+		return false;
+	if(key == EShortcut::BATTLE_TOGGLE_CURSOR_MODE)
+		return true;
+	if(owner.fieldController->isControllerCursorMode() && key == EShortcut::MOUSE_RIGHT)
+		return true;
+	if(owner.isInTacticsMode() && key == EShortcut::BATTLE_TACTICS_NEXT)
+		return true;
+	if(!owner.fieldController->isControllerNativeMode())
+		return false;
+	if(key == EShortcut::GLOBAL_ACCEPT || key == EShortcut::GLOBAL_CANCEL
+		|| key == EShortcut::MOUSE_LEFT || key == EShortcut::MOUSE_RIGHT
+		|| key == EShortcut::BATTLE_DEFEND || key == EShortcut::BATTLE_WAIT)
+		return true;
+	return false;
 }
 
 void BattleWindow::keyPressed(EShortcut key)
@@ -529,7 +588,145 @@ void BattleWindow::keyPressed(EShortcut key)
 		owner.openingEnd();
 		return;
 	}
+	if(ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER)
+	{
+		if(key == EShortcut::BATTLE_TOGGLE_CURSOR_MODE)
+		{
+			owner.fieldController->toggleControllerCursorMode();
+			return;
+		}
+		if(owner.fieldController->isControllerCursorMode() && key == EShortcut::MOUSE_RIGHT)
+		{
+			openControllerHoldInspect();
+			return;
+		}
+		if(owner.isInTacticsMode() && key == EShortcut::BATTLE_TACTICS_NEXT)
+			return;
+		if(owner.fieldController->isControllerNativeMode())
+		{
+			if(key == EShortcut::GLOBAL_ACCEPT)
+			{
+				owner.fieldController->controllerPrimaryPressed();
+				return;
+			}
+			if(key == EShortcut::GLOBAL_CANCEL)
+			{
+				if(owner.actionsController->heroSpellcastingModeActive()
+					|| owner.actionsController->creatureSpellcastingModeActive())
+				{
+					const BattleHex focus = owner.fieldController->getControllerFocusedHex();
+					owner.actionsController->endCastingSpell();
+					owner.fieldController->restoreControllerFocus(focus);
+				}
+				else
+					openControllerHoldInspect();
+				return;
+			}
+			if(key == EShortcut::BATTLE_DEFEND)
+			{
+				if(owner.fieldController->controllerMeleeDirectionAvailable())
+					owner.fieldController->controllerMeleeDirectionPressed(false);
+				return;
+			}
+			if(key == EShortcut::BATTLE_WAIT)
+			{
+				if(owner.fieldController->controllerMeleeDirectionAvailable())
+					owner.fieldController->controllerMeleeDirectionPressed(true);
+				return;
+			}
+			if(key == EShortcut::MOUSE_LEFT || key == EShortcut::MOUSE_RIGHT)
+				return;
+		}
+	}
 	InterfaceObjectConfigurable::keyPressed(key);
+}
+
+void BattleWindow::keyReleased(EShortcut key)
+{
+	if(ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+		&& owner.isInTacticsMode() && key == EShortcut::BATTLE_TACTICS_NEXT)
+		return;
+	if(ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+		&& owner.fieldController->isControllerCursorMode() && key == EShortcut::MOUSE_RIGHT)
+	{
+		closeControllerHoldInspect();
+		return;
+	}
+	if(ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+		&& owner.fieldController->isControllerNativeMode())
+	{
+		if(key == EShortcut::GLOBAL_ACCEPT)
+		{
+			owner.fieldController->controllerPrimaryReleased();
+			return;
+		}
+		if(key == EShortcut::GLOBAL_CANCEL)
+		{
+			closeControllerHoldInspect();
+			return;
+		}
+		if(key == EShortcut::BATTLE_DEFEND)
+		{
+			owner.fieldController->controllerMeleeDirectionReleased(false);
+			return;
+		}
+		if(key == EShortcut::BATTLE_WAIT)
+		{
+			owner.fieldController->controllerMeleeDirectionReleased(true);
+			return;
+		}
+		if(key == EShortcut::MOUSE_LEFT || key == EShortcut::MOUSE_RIGHT)
+			return;
+	}
+	InterfaceObjectConfigurable::keyReleased(key);
+}
+
+bool BattleWindow::usesNativeControllerAxis() const
+{
+	return ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER
+		&& !owner.fieldController->isControllerCursorMode();
+}
+
+bool BattleWindow::controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value)
+{
+	return owner.fieldController->controllerAxisMoved(instanceId, actions, value);
+}
+
+void BattleWindow::controllerInputReset()
+{
+	owner.fieldController->resetControllerInput();
+	closeControllerHoldInspect();
+}
+
+void BattleWindow::openControllerInspect()
+{
+	const CStack * stack = owner.fieldController->getHoveredStack();
+	if(stack == nullptr)
+		return;
+	controllerInspectRestoreHex = owner.fieldController->getControllerFocusedHex();
+	auto window = std::make_shared<BattleControllerStackWindow>(stack, false);
+	ENGINE->windows().pushWindow(window);
+}
+
+void BattleWindow::openControllerHoldInspect()
+{
+	if(!owner.fieldController->controllerInspectAvailable())
+		return;
+	const CStack * stack = owner.fieldController->getHoveredStack();
+	if(stack == nullptr)
+		return;
+	controllerInspectRestoreHex = owner.fieldController->getControllerFocusedHex();
+	auto window = std::make_shared<BattleControllerStackWindow>(stack, true);
+	controllerHoldInspectWindow = window;
+	ENGINE->windows().pushWindow(window);
+}
+
+void BattleWindow::closeControllerHoldInspect()
+{
+	const auto window = controllerHoldInspectWindow.lock();
+	controllerHoldInspectWindow.reset();
+	if(window && ENGINE->windows().isTopWindow(window))
+		ENGINE->windows().popWindow(window);
 }
 
 void BattleWindow::clickPressed(const Point & cursorPosition)

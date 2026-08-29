@@ -1168,13 +1168,22 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 		newConsoleMsg = LIBRARY->generaltexth->translate("core.genrltxt.156"); // "View arrow tower info."
 	}
 
-	if (!currentConsoleMsg.empty())
+	updateStatusMessage(newConsoleMsg);
+}
+
+void BattleActionsController::onHexHovered(const BattleHex & hoveredHex, PossiblePlayerBattleAction presentedAction)
+{
+	actionSetCursor(presentedAction, hoveredHex);
+	updateStatusMessage(actionGetStatusMessage(presentedAction, hoveredHex));
+}
+
+void BattleActionsController::updateStatusMessage(const std::string & message)
+{
+	if(!currentConsoleMsg.empty())
 		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
-
-	if (!newConsoleMsg.empty())
-		ENGINE->statusbar()->write(newConsoleMsg);
-
-	currentConsoleMsg = newConsoleMsg;
+	if(!message.empty())
+		ENGINE->statusbar()->write(message);
+	currentConsoleMsg = message;
 }
 
 void BattleActionsController::onHoverEnded()
@@ -1189,18 +1198,24 @@ void BattleActionsController::onHoverEnded()
 
 void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex)
 {
-	if (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
-		return;
-
-	auto action = selectAction(clickedHex);
-
-	std::string newConsoleMsg;
-
-	if (!actionIsLegal(action, clickedHex))
+	const auto action = legalActionAt(clickedHex);
+	if(!action)
 		return;
 	
-	actionRealize(action, clickedHex);
+	actionRealize(*action, clickedHex);
 	ENGINE->statusbar()->clear();
+}
+
+std::optional<PossiblePlayerBattleAction> BattleActionsController::legalActionAt(const BattleHex & targetHex)
+{
+	if(!targetHex.isValid() || (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
+		|| possibleActions.empty())
+		return std::nullopt;
+
+	auto action = selectAction(targetHex);
+	if(!actionIsLegal(action, targetHex))
+		return std::nullopt;
+	return action;
 }
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack * casterStack)

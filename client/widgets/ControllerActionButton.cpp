@@ -15,6 +15,7 @@
 #include "../GameEngine.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/ShortcutHandler.h"
+#include "../gui/TextAlignment.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/EFont.h"
@@ -28,38 +29,23 @@ namespace
 const Point promptSpritePosition(12, 4);
 constexpr int promptTextLeft = 44;
 constexpr int promptTextWidth = 68;
-
-enum class PromptState
-{
-	NORMAL,
-	PRESSED,
-	DISABLED
-};
+constexpr ColorRGBA genericFaceLabelColor(58, 40, 20, 255);
+constexpr ColorRGBA disabledGenericFaceLabelColor(115, 105, 92, 110);
 
 std::optional<std::string> resolvePromptSprite(ControllerPrompt::Family family,
-	const std::vector<std::string> & bindings, PromptState state)
+	const std::vector<std::string> & bindings, ControllerPrompt::State state)
 {
-	if(family == ControllerPrompt::Family::UNKNOWN || bindings.size() != 1
-		|| (bindings.front() != "a" && bindings.front() != "b"))
+	if(bindings.size() != 1)
 		return std::nullopt;
+	return ControllerPrompt::faceButtonSprite(family, bindings.front(), state);
+}
 
-	const std::string familyPrefix = family == ControllerPrompt::Family::PLAYSTATION ? "playstation" : "xbox";
-
-	std::string stateSuffix;
-	switch(state)
-	{
-	case PromptState::NORMAL:
-		stateSuffix = "normal";
-		break;
-	case PromptState::PRESSED:
-		stateSuffix = "pressed";
-		break;
-	case PromptState::DISABLED:
-		stateSuffix = "disabled";
-		break;
-	}
-
-	return "controllerActionBar/" + familyPrefix + "-" + bindings.front() + "-" + stateSuffix + ".png";
+std::string resolvePromptLabel(ControllerPrompt::Family family, const std::vector<std::string> & bindings)
+{
+	if(!ControllerPrompt::usesRuntimeFaceLabel(family)
+		|| bindings.size() != 1 || !ControllerPrompt::isFaceButtonBinding(bindings.front()))
+		return "";
+	return ControllerPrompt::buttonLabel(family, bindings.front());
 }
 
 }
@@ -68,7 +54,9 @@ class CControllerActionButton::PromptOverlay final : public CIntObject
 {
 	std::shared_ptr<IImage> sprite;
 	std::optional<std::string> spriteName;
+	std::string spriteLabel;
 	std::string text;
+	ControllerPrompt::State state = ControllerPrompt::State::NORMAL;
 
 public:
 	PromptOverlay(std::string text)
@@ -82,7 +70,8 @@ public:
 		text = newText;
 	}
 
-	void setPresentation(const std::optional<std::string> & newSpriteName)
+	void setPresentation(const std::optional<std::string> & newSpriteName, const std::string & newSpriteLabel,
+		ControllerPrompt::State newState)
 	{
 		if(spriteName != newSpriteName)
 		{
@@ -91,6 +80,8 @@ public:
 				? ENGINE->renderHandler().loadImage(ImagePath::builtin(*spriteName), EImageBlitMode::COLORKEY)
 				: nullptr;
 		}
+		spriteLabel = newSpriteLabel;
+		state = newState;
 	}
 
 	void showAll(Canvas & to) override
@@ -99,6 +90,12 @@ public:
 			return;
 
 		to.draw(sprite, pos.topLeft() + promptSpritePosition);
+		if(!spriteLabel.empty())
+		{
+			to.drawText(pos.topLeft() + promptSpritePosition + Point(12, 12), EFonts::FONT_SMALL,
+				state == ControllerPrompt::State::DISABLED ? disabledGenericFaceLabelColor : genericFaceLabelColor,
+				ETextAlignment::CENTER, spriteLabel);
+		}
 
 		const auto & font = ENGINE->renderHandler().loadFont(EFonts::FONT_SMALL);
 		const int textTop = pos.y + (pos.h - static_cast<int>(font->getLineHeight())) / 2;
@@ -149,11 +146,11 @@ void CControllerActionButton::refreshPresentation(InputMode inputMode)
 
 	const auto bindings = ENGINE->shortcuts().getJoystickButtonBindings(assignedKey);
 	promptBindings = bindings;
-	PromptState state = PromptState::NORMAL;
+	ControllerPrompt::State state = ControllerPrompt::State::NORMAL;
 	if(isBlocked())
-		state = PromptState::DISABLED;
+		state = ControllerPrompt::State::DISABLED;
 	else if(isPressed())
-		state = PromptState::PRESSED;
+		state = ControllerPrompt::State::PRESSED;
 	promptFamily = inputMode == InputMode::CONTROLLER
 		? ENGINE->input().getActiveControllerPromptFamily()
 		: ControllerPrompt::Family::UNKNOWN;
@@ -186,7 +183,7 @@ void CControllerActionButton::refreshPresentation(InputMode inputMode)
 			controllerPromptVisibilityChanged();
 	}
 
-	promptOverlay->setPresentation(spriteName);
+	promptOverlay->setPresentation(spriteName, resolvePromptLabel(promptFamily, bindings), state);
 	redraw();
 }
 
@@ -196,14 +193,16 @@ void CControllerActionButton::refreshPromptState()
 	if(!controllerPromptVisible)
 		return;
 
-	PromptState state = PromptState::NORMAL;
+	ControllerPrompt::State state = ControllerPrompt::State::NORMAL;
 	if(isBlocked())
-		state = PromptState::DISABLED;
+		state = ControllerPrompt::State::DISABLED;
 	else if(isPressed())
-		state = PromptState::PRESSED;
+		state = ControllerPrompt::State::PRESSED;
 
 	promptOverlay->moveTo(pos.topLeft());
-	promptOverlay->setPresentation(resolvePromptSprite(promptFamily, promptBindings, state));
+	promptOverlay->setPresentation(
+		resolvePromptSprite(promptFamily, promptBindings, state),
+		resolvePromptLabel(promptFamily, promptBindings), state);
 	redraw();
 }
 
@@ -245,7 +244,11 @@ void CControllerActionButton::clickPressed(const Point & cursorPosition)
 void CControllerActionButton::clickReleased(const Point & cursorPosition)
 {
 	if(controllerPromptVisible && isPressed())
-		promptOverlay->setPresentation(resolvePromptSprite(promptFamily, promptBindings, PromptState::NORMAL));
+	{
+		promptOverlay->setPresentation(
+			resolvePromptSprite(promptFamily, promptBindings, ControllerPrompt::State::NORMAL),
+			resolvePromptLabel(promptFamily, promptBindings), ControllerPrompt::State::NORMAL);
+	}
 
 	// CButton::clickReleased invokes the callback, which may destroy this button.
 	CButton::clickReleased(cursorPosition);
@@ -255,7 +258,9 @@ void CControllerActionButton::clickCancel(const Point & cursorPosition)
 {
 	if(controllerPromptVisible && isPressed())
 	{
-		promptOverlay->setPresentation(resolvePromptSprite(promptFamily, promptBindings, PromptState::NORMAL));
+		promptOverlay->setPresentation(
+			resolvePromptSprite(promptFamily, promptBindings, ControllerPrompt::State::NORMAL),
+			resolvePromptLabel(promptFamily, promptBindings), ControllerPrompt::State::NORMAL);
 	}
 	CButton::clickCancel(cursorPosition);
 }
