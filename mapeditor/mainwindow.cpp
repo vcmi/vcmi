@@ -1560,6 +1560,10 @@ void EditorMainWindow::on_actionAddLevel_triggered()
 		{
 			controller.addLevel(p.second);
 			refreshLevelComboBoxes();
+
+			int newLevel = controller.map()->levels() - 1;
+			if(!levelComboBoxes.isEmpty())
+				levelComboBoxes.first()->setCurrentIndex(newLevel);
 			break;
 		}
 	}
