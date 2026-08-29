@@ -867,7 +867,8 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, cc->getTile(source->visitablePos())->getTerrainID());
+	auto bestArmyInfo = nullkiller->armyManager->getBestArmyInfo(
+		destinationArmy, destinationArmy, source, cc->getTile(source->visitablePos())->getTerrainID());
 
 	for(auto army : armies)
 	{
@@ -885,7 +886,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
-		if(i.getNum() >= bestArmy.size())
+		if(i.getNum() >= bestArmyInfo.army.size())
 		{
 			if(destinationArmy->hasStackAtSlot(i))
 			{
@@ -907,7 +908,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 			continue;
 		}
 
-		const CCreature * targetCreature = bestArmy[i.getNum()].creature;
+		const CCreature * targetCreature = bestArmyInfo.army[i.getNum()].creature;
 
 		for(auto armyPtr : armies)
 		{
@@ -921,7 +922,8 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, cc->getTile(source->visitablePos())->getTerrainID());
+						auto weakest = nullkiller->armyManager->getBestUnitForScout(
+							bestArmyInfo.army, cc->getTile(source->visitablePos())->getTerrainID());
 
 						if(weakest->creature == targetCreature)
 						{

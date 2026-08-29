@@ -296,8 +296,8 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		if(!newArmy) return result;
 
-		auto newArmyStrength = newArmy->getArmyStrength();
-		auto oldArmyStrength = actor->creatureSet->getArmyStrength();
+		auto newArmyStrength = aiNk->armyManager->evaluateArmyStrength(actor->hero, newArmy);
+		auto oldArmyStrength = aiNk->armyManager->evaluateArmyStrength(actor->hero, actor->creatureSet);
 
 		if(newArmyStrength <= oldArmyStrength) return result;
 
@@ -309,10 +309,10 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			actor->toString(),
 			other->toString(),
 			reinforcement,
-			100.0f * reinforcement / actor->armyValue);
+			100.0f * reinforcement / oldArmyStrength);
 	#endif
 
-		if(reinforcement <= actor->armyValue / 10 && reinforcement < MIN_ARMY_STRENGTH_FOR_CHAIN)
+		if(reinforcement <= oldArmyStrength / 10 && reinforcement < MIN_ARMY_STRENGTH_FOR_CHAIN)
 		{
 			delete newArmy;
 
@@ -388,9 +388,10 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = aiNk->armyManager->getBestArmy(actor->hero, army1, army2, aiNk->cc->getTile(actor->hero->visitablePos())->getTerrainID());
+	auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(
+		actor->hero, army1, army2, aiNk->cc->getTile(actor->hero->visitablePos())->getTerrainID());
 
-	for(auto & slotInfo : bestArmy)
+	for(auto & slotInfo : bestArmyInfo.army)
 	{
 		auto targetSlot = target->getFreeSlot();
 
