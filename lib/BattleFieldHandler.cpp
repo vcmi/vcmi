@@ -40,7 +40,6 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	}
 
 	info->isSpecial = json["isSpecial"].Bool();
-	info->blockNativeTerrainBonus = json["blockNativeTerrainBonus"].Bool();
 	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
 	for(int i = 0; i < info->limitToLayers.size(); i++)
 	{

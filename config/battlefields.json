@@ -131,7 +131,6 @@
 	"cursed_ground": {
 		"graphics": "CMBKCUR.BMP",
 		"isSpecial" : true,
-		"blockNativeTerrainBonus" : true,
 		"bonuses": [
 			{
 				"type" : "MORALE",
@@ -152,6 +151,11 @@
 			},
 			{
 				"type" : "BLOCK_CREATURE_MAGIC",
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN"
+			},
+			{
+				"type" : "BLOCK_NATIVE_TERRAIN_BONUS",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN"
 			}

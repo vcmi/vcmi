@@ -8,9 +8,6 @@
 	// If set to false, obstacles will be taken from "allowedTerrains" instead
 	"isSpecial" : false,
 	
-	// If set to true, creatures will not receive bonuses of their native terrain on this battlefield
-	"blockNativeTerrainBonus" : false,
-	
 	// List of bonuses that will affect all battles on this battlefield
 	"bonuses" : { BONUS_FORMAT },
 	

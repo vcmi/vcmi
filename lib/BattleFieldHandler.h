@@ -23,7 +23,6 @@ public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
-	bool blockNativeTerrainBonus;
 	std::vector<MapLayerId> limitToLayers;
 	ImagePath graphics;
 	std::string name;
@@ -42,7 +41,6 @@ public:
 
 	BattleFieldInfo(BattleField battlefield, std::string identifier):
 		isSpecial(false),
-		blockNativeTerrainBonus(false),
 		battlefield(battlefield),
 		identifier(identifier),
 		iconIndex(battlefield.getNum()),

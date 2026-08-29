@@ -383,7 +383,12 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	}
 
 	//native terrain bonuses - some battlefields, such as Cursed Ground, block them
-	if(!bgInfo->blockNativeTerrainBonus)
+	bool blocksNativeTerrainBonus = std::any_of(bgInfo->bonuses.begin(), bgInfo->bonuses.end(), [](const std::shared_ptr<Bonus> & bonus)
+	{
+		return bonus->type == BonusType::BLOCK_NATIVE_TERRAIN_BONUS;
+	});
+
+	if(!blocksNativeTerrainBonus)
 	{
 		auto nativeTerrain = std::make_shared<AllOfLimiter>();
 		nativeTerrain->add(std::make_shared<TerrainLimiter>());

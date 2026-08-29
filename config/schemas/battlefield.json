@@ -21,10 +21,6 @@
 			"type" : "boolean",
 			"description" : "Shows if this battleground has own obstacles"
 		},
-		"blockNativeTerrainBonus" : {
-			"type" : "boolean",
-			"description" : "If set to true, creatures will not receive bonuses of their native terrain in battles on this battlefield"
-		},
 		"bonuses": {
 			"type":"array",
 			"description": "List of bonuses that will affect all battles on this battlefield",
