@@ -23,6 +23,7 @@ class CGObelisk;
 
 class CComponent;
 class CComponentBox;
+class CAnimImage;
 class CSelectableComponent;
 class CTextBox;
 class CButton;
@@ -105,8 +106,16 @@ public:
 class CInfoBoxPopup : public AdventureMapPopup
 {
 	std::shared_ptr<CIntObject> tooltip;
+	std::shared_ptr<CFilledTexture> spellsBackground;
+	std::shared_ptr<CPicture> frameLeft;
+	std::shared_ptr<CPicture> frameRight;
+	std::shared_ptr<CPicture> frameBottom;
+	std::vector<std::shared_ptr<CAnimImage>> spellIcons;
+
+	void showMageGuildSpells(const CGTownInstance * town);
 
 public:
+
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);

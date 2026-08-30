@@ -71,6 +71,7 @@
 			"properties" : {
 				"buildingsPerTurnCap"  :                   { "type" : "number" },
 				"startingDwellingChances" :                { "type" : "array" },
+				"revealMageGuildSpells" :                  { "type" : "boolean" },
 				"spellResearch" :                          { "type" : "boolean" },
 				"spellResearchCost" :                      { "type" : "array" },
 				"spellResearchPerDay" :                    { "type" : "array" },
@@ -156,7 +157,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" },
+				"revealHiddenRewards" : { "type" : "boolean" }
 			}
 		},
 		"banks": {

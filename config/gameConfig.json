@@ -558,6 +558,8 @@
 			"buildingsPerTurnCap" : 1,
 			// Chances for a town with default buildings to receive corresponding dwelling level built in start
 			"startingDwellingChances": [100, 50],
+			// If enabled, spells of a mage guild level are shown before that level is built
+			"revealMageGuildSpells": false,
 			// Enable spell research in mage guild
 			"spellResearch": false,
 			// Cost for an spell research (array index is spell tier)
@@ -738,7 +740,9 @@
 			// Allow behavior that emulates h3 bug where quest from Seer Hut or Border Guard can take entire army from hero
 			// WARNING: handling of heroes without armies is not tested and may lead to bugs or crashes! Use at own risk!
 			// If this option is off, quests will only allow taking entire army if quest reward also gives creatures
-			"h3BugQuestTakesEntireArmy" : false
+			"h3BugQuestTakesEntireArmy" : false,
+			// If enabled, rewards that are normally hidden (Pandora's Box, creature banks) are shown on right-click
+			"revealHiddenRewards" : false
 		},
 
 		"markets" :

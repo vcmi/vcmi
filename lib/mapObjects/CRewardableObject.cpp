@@ -291,47 +291,55 @@ MetaString CRewardableObject::getDescriptionMessage(PlayerColor player, const CG
 
 std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const
 {
-	if (!wasScouted(player))
+	// Guarded objects and Pandora's Box hide their rewards. Map setting can reveal them without scouting first
+	bool revealContents = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_REVEAL_HIDDEN_REWARDS);
+
+	if (!revealContents && !wasScouted(player))
 		return {};
+
+	std::vector<Component> result;
 
 	if (isGuarded())
 	{
-		if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
-			return {};
-
-		std::map<CreatureID, int> guardsAmounts;
-		std::vector<Component> result;
-
-		for (auto const & slot : Slots())
-			if (slot.second)
-				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
-
-		for (auto const & guard : guardsAmounts)
+		if (cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 		{
-			Component comp(ComponentType::CREATURE, guard.first, guard.second);
-			result.push_back(comp);
+			std::map<CreatureID, int> guardsAmounts;
+
+			for (auto const & slot : Slots())
+				if (slot.second)
+					guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+			for (auto const & guard : guardsAmounts)
+			{
+				Component comp(ComponentType::CREATURE, guard.first, guard.second);
+				result.push_back(comp);
+			}
 		}
-		return result;
+
+		if (!revealContents)
+			return result;
 	}
 	else
 	{
-		if (!configuration.showScoutedPreview)
+		if (!configuration.showScoutedPreview && !revealContents)
 			return {};
-
-		auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-		if (rewardIndices.empty() && !configuration.info.empty())
-		{
-			// Object has valid config, but current hero has no rewards that he can receive.
-			// Usually this happens if hero has already visited this object -> show reward using context without any hero
-			// since reward may be context-sensitive - e.g. Witch Hut that gives 1 skill, but always at basic level
-			return loadComponents(nullptr, {0});
-		}
-
-		if (rewardIndices.empty())
-			return {};
-
-		return loadComponents(hero, rewardIndices);
 	}
+
+	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+	if (rewardIndices.empty() && !configuration.info.empty())
+	{
+		// Object has valid config, but current hero has no rewards that he can receive.
+		// Usually this happens if hero has already visited this object -> show reward using context without any hero
+		// since reward may be context-sensitive - e.g. Witch Hut that gives 1 skill, but always at basic level
+		vstd::concatenate(result, loadComponents(nullptr, {0}));
+		return result;
+	}
+
+	if (rewardIndices.empty())
+		return result;
+
+	vstd::concatenate(result, loadComponents(hero, rewardIndices));
+	return result;
 }
 
 std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const

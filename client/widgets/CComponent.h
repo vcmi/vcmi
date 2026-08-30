@@ -89,10 +89,6 @@ class CComponentBox : public CIntObject
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
-	static constexpr int defaultBetweenImagesMin = 42;
-	static constexpr int defaultBetweenSubtitlesMin = 10;
-	static constexpr int defaultBetweenRows = 22;
-	static constexpr int defaultComponentsInRow = 4;
 
 	int betweenImagesMin;
 	int betweenSubtitlesMin;
@@ -110,6 +106,11 @@ class CComponentBox : public CIntObject
 	void placeComponents(bool selectable);
 
 public:
+	static constexpr int defaultBetweenImagesMin = 42;
+	static constexpr int defaultBetweenSubtitlesMin = 10;
+	static constexpr int defaultBetweenRows = 22;
+	static constexpr int defaultComponentsInRow = 4;
+
 	/// return index of selected item
 	int selectedIndex();
 

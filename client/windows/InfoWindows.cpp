@@ -30,6 +30,7 @@
 #include "CMessage.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -128,7 +129,15 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 	}
 
 	if(!comps.empty())
-		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0));
+	{
+		// A window with many components (e.g. Pandora's Box that reveals all its spells) does not fit
+		// on screen in the default 4-wide grid, so lay such windows out wider
+		int componentsInRow = std::clamp<int>(static_cast<int>((comps.size() + 5) / 6), CComponentBox::defaultComponentsInRow, 8);
+
+		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0),
+			CComponentBox::defaultBetweenImagesMin, CComponentBox::defaultBetweenSubtitlesMin,
+			CComponentBox::defaultBetweenRows, componentsInRow);
+	}
 
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -232,9 +241,17 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 				components = obj->getPopupComponents(GAME->interface()->playerID);
 		}
 
+		// Objects that reveal a lot of content at once (e.g. Pandora's Box with all spells of a school)
+		// would not fit on screen with default icon size
+		CComponent::ESize componentSize = CComponent::medium;
+		if(components.size() > 24)
+			componentSize = CComponent::tiny;
+		else if(components.size() > 8)
+			componentSize = CComponent::small;
+
 		std::vector<std::shared_ptr<CComponent>> guiComponents;
 		for(auto & component : components)
-			guiComponents.push_back(std::make_shared<CComponent>(component, CComponent::medium));
+			guiComponents.push_back(std::make_shared<CComponent>(component, componentSize));
 
 		if(GAME->interface()->localState->getCurrentHero())
 			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()).toString(&GAME->translator()), guiComponents);
@@ -301,9 +318,84 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	if(settings["general"]["enableUiEnhancements"].Bool())
 		background->setPlayerColor(town->getOwner());
 
+	if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_REVEAL_MAGE_GUILD_SPELLS))
+		showMageGuildSpells(town);
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
+}
+
+void CInfoBoxPopup::showMageGuildSpells(const CGTownInstance * town)
+{
+	OBJECT_CONSTRUCTION;
+
+	// TOWNQVBK is 194x186 and contains its own frame: 9px on the sides, 10px on top and bottom.
+	// The window is extended by re-using slices of that frame, so that spells end up inside the original frame
+	constexpr int frameSide = 9;
+	constexpr int frameHeight = 10;
+	constexpr int backgroundHeight = 186;
+	// vertical offset of a frame slice that contains no corners and can be repeated
+	constexpr int frameSliceStart = 20;
+
+	// SpellInt.def frames are 48x36 - too wide to fit five of them next to each other in this popup
+	static const Point iconSize(28, 21);
+	constexpr int iconMargin = 3;
+
+	int maxLevel = std::min<int>(town->getTown()->mageLevel, town->spells.size());
+
+	// Spells of every mage guild level are rolled on map start, so they are known even before the guild is built
+	std::vector<std::vector<SpellID>> rows;
+	for(int level = 1; level <= maxLevel; ++level)
+	{
+		const auto & levelSpells = town->spells[level - 1];
+		int spellsCount = std::min<int>(town->spellsAtLevel(level, false), levelSpells.size());
+
+		if(spellsCount > 0)
+			rows.emplace_back(levelSpells.begin(), levelSpells.begin() + spellsCount);
+	}
+
+	if(rows.empty())
+		return;
+
+	int addedHeight = static_cast<int>(rows.size()) * (iconSize.y + iconMargin) + iconMargin;
+	int contentBottom = backgroundHeight - frameHeight;
+	ImagePath backgroundPath = ImagePath::builtin("TOWNQVBK");
+
+	// cut away the bottom frame of the original background - it is drawn again below the spells
+	background->srcRect = Rect(0, 0, pos.w, contentBottom);
+	background->pos.h = contentBottom;
+
+	spellsBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(frameSide, contentBottom, pos.w - 2 * frameSide, addedHeight));
+	frameLeft = std::make_shared<CPicture>(backgroundPath, Rect(0, frameSliceStart, frameSide, addedHeight), 0, contentBottom);
+	frameRight = std::make_shared<CPicture>(backgroundPath, Rect(pos.w - frameSide, frameSliceStart, frameSide, addedHeight), pos.w - frameSide, contentBottom);
+	frameBottom = std::make_shared<CPicture>(backgroundPath, Rect(0, contentBottom, pos.w, frameHeight), 0, contentBottom + addedHeight);
+
+	// the original background is player-colored in the constructor - the added frame slices must match it
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		frameLeft->setPlayerColor(town->getOwner());
+		frameRight->setPlayerColor(town->getOwner());
+		frameBottom->setPlayerColor(town->getOwner());
+	}
+
+	for(size_t row = 0; row < rows.size(); ++row)
+	{
+		int rowSize = static_cast<int>(rows[row].size());
+		int rowWidth = rowSize * iconSize.x + (rowSize - 1) * iconMargin;
+		int rowX = (pos.w - rowWidth) / 2;
+		int rowY = contentBottom + iconMargin + static_cast<int>(row) * (iconSize.y + iconMargin);
+
+		for(int i = 0; i < rowSize; ++i)
+		{
+			auto icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), rows[row][i].getNum() + 1, 0, rowX + i * (iconSize.x + iconMargin), rowY);
+			icon->setScale(iconSize);
+			spellIcons.push_back(icon);
+		}
+	}
+
+	pos.h = contentBottom + addedHeight + frameHeight;
+	updateShadow();
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
