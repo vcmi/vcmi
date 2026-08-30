@@ -134,6 +134,8 @@ public:
 
 	InputMode getCurrentInputMode();
 	ControllerPrompt::Family getActiveControllerPromptFamily() const;
+	void clearControllerAxisMotion();
+	void resetControllerInput();
 
 	void copyToClipBoard(const std::string & text);
 	PowerState getPowerState();

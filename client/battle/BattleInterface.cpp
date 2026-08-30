@@ -225,6 +225,7 @@ void BattleInterface::stackAdded(const CStack * stack)
 void BattleInterface::stackRemoved(uint32_t stackID)
 {
 	stacksController->stackRemoved(stackID);
+	fieldController->controllerStackRemoved(stackID);
 	fieldController->redrawBackgroundWithHexes();
 	windowObject->updateQueue();
 }
@@ -240,6 +241,7 @@ void BattleInterface::stackMoved(const CStack *stack, const BattleHexArray & des
 		stacksController->stackTeleported(stack, destHex, distance);
 	else
 		stacksController->stackMoved(stack, destHex, distance);
+	fieldController->controllerStackMoved(stack);
 }
 
 void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -314,6 +316,10 @@ void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHe
 void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
 	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
+	// A synchronous rejection callback can restore the active stack and its
+	// presentation before this function returns. Establish the in-flight cursor
+	// first so that the restored presentation remains authoritative.
+	ENGINE->cursor().set(Cursor::Combat::POINTER);
 
 	if(!isInTacticsMode())
 	{
@@ -327,7 +333,6 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
-	ENGINE->cursor().set(Cursor::Combat::POINTER);
 }
 
 const CGHeroInstance * BattleInterface::getActiveHero()
@@ -677,7 +682,10 @@ void BattleInterface::activateStack()
 	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
-	ENGINE->fakeMouseMove();
+	if(fieldController->isControllerNativeMode())
+		fieldController->focusActiveStack();
+	else
+		ENGINE->fakeMouseMove();
 }
 
 bool BattleInterface::makingTurn() const
@@ -724,6 +732,16 @@ void BattleInterface::endAction(const BattleAction &action)
 void BattleInterface::appendBattleLog(const std::string & newEntry)
 {
 	console->addText(newEntry);
+}
+
+void BattleInterface::actionRejected()
+{
+	const auto * activeUnit = getBattle()->battleActiveUnit();
+	if(activeUnit == nullptr || activeUnit->unitOwner() != curInt->playerID)
+		return;
+
+	if(const auto * activeStack = getBattle()->battleGetStackByID(activeUnit->unitId()))
+		stackActivated(activeStack);
 }
 
 void BattleInterface::startAction(const BattleAction & action)

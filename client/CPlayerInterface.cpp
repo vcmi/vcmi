@@ -1340,6 +1340,9 @@ void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHer
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
+	if(!pa->result && pa->packType == CTypeList::getInstance().getTypeID<MakeAction>(nullptr) && battleInt)
+		battleInt->actionRejected();
+
 	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
 		movementController->onMoveHeroApplied();
 

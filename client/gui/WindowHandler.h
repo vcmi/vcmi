@@ -10,6 +10,7 @@
 #pragma once
 
 class IShowActivatable;
+enum class EShortcut;
 
 class WindowHandler
 {
@@ -89,6 +90,11 @@ public:
 	/// returns all existing windows of selected type
 	template <typename T>
 	std::vector<std::shared_ptr<T>> findWindows() const;
+
+	/// Routes semantic controller axes to the top native owner, or blocks them while that owner is covered by a modal.
+	bool dispatchControllerAxis(int instanceId, const std::vector<EShortcut> & actions, double value);
+	void resetControllerInput();
+	bool hasNativeControllerAxisContext() const;
 };
 
 template <typename T, typename ... Args>

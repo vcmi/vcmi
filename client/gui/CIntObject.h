@@ -18,6 +18,7 @@
 class GameEngine;
 class CPicture;
 class Canvas;
+enum class EShortcut;
 
 class CArmedInstance;
 
@@ -33,6 +34,14 @@ public:
 
 	virtual bool isPopupWindow() const = 0;
 	virtual void onScreenResize() = 0;
+
+	/// Allows the active window context to consume semantic controller axes before cursor/scroll side effects.
+	virtual bool usesNativeControllerAxis() const { return false; }
+	virtual bool controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value)
+	{
+		return false;
+	}
+	virtual void controllerInputReset() {}
 	virtual ~IShowActivatable() = default;
 };
 

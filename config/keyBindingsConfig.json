@@ -73,6 +73,7 @@
 		"battleToggleMouseShadow":  "F7",
 		"battleToggleMovementShadow": "F8",
 		"battleToggleStackInfo":     "F5",
+		"battleToggleCursorMode":    [],
 		"battleSpellShortcut0":     "1",
 		"battleSpellShortcut1":     "2",
 		"battleSpellShortcut2":     "3",
@@ -304,6 +305,7 @@
 		"adventureViewSelected" : "a",
 		"adventureExitWorldView" : [ "a", "b" ],
 		"battleTacticsEnd" : "a",
+		"battleToggleCursorMode" : [ "back", "touchpad" ],
 		
 		"mouseClickLeft": "x",
 		"mouseClickRight": "y",

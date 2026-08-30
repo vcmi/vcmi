@@ -27,6 +27,7 @@ class HeroInfoBasicPanel;
 class StackInfoBasicPanel;
 class QuickSpellPanel;
 class UnitActionPanel;
+class CStackWindow;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -96,6 +97,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 	bool hasSpaceForQuickActions() const;
 	bool quickActionsPanelActive() const;
 	bool placeInfoWindowsOutside() const;
+	void openControllerHoldInspect();
+	void closeControllerHoldInspect();
+	std::weak_ptr<CStackWindow> controllerHoldInspectWindow;
+	std::optional<BattleHex> controllerInspectRestoreHex;
 
 public:
 	BattleWindow(BattleInterface & owner );
@@ -139,7 +144,11 @@ public:
 	void activate() override;
 	void deactivate() override;
 	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
+	bool usesNativeControllerAxis() const override;
+	bool controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value) override;
+	void controllerInputReset() override;
 	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -156,5 +165,7 @@ public:
 
 	/// ends battle with autocombat
 	void endWithAutocombat();
-};
 
+	/// Opens the canonical persistent stack info view with Battle Native button ownership.
+	void openControllerInspect();
+};

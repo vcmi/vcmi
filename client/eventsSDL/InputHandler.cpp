@@ -23,6 +23,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "../CMT.h"
@@ -147,8 +148,12 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
 	{
+		if(currentInputMode == InputMode::CONTROLLER && modi != InputMode::CONTROLLER)
+			resetControllerInput();
 		currentInputMode = modi;
 		ENGINE->events().dispatchInputModeChanged(modi);
+		if(modi == InputMode::CONTROLLER && ENGINE->windows().hasNativeControllerAxisContext())
+			ENGINE->cursor().setControllerNativeHidden(true);
 	}
 }
 
@@ -160,6 +165,18 @@ InputMode InputHandler::getCurrentInputMode()
 ControllerPrompt::Family InputHandler::getActiveControllerPromptFamily() const
 {
 	return gameControllerHandler->getActiveControllerPromptFamily();
+}
+
+void InputHandler::clearControllerAxisMotion()
+{
+	gameControllerHandler->clearAxisMotion();
+}
+
+void InputHandler::resetControllerInput()
+{
+	gameControllerHandler->resetControllerInput();
+	ENGINE->windows().resetControllerInput();
+	ENGINE->cursor().setControllerNativeHidden(false);
 }
 
 void InputHandler::copyToClipBoard(const std::string & text)

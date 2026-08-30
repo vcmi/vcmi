@@ -259,6 +259,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleToggleMouseShadow",  EShortcut::BATTLE_TOGGLE_MOUSE_SHADOW  },
 		{"battleToggleMovementShadow", EShortcut::BATTLE_TOGGLE_MOVEMENT_SHADOW },
 		{"battleToggleStackInfo",    EShortcut::BATTLE_TOGGLE_STACK_INFO   },
+		{"battleToggleCursorMode",   EShortcut::BATTLE_TOGGLE_CURSOR_MODE  },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },
 		{"battleSpellShortcut2",     EShortcut::BATTLE_SPELL_SHORTCUT_2   },

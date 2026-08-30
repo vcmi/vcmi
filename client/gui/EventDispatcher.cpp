@@ -84,16 +84,16 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 {
 	bool keysCaptured = false;
 
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	EventReceiversList miCopy = keyinterested;
 
@@ -113,16 +113,16 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 {
 	bool keysCaptured = false;
 
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchClosePopup(ENGINE->getCursorPosition());
-
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchClosePopup(ENGINE->getCursorPosition());
 
 	EventReceiversList miCopy = keyinterested;
 

@@ -57,6 +57,7 @@ class BattleActionsController
 
 	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	void updateStatusMessage(const std::string & message);
 
 	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
@@ -111,6 +112,8 @@ public:
 
 	/// update cursor and status bar according to new active hex
 	void onHexHovered(const BattleHex & hoveredHex);
+	/// update cursor and status bar for an action already selected by the current interaction owner
+	void onHexHovered(const BattleHex & hoveredHex, PossiblePlayerBattleAction presentedAction);
 
 	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
 	void onHoverEnded();
@@ -120,6 +123,9 @@ public:
 
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex);
+
+	/// Returns the canonical legal action currently presented for a hex, if any.
+	std::optional<PossiblePlayerBattleAction> legalActionAt(const BattleHex & targetHex);
 
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
