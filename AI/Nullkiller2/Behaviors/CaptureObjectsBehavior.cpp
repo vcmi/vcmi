@@ -104,6 +104,20 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		const auto danger = path.getTotalDanger();
 		if (hero->getOwner() != nullkiller->playerID)
 			continue;
+		if(objToVisit && objToVisit->ID == Obj::BOAT && hero->inBoat())
+			continue;
+
+		const auto * oneWayEntrance = getOneWayPortalEntranceInPath(path, nullkiller);
+		if(oneWayEntrance && (!objToVisit || objToVisit->id != oneWayEntrance->id))
+		{
+#if NK2AI_TRACE_LEVEL >= 1
+			logAi->trace(
+				"Ignore path for %s: it would accidentally enter one-way portal %d",
+				objToVisit ? objToVisit->getObjectName() : path.targetTile().toString(),
+				oneWayEntrance->id.getNum());
+#endif
+			continue;
+		}
 
 		if(nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)

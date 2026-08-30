@@ -39,6 +39,87 @@
 namespace NK2AI
 {
 
+namespace
+{
+const CGTeleport * findTeleport(
+	const std::vector<const CGObjectInstance *> & objects,
+	Obj type)
+{
+	const auto object = std::find_if(objects.begin(), objects.end(), [type](const CGObjectInstance * candidate)
+	{
+		return candidate->ID == type;
+	});
+
+	return object != objects.end() ? dynamic_cast<const CGTeleport *>(*object) : nullptr;
+}
+
+bool containsOwnedTown(
+	const std::vector<const CGObjectInstance *> & objects,
+	PlayerColor player)
+{
+	return vstd::contains_if(objects, [player](const CGObjectInstance * object)
+	{
+		return object->ID == Obj::TOWN && object->getOwner() == player;
+	});
+}
+
+bool recoverLegacyOneWayPortalState(AIGateway & gateway)
+{
+	auto & memory = *gateway.nullkiller->memory;
+	if(memory.hasOneWayPortalState())
+		return false;
+
+	bool recovered = false;
+	for(const auto & channelEntry : memory.knownTeleportChannels)
+	{
+		const auto & channel = channelEntry.second;
+		for(const auto exitId : channel->exits)
+		{
+			const auto * exit = gateway.cc->getObj(exitId, false);
+			if(!exit
+				|| exit->ID != Obj::MONOLITH_ONE_WAY_EXIT
+				|| !gateway.cc->isVisible(exit->visitablePos()))
+			{
+				continue;
+			}
+
+			const auto heroes = gateway.cc->getHeroesInfo();
+			const auto hero = std::ranges::find_if(heroes, [exit](const CGHeroInstance * candidate)
+			{
+				return candidate->visitablePos().dist2d(exit->visitablePos()) <= 1;
+			});
+			if(hero == heroes.end())
+				continue;
+
+			for(const auto entranceId : channel->entrances)
+			{
+				const auto * entrance = gateway.cc->getObj(entranceId, false);
+				if(!entrance
+					|| entrance->ID != Obj::MONOLITH_ONE_WAY_ENTRANCE
+					|| !gateway.cc->isVisible(entrance->visitablePos()))
+				{
+					continue;
+				}
+
+				memory.recoverOneWayPortalTraversal(
+					entrance->id,
+					exit->id,
+					(*hero)->id,
+					gateway.cc->getCalendar().getCurrentDay());
+				logAi->info(
+					"Recovered one-way portal %d probe from hero %s beside exit %d",
+					entrance->id.getNum(),
+					(*hero)->getNameTextID(),
+					exit->id.getNum());
+				recovered = true;
+			}
+		}
+	}
+
+	return recovered;
+}
+}
+
 AIGateway::AIGateway()
 	:status(this)
 {
@@ -73,11 +154,27 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
-	const CGObjectInstance * o1 = vstd::frontOrNull(cc->getVisitableObjs(from, verbose));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cc->getVisitableObjs(to, verbose));
+	const auto fromObjects = cc->getVisitableObjs(from, verbose);
+	const auto toObjects = cc->getVisitableObjs(to, verbose);
+	const CGObjectInstance * o1 = vstd::frontOrNull(fromObjects);
+	const CGObjectInstance * o2 = vstd::frontOrNull(toObjects);
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
+		const auto * oneWayEntrance = findTeleport(fromObjects, Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		const auto * oneWayExit = findTeleport(toObjects, Obj::MONOLITH_ONE_WAY_EXIT);
+
+		if(hero && hero->getOwner() == playerID && oneWayEntrance && oneWayExit)
+		{
+			nullkiller->memory->recordOneWayPortalTraversal(
+				oneWayEntrance->id,
+				oneWayExit->id,
+				hero->id,
+				cc->getCalendar().getCurrentDay());
+			oneWayPortalStateDirty = true;
+			nullkiller->invalidatePaths();
+		}
+
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -101,6 +198,29 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		auto boat = dynamic_cast<const CGBoat *>(o1);
 		if(boat)
 			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+	}
+
+	if(hero && hero->getOwner() == playerID)
+	{
+		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
+		if(journey && containsOwnedTown(toObjects, playerID))
+		{
+			nullkiller->memory->markOneWayPortalReturn(hero->id);
+			oneWayPortalStateDirty = true;
+		}
+		else if(journey)
+		{
+			const auto * exit = cc->getObj(journey->second, false);
+			if(exit && from == exit->visitablePos() && to != from)
+			{
+				nullkiller->memory->completeOneWayPortalJourney(hero->id);
+				oneWayPortalStateDirty = true;
+				logAi->debug(
+					"Hero %s completed the landing from one-way portal %d",
+					hero->getNameTextID(),
+					journey->first.getNum());
+			}
+		}
 	}
 }
 
@@ -518,7 +638,41 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
+	if(const auto * playerState = cc->getPlayerState(playerID))
+	{
+		nullkiller->memory->loadOneWayPortalState(
+			(*playerState->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
+	}
+	for(const auto * hero : cc->getHeroesInfo())
+	{
+		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
+		if(!journey)
+			continue;
+
+		const auto * exit = cc->getObj(journey->second, false);
+		if(exit && hero->visitablePos() != exit->visitablePos())
+		{
+			nullkiller->memory->completeOneWayPortalJourney(hero->id);
+			oneWayPortalStateDirty = true;
+		}
+	}
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+	if(recoverLegacyOneWayPortalState(*this))
+		oneWayPortalStateDirty = true;
+}
+
+void AIGateway::saveOneWayPortalState()
+{
+	if(!oneWayPortalStateDirty.exchange(false))
+		return;
+
+	const auto * playerState = cc->getPlayerState(playerID);
+	if(!playerState)
+		return;
+
+	JsonNode localState = *playerState->playerLocalSettings;
+	nullkiller->memory->saveOneWayPortalState(localState["nullkiller2"]["oneWayPortals"]);
+	cc->saveLocalState(localState);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -777,6 +931,7 @@ void AIGateway::makeTurn()
 
 		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
+		saveOneWayPortalState();
 		const auto timeElapsedMs = timeElapsed(start);
 		if(timeElapsedMs > 5000)
 			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
@@ -1025,7 +1180,7 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 	return ret;
 }
 
-bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
+HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
 	if(!heroPtr.isVerified())
 		throw cannotFulfillGoalException("Hero was lost!");
@@ -1071,8 +1226,8 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		nullkiller->getPathsInfo(heroPtr.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTextID(), dst.toString());
-			return true;
+			logAi->debug("Hero %s has no current path to %s.", heroPtr->getNameTextID(), dst.toString());
+			return HeroMovementResult::BLOCKED;
 		}
 		int i = (int)path.nodes.size() - 1;
 
@@ -1185,7 +1340,9 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			if(nextNode.turns)
 			{
 				//blockedHeroes.insert(h); //to avoid attempts of moving heroes with very little MPs
-				return false;
+				return startHpos == heroPtr->visitablePos()
+					? HeroMovementResult::BLOCKED
+					: HeroMovementResult::PROGRESSED;
 			}
 
 			if(nextCoord == heroPtr->visitablePos())
@@ -1233,14 +1390,14 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 	{
 		ret = ret || (dst == heroPtr->visitablePos());
 
-		if(startHpos == heroPtr->visitablePos() && !ret) //we didn't move and didn't reach the target
-		{
-			throw cannotFulfillGoalException("Invalid path found!");
-		}
-
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", heroPtr->getNameTextID(), startHpos.toString(), heroPtr->visitablePos().toString(), ret);
 	}
-	return ret;
+
+	if(ret)
+		return HeroMovementResult::COMPLETE;
+	if(heroPtr.isVerified() && startHpos != heroPtr->visitablePos())
+		return HeroMovementResult::PROGRESSED;
+	return HeroMovementResult::BLOCKED;
 }
 
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
@@ -1375,6 +1532,7 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 void AIGateway::lostHero(const HeroPtr & heroPtr) const
 {
 	logAi->debug("I lost my hero %s. It's best to forget and move on.", heroPtr.nameOrDefault());
+	nullkiller->memory->removeOneWayPortalHero(heroPtr.idOrNone());
 	nullkiller->invalidatePathfinderData();
 }
 
