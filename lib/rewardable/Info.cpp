@@ -251,32 +251,49 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, IG
 	{
 		for(const auto & entry : category.second.Struct())
 		{
-			JsonNode preset = object.getPresetVariable(category.first, entry.first);
-			const JsonNode & input = preset.isNull() ? entry.second : preset;
-			int32_t value = -1;
+			auto getRandomValue = [&](JsonNode input) -> int32_t
+			{
+				int32_t value = -1;
 
-			if (category.first == "number")
-				value = randomizer.loadValue(input, object.variables.values);
+				if(category.first == "number")
+					value = randomizer.loadValue(input, object.variables.values);
 
-			if (category.first == "artifact")
-				value = randomizer.loadArtifact(input, object.variables.values).getNum();
+				if(category.first == "artifact")
+					value = randomizer.loadArtifact(input, object.variables.values).getNum();
 
-			if (category.first == "creature")
-				value = randomizer.loadCreatureType(input, object.variables.values).getNum();
+				if(category.first == "creature")
+					value = randomizer.loadCreatureType(input, object.variables.values).getNum();
 
-			if (category.first == "spell")
-				value = randomizer.loadSpell(input, object.variables.values).getNum();
+				if(category.first == "spell")
+					value = randomizer.loadSpell(input, object.variables.values).getNum();
 
-			if (category.first == "resource")
-				value = randomizer.loadResourceType(input, object.variables.values).getNum();
+				if(category.first == "resource")
+					value = randomizer.loadResourceType(input, object.variables.values).getNum();
 
-			if (category.first == "primarySkill")
-				value = randomizer.loadPrimary(input, object.variables.values).getNum();
+				if(category.first == "primarySkill")
+					value = randomizer.loadPrimary(input, object.variables.values).getNum();
 
-			if (category.first == "secondarySkill")
-				value = randomizer.loadSecondary(input, object.variables.values).getNum();
+				if(category.first == "secondarySkill")
+					value = randomizer.loadSecondary(input, object.variables.values).getNum();
 
-			object.initVariable(category.first, entry.first, value);
+				return value;
+			};
+			const JsonNode customValues = object.getPresetVariable(category.first, entry.first);
+			const JsonNode & defaultValues = entry.second;
+			if(!customValues.isNull())
+			{
+				try
+				{
+					auto value = getRandomValue(customValues);
+					object.initVariable(category.first, entry.first, value);
+					return;
+				}
+				catch(...)
+				{
+					logGlobal->warn("Rewardable object preset could not have been initialized, returning to default configuration");
+				}
+			}
+			object.initVariable(category.first, entry.first, getRandomValue(defaultValues));
 		}
 	}
 }
