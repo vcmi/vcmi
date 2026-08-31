@@ -68,8 +68,9 @@ VCMI guarantees the following:
 
 - every event is delivered to every script attached to the unit it happened to that defines a method for it. An event the script does not define a method for is skipped
 - the parameters stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
-- a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by unit actions
+- an action reaches `onActionFinished` exactly once, however many blows, counterattacks or targets it was made of
 - no event is withheld from a script because the engine judged it pointless. Whether a counterattack, a repeated attack or the death of the bearer is a reason to do nothing is the script's own decision
+- a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by actions someone took. A spell a script casts itself is applied rather than cast, so it reaches no `onSpellHit` either
 
 ## Event handlers
 
@@ -87,12 +88,15 @@ Parameters:
 - `battle` - state of the battle this event happened in. See [Battle](../Lua_Reference/Battle.md).
 - `unit` - the unit carrying the bonus, which this event happened to. See [Unit](../Lua_Reference/Unit.md).
 - `other` - the unit on the opposite side of the event, such as the attacker. May be nil.
-- `payload` - data about the attack that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
+- `payload` - data about the attack or spell that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
   - `ranged` - whether the attack was a shot
   - `isCounter` - whether the attack is a counterattack, either a first strike or a regular retaliation
   - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first hit and `1` for the second of a double attack. A counterattack is its own side's attack `0`
   - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` this same hit would have dealt with the target's defences ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
-  - `spell` - the spell the unit cast, for `onUnitSpellcast`. Nil for every other event, so an ability that reacts to one particular spell tests it rather than assuming which one fired
+  - `spell` - the spell that caused this event, for `onUnitSpellcast` and `onSpellHit`. Nil for every other event, so an ability that reacts to one particular spell tests it rather than assuming which one fired
+  - `caster` - for `onSpellHit`, the unit that cast the spell. Nil when a hero cast it, which is how the two are told apart
+
+  For `onSpellHit` every entry also holds `unitBefore` - the target as it stood before the spell reached it. Comparing it against the unit as it is now is what says what the spell did rather than what the unit already was; every other event leaves it nil.
 
   A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
@@ -104,9 +108,11 @@ Handlers:
 - `onAfterAttacked` - called on every unit the attack hit, once that attack is resolved. Fires even when the attack killed `unit`, so that a reflecting ability still answers a lethal hit; a script that should not react from a dead unit has to check for itself
 - `onWait` - called when `unit` waits
 - `onDefend` - called when `unit` defends
-- `onBeforeMove` - called before `unit` starts movement
-- `onAfterMove` - called after `unit` ends movement
+- `onBeforeMove` - called before `unit` starts movement, whether that movement is the whole action or the walk of a walk-and-attack or of an adjacent spellcaster. An action that reaches its target from where the unit already stands moves nowhere and fires neither move event
+- `onAfterMove` - called after `unit` ends movement. For a walk-and-attack this is still before the blows of that attack are counted, so an extra attack granted here is thrown by that same attack
 - `onUnitSpellcast` - called after `unit` casts a spell
+- `onSpellHit` - called on every unit a spell reached, once the cast is over. Only a spell someone chose to cast is reported - a hero spell, a unit spellcaster, an enchanter. A moat, a spell-like attack, a spell an obstacle triggered and a spell a script applied itself are not something a unit was hit by, and reach nobody. `other` is the casting unit, nil when a hero cast it
+- `onActionFinished` - called once the battle action is wholly over, on every unit it reached along the way - the unit that acted, everything it struck, everything a spell of that action touched. An attack action is over only once its counterattack and its repeated blows are, so this is where a script hands out what it banked over the whole of it rather than blow by blow. `other` is the unit whose action it was, so a unit compares it against itself to tell its own action from someone else's, and it is nil when a hero cast a spell
 - `onBattleSetup` - called once for every unit as the battle is laid out, before tactics and before anything else happens to it. `other` is nil
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over and before any opening spell is cast. `other` is nil
 - `onRoundStart` - called for every alive unit at the start of each round after the first. The first round is covered by `onBattleStart`. `other` is nil

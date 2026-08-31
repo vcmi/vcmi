@@ -11,9 +11,11 @@
 #include "ServerSpellCastEnvironment.h"
 
 #include "CGameHandler.h"
+#include "battles/BattleProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/CQuery.h"
 
+#include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/IBattleInfoCallback.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/Unit.h"
@@ -93,6 +95,15 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
 	return &gh->gameInfo();
+}
+
+void ServerSpellCastEnvironment::spellHasHit(const IBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+{
+	// only a battle can produce a spell hit, and every battle cast arrives through this environment
+	const auto * battleCallback = dynamic_cast<const CBattleInfoCallback *>(&battle);
+
+	if(battleCallback)
+		gh->battles->spellHasHit(*battleCallback, spell, casterUnit, unitsBefore);
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const

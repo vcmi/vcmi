@@ -10,7 +10,8 @@
 		"priority" : 0,
 		"schema" : {
 			"properties" : {
-				"spell" : { "type" : "string", "description" : "scoped json key the spell of a spellcast is expected to have" }
+				"spell" : { "type" : "string", "description" : "scoped json key the spell of a spellcast is expected to have" },
+				"hitBy" : { "type" : "string", "description" : "scoped json key the spell that hits the bearer is expected to have" }
 			},
 			"additionalProperties" : false
 		},

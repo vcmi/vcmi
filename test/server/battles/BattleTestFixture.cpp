@@ -244,11 +244,39 @@ bool BattleTestFixture::castOn(const CGHeroInstance * hero, SpellID spellID, con
 	return true;
 }
 
+bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)
+{
+	const BattleSide side = hero == attackerSideHero ? BattleSide::ATTACKER : BattleSide::DEFENDER;
+
+	// the server only lets a hero cast while one of its own units holds the turn
+	for(const auto & unit : battle()->stacks)
+	{
+		if(unit->unitSide() == side && unit->alive())
+		{
+			battle()->activeStack = unit->unitId();
+			break;
+		}
+	}
+
+	BattleAction action;
+	action.actionType = EActionType::HERO_SPELL;
+	action.side = side;
+	action.spell = spellID;
+	action.aimToUnit(target);
+
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(side), action);
+}
+
 bool BattleTestFixture::attack(const CStack * attacker, const BattleHex & targetHex)
+{
+	return attackFrom(attacker, targetHex, attacker->getPosition());
+}
+
+bool BattleTestFixture::attackFrom(const CStack * attacker, const BattleHex & targetHex, const BattleHex & fromHex)
 {
 	battle()->activeStack = attacker->unitId();
 
-	BattleAction action = BattleAction::makeMeleeAttack(attacker, targetHex, attacker->getPosition());
+	BattleAction action = BattleAction::makeMeleeAttack(attacker, targetHex, fromHex);
 	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(attacker->unitSide()), action);
 }
 

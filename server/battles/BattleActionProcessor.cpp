@@ -252,6 +252,14 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 
 	BattleHex startingPos = stack->getPosition();
 	int beforeAttackSpeed = stack->getMovementRange(0);
+
+	// the walk of a walk-and-attack is a move like any other, so it is announced like any other.
+	// It happens before the number of blows is settled, which is what lets a reaction to it add one
+	const bool walksBeforeAttacking = startingPos != attackPos;
+
+	if(walksBeforeAttacking)
+		processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, stack, nullptr);
+
 	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
 
 	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
@@ -261,6 +269,9 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		gameHandler->complain("Stack failed attack - unable to reach target!");
 		return false;
 	}
+
+	if(walksBeforeAttacking)
+		processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, stack, nullptr);
 
 	if(movementResult.obstacleHit)
 	{
@@ -640,6 +651,11 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 		return false;
 	}
 
+	const bool walksBeforeCasting = stack->getPosition() != movementDestinationTile;
+
+	if(walksBeforeCasting)
+		processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, stack, nullptr);
+
 	const auto movementResult = moveStack(battle, ba.stackNumber, movementDestinationTile);
 
 	if (movementResult.invalidRequest)
@@ -647,6 +663,9 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 		gameHandler->complain("Stack failed walk and spellcast - unable to reach target!");
 		return false;
 	}
+
+	if(walksBeforeCasting)
+		processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, stack, nullptr);
 
 	if(movementResult.obstacleHit)
 	{
@@ -746,6 +765,10 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	logGlobal->trace("Making action: %s", ba.toString());
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
 
+	// whatever was reached outside an action - the start of a round, the setup of the battle - is
+	// not part of this one
+	actionParticipants.clear();
+
 	// for these events client does not expects StartAction/EndAction wrapper
 	if (!ba.isBattleEndAction())
 	{
@@ -765,6 +788,10 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
+
+	// last of all, so that a unit the action killed on its way out - walking into a moat, stepping
+	// back onto a mine - is already dead by the time it is told that the action is over
+	processActionFinishedTriggers(battle, stack);
 
 	return result;
 }
@@ -1553,8 +1580,13 @@ void BattleActionProcessor::runPredefinedReaction(const CBattleInfoCallback & ba
 	}
 }
 
-void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const
+void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other)
 {
+	// noted for every unit the event is offered to rather than only for those that react to it -
+	// a script may implement the end of the action and nothing else, and still has to be told
+	if(event != CombatEventType::ACTION_FINISHED && !vstd::contains(actionParticipants, self->unitId()))
+		actionParticipants.push_back(self->unitId());
+
 	auto add = [&pending, event, self, other](const std::shared_ptr<const Bonus> & bonus, int priority, const ICombatEventScript * script)
 	{
 		PendingTrigger trigger;
@@ -1644,6 +1676,63 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 {
 	std::vector<PendingTrigger> pending;
 	collectEventTriggers(battle, pending, event, target, secondary);
+	runEventTriggers(battle, pending, payload);
+}
+
+void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor)
+{
+	// taken rather than read, so that collecting the reactions below does not grow the list it walks
+	const std::vector<uint32_t> participants = std::move(actionParticipants);
+	actionParticipants.clear();
+
+	std::vector<PendingTrigger> pending;
+
+	for(uint32_t participant : participants)
+	{
+		const battle::Unit * unit = battle.battleGetUnitByID(participant);
+
+		// a unit the action removed from the field is past caring that it is over
+		if(unit)
+			collectEventTriggers(battle, pending, CombatEventType::ACTION_FINISHED, unit, actor);
+	}
+
+	runEventTriggers(battle, pending, CombatEventPayload());
+}
+
+void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+{
+	if(unitsBefore.empty())
+		return;
+
+	CombatEventPayload payload;
+	payload.spell = &spell;
+	payload.caster = casterUnit;
+
+	for(const auto & before : unitsBefore)
+	{
+		AttackedTarget target;
+		target.snapshot = before;
+		target.unitBefore = before.get();
+		target.unit = battle.battleGetUnitByID(before->unitId());
+		target.healthBeforeAttack = before->getAvailableHealth();
+
+		// a spell that healed or raised its target reports no damage rather than a negative amount;
+		// what it did is read from the state the target was in before instead
+		if(target.unit)
+		{
+			target.damage = std::max<int64_t>(0, target.healthBeforeAttack - target.unit->getAvailableHealth());
+			target.killed = std::max<int32_t>(0, before->getCount() - target.unit->getCount());
+		}
+
+		payload.targets.push_back(target);
+	}
+
+	std::vector<PendingTrigger> pending;
+
+	for(const AttackedTarget & target : payload.targets)
+		if(target.unit)
+			collectEventTriggers(battle, pending, CombatEventType::SPELL_HIT, target.unit, casterUnit);
+
 	runEventTriggers(battle, pending, payload);
 }
 

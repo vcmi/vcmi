@@ -414,7 +414,7 @@
 			"probes" : {
 				"type" : "COMBAT_EVENT_TRIGGER",
 				"subtype" : "scriptApiProbe",
-				"addInfo" : { "spell" : "vcmi-test:heatStroke" }
+				"addInfo" : { "spell" : "vcmi-test:heatStroke", "hitBy" : "core:magicArrow" }
 			},
 			"castsHeatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
 			"castsCount" : { "type" : "CASTS", "val" : 99 }

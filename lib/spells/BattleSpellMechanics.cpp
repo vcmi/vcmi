@@ -433,6 +433,16 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	server->apply(sc);
 
+	// captured before the effects land, so that whatever reacts to the spell can tell what the
+	// spell did to a unit from what that unit already was
+	std::vector<std::shared_ptr<const battle::CUnitState>> unitsBeforeCast;
+	if(sc.activeCast)
+	{
+		unitsBeforeCast.reserve(affectedUnits.size());
+		for(const auto * unit : affectedUnits)
+			unitsBeforeCast.push_back(unit->acquireState());
+	}
+
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
 
@@ -452,6 +462,12 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
 	server->apply(fakeEvent);
+
+	// last, so that a reaction to the spell acts on a cast that is over rather than on a half-applied
+	// one. Only a cast someone chose to make is reported - a moat, a spell-like attack or a script
+	// applying a spell of its own is not something a unit was hit by
+	if(sc.activeCast)
+		server->spellHasHit(*battle(), *owner, dynamic_cast<const battle::Unit *>(caster), unitsBeforeCast);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)

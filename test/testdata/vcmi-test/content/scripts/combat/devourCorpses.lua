@@ -49,17 +49,10 @@ function Script:devourCorpses(server, battle, unit)
 	server:refreshBattleUnits(battle)
 end
 
---- Only a move of the unit's own feeds it, so a walk-and-attack devours on the way in.
---- The engine fires no move event for that action, hence the second entry point below.
+--- Only a move of the unit's own feeds it. A walk-and-attack announces its walk like any other,
+--- and does so before the number of blows is settled, so a corpse eaten on the way in is already
+--- worth a strike of the attack it walked into.
 function Script:onAfterMove(server, battle, unit, other, payload)
-	self:devourCorpses(server, battle, unit)
-end
-
---- Walk-and-attack: strikes gained here reach the next attack rather than this one, because the
---- number of blows is fixed before the first of them is thrown.
-function Script:onBeforeAttack(server, battle, unit, other, payload)
-	if payload.isCounter then return end
-	if payload.attackIndex > 0 then return end
 	self:devourCorpses(server, battle, unit)
 end
 

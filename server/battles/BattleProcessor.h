@@ -26,10 +26,17 @@ class BattleID;
 namespace battle
 {
 class Unit;
+class CUnitState;
 }
 
 class CGameHandler;
 class CBattleQuery;
+
+namespace spells
+{
+class Spell;
+}
+
 class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
@@ -72,6 +79,8 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
+	/// Announces to whatever reacts to it that a deliberately cast spell has just reached these units
+	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);
 
