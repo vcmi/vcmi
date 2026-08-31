@@ -85,6 +85,9 @@ public:
 	/// Offscreen canvas of the given logical size, always a software surface in this backend
 	virtual Canvas createOffscreenCanvas(const Point & size) const = 0;
 
+	/// A software surface has no GPU-imposed size limit
+	int maxOffscreenCanvasSize() const { return INT_MAX; }
+
 	/// No GPU drawing happens in this backend, so there is nothing queued to hand over
 	void flushRenderCommands() {}
 };

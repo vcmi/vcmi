@@ -62,6 +62,10 @@ class MapViewCache
 	/// surface path, and a cache built for one path cannot be drawn onto the other.
 	bool canvasesOnGpu = false;
 
+	/// Whether the terrain cache was last built at native tile size, rather than the bounded,
+	/// ready-scaled size used when that would exceed the driver's maximum texture size
+	bool cachedAtNativeSize = false;
+
 	/// Size the cache canvas was created for - at native tile size it follows the zoom level
 	Point cachedCanvasDimensions;
 

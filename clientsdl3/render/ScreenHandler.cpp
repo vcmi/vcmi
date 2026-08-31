@@ -884,6 +884,15 @@ Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 	return Canvas::createOwningRenderTarget(target, size, CanvasScalingPolicy::AUTO);
 }
 
+int ScreenHandler::maxOffscreenCanvasSize() const
+{
+	if(!isGpuRenderingEnabled())
+		return INT_MAX;
+
+	SDL_PropertiesID properties = SDL_GetRendererProperties(GpuResources::get().renderer());
+	return static_cast<int>(SDL_GetNumberProperty(properties, SDL_PROP_RENDERER_MAX_TEXTURE_SIZE_NUMBER, 0));
+}
+
 void ScreenHandler::updateScreenTexture()
 {
 	// A window change SDL applied late leaves the buffers sized for the previous window,

@@ -56,22 +56,31 @@ void MapViewCache::ensureCanvases()
 {
 	const bool useGpu = useGpuLayer && ENGINE->screenHandler().isGpuRenderingEnabled();
 
-	// on the GPU the cache keeps its tiles unscaled and scales them while blitting, which spares
-	// the per-tile render target the scaling used to go through
-	model->setCacheAtNativeSize(useGpu);
+	// On the GPU the cache normally keeps its tiles unscaled and scales them while blitting,
+	// which spares the per-tile render target the scaling used to go through. But that texture
+	// follows the number of visible tiles, which on a fully zoomed out Giant map can ask for
+	// more pixels than the driver allows - so it falls back to the bounded, ready-scaled size,
+	// same as the non-GPU path, rather than risk an oversized render target.
+	const Point nativeSizeDimensions = model->getTilesVisibleDimensions() * model->getCacheTileSize();
+	const int maxCanvasSize = ENGINE->screenHandler().maxOffscreenCanvasSize();
+	const bool nativeSizeFits = nativeSizeDimensions.x <= maxCanvasSize && nativeSizeDimensions.y <= maxCanvasSize;
+	const bool cacheAtNativeSize = useGpu && nativeSizeFits;
+
+	model->setCacheAtNativeSize(cacheAtNativeSize);
 
 	const Point cacheDimensions = model->getCacheDimensionsPixels();
 
 	// only the native cache changes size during play - it follows the number of visible tiles,
 	// while the ready-scaled one is measured from the window and stays as it was
-	const bool dimensionsStale = useGpu && cachedCanvasDimensions != cacheDimensions;
+	const bool dimensionsStale = cacheAtNativeSize && cachedCanvasDimensions != cacheDimensions;
 
-	if(terrain && canvasesOnGpu == useGpu && !dimensionsStale)
+	if(terrain && canvasesOnGpu == useGpu && cachedAtNativeSize == cacheAtNativeSize && !dimensionsStale)
 		return;
 
 	// Must run on the rendering thread: this object is constructed while handling a
 	// netpack, and creating a texture there would move the GL context off the GUI thread
 	canvasesOnGpu = useGpu;
+	cachedAtNativeSize = cacheAtNativeSize;
 	cachedCanvasDimensions = cacheDimensions;
 
 	intermediate = createCanvas(MapViewModel::getNativeTileSize());
