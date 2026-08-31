@@ -14,6 +14,7 @@
 #include "SDL_Extensions.h"
 
 #include "GameEngine.h"
+#include "render/Colors.h"
 #include "render/IFont.h"
 #include "render/IRenderHandler.h"
 
@@ -36,11 +37,9 @@ Point TextTextureCache::getAlignmentOffset(EFonts font, ETextAlignment alignment
 	}
 }
 
-std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const ColorRGBA & color, const std::string & text)
+std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const std::string & text)
 {
-	// not a ColorRGBA: that orders itself by mean brightness, colliding different colours
-	const uint32_t packedColor = (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
-	Key key{ static_cast<int>(font), packedColor, text };
+	Key key{ static_cast<int>(font), text };
 
 	auto it = entries.find(key);
 	if(it != entries.end())
@@ -59,7 +58,8 @@ std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const Co
 	if(!surface)
 		return nullptr;
 
-	fontPtr->renderText(surface, text, color, Point(0, 0));
+	// rendered white so the same texture can be tinted to any color with SDL_SetTextureColorMod
+	fontPtr->renderText(surface, text, Colors::WHITE_TRUE, Point(0, 0));
 
 	// the image takes its own reference, so the surface created here is released again
 	auto result = std::make_shared<SDLImageShared>(surface);

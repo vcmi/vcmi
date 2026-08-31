@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "lib/Color.h"
 #include "lib/Point.h"
 #include "gui/TextAlignment.h"
 
@@ -17,13 +16,14 @@ class SDLImageShared;
 enum EFonts : int8_t;
 
 /// Rendered strings kept as images so they can be drawn onto a GPU layer - the font stack
-/// writes glyphs into a surface, which a render target cannot accept.
+/// writes glyphs into a surface, which a render target cannot accept. Glyphs are rendered in
+/// white and tinted with SDL_SetTextureColorMod at draw time, same as any other sprite, so the
+/// same cached texture serves every color a string is drawn in.
 class TextTextureCache
 {
 	struct Key
 	{
 		int font;
-		uint32_t color;
 		std::string text;
 
 		auto operator<=>(const Key & other) const = default;
@@ -40,9 +40,10 @@ class TextTextureCache
 	std::map<Key, std::list<Entry>::iterator> entries;
 
 public:
-	/// Image holding the rendered string, or null if it could not be produced.
-	/// Its top left corner is the string's top left, so callers apply alignment themselves.
-	std::shared_ptr<SDLImageShared> getImage(EFonts font, const ColorRGBA & color, const std::string & text);
+	/// Image holding the rendered string in white, or null if it could not be produced. Its top
+	/// left corner is the string's top left, so callers apply alignment themselves and tint it
+	/// to the desired color while drawing.
+	std::shared_ptr<SDLImageShared> getImage(EFonts font, const std::string & text);
 
 	/// Offset from the requested position to the string's top left, in scaled pixels
 	static Point getAlignmentOffset(EFonts font, ETextAlignment alignment, const std::string & text);
