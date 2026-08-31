@@ -19,6 +19,13 @@ struct SDL_Texture;
 /// Everything that belongs to the one renderer and dies with it: the renderer itself, the caches
 /// keyed on it and the textures it still has to free. Owned by ScreenHandler, which is what
 /// creates and destroys the renderer.
+///
+/// get() is a Meyer's singleton, not a GameEngine member, on purpose: this codebase has no
+/// enforced invariant that every object touching a texture is destroyed before GameEngine is,
+/// and a cached image can end up outliving it through a path that is not obvious at a glance -
+/// a stray shared_ptr held by a file-scope cache elsewhere, a callback, anything. A function-
+/// local static sidesteps that entirely by living until actual process exit, in the same
+/// teardown phase as every other stray static in the program, GameEngine's members included.
 class GpuResources
 {
 	SDL_Renderer * mainRenderer = nullptr;

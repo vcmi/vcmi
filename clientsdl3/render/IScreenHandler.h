@@ -73,9 +73,6 @@ public:
 
 	virtual void setColorScheme(ColorScheme scheme) = 0;
 
-	// New methods go below this line: inserting a virtual anywhere above shifts every
-	// later vtable slot, which silently misdispatches any translation unit not rebuilt.
-
 	/// True when GPU layers are available, i.e. the driver granted us render targets
 	virtual bool isGpuRenderingEnabled() const = 0;
 

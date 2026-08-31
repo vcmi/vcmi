@@ -59,6 +59,10 @@ void CMessage::dispose()
 {
 	for(auto & item : dialogBorders)
 		item.reset();
+
+	// each image is also cached here in its own right, not only inside its animation above
+	for(auto & item : piecesOfBox)
+		item.clear();
 }
 
 std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)

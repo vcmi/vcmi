@@ -116,9 +116,6 @@ public:
 	virtual void setOverlayColor(const ColorRGBA & color) = 0;
 	virtual void setEffectColor(const ColorRGBA & color) = 0;
 
-	// New methods go below this line: inserting a virtual above shifts every later
-	// vtable slot, which silently misdispatches translation units that were not rebuilt.
-
 	/// Like draw(), but onto the renderer's current target. False when there is no texture yet.
 	virtual bool drawTexture(SDL_Renderer * renderer, const Point & pos, const Rect * src, int scalingFactor) const = 0;
 
@@ -157,8 +154,6 @@ public:
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> verticalFlip() const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const = 0;
 	[[nodiscard]] virtual std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
-
-	// New methods go below this line, see the note in IImage above
 
 	/// Same as draw(), but onto the renderer's current target. False if no texture is available.
 	virtual bool drawTexture(SDL_Renderer * renderer, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode, const ImageFlip & flip) const = 0;
