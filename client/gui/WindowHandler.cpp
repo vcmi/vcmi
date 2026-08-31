@@ -104,8 +104,6 @@ void WindowHandler::totalRedraw()
 
 void WindowHandler::requestRedraw(CIntObject * object)
 {
-	std::lock_guard lock(pendingRedrawMutex);
-
 	if(!vstd::contains(pendingRedraws, object))
 		pendingRedraws.push_back(object);
 
@@ -114,11 +112,10 @@ void WindowHandler::requestRedraw(CIntObject * object)
 
 void WindowHandler::cancelRedraw(CIntObject * object)
 {
-	// every destroyed widget passes here, so the common case must not take the lock
+	// every destroyed widget passes here, so the common case must stay cheap
 	if(!hasPendingRedraws)
 		return;
 
-	std::lock_guard lock(pendingRedrawMutex);
 	vstd::erase(pendingRedraws, object);
 	hasPendingRedraws = !pendingRedraws.empty();
 }
@@ -126,12 +123,8 @@ void WindowHandler::cancelRedraw(CIntObject * object)
 void WindowHandler::processPendingRedraws()
 {
 	std::vector<CIntObject *> pending;
-
-	{
-		std::lock_guard lock(pendingRedrawMutex);
-		pending.swap(pendingRedraws);
-		hasPendingRedraws = false;
-	}
+	pending.swap(pendingRedraws);
+	hasPendingRedraws = false;
 
 	if(pending.empty())
 		return;

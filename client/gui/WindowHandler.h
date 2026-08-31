@@ -28,12 +28,9 @@ class WindowHandler
 
 	/// Objects whose redraw() arrived from a thread that may not draw, repainted at the start of
 	/// the next frame. No extra drawing - the software path would have redrawn them right away.
-	std::mutex pendingRedrawMutex;
+	/// All access happens under the interface mutex, like the rest of WindowHandler.
 	std::vector<CIntObject *> pendingRedraws;
-
-	/// Whether pendingRedraws holds anything, so that the common case - every widget
-	/// destruction cancels a repaint that was never requested - stays lock-free
-	std::atomic<bool> hasPendingRedraws{false};
+	bool hasPendingRedraws = false;
 
 	/// returns top windows
 	std::shared_ptr<IShowActivatable> topWindowImpl() const;
