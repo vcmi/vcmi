@@ -20,6 +20,8 @@
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/Unit.h"
 
+#include <vcmi/spells/Spell.h>
+
 namespace scripting
 {
 

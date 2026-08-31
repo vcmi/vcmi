@@ -362,3 +362,118 @@ TEST_F(HeatStrokeTest, SparesWhatIsOutsideTheCone)
 
 	EXPECT_EQ(damageAt(BattleSide::ATTACKER, juggernaut, juggernaut.copyToEast(), outside), 0);
 }
+
+//----------------------------------------------------------------------------------------------
+// Scripting API added for these abilities
+//----------------------------------------------------------------------------------------------
+
+/// What a script can ask about a unit, answered from inside a real battle. The probe creature
+/// writes every answer into a bonus of its own, which is what these scenarios read back.
+class ScriptApiTest : public HotaAbilitiesTest
+{
+public:
+	static constexpr int flagCanRetaliate = 1;
+	static constexpr int flagSpellIdentified = 2;
+	static constexpr int flagSpellOnAttack = 4;
+
+	CStack * addProbe(BattleSide side, const BattleHex & hex)
+	{
+		return addStack(side, creatureByName("vcmi-test:testApiProbe"), hex, bigStack);
+	}
+
+	static void grant(CStack * unit, BonusType type, int value)
+	{
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::OTHER, value, BonusSourceID()));
+	}
+
+	static int probed(const CStack * unit, const std::string & bonusType)
+	{
+		return unit->valOfBonuses(Selector::type()(static_cast<BonusType>(BonusTypeID::decode(bonusType))));
+	}
+};
+
+/// Luck is capped by the game rather than summed, which is the whole reason a script should ask
+/// for it rather than add up the bonuses granting it.
+TEST_F(ScriptApiTest, LuckIsCappedTheWayTheGameCapsIt)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	ASSERT_NE(probe, nullptr);
+
+	grant(probe, BonusType::LUCK, 10);
+
+	beginCombat();
+
+	EXPECT_EQ(probed(probe, "PROBE_LUCK"), probe->luckVal());
+	EXPECT_LT(probed(probe, "PROBE_LUCK"), 10) << "the raw sum of the bonuses would be 10";
+	EXPECT_GT(probed(probe, "PROBE_LUCK"), 0);
+}
+
+/// Morale is not merely capped - a mechanical unit has none at all, however much of it is granted.
+TEST_F(ScriptApiTest, MoraleIsZeroForAUnitThatHasNone)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	grant(probe, BonusType::MORALE, 5);
+
+	beginCombat();
+
+	EXPECT_EQ(probed(probe, "PROBE_MORALE"), 0) << "the probe is mechanical, and the raw sum would be 5";
+}
+
+/// A unit that has its retaliation left says so, and an attack names no spell.
+TEST_F(ScriptApiTest, RetaliationIsVisibleBeforeTheBlowLands)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(attacker, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagCanRetaliate, flagCanRetaliate);
+	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagSpellOnAttack, 0) << "an attack is no spellcast";
+}
+
+/// A unit that cannot answer says that too.
+TEST_F(ScriptApiTest, AUnitThatCannotRetaliateSaysSo)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+
+	grant(probe, BonusType::NO_RETALIATION, 0);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagCanRetaliate, 0);
+}
+
+/// The spellcast event names the spell that was cast.
+TEST_F(ScriptApiTest, SpellcastNamesItsSpell)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
+	ASSERT_NE(victim, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsUnit(probe, spellByName("heatStroke"), BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagSpellIdentified, flagSpellIdentified);
+}

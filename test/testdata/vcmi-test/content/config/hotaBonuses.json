@@ -23,5 +23,17 @@
 	"RUNE_LEVEL_PENDING" : {
 		"description" : "Rune levels the running action has earned.",
 		"hidden" : true
+	},
+	"PROBE_LUCK" : {
+		"description" : "Luck the scripting API reported.",
+		"hidden" : true
+	},
+	"PROBE_MORALE" : {
+		"description" : "Morale the scripting API reported.",
+		"hidden" : true
+	},
+	"PROBE_FLAGS" : {
+		"description" : "Answers of the scripting API that are yes or no, one bit each.",
+		"hidden" : true
 	}
 }

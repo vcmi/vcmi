@@ -392,6 +392,32 @@
 		{
 			"heatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
 			"castsCount" : { "type" : "CASTS", "val" : 99 }
+		}	},
+
+	// Answers back what the scripting API told it. Mechanical, so that morale is a case where the
+	// engine's answer and the sum of the bonuses differ.
+	"testApiProbe" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Probe", "plural" : "Test Probes" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"mechanical" : { "type" : "MECHANICAL" },
+			"probes" : {
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "scriptApiProbe",
+				"addInfo" : { "spell" : "vcmi-test:heatStroke" }
+			},
+			"castsHeatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
+			"castsCount" : { "type" : "CASTS", "val" : 99 }
 		}
 	}
 }

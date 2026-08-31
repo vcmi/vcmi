@@ -1,6 +1,21 @@
 // Scripts of HotA abilities, kept here so that the engine features they lean on stay tested.
 // They are copies of the ones the Horn of the Abyss mod ships, and the bindings mirror its own.
+// scriptApiProbe is not one of them - it answers what the scripting API told it, so that bindings
+// added for these abilities can be tested from a real battle.
 {
+	"scriptApiProbe" : {
+		"implements" : "combatEvent",
+		"script" : "combat/scriptApiProbe",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {
+				"spell" : { "type" : "string", "description" : "scoped json key the spell of a spellcast is expected to have" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : "{Script API probe}\nRecords what the scripting API answered."
+	},
 	"automatonDetonation" : {
 		"implements" : "combatEvent",
 		"script" : "combat/automatonDetonation",
