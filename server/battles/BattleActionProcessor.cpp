@@ -565,7 +565,9 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), target);
 
-	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
+	CombatEventPayload payload;
+	payload.spell = spell;
+	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr, payload);
 	return true;
 }
 
@@ -662,7 +664,9 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
 
-	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
+	CombatEventPayload payload;
+	payload.spell = spell;
+	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr, payload);
 
 	return true;
 }
