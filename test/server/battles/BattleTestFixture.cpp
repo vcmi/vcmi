@@ -24,6 +24,7 @@
 #include "../../../lib/battle/BattleInfo.h"
 #include "../../../lib/battle/BattleLayout.h"
 #include "../../../lib/battle/CObstacleInstance.h"
+#include "../../../lib/battle/CUnitState.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/entities/hero/CHero.h"
@@ -250,6 +251,46 @@ bool BattleTestFixture::attack(const CStack * attacker, const BattleHex & target
 
 	BattleAction action = BattleAction::makeMeleeAttack(attacker, targetHex, attacker->getPosition());
 	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(attacker->unitSide()), action);
+}
+
+bool BattleTestFixture::move(const CStack * stack, const BattleHex & destination)
+{
+	battle()->activeStack = stack->unitId();
+
+	BattleAction action = BattleAction::makeMove(stack, destination);
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(stack->unitSide()), action);
+}
+
+bool BattleTestFixture::defend(const CStack * stack)
+{
+	battle()->activeStack = stack->unitId();
+
+	BattleAction action = BattleAction::makeDefend(stack);
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(stack->unitSide()), action);
+}
+
+void BattleTestFixture::makeClone(CStack * stack)
+{
+	auto state = stack->acquireState();
+	state->cloned = true;
+
+	BattleUnitsChanged pack;
+	pack.battleID = BattleID(0);
+	pack.changedStacks.emplace_back(state->unitId(), UnitChanges::EOperation::UPDATE);
+	pack.changedStacks.back().data = state->save();
+	gameHandler->sendAndApply(pack);
+}
+
+bool BattleTestFixture::castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex)
+{
+	battle()->activeStack = caster->unitId();
+
+	battle::Target target;
+	if(targetHex.isValid())
+		target.emplace_back(targetHex);
+
+	BattleAction action = BattleAction::makeCreatureSpellcast(caster, target, spellID);
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(caster->unitSide()), action);
 }
 
 void BattleTestFixture::endRound()

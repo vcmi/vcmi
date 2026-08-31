@@ -334,5 +334,64 @@
 		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
 		"sound" : {},
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
+	},
+
+	// HotA abilities, see hotaScripts.json. Detonation is armed by a self-cast, so the automaton
+	// carries the ability that arms it rather than the script itself.
+	"testAutomaton" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Automaton", "plural" : "Test Automatons" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"castsDetonation" : { "type" : "SPELLCASTER", "subtype" : "abilityDetonation", "val" : 0 },
+			"castsCount" : { "type" : "CASTS", "val" : 1 }
+		}
+	},
+
+	// Devours the corpses it walks onto, each worth one extra strike.
+	"testDevourer" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Devourer", "plural" : "Test Devourers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "devours" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "devourCorpses" } }
+	},
+
+	// Double-wide, the way the Juggernaut whose ability this is - the cone is measured from its
+	// footprint rather than from one hex.
+	"testJuggernaut" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"doubleWide" : true,
+		"name" : { "singular" : "Test Juggernaut", "plural" : "Test Juggernauts" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"heatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
+			"castsCount" : { "type" : "CASTS", "val" : 99 }
+		}
 	}
 }
