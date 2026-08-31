@@ -93,6 +93,15 @@ public:
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
 	bool attack(const CStack * attacker, const BattleHex & targetHex);
+	/// Walks the given stack to the destination hex.
+	bool move(const CStack * stack, const BattleHex & destination);
+	/// Puts the given stack into a defensive stance.
+	bool defend(const CStack * stack);
+	/// Marks the stack a clone, which is what abilities that must not outlive one look at.
+	void makeClone(CStack * stack);
+	/// Casts one of the stack's own abilities the way a creature spellcaster does. An invalid hex
+	/// casts at nothing, which is what an ability aimed at its own bearer wants.
+	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
 	/// Waits out the current round with every unit defending, leaving the battle in the next one.
 	void endRound();
 
