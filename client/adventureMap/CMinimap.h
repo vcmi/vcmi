@@ -57,10 +57,6 @@ class CMinimap : public CIntObject
 	/// relocates center of adventure map screen to currently hovered tile
 	void moveAdvMapSelection(const Point & positionGlobal);
 
-	/// repaints the widget area that the map itself does not cover, so the radar rectangle and the
-	/// hero icons leave nothing behind. Does nothing on a map that fills the widget.
-	void drawBackgroundAroundMap(Canvas & to) const;
-
 protected:
 	/// computes coordinates of tile below cursor pos
 	int3 pixelToTile(const Point & cursorPos) const;

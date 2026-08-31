@@ -188,12 +188,6 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 	moveAdvMapSelection(cursorPosition);
 }
 
-void CMinimap::drawBackgroundAroundMap(Canvas & to) const
-{
-	// cheaper than working out the bands, and the minimap is drawn over it right afterwards
-	to.drawColor(aiShield->pos, Colors::BLACK);
-}
-
 void CMinimap::showAll(Canvas & to)
 {
 	CanvasClipRectGuard guard(to, aiShield->pos);
@@ -201,8 +195,9 @@ void CMinimap::showAll(Canvas & to)
 	// The radar rectangle and the hero icons are clipped to the widget, not to the map, so on a map
 	// that does not fill it they draw onto the background around it - which is solid black and has
 	// to be repainted first. Locally, since the parent would redraw the whole adventure map.
+	// Cheaper than working out the bands, and the minimap is drawn over it right afterwards.
 	if(minimap)
-		drawBackgroundAroundMap(to);
+		to.drawColor(aiShield->pos, Colors::BLACK);
 
 	CIntObject::showAll(to);
 
