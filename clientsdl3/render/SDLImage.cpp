@@ -182,7 +182,12 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 	// cache on it would rebuild the texture for every instance that shares the image
 	SDL_Palette * effectivePalette = CSDL_Ext::getPalette(surf) ? palette : nullptr;
 
-	if(texture && textureGeneration == GpuResources::get().generation() && texturePalette == effectivePalette)
+	// effectivePalette is mutated in place by its owner (overlay/effect colors, recoloring, ...),
+	// so the pointer alone does not tell a stale build from a current one - its SDL-maintained
+	// version does, since every actual color change goes through SDL_SetPaletteColors()
+	const uint32_t effectivePaletteVersion = effectivePalette ? effectivePalette->version : 0;
+
+	if(texture && textureGeneration == GpuResources::get().generation() && texturePalette == effectivePalette && texturePaletteVersion == effectivePaletteVersion)
 		return texture;
 
 	dropTexture();
@@ -199,6 +204,7 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 		logGlobal->error("Failed to create texture from image! %s", SDL_GetError());
 
 	texturePalette = effectivePalette;
+	texturePaletteVersion = effectivePaletteVersion;
 	textureGeneration = GpuResources::get().generation();
 
 	return texture;

@@ -40,8 +40,11 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 
 	/// GPU copy of surf, built on first use by getTexture()
 	mutable SDL_Texture * texture = nullptr;
-	/// Palette the texture was built with, and the renderer generation it belongs to
+	/// Palette the texture was built with, and the renderer generation it belongs to. The
+	/// palette is mutated in place (recoloring, overlay pulses, ...), so its own pointer never
+	/// changes - SDL_Palette::version is what actually tells a stale build from a current one.
 	mutable SDL_Palette * texturePalette = nullptr;
+	mutable uint32_t texturePaletteVersion = 0;
 	mutable uint32_t textureGeneration = 0;
 
 	/// Frees the cached texture unless the renderer that owned it is already gone

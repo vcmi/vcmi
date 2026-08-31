@@ -155,12 +155,18 @@ void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette
 
 void ScalableImageParameters::setOverlayColor(const SDL_Palette * originalPalette, const ColorRGBA & color, bool includeShadow)
 {
-	palette->colors[5] = CSDL_Ext::toSDL(addColors(targetPalette[5], color));
+	// SDL_SetPaletteColors, not a direct write to colors[] - it bumps SDL_Palette::version,
+	// which is how a cached GPU texture notices this palette changed under it
+	SDL_Color overlayColor = CSDL_Ext::toSDL(addColors(targetPalette[5], color));
+	SDL_SetPaletteColors(palette, &overlayColor, 5, 1);
 
 	if (includeShadow)
 	{
 		for (int i : {6,7})
-			palette->colors[i] = CSDL_Ext::toSDL(addColors(targetPalette[i], color));
+		{
+			SDL_Color shadowColor = CSDL_Ext::toSDL(addColors(targetPalette[i], color));
+			SDL_SetPaletteColors(palette, &shadowColor, i, 1);
+		}
 	}
 }
 
@@ -217,7 +223,10 @@ void ScalableImageParameters::adjustPalette(const SDL_Palette * originalPalette,
 		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
 			continue;
 
-		palette->colors[i] = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
+		// SDL_SetPaletteColors, not a direct write to colors[] - it bumps SDL_Palette::version,
+		// which is how a cached GPU texture notices this palette changed under it
+		SDL_Color shiftedColor = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
+		SDL_SetPaletteColors(palette, &shiftedColor, i, 1);
 	}
 }
 
