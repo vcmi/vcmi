@@ -1163,6 +1163,10 @@ void CVCMIServer::multiplayerWelcomeMessage()
 		optionIds.emplace_back("vcmi.optionsTab.cheatAllowed.hover");
 	if(si->extraOptionsInfo.unlimitedReplay)
 		optionIds.emplace_back("vcmi.optionsTab.unlimitedReplay.hover");
+	if(si->extraOptionsInfo.revealMageGuildSpells)
+		optionIds.emplace_back("vcmi.optionsTab.revealMageGuildSpells.hover");
+	if(si->extraOptionsInfo.revealHiddenRewards)
+		optionIds.emplace_back("vcmi.optionsTab.revealHiddenRewards.hover");
 
 	if(!optionIds.size()) // No settings to publish
 		return;

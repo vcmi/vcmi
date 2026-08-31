@@ -130,6 +130,24 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		GAME->server().setExtraOptionsInfo(info);
 	});
 
+	addCallback("setRevealMageGuildSpells", [&](int index){
+		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["revealMageGuildSpells"];
+		entry->Bool() = index;
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.revealMageGuildSpells = index;
+		GAME->server().setExtraOptionsInfo(info);
+	});
+
+	addCallback("setRevealHiddenRewards", [&](int index){
+		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["revealHiddenRewards"];
+		entry->Bool() = index;
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.revealHiddenRewards = index;
+		GAME->server().setExtraOptionsInfo(info);
+	});
+
 	addCallback("setRecordGame", [&](int index){
 		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
 		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["recordGame"];
@@ -452,6 +470,18 @@ void OptionsTabBase::recreate(bool campaign)
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonRevealMageGuildSpells = widget<CToggleButton>("buttonRevealMageGuildSpells"))
+	{
+		buttonRevealMageGuildSpells->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.revealMageGuildSpells);
+		buttonRevealMageGuildSpells->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonRevealHiddenRewards = widget<CToggleButton>("buttonRevealHiddenRewards"))
+	{
+		buttonRevealHiddenRewards->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.revealHiddenRewards);
+		buttonRevealHiddenRewards->block(GAME->server().isGuest());
 	}
 
 	if(auto buttonRecordGame = widget<CToggleButton>("buttonRecordGame"))

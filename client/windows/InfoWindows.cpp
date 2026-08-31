@@ -31,6 +31,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -318,7 +319,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	if(settings["general"]["enableUiEnhancements"].Bool())
 		background->setPlayerColor(town->getOwner());
 
-	if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::TOWNS_REVEAL_MAGE_GUILD_SPELLS))
+	if(GAME->interface()->cb->getStartInfo()->extraOptionsInfo.revealMageGuildSpells)
 		showMageGuildSpells(town);
 
 	addUsedEvents(DRAG_POPUP);

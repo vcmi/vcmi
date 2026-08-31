@@ -62,6 +62,20 @@
 					"callback" : "setRecordGame",
 					"help" : "vcmi.optionsTab.recordGame",
 					"selected" : false
+				},
+				{
+					"name": "buttonRevealMageGuildSpells",
+					"image": "lobby/checkbox",
+					"callback" : "setRevealMageGuildSpells",
+					"help" : "vcmi.optionsTab.revealMageGuildSpells",
+					"selected" : false
+				},
+				{
+					"name": "buttonRevealHiddenRewards",
+					"image": "lobby/checkbox",
+					"callback" : "setRevealHiddenRewards",
+					"help" : "vcmi.optionsTab.revealHiddenRewards",
+					"selected" : false
 				}
 			]
 		},
@@ -92,6 +106,20 @@
 					"alignment": "left",
 					"color": "yellow",
 					"text": "vcmi.optionsTab.recordGame.hover"
+				},
+				{
+					"name": "labelRevealMageGuildSpells",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.revealMageGuildSpells.hover"
+				},
+				{
+					"name": "labelRevealHiddenRewards",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.revealHiddenRewards.hover"
 				}
 			]
 		}

@@ -16,6 +16,10 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	bool unlimitedReplay = false;
 	/// if set, client stores every received netpack on disk so the whole game can be replayed later
 	bool recordGame = false;
+	/// if set, town popup shows spells of every mage guild level, including levels that are not built yet
+	bool revealMageGuildSpells = false;
+	/// if set, rewards that are normally hidden (Pandora's Box, creature banks) are shown on right click
+	bool revealHiddenRewards = false;
 
 	bool operator == (const ExtraOptionsInfo & other) const = default;
 
@@ -28,5 +32,16 @@ struct DLL_LINKAGE ExtraOptionsInfo
 			h & recordGame;
 		else
 			recordGame = false;
+
+		if(h.hasFeature(Handler::Version::REVEAL_EXTRA_OPTIONS))
+		{
+			h & revealMageGuildSpells;
+			h & revealHiddenRewards;
+		}
+		else
+		{
+			revealMageGuildSpells = false;
+			revealHiddenRewards = false;
+		}
 	}
 };

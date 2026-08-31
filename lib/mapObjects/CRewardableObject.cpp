@@ -13,6 +13,7 @@
 
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
+#include "../StartInfo.h"
 #include "../battle/BattleLayout.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
@@ -291,8 +292,8 @@ MetaString CRewardableObject::getDescriptionMessage(PlayerColor player, const CG
 
 std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const
 {
-	// Guarded objects and Pandora's Box hide their rewards. Map setting can reveal them without scouting first
-	bool revealContents = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_REVEAL_HIDDEN_REWARDS);
+	// Guarded objects and Pandora's Box hide their rewards. A lobby option can reveal them without scouting first
+	bool revealContents = cb->getStartInfo()->extraOptionsInfo.revealHiddenRewards;
 
 	if (!revealContents && !wasScouted(player))
 		return {};
