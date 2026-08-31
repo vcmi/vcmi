@@ -345,11 +345,8 @@ void BattleFieldController::ensureBackgroundCanvas()
 
 	const Point size(background->width(), background->height());
 
-	// the backend decides whether this is a render target or a plain surface
-	if(usesGpuLayer())
-		backgroundWithHexes = std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
-	else
-		backgroundWithHexes = std::make_unique<Canvas>(size, CanvasScalingPolicy::AUTO);
+	// createOffscreenCanvas already picks a render target or a plain surface depending on the backend
+	backgroundWithHexes = std::make_unique<Canvas>(ENGINE->screenHandler().createOffscreenCanvas(size));
 }
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
