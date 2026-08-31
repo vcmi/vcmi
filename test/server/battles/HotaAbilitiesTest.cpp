@@ -147,6 +147,35 @@ TEST_F(HotaAbilitiesTest, DetonationIsNotInheritedByAClone)
 	EXPECT_EQ(healthBefore - healthOf(victim), 0);
 }
 
+/// A spell can kill the automaton just as an attack can, and it detonates either way.
+TEST_F(HotaAbilitiesTest, DetonationAnswersADeathBySpell)
+{
+	startGame();
+
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+	attackerSideHero->setPrimarySkill(PrimarySkill::SPELL_POWER, 50, ChangeValueMode::ABSOLUTE);
+	attackerSideHero->mana = 9999;
+
+	startBattle();
+
+	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
+	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), bigStack);
+	ASSERT_NE(automaton, nullptr);
+	ASSERT_NE(victim, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
+
+	const int64_t healthBefore = healthOf(victim);
+
+	ASSERT_TRUE(castOn(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), automaton));
+	ASSERT_FALSE(automaton->alive()) << "the spell has to kill it for it to detonate";
+
+	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
+}
+
 //----------------------------------------------------------------------------------------------
 // Devour corpses
 //----------------------------------------------------------------------------------------------
@@ -203,6 +232,38 @@ TEST_F(HotaAbilitiesTest, StrikeIsSpentOnlyOnAnExtraBlow)
 	EXPECT_EQ(devourer->getTotalAttacks(false), 1);
 }
 
+/// A corpse eaten on the way into an attack pays for a blow of that same attack, rather than of
+/// the next one - the walk of a walk-and-attack happens before the number of blows is settled.
+TEST_F(HotaAbilitiesTest, CorpseDevouredOnTheWayInFeedsTheAttackItWalkedInto)
+{
+	startGame();
+	startBattle();
+
+	CStack * devourer = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testDevourer"), BattleHex(leftHex), bigStack);
+	CStack * prey = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
+	CStack * next = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex + 1), bigStack);
+	ASSERT_NE(devourer, nullptr);
+	ASSERT_NE(next, nullptr);
+
+	beginCombat();
+
+	const uint32_t preyID = prey->unitId();
+
+	ASSERT_TRUE(attack(devourer, BattleHex(rightHex)));
+	ASSERT_FALSE(prey->alive()) << "a corpse to walk onto is what the scenario is about";
+	ASSERT_EQ(devourer->getTotalAttacks(false), 1);
+
+	blockRetaliation(next);
+
+	// walks onto the corpse and strikes the stack beyond it in one action
+	ASSERT_TRUE(attackFrom(devourer, BattleHex(rightHex + 1), BattleHex(rightHex)));
+
+	const CStack * corpse = battle()->getStack(preyID, false);
+	ASSERT_NE(corpse, nullptr);
+	EXPECT_TRUE(corpse->isGhost()) << "the corpse was eaten on the way in";
+	EXPECT_EQ(devourer->getTotalAttacks(false), 1) << "and the strike it paid for was thrown in that same attack";
+}
+
 //----------------------------------------------------------------------------------------------
 // Runes
 //----------------------------------------------------------------------------------------------
@@ -226,7 +287,8 @@ TEST_F(HotaAbilitiesTest, DefendingGrantsThreeRuneLevels)
 	EXPECT_EQ(bearer->getAttack(false) - attackBefore, 2);
 }
 
-/// An attack nobody answers is worth one level, handed out once the action it belongs to is over.
+/// An attack nobody answers is worth one level, handed out once the action it belongs to is over -
+/// which is the same action, not the next one the unit takes.
 TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
 {
 	startGame();
@@ -240,9 +302,6 @@ TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
 	beginCombat();
 
 	ASSERT_TRUE(attack(bearer, BattleHex(rightHex)));
-
-	// moving is the next action of the bearer, which is what closes the one before it
-	ASSERT_TRUE(move(bearer, BattleHex(leftHex - 1)));
 
 	EXPECT_EQ(runeLevelOf(bearer), 1);
 }
@@ -260,7 +319,31 @@ TEST_F(HotaAbilitiesTest, AnsweredAttackGrantsTwoRuneLevels)
 	beginCombat();
 
 	ASSERT_TRUE(attack(bearer, BattleHex(rightHex)));
-	ASSERT_TRUE(move(bearer, BattleHex(leftHex - 1)));
+
+	EXPECT_EQ(runeLevelOf(bearer), 2) << "the retaliation is part of the same action, and is worth more than the blow given";
+}
+
+/// A hero spell that damaged a unit is worth as much to it as a blow taken.
+TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
+{
+	startGame();
+
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+	attackerSideHero->setPrimarySkill(PrimarySkill::SPELL_POWER, 10, ChangeValueMode::ABSOLUTE);
+	attackerSideHero->mana = 9999;
+
+	startBattle();
+
+	// the runes are the enemy hero's, so that the spell reaching them is an action of the other side
+	defenderSideHero->setSecSkillLevel(skillByName("vcmi-test:runes"), 3, ChangeValueMode::ABSOLUTE);
+	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
+	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(bearer, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), bearer));
 
 	EXPECT_EQ(runeLevelOf(bearer), 2);
 }
@@ -476,4 +559,193 @@ TEST_F(ScriptApiTest, SpellcastNamesItsSpell)
 	ASSERT_TRUE(castAsUnit(probe, spellByName("heatStroke"), BattleHex(rightHex)));
 
 	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagSpellIdentified, flagSpellIdentified);
+}
+
+/// A walk-and-attack walks, and says so. That the walk is announced before the number of blows is
+/// settled is what lets an ability that reacts to it add one to the very attack it walked into.
+TEST_F(ScriptApiTest, WalkAndAttackAnnouncesItsWalk)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex + 2), bigStack);
+	ASSERT_NE(target, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attackFrom(probe, BattleHex(rightHex + 2), BattleHex(rightHex + 1)));
+
+	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 1);
+}
+
+/// An attack that reaches its target from where it already stands walks nowhere, and says nothing.
+TEST_F(ScriptApiTest, AnAttackWithoutAWalkAnnouncesNoWalk)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex), bigStack);
+	ASSERT_NE(target, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(probe, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 0);
+}
+
+/// A hero spell reaching a unit is reported to it, names itself, and names no casting unit.
+TEST_F(ScriptApiTest, HeroSpellIsReportedToWhatItHits)
+{
+	startGame();
+
+	giveArtifact(defenderSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+	defenderSideHero->mana = 9999;
+
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	ASSERT_NE(probe, nullptr);
+
+	beginCombat();
+
+	const int64_t healthBefore = probe->getAvailableHealth();
+
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID(SpellID::MAGIC_ARROW), probe));
+
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_HERO_CASTS"), 1) << "a hero cast it, so no unit is named";
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_NAMED"), 1) << "and the spell that hit is named";
+	EXPECT_EQ(probed(probe, "PROBE_HEALTH_BEFORE"), healthBefore) << "the captured state is the one from before the spell";
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_DAMAGE"), healthBefore - probe->getAvailableHealth());
+	EXPECT_GT(probed(probe, "PROBE_SPELL_DAMAGE"), 0);
+}
+
+/// A spell a unit cast names that unit, so that the two kinds of cast are told apart.
+TEST_F(ScriptApiTest, UnitSpellNamesItsCaster)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testJuggernaut"), BattleHex(rightHex), bigStack);
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(rightHex - 1));
+	ASSERT_NE(caster, nullptr);
+	ASSERT_NE(probe, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsUnit(caster, spellByName("heatStroke"), BattleHex(rightHex - 1)));
+
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_HERO_CASTS"), 0) << "a unit cast it, and is named";
+}
+
+/// Only a cast someone chose to make is a spell hit. What a script applies on its own is not, which
+/// is also what keeps a script that casts from re-entering itself.
+TEST_F(ScriptApiTest, AScriptedCastIsNoSpellHit)
+{
+	startGame();
+	startBattle();
+
+	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex + 1));
+	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(automaton, nullptr);
+	ASSERT_NE(killer, nullptr);
+
+	beginCombat();
+
+	const int64_t healthBefore = probe->getAvailableHealth();
+
+	// the detonation script damages the probe and writes its own spell into the combat log
+	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
+	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
+	ASSERT_FALSE(automaton->alive());
+	ASSERT_LT(probe->getAvailableHealth(), healthBefore) << "the detonation has to reach the probe";
+
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 0);
+}
+
+/// An action is reported as finished once it is wholly over, to every unit it reached - which is
+/// what lets a script bank something over an action and hand it out when the action ends.
+TEST_F(ScriptApiTest, AnActionIsReportedToTheUnitThatTookIt)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex), bigStack);
+	ASSERT_NE(target, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(probe, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 1) << "the probe is the one that acted";
+}
+
+/// And to a unit that only stood in the way of one.
+TEST_F(ScriptApiTest, AnActionIsReportedToWhatItReached)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(attacker, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 0) << "somebody else acted";
+}
+
+/// One report per action, however many blows the action was made of. This is what a flag on the
+/// last blow would have to work out in advance, and what the end of the action simply knows.
+TEST_F(ScriptApiTest, AnActionOfSeveralBlowsIsReportedOnce)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
+
+	grant(attacker, BonusType::ADDITIONAL_ATTACK, 1);
+	ASSERT_EQ(attacker->getTotalAttacks(false), 2);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+
+	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1) << "two blows, one action";
+}
+
+/// A hero spell is an action of its own, and finishes as one.
+TEST_F(ScriptApiTest, AHeroSpellFinishesAsItsOwnAction)
+{
+	startGame();
+
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+	attackerSideHero->mana = 9999;
+
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
+	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(probe, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), probe));
+
+	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
+	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 0) << "a hero acted, so no unit did";
 }

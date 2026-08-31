@@ -87,11 +87,18 @@ public:
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
 	void giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
 
-	/// Casts a hero spell at a unit, reporting whether the game allowed it at all.
+	/// Applies a hero spell to a unit directly, reporting whether the game allowed it at all.
+	/// Skips the battle action around it, so no action starts or finishes - use `castAsHero` for
+	/// a cast that the server should see as the hero's action.
 	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const;
+	/// Casts a hero spell as the battle action it really is, during the turn of one of that hero's
+	/// own units, which is when the server allows a hero to cast at all.
+	bool castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target);
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
 	bool attack(const CStack * attacker, const BattleHex & targetHex);
+	/// Walk-and-attack: the stack walks to `fromHex` and strikes whatever stands on `targetHex`.
+	bool attackFrom(const CStack * attacker, const BattleHex & targetHex, const BattleHex & fromHex);
 	/// Walks the given stack to the destination hex.
 	bool move(const CStack * stack, const BattleHex & destination);
 	/// Puts the given stack into a defensive stance.

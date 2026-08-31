@@ -225,9 +225,7 @@ function Script:record(server, battle, unit, amount)
 	end
 end
 
---- Grants what the finished action was worth. An attack action is over only once its
---- counterattack and its repeated blows are, and nothing reports that, so the levels are handed
---- out at the first event that can only belong to the next action.
+--- Grants what the finished action was worth.
 function Script:flush(server, battle, unit)
 	local pending = self:getPending(unit)
 
@@ -272,18 +270,6 @@ function Script:processAltar(server, battle, unit, startLevel)
 	self:describe(server, battle, nil, startLevel)
 end
 
---- Called before `unit` attacks `other`. The first blow of an attack starts a new action.
-function Script:onBeforeAttack(server, battle, unit, other, payload)
-	if payload.isCounter or payload.attackIndex ~= 0 then return end
-	self:flush(server, battle, unit)
-end
-
---- Called before `unit` is attacked by `other`, which for a non-counter starts a new action.
-function Script:onBeforeAttacked(server, battle, unit, other, payload)
-	if payload.isCounter or payload.attackIndex ~= 0 then return end
-	self:flush(server, battle, unit)
-end
-
 --- Called after `unit` attacked `other`. A counterattack belongs to the attacker's action, and the
 --- unit that made it is credited for the blow it took instead.
 function Script:onAfterAttack(server, battle, unit, other, payload)
@@ -296,30 +282,32 @@ function Script:onAfterAttacked(server, battle, unit, other, payload)
 	self:record(server, battle, unit, GAIN_HIT)
 end
 
---- Called when `unit` defends, which is an action that ends where it starts.
+--- Called when `unit` defends.
 function Script:onDefend(server, battle, unit, other)
-	self:flush(server, battle, unit)
-	self:processRuneGain(server, battle, unit, GAIN_DEFEND, false)
+	self:record(server, battle, unit, GAIN_DEFEND)
 end
 
---- Called when `unit` waits, which earns nothing but does end the previous action.
-function Script:onWait(server, battle, unit, other)
-	self:flush(server, battle, unit)
-end
+--- Called on a unit a spell reached. Only a hero's spell earns anything, and one cast is one action
+--- however many units it damaged.
+function Script:onSpellHit(server, battle, unit, other, payload)
+	if other then return end
 
---- Called before `unit` starts movement.
-function Script:onBeforeMove(server, battle, unit, other, payload)
-	self:flush(server, battle, unit)
+	for _, target in ipairs(payload.targets or {}) do
+		if target.unit and target.unit:unitID() == unit:unitID() and target.damage > 0 then
+			self:record(server, battle, unit, GAIN_HIT)
+			return
+		end
+	end
 end
 
 --- Called when `unit` casts a spell, which spends its turn and so counts as attacking.
 function Script:onUnitSpellcast(server, battle, unit, other)
-	self:flush(server, battle, unit)
-	self:processRuneGain(server, battle, unit, GAIN_ATTACK, true)
+	self:record(server, battle, unit, GAIN_ATTACK)
 end
 
---- Called at the start of every round but the first, which ends the last action of the previous one.
-function Script:onRoundStart(server, battle, unit, other)
+--- Called once the action that reached this unit is over, counterattack and repeated blows
+--- included. What the whole of it was worth is granted here, rather than blow by blow.
+function Script:onActionFinished(server, battle, unit, other)
 	self:flush(server, battle, unit)
 end
 

@@ -20,6 +20,12 @@ namespace vstd
 namespace battle
 {
 	class Unit;
+	class CUnitState;
+}
+
+namespace spells
+{
+	class Spell;
 }
 
 class IBattleInfoCallback;
@@ -55,4 +61,9 @@ public:
 	virtual void apply(StacksInjured & pack) = 0;
 	virtual void apply(BattleObstaclesChanged & pack) = 0;
 	virtual void apply(CatapultAttack & pack) = 0;
+
+	/// Reports that a spell someone deliberately cast has finished affecting these units, handing
+	/// over what each of them was before it landed. Only the server has anything to do with it -
+	/// it is what lets abilities react to being hit by a spell - so everyone else ignores it.
+	virtual void spellHasHit(const IBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore) {}
 };

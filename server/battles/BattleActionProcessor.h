@@ -31,6 +31,11 @@ class CGameHandler;
 class BattleProcessor;
 class ICombatEventScript;
 
+namespace spells
+{
+class Spell;
+}
+
 /// Processes incoming battle action queries and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
@@ -46,6 +51,11 @@ class BattleActionProcessor : boost::noncopyable
 
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
+
+	/// Units the running action has fired an event at, in the order it reached them. Collected
+	/// rather than worked out in advance, because which part of an action is its last one is
+	/// decided while the action runs - a target that dies ends an attack, and ferocity extends one.
+	std::vector<uint32_t> actionParticipants;
 
 	/// One reaction to a combat event that is about to run. Which script it is and how it is ordered
 	/// are decided when it is collected, so that running it is nothing but a dispatch. Units are kept
@@ -65,7 +75,11 @@ class BattleActionProcessor : boost::noncopyable
 
 	/// Gathers everything one unit reacts to one event with, without running any of it yet, so that
 	/// several units reacting to the same attack can be ordered against each other.
-	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const;
+	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other);
+
+	/// Tells every unit the running action reached that it is over. What "reached" means is simply
+	/// which units the action fired an event at, so nothing has to predict which of its parts is last.
+	void processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor);
 	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
 	/// Predefined reaction of the ON_COMBAT_EVENT bonus - grant a bonus, or cast a spell
 	void runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other);
@@ -143,6 +157,10 @@ public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
 	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary, const CombatEventPayload & payload = CombatEventPayload());
+
+	/// Hands the spell hit event to every unit a deliberately cast spell reached. `unitsBefore` is
+	/// what each of them was before the spell landed, which is also what says who was reached.
+	void processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);

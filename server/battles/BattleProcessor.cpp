@@ -414,6 +414,11 @@ void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & bat
 	actionsProcessor->processBattleEventTriggers(battle, event, target, secondary);
 }
 
+void BattleProcessor::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+{
+	actionsProcessor->processSpellHitTriggers(battle, spell, casterUnit, unitsBefore);
+}
+
 void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);

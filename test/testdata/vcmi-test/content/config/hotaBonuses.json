@@ -35,5 +35,37 @@
 	"PROBE_FLAGS" : {
 		"description" : "Answers of the scripting API that are yes or no, one bit each.",
 		"hidden" : true
+	},
+	"PROBE_MOVES" : {
+		"description" : "How many times the bearer was reported to have moved.",
+		"hidden" : true
+	},
+	"PROBE_SPELL_HITS" : {
+		"description" : "How many spells were reported to have hit the bearer.",
+		"hidden" : true
+	},
+	"PROBE_HERO_CASTS" : {
+		"description" : "How many of those spells named no casting unit.",
+		"hidden" : true
+	},
+	"PROBE_SPELL_NAMED" : {
+		"description" : "How many of those spells were the one the bearer expected.",
+		"hidden" : true
+	},
+	"PROBE_HEALTH_BEFORE" : {
+		"description" : "Health the bearer had before the spell landed, as the captured state reports it.",
+		"hidden" : true
+	},
+	"PROBE_SPELL_DAMAGE" : {
+		"description" : "Damage the spell was reported to have dealt to the bearer.",
+		"hidden" : true
+	},
+	"PROBE_ACTIONS" : {
+		"description" : "How many actions were reported to the bearer as finished.",
+		"hidden" : true
+	},
+	"PROBE_OWN_ACTIONS" : {
+		"description" : "How many of those actions were the bearer's own.",
+		"hidden" : true
 	}
 }

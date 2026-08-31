@@ -12,6 +12,17 @@ local function record(server, battle, unit, bonusType, value)
 	}, true)
 end
 
+--- The entry of the payload target list describing what happened to this unit.
+local function ownEntry(unit, payload)
+	for _, target in ipairs(payload.targets or {}) do
+		if target.unit and target.unit:unitID() == unit:unitID() then
+			return target
+		end
+	end
+
+	return nil
+end
+
 --- Luck and morale as the engine answers them, which is not the sum of the bonuses granting them.
 function Script:onBattleStart(server, battle, unit, other)
 	record(server, battle, unit, "PROBE_LUCK", unit:getLuck())
@@ -33,6 +44,41 @@ end
 function Script:onUnitSpellcast(server, battle, unit, other, payload)
 	if payload.spell and payload.spell:getJsonKey() == self.spell then
 		record(server, battle, unit, "PROBE_FLAGS", 2)
+	end
+end
+
+--- Movement of the unit, counted so that an action that walks before doing something else is
+--- seen to have walked.
+function Script:onAfterMove(server, battle, unit, other, payload)
+	record(server, battle, unit, "PROBE_MOVES", 1)
+end
+
+--- A spell landed on this unit: who cast it, which one it was, and what the unit was before.
+function Script:onSpellHit(server, battle, unit, other, payload)
+	record(server, battle, unit, "PROBE_SPELL_HITS", 1)
+
+	if not payload.caster then
+		record(server, battle, unit, "PROBE_HERO_CASTS", 1)
+	end
+
+	if payload.spell and payload.spell:getJsonKey() == self.hitBy then
+		record(server, battle, unit, "PROBE_SPELL_NAMED", 1)
+	end
+
+	local entry = ownEntry(unit, payload)
+	if entry and entry.unitBefore then
+		record(server, battle, unit, "PROBE_HEALTH_BEFORE", entry.unitBefore:getAvailableHealth())
+		record(server, battle, unit, "PROBE_SPELL_DAMAGE", entry.damage)
+	end
+end
+
+--- The action that reached this unit is over. Counted rather than flagged, so that a test can see
+--- that it is one report per action rather than one per blow of it.
+function Script:onActionFinished(server, battle, unit, other)
+	record(server, battle, unit, "PROBE_ACTIONS", 1)
+
+	if other and other:unitID() == unit:unitID() then
+		record(server, battle, unit, "PROBE_OWN_ACTIONS", 1)
 	end
 end
 

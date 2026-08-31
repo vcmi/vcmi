@@ -95,7 +95,9 @@ function Script:onAfterAttacked(server, battle, unit, other, payload)
 	self:processTriggerEvent(server, battle, unit, payload)
 end
 
---- A death that no attack caused - a spell, another detonation, a moat - reaches no event, so the
---- ability stays silent there until the engine reports those deaths.
+--- Called after a spell reached `unit`, which is the other way it can be killed.
+function Script:onSpellHit(server, battle, unit, other, payload)
+	self:processTriggerEvent(server, battle, unit, payload)
+end
 
 return Script
