@@ -37,7 +37,11 @@ void AssetGenerator::initialize()
 		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
 
 	imageFiles[ImagePath::builtin("AdventureOptionsBackgroundClear.png")] = [this](){ return createAdventureOptionsCleanBackground();};
-	imageFiles[ImagePath::builtin("SpellBookLarge.png")] = [this](){ return createBigSpellBook();};
+
+	imageFiles[ImagePath::builtin("SpellBookLarge.png")] = [this](){ return createBigSpellBook(3, 4);};
+	imageFiles[ImagePath::builtin("SpellBookLargeBordered.png")] = [this](){ return createBigSpellBook(3, 4, true);};
+	imageFiles[ImagePath::builtin("SpellBookExtraLarge.png")] = [this](){ return createBigSpellBook(4, 5, true);};
+
 	imageFiles[ImagePath::builtin("MuPopUpCustom.png")] = [this](){ return createMuPopUpCustom();};
 
 	imageFiles[ImagePath::builtin("combatUnitNumberWindowDefault.png")]  = [this](){ return createCombatUnitNumberWindow(0.6f, 0.2f, 1.0f);};
@@ -257,56 +261,100 @@ AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground(
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook() const
+AssetGenerator::CanvasPtr AssetGenerator::createBigSpellBook(int columnsPerPageHalf, int rowsPerPage, bool withBorderedStatusBar) const
 {
 	auto locator = ImageLocator(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 
 	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
-	auto image = ENGINE->renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
+	const int extraColumns = std::max(0, columnsPerPageHalf - 3);
+	const int extraRows = std::max(0, rowsPerPage - 4);
+	const int extraLargeWidth = columnsPerPageHalf >= 4 ? 100 : 0;
+	const int deltaX = extraColumns * 85 + extraLargeWidth;
+	const int deltaY = extraRows * 97;
+	const int targetWidth = 800 + deltaX;
+	const int targetHeight = 600 + deltaY;
+
+	auto image = ENGINE->renderHandler().createImage(Point(targetWidth, targetHeight), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
-	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
-	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
-	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
+	canvas.draw(img, Point(0, 460 + deltaY), Rect(15, 400, 90, 141));
+	canvas.draw(img, Point(targetWidth - 95, 0), Rect(509, 38, 95, 45));
+	Canvas rightBottomCorner = Canvas(Point(95, 141), CanvasScalingPolicy::IGNORE);
+	rightBottomCorner.draw(img, Point(0, 0), Rect(509, 400, 95, 141));
+	// The source right corner overlaps the original exit bookmark by a few pixels. Remove this fragment before placing the corner.
+	for(int i = 0; i < 7; ++i)
+		rightBottomCorner.draw(Canvas(rightBottomCorner, Rect(7, 6, 1, 58)), Point(i, 6));
+	canvas.draw(rightBottomCorner, Point(targetWidth - 95, 460 + deltaY));
 	// left / right
 	Canvas tmp1 = Canvas(Point(90, 355 - 45), CanvasScalingPolicy::IGNORE);
 	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
-	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
+	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415 + deltaY));
 	Canvas tmp2 = Canvas(Point(95, 355 - 45), CanvasScalingPolicy::IGNORE);
 	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
-	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
+	canvas.drawScaled(tmp2, Point(targetWidth - 95, 45), Point(95, 415 + deltaY));
 	// top / bottom
 	Canvas tmp3 = Canvas(Point(409, 45), CanvasScalingPolicy::IGNORE);
 	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
-	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
+	canvas.drawScaled(tmp3, Point(90, 0), Point(615 + deltaX, 45));
 	Canvas tmp4 = Canvas(Point(409, 141), CanvasScalingPolicy::IGNORE);
 	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
-	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
+	canvas.drawScaled(tmp4, Point(90, 460 + deltaY), Point(615 + deltaX, 141));
 	// middle
 	Canvas tmp5 = Canvas(Point(409, 141), CanvasScalingPolicy::IGNORE);
 	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
-	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
+	canvas.drawScaled(tmp5, Point(90, 45), Point(615 + deltaX, 415 + deltaY));
 	// carpet
 	Canvas tmp6 = Canvas(Point(590, 59), CanvasScalingPolicy::IGNORE);
 	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
-	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
-	// remove bookmarks
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(i < 30 ? 268 : 327, 464, 1, 46)), Point(269 + i, 464));
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(469, 464, 1, 42)), Point(470 + i, 464));
-	for (int i = 0; i < 57; i++)
-		canvas.draw(Canvas(canvas, Rect(i < 30 ? 564 : 630, 464, 1, 44)), Point(565 + i, 464));
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(656, 464, 1, 47)), Point(657 + i, 464));
+	canvas.drawScaled(tmp6, Point(0, 545 + deltaY), Point(targetWidth, 59));
+	const int bookmarkY = 464 + deltaY;
+	// Remove bookmarks after scaling, matching the original generator. Map its cleanup coordinates to wider books.
+	auto scaleBottomX = [deltaX](int x)
+	{
+		return 90 + (x - 90) * (615 + deltaX) / 615;
+	};
+	auto eraseScaledBookmark = [&canvas, &scaleBottomX, bookmarkY](int begin, int end, int sourceLeft, int sourceRight, int switchAt, int height)
+	{
+		const int scaledBegin = scaleBottomX(begin);
+		const int scaledEnd = scaleBottomX(end);
+		const int scaledSwitch = scaleBottomX(switchAt);
+		for(int x = scaledBegin; x < scaledEnd; ++x)
+		{
+			const int sourceX = scaleBottomX(x < scaledSwitch ? sourceLeft : sourceRight);
+			canvas.draw(Canvas(canvas, Rect(sourceX, bookmarkY, 1, height)), Point(x, bookmarkY));
+		}
+	};
+	eraseScaledBookmark(269, 325, 268, 327, 299, 46);
+	eraseScaledBookmark(470, 526, 469, 469, 526, 42);
+	eraseScaledBookmark(565, 622, 564, 630, 595, 44);
+	eraseScaledBookmark(657, 713, 656, 656, 713, 47);
+	const int rightBookmarkOffset = extraLargeWidth == 0 ? 0 : extraLargeWidth - 6;
+	const int exitBookmarkOffset = extraLargeWidth == 0 ? 0 : 2 * extraLargeWidth - 15;
 	// draw bookmarks
-	canvas.draw(img, Point(278, 464), Rect(220, 405, 37, 47));
-	canvas.draw(img, Point(481, 465), Rect(354, 406, 37, 41));
-	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
-	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
+	canvas.draw(img, Point(278, bookmarkY), Rect(220, 405, 37, 47));
+	canvas.draw(img, Point(481 + rightBookmarkOffset, bookmarkY + 1), Rect(354, 406, 37, 41));
+	canvas.draw(img, Point(575 + rightBookmarkOffset, bookmarkY + 1), Rect(417, 406, 37, 45));
+	canvas.draw(img, Point(667 + exitBookmarkOffset, bookmarkY + 1), Rect(478, 406, 37, 47));
+	if(!withBorderedStatusBar)
+		return image;
 
-	return image;
+	// Leave space for PLAYER_COLORED_BORDERED_STATUSBAR and rebuild the status bar below the book.
+	const int horizontalBorderMargin = 15;
+	const int bottomStatusBarMargin = 36;
+	const int statusBarOverlayHeight = 30;
+	auto result = createDialogBackground(Point(image->width() + 2 * horizontalBorderMargin, image->height() + bottomStatusBarMargin));
+	Canvas resultCanvas = result->getCanvas();
+	resultCanvas.draw(image, Point(horizontalBorderMargin, 0));
+
+	auto dialogBackground = ENGINE->renderHandler().loadImage(ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	for(int x = 0; x < result->width(); x += dialogBackground->width())
+	{
+		resultCanvas.draw(dialogBackground, Point(x, result->height() - statusBarOverlayHeight), Rect(0, 0, std::min(dialogBackground->width(), result->width() - x), statusBarOverlayHeight));
+	}
+	resultCanvas.drawColorBlended(Rect(0, result->height() - statusBarOverlayHeight, result->width(), statusBarOverlayHeight), ColorRGBA(0, 0, 0, 88));
+
+	return result;
 }
 
 AssetGenerator::CanvasPtr AssetGenerator::createMuPopUpCustom() const
