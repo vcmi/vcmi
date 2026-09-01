@@ -47,6 +47,4 @@ public:
 
 	/// Offset from the requested position to the string's top left, in scaled pixels
 	static Point getAlignmentOffset(EFonts font, ETextAlignment alignment, const std::string & text);
-
-	void clear();
 };

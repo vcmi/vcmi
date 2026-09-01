@@ -36,6 +36,11 @@ void GpuResources::destroyRenderer()
 	// it, and the generation tells every other owner to drop its pointer instead of freeing it
 	uploadTexture = nullptr;
 	++rendererGeneration;
+
+	// anything still queued here was also created from the old renderer and is dangling too;
+	// destroying it now would touch a texture that no longer exists, so just drop the queue
+	std::lock_guard lock(pendingTextureMutex);
+	pendingTextureDestruction.clear();
 }
 
 SDL_Texture * GpuResources::acquireUploadTexture(const Point & size)

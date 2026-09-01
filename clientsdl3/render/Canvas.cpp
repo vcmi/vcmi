@@ -63,6 +63,7 @@ Canvas::Canvas(Canvas && other):
 	surface(other.surface),
 	renderTarget(other.renderTarget),
 	ownsRenderTarget(other.ownsRenderTarget),
+	renderTargetGeneration(other.renderTargetGeneration),
 	renderArea(other.renderArea)
 {
 	// ownership of a render target moves; the source must not destroy it any more
@@ -110,6 +111,7 @@ Canvas::Canvas(SDL_Texture * renderTarget, const Point & size, CanvasScalingPoli
 	surface(nullptr),
 	renderTarget(renderTarget),
 	ownsRenderTarget(ownsRenderTarget),
+	renderTargetGeneration(GpuResources::get().generation()),
 	renderArea(Point(0, 0), size * getScalingFactor())
 {
 }
@@ -236,7 +238,7 @@ Canvas::~Canvas()
 
 	// owners are released on whichever thread drops them, and a texture may only be
 	// destroyed on the rendering thread
-	if(ownsRenderTarget && renderTarget)
+	if(ownsRenderTarget && renderTarget && renderTargetGeneration == GpuResources::get().generation())
 		GpuResources::get().destroyTextureDeferred(renderTarget);
 }
 

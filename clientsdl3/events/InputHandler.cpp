@@ -86,10 +86,11 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			}
 			return;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			// the tip repeats the tap the finger events deliver, the barrel buttons do not
+			// the tip repeats the tap the finger events deliver, the barrel buttons do not -
+			// but with touch dispatch disabled the finger event never reaches us, so let the tip through too
 			if (current.button.which == SDL_PEN_MOUSEID)
 			{
-				if (enableMouse && current.button.button != SDL_BUTTON_LEFT)
+				if (enableMouse && (current.button.button != SDL_BUTTON_LEFT || !enableTouch))
 				{
 					setCurrentInputMode(InputMode::PEN);
 					mouseHandler->handleEventMouseButtonDown(current.button);
@@ -105,7 +106,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (current.button.which == SDL_PEN_MOUSEID)
 			{
-				if (enableMouse && current.button.button != SDL_BUTTON_LEFT)
+				if (enableMouse && (current.button.button != SDL_BUTTON_LEFT || !enableTouch))
 					mouseHandler->handleEventMouseButtonUp(current.button);
 				return;
 			}
@@ -114,7 +115,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_EVENT_MOUSE_WHEEL:
 			if (enableMouse)
+			{
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseWheel(current.wheel);
+			}
 			return;
 #endif
 		case SDL_EVENT_TEXT_INPUT:
@@ -131,19 +135,23 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			}
 			return;
 		case SDL_EVENT_FINGER_DOWN:
-			if (current.tfinger.touchID == SDL_PEN_TOUCHID)
-				penIsTouching = true;
+			// penIsTouching only matters to the mouse-motion/button branches above, which are
+			// themselves gated on enableTouch delivering the finger event that would clear it
 			if (enableTouch)
 			{
+				if (current.tfinger.touchID == SDL_PEN_TOUCHID)
+					penIsTouching = true;
 				setCurrentInputMode(inputModeForTouch(current.tfinger));
 				fingerHandler->handleEventFingerDown(current.tfinger);
 			}
 			return;
 		case SDL_EVENT_FINGER_UP:
-			if (current.tfinger.touchID == SDL_PEN_TOUCHID)
-				penIsTouching = false;
 			if (enableTouch)
+			{
+				if (current.tfinger.touchID == SDL_PEN_TOUCHID)
+					penIsTouching = false;
 				fingerHandler->handleEventFingerUp(current.tfinger);
+			}
 			return;
 		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 			if (enableController)

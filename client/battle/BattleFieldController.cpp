@@ -340,9 +340,11 @@ bool BattleFieldController::usesGpuLayer() const
 
 void BattleFieldController::ensureBackgroundCanvas()
 {
-	if(backgroundWithHexes)
+	const bool useGpu = usesGpuLayer();
+	if(backgroundWithHexes && backgroundOnGpu == useGpu)
 		return;
 
+	backgroundOnGpu = useGpu;
 	const Point size(background->width(), background->height());
 
 	// createOffscreenCanvas already picks a render target or a plain surface depending on the backend
@@ -351,7 +353,8 @@ void BattleFieldController::ensureBackgroundCanvas()
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	if(backgroundNeedsRebuild)
+	// a colour scheme change flips usesGpuLayer() without touching backgroundNeedsRebuild
+	if(backgroundNeedsRebuild || backgroundOnGpu != usesGpuLayer())
 		rebuildBackgroundWithHexes();
 
 	canvas.draw(*backgroundWithHexes, Point(0, 0));

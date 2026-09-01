@@ -45,6 +45,10 @@ class Canvas
 	/// the screen handler owns it; copies and clipped views never do.
 	bool ownsRenderTarget = false;
 
+	/// GpuResources generation renderTarget was created under; deferred destruction only
+	/// queues it when this still matches, same as SDLImage/CanvasImage do for their textures
+	uint32_t renderTargetGeneration = 0;
+
 	/// Current rendering area, all rendering operations will be moved into selected area
 	Rect renderArea;
 

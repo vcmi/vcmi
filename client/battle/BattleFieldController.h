@@ -38,8 +38,13 @@ class BattleFieldController : public CIntObject
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
-	/// Allocates backgroundWithHexes on first use. Deferred out of the constructor, which
-	/// runs on the network thread where creating a render target would steal the GL context
+	/// Whether backgroundWithHexes was built as a GPU render target; compared against usesGpuLayer()
+	/// on each rebuild since a colour-scheme change can flip GPU rendering mid-battle
+	bool backgroundOnGpu = false;
+
+	/// Allocates backgroundWithHexes on first use, or recreates it if the GPU/software mode changed.
+	/// Deferred out of the constructor, which runs on the network thread where creating a render
+	/// target would steal the GL context
 	void ensureBackgroundCanvas();
 
 	/// True while the battlefield draws into the GPU layer rather than the screen surface

@@ -80,8 +80,3 @@ std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const st
 	return result;
 }
 
-void TextTextureCache::clear()
-{
-	entries.clear();
-	order.clear();
-}

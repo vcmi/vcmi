@@ -135,15 +135,4 @@ public:
 		return result;
 	}
 
-	void clear()
-	{
-		std::list<Entry> dropped;
-		{
-			std::lock_guard lock(mutex);
-			dropped.swap(order);
-			index.clear();
-			usedBytes = 0;
-			evictedAssets.clear();
-		}
-	}
 };

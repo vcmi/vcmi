@@ -113,19 +113,20 @@ See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for
   - **campaign/** - Campaign progression and scenario logic
   - **texts/** - Text handling and localization support
 
-- **client/** - Game client
+- **client/** - Game client (backend-agnostic UI, logic, and interfaces)
   - **adventureMap/** - Adventure mode UI and logic
   - **battle/** - Battle UI and rendering
   - **gui/** - GUI framework (CIntObject base class and components)
-  - **events/** - Input handling (keyboard, mouse, touch, gamepad)
   - **lobby/** - Local game setup screens
   - **globalLobby/** - Online/global lobby UI and client
   - **mainmenu/** - Main menu and game selection
   - **mapView/** - Map rendering
-  - **render/** - Rendering abstractions and interfaces
-  - **render/** - SDL-based rendering backend
+  - **render/** - Rendering abstractions and interfaces (backend-agnostic)
   - **widgets/** - Reusable UI widget components
   - **windows/** - Game windows and dialogs
+
+- **clientsdl2/** - SDL2 rendering backend (events/, media/, render/)
+- **clientsdl3/** - SDL3/GPU rendering backend (events/, media/, render/)
 
 - **server/** - Game server (compiled as vcmiservercommon library, shared by serverapp)
   - **battles/** - Battle flow processing

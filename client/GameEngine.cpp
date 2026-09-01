@@ -120,7 +120,13 @@ void GameEngine::fakeMouseMove()
 		const auto now = std::chrono::steady_clock::now();
 
 		if(!engineUser->wantsFrameRendered() && now - lastFrameRendered < maxFrameSkipDuration)
-			continue; // this frame does not happen at all, its content comes with the next one
+		{
+			// Nothing to show yet - sleep 1ms, just enough to stop the SDL_PollEvent busy-spin.
+			// Not framerateDelay(): it pads to a full frame every call, delaying the netpack
+			// this skip exists to keep fast.
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			continue;
+		}
 
 		lastFrameRendered = now;
 		updateFrame();
