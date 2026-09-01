@@ -54,7 +54,6 @@ namespace Goals
 		GET_ART_TYPE,
 
 		DEFENCE,
-		STARTUP,
 		DIG_AT_TILE,//elementar with hero on tile
 		BUY_ARMY, //at specific town
 		TRADE, //val resID at object objid
