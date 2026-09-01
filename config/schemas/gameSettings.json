@@ -107,6 +107,7 @@
 				"badLuckChance" :                 { "type" : "array" },
 				"luckDiceSize" :                  { "type" : "number" },
 				"luckBias" :                      { "type" : "number" },
+				"luckyStrikeAffectsAllTargets" :  { "type" : "boolean" },
 				"backpackSize" :                { "type" : "number" },
 				"attackPointDamageFactor" :     { "type" : "number" },
 				"attackPointDamageFactorCap" :  { "type" : "number" },

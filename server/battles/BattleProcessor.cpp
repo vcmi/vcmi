@@ -175,6 +175,9 @@ void BattleProcessor::tryLearnEnemySpellsPreBattle(const BattleInfo * battle, Ba
 	if(eagleEyeChance <= 0)
 		return;
 
+	// hero also needs corresponding level of Wisdom to learn a spell
+	const int spellLevelLimit = std::min(eagleEyeLevel, learner->maxSpellLevel());
+
 	ChangeSpells learnedSpells;
 	learnedSpells.eagleEyeBonus = true;
 	learnedSpells.learn = true;
@@ -186,7 +189,7 @@ void BattleProcessor::tryLearnEnemySpellsPreBattle(const BattleInfo * battle, Ba
 		if(!spell)
 			continue;
 
-		if(spell->getLevel() <= eagleEyeLevel && !learner->spellbookContainsSpell(spell->getId()) && gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
+		if(spell->getLevel() <= spellLevelLimit && !learner->spellbookContainsSpell(spell->getId()) && gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
 			learnedSpells.spells.insert(spell->getId());
 	}
 

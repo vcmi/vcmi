@@ -608,6 +608,8 @@
 			// Bias for luck rolls. See abilityBias for detailed description
 			// Recommended value is around luckDiceSize / 4
 			"luckBias" : 8,
+			// If set to true, a lucky strike doubles damage on every target of a multi-target attack (e.g. Hydra), not just the one directly attacked - HotA behavior. SoD default is false
+			"luckyStrikeAffectsAllTargets" : false,
 
 
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack

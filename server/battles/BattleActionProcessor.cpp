@@ -559,6 +559,9 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 		vstd::amax(spellLvl, spellcaster->val);
 	if(randSpellcaster)
 		vstd::amax(spellLvl, randSpellcaster->val);
+	//Magic Plains raises level of spells cast by creatures; must match the client-side preview in BattleActionsController
+	if(spell->getLevel() > 0)
+		vstd::amax(spellLvl, stack->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), target);
 
@@ -652,7 +655,11 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 	spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
 	battle::Target spellTarget;
 	spellTarget.emplace_back(destinationStack);
-	parameters.setSpellLevel(std::max(0, bonus->val));
+	int32_t spellLvl = std::max(0, bonus->val);
+	//Magic Plains raises level of spells cast by creatures; must match the client-side preview in BattleActionsController
+	if(spell->getLevel() > 0)
+		vstd::amax(spellLvl, stack->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
 
 	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
@@ -1388,7 +1395,8 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	BattleAttackInfo bai(attackerState.get(), def, distance, bat.shot());
 	bai.deathBlow = bat.deathBlow();
 	bai.doubleDamage = bat.ballistaDoubleDmg();
-	bai.luckyStrike  = bat.lucky() && !secondary; // lucky strike only affects creature that was directly attacked
+	// SoD: lucky strike only affects creature that was directly attacked; HotA: affects every target of a multi-target attack
+	bai.luckyStrike  = bat.lucky() && (!secondary || gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::COMBAT_LUCKY_STRIKE_AFFECTS_ALL_TARGETS));
 	bai.unluckyStrike  = bat.unlucky();
 
 	auto range = battle.calculateDmgRange(bai);
