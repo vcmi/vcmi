@@ -41,8 +41,6 @@ const char * heroLockReasonName(HeroLockedReason reason)
 {
 	switch(reason)
 	{
-	case HeroLockedReason::STARTUP:
-		return "startup";
 	case HeroLockedReason::DEFENCE:
 		return "defence";
 	case HeroLockedReason::HERO_CHAIN:
@@ -552,14 +550,6 @@ bool Nullkiller::canReleaseDefenderForTownCapture(const CGHeroInstance * hero, c
 
 bool Nullkiller::arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender) const
 {
-	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
-	{
-#if NK2AI_TRACE_LEVEL >= 1
-		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getNameTextID(), path.toString());
-#endif
-		return true;
-	}
-
 	for(const auto & node : path.nodes)
 	{
 		auto lockReason = getHeroLockedReason(node.targetHero);
