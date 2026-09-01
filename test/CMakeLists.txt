@@ -105,6 +105,7 @@ set(test_SRCS
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
 		server/battles/AcidBreathTest.cpp
+		server/battles/AttackSequenceTest.cpp
 		server/battles/BallistaDamageTest.cpp
 		server/battles/BattleTestFixture.cpp
 		server/battles/CombatEventTriggerTest.cpp

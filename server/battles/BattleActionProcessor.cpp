@@ -226,6 +226,72 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	return true;
 }
 
+void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance)
+{
+	const bool longWeaponAttack = battle.isLongWeaponAttack(attacker, defender);
+
+	int totalAttacks = attacker->getTotalAttacks(false);
+
+	//TODO: move to CUnitState
+	const auto * attackingHero = battle.battleGetFightingHero(attacker->unitSide());
+	if(attackingHero)
+	{
+		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(attacker->creatureId()));
+	}
+
+	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
+	const bool firstStrike = defender->hasBonus(firstStrikeSelector) && !defender->hasBonusOfType(BonusType::NOT_ACTIVE);
+
+	bool ferocityApplied = false;
+	int32_t defenderInitialQuantity = defender->getCount();
+
+	BonusList attackerBonusesToRemove = *attacker->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
+	BonusList defenderBonusesToRemove = *defender->getAllBonuses(Bonus::untilAfterAttackSequence);
+
+	for (int i = 0; i < totalAttacks; ++i)
+	{
+		//first strike
+		if(i == 0 && firstStrike && defender->ableToRetaliate() && !attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !attacker->isInvincible() && !longWeaponAttack)
+		{
+			makeAttack(battle, defender, attacker, {.targetHex = attacker->getPosition(), .first = true, .counter = true});
+		}
+
+		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
+		if(attacker->alive() && !attacker->hasBonusOfType(BonusType::NOT_ACTIVE) && defender->alive())
+		{
+			//no distance travelled on second attack
+			makeAttack(battle, attacker, defender, {.targetHex = targetHex, .distance = (i ? 0 : distance), .attackIndex = i, .first = i == 0});
+
+			if(!ferocityApplied && attacker->hasBonusOfType(BonusType::FEROCITY))
+			{
+				auto ferocityBonus = attacker->getBonus(Selector::type()(BonusType::FEROCITY));
+				int32_t requiredCreaturesToKill = ferocityBonus->parameters ? ferocityBonus->parameters->toNumber() : 1;
+				if(defenderInitialQuantity - defender->getCount() >= requiredCreaturesToKill)
+				{
+					ferocityApplied = true;
+					int additionalAttacksCount = attacker->valOfBonuses(BonusType::FEROCITY);
+					totalAttacks += additionalAttacksCount;
+				}
+			}
+		}
+
+		//counterattack
+		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
+		if(attacker->alive()
+			&& !attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
+			&& !attacker->isInvincible()
+			&& !longWeaponAttack
+			&& (i == 0 && !firstStrike)
+			&& defender->ableToRetaliate())
+		{
+			makeAttack(battle, defender, attacker, {.targetHex = attacker->getPosition(), .first = true, .counter = true});
+		}
+	}
+
+	removeBonuses(battle, attacker, attackerBonusesToRemove);
+	removeBonuses(battle, defender, defenderBonusesToRemove);
+}
+
 bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba)
 {
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
@@ -300,64 +366,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		return false;
 	}
 
-	//attack
-	int totalAttacks = stack->getTotalAttacks(false);
-
-	//TODO: move to CUnitState
-	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
-	if(attackingHero)
-	{
-		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
-	}
-
-	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
-	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
-
-	bool ferocityApplied = false;
-	int32_t defenderInitialQuantity = destinationStack->getCount();
-
-	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
-	BonusList defenderBonusesToRemove = *destinationStack->getAllBonuses(Bonus::untilAfterAttackSequence);
-
-	for (int i = 0; i < totalAttacks; ++i)
-	{
-		//first strike
-		if(i == 0 && firstStrike && destinationStack->ableToRetaliate() && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible() && !longWeaponAttack)
-		{
-			makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .counter = true});
-		}
-
-		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
-		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
-		{
-			//no distance travelled on second attack
-			makeAttack(battle, stack, destinationStack, {.targetHex = destinationTile, .distance = (i ? 0 : movementResult.distance), .attackIndex = i, .first = i == 0});
-
-			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
-			{
-				auto ferocityBonus = stack->getBonus(Selector::type()(BonusType::FEROCITY));
-				int32_t requiredCreaturesToKill = ferocityBonus->parameters ? ferocityBonus->parameters->toNumber() : 1;
-				if(defenderInitialQuantity - destinationStack->getCount() >= requiredCreaturesToKill)
-				{
-					ferocityApplied = true;
-					int additionalAttacksCount = stack->valOfBonuses(BonusType::FEROCITY);
-					totalAttacks += additionalAttacksCount;
-				}
-			}
-		}
-
-		//counterattack
-		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
-		if(stack->alive()
-			&& !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
-			&& !stack->isInvincible()
-			&& !longWeaponAttack
-			&& (i == 0 && !firstStrike)
-			&& destinationStack->ableToRetaliate())
-		{
-			makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .counter = true});
-		}
-	}
+	performAttackSequence(battle, stack, destinationStack, destinationTile, movementResult.distance);
 
 	//return
 	if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
@@ -375,9 +384,6 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		if(maxReachbleIndex < path.first.size())
 			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
 	}
-
-	removeBonuses(battle, stack, attackerBonusesToRemove);
-	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 
 	// attacking without moving still triggers the obstacle the unit stands on (e.g. moat damage);
 	// units that moved into the obstacle were already charged during the movement above
