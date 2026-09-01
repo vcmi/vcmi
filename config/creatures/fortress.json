@@ -124,7 +124,7 @@
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.dispelHelpful",
+				"subtype" : "dispelHelpful",
 				"val" : 100
 			}
 		},
@@ -159,13 +159,13 @@
 			"dispellHelpful" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.dispelHelpful",
+				"subtype" : "dispelHelpful",
 				"val" : 100
 			},
 			"castWeakness" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.weakness",
+				"subtype" : "weakness",
 				"val" : 100
 			}
 		},
@@ -196,7 +196,7 @@
 			"petrify" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.stoneGaze",
+				"subtype" : "stoneGaze",
 				"val" : 20
 			}
 		},
@@ -227,7 +227,7 @@
 			"petrify" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.stoneGaze",
+				"subtype" : "stoneGaze",
 				"val" : 20
 			}
 		},
@@ -276,11 +276,12 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"deathStare" : 
+			"deathStare" :
 			{
-				"type" : "DEATH_STARE",
-				"subtype" : "deathStareGorgon",
-				"val" : 10
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "deathStare",
+				"val" : 10,
+				"addInfo" : { "situation" : "melee" }
 			}
 		},
 		"graphics" :
@@ -342,7 +343,7 @@
 			"poison" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.poison",
+				"subtype" : "poison",
 				"val" : 30
 			}
 		},
@@ -373,7 +374,7 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -416,7 +417,7 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"

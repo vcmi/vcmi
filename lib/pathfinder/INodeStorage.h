@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CDestinationNodeInfo;
 struct CGPathNode;
 struct PathfinderOptions;
@@ -47,5 +45,3 @@ public:
 
 	virtual void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

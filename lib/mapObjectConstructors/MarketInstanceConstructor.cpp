@@ -15,10 +15,9 @@
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
 #include "../json/JsonUtils.h"
+#include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 {
@@ -60,7 +59,16 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	}
 
 	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
+	exchangeEffectiveness = input["effectiveness"].Float();
 	predefinedOffer = input["offer"];
+
+	for(const auto & element : input["resources"].Vector())
+	{
+		LIBRARY->identifiers()->requestIdentifier("resource", element, [this](si32 identifier)
+		{
+			tradeableResources.emplace_back(identifier);
+		});
+	}
 }
 
 bool MarketInstanceConstructor::hasDescription() const
@@ -118,4 +126,12 @@ int MarketInstanceConstructor::getMarketEfficiency() const
 	return marketEfficiency;
 }
 
-VCMI_LIB_NAMESPACE_END
+const std::vector<GameResID> & MarketInstanceConstructor::getTradeableResources() const
+{
+	return tradeableResources;
+}
+
+double MarketInstanceConstructor::getMarketExchangeEffectiveness() const
+{
+	return exchangeEffectiveness;
+}

@@ -192,7 +192,7 @@
 					"bonuses": [
 						{
 							"type": "PRIMARY_SKILL",
-							"subtype": "primarySkill.attack",
+							"subtype": "attack",
 							"val": 2
 						}
 					],
@@ -202,7 +202,7 @@
 					"bonuses": [
 						{
 							"type": "PRIMARY_SKILL",
-							"subtype": "primarySkill.defence",
+							"subtype": "defence",
 							"val": 2
 						}
 					],
@@ -210,8 +210,8 @@
 				},
 				"grail":          {
 					"bonuses": [
-						{ "type": "PRIMARY_SKILL", "subtype": "primarySkill.attack", "val": 10 },
-						{ "type": "PRIMARY_SKILL", "subtype": "primarySkill.defence", "val": 10 }
+						{ "type": "PRIMARY_SKILL", "subtype": "attack", "val": 10 },
+						{ "type": "PRIMARY_SKILL", "subtype": "defence", "val": 10 }
 					]
 				},
 

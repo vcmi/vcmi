@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CModHandler;
 class ModDescription;
 class CContentHandler;
@@ -47,6 +45,9 @@ public:
 	/// Returns assumed encoding of language of mod that provides selected file resource
 	std::string findResourceEncoding(const ResourcePath & name) const;
 
+	/// Same as findResourceEncoding, for callers that have already located the providing mod
+	std::string getResourceEncoding(const ResourcePath & name, const TModID & modName) const;
+
 	std::string getModLanguage(const TModID & modId) const;
 
 	std::set<TModID> getModDependencies(const TModID & modId) const;
@@ -64,8 +65,6 @@ public:
 	void load();
 	void afterLoad();
 
-	CModHandler();
+	explicit CModHandler(bool useTestPreset = false);
 	~CModHandler();
 };
-
-VCMI_LIB_NAMESPACE_END

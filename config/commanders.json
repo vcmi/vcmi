@@ -1,5 +1,7 @@
 
 {
+	// Resources paid to resurrect a commander in town
+	"resurrectionPrice": { "gold": 1500 },
 	//Commander receives these bonuses on level-up
 	"bonusPerLevel":
 	[
@@ -74,7 +76,7 @@
 			"skills": [1, 4]
 		}, 
 		{
-			"ability": [{ "type" : "FIRE_SHIELD", "val": 1 }],
+			"ability": [{ "type" : "COMBAT_EVENT_TRIGGER", "val": 1, "subtype" : "fireShield", "stacking" : "fireShield" }],
 			"skills": [1, 5]
 		},
 		{
@@ -94,7 +96,7 @@
 			"skills": [3, 4]
 		},
 		{
-			"ability": [{ "type" : "DEATH_STARE", "val": 1, "subtype" : "deathStareCommander" }],
+			"ability": [{ "type" : "COMBAT_EVENT_TRIGGER", "val": 1, "subtype" : "deathStare", "addInfo" : { "situation" : "commander" } }],
 			"skills": [3,5]
 		},
 		{

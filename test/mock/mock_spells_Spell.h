@@ -35,7 +35,6 @@ public:
 	MOCK_CONST_METHOD0(getBasePower, int32_t());
 	MOCK_CONST_METHOD1(getLevelPower, int32_t(const int32_t));
 	MOCK_CONST_METHOD1(getLevelDescription, const std::string &(const int32_t));
-	MOCK_CONST_METHOD0(getPositiveness, boost::logic::tribool());
 	MOCK_CONST_METHOD0(isAdventure, bool());
 	MOCK_CONST_METHOD0(isCombat, bool());
 	MOCK_CONST_METHOD0(isCreatureAbility, bool());
@@ -47,6 +46,7 @@ public:
 	MOCK_CONST_METHOD0(isOffensive, bool());
 	MOCK_CONST_METHOD0(isSpecial, bool());
 	MOCK_CONST_METHOD0(isMagical, bool());
+	MOCK_CONST_METHOD0(isCommonHeroSpell, bool());
 	MOCK_CONST_METHOD0(canCastOnSelf, bool());
 	MOCK_CONST_METHOD0(canCastOnlyOnSelf, bool());
 	MOCK_CONST_METHOD0(canCastWithoutSkip, bool());

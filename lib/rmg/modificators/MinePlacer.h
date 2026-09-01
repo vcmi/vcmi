@@ -10,8 +10,6 @@
 #pragma once
 #include "../Zone.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ObjectManager;
 
 class MinePlacer: public Modificator
@@ -26,5 +24,3 @@ protected:
 	bool placeMines(ObjectManager & manager);
 
 };
-
-VCMI_LIB_NAMESPACE_END

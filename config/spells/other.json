@@ -11,7 +11,7 @@
 				"range" : "X",
 				"battleEffects" : {
 					"obstacle" : {
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : true,
 						"passable" : true,
 						"trap" : true,
@@ -80,7 +80,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -118,7 +118,7 @@
 				"range" : "X",
 				"battleEffects" : {
 					"obstacle" : {
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : true,
 						"passable" : true,
 						"trap" : false,
@@ -176,7 +176,7 @@
 				},
 				"battleEffects":{
 					"obstacle":{
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : false,
 						"passable" : false,
 						"trap" : false,
@@ -185,13 +185,15 @@
 							"range" : [[""]],
 							"shape" : [[""], ["TR"]],
 							"animation" : "C15SPE1",
-							"appearAnimation" : "C15SPE0"
+							"appearAnimation" : "C15SPE0",
+							"removalAnimation" : "C15SPE2"
 						},
 						"defender" :{
 							"range" : [[""]],
 							"shape" : [[""], ["TL"]],
 							"animation" : "C15SPE4",
-							"appearAnimation" : "C15SPE0"
+							"appearAnimation" : "C15SPE0",
+							"removalAnimation" : "C15SPE5"
 						}
 					}
 				}
@@ -202,12 +204,14 @@
 						"attacker" :{
 							"shape" : [[""], ["TR"], ["TR", "TL"]],
 							"animation" : "C15SPE10",
-							"appearAnimation" : "C15SPE9"
+							"appearAnimation" : "C15SPE9",
+							"removalAnimation" : "C15SPE11"
 						},
 						"defender" :{
 							"shape" : [[""], ["TL"], ["TL", "TR"]],
 							"animation" : "C15SPE7",
-							"appearAnimation" : "C15SPE6"
+							"appearAnimation" : "C15SPE6",
+							"removalAnimation" : "C15SPE8"
 						}
 					}
 				}
@@ -218,12 +222,14 @@
 						"attacker" :{
 							"shape" : [[""], ["TR"], ["TR", "TL"]],
 							"animation" : "C15SPE10",
-							"appearAnimation" : "C15SPE9"
+							"appearAnimation" : "C15SPE9",
+							"removalAnimation" : "C15SPE11"
 						},
 						"defender" :{
 							"shape" : [[""], ["TL"], ["TL", "TR"]],
 							"animation" : "C15SPE7",
-							"appearAnimation" : "C15SPE6"
+							"appearAnimation" : "C15SPE6",
+							"removalAnimation" : "C15SPE8"
 						}
 					}
 				}
@@ -255,7 +261,7 @@
 				"cost" : 0, //For validation
 				"battleEffects" : {
 					"directDamage" : {
-						"type":"core:damage"
+						"type":"damage"
 					}
 				},
 				"targetModifier":{"smart":false}
@@ -296,7 +302,7 @@
 				},
 				"battleEffects":{
 					"obstacle":{
-						"type":"core:obstacle",
+						"type":"obstacle",
 						"hidden" : false,
 						"passable" : true,
 						"trap" : false,
@@ -306,13 +312,15 @@
 							"shape" : [[""]],
 							"range" : [[""], ["TR"]],
 							"animation" : "C07SPF61",
-							"appearAnimation" : "C07SPF60"
+							"appearAnimation" : "C07SPF60",
+							"removalAnimation" : "C07SPF62"
 						},
 						"defender" :{
 							"shape" : [[""]],
 							"range" : [[""], ["TL"]],
 							"animation" : "C07SPF61",
-							"appearAnimation" : "C07SPF60"
+							"appearAnimation" : "C07SPF60",
+							"removalAnimation" : "C07SPF62"
 						}
 					}
 				}
@@ -361,7 +369,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"catapult":{
-						"type":"core:catapult",
+						"type":"catapult",
 						"targetsToAttack": 2,
 						"chanceToCrit" : 0,
 						"chanceToNormalHit" : 100
@@ -406,7 +414,7 @@
 				},
 				"battleEffects":{
 					"dispel":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"optional":false,
 						"ignoreImmunity" : true,
 						"dispelNegative":true,
@@ -453,13 +461,13 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"heal",
 						"healPower":"permanent",
 						"optional":true
 					},
 					"cure":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"optional":true,
 						"dispelNegative":true,
 						"dispelNeutral":false,
@@ -471,6 +479,9 @@
 			"expert":{
 				"range" : "X"
 			}
+		},
+		"counters" : {
+			"stoneGaze": true
 		},
 		"flags" : {
 			"positive": true
@@ -491,13 +502,13 @@
 				"range" : "0",
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"resurrect",
 						"healPower":"oneBattle",
 						"minFullUnits" : 1
 					},
 					"cure":{
-						"type":"core:dispel",
+						"type":"dispel",
 						"indirect": true,
 						"optional":true,
 						"dispelNegative":true,
@@ -551,7 +562,7 @@
 				"range" : "0",
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"resurrect",
 						"healPower":"permanent",
 						"minFullUnits" : 1
@@ -575,7 +586,8 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
+			"affect":["C12SPF1"],
+			"affectSecondary":["C12SPF0"]
 		},
 		"sounds": {
 			"cast": "SACRIF1"
@@ -654,7 +666,7 @@
 		"index" : 64,
 		"targetType" : "OBSTACLE",
 		"animation":{
-			"cast":[2]
+			"hit":["C18SPW0"]
 		},
 		"sounds": {
 			"cast": "REMOVEOB"

@@ -27,8 +27,6 @@
 #include "../../networkPacks/PacksForClient.h"
 #include "../../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::unique_ptr<IAdventureSpellEffect> AdventureSpellMechanics::createAdventureEffect(const CSpell * s, const JsonNode & node)
 {
 	const std::string & typeID = node["type"].String();
@@ -105,6 +103,25 @@ bool AdventureSpellMechanics::givesBonus(const spells::Caster * caster, BonusTyp
 	return false;
 }
 
+int AdventureSpellMechanics::getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const
+{
+	const auto & level = getLevel(caster);
+	bool mapSizeIsAtLeastXL = mapSize.x * mapSize.y * mapSize.z >= GameConstants::TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD;
+	bool useAlternativeLimit = mapSizeIsAtLeastXL && level.castsPerDayXL != 0;
+	return useAlternativeLimit ? level.castsPerDayXL : level.castsPerDay;
+}
+
+int AdventureSpellMechanics::getCastsAlreadyPerformed(const spells::Caster * caster) const
+{
+	if(!caster->getHeroCaster())
+		return 0;
+
+	std::stringstream cachingStr;
+	cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << owner->id.num;
+	auto selectorForCastCounter = Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)).And(Selector::type()(BonusType::SPELL_CAST_COUNTER));
+	return caster->getHeroCaster()->valOfBonuses(selectorForCastCounter, cachingStr.str());
+}
+
 bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!owner->isAdventure())
@@ -126,14 +143,8 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameIn
 		if(heroCaster->mana < cost)
 			return false;
 
-		std::stringstream cachingStr;
-		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << owner->id.num;
-		auto selectorForCastCounter = Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)).And(Selector::type()(BonusType::SPELL_CAST_COUNTER));
-		int castsAlreadyPerformedThisTurn = caster->getHeroCaster()->valOfBonuses(selectorForCastCounter, cachingStr.str());
-		int3 mapSize = cb->getMapSize();
-		bool mapSizeIsAtLeastXL = mapSize.x * mapSize.y * mapSize.z >= GameConstants::TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD;
-		bool useAlternativeLimit = mapSizeIsAtLeastXL && getLevel(caster).castsPerDayXL != 0;
-		int castsLimit = useAlternativeLimit ? getLevel(caster).castsPerDayXL : getLevel(caster).castsPerDay;
+		int castsAlreadyPerformedThisTurn = getCastsAlreadyPerformed(caster);
+		int castsLimit = getCastsLimit(caster, cb->getMapSize());
 
 		if(castsLimit > 0 && castsLimit <= castsAlreadyPerformedThisTurn ) //limit casts per turn
 		{
@@ -202,5 +213,3 @@ void AdventureSpellMechanics::performCast(SpellCastEnvironment * env, const Adve
 		getLevel(parameters.caster).effect->endCast(env, parameters);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

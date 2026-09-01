@@ -13,8 +13,7 @@
 #include <vcmi/Artifact.h>
 
 #include "../../LuaWrapper.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../MethodRegistrar.h"
 
 namespace scripting::api
 {
@@ -22,11 +21,13 @@ namespace scripting::api
 class ArtifactProxy : public RawPointerWrapper<const Artifact, ArtifactProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const Artifact, ArtifactProxy>;
+	static constexpr std::string_view luaName = "Artifact";
+	static constexpr std::string_view luaDescription =
+		"A static artifact definition from the game database. "
+		"Identifies an artifact kind; concrete instances worn by heroes are a separate concept "
+		"not currently exposed to scripts.";
 
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static void registerMethods(MethodRegistrar & R);
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

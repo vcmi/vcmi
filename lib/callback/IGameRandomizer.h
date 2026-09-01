@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 
 enum class EArtifactClass;
@@ -44,5 +42,3 @@ public:
 
 	virtual vstd::RNG & getDefault() = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -18,11 +18,7 @@
 
 #include <optional>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapGenOptions;
-
-VCMI_LIB_NAMESPACE_END
 
 class CToggleButton;
 class CLabel;
@@ -92,16 +88,34 @@ public:
 	TeamAlignments(RandomMapTab & randomMapTab);
 };
 
+class RandomMapTab;
+
 class SetSizeWindow: public CWindowObject
 {
 	std::shared_ptr<FilledTexturePlayerColored> background;
 	std::vector<std::shared_ptr<CLabel>> titles;
 	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;
+	std::shared_ptr<CButton> buttonMapLayers;
 	std::vector<std::shared_ptr<CLabel>> sizeLabels;
 
 	std::vector<std::shared_ptr<CTextInput>> numInputs;
 	std::vector<std::shared_ptr<TransparentFilledRectangle>> rectangles;
 public:
-	SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb);
+	SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb);
+};
+
+class MapLayerSelection : public CWindowObject
+{
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonCancel;
+	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::vector<std::shared_ptr<CLabel>> titles;
+	std::vector<std::shared_ptr<CLabel>> levelLabels;
+	std::vector<std::shared_ptr<CLabel>> layerLabels;
+	std::vector<std::shared_ptr<CButton>> prevButtons;
+	std::vector<std::shared_ptr<CButton>> nextButtons;
+	std::vector<MapLayerId> selectedLayers;
+public:
+	MapLayerSelection(RandomMapTab & randomMapTab, int initialLevels);
 };

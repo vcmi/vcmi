@@ -12,8 +12,6 @@
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class ComponentType : int8_t
 {
 	NONE = -1,
@@ -73,5 +71,3 @@ struct Component
 	{
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

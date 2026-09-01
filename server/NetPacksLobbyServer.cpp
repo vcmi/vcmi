@@ -15,6 +15,8 @@
 
 #include "../lib/StartInfo.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
@@ -22,6 +24,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
@@ -39,6 +42,36 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	{
 		srv.updateAndPropagateLobbyState();
 	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Anyone can query lobby state without being a registered player
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	LobbyModsCheck lms;
+	lms.vcmiVersion = VCMI_VERSION_STRING;
+
+	for(const auto & modId : LIBRARY->modh->getActiveMods())
+		lms.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
+
+	for(const auto & [playerId, player] : srv.playerNames)
+	{
+		lms.participantNames.push_back(player.name);
+		if(player.connection == srv.hostClientId)
+			lms.hostAccountDisplayName = player.name;
+	}
+
+	connection->sendPack(lms);
+	result = false;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Do nothing - query response is sent directly, no broadcast needed
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
@@ -155,7 +188,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
 	auto scenarios = pack.ourCampaign->allScenarios();
-	for(auto scenarioID : boost::adaptors::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
+	for(auto scenarioID : std::views::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
 	{
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
@@ -285,6 +318,13 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
 {
+	// reject option changes for a player not present in the current map (invalid color, or campaign/random-map lobby without a header)
+	if(!srv.mi || !srv.mi->mapHeader || pack.color.getNum() >= srv.mi->mapHeader->players.size())
+	{
+		srv.announceMessage("Cannot change options for player " + pack.color.toString() + " - not present in the current map");
+		return;
+	}
+
 	switch(pack.what)
 	{
 	case LobbyChangePlayerOption::TOWN_ID:
@@ -467,7 +507,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 	}
 
 	LobbyUpdateState lus;
-	lus.state = srv;
+	lus.state = *static_cast<LobbyState*>(&srv);
 	lus.refreshList = true;
 	srv.announcePack(lus);
 }

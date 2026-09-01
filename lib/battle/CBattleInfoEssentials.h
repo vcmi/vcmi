@@ -10,8 +10,7 @@
 #pragma once
 #include "IBattleInfoCallback.h"
 #include "BattleSide.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../bonuses/BonusEnum.h"
 
 class CGTownInstance;
 class CGHeroInstance;
@@ -28,6 +27,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public IBattleInfoCallback
 {
 protected:
 	bool battleDoWeKnowAbout(BattleSide side) const;
+	int battleGetRetreatPermission(BattleSide side, BonusType permission) const;
 
 public:
 	enum EStackOwnership
@@ -108,10 +108,8 @@ public:
 	///returns hero that controls given stack; nullptr if none; mind control included
 	const CGHeroInstance * battleGetOwnerHero(const battle::Unit * unit) const;
 
-	///check that stacks are controlled by same|other player(s) depending on positiveness
+	///check that stacks are controlled by the same (sameOwner) or opposing (!sameOwner) player(s)
 	///mind control included
-	bool battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
-	bool battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
+	bool battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, bool sameOwner = false) const;
+	bool battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, bool sameOwner = false) const;
 };
-
-VCMI_LIB_NAMESPACE_END

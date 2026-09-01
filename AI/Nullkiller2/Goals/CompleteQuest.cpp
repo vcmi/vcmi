@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "../../../lib/GameLibrary.h"
-#include "../../../lib/mapObjects/CQuest.h"
+#include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
@@ -22,8 +22,8 @@ using namespace Goals;
 
 bool isKeyMaster(const QuestInfo & q, CCallback & cc)
 {
-	const auto * const object = q.getObject(&cc);
-	return object && (object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD);
+	const auto * const quest = q.getQuest(&cc);
+	return quest && !quest->mission.requiredKeys.empty();
 }
 
 std::string CompleteQuest::toString() const
@@ -53,7 +53,7 @@ TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 	if(quest->mission.resources.nonZero())
 		return missionResources(aiNk);
 
-	if(quest->killTarget != ObjectInstanceID::NONE)
+	if(!quest->mission.destroyedObjects.empty())
 		return missionDestroyObj(aiNk);
 
 	for(auto & s : quest->mission.primary)
@@ -94,16 +94,16 @@ std::string CompleteQuest::questToString() const
 {
 	if(isKeyMaster(q, cc))
 	{
-		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(&cc)->subID] + " keymaster tent";
+		return "find " + LIBRARY->generaltexth->translate("core.tentcolr", q.getObject(&cc)->subID.getNum()) + " keymaster tent";
 	}
 
-	if(q.getQuest(&cc)->questName == CQuest::missionName(EQuestMission::NONE))
+	if(q.getQuest(&cc)->missionKind == EQuestMission::NONE)
 		return "inactive quest";
 
 	MetaString ms;
-	q.getQuest(&cc)->getRolloverText(&cc, ms, false);
+	q.getQuest(&cc)->getQuestlogText(&cc, ms, false);
 
-	return ms.toString();
+	return ms.toString(LIBRARY->staticTexts());
 }
 
 TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const
@@ -159,7 +159,7 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 		paths,
 		[&](const AIPath & path) -> bool
 		{
-			return !CQuest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
+			return !Quest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
 		}
 	);
 
@@ -178,14 +178,14 @@ TGoalVec CompleteQuest::missionLevel(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
 {
-	if(isObjectPassable(aiNk, q.getObject(aiNk->cc.get())))
-	{
-		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
-	}
-	else
-	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(aiNk->cc.get())->subID).decompose(aiNk);
-	}
+	const auto * object = q.getObject(aiNk->cc.get());
+	if(isObjectPassable(aiNk, object))
+		return CaptureObjectsBehavior(object).decompose(aiNk);
+
+	TGoalVec solutions;
+	for(const auto & key : q.getQuest(aiNk->cc.get())->mission.requiredKeys)
+		vstd::concatenate(solutions, CaptureObjectsBehavior().ofType(Obj::KEYMASTER, key).decompose(aiNk));
+	return solutions;
 }
 
 TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
@@ -196,25 +196,22 @@ TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 {
-	const auto obj = aiNk->cc->getObj(q.getQuest(aiNk->cc.get())->killTarget);
-	if(!obj)
-		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
+	const auto * killQuest = q.getQuest(aiNk->cc.get());
 
-	const auto relations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
-
-	//if(relations == PlayerRelations::SAME_PLAYER)
-	//{
-	//	auto heroToProtect = cb->getHero(obj->id);
-
-	//	//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
-	//}
-	//else
-	if(relations == PlayerRelations::ENEMIES)
+	TGoalVec solutions;
+	for(const auto & targetId : killQuest->mission.destroyedObjects)
 	{
-		return CaptureObjectsBehavior(obj).decompose(aiNk);
-	}
+		const auto obj = aiNk->cc->getObj(targetId);
+		if(!obj)
+		{
+			vstd::concatenate(solutions, CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk));
+			continue;
+		}
 
-	return TGoalVec();
+		if(aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
+			vstd::concatenate(solutions, CaptureObjectsBehavior(obj).decompose(aiNk));
+	}
+	return solutions;
 }
 
 }

@@ -130,6 +130,15 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		GAME->server().setExtraOptionsInfo(info);
 	});
 
+	addCallback("setRecordGame", [&](int index){
+		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["recordGame"];
+		entry->Bool() = index;
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.recordGame = index;
+		GAME->server().setExtraOptionsInfo(info);
+	});
+
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;
@@ -353,7 +362,7 @@ void OptionsTabBase::recreate(bool campaign)
 		MetaString message;
 		message.appendTextID(Languages::getPluralFormTextID( LIBRARY->generaltexth->getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
-		return message.toString();
+		return message.toString(&GAME->translator());
 	};
 
 	//Simultaneous turns
@@ -408,7 +417,7 @@ void OptionsTabBase::recreate(bool campaign)
 				{
 					turnSlider->scrollTo(idx, false);
 					if(auto w = widget<CLabel>("labelTurnDurationValue"))
-						w->setText(LIBRARY->generaltexth->turnDurations[idx]);
+						w->setText(GAME->translator().translate("core.turndur", idx));
 				}
 			}
 		}
@@ -443,6 +452,15 @@ void OptionsTabBase::recreate(bool campaign)
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonRecordGame = widget<CToggleButton>("buttonRecordGame"))
+	{
+		// flipping this for a savegame would discard or falsely extend its existing recording
+		const bool gameAlreadyStarted = SEL->getStartInfo()->mode == EStartMode::LOAD_GAME;
+
+		buttonRecordGame->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.recordGame);
+		buttonRecordGame->block(GAME->server().isGuest() || gameAlreadyStarted);
 	}
 
 	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))

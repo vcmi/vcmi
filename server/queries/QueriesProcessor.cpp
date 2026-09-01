@@ -21,7 +21,11 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 		return;
 	}
 
-	queries[player] -= query;
+	const auto idx = static_cast<size_t>(player.getNum());
+	assert(query);
+
+	auto & stack = queries.at(idx);
+	stack.pop_back();
 	auto nextQuery = topQuery(player);
 
 	query->onRemoval(player);
@@ -29,6 +33,9 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 	//Exposure on query below happens only if removal didn't trigger any new query
 	if(nextQuery && nextQuery == topQuery(player))
 		nextQuery->onExposure(query);
+
+	if(queriesStackListener)
+		queriesStackListener->onQueryStackChanged(player);
 }
 
 void QueriesProcessor::popQuery(const CQuery &query)
@@ -43,11 +50,16 @@ void QueriesProcessor::popQuery(const CQuery &query)
 			popQuery(top);
 		else
 		{
-			logGlobal->trace("Cannot remove query %s", query.toString());
-			logGlobal->trace("Queries found:");
-			for(auto q : queries[player])
+			if(logGlobal->isTraceEnabled())
 			{
-				logGlobal->trace(q->toString());
+				const auto idx = static_cast<size_t>(player.getNum());
+
+				logGlobal->trace("Cannot remove query %s", query.toString());
+				logGlobal->trace("Queries found:");
+				for(const auto & q : queries.at(idx))
+				{
+					logGlobal->trace(q->toString());
+				}
 			}
 		}
 	}
@@ -63,20 +75,32 @@ void QueriesProcessor::addQuery(QueryPtr query)
 {
 	for(auto player : query->players)
 		addQuery(player, query);
-
-	for(auto player : query->players)
-		query->onAdded(player);
 }
 
 void QueriesProcessor::addQuery(PlayerColor player, QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
+
+	const auto idx = static_cast<size_t>(player.getNum());
+	assert(query);
+	auto & stack = queries.at(idx);
+	// Prevent adding the same query twice in a row
+	if(!stack.empty() && stack.back() == query)
+		return;
 	query->onAdding(player);
-	queries[player].push_back(query);
+	queries.at(idx).push_back(query);
+	query->onAdded(player);
+
+	if(queriesStackListener)
+		queriesStackListener->onQueryStackChanged(player);
 }
 
 QueryPtr QueriesProcessor::topQuery(PlayerColor player)
 {
+	assert(player.isValidPlayer());
+	if(!player.isValidPlayer())
+		return nullptr;
+
 	return vstd::backOrNull(queries[player]);
 }
 
@@ -84,7 +108,10 @@ void QueriesProcessor::popIfTop(QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
 	if(!query)
+	{
 		logGlobal->error("The query is nullptr! Ignoring.");
+		return;
+	}
 
 	popIfTop(*query);
 }
@@ -96,32 +123,41 @@ void QueriesProcessor::popIfTop(const CQuery & query)
 			popQuery(color, topQuery(color));
 }
 
-std::vector<std::shared_ptr<const CQuery>> QueriesProcessor::allQueries() const
+QueriesProcessor::AllQueriesViewConst QueriesProcessor::allQueries() const
 {
-	std::vector<std::shared_ptr<const CQuery>> ret;
-	for(const auto & playerQueries : queries)
-		for(const auto & query : playerQueries.second)
-			ret.push_back(query);
-
-	return ret;
+	return AllQueriesViewConst(queries);
 }
 
-std::vector<QueryPtr> QueriesProcessor::allQueries()
+QueriesProcessor::AllQueriesView QueriesProcessor::allQueries()
 {
-	//TODO code duplication with const function :(
-	std::vector<QueryPtr> ret;
-	for(const auto & playerQueries : queries)
-		for(const auto & query : playerQueries.second)
-			ret.push_back(query);
-
-	return ret;
+	return AllQueriesView(queries);
 }
 
 QueryPtr QueriesProcessor::getQuery(QueryID queryID)
 {
 	for(auto & playerQueries : queries)
-		for(auto & query : playerQueries.second)
+		for(auto & query : playerQueries)
 			if(query->queryID == queryID)
 				return query;
 	return nullptr;
 }
+
+int QueriesProcessor::countQuery(const QueryPtr & query) const
+{
+	if(!query)
+		return 0;
+
+	int result = 0;
+	for(const auto & currentQuery : allQueries())
+	{
+		if(currentQuery == query)
+			++result;
+	}
+	return result;
+}
+
+void QueriesProcessor::setListener(IQueryStackListener * listener)
+{
+	queriesStackListener = listener;
+}
+

@@ -59,6 +59,7 @@
 				"skillPerHero" :                  { "type" : "number" },
 				"specialtyCreatureGrowth" :       { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"specialtySpellScaling" :         { "type" : "number" },
 				"baseScoutingRange" :             { "type" : "number" },
 				"levelupTotalSkillsAmount" :      { "type" : "number" },
 				"levelupUpgradedSkillsAmount" :   { "type" : "number" }
@@ -113,7 +114,8 @@
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
 				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
-				"noSpellHitAndRunRounds" :      { "type" : "number" }
+				"noSpellHitAndRunRounds" :      { "type" : "number" },
+				"surrenderCostDivisor" :        { "type" : "number" }
 			}
 		},
 		"creatures": {
@@ -178,6 +180,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"blockDisembarkOnHole" :    { "type" : "boolean" },
 				"ignoreGuards" :            { "type" : "boolean" },
 				"useBoat" :                 { "type" : "boolean" },
 				"useMonolithTwoWay" :       { "type" : "boolean" },

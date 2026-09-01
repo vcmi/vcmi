@@ -36,8 +36,10 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		LIBRARY->generaltexth->translate("object.core.freelancersGuild.name")));
+	MetaString heroCreatures = MetaString::createFromTextID("core.genrltxt.272"); // %s's Creatures
+	heroCreatures.replaceTextID(hero->getNameTextID());
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+		heroCreatures.toString(&GAME->translator())));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
 		LIBRARY->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
 	offerSlider->moveTo(pos.topLeft() + Point(232, 489));
@@ -108,14 +110,14 @@ std::string CFreelancerGuild::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.269");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
+		message.replaceTextID(offerQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		if(bidQty == 1)
 			message.replaceNameSingular(bidTradePanel->getHighlightedItemId());
 		else
 			message.replaceNamePlural(bidTradePanel->getHighlightedItemId());
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

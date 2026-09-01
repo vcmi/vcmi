@@ -48,7 +48,7 @@ bool ExchangeSwapTownHeroes::isObjectAffected(ObjectInstanceID id) const
 
 std::string ExchangeSwapTownHeroes::toString() const
 {
-	return "Exchange and swap heroes of " + town->getNameTranslated();
+	return "Exchange and swap heroes of " + town->getNameTextID();
 }
 
 bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) const
@@ -69,13 +69,13 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 
 		if(currentGarrisonHero != town->getVisitingHero())
 		{
-			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->getNameTranslated());
+			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->getNameTextID());
 			return;
 		}
 
 		aiGw->buildArmyIn(town);
 		aiGw->nullkiller->unlockHero(currentGarrisonHero);
-		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTranslated(), town->getNameTranslated());
+		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTextID(), town->getNameTextID());
 
 		return;
 	}
@@ -112,7 +112,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		aiGw->makePossibleUpgrades(town->getVisitingHero());
 	}
 
-	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
+	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTextID(), town->getNameTextID());
 }
 
 }

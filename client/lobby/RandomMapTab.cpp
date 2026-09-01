@@ -31,6 +31,8 @@
 #include "../widgets/CTextInput.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../render/IRenderHandler.h"
+#include "../render/IFont.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
@@ -38,6 +40,7 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
+#include "../../lib/MapLayerHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
 
@@ -65,6 +68,7 @@ RandomMapTab::RandomMapTab():
 			mapGenOptions->setLevels(2); // standard setup supports at most 2 levels
 		else
 			mapGenOptions->setLevels(on ? 2 : 1);
+		mapGenOptions->resetLevelMapLayers();
 		if(mapGenOptions->getMapTemplate())
 			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
@@ -118,7 +122,7 @@ RandomMapTab::RandomMapTab():
 	{
 		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
-	
+
 	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
@@ -131,14 +135,16 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
-	
+
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
 		w->addCallback([&]()
 		{
 			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
-			(static_cast<CLobbyScreen *>(parent))->tabSel->showRandom = true;
-			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
+			auto selectionTab = (static_cast<CLobbyScreen *>(parent))->tabSel;
+			selectionTab->showRandom = true;
+			selectionTab->setCurrentFolder("RandomMaps/");
+			selectionTab->filter(0, true);
 		});
 	}
 
@@ -147,7 +153,7 @@ RandomMapTab::RandomMapTab():
 	{
 		auto getTemplates = [](){
 			auto templates = LIBRARY->tplh->getTemplates();
-			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
+			std::ranges::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
 			});
 			return templates;
@@ -224,7 +230,10 @@ void RandomMapTab::onToggleMapSize(int btnId)
 
 	if(isCustomSizeButtonId(btnId))
 	{
-		ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), mapGenOptions->getMapTemplate(), [this, setTemplateForSize](int3 ret){
+		// Don't create window when called from within OBJECT_CONSTRUCTION (e.g. updateAfterStateChange on network thread)
+		if(ENGINE->captureChildren)
+			return;
+		ENGINE->windows().createAndPushWindow<SetSizeWindow>(*this, int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), mapGenOptions->getMapTemplate(), [this, setTemplateForSize](int3 ret){
 			if(ret.z > 2)
 			{
 				std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
@@ -250,6 +259,7 @@ void RandomMapTab::onToggleMapSize(int btnId)
 	customMapSizeMode = false;
 	const int targetLevelCount = mapGenOptions->getLevels() > 1 ? 2 : 1;
 	mapGenOptions->setLevels(targetLevelCount);
+	mapGenOptions->resetLevelMapLayers();
 	if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
 		twoLevelsButton->setSelectedSilent(targetLevelCount == 2);
 	setTemplateForSize();
@@ -265,8 +275,8 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
-	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
+	mapInfo->mapHeader->name = mapGenOptions->getMapName();
+	mapInfo->mapHeader->description.appendTextID("core.genrltxt.741");
 
 	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
 		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
@@ -291,16 +301,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->mapLayers.clear();
-	for(int i = 0; i < mapGenOptions->getLevels(); i++)
-	{
-		if(i == 0)
-			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::SURFACE);
-		else if(i == 1)
-			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::UNKNOWN);
-	}
+	mapInfo->mapHeader->mapLayers = mapGenOptions->getLevelMapLayers();
 
 	// Generate player information
 	int playersToGen = mapGenOptions->getMaxPlayersCount();
@@ -778,21 +779,21 @@ void RandomMapTab::loadOptions()
 	// TODO: Save & load difficulty?
 }
 
-SetSizeWindow::SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb)
+SetSizeWindow::SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb)
 	: CWindowObject(BORDERED)
 {
 	OBJECT_CONSTRUCTION;
 
 	pos.w = 300;
-	pos.h = 180;
+	pos.h = 200;
 
 	updateShadow();
 	center();
 
 	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	background->setPlayerColor(PlayerColor(1));
-	buttonCancel = std::make_shared<CButton>(Point(160, 140), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this, cb](){ close();}, EShortcut::GLOBAL_CANCEL);
-	buttonOk = std::make_shared<CButton>(Point(70, 140), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
+	buttonCancel = std::make_shared<CButton>(Point(160, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonOk = std::make_shared<CButton>(Point(70, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
 		close();
 		if(cb)
 			cb(int3(std::max(1, std::stoi(numInputs[0]->getText())), std::max(1, std::stoi(numInputs[1]->getText())), std::max(1, std::stoi(numInputs[2]->getText()))));
@@ -820,11 +821,11 @@ SetSizeWindow::SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, st
 		templateTitle.replaceTextID("vcmi.randomMapTab.widgets.templateLabel");
 		templateTitle.replaceRawString(mapTemplate->getName());
 
-		titles.push_back(std::make_shared<CLabel>(10, 40, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, templateTitle.toString()));
+		titles.push_back(std::make_shared<CLabel>(10, 40, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, templateTitle.toString(&GAME->translator())));
 	}
 
-	sizeLabels.push_back(std::make_shared<CLabel>(10, 60, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, minSizeString.toString()));
-	sizeLabels.push_back(std::make_shared<CLabel>(10, 80, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, maxSizeString.toString()));
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 60, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, minSizeString.toString(&GAME->translator())));
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 80, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, maxSizeString.toString(&GAME->translator())));
 
 	const auto checkTemplateSize = [this, mapTemplate](const std::string &){
 		int3 mapSize {
@@ -858,4 +859,75 @@ SetSizeWindow::SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, st
 	numInputs[0]->setText(std::to_string(initSize.x));
 	numInputs[1]->setText(std::to_string(initSize.y));
 	numInputs[2]->setText(std::to_string(initSize.z));
+
+	buttonMapLayers = std::make_shared<CButton>(Point(10, 135), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [levelInput = numInputs[2], &randomMapTab](){
+		int levels = std::max(1, std::stoi(levelInput->getText()));
+		ENGINE->windows().createAndPushWindow<MapLayerSelection>(randomMapTab, levels);
+	});
+	buttonMapLayers->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.2"), EFonts::FONT_SMALL, Colors::WHITE);
+}
+
+MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLevels)
+	: CWindowObject(BORDERED)
+{
+	OBJECT_CONSTRUCTION;
+
+	auto & options = randomMapTab.obtainMapGenOptions();
+	int levels = initialLevels;
+	selectedLayers = options.getLevelMapLayers();
+	// Pad with defaults if the level count increased
+	if(selectedLayers.size() > levels)
+		selectedLayers.resize(levels);
+	selectedLayers.reserve(levels);
+	for(int i = static_cast<int>(selectedLayers.size()); i < levels; i++)
+		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
+	const auto & layerTypes = LIBRARY->mapLayerHandler->objects;
+	int layerTypeCount = static_cast<int>(layerTypes.size());
+
+	constexpr int winW = 220;
+	constexpr int centerX = winW / 2;
+	constexpr int btnW = 16;
+	constexpr int margin = 10;
+	constexpr int levelLabelX = margin;
+	constexpr int btnPrevX = 38;
+	constexpr int btnNextX = winW - margin - btnW;
+	constexpr int layerLabelX = (btnPrevX + btnW + btnNextX) / 2;
+
+	pos.w = winW;
+	pos.h = 75 + levels * 35;
+
+	updateShadow();
+	center();
+
+	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	background->setPlayerColor(PlayerColor(1));
+
+	titles.push_back(std::make_shared<CLabel>(centerX, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
+		LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.2")));
+
+	buttonCancel = std::make_shared<CButton>(Point(centerX + 10, pos.h - 40), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	buttonOk = std::make_shared<CButton>(Point(centerX - 80, pos.h - 40), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, &randomMapTab](){
+		randomMapTab.obtainMapGenOptions().setLevelMapLayers(selectedLayers);
+		close();
+	}, EShortcut::GLOBAL_ACCEPT);
+
+	for(int i = 0; i < levels; i++)
+	{
+		int yPos = 35 + i * 35;
+
+		levelLabels.push_back(std::make_shared<CLabel>(levelLabelX, yPos + 8, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE,
+			"#" + std::to_string(i + 1) + ":"));
+
+		layerLabels.push_back(std::make_shared<CLabel>(layerLabelX, yPos + 8, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+			layerTypes[selectedLayers[i].getNum()]->getNameTranslated()));
+
+		prevButtons.push_back(std::make_shared<CButton>(Point(btnPrevX, yPos), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
+			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + layerTypeCount - 1) % layerTypeCount);
+			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+		}));
+		nextButtons.push_back(std::make_shared<CButton>(Point(btnNextX, yPos), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
+			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + 1) % layerTypeCount);
+			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+		}));
+	}
 }

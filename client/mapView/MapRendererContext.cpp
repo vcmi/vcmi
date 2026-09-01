@@ -14,7 +14,9 @@
 #include "MapRendererContextState.h"
 #include "mapHandler.h"
 
+#include "../Client.h"
 #include "../CPlayerInterface.h"
+#include "../CServerHandler.h"
 #include "../PlayerLocalState.h"
 #include "../GameInstance.h"
 
@@ -29,6 +31,61 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/adventure/AdventureSpellEffect.h"
 #include "../../lib/spells/CSpell.h"
+
+static std::string getAiHeroRoleDebugText(const MapRendererBaseContext::MapObjectsList & objects, const MapRendererBaseContext & context)
+{
+	if(!GAME->server().client)
+		return {};
+
+	for(const auto objectID : objects)
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(context.getObject(objectID));
+		if(!hero || !hero->getOwner().isValidPlayer())
+			continue;
+
+		auto interfaceIt= GAME->server().client->playerint.find(hero->getOwner());
+		if(interfaceIt == GAME->server().client->playerint.end())
+			return {};
+
+		if(!interfaceIt->second)
+			continue;
+
+		auto text = interfaceIt->second->heroRoleDebugText(hero);
+		if(!text.empty())
+			return text;
+	}
+
+	return {};
+}
+
+static ColorRGBA getAiHeroDebugColor(const std::string & text)
+{
+	if(text == "MAIN/ARMY" || text == "ARMY")
+		return { 255, 0, 0 };
+	if(text == "MAIN")
+		return { 255, 96, 160 };
+	if(text == "SCOUT/ARMY")
+		return { 192, 80, 0 };
+	return { 255, 192, 96 };
+}
+
+static ColorRGBA getObjectOverlayColor(const CGObjectInstance * object)
+{
+	if(object->getOwner() == GAME->interface()->playerID)
+		return { 0, 192, 0};
+
+	if(GAME->interface()->cb->getPlayerRelations(object->getOwner(), GAME->interface()->playerID) == PlayerRelations::ALLIES)
+		return { 0, 128, 255};
+
+	if(object->getOwner().isValidPlayer() || object->ID == MapObjectID::MONSTER)
+		return { 255, 0, 0};
+
+	auto hero = GAME->interface()->localState->getCurrentHero();
+	if(hero ? object->wasVisited(hero) : object->wasVisited(GAME->interface()->playerID))
+		return { 160, 160, 160 };
+
+	return { 255, 192, 0 };
+}
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -93,7 +150,7 @@ int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wa
 {
 	if(wanderingMonster->ID != Obj::MONSTER)
 		return -1;
-		
+
 	for(const auto & battle : GAME->interface()->cb->getActiveBattles())
 		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
 			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
@@ -172,12 +229,7 @@ size_t MapRendererBaseContext::overlayImageIndex(const int3 & coordinates) const
 	return std::numeric_limits<size_t>::max();
 }
 
-std::string MapRendererBaseContext::overlayText(const int3 & coordinates) const
-{
-	return {};
-}
-
-ColorRGBA MapRendererBaseContext::overlayTextColor(const int3 & coordinates) const
+MapTextOverlay MapRendererBaseContext::overlayText(const int3 & coordinates) const
 {
 	return {};
 }
@@ -289,62 +341,34 @@ size_t MapRendererAdventureContext::terrainImageIndex(size_t groupSize) const
 	return frameIndex;
 }
 
-std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) const
+MapTextOverlay MapRendererAdventureContext::overlayText(const int3 & coordinates) const
 {
 	if(!isVisible(coordinates))
 		return {};
 
 	const auto & tile = getMapTile(coordinates);
 
-	if (!tile.visitable())
+	if(!tile.visitable())
 		return {};
+
+	if(settingShowAiHeroOverlay && !settingTextOverlay)
+	{
+		auto text = getAiHeroRoleDebugText(tile.visitableObjects, *this);
+		if(!text.empty())
+		{
+			auto color = getAiHeroDebugColor(text);
+			return { std::move(text), color };
+		}
+
+		return {};
+	}
 
 	const auto * object = getObject(tile.visitableObjects.back());
 
-	if ( object->ID == Obj::EVENT)
+	if(object->ID == Obj::EVENT)
 		return {};
 
-	return object->getObjectName();
-}
-
-ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates) const
-{
-	if(!isVisible(coordinates))
-		return {};
-
-	const auto & tile = getMapTile(coordinates);
-
-	if (!tile.visitable())
-		return {};
-
-	const auto * object = getObject(tile.visitableObjects.back());
-
-	if (object->getOwner() == GAME->interface()->playerID)
-		return { 0, 192, 0};
-
-	if (GAME->interface()->cb->getPlayerRelations(object->getOwner(), GAME->interface()->playerID) == PlayerRelations::ALLIES)
-		return { 0, 128, 255};
-
-	if (object->getOwner().isValidPlayer())
-		return { 255, 0, 0};
-
-	if (object->ID == MapObjectID::MONSTER)
-		return { 255, 0, 0};
-
-	auto hero = GAME->interface()->localState->getCurrentHero();
-
-	if (hero)
-	{
-		if (object->wasVisited(hero))
-			return { 160, 160, 160 };
-	}
-	else
-	{
-		if (object->wasVisited(GAME->interface()->playerID))
-			return { 160, 160, 160 };
-	}
-
-	return { 255, 192, 0 };
+	return { object->getObjectName().toString(&GAME->translator()), getObjectOverlayColor(object) };
 }
 
 bool MapRendererAdventureContext::showBorder() const
@@ -374,7 +398,7 @@ bool MapRendererAdventureContext::showInvisible() const
 
 bool MapRendererAdventureContext::showTextOverlay() const
 {
-	return settingTextOverlay;
+	return settingTextOverlay || settingShowAiHeroOverlay;
 }
 
 bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
@@ -528,7 +552,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 	{
 		const auto * object = getObject(objectID);
 
-		if(!object->visitableAt(coordinates))
+		if(!object || !object->visitableAt(coordinates))
 			continue;
 
 		ObjectPosInfo info(object);

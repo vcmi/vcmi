@@ -39,7 +39,7 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	widget->getAccountNameLabel()->setText(GAME->server().getGlobalLobby().getAccountDisplayName());
 	doOpenChannel("global", "english", Languages::getLanguageOptions("english").nameNative);
 
-	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
+	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString(&GAME->translator()));
 	widget->getChannelList()->resize(GAME->server().getGlobalLobby().getActiveChannels().size()+1);
 }
 
@@ -65,7 +65,7 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	MetaString text;
 	text.appendTextID("vcmi.lobby.header.chat." + channelType);
 	text.replaceRawString(roomDescription);
-	widget->getGameChatHeader()->setText(text.toString());
+	widget->getGameChatHeader()->setText(text.toString(&GAME->translator()));
 
 	// Update currently selected item in UI
 	// WARNING: this invalidates function parameters since some of them are members of objects that will be destroyed by reset
@@ -134,7 +134,7 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	chatMessageFormatted.replaceRawString(sender);
 	chatMessageFormatted.replaceRawString(message);
 
-	chatHistory += chatMessageFormatted.toString();
+	chatHistory += chatMessageFormatted.toString(&GAME->translator());
 }
 void GlobalLobbyWindow::refreshChatText()
 {
@@ -157,7 +157,7 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 
 	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.players");
 	text.replaceNumber(accounts.size());
-	widget->getAccountListHeader()->setText(text.toString());
+	widget->getAccountListHeader()->setText(text.toString(&GAME->translator()));
 }
 
 void GlobalLobbyWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms)
@@ -169,7 +169,7 @@ void GlobalLobbyWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & r
 
 	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.rooms");
 	text.replaceNumber(rooms.size());
-	widget->getRoomListHeader()->setText(text.toString());
+	widget->getRoomListHeader()->setText(text.toString(&GAME->translator()));
 }
 
 void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & history)
@@ -181,7 +181,7 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 
 	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.history");
 	text.replaceNumber(history.size());
-	widget->getMatchListHeader()->setText(text.toString());
+	widget->getMatchListHeader()->setText(text.toString(&GAME->translator()));
 }
 
 void GlobalLobbyWindow::refreshActiveChannels()

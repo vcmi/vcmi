@@ -11,8 +11,6 @@
 
 #include "CInputStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /**
  * A class which provides method definitions for reading from memory.
  * @deprecated use CMemoryBuffer
@@ -77,5 +75,3 @@ private:
 	/** Current reading position of the stream. */
 	si64 position;
 };
-
-VCMI_LIB_NAMESPACE_END

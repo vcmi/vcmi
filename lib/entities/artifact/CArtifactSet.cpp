@@ -19,8 +19,6 @@
 #include "../../mapping/CMap.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 	const CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const
 {
 	if(const ArtSlotInfo * si = getSlot(pos))
@@ -412,5 +410,3 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

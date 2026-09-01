@@ -14,7 +14,12 @@
 #include "queries/QueriesProcessor.h"
 #include "queries/CQuery.h"
 
+#include "../lib/battle/IBattleInfoCallback.h"
+#include "../lib/battle/IBattleState.h"
+#include "../lib/battle/Unit.h"
+#include "../lib/callback/GameRandomizer.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/networkPacks/PacksForClientBattle.h"
 #include "../lib/networkPacks/SetStackEffect.h"
 
@@ -37,6 +42,12 @@ void ServerSpellCastEnvironment::complain(const std::string & problem)
 vstd::RNG * ServerSpellCastEnvironment::getRNG()
 {
 	return &gh->getRandomGenerator();
+}
+
+bool ServerSpellCastEnvironment::rollCombatAbility(const IBattleInfoCallback & battle, const battle::Unit & actor, int percentageChance)
+{
+	const auto * army = battle.getBattle()->getSideArmy(actor.unitSide());
+	return gh->randomizer->rollCombatAbility(army->id, percentageChance);
 }
 
 void ServerSpellCastEnvironment::apply(CPackForClient & pack)

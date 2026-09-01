@@ -23,6 +23,7 @@
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
+#include "../replay/GameplayReplayer.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/RadialMenu.h"
 #include "../gui/CursorHandler.h"
@@ -82,6 +83,8 @@ AdventureMapInterface::AdventureMapInterface():
 
 void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
+	mapViewCenter = int3(visibleArea.center().x, visibleArea.center().y, mapLevel);
+
 	shortcuts->onMapViewMoved(visibleArea, mapLevel);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
 	widget->onMapViewMoved(visibleArea, mapLevel);
@@ -297,6 +300,11 @@ void AdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 	widget->getMapView()->onCenteredObject(obj);
 }
 
+int3 AdventureMapInterface::getMapViewCenter() const
+{
+	return mapViewCenter;
+}
+
 void AdventureMapInterface::keyPressed(EShortcut key)
 {
 	if (key == EShortcut::GLOBAL_CANCEL && spellBeingCasted)
@@ -313,7 +321,9 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 
 	widget->getInfoBar()->popAll();
 	mapAudio->onSelectionChanged(sel);
-	bool centerView = !settings["session"]["autoSkip"].Bool();
+
+	// while a replay follows another player, our own selection must not drag the camera along
+	bool centerView = !settings["session"]["autoSkip"].Bool() && !replayFollowedPlayer();
 
 	if (centerView)
 		centerOnObject(sel);
@@ -355,7 +365,7 @@ void AdventureMapInterface::onHeroOrderChanged()
 	widget->getHeroList()->updateWidget();
 }
 
-void AdventureMapInterface::onMapTilesChanged(boost::optional<FowTilesType> positions)
+void AdventureMapInterface::onMapTilesChanged(std::optional<FowTilesType> positions)
 {
 	if (positions)
 		widget->getMinimap()->updateTiles(*positions);
@@ -446,16 +456,17 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		GAME->interface()->localState->setSelection(heroToSelect);
 	}
-	else if (GAME->interface()->localState->getOwnedTowns().size())
+	else if (!GAME->interface()->localState->getOwnedTowns().empty())
 	{
 		GAME->interface()->localState->setSelection(GAME->interface()->localState->getOwnedTown(0));
 	}
-	else
+	else if (!GAME->interface()->localState->getWanderingHeroes().empty())
 	{
 		GAME->interface()->localState->setSelection(GAME->interface()->localState->getWanderingHero(0));
 	}
 
-	onSelectionChanged(GAME->interface()->localState->getCurrentArmy());
+	if (GAME->interface()->localState->getCurrentArmy())
+		onSelectionChanged(GAME->interface()->localState->getCurrentArmy());
 
 	//show new day animation and sound on infobar, except for 1st day of the game
 	if (GAME->interface()->cb->getCalendar().getCurrentDay() != 1)
@@ -512,7 +523,7 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	if (bobjs.empty())
 		return nullptr;
 
-	return *boost::range::max_element(bobjs, &CMap::compareObjectBlitOrder);
+	return *std::ranges::max_element(bobjs, &CMap::compareObjectBlitOrder);
 }
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
@@ -676,7 +687,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 	if(objAtTile)
 	{
 		objRelations = GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, objAtTile->tempOwner);
-		std::string text = GAME->interface()->localState->getCurrentHero() ? objAtTile->getHoverText(GAME->interface()->localState->getCurrentHero()) : objAtTile->getHoverText(GAME->interface()->playerID);
+		std::string text = (GAME->interface()->localState->getCurrentHero() ? objAtTile->getHoverText(GAME->interface()->localState->getCurrentHero()) : objAtTile->getHoverText(GAME->interface()->playerID)).toString(&GAME->translator());
 		boost::replace_all(text,"\n"," ");
 		if (ENGINE->isKeyboardCmdDown())
 			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ", " + std::to_string(targetPosition.z) + ")");
@@ -832,14 +843,14 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 
 	totalMovementCost -= pathNode.moveRemains;
 
-	std::string result = LIBRARY->generaltexth->translate("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns");
+	MetaString result;
+	result.appendTextID(TextIdentifier("vcmi.adventureMap", pathNode.turns > 0 ? "moveCostDetails" : "moveCostDetailsNoTurns").get());
+	result.replaceTokenNumber("%TURNS", pathNode.turns);
+	result.replaceTokenNumber("%POINTS", movementPointsLastTurnCost);
+	result.replaceTokenNumber("%REMAINING", remainingPointsAfterMove);
+	result.replaceTokenNumber("%TOTAL", totalMovementCost);
 
-	boost::replace_first(result, "%TURNS", std::to_string(pathNode.turns));
-	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
-	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
-	boost::replace_first(result, "%TOTAL", std::to_string(totalMovementCost));
-
-	ENGINE->statusbar()->write(result);
+	ENGINE->statusbar()->write(result.toString(&GAME->translator()));
 }
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)

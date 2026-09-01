@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CZipSaver.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <vstd/DateUtils.h>
 
 ///CZipOutputStream
 CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const std::string & archiveFilename):
@@ -23,13 +23,13 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 	std::time_t t = time(nullptr);
 	fileInfo.dosDate = 0;
 
-	struct tm * localTime = std::localtime(&t);
-	fileInfo.tmz_date.tm_hour = localTime->tm_hour;
-	fileInfo.tmz_date.tm_mday = localTime->tm_mday;
-	fileInfo.tmz_date.tm_min  = localTime->tm_min;
-	fileInfo.tmz_date.tm_mon  = localTime->tm_mon;
-	fileInfo.tmz_date.tm_sec  = localTime->tm_sec;
-	fileInfo.tmz_date.tm_year = localTime->tm_year;
+	std::tm localTime = vstd::safeLocalTime(t);
+	fileInfo.tmz_date.tm_hour = localTime.tm_hour;
+	fileInfo.tmz_date.tm_mday = localTime.tm_mday;
+	fileInfo.tmz_date.tm_min  = localTime.tm_min;
+	fileInfo.tmz_date.tm_mon  = localTime.tm_mon;
+	fileInfo.tmz_date.tm_sec  = localTime.tm_sec;
+	fileInfo.tmz_date.tm_year = localTime.tm_year;
 
 	fileInfo.external_fa = 0; //???
 	fileInfo.internal_fa = 0;
@@ -52,7 +52,7 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 						nullptr,//password
 						0,//crcForCrypting
 						20,//versionMadeBy
-						0,//flagBase
+						(1 << 11),//flagBase - UTF-8 file names
 						0//zip64
 						);
 
@@ -119,5 +119,3 @@ std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFil
 	return stream;
 }
 
-
-VCMI_LIB_NAMESPACE_END

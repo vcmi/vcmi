@@ -19,11 +19,11 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
@@ -37,6 +37,9 @@ CSavingScreen::CSavingScreen()
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
+	tabSel->curFolder = SavegamePath::getGameDirectoryName(
+		*GAME->interface()->cb->getStartInfo(),
+		*GAME->interface()->cb->getMapHeader());
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
 	tabSel->toggleMode();
 	curTab = tabSel;
@@ -83,20 +86,30 @@ void CSavingScreen::saveGame()
 
 	auto overWrite = [this, path]() -> void
 	{
-		Settings lastSave = settings.write["general"]["lastSave"];
-		lastSave->String() = path;
+		tabSel->rememberSave(path);
 		GAME->interface()->cb->save(path, true);
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+	auto confirmOverwrite = [this, path, overWrite]()
 	{
-		std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
-		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
-		GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
+		if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		{
+			MetaString hlp = MetaString::createFromTextID("core.genrltxt.493"); //%s exists. Overwrite?
+			hlp.replaceRawString(tabSel->inputName->getText());
+			GAME->interface()->showYesNoDialog(hlp.toString(&GAME->translator()), overWrite, nullptr);
+		}
+		else
+		{
+			overWrite();
+		}
+	};
+
+	if(SavegamePath::isAutosaveName(tabSel->inputName->getText()))
+	{
+		const std::string warning = LIBRARY->generaltexth->translate("vcmi.savingScreen.autosaveNameWarning");
+		GAME->interface()->showYesNoDialog(warning, confirmOverwrite, nullptr);
 	}
 	else
-	{
-		overWrite();
-	}
+		confirmOverwrite();
 }

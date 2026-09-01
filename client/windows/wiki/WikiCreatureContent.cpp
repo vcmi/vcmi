@@ -33,6 +33,7 @@
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../../../lib/mapObjects/ObjectTemplate.h"
+#include "../../GameInstance.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Layout constants
@@ -300,7 +301,7 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 		{
 			if(b->hidden) continue;
 			const std::string text = !b->description.empty()
-				? b->description.toString()
+				? b->description.toString(&GAME->translator())
 				: LIBRARY->bth->bonusToString(b, creature);
 			if(text.empty()) continue;
 			const auto key = std::make_tuple(static_cast<int>(b->type), b->subtype.getNum(), text);

@@ -102,7 +102,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -136,14 +136,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"deathRipple" : {
-					"subtype" : "spell.deathRipple",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "deathRipple"
 		}
 	},
 	"aislinn":
@@ -158,14 +151,7 @@
 			{ "skill" : "wisdom", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"meteorShower" : {
-					"subtype" : "spell.meteorShower",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "meteorShower"
 		}
 	},
 	"sandro":
@@ -210,14 +196,7 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"animateDead" : {
-					"subtype" : "spell.animateDead",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "animateDead"
 		}
 	},
 	"xsi":
@@ -232,13 +211,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	},
 	"vidomina":
@@ -269,7 +242,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

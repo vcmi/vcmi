@@ -13,11 +13,9 @@
 #include "../windows/CWindowObject.h"
 #include "../widgets/Scrollable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
 struct PlayerInfo;
 enum class PlayerStartingBonus : int8_t;
-VCMI_LIB_NAMESPACE_END
 
 class CLabel;
 class CMultiLineLabel;
@@ -124,8 +122,10 @@ private:
 		const int TEXT_POS_X = 29;
 		const int TEXT_POS_Y = 56;
 
-		const int MAX_LINES = 5;
-		const int MAX_ELEM_PER_LINES = 5;
+		const int MIN_LINES = 5;
+		const int MIN_ELEM_PER_LINE = 5;
+		const int MAX_LINES = 7;
+		const int MAX_ELEM_PER_LINE = 7;
 
 		int elementsPerLine;
 
@@ -164,6 +164,7 @@ private:
 		void setSelection();
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
+		int getMaxElementsPerLine(int itemCount) const;
 
 		void sliderMove(int slidPos);
 

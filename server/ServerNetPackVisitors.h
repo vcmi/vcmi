@@ -11,7 +11,7 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
-class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyGhNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	GameConnectionID connection;

@@ -21,8 +21,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 {
 	return true;
@@ -42,7 +40,11 @@ Zone::~Zone() = default;
 
 bool Zone::isUnderground() const
 {
-	return getPos().z == 1; // TODO: multilevel support
+	auto levelIndex = getPos().z;
+	const auto & levelMapLayers = map.getMapGenOptions().getLevelMapLayers();
+	if (levelIndex < static_cast<int>(levelMapLayers.size()))
+		return levelMapLayers[levelIndex] == MapLayerId::UNDERGROUND;
+	return false;
 }
 
 void Zone::setOptions(const ZoneOptions& options)
@@ -268,8 +270,8 @@ void Zone::fractalize()
 {
 	//Squared
 	float minDistance = 9 * 9;
-	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
-	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
+	float freeDistance = isUnderground() ? (10 * 10) : (9 * 9);
+	float spanFactor = (isUnderground() ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
 
 	int treasureValue = 0;
@@ -434,5 +436,3 @@ vstd::RNG& Zone::getRand()
 {
 	return *rand;
 }
-
-VCMI_LIB_NAMESPACE_END

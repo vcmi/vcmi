@@ -13,13 +13,9 @@
 #include "Entity.h"
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class HeroClassID;
 
 class DLL_LINKAGE HeroClass : public EntityT<HeroClassID>, public scripting::ApiRawPointer<HeroClass>
 {
 };
 
-
-VCMI_LIB_NAMESPACE_END

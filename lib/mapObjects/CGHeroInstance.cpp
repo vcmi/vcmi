@@ -55,8 +55,6 @@
 #include "../battle/Unit.h"
 #include "CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -136,6 +134,11 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 	}
 	else if(currentLevel == 0) // gained new skill
 	{
+		// Explicitly set skills are mutually exclusive with the (NONE, -1) "use hero type
+		// default skills" marker. Leaving the marker in place makes the hero serialize as
+		// having default skills, silently discarding every skill set here - see
+		// serializeJsonOptions().
+		vstd::erase_if(secSkills, [](const std::pair<SecondarySkill, ui8> & pair) { return pair.first == SecondarySkill::NONE; });
 		secSkills.emplace_back(which, newLevelClamped);
 	}
 	else
@@ -495,7 +498,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 		if(stack.creature == CreatureID::NONE)
 		{
-			logGlobal->error("Hero %s has invalid creature in initial army", getNameTranslated());
+			logGlobal->error("Hero %s has invalid creature in initial army", getNameTextID());
 			continue;
 		}
 
@@ -521,11 +524,11 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 					putArtifact(slot, artifact);
 				}
 				else
-					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
+					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTextID(), slot.toEnum(), aid.toEnum());
 			}
 			else
 			{
-				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTranslated());
+				logGlobal->error("Hero %s has invalid war machine in initial army", getNameTextID());
 			}
 		}
 		else
@@ -596,33 +599,34 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 	}
 }
 
-std::string CGHeroInstance::getObjectName() const
+MetaString CGHeroInstance::getObjectName() const
 {
-	if(ID != Obj::PRISON)
-	{
-		std::string hoverName = LIBRARY->generaltexth->allTexts[15];
-		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
-		return hoverName;
-	}
-	else
-		return LIBRARY->objtypeh->getObjectName(ID, 0);
+	if(ID == Obj::PRISON)
+		return MetaString::createFromTextID(getObjectNameTextID());
+
+	MetaString hoverName;
+	hoverName.appendTextID("core.genrltxt.15");
+	hoverName.replaceTextID(getNameTextID());
+	hoverName.replaceTextID(getClassNameTextID());
+	return hoverName;
 }
 
-std::string CGHeroInstance::getHoverText(PlayerColor player) const
+MetaString CGHeroInstance::getHoverText(PlayerColor player) const
 {
-	std::string hoverText = CArmedInstance::getHoverText(player) + getMovementPointsTextIfOwner(player);
+	MetaString hoverText = CArmedInstance::getHoverText(player);
+	hoverText.append(getMovementPointsTextIfOwner(player));
 	return hoverText;
 }
 
-std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
+MetaString CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
 {
-	std::string output = "";
+	MetaString output;
 	if(player == getOwner())
 	{
-		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
-		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit()));
-		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
+		output.appendRawString(" ");
+		output.appendTextID("vcmi.adventureMap.movementPointsHeroInfo");
+		output.replaceTokenNumber("%POINTS", movementPointsLimit());
+		output.replaceTokenNumber("%REMAINING", movementPointsRemaining());
 	}
 
 	return output;
@@ -728,13 +732,24 @@ double CGHeroInstance::getHeroStrength() const
 uint64_t CGHeroInstance::getValueForDiplomacy() const
 {
 	// H3 formula for hero strength when considering diplomacy skill
-	uint64_t armyStrength = getArmyStrength();
+	uint64_t armyStrength = getArmyStrengthPerceivedByOthers();
 	double heroStrength = sqrt(
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::ATTACK)) *
 		(1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::DEFENSE))
 		);
 
 	return heroStrength * armyStrength;
+}
+
+uint64_t CGHeroInstance::getArmyStrengthPerceivedByOthers() const
+{
+	uint64_t armyStrength = getArmyStrength();
+
+	// artifacts such as Diplomat's Cloak make hero army look stronger or weaker than it is
+	for(const auto & bonus : *getBonusesOfType(BonusType::DIPLOMACY_ARMY_STRENGTH_MULTIPLIER))
+		armyStrength = armyStrength * bonus->val / 100;
+
+	return armyStrength;
 }
 
 bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
@@ -820,8 +835,20 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 
 	base = static_cast<int64_t>(base * (100 + maxSchoolBonus) / 100.0);
 
-	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
-		base = static_cast<int64_t>(base * static_cast<double>(100 + valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / affectedStack->creatureLevel()) / 100.0);
+	if(affectedStack) //Hero specials like Solmyr, Deemer
+	{
+		const int targetLevel = affectedStack->creatureLevel();
+		const int assumedLevel = std::max(targetLevel, 1);
+		int spellLevPercent = 0;
+
+		// legacy: value is pre-multiplied by hero level (TIMES_HERO_LEVEL), so rounding is multiply-first; kept unchanged for compatibility
+		spellLevPercent += valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / assumedLevel;
+
+		// scaling specialty: raw percent per step with H3-correct divide-first rounding; treat level-0 units (war machines) as level 1
+		spellLevPercent += valOfBonuses(BonusType::SPECIAL_SPELL_SCALING, BonusSubtypeID(spell->getId())) * (level / assumedLevel);
+
+		base = static_cast<int64_t>(base * static_cast<double>(100 + spellLevPercent) / 100.0);
+	}
 
 	return base;
 }
@@ -880,7 +907,7 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const battl
 	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
 	if(singleTarget)
-		attacked.at(0)->addNameReplacement(text, true);
+		attacked.at(0)->addNameReplacement(text, 2);
 }
 
 const CGHeroInstance * CGHeroInstance::getHeroCaster() const
@@ -909,7 +936,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
+			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
 		}
 		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
@@ -919,7 +946,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{
 			//hero has this spell in spellbook
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
-			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
+			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTextID());
 		}
 	}
 	return !getSourcesForSpell(spell->getId()).empty();
@@ -938,19 +965,19 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 
 	if(spell->isSpecial())
 	{
-		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getNameTextID());
 		return false;//special spells can not be learned
 	}
 
 	if(spell->isCreatureAbility())
 	{
-		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getNameTextID());
 		return false;//creature abilities can not be learned
 	}
 
 	if(!allowBanned && !cb->isAllowed(spell->getId()))
 	{
-		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTextID());
 		return false;//banned spells should not be learned
 	}
 
@@ -989,7 +1016,24 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->parameters && newPick->parameters->toNumber() > necromancerPower)
+		// MOD COMPATIBILITY: Bonus::convertAddInfo stored multi-element legacy addInfo
+		// as std::vector<int32_t> regardless of bonus type; saves taken with that bug
+		// keep the wrong variant after re-save. Fall back to the first vector element.
+		int requiredSkill = 0;
+		if(newPick->parameters)
+		{
+			try
+			{
+				requiredSkill = newPick->parameters->toNumber();
+			}
+			catch(const std::runtime_error &)
+			{
+				const auto & vec = newPick->parameters->toVector();
+				if(!vec.empty())
+					requiredSkill = vec.front();
+			}
+		}
+		if(newPick->parameters && requiredSkill > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
@@ -1159,16 +1203,6 @@ int32_t CGHeroInstance::getIconIndex() const
 	return getPortraitSource().toEntity(LIBRARY)->getIconIndex();
 }
 
-std::string CGHeroInstance::getNameTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getNameTextID());
-}
-
-std::string CGHeroInstance::getClassNameTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getClassNameTextID());
-}
-
 std::string CGHeroInstance::getClassNameTextID() const
 {
 	if (isCampaignGem())
@@ -1186,11 +1220,6 @@ std::string CGHeroInstance::getNameTextID() const
 	// FIXME: called by logging from some specialties (mods?) before type is set on deserialization
 	// assert(0);
 	return "";
-}
-
-std::string CGHeroInstance::getBiographyTranslated() const
-{
-	return LIBRARY->generaltexth->translate(getBiographyTextID());
 }
 
 std::string CGHeroInstance::getBiographyTextID() const
@@ -1710,8 +1739,8 @@ bool CGHeroInstance::isMissionCritical() const
 
 		auto const & testFunctor = [&](const EventCondition & condition)
 		{
-			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
-				return (id != condition.objectID);
+				if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::CONTROL_CURRENT) && condition.objectID != ObjectInstanceID::NONE)
+					return (id != condition.objectID);
 
 			if (condition.condition == EventCondition::HAVE_ARTIFACT)
 			{
@@ -1804,5 +1833,3 @@ ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
 	return replacedArtifact;
 }
 
-
-VCMI_LIB_NAMESPACE_END

@@ -6,15 +6,15 @@
 		"faction": "dungeon",
 		"abilities":
 		{
-			"blindImmunity" : 
+			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.blind"
+				"subtype" : "blind"
 			},
-			"petrifyImmunity" : 
+			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.stoneGaze"
+				"subtype" : "stoneGaze"
 			}
 		},
 		"upgrades": ["infernalTroglodyte"],
@@ -41,15 +41,15 @@
 		"faction": "dungeon",
 		"abilities":
 		{
-			"blindImmunity" : 
+			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.blind"
+				"subtype" : "blind"
 			},
-			"petrifyImmunity" : 
+			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.stoneGaze"
+				"subtype" : "stoneGaze"
 			}
 		},
 		"graphics" :
@@ -78,7 +78,7 @@
 			{
 				"type" : "FLYING"
 			},
-			"strikeAndReturn" : 
+			"strikeAndReturn" :
 			{
 				"type" : "RETURN_AFTER_STRIKE"
 			}
@@ -111,11 +111,11 @@
 			{
 				"type" : "FLYING"
 			},
-			"strikeAndReturn" : 
+			"strikeAndReturn" :
 			{
 				"type" : "RETURN_AFTER_STRIKE"
 			},
-			"noRetaliation" : 
+			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
 			}
@@ -245,7 +245,7 @@
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.stoneGaze",
+				"subtype" : "stoneGaze",
 				"val" : 20,
 				"addInfo" : [0,2]
 			}
@@ -291,7 +291,7 @@
 			"petrification" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.stoneGaze",
+				"subtype" : "stoneGaze",
 				"val" : 20,
 				"addInfo" : [0,2]
 			}
@@ -321,7 +321,7 @@
 		"index": 78,
 		"level": 5,
 		"faction": "dungeon",
-		"abilities": 
+		"abilities":
 		{
 			"fearless" :
 			{
@@ -421,7 +421,7 @@
 			"paralize" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.paralyze",
+				"subtype" : "paralyze",
 				"val" : 20
 			}
 		},
@@ -449,11 +449,11 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"dragon" : 
+			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -501,11 +501,11 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"dragon" : 
+			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -531,7 +531,7 @@
 			"hateTitans" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.titan",
+				"subtype" : "titan",
 				"val" : 50
 			}
 		},

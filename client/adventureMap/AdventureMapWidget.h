@@ -39,6 +39,11 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
 
+	/// Default image name for the "other" map layer button, read from widget config
+	std::string defaultLayerOtherImage;
+	/// Whether the "other" map layer button uses small rendering
+	bool defaultLayerOtherGenerateSmall = false;
+
 	Rect readTargetArea(const JsonNode & source);
 	Rect readSourceArea(const JsonNode & source, const JsonNode & sourceCommon);
 	Rect readArea(const JsonNode & source, const Rect & boundingBox);
@@ -61,6 +66,7 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	void updateActiveStateChildren(CIntObject * widget);
 
 	void updateMapLayerButtonsHelp();
+	void updateMapLayerButtonIcon();
 public:
 	explicit AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
 

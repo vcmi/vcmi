@@ -33,7 +33,7 @@ public:
 		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, isMagicalEffect()).Times(AtLeast(0)).WillRepeatedly(Return(isMagicalEffect));
-		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), Field(&boost::logic::tribool::value, boost::logic::tribool::false_value))).WillRepeatedly(Return(ownerMatches));
+		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), false)).WillRepeatedly(Return(ownerMatches));
 	}
 
 protected:

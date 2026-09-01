@@ -78,7 +78,7 @@ VCMI introduces improved pathfinder, which may find the way on adventure map usi
 
 ### Quest log
 
-VCMI itroduces custom Quest Log window. It can display info about Seer Hut or Quest Guard mission, but also handle Borderguard and Border Gate missions. When you choose a quest from the list on the left, it's description is shown. Additionally, on inner minimap you can see small icons indicating locations of quest object. Clicking these objects immediately centers adventure map on desired location.
+VCMI introduces custom Quest Log window. It can display info about Seer Hut or Quest Guard mission, but also handle Borderguard and Border Gate missions. When you choose a quest from the list on the left, it's description is shown. Additionally, on inner minimap you can see small icons indicating locations of quest object. Clicking these objects immediately centers adventure map on desired location.
 
 ### Power rating
 

@@ -19,8 +19,6 @@ class CampaignProperties;
 class ScenarioProperties;
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CampaignRegions
 {
 #ifdef ENABLE_EDITOR
@@ -83,5 +81,3 @@ public:
 
 	JsonNode toJson() const;
 };
-
-VCMI_LIB_NAMESPACE_END

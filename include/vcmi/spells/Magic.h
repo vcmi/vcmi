@@ -12,8 +12,6 @@
 
 #include "vcmi/scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MetaString;
 
 namespace battle
@@ -71,5 +69,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -63,7 +63,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 	auto targetHeroScore = aiNk->heroManager->evaluateHero(receiverHero);
 
 #if NK2AI_TRACE_LEVEL >= 1
-	logAi->trace("GatherArmyBehavior::deliverArmyToHero Checking ways to gaher army for hero %s, %s", receiverHero->getObjectName(), pos.toString());
+	logAi->trace("GatherArmyBehavior::deliverArmyToHero Checking ways to gaher army for hero %s, %s", receiverHero->getNameTextID(), pos.toString());
 #endif
 
 	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
@@ -76,7 +76,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 	{
 #if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace(
-			"GatherArmyBehavior::deliverArmyToHero Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength()
+			"GatherArmyBehavior::deliverArmyToHero Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->getArmyStrength()
 		);
 #endif
 
@@ -146,8 +146,8 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		logAi->trace(
 			"GatherArmyBehavior::deliverArmyToHero It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
-			receiverHero->getObjectName(),
-			path.targetHero->getObjectName(),
+			receiverHero->getNameTextID(),
+			path.targetHero->getNameTextID(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss()
@@ -216,7 +216,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 	TResources availableResources = aiNk->getFreeResources();
 
 #if NK2AI_TRACE_LEVEL >= 1
-	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
+	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectNameTextID(), pos.toString());
 #endif
 
 	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
@@ -245,7 +245,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		auto visitGoal = goals[i];
 
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->getArmyStrength());
 #endif
 
 		if(visitGoal->invalid())
@@ -326,8 +326,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
-			upgrader->getObjectName(),
-			path.targetHero->getObjectName(),
+			upgrader->getObjectNameTextID(),
+			path.targetHero->getNameTextID(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss()
@@ -336,7 +336,15 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 
 		if(isSafe)
 		{
-			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(visitGoal)));
+			Composition composition;
+			composition.addNext(ArmyUpgrade(path, upgrader, upgrade));
+
+			if(upgrader->getGarrisonHero() == path.targetHero)
+				composition.addNext(ExchangeSwapTownHeroes(upgrader));
+			else
+				composition.addNext(visitGoal);
+
+			tasks.push_back(sptr(composition));
 		}
 	}
 

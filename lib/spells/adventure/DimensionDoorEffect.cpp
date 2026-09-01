@@ -18,8 +18,6 @@
 #include "../../mapping/TerrainTile.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DimensionDoorEffect::DimensionDoorEffect(const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
 	, cursor(config["cursor"].String())
@@ -31,15 +29,36 @@ DimensionDoorEffect::DimensionDoorEffect(const CSpell * s, const JsonNode & conf
 {
 }
 
+int DimensionDoorEffect::getMovementPointsRequired() const
+{
+	return movementPointsRequired;
+}
+
+int DimensionDoorEffect::getMovementPointsTaken() const
+{
+	return movementPointsTaken;
+}
+
+bool DimensionDoorEffect::doesWaterLandFailureTakePoints() const
+{
+	return waterLandFailureTakesPoints;
+}
+
+bool DimensionDoorEffect::doesExposeFogOfWar() const
+{
+	return exposeFow;
+}
+
 std::string DimensionDoorEffect::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS))
 		return cursor;
 
-	if (!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
+	// A hidden landing may be invalid or safe; only visible guarded landings need an attack cursor.
+	if(!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
 		return cursor;
 
-	if (!cb->isTileGuardedUnchecked(pos))
+	if(!cb->isTileGuardedUnchecked(pos))
 		return cursor;
 
 	return cursorGuarded;
@@ -59,14 +78,13 @@ bool DimensionDoorEffect::canBeCastImpl(spells::Problem & problem, const IGameIn
 	return true;
 }
 
-bool DimensionDoorEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool DimensionDoorEffect::isValidTargetFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & destination) const
 {
-	if (!isTargetInRange(cb, caster, pos))
+	if(!AdventureSpellRangedEffect::isValidTargetFrom(cb, caster, source, destination))
 		return false;
 
-	int3 casterPosition = caster->getHeroCaster()->getSightCenter();
-	const TerrainTile * dest = cb->getTileUnchecked(pos);
-	const TerrainTile * curr = cb->getTileUnchecked(casterPosition);
+	const TerrainTile * dest = cb->getTileUnchecked(destination);
+	const TerrainTile * curr = cb->getTileUnchecked(source);
 
 	if(!dest)
 		return false;
@@ -86,6 +104,14 @@ bool DimensionDoorEffect::canBeCastAtImpl(spells::Problem & problem, const IGame
 	}
 
 	return true;
+}
+
+bool DimensionDoorEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	if(!caster->getHeroCaster())
+		return false;
+
+	return isValidTargetFrom(cb, caster, caster->getHeroCaster()->getSightCenter(), pos);
 }
 
 ESpellCastResult DimensionDoorEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
@@ -136,5 +162,3 @@ void DimensionDoorEffect::endCast(SpellCastEnvironment * env, const AdventureSpe
 	if(dest->isClear(curr))
 		env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), EMovementMode::DIMENSION_DOOR);
 }
-
-VCMI_LIB_NAMESPACE_END

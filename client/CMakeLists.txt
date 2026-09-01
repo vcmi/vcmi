@@ -92,6 +92,10 @@ set(vcmiclientcommon_SRCS
 	netlag/NetworkLagCompensator.cpp
 	netlag/PackRollbackGeneratorVisitor.cpp
 
+	replay/GameplayReplayer.cpp
+	replay/ReplayAbortOverlay.cpp
+	replay/ReplaySelectionWindow.cpp
+
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -137,6 +141,7 @@ set(vcmiclientcommon_SRCS
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
+	widgets/ControllerActionButton.cpp
 	widgets/CTextInput.cpp
 	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
@@ -175,7 +180,9 @@ set(vcmiclientcommon_SRCS
 	windows/CMarketWindow.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
+	windows/CJournalWindow.cpp
 	windows/CQuestLog.cpp
+	windows/CScenarioEventJournal.cpp
 	windows/CSpellWindow.cpp
 	windows/CTutorialWindow.cpp
 	windows/wiki/WikiCommon.cpp
@@ -208,6 +215,7 @@ set(vcmiclientcommon_SRCS
 	ArtifactsUIController.cpp
 	GameEngine.cpp
 	GameInstance.cpp
+	Translator.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
@@ -260,6 +268,7 @@ set(vcmiclientcommon_HEADERS
 	battle/StackQueue.h
 	battle/UnitActionPanel.h
 
+	eventsSDL/ControllerPromptFamily.h
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h
 	eventsSDL/InputSourceKeyboard.h
@@ -329,6 +338,11 @@ set(vcmiclientcommon_HEADERS
 	netlag/NetworkLagReplyPrediction.h
 	netlag/PackRollbackGeneratorVisitor.h
 
+	replay/GameplayReplayer.h
+	replay/ReplayAbortOverlay.h
+	replay/ReplayPackFilter.h
+	replay/ReplaySelectionWindow.h
+
 	render/AssetGenerator.h
 	render/CAnimation.h
 	render/CBitmapHandler.h
@@ -383,6 +397,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
+	widgets/ControllerActionButton.h
 	widgets/CTextInput.h
 	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
@@ -422,7 +437,9 @@ set(vcmiclientcommon_HEADERS
 	windows/CMapOverview.h
 	windows/CMarketWindow.h
 	windows/CPuzzleWindow.h
+	windows/CJournalWindow.h
 	windows/CQuestLog.h
+	windows/CScenarioEventJournal.h
 	windows/CSpellWindow.h
 	windows/CTutorialWindow.h
 	windows/wiki/WikiCommon.h
@@ -459,6 +476,7 @@ set(vcmiclientcommon_HEADERS
 	GameEngine.h
 	GameEngineUser.h
 	GameInstance.h
+	Translator.h
 	PlayerLocalState.h
 	CServerHandler.h
 	Client.h
@@ -484,29 +502,6 @@ endif()
 
 assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
-
-if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon EmptyAI)
-
-	if(ENABLE_NULLKILLER2_AI)
-		add_dependencies(vcmiclientcommon Nullkiller2)
-	endif()
-
-	if(ENABLE_STUPID_AI)
-		add_dependencies(vcmiclientcommon StupidAI)
-	endif()
-
-	if(ENABLE_BATTLE_AI)
-		add_dependencies(vcmiclientcommon BattleAI)
-	endif()
-
-	if(ENABLE_MMAI)
-		add_dependencies(vcmiclientcommon MMAI)
-	endif()
-endif()
-if(IOS)
-	add_dependencies(vcmiclientcommon vcmiLua)
-endif()
 
 if(WIN32)
 	set_target_properties(vcmiclientcommon

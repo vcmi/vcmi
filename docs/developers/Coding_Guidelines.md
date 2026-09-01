@@ -5,7 +5,7 @@
 VCMI implementation bases on C++20 standard. Any feature is acceptable as long as it's will pass build on our CI. At the time of writing, following compilers are supported, and any C++20 feature available across all these compilers can be used:
 
 - GCC 10 or newer
-- Clang 13 or newer
+- Clang 16 or newer
 - Visual Studio 2022 (MSVC 19.44)
 - XCode 16.2 (Apple Clang 16.0.0)
 
@@ -34,7 +34,7 @@ Inside a code block put the opening brace on the next line after the current sta
 Good:
 
 ```cpp
-if(a) 
+if(a)
 {
 	code();
 	code();
@@ -287,14 +287,14 @@ When allocating objects, don't use parentheses for creating stack-based objects 
 Good:
 
 ```cpp
-std::vector<int> v; 
+std::vector<int> v;
 CGBoat btn = new CGBoat();
 ```
 
 Bad:
 
 ```cpp
-std::vector<int> v(); // shouldn't compile anyway 
+std::vector<int> v(); // shouldn't compile anyway
 CGBoat btn = new CGBoat;
 ```
 
@@ -449,7 +449,7 @@ case EAlignment::EVIL:
 }
 break;
 default:
-{	
+{
 	do_that();
 }
 break;

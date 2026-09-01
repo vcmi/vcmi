@@ -24,8 +24,6 @@
 #define MINIZIP_NEEDS_32BIT_FUNCS 1
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 class CInputOutputStream;
 class CMemoryBuffer;
@@ -93,5 +91,3 @@ private:
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
 };
 
-
-VCMI_LIB_NAMESPACE_END

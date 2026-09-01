@@ -11,8 +11,6 @@
 
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace JsonUtils
 {
 	/**
@@ -91,5 +89,3 @@ namespace JsonUtils
 	/// result[pathToKey][modID] -> node that was conflicting
 	DLL_LINKAGE void detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName);
 }
-
-VCMI_LIB_NAMESPACE_END

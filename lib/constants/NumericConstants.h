@@ -9,12 +9,8 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace GameConstants
 {
-	DLL_LINKAGE extern const std::string VCMI_VERSION;
-
 	constexpr int PUZZLE_MAP_PIECES = 48;
 
 	constexpr int MAX_HEROES_PER_PLAYER = 8;
@@ -31,6 +27,8 @@ namespace GameConstants
 	constexpr int SPELLBOOK_GOLD_COST = 500;
 	constexpr int BATTLE_SHOOTING_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	constexpr int BATTLE_SHOOTING_RANGE_DISTANCE = std::numeric_limits<uint8_t>::max(); // used when shooting stack has no shooting range limit
+	constexpr int BATTLE_RETREAT_RESTRICTION = 10; // how much a single restriction, e.g. defending a besieged town, reduces permission to leave combat
+	constexpr int BATTLE_RETREAT_BLOCK = 100; // permission penalty that can not be overcome by any bonus, used by shackles of war
 	constexpr int ARMY_SIZE = 7;
 	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
@@ -54,5 +52,3 @@ namespace GameConstants
 
 	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }
-
-VCMI_LIB_NAMESPACE_END

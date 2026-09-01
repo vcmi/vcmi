@@ -22,6 +22,7 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../lib/json/JsonKeyExtractor.h"
+#include "translator.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),
@@ -30,9 +31,9 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	ui->setupUi(this);
 
 	screenGeometry = QApplication::primaryScreen()->availableGeometry();
-	
+
 	Helper::decorateDialog(this);
-	
+
 	showValidationResults(map);
 }
 
@@ -44,14 +45,13 @@ Validator::~Validator()
 std::set<Validator::Issue> Validator::validate(const CMap * map)
 {
 	std::set<Validator::Issue> issues;
-	JsonKeyExtractor keyExtractor(map->cb);
-	
+
 	if(!map)
 	{
 		issues.insert({ tr("Map is not loaded"), true });
 		return issues;
 	}
-	
+
 	try
 	{
 		//check player settings
@@ -80,12 +80,18 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			issues.insert({ tr("No human players allowed to play this map"), true });
 
 		std::set<const CHero * > allHeroesOnMap; //used to find hero duplicated
-		
+
 		//checking all objects in the map
 		for(auto o : map->objects)
 		{
 			if(!o)
 				continue;
+
+			if(o->isVisitable() && !map->isInTheMap(o->visitablePos()))
+				issues.emplace(tr("Object's %1 visitable position %2 is outside of the map bounds")
+					.arg(o->instanceName.c_str())
+					.arg(QString::fromStdString(o->visitablePos().toString())), false);
+
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{
@@ -123,14 +129,14 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(map->allowedHeroes.count(ins->getHeroTypeID()) == 0)
 						issues.insert({ tr("Hero %1 is prohibited by map settings").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
-					
+
 					if(!allHeroesOnMap.insert(ins->getHeroType()).second)
 						issues.insert({ tr("Hero %1 has duplicate on map").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
 				}
 				else if(ins->ID != Obj::RANDOM_HERO)
 					issues.insert({ tr("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true });
 			}
-			
+
 			//checking for arts
 			if(auto * ins = dynamic_cast<CGArtifact *>(o.get()))
 			{
@@ -148,22 +154,64 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifactType()) == 0)
 					{
-						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
+						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().toString(&Translator::instance()).c_str()), false });
 					}
 				}
 			}
 			if(o->ID == MapObjectID::WITCH_HUT)
 			{
-				CRewardableObject * hut = static_cast<CRewardableObject *>(o.get());
-				JsonNode preset = hut->configuration.getPresetVariable("secondarySkill", "gainedSkill");
-				if(!preset.isNull())
+				PresetState presetState = validatePreset(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities);
+				if(presetState == INVALID)
 				{
-					auto presetAbilities = keyExtractor.filterKeys(preset, map->allowedAbilities);
-					if(presetAbilities.empty())
-					{
-						issues.insert({tr("A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill")
-                            .arg(hut->pos.x).arg(hut->pos.y).arg(hut->pos.z), true});
-					}
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
+				}
+				if(presetState == ILLEGAL)
+				{
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false);
+				}
+			}
+			if(o->ID == MapObjectID::SCHOLAR)
+			{
+				std::pair<PresetState, PresetState> presetStates = {
+					validatePreset(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities),
+					validatePreset(map, o, "spell", "gainedSpell", map->allowedSpells)
+
+				};
+				if(presetStates.first == INVALID || presetStates.second == INVALID)
+				{
+					issues.emplace(tr("A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
+				}
+				if(presetStates.first == OVERWRITES_MAP_SETTINGS || presetStates.second == OVERWRITES_MAP_SETTINGS)
+				{
+					issues.emplace(
+						tr("A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?")
+							.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false);
+				}
+				if(presetStates.first == ILLEGAL || presetStates.second == ILLEGAL)
+				{
+					issues.emplace(
+						tr("A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.")
+							.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false
+					);
+				}
+			}
+			static constexpr std::array shrines{MapObjectID::SHRINE_OF_MAGIC_GESTURE, MapObjectID::SHRINE_OF_MAGIC_INCANTATION, MapObjectID::SHRINE_OF_MAGIC_THOUGHT};
+			if(vstd::contains(shrines, o->ID))
+			{
+				PresetState ps = validatePreset(map, o, "spell", "gainedSpell", map->allowedSpells);
+				if(ps == INVALID)
+				{
+					issues.emplace(tr("A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
+				}
+				if(ps == OVERWRITES_MAP_SETTINGS)
+				{
+					issues.emplace(
+						tr("A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?")
+							.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false);
 				}
 			}
 		}
@@ -187,12 +235,37 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			issues.insert({ tr("Map name is not specified"), false });
 		if(map->description.empty())
 			issues.insert({ tr("Map description is not specified"), false });
-		
+
 		//verification for mods
 		for(auto & mod : MapController::modAssessmentMap(*map))
 		{
 			if(!map->mods.count(mod.first))
 				issues.insert({ MapController::modMissingMessage(mod.second), true });
+		}
+
+		for(const auto & event : map->triggeredEvents)
+		{
+			auto conditionValidator = [map, &issues, &event](const EventCondition & condition) -> EventExpression::Variant
+			{
+				if(const auto * placeholder = map->isHeroPlaceholderObjective(condition))
+				{
+					const auto conditionName =
+						event.effect.type == EventEffect::VICTORY ?
+							Validator::tr("defeat a specific hero") :
+							Validator::tr("lose a specific hero");
+					const QString placeholderName = placeholder->heroType.has_value() ?
+						QString::fromStdString(placeholder->heroType->toHeroType()->getNameTranslated()) :
+						Validator::tr("hero placeholder");
+					issues.emplace(
+						Validator::tr("Triggered event '%1' uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.")
+							.arg(event.identifier.c_str(), conditionName, placeholderName, QString::fromStdString(condition.position.toString())),
+						false);
+				}
+
+				return condition;
+			};
+
+			event.trigger.morph(conditionValidator);
 		}
 	}
 	catch(const std::exception & e)
@@ -203,8 +276,36 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 	{
 		issues.insert({ tr("Unknown exception occurs during validation"), true });
 	}
-	
+
 	return issues;
+}
+
+template<typename IdentifierType>
+Validator::PresetState Validator::validatePreset(
+	const CMap * map,
+	const std::shared_ptr<CGObjectInstance> & object,
+	const std::string & category,
+	const std::string & name,
+	const std::set<IdentifierType> & allowed
+)
+{
+	JsonKeyExtractor keyExtractor(map->cb);
+	const auto * rewardable = dynamic_cast<CRewardableObject *>(object.get());
+	if(!rewardable)
+		return ILLEGAL;
+	JsonNode presetNode = rewardable->configuration.getPresetVariable(category, name);
+	if(presetNode.isNull()) //object is default configured
+		return VALID;
+	auto preset = keyExtractor.filterKeys(presetNode, allowed);
+	preset.erase(-1); // remove invalid values
+	if(preset.empty())
+		return INVALID;
+	if(keyExtractor.canOverwriteMapSettings(presetNode))
+	{
+		if(!std::includes(allowed.begin(), allowed.end(), preset.begin(), preset.end()))
+			return OVERWRITES_MAP_SETTINGS;
+	}
+	return VALID;
 }
 
 void Validator::showValidationResults(const CMap * map)

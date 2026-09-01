@@ -4,7 +4,7 @@ It's possible to provide alternative high-definition graphics within mods. They 
 
 ## Preconditions
 
-It's still necessary to add 1x standard definition graphics as before. HD graphics are seperate from usual graphics. This allows to partitially use HD for a few graphics in mod. And avoid handling huge graphics if upscaling isn't enabled.
+It's still necessary to add 1x standard definition graphics as before. HD graphics are separate from usual graphics. This allows to partially use HD for a few graphics in mod. And avoid handling huge graphics if upscaling isn't enabled.
 
 Currently following scaling factors are possible to use: 2x, 3x, 4x. You can also provide multiple of them (increases size of mod, but improves loading performance for player). It's recommend to provide 2x and 3x images.
 

@@ -12,8 +12,6 @@
 
 #include "CInputStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #ifdef VCMI_ENDIAN_BIG
 template <typename CData>
 CData readLE(CData data)
@@ -88,8 +86,10 @@ INSTANTIATE(si64, readInt64)
 std::string CBinaryReader::readBaseString()
 {
 	unsigned int len = readUInt32();
-	assert(len <= 500000); //not too long
-	if (len > 0)
+	if(len > 500000)
+		throw std::runtime_error("Invalid or corrupt map file");
+
+	if(len > 0)
 	{
 		std::string ret;
 		ret.resize(len);
@@ -113,5 +113,3 @@ std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 
 	return ss.str();
 }
-
-VCMI_LIB_NAMESPACE_END

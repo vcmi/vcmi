@@ -167,8 +167,12 @@ void CTradeableItem::hover(bool on)
 	switch(type)
 	{
 	case EType::CREATURE:
-		ENGINE->statusbar()->write(boost::str(boost::format(LIBRARY->generaltexth->allTexts[481]) % LIBRARY->creh->objects[id]->getNamePluralTranslated()));
+	{
+		MetaString message = MetaString::createFromTextID("core.genrltxt.481"); // Select %s
+		message.replaceNamePlural(CreatureID(id));
+		ENGINE->statusbar()->write(message.toString(&GAME->translator()));
 		break;
+	}
 	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT:
 		if(id < 0)
@@ -180,7 +184,7 @@ void CTradeableItem::hover(bool on)
 		ENGINE->statusbar()->write(GameResID(id).toResource()->getNameTranslated());
 		break;
 	case EType::PLAYER:
-		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);
+		ENGINE->statusbar()->write(GAME->translator().translate("vcmi.capitalColors", id));
 		break;
 	}
 }
@@ -262,12 +266,15 @@ bool TradePanelBase::isHighlighted() const
 }
 
 ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
-	const UpdateSlotsFunctor & updateSubtitles)
+	const UpdateSlotsFunctor & updateSubtitles, const std::vector<GameResID> & tradeableResources)
 	: clickPressedCallback(std::move(clickPressedCallback))
 {
 	OBJECT_CONSTRUCTION;
 
-	resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
+	if(tradeableResources.empty())
+		resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
+	else
+		resourcesForTrade = tradeableResources;
 
 	const auto goldIt = std::find(resourcesForTrade.begin(), resourcesForTrade.end(), GameResID::GOLD);
 	if(goldIt != resourcesForTrade.end())
@@ -357,7 +364,7 @@ PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPres
 		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->setSelectionWidth(selectionWidth);
-		slot->subtitle->setText(LIBRARY->generaltexth->capColors[players[slotNum].num]);
+		slot->subtitle->setText(GAME->translator().translate("vcmi.capitalColors", players[slotNum].num));
 		slotNum++;
 	}
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::PLAYER, 0, 0);

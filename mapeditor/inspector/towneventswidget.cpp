@@ -18,6 +18,7 @@
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/mapping/CCastleEvent.h"
+#include "../translator.h"
 
 TownEventsWidget::TownEventsWidget(CGTownInstance & town, QWidget * parent) :
 	QDialog(parent),
@@ -71,7 +72,7 @@ QVariant toVariant(const CCastleEvent& event)
 {
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
-	result["message"] = QString::fromStdString(event.message.toString());
+	result["message"] = QString::fromStdString(event.message.toString(&Translator::instance()));
 	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);

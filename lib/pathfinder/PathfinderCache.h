@@ -11,8 +11,6 @@
 
 #include "PathfinderOptions.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class CGHeroInstance;
 class PathfinderConfig;
@@ -23,9 +21,11 @@ class DLL_LINKAGE PathfinderCache
 	const IGameInfoCallback * cb;
 	std::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
+	std::vector<std::shared_ptr<CPathsInfo>> reusablePaths;
 	PathfinderOptions options;
 
 	std::shared_ptr<PathfinderConfig> createConfig(const CGHeroInstance *h, CPathsInfo &out);
+	std::shared_ptr<CPathsInfo> acquirePaths(const CGHeroInstance * h);
 	std::shared_ptr<CPathsInfo> buildPaths(const CGHeroInstance *h);
 public:
 	PathfinderCache(const IGameInfoCallback * cb, const PathfinderOptions & options);
@@ -36,5 +36,3 @@ public:
 	/// Returns compute path information for requested hero
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 };
-
-VCMI_LIB_NAMESPACE_END

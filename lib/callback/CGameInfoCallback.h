@@ -11,9 +11,8 @@
 
 #include "MapInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SThievesGuildInfo;
+class ITranslator;
 class Player;
 
 class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback
@@ -91,7 +90,7 @@ public:
 
 	int howManyTowns(PlayerColor Player) const;
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
-	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
+	std::string getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const;
 	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;
 	bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 
@@ -119,5 +118,3 @@ public:
 
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt) const;
 };
-
-VCMI_LIB_NAMESPACE_END

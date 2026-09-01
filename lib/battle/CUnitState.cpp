@@ -19,8 +19,6 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 ///CAmmo
@@ -319,7 +317,6 @@ CUnitState::CUnitState():
 	env(nullptr),
 	cloned(false),
 	defending(false),
-	defendingAnim(false),
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
@@ -348,7 +345,6 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 
 	cloned = other.cloned;
 	defending = other.defending;
-	defendingAnim = other.defendingAnim;
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
@@ -472,7 +468,7 @@ std::string CUnitState::getCasterNameTextID() const
 
 void CUnitState::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
-	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
+	text.appendTextID("core.genrltxt.565");//The %s casts %s
 	//todo: use text 566 for single creature
 	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
@@ -538,7 +534,7 @@ bool CUnitState::canShoot() const
 {
 	return
 		shots.canUse(1) &&
-		bonusCache.getBonusValue(UnitBonusValuesProxy::FORGETFULL) <= 1; //advanced+ level
+		bonusCache.getBonusValue(UnitBonusValuesProxy::FORGETFULL) < 100; //100% forgetfulness disables shooting
 }
 
 bool CUnitState::isShooter() const
@@ -740,37 +736,18 @@ int CUnitState::getAttack(bool ranged) const
 		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_RANGED):
 		bonusCache.getBonusValue(UnitBonusValuesProxy::ATTACK_MELEE);
 
-	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
-	if(frenzy != 0)
-	{
-		int defence = ranged ?
-			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-			bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
-
-		int frenzyBonus = frenzy * defence / 100;
-		attack += frenzyBonus;
-	}
-
 	vstd::amax(attack, 0);
 	return attack;
 }
 
 int CUnitState::getDefense(bool ranged) const
 {
-	int frenzy = bonusCache.getBonusValue(UnitBonusValuesProxy::IN_FRENZY);
+	int defence = ranged ?
+					  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
+					  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
 
-	if(frenzy != 0)
-	{
-		return 0;
-	}
-	else
-	{
-		int defence = ranged ?
-						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_RANGED):
-						  bonusCache.getBonusValue(UnitBonusValuesProxy::DEFENCE_MELEE);
-		vstd::amax(defence, 0);
-		return defence;
-	}
+	vstd::amax(defence, 0);
+	return defence;
 }
 
 std::shared_ptr<Unit> CUnitState::acquire() const
@@ -793,7 +770,6 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("cloned", cloned);
 	handler.serializeBool("defending", defending);
-	handler.serializeBool("defendingAnim", defendingAnim);
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
@@ -830,7 +806,6 @@ void CUnitState::reset()
 {
 	cloned = false;
 	defending = false;
-	defendingAnim = false;
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;
@@ -1014,5 +989,3 @@ void CUnitStateDetached::spendMana(ServerCallback * server, const int spellCost)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -19,9 +19,7 @@ class CLabel;
 class CFilledTexture;
 class TransparentFilledRectangle;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 
 class VerticalPercentBar : public CIntObject
 {

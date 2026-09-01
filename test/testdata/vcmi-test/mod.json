@@ -1,0 +1,38 @@
+{
+	"name" : "VCMI test fixtures",
+	"description" : "Test-only maps, data and library entities. Loaded only by vcmitest, never shipped or scanned by the game.",
+	"version" : "1.0",
+	"author" : "VCMI Team",
+	"contact" : "",
+	"modType" : "Test",
+	"keepDisabled" : true,
+	"heroes" : [ "config/heroes.json" ],
+	"creatures" : [ "config/creatures.json" ],
+	"objects" : {
+		"questGate" : {
+			"name" : "Quest Gate",
+			"handler" : "questGate",
+			"types" : {
+				"object" : { }
+			}
+		}
+	},
+	"settings" :
+	{
+		// HOTA fixtures (TinyH3MBuilder) need the HOTA map format supported; with only
+		// core+vcmi active it is off by default. Identity identifier mapping is correct
+		// for the SOD-range identifiers the fixtures use, except the Quest Gate: H3M
+		// encodes it as BORDER_GATE:1000, which must map to our questGate object.
+		"mapFormat" :
+		{
+			"hornOfTheAbyss" :
+			{
+				"supported" : true,
+				"objects" :
+				{
+					"questGate" : { "object" : [ 212, 1000 ] }
+				}
+			}
+		}
+	}
+}

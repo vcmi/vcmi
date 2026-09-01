@@ -12,9 +12,7 @@
 
 enum class EShortcut;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 class ShortcutHandler
 {
@@ -36,6 +34,9 @@ public:
 	std::vector<EShortcut> translateJoystickButton(const std::string & key) const;
 
 	std::vector<EShortcut> translateJoystickAxis(const std::string & key) const;
+
+	/// Returns sorted unique joystick button bindings assigned to the provided shortcut.
+	std::vector<std::string> getJoystickButtonBindings(EShortcut shortcut) const;
 
 	/// attempts to find shortcut by its unique identifier. Returns EShortcut::NONE on failure
 	EShortcut findShortcut(const std::string & identifier ) const;

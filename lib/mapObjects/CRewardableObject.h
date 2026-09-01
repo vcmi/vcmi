@@ -13,8 +13,6 @@
 
 #include "../rewardable/Interface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Base class that can handle granting rewards to visiting heroes.
 /// Inherits from CArmedInstance for proper transfer of armies
 class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::Interface
@@ -40,10 +38,10 @@ protected:
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	
-	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
-	std::string getScoutedDescriptionMessage(const CGHeroInstance * hero) const;
-	std::string getGenericDescriptionMessage() const;
-	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
+	MetaString getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
+	MetaString getScoutedDescriptionMessage(const CGHeroInstance * hero) const;
+	MetaString getGenericDescriptionMessage() const;
+	MetaString getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 
 	/// Returns true if this object is currently guarded
@@ -82,11 +80,11 @@ public:
 
 	CRewardableObject(IGameInfoCallback *cb);
 	
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(const CGHeroInstance * hero) const override;
 
-	std::string getPopupText(PlayerColor player) const override;
-	std::string getPopupText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
 
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
@@ -100,11 +98,7 @@ public:
 };
 
 //TODO:
-// class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
-// class DLL_LINKAGE CGKeymasterTent : public CGKeys
-// class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
+// class DLL_LINKAGE KeymasterTent : public CGObjectInstance
 
 // POSSIBLE
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
-
-VCMI_LIB_NAMESPACE_END

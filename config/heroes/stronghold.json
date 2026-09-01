@@ -168,13 +168,7 @@
 			{ "skill" : "tactics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"haste" : {
-					"addInfo" : 0,
-					"subtype" : "spell.haste",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "haste"
 		}
 	},
 	"zubin":
@@ -189,13 +183,7 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"precision" : {
-					"addInfo" : 0,
-					"subtype" : "spell.precision",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "precision"
 		}
 	},
 	"gundula":
@@ -242,7 +230,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gems" : {
-					"subtype" : "resource.gems",
+					"subtype" : "gems",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1
 				}

@@ -22,8 +22,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void QuestArtifactPlacer::process()
 {
 	findZonesForQuestArts();
@@ -147,7 +145,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 				continue;
 
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s (desired value %u)",
-				objectToReplace->getObjectName(),
+				objectToReplace->getObjectNameTextID(),
 				objectToReplace->anchorPos().toString(),
 				LIBRARY->artifacts()->getById(questRequest.id)->getNameTranslated(),
 				questRequest.desiredValue);
@@ -204,5 +202,3 @@ void QuestArtifactPlacer::addRandomArtifact(const ArtifactID & artid)
 	questArtifacts.push_back(artid);
 	generator.unbanQuestArt(artid);
 }
-
-VCMI_LIB_NAMESPACE_END

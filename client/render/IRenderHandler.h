@@ -11,9 +11,7 @@
 
 #include "ImageLocator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Services;
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 

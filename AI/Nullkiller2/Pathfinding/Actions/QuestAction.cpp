@@ -12,7 +12,7 @@
 #include "QuestAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
-#include "../../../../lib/mapObjects/CQuest.h"
+#include "../../../../lib/mapObjects/Quest.h"
 
 namespace NK2AI
 {
@@ -33,9 +33,10 @@ namespace AIPathfinding
 	{
 		auto object = questInfo.getObject(aiNk->cc.get());
 		auto quest = questInfo.getQuest(aiNk->cc.get());
-		if(object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD)
+		// key-gated object: only actionable once the key is held (nothing to activate first)
+		if(!quest->mission.requiredKeys.empty())
 		{
-			return dynamic_cast<const IQuestObject *>(object)->checkQuest(hero);
+			return quest->checkQuest(hero);
 		}
 
 		auto notActivated = !object->wasVisited(aiNk->playerID)

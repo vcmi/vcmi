@@ -13,8 +13,6 @@
 #include "NumericConstants.h"
 #include "IdentifierBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Services;
 class Artifact;
 class ArtifactService;
@@ -40,6 +38,8 @@ namespace spells
 {
 	class Spell;
 	class Service;
+	class SchoolService;
+	class SpellSchoolType;
 }
 
 class CArtifact;
@@ -79,16 +79,6 @@ class DLL_LINKAGE ObjectInstanceID : public StaticIdentifier<ObjectInstanceID>
 public:
 	using StaticIdentifier<ObjectInstanceID>::StaticIdentifier;
 	static const ObjectInstanceID NONE;
-
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
-};
-
-class DLL_LINKAGE QuestInstanceID : public StaticIdentifier<QuestInstanceID>
-{
-public:
-	using StaticIdentifier<QuestInstanceID>::StaticIdentifier;
-	static const QuestInstanceID NONE;
 
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
@@ -1067,14 +1057,21 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const spells::SpellSchoolType * toEntity(const Services * services) const;
 };
 
-class DLL_LINKAGE SpellEffectID : public StaticIdentifier<SpellEffectID>
+/// Identifies a script of any kind - spell effect, combat event handler
+class DLL_LINKAGE ScriptID : public EntityIdentifier<ScriptID>
 {
 public:
-	using StaticIdentifier<SpellEffectID>::StaticIdentifier;
+	using EntityIdentifier<ScriptID>::EntityIdentifier;
 
-	static const SpellEffectID NONE;
+	static const ScriptID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 
@@ -1165,5 +1162,3 @@ using EGameResID = GameResID;
 using River = RiverId;
 using Road = RoadId;
 using ETerrainId = TerrainId;
-
-VCMI_LIB_NAMESPACE_END

@@ -15,8 +15,6 @@
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 class BonusList;
 class CBonusSystemNode;
@@ -247,11 +245,6 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		if (!h.hasFeature(Handler::Version::OPPOSITE_SIDE_LIMITER_OWNER))
-		{
-			PlayerColor owner;
-			h & owner;
-		}
 	}
 };
 
@@ -319,5 +312,3 @@ public:
 		h & chargeCost;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

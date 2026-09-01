@@ -64,6 +64,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		showStickyHeroWindowsChangedCallback(value, owner);
 	});
+	addCallback("stackInfoBasicPanelChanged", [this](bool value)
+	{
+		stackInfoBasicPanelChangedCallback(value);
+	});
 	addCallback("showQuickSpellChanged", [this, owner](bool value)
 	{
 		showQuickSpellChangedCallback(value, owner);
@@ -102,6 +106,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> showStickyHeroInfoWindowsCheckbox = widget<CToggleButton>("showStickyHeroInfoWindowsCheckbox");
 	showStickyHeroInfoWindowsCheckbox->setSelected(settings["battle"]["stickyHeroInfoWindows"].Bool());
+
+	std::shared_ptr<CToggleButton> stackInfoBasicPanelCheckbox = widget<CToggleButton>("stackInfoBasicPanelCheckbox");
+	stackInfoBasicPanelCheckbox->setSelected(settings["battle"]["stackInfoBasicPanel"].Bool());
 
 	std::shared_ptr<CToggleButton> showQuickSpellCheckbox = widget<CToggleButton>("showQuickSpellCheckbox");
 	showQuickSpellCheckbox->setSelected(settings["battle"]["enableQuickSpellPanel"].Bool());
@@ -203,6 +210,12 @@ void BattleOptionsTab::mouseShadowChangedCallback(bool value)
 {
 	Settings shadow = settings.write["battle"]["mouseShadow"];
 	shadow->Bool() = value;
+}
+
+void BattleOptionsTab::stackInfoBasicPanelChangedCallback(bool value)
+{
+	Settings panel = settings.write["battle"]["stackInfoBasicPanel"];
+	panel->Bool() = value;
 }
 
 void BattleOptionsTab::animationSpeedChangedCallback(int value)

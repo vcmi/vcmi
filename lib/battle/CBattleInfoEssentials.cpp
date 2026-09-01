@@ -21,8 +21,6 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../mapObjects/CGTownInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CBattleInfoEssentials::duringBattle() const
 {
 	return getBattle() != nullptr;
@@ -316,6 +314,29 @@ const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 	return getBattle()->getBonusBearer();
 }
 
+int CBattleInfoEssentials::battleGetRetreatPermission(BattleSide side, BonusType permission) const
+{
+	const CGHeroInstance * myHero = battleGetFightingHero(side);
+	const bool enemyHasHero = battleHasHero(otherSide(side));
+	int result = 0;
+
+	//blockers such as shackles of war have nobody to enforce them if enemy army has no hero
+	for(const auto & bonus : *myHero->getBonusesOfType(permission))
+		if(enemyHasHero || bonus->val > 0)
+			result += bonus->val;
+
+	//we are besieged defender, town buildings decide - village hall locks us in, escape tunnel provides a way out
+	if(side == BattleSide::DEFENDER && battleGetDefendedTown() != nullptr)
+		result += battleGetDefendedTown()->valOfBonuses(permission);
+
+	//cannot leave after casting spell in X first turns as attacker
+	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
+		&& side == BattleSide::ATTACKER && enemyHasHero && getBattle()->getCastSpells(side) >= 1)
+		result -= GameConstants::BATTLE_RETREAT_RESTRICTION;
+
+	return result;
+}
+
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -323,30 +344,11 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 	if(side == BattleSide::NONE)
 		return false;
 
-	const CGHeroInstance * myHero = battleGetFightingHero(side);
-
 	//current player has no hero
-	if(!myHero)
+	if(!battleGetFightingHero(side))
 		return false;
 
-	//eg. one of heroes is wearing shackles of war
-	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING) && battleHasHero(otherSide(side)))
-		return false;
-
-	//cannot flee after casting spell in X first turns as attacker
-	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
-		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1)
-		return false;
-
-	//we are besieged defender
-	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
-	{
-		const auto * town = battleGetDefendedTown();
-		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
-			return false;
-	}
-
-	return true;
+	return battleGetRetreatPermission(side, BonusType::BATTLE_CAN_FLEE) >= 0;
 }
 
 BattleSide CBattleInfoEssentials::playerToSide(const PlayerColor & player) const
@@ -414,9 +416,19 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(side == BattleSide::NONE)
 		return false;
-	bool iAmSiegeDefender = (side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
-	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
-	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side));
+
+	//current player has no hero
+	if(!battleGetFightingHero(side))
+		return false;
+
+	int permission = battleGetRetreatPermission(side, BonusType::BATTLE_CAN_SURRENDER);
+
+	//enemy must have a hero to negotiate the surrender with
+	if(!battleHasHero(otherSide(side)))
+		permission -= GameConstants::BATTLE_RETREAT_RESTRICTION;
+
+	//hero that is not allowed to retreat can not surrender either
+	return permission >= 0 && battleCanFlee(player);
 }
 
 bool CBattleInfoEssentials::battleHasHero(BattleSide side) const
@@ -473,24 +485,20 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const battle::U
 	return getBattle()->getSideHero(side);
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness) const
+bool CBattleInfoEssentials::battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const bool sameOwner) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	if(boost::logic::indeterminate(positivness))
-		return true;
-	else if(attacker->unitId() == defender->unitId())
-		return (bool)positivness;
+	if(attacker->unitId() == defender->unitId())
+		return sameOwner;
 	else
-		return battleMatchOwner(battleGetOwner(attacker), defender, positivness);
+		return battleMatchOwner(battleGetOwner(attacker), defender, sameOwner);
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness) const
+bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const bool sameOwner) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(defender->unitSide());
 
-	return boost::logic::indeterminate(positivness) || (attacker == initialOwner) == (bool)positivness;
+	return (attacker == initialOwner) == sameOwner;
 }
-
-VCMI_LIB_NAMESPACE_END

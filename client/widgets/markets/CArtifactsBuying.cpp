@@ -27,7 +27,7 @@
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);}, GAME->interface())
 {
 	OBJECT_CONSTRUCTION;
 
@@ -112,7 +112,7 @@ std::string CArtifactsBuying::getTraderText()
 		message.replaceNumber(bidQty);
 		message.replaceTextID(bidQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

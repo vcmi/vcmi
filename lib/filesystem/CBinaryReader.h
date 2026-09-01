@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 
 /**
@@ -104,5 +102,3 @@ private:
 	/** The underlying base stream */
 	CInputStream * stream;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "CGPathNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class PathfinderConfig;
 class CGWhirlpool;
@@ -118,18 +116,16 @@ public:
 		const TerrainTile & srcTile,
 		const int3 & srcCoord,
 		NeighbourTilesVector & vec,
-		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
 
 	int getMovementCost(
 		const int3 & src,
 		const int3 & dst,
-		const TerrainTile * ct,
-		const TerrainTile * dt,
+		const EPathfindingLayer & dstLayer,
 		const int remainingMovePoints = -1,
 		const bool checkLast = true,
-		const EPathfindingLayer & srcLayer = EPathfindingLayer::AUTO,
-		const EPathfindingLayer & dstLayer = EPathfindingLayer::AUTO) const;
+		const TerrainTile * srcTile = nullptr,
+		const TerrainTile * dstTile = nullptr) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,
@@ -141,6 +137,5 @@ public:
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 
 	int getGuardiansCount(int3 tile) const;
+	bool isTileBlockedByHole(const int3 & tile) const;
 };
-
-VCMI_LIB_NAMESPACE_END

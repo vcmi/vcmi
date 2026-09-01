@@ -32,8 +32,6 @@ class MapProxy;
 								postfunction(z.second->getModificator<x>()); \
 							}
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Modificator
 {
 public:
@@ -77,5 +75,3 @@ private:
 
 	void dump();
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/json/JsonUtils.h"
 
 TEST(JsonTest, conflictDetectionTestNoConflict)
@@ -133,4 +134,101 @@ TEST(JsonTest, conflictDetectionTestArrayAppendAlwaysSafe)
 	JsonUtils::detectConflicts(result, jsonA, jsonC, "test");
 
 	EXPECT_EQ(result.Struct().size(), 0);
+}
+
+/// A script declares what its kind needs: every one of them a schema, and a combat event script
+/// also the description and the priority that decide how its ability reads and when it runs.
+class ScriptSchemaTest : public ::testing::Test
+{
+public:
+	static JsonNode scriptNode(const std::string & text)
+	{
+		JsonNode node(text.data(), text.size(), "ScriptSchemaTest");
+		// core is exempt from required-entry checks, so the sample has to come from somewhere else
+		node.setModScope("vcmi-test");
+		return node;
+	}
+
+	static bool isValid(const std::string & text)
+	{
+		return JsonUtils::validate(scriptNode(text), "vcmi:script", "ScriptSchemaTest");
+	}
+};
+
+TEST_F(ScriptSchemaTest, combatEventScriptDeclaresEverythingItsKindNeeds)
+{
+	EXPECT_TRUE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : { "properties" : {}, "additionalProperties" : false },
+		"description" : "{Spikes}"
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, combatEventScriptWithoutPriorityIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"schema" : { "properties" : {}, "additionalProperties" : false },
+		"description" : "{Spikes}"
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, combatEventScriptWithoutDescriptionIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "combatEvent",
+		"script" : "combat/spikes",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : { "properties" : {}, "additionalProperties" : false }
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, scriptWithoutSchemaIsRejected)
+{
+	EXPECT_FALSE(isValid(R"({
+		"implements" : "spellEffect",
+		"script" : "spells/spikes",
+		"patches" : [ ]
+	})"));
+}
+
+TEST_F(ScriptSchemaTest, spellEffectNeedsNoDescriptionOrPriority)
+{
+	EXPECT_TRUE(isValid(R"({
+		"implements" : "spellEffect",
+		"script" : "spells/spikes",
+		"patches" : [ ],
+		"schema" : { "properties" : {}, "additionalProperties" : false }
+	})"));
+}
+
+TEST(JsonTest, floatsMatchTheNearestDouble)
+{
+	constexpr char text[] = R"({ "a" : 0.7, "b" : 1.75, "c" : -0.15, "d" : 1234.5678, "e" : 1e3 })";
+
+	JsonNode json(text, std::size(text), "Test");
+
+	EXPECT_EQ(json["a"].Float(), 0.7);
+	EXPECT_EQ(json["b"].Float(), 1.75);
+	EXPECT_EQ(json["c"].Float(), -0.15);
+	EXPECT_EQ(json["d"].Float(), 1234.5678);
+	EXPECT_EQ(json["e"].Float(), 1e3);
+}
+
+TEST(JsonTest, floatsWithMoreDigitsThanADoubleHoldsDoNotOverflow)
+{
+	constexpr char text[] = R"({ "a" : 0.12345678901234567890123456789, "b" : 9007199254740993.5 })";
+
+	JsonNode json(text, std::size(text), "Test");
+
+	// digits past what a double holds are dropped, so the value is only near - what matters is that
+	// gathering them never overflows the mantissa into a number of the wrong magnitude or sign
+	EXPECT_NEAR(json["a"].Float() / 0.12345678901234567890123456789, 1.0, 1e-15);
+	EXPECT_NEAR(json["b"].Float() / 9007199254740993.5, 1.0, 1e-15);
 }

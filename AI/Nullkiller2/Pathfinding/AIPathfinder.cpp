@@ -18,8 +18,6 @@
 namespace NK2AI
 {
 
-std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
-
 AIPathfinder::AIPathfinder(Nullkiller * aiNk) : aiNk(aiNk) {}
 
 bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) const
@@ -43,8 +41,11 @@ void AIPathfinder::calculateQuickPathsWithBlocker(std::vector<AIPath> & result, 
 
 void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph) const
 {
-	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
 	paths.clear();
+	if(!includeGraph && !storage->hasCurrentNodes(tile))
+		return;
+
+	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
 	if(!tileInfo)
 		return;
 
@@ -60,6 +61,24 @@ void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & t
 				graph->second->addChainInfo(paths, tile, hero, aiNk);
 		}
 	}
+}
+
+void AIPathfinder::calculatePathSummaries(
+	std::vector<AIPathSummary> & summaries,
+	const int3 & tile) const
+{
+	summaries.clear();
+	if(!storage->hasCurrentNodes(tile))
+		return;
+
+	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
+	if(tileInfo)
+		storage->calculatePathSummaries(summaries, tile, !tileInfo->isWater());
+}
+
+bool AIPathfinder::calculatePathInfo(AIPath & path, const AIPathSummary & summary) const
+{
+	return storage->calculatePathInfo(path, summary);
 }
 
 void AIPathfinder::updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSettings pathfinderSettings)
@@ -88,7 +107,11 @@ void AIPathfinder::updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSetti
 		storage->setTownsAndDwellings(aiNk->cc->getTownsInfo(), aiNk->memory->visitableIdsToObjsSet(*aiNk->cc));
 	}
 
-	const auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(aiNk, storage, pathfinderSettings.allowBypassObjects);
+	const auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(
+		aiNk,
+		storage,
+		pathfinderSettings.allowBypassObjects,
+		pathfinderSettings.useDimensionDoor);
 	logAi->trace("Recalculate paths pass %d", pass++);
 	aiNk->cc->calculatePaths(config);
 

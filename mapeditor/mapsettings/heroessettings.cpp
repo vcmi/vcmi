@@ -16,6 +16,7 @@
 #include "ui_heroessettings.h"
 
 #include <entities/hero/CHeroHandler.h>
+#include "../translator.h"
 
 HeroesSettings::HeroesSettings(QWidget * parent) : AbstractSettings(parent), ui(new Ui::HeroesSettings)
 {
@@ -48,7 +49,7 @@ void HeroesSettings::initialize(MapController & c)
 	{
 		MetaString str;
 		str.appendName(color);
-		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		ui->playerList->addItem(item);
 	}

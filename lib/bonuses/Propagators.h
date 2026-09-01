@@ -14,8 +14,6 @@
 
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
 
 class DLL_LINKAGE IPropagator : public Serializeable
@@ -43,5 +41,3 @@ public:
 		h & nodeType;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

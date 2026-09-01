@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CModVersion.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CModVersion CModVersion::GameVersion()
 {
 	return CModVersion(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
@@ -109,5 +107,3 @@ bool operator < (const CModVersion & lesser, const CModVersion & greater)
 	}
 	return lesser.major < greater.major;
 }
-
-VCMI_LIB_NAMESPACE_END

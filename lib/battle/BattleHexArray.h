@@ -14,8 +14,6 @@
 #include <boost/container/small_vector.hpp>
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /**
 * @brief Class representing a collection of unique, valid BattleHex objects.
 
@@ -323,5 +321,3 @@ private:
 	static ArrayOfBattleHexArrays precalculateAllNeighbouringTiles();
 	static ArrayOfBattleHexArrays precalculateNeighbouringTilesDoubleWide(BattleSide side);
 };
-
-VCMI_LIB_NAMESPACE_END

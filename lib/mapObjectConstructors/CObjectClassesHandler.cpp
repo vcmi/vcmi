@@ -25,7 +25,9 @@
 #include "DwellingInstanceConstructor.h"
 #include "FlaggableInstanceConstructor.h"
 #include "HillFortInstanceConstructor.h"
+#include "KeyGuardInstanceConstructor.h"
 #include "MarketInstanceConstructor.h"
+#include "QuestGuardInstanceConstructor.h"
 #include "ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/CGCreature.h"
@@ -33,7 +35,7 @@
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -46,8 +48,6 @@
 #include "../texts/CLegacyConfigParser.h"
 
 #include <vstd/StringUtils.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
@@ -81,19 +81,20 @@ CObjectClassesHandler::CObjectClassesHandler()
 
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("artifact", CGArtifact);
-	SET_HANDLER("borderGate", CGBorderGate);
-	SET_HANDLER("borderGuard", CGBorderGuard);
+	SET_HANDLER_CLASS("borderGate", KeyGuardInstanceConstructor<QuestGate>);
+	SET_HANDLER_CLASS("borderGuard", KeyGuardInstanceConstructor<QuestGuard>);
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
-	SET_HANDLER("keymaster", CGKeymasterTent);
+	SET_HANDLER("keymaster", KeymasterTent);
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
-	SET_HANDLER("questGuard", CGQuestGuard);
-	SET_HANDLER("seerHut", CGSeerHut);
+	SET_HANDLER_CLASS("questGuard", QuestGuardInstanceConstructor);
+	SET_HANDLER("questGate", QuestGate);
+	SET_HANDLER("seerHut", SeerHut);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);
@@ -315,14 +316,14 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	return newObject;
 }
 
-void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	mapObjectTypes.push_back(loadFromJson(scope, data, name, mapObjectTypes.size()));
 
 	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
 }
 
-void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(mapObjectTypes.at(index) == nullptr); // ensure that this id was not loaded before
 
@@ -587,16 +588,12 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 	}
 }
 
-std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubID subtype) const
+std::string CObjectClassesHandler::getObjectGroupNameTextID(MapObjectID type) const
 {
-	const auto handler = getHandlerFor(type, subtype);
-	if (handler && handler->hasNameTextID())
-		return handler->getNameTranslated();
-
 	if (mapObjectTypes.at(type.getNum()))
-		return mapObjectTypes.at(type.getNum())->getNameTranslated();
+		return mapObjectTypes.at(type.getNum())->getNameTextID();
 
-	return mapObjectTypes.front()->getNameTranslated();
+	return mapObjectTypes.front()->getNameTextID();
 }
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const
@@ -630,5 +627,3 @@ std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 	logGlobal->warn("Unknown object of type %d!", type);
 	return mapObjectTypes.front()->getJsonKey();
 }
-
-VCMI_LIB_NAMESPACE_END

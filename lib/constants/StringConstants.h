@@ -11,8 +11,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded
 ///
@@ -26,7 +24,7 @@ namespace GameConstants
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
 
-	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
+	const std::string ALIGNMENT_NAMES [4] = {"good", "evil", "neutral", "none"};
 
 	const std::string DIFFICULTY_NAMES [5] = {"pawn", "knight", "rook", "queen", "king"};
 }
@@ -106,17 +104,6 @@ namespace NArtifactPosition
 	const std::string backpack = "backpack";
 }
 
-namespace NMetaclass
-{
-    const std::string names [16] =
-    {
-        "",
-        "artifact", "creature", "faction", "experience", "hero",
-        "heroClass", "luck", "mana", "morale", "movement",
-        "object", "primarySkill", "secondarySkill", "spell", "resource"
-    };
-}
-
 namespace NPathfindingLayer
 {
 	const std::string names[EPathfindingLayer::NUM_LAYERS] =
@@ -133,7 +120,6 @@ namespace MappedKeys
 		{ "castleGate", BuildingSubID::CASTLE_GATE },
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
 		{ "library", BuildingSubID::LIBRARY },
-		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
 		{ "treasury", BuildingSubID::TREASURY },
 		{ "bank", BuildingSubID::BANK },
 		{ "auroraBorealis", BuildingSubID::AURORA_BOREALIS }
@@ -152,5 +138,3 @@ namespace MappedKeys
 		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

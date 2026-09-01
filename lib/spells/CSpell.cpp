@@ -24,8 +24,6 @@
 
 #include <vcmi/spells/Caster.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
 ///CSpell
@@ -38,7 +36,6 @@ CSpell::CSpell():
 	castOnSelf(false),
 	castOnlyOnSelf(false),
 	castWithoutSkip(false),
-	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
 	damage(false),
@@ -65,15 +62,15 @@ bool CSpell::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastP
 	return adventureMechanics->adventureCast(env, parameters);
 }
 
-const CSpell::LevelInfo & CSpell::getLevelInfo(const int32_t level) const
+const CSpell::LevelInfo & CSpell::getLevelInfo(const int32_t schoolLevel) const
 {
-	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
+	if(schoolLevel < 0 || schoolLevel >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->error("CSpell::getLevelInfo: invalid school mastery level %d", level);
+		logGlobal->error("CSpell::getLevelInfo: invalid school mastery level %d", schoolLevel);
 		return levels.at(MasteryLevel::EXPERT);
 	}
 
-	return levels.at(level);
+	return levels.at(schoolLevel);
 }
 
 int64_t CSpell::calculateDamage(const spells::Caster * caster) const
@@ -132,8 +129,8 @@ SpellID CSpell::getId() const
 
 std::string CSpell::getNameTextID() const
 {
-	TextIdentifier id("spell", modScope, identifier, "name");
-	return id.get();
+	TextIdentifier textId("spell", modScope, identifier, "name");
+	return textId.get();
 }
 
 std::string CSpell::getNameTranslated() const
@@ -141,15 +138,15 @@ std::string CSpell::getNameTranslated() const
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
-std::string CSpell::getDescriptionTextID(int32_t level) const
+std::string CSpell::getDescriptionTextID(int32_t schoolLevel) const
 {
-	TextIdentifier textID("spell", modScope, identifier, "description", LEVEL_NAMES[level]);
+	TextIdentifier textID("spell", modScope, identifier, "description", LEVEL_NAMES[schoolLevel]);
 	return textID.get();
 }
 
-std::string CSpell::getDescriptionTranslated(int32_t level) const
+std::string CSpell::getDescriptionTranslated(int32_t schoolLevel) const
 {
-	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
+	return LIBRARY->generaltexth->translate(getDescriptionTextID(schoolLevel));
 }
 
 std::string CSpell::getAdventureEffectTextID(const std::string & effectType, const std::string & field) const
@@ -205,35 +202,22 @@ bool CSpell::isMagical() const
 
 bool CSpell::isPositive() const
 {
-	return positiveness == POSITIVE;
+	return positive;
 }
 
 bool CSpell::isNegative() const
 {
-	return positiveness == NEGATIVE;
+	return negative;
 }
 
 bool CSpell::isNeutral() const
 {
-	return positiveness == NEUTRAL;
+	return !positive && !negative;
 }
 
 bool CSpell::isPersistent() const
 {
 	return persistent;
-}
-
-boost::logic::tribool CSpell::getPositiveness() const
-{
-	switch (positiveness)
-	{
-	case CSpell::POSITIVE:
-		return true;
-	case CSpell::NEGATIVE:
-		return false;
-	default:
-		return boost::logic::indeterminate;
-	}
 }
 
 bool CSpell::isDamage() const
@@ -250,6 +234,12 @@ bool CSpell::isSpecial() const
 {
 	return special;
 }
+
+bool CSpell::isCommonHeroSpell() const
+{
+	return !isSpecial() && !isCreatureAbility();
+}
+
 
 bool CSpell::hasEffects() const
 {
@@ -330,21 +320,21 @@ si32 CSpell::getProbability(const FactionID & factionId) const
 	return probabilities.at(factionId);
 }
 
-void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration) const
+void CSpell::getEffects(std::vector<Bonus> & lst, const int schoolLevel, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration) const
 {
-	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
+	if(schoolLevel < 0 || schoolLevel >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->error("invalid school level %d", level);
+		logGlobal->error("invalid school level %d", schoolLevel);
 		return;
 	}
 
-	const auto & levelObject = levels.at(level);
+	const auto & levelObject = levels.at(schoolLevel);
 
 	const auto & effectsJson = cumulative ? levelObject.cumulativeEffects : levelObject.effects;
 
 	if(effectsJson.Struct().empty())
 	{
-		logGlobal->error("This spell (%s) has no effects for level %d", getNameTranslated(), level);
+		logGlobal->error("This spell (%s) has no effects for level %d", getNameTranslated(), schoolLevel);
 		return;
 	}
 
@@ -409,6 +399,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
+
+	//cap damage received per single creature (e.g. HotA war machines), same rule as melee/ranged damage
+	if(affectedCreature != nullptr)
+	{
+		int capPercentage = affectedCreature->valOfBonuses(BonusType::DAMAGE_RECEIVED_CAP);
+		if(capPercentage > 0)
+			ret = std::min<int64_t>(ret, affectedCreature->getMaxHealth() * capPercentage / 100);
+	}
+
 	return ret;
 }
 
@@ -423,7 +422,8 @@ void CSpell::setIsOffensive(const bool val)
 
 	if(val)
 	{
-		positiveness = CSpell::NEGATIVE;
+		positive = false;
+		negative = true;
 		damage = true;
 	}
 }
@@ -434,7 +434,8 @@ void CSpell::setIsRising(const bool val)
 
 	if(val)
 	{
-		positiveness = CSpell::POSITIVE;
+		positive = true;
+		negative = false;
 	}
 }
 
@@ -520,5 +521,3 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	massive = levelInfo.range.empty();
 	clearAffected = levelInfo.clearAffected;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	return b;
@@ -98,11 +96,13 @@ std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus
 {
 	if(context.getNodeType() == BonusNodeType::HERO)
 	{
-		// FIXME: current logic is (val * hero level) / stack level
-		// However H3 logic is val * (hero level / stack level)
-		// Probably needs creation of temporary limiter & passing hero level into it, to perform all math in one place
-		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
-		newBonus->updater = divideStackLevel;
+		// keep base val intact and defer all math to the divide step, so it can compute
+		// val * (hero level / stack level) - matching H3 rounding, unlike a pre-multiply
+		int level = dynamic_cast<const CGHeroInstance &>(context).level;
+		auto newBonus = std::make_shared<Bonus>(*b);
+		auto divider = std::make_shared<DivideStackLevelUpdater>(*divideStackLevel);
+		divider->heroLevel = level;
+		newBonus->updater = divider;
 		return newBonus;
 	}
 	return b;
@@ -138,7 +138,9 @@ std::shared_ptr<Bonus> TimesStackSizeUpdater::createUpdatedBonus(const std::shar
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		return apply(b, stack.getCount());
 	}
-	return b;
+	// no stack context (e.g. creature-type reference): contribute the floor value
+	// instead of leaking the bonus template val, which would inflate the base stat
+	return apply(b, 0);
 }
 
 std::string TimesStackSizeUpdater::toString() const
@@ -231,6 +233,15 @@ JsonNode TimesStackLevelUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const
 {
+	if (heroLevel > 0)
+	{
+		// hero specialty: val * floor(heroLevel / stackLevel), matching H3 rounding
+		auto newBonus = std::make_shared<Bonus>(*b);
+		newBonus->val *= heroLevel / std::max(1, level);
+		newBonus->updater = nullptr; // prevent double-apply
+		return newBonus;
+	}
+
 	if (level == 0)
 		return b; // e.g. war machines & other special units
 
@@ -314,5 +325,3 @@ std::shared_ptr<Bonus> CompositeUpdater::createUpdatedBonus(const std::shared_pt
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

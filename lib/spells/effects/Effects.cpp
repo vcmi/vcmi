@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "Effects.h"
-#include "SpellEffectService.h"
 
 #include <vcmi/spells/Caster.h>
 
@@ -19,8 +18,8 @@
 #include "../../GameLibrary.h"
 #include "../../json/JsonNode.h"
 #include "../../modding/IdentifierStorage.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../../scripting/ScriptService.h"
+#include "../../texts/TextIdentifier.h"
 
 
 namespace spells
@@ -131,21 +130,36 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 	for(const auto & [name, raw] : effectMap.Struct())
 	{
-		SpellEffectID effectID(*LIBRARY->identifiers()->getIdentifier("spellEffect", raw["type"]));
+		auto identifier = LIBRARY->identifiers()->getIdentifier("script", raw["type"]);
+
+		if(!identifier.has_value())
+		{
+			logMod->error("Spell '%s:%s' uses unknown script '%s' as effect '%s'!", spellScope, spellIdentifier, raw["type"].String(), name);
+			continue;
+		}
+
+		ScriptID effectID(*identifier);
+
+		if(LIBRARY->scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
+		{
+			logMod->error("Spell '%s:%s' uses script '%s' as effect '%s', but that script is not a spell effect!", spellScope, spellIdentifier, raw["type"].String(), name);
+			continue;
+		}
 
 		JsonNode data = raw;
-		LIBRARY->spellEffects()->prepareEffect(effectID, data, spellScope, spellIdentifier, name);
+		LIBRARY->scriptTypes()->prepareParameters(effectID, data, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
-		auto effect = LIBRARY->spellEffects()->create(effectID);
+		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
+
 		if(!effect)
-			continue;
+			continue; // reported by the handler
 
 		effect->name = name;
 		effect->spellScope = spellScope;
 		effect->spellIdentifier = spellIdentifier;
 		effect->init(std::move(data));
 
-		result.emplace(name, std::move(effect));
+		result.try_emplace(name, std::move(effect));
 	}
 
 	return result;
@@ -153,5 +167,3 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

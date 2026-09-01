@@ -32,8 +32,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("sameAsTown", instanceId);
@@ -234,8 +232,8 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			InfoWindow iw;
 			iw.type = EInfoWindowMode::AUTO;
 			iw.player = h->tempOwner;
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-			iw.text.replaceName(ID, subID);
+			iw.text.appendTextID("core.advevent.44"); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
+			iw.text.replaceTextID(getObjectNameTextID());
 			gameEvents.sendAndApply(iw);
 			return;
 		}
@@ -250,7 +248,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	{
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
-		bd.text.appendLocalString(EMetaText::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
+		bd.text.appendTextID("core.genrltxt.421"); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			bd.text.replaceRawString(CCreature::getQuantityRangeStringForId(Slots().begin()->second->getQuantityID()));
@@ -288,13 +286,13 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	}
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
-		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
-		bd.text.replaceName(ID, subID);
+		bd.text.appendTextID("core.advevent.35"); //{%s} Would you like to recruit %s?
+		bd.text.replaceTextID(getObjectNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
 	}
 	else if(ID == Obj::WAR_MACHINE_FACTORY)
-		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
+		bd.text.appendTextID("core.advevent.157"); //{War Machine Factory} Would you like to purchase War Machines?
 	else
 		throw std::runtime_error("Illegal dwelling!");
 
@@ -467,7 +465,7 @@ void CGDwelling::heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGH
 				InfoWindow iw;
 				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
+				iw.text.appendTextID("core.genrltxt.425");//The %s would join your hero, but there aren't enough provisions to support them.
 				iw.text.replaceNamePlural(crid);
 				gameEvents.showInfoDialog(&iw);
 			}
@@ -482,7 +480,7 @@ void CGDwelling::heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGH
 				InfoWindow iw;
 				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 423); //%d %s join your army.
+				iw.text.appendTextID("core.genrltxt.423"); //%d %s join your army.
 				iw.text.replaceNumber(count);
 				iw.text.replaceNamePlural(crid);
 
@@ -495,7 +493,7 @@ void CGDwelling::heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGH
 		{
 			InfoWindow iw;
 			iw.type = EInfoWindowMode::AUTO;
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
+			iw.text.appendTextID("core.genrltxt.422"); //There are no %s here to recruit.
 			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
 			gameEvents.sendAndApply(iw);
@@ -606,5 +604,3 @@ std::vector<CreatureID> CGDwelling::providedCreatures() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

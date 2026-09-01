@@ -34,8 +34,10 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
 		LIBRARY->generaltexth->zelp[585], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
+	MetaString heroCreatures = MetaString::createFromTextID("core.genrltxt.272"); // %s's Creatures
+	heroCreatures.replaceTextID(hero->getNameTextID());
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
-		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+		heroCreatures.toString(&GAME->translator())));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[479]));
 	texts.emplace_back(std::make_unique<CTextBox>(LIBRARY->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	offerSlider->moveTo(pos.topLeft() + Point(231, 481));
@@ -213,8 +215,10 @@ void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & sl
 	auto units = unitsOnAltar[slot->serial];
 	const auto [oppositeSlot, oppositePanel] = getOpposite(slot);
 	slot->setID(units > 0 ? oppositeSlot->id : CreatureID::NONE);
-	slot->subtitle->setText(units > 0 ?
-		boost::str(boost::format(LIBRARY->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "");
+
+	MetaString experience = MetaString::createFromTextID("core.genrltxt.122"); // %s exp
+	experience.replaceNumber(hero->calculateXp(units * expPerUnit[slot->serial]));
+	slot->subtitle->setText(units > 0 ? experience.toString(&GAME->translator()) : "");
 }
 
 void CAltarCreatures::onOfferSliderMoved(int newVal)
@@ -248,7 +252,7 @@ std::string CAltarCreatures::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.484");
 		message.replaceNamePlural(CreatureID(bidTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

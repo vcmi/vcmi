@@ -10,8 +10,6 @@
 #pragma once
 #include "../Zone.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ObjectManager;
 class CGTownInstance;
 
@@ -25,11 +23,15 @@ public:
 	
 	int getTotalTowns() const;
 	
+private:
+	bool hasTownExitInsideZone(const rmg::Object & rmgObject, const int3 & offset = int3()) const;
+
 protected:
 	void cleanupBoundaries(const rmg::Object & rmgObject);
 	void addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager);
 	FactionID getRandomTownType(bool matchUndergroundType = false);
 	FactionID getTownTypeFromHint(size_t hintIndex);
+	bool hasTownTypeHint(size_t hintIndex) const;
 	void placeTowns(ObjectManager & manager);
 	bool placeMines(ObjectManager & manager);
 	int3 placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownInstance> town);
@@ -37,5 +39,3 @@ protected:
 protected:
 	int totalTowns = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

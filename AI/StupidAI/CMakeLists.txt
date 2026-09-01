@@ -8,19 +8,12 @@ set(stupidAI_HEADERS
 		StupidAI.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-	list(APPEND stupidAI_SRCS main.cpp StdInc.cpp)
-endif()
 assign_source_group(${stupidAI_SRCS} ${stupidAI_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(StupidAI STATIC ${stupidAI_SRCS} ${stupidAI_HEADERS})
-else()
-	add_library(StupidAI SHARED ${stupidAI_SRCS} ${stupidAI_HEADERS})
-	install(TARGETS StupidAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
+add_library(StupidAI OBJECT ${stupidAI_SRCS} ${stupidAI_HEADERS})
+target_compile_definitions(StupidAI PRIVATE VCMI_DLL=1)
 
-target_link_libraries(StupidAI PRIVATE vcmi)
+target_link_libraries(StupidAI PRIVATE vcmiMain)
 target_include_directories(StupidAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(StupidAI "AI")

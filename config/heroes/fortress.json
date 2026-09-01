@@ -137,13 +137,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"weakness" : {
-					"addInfo" : 0,
-					"subtype" : "spell.weakness",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "weakness"
 		}
 	},
 	"rosic":
@@ -158,7 +152,14 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"secondary" : "mysticism"
+			"secondary" : "mysticism",
+			"bonuses" : {
+				"mysticismExtra" : {
+					"type" : "MANA_REGENERATION",
+					"val" : 1,
+					"valueType" : "ADDITIVE_VALUE"
+				}
+			}
 		}
 	},
 	"voy":
@@ -218,13 +219,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	},
 	"styg":

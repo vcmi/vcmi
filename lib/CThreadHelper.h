@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Sets thread name that will be used for both logs and debugger (if supported)
 /// WARNING: on Unix-like systems this method should not be used for main thread since it will also change name of the process
 void DLL_LINKAGE setThreadName(const std::string &name);
@@ -33,5 +31,3 @@ public:
 		setThreadName({});
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

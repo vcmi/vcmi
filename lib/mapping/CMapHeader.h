@@ -22,8 +22,6 @@
 
 #include "MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
 
@@ -108,7 +106,7 @@ struct DLL_LINKAGE EventCondition
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
 		HAVE_BUILDING,     // position - town, optional, type - building to build
-		CONTROL,           // position - position of object, optional, type - type of object
+		CONTROL,           // specific object: true until first capture, then only while currently controlled; generic type check: same as CONTROL_CURRENT
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
 
@@ -116,8 +114,9 @@ struct DLL_LINKAGE EventCondition
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
-		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
-	};
+		CONST_VALUE,       // condition that always evaluates to "value" (0 = false, 1 = true)
+		CONTROL_CURRENT    // current ownership check, for specific object or all objects of given type
+		};
 
 	using TargetTypeID = VariantIdentifier<ArtifactID, CreatureID, GameResID, BuildingID, MapObjectID>;
 
@@ -272,14 +271,16 @@ public:
 	
 	/// translations for map to be transferred over network
 	JsonNode translations;
-	TextContainerRegistrable texts;
-	
+	/// Inert text data of this map; the rendering side installs it as an overlay and shares
+	/// ownership of it, so the container outlives a map that is torn down while still installed
+	std::shared_ptr<TextLocalizationContainer> texts = std::make_shared<TextLocalizationContainer>();
+
 	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		h & texts;
+		h & *texts;
 		h & version;
 		h & mods;
 		h & name;
@@ -292,7 +293,7 @@ public:
 		h & height;
 		if (h.version >= Handler::Version::NAME_MAP_LAYERS)
 			h & mapLayers;
-		else if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+		else
 		{
 			if (!h.saving)
 			{
@@ -310,22 +311,12 @@ public:
 				}
 			}
 		}
-		else
-		{
-			if (!h.saving)
-			{
-				bool hasTwoLevels;
-				h & hasTwoLevels;
-				mapLayers = hasTwoLevels ? std::vector<MapLayerId>({MapLayerId::SURFACE, MapLayerId::UNDERGROUND}) : std::vector<MapLayerId>({MapLayerId::SURFACE});
-			}
-		}
 
 		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;
-		if (h.version >= Handler::Version::BATTLE_ONLY)
-			h & battleOnly;
+		h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
@@ -335,8 +326,7 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
-		if (h.version >= Handler::Version::MAP_HEADER_DISPOSED_HEROES)
-			h & disposedHeroes;
+		h & disposedHeroes;
 		h & translations;
 		if(!h.saving)
 			registerMapStrings();
@@ -346,5 +336,3 @@ public:
 /// wrapper functions to register string into the map and stores its translation
 std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized);
 std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language);
-
-VCMI_LIB_NAMESPACE_END

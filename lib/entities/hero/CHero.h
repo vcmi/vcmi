@@ -17,8 +17,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CHero : public HeroType
 {
 	friend class CHeroHandler;
@@ -37,6 +35,9 @@ public:
 	si32 imageIndex = 0;
 
 	std::vector<InitialArmyStack> initialArmy;
+
+	/// Returns unit which should be given the hero on retreat from battle
+	CreatureID defaultCreature() const;
 
 	const CHeroClass * heroClass = nullptr;
 
@@ -80,5 +81,3 @@ public:
 	std::string getSpecialtyDescriptionTextID() const override;
 	std::string getSpecialtyTooltipTextID() const override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -17,16 +17,18 @@
 static void initEditorResources()
 {
 	Q_INIT_RESOURCE(editor_resources);
+#ifdef ENABLE_TRANSLATIONS
 	Q_INIT_RESOURCE(editor_translations);
+#endif
 }
 #endif
 
-void openMapEditor()
+void openMapEditor(QWidget * parent)
 {
 #ifdef ENABLE_SINGLE_APP_BUILD
 	initEditorResources();
 #endif
-	auto * editorWindow = new EditorMainWindow();
+	auto * editorWindow = new EditorMainWindow(parent);
 	editorWindow->setAttribute(Qt::WA_DeleteOnClose);
 	editorWindow->show();
 }

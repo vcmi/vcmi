@@ -86,7 +86,8 @@ class ResourcesPanel : public TradePanelBase
 
 	void updateSlots(int line);
 public:
-	ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const UpdateSlotsFunctor & updateSubtitles);
+	/// tradeableResources limits resources shown in panel. If empty, all resources are shown
+	ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const UpdateSlotsFunctor & updateSubtitles, const std::vector<GameResID> & tradeableResources = {});
 };
 
 class ArtifactsPanel : public TradePanelBase

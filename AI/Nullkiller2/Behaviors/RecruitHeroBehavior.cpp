@@ -12,6 +12,8 @@
 
 #include "../AIGateway.h"
 #include "../AIUtility.h"
+#include "../Goals/Composition.h"
+#include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/RecruitHero.h"
 #include <algorithm>
@@ -20,6 +22,8 @@ namespace NK2AI
 {
 
 using namespace Goals;
+
+static constexpr float DEFENSIVE_EMERGENCY_RECRUIT_PRIORITY = 1000000.0f;
 
 std::string RecruitHeroBehavior::toString() const
 {
@@ -46,11 +50,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		if(town->getVisitingHero() && town->getGarrisonHero())
 			continue;
 
-		uint8_t closestThreatTurn = UINT8_MAX;
-		for(const auto & threat : aiNk->dangerHitMap->getTownThreats(town))
-		{
-			closestThreatTurn = std::min(closestThreatTurn, threat.turn);
-		}
+		const auto & townThreats = aiNk->dangerHitMap->getTownThreats(town);
 
 		float visitabilityRatio = 0;
 		for(const auto * const hero : ourHeroes)
@@ -63,7 +63,14 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		if(aiNk->heroManager->canRecruitHero(town))
 		{
 			calculateTreasureSources(aiNk->objectClusterizer->getNearbyObjects(), aiNk->playerID, *aiNk->dangerHitMap, treasureSourcesCount, *town);
-			calculateBestHero(aiNk->cc->getAvailableHeroes(town), *aiNk->heroManager, bestChoice, *town, closestThreatTurn, visitabilityRatio);
+			calculateBestHero(
+				aiNk->cc->getAvailableHeroes(town),
+				*aiNk->heroManager,
+				bestChoice,
+				*town,
+				townThreats,
+				aiNk->settings->getSafeAttackRatio(),
+				visitabilityRatio);
 		}
 
 		if(town->hasCapitol())
@@ -98,10 +105,14 @@ void RecruitHeroBehavior::calculateBestHero(
 	const HeroManager & heroManager,
 	const RecruitHeroChoice & bestChoice,
 	const CGTownInstance & town,
-	const uint8_t closestThreatTurn,
+	const std::vector<HitMapInfo> & townThreats,
+	const float safeAttackRatio,
 	const float visitabilityRatio
 )
 {
+	uint8_t closestThreatTurn = UINT8_MAX;
+	for(const auto & threat : townThreats)
+		closestThreatTurn = std::min(closestThreatTurn, threat.turn);
 
 	for(const auto * const hero : availableHeroes)
 	{
@@ -120,12 +131,23 @@ void RecruitHeroBehavior::calculateBestHero(
 		// prioritize a more developed town especially if no heroes can visit it (smaller ratio, bigger score)
 		totalScore += heroScore * town.getTownLevel() * (1 - visitabilityRatio);
 
-		if(totalScore > bestChoice.score)
+		bool defensiveEmergency = false;
+		for(const auto & threat : townThreats)
+		{
+			if(isDefensiveRecruitEmergency(town, *hero, threat, safeAttackRatio))
+			{
+				defensiveEmergency = true;
+				break;
+			}
+		}
+
+		if((defensiveEmergency && !bestChoice.defensiveEmergency)
+		   || (defensiveEmergency == bestChoice.defensiveEmergency && totalScore > bestChoice.score))
 		{
 			bestChoice.score = totalScore;
 			bestChoice.hero = hero;
 			bestChoice.town = &town;
-			bestChoice.closestThreat = closestThreatTurn;
+			bestChoice.defensiveEmergency = defensiveEmergency;
 		}
 	}
 }
@@ -139,17 +161,29 @@ void RecruitHeroBehavior::calculateFinalDecision(
 	const int treasureSourcesCount
 )
 {
-	if(!vstd::isAlmostZero(bestChoice.score))
+	if(bestChoice.hero != nullptr && !vstd::isAlmostZero(bestChoice.score))
 	{
-		if(ourHeroes.empty()
-		   || treasureSourcesCount > ourHeroes.size() * 5
-		   // TODO: Mircea: The next condition should always consider a hero if under attack especially if it has towers
-		   || (bestChoice.hero->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0
-			   && (bestChoice.closestThreat < 1 || !aiNk.buildAnalyzer->isGoldPressureOverMax()))
-		   || (aiNk.getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk.buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
-		   || (aiNk.getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk.buildAnalyzer->isGoldPressureOverMax()))
+		if(shouldRecruitHero(
+			   ourHeroes.size(),
+			   bestChoice,
+			   haveCapitol,
+			   treasureSourcesCount,
+			   aiNk.getFreeResources()[EGameResID::GOLD],
+			   aiNk.buildAnalyzer->isGoldPressureOverMax()))
 		{
-			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero).setpriority(3.0 / (ourHeroes.size() + 1))));
+			if(bestChoice.defensiveEmergency)
+			{
+				TGoalVec sequence;
+				sequence.push_back(sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero)));
+				sequence.push_back(sptr(Goals::ExchangeSwapTownHeroes(bestChoice.town, bestChoice.hero, HeroLockedReason::DEFENCE)));
+
+				Goals::Composition composition;
+				composition.addNextSequence(sequence);
+				composition.setpriority(DEFENSIVE_EMERGENCY_RECRUIT_PRIORITY);
+				tasks.push_back(Goals::sptr(composition));
+			}
+			else
+				tasks.push_back(Goals::sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero).setpriority(3.0 / (ourHeroes.size() + 1))));
 		}
 	}
 }

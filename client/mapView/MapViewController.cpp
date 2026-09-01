@@ -22,6 +22,7 @@
 #include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
+#include "../replay/GameplayReplayer.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"
@@ -88,7 +89,7 @@ void MapViewController::setTileSize(const Point & tileSize, bool setTarget)
 
 	// force update of view center since changing tile size may invalidated it
 	setViewCenter(newViewCenter, model->getLevel());
-	
+
 	if(setTarget)
 		targetTileSize = tileSize;
 }
@@ -234,6 +235,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingShowInvisible = settings["session"]["showInvisible"].Bool();
+		adventureContext->settingShowAiHeroOverlay = settings["session"]["showAiHeroOverlay"].Bool();
 		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
@@ -309,15 +311,20 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(adventureContext == nullptr)
 		return false;
 
-	if(initiator != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	const auto replayed = replayFollowedPlayer();
+	const PlayerColor followed = replayed.value_or(GAME->interface()->playerID);
+
+	if(initiator != followed && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (initiator != GAME->interface()->playerID && initiator.isValidPlayer())
+	if (initiator != followed && initiator.isValidPlayer())
 	{
+		if (replayed)
+			return false; // a replayed day follows its own player and nobody else
 		if (GAME->interface()->makingTurn)
 			return false;
 		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
@@ -335,15 +342,20 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(adventureContext == nullptr)
 		return false;
 
-	if(obj->getOwner() != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	const auto replayed = replayFollowedPlayer();
+	const PlayerColor followed = replayed.value_or(GAME->interface()->playerID);
+
+	if(obj->getOwner() != followed && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (obj->getOwner() != GAME->interface()->playerID)
+	if (obj->getOwner() != followed)
 	{
+		if (replayed)
+			return false; // a replayed day follows its own player and nobody else
 		if (GAME->interface()->makingTurn)
 			return false;
 		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())

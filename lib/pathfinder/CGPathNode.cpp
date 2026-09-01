@@ -16,8 +16,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/TerrainTile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static bool canSeeObj(const CGObjectInstance * obj)
 {
 	/// Pathfinder should ignore placed events
@@ -76,6 +74,23 @@ CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 
 CPathsInfo::~CPathsInfo() = default;
 
+void CPathsInfo::prepareForReuse(const CGHeroInstance * hero_)
+{
+	hero = hero_;
+	heroBonusTreeVersion = hero->getTreeVersion();
+}
+
+void CPathsInfo::beginSearch()
+{
+	++currentGeneration;
+	if(currentGeneration != 0)
+		return;
+
+	for(auto * node = nodes.data(); node != nodes.data() + nodes.num_elements(); ++node)
+		node->generation = 0;
+	currentGeneration = 1;
+}
+
 const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile, const ELayer layer) const
 {
 	assert(vstd::iswithin(tile.x, 0, sizes.x));
@@ -105,11 +120,10 @@ bool CPathsInfo::getPath(CGPath & out, const int3 & dst, const ELayer layer) con
 
 const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 {
-	const auto * landNode = &nodes[ELayer::LAND][coord.z][coord.x][coord.y];
+	const auto * landNode = getNode(coord, ELayer::LAND);
 	if(landNode->reachable())
 		return landNode;
-	else
-		return &nodes[ELayer::SAIL][coord.z][coord.x][coord.y];
+	return getNode(coord, ELayer::SAIL);
 }
 
 PathNodeInfo::PathNodeInfo()
@@ -196,5 +210,3 @@ bool CDestinationNodeInfo::isBetterWay() const
 	else
 		return cost < node->getCost(); //this route is faster
 }
-
-VCMI_LIB_NAMESPACE_END

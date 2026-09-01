@@ -15,8 +15,6 @@
 #include "RmgMap.h"
 #include "../mapping/CMapEditManager.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class RmgMap;
 
 class MapProxy
@@ -40,5 +38,3 @@ private:
 
 	RmgMap & map;
 };
-
-VCMI_LIB_NAMESPACE_END

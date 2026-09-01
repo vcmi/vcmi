@@ -10,14 +10,12 @@
 #include "StdInc.h"
 #include <vstd/DateUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 
 	DLL_LINKAGE std::string getFormattedDateTime(std::time_t dt, std::string format)
 	{
-		std::tm tm = *std::localtime(&dt);
+		std::tm tm = safeLocalTime(dt);
 		std::stringstream s;
 		s << std::put_time(&tm, format.c_str());
 		return s.str();
@@ -29,5 +27,3 @@ namespace vstd
 	}
 
 }
-
-VCMI_LIB_NAMESPACE_END

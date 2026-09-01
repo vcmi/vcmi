@@ -114,6 +114,10 @@ These are internal types that are generally not available for modding and are ha
 		// Battleground that will be used for combats in this object. Overrides terrain this object was placed on. If array is used battleground will choosen randomly
 		"battleground" : "cursed_ground",
 		
+		// Terrain the combat at this object takes place on. Overrides the map tile terrain; the battlefield
+		// is then selected from this terrain's battlefields (e.g. "subterra" for an abandoned mine
+		"battleTerrain" : "subterra",
+		
 		// Sounds assigned to this object
 		"sounds" : {
 			// Ambient sounds that plays when current hero is near this object

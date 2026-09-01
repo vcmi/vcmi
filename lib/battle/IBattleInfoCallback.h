@@ -20,8 +20,6 @@
 
 #define RETURN_IF_NOT_BATTLE(...) do { if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; } } while (false)
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CObstacleInstance;
 class BattleField;
 class IBattleInfo;
@@ -49,6 +47,9 @@ struct DamageEstimation
 {
 	DamageRange damage;
 	DamageRange kills;
+	/// Damage with every mitigating factor of the target left out. Abilities that reflect a strike
+	/// back at its author, such as Fire Shield, work from this rather than from the damage dealt.
+	DamageRange damageBeforeDefense;
 };
 
 class DLL_LINKAGE IBattleInfoCallback : public IConstBonusProvider, public scripting::ApiRawPointer<IBattleInfoCallback>
@@ -96,5 +97,3 @@ public:
 	virtual EWallPart battleHexToWallPart(const BattleHex & hex) const = 0;
 	virtual BattleHex getTowerShooterHex(EWallPart part) const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

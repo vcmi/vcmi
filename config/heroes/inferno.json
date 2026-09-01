@@ -66,7 +66,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -142,14 +142,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"inferno" : {
-					"subtype" : "spell.inferno",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "inferno"
 		}
 	},
 	"axsis":
@@ -164,7 +157,14 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"secondary" : "mysticism"
+			"secondary" : "mysticism",
+			"bonuses" : {
+				"mysticismExtra" : {
+					"type" : "MANA_REGENERATION",
+					"val" : 1,
+					"valueType" : "ADDITIVE_VALUE"
+				}
+			}
 		}
 	},
 	"olema":
@@ -179,13 +179,7 @@
 			{ "skill" : "ballistics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"weakness" : {
-					"addInfo" : 0,
-					"subtype" : "spell.weakness",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "weakness"
 		}
 	},
 	"calid":
@@ -202,7 +196,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"sulfur" : {
-					"subtype" : "resource.sulfur",
+					"subtype" : "sulfur",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1
 				}
@@ -221,13 +215,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"bloodlust" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bloodlust",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "bloodlust"
 		}
 	},
 	"zydar":
@@ -257,14 +245,7 @@
 			{ "skill" : "leadership", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"fireball" : {
-					"subtype" : "spell.fireball",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "fireball"
 		}
 	}
 }

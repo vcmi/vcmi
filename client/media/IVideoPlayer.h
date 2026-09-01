@@ -13,9 +13,7 @@
 
 struct SDL_Surface;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
-VCMI_LIB_NAMESPACE_END
 
 class IVideoInstance
 {

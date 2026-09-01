@@ -29,6 +29,8 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 
 ### ON_COMBAT_EVENT
 
+DEPRECATED. Use [COMBAT_EVENT_TRIGGER](#combat_event_trigger) instead, which reacts to the same events through a [combat script](../Lua/Combat_Event_Scripts.md) and is not limited to the two predefined actions below. Existing content declaring this bonus keeps working.
+
 Allows to execute an action when specific event happens with affected unit
 
 Subtypes:
@@ -58,27 +60,52 @@ Example:
 
 ```json
 {
-    "type" : "ON_COMBAT_EVENT",
+	"type" : "ON_COMBAT_EVENT",
 	"subtype" : "combatEventDefend",
 	"addInfo" : {
-	    "effect" : [
-		    {
-			    "action" : "bonus"
+		"effect" : [
+			{
+				"action" : "bonus"
 				"targetEnemy" : false,
 				"bonus" : {
-				    "type" : "STACKS_SPEED",
+					"type" : "STACKS_SPEED",
 					"val" : -1,
 					"duration" : "N_TURNS",
 					"turns" : 1
 				}				
 			},
 			{
-			    "action" : "spell",
+				"action" : "spell",
 				"spell" : "bless",
 				"mastery" : 0,
 				"targetEnemy" : false
 			}
 		]
+	}
+}
+```
+
+### COMBAT_EVENT_TRIGGER
+
+Runs a [combat script](../Lua/Combat_Event_Scripts.md) when an event happens with affected unit.
+
+Unlike the deprecated [ON_COMBAT_EVENT](#on_combat_event) the subtype does not select an event - the script is called on every combat event it implements a handler for, including the start of the battle and of each round, which that bonus can not react to at all.
+
+- subtype: combat script to run
+- val: magnitude of the ability, whatever that means for this script
+- addInfo: optional, arbitrary json used to initialize the script on every call, the same way spell effect parameters initialize a spell effect script. Read-only - a script that needs to remember something between events must store it itself, for example in a bonus of its own.
+
+Several scripts may react to the same event on the same unit. The order they run in is the `priority` declared by each script, not the order the bonuses appear in.
+
+Example:
+
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "spikes",
+	"val" : 10,
+	"addInfo" : {
+		"poison" : true
 	}
 }
 ```
@@ -188,9 +215,15 @@ Unit affected by this bonus will be transformed into creature other than Skeleto
 
 - subtype: type of creature to which this unit should be converted
 
-### NONEVIL_ALIGNMENT_MIX
+### ALIGNMENT_MIX
 
-Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale (Angelic Alliance effect)
+Allows mixing of creatures of different factions in affected armies without penalty to morale. All mixable alignments count as a single one, so such army also receives the morale bonus for troops of one alignment
+
+- subtype: alignment that can be mixed - `alignmentGood`, `alignmentEvil`, `alignmentNeutral` or `alignmentNone`. Factions that declare `none` as their alignment, such as neutral creatures, belong to `alignmentNone`
+
+Use one bonus per alignment that should be mixable. Angelic Alliance uses `alignmentGood` and `alignmentNeutral`, Temple of Loyalty uses all four.
+
+Replaces `NONEVIL_ALIGNMENT_MIX`, which is deprecated but still supported and acts as `alignmentGood` plus `alignmentNeutral`.
 
 ### SURRENDER_DISCOUNT
 
@@ -346,10 +379,17 @@ Internal bonus, do not use
 
 ### SPECIAL_SPELL_LEV
 
-Gives additional bonus to effect of specific spell based on level of creature it is cast on
+Gives additional bonus to effect of specific spell based on level of creature it is cast on. Applies to `damage`, `heal` and `demonSummon` effects. Uses multiply-first rounding (`floor(val * heroLevel / targetLevel)`) and is kept only for backward compatibility - prefer [SPECIAL_SPELL_SCALING](#special_spell_scaling), or the `spellScalingPercentage` hero specialty shortcut, for new content.
 
 - subtype: identifier of affected spell
-- val: bonus to spell effect, percentage, divided by target creature level
+- val: bonus to spell effect, percentage; expected to be combined with the `TIMES_HERO_LEVEL` updater
+
+### SPECIAL_SPELL_SCALING
+
+Same purpose as [SPECIAL_SPELL_LEV](#special_spell_lev), but with H3-correct rounding (`val * floor(heroLevel / targetLevel)`) and no hero-level updater - the hero level scaling is applied internally. Applies to `damage` and `heal` effects, and to buff/debuff magnitudes placed by `timed` effects (Shield, Frenzy, Forgetfulness, ...). Usually configured through the `spellScalingPercentage` hero specialty shortcut.
+
+- subtype: identifier of affected spell
+- val: bonus to spell effect per step, percentage
 
 ### SPELL_DAMAGE
 
@@ -367,10 +407,10 @@ For `damage`, `heal` and `demonSummon` spell effects, increases spell power by s
 
 ### SPECIAL_PECULIAR_ENCHANT
 
-Gives creature under effect of this spell additional bonus, which is hardcoded and depends on the creature tier.
+Gives creature under effect of this spell an additional bonus that depends on the creature tier.
 
 - subtype: affected spell identifier, ie. `spell.haste`
-- addInfo: must be set to 0, or 1 for Slayer specialty
+- addInfo: per-level bonus values, as an array indexed by creature level; the last element is reused for levels beyond its length. If not set, defaults to `3/3/2/2/1/1/0` tier bracket (H3-style specialty).
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
@@ -457,9 +497,17 @@ Increases weekly growth of creatures in affected towns (Statue of Legion)
 
 - val: additional growth, percentage
 
-### BATTLE_NO_FLEEING
+### BATTLE_CAN_FLEE
 
-Heroes affected by this bonus can not retreat or surrender in battle (Shackles of War effect)
+Controls whether affected hero can retreat from combat. Values of all bonuses of this type are summed up, and retreating is blocked if the sum is negative. When defending a town, bonuses of the town are summed up as well - Village Hall provides -10, locking the defender in. Casting a spell in first combat rounds as attacker subtracts another 10.
+
+- val: -100 blocks retreating in a way that can not be overcome by any bonus (Shackles of War), -10 blocks a single case, +10 allows to overcome a single restriction (Escape Tunnel)
+
+### BATTLE_CAN_SURRENDER
+
+Controls whether affected hero can surrender. Works in the same way as `BATTLE_CAN_FLEE`, with an additional restriction of 10 if enemy army has no hero to negotiate with. Hero that can not retreat can never surrender either.
+
+- val: see `BATTLE_CAN_FLEE`
 
 ### NEGATE_ALL_NATURAL_IMMUNITIES
 
@@ -531,7 +579,7 @@ Increases starting amount of shots that unit has in battle
 
 Affected unit is considered to be alive. Automatically granted to any unit that does not have any other creature nature bonus
 
-Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
+Living units can be affected by TRANSMUTATION, and by the lifeDrain and soulSteal combat scripts
 
 ### NON_LIVING
 
@@ -619,6 +667,8 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 ### VULNERABLE_FROM_BACK
 
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/vulnerableFromBack.lua`
+
 When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
 
 - val: additional damage for attacks from behind, percentage (0-100)
@@ -631,6 +681,8 @@ Affected unit will deal more damage when attacking specific creature
 - val - additional damage, percentage
 
 ### HATES_TRAIT
+
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/hatesTrait.lua`
 
 Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
 
@@ -741,6 +793,8 @@ Affected units will receive reduced damage from attacks by other units
 
 ### DAMAGE_RECEIVED_CAP
 
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/damageReceivedCap.lua`
+
 Limits maximal damage received by affected units based on max hp (HotA war machines)
 
 - val: maximal damage limit, percentage of max hp
@@ -782,39 +836,63 @@ Affected unit will deal full damage when shooting over walls in sieges. Does not
 
 Affected unit can use ranged attack even when blocked by enemy unit, like with Bow of the Sharpshooter relic
 
+- subtype: `bonusSubtype.freeShootingNoPenalty` (default) - unit may also shoot at units standing next to it, like with Bow of the Sharpshooter relic
+- subtype: `bonusSubtype.freeShootingExceptAdjacent` - units standing next to affected unit can only be attacked in melee, like HotA Steel Elves
+
+If unit has both variants of this bonus, `bonusSubtype.freeShootingNoPenalty` takes priority. Bonus with no subtype set behaves as `bonusSubtype.freeShootingNoPenalty`.
+
 ### BLOCKS_RETALIATION
 
 Affected unit will never receive retaliations when attacking
 
 ### SOUL_STEAL
 
-Affected unit will gain new creatures for each enemy killed by this unit
+DEPRECATED. Configs and saves declaring it are converted to the [soulSteal](../Lua/Combat_Event_Scripts.md#soulsteal) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: number of units gained per enemy killed
-- subtype:
-  - soulStealPermanent: creature will stay after the battle
-  - soulStealBattle: creature will be lost after the battle
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "soulSteal",
+	"val" : 1,
+	"addInfo" : { "permanent" : true }
+}
+```
+
+`val` keeps its meaning, and `permanent` replaces the `soulStealPermanent` / `soulStealBattle` subtypes. Two such bonuses now both take effect, where the two subtypes used to be mutually exclusive.
 
 ### TRANSMUTATION
 
-Affected units have chance to transform attacked, living unit to other creature type, unless attacked unit is under TRANSMUTATION_IMMUNITY bonus
+DEPRECATED. Configs and saves declaring it are converted to the [transmutation](../Lua/Combat_Event_Scripts.md#transmutation) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: chance for ability to trigger, percentage
-- subtype:
-  - transmutationPerHealth: transformed unit will have same HP pool as original stack,
-  - transmutationPerUnit: transformed unit will have same number of units as original stack
-- addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "transmutation",
+	"val" : 40,
+	"addInfo" : { "transmuteBy" : "health", "creature" : "core:goldGolem" }
+}
+```
+
+`val` keeps its meaning, `transmuteBy` of `"health"` / `"count"` replaces the `transmutationPerHealth` / `transmutationPerUnit` subtypes, and `creature` replaces `addInfo`. Without `creature` the victim is transformed into the creature of the attacker, as before.
 
 ### TRANSMUTATION_IMMUNITY
 
-Affected unit is immune to TRANSMUTATION bonus effects
+Affected unit can not be transmuted by the `transmutation` combat script
 
 ### SUMMON_GUARDIANS
 
-When battle starts, affected units will be surrounded from all side with summoned units
+DEPRECATED. Configs and saves declaring it are converted to the [summonGuardians](../Lua/Combat_Event_Scripts.md#summonguardians) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: amount of units to summon, per stack, percentage of summoner stack size
-- subtype: identifier of creature to summon
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "summonGuardians",
+	"val" : 50,
+	"addInfo" : { "creature" : "core:woodElf" }
+}
+```
+
+`creature` replaces the old subtype, while `val` keeps its meaning.
 
 ### RANGED_RETALIATION
 
@@ -839,13 +917,18 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 
 ### DESTRUCTION
 
-Affected unit will kills additional units after attack
+DEPRECATED. Configs and saves declaring it are converted to the [destruction](../Lua/Combat_Event_Scripts.md#destruction) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: chance to trigger, percentage
-- subtype:
-  - destructionKillPercentage: kill percentage of units,
-  - destructionKillAmount: kill amount
-- addInfo: amount or percentage to kill
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "destruction",
+	"val" : 20,
+	"addInfo" : { "killBy" : "percentage", "amount" : 10 }
+}
+```
+
+`val` keeps its meaning. The old subtype becomes `killBy` - `destructionKillPercentage` maps to `"percentage"` and `destructionKillAmount` to `"count"` - and the old `addInfo` becomes `amount`.
 
 ### LIMITED_SHOOTING_RANGE
 
@@ -863,15 +946,17 @@ Affected unit will attack additional times if killed creatures in target unit du
 
 ### ENEMY_ATTACK_REDUCTION
 
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/enemyAttackReduction.lua`
+
 Affected unit will ignore specified percentage of attacked unit attack (Nix)
 
 - val: amount of attack points to ignore, percentage
 
 ### REVENGE
 
-Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle
-(formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`.
-Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
+DEPRECATED. Mods should instead define similar bonus on their own and provide script identical or similar to `damage/revenge.lua`
+
+Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle (formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`. Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
 
 ## Special abilities
 
@@ -933,9 +1018,15 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 ### LIFE_DRAIN
 
-Affected unit will heal itself, resurrecting any dead units, by amount of dealt damage (Vampire Lord)
+DEPRECATED. Configs and saves declaring it are converted to the [lifeDrain](../Lua/Combat_Event_Scripts.md#lifedrain) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: percentage of damage that will be converted into health points
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "lifeDrain",
+	"val" : 100
+}
+```
 
 ### DOUBLE_DAMAGE_CHANCE
 
@@ -957,9 +1048,18 @@ Affected unit acts as healing tent and can heal allied units on each turn
 
 ### FIRE_SHIELD
 
-When affected unit is attacked, portion of received damage will be also dealt to the attacked. Units immune to fire magic will not receive this damage. Only melee attacks will trigger this bonus
+DEPRECATED. Configs and saves declaring it are converted to the [fireShield](../Lua/Combat_Event_Scripts.md#fireshield) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val: amount to deal in return, percentage
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "fireShield",
+	"val" : 20,
+	"stacking" : "fireShield"
+}
+```
+
+`val` keeps its meaning. The `stacking` group is what core content uses to keep a unit that has fire shield twice - from its own ability and from the spell - burning attackers only for the stronger of the two.
 
 ### MAGIC_MIRROR
 
@@ -969,27 +1069,48 @@ If affected unit is targeted by a spell it will reflect spell to a random enemy 
 
 ### ACID_BREATH
 
-Affected unit will deal additional damage after attack
+REMOVED. The engine no longer implements it and, unlike the other retired abilities, declaring it is **not** converted automatically - a bonus of this type does nothing and is reported as a warning on load. Two existing bonuses replace it, and the pair has to be declared by hand:
 
-- val - additional damage to deal, multiplied by unit stack size
-- addInfo: chance to trigger, percentage
+```json
+"acidBreath" : {
+    "type" : "SPELL_AFTER_ATTACK",
+	"subtype" : "acidBreathDamage",
+	"val" : 20
+},
+"acidBreathDamage" : {
+    "type" : "SPECIFIC_SPELL_POWER",
+	"subtype" : "acidBreathDamage",
+	"val" : 25
+}
+```
+
+The old `addInfo` (chance to trigger) becomes the `val` of the SPELL_AFTER_ATTACK bonus, and the old `val` (damage per creature) becomes the `val` of the SPECIFIC_SPELL_POWER bonus, which the spell multiplies by the size of the attacking stack exactly as the ability used to.
+
+Note that the defence reduction half of the rust dragon's acid breath was always separate, and is unaffected - it is a SPELL_AFTER_ATTACK bonus for the `acidBreath` spell.
 
 ### DEATH_STARE
 
-Affected unit will kill additional units after attack. Used for Death stare (Mighty Gorgon) ability and for Accurate Shot (Pirates, HotA)
+DEPRECATED. Configs and saves declaring it are converted to the [deathStare](../Lua/Combat_Event_Scripts.md#deathstare) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- subtype:
-  - deathStareGorgon: only melee attack, random amount of killed units
-  - deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
-  - deathStareRangePenalty: only ranged attacks with range penalty
-  - deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
-  - deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
-  - deathStareCommander: fixed amount, both melee and ranged attacks
-- val:
-  - for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
-  - for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
-- addInfo:
-  - SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "deathStare",
+	"val" : 10,
+	"addInfo" : { "situation" : "melee" }
+}
+```
+
+`val` keeps its meaning. The old subtype becomes the `situation` parameter and the old `addInfo` becomes `spell`:
+
+| Old subtype | `situation` |
+| ----------- | ----------- |
+| `deathStareGorgon` | `"melee"` |
+| `deathStareNoRangePenalty` | `"ranged"` |
+| `deathStareRangePenalty` | `"rangedDistancePenalty"` |
+| `deathStareObstaclePenalty` | `"rangedWallPenalty"` |
+| `deathStareRangeObstaclePenalty` | `"rangedDistanceAndWallPenalty"` |
+| `deathStareCommander` | `"commander"` |
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -1043,8 +1164,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-  - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
-  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
+  - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering. When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPELL_BEFORE_ATTACK
 
@@ -1053,8 +1173,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
-  - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
-  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
+  - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering. When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPECIFIC_SPELL_POWER
 
@@ -1085,10 +1204,17 @@ Affected stack will resurrect after death
 
 ### ENCHANTED
 
-Affected unit is permanently enchanted with a spell, that is cast again every turn
+DEPRECATED. Configs and saves declaring it are converted to the [enchanted](../Lua/Combat_Event_Scripts.md#enchanted) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- subtype: spell identifier
-- val: spell mastery level. If above 3, then spell has mass effect with mastery level of (val-3)
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "enchanted",
+	"addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
+}
+```
+
+`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed both - this script has no magnitude, so it leaves `val` unused. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
 
 ## Spell immunities
 
@@ -1157,7 +1283,7 @@ Affected unit will deal increased damage to creatures with KING bonus
 
 Affected unit has its ranged attack power reduced (Forgetfulness)
 
-- val: if 0 or 1, damage is reduced by 50%. If greater than 1 then creature can not use ranged attacks
+- val: percentage by which ranged damage is reduced. A value of 100 disables ranged attacks entirely
 
 ### NOT_ACTIVE
 
@@ -1280,6 +1406,16 @@ Bonus that is automatically granted to unit whenever unit uses defend action in 
 Increases amount of counted marketplaces when trading in town. You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
 
 - val: additional number of 'marketplaces' to reduce costs
+
+### SURRENDER_MARKETPLACE_ACCESS
+
+Allows affected hero or player to open a marketplace after failing to pay surrender cost, sell resources, and retry surrender payment. This can be granted by artifacts, global/per-hero game config bonuses, or other bonus sources.
+
+### DIPLOMACY_ARMY_STRENGTH_MULTIPLIER
+
+Changes army strength of affected hero as seen by neutral creatures deciding whether to join or to flee, and as reported by Thieves Guild. Actual army strength of the hero remains unchanged.
+
+- val: army strength multiplier, in percentage. 100 - unchanged, 300 - three times stronger, 50 - two times weaker. Multiple bonuses of this type are multiplied with each other
 
 ### DEITYOFFIRE
 

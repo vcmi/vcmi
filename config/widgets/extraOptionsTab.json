@@ -55,6 +55,13 @@
 					"callback" : "setUnlimitedReplay",
 					"help" : "vcmi.optionsTab.unlimitedReplay",
 					"selected" : true
+				},
+				{
+					"name": "buttonRecordGame",
+					"image": "lobby/checkbox",
+					"callback" : "setRecordGame",
+					"help" : "vcmi.optionsTab.recordGame",
+					"selected" : false
 				}
 			]
 		},
@@ -78,6 +85,13 @@
 					"alignment": "left",
 					"color": "yellow",
 					"text": "vcmi.optionsTab.unlimitedReplay.hover"
+				},
+				{
+					"name": "labelRecordGame",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.recordGame.hover"
 				}
 			]
 		}

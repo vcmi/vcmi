@@ -86,7 +86,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 	sah.player = color;
 	sah.hid = hero->getHeroTypeID();
 	sah.army.clearSlots();
-	sah.army.setCreature(SlotID(0), hero->getHeroType()->initialArmy.at(0).creature, 1);
+	sah.army.setCreature(SlotID(0), hero->getHeroType()->defaultCreature(), 1);
 	sah.replenishPoints = false;
 
 	gameHandler->sendAndApply(sah);
@@ -127,7 +127,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 		{
 			sah.roleID = TavernSlotRole::SINGLE_UNIT;
 			sah.army.clearSlots();
-			sah.army.setCreature(SlotID(0), newHero->getHeroType()->initialArmy[0].creature, 1);
+			sah.army.setCreature(SlotID(0), newHero->getHeroType()->defaultCreature(), 1);
 		}
 	}
 	else
@@ -153,11 +153,17 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	const CGTownInstance * town = gameHandler->gameInfo().getTown(objectID);
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
-	if (!mapObject && gameHandler->complain("Invalid map object!"))
+	if (!mapObject)
+	{
+		gameHandler->complain("Invalid map object!");
 		return false;
+	}
 
-	if (!playerState && gameHandler->complain("Invalid player!"))
+	if (!playerState)
+	{
+		gameHandler->complain("Invalid player!");
 		return false;
+	}
 
 	if (playerState->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && gameHandler->complain("Not enough gold for buying hero!"))
 		return false;

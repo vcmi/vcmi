@@ -17,8 +17,6 @@
 #include "../lib/FunctionList.h"
 #include "gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Artifact;
 struct TryMoveHero;
 class CStack;
@@ -30,8 +28,6 @@ class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
 class PathfinderCache;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class AdventureMapInterface;
@@ -62,13 +58,29 @@ namespace boost
 class CPlayerInterface : public CGameInterface
 {
 	bool ignoreEvents;
-	int autosaveCount;
 
-	const std::string QUICKSAVE_PATH = "Saves/Quicksave";
+	struct PendingDialog
+	{
+		enum class Type : std::uint8_t { NonBlocking, Blocking };
 
-	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-	std::shared_ptr<WindowBase> pendingLevelUpDialog;
-	int pendingLevelUpRequestID = -1;
+		enum class State : std::uint8_t { Queued, AwaitingQueryResolution };
+
+		bool dropOnTurnEnd = false;
+		Type blockingPolicy = Type::Blocking;
+		QueryID queryID = QueryID::NONE;
+		State state = State::Queued;
+		std::function<void()> showCallback;
+
+		bool isLevelUpDialog() const
+		{
+			// queryID means we are dealing with hero or commander level up dialog
+			return queryID != QueryID::NONE;
+		}
+	};
+
+	std::list<PendingDialog> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
+	bool delayQueuedDialogsUntilInputSettles = false;
+	bool levelUpChainPendingContinuation = false;
 
 	std::unique_ptr<HeroMovementController> movementController;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
@@ -143,6 +155,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	void requestRealized(PackageApplied *pa) override;
+	void queryResolved(QueryID queryID) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void centerView (int3 pos, int focusTime) override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
@@ -170,11 +183,12 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
+	void battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack) override; //standalone animation, no state change
 	void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
-	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
+	void battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle) override;
 	void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const BattleID & battleID, const EGateState state) override;
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
@@ -187,6 +201,11 @@ public: // public interface for use by client via GAME->interface() access
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
 	void showQuestLog() override;
+	void showScenarioEventJournal() override;
+	void scenarioEventJournalChanged() override;
+	bool hasDisplayableQuests() const;
+	bool hasScenarioEventJournalEntries() const;
+	bool hasJournalEntries() const;
 	void showThievesGuildWindow (const CGObjectInstance * obj) override;
 	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
@@ -243,11 +262,16 @@ private:
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
-	void closePendingLevelUpDialog();
+	void closeActiveLevelUpDialog();
+	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QueryID queryID = QueryID::NONE);
+	std::list<PendingDialog>::iterator findQueryBackedDialogInsertionPoint();
+	void tryShowNextPendingDialog();
+	std::list<PendingDialog>::iterator findPendingDialog(QueryID queryID);
 	void townRemoved(const CGTownInstance* town);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);
 	void acceptTurn(QueryID queryID, bool hotseatWait); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
+	std::string getQuickSavePath() const;
 };

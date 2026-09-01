@@ -12,9 +12,9 @@
 #include "CSimpleArmy.h"
 #include "CStackInstance.h"
 
-#include "serializer/Serializeable.h"
+#include "../../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "serializer/Serializeable.h"
 
 class CStackInstance;
 class CArmedInstance;
@@ -129,8 +129,8 @@ public:
 	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
 	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
-	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
-	std::string getArmyDescription() const;
+	MetaString getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
+	MetaString getArmyDescription() const;
 	bool hasStackAtSlot(const SlotID & slot) const;
 
 	bool contains(const CStackInstance * stack) const;
@@ -155,5 +155,3 @@ public:
 		return !stacks.empty();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

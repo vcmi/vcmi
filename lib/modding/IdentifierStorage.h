@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
@@ -114,5 +112,3 @@ public:
 	/// Returns list of all mods, from which at least one identifier has failed to resolve
 	std::vector<std::string> getModsWithFailedRequests() const;
 };
-
-VCMI_LIB_NAMESPACE_END

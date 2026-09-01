@@ -11,11 +11,7 @@
 
 #include "CArtifactsOfHeroBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
-
-VCMI_LIB_NAMESPACE_END
 
 class CListBoxWithCallback;
 

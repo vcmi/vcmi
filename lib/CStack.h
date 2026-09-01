@@ -17,8 +17,6 @@
 
 #include "battle/CUnitState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct BattleStackAttacked;
 class BattleInfo;
 
@@ -58,13 +56,10 @@ public:
 	bool isOnNativeTerrain() const;
 	TerrainId getCurrentTerrain() const;
 
-	ui32 level() const;
+	int32_t unitLevel() const override;
 	si32 magicResistance() const override; //include aura of resistance
 	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
-
-	static BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
-	static bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
@@ -113,5 +108,3 @@ public:
 private:
 	const BattleInfo * battle; //do not serialize
 };
-
-VCMI_LIB_NAMESPACE_END

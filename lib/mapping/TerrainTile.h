@@ -14,8 +14,6 @@
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TerrainType;
 class RiverType;
 class RoadType;
@@ -78,21 +76,8 @@ struct DLL_LINKAGE TerrainTile
 		h & roadDir;
 		h & extTileFlags;
 
-		if(h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & visitableObjects;
-			h & blockingObjects;
-		}
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for(const auto & ptr : objectPtrs)
-				visitableObjects.push_back(ptr->id);
-			h & objectPtrs;
-			for(const auto & ptr : objectPtrs)
-				blockingObjects.push_back(ptr->id);
-		}
+		h & visitableObjects;
+		h & blockingObjects;
 	}
 };
 
@@ -177,5 +162,3 @@ inline bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 	const TerrainType * terrain = getTerrain();
 	return terrain->isPassable() && ((allowSea && terrain->isWater()) || (allowLand && terrain->isLand()));
 }
-
-VCMI_LIB_NAMESPACE_END

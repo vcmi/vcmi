@@ -13,7 +13,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : "spellSchool.any",
+				"subtype" : "any",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -29,7 +29,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : "spellSchool.fire",
+				"subtype" : "fire",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -41,7 +41,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : "spellSchool.earth",
+				"subtype" : "earth",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -53,7 +53,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : "spellSchool.air",
+				"subtype" : "air",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -65,7 +65,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : "spellSchool.water",
+				"subtype" : "water",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -100,7 +100,11 @@
 				"val" : 2,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.83",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" }]
+				"limiters": [
+					"anyOf",
+					{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" },
+					{ "type" : "CREATURE_FACTION_LIMITER", "faction" : "conflux" } // H3 quirk - conflux does not receives Angelic Alliance bonuses, but receives Clover Field bonus
+				]
 			}
 		]
 	},

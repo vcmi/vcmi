@@ -11,7 +11,18 @@
 #include "StdInc.h"
 #include "CRandomGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <boost/stacktrace.hpp>
+
+namespace
+{
+template<typename T>
+std::string invalidRangeMessage(T lower, T upper)
+{
+	std::ostringstream out;
+	out << "Invalid range provided: " << lower << " ... " << upper << "\nStacktrace:\n" << boost::stacktrace::stacktrace();
+	return out.str();
+}
+}
 
 CRandomGenerator::CRandomGenerator()
 {
@@ -56,7 +67,7 @@ int CRandomGenerator::nextInt(int lower, int upper)
 	logRng->trace("CRandomGenerator::nextInt64 (%d, %d)", lower, upper);
 
 	if (lower > upper)
-		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+		throw std::runtime_error(invalidRangeMessage(lower, upper));
 
 	return TIntDist(lower, upper)(rand);
 }
@@ -78,7 +89,7 @@ int64_t CRandomGenerator::nextInt64(int64_t lower, int64_t upper)
 {
 	logRng->trace("CRandomGenerator::nextInt64 (%d, %d)", lower, upper);
 	if (lower > upper)
-		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+		throw std::runtime_error(invalidRangeMessage(lower, upper));
 
 	return TInt64Dist(lower, upper)(rand);
 }
@@ -93,7 +104,7 @@ double CRandomGenerator::nextDouble(double lower, double upper)
 {
 	logRng->trace("CRandomGenerator::nextDouble (%f, %f)", lower, upper);
 	if(lower > upper)
-		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+		throw std::runtime_error(invalidRangeMessage(lower, upper));
 
 	return TRealDist(lower, upper)(rand);
 }
@@ -104,5 +115,3 @@ CRandomGenerator & CRandomGenerator::getDefault()
 	return defaultRand;
 }
 
-
-VCMI_LIB_NAMESPACE_END

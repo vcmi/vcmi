@@ -14,8 +14,6 @@
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapInfo;
 
 struct CPackForLobby;
@@ -26,8 +24,6 @@ struct LobbyInfo;
 struct PlayerSettings;
 class PlayerColor;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class CBaseForServerApply;
@@ -110,7 +106,7 @@ public:
 	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
-	void clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
+	void clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<GameConnection> c);
 
 	void announceMessage(const MetaString & txt);

@@ -13,8 +13,6 @@
 
 #include "../../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace effects
@@ -39,5 +37,3 @@ void Effect::init(JsonNode data)
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

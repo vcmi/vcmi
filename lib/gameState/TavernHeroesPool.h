@@ -14,8 +14,6 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CTown;
 class CHeroClass;
@@ -35,17 +33,7 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 
 		template <typename Handler> void serialize(Handler &h)
 		{
-			if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			{
-				h & hero;
-			}
-			else
-			{
-				std::shared_ptr<CGObjectInstance> pointer;
-				h & pointer;
-				hero = HeroTypeID(pointer->subID);
-			}
-
+			h & hero;
 			h & slot;
 			h & role;
 			h & player;
@@ -94,18 +82,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & heroesPool;
-		else
-		{
-			std::map<HeroTypeID, std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				heroesPool.push_back(ptr.first);
-		}
+		h & heroesPool;
 		h & perPlayerAvailability;
 		h & currentTavern;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

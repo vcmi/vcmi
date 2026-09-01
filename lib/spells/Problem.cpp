@@ -10,9 +10,8 @@
 #include "StdInc.h"
 #include "Problem.h"
 
+#include "../GameLibrary.h"
 #include "../texts/MetaString.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
 {
@@ -27,7 +26,7 @@ void ProblemImpl::add(MetaString && description, Severity severity)
 void ProblemImpl::getAll(std::vector<std::string> & target) const
 {
 	for(const auto & p : data)
-		target.push_back(p.first.toString());
+		target.push_back(p.first.toString(LIBRARY->staticTexts()));
 }
 
 //void ProblemImpl::getMostSevere(std::vector<std::string> & target) const
@@ -45,5 +44,3 @@ void ProblemImpl::getAll(std::vector<std::string> & target) const
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

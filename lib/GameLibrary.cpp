@@ -20,7 +20,7 @@
 #include "MapLayerHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
-#include "callback/CDynLibHandler.h"
+#include "../luascript/LuaModule.h"
 #include "entities/artifact/CArtHandler.h"
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
@@ -35,19 +35,19 @@
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
+#include "filesystem/CFilesystemLoader.h"
+#include "filesystem/AdapterLoaders.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "spells/CSpellHandler.h"
-#include "spells/effects/SpellEffectHandler.h"
+#include "scripting/ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "GameSettings.h"
 
 #include <vcmi/scripting/Service.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 GameLibrary * LIBRARY = nullptr;
 
@@ -98,6 +98,11 @@ const SkillService * GameLibrary::skills() const
 	return skillh.get();
 }
 
+const ITranslator * GameLibrary::staticTexts() const
+{
+	return generaltexth.get();
+}
+
 const IBonusTypeHandler * GameLibrary::getBth() const
 {
 	return bth.get();
@@ -108,9 +113,9 @@ const CIdentifierStorage * GameLibrary::identifiers() const
 	return identifiersHandler.get();
 }
 
-const spells::effects::SpellEffectService * GameLibrary::spellEffects() const
+const ScriptService * GameLibrary::scriptTypes() const
 {
-	return spellEffectHandler.get();
+	return scriptTypeHandler.get();
 }
 
 const BattleFieldService * GameLibrary::battlefields() const
@@ -128,6 +133,11 @@ const IGameSettings * GameLibrary::engineSettings() const
 	return settingsHandler.get();
 }
 
+const spells::SchoolService * GameLibrary::spellSchools() const
+{
+	return spellSchoolHandler.get();
+}
+
 void GameLibrary::loadFilesystem(bool extractArchives)
 {
 	CStopWatch loadTime;
@@ -139,10 +149,17 @@ void GameLibrary::loadFilesystem(bool extractArchives)
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 }
 
-void GameLibrary::loadModFilesystem()
+void GameLibrary::loadModFilesystem(bool useTestPreset)
 {
 	CStopWatch loadTime;
-	modh = std::make_unique<CModHandler>();
+	// Test preset discovers the vcmi-test fixtures mod from test/testdata/ instead of the
+	// shipped Mods/ directory, so it is never scanned or shipped by the game itself.
+	if(useTestPreset)
+	{
+		auto loader = std::make_unique<CFilesystemLoader>("MODS/", "test/testdata/", 64);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("initial"))->addLoader(std::move(loader), false);
+	}
+	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
@@ -156,13 +173,13 @@ void createHandler(std::unique_ptr<Handler> & handler)
 	handler = std::make_unique<Handler>();
 }
 
-void GameLibrary::initializeFilesystem(bool extractArchives)
+void GameLibrary::initializeFilesystem(bool extractArchives, bool useTestPreset)
 {
 	loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
 	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
-	loadModFilesystem();
+	loadModFilesystem(useTestPreset);
 
 	// Detect game data mode after filesystem is loaded
 	gameDataMode = GameDataMode::SOD;
@@ -217,7 +234,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(objtypeh);
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);
-	createHandler(spellEffectHandler);
+	createHandler(scriptTypeHandler);
 	createHandler(skillh);
 	createHandler(terviewh);
 	createHandler(campaignRegions);
@@ -226,9 +243,8 @@ void GameLibrary::initializeLibrary()
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
 
-	boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
-	scriptHandler = CDynLibHandler::getNewScriptingModule(filePath);
-	scriptHandler->installScripting(spellEffectHandler.get());
+	scriptHandler = std::make_unique<scripting::LuaModule>();
+	scriptHandler->installScripting(*scriptTypeHandler);
 	modh->load();
 	modh->afterLoad();
 
@@ -237,5 +253,3 @@ void GameLibrary::initializeLibrary()
 
 GameLibrary::GameLibrary() = default;
 GameLibrary::~GameLibrary() = default;
-
-VCMI_LIB_NAMESPACE_END

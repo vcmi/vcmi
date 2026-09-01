@@ -15,6 +15,7 @@
 #include "../lib/constants/StringConstants.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/mapping/CMap.h"
+#include "translator.h"
 
 PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) :
 	QWidget(parent),
@@ -31,7 +32,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		{
 			MetaString str;
 			str.appendName(PlayerColor(i));
-			ui->playerColorCombo->addItem(QString::fromStdString(str.toString()), QVariant(i));
+			ui->playerColorCombo->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(i));
 			if(i == playerId)
 				ui->playerColorCombo->setCurrentIndex(index);
 			++index;

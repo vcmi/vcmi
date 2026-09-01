@@ -13,6 +13,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 
 import eu.vcmi.vcmi.util.Log;
+import eu.vcmi.vcmi.util.Notifications;
 
 /**
  * @author F
@@ -53,12 +54,11 @@ public class NativeMethods
         return root;
     }
 
+    /// shown when the game wants the player's attention while it is in the background
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static String nativePath()
+    public static void showNotification(final String message)
     {
-        final Context ctx = SDL.getContext();
-        Log.i("Accessing ndk path: " + ctx.getApplicationInfo().nativeLibraryDir);
-        return ctx.getApplicationInfo().nativeLibraryDir;
+        Notifications.showGameNotification(message);
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)

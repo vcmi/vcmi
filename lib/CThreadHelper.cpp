@@ -22,11 +22,16 @@
 #ifndef ENABLE_MINIMAL_LIB
 	#include <tbb/task_arena.h>
 #endif
-#include <boost/lexical_cast.hpp>
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include <sstream>
 
 static thread_local std::string threadNameForLogging;
+
+static std::string threadIdToString(std::thread::id id)
+{
+	std::ostringstream stream;
+	stream << id;
+	return stream.str();
+}
 
 std::string getThreadName()
 {
@@ -37,11 +42,11 @@ std::string getThreadName()
 	int tbbIndex = tbb::this_task_arena::current_thread_index();
 
 	if (tbbIndex < 0)
-		return boost::lexical_cast<std::string>(std::this_thread::get_id());
+		return threadIdToString(std::this_thread::get_id());
 	else
-		return "TBB worker " + boost::lexical_cast<std::string>(tbbIndex);
+		return "TBB worker " + std::to_string(tbbIndex);
 #else
-	return boost::lexical_cast<std::string>(std::this_thread::get_id());
+	return threadIdToString(std::this_thread::get_id());
 #endif
 }
 
@@ -97,5 +102,3 @@ void setThreadName(const std::string &name)
 	#error "Failed to find method to set thread name on this system. Please provide one (or disable this line if you just want code to compile)"
 #endif
 }
-
-VCMI_LIB_NAMESPACE_END

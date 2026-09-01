@@ -8,12 +8,11 @@
  *
  */
 #include "StdInc.h"
+#include "CCreatureHandler.h"
 #include "CHero.h"
 
 #include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 CHero::CHero() = default;
 CHero::~CHero() = default;
@@ -93,6 +92,22 @@ std::string CHero::getSpecialtyTooltipTextID() const
 	return TextIdentifier("hero", modScope, identifier, "specialty", "tooltip").get();
 }
 
+CreatureID CHero::defaultCreature() const
+{
+	for (const auto	& unit : initialArmy)
+	{
+		if(!unit.creature.hasValue())
+			continue;
+
+		if (unit.creature.toCreature()->warMachine != ArtifactID::NONE)
+			continue;
+
+		return unit.creature;
+	}
+
+	throw std::runtime_error("Hero " + getJsonKey() + " has no valid army stack!");
+}
+
 void CHero::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "UN32", iconSpecSmall);
@@ -100,5 +115,3 @@ void CHero::registerIcons(const IconRegistar & cb) const
 	cb(getIconIndex(), 0, "PORTRAITSLARGE", portraitLarge);
 	cb(getIconIndex(), 0, "PORTRAITSSMALL", portraitSmall);
 }
-
-VCMI_LIB_NAMESPACE_END

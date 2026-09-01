@@ -13,8 +13,6 @@
 #include "../ResourceSet.h"
 #include "../mapping/MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct InfoWindow;
 
 class DLL_LINKAGE CGPandoraBox : public CRewardableObject
@@ -25,6 +23,11 @@ public:
 	using CRewardableObject::CRewardableObject;
 
 	MetaString message;
+
+	/// Name of the map-script handler to run when a hero visits, replacing the default reward. Empty if none.
+	std::string heroVisitScriptHandler;
+
+	std::string getVisitScriptHandler() const override { return heroVisitScriptHandler; }
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
@@ -37,6 +40,8 @@ public:
 		h & message;
 		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
 			h & presentOnDifficulties;
+		if(h.version >= Handler::Version::SCRIPT_VARIABLES)
+			h & heroVisitScriptHandler;
 	}
 protected:
 	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
@@ -73,11 +78,10 @@ public:
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 protected:
 	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	void configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance * contextHero, int rewardIndex) const override;
 	
 	void init() override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
 	void activated(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 };
-
-VCMI_LIB_NAMESPACE_END

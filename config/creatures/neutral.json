@@ -14,7 +14,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : "spellSchool.any",
+				"subtype" : "any",
 				"val" : 85
 			}
 		},
@@ -47,7 +47,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : "spellSchool.any",
+				"subtype" : "any",
 				"val" : 95
 			}
 		},
@@ -75,11 +75,11 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"dragon" : 
+			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -99,8 +99,8 @@
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"description" : "PLACEHOLDER",
-				"limiters" : [ 
-					"OPPOSITE_SIDE", 
+				"limiters" : [
+					"OPPOSITE_SIDE",
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"bonusType" : "LIVING"
@@ -113,7 +113,7 @@
 				"valueType" : "INDEPENDENT_MIN",
 				"description" : "PLACEHOLDER",
 				"val" : 0
-				
+
 			},
 			"spellImmunity" :
 			{
@@ -154,7 +154,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -202,7 +202,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -229,56 +229,56 @@
 			"castsMagicArrow" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.magicArrow",
+				"subtype" : "magicArrow",
 				"addInfo" : 22,
 				"val" : 2
 			},
 			"castsIceBolt" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.iceBolt",
+				"subtype" : "iceBolt",
 				"addInfo" : 22,
 				"val" : 2
 			},
 			"castsLightningBolt" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.lightningBolt",
+				"subtype" : "lightningBolt",
 				"addInfo" : 22,
 				"val" : 2
 			},
 			"castsChainLightning" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.chainLightning",
+				"subtype" : "chainLightning",
 				"addInfo" : 5,
 				"val" : 2
 			},
 			"castsFrostRing" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.frostRing",
+				"subtype" : "frostRing",
 				"addInfo" : 10,
 				"val" : 2
 			},
 			"castsFireball" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.fireball",
+				"subtype" : "fireball",
 				"addInfo" : 21,
 				"val" : 2
 			},
 			"castsInferno" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.inferno",
+				"subtype" : "inferno",
 				"addInfo" : 5,
 				"val" : 2
 			},
 			"castsMeteorShower" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.meteorShower",
+				"subtype" : "meteorShower",
 				"addInfo" : 5,
 				"val" : 2
 			},
@@ -313,11 +313,11 @@
 		"doubleWide" : true,
 		"abilities":
 		{
-			"dragon" : 
+			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"dragonSkeleton" : 
+			"dragonSkeleton" :
 			{
 				"type" : "SKELETON_TRANSFORMER_TARGET",
 				"subtype" : "boneDragon"
@@ -332,14 +332,21 @@
 			},
 			"acidBreath" :
 			{
-				"type" : "ACID_BREATH",
-				"val" : 25,
-				"addInfo" : 30
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "acidBreathDamage",
+				"val" : 20
+			},
+			// damage of the cast above, multiplied by the number of dragons in the stack
+			"acidBreathDamage" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "acidBreathDamage",
+				"val" : 25
 			},
 			"reduceDefence" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.acidBreath",
+				"subtype" : "acidBreath",
 				"val" : 100
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -393,42 +400,42 @@
 			"castsHaste" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.haste",
+				"subtype" : "haste",
 				"val" : 3,
 				"addInfo" : 3
 			},
 			"castsSlow" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.slow",
+				"subtype" : "slow",
 				"val" : 3,
 				"addInfo" : 3
 			},
 			"castsStoneSkin" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.stoneSkin",
+				"subtype" : "stoneSkin",
 				"val" : 3,
 				"addInfo" : 3
 			},
 			"castsBless" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.bless",
+				"subtype" : "bless",
 				"val" : 3,
 				"addInfo" : 3
 			},
 			"castsWeakness" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.weakness",
+				"subtype" : "weakness",
 				"val" : 3,
 				"addInfo" : 3
 			},
 			"castsAirShield" :
 			{
 				"type" : "ENCHANTER",
-				"subtype" : "spell.airShield",
+				"subtype" : "airShield",
 				"val" : 3,
 				"addInfo" : 3
 			}
@@ -502,7 +509,7 @@
 		"level": 1,
 		"faction": "neutral",
 		"shots" : 24,
-		"abilities": 
+		"abilities":
 		{
 			"shooter" :
 			{
@@ -591,7 +598,7 @@
 			"castCurse" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.curse",
+				"subtype" : "curse",
 				"val" : 50
 			}
 		},
@@ -621,7 +628,7 @@
 			"sandWalker" :
 			{
 				"type" : "NO_TERRAIN_PENALTY",
-				"subtype" : "terrain.sand",
+				"subtype" : "sand",
 				"propagator" : "HERO",
 				"description" : "PLACEHOLDER"
 			}

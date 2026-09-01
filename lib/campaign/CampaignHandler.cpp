@@ -28,8 +28,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	if (input.front() < uint8_t(' ')) // binary format
@@ -126,7 +124,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, const 
 	if (text.empty())
 		return "";
 
-	target.getTexts().registerString(modName, stringID, text);
+	target.getTexts()->registerString(modName, stringID, text);
 	return stringID.get();
 }
 
@@ -159,16 +157,16 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.outroVideo = VideoPath::fromJson(reader["outroVideo"]);
 }
 
-JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header)
+JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header, const ITranslator * translator)
 {
 	JsonNode node;
 	node["version"].Integer() = static_cast<ui64>(CampaignVersion::VCMI);
 	node["regions"] = header.campaignRegions.toJson();
-	node["name"].String() = header.name.toString();
-	node["description"].String() = header.description.toString();
-	node["author"].String() = header.author.toString();
-	node["authorContact"].String() = header.authorContact.toString();
-	node["campaignVersion"].String() = header.campaignVersion.toString();
+	node["name"].String() = header.name.toString(translator);
+	node["description"].String() = header.description.toString(translator);
+	node["author"].String() = header.author.toString(translator);
+	node["authorContact"].String() = header.authorContact.toString(translator);
+	node["campaignVersion"].String() = header.campaignVersion.toString(translator);
 	node["creationDateTime"].Integer() = header.creationDateTime;
 	node["allowDifficultySelection"].Bool() = header.difficultyChosenByPlayer;
 	node["music"].String() = header.music.getName();
@@ -217,9 +215,9 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
-JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario, const ITranslator * translator)
 {
-	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
+	auto prologEpilogWriter = [translator](const CampaignScenarioPrologEpilog & elem) -> JsonNode
 	{
 		JsonNode node;
 		if(elem.hasPrologEpilog)
@@ -227,7 +225,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 			node["video"].Vector() = JsonVector{ JsonNode(elem.prologVideo.first.getName()), JsonNode(elem.prologVideo.second.getName()) };
 			node["music"].String() = elem.prologMusic.getName();
 			node["voice"].String() = elem.prologVoice.getName();
-			node["text"].String() = elem.prologText.toString();
+			node["text"].String() = elem.prologText.toString(translator);
 		}
 		return node;
 	};
@@ -238,7 +236,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
-	node["regionText"].String() = scenario.regionText.toString();
+	node["regionText"].String() = scenario.regionText.toString(translator);
 	node["prolog"] = prologEpilogWriter(scenario.prolog);
 	node["epilog"] = prologEpilogWriter(scenario.epilog);
 
@@ -339,9 +337,9 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 		// 1 - 1.7.0
 		// 2 - 1.7.3
 		// 3 - 1.8.0
-		int32_t formatVersion = reader.readInt32();
+		ret.hotaVersion = reader.readInt32();
 
-		if (formatVersion == 2)
+		if (ret.hotaVersion >= 2)
 		{
 			int hotaVersionMajor = reader.readUInt32();
 			int hotaVersionMinor = reader.readUInt32();
@@ -433,7 +431,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	if (header.version == CampaignVersion::HotA)
 		prologEpilogReader(ret.mapName + ".epilog3");
 
-	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
+	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version, header.hotaVersion);
 
 	return ret;
 }
@@ -450,7 +448,15 @@ static void readContainer(std::set<Identifier> & container, CBinaryReader & read
 	}
 }
 
-CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version )
+template<typename Identifier>
+static void readContainerSized(std::set<Identifier> & container, CBinaryReader & reader, const MapIdentifiersH3M & remapper)
+{
+	uint32_t itemsCount = reader.readUInt32();
+	uint32_t bytesUsed = (itemsCount + 7) / 8;
+	readContainer<Identifier>(container, reader, remapper, bytesUsed);
+}
+
+CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version, int hotaVersion )
 {
 	CampaignTravel ret;
 
@@ -465,8 +471,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	
 	if (version == CampaignVersion::HotA)
 	{
-		readContainer(ret.monstersKeptByHero, reader, mapping, 24);
-		readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
+		if (hotaVersion > 2)
+		{
+			readContainerSized(ret.monstersKeptByHero, reader, mapping);
+			readContainerSized(ret.artifactsKeptByHero, reader, mapping);
+		}
+		else
+		{
+			readContainer(ret.monstersKeptByHero, reader, mapping, 24);
+			readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
+		}
 	}
 	else
 	{
@@ -555,5 +569,3 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 		return ret;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

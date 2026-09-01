@@ -202,7 +202,12 @@
 				"colors" : { "$ref" : "#/definitions/identifierList" },
 				"heroes" : { "$ref" : "#/definitions/identifierList" },
 				"availableSlots" : { "$ref" : "#/definitions/identifierList" },
-				
+
+				"allowedDifficulties" : {
+					"type" : "array",
+					"items" : { "type" : "string", "enum" : [ "pawn", "knight", "rook", "queen", "king" ] }
+				},
+
 				"anyOf" : {
 					"type" : "array",
 					"items" : { "$ref" : "#/definitions/limiter" }

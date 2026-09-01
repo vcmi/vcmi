@@ -13,8 +13,6 @@
 #include "Entity.h"
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ArtifactID;
 class CreatureID;
 
@@ -33,5 +31,3 @@ public:
 	virtual std::string getDescriptionTextID() const = 0;
 	virtual std::string getEventTextID() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

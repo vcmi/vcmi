@@ -17,12 +17,9 @@ class MapScene;
 class MapController;
 class MapHandler;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
 class CGObjectInstance;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 
 class AbstractLayer : public QObject

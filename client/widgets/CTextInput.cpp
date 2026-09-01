@@ -22,7 +22,6 @@
 
 #include "../../lib/texts/TextOperations.h"
 
-#include <boost/lexical_cast.hpp>
 
 std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;

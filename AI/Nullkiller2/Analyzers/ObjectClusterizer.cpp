@@ -12,9 +12,60 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
+#include "../Helpers/DimensionDoorUtils.h"
 
 namespace NK2AI
 {
+
+static std::vector<DimensionDoorExpansionReach> getDimensionDoorExpansionReach(
+	const std::vector<const CGHeroInstance *> & heroes,
+	const int3 & mapSize)
+{
+	std::vector<DimensionDoorExpansionReach> result;
+
+	for(const auto * hero : heroes)
+	{
+		forEachDimensionDoorSpell(hero, [hero, &mapSize, &result](const CSpell * spell, const auto & mechanics, const DimensionDoorEffect * effect)
+		{
+			if(!hero->canCastThisSpell(spell))
+				return;
+
+			const int manaCost = hero->getSpellCost(spell);
+			if(manaCost <= 0 || hero->mana < manaCost)
+				return;
+
+			const int castsLimit = mechanics.getCastsLimit(hero, mapSize);
+			const int castsByMana = hero->mana / manaCost;
+			const int casts = castsLimit > 0 ? std::min(castsLimit, castsByMana) : castsByMana;
+
+			if(casts <= 0)
+				return;
+
+			result.push_back({ hero->visitablePos(), effect->getRangeX(), effect->getRangeY(), casts });
+		});
+	}
+
+	return result;
+}
+
+bool canReachWithDimensionDoor(
+	const std::vector<DimensionDoorExpansionReach> & dimensionDoorReach,
+	const int3 & destination)
+{
+	for(const auto & reach : dimensionDoorReach)
+	{
+		if(destination.z != reach.source.z)
+			continue;
+
+		const int distanceX = std::abs(destination.x - reach.source.x);
+		const int distanceY = std::abs(destination.y - reach.source.y);
+
+		if(distanceX <= reach.rangeX * reach.casts && distanceY <= reach.rangeY * reach.casts)
+			return true;
+	}
+
+	return false;
+}
 
 void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path, float priority)
 {
@@ -327,16 +378,17 @@ void ObjectClusterizer::clusterize()
 	}
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, objs.size()),
+		tbb::blocked_range<size_t>(0, objs.size(), 256),
 		[&](const tbb::blocked_range<size_t> & r)
 		{
 			auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
 			auto heroes = aiNk->cc->getHeroesInfo();
+			auto dimensionDoorReach = getDimensionDoorExpansionReach(heroes, aiNk->cc->getMapSize());
 			std::vector<AIPath> pathCache;
 
 			for(int i = r.begin(); i != r.end(); i++)
 			{
-				clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes);
+				clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes, dimensionDoorReach);
 			}
 		}
 	);
@@ -348,12 +400,12 @@ void ObjectClusterizer::clusterize()
 	{
 		auto blocker = aiNk->cc->getObj(pair.first);
 
-		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
+		logAi->trace("Cluster %s %s count: %i", blocker->getObjectNameTextID(), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NK2AI_TRACE_LEVEL >= 1
 		for(auto obj : pair.second->getObjects(aiNk->cc.get()))
 		{
-			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
+			logAi->trace("Object %s %s", obj->getObjectNameTextID(), obj->visitablePos().toString());
 		}
 #endif
 	}
@@ -367,23 +419,31 @@ void ObjectClusterizer::clusterizeObject(
 	const CGObjectInstance * obj,
 	PriorityEvaluator * priorityEvaluator,
 	std::vector<AIPath> & pathCache,
-	std::vector<const CGHeroInstance *> & heroes)
+	const std::vector<const CGHeroInstance *> & heroes,
+	const std::vector<DimensionDoorExpansionReach> & dimensionDoorReach)
 {
 	if(!shouldVisitObject(obj))
 	{
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+		logAi->trace("Skip object %s%s.", obj->getObjectNameTextID(), obj->visitablePos().toString());
 #endif
 		return;
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+	logAi->trace("Check object %s%s.", obj->getObjectNameTextID(), obj->visitablePos().toString());
 #endif
 
 	if(aiNk->isObjectGraphAllowed())
 	{
 		aiNk->pathfinder->calculateQuickPathsWithBlocker(pathCache, heroes, obj->visitablePos());
+
+		if(canReachWithDimensionDoor(dimensionDoorReach, obj->visitablePos()))
+		{
+			std::vector<AIPath> fullPathInfo;
+			aiNk->pathfinder->calculatePathInfo(fullPathInfo, obj->visitablePos(), false);
+			vstd::concatenate(pathCache, fullPathInfo);
+		}
 	}
 	else
 		aiNk->pathfinder->calculatePathInfo(pathCache, obj->visitablePos(), false);
@@ -450,7 +510,7 @@ void ObjectClusterizer::clusterizeObject(
 		if(!shouldVisit(aiNk, path.targetHero, obj))
 		{
 #if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getObjectName(), obj->getObjectName());
+			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getNameTextID(), obj->getObjectNameTextID());
 #endif
 			continue;
 		}
@@ -466,16 +526,18 @@ void ObjectClusterizer::clusterizeObject(
 				if(vstd::contains(heroesProcessed, path.targetHero))
 				{
 #if NK2AI_TRACE_LEVEL >= 2
-					logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
+					logAi->trace("Hero %s is already processed.", path.targetHero->getNameTextID());
 #endif
 					continue;
 				}
 
 				heroesProcessed.insert(path.targetHero);
 
-				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+				const auto goal = Goals::sptr(Goals::ExecuteHeroChain(path, obj));
+				const auto evaluationContext = priorityEvaluator->buildEvaluationContext(goal);
+				for(int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 				{
-					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+					priority = std::max(priority, priorityEvaluator->evaluate(goal, prio, evaluationContext));
 				}
 
 				if (priority <= 0)
@@ -489,7 +551,7 @@ void ObjectClusterizer::clusterizeObject(
 				cluster->second->addObject(obj, path, priority);
 
 #if NK2AI_TRACE_LEVEL >= 2
-				logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
+				logAi->trace("Path added to cluster %s%s", blocker->getObjectNameTextID(), blocker->visitablePos().toString());
 #endif
 				continue;
 			}
@@ -497,9 +559,11 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		const auto goal = Goals::sptr(Goals::ExecuteHeroChain(path, obj));
+		const auto evaluationContext = priorityEvaluator->buildEvaluationContext(goal);
+		for(int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+			priority = std::max(priority, priorityEvaluator->evaluate(goal, prio, evaluationContext));
 		}
 
 		if (priority <= 0)

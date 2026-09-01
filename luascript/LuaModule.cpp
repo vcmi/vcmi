@@ -10,50 +10,54 @@
 #include "StdInc.h"
 #include "LuaModule.h"
 
+#include "LuaMapEventDispatcher.h"
+#include "LuaScriptFactory.h"
 #include "LuaScriptInstance.h"
 #include "LuaScriptPool.h"
-#include "LuaSpellEffect.h"
+
+#include "api/DocExport.h"
 
 #include "../lib/GameLibrary.h"
-#include "../lib/spells/effects/SpellEffectService.h"
-
-#ifdef __GNUC__
-#	define strcpy_s(a, b, c) strncpy(a, c, b)
-#endif
-
-static const char * const g_cszAiName = "Lua interpreter";
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-extern "C" DLL_EXPORT void GetAiName(char * name)
-{
-	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
-}
-
-extern "C" DLL_EXPORT void GetNewModule(std::unique_ptr<scripting::Service> & out)
-{
-	out = std::make_unique<scripting::LuaModule>();
-}
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMap.h"
+#include "../lib/modding/ModScope.h"
+#include "../lib/scripting/ScriptService.h"
 
 namespace scripting
 {
 
-LuaModule::LuaModule() = default;
+LuaModule::LuaModule()
+	: store(std::make_unique<LuaScriptStore>(*this))
+{
+}
+
 LuaModule::~LuaModule() = default;
 
-void LuaModule::installScripting(spells::effects::SpellEffectService * spellEffects)
+void LuaModule::installScripting(ScriptService & scripts)
 {
-	luaSpellEffects = std::make_shared<spells::effects::LuaSpellEffectFactory>(*this);
-	spellEffects->registerFactory("lua", luaSpellEffects);
+	factory = std::make_shared<LuaScriptFactory>(*store);
+	scripts.registerFactory(factory);
 }
 
 std::unique_ptr<Pool> LuaModule::createPoolInstance(const Environment * ENV) const
 {
 	auto result = std::make_unique<LuaScriptPool>(*this, ENV);
-	luaSpellEffects->registerScripts(result.get());
+	store->registerScripts(result.get());
 	return result;
 }
 
+std::unique_ptr<MapEventDispatcher> LuaModule::createMapScriptDispatcher(CGameState & gs, bool runInit) const
+{
+	if(gs.getMap().scriptSource.empty())
+		return nullptr;
+
+	auto instance = std::make_shared<LuaScriptInstance>(*this, ModScope::scopeMap(), gs.getMap().scriptSource, std::vector<std::string>{"mapEventRuntime"});
+	return std::make_unique<LuaMapEventDispatcher>(instance, &gs.getScriptingEnvironment(), gs.getMap(), runInit);
 }
 
-VCMI_LIB_NAMESPACE_END
+void LuaModule::exportDocs(const boost::filesystem::path & outDir) const
+{
+	api::exportLuaApiDocs(outDir);
+}
+
+}

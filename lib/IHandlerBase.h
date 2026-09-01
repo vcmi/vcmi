@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class Entity;
 
@@ -31,8 +29,8 @@ public:
 	virtual std::vector<JsonNode> loadLegacyData() = 0;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) = 0;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) = 0;
+	virtual void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) = 0;
+	virtual void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) = 0;
 
 	/// allows handlers to alter object configuration before validation and actual load
 	virtual void beforeValidate(JsonNode & object){};
@@ -100,13 +98,13 @@ public:
 		forEachT(cb);
 	}
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override
 	{
 		objects.push_back(loadFromJson(scope, data, name, objects.size()));
 		registerObject(scope, getTypeNames(), name, data, objects.back()->getIndex());
 	}
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override
 	{
 		if(objects[index] != nullptr)
 			logMod->debug("Replacing existing object at index %d with '%s'", index, name); // required for war machines in demo (uses ids from conflux creatures)
@@ -149,5 +147,3 @@ protected:
 public: //todo: make private
 	std::vector<ObjectPtr> objects;
 };
-
-VCMI_LIB_NAMESPACE_END

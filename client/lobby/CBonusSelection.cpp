@@ -61,6 +61,7 @@
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/CompositeTranslator.h"
 #include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
 
@@ -92,17 +93,17 @@ CBonusSelection::CBonusSelection()
 	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), playVideo, EShortcut::LOBBY_REPLAY_VIDEO);
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
-	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().si->getCampaignName(), 250);
+	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().si->getCampaignName(&GAME->translator()), 250);
 
 	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 0, 0, 735, 26);
 	iconsMapSizes->setFrame(iconsMapSizes->size() - 1); // use last available frame as "custom" icon
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[38]);
-	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
+	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(&GAME->translator()), Rect(480, 86, 286, 117), 1);
 
 	bool videoButtonActive = GAME->server().getState() == EClientState::GAMEPLAY;
 	int availableSpace = videoButtonActive ? 225 : 285;
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().mi->getNameTranslated(), availableSpace );
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().mi->getNameTranslated(&GAME->translator()), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 276, 286, 112), 1);
 
@@ -222,7 +223,7 @@ void CBonusSelection::createBonusesIcons()
 				else
 					picNumber = bonusValue.spell.getNum();
 
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 				desc.replaceName(bonusValue.spell);
 				break;
 			}
@@ -230,7 +231,7 @@ void CBonusSelection::createBonusesIcons()
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
 				picNumber = bonusValue.creature.getNum() + 2;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+				desc.appendTextID("core.genrltxt.717");
 				desc.replaceNumber(bonusValue.amount);
 				desc.replaceNamePlural(bonusValue.creature);
 				break;
@@ -259,7 +260,7 @@ void CBonusSelection::createBonusesIcons()
 					picName = artifact->scenarioBonus;
 				else
 					picNumber = bonusValue.artifact.getNum();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 				desc.replaceName(bonusValue.artifact);
 				break;
 			}
@@ -272,7 +273,7 @@ void CBonusSelection::createBonusesIcons()
 				else
 					picNumber = bonusValue.spell.getNum();
 
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
+				desc.appendTextID("core.genrltxt.716");
 				desc.replaceName(bonusValue.spell);
 				break;
 			}
@@ -293,13 +294,13 @@ void CBonusSelection::createBonusesIcons()
 					}
 				}
 				picNumber = leadingSkill;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
+				desc.appendTextID("core.genrltxt.715");
 
 				std::string substitute; //text to be printed instead of %s
 				for(int v = 0; v < toPrint.size(); ++v)
 				{
 					substitute += std::to_string(toPrint[v].second);
-					substitute += " " + LIBRARY->generaltexth->primarySkillNames[toPrint[v].first];
+					substitute += " " + GAME->translator().translate("core.priskill", toPrint[v].first);
 					if(v != toPrint.size() - 1)
 					{
 						substitute += ", ";
@@ -313,11 +314,11 @@ void CBonusSelection::createBonusesIcons()
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
 				const auto * skill = bonusValue.skill.toSkill();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
-				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
+				desc.appendTextID("core.genrltxt.718");
+				desc.replaceTextID("core.skilllev", bonusValue.mastery - 1);
 				desc.replaceName(bonusValue.skill);
 				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
-					picName = skill->at(bonusValue.mastery).scenarioBonus.empty();
+					picName = skill->at(bonusValue.mastery).scenarioBonus;
 				else
 					picNumber = bonusValue.skill.getNum() * 3 + bonusValue.mastery - 1;
 				break;
@@ -325,19 +326,19 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::RESOURCE:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusStartingResources>();
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+				desc.appendTextID("core.genrltxt.717");
 
 				switch(bonusValue.resource)
 				{
 					case EGameResID::COMMON: //wood + ore
 					{
-						desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
+						desc.replaceTextID("core.genrltxt.721");
 						picNumber = 7;
 						break;
 					}
 					case EGameResID::RARE: //mercury + sulfur + crystal + gems
 					{
-						desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
+						desc.replaceTextID("core.genrltxt.722");
 						picNumber = 8;
 						break;
 					}
@@ -358,8 +359,8 @@ void CBonusSelection::createBonusesIcons()
 				if(!superhero)
 					logGlobal->warn("No superhero! How could it be transferred?");
 				picNumber = superhero ? superhero->getIconIndex() : 0;
-				desc.appendLocalString(EMetaText::GENERAL_TXT, 719);
-				desc.replaceRawString(getCampaign()->scenario(bonusValue.scenario).scenarioName.toString());
+				desc.appendTextID("core.genrltxt.719");
+				desc.replaceRawString(getCampaign()->scenario(bonusValue.scenario).scenarioName.toString(&GAME->translator()));
 				break;
 			}
 
@@ -368,13 +369,13 @@ void CBonusSelection::createBonusesIcons()
 				const auto & bonusValue = bonus.getValue<CampaignBonusStartingHero>();
 				if(bonusValue.hero == HeroTypeID::CAMP_RANDOM.getNum())
 				{
-					desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
+					desc.appendTextID("core.genrltxt.720"); // Start with random hero
 					picNumber = -1;
 					picName = "CBONN1A3.BMP";
 				}
 				else
 				{
-					desc.appendLocalString(EMetaText::GENERAL_TXT, 715); // Start with %s
+					desc.appendTextID("core.genrltxt.715"); // Start with %s
 					desc.replaceTextID(bonusValue.hero.toHeroType()->getNameTextID());
 					picNumber = bonusValue.hero.getNum();
 				}
@@ -392,7 +393,7 @@ void CBonusSelection::createBonusesIcons()
 			 bonusType == CampaignBonusType::MONSTER ||
 			 (bonusType == CampaignBonusType::HERO && bonus.getValue<CampaignBonusStartingHero>().hero != HeroTypeID::CAMP_RANDOM.getNum()));
 		
-		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(), desc.toString());
+		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(&GAME->translator()), desc.toString(&GAME->translator()));
 
 		auto bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), tooltip, nullptr, EShortcut::NONE, false, [this](){
 			if(buttonStart->isActive() && !buttonStart->isBlocked())	
@@ -570,8 +571,8 @@ void CBonusSelection::updateAfterStateChange()
 	if(!GAME->server().mi)
 		return;
 	iconsMapSizes->setFrame(std::min<size_t>(GAME->server().mi->getMapSizeIconId(), iconsMapSizes->size() - 1));
-	mapName->setText(GAME->server().mi->getNameTranslated());
-	mapDescription->setText(GAME->server().mi->getDescriptionTranslated());
+	mapName->setText(GAME->server().mi->getNameTranslated(&GAME->translator()));
+	mapDescription->setText(GAME->server().mi->getDescriptionTranslated(&GAME->translator()));
 	for(size_t i = 0; i < difficultyIcons.size(); i++)
 	{
 		if(i == GAME->server().si->difficulty)
@@ -709,8 +710,11 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	auto labelPos = campDsc.getLabelPosition(id);
 	if(labelPos)
 	{
+		// this header is loaded just for the label, so its texts are never installed anywhere
 		auto mapHeader = GAME->server().si->campState->getMapHeader(idOfMapAndRegion);
-		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString());
+		CompositeTranslator translator;
+		translator.install(mapHeader->texts);
+		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString(&translator));
 	}
 }
 
@@ -782,6 +786,6 @@ void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 	auto & text = GAME->server().si->campState->scenario(idOfMapAndRegion).regionText;
 	if(!labelOnly && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && !text.empty())
 	{
-		CRClickPopup::createAndPush(text.toString());
+		CRClickPopup::createAndPush(text.toString(&GAME->translator()));
 	}
 }

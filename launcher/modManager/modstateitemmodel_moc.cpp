@@ -276,7 +276,7 @@ QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 void CModFilterModel::setTypeFilter(ModFilterMask newFilterMask)
 {
 	filterMask = newFilterMask;
-	invalidateFilter();
+	reloadFilter();
 }
 
 bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const

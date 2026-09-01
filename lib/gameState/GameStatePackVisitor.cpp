@@ -24,7 +24,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
@@ -32,8 +32,42 @@
 #include "../networkPacks/StackLocation.h"
 #include "../spells/CSpell.h"
 
+void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus)
+{
+	if(bonus.type != BonusType::ALIGNMENT_MIX && bonus.type != BonusType::NONEVIL_ALIGNMENT_MIX)
+		return;
 
-VCMI_LIB_NAMESPACE_BEGIN
+	if(auto * army = dynamic_cast<CArmedInstance *>(node))
+		army->updateMoraleBonusFromArmy();
+
+	//bonus given to a player is inherited by all armies that he owns
+	if(auto * player = dynamic_cast<PlayerState *>(node))
+		updateMoraleForPlayer(player->color);
+}
+
+void GameStatePackVisitor::updateMoraleForPlayer(const PlayerColor & player)
+{
+	auto * playerState = gs.getPlayerState(player, false);
+	if(!playerState)
+		return;
+
+	for(auto * hero : playerState->getHeroes())
+		hero->updateMoraleBonusFromArmy();
+	for(auto * town : playerState->getTowns())
+		town->updateMoraleBonusFromArmy();
+}
+
+void GameStatePackVisitor::updateMoraleOnArtifactChange(const ObjectInstanceID & artHolder)
+{
+	auto * army = dynamic_cast<CArmedInstance *>(gs.getObjInstance(artHolder));
+	if(!army)
+		return;
+
+	army->updateMoraleBonusFromArmy();
+
+	//troop-mixing artifact may be propagated to the player, in which case all armies that he owns are affected
+	updateMoraleForPlayer(army->getOwner());
+}
 
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
@@ -120,6 +154,20 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
+void GameStatePackVisitor::visitInfoWindow(InfoWindow & pack)
+{
+	if(!pack.journalInfo || pack.text.empty())
+		return;
+
+	assert(vstd::contains(gs.players, pack.player));
+	ScenarioEventJournalEntry entry;
+	entry.day = gs.day;
+	entry.message = pack.text;
+	entry.location = pack.journalInfo->location;
+	entry.components = pack.components;
+	gs.players.at(pack.player).scenarioEventJournal.push_back(std::move(entry));
+}
+
 void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 {
 	gs.getHero(pack.hid)->setFormation(pack.formation);
@@ -132,7 +180,7 @@ void GameStatePackVisitor::visitChangeTactics(ChangeTactics & pack)
 
 void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
 {
-	gs.getTown(pack.tid)->setCustomName(pack.name);
+	gs.getTown(pack.tid)->setCustomName(gs.getMap(), pack.name);
 }
 
 void GameStatePackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
@@ -257,6 +305,8 @@ void GameStatePackVisitor::visitGiveBonus(GiveBonus & pack)
 
 	auto b = std::make_shared<Bonus>(pack.bonus);
 	cbsn->addNewBonus(b);
+
+	updateMoraleOnTroopMixingBonusChange(cbsn, *b);
 }
 
 void GameStatePackVisitor::visitChangeObjPos(ChangeObjPos & pack)
@@ -331,6 +381,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 				if (hero->tempOwner == pack.player)
 					crossoverHeroes.push_back(hero);
 
+			gs.getStartInfo()->campState->savePersistentVariables(gs.getMap());
 			gs.getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}
@@ -361,22 +412,27 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	}
 
 	BonusList &bonuses = node->getExportedBonusList();
+	std::shared_ptr<Bonus> removedBonus;
 
 	for(const auto & b : bonuses)
 	{
 		if(b->source == pack.source && b->sid == pack.id)
 		{
 			pack.bonus = *b; //backup bonus (to show to interfaces later)
+			removedBonus = b;
 			node->removeBonus(b);
 			break;
 		}
 	}
+
+	if(removedBonus)
+		updateMoraleOnTroopMixingBonusChange(node, *removedBonus);
 }
 
 void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objectID);
-	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectName());
+	logGlobal->debug("removing object id=%d; address=%x; name=%s", pack.objectID, (intptr_t)obj, obj->getObjectNameTextID());
 
 	if (pack.initiator.isValidPlayer())
 		gs.getPlayerState(pack.initiator)->destroyedObjects.insert(pack.objectID);
@@ -386,6 +442,20 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
+		// Diagnostic: heroes engaged in active battles should only be removed
+		// via BattleResultProcessor::battleFinalize, which clears heroID inside
+		// visitBattleResultsApplied before sending RemoveObject. If a side
+		// still references this hero, something else is removing the hero
+		// mid-battle - cause of A19 (iOS #7503) which we haven't pinned down.
+		// Surface the call stack via the thrown exception's .what() so the
+		// next Google Play / TestFlight report points at the culprit.
+		for (const auto & battle : gs.currentBattles)
+			for (auto side : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+				if (battle->getSide(side).heroID == pack.objectID)
+					throw std::runtime_error("Hero " + std::to_string(pack.objectID.getNum())
+						+ " is being removed while still engaged in battle "
+						+ std::to_string(battle->battleID.getNum()));
+
 		auto beatenHero = dynamic_cast<CGHeroInstance*>(obj);
 		assert(beatenHero);
 
@@ -434,15 +504,14 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
-	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
-	if (quest)
+	if (obj->asQuestSource())
 	{
+		// Drop this object's own quest-log entry. Border guards/gates are tracked by
+		// keymaster colour, not by instance, so their shared entry is not matched here
+		// and correctly survives while other borders (or none) of the colour remain.
+		const QuestInfo removed(obj->id);
 		for (auto &player : gs.players)
-		{
-			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
-				return q.obj == obj->id;
-			});
-		}
+			vstd::erase_if(player.second.quests, [&removed](const QuestInfo & q){ return q == removed; });
 	}
 
 	int3 objPosition = obj->anchorPos();
@@ -692,7 +761,7 @@ void GameStatePackVisitor::visitNewObject(NewObject & pack)
 	if (newArmy)
 		newArmy->attachToBonusSystem(gs);
 
-	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectName());
+	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectNameTextID());
 }
 
 void GameStatePackVisitor::visitNewArtifact(NewArtifact & pack)
@@ -868,6 +937,7 @@ void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 	assert(art->canBePutAt(hero, pack.al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, pack.al.slot));
 	gs.getMap().putArtifactInstance(*hero, art->getId(), pack.al.slot);
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pack)
@@ -910,6 +980,7 @@ void GameStatePackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pack)
 		}
 		gs.getMap().removeArtifactInstance(*artSet, slot);
 	}
+	updateMoraleOnArtifactChange(pack.artHolder);
 }
 
 void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
@@ -951,6 +1022,9 @@ void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		bulkArtsPut(pack.artsPack1, artInitialSetRight, *leftSet);
 	}
 	bulkArtsPut(pack.artsPack0, artInitialSetLeft, *rightSet);
+
+	updateMoraleOnArtifactChange(pack.srcArtHolder);
+	updateMoraleOnArtifactChange(pack.dstArtHolder);
 }
 
 void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
@@ -1037,6 +1111,7 @@ void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 
 	// Put new combined artifacts
 	gs.getMap().putArtifactInstance(*artSet, combinedArt->getId(), pack.al.slot);
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
@@ -1057,6 +1132,7 @@ void GameStatePackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack
 		gs.getMap().putArtifactInstance(*hero, part.getArtifact()->getId(), slot);
 	}
 	gs.getMap().eraseArtifactInstance(disassembledArt->getId());
+	updateMoraleOnArtifactChange(pack.al.artHolder);
 }
 
 void GameStatePackVisitor::visitHeroVisit(HeroVisit & pack)
@@ -1086,11 +1162,20 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 {
 	gs.day = pack.day;
 
+	// Troop-mixing bonuses (e.g. Temple of Loyalty) may expire now, so army morale of their owners must be recomputed afterwards
+	std::vector<CArmedInstance *> troopMixingArmies;
+	for(auto * army : gs.getMap().getObjects<CArmedInstance>())
+		if(army->hasBonusOfType(BonusType::ALIGNMENT_MIX) || army->hasBonusOfType(BonusType::NONEVIL_ALIGNMENT_MIX))
+			troopMixingArmies.push_back(army);
+
 	// Update bonuses before doing anything else so hero don't get more MP than needed
 	gs.globalEffects.removeBonusesRecursive(Bonus::OneDay); //works for children -> all game objs
 	gs.globalEffects.reduceBonusDurations(Bonus::NDays);
 	gs.globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
+
+	for(auto * army : troopMixingArmies)
+		army->updateMoraleBonusFromArmy();
 
 	for(auto & manaPack : pack.heroesMana)
 		manaPack.visit(*this);
@@ -1118,6 +1203,20 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 
 	if(pack.newRumor)
 		gs.currentRumor = *pack.newRumor;
+}
+
+void GameStatePackVisitor::visitSetScriptVariable(SetScriptVariable & pack)
+{
+	gs.getMap().getScriptVariables().set(pack.scope, pack.name, pack.value);
+}
+
+void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
+{
+	auto * questSource = dynamic_cast<QuestSource *>(gs.getObjInstance(pack.object));
+	if(!questSource || !questSource->getActiveQuest())
+		throw std::runtime_error("SetQuestHint: object is not a quest source!");
+
+	questSource->getQuest().scriptHintText = pack.hint;
 }
 
 void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
@@ -1331,12 +1430,10 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		switch(pack.ba.actionType)
 		{
 			case EActionType::DEFEND:
-				st->waiting = false;
 				st->defending = true;
-				st->defendingAnim = true;
+				st->waiting = false;
 				break;
 			case EActionType::WAIT:
-				st->defendingAnim = false;
 				st->waiting = true;
 				st->waitedThisTurn = true;
 				break;
@@ -1350,7 +1447,6 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				else
 				{
 					st->waiting = false;
-					st->defendingAnim = false;
 					st->movedThisRound = true;
 				}
 				st->castSpellThisTurn = true;
@@ -1360,7 +1456,6 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				break;
 			default: //any active stack action - attack, catapult, heal, spell...
 				st->waiting = false;
-				st->defendingAnim = false;
 				st->movedThisRound = true;
 				break;
 		}
@@ -1403,7 +1498,7 @@ void GameStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 
 void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 {
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == battleID;
 	});
@@ -1427,7 +1522,7 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 {
 	restorePreBattleState(pack.battleID);
 
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1461,7 +1556,7 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	for(auto & movingPack : pack.movingArtifacts)
 		movingPack.visit(*this);
 
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1475,11 +1570,20 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
 		}
 	}
+
+	// Release heroes from the battle - all battle consequences have been
+	// applied. Any subsequent RemoveObject for one of these heroes is the
+	// expected post-battle cleanup (BattleResultProcessor::battleFinalize).
+	// visitRemoveObject below throws if a hero is removed while still flagged
+	// as engaged - that path indicates a bug elsewhere.
+	auto * mutBattle = gs.getBattle(pack.battleID);
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+		mutBattle->getSide(i).heroID = ObjectInstanceID::NONE;
 }
 
 void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)
 {
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1628,23 +1732,19 @@ void BattleStatePackVisitor::visitCatapultAttack(CatapultAttack & pack)
 
 void BattleStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
 {
-	for(const auto & change : pack.changes)
+	switch(pack.change.operation)
 	{
-		switch(change.operation)
-		{
-			case BattleChanges::EOperation::REMOVE:
-				battleState.removeObstacle(change.id);
-				break;
-			case BattleChanges::EOperation::ADD:
-				battleState.addObstacle(change);
-				break;
-			case BattleChanges::EOperation::UPDATE:
-				battleState.updateObstacle(change);
-				break;
-			default:
-				throw std::runtime_error("Unknown obstacle operation");
-				break;
-		}
+		case BattleChanges::EOperation::REMOVE:
+			battleState.removeObstacle(pack.change.id);
+			break;
+		case BattleChanges::EOperation::ADD:
+			battleState.addObstacle(pack.change);
+			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState.updateObstacle(pack.change);
+			break;
+		default:
+			throw std::runtime_error("Unknown obstacle operation");
 	}
 }
 
@@ -1689,5 +1789,3 @@ void BattleStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

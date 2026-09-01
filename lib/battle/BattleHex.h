@@ -12,8 +12,6 @@
 #include "BattleSide.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //TODO: change to enum class
 
 namespace GameConstants
@@ -130,11 +128,14 @@ public:
 		setXY(xy.first, xy.second);
 	}
 
+	/// Column of this hex, 0 to BFIELD_WIDTH - 1. Columns 0 and BFIELD_WIDTH - 1 are not part of the
+	/// playable field - they only hold the heroes, so no unit ever stands there (see isAvailable).
 	[[nodiscard]] si16 getX() const noexcept
 	{
 		return hex % GameConstants::BFIELD_WIDTH;
 	}
 
+	/// Row of this hex, 0 to BFIELD_HEIGHT - 1. Odd rows are drawn shifted half a hex to the right.
 	[[nodiscard]] si16 getY() const noexcept
 	{
 		return hex / GameConstants::BFIELD_WIDTH;
@@ -302,5 +303,3 @@ private:
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);
-
-VCMI_LIB_NAMESPACE_END

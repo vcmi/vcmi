@@ -21,8 +21,6 @@
 #include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void IObjectInterface::showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
@@ -143,16 +141,16 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	switch(shipyardStatus())
 	{
 	case BOAT_ALREADY_BUILT:
-		out.appendLocalString(EMetaText::GENERAL_TXT, 51);
+		out.appendTextID("core.genrltxt.51");
 		break;
 	case TILE_BLOCKED:
 		if(visitor)
 		{
-			out.appendLocalString(EMetaText::GENERAL_TXT, 134);
-			out.replaceRawString(visitor->getNameTranslated());
+			out.appendTextID("core.genrltxt.134");
+			out.replaceTextID(visitor->getNameTextID());
 		}
 		else
-			out.appendLocalString(EMetaText::ADVOB_TXT, 189);
+			out.appendTextID("core.advevent.189");
 		break;
 	case NO_WATER:
 		logGlobal->error("Shipyard without water at tile %s! ", getObject()->anchorPos().toString());
@@ -165,5 +163,3 @@ void IShipyard::getBoatCost(TResources & cost) const
 	cost[EGameResID::WOOD] = 10;
 	cost[EGameResID::GOLD] = 1000;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -17,8 +17,6 @@
 #include "../../lib/spells/SpellAnimationItem.h"
 #include "../../lib/ConditionalWait.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCreatureSet;
 class CGHeroInstance;
 class CStack;
@@ -34,8 +32,6 @@ struct InfoAboutHero;
 class ObstacleChanges;
 class CPlayerBattleCallback;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
 class Canvas;
@@ -71,7 +67,6 @@ struct StackAttackedInfo
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;
-	bool fireShield;
 };
 
 struct StackAttackInfo
@@ -87,7 +82,6 @@ struct StackAttackInfo
 	bool lucky;
 	bool unlucky;
 	bool deathBlow;
-	bool lifeDrain;
 	bool playCustomAnimation;
 };
 
@@ -138,7 +132,6 @@ public:
 	const CGHeroInstance *attackingHeroInstance;
 	const CGHeroInstance *defendingHeroInstance;
 
-	bool tacticsMode;
 	ui32 round;
 
 	std::unique_ptr<BattleProjectileController> projectilesController;
@@ -200,6 +193,8 @@ public:
 	void waitForAnimations();
 	bool hasAnimations();
 	void checkForAnimations();
+	/// true if an action for the given animation stage is still queued (not yet executed)
+	bool hasQueuedStage(EAnimationEvents event) const;
 	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
@@ -228,11 +223,13 @@ public:
 
 	void endAction(const BattleAction & action);
 
-	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
-	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
+	void obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi);
+	void obstacleRemoved(const ObstacleChanges & obstacle);
 
 	void gateStateChanged(const EGateState state);
 
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
+
+	bool isInTacticsMode();
 };

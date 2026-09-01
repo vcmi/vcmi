@@ -11,13 +11,9 @@
 
 #include "../mainmenu/CMainMenu.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapInfo;
 struct StartInfo;
 struct PlayerInfo;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CTextBox;

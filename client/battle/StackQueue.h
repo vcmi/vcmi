@@ -9,14 +9,13 @@
  */
 #pragma once
 
+#include "../../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 namespace battle
 {
 class Unit;
 }
-VCMI_LIB_NAMESPACE_END
 
 class CLabel;
 class TransparentFilledRectangle;
@@ -43,7 +42,11 @@ class StackQueue : public CIntObject
 		void show(Canvas & to) override;
 		void showAll(Canvas & to) override;
 		void showPopupWindow(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		bool isBoundUnitHighlighted() const;
+
+		/// battlefield hex occupied by the bound stack, or BattleHex::INVALID if none
+		BattleHex getBoundUnitHex() const;
 
 	public:
 		StackBox(StackQueue * owner);

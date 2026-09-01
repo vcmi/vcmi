@@ -15,8 +15,6 @@
 
 #include "MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonSerializeFormat;
 
 /// The map event is an event which e.g. gives or takes resources of a specific
@@ -43,6 +41,9 @@ public:
 
 	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
+	/// Name of the map-script handler to run on the owning player's turn, replacing the default event. Empty if none.
+	std::string scriptHandler;
+
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
@@ -57,9 +58,9 @@ public:
 		h & firstOccurrence;
 		h & nextOccurrence;
 		h & deletedObjectsInstances;
+		if(h.version >= Handler::Version::SCRIPT_VARIABLES)
+			h & scriptHandler;
 	}
 
 	virtual void serializeJson(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

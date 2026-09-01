@@ -15,8 +15,6 @@
 #include "../json/JsonNode.h"
 #include "../constants/StringConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static const std::map<std::string, CampaignBonusType> bonusTypeMap = {
 	{"spell", CampaignBonusType::SPELL},
 	{"creature", CampaignBonusType::MONSTER},
@@ -197,7 +195,8 @@ CampaignBonus::CampaignBonus(const JsonNode & bjson, CampaignStartOptions mode)
 		case CampaignBonusType::BUILDING:
 		{
 			BuildingID building(vstd::find_pos(EBuildingType::names, bjson["buildingType"].String()));
-			data = CampaignBonusBuilding{building, building};
+			// json campaigns store the decoded building, there is no h3m index to remap
+			data = CampaignBonusBuilding{BuildingID{}, building};
 			break;
 		}
 		case CampaignBonusType::ARTIFACT:
@@ -241,14 +240,14 @@ CampaignBonus::CampaignBonus(const JsonNode & bjson, CampaignStartOptions mode)
 		}
 		case CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO: //reading of players (colors / scenarios ?) player can choose
 		{
-			PlayerColor player(SecondarySkill::decode(bjson["playerColor"].String()));
+			PlayerColor player(PlayerColor::decode(bjson["playerColor"].String()));
 			CampaignScenarioID scenario(bjson["scenario"].Integer());
 			data = CampaignBonusHeroesFromScenario{player, scenario};
 			break;
 		}
 		case CampaignBonusType::HERO: //heroes player can choose between
 		{
-			PlayerColor player(SecondarySkill::decode(bjson["playerColor"].String()));
+			PlayerColor player(PlayerColor::decode(bjson["playerColor"].String()));
 			HeroTypeID hero(decodeHeroTypeID(bjson["hero"]));
 			data = CampaignBonusStartingHero{player, hero};
 			break;
@@ -349,5 +348,3 @@ JsonNode CampaignBonus::toJson() const
 	}
 	return bnode;
 }
-
-VCMI_LIB_NAMESPACE_END

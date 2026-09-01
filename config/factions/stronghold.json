@@ -171,7 +171,7 @@
 				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
 				"blacksmith":     { "warMachine" : "ammoCart" },
 
-				"special1":       { "type" : "escapeTunnel", "requires" : [ "fort" ] },
+				"special1":       { "requires" : [ "fort" ], "bonuses": [ { "type" : "BATTLE_CAN_FLEE", "val" : 10 } ] },
 				"horde1":         { "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ] },
 				"special2":       { "requires" : [ "marketplace" ], "marketModes" : ["creature-resource"] },
@@ -188,7 +188,7 @@
 						]
 					}
 				},
-				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.attack", "val": 20 } ] },
+				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "attack", "val": 20 } ] },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },

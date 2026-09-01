@@ -29,7 +29,7 @@ class TemplateEditor : public QWidget
 	Q_OBJECT
 
 public:
-	explicit TemplateEditor();
+	explicit TemplateEditor(QWidget * parent = nullptr);
 	~TemplateEditor();
 
 	static void showTemplateEditor(QWidget *parent);
@@ -51,30 +51,30 @@ private slots:
 	void on_pushButtonAddSubTemplate_clicked();
 	void on_pushButtonRemoveSubTemplate_clicked();
 	void on_pushButtonRenameSubTemplate_clicked();
-	void on_spinBoxZoneVisPosX_valueChanged();
-	void on_spinBoxZoneVisPosY_valueChanged();
-	void on_doubleSpinBoxZoneVisSize_valueChanged();
+	void on_spinBoxZoneVisPosX_valueChanged(int);
+	void on_spinBoxZoneVisPosY_valueChanged(int);
+	void on_doubleSpinBoxZoneVisSize_valueChanged(double);
 	void on_comboBoxZoneType_currentTextChanged(const QString &text);
 	void on_comboBoxZoneOwner_currentTextChanged(const QString &text);
 	void on_comboBoxForcedLevel_currentTextChanged(const QString &text);
-	void on_spinBoxZoneSize_valueChanged();
-	void on_spinBoxTownCountPlayer_valueChanged();
-	void on_spinBoxCastleCountPlayer_valueChanged();
-	void on_spinBoxTownDensityPlayer_valueChanged();
-	void on_spinBoxCastleDensityPlayer_valueChanged();
-	void on_spinBoxTownCountNeutral_valueChanged();
-	void on_spinBoxCastleCountNeutral_valueChanged();
-	void on_spinBoxTownDensityNeutral_valueChanged();
-	void on_spinBoxCastleDensityNeutral_valueChanged();
+	void on_spinBoxZoneSize_valueChanged(int);
+	void on_spinBoxTownCountPlayer_valueChanged(int);
+	void on_spinBoxCastleCountPlayer_valueChanged(int);
+	void on_spinBoxTownDensityPlayer_valueChanged(int);
+	void on_spinBoxCastleDensityPlayer_valueChanged(int);
+	void on_spinBoxTownCountNeutral_valueChanged(int);
+	void on_spinBoxCastleCountNeutral_valueChanged(int);
+	void on_spinBoxTownDensityNeutral_valueChanged(int);
+	void on_spinBoxCastleDensityNeutral_valueChanged(int);
 	void on_checkBoxMatchTerrainToTown_stateChanged(int state);
 	void on_checkBoxTownsAreSameType_stateChanged(int state);
 	void on_comboBoxMonsterStrength_currentTextChanged(const QString &text);
-	void on_spinBoxZoneId_valueChanged();
-	void on_spinBoxZoneLinkTowns_valueChanged();
-	void on_spinBoxZoneLinkMines_valueChanged();
-	void on_spinBoxZoneLinkTerrain_valueChanged();
-	void on_spinBoxZoneLinkTreasure_valueChanged();
-	void on_spinBoxZoneLinkCustomObjects_valueChanged();
+	void on_spinBoxZoneId_valueChanged(int);
+	void on_spinBoxZoneLinkTowns_valueChanged(int);
+	void on_spinBoxZoneLinkMines_valueChanged(int);
+	void on_spinBoxZoneLinkTerrain_valueChanged(int);
+	void on_spinBoxZoneLinkTreasure_valueChanged(int);
+	void on_spinBoxZoneLinkCustomObjects_valueChanged(int);
 	void on_checkBoxZoneLinkTowns_stateChanged(int state);
 	void on_checkBoxZoneLinkMines_stateChanged(int state);
 	void on_checkBoxZoneLinkTerrain_stateChanged(int state);
@@ -98,7 +98,7 @@ private slots:
 	void on_pushButtonEntitiesBannedArtifacts_clicked();
 	void on_pushButtonEntitiesBannedSkills_clicked();
 	void on_pushButtonEntitiesBannedHeroes_clicked();
-	
+
 private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();

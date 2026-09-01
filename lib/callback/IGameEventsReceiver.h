@@ -13,8 +13,6 @@
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
 struct Bonus;
 struct Component;
@@ -78,6 +76,8 @@ public:
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
 	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
+	virtual void showScenarioEventJournal(){};
+	virtual void scenarioEventJournalChanged(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const FowTilesType &pos){};
 	virtual void tileRevealed(const FowTilesType &pos){};
@@ -89,6 +89,7 @@ public:
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestSent(const CPackForServer *pack, int requestID){};
 	virtual void requestRealized(PackageApplied *pa){};
+	virtual void queryResolved(QueryID queryID){}; // query-backed dialog (eg. level-up) was resolved and removed
 	virtual void beforeObjectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj, const PlayerColor & initiator){}; //eg. collected resource, picked artifact, beaten hero
@@ -103,5 +104,3 @@ public:
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };
-
-VCMI_LIB_NAMESPACE_END

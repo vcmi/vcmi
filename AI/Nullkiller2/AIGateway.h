@@ -20,9 +20,7 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class AsyncRunner;
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {
@@ -153,6 +151,7 @@ public:
 	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
 
 	void invalidatePaths() override;
+	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
 	void makeTurn();
 

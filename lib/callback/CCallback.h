@@ -13,13 +13,6 @@
 #include "CBattleCallback.h"
 #include "IGameActionCallback.h"
 
-// in static AI build this file gets included into libvcmi
-#ifdef STATIC_AI
-VCMI_LIB_USING_NAMESPACE
-#endif
-
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBattleEventsReceiver;
 
 class DLL_LINKAGE CCallback final : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
@@ -31,11 +24,11 @@ class DLL_LINKAGE CCallback final : public CPlayerSpecificInfoCallback, public C
 
 public:
 	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, IClient * C);
-	virtual ~CCallback();
+	~CCallback();
 
 	//client-specific functionalities (pathfinding)
-	virtual bool canMoveBetween(const int3 &a, const int3 &b);
-	virtual int3 getGuardingCreaturePosition(int3 tile);
+	bool canMoveBetween(const int3 &a, const int3 &b);
+	int3 getGuardingCreaturePosition(int3 tile);
 
 	std::optional<PlayerColor> getPlayerID() const override;
 
@@ -80,6 +73,7 @@ public:
 	void setTownName(const CGTownInstance * town, std::string & name) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
 	void save(const std::string &fname, bool notifySuccess) override;
+	void saveAutosave(const std::string &fname, int autosaveCountLimit);
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
 	void gamePause(bool pause) override;
 	void buildBoat(const IShipyard *obj) override;
@@ -90,5 +84,3 @@ public:
 //friends
 	friend class CClient;
 };
-
-VCMI_LIB_NAMESPACE_END

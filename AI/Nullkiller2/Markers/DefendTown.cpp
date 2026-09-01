@@ -39,7 +39,7 @@ bool DefendTown::operator==(const DefendTown & other) const
 
 std::string DefendTown::toString() const
 {
-	return "Defend town " + town->getObjectName();
+	return "Defend town " + town->getNameTextID();
 }
 
 }

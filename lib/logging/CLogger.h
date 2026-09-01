@@ -10,12 +10,6 @@
 #pragma once
 
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/date_time/posix_time/time_formatters.hpp>
-
-
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CLogger;
 class CConsoleHandler;
 struct LogRecord;
@@ -90,7 +84,7 @@ private:
 /* ---------------------------------------------------------------------------- */
 
 /// The class CLogManager is a global storage for logger objects.
-class DLL_LINKAGE CLogManager : public boost::noncopyable
+class DLL_LINKAGE CLogManager final : public boost::noncopyable
 {
 public:
 	static CLogManager & get();
@@ -101,7 +95,7 @@ public:
 
 private:
 	CLogManager();
-	virtual ~CLogManager();
+	 ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
 	mutable std::mutex mx;
@@ -116,7 +110,7 @@ struct DLL_LINKAGE LogRecord
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
 	std::string message;
-	boost::posix_time::ptime timeStamp;
+	std::chrono::system_clock::time_point timeStamp;
 	std::string threadId;
 };
 
@@ -222,5 +216,3 @@ private:
 	CLogFormatter formatter;
 	mutable std::mutex mx;
 };
-
-VCMI_LIB_NAMESPACE_END

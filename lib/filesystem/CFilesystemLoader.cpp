@@ -15,8 +15,6 @@
 #include "../ExceptionsCommon.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
@@ -34,7 +32,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resourceName) const
 {
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 
 	assert(fileList.contains(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
@@ -44,7 +42,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resou
 
 bool CFilesystemLoader::existsResource(const ResourcePath & resourceName) const
 {
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 	return fileList.contains(resourceName);
 }
 
@@ -57,7 +55,7 @@ std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const 
 {
 	assert(existsResource(resourceName));
 
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 	return baseDirectory / fileList.at(resourceName);
 }
 
@@ -73,7 +71,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
 	std::unordered_set<ResourcePath> foundID;
-	std::lock_guard lock(fileListGuard);
+	std::shared_lock lock(fileListGuard);
 
 	for (auto & file : fileList)
 	{
@@ -114,6 +112,25 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 			return false;
 	}
 	fileList[resID] = filePath;
+	return true;
+}
+
+bool CFilesystemLoader::removeResource(const ResourcePath & resourceName)
+{
+	std::lock_guard lock(fileListGuard);
+	auto resource = fileList.find(resourceName);
+	if(resource == fileList.end())
+		return false;
+
+	boost::system::error_code error;
+	boost::filesystem::remove(baseDirectory / resource->second, error);
+	if(error)
+	{
+		logGlobal->error("Failed to remove resource %s: %s", resourceName.getOriginalName(), error.message());
+		return false;
+	}
+
+	fileList.erase(resource);
 	return true;
 }
 
@@ -220,5 +237,3 @@ std::time_t CFilesystemLoader::getLastWriteTime(const ResourcePath& resourceName
 	auto resourcePath = getResourceName(resourceName);
 	return  boost::filesystem::last_write_time(*resourcePath);
 }
-
-VCMI_LIB_NAMESPACE_END

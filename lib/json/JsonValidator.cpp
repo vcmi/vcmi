@@ -21,8 +21,6 @@
 #include "../ScopeGuard.h"
 #include "modding/CModVersion.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Searches for keys similar to 'target' in 'candidates' map
 /// Returns closest match or empty string if no suitable candidates are found
 static std::string findClosestMatch(const JsonMap & candidates, const std::string & target)
@@ -728,5 +726,3 @@ const JsonValidator::TFormatMap & JsonValidator::getKnownFormats()
 	static const TFormatMap knownFormats = createFormatMap();
 	return knownFormats;
 }
-
-VCMI_LIB_NAMESPACE_END

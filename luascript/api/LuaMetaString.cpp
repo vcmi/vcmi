@@ -13,8 +13,6 @@
 
 #include "../../lib/texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -31,5 +29,3 @@ MetaString LuaMetaString::toMetaString() const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

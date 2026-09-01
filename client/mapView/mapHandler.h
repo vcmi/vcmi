@@ -23,13 +23,9 @@
 #	undef OUT
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGHeroInstance;
 class CMap;
-
-VCMI_LIB_NAMESPACE_END
 
 class IMapObjectObserver;
 

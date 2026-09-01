@@ -28,8 +28,6 @@
 #include "../IGameSettings.h"
 #include "../CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapInfo::CMapInfo()
 	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
@@ -45,8 +43,8 @@ void CMapInfo::mapInit(const std::string & fname)
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
+	mapHeader->registerMapStrings();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 	countPlayers();
@@ -59,14 +57,11 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	mapHeader = std::make_unique<CMapHeader>();
 	scenarioOptionsOfSave = std::make_unique<StartInfo>();
 	lf.load(*mapHeader);
-	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
-		lf.load(*scenarioOptionsOfSave);
-	else
-		lf.load(scenarioOptionsOfSave);
+	mapHeader->registerMapStrings();
+	lf.load(*scenarioOptionsOfSave);
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
-	fullFileURI = CResourceHandler::get()->getFullFileURI(file); // Includes absolute path + extension
 	countPlayers();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -80,7 +75,6 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -107,20 +101,17 @@ void CMapInfo::countPlayers()
 				amountOfHumanPlayersInSave++;
 }
 
-std::string CMapInfo::getNameTranslated() const
+std::string CMapInfo::getNameTranslated(const ITranslator * translator) const
 {
-	if(campaign && !campaign->getNameTranslated().empty())
-		return campaign->getNameTranslated();
+	if(campaign && !campaign->getNameTranslated(translator).empty())
+		return campaign->getNameTranslated(translator);
 	else if(mapHeader && !mapHeader->name.empty())
-	{
-		mapHeader->registerMapStrings();
-		return mapHeader->name.toString();
-	}
+		return mapHeader->name.toString(translator);
 	else
 		return LIBRARY->generaltexth->allTexts[508];
 }
 
-std::string CMapInfo::getNameForList() const
+std::string CMapInfo::getNameForList(const ITranslator * translator) const
 {
 	if(scenarioOptionsOfSave)
 	{
@@ -131,16 +122,16 @@ std::string CMapInfo::getNameForList() const
 	}
 	else
 	{
-		return getNameTranslated();
+		return getNameTranslated(translator);
 	}
 }
 
-std::string CMapInfo::getDescriptionTranslated() const
+std::string CMapInfo::getDescriptionTranslated(const ITranslator * translator) const
 {
 	if(campaign)
-		return campaign->getDescriptionTranslated();
+		return campaign->getDescriptionTranslated(translator);
 	else
-		return mapHeader->description.toString();
+		return mapHeader->description.toString(translator);
 }
 
 int CMapInfo::getMapSizeIconId() const
@@ -213,5 +204,3 @@ std::string CMapInfo::getMapSizeName() const
 		return "C";
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

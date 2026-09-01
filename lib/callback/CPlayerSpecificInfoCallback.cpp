@@ -23,8 +23,6 @@
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int CPlayerSpecificInfoCallback::howManyTowns() const
 {
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
@@ -99,6 +97,11 @@ std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 	return gameState().getPlayerState(*getPlayerID())->quests;
 }
 
+std::vector<ScenarioEventJournalEntry> CPlayerSpecificInfoCallback::getMyScenarioEventJournal() const
+{
+	return gameState().getPlayerState(*getPlayerID())->scenarioEventJournal;
+}
+
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
@@ -141,5 +144,3 @@ TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", TResources());
 	return gameState().players.at(*getPlayerID()).resources;
 }
-
-VCMI_LIB_NAMESPACE_END

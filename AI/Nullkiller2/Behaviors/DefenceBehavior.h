@@ -9,9 +9,9 @@
 */
 #pragma once
 
-#include "lib/GameLibrary.h"
-#include "../Goals/CGoal.h"
 #include "../AIUtility.h"
+#include "../Goals/CGoal.h"
+#include "lib/GameLibrary.h"
 
 namespace NK2AI
 {
@@ -23,10 +23,7 @@ namespace Goals
 	class DefenceBehavior : public CGoal<DefenceBehavior>
 	{
 	public:
-		DefenceBehavior()
-			:CGoal(DEFENCE)
-		{
-		}
+		DefenceBehavior() : CGoal(DEFENCE) {}
 
 		Goals::TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;
@@ -41,6 +38,5 @@ namespace Goals
 		static void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * aiNk);
 	};
 }
-
 
 }

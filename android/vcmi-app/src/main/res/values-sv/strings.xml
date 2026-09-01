@@ -2,4 +2,5 @@
 <resources>
     <string name="server_name">VCMI Server</string>
     <string name="shortcut_play">Spela VCMI</string>
+    <string name="shortcut_editor">Öppna VCMI Editor</string>
 </resources>

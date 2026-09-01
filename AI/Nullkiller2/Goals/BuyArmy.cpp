@@ -26,7 +26,7 @@ bool BuyArmy::operator==(const BuyArmy & other) const
 
 std::string BuyArmy::toString() const
 {
-	return "Buy army at " + town->getNameTranslated();
+	return "Buy army at " + town->getNameTextID();
 }
 
 void BuyArmy::accept(AIGateway * aiGw)
@@ -58,7 +58,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 
 		if(ci.count)
 		{
-			if (town->getUpperArmy()->stacksCount() == GameConstants::ARMY_SIZE)
+			if (needsFreeSlotToRecruit(town->getUpperArmy(), ci.creID))
 			{
 				SlotID lowestValueSlot;
 				int lowestValue = std::numeric_limits<int>::max();

@@ -22,8 +22,8 @@
 				"val" : 3
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primarySkill.attack" },
-				"defence" : { "subtype" : "primarySkill.defence" }
+				"attack" : { "subtype" : "attack" },
+				"defence" : { "subtype" : "defence" }
 			}
 		}
 	},
@@ -54,12 +54,12 @@
 					"val" : 5
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 1
 				}
@@ -93,12 +93,12 @@
 					"val" : 2
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 1
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				}
@@ -124,7 +124,7 @@
 							"includeUpgrades" : true
 						}
 					],
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				}
@@ -154,8 +154,8 @@
 				"val" : 3
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primarySkill.attack" },
-				"defence" : { "subtype" : "primarySkill.defence" }
+				"attack" : { "subtype" : "attack" },
+				"defence" : { "subtype" : "defence" }
 			}
 		}
 	},
@@ -186,12 +186,12 @@
 					"val" : 5
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 1
 				}
@@ -224,12 +224,12 @@
 					"val" : 2
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 1
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				}
@@ -256,7 +256,7 @@
 							"includeUpgrades" : true
 						}
 					],
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				}
@@ -277,13 +277,13 @@
 		"specialty" : {
 			"bonuses" : {
 				"fireWall" : {
-					"subtype" : "spell.fireWallTrigger",
+					"subtype" : "fireWallTrigger",
 					"type" : "SPECIFIC_SPELL_DAMAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
 				"fireWallTooltip" : {
-					"subtype" : "spell.fireWall",
+					"subtype" : "fireWall",
 					"type" : "SPECIFIC_SPELL_DAMAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
@@ -303,13 +303,7 @@
 			{ "skill" : "airMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"haste" : {
-					"addInfo" : 0,
-					"subtype" : "spell.haste",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "haste"
 		}
 	},
 	"ciele":
@@ -326,7 +320,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"magicArrow" : {
-					"subtype" : "spell.magicArrow",
+					"subtype" : "magicArrow",
 					"type" : "SPECIFIC_SPELL_DAMAGE",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -351,13 +345,7 @@
 			{ "skill" : "earthMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	},
 	"inteus":
@@ -372,13 +360,7 @@
 			{ "skill" : "fireMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"bloodlust" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bloodlust",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "bloodlust"
 		}
 	},
 	"aenain":
@@ -393,13 +375,8 @@
 			{ "skill" : "airMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"disruptingRay" : {
-					"addInfo" : -2,
-					"subtype" : "spell.disruptingRay",
-					"type" : "SPECIAL_ADD_VALUE_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "disruptingRay",
+			"spellFixedValues" : [ -2 ]
 		}
 	},
 	"gelare":
@@ -416,7 +393,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -437,7 +414,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

@@ -11,8 +11,6 @@
 
 #include <boost/endian/conversion.hpp> //FIXME: use std::byteswap in C++23
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /* Reading values from memory.  
  *
  * read_le_u16, read_le_u32 : read a little endian value from
@@ -77,5 +75,3 @@ static inline std::string readString(const ui8 * buffer, int & i)
 	}
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

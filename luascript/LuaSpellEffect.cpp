@@ -30,37 +30,10 @@ static const std::string GET_HEALTH_CHANGE = "getHealthChange";
 static const std::string ADJUST_AFFECTED_HEXES = "adjustAffectedHexes";
 static const std::string ADJUST_TARGET_TYPES = "adjustTargetTypes";
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace effects
 {
-
-LuaSpellEffectFactory::LuaSpellEffectFactory(scripting::LuaModule & host)
-	:host(host)
-{
-
-}
-
-LuaSpellEffectFactory::~LuaSpellEffectFactory() = default;
-
-void LuaSpellEffectFactory::initialize(const std::string & scope, const std::string & name)
-{
-	auto loadedScript = std::make_unique<scripting::LuaScriptInstance>(host, scope,name);
-	loadedScripts[loadedScript->getIdentifier()] = std::move(loadedScript);
-}
-
-std::shared_ptr<Effect> LuaSpellEffectFactory::create(const std::string & scope, const std::string & name) const
-{
-	return std::make_shared<LuaSpellEffect>(loadedScripts.at(scope + ':' + name).get());
-}
-
-void LuaSpellEffectFactory::registerScripts(scripting::LuaScriptPool * pool)
-{
-	for (const auto & script : loadedScripts)
-		pool->registerScript(script.second.get());
-}
 
 LuaSpellEffect::LuaSpellEffect(const LuaScriptInstance * script_)
 	: script(script_)
@@ -79,7 +52,7 @@ void LuaSpellEffect::adjustTargetTypes(std::vector<TargetType> & types, const Me
 void LuaSpellEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	std::shared_ptr<LuaContext> context = resolveScript(m);
-	context->callMethod<void>(ADJUST_AFFECTED_HEXES, parameters, m, hexes, spellTarget);
+	hexes = context->callMethod<BattleHexArray>(ADJUST_AFFECTED_HEXES, parameters, m, hexes, spellTarget);
 }
 
 SpellEffectValue LuaSpellEffect::getHealthChange(const Mechanics * m, const Target & spellTarget) const
@@ -129,16 +102,8 @@ void LuaSpellEffect::initImpl(JsonNode data)
 
 std::shared_ptr<scripting::LuaContext> LuaSpellEffect::resolveScript(const Mechanics * m) const
 {
-	//TODO: find a way to avoid dynamic casting
-	auto genericContext = m->battle()->getScriptContextPool().getContext(script);
-	auto luaContext = std::dynamic_pointer_cast<scripting::LuaContext>(genericContext);
-	if(!luaContext)
-		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
-
-	return luaContext;
+	return scripting::LuaContext::of(m->battle()->getScriptContextPool(), script);
 }
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

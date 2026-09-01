@@ -108,6 +108,20 @@ std::vector<EShortcut> ShortcutHandler::translateJoystickAxis(const std::string 
 	return translateShortcut(mappedJoystickAxes, key);
 }
 
+std::vector<std::string> ShortcutHandler::getJoystickButtonBindings(EShortcut shortcut) const
+{
+	std::vector<std::string> result;
+	for(const auto & binding : mappedJoystickShortcuts)
+	{
+		if(binding.second == shortcut)
+			result.push_back(binding.first);
+	}
+
+	std::sort(result.begin(), result.end());
+	result.erase(std::unique(result.begin(), result.end()), result.end());
+	return result;
+}
+
 EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 {
 	static const std::map<std::string, EShortcut> shortcutNames = {
@@ -241,6 +255,10 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
 		{"battleToggleQuickSpell",   EShortcut::BATTLE_TOGGLE_QUICKSPELL   },
+		{"battleToggleGrid",         EShortcut::BATTLE_TOGGLE_GRID          },
+		{"battleToggleMouseShadow",  EShortcut::BATTLE_TOGGLE_MOUSE_SHADOW  },
+		{"battleToggleMovementShadow", EShortcut::BATTLE_TOGGLE_MOVEMENT_SHADOW },
+		{"battleToggleStackInfo",    EShortcut::BATTLE_TOGGLE_STACK_INFO   },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },
 		{"battleSpellShortcut2",     EShortcut::BATTLE_SPELL_SHORTCUT_2   },
@@ -257,7 +275,11 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"spectateSkipBattle",       EShortcut::SPECTATE_SKIP_BATTLE      },
 		{"spectateSkipBattleResult", EShortcut::SPECTATE_SKIP_BATTLE_RESULT },
 		{"townOpenTavern",           EShortcut::TOWN_OPEN_TAVERN          },
+		{"townOpenBlacksmith",       EShortcut::TOWN_OPEN_BLACKSMITH      },
+		{"townOpenShipyard",         EShortcut::TOWN_OPEN_SHIPYARD        },
 		{"townSwapArmies",           EShortcut::TOWN_SWAP_ARMIES          },
+		{"townUpgradeGarrison",      EShortcut::TOWN_UPGRADE_GARRISON     },
+		{"townUpgradeVisiting",      EShortcut::TOWN_UPGRADE_VISITING     },
 		{"recruitmentMax",           EShortcut::RECRUITMENT_MAX           },
 		{"recruitmentMin",           EShortcut::RECRUITMENT_MIN           },
 		{"recruitmentUpgrade",       EShortcut::RECRUITMENT_UPGRADE       },

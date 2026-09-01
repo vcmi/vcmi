@@ -11,15 +11,15 @@
 
 #include "GameEngineUser.h"
 
+#include "../lib/texts/CompositeTranslator.h"
+
 class CServerHandler;
 class GlobalLobbyClient;
 class CPlayerInterface;
 class CMapHandler;
 class CMainMenu;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class INetworkHandler;
-VCMI_LIB_NAMESPACE_END
 
 class GameShutdownException final : public std::exception
 {
@@ -32,6 +32,10 @@ public:
 
 class GameInstance final : boost::noncopyable, public IGameEngineUser
 {
+	/// Only the overlay may compose the translator, so the concrete type stays out of reach
+	friend class TranslatorOverlay;
+
+	std::unique_ptr<CompositeTranslator> translatorInstance;
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
 	std::shared_ptr<CMainMenu> mainMenuInstance;
@@ -45,12 +49,17 @@ public:
 
 	CServerHandler & server();
 	CMapHandler & map();
+	ITranslator & translator();
 
 	std::shared_ptr<CMainMenu> mainmenu();
 	CPlayerInterface * interface();
 
 	void setServerInstance(std::unique_ptr<CServerHandler> ptr);
 	void setMapInstance(std::unique_ptr<CMapHandler> ptr);
+
+	/// installs a new map handler and hands the previous one back to the caller
+	std::unique_ptr<CMapHandler> swapMapInstance(std::unique_ptr<CMapHandler> ptr);
+
 	void setInterfaceInstance(CPlayerInterface * ptr);
 
 	void onGlobalLobbyInterfaceActivated() final;

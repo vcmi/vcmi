@@ -13,6 +13,7 @@
 
 #include "CCastleEvent.h"
 #include "CMap.h"
+#include "HotaScriptConverter.h"
 #include "MapReaderH3M.h"
 #include "MapFormatSettings.h"
 
@@ -36,7 +37,7 @@
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGResource.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/ModScope.h"
@@ -47,8 +48,6 @@
 #include "entities/hero/CHeroClass.h"
 #include "modding/CModHandler.h"
 #include "modding/ModDescription.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
@@ -451,7 +450,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::CAPTURECITY:
 			{
-				EventCondition cond(EventCondition::CONTROL);
+				EventCondition cond(EventCondition::CONTROL_CURRENT);
 				cond.objectType = MapObjectID(MapObjectID::TOWN);
 				cond.position = reader->readInt3();
 
@@ -479,8 +478,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::TAKEDWELLINGS:
 			{
 				EventExpression::OperatorAll oper;
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR1)));
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR4)));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL_CURRENT, 0, Obj(Obj::CREATURE_GENERATOR1)));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL_CURRENT, 0, Obj(Obj::CREATURE_GENERATOR4)));
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.289");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.288");
@@ -491,7 +490,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::TAKEMINES:
 			{
-				EventCondition cond(EventCondition::CONTROL);
+				EventCondition cond(EventCondition::CONTROL_CURRENT);
 				cond.objectType = MapObjectID(MapObjectID::MINE);
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.291");
@@ -549,7 +548,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 		if(allowNormalVictory)
 		{
-			size_t playersOnMap = boost::range::count_if(
+			size_t playersOnMap = std::ranges::count_if(
 				mapHeader->players,
 				[](const PlayerInfo & info)
 				{
@@ -777,690 +776,10 @@ void CMapLoaderH3M::readHotaScripts()
 	if(!eventsSystemActive)
 		return;
 
-	const auto & loadEventList = [this](const std::string & eventType) -> void
-	{
-		int eventsCount = reader->readInt32();
-		for(int i = 0; i < eventsCount; ++i)
-		{
-			int eventID = reader->readInt32();
-			readHotaScriptActions();
-			std::string eventName = reader->readBaseString();
-			logGlobal->warn("Map %s: Event %s (%d), type %d is not implemented!", mapName, eventName, eventID, eventType);
-		}
-	};
+	scriptConverter = std::make_unique<HotaScriptConverter>(*reader, mapName,
+		[this](const TextIdentifier & identifier){ return readLocalizedString(identifier); });
 
-	const auto & loadEventMap = [this]() -> void
-	{
-		int mappingSize = reader->readInt32();
-		for(int i = 0; i < mappingSize; ++i)
-			reader->readInt32(); // UID of event
-	};
-
-	loadEventList("hero event");
-	loadEventList("player event");
-	loadEventList("town event");
-	loadEventList("quest event");
-
-	int nextVariableID = reader->readInt32();
-	int nextHeroEventID = reader->readInt32();
-	int nextPlayerEventID = reader->readInt32();
-	int nextTownEventID = reader->readInt32();
-	int nextQuestEventID = reader->readInt32();
-	logGlobal->trace("Map %s: Next event ID's: %d, %d, %d, %d, %d", mapName, nextVariableID, nextHeroEventID, nextPlayerEventID, nextTownEventID, nextQuestEventID);
-
-	int variablesCount = reader->readInt32();
-	for(int i = 0; i < variablesCount; ++i)
-	{
-		int32_t uniqueID = reader->readInt32(); // 1... - unique index?
-		std::string variableID = reader->readBaseString();
-		bool unkPropA = reader->readBool(); // save in campaign?
-		bool unkPropB = reader->readBool(); // import from prev map?
-		int32_t initialValue = reader->readInt32();
-		logGlobal->warn("Map %s: Variable %s (%d), initial value %d, flags %d/%d is not implemented", mapName, variableID, uniqueID, initialValue, unkPropA, unkPropB);
-	}
-
-	loadEventMap(); // hero event
-	loadEventMap(); // player event
-	loadEventMap(); // town event
-	loadEventMap(); // quest event
-	loadEventMap(); // variable
-}
-
-void CMapLoaderH3M::readHotaScriptActions()
-{
-	enum class HotaScriptActions : int32_t
-	{
-		// NOOP = 0? Unused?
-		CONDITIONAL_CHAIN = 1,
-		SET_VARIABLE_CONDITIONAL = 2,
-		MODIFY_VARIABLE = 3,
-		RESOURCES = 4,
-		REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST = 5, // shared ID ???
-		SHOW_REWARDS_MESSAGE = 6,
-		QUEST_ACTION = 7,
-		CREATURES = 8,
-		ARTIFACT = 9,
-		CONSTRUCT_BUILDING = 10,
-		SET_QUEST_HINT = 11,
-		SHOW_QUESTION = 12,
-		CONDITIONAL = 13,
-		CREATURES_TO_HIRE = 14,
-		SPELL = 15,
-		EXPERIENCE = 16,
-		SPELL_POINTS = 17,
-		MOVEMENT_POINTS = 18,
-		PRIMARY_SKILL = 19,
-		SECONDARY_SKILL = 20,
-		LUCK = 21,
-		MORALE = 22,
-		START_COMBAT = 23,
-		EXECUTE_EVENT = 24,
-		WAR_MACHINE = 25,
-		SPELLBOOK = 26,
-		DISABLE_EVENT = 27,
-		LOOP_FOR = 28,
-		SHOW_MESSAGE = 29
-	};
-
-	int unk2 = reader->readInt32(); // event type?
-	int unk3 = reader->readInt8();
-	assert(unk2 == 1);
-	assert(unk3 == 0);
-	logGlobal->warn("Map %s: HotA Script action - unkown values %d/%d", mapName, unk2, unk3);
-
-	int actionsCount = reader->readInt32();
-	for(int j = 0; j < actionsCount; ++j)
-	{
-		HotaScriptActions actionType = static_cast<HotaScriptActions>(reader->readInt32());
-
-		switch(actionType)
-		{
-			case HotaScriptActions::SHOW_MESSAGE:
-			{
-				std::string textID = readBasicString();
-				int32_t numberOfImages = reader->readInt32();
-				for (int i = 0; i < numberOfImages;++i)
-				{
-					int32_t imageType = reader->readInt32(); // e.g. Creatures
-					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
-					readHotaScriptExpression(); // e.g. 10 Archers
-					logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: type %d/%d", mapName, imageType, imageSubtype);
-				}
-				logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: message %s, %d images", mapName, textID, numberOfImages);
-				break;
-			}
-			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
-			{
-				std::string textID = readBasicString();
-				readHotaScriptActions();
-				logGlobal->warn("Map %s: HotA Script action - SHOW_REWARDS_MESSAGE: message %s", mapName, textID);
-				break;
-			}
-			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
-			{
-				logGlobal->warn("Map %s: HotA Script action - REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST", mapName);
-				break; // no-op
-			}
-			case HotaScriptActions::DISABLE_EVENT:
-			{
-				logGlobal->warn("Map %s: HotA Script action - DISABLE_EVENT", mapName);
-				break; // no-op
-			}
-			case HotaScriptActions::QUEST_ACTION:
-			{
-				readHotaScriptCondition();
-				std::string proposalTextID = readBasicString();
-				std::string progressionTextID = readBasicString();
-				std::string completionTextID = readBasicString();
-				std::string hintTextID = readBasicString();
-				readHotaScriptActions();
-				bool unk5 = reader->readBool(); // ???
-				assert(unk5 == 1);
-				logGlobal->warn("Map %s: HotA Script action - QUEST_ACTION: '%s' / '%s' / '%s' / '%s', unknown: %d", mapName, proposalTextID, progressionTextID, completionTextID, hintTextID, unk5);
-				break;
-			}
-			case HotaScriptActions::CONDITIONAL:
-			{
-				readHotaScriptCondition();
-				readHotaScriptActions();
-				readHotaScriptActions();
-				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL", mapName);
-				break;
-			}
-
-			case HotaScriptActions::LOOP_FOR:
-			{
-				readHotaScriptActions(); // loop body
-				readHotaScriptExpression(); // initial value
-				readHotaScriptExpression(); // final value
-				int variableID = reader->readInt32();
-				logGlobal->warn("Map %s: HotA Script action - LOOP_FOR: variable ID %d", mapName, variableID);
-				break;
-			}
-
-			case HotaScriptActions::SET_QUEST_HINT:
-			{
-				std::string messageTextID = readBasicString();
-				int32_t numberOfImages = reader->readInt32();
-				for (int i = 0; i < numberOfImages;++i)
-				{
-					int32_t imageType = reader->readInt32(); // e.g. Creatures
-					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
-					readHotaScriptExpression(); // e.g. 10 Archers
-					logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: type %d/%d", mapName, imageType, imageSubtype);
-				}
-				bool showInLog = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: '%s', %d images, show in log: %d", mapName, messageTextID, numberOfImages, showInLog);
-				break;
-			}
-
-			case HotaScriptActions::SHOW_QUESTION:
-			{
-				// 0 = no images
-				// 1 = no exit
-				// 2 = can exit?
-				// 3 = specify images
-				int imageShowType = reader->readInt8();
-				std::string messageTextID = readBasicString();
-				readHotaScriptActions();
-				readHotaScriptActions();
-
-				if (imageShowType == 2)
-					readHotaScriptActions();
-
-				int numberOfImages = 2;
-				if (imageShowType == 0 || imageShowType == 3)
-					numberOfImages = reader->readInt32();
-
-				for (int i = 0; i < numberOfImages; ++i)
-				{
-					int32_t imageType = reader->readInt32(); // e.g. Creatures
-					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
-					readHotaScriptExpression(); // e.g. 10 Archers
-					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: type %d/%d", mapName, imageType, imageSubtype);
-				}
-
-				if (imageShowType == 1 || imageShowType == 2)
-				{
-					bool showOrBetweenImages = reader->readBool();
-					int32_t unknown = reader->readInt32();
-					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: show OR: %d, unknown: %d", mapName, showOrBetweenImages, unknown);
-				}
-				logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: '%s', mode: %d, images: %d", mapName, messageTextID, imageShowType, numberOfImages);
-				break;
-			}
-			case HotaScriptActions::ARTIFACT:
-			{
-				bool takeArtifact = reader->readBool();
-				ArtifactID artifact = reader->readArtifact32();
-				SpellID scrollSpellID = reader->readSpell32();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - ARTIFACT: art %d, spell %d, take: %d, show message: %d", mapName, artifact.getNum(), scrollSpellID.getNum(), takeArtifact, showMessage);
-				break;
-			}
-			case HotaScriptActions::WAR_MACHINE:
-			{
-				bool takeMachine = reader->readBool();
-				ArtifactID machine = reader->readArtifact32();
-				reader->skipUnused(4); // garbage?
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - WAR_MACHINE: art %d, take: %d, show message: %d", mapName, machine.getNum(), takeMachine, showMessage);
-				break;
-			}
-			case HotaScriptActions::SPELL:
-			{
-				SpellID spellID = reader->readSpell32();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SPELL: spell %d, show message: %d", mapName, spellID.getNum(), showMessage);
-				break;
-			}
-			case HotaScriptActions::SPELLBOOK:
-			{
-				bool takeSpellbook = reader->readBool();
-				reader->skipUnused(8); // garbage?
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SPELLBOOK: take: %d, show message: %d", mapName, takeSpellbook, showMessage);
-				break;
-			}
-			case HotaScriptActions::CREATURES:
-			{
-				bool takeCreatures = reader->readBool();
-				CreatureID creature = reader->readCreature32();
-				readHotaScriptExpression();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - CREATURES: creature %d, take creatures: %d, show message: %d", mapName, creature.getNum(), takeCreatures, showMessage);
-				break;
-			}
-			case HotaScriptActions::START_COMBAT:
-			{
-				for(int i = 0; i < 7; ++i)
-				{
-					readHotaScriptExpression();
-					CreatureID creature = reader->readCreature32();
-					logGlobal->warn("Map %s: HotA Script action - START_COMBAT, unit %d", mapName, creature.getNum());
-				}
-				logGlobal->warn("Map %s: HotA Script action - START_COMBAT done", mapName);
-				break;
-			}
-			case HotaScriptActions::SECONDARY_SKILL:
-			{
-				int masteryLevel = reader->readInt32(); // 1..3
-				SecondarySkill skill = reader->readSkill32();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SECONDARY_SKILL %d mastery %d, show message %d", mapName, skill.getNum(), masteryLevel, showMessage);
-				break;
-			}
-			case HotaScriptActions::MORALE:
-			{
-				int amount = reader->readInt32(); // -3..3
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - MORALE amount: %d, show message: %d", mapName, amount, showMessage);
-				break;
-			}
-			case HotaScriptActions::LUCK:
-			{
-				int amount = reader->readInt32(); // -3..3
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - LUCK amount: %d, show message: %d", mapName, amount, showMessage);
-				break;
-			}
-			case HotaScriptActions::EXPERIENCE:
-			{
-				readHotaScriptExpression();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - EXPERIENCE show message: %d", mapName, showMessage);
-				break;
-			}
-			case HotaScriptActions::SPELL_POINTS:
-			{
-				readHotaScriptExpression();
-				int mode = reader->readInt32();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SPELL_POINTS mode: %d, show message: %d", mapName, mode, showMessage);
-				break;
-			}
-			case HotaScriptActions::CREATURES_TO_HIRE:
-			{
-				int dwelling = reader->readInt32(); // 0-based
-				readHotaScriptExpression(); // amount
-				int unknown = reader->readInt32(); // factory 8th dwelling?
-				bool showMessage = reader->readBool();
-				assert(unknown == -1);
-				logGlobal->warn("Map %s: HotA Script action - CREATURES_TO_HIRE dwelling: %d, unknown: %d, show message: %d", mapName, dwelling, unknown, showMessage);
-				break;
-			}
-			case HotaScriptActions::CONSTRUCT_BUILDING:
-			{
-				BuildingID buildingID = reader->readBuilding32(std::nullopt);
-				int unknownA = reader->readInt16(); // faction ID?
-				int unknownB = reader->readInt16(); // faction building ID?
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - CONSTRUCT_BUILDING, building %d, unknown %d / %d, show message %d", mapName, buildingID.getNum(), unknownA, unknownB, showMessage);
-				break;
-			}
-			case HotaScriptActions::EXECUTE_EVENT:
-			{
-				int eventType = reader->readInt32();
-				int eventID = reader->readInt32();
-				logGlobal->warn("Map %s: HotA Script action - EXECUTE_EVENT event type %d, event ID %d", mapName, eventType, eventID);
-				break;
-			}
-			case HotaScriptActions::MOVEMENT_POINTS:
-			{
-				readHotaScriptExpression();
-				int mode = reader->readInt32();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - MOVEMENT_POINTS mode %d, show message %d", mapName, mode, showMessage);
-				break;
-			}
-			case HotaScriptActions::RESOURCES:
-			{
-				int mode = reader->readInt8();
-				for(int i = 0; i < 7; ++i)
-					readHotaScriptExpression();
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - RESOURCES mode %d, show message %d", mapName, mode, showMessage);
-				break;
-			}
-			case HotaScriptActions::PRIMARY_SKILL:
-			{
-				readHotaScriptExpression();
-				PrimarySkill skillToGive(reader->readInt32());
-				bool showMessage = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - PRIMARY_SKILL skill %d, show message %d", mapName, skillToGive.getNum(), showMessage);
-				break;
-			}
-			case HotaScriptActions::MODIFY_VARIABLE:
-			{
-				int variableID = reader->readInt32();
-				int mode = reader->readInt8(); // 0 = add, 1 = substract, 2 = set
-				readHotaScriptExpressionInternal(); // new value
-				logGlobal->warn("Map %s: HotA Script action - MODIFY_VARIABLE variable ID %d, mode %d", mapName, variableID, mode);
-				break;
-			}
-			case HotaScriptActions::SET_VARIABLE_CONDITIONAL:
-			{
-				int variableID = reader->readInt32();
-				readHotaScriptCondition();
-				readHotaScriptExpression();
-				readHotaScriptExpression();
-				logGlobal->warn("Map %s: HotA Script action - SET_VARIABLE_CONDITIONAL variable ID %d", mapName, variableID);
-				break;
-			}
-			case HotaScriptActions::CONDITIONAL_CHAIN:
-			{
-				for(;;)
-				{
-					readHotaScriptCondition();
-					readHotaScriptActions();
-
-					int unknown = reader->readBool();
-					int unknown2 = reader->readInt32();
-					assert(unknown == 1);
-					assert(unknown2 == 1 || unknown2 == 0);
-					logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN block, unknown %d/%d", mapName, unknown, unknown2);
-					if(unknown2 == 0)
-						break;
-				}
-				int unknown3 = reader->readInt32();
-				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN end, unknown %d", mapName, unknown3);
-				break;
-			}
-			default:
-				throw std::runtime_error("Unknown event action code:" + std::to_string(static_cast<int>(actionType)));
-		}
-	}
-}
-
-void CMapLoaderH3M::readHotaScriptCondition()
-{
-	bool unknown = reader->readBool();
-	assert(unknown == true);
-	logGlobal->warn("Map %s: HotA Script condition - unknown value %d", mapName, unknown);
-	readHotaScriptConditionInternal();
-}
-
-void CMapLoaderH3M::readHotaScriptConditionInternal()
-{
-	enum class HotaScriptCondition : int32_t
-	{
-		CONSTANT = 0,
-		ALL_OF = 1, // and
-		ANY_OF = 2, // or
-		LESSER = 3,
-		GREATER = 4,
-		EQUAL = 5,
-		NOT = 6,
-		HAS_ARTIFACT = 7,
-		GREATER_OR_EQUAL = 8,
-		LESSER_OR_EQUAL = 9,
-		NOT_EQUAL = 10,
-		CURRENT_PLAYER = 11,
-		HERO_OWNER = 12,
-		// ??? = 13 unused or missing?
-		PLAYER_DEFEATED_MONSTER = 14,
-		PLAYER_DEFEATED_HERO = 15,
-		HERO_SECONDARY_SKILL = 16,
-		PLAYER_DEFEATED = 17,
-		PLAYER_OWNS_TOWN = 18,
-		PLAYER_IS_HUMAN = 19,
-		PLAYER_STARTING_FACTION = 20,
-		TOWN_IS_NEUTRAL = 21
-	};
-
-	HotaScriptCondition conditionCode = static_cast<HotaScriptCondition>(reader->readInt32());
-	switch(conditionCode)
-	{
-		case HotaScriptCondition::CONSTANT:
-		{
-			bool value = reader->readBool();
-			logGlobal->warn("Map %s: HotA Script condition - CONSTANT %d", mapName, value);
-			break;
-		}
-		case HotaScriptCondition::ANY_OF:
-		case HotaScriptCondition::ALL_OF:
-		{
-			int argumentsCount = reader->readInt32();
-			for(int i = 0; i < argumentsCount; ++i)
-				readHotaScriptConditionInternal();
-			logGlobal->warn("Map %s: HotA Script condition - ANY_OF/ALL_OF, %d arguments", mapName, argumentsCount);
-			break;
-		}
-		case HotaScriptCondition::LESSER_OR_EQUAL:
-		case HotaScriptCondition::NOT_EQUAL:
-		case HotaScriptCondition::GREATER_OR_EQUAL:
-		case HotaScriptCondition::LESSER:
-		case HotaScriptCondition::EQUAL:
-		case HotaScriptCondition::GREATER:
-		{
-			readHotaScriptExpression();
-			readHotaScriptExpression();
-			logGlobal->warn("Map %s: HotA Script condition - (comparison check)", mapName);
-			break;
-		}
-		case HotaScriptCondition::NOT:
-		{
-			readHotaScriptCondition();
-			logGlobal->warn("Map %s: HotA Script condition - NOT", mapName);
-			break;
-		}
-		case HotaScriptCondition::HAS_ARTIFACT:
-		{
-			ArtifactID artifact = reader->readArtifact32();
-			SpellID scrollSpellID = reader->readSpell32();
-			logGlobal->warn("Map %s: HotA Script condition - HAS_ARTIFACT, %d artifact, %d scroll spell", mapName, artifact.getNum(), scrollSpellID.getNum());
-			break;
-		}
-		case HotaScriptCondition::CURRENT_PLAYER:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32();
-			logGlobal->warn("Map %s: HotA Script condition - CURRENT_PLAYER, %d player", mapName, expectedPlayer.getNum());
-			break;
-		}
-		case HotaScriptCondition::HERO_OWNER:
-		{
-			HeroTypeID expectedHero = reader->readHero32();
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -2 = current hero, -1 = current player
-			logGlobal->warn("Map %s: HotA Script condition - HERO_OWNER $d hero, %d player", mapName, expectedHero.getNum(), expectedPlayer.getNum());
-			break;
-		}
-		case HotaScriptCondition::HERO_SECONDARY_SKILL:
-		{
-			SecondarySkill expectedSkill = reader->readSkill32();
-			int32_t expectedMastery = reader->readInt32();
-			logGlobal->warn("Map %s: HotA Script condition - HERO_SECONDARY_SKILL, expectec %d skill with $d mastery", mapName, expectedSkill.getNum(), expectedMastery);
-			break;
-		}
-		case HotaScriptCondition::TOWN_IS_NEUTRAL:
-		{
-			logGlobal->warn("Map %s: HotA Script condition - TOWN_IS_NEUTRAL", mapName);
-			break;
-		}
-		case HotaScriptCondition::PLAYER_DEFEATED:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32();
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED, %d player", mapName, expectedPlayer.getNum());
-			break;
-		}
-		case HotaScriptCondition::PLAYER_IS_HUMAN:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_IS_HUMAN, %d player", mapName, expectedPlayer.getNum());
-			break;
-		}
-		case HotaScriptCondition::PLAYER_STARTING_FACTION:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
-			FactionID expectedFaction = reader->readFaction32();
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_STARTING_FACTION, %d player %d faction", mapName, expectedPlayer.getNum(), expectedFaction.getNum());
-			break;
-		}
-		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
-			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED_MONSTER, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
-			break;
-		}
-		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
-			int32_t targetObjectID = reader->readInt32(); // Quest identifier? Hero tyoe ID? Garbage???
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED_HERO, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
-			break;
-		}
-		case HotaScriptCondition::PLAYER_OWNS_TOWN:
-		{
-			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
-			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
-			logGlobal->warn("Map %s: HotA Script condition - PLAYER_OWNS_TOWN, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
-			break;
-		}
-		default:
-			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));
-	}
-}
-
-void CMapLoaderH3M::readHotaScriptExpression()
-{
-	bool isExpression = reader->readBool();
-
-	if(!isExpression)
-	{
-		int rawValue = reader->readInt32();
-		logGlobal->warn("Map %s: HotA Script expression - RAW VALUE, %d value", mapName, rawValue);
-		return;
-	}
-
-	readHotaScriptExpressionInternal();
-}
-
-void CMapLoaderH3M::readHotaScriptExpressionInternal()
-{
-	enum class HotaScriptExpression : int32_t
-	{
-		INTEGER_VALUE = 0,
-		VARIABLE_VALUE = 1,
-		NEGATE = 2,
-		ADD = 3,
-		SUBSTRACT = 4,
-		RESOURCE = 5,
-		MULTIPLY = 6,
-		DIVIDE = 7,
-		REMAINDER = 8,
-		CREATURE_COUNT_IN_ARMY = 9,
-		CURRENT_DIFFICULTY = 10,
-		COMPARE_DIFFICULTY = 11,
-		CURRENT_DATE = 12,
-		HERO_EXPERIENCE = 13,
-		HERO_LEVEL = 14,
-		HERO_PRIMARY_SKILL = 15,
-		RANDOM_NUMBER = 16,
-		HERO_OWNED_ARTIFACTS = 17,
-	};
-
-	int unknown = reader->readBool();
-	assert(unknown==true);
-	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, unknown);
-
-
-	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
-	switch(expressionCode)
-	{
-		case HotaScriptExpression::INTEGER_VALUE:
-		{
-			int value = reader->readInt32();
-			logGlobal->warn("Map %s: HotA Script expression - INTEGER_VALUE %d", mapName, value);
-			break;
-		}
-		case HotaScriptExpression::VARIABLE_VALUE:
-		{
-			int variableIndex = reader->readInt32();
-			logGlobal->warn("Map %s: HotA Script expression - VARIABLE_VALUE %d", mapName, variableIndex);
-			break;
-		}
-		case HotaScriptExpression::RANDOM_NUMBER:
-		{
-			readHotaScriptExpression();
-			readHotaScriptExpression();
-			logGlobal->warn("Map %s: HotA Script expression - RANDOM_NUMBER", mapName);
-			break;
-		}
-		case HotaScriptExpression::ADD:
-		case HotaScriptExpression::SUBSTRACT:
-		case HotaScriptExpression::MULTIPLY:
-		case HotaScriptExpression::DIVIDE:
-		case HotaScriptExpression::REMAINDER:
-		{
-			readHotaScriptExpressionInternal();
-			readHotaScriptExpressionInternal();
-			logGlobal->warn("Map %s: HotA Script expression - (arithmetic)", mapName);
-			break;
-		}
-		case HotaScriptExpression::NEGATE:
-		{
-			int unknown = reader->readInt32();
-			readHotaScriptExpression();
-			assert(unknown == 1);
-			logGlobal->warn("Map %s: HotA Script expression - NEGATE, unknown %d", mapName, unknown);
-			break;
-		}
-		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
-		{
-			CreatureID creature = reader->readCreature32();
-			logGlobal->warn("Map %s: HotA Script expression - CREATURE_COUNT_IN_ARMY, creature %d", mapName, creature.getNum());
-			break;
-		}
-		case HotaScriptExpression::CURRENT_DIFFICULTY:
-		{
-			logGlobal->warn("Map %s: HotA Script expression - CURRENT_DIFFICULTY", mapName);
-			break;
-		}
-		case HotaScriptExpression::COMPARE_DIFFICULTY:
-		{
-			// TODO: figure out what exactly this does
-			int difficultyToCompare = reader->readInt32();
-			logGlobal->warn("Map %s: HotA Script expression - COMPARE_DIFFICULTY, difficulty %d", mapName, difficultyToCompare);
-			break;
-		}
-		case HotaScriptExpression::HERO_PRIMARY_SKILL:
-		{
-			PrimarySkill skill(reader->readInt32());
-			logGlobal->warn("Map %s: HotA Script expression - HERO_PRIMARY_SKILL, skill %d", mapName, skill);
-			break;
-		}
-		case HotaScriptExpression::CURRENT_DATE:
-		{
-			logGlobal->warn("Map %s: HotA Script expression - CURRENT_DATE", mapName);
-			break;
-		}
-		case HotaScriptExpression::HERO_EXPERIENCE:
-		{
-			logGlobal->warn("Map %s: HotA Script expression - HERO_EXPERIENCE", mapName);
-			break;
-		}
-		case HotaScriptExpression::HERO_LEVEL:
-		{
-			logGlobal->warn("Map %s: HotA Script expression - HERO_LEVEL", mapName);
-			break;
-		}
-		case HotaScriptExpression::HERO_OWNED_ARTIFACTS:
-		{
-			ArtifactID artifact = reader->readArtifact32();
-			SpellID scrollSpell = reader->readSpell32();
-			logGlobal->warn("Map %s: HotA Script expression - HERO_OWNED_ARTIFACTS, %d artifact, %d scroll spell", mapName, artifact.getNum(), scrollSpell.getNum());
-			break;
-		}
-		case HotaScriptExpression::RESOURCE:
-		{
-			PlayerColor player = reader->readPlayer(); // has special value for current player
-			GameResID resource = reader->readGameResID32();
-			logGlobal->warn("Map %s: HotA Script expression - RESOURCE, %d player, %d resource", mapName, player.getNum(), resource.getNum());
-			break;
-		}
-		default:
-			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
-	}
+	scriptConverter->readScript();
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()
@@ -1829,7 +1148,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	size_t gcre = reader->readUInt8(); //number of gained creatures
 	for(size_t oo = 0; oo < gcre; ++oo)
 	{
-		auto rId = reader->readCreature();
+		auto rId = reader->readCreature("reward at " + mapPosition.toString());
 		auto rVal = reader->readUInt16();
 
 		reward.creatures.emplace_back(rId, rVal);
@@ -1888,8 +1207,8 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			bool syncronizeObjects = reader->readBool();
-			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for event/pandora at %s is not implemented!", mapName, eventID, syncronizeObjects, mapPosition.toString());
+			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
+			object->heroVisitScriptHandler = scriptConverter->eventHandlerName("heroEvents", eventID);
 		}
 	}
 }
@@ -2078,7 +1397,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGarrison(const int3 & mapPo
 	auto object = std::make_shared<CGGarrison>(map->cb);
 
 	setOwnerAndValidate(mapPosition, object.get(), reader->readPlayer32());
-	readCreatureSet(object.get(), idToBeGiven);
+	readCreatureSet(object.get(), idToBeGiven, mapPosition);
 	if(features.levelAB)
 		object->removableUnits = reader->readBool();
 	else
@@ -2164,7 +1483,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 		bool hasCustomGuards = reader->readBool();
 		if (hasCustomGuards)
 		{
-			object->abandonedMineGuards.creature = reader->readCreature32();
+			object->abandonedMineGuards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
 			object->abandonedMineGuards.minAmount = reader->readInt32();
 			object->abandonedMineGuards.maxAmount = reader->readInt32();
 		}
@@ -2313,11 +1632,22 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPos
 	return std::make_shared<CGObjectInstance>(map->cb);
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto guard = std::make_shared<CGQuestGuard>(map->cb);
-	readQuest(guard.get(), mapPosition);
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
+	if (guard)
+		readQuest(guard->addQuest(), mapPosition);
 	return guard;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto gate = std::dynamic_pointer_cast<QuestSource>(object);
+	if (gate)
+		readQuest(gate->addQuest(), mapPosition);
+	return gate;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
@@ -2806,7 +2136,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readDwellingRandom(mapPosition, objectTemplate);
 
 		case Obj::QUEST_GUARD:
-			return readQuestGuard(mapPosition);
+			return readQuestGuard(mapPosition, objectTemplate);
 
 		case Obj::SHIPYARD:
 			return readShipyard(mapPosition, objectTemplate);
@@ -2855,7 +2185,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
-				return readQuestGuard(mapPosition);
+				return readQuestGate(mapPosition, objectTemplate);
 			if (subid == 1001) // HotA hacks - Grave
 				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
@@ -2935,14 +2265,15 @@ void CMapLoaderH3M::readObjects()
 	}
 }
 
-void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven, const int3 & position)
 {
 	constexpr int unitsToRead = 7;
 	out->id = idToBeGiven;
+	const std::string creatureContext = "army at " + position.toString();
 
 	for(int index = 0; index < unitsToRead; ++index)
 	{
-		CreatureID creatureID = reader->readCreature();
+		CreatureID creatureID = reader->readCreature(creatureContext);
 		int count = reader->readUInt16();
 
 		// Empty slot
@@ -3081,7 +2412,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 	bool hasGarison = reader->readBool();
 	if(hasGarison)
-		readCreatureSet(object.get(), objectInstanceID);
+		readCreatureSet(object.get(), objectInstanceID, mapPosition);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
@@ -3182,30 +2513,26 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
-	auto hut = std::make_shared<CGSeerHut>(map->cb);
+	auto hut = std::make_shared<SeerHut>(map->cb);
 
 	uint32_t questsCount = 1;
 
 	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
-	//TODO: HotA
-	if(questsCount > 1)
-		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString(), questsCount);
-
 	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut.get(), position, idToBeGiven);
+		readSeerHutQuest(hut.get(), hut->addQuest(), position, idToBeGiven);
 
 	if(features.levelHOTA3)
 	{
 		uint32_t repeateableQuestsCount = reader->readUInt32();
-		hut->getQuest().repeatedQuest = repeateableQuestsCount != 0;
-
-		if(repeateableQuestsCount != 0)
-			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
 
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
-			readSeerHutQuest(hut.get(), position, idToBeGiven);
+		{
+			Quest & quest = hut->addQuest();
+			readSeerHutQuest(hut.get(), quest, position, idToBeGiven);
+			quest.repeatedQuest = true;
+		}
 	}
 
 	reader->skipZero(2);
@@ -3228,12 +2555,12 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		missionType = readQuest(hut, position);
+		missionType = readQuest(quest, position);
 	}
 	else
 	{
@@ -3242,13 +2569,10 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		if(artID != ArtifactID::NONE)
 		{
 			//not none quest
-			hut->getQuest().mission.artifacts.push_back(artID);
+			quest.mission.artifacts.push_back(artID);
 			missionType = EQuestMission::ARTIFACT;
 		}
-		hut->getQuest().lastDay = -1; //no timeout
-		hut->getQuest().isCustomFirst = false;
-		hut->getQuest().isCustomNext = false;
-		hut->getQuest().isCustomComplete = false;
+		quest.lastDay = -1; //no timeout
 	}
 
 	if(missionType != EQuestMission::NONE)
@@ -3329,7 +2653,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::CREATURE:
 			{
-				auto rId = reader->readCreature();
+				auto rId = reader->readCreature("seer hut at " + position.toString());
 				auto rVal = reader->readUInt16();
 
 				reward.creatures.emplace_back(rId, rVal);
@@ -3342,7 +2666,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		}
 
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		hut->configuration.info.push_back(vinfo);
+		quest.reward = vinfo;
 	}
 	else
 	{
@@ -3351,7 +2675,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
@@ -3363,21 +2687,19 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		{
 			for(int x = 0; x < 4; ++x)
 			{
-				guard->getQuest().mission.primary[x] = reader->readUInt8();
+				quest.mission.primary[x] = reader->readUInt8();
 			}
 			break;
 		}
 		case EQuestMission::LEVEL:
 		{
-			guard->getQuest().mission.heroLevel = reader->readUInt32();
+			quest.mission.heroLevel = reader->readUInt32();
 			break;
 		}
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
 		{
-			// NOTE: assert might fail on multi-quest seers
-			//assert(questsToResolve.count(guard) == 0);
-			questsToResolve[guard] = reader->readUInt32();
+			questsToResolve[&quest] = reader->readUInt32();
 			break;
 		}
 		case EQuestMission::ARTIFACT:
@@ -3391,12 +2713,12 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				{
 					SpellID scrollSpell = reader->readSpell16();
 					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
-						guard->getQuest().mission.scrolls.push_back(scrollSpell);
+						quest.mission.scrolls.push_back(scrollSpell);
 					else
-						guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+						quest.mission.artifacts.push_back(requiredArtifact);
 				}
 				else
-					guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+					quest.mission.artifacts.push_back(requiredArtifact);
 
 				map->allowedArtifact.erase(requiredArtifact); //these are unavailable for random generation
 			}
@@ -3405,32 +2727,32 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::ARMY:
 		{
 			size_t typeNumber = reader->readUInt8();
-			guard->getQuest().mission.creatures.resize(typeNumber);
+			quest.mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->getQuest().mission.creatures[hh].setType(reader->readCreature().toCreature());
-				guard->getQuest().mission.creatures[hh].setCount(reader->readUInt16());
+				quest.mission.creatures[hh].setType(reader->readCreature("quest at " + position.toString()).toCreature());
+				quest.mission.creatures[hh].setCount(reader->readUInt16());
 			}
 			break;
 		}
 		case EQuestMission::RESOURCES:
 		{
 			for(int x = 0; x < 7; ++x)
-				guard->getQuest().mission.resources[x] = reader->readUInt32();
+				quest.mission.resources[x] = reader->readUInt32();
 
 			break;
 		}
 		case EQuestMission::HERO:
 		{
-			guard->getQuest().mission.heroes.push_back(reader->readHero());
+			quest.mission.heroes.push_back(reader->readHero());
 			break;
 		}
 		case EQuestMission::PLAYER:
 		{
-			guard->getQuest().mission.players.push_back(reader->readPlayer());
+			quest.mission.players.push_back(reader->readPlayer());
 			break;
 		}
-		case EQuestMission::HOTA_MULTI:
+		case EQuestMission::HOTA_MULTI_PLACEHOLDER:
 		{
 			uint32_t missionSubID = reader->readUInt32();
 			assert(missionSubID < 4);
@@ -3441,13 +2763,13 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 				for(auto & hc : heroClasses)
-					guard->getQuest().mission.heroClasses.push_back(hc);
+					quest.mission.heroClasses.push_back(hc);
 				break;
 			}
 			if(missionSubID == 1)
 			{
 				missionId = EQuestMission::HOTA_REACH_DATE;
-				guard->getQuest().mission.daysPassed = reader->readUInt32() + 1;
+				quest.mission.daysPassed = reader->readUInt32() + 1;
 				break;
 			}
 			if(missionSubID == 2)
@@ -3455,15 +2777,14 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
 				int32_t difficultyMask = reader->readUInt32();
 				assert(difficultyMask > 0 && difficultyMask < 32);
-				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
+				quest.mission.allowedDifficulties = MapDifficultySet(static_cast<uint8_t>(difficultyMask));
 				break;
 			}
 			if(missionSubID == 3)
 			{
 				missionId = EQuestMission::HOTA_SCRIPTED;
-				int32_t scriptID = reader->readUInt32();
-				bool unknown = reader->readBool();
-				logGlobal->warn("Map '%s': Seer Hut at %s: Scripted quest (%d/%d) is not implemented!", mapName, position.toString(), scriptID, unknown);
+				quest.scriptHandler = scriptConverter->eventHandlerName("questEvents", reader->readUInt32());
+				reader->readBool(); // TODO: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
 				break;
 			}
 			break;
@@ -3474,13 +2795,10 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		}
 	}
 
-	guard->getQuest().lastDay = reader->readInt32();
-	guard->getQuest().firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
-	guard->getQuest().nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
-	guard->getQuest().completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
-	guard->getQuest().isCustomFirst = !guard->getQuest().firstVisitText.empty();
-	guard->getQuest().isCustomNext = !guard->getQuest().nextVisitText.empty();
-	guard->getQuest().isCustomComplete = !guard->getQuest().completedText.empty();
+	quest.lastDay = reader->readInt32();
+	quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+	quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+	quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
 	return missionId;
 }
 
@@ -3488,7 +2806,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 {
 	auto object = std::make_shared<CGTownInstance>(map->cb);
 	if(features.levelAB)
+	{
 		object->identifier = reader->readUInt32();
+		questIdentifierToId[object->identifier] = idToBeGiven;
+	}
 
 	setOwnerAndValidate(position, object.get(), reader->readPlayer());
 
@@ -3505,7 +2826,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	bool hasGarrison = reader->readBool();
 	if(hasGarrison)
-		readCreatureSet(object.get(), idToBeGiven);
+		readCreatureSet(object.get(), idToBeGiven, position);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
@@ -3576,7 +2897,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		CCastleEvent event;
 		event.creatures.resize(7);
 
-		readEventCommon(event, TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
+		readEventCommon(event, TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"), "townEvents");
 
 		if(features.levelHOTA5)
 		{
@@ -3648,7 +2969,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 	return object;
 }
 
-void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & messageID)
+void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & messageID, const std::string & scriptBucket)
 {
 	event.name = readBasicString();
 	event.message.appendTextID(readLocalizedString(messageID));
@@ -3680,8 +3001,8 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			bool syncronizeObjects = reader->readBool();
-			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for timed/town event is not implemented!", mapName, eventID, syncronizeObjects);
+			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
+			event.scriptHandler = scriptConverter->eventHandlerName(scriptBucket, eventID);
 		}
 	}
 }
@@ -3692,7 +3013,7 @@ void CMapLoaderH3M::readEvents()
 	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
 		CMapEvent event;
-		readEventCommon(event, TextIdentifier("event", eventID, "description"));
+		readEventCommon(event, TextIdentifier("event", eventID, "description"), "playerEvents");
 
 		// garbage bytes that were present in HOTA5 & HOTA6
 		if (features.levelHOTA5 && !features.levelHOTA7)
@@ -3710,7 +3031,7 @@ void CMapLoaderH3M::readMessageAndGuards(MetaString & message, CArmedInstance * 
 		message.appendTextID(readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message")));
 		bool hasGuards = reader->readBool();
 		if(hasGuards)
-			readCreatureSet(guards, idToBeGiven);
+			readCreatureSet(guards, idToBeGiven, position);
 
 		reader->skipZero(4);
 	}
@@ -3724,10 +3045,11 @@ std::string CMapLoaderH3M::readBasicString()
 std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIdentifier)
 {
 	std::string mapString = TextOperations::toUnicode(reader->readBaseString(), fileEncoding);
-	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	if(mapString.empty())
 		return "";
+
+	TextIdentifier fullIdentifier("map", mapName, stringIdentifier.get());
 
 	return mapRegisterLocalizedString(modName, *mapHeader, fullIdentifier, mapString);
 }
@@ -3764,7 +3086,8 @@ void CMapLoaderH3M::afterRead()
 	}
 
 	for (auto & quest : questsToResolve)
-		quest.first->getQuest().killTarget = questIdentifierToId.at(quest.second);
-}
+		quest.first->mission.destroyedObjects.push_back(questIdentifierToId.at(quest.second));
 
-VCMI_LIB_NAMESPACE_END
+	if (scriptConverter)
+		scriptConverter->convert(map, questIdentifierToId);
+}

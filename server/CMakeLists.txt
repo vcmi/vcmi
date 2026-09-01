@@ -8,6 +8,7 @@ set(vcmiservercommon_SRCS
 
 		queries/BattleQueries.cpp
 		queries/CQuery.cpp
+		queries/LuaScriptQuery.cpp
 		queries/MapQueries.cpp
 		queries/VisitQueries.cpp
 		queries/QueriesProcessor.cpp
@@ -24,6 +25,7 @@ set(vcmiservercommon_SRCS
 		NetPacksServer.cpp
 		NetPacksLobbyServer.cpp
 		TurnTimerHandler.cpp
+		TurnStartVisitScheduler.cpp
 )
 
 set(vcmiservercommon_HEADERS
@@ -36,9 +38,11 @@ set(vcmiservercommon_HEADERS
 
 		queries/BattleQueries.h
 		queries/CQuery.h
+		queries/LuaScriptQuery.h
 		queries/MapQueries.h
 		queries/VisitQueries.h
 		queries/QueriesProcessor.h
+		queries/IQueryStackListener.h
 
 		processors/HeroPoolProcessor.h
 		processors/NewTurnProcessor.h
@@ -53,21 +57,31 @@ set(vcmiservercommon_HEADERS
 		LobbyNetPackVisitors.h
 		ServerNetPackVisitors.h
 		TurnTimerHandler.h
+		TurnStartVisitScheduler.h
 )
 
 assign_source_group(${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
 
 add_library(vcmiservercommon STATIC ${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
-set(vcmiservercommon_LIBS vcmi)
+# Tests can embed AI object libraries directly, so server common must consume
+# the core library interface without also pulling the facade and its objects.
+set(vcmiservercommon_LIBS
+	$<TARGET_PROPERTY:vcmiMain,INTERFACE_LINK_LIBRARIES>
+)
 
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
-	set(vcmiservercommon_LIBS execinfo ${vcmiservercommon_LIBS})
+	list(APPEND vcmiservercommon_LIBS execinfo)
 endif()
 
 target_link_libraries(vcmiservercommon PRIVATE ${vcmiservercommon_LIBS} minizip::minizip)
 
 target_include_directories(vcmiservercommon
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE $<TARGET_PROPERTY:vcmiMain,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+target_compile_definitions(vcmiservercommon
+	PRIVATE $<TARGET_PROPERTY:vcmiMain,INTERFACE_COMPILE_DEFINITIONS>
 )
 
 if(WIN32)

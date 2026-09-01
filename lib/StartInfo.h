@@ -22,9 +22,8 @@
 #include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapGenOptions;
+class ITranslator;
 class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
@@ -138,6 +137,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	TPlayerInfos playerInfos; //color indexed
 
 	time_t startTime;
+	std::string saveDirectory;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
@@ -153,7 +153,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	PlayerSettings * getPlayersSettings(PlayerConnectionID connectedPlayerId);
 
 	// TODO: Must be client-side
-	std::string getCampaignName() const;
+	std::string getCampaignName(const ITranslator * translator) const;
 
 	/// Controls check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
 	bool restrictedGarrisonsForAI() const;
@@ -174,6 +174,10 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
+		if(h.hasFeature(Handler::Version::GAME_SESSION_DIRECTORY))
+			h & saveDirectory;
+		else if(!h.saving)
+			saveDirectory.clear();
 	}
 
 	StartInfo()
@@ -207,7 +211,6 @@ struct DLL_LINKAGE LobbyState
 	// Before start both go into CCampaignState that is part of StartInfo
 	CampaignScenarioID campaignMap;
 	int campaignBonus;
-
 	LobbyState() : si(new StartInfo()), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h)
@@ -280,5 +283,3 @@ public:
 		h & spells;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

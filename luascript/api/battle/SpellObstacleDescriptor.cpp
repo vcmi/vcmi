@@ -14,15 +14,13 @@
 #include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
 SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 {
 	SpellCreatedObstacle obstacle;
-	obstacle.pos              = BattleHex(static_cast<si16>(pos));
+	obstacle.pos              = pos;
 	obstacle.obstacleType     = obstacleType;
 	obstacle.ID               = spell ? spell->getId() : SpellID(SpellID::NONE);
 	obstacle.turnsRemaining   = turnsRemaining;
@@ -39,16 +37,15 @@ SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 
 	obstacle.trigger = trigger.empty() ? SpellID(SpellID::NONE) : SpellID(SpellID::decode(trigger));
 
-	obstacle.appearSound     = AudioPath::builtin(appearSound);
-	obstacle.appearAnimation = AnimationPath::builtin(appearAnimation);
-	obstacle.animation       = AnimationPath::builtin(animation);
+	obstacle.appearSound      = AudioPath::builtin(appearSound);
+	obstacle.appearAnimation  = AnimationPath::builtin(appearAnimation);
+	obstacle.animation        = AnimationPath::builtin(animation);
+	obstacle.removalAnimation = AnimationPath::builtin(removalAnimation);
 
-	for(si16 hex : customSize)
-		obstacle.customSize.insert(BattleHex(hex));
+	for(const BattleHex & hex : customSize)
+		obstacle.customSize.insert(hex);
 
 	return obstacle;
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

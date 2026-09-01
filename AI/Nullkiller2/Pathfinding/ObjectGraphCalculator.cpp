@@ -126,6 +126,7 @@ void ObjectGraphCalculator::updatePaths()
 	ps.mainTurnDistanceLimit = 5;
 	ps.scoutTurnDistanceLimit = 1;
 	ps.allowBypassObjects = false;
+	ps.useDimensionDoor = false;
 
 	aiNk->pathfinder->updatePaths(actors, ps);
 }
@@ -175,7 +176,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 				{
 					logAi->trace(
 						"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
-						fromObj ? fromObj->getObjectName() : "J", from.toString(),
+						fromObj ? fromObj->getObjectNameTextID() : "J", from.toString(),
 						"Boat", pos.toString(),
 						pos.toString(),
 						path.movementCost());
@@ -232,8 +233,8 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 			{
 				logAi->trace(
 					"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
-					obj1 ? obj1->getObjectName() : "J", pos1.toString(),
-					obj2 ? obj2->getObjectName() : "J", pos2.toString(),
+					obj1 ? obj1->getObjectNameTextID() : "J", pos1.toString(),
+					obj2 ? obj2->getObjectNameTextID() : "J", pos2.toString(),
 					pos.toString(),
 					path1.movementCost() + path2.movementCost());
 			}

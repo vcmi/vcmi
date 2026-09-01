@@ -17,8 +17,6 @@
 #include "../../callback/IGameInfoCallback.h"
 #include "../../gameState/CGameState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CCombinedArtifactInstance::PartInfo::PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot)
 	: artifactPtr(artifact)
 	, artifactID(artifact->getId())
@@ -224,11 +222,3 @@ void CArtifactInstance::attachToBonusSystem(CGameState & gs)
 	}
 }
 
-void CArtifactInstance::saveCompatibilityFixArtifactID(std::shared_ptr<CArtifactInstance> self)
-{
-	self->cb->gameState().saveCompatibilityLastAllocatedArtifactID = ArtifactInstanceID(self->cb->gameState().saveCompatibilityLastAllocatedArtifactID.getNum()+1);
-	self->id = self->cb->gameState().saveCompatibilityLastAllocatedArtifactID;
-	self->cb->gameState().saveCompatibilityUnregisteredArtifacts.push_back(self);
-}
-
-VCMI_LIB_NAMESPACE_END

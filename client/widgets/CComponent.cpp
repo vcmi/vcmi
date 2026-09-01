@@ -13,6 +13,7 @@
 #include "Images.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
@@ -24,7 +25,6 @@
 #include "../windows/InfoWindows.h"
 #include "TextControls.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -74,12 +74,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 
 	assert(size < sizeInvalid);
 
-	const auto imagePaths = getFileName();
-	const auto imageIndex = static_cast<int>(getIndex());
-	if(shouldUseRewardArtifactBackground(Type, imageSize))
-		setRewardArtifactBackground(imagePaths[size], imageIndex);
-	else
-		setSurface(imagePaths[size], imageIndex);
+	setSurface(getFileName()[size], static_cast<int>(getIndex()));
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
@@ -234,7 +229,7 @@ std::string CComponent::getDescription() const
 	switch(data.type)
 	{
 		case ComponentType::PRIM_SKILL:
-			return LIBRARY->generaltexth->arraytxt[2+data.subType.getNum()];
+			return GAME->translator().translate("core.arraytxt", 2+data.subType.getNum());
 		case ComponentType::EXPERIENCE:
 		case ComponentType::LEVEL:
 			return LIBRARY->generaltexth->allTexts[241];
@@ -259,9 +254,9 @@ std::string CComponent::getDescription() const
 		case ComponentType::SPELL:
 			return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
 		case ComponentType::MORALE:
-			return LIBRARY->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return GAME->translator().translate("core.heroscrn", 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0));
 		case ComponentType::LUCK:
-			return LIBRARY->generaltexth->heroscrn[ 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
+			return GAME->translator().translate("core.heroscrn", 7 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0));
 		case ComponentType::BUILDING:
 		{
 			auto index = data.subType.as<BuildingTypeUniqueID>();
@@ -286,28 +281,43 @@ std::string CComponent::getSubtitle() const
 	{
 		case ComponentType::PRIM_SKILL:
 			if (data.value)
-				return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->primarySkillNames[data.subType.getNum()]);
+			{
+				MetaString subtitle = MetaString::createFromRawString("%+d %s");
+				subtitle.replacePositiveNumber(*data.value);
+				subtitle.replaceTextID("core.priskill", data.subType.getNum());
+				return subtitle.toString(&GAME->translator());
+			}
 			else
-				return LIBRARY->generaltexth->primarySkillNames[data.subType.getNum()];
+				return GAME->translator().translate("core.priskill", data.subType.getNum());
 		case ComponentType::EXPERIENCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::LEVEL:
 		{
-			std::string level = LIBRARY->generaltexth->allTexts[442];
-			boost::replace_first(level, "1", std::to_string(data.value.value_or(0)));
-			return level;
+			// H3 text has no placeholder - the literal '1' in "+1 Level" is the value to substitute
+			MetaString level = MetaString::createFromTextID("core.genrltxt.442");
+			level.replaceTokenNumber("1", data.value.value_or(0));
+			return level.toString(&GAME->translator());
 		}
 		case ComponentType::MANA:
-			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->allTexts[387]);
+		{
+			MetaString subtitle = MetaString::createFromRawString("%+d %s");
+			subtitle.replacePositiveNumber(data.value.value_or(0));
+			subtitle.replaceTextID("core.genrltxt.387"); // Spell Points
+			return subtitle.toString(&GAME->translator());
+		}
 		case ComponentType::SEC_SKILL:
 			if (data.value)
-				return LIBRARY->generaltexth->levels[data.value.value_or(1)-1] + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
+				return GAME->translator().translate("core.skilllev", data.value.value_or(1)-1) + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 			else
 				return LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 		case ComponentType::RESOURCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::RESOURCE_PER_DAY:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[3]) % data.value.value_or(0));
+		{
+			MetaString subtitle = MetaString::createFromTextID("core.genrltxt.3"); // %d/day
+			subtitle.replaceNumber(data.value.value_or(0));
+			return subtitle.toString(&GAME->translator());
+		}
 		case ComponentType::CREATURE:
 		{
 			auto creature = LIBRARY->creh->getById(data.subType.as<CreatureID>());
@@ -324,9 +334,15 @@ std::string CComponent::getSubtitle() const
 				return "{#A9A9A9|" + LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
 			else
 				return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
-		case ComponentType::NONE:
 		case ComponentType::MORALE:
 		case ComponentType::LUCK:
+		{
+			MetaString subtitle = MetaString::createFromRawString("%s %+d");
+			subtitle.replaceTextID(data.type == ComponentType::MORALE ? "core.genrltxt.384" : "core.genrltxt.385"); // Morale / Luck
+			subtitle.replacePositiveNumber(data.value.value_or(0));
+			return subtitle.toString(&GAME->translator());
+		}
+		case ComponentType::NONE:
 		case ComponentType::HERO_PORTRAIT:
 			return "";
 		case ComponentType::BUILDING:
@@ -341,7 +357,7 @@ std::string CComponent::getSubtitle() const
 				return building->getNameTranslated();
 			}
 		case ComponentType::FLAG:
-			return LIBRARY->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
+			return GAME->translator().translate("vcmi.capitalColors", data.subType.as<PlayerColor>().getNum());
 		default:
 			assert(0);
 			return "";
@@ -352,21 +368,6 @@ void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
 	OBJECT_CONSTRUCTION;
 	image = std::make_shared<CAnimImage>(defName, imgPos);
-}
-
-bool CComponent::shouldUseRewardArtifactBackground(ComponentType Type, ESize imageSize) const
-{
-	return settings["general"]["enableUiEnhancements"].Bool() && Type == ComponentType::ARTIFACT && imageSize == large;
-}
-
-void CComponent::setRewardArtifactBackground(const AnimationPath & artifactDefName, int artifactImgPos)
-{
-	OBJECT_CONSTRUCTION;
-
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK82"), 0);
-	artifactOverlay = std::make_shared<CAnimImage>(artifactDefName, artifactImgPos);
-
-	artifactOverlay->moveTo(Point((image->pos.w - artifactOverlay->pos.w) / 2, (image->pos.h - artifactOverlay->pos.h) / 2));
 }
 
 void CComponent::showPopupWindow(const Point & cursorPosition)

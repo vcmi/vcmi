@@ -15,13 +15,10 @@
 #include "../StdInc.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CampaignState;
 class CMap;
 class EditorCallback;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class CampaignEditor;
@@ -32,7 +29,7 @@ class CampaignEditor : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CampaignEditor(EditorCallback * cb);
+	explicit CampaignEditor(EditorCallback * cb, QWidget * parent = nullptr);
 	~CampaignEditor();
 
 	void redraw();
@@ -58,6 +55,8 @@ private:
 	bool validate();
 	void saveCampaign();
 	void loadCampaignFile(const QString & filenameSelect);
+	/// Swaps in the campaign being edited, keeping its texts installed in the editor translator
+	void setCampaign(std::shared_ptr<CampaignState> newState);
 
 	void closeEvent(QCloseEvent *event) override;
 	void changeEvent(QEvent *event) override;

@@ -35,25 +35,26 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../windows/CCreatureWindow.h"
+#include "../windows/CMarketWindow.h"
 #include "../windows/CMessage.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/bonuses/BonusEnum.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/callback/CDynLibHandler.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/spells/CSpell.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleWindow::BattleWindow(BattleInterface & Owner)
@@ -103,6 +104,11 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 	addShortcut(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, std::bind(&BattleWindow::bOpenActiveUnit, this));
 	addShortcut(EShortcut::BATTLE_OPEN_HOVERED_UNIT, std::bind(&BattleWindow::bOpenHoveredUnit, this));
 
+	addShortcut(EShortcut::BATTLE_TOGGLE_GRID, [this](){ this->toggleBattleSetting("cellBorders"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_MOUSE_SHADOW, [this](){ this->toggleBattleSetting("mouseShadow"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_MOVEMENT_SHADOW, [this](){ this->toggleBattleSetting("stackRange"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_STACK_INFO, [this](){ this->toggleStackInfoWindowsVisibility(); });
+
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
 	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
 	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
@@ -126,7 +132,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 	createStickyHeroInfoWindows();
 	createTimerInfoWindows();
 
-	if ( owner.tacticsMode )
+	if ( owner.isInTacticsMode() )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
@@ -312,6 +318,27 @@ void BattleWindow::toggleQueueVisibility()
 		showQueue();
 }
 
+void BattleWindow::toggleBattleSetting(const std::string & name)
+{
+	Settings setting = settings.write["battle"][name];
+	setting->Bool() = !setting->Bool();
+	owner.redrawBattlefield();
+}
+
+void BattleWindow::toggleStackInfoWindowsVisibility()
+{
+	Settings setting = settings.write["battle"]["stackInfoBasicPanel"];
+	setting->Bool() = !setting->Bool();
+	bool show = setting->Bool();
+
+	if(attackerStackWindow)
+		attackerStackWindow->setEnabled(show);
+	if(defenderStackWindow)
+		defenderStackWindow->setEnabled(show);
+
+	ENGINE->windows().totalRedraw();
+}
+
 void BattleWindow::hideQueue()
 {
 	if(settings["battle"]["showQueue"].Bool() == false)
@@ -439,7 +466,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+	bool showInfoWindows = settings["battle"]["stackInfoBasicPanel"].Bool();
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
@@ -566,25 +593,60 @@ void BattleWindow::bSurrenderf()
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
+	if(ownHeroLossEndsScenario())
+	{
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.battle.escapeImpossibleCritical"));
+		return;
+	}
+
 	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name;
-		if(enemyHeroName.empty())
+		MetaString surrenderMessage = MetaString::createFromTextID("core.genrltxt.32"); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
+		const InfoAboutHero enemyHero = owner.getBattle()->battleGetEnemyHero();
+		if(enemyHero.name.empty())
 		{
-			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
-			enemyHeroName = "#ENEMY#";
-		}
+			// army without a hero, e.g. neutral monsters - strongest of their remaining units speaks on their behalf
+			auto enemyStacks = owner.getBattle()->battleGetStacks(CPlayerBattleCallback::ONLY_ENEMY);
+			auto strongest = vstd::maxElementByFun(enemyStacks, [](const CStack * stack){ return stack->unitType()->getAIValue(); });
 
-		std::string surrenderMessage = boost::str(boost::format(LIBRARY->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		owner.curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
+			if(strongest != enemyStacks.end())
+				surrenderMessage.replaceNameSingular((*strongest)->unitType()->getId());
+			else
+				surrenderMessage.replaceRawString("");
+		}
+		else
+			surrenderMessage.replaceRawString(enemyHero.name.toString(&GAME->translator()));
+
+		surrenderMessage.replaceNumber(cost);
+		owner.curInt->showYesNoDialog(surrenderMessage.toString(&GAME->translator()), [this](){ reallySurrender(); }, nullptr);
 	}
+}
+
+bool BattleWindow::ownHeroLossEndsScenario() const
+{
+	const CGHeroInstance * ownHero = nullptr;
+	if(owner.attackingHeroInstance && owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
+		ownHero = owner.attackingHeroInstance;
+	if(owner.defendingHeroInstance && owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
+		ownHero = owner.defendingHeroInstance;
+
+	if(ownHero && ownHero->isMissionCritical())
+		return true;
+
+	return owner.curInt->cb->howManyTowns() == 0 && owner.curInt->cb->howManyHeroes() == 1;
 }
 
 void BattleWindow::bFleef()
 {
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
+
+	if(ownHeroLossEndsScenario())
+	{
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.battle.escapeImpossibleCritical"));
+		return;
+	}
 
 	if ( owner.getBattle()->battleCanFlee() )
 	{
@@ -594,19 +656,20 @@ void BattleWindow::bFleef()
 	else
 	{
 		std::vector<std::shared_ptr<CComponent>> comps;
-		std::string heroName;
+		std::string heroNameTextID;
 		//calculating fleeing hero's name
 		if (owner.attackingHeroInstance)
 			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
-				heroName = owner.attackingHeroInstance->getNameTranslated();
+				heroNameTextID = owner.attackingHeroInstance->getNameTextID();
 		if (owner.defendingHeroInstance)
 			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
-				heroName = owner.defendingHeroInstance->getNameTranslated();
+				heroNameTextID = owner.defendingHeroInstance->getNameTextID();
 		//calculating text
-		auto txt = boost::format(LIBRARY->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
+		MetaString txt = MetaString::createFromTextID("core.genrltxt.340"); //The Shackles of War are present.  %s can not retreat!
+		txt.replaceTextID(heroNameTextID);
 
 		//printing message
-		owner.curInt->showInfoDialog(boost::str(txt), comps);
+		owner.curInt->showInfoDialog(txt.toString(&GAME->translator()), comps);
 	}
 }
 
@@ -616,11 +679,66 @@ void BattleWindow::reallyFlee()
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 }
 
-void BattleWindow::reallySurrender()
+const CGTownInstance * BattleWindow::findTownWithMarketplace() const
+{
+	for(const CGTownInstance * town : owner.curInt->cb->getTownsInfo())
+	{
+		if(town->hasBuilt(BuildingID::MARKETPLACE))
+			return town;
+	}
+
+	return nullptr;
+}
+
+bool BattleWindow::canOfferMarketplaceForSurrender() const
+{
+	// The feature can be granted either to the hero (e.g. artifact) or to the player
+	// (e.g. global/player-wide config bonus). Accept either source.
+	const CGHeroInstance * hero = owner.getBattle()->battleGetMyHero();
+	return hero && hero->hasBonusOfType(BonusType::SURRENDER_MARKETPLACE_ACCESS);
+}
+
+void BattleWindow::offerMarketplaceForSurrender()
+{
+	const CGTownInstance * townWithMarket = findTownWithMarketplace();
+	if(!townWithMarket)
+	{
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->allTexts[29]); //You don't have enough gold!
+		return;
+	}
+
+	const CGHeroInstance * hero = owner.getBattle()->battleGetMyHero();
+	const int goldBeforeMarketplace = owner.curInt->cb->getResourceAmount(EGameResID::GOLD);
+
+	owner.curInt->showYesNoDialog(
+		LIBRARY->generaltexth->translate("vcmi.battle.surrender.tryMarketplace"),
+		[this, townWithMarket, hero, goldBeforeMarketplace]()
+		{
+			ENGINE->windows().createAndPushWindow<CMarketWindow>(
+				townWithMarket,
+				hero,
+				[this, goldBeforeMarketplace]()
+				{
+					const bool soldResourcesForGold = owner.curInt->cb->getResourceAmount(EGameResID::GOLD) > goldBeforeMarketplace;
+					reallySurrender(false, soldResourcesForGold);
+				},
+				EMarketMode::RESOURCE_RESOURCE,
+				true,
+				owner.curInt.get());
+		},
+		nullptr);
+}
+
+void BattleWindow::reallySurrender(bool allowMarketplaceOffer, bool marketplaceSaleFailed)
 {
 	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.getBattle()->battleGetSurrenderCost())
 	{
-		owner.curInt->showInfoDialog(LIBRARY->generaltexth->allTexts[29]); //You don't have enough gold!
+		if(allowMarketplaceOffer && canOfferMarketplaceForSurrender())
+			offerMarketplaceForSurrender();
+		else if(marketplaceSaleFailed)
+			owner.curInt->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.battle.surrender.marketplaceFailed"));
+		else
+			owner.curInt->showInfoDialog(LIBRARY->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
 	else
 	{
@@ -693,13 +811,18 @@ void BattleWindow::bSpellf()
 		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
 			const auto artID = blockingBonus->sid.as<ArtifactID>();
+
+			//%s wields the %s, an ancient artifact which creates a pocket dead to all magic.
+			MetaString message = MetaString::createFromTextID("core.genrltxt.683");
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID, true) ? myHero->getNameTranslated() : owner.enemyHero().name;
+			if(myHero->hasArt(artID, true))
+				message.replaceTextID(myHero->getNameTextID());
+			else
+				message.replaceRawString(owner.enemyHero().name.toString(&GAME->translator()));
+			message.replaceName(artID);
 
-			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[683])
-										% heroName % LIBRARY->artifacts()->getByIndex(artID)->getNameTranslated()));
+			GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 		}
 		else if(blockingBonus->source == BonusSource::OBJECT_TYPE)
 		{
@@ -771,21 +894,22 @@ void BattleWindow::blockUI(bool on)
 	}
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
+	bool tacticsMode = owner.isInTacticsMode();
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
 	setShortcutBlocked(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, on);
 	setShortcutBlocked(EShortcut::BATTLE_OPEN_HOVERED_UNIT, on);
 	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.getBattle()->battleCanFlee());
 	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.getBattle()->battleGetSurrenderCost() < 0);
-	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
-	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
-	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || tacticsMode || !canCastSpells);
+	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || tacticsMode || !canWait);
+	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || !onlyOnePlayerHuman || owner.actionsController->heroSpellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !tacticsMode);
 
 	quickSpellWindow->setInputEnabled(!on);
 	unitActionWindow->setInputEnabled(!on);

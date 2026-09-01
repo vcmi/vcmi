@@ -10,12 +10,11 @@
 #pragma once
 
 #include "CSelectionBase.h"
-VCMI_LIB_NAMESPACE_BEGIN
-class CMap;
-VCMI_LIB_NAMESPACE_END
+#include "../Translator.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
+class CMap;
 class CSlider;
 class CLabel;
 class CPicture;
@@ -34,6 +33,9 @@ class ElementInfo : public CMapInfo
 public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
+	/// Entries outlive the tab that listed them, so each one keeps its own texts installed.
+	/// The translator shares ownership of the containers, so a reloaded header can not strand them
+	std::vector<TranslatorOverlay> textOverlays;
 	std::string folderName = "";
 	std::string name = "";
 	bool isFolder = false;
@@ -78,6 +80,9 @@ class SelectionTab : public CIntObject
 	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
 
 	JsonNode campaignSets;
+
+	/// Installs the text overlays of newly parsed entries and fills in their display names
+	void installTexts(size_t offset);
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -98,6 +103,7 @@ public:
 
 	SelectionTab(ESelectionScreen Type);
 	void toggleMode();
+	void setCurrentFolder(std::string folder);
 
 	void clickReleased(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
@@ -115,20 +121,27 @@ public:
 	void updateListItems();
 	int getLine() const;
 	int getLine(const Point & position) const;
-	void selectFileName(std::string fname);
-	void selectNewestFile();
+	bool selectFileName(std::string fname);
+	void selectNewestFile(bool skipAutosaves = false);
 	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void setRequiredHumanPlayers(size_t players);
+	void rememberSave(const std::string & savePath) const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
+	bool checkNameFilter(const std::string & fullstring) const;
 
 private:
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;
 	std::shared_ptr<CLabel> labelTabTitle;
+	std::shared_ptr<CTextInput> searchInput;
+	std::shared_ptr<CLabel> searchBoxLabel;
+	std::shared_ptr<FilledTexturePlayerColored> searchWidgetBackground;
+	std::shared_ptr<TransparentFilledRectangle> searchInputRectangle;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
+	int positionsToShow;
 
 	std::shared_ptr<CButton> buttonDeleteMode;
 	std::shared_ptr<ScenarioTabConfigurable> scenarioTabConfigurable;
@@ -136,16 +149,26 @@ private:
 
 	bool enableUiEnhancements;
 	std::shared_ptr<CButton> buttonCampaignSet;
+	std::unordered_set<ResourcePath> resourceFiles;
+	std::unordered_map<std::string, std::optional<bool>> folderCompatibility;
 
 	auto checkSubfolder(std::string path);
 	size_t getRequiredHumanPlayers() const;
 	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
+	bool isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const;
+	std::optional<bool> isFolderCompatible(const std::string & folderName, const std::vector<ResourcePath> & files);
+	std::string getLastSaveSettingName() const;
+	bool openSaveDirectory(std::string folder);
+	void restoreLastSave();
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourcePath> & files);
+	void parseCurrentFolder();
 	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
+	/// Absolute path of an entry, resolved on demand - too expensive to compute for every listed file
+	std::string getFullFileURI(const ElementInfo & item) const;
 
 	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

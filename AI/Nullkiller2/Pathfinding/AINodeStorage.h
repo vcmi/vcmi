@@ -10,15 +10,21 @@
 
 #pragma once
 
-#define NK2AI_PATHFINDER_TRACE_LEVEL 0
-constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
-#define NK2AI_TRACE_LEVEL 0
-
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 #include "../Helpers/HeroMap.h"
+
+#include <tbb/concurrent_vector.h>
+
+#define NK2AI_PATHFINDER_TRACE_LEVEL 0
+constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
+#define NK2AI_TRACE_LEVEL 0
+
+class CSpell;
+class DimensionDoorEffect;
+struct TeamState;
 
 namespace NK2AI
 {
@@ -26,6 +32,8 @@ namespace AIPathfinding
 {
 	const int CHAIN_MAX_DEPTH = 4;
 }
+
+uint64_t evaluateArmyLossValue(uint64_t armyValue, uint64_t danger, double fightingStrength);
 
 enum DayFlags : ui8
 {
@@ -41,12 +49,14 @@ struct AIPathNode : public CGPathNode
 	const AIPathNode * chainOther = nullptr;
 	const ChainActor * actor = nullptr;
 
-	uint64_t danger;
-	uint64_t armyLoss;
-	uint32_t version;
+	uint64_t danger = 0;
+	uint64_t armyLoss = 0;
+	uint32_t version = 0;
+	uint64_t storageOrder = std::numeric_limits<uint64_t>::max();
 
-	int16_t manaCost;
-	DayFlags dayFlags;
+	int16_t manaCost = 0;
+	DayFlags dayFlags = DayFlags::NONE;
+	uint8_t dimensionDoorCasts = 0;
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 
@@ -61,6 +71,7 @@ struct AIPathNode : public CGPathNode
 		armyLoss = 0;
 		chainOther = nullptr;
 		dayFlags = DayFlags::NONE;
+		dimensionDoorCasts = 0;
 		this->layer = layer;
 		accessible = accessibility;
 	}
@@ -124,6 +135,16 @@ struct AIPath
 	bool containsHero(const CGHeroInstance * hero) const;
 };
 
+struct AIPathSummary
+{
+	const AIPathNode * node = nullptr;
+	const CGHeroInstance * targetHero = nullptr;
+	float cost = 0.f;
+	uint8_t exchangeCount = 0;
+	uint32_t generation = 0;
+	uint64_t stableOrder = 0;
+};
+
 struct ExchangeCandidate : public AIPathNode
 {
 	AIPathNode * carrierParent = nullptr;
@@ -139,35 +160,56 @@ enum EHeroChainPass
 	FINAL // same as SINGLE but for heroes from CHAIN pass
 };
 
-class AISharedStorage
+class AIPathNodePool
 {
-	// 1-3 - position on map[z][x][y]
-	// 4 - chain + layer (normal, battle, spellcast and combinations, water, air)
-	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
-	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
-public:
-	static std::mutex locker;
-	static uint32_t version;
+	using NodeList = std::vector<AIPathNode *>;
 
-	explicit AISharedStorage(int3 sizes, int numChains, const CCallback & cc);
-	~AISharedStorage();
-
-	inline
-	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile) const
+	struct TileNodes
 	{
-		return (*nodes)[tile.z][tile.x][tile.y];
-	}
+		NodeList nodes;
+		uint32_t generation = 0;
+	};
+
+	int3 sizes;
+	size_t capacity;
+	uint32_t generation = 0;
+	std::vector<TileNodes> tiles;
+	tbb::concurrent_vector<AIPathNode> nodes;
+
+	size_t tileIndex(const int3 & tile) const;
+	TileNodes & getCurrentTile(const int3 & tile);
+
+public:
+	AIPathNodePool(int3 sizes, size_t capacity);
+
+	bool beginGeneration();
+	AIPathNode * allocate(const int3 & tile);
+	const NodeList & get(const int3 & tile) const;
+	uint64_t nextStorageOrder(const int3 & tile, size_t offset = 0) const;
+	uint32_t getGeneration() const { return generation; }
 };
 
 class AINodeStorage : public INodeStorage
 {
 private:
+	struct AccessibilityInfo
+	{
+		EPathAccessibility value = EPathAccessibility::NOT_SET;
+		uint32_t generation = 0;
+	};
+
 	int3 sizes;
-	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
+	mutable std::unique_ptr<boost::multi_array<AccessibilityInfo, 4>> accessibility;
+	const IGameInfoCallback * gameInfo = nullptr;
+	const TeamState * playerTeam = nullptr;
+	bool useFlying = false;
+	bool useWaterWalking = false;
 	Nullkiller * aiNk; // TODO: Mircea: Replace with &
-	AISharedStorage nodes;
+	AIPathNodePool nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
+	std::set<int3> committedTiles;
+	std::set<int3> committedTilesInitial;
 	EHeroChainPass heroChainPass; // true if we need to calculate hero chain
 	uint64_t chainMask;
 	int heroChainTurn;
@@ -188,6 +230,11 @@ public:
 
 	int getBucketCount() const;
 	int getBucketSize() const;
+	bool isCurrentNode(const AIPathNode * node) const { return node->version == nodes.getGeneration(); }
+	uint64_t nextStorageOrder(const int3 & tile, size_t offset = 0) const
+	{
+		return nodes.nextStorageOrder(tile, offset);
+	}
 
 	std::vector<CGPathNode *> getInitialNodes() override;
 
@@ -212,7 +259,7 @@ public:
 		int turn,
 		int movementLeft,
 		float cost,
-		bool saveToCommitted = true) const;
+		bool saveToCommitted = true);
 
 	inline const AIPathNode * getAINode(const CGPathNode * node) const
 	{
@@ -263,7 +310,10 @@ public:
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
+	bool hasCurrentNodes(const int3 & pos) const;
 	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
+	void calculatePathSummaries(std::vector<AIPathSummary> & summaries, const int3 & pos, bool isOnLand) const;
+	bool calculatePathInfo(AIPath & path, const AIPathSummary & summary) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(HeroMap<HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
@@ -278,15 +328,7 @@ public:
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
 
-	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
-	{
-		return (*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()];
-	}
-
-	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
-	{
-		(*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()] = tileAccessibility;
-	}
+	EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const;
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 
@@ -300,6 +342,7 @@ public:
 	// Reconstructs an AIPath by walking theNodeBefore / chainOther, appending branch nodes first and linking them via parentIndex
 	// Returns false when reconstruction would assign conflicting real-move chainMasks to the same hero
 	bool tryReconstructChainInfo(const AIPathNode * node, AIPath & path, int & parentIndex, RealMoveMasksByHero & realMoveMasks) const;
+	bool calculatePathInfo(AIPath & path, const AIPathNode * node) const;
 
 	template<typename Fn>
 	void iterateValidNodes(const int3 & pos, EPathfindingLayer layer, Fn fn)
@@ -307,13 +350,13 @@ public:
 		if(blocked(pos, layer))
 			return;
 
-		auto chains = nodes.get(pos);
-		for(AIPathNode & node : chains)
+		const auto & chains = nodes.get(pos);
+		for(AIPathNode * node : chains)
 		{
-			if(node.version != AISharedStorage::version || node.layer != layer)
+			if(node->version != nodes.getGeneration() || node->layer != layer)
 				continue;
 
-			fn(node);
+			fn(*node);
 		}
 	}
 
@@ -323,13 +366,13 @@ public:
 		if(blocked(pos, layer))
 			return false;
 
-		auto chains = nodes.get(pos);
-		for(AIPathNode & node : chains)
+		const auto & chains = nodes.get(pos);
+		for(AIPathNode * node : chains)
 		{
-			if(node.version != AISharedStorage::version || node.layer != layer)
+			if(node->version != nodes.getGeneration() || node->layer != layer)
 				continue;
 
-			if(predicate(node))
+			if(predicate(*node))
 				return true;
 		}
 
@@ -338,6 +381,88 @@ public:
 
 
 private:
+	struct DimensionDoorCapability
+	{
+		const CSpell * spell = nullptr;
+		const DimensionDoorEffect * effect = nullptr;
+		int manaCost = 0;
+		int castsLimit = 0;
+		int castsAlreadyPerformed = 0;
+	};
+
+	struct DimensionDoorSpellPlan
+	{
+		const CSpell * spell = nullptr;
+		const DimensionDoorEffect * effect = nullptr;
+		int manaCost = 0;
+		int plannedSourceTurn = 0;
+		int plannedSourceMoveLimit = 1;
+		int plannedSourceMoveRemains = 0;
+		int plannedDimensionDoorCasts = 0;
+		float destinationCost = 0.f;
+	};
+
+	struct DimensionDoorLandingInfo
+	{
+		const ChainActor * destinationActor = nullptr;
+		uint64_t guardedLandingDanger = 0;
+		uint64_t guardedLandingArmyLoss = 0;
+		bool canLand = true;
+	};
+
+	HeroMap<std::vector<DimensionDoorCapability>> dimensionDoorCapabilities;
+
+	const std::vector<DimensionDoorCapability> & getDimensionDoorCapabilities(const CGHeroInstance * hero);
+
+	void calculateObjectTeleportations(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode);
+
+	bool canCalculateDimensionDoorTeleportations(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const AIPathNode * srcNode) const;
+
+	void calculateDimensionDoorTeleportations(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode);
+
+	std::optional<DimensionDoorSpellPlan> getDimensionDoorSpellPlan(
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode,
+		const CGHeroInstance * hero,
+		const DimensionDoorCapability & capability) const;
+
+	void calculateDimensionDoorTeleportationsForSpell(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const AIPathNode * srcNode,
+		const DimensionDoorSpellPlan & plan);
+
+	bool isDimensionDoorDestinationValid(
+		const PathNodeInfo & source,
+		const CGHeroInstance * hero,
+		const int3 & destination,
+		const DimensionDoorSpellPlan & plan) const;
+
+	DimensionDoorLandingInfo getDimensionDoorLandingInfo(
+		const AIPathNode * srcNode,
+		const CGHeroInstance * hero,
+		const int3 & destination) const;
+
+	void addDimensionDoorTeleportation(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const AIPathNode * srcNode,
+		const int3 & destination,
+		const DimensionDoorSpellPlan & plan,
+		const DimensionDoorLandingInfo & landing);
+
 	template<class TVector>
 	void calculateTownPortal(
 		const ChainActor * actor,

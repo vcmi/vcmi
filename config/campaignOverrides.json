@@ -79,6 +79,7 @@
 		]
 	},
 	"DATA/BLOOD" : { // Dragon's Blood
+		"heroMutareDrake" : "mutareDrake", // Mutare becomes Mutare Drake before scenario 4
 		"scenarios": [
 			{ "voiceProlog": "ABvoDB1" }, //DB1 Culling the Weak.h3m
 			{ "voiceProlog": "ABvoDB2" }, //DB2 Savaging the Scavengers.h3m

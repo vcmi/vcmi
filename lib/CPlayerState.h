@@ -19,8 +19,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "mapObjects/CGObjectInstance.h"
 #include "mapping/MapTilesStorage.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "gameState/ScenarioEventJournalEntry.h"
 
 class CGObjectInstance;
 class CGHeroInstance;
@@ -66,6 +65,7 @@ public:
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::set<VisitedObjectGlobal> visitedObjectsGlobal;
 	std::vector<QuestInfo> quests; //store info about all received quests
+	std::vector<ScenarioEventJournalEntry> scenarioEventJournal;
 	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 	std::map<uint32_t, std::map<ArtifactPosition, ArtifactID>> costumesArtifacts;
 	std::unique_ptr<JsonNode> playerLocalSettings; // Json with client-defined data, such as order of heroes or current hero paths. Not used by client/lib
@@ -104,6 +104,11 @@ public:
 
 	void addOwnedObject(CGObjectInstance * object);
 	void removeOwnedObject(CGObjectInstance * object);
+	void markObjectControlled(ObjectInstanceID objectID);
+	bool hasEverControlled(ObjectInstanceID objectID) const;
+
+	/// True once a hero of this player has visited a keymaster tent of the given colour.
+	bool wasKeymasterVisited(MapObjectSubID keymasterColor) const;
 
 	bool checkVanquished() const
 	{
@@ -119,17 +124,11 @@ public:
 		h & status;
 		h & turnTimer;
 		h & *playerLocalSettings;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & ownedObjects;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				ownedObjects.push_back(ptr->id);
-		}
+		h & ownedObjects;
 
 		h & quests;
+		if(h.hasFeature(Handler::Version::SCENARIO_EVENT_JOURNAL))
+			h & scenarioEventJournal;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;
 		h & status;
@@ -141,7 +140,12 @@ public:
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & destroyedObjects;
+		if(h.hasFeature(Handler::Version::CONTROL_LOSS_TRACKING))
+			h & everControlledObjects;
 	}
+
+	private:
+		std::set<ObjectInstanceID> everControlledObjects;
 };
 
 struct DLL_LINKAGE TeamState : public CBonusSystemNode
@@ -166,5 +170,3 @@ public:
 	}
 
 };
-
-VCMI_LIB_NAMESPACE_END

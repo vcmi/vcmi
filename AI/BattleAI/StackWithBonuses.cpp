@@ -512,6 +512,12 @@ vstd::RNG * HypotheticBattle::HypotheticServerCallback::getRNG()
 	return &rngStub;
 }
 
+bool HypotheticBattle::HypotheticServerCallback::rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int percentageChance)
+{
+	// same averaging the RNG stub does - the hypothetical battle must stay deterministic
+	return percentageChance >= 50;
+}
+
 void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient & pack)
 {
 	logAi->error("Package of type %s is not allowed in battle evaluation", typeid(pack).name());

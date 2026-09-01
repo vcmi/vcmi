@@ -12,8 +12,6 @@
 #include "CGObjectInstance.h"
 #include "IMarket.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MarketInstanceConstructor;
 
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
@@ -27,14 +25,16 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open trading window
 	void initObj(IGameRandomizer & gameRandomizer) override;//set skills for trade
 
-	std::string getPopupText(PlayerColor player) const override;
-	std::string getPopupText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
 
 	///IMarket
 	ObjectInstanceID getObjInstanceID() const override;
 	int getMarketEfficiency() const override;
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 	std::set<EMarketMode> availableModes() const override;
+	double getMarketExchangeEffectiveness() const override;
 };
 
 class DLL_LINKAGE CGBlackMarket : public CGMarket
@@ -74,5 +74,3 @@ public:
 		h & skills;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

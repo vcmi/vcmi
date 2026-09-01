@@ -16,6 +16,10 @@
 #include "filesystem/Filesystem.h"
 
 #include "CCreatureHandler.h"
+#include <vcmi/Creature.h>
+#include <vcmi/spells/Spell.h>
+#include "bonuses/BonusParameters.h"
+#include "scripting/ScriptService.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
@@ -23,8 +27,6 @@
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 ///CBonusType
 
@@ -71,8 +73,63 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	return bonusToString(bonus, bonus->val);
 }
 
+/// A json key on its own can name a creature and a spell at once, and an ordinary string parameter
+/// must not be mistaken for either, so what a parameter denotes is taken from its schema rather
+/// than guessed by asking every service in turn.
+std::string CBonusTypeHandler::describeParameter(const JsonNode & value, const std::string & entityType) const
+{
+	if(entityType == "creature")
+		if(const auto * creature = LIBRARY->creatures()->getByName(value.String()))
+			return creature->getNamePluralTranslated();
+
+	if(entityType == "spell")
+		if(const auto * spell = LIBRARY->spells()->getByName(value.String()))
+			return spell->getNameTranslated();
+
+	return value.toCompactString();
+}
+
+std::string CBonusTypeHandler::combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
+{
+	ScriptID scriptID = bonus->subtype.as<ScriptID>();
+
+	// content declaring a script that does not exist - reported on load, and there is nothing to describe
+	if(!scriptID.hasValue())
+		return "";
+
+	const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+	// only a combat event script is required to describe itself, and only one of those belongs here
+	if(script.descriptionTextID.empty())
+		return "";
+
+	std::string text = LIBRARY->generaltexth->translate(script.descriptionTextID);
+
+	boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
+
+	// besides the magnitude, script parameters are named, so the description refers to them by name
+	if(bonus->parameters)
+	{
+		const JsonNode & properties = script.parametersSchema["properties"];
+
+		for(const auto & parameter : bonus->parameters->toCustom<JsonNode>().Struct())
+		{
+			const std::string & entityType = properties[parameter.first]["entity"].String();
+
+			boost::algorithm::replace_all(text, "${" + parameter.first + "}", describeParameter(parameter.second, entityType));
+		}
+	}
+
+	return text;
+}
+
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
 {
+	// a scripted ability is described by its script - the bonus type is shared by all of them,
+	// so the type-level description and its hidden flag can not say anything useful here
+	if(bonus->type == BonusType::COMBAT_EVENT_TRIGGER)
+		return combatScriptToString(bonus, bonusValue);
+
 	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
 	if(bt.hidden)
 		return "";
@@ -128,7 +185,7 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 	return {};
 }
 
-void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	if (vstd::contains(builtinBonusNames, name))
 	{
@@ -148,7 +205,7 @@ void CBonusTypeHandler::loadObject(std::string scope, std::string name, const Js
 	}
 }
 
-void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(0);
 }
@@ -227,5 +284,3 @@ std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
 
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

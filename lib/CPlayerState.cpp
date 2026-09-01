@@ -19,8 +19,6 @@
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 PlayerState::PlayerState(IGameInfoCallback *cb)
 	: CBonusSystemNode(BonusNodeType::PLAYER)
 	, GameCallbackHolder(cb)
@@ -157,6 +155,7 @@ void PlayerState::addOwnedObject(CGObjectInstance * object)
 {
 	assert(object->asOwnable() != nullptr);
 	ownedObjects.push_back(object->id);
+	markObjectControlled(object->id);
 }
 
 void PlayerState::removeOwnedObject(CGObjectInstance * object)
@@ -164,4 +163,18 @@ void PlayerState::removeOwnedObject(CGObjectInstance * object)
 	vstd::erase(ownedObjects, object->id);
 }
 
-VCMI_LIB_NAMESPACE_END
+void PlayerState::markObjectControlled(ObjectInstanceID objectID)
+{
+	if(objectID != ObjectInstanceID::NONE)
+		everControlledObjects.insert(objectID);
+}
+
+bool PlayerState::hasEverControlled(ObjectInstanceID objectID) const
+{
+	return everControlledObjects.count(objectID) != 0;
+}
+bool PlayerState::wasKeymasterVisited(MapObjectSubID keymasterColor) const
+{
+	return visitedObjectsGlobal.count({Obj::KEYMASTER, keymasterColor}) != 0;
+}
+

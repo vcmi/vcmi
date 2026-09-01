@@ -27,6 +27,7 @@ private:
 	void movementHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void rangeLimitHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void mouseShadowChangedCallback(bool value);
+	void stackInfoBasicPanelChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
 	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface);

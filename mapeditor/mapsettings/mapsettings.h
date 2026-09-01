@@ -14,7 +14,6 @@
 #include "mapcontroller.h"
 #include "../../lib/mapping/CMap.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class MapSettings;

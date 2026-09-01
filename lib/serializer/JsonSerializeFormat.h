@@ -15,8 +15,6 @@
 #include "../modding/ModScope.h"
 #include "../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonSerializeFormat;
 class JsonStructSerializer;
 class JsonArraySerializer;
@@ -165,10 +163,10 @@ public:
 	template <typename T>
 	void serializeBool(const std::string & fieldName, T & value, const T trueValue, const T falseValue, const T defaultValue)
 	{
-		boost::logic::tribool temp(boost::logic::indeterminate);
+		std::optional<bool> temp; //nullopt = field absent / default
 
 		if(value == defaultValue)
-			;//leave as indeterminate
+			;//leave as nullopt
 		else if(value == trueValue)
 			temp = true;
 		else if(value == falseValue)
@@ -177,22 +175,16 @@ public:
 		serializeInternal(fieldName, temp);
 		if(!saving)
 		{
-			if(boost::logic::indeterminate(temp))
+			if(!temp.has_value())
 				value = defaultValue;
 			else
-				value = temp ? trueValue : falseValue;
+				value = *temp ? trueValue : falseValue;
 		}
 	}
 
 	///bool <-> Json bool
 	void serializeBool(const std::string & fieldName, bool & value);
 	void serializeBool(const std::string & fieldName, bool & value, const bool defaultValue);
-
-	///tribool <-> Json bool
-	void serializeBool(const std::string & fieldName, boost::logic::tribool & value)
-	{
-		serializeInternal(fieldName, value);
-	};
 
 	/** @brief Restrictive ("anyOf") simple serialization of Logical identifier condition, simple deserialization (allOf=anyOf)
 	 *
@@ -448,7 +440,7 @@ protected:
 	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_);
 
 	///bool <-> Json bool, indeterminate is default
-	virtual void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) = 0;
+	virtual void serializeInternal(const std::string & fieldName, std::optional<bool> & value) = 0;
 
 	///Numeric Id <-> String Id
 	virtual void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder) = 0;
@@ -555,5 +547,3 @@ void JsonArraySerializer::serializeInt(const size_t index, T & value)
 	if (!owner->saving)
 		value = static_cast<T>(temp);
 };
-
-VCMI_LIB_NAMESPACE_END

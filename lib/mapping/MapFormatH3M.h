@@ -14,16 +14,16 @@
 #include "MapFeaturesH3M.h"
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class MapReaderH3M;
+class HotaScriptConverter;
 class MetaString;
 class CArtifactInstance;
 class CArmedInstance;
 class CGObjectInstance;
-class CGSeerHut;
-class IQuestObject;
+class SeerHut;
+class QuestSource;
+class Quest;
 class CGTownInstance;
 class CCreatureSet;
 class CInputStream;
@@ -130,11 +130,6 @@ private:
 	 * Reads HotA events system.
 	 */
 	void readHotaScripts();
-	void readHotaScriptActions();
-	void readHotaScriptCondition();
-	void readHotaScriptConditionInternal();
-	void readHotaScriptExpression();
-	void readHotaScriptExpressionInternal();
 
 	/**
 	 * Reads the list of allowed heroes.
@@ -220,7 +215,8 @@ private:
 	std::shared_ptr<CGObjectInstance> readHeroPlaceholder(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
-	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readQuestGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
@@ -243,21 +239,21 @@ private:
 	 * @param out the loaded creature set
 	 * @param number the count of creatures to read
 	 */
-	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven);
+	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven, const int3 & position);
 
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
-	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID);
+	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID, const std::string & scriptBucket);
 
 	/**
 	 * Reads a quest for the given quest guard.
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	EQuestMission readQuest(IQuestObject * guard, const int3 & position);
+	EQuestMission readQuest(Quest & quest, const int3 & position);
 
-	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
+	void readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads events.
@@ -288,7 +284,7 @@ private:
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
-	std::map<IQuestObject*, si32> questsToResolve;
+	std::map<Quest*, si32> questsToResolve;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;
@@ -299,6 +295,7 @@ private:
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
 	std::unique_ptr<MapReaderH3M> reader;
+	std::unique_ptr<HotaScriptConverter> scriptConverter;
 	CInputStream * inputStream;
 
 	std::string mapName;
@@ -306,5 +303,3 @@ private:
 	std::string fileEncoding;
 
 };
-
-VCMI_LIB_NAMESPACE_END

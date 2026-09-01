@@ -13,18 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: CI/android
 
     - name: Install JDK
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '11'
 
     - name: Download & unpack archive
-      run: curl -L '${{ inputs.build_dir_xz_url }}' | tar -xf - --xz
+      env:
+        BUILD_DIR_XZ_URL: ${{ inputs.build_dir_xz_url }}
+      run: curl -L "$BUILD_DIR_XZ_URL" | tar -xf - --xz
 
     - name: Build aab
       run: |

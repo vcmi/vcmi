@@ -68,7 +68,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -129,14 +129,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"resurrection" : {
-					"subtype" : "spell.resurrection",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "resurrection"
 		}
 	},
 	"jaegar":
@@ -151,7 +144,14 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"secondary" : "mysticism"
+			"secondary" : "mysticism",
+			"bonuses" : {
+				"mysticismExtra" : {
+					"type" : "MANA_REGENERATION",
+					"val" : 1,
+					"valueType" : "ADDITIVE_VALUE"
+				}
+			}
 		}
 	},
 	"malekith":
@@ -180,14 +180,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"resurrection" : {
-					"subtype" : "spell.resurrection",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "resurrection"
 		}
 	},
 	"geon":
@@ -217,14 +210,7 @@
 			{ "skill" : "scouting", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"meteorShower" : {
-					"subtype" : "spell.meteorShower",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "meteorShower"
 		}
 	},
 	"sephinroth":
@@ -241,7 +227,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"crystal" : {
-					"subtype" : "resource.crystal",
+					"subtype" : "crystal",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1
 				}
@@ -260,13 +246,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	}
 }

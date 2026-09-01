@@ -13,8 +13,6 @@
 #include "../Functions.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PrisonHeroPlacer : public Modificator
 {
 public:
@@ -35,5 +33,3 @@ protected:
 
     std::vector<HeroTypeID> allowedHeroes;
 };
-
-VCMI_LIB_NAMESPACE_END

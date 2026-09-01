@@ -14,14 +14,10 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/networkPacks/Component.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGTownInstance;
 struct Component;
 class PlayerColor;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimImage;
 class CShowableAnim;

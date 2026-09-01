@@ -9,12 +9,8 @@
 */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class ResourcePath;
-
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {

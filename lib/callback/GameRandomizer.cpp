@@ -21,8 +21,7 @@
 #include "../entities/artifact/EArtifactClass.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../mapObjects/CGHeroInstance.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 bool RandomizationBias::roll(vstd::RNG & generator, int successChance, int totalWeight, int biasValue)
 {
@@ -117,11 +116,15 @@ bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageCha
 CreatureID GameRandomizer::rollCreature()
 {
 	std::vector<CreatureID> allowed;
+	const auto knownMonsters = LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER);
 	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
 	{
 		const auto * creaturePtr = creatureID.toCreature();
-		if(!creaturePtr->excludeFromRandomization)
-			allowed.push_back(creaturePtr->getId());
+		if(creaturePtr->excludeFromRandomization)
+			continue;
+		if(!knownMonsters.contains(creatureID.getNum()))
+			continue;
+		allowed.push_back(creaturePtr->getId());
 	}
 
 	if(allowed.empty())
@@ -133,10 +136,14 @@ CreatureID GameRandomizer::rollCreature()
 CreatureID GameRandomizer::rollCreature(int tier)
 {
 	std::vector<CreatureID> allowed;
+	const auto knownMonsters = LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER);
 	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
 	{
 		const auto * creaturePtr = creatureID.toCreature();
 		if(creaturePtr->excludeFromRandomization)
+			continue;
+
+		if (!knownMonsters.contains(creatureID.getNum()))
 			continue;
 
 		if(creaturePtr->getLevel() == tier)
@@ -274,13 +281,13 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 		return obligatory;
 	};
 
-	std::set<SecondarySkill> wisdomList = getObligatorySkills(true);
-	std::set<SecondarySkill> schoolList = getObligatorySkills(false);
+	std::set<SecondarySkill> wisdomList = getObligatorySkills(false);
+	std::set<SecondarySkill> schoolList = getObligatorySkills(true);
 
 	bool wantsWisdom = heroRng.wisdomCounter >= hero->maxlevelsToWisdom();
 	bool wantsSchool = heroRng.magicSchoolCounter >= hero->maxlevelsToMagicSchool();
 	bool selectWisdom = wantsWisdom && !wisdomList.empty();
-	bool selectSchool = wantsSchool && !schoolList.empty();
+	bool selectSchool = !selectWisdom && wantsSchool && !schoolList.empty();
 
 	std::set<SecondarySkill> actualCandidates;
 
@@ -363,5 +370,3 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	}
 	return skills;
 }
-
-VCMI_LIB_NAMESPACE_END

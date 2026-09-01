@@ -11,13 +11,22 @@
 
 #include "../networkPacks/NetPackVisitor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
+class CBonusSystemNode;
 class CGameState;
+struct Bonus;
 
 class GameStatePackVisitor final : public ICPackVisitor
 {
 	void restorePreBattleState(BattleID battleID);
+
+	/// Morale from army composition is only recomputed on army change, so it must be refreshed on gain or loss of a troop-mixing bonus
+	void updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus);
+
+	/// Refreshes army morale of every army of a player, for troop-mixing bonuses that are propagated to him
+	void updateMoraleForPlayer(const PlayerColor & player);
+
+	/// Equipped artifacts may allow to mix troops of different alignments (Angelic Alliance), so the same applies to changed equipment
+	void updateMoraleOnArtifactChange(const ObjectInstanceID & artHolder);
 private:
 	CGameState & gs;
 
@@ -67,6 +76,8 @@ public:
 	void visitHeroRecruited(HeroRecruited & pack) override;
 	void visitGiveHero(GiveHero & pack) override;
 	void visitSetObjectProperty(SetObjectProperty & pack) override;
+	void visitSetScriptVariable(SetScriptVariable & pack) override;
+	void visitSetQuestHint(SetQuestHint & pack) override;
 	void visitHeroLevelUp(HeroLevelUp & pack) override;
 	void visitCommanderLevelUp(CommanderLevelUp & pack) override;
 	void visitBattleStart(BattleStart & pack) override;
@@ -86,6 +97,7 @@ public:
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
 	void visitSetCommanderProperty(SetCommanderProperty & pack) override;
 	void visitAddQuest(AddQuest & pack) override;
+	void visitInfoWindow(InfoWindow & pack) override;
 	void visitChangeFormation(ChangeFormation & pack) override;
 	void visitChangeTactics(ChangeTactics & pack) override;
 	void visitChangeTownName(ChangeTownName & pack) override;
@@ -123,5 +135,3 @@ public:
 	void visitCatapultAttack(CatapultAttack & pack) override;
 	void visitBattleStackMoved(BattleStackMoved & pack) override;
 };
-
-VCMI_LIB_NAMESPACE_END

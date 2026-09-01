@@ -12,11 +12,8 @@
 #include "constants/NumericConstants.h"
 #include "constants/Enumerations.h"
 #include "constants/EntityIdentifiers.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../Version.h"
 
 using TExpType = si64;
 using TQuantity = si32;
 using TRmgTemplateZoneId = int;
-
-VCMI_LIB_NAMESPACE_END

@@ -15,9 +15,7 @@
 #include "IGameSettings.h"
 #include "Languages.h"
 #include "../filesystem/Filesystem.h"
-#include "../mapObjects/CQuest.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../mapObjects/Quest.h"
 
 bool CGeneralTextHandler::isRoEData()
 {
@@ -97,7 +95,7 @@ void CGeneralTextHandler::detectInstallParameters()
 			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
 	}
 
-	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
+	size_t bestIndex = std::ranges::min_element(deviations) - deviations.begin();
 
 	for (size_t i = 0; i < deviations.size(); ++i)
 		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);
@@ -134,26 +132,8 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
-	tcommands        (*this, "core.tcommand" ),
-	hcommands        (*this, "core.hallinfo" ),
-	fcommands        (*this, "core.castinfo" ),
-	advobtxt         (*this, "core.advevent" ),
-	restypes         (*this, "core.restypes" ),
-	overview         (*this, "core.overview" ),
-	arraytxt         (*this, "core.arraytxt" ),
-	primarySkillNames(*this, "core.priskill" ),
-	jktexts          (*this, "core.jktext"   ),
-	tavernInfo       (*this, "core.tvrninfo" ),
-	turnDurations    (*this, "core.turndur"  ),
-	heroscrn         (*this, "core.heroscrn" ),
-	tentColors       (*this, "core.tentcolr" ),
-	levels           (*this, "core.skilllev" ),
-	zelp             (*this, "core.help"     ),
 	allTexts         (*this, "core.genrltxt" ),
-	// pseudo-array, that don't have H3 file with same name
-	seerEmpty        (*this, "core.seerhut.empty"  ),
-	seerNames        (*this, "core.seerhut.names"  ),
-	capColors        (*this, "vcmi.capitalColors"  ),
+	zelp             (*this, "core.help"     ),
 
 	roeMapping()
 {
@@ -246,11 +226,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 		{
 			EQuestMission missionID = static_cast<EQuestMission>(i+1);
 
-			std::string questName = CQuest::missionName(missionID);
+			std::string questName = Quest::missionName(missionID);
 
 			for (size_t j = 0; j < 5; ++j)
 			{
-				std::string questState = CQuest::missionState(j);
+				std::string questState = Quest::missionState(j);
 
 				parser.readString(); //front description
 				for (size_t k = 0; k < 6; ++k)
@@ -351,7 +331,6 @@ std::string CGeneralTextHandler::getInstalledEncoding()
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(const std::string & prefix)
 {
-	std::lock_guard globalLock(globalTextMutex);
 	std::vector<std::string> result;
 
 	for(const auto & entry : stringsLocalizations)
@@ -385,5 +364,3 @@ std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index
 		owner.translate(basePath + "." + std::to_string(index) + ".help")
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -448,7 +448,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
-	return SDL_CreateWindow(GameConstants::VCMI_VERSION.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	return SDL_CreateWindow(GameConstants::VCMI_PROJECT_NAME_VERSIONED, positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
 SDL_Window * ScreenHandler::createWindow()
@@ -708,13 +708,13 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 		}
 	}
 
-	boost::range::sort(result, [](const auto & left, const auto & right)
+	std::ranges::sort(result, [](const auto & left, const auto & right)
 	{
 		return left.x * left.y < right.x * right.y;
 	});
 
 	// erase potential duplicates, e.g. resolutions with different framerate / bits per pixel
-	result.erase(boost::unique(result).end(), result.end());
+	result.erase(std::ranges::unique(result).end(), result.end());
 
 	return result;
 }
@@ -741,5 +741,5 @@ void ScreenHandler::screenShot() const
 	txt.appendTextID("vcmi.client.screenShot");
 	txt.replaceRawString(filePath.string());
 	if(GAME->interface())
-		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
+		GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
 }

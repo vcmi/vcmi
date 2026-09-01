@@ -14,8 +14,6 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 /// The CJsonRmgTemplateLoader loads templates from a JSON file.
@@ -27,8 +25,8 @@ public:
 	std::vector<JsonNode> loadLegacyData() override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 	void afterLoadFinalization() override;
 	
@@ -39,5 +37,3 @@ private:
 	std::map<std::string, std::shared_ptr<CRmgTemplate>> templates;
 };
 
-
-VCMI_LIB_NAMESPACE_END

@@ -1,6 +1,6 @@
 # Faction Help
 
-This page helps you to create from scratch a VCMI mod that adds a new faction. The faction mod structure is described [here](Faction_Format.md).
+This page helps you to create from scratch a VCMI mod that adds a new faction. The faction mod structure is described [here](../Entities_Format/Faction_Format.md).
 
 ## Questioning the faction creation
 
@@ -8,7 +8,7 @@ Before creating a faction, be aware that creating a faction mod is lots of work.
 
 ## Make a playable faction mod
 
-Before creating your content, retrieve the content of an existing faction mod like [Highlands town](https://github.com/vcmi-mods/highlands-town). To download the project, click on the *Code* button and click on *Download ZIP*. The first thing to do is to change all the faction identifiers in the files following the [faction format](Faction_Format.md) and manage to play with the faction and the original without any conflict. To play to a faction, you have to add all the files in your *Mods* folder. When it works, you will be able to modify the content step by step.
+Before creating your content, retrieve the content of an existing faction mod like [Highlands town](https://github.com/vcmi-mods/highlands-town). To download the project, click on the *Code* button and click on *Download ZIP*. The first thing to do is to change all the faction identifiers in the files following the [faction format](../Entities_Format/Faction_Format.md) and manage to play with the faction and the original without any conflict. To play to a faction, you have to add all the files in your *Mods* folder. When it works, you will be able to modify the content step by step.
 
 Keep in mind that the most important part of a faction mod, above the animations, the graphisms and the musics, is the concept because if you have to change it, you have to change everything else. All the remaining content can be improved by the community.
 

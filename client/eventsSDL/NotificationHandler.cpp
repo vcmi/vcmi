@@ -138,6 +138,36 @@ bool NotificationHandler::handleSdlEvent(const SDL_Event & ev)
 	return false;
 }
 
+#elif defined(VCMI_ANDROID)
+
+#include "../../lib/CAndroidVMHelper.h"
+
+void NotificationHandler::notify(std::string msg)
+{
+	// java decides whether this is worth a notification - it knows whether the game is on screen
+	CAndroidVMHelper vmHelper;
+	vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showNotification", "(Ljava/lang/String;)V",
+		[&msg](JNIEnv * env, jclass cls, jmethodID method)
+		{
+			jstring message = env->NewStringUTF(msg.c_str());
+			env->CallStaticVoidMethod(cls, method, message);
+			env->DeleteLocalRef(message);
+		}, true);
+}
+
+void NotificationHandler::init(SDL_Window * window)
+{
+}
+
+void NotificationHandler::destroy()
+{
+}
+
+bool NotificationHandler::handleSdlEvent(const SDL_Event & ev)
+{
+	return false;
+}
+
 #else
 
 void NotificationHandler::notify(std::string msg)

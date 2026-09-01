@@ -12,8 +12,6 @@
 #include "CampaignConstants.h"
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBinaryReader;
 class MapIdentifiersH3M;
 class JsonNode;
@@ -220,5 +218,3 @@ public:
 		h & data;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

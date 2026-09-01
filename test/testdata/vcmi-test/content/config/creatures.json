@@ -1,0 +1,338 @@
+// Creatures carrying combat scripts that no Heroes 3 creature has, so that the scripts can be
+// tested in a real battle. Stats are deliberately flat - equal minimum and maximum damage, no
+// abilities beyond the tested one - so that what a scenario measures is the script and not a
+// damage roll. Graphics and sounds are borrowed from the pikeman; nothing here is ever rendered.
+{
+	"testTransmuterCount" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Transmuter", "plural" : "Test Transmuters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"transmutes" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "transmutation",
+				"val" : 100,
+				"addInfo" : { "creature" : "core:pikeman", "transmuteBy" : "count" }
+			}
+		}
+	},
+
+	"testTransmuterHealth" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Transmuter", "plural" : "Test Transmuters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"transmutes" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "transmutation",
+				"val" : 100,
+				"addInfo" : { "creature" : "core:pikeman", "transmuteBy" : "health" }
+			}
+		}
+	},
+
+	"testDestroyerShare" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Destroyer", "plural" : "Test Destroyers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"destroys" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "destruction",
+				"val" : 100,
+				"addInfo" : { "killBy" : "percentage", "amount" : 20 }
+			}
+		}
+	},
+
+	"testDestroyerCount" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Destroyer", "plural" : "Test Destroyers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"destroys" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "destruction",
+				"val" : 100,
+				"addInfo" : { "killBy" : "count", "amount" : 7 }
+			}
+		}
+	},
+
+	"testSoulStealer" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Soul Stealer", "plural" : "Test Soul Stealers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"stealsSouls" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "soulSteal",
+				"val" : 2,
+				"addInfo" : { "permanent" : false }
+			}
+		}
+	},
+
+	"testEnchanter" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Enchanter", "plural" : "Test Enchanters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"enchanted" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "enchanted",
+				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : false }
+			}
+		}
+	},
+
+	"testMassEnchanter" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Mass Enchanter", "plural" : "Test Mass Enchanters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"enchanted" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "enchanted",
+				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : true }
+			}
+		}
+	},
+
+	// The four summoners differ only in the width of the bearer and the width of what it summons,
+	// which is what decides where the guardians end up. Pikemen are single-hex, wyverns are not.
+	"testSummonerNarrowNarrow" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Summoner", "plural" : "Test Summoners" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"summonsGuardians" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "summonGuardians",
+				"val" : 50,
+				"addInfo" : { "creature" : "core:pikeman" }
+			}
+		}
+	},
+
+	"testSummonerNarrowWide" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Summoner", "plural" : "Test Summoners" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"summonsGuardians" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "summonGuardians",
+				"val" : 50,
+				"addInfo" : { "creature" : "core:wyvern" }
+			}
+		}
+	},
+
+	"testSummonerWideNarrow" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"doubleWide" : true,
+		"name" : { "singular" : "Test Wide Summoner", "plural" : "Test Wide Summoners" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"summonsGuardians" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "summonGuardians",
+				"val" : 50,
+				"addInfo" : { "creature" : "core:pikeman" }
+			}
+		}
+	},
+
+	"testSummonerWideWide" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"doubleWide" : true,
+		"name" : { "singular" : "Test Wide Summoner", "plural" : "Test Wide Summoners" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"summonsGuardians" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "summonGuardians",
+				"val" : 50,
+				"addInfo" : { "creature" : "core:wyvern" }
+			}
+		}
+	},
+
+	// The four damage factors that no Heroes 3 creature carries. Everything else the damage
+	// calculator scenarios need exists in the game already and is tested on the real unit.
+	// 10 attack and 10 defense match the horned demon they are pitted against, so neither side
+	// has an attack advantage and the factor under test is the only one at work.
+	"testDamageRevenge" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Avenger", "plural" : "Test Avengers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "revenge" : { "type" : "REVENGE" } }
+	},
+
+	"testDamageVulnerableBack" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Backstabbed", "plural" : "Test Backstabbed" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "vulnerableFromBack" : { "type" : "VULNERABLE_FROM_BACK", "val" : 50 } }
+	},
+
+	// Hates anything that shoots, which the sharpshooter it is pitted against does.
+	"testDamageTraitHater" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Trait Hater", "plural" : "Test Trait Haters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "hatesShooters" : { "type" : "HATES_TRAIT", "subtype" : "SHOOTER", "val" : 50 } }
+	},
+
+	// Caps incoming damage at 10% of one creature's health, low enough that the cap also has to
+	// suppress every kill.
+	"testDamageCapped" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Capped", "plural" : "Test Capped" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
+	}
+}

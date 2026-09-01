@@ -61,14 +61,14 @@
 		],
 		"specialty" : {
 			"base" : {
-				"addInfo" : "creature.enchanter",
+				"addInfo" : "enchanter",
 				"type" : "SPECIAL_UPGRADE"
 			},
 			"bonuses" : {
-				"archMage2enchanter" : { "subtype" : "creature.archMage" },
-				"mage2enchanter" : { "subtype" : "creature.mage" },
-				"monk2enchanter" : { "subtype" : "creature.monk" },
-				"zealot2enchanter" : { "subtype" : "creature.zealot" }
+				"archMage2enchanter" : { "subtype" : "archMage" },
+				"mage2enchanter" : { "subtype" : "mage" },
+				"monk2enchanter" : { "subtype" : "monk" },
+				"zealot2enchanter" : { "subtype" : "zealot" }
 			}
 		}
 	},
@@ -85,14 +85,14 @@
 		],
 		"specialty" : {
 			"base" : {
-				"addInfo" : "creature.sharpshooter",
+				"addInfo" : "sharpshooter",
 				"type" : "SPECIAL_UPGRADE"
 			},
 			"bonuses" : {
-				"archer2sharpshooter" : { "subtype" : "creature.archer" },
-				"grandElf2sharpshooter" : { "subtype" : "creature.grandElf" },
-				"marksman2sharpshooter" : { "subtype" : "creature.marksman" },
-				"woodElf2sharpshooter" : { "subtype" : "creature.woodElf" }
+				"archer2sharpshooter" : { "subtype" : "archer" },
+				"grandElf2sharpshooter" : { "subtype" : "grandElf" },
+				"marksman2sharpshooter" : { "subtype" : "marksman" },
+				"woodElf2sharpshooter" : { "subtype" : "woodElf" }
 			}
 		}
 	},
@@ -123,12 +123,12 @@
 					"val" : 10
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				}
@@ -163,12 +163,12 @@
 					"val" : 10
 				},
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				}
@@ -199,8 +199,8 @@
 				"val" : 5
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primarySkill.attack" },
-				"defence" : { "subtype" : "primarySkill.defence" }
+				"attack" : { "subtype" : "attack" },
+				"defence" : { "subtype" : "defence" }
 			}
 		}
 	},
@@ -243,8 +243,8 @@
 				"val" : 5
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primarySkill.attack" },
-				"defence" : { "subtype" : "primarySkill.defence" }
+				"attack" : { "subtype" : "attack" },
+				"defence" : { "subtype" : "defence" }
 			}
 		},
 		"army" :
@@ -316,12 +316,12 @@
 			},
 			"bonuses" : {
 				"attack" : {
-					"subtype" : "primarySkill.attack",
+					"subtype" : "attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 4
 				},
 				"defence" : {
-					"subtype" : "primarySkill.defence",
+					"subtype" : "defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				},

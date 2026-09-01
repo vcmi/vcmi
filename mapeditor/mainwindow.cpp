@@ -55,6 +55,7 @@
 #include "validator.h"
 #include "helper.h"
 #include "campaigneditor/campaigneditor.h"
+#include "translator.h"
 #ifdef ENABLE_TEMPLATE_EDITOR
 #include "templateeditor/templateeditor.h"
 #endif
@@ -67,20 +68,13 @@
 #endif
 
 #ifdef VCMI_ANDROID
-// Qt 5 bug on Android with QT_SCALE_FACTOR:
-// In androidjniinput.cpp, mouse/tablet handlers compute:
-//   localPos = globalPos(device_pixels) - tlw->position()(logical_pixels)
-// mixing coordinate spaces. After QHighDpiScaling the widget receives
-// a localPos that is off by windowPos*(1-1/S) for any window not at (0,0).
-// Touch events use normalized coordinates and are NOT affected.
-//
-// Fix: recompute localPos from the already-correct global/screen position.
-// After QHighDpi scaling, screenPos() (mouse) and globalPosF() (tablet)
-// are in logical coordinates.  window->position() is also logical.
-// So: correctedLocal = globalLogical - window->position().
-// We modify the event in-place (protected members l,w / mPos) to preserve
-// the spontaneous flag and Qt's internal mouse-grab state.
-// The fix is always active (harmless no-op when scale == 1.0).
+// Qt 5 bug on Android: androidjniinput.cpp computes the local position of mouse
+// and tablet events as globalPos(native px) - tlw->position()(logical px), mixing
+// coordinate spaces. After QHighDpiScaling the local position is off by
+// windowPos*(1-1/factor) - zero for the fullscreen main window at (0,0), wrong for
+// every other top level window. Touch events are global based and unaffected.
+// Fix: recompute the local position from the (correct) global one. Modified in place
+// via the protected members to keep the spontaneous flag and Qt's mouse grab state.
 class AndroidInputOffsetFix : public QObject
 {
 public:
@@ -100,8 +94,7 @@ public:
 			case QEvent::MouseButtonDblClick:
 			{
 				auto * me = static_cast<QMouseEvent *>(event);
-				// screenPos() (= global logical pos) is always correct after
-				// QHighDpi scaling.  Recompute the local position from it.
+				// screenPos() is the global position in logical coordinates
 				QPointF correct = me->screenPos() - QPointF(window->position());
 				struct Accessor : QMouseEvent
 				{
@@ -115,10 +108,7 @@ public:
 			case QEvent::TabletMove:
 			{
 				auto * te = static_cast<QTabletEvent *>(event);
-				// globalPosF() is already in correct logical coordinates after
-				// QHighDpi::fromNativePixels in handleTabletEvent().  Only the
-				// local position (mPos) was computed incorrectly by the JNI
-				// layer (native_px - logical_px mismatch).  Recompute it.
+				// only mPos is damaged, globalPosF() went through fromNativePixels
 				QPointF correctedLocal = te->globalPosF() - QPointF(window->position());
 				struct Accessor : QTabletEvent
 				{
@@ -290,7 +280,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 	setAcceptDrops(true);
-	
+
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
 
 	ExtractionOptions extractionOptions;
@@ -305,7 +295,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, nullptr);
 #endif
 	logConfig->configureDefault();
-	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
+	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
@@ -335,6 +325,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	loadTranslation();
 
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	// On Android the native menu bar is hidden; force it into the window content area
@@ -402,10 +393,10 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 			for(auto & box : levelComboBoxes)
 				if (box->currentIndex() != index && combo != box)
         			box->setCurrentIndex(index);
-			
+
 			if(!controller.map())
 				return;
-			
+
 			mapLevel = combo->currentIndex();
 			ui->mapView->setScene(controller.scene(mapLevel));
 			ui->mapView->resetInteractionState();
@@ -447,14 +438,14 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 
 	if (extractionOptions.extractArchives)
 		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
-	
+
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
 	ui->mapView->resetInteractionState();
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &EditorMainWindow::loadInspector);
 	connect(ui->mapView, &MapView::currentCoordinates, this, &EditorMainWindow::currentCoordinatesChanged);
-	
+
 	ui->minimapView->setScene(controller.miniScene(0));
 	ui->minimapView->setController(&controller);
 	connect(ui->minimapView, &MinimapView::cameraPositionChanged, ui->mapView, &MapView::cameraChanged);
@@ -466,16 +457,16 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 
 	//loading objects
 	loadObjectsTree();
-	
+
 	ui->tabWidget->setCurrentIndex(0);
-	
+
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		connect(getActionPlayer(PlayerColor(i)), &QAction::toggled, this, [&, i](){switchDefaultPlayer(PlayerColor(i));});
 	}
 	connect(getActionPlayer(PlayerColor::NEUTRAL), &QAction::toggled, this, [&](){switchDefaultPlayer(PlayerColor::NEUTRAL);});
 	onPlayersChanged();
-	
+
 	show();
 
 #ifdef VCMI_ANDROID
@@ -520,6 +511,8 @@ void EditorMainWindow::closeEvent(QCloseEvent *event)
 		// window closes. Quit the app and finish the Activity to avoid a black screen.
 		QApplication::quit();
 		androidFinishActivity();
+#elif defined(VCMI_IOS)
+		parentWidget()->show();
 #endif
 	}
 	else
@@ -533,7 +526,7 @@ void EditorMainWindow::setStatusMessage(const QString & status)
 
 void EditorMainWindow::setTitle()
 {
-	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION);
 	setWindowTitle(title);
 }
 
@@ -558,7 +551,7 @@ void EditorMainWindow::initializeMap(bool isNew)
 	if(initialScale.isValid())
 		on_actionZoom_reset_triggered();
 	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
-	
+
 	//enable settings
 	mapSettings = new MapSettings(controller, this);
 	connect(&controller, &MapController::requestModsUpdate,
@@ -577,7 +570,7 @@ void EditorMainWindow::initializeMap(bool isNew)
 	}
 	ui->actionLevel->setEnabled(true);
 	ui->actionMapLayer->setEnabled(true);
-	
+
 	//set minimal players count
 	if(isNew)
 	{
@@ -606,7 +599,7 @@ bool EditorMainWindow::openMap(const QString & filenameSelect)
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString(&Translator::instance())));
 		return false;
 	}
 
@@ -615,7 +608,7 @@ bool EditorMainWindow::openMap(const QString & filenameSelect)
 		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
 		return false;
 	}
-	
+
 	filename = filenameSelect;
 	initializeMap(controller.map()->version != EMapFormat::VCMI);
 
@@ -642,7 +635,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open map");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)");
@@ -650,7 +643,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filenameSelect.isEmpty())
 		return;
-	
+
 	openMap(filenameSelect);
 }
 
@@ -744,13 +737,13 @@ void EditorMainWindow::saveMap(bool force)
 
 	if(!force && !unsaved)
 		return;
-	
+
 	//validate map
 	auto issues = Validator::validate(controller.map());
 	bool critical = false;
 	for(auto & issue : issues)
 		critical |= issue.critical;
-	
+
 	if(!issues.empty())
 	{
 		auto mapValidationTitle = tr("Map validation");
@@ -759,7 +752,7 @@ void EditorMainWindow::saveMap(bool force)
 		else
 			QMessageBox::information(this, mapValidationTitle, tr("Map has some errors. Open Validator from the Map menu to see issues found"));
 	}
-	
+
 	Translations::cleanupRemovedItems(*controller.map());
 
 	for(auto obj : controller.map()->objects)
@@ -787,7 +780,7 @@ void EditorMainWindow::saveMap(bool force)
 		QMessageBox::critical(this, tr("Failed to save map"), e.what());
 		return;
 	}
-	
+
 	unsaved = false;
 	setTitle();
 }
@@ -909,8 +902,10 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(ID, secondaryID));
-		
+		// object browser lists types, not placed objects, so the name is resolved without an instance
+		auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
+		auto subGroupName = QString::fromStdString(Translator::instance().translate(subGroupTextID));
+
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
 		{
@@ -934,12 +929,12 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
-			
+
 			//create object to extract name
 			auto temporaryObj(factory->create(controller.getCallback(), templ));
-			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance())) : subGroupName;
 			itemType->setText(translated);
-			
+
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
@@ -1263,7 +1258,7 @@ void EditorMainWindow::treeViewSelected(const QModelIndex & index, const QModelI
 {
 	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
+
 	preparePreview(index);
 }
 
@@ -1386,7 +1381,7 @@ void EditorMainWindow::switchDefaultPlayer(const PlayerColor & player)
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		QAction * playerEntry = getActionPlayer(PlayerColor(i));
-		QSignalBlocker blocker(playerEntry); 
+		QSignalBlocker blocker(playerEntry);
 		playerEntry->setChecked(PlayerColor(i) == player);
 	}
 	controller.defaultPlayer = player;
@@ -1408,7 +1403,7 @@ void EditorMainWindow::onPlayersChanged()
 			getActionPlayer(PlayerColor(i))->setEnabled(false);
 		getActionPlayer(PlayerColor::NEUTRAL)->setEnabled(false);
 	}
-	
+
 }
 
 
@@ -1445,18 +1440,18 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 {
 	if(!controller.map())
 		return;
-	
+
 	if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
 	{
 		QMessageBox::information(this, tr("Update appearance"), tr("No objects selected"));
 		return;
 	}
-	
+
 	if(QMessageBox::Yes != QMessageBox::question(this, tr("Update appearance"), tr("This operation is irreversible. Do you want to continue?")))
 		return;
-	
+
 	controller.scene(mapLevel)->selectionTerrainView.clear();
-	
+
 	int errors = 0;
 	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
@@ -1467,9 +1462,9 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 			++errors;
 			continue;
 		}
-		
+
 		auto * terrain = controller.map()->getTile(obj->visitablePos()).getTerrain();
-		
+
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
@@ -1490,7 +1485,7 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 			{
 				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
-				
+
 				auto templates = handler->getTemplates(terrain->getId());
 				if(templates.empty())
 				{
@@ -1507,8 +1502,8 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 	controller.commitObjectChange(mapLevel);
 	controller.commitObjectErase(mapLevel);
 	controller.commitObstacleFill(mapLevel);
-	
-	
+
+
 	if(errors)
 		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occurred. %1 objects were not updated")).arg(errors));
 }
@@ -1548,13 +1543,13 @@ void EditorMainWindow::on_actionMapLayer_triggered()
     );
 
 	if(ok)
-	{    
+	{
 		for (const auto & p : layers)
 		{
 			if (p.first == selected)
 			{
 				currentType = p.second;
-				
+
 				for(auto &box : levelComboBoxes)
 					box->setItemText(mapLevel, tr("Level %1: %2")
 										.arg(mapLevel + 1)
@@ -1622,7 +1617,7 @@ void EditorMainWindow::on_actionExport_triggered()
 	QString imgFormat;
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)", &selectedFilter);
 #endif
- 
+
 	if(!fileName.isNull())
 	{
 		QFileInfo fileInfo(fileName);
@@ -1665,7 +1660,7 @@ void EditorMainWindow::on_actionExport_triggered()
 			QMessageBox::critical(this, tr("Failed to save image"), tr("Cannot save image to %1.").arg(fileName));
 			return;
 		}
-		
+
 		// Restore viewport to visible area
 		ui->mapView->setViewports();
 
@@ -1701,7 +1696,7 @@ void EditorMainWindow::on_actionh3m_converter_triggered()
 	if(saveDirectory.isEmpty())
 		return;
 #endif
-	
+
 	try
 	{
 		for(auto & m : mapFiles)

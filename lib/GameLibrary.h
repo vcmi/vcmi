@@ -11,9 +11,8 @@
 
 #include <vcmi/Services.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CConsoleHandler;
+class ScriptHandler;
 class CArtHandler;
 class CHeroHandler;
 class CHeroClassHandler;
@@ -28,6 +27,7 @@ class CModHandler;
 class CContentHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
+class ITranslator;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
 class ResourceTypeHandler;
@@ -44,11 +44,6 @@ class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
 class MapLayerTypeHandler;
-
-namespace spells::effects
-{
-	class SpellEffectHandler;
-}
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
@@ -74,7 +69,13 @@ public:
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
 	const IGameSettings * engineSettings() const override;
-	const spells::effects::SpellEffectService * spellEffects() const override;
+	const spells::SchoolService * spellSchools() const override;
+	const ScriptService * scriptTypes() const override;
+	/// Resolver over the static text store: mod-defined text that every side shares.
+	/// It can not see map or campaign texts - anything a specific player reads must be
+	/// rendered with that player's translator instead.
+	const ITranslator * staticTexts() const;
+
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 
@@ -85,7 +86,7 @@ public:
 	std::unique_ptr<CCreatureHandler> creh;
 	std::unique_ptr<CSpellHandler> spellh;
 	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
-	std::unique_ptr<spells::effects::SpellEffectHandler> spellEffectHandler;
+	std::unique_ptr<ScriptHandler> scriptTypeHandler;
 	std::unique_ptr<CSkillHandler> skillh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;
@@ -111,7 +112,7 @@ public:
 	~GameLibrary();
 
 	/// initializes settings and filesystem
-	void initializeFilesystem(bool extractArchives);
+	void initializeFilesystem(bool extractArchives, bool useTestPreset = false);
 
 	/// Loads all game entities
 	void initializeLibrary();
@@ -130,9 +131,7 @@ public:
 	void loadFilesystem(bool extractArchives);
 
 	// loads filesystems of all mods
-	void loadModFilesystem();
+	void loadModFilesystem(bool useTestPreset = false);
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;
-
-VCMI_LIB_NAMESPACE_END

@@ -13,15 +13,11 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CatapultAttack;
 class CCreature;
 class CStack;
 class CGTownInstance;
 class Point;
-
-VCMI_LIB_NAMESPACE_END
 
 class Canvas;
 class BattleInterface;
@@ -76,6 +72,9 @@ class BattleSiegeController
 	/// sections of castle walls, in their currently visible state
 	std::array<std::shared_ptr<IImage>, EWallVisual::WALL_LAST + 1> wallPieceImages;
 
+	/// drawbridge front overlay (chains), drawn over units standing on the lowered bridge
+	std::shared_ptr<IImage> gateFrontImage;
+
 	/// return URI for image for a wall piece
 	ImagePath getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
 
@@ -97,6 +96,12 @@ public:
 
 	/// call-ins from server
 	void gateStateChanged(const EGateState state);
+
+	/// plays the drawbridge sound and shows the partially-open frame; start of a lower/raise transition
+	void showPartialGate();
+
+	/// swaps the gate to its final sprite for the given state; called by the bridge transition animation
+	void applyGateState(const EGateState state);
 	void stackIsCatapulting(const CatapultAttack & ca);
 
 	/// call-ins from other battle controllers
@@ -105,6 +110,10 @@ public:
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(const BattleHex & hex) const;
+	/// True if the given battle hex belongs to a siege tower (keep / upper / lower)
+	bool isTowerHex(const BattleHex & hex) const;
+	/// Right-click popup text describing the status (or attack/damage) of every siege tower present
+	std::string getTowersInfoText() const;
 	ImagePath getBattleBackgroundName() const;
 	const CCreature *getTurretCreature(const BattleHex & turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;

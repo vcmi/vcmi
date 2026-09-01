@@ -11,12 +11,9 @@
 
 #include <QDialog>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ArtifactPosition;
 class CArtifactFittingSet;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class ArtifactWidget;

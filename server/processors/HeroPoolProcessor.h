@@ -11,8 +11,6 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class TavernHeroSlot : int8_t;
 enum class TavernSlotRole : int8_t;
 class PlayerColor;
@@ -26,8 +24,6 @@ namespace vstd
 {
 class RNG;
 }
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 
@@ -66,11 +62,5 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & playerSeed;
-		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeedUnused;
-			h & heroSeedUnused;
-		}
-
 	}
 };

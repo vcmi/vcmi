@@ -12,8 +12,6 @@
 
 #include "ProxyCaster.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class SpellSchool;
 
 namespace spells
@@ -34,5 +32,3 @@ public:
 };
 
 } // namespace spells
-
-VCMI_LIB_NAMESPACE_END

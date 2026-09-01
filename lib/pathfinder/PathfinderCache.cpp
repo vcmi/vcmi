@@ -16,8 +16,6 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInstance * h, CPathsInfo & out)
 {
 	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, *cb, h);
@@ -28,10 +26,21 @@ std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInst
 
 std::shared_ptr<CPathsInfo> PathfinderCache::buildPaths(const CGHeroInstance * h)
 {
-	auto result = std::make_shared<CPathsInfo>(cb->getMapSize(), h);
+	auto result = acquirePaths(h);
 	auto config = createConfig(h, *result);
 
 	cb->calculatePaths(config);
+	return result;
+}
+
+std::shared_ptr<CPathsInfo> PathfinderCache::acquirePaths(const CGHeroInstance * h)
+{
+	if(reusablePaths.empty())
+		return std::make_shared<CPathsInfo>(cb->getMapSize(), h);
+
+	auto result = std::move(reusablePaths.back());
+	reusablePaths.pop_back();
+	result->prepareForReuse(h);
 	return result;
 }
 
@@ -44,6 +53,12 @@ PathfinderCache::PathfinderCache(const IGameInfoCallback * cb, const PathfinderO
 void PathfinderCache::invalidatePaths()
 {
 	std::lock_guard lock(pathCacheMutex);
+	reusablePaths.reserve(reusablePaths.size() + pathCache.size());
+	for(auto & entry : pathCache)
+	{
+		if(entry.second.use_count() == 1)
+			reusablePaths.push_back(std::move(entry.second));
+	}
 	pathCache.clear();
 }
 
@@ -54,6 +69,13 @@ std::shared_ptr<const CPathsInfo> PathfinderCache::getPathsInfo(const CGHeroInst
 	auto iter = pathCache.find(h);
 	if(iter == std::end(pathCache) || iter->second->heroBonusTreeVersion != h->getTreeVersion())
 	{
+		if(iter != std::end(pathCache) && iter->second.use_count() == 1)
+		{
+			reusablePaths.reserve(reusablePaths.size() + 1);
+			reusablePaths.push_back(std::move(iter->second));
+			pathCache.erase(iter);
+		}
+
 		auto result = buildPaths(h);
 		pathCache[h] = result;
 
@@ -62,5 +84,3 @@ std::shared_ptr<const CPathsInfo> PathfinderCache::getPathsInfo(const CGHeroInst
 	else
 		return iter->second;
 }
-
-VCMI_LIB_NAMESPACE_END

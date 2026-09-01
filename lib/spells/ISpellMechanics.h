@@ -18,8 +18,6 @@
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Query;
 class IBattleState;
 class CreatureService;
@@ -92,16 +90,14 @@ public:
 
 	virtual OptionalValue64 getEffectValue() const = 0;
 
-	virtual boost::logic::tribool isSmart() const = 0;
-	virtual boost::logic::tribool isMassive() const = 0;
+	virtual bool isForceMassive() const = 0;
 };
 
 ///all parameters of particular cast event
 class DLL_LINKAGE BattleCast : public IBattleCast
 {
 public:
-	boost::logic::tribool smart;
-	boost::logic::tribool massive;
+	bool forceMassive = false; // force this cast to be massive regardless of the spell default
 
 	//normal constructor
 	BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_);
@@ -121,8 +117,7 @@ public:
 
 	OptionalValue64 getEffectValue() const override;
 
-	boost::logic::tribool isSmart() const override;
-	boost::logic::tribool isMassive() const override;
+	bool isForceMassive() const override;
 
 	void setSpellLevel(Value value);
 
@@ -263,7 +258,7 @@ public:
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
-	virtual bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const = 0;
+	virtual bool ownerMatches(const battle::Unit * unit, bool sameOwner) const = 0;
 
 	//Global environment facade
 	virtual const CreatureService * creatures() const = 0;
@@ -322,7 +317,7 @@ public:
 	Target canonicalizeTarget(const Target & aim) const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
-	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;
+	bool ownerMatches(const battle::Unit * unit, bool sameOwner) const override;
 
 	std::vector<AimType> getTargetTypes() const override;
 
@@ -351,8 +346,7 @@ private:
 	///raw damage/heal amount
 	IBattleCast::Value64 effectValue;
 
-	boost::logic::tribool smart;
-	boost::logic::tribool massive;
+	bool forceMassive = false;
 
 	const CBattleInfoCallback * cb;
 };
@@ -383,6 +377,8 @@ public:
 	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
 	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
+	virtual int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const = 0;
+	virtual int getCastsAlreadyPerformed(const spells::Caster * caster) const = 0;
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
 
@@ -398,5 +394,3 @@ protected:
 
 	const CSpell * owner;
 };
-
-VCMI_LIB_NAMESPACE_END

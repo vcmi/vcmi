@@ -11,8 +11,6 @@
 
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE EVictoryLossCheckResult
 {
 public:
@@ -81,5 +79,3 @@ private:
 
 	si32 intValue; // uses EResultult
 };
-
-VCMI_LIB_NAMESPACE_END

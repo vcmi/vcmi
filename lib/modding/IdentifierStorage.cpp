@@ -19,8 +19,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CIdentifierStorage::CIdentifierStorage()
 {
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
@@ -46,12 +44,6 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "damageTypeRanged", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementLand", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementSea", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareGorgon", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareCommander", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareNoRangePenalty", 2);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangePenalty", 3);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareObstaclePenalty", 4);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangeObstaclePenalty", 5);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthRegular", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthSpecial", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsMonsters", 0);
@@ -59,14 +51,10 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsTowns", 2);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityBattleWide", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityEnemyHero", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerHealth", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerUnit", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillPercentage", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillAmount", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealPermanent", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealBattle", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", -1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementTeleporting", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "freeShootingNoPenalty", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "freeShootingExceptAdjacent", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel1", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel2", 2);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel3", 3);
@@ -90,6 +78,10 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventBeforeMove", static_cast<int>(CombatEventType::BEFORE_MOVE));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventAfterMove", static_cast<int>(CombatEventType::AFTER_MOVE));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventCast", static_cast<int>(CombatEventType::UNIT_SPELLCAST));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentGood", static_cast<int>(EAlignment::GOOD));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentEvil", static_cast<int>(EAlignment::EVIL));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentNeutral", static_cast<int>(EAlignment::NEUTRAL));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "alignmentNone", static_cast<int>(EAlignment::NONE));
 }
 
 void CIdentifierStorage::checkIdentifier(const std::string & ID)
@@ -514,7 +506,7 @@ void CIdentifierStorage::debugDumpIdentifiers()
 	}
 
 	for(auto & category : objectList)
-		boost::range::sort(category.second);
+		std::ranges::sort(category.second);
 
 	for(const auto & category : objectList)
 	{
@@ -537,5 +529,3 @@ std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

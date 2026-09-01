@@ -79,7 +79,7 @@
 	[
 		"config/artifacts.json"
 	],
-	
+
 	"heroClasses" :
 	[
 		"config/heroClasses.json"
@@ -103,9 +103,10 @@
 	[
 		"config/spellSchools.json"
 	],
-	"spellEffects" :
+	"scripts" :
 	[
-		"config/spellEffects.json"
+		"config/scriptsSpells.json",
+		"config/scriptsCombat.json"
 	],
 	"skills" :
 	[
@@ -143,7 +144,7 @@
 	[
 		"config/mapLayers.json"
 	],
-	
+
 	"settings":
 	{
 		// Number of entries of each type to load from Heroes III text files
@@ -160,9 +161,9 @@
 			"river"      : 5,
 			"road"       : 4
 		},
-		
+
 		"mapFormat" : {
-			"restorationOfErathia" : { 
+			"restorationOfErathia" : {
 				"supported" : true,
 				"iconIndex" : 0,
 				"settings": {
@@ -264,14 +265,14 @@
 					"portraitGeneralKendal" : 129
 				},
 				"campaignRegions" : {
-					
+
 					"good1" : 1,    // Long Live the Queen
 					"good2" : 2,    // Liberation
 					"good3" : 3,    // Song for the Father
 					"evil1" : 4,    // Dungeons and devils
 					"evil2" : 5,    // Long Live the King
 					"neutral1" : 6, // Spoils of War
-					"secret1" : 7   // Seeds Of Discontent 
+					"secret1" : 7   // Seeds Of Discontent
 				},
 				"campaignMusic" : {
 					"CampainMusic01" : 0,
@@ -414,7 +415,7 @@
 					"H3ABpf4.smk" : 56
 				}
 			},
-			"shadowOfDeath" : { 
+			"shadowOfDeath" : {
 				"supported" : true,
 				"iconIndex" : 2,
 				"portraits" : {
@@ -486,15 +487,15 @@
 					"H3x2_UAm.smk" : 100 //H3x2_UAm.bik?
 				}
 			},
-			"chronicles" : { 
+			"chronicles" : {
 				"supported" : false,
 				"iconIndex" : 2
 			},
-			"jsonVCMI" : { 
+			"jsonVCMI" : {
 				"supported" : true,
 				"iconIndex" : 3
 			},
-			"hornOfTheAbyss" : { 
+			"hornOfTheAbyss" : {
 				"supported" : false,
 				"settings": {
 					"spells": {
@@ -502,7 +503,7 @@
 					}
 				}
 			},
-			"inTheWakeOfGods" : { 
+			"inTheWakeOfGods" : {
 				"supported" : false
 			}
 		},
@@ -523,7 +524,7 @@
 			"tavernInvite"            : false,
 			// minimal primary skills for heroes
 			"minimalPrimarySkills": [ 0, 0, 1, 1],
-			
+
 			/// minimal movement cost from one tile to another while offroad. Also see BASE_TILE_MOVEMENT_COST bonus type
 			/// Also affects cost of Town Portal spell and movement cost when using Fly spell
 			"movementCostBase" : 100,
@@ -531,10 +532,10 @@
 			"movementPointsLand" : [ 1500, 1500, 1500, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
 			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
 			"movementPointsSea" : [ 1500 ],
-      
+
 			/// maximal secondary skills per hero
 			"skillPerHero" : 8,
-			
+
 			/// Base scouting range for hero without any range modifiers
 			"baseScoutingRange" : 5,
 
@@ -542,6 +543,8 @@
 			"specialtySecondarySkillGrowth" : 5,
 			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
 			"specialtyCreatureGrowth" : 5,
+			/// Default percentage per step for damage/heal spell specialties ( "spellScalingPercentage" : "spellName" )
+			"specialtySpellScaling" : 3,
 
 			/// Maximum amount of skills that can be offered to hero on levelup
 			"levelupTotalSkillsAmount" : 2,
@@ -571,7 +574,7 @@
 			"spellResearchCostMultiplierPerResearch": [ 1, 1, 1, 1, 1 ],
 			// Multiplier for increasing/decreasing cost of research actions after each reroll - resets on accepting spell (factor 1 disables this; array index is spell tier)
 			"spellResearchCostMultiplierPerReroll": [ 1, 1, 1, 1, 1 ],
-			
+
 			// Base scouting range for town without any range modifiers
 			"baseScoutingRange" : 5
 		},
@@ -603,14 +606,14 @@
 			// Bias for luck rolls. See abilityBias for detailed description
 			// Recommended value is around luckDiceSize / 4
 			"luckBias" : 8,
-			
+
 
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
-			"attackPointDamageFactor": 0.05, 
+			"attackPointDamageFactor": 0.05,
 			// limit of damage increase that can be achieved by overpowering attack points
-			"attackPointDamageFactorCap": 4.0, 
+			"attackPointDamageFactorCap": 4.0,
 			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
-			"defensePointDamageFactor": 0.025, 
+			"defensePointDamageFactor": 0.025,
 			// limit of damage reduction that can be achieved by overpowering defense points
 			"defensePointDamageFactorCap": 0.7,
 			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
@@ -619,7 +622,9 @@
 			"areaShotCanTargetEmptyHex" : false,
 			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
 			"noSpellHitAndRunRounds" : 0,
-			
+			// Cost of surrendering is recruit cost of hero army divided by this value, before any discounts are applied
+			"surrenderCostDivisor" : 2.0,
+
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
 			// Configuration must define either 'attackerUnits' list of 7 elements or both 'attackerUnitsLoose' and 'attackerUnitsTight' lists of 7 elements, 1..7 elements each
@@ -704,9 +709,9 @@
 			"monthPlagueProbability" : 10,
 			// probability (in percent) for special week
 			"weekSpecialProbability" : 25,
-			// if stack experience is on, creatures on map will get specified amount of experience daily 
+			// if stack experience is on, creatures on map will get specified amount of experience daily
 			"dailyStackExperience" : 100,
-			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
+			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire"
 			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,
 			// if enabled, every creature can get double growth month, ignoring predefined list
@@ -717,18 +722,18 @@
 			// NOTE: on HotA maps this setting has no effect on units placed in map editor, preset value from h3m will be used instead
 			"joiningPercentage" : 100
 		},
-		
+
 		"dwellings" :
 		{
-			// if enabled, neutral dwellings will accumulate creatures 
+			// if enabled, neutral dwellings will accumulate creatures
 			"accumulateWhenNeutral" : false,
-			// if enabled, dwellings owned by players will accumulate creatures 
+			// if enabled, dwellings owned by players will accumulate creatures
 			"accumulateWhenOwned" : false,
 			// if enabled, game will attempt to merge slots in army on recruit if all slots in hero army are in use
 			"mergeOnRecruit" : true
 		},
-		
-		"mapObjects" : 
+
+		"mapObjects" :
 		{
 			// Allow behavior that emulates h3 bug where quest from Seer Hut or Border Guard can take entire army from hero
 			// WARNING: handling of heroes without armies is not tested and may lead to bugs or crashes! Use at own risk!
@@ -736,16 +741,16 @@
 			"h3BugQuestTakesEntireArmy" : false
 		},
 
-		"markets" : 
+		"markets" :
 		{
 			// period between restocking of "Black Market" object found on adventure map
 			"blackMarketRestockPeriod" : 0,
-			
+
 			// Cost in gold of buying skill in on-map University or in University of Magic in Conflux
 			"universityGoldCost" : 2000
 		},
-		
-		"banks" : 
+
+		"banks" :
 		{
 			// show guards composition when visiting creature banks
 			"showGuardsComposition" : true
@@ -762,14 +767,16 @@
 			// if enabled, all heroes gain commander creature in battle (WoG feature)
 			"commanders": false
 		},
-		
+
 		"pathfinder" :
 		{
+			// if enabled, pathfinder will not allow disembarking from a boat on a tile with a hole (e.g. after digging for Grail)
+			"blockDisembarkOnHole" : true,
 			// if enabled, pathfinder will build path through locations guarded by wandering monsters
 			"ignoreGuards" : false,
 			// if enabled, pathfinder will take use of any available boats
 			"useBoat" : true,
-			// if enabled, pathfinder will take use of any bidirectional monoliths 
+			// if enabled, pathfinder will take use of any bidirectional monoliths
 			"useMonolithTwoWay" : true,
 			// if enabled, pathfinder will take use of one-way monolith that only have one known exit
 			"useMonolithOneWayUnique" : false,
@@ -780,7 +787,7 @@
 			// if enabled flying will work like in original game, otherwise nerf similar to HotA flying is applied
 			"originalFlyRules" : true
 		},
-		
+
 		"resources" : {
 			// H3 mechanics - AI receives bonus (or malus, on easy) to his resource income
 			// AI will receive specified values as percentage of his weekly income
@@ -799,24 +806,24 @@
 		{
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
 			"dimensionDoorTriggersGuards" : false,
-			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic) 
+			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic)
 			// and SPELLS_OF_LEVEL bonus (Spellbinder Hat) will grant spells that are banned on map (SoD behavior)
 			// NOTE: this value only affects random maps and .vmap's. For h3m's value is loaded from map format configuration
 			"tomesGrantBannedSpells" : false
 		},
-		
-		"bonuses" : 
+
+		"bonuses" :
 		{
-			"global" : 
+			"global" :
 			{
-				"spellDamage" : 
+				"spellDamage" :
 				{
 					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
+					"subtype" : "any",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
-				"wisdom" : 
+				"wisdom" :
 				{
 					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
 					"val" : 2,
@@ -835,9 +842,17 @@
 				{
 					"type" : "MANA_REGENERATION", //default mana regeneration
 					"val" : 1,
-					"valueType" : "BASE_NUMBER"
+					"valueType" : "BASE_NUMBER",
+					"limiters" : [
+						"noneOf",
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusType" : "MANA_REGENERATION",
+							"bonusSourceType" : "SECONDARY_SKILL"
+						}
+					]
 				},
-				"experienceGain" : 
+				"experienceGain" :
 				{
 					"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
 					"val" : 100,

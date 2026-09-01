@@ -147,8 +147,8 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 
 	if(tabSel->showRandom && tab != tabOpt)
 	{
-		tabSel->curFolder = "";
 		tabSel->showRandom = false;
+		tabSel->setCurrentFolder("");
 		tabSel->filter(0, true);
 	}
 
@@ -176,8 +176,8 @@ InfoCard::InfoCard()
 	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), LIBRARY->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
 	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), LIBRARY->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
 
-	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
-	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(&GAME->translator()), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(&GAME->translator()), EFonts::FONT_SMALL, Colors::WHITE);
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
@@ -253,8 +253,8 @@ void InfoCard::changeSelection()
 		return;
 
 	labelSaveDate->setText(mapInfo->date);
-	mapName->setText(mapInfo->getNameTranslated());
-	mapDescription->setText(mapInfo->getDescriptionTranslated());
+	mapName->setText(mapInfo->getNameTranslated(&GAME->translator()));
+	mapDescription->setText(mapInfo->getDescriptionTranslated(&GAME->translator()));
 
 	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)
@@ -276,11 +276,11 @@ void InfoCard::changeSelection()
 	iconsMapSizes->setFrame(std::min<size_t>(mapSizeIconFrame, iconsMapSizes->size() - 1));
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
-	labelVictoryConditionText->setText(header->victoryMessage.toString());
+	labelVictoryConditionText->setText(header->victoryMessage.toString(&GAME->translator()));
 	iconsLossCondition->setFrame(header->defeatIconIndex);
-	labelLossConditionText->setText(header->defeatMessage.toString());
+	labelLossConditionText->setText(header->defeatMessage.toString(&GAME->translator()));
 	flagbox->recreate();
-	labelDifficulty->setText(LIBRARY->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
+	labelDifficulty->setText(GAME->translator().translate("core.arraytxt", 142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)));
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
@@ -638,7 +638,9 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 		if(team.empty())
 			continue;
 
-		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(LIBRARY->generaltexth->allTexts[656]) % (curIdx + 1)));
+		MetaString teamName = MetaString::createFromTextID("core.genrltxt.656"); // Team %d
+		teamName.replaceNumber(curIdx + 1);
+		labelGroupTeams->add(128, 65 + 50 * curIdx, teamName.toString(&GAME->translator()));
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{

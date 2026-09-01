@@ -16,8 +16,6 @@
 #include "../int3.h"
 #include "../battle/BattleAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE GamePause : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -658,7 +656,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 	HeroTypeID hid; //available hero serial
 	HeroTypeID nhid; //next hero
 	ObjectInstanceID tid; //town (tavern) id
-	PlayerColor player;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -668,7 +665,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 		h & hid;
 		h & nhid;
 		h & tid;
-		h & player;
 	}
 };
 
@@ -766,13 +762,15 @@ struct DLL_LINKAGE RequestStatistic : public CPackForServer
 struct DLL_LINKAGE SaveGame : public CPackForServer
 {
 	SaveGame() = default;
-	SaveGame(std::string Fname, bool NotifySuccess)
+	SaveGame(std::string Fname, bool NotifySuccess, int AutosaveCountLimit = 0)
 		: fname(std::move(Fname))
 		, notifySuccess(NotifySuccess)
+		, autosaveCountLimit(AutosaveCountLimit)
 	{
 	}
 	std::string fname;
 	bool notifySuccess = false;
+	int autosaveCountLimit = 0;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -781,6 +779,7 @@ struct DLL_LINKAGE SaveGame : public CPackForServer
 		h & static_cast<CPackForServer &>(*this);
 		h & notifySuccess;
 		h & fname;
+		h & autosaveCountLimit;
 	}
 };
 
@@ -812,5 +811,3 @@ struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
 
 	void visitTyped(ICPackVisitor & cpackVisitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -17,9 +17,7 @@
 #include "../lib/int3.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
-VCMI_LIB_NAMESPACE_END
 
 class EditorMainWindow;
 class MapController;
@@ -126,6 +124,8 @@ signals:
 protected:
 	
 private:
+	void moveNewObjectTo(const QPoint & viewportPos);
+
 	MapController * controller = nullptr;
 	QRubberBand * rubberBand = nullptr;
 	QPointF mouseStart;

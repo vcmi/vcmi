@@ -51,26 +51,26 @@ void CGarrisonSlot::hover (bool on)
 	////Hoverable::hover(on);
 	if(on)
 	{
-		std::string temp;
+		MetaString temp;
 		if(creature)
 		{
 			if(owner->getSelection())
 			{
 				if(owner->getSelection() == this)
 				{
-					temp = LIBRARY->generaltexth->tcommands[4]; //View %s
-					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
+					temp.appendTextID("core.tcommand.4"); //View %s
+					temp.replaceNameSingular(creature->getId());
 				}
 				else if (owner->getSelection()->creature == creature)
 				{
-					temp = LIBRARY->generaltexth->tcommands[2]; //Combine %s armies
-					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
+					temp.appendTextID("core.tcommand.2"); //Combine %s armies
+					temp.replaceNameSingular(creature->getId());
 				}
 				else if (owner->getSelection()->creature)
 				{
-					temp = LIBRARY->generaltexth->tcommands[7]; //Exchange %s with %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
-					boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
+					temp.appendTextID("core.tcommand.7"); //Exchange %s with %s
+					temp.replaceNameSingular(owner->getSelection()->creature->getId());
+					temp.replaceNameSingular(creature->getId());
 				}
 				else
 				{
@@ -86,19 +86,18 @@ void CGarrisonSlot::hover (bool on)
 					&& (!owner->lowerArmy() || owner->lowerArmy()->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
 					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->isGarrisoned();
 
-				if(isHeroOnMap)
-				{
-					temp = LIBRARY->generaltexth->allTexts[481]; //Select %s
-				}
+				if(owner->showMoveUnitsOnHover && owner->isStackTransferLocked(this))
+					temp.appendTextID("vcmi.garrison.cannotMoveUnit");
+				else if(owner->showMoveUnitsOnHover)
+					temp.appendTextID("core.tcommand.6"); //Move %s
+				else if(isHeroOnMap)
+					temp.appendTextID("core.genrltxt.481"); //Select %s
 				else if(upg == EGarrisonType::UPPER)
-				{
-					temp = LIBRARY->generaltexth->tcommands[12]; //Select %s (in garrison)
-				}
+					temp.appendTextID("core.tcommand.12"); //Select %s (in garrison)
 				else // Hero is visiting some object (town, mine, etc)
-				{
-					temp = LIBRARY->generaltexth->tcommands[32]; //Select %s (visiting)
-				}
-				boost::algorithm::replace_first(temp,"%s",creature->getNameSingularTranslated());
+					temp.appendTextID("core.tcommand.32"); //Select %s (visiting)
+
+				temp.replaceNameSingular(creature->getId());
 			}
 		}
 		else
@@ -111,20 +110,20 @@ void CGarrisonSlot::hover (bool on)
 				  && owner->getSelection()->upg != upg	//we're moving it to the other garrison
 				  )
 				{
-					temp = LIBRARY->generaltexth->tcommands[5]; //Cannot move last army to garrison
+					temp.appendTextID("core.tcommand.5"); //Cannot move last army to garrison
 				}
 				else
 				{
-					temp = LIBRARY->generaltexth->tcommands[6]; //Move %s
-					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->getNameSingularTranslated());
+					temp.appendTextID("core.tcommand.6"); //Move %s
+					temp.replaceNameSingular(owner->getSelection()->creature->getId());
 				}
 			}
 			else
 			{
-				temp = LIBRARY->generaltexth->tcommands[11]; //Empty
+				temp.appendTextID("core.tcommand.11"); //Empty
 			}
 		}
-		ENGINE->statusbar()->write(temp);
+		ENGINE->statusbar()->write(temp.toString(&GAME->translator()));
 	}
 	else
 	{
@@ -289,13 +288,9 @@ bool CGarrisonSlot::mustForceReselection() const
 	if (selection->creature != creature && withAlly)
 		return true;
 
-	if (!owner->removableUnits)
-	{
-		if (selection->upg == EGarrisonType::UPPER)
-			return true;
-		else
-			return creature || upg == EGarrisonType::UPPER;
-	}
+	// Adding or merging units into a locked garrison is allowed, but swapping would remove its stack.
+	if (!owner->removableUnits && selection->upg == EGarrisonType::LOWER && upg == EGarrisonType::UPPER)
+		return selection->creature != creature;
 	return false;
 }
 
@@ -321,6 +316,10 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		{
 			if(!handleSplittingShortcuts())
 				refr = viewInfo(); // Affects selection
+		}
+		else if(owner->showStackTransferError(selection))
+		{
+			refr = true;
 		}
 		// Re-highlight if troops aren't removable or not ours.
 		else if (mustForceReselection())
@@ -618,18 +617,39 @@ void CGarrisonInt::splitClick()
 {
 	if(!getSelection())
 		return;
+
+	if(!getSplittingMode() && showStackTransferError(getSelection()))
+		return;
+
 	setSplittingMode(!getSplittingMode());
 	redraw();
 }
 
 void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount )
 {
+	if(showStackTransferError(from))
+		return;
+
 	GAME->interface()->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
 }
 
 bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) const
 {
 	return selected && selected->myStack && selected->myStack->getCount() > min && selected->creature;
+}
+
+bool CGarrisonInt::isStackTransferLocked(const CGarrisonSlot * selected) const
+{
+	return selected && !removableUnits && selected->upg == EGarrisonType::UPPER;
+}
+
+bool CGarrisonInt::showStackTransferError(const CGarrisonSlot * selected) const
+{
+	if(!isStackTransferLocked(selected))
+		return false;
+
+	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.garrison.cannotMoveUnit"));
+	return true;
 }
 
 void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
@@ -641,6 +661,9 @@ void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
 	const auto destArmyType = srcArmyType == EGarrisonType::UPPER
 		? EGarrisonType::LOWER
 		: EGarrisonType::UPPER;
+
+	if(showStackTransferError(selected))
+		return;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];
@@ -685,6 +708,9 @@ void CGarrisonInt::bulkMoveArmy(const CGarrisonSlot * selected)
 	const auto destArmyType = (srcArmyType == EGarrisonType::UPPER)
 		? EGarrisonType::LOWER
 		: EGarrisonType::UPPER;
+
+	if(showStackTransferError(selected))
+		return;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];

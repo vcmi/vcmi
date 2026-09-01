@@ -68,6 +68,11 @@ void HeroMovementController::onBattleStarted()
 
 void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
+	// let any dialog describing this teleportation (e.g. Whirlpool's stack-loss message) be
+	// acknowledged by the player first, so the camera still centers on the adventure map
+	// once the hero actually gets moved
+	GAME->interface()->waitWhileDialog();
+
 	if (impassable || exits.empty()) //FIXME: why we even have this dialog in such case?
 	{
 		GAME->interface()->cb->selectionMade(-1, askID);
@@ -284,8 +289,8 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 	if(moveType == EPathNodeAction::BLOCKING_VISIT)
 		return {};
 
-	// flying movement sound
-	if(hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
+	// flying movement sound, unless hero is actually on a boat
+	if(hero->hasBonusOfType(BonusType::FLYING_MOVEMENT) && !hero->inBoat())
 		return AudioPath::builtin("HORSE10.wav");
 
 	auto prevTile = GAME->interface()->cb->getTile(posPrev);
@@ -388,7 +393,7 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 	bool useTransit = currentLayer == EPathfindingLayer::AIR || currentLayer == EPathfindingLayer::WATER;
 	std::vector<int3> pathToMove;
 
-	for (auto const & node : boost::adaptors::reverse(path.nodes))
+	for (auto const & node : std::views::reverse(path.nodes))
 	{
 			if (node.coord == h->visitablePos())
 				continue; // first node, ignore - this is hero current position

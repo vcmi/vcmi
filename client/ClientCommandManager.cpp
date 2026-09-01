@@ -27,7 +27,7 @@
 #include "ClientNetPackVisitors.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/callback/CGlobalAI.h"
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -51,7 +51,7 @@
 
 void ClientCommandManager::handleQuitCommand()
 {
-		exit(EXIT_SUCCESS);
+		throw GameShutdownException();
 }
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)
@@ -93,7 +93,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.count(color) && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
@@ -103,14 +103,14 @@ void ClientCommandManager::handleGoSoloCommand()
 	{
 		PlayerColor currentColor = GAME->interface()->playerID;
 		GAME->server().client->removeGUI();
-		
+
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
 			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
-				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				GAME->server().client->installNewPlayerInterface(AIFactory::createAdventureAI(AiToGive), color);
 			}
 		}
 
@@ -171,7 +171,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	printCommandMessage("Will try loading that AI to see if it is correct name...\n");
 	try
 	{
-		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
+		if(auto ai = AIFactory::createBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
 			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;
@@ -215,7 +215,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 		if (!output.isNull())
 		{
 			std::string filename = modEntry.first;
-			boost::range::replace(filename, '.', '_');
+			std::ranges::replace(filename, '.', '_');
 			const boost::filesystem::path filePath = outPath / (filename + ".json");
 			std::ofstream file(filePath.c_str());
 			file << output.toString();
@@ -393,7 +393,7 @@ void ClientCommandManager::handleGetTextCommand()
 
 		boost::filesystem::create_directories(filePath.parent_path());
 
-		std::ofstream file(filePath.c_str());
+		std::ofstream file(filePath.c_str(), std::ios::binary);
 		auto text = CResourceHandler::get()->load(filename)->readAll();
 
 		file.write((char*)text.first.get(), text.second);
@@ -503,7 +503,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
+		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName().toString(&GAME->translator()) + "\n");
 		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
@@ -572,6 +572,22 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 	singleWordBuffer >> key;
 
 	logVisual->setKey(key);
+}
+
+void ClientCommandManager::handleWhoIsTheBossCommand(std::istringstream & singleWordBuffer)
+{
+	std::string value;
+	singleWordBuffer >> value;
+
+	Settings session = settings.write["session"];
+	if(value == "on")
+		session["showAiHeroOverlay"].Bool() = true;
+	else if(value == "off")
+		session["showAiHeroOverlay"].Bool() = false;
+	else
+		printCommandMessage("Unexpected syntax. Supported forms (case insensitive):\n/whoIsTheBoss on\n/whoIsTheBoss off\n");
+
+	ENGINE->windows().totalRedraw();
 }
 
 void ClientCommandManager::handleGenerateAssets()
@@ -707,6 +723,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "vslog")
 		handleVsLog(singleWordBuffer);
+
+	else if(boost::iequals(commandName, "whoistheboss"))
+		handleWhoIsTheBossCommand(singleWordBuffer);
 
 	else if(message=="generate assets")
 		handleGenerateAssets();

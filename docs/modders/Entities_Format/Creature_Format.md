@@ -1,6 +1,6 @@
 # Creature Format
 
-This page tells you what you need to do to make your creature work. For help, tips and advices, read the [creature help](Creature_Help.md).
+This page tells you what you need to do to make your creature work. For help, tips and advices, read the [creature help](../Guides/Creature_Help.md).
 
 ## Required data
 
@@ -60,6 +60,16 @@ In order to make functional creature you also need:
 		"gems" : 0,
 		"gold" : 0
 	},
+	
+	// Optional. Cost to resurrect this creature when it is used as a commander.
+	// If omitted, the global resurrectionPrice from config/commanders.json is used.
+	// Set to an empty object to make resurrection free.
+	"resurrectionPrice" :
+	{
+		"gems" : 5,
+		"gold" : 1500
+	},
+
 	// "value" of creature, used to determine for example army strength
 	"fightValue" : 0,
 

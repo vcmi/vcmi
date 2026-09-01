@@ -192,7 +192,7 @@
 			"castsBloodlust" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.bloodlust",
+				"subtype" : "bloodlust",
 				"val" : 2
 			},
 			"castsCount" :
@@ -266,13 +266,13 @@
 			"thunderOnAttack" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.thunderbolt",
+				"subtype" : "thunderbolt",
 				"val" : 20
 			},
 			"thunderStrength" :
 			{
 				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.thunderbolt",
+				"subtype" : "thunderbolt",
 				"val" : 10
 			}
 		},
@@ -306,7 +306,7 @@
 			"canShootWalls" :
 			{
 				"type" : "CATAPULT",
-				"subtype" : "spell.cyclopsShot"
+				"subtype" : "cyclopsShot"
 			}
 		},
 		"upgrades": ["cyclopKing"],
@@ -345,12 +345,12 @@
 			"canShootWalls" :
 			{
 				"type" : "CATAPULT",
-				"subtype" : "spell.cyclopsShot"
+				"subtype" : "cyclopsShot"
 			},
 			"canShootWallsTimes" :
 			{
 				"type" : "CATAPULT_EXTRA_SHOTS",
-				"subtype" : "spell.cyclopsShot",
+				"subtype" : "cyclopsShot",
 				"valueType" : "BASE_NUMBER",
 				"val" : 1
 			}

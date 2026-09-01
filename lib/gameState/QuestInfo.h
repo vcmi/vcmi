@@ -12,51 +12,86 @@
 #include "int3.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CQuest;
+class Quest;
 class CGObjectInstance;
 class IGameInfoCallback;
+class CGameInfoCallback;
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
-	ObjectInstanceID obj; //related object, Seer Hut or Border Guard
+	/// Either a specific object (seer hut / quest guard), or an object type+subtype whose
+	/// constructor owns a shared quest (border guards/gates of one colour).
+	std::variant<ObjectInstanceID, CompoundMapObjectID> identity;
 
-	QuestInfo() = default;
-	explicit QuestInfo(ObjectInstanceID Obj)
-		: obj(Obj)
-	{}
+	QuestInfo() : identity(ObjectInstanceID()) {}
+	explicit QuestInfo(ObjectInstanceID obj) : identity(obj) {}
+	explicit QuestInfo(CompoundMapObjectID type) : identity(type) {}
 
-	const CQuest * getQuest(IGameInfoCallback *cb) const;
+	const Quest * getQuest(IGameInfoCallback *cb) const;
+	/// True when this entry resolves to a quest with content that can be shown in the quest log.
+	bool isDisplayable(IGameInfoCallback *cb) const;
+	/// The source object for an instance quest; nullptr for a shared type quest.
 	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
-	int3 getPosition(IGameInfoCallback *cb) const;
+
+	/// True when this entry is backed by a concrete map object (not a shared type quest).
+	bool hasObjectInstance() const
+	{
+		const auto * obj = std::get_if<ObjectInstanceID>(&identity);
+		return obj && obj->hasValue();
+	}
+
+	/// Tiles to mark on the quest-log minimap: the source object(s) plus, where the
+	/// limiter implies a target, kill targets, matching keymaster tents / artifact
+	/// pickups, and heroes that already satisfy the limiter. Fog-gated by `cb`.
+	std::vector<int3> getMarkerTiles(CGameInfoCallback *cb) const;
 
 	bool operator== (const QuestInfo & qi) const
 	{
-		return obj == qi.obj;
+		return identity == qi.identity;
 	}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
 		{
+			// legacy layout stored only the source object id
+			ObjectInstanceID obj;
 			h & obj;
+			identity = obj;
+			return;
+		}
+
+		bool typeQuest = false;
+		if(h.saving)
+			typeQuest = std::holds_alternative<CompoundMapObjectID>(identity);
+		h & typeQuest;
+
+		if(typeQuest)
+		{
+			// serialize the colour as an identifier so it survives mod renumbering
+			si32 primary = 0;
+			std::string subtype;
+			if(h.saving)
+			{
+				const auto & cid = std::get<CompoundMapObjectID>(identity);
+				primary = cid.primaryID;
+				subtype = MapObjectSubID::encode(MapObjectID(primary), cid.secondaryID);
+			}
+			h & primary;
+			h & subtype;
+			if(!h.saving)
+				identity = CompoundMapObjectID(primary, MapObjectSubID::decode(MapObjectID(primary), subtype));
 		}
 		else
 		{
-			std::shared_ptr<CQuest> questUnused;
-			std::shared_ptr<CGObjectInstance> objectPtr;
-			int3 tileUnused;
-			h & questUnused;
-			h & objectPtr;
-			h & tileUnused;
-
-			if (objectPtr)
-				obj = objectPtr->id;
+			ObjectInstanceID obj;
+			if(h.saving)
+				obj = std::get<ObjectInstanceID>(identity);
+			h & obj;
+			if(!h.saving)
+				identity = obj;
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

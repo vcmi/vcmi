@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "TileInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TileInfo::TileInfo()
 	: nearestObjectDistance(static_cast<float>(std::numeric_limits<int>::max()))
 	, occupied(ETileType::POSSIBLE)	//all tiles are initially possible to place objects or passages
@@ -79,5 +77,3 @@ void TileInfo::setRoadType(RoadId type)
 	roadType = type;
 	//	setOccupied(ETileType::FREE);
 }
-
-VCMI_LIB_NAMESPACE_END

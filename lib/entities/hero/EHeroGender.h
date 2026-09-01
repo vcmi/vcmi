@@ -9,13 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 	enum class EHeroGender : int8_t
 {
 	DEFAULT = -1, // from h3m, instance has same gender as hero type
 	MALE = 0,
 	FEMALE = 1,
 };
-
-VCMI_LIB_NAMESPACE_END

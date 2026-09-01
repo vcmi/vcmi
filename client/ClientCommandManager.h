@@ -10,9 +10,7 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 class CIntObject;
 
 class ClientCommandManager //take mantis #2292 issue about account if thinking about handling cheats from command-line
@@ -86,6 +84,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 
 	// shows object graph
 	void handleVsLog(std::istringstream & singleWordBuffer);
+
+	// Toggle AI hero role overlay.
+	void handleWhoIsTheBossCommand(std::istringstream & singleWordBuffer);
 
 	// generate all assets
 	void handleGenerateAssets();

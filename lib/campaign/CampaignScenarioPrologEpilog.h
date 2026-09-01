@@ -12,8 +12,6 @@
 #include "../filesystem/ResourcePath.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
@@ -25,14 +23,9 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & hasPrologEpilog;
-		if(h.version >= Handler::Version::CAMPAIGN_VIDEO)
-			h & prologVideo;
-		else
-			h & prologVideo.first;
+		h & prologVideo;
 		h & prologMusic;
 		h & prologVoice;
 		h & prologText;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

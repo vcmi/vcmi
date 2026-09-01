@@ -14,8 +14,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ObjectPlacer::process()
 {
 	auto * manager = zone.getModificator<ObjectManager>();
@@ -78,5 +76,3 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

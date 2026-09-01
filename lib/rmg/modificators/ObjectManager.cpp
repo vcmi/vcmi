@@ -33,8 +33,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ObjectManager::process()
 {
 	zone.fractalize();
@@ -542,7 +540,7 @@ bool ObjectManager::createRequiredObjects()
 			for (auto* instance : rmgNearObject.instances())
 			{
 				logGlobal->error("Failed to connect nearby object %s at %s",
-					instance->object().getObjectName(), instance->getPosition(true).toString());
+					instance->object().getObjectNameTextID(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
 		}
@@ -813,7 +811,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 
 	auto guardTiles = accessibleArea.getTilesVector();
-	auto guardPos = *std::min_element(guardTiles.begin(), guardTiles.end(), [&object](const int3 & l, const int3 & r)
+	auto guardPos = *std::ranges::min_element(guardTiles, [&object](const int3 & l, const int3 & r)
 	{
 		auto p = object.getVisitablePosition();
 		if(l.y > r.y)
@@ -849,7 +847,5 @@ RequiredObjectInfo::RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui
 	guardStrength(guardStrength),
 	createRoad(createRoad)
 {}
-
-VCMI_LIB_NAMESPACE_END
 
 

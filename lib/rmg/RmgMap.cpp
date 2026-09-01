@@ -38,8 +38,6 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
@@ -131,7 +129,7 @@ void RmgMap::addModificators()
 {
 	bool hasObjectDistributor = false;
 	bool hasHeroPlacer = false;
-	bool hasRockFiller = false;
+	std::set<int> rockFillerLevels;
 
 	for(auto & z : getZones())
 	{
@@ -176,10 +174,11 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
-			if (!hasRockFiller)
+			int level = zone->getPos().z;
+			if (!rockFillerLevels.contains(level))
 			{
 				zone->addModificator<RockFiller>();
-				hasRockFiller = true;
+				rockFillerLevels.insert(level);
 			}
 		}
 		
@@ -414,5 +413,3 @@ void RmgMap::dump(bool zoneId) const
 	}
 	out << std::endl;
 }
-
-VCMI_LIB_NAMESPACE_END

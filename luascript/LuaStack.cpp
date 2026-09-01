@@ -13,8 +13,11 @@
 
 #include "../lib/json/JsonNode.h"
 #include "../lib/int3.h"
+#include "../lib/battle/BattleHex.h"
+#include "../lib/constants/EntityIdentifiers.h"
+#include "../lib/GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <vcmi/Creature.h>
 
 namespace scripting
 {
@@ -83,6 +86,11 @@ void LuaStack::pushInteger(lua_Integer value)
 void LuaStack::push(bool value)
 {
 	lua_pushboolean(L, value);
+}
+
+void LuaStack::push(double value)
+{
+	lua_pushnumber(L, value);
 }
 
 void LuaStack::push(const char * value)
@@ -203,6 +211,32 @@ void LuaStack::get(int position, int3 & value)
 	get(position+2, value.z);
 }
 
+void LuaStack::get(int position, BattleHex & value)
+{
+	if(lua_isnumber(L, position))
+	{
+		lua_Integer temp;
+		getInteger(position, temp);
+		value = BattleHex(static_cast<si16>(temp));
+	}
+	else
+	{
+		getUData<BattleHex>(position, value);
+	}
+}
+
+void LuaStack::push(const CreatureID & value)
+{
+	push(value.toEntity(LIBRARY));
+}
+
+void LuaStack::get(int position, CreatureID & value)
+{
+	const Creature * creature = nullptr;
+	get(position, creature);
+	value = creature ? creature->getId() : CreatureID(CreatureID::NONE);
+}
+
 void LuaStack::get(int position, JsonNode & value)
 {
 	auto type = lua_type(L, position);
@@ -293,5 +327,3 @@ int LuaStack::retVoid()
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

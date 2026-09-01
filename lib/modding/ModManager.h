@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../json/JsonNode.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../filesystem/ResourcePath.h"
 
 class JsonNode;
 class ModDescription;
@@ -41,6 +40,7 @@ public:
 class ModsPresetState : boost::noncopyable
 {
 	JsonNode modConfig;
+	JsonPath settingsPath; // which mod-settings file we read AND write
 
 	void createInitialPreset();
 	void importInitialPreset();
@@ -48,7 +48,7 @@ class ModsPresetState : boost::noncopyable
 	const JsonNode & getActivePresetConfig() const;
 
 public:
-	ModsPresetState();
+	explicit ModsPresetState(bool useTestPreset = false);
 
 	void createNewPreset(const std::string & presetName);
 	void deletePreset(const std::string & presetName);
@@ -139,7 +139,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void tryEnableMod(const TModID & modList);
 
 public:
-	ModManager(const JsonNode & repositoryList);
+	ModManager(const JsonNode & repositoryList, bool useTestPreset = false);
 	ModManager();
 	~ModManager();
 
@@ -173,5 +173,3 @@ public:
 	/// Returns name of imported preset and list of mods that must be installed to activate preset
 	std::tuple<std::string, TModList> importPreset(const JsonNode & data);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -20,12 +20,12 @@
 #include "IUnitInfo.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EMetaText : uint8_t;
 class MetaString;
 class JsonNode;
 class JsonSerializeFormat;
+
+class ITranslator;
 
 namespace battle
 {
@@ -75,6 +75,9 @@ public:
 	virtual int32_t creatureIndex() const = 0;
 	virtual CreatureID creatureId() const = 0;
 	virtual int32_t creatureLevel() const = 0;
+	/// Level of this unit rather than the tier of its creature - the two differ for a commander,
+	/// which levels up on its own. Same as creatureLevel unless overridden.
+	virtual int32_t unitLevel() const;
 	virtual int32_t creatureCost() const = 0;
 	virtual int32_t creatureIconIndex() const = 0;
 
@@ -160,9 +163,10 @@ public:
 	static BattleHex occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	///MetaStrings
-	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
-	void addNameReplacement(MetaString & text, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
-	std::string formatGeneralMessage(const int32_t baseTextId) const;
+	void addText(MetaString & text, EMetaText type, int32_t serial) const;
+	void addNameReplacement(MetaString & text) const;
+	void addNameReplacement(MetaString & text, TQuantity count) const;
+	std::string formatGeneralMessage(const int32_t baseTextId, const ITranslator * translator) const;
 
 	int getRawSurrenderCost() const;
 
@@ -196,14 +200,12 @@ public:
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("count", count);
-		s("type", type);
-		s("side", side);
-		s("position", position);
-		s("summoned", summoned);
+		s("count",    count,    "Number of creatures in the stack.");
+		s("type",     type,     "Creature type of this stack.");
+		s("side",     side,     "Battle side the stack belongs to (attacker or defender).");
+		s("position", position, "Position of the stack on the battlefield. For double-wide units this is their front hex");
+		s("summoned", summoned, "True if the stack was summoned mid-battle and was not part of the initial army.");
 	}
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

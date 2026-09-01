@@ -101,7 +101,6 @@ public:
 	const int64_t corpseTotalHealth = 1000;
 	const int64_t effectValue = 400;
 	const BattleHex corpsePosition = BattleHex(5, 5);
-	// finalAmount = min(floor(1000/200)=5, 10, floor(400/200)=2) = 2
 	const int32_t expectedAmount = 2;
 
 	bool permanent;
@@ -149,6 +148,7 @@ TEST_P(DemonSummonApplyTest, SpawnsNewUnitAndRemovesCorpse)
 	EXPECT_CALL(corpse, unitId()).WillRepeatedly(Return(corpseId));
 
 	EXPECT_CALL(creatureServiceMock, getByName(demonId)).WillRepeatedly(Return(&demonType));
+	EXPECT_CALL(demonType, getId()).WillRepeatedly(Return(CreatureID::AIR_ELEMENTAL));
 	EXPECT_CALL(demonType, getMaxHealth()).WillRepeatedly(Return(demonMaxHealth));
 	EXPECT_CALL(demonType, getJsonKey()).WillRepeatedly(Return(demonId));
 	EXPECT_CALL(demonType, isDoubleWide()).WillRepeatedly(Return(false));

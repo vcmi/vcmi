@@ -12,8 +12,6 @@
 #include "Bonus.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class AggregateLimiter;
 class CCreatureTypeLimiter;
 class HasAnotherBonusLimiter;
@@ -76,8 +74,7 @@ public:
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
-		if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
-			h & stepSize;
+		h & stepSize;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
@@ -157,9 +154,19 @@ class DLL_LINKAGE DivideStackLevelUpdater : public IUpdater
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 
 public:
+	// when non-zero, value is computed as val * (heroLevel / stackLevel) with H3 rounding instead of val / stackLevel
+	int heroLevel = 0;
+
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		if(h.hasFeature(Handler::Version::HERO_SPECIALTY_ROUNDING))
+			h & heroLevel;
+	}
 };
 
 class DLL_LINKAGE TimesHeroLevelDivideStackLevelUpdater : public TimesHeroLevelUpdater
@@ -203,5 +210,3 @@ public:
 		h & updaters;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

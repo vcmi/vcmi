@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CMemoryBuffer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///CMemoryBuffer
 CMemoryBuffer::CMemoryBuffer():
 	position(0)
@@ -73,5 +71,3 @@ si64 CMemoryBuffer::getSize()
 }
 
 
-
-VCMI_LIB_NAMESPACE_END

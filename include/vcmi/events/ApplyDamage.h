@@ -14,8 +14,6 @@
 #include "SubscriptionRegistry.h"
 #include "../scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct BattleStackAttacked;
 
 namespace battle
@@ -46,5 +44,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

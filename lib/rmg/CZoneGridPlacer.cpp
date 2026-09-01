@@ -20,8 +20,6 @@
 
 #include <limits>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace
 {
 template <typename Fn>
@@ -31,52 +29,253 @@ void forEachInGrid(const size_t gridSize, Fn && fn)
 		for (size_t y = 0; y < gridSize; ++y)
 			fn(x, y);
 }
+
+constexpr double HEX_ROW_HEIGHT = 0.86602540378443864; // sqrt(3)/2 - vertical spacing between hex rows
+
+// odd-r offset hex neighbours: odd rows are shifted +0.5 in x, so the 6 neighbour offsets depend on row parity
+std::array<int3, 6> hexNeighbourDirs(int row)
+{
+	if (row & 1)
+		return {{ {+1, 0, 0}, {+1, -1, 0}, {0, -1, 0}, {-1, 0, 0}, {0, +1, 0}, {+1, +1, 0} }};
+	return {{ {+1, 0, 0}, {0, -1, 0}, {-1, -1, 0}, {-1, 0, 0}, {-1, +1, 0}, {0, +1, 0} }};
+}
 }
 
-CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, ScaleForceFn scaleForceBetweenZones)
+CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion,
+	const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
-	, scaleForceBetweenZones(std::move(scaleForceBetweenZones))
+	, playerRepulsion(playerRepulsion)
+	, playerZones(playerZones)
+	, participatingPlayerZones(participatingPlayerZones)
 {
 }
 
-CZoneGridPlacer::GridType & CZoneGridPlacer::getGridForLevel(std::vector<std::unique_ptr<GridType>> & grids, int level) const
+int CZoneGridPlacer::cellDistance(const int3 & a, const int3 & b) const
 {
-	return *grids.at(level);
-}
-
-void CZoneGridPlacer::getRandomGridCorner(vstd::RNG * rand, size_t gridSize, size_t & x, size_t & y)
-{
-	if (rand->nextInt(0, 1) == 1)
-		x = 0;
-	else
-		x = gridSize - 1;
-	if (rand->nextInt(0, 1) == 1)
-		y = 0;
-	else
-		y = gridSize - 1;
-}
-
-void CZoneGridPlacer::getRandomGridEdge(vstd::RNG * rand, size_t gridSize, size_t & x, size_t & y)
-{
-	switch (rand->nextInt(0, 3) % 4)
+	// odd-r offset -> cube coordinates, then cube distance
+	auto toCube = [](const int3 & c)
 	{
-	case 0:
-		x = 0;
-		y = gridSize / 2;
-		break;
-	case 1:
-		x = gridSize - 1;
-		y = gridSize / 2;
-		break;
-	case 2:
-		x = gridSize / 2;
-		y = 0;
-		break;
-	case 3:
-		x = gridSize / 2;
-		y = gridSize - 1;
-		break;
+		const int x = c.x - (c.y - (c.y & 1)) / 2;
+		const int z = c.y;
+		return int3(x, -x - z, z);
+	};
+	const int3 ca = toCube(a);
+	const int3 cb = toCube(b);
+	return (std::abs(ca.x - cb.x) + std::abs(ca.y - cb.y) + std::abs(ca.z - cb.z)) / 2;
+}
+
+std::pair<double, double> CZoneGridPlacer::normalizedCellPos(const int3 & cell, size_t gridSize, double offsetX, double offsetY) const
+{
+	// odd-r hex packing: odd rows shifted +0.5 in x, rows spaced by sqrt(3)/2. Both axes share the x scale
+	// so that neighbours stay equidistant, which leaves the shorter y axis with slack - center it,
+	// otherwise the whole layout is pushed against the top edge of the map.
+	const double spanY = gridSize * HEX_ROW_HEIGHT;
+	const double scale = 1.0 / (gridSize + 0.5);
+	const double rawX = (cell.x + offsetX) + 0.5 * (cell.y & 1);
+	const double rawY = (cell.y + offsetY) * HEX_ROW_HEIGHT;
+	return {rawX * scale, rawY * scale + (1.0 - spanY * scale) / 2};
+}
+
+int3 CZoneGridPlacer::nearestCell(const std::pair<double, double> & normPos, size_t gridSize) const
+{
+	int3 best(0, 0, 0);
+	double bestDist = std::numeric_limits<double>::infinity();
+	forEachInGrid(gridSize, [&](size_t x, size_t y)
+	{
+		const int3 cell(static_cast<si32>(x), static_cast<si32>(y), 0);
+		const auto center = normalizedCellPos(cell, gridSize);
+		const double d = std::hypot(center.first - normPos.first, center.second - normPos.second);
+		if(d < bestDist)
+		{
+			bestDist = d;
+			best = cell;
+		}
+	});
+	return best;
+}
+
+void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids, const std::vector<size_t> & gridSizes, int mapLevels, vstd::RNG * rand) const
+{
+	// Flat working state over all levels. A zone's level is fixed here - only its cell can change, so
+	// cross-level partners are realigned by rearranging same-level assignments, never by changing level.
+	std::vector<std::shared_ptr<Zone>> zonesAll;
+	std::vector<std::vector<std::shared_ptr<Zone>>> zonesByLevel(mapLevels);
+	std::vector<std::vector<int3>> emptyByLevel(mapLevels);
+	std::map<TRmgTemplateZoneId, int3> pos;
+	for (int level = 0; level < mapLevels; ++level)
+	{
+		if (!grids[level])
+			continue;
+		const size_t gridSize = gridSizes[level];
+		auto & grid = *grids[level];
+		forEachInGrid(gridSize, [&](size_t x, size_t y)
+		{
+			const int3 cell(static_cast<si32>(x), static_cast<si32>(y), level);
+			if (grid[x][y])
+			{
+				zonesAll.push_back(grid[x][y]);
+				zonesByLevel[level].push_back(grid[x][y]);
+				pos[grid[x][y]->getId()] = cell;
+			}
+			else
+				emptyByLevel[level].push_back(cell);
+		});
+	}
+	if (zonesAll.size() < 3)
+		return;
+
+	constexpr float crossAlignWeight = 6.0f; // reward for cross-level partners sharing a normalized cell
+	// Repulsion is only a tie-break: pulling one connected pair a cell apart costs 1, so the total a zone
+	// can gain from all its repulsive partners must stay below that - hence the cap, divided per partner.
+	constexpr float repulsionCap = 0.5f;
+	constexpr float connectionRepulsion = repulsionCap / 4; // a zone rarely has more than a few repulsive connections
+	// halved on top of the per-partner split, because a pair of participating players counts double below
+	const float playerRepulsionWeight = playerRepulsion * repulsionCap / (2 * std::max<size_t>(2, playerZones.size()));
+
+	// Cost of one zone's edges. Every term must stay symmetric in both endpoints, otherwise the
+	// incremental delta of a move would drift away from the total.
+	auto zoneCost = [&](const std::shared_ptr<Zone> & z) -> float
+	{
+		float cost = 0;
+		const int3 zc = pos.at(z->getId());
+		const auto zCenter = normalizedCellPos(zc, gridSizes[zc.z]);
+
+		// Measured geometrically rather than in hex hops: every non-adjacent neighbour of a given cell is
+		// exactly 2 hops away, so hop count cannot tell a partner on the opposite side from one 120 degrees
+		// around. Normalized by one cell, so a repulsive pair sitting side by side still costs "weight".
+		const double cellSpan = 1.0 / gridSizes[zc.z];
+		auto repulsion = [&](const int3 & oc, float weight)
+		{
+			if (oc.z != zc.z)
+				return 0.f;
+
+			const auto oCenter = normalizedCellPos(oc, gridSizes[oc.z]);
+			const double distance = std::hypot(zCenter.first - oCenter.first, zCenter.second - oCenter.second);
+			return static_cast<float>(weight * cellSpan / std::max(distance, cellSpan));
+		};
+
+		for (const auto & conn : z->getConnections())
+		{
+			if (conn.getZoneA() == conn.getZoneB())
+				continue;
+			auto it = pos.find(conn.getOtherZoneId(z->getId()));
+			if (it == pos.end())
+				continue;
+			const int3 oc = it->second;
+
+			if (conn.getConnectionType() == rmg::EConnectionType::REPULSIVE)
+				cost += repulsion(oc, connectionRepulsion);
+			else if (!conn.needsPassage())
+				continue;
+			else if (oc.z == zc.z)
+				cost += static_cast<float>(std::max(0, cellDistance(zc, oc) - 1));
+			else
+			{
+				const auto oCenter = normalizedCellPos(oc, gridSizes[oc.z]);
+				cost += crossAlignWeight * static_cast<float>(std::hypot(zCenter.first - oCenter.first, zCenter.second - oCenter.second));
+			}
+		}
+
+		if (vstd::contains(playerZones, z->getId()))
+		{
+			const bool weParticipate = vstd::contains(participatingPlayerZones, z->getId());
+			auto ourDistances = distancesBetweenZones.find(z->getId());
+			for (const auto & otherId : playerZones)
+			{
+				//directly connected player zones are meant to touch, they must not be pushed apart
+				const bool connected = ourDistances != distancesBetweenZones.end()
+					&& ourDistances->second.count(otherId) && ourDistances->second.at(otherId) == 1;
+				if (otherId == z->getId() || connected)
+					continue;
+
+				//players in the game push twice as hard, so they end up at the far ends of the spread
+				const bool bothParticipate = weParticipate && vstd::contains(participatingPlayerZones, otherId);
+				cost += repulsion(pos.at(otherId), playerRepulsionWeight * (bothParticipate ? 2.f : 1.f));
+			}
+		}
+
+		return cost;
+	};
+
+	float current = 0;
+	for (const auto & z : zonesAll)
+		current += zoneCost(z);
+	current *= 0.5f; // each edge counted from both endpoints
+
+	auto best = pos;
+	float bestCost = current;
+
+	const int iterations = std::max<int>(2000, 300 * static_cast<int>(zonesAll.size()));
+	float temperature = 3.0f;
+	const float cooling = std::pow(0.02f / temperature, 1.0f / iterations); // anneal down to ~0.02
+
+	for (int i = 0; i < iterations; ++i, temperature *= cooling)
+	{
+		const auto & z = zonesAll[rand->nextInt(0, static_cast<int>(zonesAll.size()) - 1)];
+		const int level = pos[z->getId()].z;
+		auto & empties = emptyByLevel[level];
+
+		if (!empties.empty() && rand->nextInt(0, 4) == 0)
+		{
+			// move a zone into an empty cell on its level
+			const int ei = rand->nextInt(0, static_cast<int>(empties.size()) - 1);
+			const int3 oldCell = pos[z->getId()];
+			const float before = zoneCost(z);
+			pos[z->getId()] = empties[ei];
+			const float delta = zoneCost(z) - before;
+			if (delta <= 0 || rand->nextDouble(0, 1) < std::exp(-delta / temperature))
+			{
+				empties[ei] = oldCell;
+				current += delta;
+			}
+			else
+				pos[z->getId()] = oldCell;
+		}
+		else
+		{
+			// swap two zones' cells on the same level
+			const auto & peers = zonesByLevel[level];
+			if (peers.size() < 2)
+				continue;
+			const auto & za = z;
+			const auto & zb = peers[rand->nextInt(0, static_cast<int>(peers.size()) - 1)];
+			if (za == zb)
+				continue;
+			const int3 ca = pos[za->getId()];
+			const int3 cb = pos[zb->getId()];
+			const float before = zoneCost(za) + zoneCost(zb);
+			pos[za->getId()] = cb;
+			pos[zb->getId()] = ca;
+			const float delta = (zoneCost(za) + zoneCost(zb)) - before;
+			if (delta <= 0 || rand->nextDouble(0, 1) < std::exp(-delta / temperature))
+				current += delta;
+			else
+			{
+				pos[za->getId()] = ca;
+				pos[zb->getId()] = cb;
+			}
+		}
+
+		if (current < bestCost)
+		{
+			bestCost = current;
+			best = pos;
+		}
+	}
+
+	// commit the best assignment found, per level
+	for (int level = 0; level < mapLevels; ++level)
+	{
+		if (!grids[level])
+			continue;
+		auto & grid = *grids[level];
+		forEachInGrid(gridSizes[level], [&](size_t x, size_t y) { grid[x][y].reset(); });
+	}
+	for (const auto & z : zonesAll)
+	{
+		const int3 cell = best.at(z->getId());
+		(*grids[cell.z])[cell.x][cell.y] = z;
 	}
 }
 
@@ -142,11 +341,8 @@ std::vector<std::shared_ptr<Zone>> CZoneGridPlacer::findAnchors(
 	std::vector<std::shared_ptr<Zone>> anchors;
 	for (const auto & conn : zone->getConnections())
 	{
-		if (conn.getConnectionType() == rmg::EConnectionType::REPULSIVE ||
-			conn.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
-		{
+		if (!conn.needsPassage())
 			continue;
-		}
 
 		auto otherId = conn.getOtherZoneId(zone->getId());
 		if (placedPositions.count(otherId))
@@ -182,30 +378,27 @@ float CZoneGridPlacer::calculateUnconnectedTieBreak(
 		if (graphDist == 0)
 			graphDist = 32; // different graph components: emphasize grid distance
 
-		const auto d2 = static_cast<float>(gridPos.dist2d(int3(static_cast<si32>(existingX), static_cast<si32>(existingY), 0)));
-		acc += d2 * static_cast<float>(graphDist) * scaleForceBetweenZones(zone, existingZone);
+		const int3 existingCell(static_cast<si32>(existingX), static_cast<si32>(existingY), 0);
+		acc += static_cast<float>(cellDistance(gridPos, existingCell) * graphDist);
 	});
 	return acc;
 }
 
-float CZoneGridPlacer::sumWeightedDistanceToPlacedZones(
+float CZoneGridPlacer::sumDistanceToPlacedZones(
 	const GridType & grid,
 	size_t gridSize,
-	const std::shared_ptr<Zone> & zone,
 	size_t freeX,
 	size_t freeY) const
 {
 	const int3 potentialPos(static_cast<si32>(freeX), static_cast<si32>(freeY), 0);
 	float distance = 0;
-	forEachInGrid(gridSize, [this, &grid, &potentialPos, &zone, &distance](size_t existingX, size_t existingY)
+	forEachInGrid(gridSize, [this, &grid, &potentialPos, &distance](size_t existingX, size_t existingY)
 	{
-		const auto existingZone = grid[existingX][existingY];
-		if (!existingZone)
+		if (!grid[existingX][existingY])
 			return;
 
-		auto localDistance = static_cast<float>(potentialPos.dist2d(int3(static_cast<si32>(existingX), static_cast<si32>(existingY), 0)));
-		localDistance *= scaleForceBetweenZones(zone, existingZone);
-		distance += localDistance;
+		const int3 existingCell(static_cast<si32>(existingX), static_cast<si32>(existingY), 0);
+		distance += static_cast<float>(cellDistance(potentialPos, existingCell));
 	});
 	return distance;
 }
@@ -218,14 +411,15 @@ float CZoneGridPlacer::sumDistanceToAnchorsScaled(
 	const std::vector<size_t> & gridSizes,
 	const std::map<TRmgTemplateZoneId, int3> & placedPositions) const
 {
+	// Anchors may sit on another level, whose grid has a different size - compare through normalized
+	// positions, the same way annealGrids measures cross-level alignment.
+	const auto at = normalizedCellPos(int3(static_cast<si32>(x), static_cast<si32>(y), 0), gridSize);
 	float sumDist = 0;
 	for (const auto & anchor : anchors)
 	{
 		const int3 anchorPos = placedPositions.at(anchor->getId());
-		const float scale = static_cast<float>(gridSize) / static_cast<float>(gridSizes[anchorPos.z]);
-		const int3 at(static_cast<si32>(x), static_cast<si32>(y), 0);
-		const int3 anchorXY(anchorPos.x, anchorPos.y, 0);
-		sumDist += static_cast<float>(at.dist2d(anchorXY * static_cast<double>(scale)));
+		const auto anchorAt = normalizedCellPos(anchorPos, gridSizes[anchorPos.z]);
+		sumDist += static_cast<float>(std::hypot(at.first - anchorAt.first, at.second - anchorAt.second));
 	}
 	return sumDist;
 }
@@ -235,49 +429,16 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithoutAnchors(
 	const GridType & grid,
 	size_t gridSize,
 	int level,
-	bool levelHasZones,
-	vstd::RNG * rand) const
+	bool levelHasZones) const
 {
 	PlacementDecision decision;
 	decision.bestPos = int3(-1, -1, level);
 
 	if (!levelHasZones)
 	{
-		size_t x = 0;
-		size_t y = 0;
-
-		switch (zone->getType())
-		{
-			case ETemplateZoneType::PLAYER_START:
-			case ETemplateZoneType::CPU_START:
-				if (zone->getConnectedZoneIds().size() > 2)
-				{
-					getRandomGridEdge(rand, gridSize, x, y);
-				}
-				else
-				{
-					getRandomGridCorner(rand, gridSize, x, y);
-				}
-				break;
-			case ETemplateZoneType::TREASURE:
-				if (gridSize & 1) // odd
-				{
-					x = y = gridSize / 2;
-				}
-				else
-				{
-					x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-					y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-				}
-				break;
-			case ETemplateZoneType::JUNCTION:
-				getRandomGridEdge(rand, gridSize, x, y);
-				break;
-			default:
-				break;
-		}
-
-		decision.bestPos = int3(x, y, level);
+		// first zone on the level is the highest-degree hub - seed it centrally where the most
+		// neighbours are reachable, and grow the rest outward around it
+		decision.bestPos = int3(gridSize / 2, gridSize / 2, level);
 		decision.foundPos = true;
 		return decision;
 	}
@@ -290,7 +451,7 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithoutAnchors(
 		if (grid[freeX][freeY])
 			return;
 
-		const float distance = sumWeightedDistanceToPlacedZones(grid, gridSize, zone, freeX, freeY);
+		const float distance = sumDistanceToPlacedZones(grid, gridSize, freeX, freeY);
 		const float tie = calculateUnconnectedTieBreak(int3(freeX, freeY, level), zone, grid, gridSize);
 		if (betterByPrimaryThenTie(true, distance, maxDistance, tie, bestTieBreak))
 		{
@@ -299,7 +460,6 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithoutAnchors(
 			decision.bestPos = int3(freeX, freeY, level);
 			decision.foundPos = true;
 			decision.score = static_cast<double>(distance);
-			decision.hasScore = true;
 		}
 	});
 
@@ -319,10 +479,7 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithAnchors(
 	decision.bestPos = int3(-1, -1, level);
 
 	std::map<std::pair<int, int>, float> candidateScores;
-	constexpr float anchorOrthogonalWeight = 1.0f;
-	constexpr float anchorDiagonalWeight = 0.7f;
-	constexpr auto anchorNeighborDirs = int3::getDirs();
-	const int3 origin2d;
+	constexpr float anchorNeighbourWeight = 1.0f;
 
 	for (const auto & anchor : anchors)
 	{
@@ -330,26 +487,18 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithAnchors(
 
 		if (anchorPos.z == level)
 		{
-			for (const int3 & d : anchorNeighborDirs)
+			for (const int3 & d : hexNeighbourDirs(anchorPos.y))
 			{
 				const int3 cell = anchorPos + d;
-				if (!isWithinGrid(cell, gridSize))
-					continue;
-				const ui32 dSq = d.dist2dSQ(origin2d);
-				const float w = (dSq == 1) ? anchorOrthogonalWeight : anchorDiagonalWeight;
-				candidateScores[{cell.x, cell.y}] += w;
+				if (isWithinGrid(cell, gridSize))
+					candidateScores[{cell.x, cell.y}] += anchorNeighbourWeight;
 			}
 		}
 		else
 		{
-			const double scale = static_cast<double>(gridSize) / static_cast<double>(gridSizes[anchorPos.z]);
-			int3 cell(
-				static_cast<si32>(std::round(anchorPos.x * scale)),
-				static_cast<si32>(std::round(anchorPos.y * scale)),
-				0);
-			cell.x = std::clamp(cell.x, 0, static_cast<si32>(gridSize) - 1);
-			cell.y = std::clamp(cell.y, 0, static_cast<si32>(gridSize) - 1);
-			candidateScores[{cell.x, cell.y}] += anchorOrthogonalWeight;
+			// cross-level partner: aim for the cell overlapping it, so a subterranean gate is possible
+			const int3 cell = nearestCell(normalizedCellPos(anchorPos, gridSizes[anchorPos.z]), gridSize);
+			candidateScores[{cell.x, cell.y}] += anchorNeighbourWeight;
 		}
 	}
 
@@ -368,7 +517,6 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithAnchors(
 			decision.bestPos = int3(pos.first, pos.second, level);
 			decision.foundPos = true;
 			decision.score = static_cast<double>(score);
-			decision.hasScore = true;
 		}
 	}
 
@@ -391,7 +539,6 @@ CZoneGridPlacer::PlacementDecision CZoneGridPlacer::findPlacementWithAnchors(
 			decision.bestPos = int3(x, y, level);
 			decision.foundPos = true;
 			decision.score = static_cast<double>(sumDist);
-			decision.hasScore = true;
 		}
 	});
 
@@ -410,57 +557,12 @@ void CZoneGridPlacer::logPlacement(
 		return;
 	}
 
-	if (decision.hasScore)
-	{
-		logGlobal->trace(
-			"placeOnGrid: zone %d level %d grid %s score %.6g",
-			zone->getId(),
-			level,
-			decision.bestPos.toString(),
-			decision.score);
-	}
-	else
-	{
-		logGlobal->trace(
-			"placeOnGrid: zone %d level %d grid %s",
-			zone->getId(),
-			level,
-			decision.bestPos.toString());
-	}
-}
-
-void CZoneGridPlacer::logInitialGrid(
-	const std::vector<std::unique_ptr<GridType>> & grids,
-	const std::vector<size_t> & gridSizes,
-	int mapLevels) const
-{
-
-#define ZONE_PLACEMENT_LOG
-#ifdef ZONE_PLACEMENT_LOG
-	logGlobal->trace("Initial zone grid:");
-	for (int level = 0; level < mapLevels; ++level)
-	{
-		if (!grids[level])
-			continue;
-
-		const auto & grid = *grids[level];
-		size_t gridSize = gridSizes[level];
-		logGlobal->trace("Level %d:", level);
-
-		for (size_t x = 0; x < gridSize; ++x)
-		{
-			std::string s;
-			for (size_t y = 0; y < gridSize; ++y)
-			{
-				if (grid[x][y])
-					s += (boost::format("%3d ") % grid[x][y]->getId()).str();
-				else
-					s += " -- ";
-			}
-			logGlobal->trace(s);
-		}
-	}
-#endif
+	logGlobal->trace(
+		"placeOnGrid: zone %d level %d grid %s score %.6g",
+		zone->getId(),
+		level,
+		decision.bestPos.toString(),
+		decision.score);
 }
 
 void CZoneGridPlacer::setInitialZoneCenters(
@@ -477,19 +579,15 @@ void CZoneGridPlacer::setInitialZoneCenters(
 		const auto & grid = *grids[level];
 		size_t gridSize = gridSizes[level];
 
-		forEachInGrid(gridSize, [&grid, &rand, gridSize, level](size_t x, size_t y)
+		forEachInGrid(gridSize, [this, &grid, &rand, gridSize, level](size_t x, size_t y)
 		{
 			auto zone = grid[x][y];
 			if (!zone)
 				return;
 
-			// i.e. for grid size 5 we get range (0.25 - 4.75)
-			auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
-			vstd::abetween(targetX, 0.5, gridSize - 0.5);
-			auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
-			vstd::abetween(targetY, 0.5, gridSize - 0.5);
-
-			zone->setCenter(float3(targetX / gridSize, targetY / gridSize, level));
+			const int3 cell(static_cast<si32>(x), static_cast<si32>(y), level);
+			const auto [targetX, targetY] = normalizedCellPos(cell, gridSize, rand->nextDouble(0.25, 0.75), rand->nextDouble(0.25, 0.75));
+			zone->setCenter(float3(static_cast<float>(targetX), static_cast<float>(targetY), level));
 		});
 	}
 }
@@ -504,16 +602,32 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 	std::vector<bool> levelHasZones(mapLevels, false);
 	std::map<TRmgTemplateZoneId, int3> placedPositions;
 
+	// Highest-degree zones go first, so each level's hub lands centrally and every later zone finds its
+	// anchors already placed. Shuffle first so equal degrees are broken by seed rather than by zone id.
+	std::vector<std::shared_ptr<Zone>> order;
+	order.reserve(zones.size());
 	for (const auto & pair : zones)
+		order.push_back(pair.second);
+	RandomGeneratorUtil::randomShuffle(order, *rand);
+	//degree = number of real (non-virtual, non-self) connections
+	auto zoneDegree = [](const std::shared_ptr<Zone> & zone)
 	{
-		auto zone = pair.second;
+		return std::ranges::count_if(zone->getConnections(), &rmg::ZoneConnection::needsPassage);
+	};
+	std::ranges::stable_sort(order, [&zoneDegree](const std::shared_ptr<Zone> & a, const std::shared_ptr<Zone> & b)
+	{
+		return zoneDegree(a) > zoneDegree(b);
+	});
+
+	for (const auto & zone : order)
+	{
 		const int level = zone->getCenter().z;
-		auto & grid = getGridForLevel(grids, level);
+		auto & grid = *grids.at(level);
 		const size_t gridSize = gridSizes[level];
 
 		const auto anchors = findAnchors(zone, zones, placedPositions);
 		const PlacementDecision decision = anchors.empty()
-			? findPlacementWithoutAnchors(zone, grid, gridSize, level, levelHasZones[level], rand)
+			? findPlacementWithoutAnchors(zone, grid, gridSize, level, levelHasZones[level])
 			: findPlacementWithAnchors(zone, anchors, grid, gridSizes, gridSize, level, placedPositions);
 
 		logPlacement(zone, level, gridSize, decision);
@@ -526,8 +640,6 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 		levelHasZones[level] = true;
 	}
 
-	logInitialGrid(grids, gridSizes, mapLevels);
+	annealGrids(grids, gridSizes, mapLevels, rand);
 	setInitialZoneCenters(grids, gridSizes, mapLevels, rand);
 }
-
-VCMI_LIB_NAMESPACE_END

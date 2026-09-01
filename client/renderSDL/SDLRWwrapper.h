@@ -9,11 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
-
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_RWops;
 

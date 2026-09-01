@@ -32,9 +32,13 @@
 #include "AdventureOptions.h"
 #include "AdventureState.h"
 
+#include "../replay/GameplayReplayer.h"
+#include "../replay/ReplaySelectionWindow.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -77,7 +81,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
 		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
-		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
+		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewJournal(), [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
@@ -103,7 +107,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionQuickSaveLoad(),  [this]() { this->quickLoadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
-		{ EShortcut::ADVENTURE_REPLAY_TURN,      optionInMapView(),      [this]() { this->replayTurn(); } },
+		{ EShortcut::ADVENTURE_REPLAY_TURN,      optionReplayTurn(),     [this]() { this->replayTurn(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
@@ -334,7 +338,7 @@ void AdventureMapShortcuts::endTurn()
 void AdventureMapShortcuts::showThievesGuild()
 {
 	//find first town with tavern
-	auto itr = boost::range::find_if(GAME->interface()->localState->getOwnedTowns(), [](const CGTownInstance * town)
+	auto itr = std::ranges::find_if(GAME->interface()->localState->getOwnedTowns(), [](const CGTownInstance * town)
 	{
 		return town->hasBuilt(BuildingID::TAVERN);
 	});
@@ -415,7 +419,14 @@ void AdventureMapShortcuts::digGrail()
 
 void AdventureMapShortcuts::replayTurn()
 {
-	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented"));
+	// while a replay is running the very same shortcut ends it again
+	if(GAME->server().isReplayActive())
+	{
+		GAME->server().replayer().requestStop();
+		return;
+	}
+
+	ReplaySelection::showSelectionDialog();
 }
 
 void AdventureMapShortcuts::viewPuzzleMap()
@@ -528,7 +539,7 @@ void AdventureMapShortcuts::search(bool next)
 	// count of elements for each group (map is already sorted)
 	std::map<std::pair<std::string, ColorRGBA>, int> mapObjCount;
 	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName(), getColor(obj->ID)}]++;
+		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString(&GAME->translator()), getColor(obj->ID)}]++;
 
 	// convert to vector for indexed access
 	std::vector<std::pair<std::pair<std::string, ColorRGBA>, int>> textCountList;
@@ -554,7 +565,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
 			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString(&GAME->translator()))
 					selVisitableObjInstances.push_back(obj->id);
 
 			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj.first)
@@ -564,7 +575,7 @@ void AdventureMapShortcuts::search(bool next)
 
 			auto objInst = GAME->interface()->cb->getObjInstance(selVisitableObjInstances[searchPos]);
 			owner.centerOnObject(objInst);
-			searchLast = objInst->getObjectName();
+			searchLast = objInst->getObjectName().toString(&GAME->translator());
 		};
 	auto openObjMap = [textCountList](int index)
 		{
@@ -573,7 +584,7 @@ void AdventureMapShortcuts::search(bool next)
 			// filter for matching objects
 			std::vector<const CGObjectInstance *> selVisitableObjInstances;
 			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName().toString(&GAME->translator()))
 					selVisitableObjInstances.push_back(obj);
 
 			ENGINE->windows().createAndPushWindow<SearchPopup>(selVisitableObjInstances);
@@ -642,9 +653,9 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 			GAME->interface()->moveHero(h, path);
 }
 
-bool AdventureMapShortcuts::optionCanViewQuests()
+bool AdventureMapShortcuts::optionCanViewJournal()
 {
-	return optionInMapView() && !GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->quests.empty();
+	return optionInMapView() && GAME->interface()->hasJournalEntries();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
@@ -712,6 +723,12 @@ bool AdventureMapShortcuts::optionSpellcasting()
 bool AdventureMapShortcuts::optionInMapView()
 {
 	return state == EAdventureState::MAKING_TURN;
+}
+
+bool AdventureMapShortcuts::optionReplayTurn()
+{
+	// enabled during own turn to start a replay, and during a replay to interrupt it
+	return state == EAdventureState::MAKING_TURN || GAME->server().isReplayActive();
 }
 
 bool AdventureMapShortcuts::optionInWorldView()

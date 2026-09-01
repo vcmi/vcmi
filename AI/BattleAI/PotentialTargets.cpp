@@ -68,7 +68,7 @@ PotentialTargets::PotentialTargets(
 		{
 			for(const BattleHex & hex : avHexes)
 			{
-				if(!CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
+				if(!state->isMeleeAttackPossible(attackerInfo, defender, hex))
 					continue;
 
 				auto bai = GenerateAttackInfo(false, hex);
@@ -81,7 +81,7 @@ PotentialTargets::PotentialTargets(
 		}
 	}
 
-	boost::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
+	std::ranges::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
 	{
 		return lhs.damageDiff() > rhs.damageDiff();
 	});

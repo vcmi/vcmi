@@ -304,6 +304,12 @@
 					"text": "vcmi.adventureOptions.hideBackground.hover"
 				},
 				{
+					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.replayShowBattles.hover"
+				},
+				{
 					"text": "vcmi.keyBindings.button.hover"
 				}
 			]
@@ -338,6 +344,16 @@
 					"name": "hideBackgroundCheckbox",
 					"help": "vcmi.adventureOptions.hideBackground",
 					"callback": "hideBackgroundChanged"
+				},
+				{
+					"name": "minimapShowHeroesCheckbox",
+					"help": "vcmi.adventureOptions.minimapShowHeroes",
+					"callback": "minimapShowHeroesChanged"
+				},
+				{
+					"name": "replayShowBattlesCheckbox",
+					"help": "vcmi.adventureOptions.replayShowBattles",
+					"callback": "replayShowBattlesChanged"
 				},
 				{
 					"name": "shortcutButton",

@@ -13,25 +13,60 @@
 #include "LuaScriptInstance.h"
 
 #include "../lib/filesystem/Filesystem.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../lib/modding/ModScope.h"
 
 namespace scripting
 {
 
-LuaScriptInstance::LuaScriptInstance(LuaModule & host, const std::string & modScope, const std::string & sourcePath)
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host,
+	const std::string & baseScope, const ScriptPath & basePath,
+	const std::vector<std::pair<std::string, std::string>> & patches)
 	: host(host)
-	, modScope(modScope)
-	, sourcePath(sourcePath)
+	, baseModScope(baseScope)
+	, baseSourcePath(basePath.getName())
 {
-	ScriptPath sourcePathId = ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/");
-	CResourceHandler::get(modScope)->load(sourcePathId);
+	loadLayer(baseScope, basePath);
+	for (const auto & [scope, path] : patches)
+		loadLayer(scope, path);
+}
 
-	auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
-	sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
+	const std::vector<std::string> & builtinLayers)
+	: host(host)
+	, baseModScope(baseScope)
+	, baseSourcePath(":map")
+{
+	Layer layer;
+	layer.sourceText = std::move(sourceText);
+	layer.identifier = baseModScope + baseSourcePath;
+	layers.push_back(std::move(layer));
+
+	for(const auto & name : builtinLayers)
+		loadLayer(ModScope::scopeBuiltin(), name);
 }
 
 LuaScriptInstance::~LuaScriptInstance() = default;
+
+void LuaScriptInstance::loadLayer(const std::string & modScope, const std::string & sourcePath)
+{
+	loadLayer(modScope, ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/"));
+}
+
+void LuaScriptInstance::loadLayer(const std::string & modScope, const ScriptPath & sourcePath)
+{
+	auto * loader = CResourceHandler::get(modScope);
+	if (!loader->existsResource(sourcePath))
+	{
+		logMod->error("Script layer not found: %s:%s", modScope, sourcePath.getName());
+		return;
+	}
+
+	Layer layer;
+	auto rawData = loader->load(sourcePath)->readAll();
+	layer.sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
+	layer.identifier = modScope + ':' + sourcePath.getName();
+	layers.push_back(std::move(layer));
+}
 
 std::shared_ptr<LuaContext> LuaScriptInstance::createContext(const Environment * ENV) const
 {
@@ -39,5 +74,3 @@ std::shared_ptr<LuaContext> LuaScriptInstance::createContext(const Environment *
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

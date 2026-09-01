@@ -171,7 +171,7 @@ void CHeroArea::showPopupWindow(const Point & cursorPosition)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		ENGINE->statusbar()->write(hero->getObjectName());
+		ENGINE->statusbar()->write(hero->getObjectName().toString(&GAME->translator()));
 	else
 		ENGINE->statusbar()->clear();
 }
@@ -214,15 +214,18 @@ void CMinorResDataBar::show(Canvas & to)
 
 std::string CMinorResDataBar::buildDateString()
 {
-	std::string pattern = "%s: %d, %s: %d, %s: %d";
-
 	auto calendar = GAME->interface()->cb->getCalendar();
-	auto formatted = boost::format(pattern)
-		% LIBRARY->generaltexth->translate("core.genrltxt.62") % calendar.getMonth()
-		% LIBRARY->generaltexth->translate("core.genrltxt.63") % calendar.getWeek()
-		% LIBRARY->generaltexth->translate("core.genrltxt.64") % calendar.getDayOfWeek();
 
-	return boost::str(formatted);
+	MetaString date;
+	date.appendTextID("vcmi.adventureMap.dateFormat");
+	date.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+	date.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+	date.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+	date.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+	date.replaceTokenTextID("%DAY", "core.genrltxt.64");
+	date.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+
+	return date.toString(&GAME->translator());
 }
 
 void CMinorResDataBar::showAll(Canvas & to)
@@ -265,7 +268,7 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
-			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
+			logGlobal->warn("%s has stack in slot %d", army.name.toString(&GAME->translator()), slot.first.getNum());
 			continue;
 		}
 
@@ -289,7 +292,7 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
+					subtitle = GAME->translator().translate("core.arraytxt", 171 + 3 * (slot.second.getCount()));
 				}
 			}
 		}
@@ -302,7 +305,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name.toString(&GAME->translator()));
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -320,7 +323,7 @@ void CGarrisonTooltip::init(const InfoAboutArmy& army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name.toString(&GAME->translator()));
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(14, 48));
@@ -396,7 +399,7 @@ void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 {
 	OBJECT_CONSTRUCTION;
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name.toString(&GAME->translator()));
 
 	if(hero.details)
 	{
@@ -526,7 +529,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= GAME->interface()->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name.toString(&GAME->translator()));
 
 	if(townInfo.details)
 	{
@@ -574,9 +577,9 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
 	bool isHeroSelected = GAME->interface()->localState->getCurrentHero() != nullptr;
-	std::string textContent = isHeroSelected
+	std::string textContent = (isHeroSelected
 			? creature->getPopupText(GAME->interface()->localState->getCurrentHero())
-			: creature->getPopupText(GAME->interface()->playerID);
+			: creature->getPopupText(GAME->interface()->playerID)).toString(&GAME->translator());
 
 	//TODO: window is bigger than OH3
 	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:
@@ -612,14 +615,15 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
-	hoverText = LIBRARY->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
+	hoverText = GAME->translator().translate("core.heroscrn", hoverTextBase[morale] - mrlt);
 	component.type = componentType[morale];
-	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
-	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
+	MetaString description = MetaString::createFromTextID("core.arraytxt", textId[morale]);
+	description.replaceTextID("core.arraytxt", neutralDescr[morale] - mrlt);
+	text = description.toString(&GAME->translator());
 
 	if (morale && node && node->unaffectedByMorale())
 	{
-		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
+		text += LIBRARY->generaltexth->translate("core.arraytxt.113"); //unaffected by morale
 		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
@@ -650,7 +654,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			}
 		}
 		text = addInfo.empty() 
-			? text + LIBRARY->generaltexth->arraytxt[noneTxtId] 
+			? text + GAME->translator().translate("core.arraytxt", noneTxtId) 
 			: text + addInfo;
 	}
 	std::string imageName;

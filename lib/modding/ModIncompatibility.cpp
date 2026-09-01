@@ -10,8 +10,4 @@
 #include "StdInc.h"
 #include "ModIncompatibility.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ModIncompatibility::~ModIncompatibility() = default;
-
-VCMI_LIB_NAMESPACE_END

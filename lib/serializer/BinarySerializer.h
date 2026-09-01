@@ -14,8 +14,6 @@
 #include "ESerializationVersion.h"
 #include "SerializerReflection.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Main class for serialization of classes into binary form
 /// Behaviour for various classes is following:
 /// Primitives:    copy memory into underlying stream (defined in CSaverBase)
@@ -53,8 +51,10 @@ public:
 	}
 
 private:
-	std::map<std::string, uint32_t> savedStrings;
-	std::map<const Serializeable*, uint32_t> savedPointers;
+	// unordered_map: only ever looked up / inserted by key, never iterated,
+	// so hash-map lookup (O(1) avg) is a safe drop-in win over the O(log n) tree lookup.
+	std::unordered_map<std::string, uint32_t> savedStrings;
+	std::unordered_map<const Serializeable*, uint32_t> savedPointers;
 	IBinaryWriter * writer;
 
 	static constexpr bool trackSerializedPointers = true;
@@ -216,6 +216,15 @@ private:
 		T * internalPtr = data.get();
 		save(internalPtr);
 	}
+	/// raw blob of bytes, e.g. a gamestate snapshot - written in bulk instead of byte by byte
+	void save(const std::vector<std::byte> & data)
+	{
+		uint32_t length = data.size();
+		*this & length;
+		if(length != 0)
+			writer->write(data.data(), length);
+	}
+
 	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
 	void save(const std::vector<T> & data)
 	{
@@ -363,5 +372,3 @@ private:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

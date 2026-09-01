@@ -13,8 +13,6 @@
 #include "../ISpellMechanics.h"
 #include "battle/BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace effects
@@ -44,5 +42,3 @@ Target LocationEffect::transformTarget(const Mechanics * m, const Target & aimPo
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

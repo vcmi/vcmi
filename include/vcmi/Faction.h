@@ -13,8 +13,6 @@
 #include "Entity.h"
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class FactionID;
 enum class EAlignment : int8_t;
 class BoatId;
@@ -26,5 +24,3 @@ public:
 	virtual EAlignment getAlignment() const = 0;
 	virtual BoatId getBoatType() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

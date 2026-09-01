@@ -13,8 +13,6 @@
 #include "IGameEventsReceiver.h"
 #include "../constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleStateInfoForRetreat;
 struct ObjectPosInfo;
 
@@ -55,6 +53,5 @@ public:
 	virtual void invalidatePaths(){};
 
 	virtual void setColorScheme(ColorScheme scheme){};
+	virtual std::string heroRoleDebugText(const CGHeroInstance *) const { return {}; };
 };
-
-VCMI_LIB_NAMESPACE_END

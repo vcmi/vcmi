@@ -26,8 +26,6 @@
 #include "CGHeroInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CGPandoraBox::init()
 {
 	blockVisit = true;
@@ -63,7 +61,7 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 	{
 		MetaString text;
 		text.appendLocalString(EMetaText::ADVOB_TXT, cond ? posId : negId);
-		text.replaceRawString(h->getNameTranslated());
+		text.replaceTextID(h->getNameTextID());
 		return text;
 	};
 	
@@ -140,12 +138,12 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 		}
 		
 		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].getCount() == 1)
-			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
+			txt.appendTextID("core.advevent.185");
 		else
-			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
+			txt.appendTextID("core.advevent.186");
 		
-		txt.replaceRawString(loot.buildList());
-		txt.replaceRawString(h->getNameTranslated());
+		txt.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
+		txt.replaceTextID(h->getNameTextID());
 	}
 	sendInfoWindow(txt, temp);
 	
@@ -175,7 +173,7 @@ void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInst
 {
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
-	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
+	bd.text.appendTextID("core.advevent.14");
 	gameEvents.showBlockingDialog(this, &bd);
 }
 
@@ -306,6 +304,11 @@ void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstan
 	}
 }
 
+void CGEvent::configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance *, int) const
+{
+	infoWindow.journalInfo = ScenarioEventJournalInfo{visitablePos()};
+}
+
 void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
 	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
@@ -334,7 +337,8 @@ void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * 
 		if(!message.empty())
 			iw.text = message;
 		else
-			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
+			iw.text.appendTextID("core.advevent.16");
+		iw.journalInfo = ScenarioEventJournalInfo{visitablePos()};
 		gameEvents.showInfoDialog(&iw);
 		gameEvents.startBattle(h, this);
 	}
@@ -354,5 +358,3 @@ void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
 	if (handler.saving || !handler.getCurrent()["availableFor"].isNull())
 		handler.serializeIdArray("availableFor", availableFor); // else - keep default value
 }
-
-VCMI_LIB_NAMESPACE_END

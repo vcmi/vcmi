@@ -14,7 +14,6 @@
 #include <QVBoxLayout>
 #include "../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 class QRadioButton;
 class QButtonGroup;

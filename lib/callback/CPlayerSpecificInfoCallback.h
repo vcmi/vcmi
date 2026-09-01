@@ -11,9 +11,8 @@
 
 #include "CGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct QuestInfo;
+struct ScenarioEventJournalEntry;
 
 class ResourceSet;
 
@@ -34,9 +33,8 @@ public:
 	virtual std::vector <const CGHeroInstance *> getHeroesInfo() const;
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
+	virtual std::vector<ScenarioEventJournalEntry> getMyScenarioEventJournal() const;
 
 	virtual int getResourceAmount(GameResID type) const;
 	virtual ResourceSet getResourceAmount() const;
 };
-
-VCMI_LIB_NAMESPACE_END

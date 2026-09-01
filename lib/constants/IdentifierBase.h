@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE IdentifierResolutionException : public std::runtime_error
 {
 public:
@@ -256,5 +254,3 @@ public:
 		h & finalClass->num;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

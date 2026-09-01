@@ -20,8 +20,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 SHeroName::SHeroName() : heroId(-1)
 {
 }
@@ -160,10 +158,7 @@ void CMapHeader::registerMapStrings()
 	}
 	
 	if(maxStrings == 0 || mapLanguages.empty())
-	{
-		logGlobal->trace("Map %s doesn't have any supported translation", name.toString());
 		return;
-	}
 	
 	//identifying base languages
 	for(auto & translation : translations.Struct())
@@ -200,7 +195,7 @@ void CMapHeader::registerMapStrings()
 		JsonUtils::mergeCopy(data, translations[language]);
 	
 	for(auto & s : data.Struct())
-		texts.registerString("map", TextIdentifier(s.first), s.second.String());
+		texts->registerString("map", TextIdentifier(s.first), s.second.String());
 }
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
@@ -210,9 +205,7 @@ std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeade
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	mapHeader.texts.registerString(modContext, UID, localized);
+	mapHeader.texts->registerString(modContext, UID, localized);
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }
-
-VCMI_LIB_NAMESPACE_END

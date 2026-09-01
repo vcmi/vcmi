@@ -9,9 +9,8 @@
  */
 #pragma once
 
+#include "ITranslator.h"
 #include "TextIdentifier.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
@@ -24,11 +23,9 @@ struct ExportedStrings
 	std::vector<std::string> overridenMods;
 };
 
-class DLL_LINKAGE TextLocalizationContainer
+class DLL_LINKAGE TextLocalizationContainer : public ITranslator
 {
 protected:
-	static std::recursive_mutex globalTextMutex;
-
 	struct StringState
 	{
 		/// Human-readable string that was added on registration
@@ -55,17 +52,15 @@ protected:
 	/// map identifier -> localization
 	std::unordered_map<std::string, StringState> stringsLocalizations;
 
-	std::vector<const TextLocalizationContainer *> subContainers;
-
 	/// add selected string to internal storage as high-priority strings
 	void registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 
-	std::string getModLanguage(const std::string & modContext);
-
-	// returns true if identifier with such name was registered, even if not translated to current language
-	bool identifierExists(const TextIdentifier & UID) const;
+	std::string getModLanguage(const std::string & modContext) const;
 
 public:
+	/// returns true if identifier with such name was registered, even if not translated to current language
+	bool identifierExists(const TextIdentifier & UID) const;
+
 	/// Loads translation from provided json
 	/// Any entries loaded by this will have priority over texts registered normally
 	void loadTranslationOverrides(const std::string & modContext, const std::string & language, JsonNode const & file);
@@ -75,47 +70,23 @@ public:
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 	void registerString(const std::string & identifierModContext, const std::string & localizedStringModContext, const TextIdentifier & UID, const std::string & localized);
 
-	/// returns translated version of a string that can be displayed to user
-	template<typename  ... Args>
-	std::string translate(std::string arg1, Args ... args) const
-	{
-		TextIdentifier id(arg1, args ...);
-		return translateString(id);
-	}
-
 	/// converts identifier into user-readable string
-	const std::string & translateString(const TextIdentifier & identifier) const;
+	const std::string & translateString(const TextIdentifier & identifier) const override;
 
 	/// Debug method, returns all currently stored texts
 	/// Format: [mod ID][string ID] -> human-readable text
 	void exportAllTexts(std::map<std::string, ExportedStrings> & storage, bool onlyMissing) const;
-
-	/// Add or override subcontainer which can store identifiers
-	void addSubContainer(const TextLocalizationContainer & container);
-
-	/// Remove subcontainer with give name
-	void removeSubContainer(const TextLocalizationContainer & container);
 
 	void jsonSerialize(JsonNode & dest) const;
 
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		std::lock_guard globalLock(globalTextMutex);
 		h & stringsLocalizations;
 	}
+
+protected:
+	/// Map and campaign overlays legitimately re-register strings as the game renames things.
+	/// The static store is written once during load, so a second write there is a bug.
+	virtual bool allowsStringOverride() const { return true; }
 };
-
-class DLL_LINKAGE TextContainerRegistrable : public TextLocalizationContainer
-{
-public:
-	TextContainerRegistrable();
-	~TextContainerRegistrable();
-
-	TextContainerRegistrable(const TextContainerRegistrable & other);
-	TextContainerRegistrable(TextContainerRegistrable && other) noexcept;
-
-	TextContainerRegistrable& operator=(const TextContainerRegistrable & b) = default;
-};
-
-VCMI_LIB_NAMESPACE_END

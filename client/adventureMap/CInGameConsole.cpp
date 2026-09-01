@@ -20,6 +20,7 @@
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
+#include "../eventsSDL/NotificationHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
@@ -97,7 +98,7 @@ void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const s
 	// 3) arbitrary selected left and right margins
 	int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-	auto splitText = CMessage::breakText(formatted.toString(), maxWidth, FONT_MEDIUM);
+	auto splitText = CMessage::breakText(formatted.toString(&GAME->translator()), maxWidth, FONT_MEDIUM);
 
 	for(const auto & entry : splitText)
 		texts.push_back({entry, 0});
@@ -109,6 +110,8 @@ void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const s
 void CInGameConsole::addMessage(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
 {
 	addMessageSilent(timeFormatted, senderName, messageText);
+
+	NotificationHandler::notify(senderName + ": " + messageText);
 
 	ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 
@@ -268,7 +271,7 @@ void CInGameConsole::startEnteringText()
 		ENGINE->statusbar()->setEnteredText(enteredText);
 		return;
 	}
-		
+
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
 	currentStatusBar = ENGINE->statusbar();

@@ -27,6 +27,8 @@
 				"language",
 				"gameDataLanguage",
 				"lastSave",
+				"lastScenarioSave",
+				"lastCampaignSave",
 				"lastSettingsTab",
 				"lastCampaign",
 				"lastDifficulty",
@@ -38,8 +40,6 @@
 				"hapticFeedback",
 				"longTouchTimeMilliseconds",
 				"autosaveCountLimit",
-				"useSavePrefix",
-				"savePrefix",
 				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
@@ -79,17 +79,25 @@
 				},
 				"language" : {
 					"type" : "string",
-					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "lithuanian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "lithuanian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
 					"type" : "string",
 					"default" : "NEWGAME"
+				},
+				"lastScenarioSave" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"lastCampaignSave" : {
+					"type" : "string",
+					"default" : ""
 				},
 				"lastSettingsTab" : {
 					"type" : "number",
@@ -138,14 +146,6 @@
 				"autosaveCountLimit" : {
 					"type" : "number",
 					"default": 5
-				},
-				"useSavePrefix" : {
-					"type": "boolean",
-					"default": true
-				},
-				"savePrefix" : {
-					"type": "string",
-					"default": ""
 				},
 				"startTurnAutosave" : {
 					"type": "boolean",
@@ -352,7 +352,7 @@
 				"enableMouse",
 				"enableTouch",
 				"enableController",
-				"controllerTriggerTreshold",
+				"controllerTriggerThreshold",
 				"controllerAxisDeadZone",
 				"controllerAxisFullZone",
 				"controllerAxisSpeed",
@@ -388,7 +388,7 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"controllerTriggerTreshold" : {
+				"controllerTriggerThreshold" : {
 					"type" : "number",
 					"default" : 0.3
 				},
@@ -418,7 +418,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath", "replayShowBattles" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -494,6 +494,10 @@
 				"showMovePath" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"replayShowBattles" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -501,7 +505,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel", "showHealthBar" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "stackInfoBasicPanel", "enableAutocombatSpells", "enableAutocombatTactics", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel", "showHealthBar" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -544,7 +548,15 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"stackInfoBasicPanel" : {
+					"type" : "boolean",
+					"default" : true
+				},
 				"enableAutocombatSpells" : {
+					"type": "boolean",
+					"default": true
+				},
+				"enableAutocombatTactics" : {
 					"type": "boolean",
 					"default": true
 				},
@@ -574,7 +586,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed"],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed", "replayRoundsKept"],
 			"properties" : {
 				"localHostname" : {
 					"type" : "string",
@@ -595,6 +607,11 @@
 				"seed" : {
 					"type" : "number",
 					"default" : 0
+				},
+				// number of past game days that stay replayable on top of the current one
+				"replayRoundsKept" : {
+					"type" : "number",
+					"default" : 1
 				}
 			}
 		},
@@ -710,6 +727,7 @@
 			"default" : {},
 			"additionalProperties" : false,
 			"required" : [ 
+				"mainWindow",
 				"setupCompleted", 
 				"defaultRepositoryEnabled",
 				"defaultRepositoryURL",
@@ -770,6 +788,26 @@
 					"defaultAndroid": false,
 					"defaultDesktop" : true
 
+				},
+				"mainWindow" : {
+					"type" : "object",
+					"default" : {},
+					"additionalProperties" : false,
+					"required" : [ "geometry" ],
+					"properties" : {
+						"geometry" : {
+							"type" : "object",
+							"default" : {},
+							"additionalProperties" : false,
+							"required" : [ "x", "y", "width", "height" ],
+							"properties" : {
+								"x" : { "type" : "integer", "default" : 0 },
+								"y" : { "type" : "integer", "default" : 0 },
+								"width" : { "type" : "integer", "default" : 0 },
+								"height" : { "type" : "integer", "default" : 0 }
+							}
+						}
+					}
 				}
 			}
 		},

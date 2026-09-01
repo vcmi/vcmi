@@ -70,10 +70,34 @@ void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdat
 
 void CSlider::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	if (getOrientation() == Orientation::VERTICAL)
+	if (touchDragging)
+	{
+		mouseDragged(currentPosition, lastUpdateDistance);
+	}
+	else if (getOrientation() == Orientation::VERTICAL)
 		Scrollable::gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	else
 		mouseDragged(currentPosition, lastUpdateDistance);
+}
+
+void CSlider::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if (on && slider->pos.isInside(initialPosition))
+	{
+		touchDragging = true;
+		if (getOrientation() == Orientation::HORIZONTAL)
+			dragOffset = initialPosition.x - (slider->pos.x + barLength / 2);
+		else
+			dragOffset = initialPosition.y - (slider->pos.y + barLength / 2);
+		slider->clickPressed(initialPosition);
+	}
+	if (!on && touchDragging)
+	{
+		touchDragging = false;
+		dragOffset = 0;
+		slider->clickReleased(finalPosition);
+	}
+	Scrollable::gesture(on, initialPosition, finalPosition);
 }
 
 void CSlider::setScrollBounds(const Rect & bounds )
@@ -217,6 +241,7 @@ void CSlider::clickReleased(const Point & cursorPosition)
 	if(slider->isBlocked())
 		return;
 
+	touchDragging = false;
 	dragOffset = 0;
 	slider->clickReleased(cursorPosition);
 }
@@ -245,7 +270,8 @@ CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, 
 	moved(Moved),
 	length(totalw),
 	style(Style),
-	dragOffset(0)
+	dragOffset(0),
+	touchDragging(false)
 {
 	OBJECT_CONSTRUCTION;
 	setAmount(amount);
@@ -319,7 +345,6 @@ void CSlider::updateSlider()
 	ENGINE->renderHandler().updateGeneratedAssets();
 
 	slider = std::make_shared<CButton>(Point(), AnimationPath::builtin(sliderName), CButton::tooltip());
-	slider->setActOnDown(true);
 	slider->setSoundDisabled(true);
 }
 

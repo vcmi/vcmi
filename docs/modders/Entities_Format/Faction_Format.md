@@ -1,6 +1,6 @@
 # Faction Format
 
-This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](Faction_Help.md).
+This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](../Guides/Faction_Help.md).
 
 ## Required data
 
@@ -65,7 +65,8 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Description of town (e.g. history or story about town)
 	"description" : "",
 
-	// Faction alignment. Can be good, neutral (default) or evil.
+	// Faction alignment. Can be good, neutral (default), evil, or none.
+	// Factions with "none" belong to no alignment at all and never mix with the others, like neutral creatures
 	"alignment" : "",
 	
 	// If set to true, RMG will prefer placing towns of this faction on subterranean level of the map
@@ -178,10 +179,10 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Background scenery for town screen, size must be 800x374
 	"townBackground": "",
 
-	// Small scenery for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	// Small scenery for window in mage guild screen; each element of array is for separate mage guild level image (if only one element, then this will always used)
 	"guildWindow": [""],
 
-	// Background image for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	// Background image for window in mage guild screen; each element of array is for separate mage guild level image (if only one element, then this will always used)
 	"guildBackground" : [""],
 
 	// Video for tavern window
@@ -329,7 +330,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Two parts of gate: gate itself and arch above it
 	"gate" :
 	{
-		"gate" : { "x": 0, "y": 0}, // "DRW1" ... "DRW3" and "DRWC" (rope)
+		// "DRW1" ... "DRW3" (gate in its intact / damaged / destroyed states).
+		// Optional "DRWC" is the drawbridge front overlay (chains), drawn on top of units standing on the lowered bridge.
+		"gate" : { "x": 0, "y": 0},
 		"arch" : { "x": 0, "y": 0}  // "ARCH"
 	},
 	// Destructible walls. In this example they are ordered from top to bottom

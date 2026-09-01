@@ -24,11 +24,11 @@ Examples:
 
 ### Army
 
-- `nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  
-- `nwcagents`, `nwcdarthmaul`, `nwcfleshwound` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot  
-- `vcmiglaurung` or `vcmicrystal` - give 5000 crystal dragons in every empty slot  
-- `vcmiazure` - give 5000 azure dragons in every empty slot  
-- `vcmifaerie` - give 5000 faerie dragons in every empty slot  
+- `nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)
+- `nwcagents`, `nwcdarthmaul`, `nwcfleshwound` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot
+- `vcmiglaurung` or `vcmicrystal` - give 5000 crystal dragons in every empty slot
+- `vcmiazure` - give 5000 azure dragons in every empty slot
+- `vcmifaerie` - give 5000 faerie dragons in every empty slot
 
 - Alternative usage: `vcmiarmy <creatureID> <amount>`
 
@@ -43,9 +43,9 @@ Gives specific creature in every slot, with optional amount. Examples:
 
 ### Artifacts
 
-- `nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
+- `nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent
 - `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included
-- `vcmiscrolls` - give spell scrolls for every possible spells  
+- `vcmiscrolls` - give spell scrolls for every possible spells
 - `nwcarchitect`, `vcmigrail` - give grail
 
 ### Movement
@@ -56,13 +56,13 @@ Gives specific creature in every slot, with optional amount. Examples:
 
 ### Resources
 
-- `nwctheconstruct`, `nwcwatto`, `nwcshrubbery`, `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)  
+- `nwctheconstruct`, `nwcwatto`, `nwcshrubbery`, `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)
 - Alternative usage: `vcmiresources <amount>` - gives specified amount of all resources and x1000 of gold
 
 ### Fog of War
 
-- `nwcwhatisthematrix`, `nwcrevealourselves`, `nwcgeneraldirection`, `vcmieagles` or `vcmimap` - reveal Fog of War  
-- `nwcignoranceisbliss`,  `vcmiungoliant` or `vcmihidemap` - conceal Fog of War  
+- `nwcwhatisthematrix`, `nwcrevealourselves`, `nwcgeneraldirection`, `vcmieagles` or `vcmimap` - reveal Fog of War
+- `nwcignoranceisbliss`,  `vcmiungoliant` or `vcmihidemap` - conceal Fog of War
 
 ### Experience
 
@@ -86,6 +86,10 @@ Gives specific creature in every slot, with optional amount. Examples:
 - `nwcredpill`, `nwctrojanrabbit`, `vcmisilmaril` or `vcmiwin` - player wins
 - `nwcbluepill`, `nwcsirrobin`, `vcmimelkor` or `vcmilose` - player loses
 
+### Finishing a battle
+
+- `vcmideathpunch` - kills all opposing units and wins the current battle
+
 ### Misc
 
 - `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
@@ -102,19 +106,19 @@ By default, all cheat codes apply to current player. Alternatively, it is possib
 
 ### Examples
 
-- `vcmieagles blue` - reveal FoW only for blue player  
-- `vcmieagles ai` - reveal FoW only for AI players  
-- `vcmieagles all` - reveal FoW for all players on map  
-- `vcminahar ai` - give 1000000 movement points to each hero of every AI player  
+- `vcmieagles blue` - reveal FoW only for blue player
+- `vcmieagles ai` - reveal FoW only for AI players
+- `vcmieagles all` - reveal FoW for all players on map
+- `vcminahar ai` - give 1000000 movement points to each hero of every AI player
 
 ## Multiplayer chat commands
 
 Following commands can be used in multiplayer only by host player to control the session:
 
-- `!exit` - finish the game  
-- `!save <filename>` - save the game into the specified file  
-- `!kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game  
-- `!kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (*zero indexed!*) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
+- `!exit` - finish the game
+- `!save <filename>` - save the game into the specified file
+- `!kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game
+- `!kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (*zero indexed!*) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)
 
 Following commands can be used by any player in multiplayer:
 
@@ -132,15 +136,15 @@ Client commands are set of predefined commands that are supported by VCMI, but u
 
 Alternative way, the only one working for older releases is typing them in console:
 Console is separated from game window on desktop versions of VCMI Client.
-Windows builds of VCMI run separate console window by default, on other platforms you can access it by running VCMI Client from command line.  
+Windows builds of VCMI run separate console window by default, on other platforms you can access it by running VCMI Client from command line.
 
 Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Game Commands
 
-- `die, fool` - quits game  
-- `save <filename>` - saves game in given file (at the moment doesn't work)  
-- `mp` - on adventure map with a hero selected, shows heroes current movement points, max movement points on land and on water  
+- `die, fool` - quits game
+- `save <filename>` - saves game in given file (at the moment doesn't work)
+- `mp` - on adventure map with a hero selected, shows heroes current movement points, max movement points on land and on water
 - `bonuses` - shows bonuses of currently selected adventure map object
 
 #### Extract commands
@@ -158,10 +162,10 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### AI commands
 
-- `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit  
-- `gosolo` - AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)  
-- `controlai <[red][blue][tan][green][orange][purple][teal][pink]>` - gives you control over specified AI player. If none is specified gives you control over all AI players  
-- `autoskip` - Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves. However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually. Press `[Shift]` before your turn starts to not skip it  
+- `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit
+- `gosolo` - AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)
+- `controlai <[red][blue][tan][green][orange][purple][teal][pink]>` - gives you control over specified AI player. If none is specified gives you control over all AI players
+- `autoskip` - Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves. However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually. Press `[Shift]` before your turn starts to not skip it
 
 #### Settings
 
@@ -180,9 +184,10 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Developer Commands
 
-- `crash` - force a game crash. It is sometimes useful to generate memory dump file in certain situations, for example game freeze  
-- `gui` - displays tree view of currently present VCMI common GUI elements  
-- `activate <0/1/2>` - activate game windows (no current use, apparently broken long ago)  
-- `redraw` - force full graphical redraw  
-- `screen` - show value of screenBuf variable, which prints "screen" when adventure map has current focus, "screen2" otherwise, and dumps values of both screen surfaces to .bmp files  
-- `tell hs <hero ID> <artifact slot ID>` - write what artifact is present on artifact slot with specified ID for hero with specified ID. (must be called during gameplay)  
+- `crash` - force a game crash. It is sometimes useful to generate memory dump file in certain situations, for example game freeze
+- `gui` - displays tree view of currently present VCMI common GUI elements
+- `activate <0/1/2>` - activate game windows (no current use, apparently broken long ago)
+- `redraw` - force full graphical redraw
+- `screen` - show value of screenBuf variable, which prints "screen" when adventure map has current focus, "screen2" otherwise, and dumps values of both screen surfaces to .bmp files
+- `tell hs <hero ID> <artifact slot ID>` - write what artifact is present on artifact slot with specified ID for hero with specified ID. (must be called during gameplay)
+- `whoIsTheBoss <on/off>` - toggles AI hero role overlay

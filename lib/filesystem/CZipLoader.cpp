@@ -13,8 +13,6 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CZipStream::CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos)
 {
 	zlib_filefunc64_def zlibApi;
@@ -164,6 +162,18 @@ static bool extractCurrent(unzFile file, std::ostream & where)
 	return false;
 }
 
+boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename, bool isUtf8)
+{
+#ifdef VCMI_WINDOWS
+	if (isUtf8)
+		return TextOperations::Utf8TofilesystemPath(filename);
+
+	return boost::filesystem::path(filename);
+#else
+	return boost::filesystem::path(filename);
+#endif
+}
+
 std::vector<std::string> ZipArchive::listFiles()
 {
 	std::vector<std::string> ret;
@@ -227,7 +237,14 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 	if (unzLocateFile(archive, file.c_str(), 1) != UNZ_OK)
 		return false;
 
-	const boost::filesystem::path fullName = where / file;
+	unz_file_info64 info;
+	unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+
+	constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
+	const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
+
+	const boost::filesystem::path relativeName = zipFilenameToFilesystemPath(file, isUtf8Filename);
+	const boost::filesystem::path fullName = where / relativeName;
 	const boost::filesystem::path fullPath = fullName.parent_path();
 
 	boost::filesystem::create_directories(fullPath);
@@ -255,5 +272,3 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 		return false;
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

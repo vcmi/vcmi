@@ -53,8 +53,9 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 {
 	const TerrainTile & t = map->getTile(pos);
 
+	// favorable winds are a tile property rather than an object, so there is no instance to ask for a name
 	if(t.hasFavorableWinds())
-		return LIBRARY->objtypeh->getObjectName(Obj::FAVORABLE_WINDS, 0);
+		return GAME->translator().translate(LIBRARY->objtypeh->getObjectGroupNameTextID(Obj::FAVORABLE_WINDS));
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
@@ -62,17 +63,18 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 	{
 		if(object->coveringAt(pos) && object->isTile2Terrain())
 		{
-			result = object->getObjectName();
+			result = object->getObjectName().toString(&GAME->translator());
 			break;
 		}
 	}
 
 	if(GAME->interface()->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
 	{
-		return boost::str(
-			boost::format(rightClick ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
-			% result % LIBRARY->generaltexth->allTexts[330]
-		); // 'digging ok'
+		// New line for the Message Box, space for the Status Bar
+		MetaString description = MetaString::createFromRawString(rightClick ? "%s\r\n%s" : "%s %s");
+		description.replaceRawString(result);
+		description.replaceTextID("core.genrltxt.330"); // 'digging ok'
+		return description.toString(&GAME->translator());
 	}
 
 	return result;

@@ -9,11 +9,10 @@
  */
 #pragma once
 
+#include "../json/JsonNode.h"
 #include "../serializer/Serializeable.h"
 
 #include "Bonus.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 struct BonusParametersOnCombatEvent
 {
@@ -59,7 +58,7 @@ struct BonusParametersOnCombatEvent
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent>;
+	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent, JsonNode>;
 
 	BonusParameters() = default;
 
@@ -91,6 +90,11 @@ public:
 		return toCustom<std::vector<int32_t>>();
 	}
 
+	bool isVector() const
+	{
+		return std::holds_alternative<std::vector<int32_t>>(data_);
+	}
+
 	template<typename CustomType>
 	const CustomType & toCustom() const
 	{
@@ -118,5 +122,3 @@ public:
 private:
 	storage_type data_;
 };
-
-VCMI_LIB_NAMESPACE_END

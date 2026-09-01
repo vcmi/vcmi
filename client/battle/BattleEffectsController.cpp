@@ -32,6 +32,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../GameInstance.h"
 
 BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)
@@ -48,11 +49,49 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 {
 	size_t effectID = static_cast<size_t>(effect);
 
-	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
+	BattleHexArray tiles;
+	tiles.insert(destTile);
+	displayAnimation(AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]), soundFile, tiles, transparencyFactor);
+}
 
+void BattleEffectsController::displayAnimation(const AnimationPath & animation, const AudioPath & soundFile, const BattleHexArray & destTiles, float transparencyFactor)
+{
 	ENGINE->sound().playSound( soundFile );
 
-	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
+	owner.stacksController->addNewAnim(new EffectAnimation(owner, animation, destTiles, 0, transparencyFactor));
+}
+
+void BattleEffectsController::battleAnimationPlayed(const BattleAnimationPlayed & pack)
+{
+	BattleHexArray tiles;
+
+	for(const auto & target : pack.targets)
+	{
+		// a unit may have moved since the pack was sent, so its current position wins over the
+		// hex recorded back then
+		const auto * unit = target.unitID < 0 ? nullptr : owner.getBattle()->battleGetUnitByID(target.unitID);
+		const BattleHex & tile = unit ? unit->getPosition() : target.tile;
+
+		if(tile.isValid())
+			tiles.insert(tile);
+	}
+
+	if(tiles.empty())
+		return;
+
+	// queued into the same stage as the hit animations of the pack that follows, so that both start
+	// on the same frame instead of one after the other
+	if(pack.deferred)
+	{
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, animation = pack.animation, sound = pack.sound, tiles, transparency = pack.transparency](){
+			displayAnimation(animation, sound, tiles, transparency);
+		});
+		return;
+	}
+
+	owner.checkForAnimations();
+	displayAnimation(pack.animation, pack.sound, tiles, pack.transparency);
+	owner.waitForAnimations();
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -82,10 +121,10 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			break;
 		case BonusType::MORALE:
 		{
-			std::string hlp = LIBRARY->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
+			MetaString hlp = MetaString::createFromTextID("core.genrltxt.33");
+			hlp.replaceName(stack->unitType()->getId(), stack->getCount());
 			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
-			owner.appendBattleLog(hlp);
+			owner.appendBattleLog(hlp.toString(&GAME->translator()));
 			break;
 		}
 		default:
@@ -103,11 +142,12 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	switch(action.actionType)
 	{
 	case EActionType::WAIT:
-		owner.appendBattleLog(stack->formatGeneralMessage(136));
+		owner.appendBattleLog(stack->formatGeneralMessage(136, &GAME->translator()));
 		break;
 	case EActionType::BAD_MORALE:
-		owner.appendBattleLog(stack->formatGeneralMessage(-34));
+		owner.appendBattleLog(stack->formatGeneralMessage(-34, &GAME->translator()));
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
+		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
 		break;
 	}
 

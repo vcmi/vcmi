@@ -14,8 +14,6 @@
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCastleEvent;
 class CTown;
 class TownBuildingInstance;
@@ -42,11 +40,15 @@ struct DLL_LINKAGE GrowthInfo
 	int handicapPercentage;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader, public scripting::ApiRawPointer<CGTownInstance>
 {
+public:
+	// Disambiguate the scripting tag: CGTownInstance is ApiRawPointer both directly and via CGObjectInstance
+	using ScriptingApiName = CGTownInstance;
+
+private:
 	friend class CTownInstanceConstructor;
-	std::string nameTextId; // name of town
-	std::string customName;
+	std::string nameTextId; // identifier of town name, registered in the map text container
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
@@ -77,27 +79,18 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
-		if (h.version >= Handler::Version::CUSTOM_NAMES)
-			h & customName;
+		if(!h.hasFeature(Handler::Version::TOWN_NAME_TEXT_ID))
+		{
+			// pre-migration saves stored the player's rename as free-form text;
+			// CGameState::updateOnLoad registers it and drops it
+			h & legacyCustomName;
+		}
 		h & built;
 		h & destroyed;
 		h & identifier;
 
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & garrisonHero;
-			h & visitingHero;
-		}
-		else
-		{
-			std::shared_ptr<CGObjectInstance> ptrGarr;
-			std::shared_ptr<CGObjectInstance> ptrVisit;
-			h & ptrGarr;
-			h & ptrVisit;
-
-			garrisonHero = ptrGarr ? ptrGarr->id : ObjectInstanceID();
-			visitingHero = ptrVisit ? ptrVisit->id : ObjectInstanceID();
-		}
+		h & garrisonHero;
+		h & visitingHero;
 
 		h & alignmentToPlayer;
 		h & forbiddenBuildings;
@@ -117,7 +110,13 @@ public:
 			h & spellResearchPendingRerollsCounters;
 
 		if(!h.saving)
+		{
 			postDeserialize();
+
+			//buildings of towns saved before this version did not provide any retreat permission bonuses
+			if(!h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && getFactionID().hasValue())
+				recreateBuildingsBonuses();
+		}
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -132,10 +131,13 @@ public:
 	const CGHeroInstance * getVisitingHero() const;
 	const CGHeroInstance * getGarrisonHero() const;
 
-	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
+
+	/// Only set when loading a pre-TOWN_NAME_TEXT_ID save, consumed by CGameState::updateOnLoad
+	std::string legacyCustomName;
 	void setNameTextId(const std::string & newName);
-	void setCustomName(const std::string & newName);
+	/// Registers the player-chosen name in the map text container and points this town at it
+	void setCustomName(CMap & map, const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -191,19 +193,13 @@ public:
 	void addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID bid);
 
-	/// Returns damage range for secondary towers of this town
-	DamageRange getTowerDamageRange() const;
-
-	/// Returns damage range for central tower(keep) of this town
-	DamageRange getKeepDamageRange() const;
-
 	const CTown * getTown() const;
 	const CFaction * getFaction() const;
 
 	/// INativeTerrainProvider
 	FactionID getFactionID() const override;
 	bool isNativeTerrain(TerrainId terrain) const override;
-	TerrainId getTownSiegeTerrain(TerrainId defaultTerrain) const;
+	TerrainId getBattleTerrain() const override;
 
 	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
 	ArtifactID getWarMachineInBuilding(BuildingID) const;
@@ -217,10 +213,11 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
-	std::string getObjectName() const override;
+	MetaString getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
@@ -244,5 +241,3 @@ private:
 	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
-
-VCMI_LIB_NAMESPACE_END

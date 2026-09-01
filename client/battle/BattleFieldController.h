@@ -13,10 +13,8 @@
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
 class CAnimation;
@@ -126,8 +124,22 @@ public:
 	/// Returns the currently hovered stack
 	const CStack* getHoveredStack();
 
+	/// Returns the stack hovered in the battle queue, or nullptr if none is hovered there
+	const CStack* getQueueHoveredStack() const;
+
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
 	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
+
+	/// starts screen shake effect (used by earthquake spell)
+	void startShakeAnimation();
+
+private:
+	void updateShake();
+
+	/// current shake offset and animation progress
+	Point shakeOffset;
+	int shakeFrameCounter = 0;
+	int shakeFrameTotal = 0;
 };

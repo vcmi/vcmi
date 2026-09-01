@@ -218,14 +218,14 @@ void CArtPlace::lockSlot(bool on)
 		image->setFrame(ArtifactID::ART_LOCK);
 		auto hoverText = MetaString::createFromTextID("vcmi.heroWindow.lockedartifact.hover");
 		hoverText.replaceName(artId);
-		this->hoverText = hoverText.toString();
+		this->hoverText = hoverText.toString(&GAME->translator());
 	}
 	else
 	{
 		image->setFrame(imageIndex);
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		auto hoverText = MetaString::createFromTextID("core.heroscrn.1");
 		hoverText.replaceName(artId);
-		this->hoverText = hoverText.toString();
+		this->hoverText = hoverText.toString(&GAME->translator());
 	}
 }
 
@@ -268,7 +268,7 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 				info.appendRawString("}");
 			}
 		}
-		text += info.toString();
+		text += info.toString(&GAME->translator());
 	}
 }
 
@@ -280,7 +280,7 @@ void CArtPlace::addChargedArtInfo(const uint16_t charges)
 	info.appendTextID("vcmi.artifact.charges");
 	info.appendRawString(" %d");
 	info.replaceNumber(charges);
-	text += info.toString();
+	text += info.toString(&GAME->translator());
 }
 
 CSecSkillPlace::CSecSkillPlace(const Point & position, const ImageSize & imageSize, const SecondarySkill & newSkillId, const uint8_t level)
@@ -320,10 +320,10 @@ void CSecSkillPlace::setLevel(const uint8_t level)
 		const auto secSkill = skillId.toSkill();
 		image->setFrame(secSkill->getIconIndex(level - 1));
 		image->enable();
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[21]);
-		hoverText.replaceRawString(LIBRARY->generaltexth->levels[level - 1]);
+		auto hoverText = MetaString::createFromTextID("core.heroscrn.21");
+		hoverText.replaceTextID("core.skilllev", level - 1);
 		hoverText.replaceTextID(secSkill->getNameTextID());
-		this->hoverText = hoverText.toString();
+		this->hoverText = hoverText.toString(&GAME->translator());
 		component.value = level;
 		text = secSkill->getDescriptionTranslated(level);
 	}

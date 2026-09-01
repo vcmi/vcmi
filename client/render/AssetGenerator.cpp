@@ -86,6 +86,7 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("stackWindow/button-panel.png")] = [this](){ return createCreatureInfoPanelElement(BUTTON_PANEL);};
 	imageFiles[ImagePath::builtin("stackWindow/commander-bg.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_BACKGROUND);};
 	imageFiles[ImagePath::builtin("stackWindow/commander-abilities.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_ABILITIES);};
+	imageFiles[ImagePath::builtin("stackWindow/dead-commander-overlay.png")] = [this](){ return createDeadCommanderOverlay();};
 	addRecruitmentBackground("TPRCRT4", Point(484, 394));
 	addRecruitmentBackground("TPRCRT5", Point(594, 394));
 	addRecruitmentBackground("TPRCRT6", Point(704, 394));
@@ -130,8 +131,6 @@ void AssetGenerator::initialize()
 
 	for(int i = 1; i < 9; i++)
 		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
-	
-	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"), true);
 	
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButtonClear")] = createGSPButtonClear();
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButton2Arrow")] = createGSPButton2Arrow();
@@ -179,6 +178,11 @@ std::map<AnimationPath, AssetGenerator::AnimationLayoutMap> AssetGenerator::gene
 void AssetGenerator::addImageFile(const ImagePath & path, ImageGenerationFunctor & img)
 {
 	imageFiles[path] = img;
+}
+
+bool AssetGenerator::hasAnimationFile(const AnimationPath & path) const
+{
+	return animationFiles.count(path) > 0;
 }
 
 void AssetGenerator::addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim)
@@ -1120,7 +1124,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createQuestWindow() const
 	canvas.drawColor(r, Colors::BLACK);
 	canvas.drawBorder(r, borderColor);
 
-	r = Rect(193, 11, 408, 376);
+	r = Rect(193, 57, 408, 330);
 	canvas.drawColorBlended(r, rectangleColor);
 	canvas.drawBorder(r, borderColor);
 
@@ -1800,5 +1804,27 @@ AssetGenerator::CanvasPtr AssetGenerator::createUniversityConfirmDialogBackgroun
 		drawPlate(Rect(firstX + costPlateWidth + costPlateGap, costPlateY, costPlateWidth, costPlateHeight));
 	}
 
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createDeadCommanderOverlay() const
+{
+	static const Point creaturePreviewSize(100, 130);
+	auto skull = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("C0FEAR"), EImageBlitMode::COLORKEY)->getImage(15);
+	auto image = ENGINE->renderHandler().createImage(creaturePreviewSize, CanvasScalingPolicy::IGNORE);
+	auto canvas = image->getCanvas();
+	canvas.drawColor(Rect(Point(0, 0), creaturePreviewSize), Colors::TRANSPARENCY);
+	canvas.drawColorBlended(Rect(Point(0, 0), creaturePreviewSize), ColorRGBA(64, 64, 64, 160));
+
+	const Point scaledSkullSize = skull->dimensions() / 2;
+	auto scaledSkull = ENGINE->renderHandler().createImage(scaledSkullSize, CanvasScalingPolicy::IGNORE);
+	auto scaledSkullCanvas = scaledSkull->getCanvas();
+	Canvas skullCanvas(skull->dimensions(), CanvasScalingPolicy::IGNORE);
+	skullCanvas.draw(skull, Point(0, 0), Rect(Point(0, 0), skull->dimensions()));
+	scaledSkullCanvas.drawScaled(skullCanvas, Point(0, 0), scaledSkullSize);
+	canvas.draw(std::static_pointer_cast<IImage>(scaledSkull), creaturePreviewSize - scaledSkullSize, Rect(Point(0, 0), scaledSkullSize));
+
+	canvas.applyGrayscale();
+	canvas.applyTransparency(true);
 	return image;
 }

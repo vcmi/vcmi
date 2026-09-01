@@ -21,8 +21,6 @@
 #include "../../mapping/CMap.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TownPortalEffect::TownPortalEffect(const CSpell * s, const JsonNode & config)
 	: TownRelatedAdventureSpellEffect(s, config["allowTownSelection"].Bool(), config["skipOccupiedTowns"].Bool())
 	, movementPointsRequired(config["movementPointsRequired"].Integer())
@@ -37,8 +35,8 @@ bool TownPortalEffect::shouldOfferTownInDialog(const CGTownInstance * town) cons
 
 void TownPortalEffect::configureDialogTitleAndDescription(MetaString & title, MetaString & description) const
 {
-	title.appendLocalString(EMetaText::JK_TXT, 40);
-	description.appendLocalString(EMetaText::JK_TXT, 41);
+	title.appendTextID("core.jktext.40");
+	description.appendTextID("core.jktext.41");
 }
 
 ESpellCastResult TownPortalEffect::beginCastExtraChecks(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> &) const
@@ -47,7 +45,7 @@ ESpellCastResult TownPortalEffect::beginCastExtraChecks(SpellCastEnvironment * e
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
+		iw.text.appendTextID("core.genrltxt.125");
 		env->apply(iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -80,7 +78,7 @@ ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * 
 		{
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 123);
+			iw.text.appendTextID("core.genrltxt.123");
 			env->apply(iw);
 			return ESpellCastResult::CANCEL;
 		}
@@ -149,7 +147,7 @@ ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * 
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 135);
+		iw.text.appendTextID("core.genrltxt.135");
 		env->apply(iw);
 		return ESpellCastResult::ERROR;
 	}
@@ -186,5 +184,3 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 		env->apply(smp);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

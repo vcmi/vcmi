@@ -12,7 +12,7 @@ void pforeachTilePaths(const int3 & mapSize, const Nullkiller * aiNk, TFunc fn)
 	for(int z = 0; z < mapSize.z; ++z)
 	{
 		tbb::parallel_for(
-			tbb::blocked_range<size_t>(0, mapSize.x),
+			tbb::blocked_range<size_t>(0, mapSize.x, 64),
 			[&](const tbb::blocked_range<size_t> & r)
 			{
 				int3 pos(0, 0, z);

@@ -15,9 +15,8 @@
 #include "PacksForLobby.h"
 #include "SaveLocalState.h"
 #include "SetRewardableConfiguration.h"
+#include "SetScriptVariable.h"
 #include "SetStackEffect.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 class ICPackVisitor
 {
@@ -28,6 +27,7 @@ public:
 	virtual void visitForServer(CPackForServer & pack) {}
 	virtual void visitForClient(CPackForClient & pack) {}
 	virtual void visitPackageApplied(PackageApplied & pack) {}
+	virtual void visitQueryResolved(QueryResolved & pack) {}
 	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
@@ -91,6 +91,8 @@ public:
 	virtual void visitNewTurn(NewTurn & pack) {}
 	virtual void visitInfoWindow(InfoWindow & pack) {}
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
+	virtual void visitSetScriptVariable(SetScriptVariable & pack) {}
+	virtual void visitSetQuestHint(SetQuestHint & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
 	virtual void visitChangeArtifactsCostume(ChangeArtifactsCostume & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}
@@ -118,6 +120,7 @@ public:
 	virtual void visitBattleObstaclesChanged(BattleObstaclesChanged & pack) {}
 	virtual void visitBattleSetStackProperty(BattleSetStackProperty & pack) {}
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
+	virtual void visitBattleAnimationPlayed(BattleAnimationPlayed & pack) {}
 	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) {}
 	virtual void visitAdvmapSpellCast(AdvmapSpellCast & pack) {}
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}
@@ -170,6 +173,8 @@ public:
 	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
+	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}
+	virtual void visitLobbyModsCheck(LobbyModsCheck & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
@@ -195,5 +200,3 @@ public:
 	virtual void visitResponseStatistic(ResponseStatistic & pack) {}
 	virtual void visitAdvInterfaceReady(AdvInterfaceReady & pack) {}
 };
-
-VCMI_LIB_NAMESPACE_END

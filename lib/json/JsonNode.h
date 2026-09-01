@@ -11,8 +11,6 @@
 
 #include "../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 using JsonMap = std::map<std::string, JsonNode>;
 using JsonVector = std::vector<JsonNode>;
@@ -223,5 +221,3 @@ Type JsonNode::convertTo() const
 	JsonDetail::convert(result, *this);
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

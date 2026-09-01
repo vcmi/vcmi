@@ -20,8 +20,6 @@
 #include "../../GameLibrary.h"
 #include "../../gameState/CGameState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CArmedInstance::randomizeArmy(FactionID type)
 {
 	for(auto & elem : stacks)
@@ -47,9 +45,19 @@ CArmedInstance::CArmedInstance(IGameInfoCallback * cb)
 CArmedInstance::CArmedInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic)
 	: CGObjectInstance(cb)
 	, CBonusSystemNode(nodeType, isHypothetic)
-	, nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)) // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+	// Take troop-mixing freedom of Angelic Alliance or Temple of Loyalty into account.
+	, alignmentMix(this, Selector::type()(BonusType::ALIGNMENT_MIX).Or(Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)))
 	, battle(nullptr)
 {
+}
+
+bool CArmedInstance::canMixAlignment(EAlignment alignment) const
+{
+	// MOD COMPATIBILITY - deprecated NONEVIL_ALIGNMENT_MIX acts as ALIGNMENT_MIX for good and neutral alignments
+	if((alignment == EAlignment::GOOD || alignment == EAlignment::NEUTRAL) && hasBonusOfType(BonusType::NONEVIL_ALIGNMENT_MIX))
+		return true;
+
+	return hasBonusOfType(BonusType::ALIGNMENT_MIX, BonusCustomSubtype::alignment(alignment));
 }
 
 void CArmedInstance::updateMoraleBonusFromArmy()
@@ -73,6 +81,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		const auto * creature = slot.second->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
+
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if(!hasUndead)
 		{
@@ -83,15 +92,15 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	if(nonEvilAlignmentMix.hasBonus())
+	if(alignmentMix.hasBonus())
 	{
+		//mixable alignments count as a single one, e.g. good and neutral for Angelic Alliance, or all of them for Temple of Loyalty
 		size_t mixableFactions = 0;
 
 		for(auto f : factions)
-		{
-			if(LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
+			if(canMixAlignment(LIBRARY->factions()->getById(f)->getAlignment()))
 				mixableFactions++;
-		}
+
 		if(mixableFactions > 0)
 			factionsInArmy -= mixableFactions - 1;
 	}
@@ -191,5 +200,3 @@ TerrainId CArmedInstance::getCurrentTerrain() const
 	else
 		return TerrainId::NONE;
 }
-
-VCMI_LIB_NAMESPACE_END

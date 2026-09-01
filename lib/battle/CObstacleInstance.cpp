@@ -15,8 +15,6 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
 	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);
@@ -200,6 +198,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("appearSound", appearSound);
 	handler.serializeStruct("appearAnimation", appearAnimation);
 	handler.serializeStruct("animation", animation);
+	handler.serializeStruct("removalAnimation", removalAnimation);
 
 	{
 		JsonArraySerializer customSizeJson = handler.enterArray("customSize");
@@ -244,5 +243,3 @@ int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 {
 	return imageHeight;
 }
-
-VCMI_LIB_NAMESPACE_END

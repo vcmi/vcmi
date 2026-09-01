@@ -15,6 +15,7 @@
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 #include "../TurnTimerHandler.h"
+#include "../battles/BattleProcessor.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CSkillHandler.h"
@@ -25,6 +26,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -58,7 +60,7 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 		if(!gameHandler->gameInfo().getPlayerSettings(player)->isControlledByAI())
 		{
 			MetaString txt;
-			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
+			txt.appendTextID("core.genrltxt.260");
 			broadcastSystemMessage(txt);
 		}
 
@@ -121,7 +123,9 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 
 	if(words.size() == 2)
 	{
-		gameHandler->save("Saves/" + words[1], PlayerColor::CANNOT_DETERMINE);
+		const auto savePath = SavegamePath::getPath(
+			*gameHandler->gameInfo().getStartInfo(), *gameHandler->gameInfo().getMapHeader(), words[1]);
+		gameHandler->save(savePath, PlayerColor::CANNOT_DETERMINE);
 		MetaString str;
 		str.appendTextID("vcmi.broadcast.gameSavedAs");
 		str.appendRawString(" ");
@@ -154,7 +158,7 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	std::string path = gameHandler->statistics->writeCsv();
+	std::string path = gameHandler->statistics->writeCsv(LIBRARY->staticTexts());
 
 	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
 	str.replaceRawString(path);
@@ -185,7 +189,7 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 		return;
 	}
 
-	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString() || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
+	if(words[1] == "yes" || words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString(LIBRARY->staticTexts()) || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString(LIBRARY->staticTexts()))
 	{
 		if(currentVote == ECurrentChatVote::NONE)
 		{
@@ -193,14 +197,14 @@ void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<s
 			return;
 		}
 
-		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString())
+		if(words[1] == "yes" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.yes").toString(LIBRARY->staticTexts()))
 		{
 			awaitingPlayers.erase(player);
 			if(awaitingPlayers.empty())
 				finishVoting();
 			return;
 		}
-		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString())
+		if(words[1] == "no" || words[1] == MetaString::createFromTextID("vcmi.broadcast.vote.no").toString(LIBRARY->staticTexts()))
 		{
 			abortVoting();
 			return;
@@ -885,6 +889,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatExperience = [&]() { cheatExperience(player, hero, words); };
 	const auto & doCheatMovement = [&]() { cheatMovement(player, hero, words); };
 	const auto & doCheatResources = [&]() { cheatResources(player, words); };
+	const auto & doCheatBattleVictory = [&]() { gameHandler->battles->cheatBattleVictory(player); };
 	const auto & doCheatVictory = [&]() { cheatVictory(player); };
 	const auto & doCheatDefeat = [&]() { cheatDefeat(player); };
 	const auto & doCheatMapReveal = [&]() { cheatMapReveal(player, true); };
@@ -938,6 +943,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"experience",         doCheatExperience                                           },
 		{"movement",           doCheatMovement                                             },
 		{"resources",          doCheatResources                                            },
+		{"battleVictory",      doCheatBattleVictory                                        },
 		{"defeat",             doCheatDefeat                                               },
 		{"victory",            doCheatVictory                                              },
 		{"mapReveal",          doCheatMapReveal                                            },

@@ -13,8 +13,6 @@
 #include "RandomMapInfo.h"
 #include "SObjectSounds.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -25,6 +23,7 @@ class CGObjectInstance;
 class IObjectInfo;
 class IGameInfoCallback;
 class IGameRandomizer;
+class Quest;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -41,6 +40,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	std::optional<si32> aiValue;
 	std::vector<BattleField> battlefields;
+	TerrainId battleTerrain = TerrainId::NONE;
 
 	std::string modScope;
 	std::string typeName;
@@ -97,6 +97,9 @@ public:
 
 	std::vector<BattleField> getBattlefields() const;
 
+	/// terrain the battle at this object takes place on, or NONE to use the map tile's terrain
+	TerrainId getBattleTerrain() const;
+
 	const RandomMapInfo & getRMGInfo();
 
 	std::optional<si32> getAiValue() const;
@@ -127,6 +130,8 @@ public:
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo() const;
-};
 
-VCMI_LIB_NAMESPACE_END
+	/// Shared quest defined by this object type (keymaster border guards/gates), used to
+	/// resolve a type-quest log entry through the handler. Null for every other type.
+	virtual const Quest * getTypeQuest() const { return nullptr; }
+};

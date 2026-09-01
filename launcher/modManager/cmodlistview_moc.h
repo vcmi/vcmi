@@ -58,8 +58,11 @@ class CModListView : public QWidget
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findUnavailableMods(QStringList candidates);
 
+	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
+
 	void installMods(QStringList archives);
 	void installMaps(QStringList maps);
+	void installSaves(QStringList saves);
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
@@ -137,6 +140,9 @@ public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 	void installFiles(QStringList mods);
+
+	void showExternalProgress(const QString & format, int current, int max);
+	void hideExternalProgress();
 
 public slots:
 	void enableModByName(QString modName);

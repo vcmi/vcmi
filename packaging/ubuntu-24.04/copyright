@@ -1,0 +1,38 @@
+This package was debianized by frank zago <frank@zago.net> on
+Sat, 03 Oct 2009 12:28:04 -0500.
+
+It was downloaded from the SVN VCMI tree on sourceforge.net
+
+Upstream Authors:
+
+	Micha³ Urbañczyk <impono@gmail.com>
+	Mateusz B. <matcio1@gmail.com>
+	Stefan Pavlov <mailste@gmail.com>
+	Yifeng Sun <pkusunyifeng@gmail.com>
+	Andrea Palmate <andrea@amigasoft.net>
+	Vadim Glazunov <neweagle@gmail.com>
+	Rafal R. <ambtrip@wp.pl>
+	Lukasz Wychrystenko <t0@czlug.icis.pcz.pl>
+	Xiaomin Ding <dingding303@gmail.com>
+	Tom Zielinski <Warmonger@vp.pl>
+	Frank Zago <frank@zago.net>
+	Trevor Standley
+	Rickard Westerlund <onionknigh@gmail.com>
+	Ivan Savenko <saven.ivan@gmail.com>
+	Benjamin Gentner
+
+Copyright:
+
+	Copyright (C) 2002-2012 Micha³ Urbañczyk, Mateusz B.
+
+License:
+
+    You are free to distribute this software under the terms of
+    the GNU General Public License  either version 2 of the License,
+    or (at your option) any later version.
+    On Debian systems, the complete text of the GNU General Public
+    License can be found in the file `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is copyright 2009, frank <frank@zago.net> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+

@@ -15,8 +15,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -144,5 +142,3 @@ int32_t ProxyCaster::manaLimit() const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

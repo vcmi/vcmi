@@ -12,8 +12,6 @@
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class ObjProperty : int8_t
 {
 	INVALID,
@@ -39,6 +37,7 @@ enum class ObjProperty : int8_t
 
 	SEERHUT_VISITED,
 	SEERHUT_COMPLETE,
+	SEERHUT_ADVANCE, //move a multi-quest seer hut to its next offerable quest
 	OBELISK_VISITED,
 
 	//creature-bank specific
@@ -66,5 +65,3 @@ public:
 };
 
 using ObjPropertyID = VariantIdentifier<NumericID, MapObjectID, ObjectInstanceID, CreatureID, PlayerColor, TeamID>;
-
-VCMI_LIB_NAMESPACE_END

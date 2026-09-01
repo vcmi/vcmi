@@ -11,8 +11,6 @@
 
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class ArtifactID;
 class CreatureID;
@@ -25,6 +23,7 @@ class SecondarySkill;
 class SpellID;
 class FactionID;
 class GameResID;
+class ITranslator;
 using TQuantity = si32;
 
 /// Strings classes that can be used as replacement in MetaString
@@ -52,7 +51,11 @@ private:
 		REPLACE_TEXTID_STRING,
 		REPLACE_NUMBER,
 		REPLACE_POSITIVE_NUMBER,
-		APPEND_EOL
+		APPEND_EOL,
+		// new values must be appended - numeric values are part of save format
+		REPLACE_TOKEN_TEXTID,
+		REPLACE_TOKEN_NUMBER,
+		REPLACE_TOKEN_RAW_STRING
 	};
 
 	std::vector<EMessage> message;
@@ -62,13 +65,15 @@ private:
 	std::vector<std::string> stringsTextID;
 	std::vector<int64_t> numbers;
 
-	std::string getLocalString(const std::pair<EMetaText, ui32> & txt) const;
+	std::string getLocalString(const ITranslator * translator, const std::pair<EMetaText, ui32> & txt) const;
 
 public:
 	/// Creates MetaString and appends provided raw string to it
 	static MetaString createFromRawString(const std::string & value);
 	/// Creates MetaString and appends provided text ID string to it
 	static MetaString createFromTextID(const std::string & value);
+	/// Creates MetaString and appends text ID formed by appending index to provided prefix
+	static MetaString createFromTextID(const std::string & prefix, int index);
 	/// Creates MetaString and appends provided name string to it
 	static MetaString createFromName(const GameResID& id);
 
@@ -78,6 +83,8 @@ public:
 	void appendRawString(const std::string & value);
 	/// Appends text ID that will be translated in output
 	void appendTextID(const std::string & value);
+	/// Appends text ID formed by appending index to provided prefix, e.g. ("core.genrltxt", 5) -> "core.genrltxt.5"
+	void appendTextID(const std::string & prefix, int index);
 	/// Appends specified number to resulting string
 	void appendNumber(int64_t value);
 
@@ -90,20 +97,32 @@ public:
 	void appendNamePlural(const CreatureID & id);
 	void appendEOL();
 
+	/// Appends all content of another MetaString. Note that any replacement stored in
+	/// `other` will act on the combined text, including the part contributed by this string
+	void append(const MetaString & other);
+
 	/// Replaces first '%s' placeholder in string with specified local string
 	void replaceLocalString(EMetaText type, ui32 serial);
 	/// Replaces first '%s' placeholder in string with specified fixed, untranslated string
 	void replaceRawString(const std::string & txt);
 	/// Replaces first '%s' placeholder with string ID that will be translated in output
 	void replaceTextID(const std::string & value);
+	/// Replaces first '%s' placeholder with text ID formed by appending index to provided prefix
+	void replaceTextID(const std::string & prefix, int index);
 	/// Replaces first '%d' placeholder in string with specified number
 	void replaceNumber(int64_t txt);
 	/// Replaces first '%+d' placeholder in string with specified number using '+' sign as prefix
 	void replacePositiveNumber(int64_t txt);
 
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with string ID that will be translated in output
+	void replaceTokenTextID(const std::string & token, const std::string & value);
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified number
+	void replaceTokenNumber(const std::string & token, int64_t value);
+	/// Replaces first occurrence of a named placeholder, e.g. '%POINTS', with specified fixed, untranslated string
+	void replaceTokenRawString(const std::string & token, const std::string & value);
+
 	void replaceName(const ArtifactID & id);
 	void replaceName(const FactionID& id);
-	void replaceName(const MapObjectID & id, const MapObjectSubID & subId);
 	void replaceName(const PlayerColor& id);
 	void replaceName(const SecondarySkill& id);
 	void replaceName(const SpellID& id);
@@ -120,10 +139,11 @@ public:
 	void clear();
 
 	///used to handle loot from creature bank
-	std::string buildList() const;
+	std::string buildList(const ITranslator * translator) const;
 
-	/// Convert all stored values into a single, user-readable string
-	std::string toString() const;
+	/// Convert all stored values into a single, user-readable string.
+	/// Translator must not be null - use LIBRARY->staticTexts() if no better one is at hand
+	std::string toString(const ITranslator * translator) const;
 
 	/// Returns true if current string is empty
 	bool empty() const;
@@ -144,5 +164,3 @@ public:
 		h & numbers;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

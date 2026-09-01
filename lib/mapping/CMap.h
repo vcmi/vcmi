@@ -18,20 +18,20 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../scripting/IScriptVariablesHost.h"
+#include "../scripting/ScriptVariablesStorage.h"
 
 class CArtifactInstance;
 class CArtifactSet;
 class CGObjectInstance;
 class CGHeroInstance;
+class CGHeroPlaceholder;
 class CCommanderInstance;
 class CGameState;
 class CGCreature;
-class CQuest;
+class Quest;
 class CGTownInstance;
 class IModableArt;
-class IQuestObject;
 class CInputStream;
 class CMapEditManager;
 class JsonSerializeFormat;
@@ -60,7 +60,7 @@ struct DLL_LINKAGE Rumor
 };
 
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
-class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
+class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder, public IScriptVariablesHost
 {
 	friend class CSerializer;
 
@@ -84,6 +84,16 @@ public:
 	/// TODO: make private
 	std::vector<std::shared_ptr<CGObjectInstance>> objects;
 
+	/// Live values of script variables owned by this map, namespaced by mod scope.
+	ScriptVariablesStorage scriptVariables;
+	/// Declarations (name, initial value, campaign flags) used to seed scriptVariables at game start.
+	std::vector<ScriptVariableDefinition> scriptVariableDefinitions;
+	/// Generated Lua source for the map's event scripts (empty if the map has no event system).
+	std::string scriptSource;
+
+	ScriptVariablesStorage & getScriptVariables() override { return scriptVariables; }
+	const ScriptVariablesStorage & getScriptVariables() const override { return scriptVariables; }
+
 	explicit CMap(IGameInfoCallback *cb);
 	~CMap();
 	void initTerrain();
@@ -100,8 +110,6 @@ public:
 
 	void calculateGuardingGreaturePositions();
 	void calculateGuardingGreaturePositions(int3 topleft, int3 bottomright);
-
-	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
 
 	/// Creates instance of spell scroll artifact with provided spell
 	CArtifactInstance * createScroll(const SpellID & spellId);
@@ -141,6 +149,10 @@ public:
 	/// Moves anchor position of requested object to specified coordinates and updates map state
 	/// Throws in invalid object instance ID
 	void moveObject(ObjectInstanceID target, const int3 & dst);
+
+	/// Clamps visitable x/y into the map and shifts anchor by the same delta.
+	/// Returns true if object position was changed.
+	bool adjustToMapBounds(CGObjectInstance * obj);
 
 	/// Hides object from map without actually removing it from object list
 	void hideObject(CGObjectInstance * obj);
@@ -235,6 +247,8 @@ public:
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
+	const CGHeroPlaceholder * findHeroPlaceholder(const int3 & position) const;
+	const CGHeroPlaceholder * isHeroPlaceholderObjective(const EventCondition & condition) const;
 
 	/// Returns pointer to hero of specified type if hero is present on map
 	CGHeroInstance * getHero(HeroTypeID heroId);
@@ -248,6 +262,7 @@ public:
 	const std::vector<ObjectInstanceID> & getAllTowns() const;
 
 	/// Sets the victory/loss condition objectives ??
+	void resolveHeroPlaceholderObjectives();
 	void checkForObjectives();
 
 	void resolveQuestIdentifiers();
@@ -281,7 +296,6 @@ public:
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
 	const IGameSettings & getSettings() const;
 
-	void saveCompatibilityStoreAllocatedArtifactID();
 	void parseUidCounter();
 	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
@@ -306,13 +320,6 @@ public:
 		h & grailPos;
 		h & artInstances;
 
-		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			saveCompatibilityStoreAllocatedArtifactID();
-			std::vector< std::shared_ptr<CQuest> > quests;
-			h & quests;
-		}
-
 		if (h.saving)
 			h & heroesPool;
 		else
@@ -327,52 +334,25 @@ public:
 		h & guardingCreaturePositions;
 
 		h & objects;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & heroesOnMap;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				heroesOnMap.push_back(ptr->id);
-
-			for (auto & ptr : heroesPool)
-				if (vstd::contains(objects, ptr))
-					ptr = nullptr;
-		}
+		h & heroesOnMap;
 
 		h & teleportChannels;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & towns;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				towns.push_back(ptr->id);
-		}
+		h & towns;
 		h & artInstances;
 
 		// static members
 		h & obeliskCount;
 		h & obelisksVisited;
 		h & townMerchantArtifacts;
-		if (!h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
-		{
-			std::vector<TradeItemBuy> townUniversitySkills;
-			h & townUniversitySkills;
-		}
-
 		h & instanceNames;
 		h & *gameSettings;
-		if (!h.hasFeature(Handler::Version::STORE_UID_COUNTER_IN_CMAP))
+		h & uidCounter;
+
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
 		{
-			if (!h.saving)
-				parseUidCounter();
-		}
-		else
-		{
-			h & uidCounter;
+			h & scriptVariables;
+			h & scriptVariableDefinitions;
+			h & scriptSource;
 		}
 	}
 };
@@ -397,5 +377,3 @@ inline const TerrainTile & CMap::getTile(const int3 & tile) const
 	assert(isInTheMap(tile));
 	return terrain[tile];
 }
-
-VCMI_LIB_NAMESPACE_END

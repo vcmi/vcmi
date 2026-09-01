@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -66,5 +64,3 @@ class ApiSharedPointer : public ApiTag<Derived>, public TagSharedPointer
 {};
 
 }
-
-VCMI_LIB_NAMESPACE_END

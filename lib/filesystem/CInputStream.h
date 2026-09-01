@@ -13,8 +13,6 @@
 
 #include <boost/crc.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /**
  * Abstract class which provides method definitions for reading from a stream.
  */
@@ -63,5 +61,3 @@ public:
 		return checksum.checksum();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

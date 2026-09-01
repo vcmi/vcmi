@@ -39,7 +39,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}
@@ -127,13 +127,8 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"slayer" : {
-					"addInfo" : 1,
-					"subtype" : "spell.slayer",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "slayer",
+			"spellFixedValues" : [ 4, 3, 2, 1, 0, 0, 0 ]
 		}
 	},
 	"uland":
@@ -148,14 +143,7 @@
 			{ "skill" : "ballistics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"cure" : {
-					"subtype" : "spell.cure",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "cure"
 		}
 	},
 	"elleshar":
@@ -218,7 +206,7 @@
 			"bonuses" : {
 				"fortune" : {
 					"addInfo" : 3,
-					"subtype" : "spell.fortune",
+					"subtype" : "fortune",
 					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
@@ -236,14 +224,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"iceBolt" : {
-					"subtype" : "spell.iceBolt",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "iceBolt"
 		}
 	},
 	"aeris":

@@ -10,12 +10,11 @@
 
 #pragma once
 
+#include "LuaScriptInstance.h"
 #include "LuaStack.h"
 #include "LuaReference.h"
 #include "../lib/json/JsonNode.h"
 #include <vcmi/scripting/Service.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting
 {
@@ -27,8 +26,12 @@ class LuaReference;
 class LuaContext final : public Context
 {
 public:
-	LuaContext(const Script * source, const Environment * env_);
+	LuaContext(const LuaScriptInstance * source, const Environment * env_);
 	~LuaContext();
+
+	/// The context the given pool holds for the given script.
+	/// TODO: find a way to avoid dynamic casting
+	static std::shared_ptr<LuaContext> of(const Pool & pool, const Script * script);
 
 	/// Runs script once to perform its initialization
 	void initialize();
@@ -43,20 +46,33 @@ public:
 	template<typename ReturnType, typename... Args>
 	ReturnType callMethod(const std::string & name, const JsonNode & params, Args&&... args);
 
+	/// Calls a plain (non-OOP) function on the script table; unlike callMethod no self is passed.
+	template<typename ReturnType, typename... Args>
+	ReturnType callFunction(const std::string & name, Args&&... args);
+
 private:
-	std::mutex mutex;
 	lua_State * L;
 
-	const Script * script;
+	const LuaScriptInstance * script;
 
 	const Environment * env;
 
 	std::shared_ptr<LuaReference> modules;
-	std::shared_ptr<LuaReference> scriptClosure;
 	std::shared_ptr<LuaReference> scriptTable;
 
-	//log error and return nil from LuaCFunction
-	int errorRetVoid(const std::string & message);
+	/// Calls the named function from the given table reference. When `self` is non-null it is pushed as
+	/// a first argument whose metatable resolves missing keys through `ref` (OOP dispatch); when null the
+	/// remaining args are passed as-is. Shared body of callMethod / callRuntime.
+	template<typename ReturnType, typename... Args>
+	ReturnType callImpl(const std::shared_ptr<LuaReference> & ref, const JsonNode * self, const std::string & name, Args&&... args);
+
+	/// Loads one Lua chunk from source. On success the chunk function is at the top of the stack.
+	/// Returns false on compile failure with the error string left on the stack.
+	bool loadLayerChunk(const std::string & sourceText, const std::string & identifier);
+
+	/// Replaces the environment of the chunk on top of the stack so that the global `Base`
+	/// resolves to the given base table, while other globals fall back through __index = _G.
+	void installChunkEnvWithBase(LuaReference & base);
 
 	std::string toStringRaw(int index);
 
@@ -83,9 +99,19 @@ private:
 template<typename ReturnType, typename... Args>
 ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & params, Args&&... args)
 {
-	std::lock_guard guard(mutex);
+	return callImpl<ReturnType>(scriptTable, &params, name, std::forward<Args>(args)...);
+}
 
-	if(!scriptTable)
+template<typename ReturnType, typename... Args>
+ReturnType LuaContext::callFunction(const std::string & name, Args&&... args)
+{
+	return callImpl<ReturnType>(scriptTable, nullptr, name, std::forward<Args>(args)...);
+}
+
+template<typename ReturnType, typename... Args>
+ReturnType LuaContext::callImpl(const std::shared_ptr<LuaReference> & ref, const JsonNode * self, const std::string & name, Args&&... args)
+{
+	if(!ref)
 	{
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -95,13 +121,13 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 
 	LuaStack S(L);
 
-	scriptTable->push();               // stack: (table)
+	ref->push();                       // stack: (table)
 	lua_getfield(L, -1, name.c_str()); // stack: (table), (function)
-	lua_replace(L, 1);                 // stack: (function)
+	lua_remove(L, -2);                 // stack: (function)
 
 	if(!S.isFunction(-1))
 	{
-		S.clear();
+		S.restoreInitialTop();
 		logScript->error("Script '%s': function '%s' not found", script->getIdentifier(), name);
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -109,21 +135,25 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 			return;
 	}
 
-	// Build self: push params as Lua table, set __index = scriptTable via metatable
-	S.push(params);                    // stack: (function), (self)
-	lua_newtable(L);                   // stack: (function), (self), (mt)
-	scriptTable->push();               // stack: (function), (self), (mt), (scriptTable)
-	lua_setfield(L, -2, "__index");    // mt.__index = scriptTable; stack: (function), (self), (mt)
-	lua_setmetatable(L, -2);           // setmetatable(self, mt); stack: (function), (self)
+	int argc = sizeof...(Args);
+	if(self)
+	{
+		// Build self: push params as Lua table, set __index = ref via metatable
+		S.push(*self);                 // stack: (function), (self)
+		lua_newtable(L);               // stack: (function), (self), (mt)
+		ref->push();                   // stack: (function), (self), (mt), (table)
+		lua_setfield(L, -2, "__index");// mt.__index = ref; stack: (function), (self), (mt)
+		lua_setmetatable(L, -2);       // setmetatable(self, mt); stack: (function), (self)
+		++argc;
+	}
 
-	// push all params
-	int argc = 1 + sizeof...(Args);
-	(S << ... << args);
+	// cast to void: with an empty pack the fold collapses to a bare `S`
+	(void)(S << ... << args);
 
 	if(lua_pcall(L, argc, 1, 0))
 	{
 		std::string error = lua_tostring(L, -1);
-		S.clear();
+		S.restoreInitialTop();
 		logScript->error("Script '%s', function '%s': %s", script->getIdentifier(), name, error);
 		if constexpr (!std::is_void_v<ReturnType>)
 			return ReturnType{};
@@ -140,7 +170,7 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 		}
 		catch(const LuaApiException & e)
 		{
-			S.clear();
+			S.restoreInitialTop();
 			logScript->error("Script '%s', function '%s' returned unexpected value: %s", script->getIdentifier(), name, e.what());
 			return ReturnType{};
 		}
@@ -149,11 +179,9 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 	}
 	else
 	{
-		S.clear();
+		S.restoreInitialTop();
 		return;
 	}
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

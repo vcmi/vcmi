@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation
 {
 	ObjectInstanceID artHolder;
@@ -86,5 +84,3 @@ enum class DischargeArtifactCondition : int8_t
 	BATTLE,
 	//BUILDING	// not implemented
 };
-
-VCMI_LIB_NAMESPACE_END

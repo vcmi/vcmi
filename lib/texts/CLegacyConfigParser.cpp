@@ -17,8 +17,6 @@
 #include "filesystem/Filesystem.h"
 #include "../modding/CModHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //Helper for string -> float conversion
 class LocaleWithComma: public std::numpunct<char>
 {
@@ -128,7 +126,10 @@ float CLegacyConfigParser::readNumber()
 	std::istringstream stream(input);
 
 	if(input.find(',') != std::string::npos) // code to handle conversion with comma as decimal separator
-		stream.imbue(std::locale(std::locale(), new LocaleWithComma()));
+	{
+		static const std::locale commaLocale(std::locale(), new LocaleWithComma());
+		stream.imbue(commaLocale);
+	}
 
 	float result;
 	if ( !(stream >> result) )
@@ -154,5 +155,3 @@ bool CLegacyConfigParser::endLine()
 
 	return curr < end;
 }
-
-VCMI_LIB_NAMESPACE_END

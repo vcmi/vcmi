@@ -14,8 +14,6 @@
 #include "LuaStack.h"
 #include <type_traits>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -303,5 +301,3 @@ public:
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

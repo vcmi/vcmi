@@ -27,6 +27,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
+#include "../CServerHandler.h"
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CursorHandler.h"
@@ -81,9 +82,6 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	else if(defenderInt && defenderInt->cb->getBattle(getBattleID())->battleGetTacticDist())
 		tacticianInterface = defenderInt;
 
-	//if we found interface of player with tactics, then enter tactics mode
-	tacticsMode = static_cast<bool>(tacticianInterface);
-
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
@@ -107,6 +105,11 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	windowObject->updateQueue();
 
 	playIntroSoundAndUnlockInterface();
+}
+
+bool BattleInterface::isInTacticsMode()
+{
+	return tacticianInterface && tacticianInterface->cb->getBattle(getBattleID())->battleGetTacticDist() > 0;
 }
 
 void BattleInterface::playIntroSoundAndUnlockInterface()
@@ -139,7 +142,8 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	{
 		ENGINE->sound().setCallback(battleIntroSoundChannel, onIntroPlayed);
 
-		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool())
+		// a replay is watched, not played - the intro is always skipped there
+		if (settings["gameTweaks"]["skipBattleIntroMusic"].Bool() || GAME->server().isReplayActive())
 			openingEnd();
 	}
 	else // failed to play sound
@@ -174,8 +178,17 @@ void BattleInterface::openingEnd()
 		return;
 
 	onAnimationsFinished();
-	if(tacticsMode)
+	if(isInTacticsMode())
+	{
+		// h3 tactics phase tutorial
+		if(!persistentStorage["gui"]["tacticsPhaseHintShown"].Bool())
+		{
+			curInt->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.372"));
+			Settings s = persistentStorage.write["gui"]["tacticsPhaseHintShown"];
+			s->Bool() = true;
+		}
 		tacticNextStack(nullptr);
+	}
 	activateStack();
 	battleOpeningDelayActive = false;
 
@@ -302,7 +315,7 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
 	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
 
-	if(!tacticsMode)
+	if(!isInTacticsMode())
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
@@ -335,7 +348,14 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 
 void BattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
-	if (siegeController)
+	if (!siegeController)
+		return;
+
+	// a spell-caused catapult (earthquake, attacker == -1) applied while a hero cast is mid-flight must play
+	// at the caster's climax (HIT stage); otherwise the wall explosions appear before the hero's cast animation
+	if (ca.attacker == -1 && !awaitingEvents.empty())
+		addToAnimationStage(EAnimationEvents::HIT, [this, ca](){ siegeController->stackIsCatapulting(ca); });
+	else
 		siegeController->stackIsCatapulting(ca);
 }
 
@@ -360,6 +380,14 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 		return;
 	}
 
+	// a replay has nothing to ask, so the result window is skipped like every other dialog
+	if(GAME->server().isReplayActive())
+	{
+		windowObject->close();
+		CPlayerInterface::battleInt.reset();
+		return;
+	}
+
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
 	wnd->resultCallback = [this, queryID](ui32 selection)
 	{
@@ -377,7 +405,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	// Do not deactivate anything in tactics mode
 	// This is battlefield setup spells
-	if(!tacticsMode)
+	if(!isInTacticsMode())
 	{
 		windowObject->blockUI(true);
 
@@ -415,7 +443,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
-			if (stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
+			// mass spells (RANGE:X) have no target hex, so there is no direction to turn towards
+			if (targetedTile.isValid() && stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
 			{
 				addToAnimationStage(EAnimationEvents::MOVEMENT, [this, casterStack]()
 				{
@@ -445,16 +474,56 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		displaySpellHit(spell, targetedTile);
 	});
 
+	const bool usesChainRay = !spell->animationInfo.ray.empty() && !sc->affectedCres.empty();
+
 	//queuing affect animation
-	for(auto & elem : sc->affectedCres)
+	if(usesChainRay)
 	{
-		auto stack = getBattle()->battleGetStackByID(elem, false);
-		assert(stack);
-		if(stack)
+		// only the primary (first) target gets the full affect; the rest get the trailing spark frames
+		const auto & affect = spell->animationInfo.affect;
+		SpellAnimationQueue sparks(affect.begin() + (affect.empty() ? 0 : 1), affect.end());
+
+		std::vector<Point> targetPoints;
+		for(size_t i = 0; i < sc->affectedCres.size(); ++i)
 		{
-			addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell](){
-				displaySpellEffect(spell, stack->getPosition());
-			});
+			auto stack = getBattle()->battleGetStackByID(sc->affectedCres[i], false);
+			if(!stack)
+				continue;
+
+			BattleHex hex = stack->getPosition();
+			if(i == 0)
+				addToAnimationStage(EAnimationEvents::HIT, [this, spell, hex](){ displaySpellEffect(spell, hex); });
+			else
+				addToAnimationStage(EAnimationEvents::HIT, [this, spell, sparks, hex](){ displaySpellAnimationQueue(spell, sparks, hex, false); });
+
+			Point directionOffset(30, 0);
+			targetPoints.push_back(stacksController->getStackPositionAtHex(hex, stack) + Point(225, 225) + (stacksController->facingRight(stack) ? -directionOffset : directionOffset));
+		}
+
+		const CStack * casterStack = getBattle()->battleGetStackByID(sc->casterStack);
+		addToAnimationStage(EAnimationEvents::HIT, [this, casterStack, targetPoints, spell](){
+			stacksController->addNewAnim(new ChainLightningAnimation(*this, casterStack, targetPoints, spell));
+		});
+	}
+	else
+	{
+		size_t affectedIndex = 0;
+		for(auto & elem : sc->affectedCres)
+		{
+			auto stack = getBattle()->battleGetStackByID(elem, false);
+			assert(stack);
+			if(stack)
+			{
+				// secondary affected targets (e.g. the sacrificed unit) use a distinct effect if the spell defines one
+				bool useSecondary = affectedIndex > 0 && !spell->animationInfo.affectSecondary.empty();
+				addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell, useSecondary](){
+					if(useSecondary)
+						displaySpellAnimationQueue(spell, spell->animationInfo.affectSecondary, stack->getPosition(), false);
+					else
+						displaySpellEffect(spell, stack->getPosition());
+				});
+			}
+			++affectedIndex;
 		}
 	}
 
@@ -523,7 +592,7 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 {
 	for(const auto & line : battleLog)
 	{
-		std::string formatted = line.toString();
+		std::string formatted = line.toString(&GAME->translator());
 		boost::algorithm::trim(formatted);
 		appendBattleLog(formatted);
 	}
@@ -592,8 +661,7 @@ void BattleInterface::trySetActivePlayer( PlayerColor player )
 {
 	if ( attackerInt && attackerInt->playerID == player )
 		curInt = attackerInt;
-
-	if ( defenderInt && defenderInt->playerID == player )
+	else if ( defenderInt && defenderInt->playerID == player )
 		curInt = defenderInt;
 }
 
@@ -629,6 +697,10 @@ std::shared_ptr<CPlayerBattleCallback> BattleInterface::getBattle() const
 
 void BattleInterface::endAction(const BattleAction &action)
 {
+	// deferred spell hit reactions (e.g. chain lightning) are left undriven; start them so the wait below completes them
+	if(!awaitingEvents.empty() && !hasAnimations())
+		executeStagedAnimations();
+
 	// it is possible that tactics mode ended while opening music is still playing
 	waitForAnimations();
 
@@ -641,7 +713,7 @@ void BattleInterface::endAction(const BattleAction &action)
 	windowObject->updateQueue();
 
 	//stack ended movement in tactics phase -> select the next one
-	if (tacticsMode)
+	if (isInTacticsMode())
 		tacticNextStack(stack);
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
@@ -675,7 +747,6 @@ void BattleInterface::startAction(const BattleAction & action)
 void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
-	tacticsMode = false;
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
 	auto action = BattleAction::makeEndOFTacticPhase(side);
@@ -712,14 +783,18 @@ void BattleInterface::tacticNextStack(const CStack * current)
 
 }
 
-void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi)
+void BattleInterface::obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi)
 {
-	obstacleController->obstaclePlaced(oi);
+	// if a spell cast is mid-flight, show the obstacle after the caster's animation reaches its climax (HIT stage)
+	if(!awaitingEvents.empty())
+		addToAnimationStage(EAnimationEvents::HIT, [this, oi](){ obstacleController->obstaclePlaced(oi); });
+	else
+		obstacleController->obstaclePlaced(oi);
 }
 
-void BattleInterface::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+void BattleInterface::obstacleRemoved(const ObstacleChanges & obstacle)
 {
-	obstacleController->obstacleRemoved(obstacles);
+	obstacleController->obstacleRemoved(obstacle);
 }
 
 const CGHeroInstance *BattleInterface::currentHero() const
@@ -753,14 +828,17 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 		return; // battle finished with spellcast
 	}
 
-	if (tacticsMode)
+	auto tacticsDist = curInt->cb->getBattle(battleID)->battleGetTacticDist();
+
+	if (tacticsDist > 0)
 	{
-		// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-		// the AI can take any action except end tactics phase (AI actions won't be triggered)
-		//TODO implement the possibility that the AI will be triggered for further actions
-		//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
-		tacticPhaseEnd();
 		stacksController->setActiveStack(nullptr);
+		std::thread aiThread([localBattleID = battleID, localCurInt = curInt, tacticsDist]()
+		{
+			setThreadName("autofightingAI");
+			localCurInt->autofightingAI->yourTacticPhase(localBattleID, tacticsDist);
+		});
+		aiThread.detach();
 	}
 	else
 	{
@@ -867,6 +945,14 @@ void BattleInterface::checkForAnimations()
 void BattleInterface::addToAnimationStage(EAnimationEvents event, const AwaitingAnimationAction & action)
 {
 	awaitingEvents.push_back({action, event});
+}
+
+bool BattleInterface::hasQueuedStage(EAnimationEvents event) const
+{
+	for(const auto & e : awaitingEvents)
+		if(e.event == event)
+			return true;
+	return false;
 }
 
 void BattleInterface::setBattleQueueVisibility(bool visible)

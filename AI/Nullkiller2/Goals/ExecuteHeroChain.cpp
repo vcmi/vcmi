@@ -11,11 +11,74 @@
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
+#include "../Pathfinding/Actions/DimensionDoorAction.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
+
+namespace
+{
+bool isDimensionDoorAction(const SpecialAction & action)
+{
+	return dynamic_cast<const AIPathfinding::DimensionDoorAction *>(&action) != nullptr;
+}
+
+bool recoverStaleDimensionDoorAction(
+	AIGateway * aiGw,
+	const CGHeroInstance * hero,
+	const HeroPtr & heroPtr,
+	const int3 & destination)
+{
+	if(!heroPtr.isVerified())
+	{
+		logAi->error("Hero %s was lost trying to execute Dimension Door. Exit hero chain.", heroPtr.nameOrDefault());
+
+		throw cannotFulfillGoalException("Hero was lost!");
+	}
+
+	logAi->debug(
+		"Skipping stale Dimension Door plan for hero %s towards %s. Replanning.",
+		hero->getNameTextID(),
+		destination.toString());
+	aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+	aiGw->nullkiller->invalidatePathfinderData();
+	return false;
+}
+
+bool executeSpecialAction(
+	AIGateway * aiGw,
+	const CGHeroInstance * hero,
+	const HeroPtr & heroPtr,
+	const int3 & destination,
+	const std::shared_ptr<const SpecialAction> & action)
+{
+	const auto parts = action->getParts();
+	for(const auto & part : parts)
+	{
+		if(!executeSpecialAction(aiGw, hero, heroPtr, destination, part))
+			return false;
+	}
+
+	if(!parts.empty())
+		return true;
+
+	try
+	{
+		action->execute(aiGw, hero);
+	}
+	catch(const cannotFulfillGoalException &)
+	{
+		if(!isDimensionDoorAction(*action))
+			throw;
+
+		return recoverStaleDimensionDoorAction(aiGw, hero, heroPtr, destination);
+	}
+
+	return true;
+}
+}
 
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
@@ -29,7 +92,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 		objid = obj->id.getNum();
 
 #if NK2AI_TRACE_LEVEL >= 1
-		targetName = obj->getObjectName() + tile.toString();
+		targetName = obj->getObjectNameTextID() + tile.toString();
 #else
 		targetName = obj->getTypeName() + tile.toString();
 #endif
@@ -115,7 +178,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		{
 			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
-			return;
+			throw cannotFulfillGoalException("Hero was lost!");
 		}
 
 		if(node->parentIndex >= i)
@@ -131,7 +194,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node->coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTextID(), node->coord.toString());
 
 		try
 		{
@@ -145,14 +208,15 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
-					
-					node->specialAction->execute(aiGw, hero);
-					
+
+					if(!executeSpecialAction(aiGw, hero, heroPtr, node->coord, node->specialAction))
+						return;
+
 					if(!heroPtr.isVerified())
 					{
 						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.nameOrDefault());
 
-						return;
+						throw cannotFulfillGoalException("Hero was lost!");
 					}
 
 					// hero can be already on the target tile after move in specialAction->execute()
@@ -194,7 +258,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						logAi->error(
 							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
-							hero->getNameTranslated(),
+							hero->getNameTextID(),
 							node->coord.toString());
 
 						return;
@@ -204,7 +268,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						logAi->debug(
 							"Stopping stale hero chain for %s: expected immediate move to %s, but live path now takes %d turns with %d MP left",
-							hero->getNameTranslated(),
+							hero->getNameTextID(),
 							node->coord.toString(),
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
@@ -226,7 +290,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
 				auto targetWhirlpool = findWhirlpool(node->coord);
-				
+
 				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
 				{
 					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
@@ -248,7 +312,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						{
 							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
-							return;
+							throw cannotFulfillGoalException("Hero was lost!");
 						}
 
 						if(hero->movementPointsRemaining() > 0)
@@ -258,7 +322,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 							if(isOk && path.nodes.front().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node->coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTextID(), hero->movementPointsRemaining(), node->coord.toString());
 
 								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
@@ -277,7 +341,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			{
 				logAi->error(
 					"Unable to complete chain. Expected hero %s to arrive to %s but he is at %s",
-					hero->getNameTranslated(),
+					hero->getNameTextID(),
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
@@ -294,7 +358,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 			{
 				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.nameOrDefault(), node->coord.toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero was lost!");
 			}
 		}
 	}
@@ -305,7 +369,7 @@ std::string ExecuteHeroChain::toString() const
 #if NK2AI_TRACE_LEVEL >= 1
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.toString();
 #else
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTextID();
 #endif
 }
 
@@ -313,7 +377,7 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 {
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
 
 		return true;
 	}

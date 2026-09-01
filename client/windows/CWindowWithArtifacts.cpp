@@ -263,7 +263,10 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
+			MetaString message;
+			message.appendTextID("core.genrltxt.153");
+			message.replaceName(pickedArt->getTypeId());
+			GAME->interface()->showInfoDialog(message.toString(&GAME->translator()));
 		}
 		else
 		{

@@ -13,7 +13,6 @@
 #include "../../lib/constants/Enumerations.h"
 #include "../../lib/gameState/RumorState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
 class ResourceSet;
 struct SetAvailableCreatures;
@@ -21,7 +20,6 @@ struct SetMovePoints;
 struct SetMana;
 struct InfoWindow;
 struct NewTurn;
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 

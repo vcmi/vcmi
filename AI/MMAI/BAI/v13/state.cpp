@@ -380,7 +380,7 @@ void State::_onActionStarted(const BattleAction & ba)
 
 			const auto * targetStack = *it;
 
-			if(!CStack::isMeleeAttackPossible(actingStack, targetStack, bhMove))
+			if(!battle->isMeleeAttackPossible(actingStack, targetStack, bhMove))
 			{
 				THROW_FORMAT("Melee attack not possible from bh=%d to bh=%d (to %s)", bhMove.toInt() % bhTarget.toInt() % targetStack->getDescription());
 			}

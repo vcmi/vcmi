@@ -2,11 +2,11 @@ set(battleAI_SRCS
 		AttackPossibility.cpp
 		BattleAI.cpp
 		BattleEvaluator.cpp
-		EnemyInfo.cpp
 		PossibleSpellcast.cpp
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
 		SpellTargetsEvaluator.cpp
+		TacticsHandler.cpp
 		ThreatMap.cpp
 		BattleExchangeVariant.cpp
 )
@@ -17,29 +17,22 @@ set(battleAI_HEADERS
 		AttackPossibility.h
 		BattleAI.h
 		BattleEvaluator.h
-		EnemyInfo.h
 		PotentialTargets.h
 		PossibleSpellcast.h
 		StackWithBonuses.h
 		SpellTargetsEvaluator.h
+		TacticsHandler.h
 		ThreatMap.h
 		BattleExchangeVariant.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-	list(APPEND battleAI_SRCS main.cpp StdInc.cpp)
-endif()
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(BattleAI STATIC ${battleAI_SRCS} ${battleAI_HEADERS})
-else()
-	add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
-	install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
+add_library(BattleAI OBJECT ${battleAI_SRCS} ${battleAI_HEADERS})
+target_compile_definitions(BattleAI PRIVATE VCMI_DLL=1)
 
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(BattleAI PRIVATE vcmi)
+target_link_libraries(BattleAI PRIVATE vcmiMain)
 
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)

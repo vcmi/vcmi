@@ -13,11 +13,10 @@
 #include "../spells/ExternalCaster.h"
 #include "Configuration.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IObjectInterface;
 class IGameEventCallback;
 class CArmedInstance;
+struct InfoWindow;
 
 namespace Rewardable
 {
@@ -38,6 +37,7 @@ protected:
 	void grantRewardBeforeLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
 	
 	virtual void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
+	virtual void configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance * contextHero, int rewardIndex) const;
 	void selectRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
 	void grantAllRewardsWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
 	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
@@ -68,5 +68,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

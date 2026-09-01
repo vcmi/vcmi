@@ -11,15 +11,11 @@
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleAction;
 namespace spells {
 class Caster;
 enum class Mode;
 }
-
-VCMI_LIB_NAMESPACE_END
 
 class BattleInterface;
 

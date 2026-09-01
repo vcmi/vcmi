@@ -67,9 +67,7 @@ private slots:
 	void on_buttonConfigEditor_clicked();
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 	void on_buttonVSync_toggled(bool value);
-	void on_buttonAutoSavePrefix_toggled(bool value);
 	void on_spinBoxAutoSaveLimit_valueChanged(int arg1);
-	void on_lineEditAutoSavePrefix_textEdited(const QString &arg1);
 	void on_sliderReservedArea_valueChanged(int arg1);
 	void on_comboBoxRendererType_currentTextChanged(const QString &arg1);
 

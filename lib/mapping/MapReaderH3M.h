@@ -15,8 +15,6 @@
 #include "MapFeaturesH3M.h"
 #include "MapIdentifiersH3M.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBinaryReader;
 class CInputStream;
 struct MapFormatFeaturesH3M;
@@ -35,8 +33,8 @@ public:
 	ArtifactID readArtifact8();
 	ArtifactID readArtifact32();
 	BuildingID readBuilding32(std::optional<FactionID> faction);
-	CreatureID readCreature32();
-	CreatureID readCreature();
+	CreatureID readCreature32(const std::string & context = {});
+	CreatureID readCreature(const std::string & context = {});
 	HeroTypeID readHero();
 	HeroTypeID readHero32();
 	HeroTypeID readHeroPortrait();
@@ -104,5 +102,3 @@ private:
 
 	std::unique_ptr<CBinaryReader> reader;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,7 +12,6 @@
 #include "BattleExchangeVariant.h"
 
 #include "StackWithBonuses.h"
-#include "EnemyInfo.h"
 #include "tbb/parallel_for.h"
 #include "SpellTargetsEvaluator.h"
 #include "../../lib/CStopWatch.h"
@@ -169,8 +168,8 @@ std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CS
 		}
 	}
 
-	std::ranges::sort(
-		possibleCasts,
+	std::sort(
+		possibleCasts.begin(), possibleCasts.end(),
 		[&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs)
 		{
 			return lhs.value > rhs.value;

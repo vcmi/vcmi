@@ -23,6 +23,7 @@
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../translator.h"
 
 ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	ui(new Ui::ObjectSelector),
@@ -71,15 +72,16 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 			{
 				auto templ = templates.at(0);
 				auto temporaryObj(factory->create(controller.getCallback(), templ));
-				QString translated = QString::fromStdString(temporaryObj->getObjectName().c_str());
+				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()));
 				name = translated;
 			}
 			catch(...) {}
 
 			if(name.isEmpty())
 			{
-				auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(id, subId));
-				name = subGroupName;
+				// no object could be created, so fall back to the name of the type itself
+				auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(id);
+				name = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 			}
 
 			if(!name.isEmpty())

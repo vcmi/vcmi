@@ -406,7 +406,7 @@
 			"mine" : {
 				"index" : 7,
 				"description" : "@core.mineevnt.7",
-				"battleground": "subterranean",
+				"battleTerrain": "subterra",
 				"guards" : [{
 					"type" : "troglodyte",
 					"min" : 100,

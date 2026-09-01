@@ -13,8 +13,6 @@
 #include "../int3.h"
 #include "MapEditUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CMap;
 
@@ -171,5 +169,3 @@ private:
 	CGObjectInstance * targetedObject;
 	std::shared_ptr<CGObjectInstance> removedObject;
 };
-
-VCMI_LIB_NAMESPACE_END

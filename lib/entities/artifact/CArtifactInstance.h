@@ -12,8 +12,6 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
 class CGameState;
 class CArtifactSet;
@@ -102,8 +100,6 @@ public:
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
 
-	static void saveCompatibilityFixArtifactID(std::shared_ptr<CArtifactInstance> self);
-
 	bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
@@ -128,19 +124,6 @@ public:
 template <typename Handler>
 void CCombinedArtifactInstance::PartInfo::serialize(Handler & h)
 {
-	if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-	{
-		h & artifactID;
-	}
-	else
-	{
-		std::shared_ptr<CArtifactInstance> pointer;
-		h & pointer;
-		if (pointer->getId() == ArtifactInstanceID())
-			CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
-		artifactID = pointer->getId();
-	}
+	h & artifactID;
 	h & slot;
 }
-
-VCMI_LIB_NAMESPACE_END

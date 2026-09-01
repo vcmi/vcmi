@@ -15,11 +15,8 @@
 #include <QImage>
 #include <QDir>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 /*
  * Base class for images, can be used for non-animation pictures as well

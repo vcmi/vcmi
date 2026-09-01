@@ -16,8 +16,6 @@
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
@@ -34,8 +32,8 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;
 
 	std::set<ArtifactID> getDefaultAllowed() const;
@@ -51,5 +49,3 @@ private:
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
 };
-
-VCMI_LIB_NAMESPACE_END

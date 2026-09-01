@@ -29,8 +29,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const int RIVER_DELTA_ID = 143;
 const int RIVER_DELTA_SUBTYPE = 0;
 
@@ -414,5 +412,3 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	rivers.unite(pathToSource.getPathArea());
 	rivers.unite(pathToSink.getPathArea());
 }
-
-VCMI_LIB_NAMESPACE_END

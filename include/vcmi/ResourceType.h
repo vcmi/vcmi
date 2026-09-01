@@ -11,15 +11,12 @@
 #pragma once
 
 #include "Entity.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "scripting/ApiTags.h"
 
 class GameResID;
 
-class DLL_LINKAGE ResourceType : public EntityT<GameResID>
+class DLL_LINKAGE ResourceType : public EntityT<GameResID>, public scripting::ApiRawPointer<ResourceType>
 {
 	virtual int getPrice() const = 0;
 };
 
-
-VCMI_LIB_NAMESPACE_END

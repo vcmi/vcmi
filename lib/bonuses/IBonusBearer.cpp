@@ -13,8 +13,6 @@
 #include "IBonusBearer.h"
 #include "BonusList.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr, int baseValue) const
 {
 	TConstBonusListPtr hlp = getAllBonuses(selector, cachingStr);
@@ -113,5 +111,3 @@ std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) c
 	auto bonuses = getAllBonuses(selector);
 	return bonuses->getFirst(Selector::all);
 }
-
-VCMI_LIB_NAMESPACE_END

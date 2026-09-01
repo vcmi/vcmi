@@ -13,8 +13,6 @@
 #include "../networkPacks/TradeItem.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
 
 class JsonNode;
@@ -89,5 +87,3 @@ public:
 	// Moves all artifacts from one hero to another
 	virtual void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

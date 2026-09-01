@@ -24,9 +24,7 @@ class CListBox;
 struct GlobalLobbyAccount;
 struct GlobalLobbyRoom;
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct ModVerificationInfo;
-VCMI_LIB_NAMESPACE_END
 
 struct GlobalLobbyRoomModInfo
 {
@@ -59,8 +57,8 @@ public:
 class GlobalLobbyRoomWindow : public CWindowObject
 {
 	std::vector<GlobalLobbyRoomModInfo> modVerificationList;
-	GlobalLobbyWindow * window;
-	std::string roomUUID;
+	std::function<void()> onJoinCallback;
+	std::function<void()> onCancelCallback;
 
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<CLabel> labelTitle;
@@ -85,5 +83,6 @@ class GlobalLobbyRoomWindow : public CWindowObject
 	void onClose();
 
 public:
+	GlobalLobbyRoomWindow(const GlobalLobbyRoom & roomDescription, std::function<void()> onJoin, std::function<void()> onCancel = nullptr);
 	GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const std::string & roomUUID);
 };

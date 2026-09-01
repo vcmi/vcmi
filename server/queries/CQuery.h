@@ -10,14 +10,11 @@
 #pragma once
 
 #include "../../lib/constants/EntityIdentifiers.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include <boost/container/small_vector.hpp>
 
 struct CPackForServer;
 class CGObjectInstance;
 class CGHeroInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CObjectVisitQuery;
 class QueriesProcessor;
@@ -25,6 +22,25 @@ class CQuery;
 class CGameHandler;
 
 using QueryPtr = std::shared_ptr<CQuery>;
+
+enum class QueryType : uint8_t
+{
+	BlockingDialog,
+	GarrisonDialog,
+	TeleportDialog,
+	HeroLevelUpDialog,
+	CommanderLevelUpDialog,
+	OpenWindow,
+	MapObjectVisit,
+	TownBuildingVisit,
+	Battle,
+	BattleDialog,
+	HeroMovement,
+	TimerPause,
+	Generic,
+	LuaScript,
+	Unknown
+};
 
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.
@@ -37,10 +53,13 @@ using QueryPtr = std::shared_ptr<CQuery>;
 class CQuery : boost::noncopyable
 {
 public:
-	std::vector<PlayerColor> players; //players that are affected (often "blocked") by query
+	boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I> players; //players that are affected (often "blocked") by query
 	QueryID queryID;
 
-	CQuery(CGameHandler * gh);
+	QueryType getType() const
+	{
+		return type;
+	}
 
 	/// query can block attempting actions by player. Eg. he can't move hero during the battle.
 	virtual bool blocksPack(const CPackForServer *pack) const;
@@ -68,10 +87,15 @@ public:
 
 	virtual ~CQuery();
 protected:
+	explicit CQuery(CGameHandler * gh, QueryType type);
+
 	QueriesProcessor * owner;
 	CGameHandler * gh;
 	void addPlayer(PlayerColor color);
 	bool blockAllButReply(const CPackForServer * pack) const;
+
+private:
+	QueryType type = QueryType::Unknown;
 };
 
 std::ostream &operator<<(std::ostream &out, const CQuery &query);
@@ -80,7 +104,7 @@ std::ostream &operator<<(std::ostream &out, QueryPtr query);
 class CDialogQuery : public CQuery
 {
 public:
-	explicit CDialogQuery(CGameHandler * owner);
+	explicit CDialogQuery(CGameHandler * owner, QueryType type);
 	bool endsByPlayerAnswer() const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 	void setReply(std::optional<int32_t> reply) override;

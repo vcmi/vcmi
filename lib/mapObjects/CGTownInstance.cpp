@@ -18,6 +18,7 @@
 #include "../battle/IBattleInfoCallback.h"
 #include "../battle/BattleLayout.h"
 #include "../CConfigHandler.h"
+#include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
@@ -42,8 +43,6 @@
 #include "../serializer/JsonSerializeFormat.h"
 
 #include <vstd/RNG.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 int CGTownInstance::getSightRadius() const
 {
@@ -337,26 +336,47 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 	else
 	{
 		assert(h->visitablePos() == this->visitablePos());
-		bool commander_recover = h->getCommander() && !h->getCommander()->alive;
-		if (commander_recover) // rise commander from dead
-		{
-			SetCommanderProperty scp;
-			scp.heroid = h->id;
-			scp.which = SetCommanderProperty::ALIVE;
-			scp.amount = 1;
-			gameEvents.sendAndApply(scp);
-		}
 		gameEvents.heroVisitCastle(this, h);
-		// TODO(vmarkovtsev): implement payment for rising the commander
-		if (commander_recover) // info window about commander
+		if(h->getCommander() && !h->getCommander()->alive)
 		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text.appendRawString(h->getCommander()->getName());
-			iw.components.emplace_back(ComponentType::CREATURE, h->getCommander()->getId(), h->getCommander()->getCount());
-			gameEvents.showInfoDialog(&iw);
+			BlockingDialog dialog(true, false);
+			dialog.player = h->tempOwner;
+			dialog.text.appendTextID("vcmi.commander.resurrectionOffer");
+			dialog.components.emplace_back(ComponentType::CREATURE, h->getCommander()->getId(), h->getCommander()->getCount());
+			const auto & resurrectionPrice = LIBRARY->creh->getCommanderResurrectionPrice(h->getCommander()->getCreature());
+			for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
+			{
+				if(resurrectionPrice[resource] > 0)
+					dialog.components.emplace_back(ComponentType::RESOURCE, resource, -resurrectionPrice[resource]);
+			}
+			gameEvents.showBlockingDialog(this, &dialog);
 		}
 	}
+}
+
+void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
+{
+	if(!answer || !hero->getCommander() || hero->getCommander()->alive)
+		return;
+
+	const auto & resurrectionPrice = LIBRARY->creh->getCommanderResurrectionPrice(hero->getCommander()->getCreature());
+	if(!cb->getPlayerState(hero->tempOwner)->resources.canAfford(resurrectionPrice))
+	{
+		InfoWindow dialog;
+		dialog.player = hero->tempOwner;
+		dialog.text.appendTextID("vcmi.commander.insufficientResources");
+		gameEvents.showInfoDialog(&dialog);
+		return;
+	}
+
+	if(resurrectionPrice.nonZero())
+		gameEvents.giveResources(hero->tempOwner, -resurrectionPrice);
+
+	SetCommanderProperty property;
+	property.heroid = hero->id;
+	property.which = SetCommanderProperty::ALIVE;
+	property.amount = 1;
+	gameEvents.sendAndApply(property);
 }
 
 void CGTownInstance::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -365,18 +385,21 @@ void CGTownInstance::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroIn
 	if(getVisitingHero() == h)
 	{
 		gameEvents.stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
+		logGlobal->trace("%s correctly left town %s", h->getNameTextID(), getNameTextID());
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), getNameTranslated());
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTextID(), getNameTextID());
 }
 
-std::string CGTownInstance::getObjectName() const
+MetaString CGTownInstance::getObjectName() const
 {
 	if(ID == Obj::RANDOM_TOWN )
 		return CGObjectInstance::getObjectName();
 
-	return getNameTranslated() + ", " + getTown()->faction->getNameTranslated();
+	MetaString result = MetaString::createFromTextID(getNameTextID());
+	result.appendRawString(", ");
+	result.appendTextID(getTown()->faction->getNameTextID());
+	return result;
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
@@ -401,38 +424,6 @@ void CGTownInstance::initializeConfigurableBuildings(IGameRandomizer & gameRando
 			throw std::runtime_error("Failed to load rewardable building data for " + kvp.second->getJsonKey() + " Reason: " + e.what() + ", config was: " + buildingConfig);
 		}
 	}
-}
-
-DamageRange CGTownInstance::getTowerDamageRange() const
-{
-	// http://heroes.thelazy.net/wiki/Arrow_tower
-	// base damage, irregardless of town level
-	static constexpr int baseDamage = 6;
-	// extra damage, for each building in town
-	static constexpr int extraDamage = 1;
-
-	const int minDamage = baseDamage + extraDamage * getTownLevel();
-
-	return {
-		minDamage,
-		minDamage * 2
-	};
-}
-
-DamageRange CGTownInstance::getKeepDamageRange() const
-{
-	// http://heroes.thelazy.net/wiki/Arrow_tower
-	// base damage, irregardless of town level
-	static constexpr int baseDamage = 10;
-	// extra damage, for each building in town
-	static constexpr int extraDamage = 2;
-
-	const int minDamage = baseDamage + extraDamage * getTownLevel();
-
-	return {
-		minDamage,
-		minDamage * 2
-	};
 }
 
 FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
@@ -845,11 +836,15 @@ bool CGTownInstance::armedGarrison() const
 int CGTownInstance::getTownLevel() const
 {
 	// count all buildings that are not upgrades
+	// H3 counts Town Hall as a structure, but not Village Hall
+	// Fort/Citadel/Castle are not considered structures for arrow tower damage
 	int level = 0;
 
 	for(const auto & bid : builtBuildings)
-	{
-		if(getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
+	{	
+		if(bid == BuildingID::VILLAGE_HALL || bid == BuildingID::FORT)
+			continue;
+		if(bid == BuildingID::TOWN_HALL || getTown()->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
 	}
 	return level;
@@ -858,11 +853,6 @@ int CGTownInstance::getTownLevel() const
 CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 {
 	return townAndVis;
-}
-
-std::string CGTownInstance::getNameTranslated() const
-{
-	return customName.empty() ? LIBRARY->generaltexth->translate(nameTextId) : customName;
 }
 
 std::string CGTownInstance::getNameTextID() const
@@ -875,9 +865,10 @@ void CGTownInstance::setNameTextId( const std::string & newName )
 	nameTextId = newName;
 }
 
-void CGTownInstance::setCustomName( const std::string & newName )
+void CGTownInstance::setCustomName(CMap & map, const std::string & newName)
 {
-	customName = newName;
+	// "map" prefix keeps repeated renames out of the duplicate-registration assert
+	nameTextId = mapRegisterLocalizedString("map", map, TextIdentifier("map", "town", instanceName, "name"), newName);
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const
@@ -952,7 +943,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 		return getTown()->buildings.at(buildingID)->resources;
 	else
 	{
-		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), anchorPos().toString(), buildingID.toEnum());
+		logGlobal->error("Town %s at %s has no possible building %d!", getNameTextID(), anchorPos().toString(), buildingID.toEnum());
 		return TResources();
 	}
 
@@ -1021,7 +1012,7 @@ void CGTownInstance::addHeroToStructureVisitors(IGameEventCallback & gameEvents,
 	else
 	{
 		//should never ever happen
-		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTranslated(), structureInstanceID);
+		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTextID(), structureInstanceID);
 		throw std::runtime_error("unexpected hero in CGTownInstance::addHeroToStructureVisitors");
 	}
 }
@@ -1082,7 +1073,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			bool customBuildings = false;
 
-			boost::logic::tribool hasFort(false);
+			bool hasFort = false;
 
 			for(const BuildingID & id : forbiddenBuildings)
 			{
@@ -1180,11 +1171,12 @@ bool CGTownInstance::isNativeTerrain(TerrainId terrain) const
 	return getTown()->faction->isNativeTerrain(terrain);
 }
 
-TerrainId CGTownInstance::getTownSiegeTerrain(TerrainId defaultTerrain) const
+TerrainId CGTownInstance::getBattleTerrain() const
 {
+	// a siege takes place on the town's native terrain; NONE falls back to the map tile terrain
 	const auto & nativeTerrains = getTown()->faction->nativeTerrains;
 	if(nativeTerrains.empty())
-		return defaultTerrain;
+		return TerrainId::NONE;
 
 	return nativeTerrains.front();
 }
@@ -1221,17 +1213,17 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 	formatter.appendRawString(format);
 	formatter.replacePositiveNumber(count);
 
-	description = formatter.toString();
+	description = formatter.toString(LIBRARY->staticTexts());
 }
 
 GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): count(_count)
 {
 	MetaString formatter;
 	formatter.appendRawString("%s %+d");
-	formatter.replaceRawString(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTranslated());
+	formatter.replaceTextID(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
 	formatter.replacePositiveNumber(count);
 
-	description = formatter.toString();
+	description = formatter.toString(LIBRARY->staticTexts());
 }
 
 GrowthInfo::Entry::Entry(int _count, std::string fullDescription):
@@ -1293,5 +1285,3 @@ std::map<BuildingID, TownRewardableBuildingInstance*> CGTownInstance::convertOld
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
  
 #include "CMapOperation.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct TerrainTile;
 
 template <typename T> class CDrawLinesOperation : public CMapOperation
@@ -102,5 +100,3 @@ protected:
 private:
 	RiverId riverType;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -10,11 +10,13 @@
 
 #include "StdInc.h"
 #include "callback/CBattleCallback.h"
-#include "callback/CDynLibHandler.h"
 #include "callback/IGameInfoCallback.h"
 #include "filesystem/Filesystem.h"
 #include "lib/CRandomGenerator.h"
 #include "json/JsonUtils.h"
+
+#include "../../BattleAI/BattleAI.h"
+#include "../../StupidAI/StupidAI.h"
 
 #include "BAI/factory.h"
 #include "BAI/fallback/scripted_model.h"
@@ -160,7 +162,7 @@ namespace
 
 #define MMAI_LOG_TAG LogTag _(logtag + "." + __func__)
 
-Router::Router() : addrstr(MakeAddrStr(this)), logtag(addrstr + ":MMAI") {}
+Router::Router() : addrstr(MakeAddrStr(this)), basetag(addrstr + ":MMAI"), logtag(basetag) {}
 
 Router::~Router()
 {
@@ -249,10 +251,10 @@ void Router::battleNewRoundFirst(const BattleID & bid)
 	bai->battleNewRoundFirst(bid);
 }
 
-void Router::battleObstaclesChanged(const BattleID & bid, const std::vector<ObstacleChanges> & obstacles)
+void Router::battleObstaclesChanged(const BattleID & bid, const ObstacleChanges & obstacle)
 {
 	MMAI_LOG_TAG;
-	bai->battleObstaclesChanged(bid, obstacles);
+	bai->battleObstaclesChanged(bid, obstacle);
 };
 
 void Router::battleSpellCast(const BattleID & bid, const BattleSpellCast * sc)
@@ -300,7 +302,7 @@ void Router::battleStart(
 
 	model = GetModel(modelkey);
 
-	logtag += ".v" + std::to_string(model->getVersion());
+	logtag = basetag + ".v" + std::to_string(model->getVersion());
 	LogTag _2(logtag + "." + __func__);
 
 	auto modelside = model->getSide();
@@ -314,12 +316,12 @@ void Router::battleStart(
 		case Schema::ModelType::SCRIPTED:
 			if(model->getName() == "StupidAI")
 			{
-				bai = CDynLibHandler::getNewBattleAI("StupidAI");
+				bai = std::make_shared<CStupidAI>();
 				bai->initBattleInterface(env, cb, autocombatPreferences);
 			}
 			else if(model->getName() == "BattleAI")
 			{
-				bai = CDynLibHandler::getNewBattleAI("BattleAI");
+				bai = std::make_shared<CBattleAI>();
 				bai->initBattleInterface(env, cb, autocombatPreferences);
 			}
 			else

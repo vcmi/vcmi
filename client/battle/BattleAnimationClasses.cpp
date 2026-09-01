@@ -856,7 +856,9 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
 	ENGINE->sound().playSound( soundFilename );
-	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
+	auto explosion = new EffectAnimation(owner, effectFilename, shotTarget);
+	explosion->onMidpoint = onExplosion;
+	owner.stacksController->addNewAnim(explosion);
 }
 
 void CatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -925,10 +927,10 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparency, bool reversed):
 	BattleAnimation(owner),
 	animation(ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
-	transparencyFactor(transparencyFactor),
+	transparencyFactor(transparency),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
@@ -936,14 +938,14 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName.getName());
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, bool reversed):
-	EffectAnimation(owner, animationName, effects, 1.0f, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects, float transparency, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparency, reversed)
 {
 	battlehexes = hexes;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, float transparencyFactor, bool reversed):
-	EffectAnimation(owner, animationName, effects, transparencyFactor, reversed)
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, float transparency, bool reversed):
+	EffectAnimation(owner, animationName, effects, transparency, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.insert(hex);
@@ -1064,6 +1066,8 @@ bool EffectAnimation::screenFill() const
 void EffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
+	if (onFinished)
+		onFinished();
 }
 
 void EffectAnimation::playEffect(uint32_t msPassed)
@@ -1076,6 +1080,13 @@ void EffectAnimation::playEffect(uint32_t msPassed)
 		if(elem.effectID == ID)
 		{
 			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
+
+			if(!midpointReached && elem.currentFrame >= elem.animation->size() / 2.0)
+			{
+				midpointReached = true;
+				if(onMidpoint)
+					onMidpoint();
+			}
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
@@ -1136,7 +1147,7 @@ void HeroCastAnimation::initializeProjectile()
 	Point srccoord = hero->pos.center() - hero->parent->pos.topLeft();
 	Point destcoord = owner.stacksController->getStackPositionAtHex(tile, target); //position attacked by projectile
 
-	destcoord += Point(222, 265); // FIXME: what are these constants?
+	destcoord += Point(225, 225); // offset from hex top-left to the target creature's center, as in ranged attacks
 	owner.projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
 }
 
@@ -1159,6 +1170,14 @@ void HeroCastAnimation::emitAnimationEvent()
 	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
+bool HeroCastAnimation::hasOngoingSpellEffectAnimation()
+{
+	for(const auto * anim : pendingAnimations())
+		if(anim != nullptr && anim != this)
+			return true;
+	return false;
+}
+
 void HeroCastAnimation::tick(uint32_t msPassed)
 {
 	float frame = hero->getFrame();
@@ -1173,10 +1192,65 @@ void HeroCastAnimation::tick(uint32_t msPassed)
 		return;
 	}
 
-	if (!owner.projectilesController->hasActiveProjectile(nullptr, false))
+	if (owner.projectilesController->hasActiveProjectile(nullptr, false))
+		return;
+
+	if (!hitEmitted)
 	{
 		emitAnimationEvent();
-		//TODO: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile
-		hero->play();
+		hitEmitted = true;
+		return;
+	}
+
+	// keep the caster frozen at the casting climax until the spell hit/effect animation is over (as in H3)
+	if (hasOngoingSpellEffectAnimation())
+		return;
+
+	hero->play();
+}
+
+ChainLightningAnimation::ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell):
+	BattleAnimation(owner),
+	caster(caster),
+	targetPoints(targetPoints),
+	spell(spell)
+{
+}
+
+bool ChainLightningAnimation::init()
+{
+	owner.projectilesController->createSpellRayProjectile(caster, targetPoints, spell->animationInfo.ray, spell->animationInfo.rayJaggedness, spell->animationInfo.rayHopDelay, spell->animationInfo.rayWidth);
+	return true;
+}
+
+void ChainLightningAnimation::tick(uint32_t msPassed)
+{
+	// the animation only exists to keep the caster frozen and block waitForAnimations until the ray lands
+	if(!owner.projectilesController->hasActiveProjectile(caster, false))
+		delete this;
+}
+
+// how long the partially-open drawbridge frame is shown while the bridge lowers or raises, in ms
+static constexpr uint32_t gateTransitionDuration = 200;
+
+GateAnimation::GateAnimation(BattleInterface & owner, EGateState targetState):
+	BattleAnimation(owner),
+	targetState(targetState)
+{
+}
+
+bool GateAnimation::init()
+{
+	owner.siegeController->showPartialGate();
+	return true;
+}
+
+void GateAnimation::tick(uint32_t msPassed)
+{
+	elapsed += msPassed;
+	if(elapsed >= gateTransitionDuration)
+	{
+		owner.siegeController->applyGateState(targetState);
+		delete this;
 	}
 }

@@ -9,7 +9,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v11
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -30,6 +30,3 @@ jobs:
             Feel free to reopen it if you'd like to continue working on it.
 
           exempt-pr-labels: postponed
-
-          # only process 1 PR per run (with 1 run / day via cron)
-          operations-per-run: 1

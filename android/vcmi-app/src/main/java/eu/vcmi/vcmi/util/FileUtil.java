@@ -3,12 +3,15 @@ package eu.vcmi.vcmi.util;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.DocumentsContract;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
@@ -159,6 +162,37 @@ public class FileUtil
 		}
 
 		return fileName;
+	}
+
+	@Keep
+	@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+	public static boolean isInstalledFromGooglePlay(Context context)
+	{
+		if (context == null)
+			return false;
+
+		try
+		{
+			final PackageManager packageManager = context.getPackageManager();
+			final String packageName = context.getPackageName();
+			String installer = null;
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+			{
+				installer = packageManager.getInstallSourceInfo(packageName).getInstallingPackageName();
+			}
+			else
+			{
+				installer = packageManager.getInstallerPackageName(packageName);
+			}
+
+			return "com.android.vending".equals(installer);
+		}
+		catch (Exception e)
+		{
+			Log.e("FileUtil", "isInstalledFromGooglePlay failed", e);
+			return false;
+		}
 	}
 
 
@@ -359,4 +393,53 @@ private static DocumentFile tryResolveParentOfTree(final Context ctx, final Uri 
 	}
 }
 
+@Keep
+@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+public static String createFileInTree(String treeUriStr, String name, String mime, Context ctx)
+{
+	try
+	{
+		final Uri treeUri = Uri.parse(treeUriStr);
+		final DocumentFile dir = DocumentFile.fromTreeUri(ctx, treeUri);
+		if (dir == null || !dir.canWrite())
+			return "";
+
+		for (DocumentFile f : dir.listFiles())
+		{
+			if (f != null && f.isFile() && name.equalsIgnoreCase(f.getName()))
+				return f.getUri().toString();
+		}
+
+		final DocumentFile created = dir.createFile(mime, name);
+		return created != null ? created.getUri().toString() : "";
+	}
+	catch (Exception e)
+	{
+		Log.e("FileUtil", "createFileInTree failed: " + treeUriStr + " name=" + name + " mime=" + mime, e);
+		return "";
+	}
+}
+
+@Keep
+public static boolean copyFilePathToUri(String sourcePath, String destUriStr, Context ctx)
+{
+    Uri destUri = Uri.parse(destUriStr);
+
+    try (InputStream in = new FileInputStream(new File(sourcePath));
+         OutputStream out = ctx.getContentResolver().openOutputStream(destUri, "wt")) // "wt" = truncate
+    {
+        if (out == null)
+            return false;
+
+        copyStream(in, out);
+        out.flush();
+        return true;
+    }
+    catch (Exception e)
+    {
+        Log.e("FileUtil", "copyFilePathToUri failed: " + sourcePath + " -> " + destUriStr, e);
+        return false;
+    }
+}
+	
 }

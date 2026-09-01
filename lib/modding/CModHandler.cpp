@@ -25,11 +25,9 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-CModHandler::CModHandler()
+CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
-	, modManager(std::make_unique<ModManager>())
+	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
 {
 }
 
@@ -132,8 +130,8 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
 	try
 	{
-		auto activeMode = modManager->getActiveMods();
-		for(const auto & modID : boost::adaptors::reverse(activeMode))
+		const auto & activeMode = modManager->getActiveMods();
+		for(const auto & modID : std::views::reverse(activeMode))
 		{
 			if(CResourceHandler::get(modID)->existsResource(name))
 				return modID;
@@ -161,8 +159,12 @@ std::string CModHandler::findResourceLanguage(const ResourcePath & name) const
 
 std::string CModHandler::findResourceEncoding(const ResourcePath & resource) const
 {
-	std::string modName = findResourceOrigin(resource);
-	std::string modLanguage = findResourceLanguage(resource);
+	return getResourceEncoding(resource, findResourceOrigin(resource));
+}
+
+std::string CModHandler::getResourceEncoding(const ResourcePath & resource, const TModID & modName) const
+{
+	std::string modLanguage = getModLanguage(modName);
 
 	bool potentiallyUserMadeContent = resource.getType() == EResType::MAP || resource.getType() == EResType::CAMPAIGN;
 	if (potentiallyUserMadeContent && modName == ModScope::scopeBuiltin() && modLanguage == "english")
@@ -353,5 +355,3 @@ bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

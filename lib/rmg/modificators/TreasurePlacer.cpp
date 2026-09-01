@@ -27,7 +27,7 @@
 #include "../../rewardable/Info.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
-#include "../../mapObjects/CQuest.h"
+#include "../../mapObjects/Quest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapping/CMap.h"
@@ -36,8 +36,6 @@
 
 
 #include <vstd/RNG.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 void TreasurePlacer::process()
 {
@@ -539,15 +537,16 @@ void TreasurePlacer::addSeerHuts()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
-		auto setRandomArtifact = [qap](CGSeerHut * obj, ui32 rewardValue)
+		auto setRandomArtifact = [qap](SeerHut * obj, ui32 rewardValue)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
+			obj->addQuest();
 			obj->getQuest().mission.artifacts.push_back(artid);
 			qap->addQuestArtifact(artid, rewardValue);
 		};
 		auto destroyObject = [qap](CGObjectInstance & obj)
 		{
-			auto & seer = dynamic_cast<CGSeerHut &>(obj);
+			auto & seer = dynamic_cast<SeerHut &>(obj);
 			// Artifact can be used again
 			ArtifactID artid = seer.getQuest().mission.artifacts.front();
 			qap->addRandomArtifact(artid);
@@ -575,7 +574,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
@@ -610,7 +609,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
@@ -628,7 +627,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
@@ -778,7 +777,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			object->rmgValue = oi->value;
 			if(oi->templates.empty())
 			{
-				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
+				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectNameTextID());
 				if (oi->destroyObject)
 					oi->destroyObject(*object);
 				continue;
@@ -963,7 +962,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
-	boost::sort(treasureInfo, valueComparator);
+	std::ranges::sort(treasureInfo, valueComparator);
 
 	//sort treasures by ascending value so we can stop checking treasures with too high value
 	objects.sortPossibleObjects();
@@ -1227,7 +1226,7 @@ std::vector<ObjectInfo> & TreasurePlacer::ObjectPool::getPossibleObjects()
 
 void TreasurePlacer::ObjectPool::sortPossibleObjects()
 {
-	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
+	std::ranges::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
 	{
 		return oi1.value < oi2.value;
 	});
@@ -1339,5 +1338,3 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 	// Not interesting for us
 	return ObjectConfig::EObjectCategory::NONE;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -42,10 +42,8 @@
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/SpellSchoolHandler.h"
-#include "../spells/effects/SpellEffectHandler.h"
+#include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
@@ -257,7 +255,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
-	handlers.insert(std::make_pair("spellEffects", ContentTypeHandler(LIBRARY->spellEffectHandler.get(), "SpellEffect")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptTypeHandler.get(), "script")));
 	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
@@ -315,5 +313,3 @@ const ContentTypeHandler & CContentHandler::operator[](const std::string & name)
 {
 	return handlers.at(name);
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -19,8 +19,6 @@
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {
 	CastleTeleportHero pack(who->id, where->id, 1);
@@ -30,12 +28,16 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 
 void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit, const EPathfindingLayer & layer)
 {
+	assert(destination == h->pos || (layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS));
+
 	MoveHero pack({destination}, layer, h->id, transit);
 	sendRequest(pack);
 }
 
 void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit, const EPathfindingLayer & layer)
 {
+	assert(layer >= EPathfindingLayer::LAND && layer < EPathfindingLayer::NUM_LAYERS);
+
 	MoveHero pack(path, layer, h->id, transit);
 	sendRequest(pack);
 }
@@ -317,9 +319,15 @@ void CCallback::saveLocalState(const JsonNode & data)
 	sendRequest(state);
 }
 
-void CCallback::save( const std::string &fname, bool notifySuccess )
+void CCallback::save(const std::string & fname, bool notifySuccess)
 {
 	SaveGame save_game(fname, notifySuccess);
+	sendRequest(save_game);
+}
+
+void CCallback::saveAutosave(const std::string & fname, int autosaveCountLimit)
+{
+	SaveGame save_game(fname, false, autosaveCountLimit);
 	sendRequest(save_game);
 }
 
@@ -411,5 +419,3 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 	else
 		return swapCreatures(s1, s2, p1, p2);
 }
-
-VCMI_LIB_NAMESPACE_END

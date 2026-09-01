@@ -241,7 +241,6 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `castleGate`
 - `portalOfSummoning`
 - `library`
-- `escapeTunnel`
 - `treasury`
 - `auroraBorealis`
 

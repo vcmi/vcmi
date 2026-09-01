@@ -13,8 +13,6 @@
 
 #include "../rewardable/Configuration.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE SetRewardableConfiguration : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -30,5 +28,3 @@ struct DLL_LINKAGE SetRewardableConfiguration : public CPackForClient
 		h & configuration;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

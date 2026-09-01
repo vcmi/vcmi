@@ -34,7 +34,12 @@
 		"blockDescriptionPropagation": true
 	},
 
-	"BATTLE_NO_FLEEING":
+	"BATTLE_CAN_FLEE":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"BATTLE_CAN_SURRENDER":
 	{
 		"blockDescriptionPropagation": true
 	},
@@ -114,15 +119,7 @@
 		"blockDescriptionPropagation": true
 	},
 
-	"DEATH_STARE":
-	{
-	},
-
 	"DEFENSIVE_STANCE":
-	{
-	},
-
-	"DESTRUCTION":
 	{
 	},
 
@@ -138,10 +135,6 @@
 	{
 	},
 
-	"ENCHANTED":
-	{
-	},
-
 	"ENEMY_ATTACK_REDUCTION":
 	{
 	},
@@ -151,10 +144,6 @@
 	},
 	
 	"FEARFUL":
-	{
-	},
-
-	"FIRE_SHIELD":
 	{
 	},
 
@@ -186,10 +175,13 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
 
 	"FREE_SHOOTING":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.freeShootingNoPenalty" : null,
+			"bonusSubtype.freeShootingExceptAdjacent" : null,
+		}
 	},
 	
 	"FULL_MAP_DARKNESS":
@@ -293,10 +285,6 @@
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
-	{
-	},
-
-	"LIFE_DRAIN":
 	{
 	},
 
@@ -483,11 +471,7 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
-	"SOUL_STEAL":
-	{
-	},
-	
+
 	"SPELLCASTER":
 	{
 	},
@@ -532,10 +516,6 @@
 	{
 	},
 
-	"SUMMON_GUARDIANS":
-	{
-	},
-	
 	"SURRENDER_DISCOUNT":
 	{
 		"blockDescriptionPropagation": true
@@ -556,10 +536,6 @@
 	"THREE_HEADED_ATTACK":
 	{
 	},
-	
-	"TRANSMUTATION":
-	{
-	},
 
 	"TRANSMUTATION_IMMUNITY":
 	{
@@ -574,7 +550,17 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
+
+	"SURRENDER_MARKETPLACE_ACCESS":
+	{
+		"blockDescriptionPropagation": true
+	},
+
+	"DIPLOMACY_ARMY_STRENGTH_MULTIPLIER":
+	{
+		"blockDescriptionPropagation": true
+	},
+
 	"DEITYOFFIRE":
 	{
 		"blockDescriptionPropagation": true
@@ -644,7 +630,7 @@
 	{
 	},
 
-	"ACID_BREATH" : {},
+	"ALIGNMENT_MIX" : {},
 	"ALWAYS_MINIMUM_DAMAGE" : {},
 	"ATTACKS_NEAREST_CREATURE" : {},
 	"BLOCK_ALL_MAGIC" : {},
@@ -682,6 +668,7 @@
 	"SLAYER" : {},
 	"SPECIAL_CRYSTAL_GENERATION" : {},
 	"SPECIAL_SPELL_LEV" : {},
+	"SPECIAL_SPELL_SCALING" : {},
 	"SPECIAL_UPGRADE" : {},
 	"SPECIFIC_SPELL_DAMAGE" : {},
 	"SPECIFIC_SPELL_POWER" : {},

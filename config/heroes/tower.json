@@ -104,7 +104,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"mercury" : {
-					"subtype" : "resource.mercury",
+					"subtype" : "mercury",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1
 				}
@@ -137,14 +137,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"hypnotize" : {
-					"subtype" : "spell.hypnotize",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "hypnotize"
 		}
 	},
 	"halon":
@@ -159,7 +152,14 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"secondary" : "mysticism"
+			"secondary" : "mysticism",
+			"bonuses" : {
+				"mysticismExtra" : {
+					"type" : "MANA_REGENERATION",
+					"val" : 1,
+					"valueType" : "ADDITIVE_VALUE"
+				}
+			}
 		}
 	},
 	"serena":
@@ -192,7 +192,7 @@
 			"bonuses" : {
 				"fortune" : {
 					"addInfo" : 3,
-					"subtype" : "spell.fortune",
+					"subtype" : "fortune",
 					"type" : "SPECIAL_FIXED_VALUE_ENCHANT"
 				}
 			}
@@ -225,14 +225,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"chainLightning" : {
-					"subtype" : "spell.chainLightning",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "chainLightning"
 		}
 	},
 	"cyra":
@@ -247,13 +240,7 @@
 			{ "skill" : "diplomacy", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"haste" : {
-					"addInfo" : 0,
-					"subtype" : "spell.haste",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "haste"
 		}
 	},
 	"aine":
@@ -270,7 +257,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
 
 /// An object that represents RGBA color
 class ColorRGBA
@@ -72,6 +72,15 @@ public:
 
 };
 
+/// One parallel sub-line of a ray, with a start->end color gradient along the ray length
+struct RayColor
+{
+	ColorRGBA start;
+	ColorRGBA end;
+
+	static RayColor fromJson(const JsonNode & node);
+};
+
 namespace vstd
 {
 template<typename Floating>
@@ -85,5 +94,3 @@ ColorRGBA lerp(const ColorRGBA & left, const ColorRGBA & right, const Floating &
 	);
 }
 }
-
-VCMI_LIB_NAMESPACE_END

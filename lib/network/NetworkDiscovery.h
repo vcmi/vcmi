@@ -12,8 +12,6 @@
 
 #include "NetworkDefines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE ServerDiscovery : public IServerDiscovery, public std::enable_shared_from_this<ServerDiscovery>
 {
 public:
@@ -48,5 +46,3 @@ private:
 	std::array<char, 1024> recvBuffer;
 	boost::asio::ip::udp::endpoint remoteEndpoint;
 };
-
-VCMI_LIB_NAMESPACE_END

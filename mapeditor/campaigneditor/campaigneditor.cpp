@@ -39,20 +39,22 @@ using namespace MapEditor;
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../translator.h"
 
-CampaignEditor::CampaignEditor(EditorCallback * cb):
+CampaignEditor::CampaignEditor(EditorCallback * cb, QWidget * parent): QWidget{parent},
 	ui(new Ui::CampaignEditor),
 	selectedScenario(CampaignScenarioID::NONE),
 	cb(cb)
 {
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	ui->menubar->setNativeMenuBar(false);
 #endif
 
 	setAcceptDrops(true);
-	
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
@@ -70,7 +72,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 	connect(ui->campaignView, &CampaignView::fileDropped, this, [this](const QString & filename) {
 		if(!getAnswerAboutUnsavedChanges())
 			return;
-		
+
 		try
 		{
 			loadCampaignFile(filename);
@@ -84,7 +86,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 	redraw();
 
 	setTitle();
-	
+
 	setWindowModality(Qt::ApplicationModal);
 
 	show();
@@ -92,7 +94,20 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 
 CampaignEditor::~CampaignEditor()
 {
+	setCampaign(nullptr);
 	delete ui;
+}
+
+void CampaignEditor::setCampaign(std::shared_ptr<CampaignState> newState)
+{
+	if(campaignState)
+		Translator::instance().uninstall(*campaignState->getTexts());
+
+	campaignState = std::move(newState);
+
+	// campaign texts are inert data - the editor has to install them to render campaign-defined text
+	if(campaignState)
+		Translator::instance().install(campaignState->getTexts());
 }
 
 void CampaignEditor::redraw()
@@ -109,7 +124,7 @@ void CampaignEditor::redraw()
 
 	auto background = BitmapHandler::loadBitmap(campaignState->getRegions().getBackgroundName().getName());
 	if(!ui->actionShowFullBackground->isChecked())
-		background = background.copy(0, 0, 456, 600); 
+		background = background.copy(0, 0, 456, 600);
 	campaignScene->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(background)));
 	for (auto & s : campaignState->scenarios)
 	{
@@ -170,7 +185,7 @@ bool CampaignEditor::getAnswerAboutUnsavedChanges()
 void CampaignEditor::setTitle()
 {
 	QFileInfo fileInfo(filename);
-	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", tr("VCMI Campaign Editor"), GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", tr("VCMI Campaign Editor"), GameConstants::VCMI_VERSION);
 	setWindowTitle(title);
 }
 
@@ -205,22 +220,20 @@ void CampaignEditor::saveCampaign()
 
 void CampaignEditor::showCampaignEditor(QWidget *parent, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor(cb);
+	auto * dialog = new CampaignEditor(cb, parent);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor(cb);
+	auto * dialog = new CampaignEditor(cb, parent);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 
 	try
 	{
@@ -240,14 +253,14 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaign
 
 void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
 {
-	campaignState = Helper::openCampaignInternal(filenameSelect);
+	setCampaign(Helper::openCampaignInternal(filenameSelect));
 	selectedScenario = *campaignState->allScenarios().begin();
 
 	for(auto const & scenario : campaignState->allScenarios())
 	{
 		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
 		{
-			campaignState.reset();
+			setCampaign(nullptr);
 			selectedScenario = CampaignScenarioID::NONE;
 			return;
 		}
@@ -263,7 +276,7 @@ void CampaignEditor::on_actionOpen_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open campaign");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)");
@@ -271,7 +284,7 @@ void CampaignEditor::on_actionOpen_triggered()
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filenameSelect.isEmpty())
 		return;
-	
+
 	loadCampaignFile(filenameSelect);
 }
 
@@ -299,20 +312,22 @@ void CampaignEditor::on_actionOpenSet_triggered()
 
 	if(!ok)
 		return;
-	
+
 	QMap<QString, ResourcePath> campaigns;
 	for(auto const & campaign : sets.value(selectedSet))
 	{
 		auto c = CampaignHandler::getHeader(campaign.getName());
-		campaigns.insert(QString::fromStdString(c->getNameTranslated()), campaign);
+		CompositeTranslator translator;
+		translator.install(c->getTexts());
+		campaigns.insert(QString::fromStdString(c->getNameTranslated(&translator)), campaign);
 	}
 
 	QString selectedCampaign = QInputDialog::getItem(this, tr("Open Campaign"), tr("Select Campaign"), campaigns.keys(), 0, false, &ok);
 
 	if(!ok)
 		return;
-	
-	campaignState = CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName());
+
+	setCampaign(CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName()));
 	selectedScenario = *campaignState->allScenarios().begin();
 
 	redraw();
@@ -349,8 +364,8 @@ void CampaignEditor::on_actionNew_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
-	campaignState = std::make_unique<CampaignState>();
+
+	setCampaign(std::make_shared<CampaignState>());
 	campaignState->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
 	for (int i = 0; i < campaignState->campaignRegions.regions.size(); i++)
 	{
@@ -360,7 +375,7 @@ void CampaignEditor::on_actionNew_triggered()
 	}
 	campaignState->modName = "mapEditor";
 	campaignState->creationDateTime = std::time(nullptr);
-	
+
 	changed();
 	redraw();
 }
@@ -372,7 +387,7 @@ void CampaignEditor::on_actionSave_triggered()
 
 	if(filename.isNull())
 		on_actionSave_as_triggered();
-	else 
+	else
 		saveCampaign();
 	setTitle();
 }
@@ -407,6 +422,8 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 		QAndroidJniObject activity = QtAndroid::androidActivity();
 		if(activity.isValid())
 			activity.callMethod<void>("finishAffinity");
+#else
+		parentWidget()->show();
 #endif
 	}
 	else
@@ -468,7 +485,7 @@ std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_
 		MetaString errorMsg;
 		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
-		QMessageBox::critical(parent, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		QMessageBox::critical(parent, tr("Failed to open map"), QString::fromStdString(errorMsg.toString(&Translator::instance())));
 		return nullptr;
 	}
 	catch(const std::exception & e)

@@ -19,8 +19,6 @@
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
 std::vector<JsonNode> CSpellHandler::loadLegacyData()
@@ -304,19 +302,23 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 	if(flags["indifferent"].Bool())
 	{
-		spell->positiveness = CSpell::NEUTRAL;
+		spell->positive = false;
+		spell->negative = false;
 	}
 	else if(flags["negative"].Bool())
 	{
-		spell->positiveness = CSpell::NEGATIVE;
+		spell->positive = false;
+		spell->negative = true;
 	}
 	else if(flags["positive"].Bool())
 	{
-		spell->positiveness = CSpell::POSITIVE;
+		spell->positive = true;
+		spell->negative = false;
 	}
 	else if(!implicitPositiveness)
 	{
-		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
+		spell->positive = false; //duplicates constructor but, just in case
+		spell->negative = false;
 		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getNameTranslated());
 	}
 
@@ -415,6 +417,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	};
 
 	loadAnimationQueue("affect", spell->animationInfo.affect);
+	loadAnimationQueue("affectSecondary", spell->animationInfo.affectSecondary);
 	loadAnimationQueue("cast", spell->animationInfo.cast);
 	loadAnimationQueue("hit", spell->animationInfo.hit);
 
@@ -428,6 +431,15 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 		spell->animationInfo.projectile.push_back(info);
 	}
+
+	const JsonNode & rayNode = animationNode["ray"];
+	spell->animationInfo.rayJaggedness = rayNode["jaggedness"].Float();
+	if(rayNode["hopDelay"].Float() > 0)
+		spell->animationInfo.rayHopDelay = rayNode["hopDelay"].Float() / 1000.f;
+	if(rayNode["width"].Integer() > 0)
+		spell->animationInfo.rayWidth = static_cast<int>(rayNode["width"].Integer());
+	for(const JsonNode & value : rayNode["colors"].Vector())
+		spell->animationInfo.ray.push_back(RayColor::fromJson(value));
 
 	const JsonNode & soundsNode = json["sounds"];
 	spell->castSound = AudioPath::fromJson(soundsNode["cast"]);
@@ -448,7 +460,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
 		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();
 		levelObject.range         = spellRangeInHexes(levelNode["range"].String());
-
+		levelObject.power         = levelNode["power"].Integer();
 		levelObject.effects = levelNode["effects"];
 		levelObject.cumulativeEffects = levelNode["cumulativeEffects"];
 
@@ -518,5 +530,3 @@ std::set<SpellID> CSpellHandler::getDefaultAllowed() const
 
 	return allowedSpells;
 }
-
-VCMI_LIB_NAMESPACE_END

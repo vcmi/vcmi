@@ -161,7 +161,7 @@
 						{
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
 							"bonusSourceType" : "SPELL_EFFECT",
-							"bonusSourceID" : "spell.bless"
+							"bonusSourceID" : "bless"
 						}
 					],
 					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",
@@ -182,13 +182,7 @@
 			{ "skill" : "estates", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"weakness" : {
-					"addInfo" : 0,
-					"subtype" : "spell.weakness",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "weakness"
 		}
 	},
 	"adelaide":
@@ -202,14 +196,7 @@
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"frostRing" : {
-					"subtype" : "spell.frostRing",
-					"type" : "SPECIAL_SPELL_LEV",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 3
-				}
-			}
+			"spellScalingPercentage" : "frostRing"
 		}
 	},
 	"ingham":
@@ -254,13 +241,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"prayer" : {
-					"addInfo" : 0,
-					"subtype" : "spell.prayer",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "prayer"
 		}
 	},
 	"caitlin":
@@ -277,7 +258,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"gold" : {
-					"subtype" : "resource.gold",
+					"subtype" : "gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 350
 				}

@@ -45,6 +45,7 @@ set(lib_SRCS
 )
 
 set(lib_MAIN_SRCS
+	filesystem/SavegamePath.cpp
 
 	battle/AccessibilityInfo.cpp
 	battle/BattleAction.cpp
@@ -60,7 +61,6 @@ set(lib_MAIN_SRCS
 	battle/CObstacleInstance.cpp
 	battle/CPlayerBattleCallback.cpp
 	battle/CUnitState.cpp
-	battle/DamageCalculator.cpp
 	battle/Destination.cpp
 	battle/IBattleState.cpp
 	battle/ReachabilityInfo.cpp
@@ -74,6 +74,8 @@ set(lib_MAIN_SRCS
 	bonuses/BonusList.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
+	bonuses/BonusFilter.cpp
+	bonuses/BonusMigration.cpp
 	bonuses/BonusParameters.cpp
 	bonuses/CBonusSystemNode.cpp
 	bonuses/IBonusBearer.cpp
@@ -83,9 +85,9 @@ set(lib_MAIN_SRCS
 
 	callback/CAdventureAI.cpp
 	callback/Calendar.cpp
+	callback/AIFactory.cpp
 	callback/CBattleCallback.cpp
 	callback/CCallback.cpp
-	callback/CDynLibHandler.cpp
 	callback/CGameInfoCallback.cpp
 	callback/CNonConstInfoCallback.cpp
 	callback/CPlayerSpecificInfoCallback.cpp
@@ -136,6 +138,7 @@ set(lib_MAIN_SRCS
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
 	gameState/QuestInfo.cpp
+	gameState/ReplayLog.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -160,7 +163,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
-	mapObjects/CQuest.cpp
+	mapObjects/Quest.cpp
 	mapObjects/CRewardableObject.cpp
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
@@ -182,6 +185,7 @@ set(lib_MAIN_SRCS
 	mapping/CMapInfo.cpp
 	mapping/CMapOperation.cpp
 	mapping/CMapService.cpp
+	mapping/HotaScriptConverter.cpp
 	mapping/MapEditUtils.cpp
 	mapping/MapIdentifiersH3M.cpp
 	mapping/MapFeaturesH3M.cpp
@@ -267,6 +271,8 @@ set(lib_MAIN_SRCS
 	serializer/JsonUpdater.cpp
 	serializer/SerializerReflection.cpp
 
+	scripting/ScriptVariablesStorage.cpp
+
 	spells/AbilityCaster.cpp
 	spells/BattleSpellMechanics.cpp
 	spells/BonusCaster.cpp
@@ -291,13 +297,15 @@ set(lib_MAIN_SRCS
 	spells/adventure/TownPortalEffect.cpp
 	spells/adventure/ViewWorldEffect.cpp
 
+	scripting/ScriptHandler.cpp
+
 	spells/effects/Effect.cpp
 	spells/effects/Effects.cpp
 	spells/effects/LocationEffect.cpp
-	spells/effects/SpellEffectHandler.cpp
 
 	texts/CGeneralTextHandler.cpp
 	texts/CLegacyConfigParser.cpp
+	texts/CompositeTranslator.cpp
 	texts/MetaString.cpp
 	texts/TextLocalizationContainer.cpp
 
@@ -332,12 +340,10 @@ if (NOT ENABLE_MINIMAL_LIB)
 endif()
 
 # Version.cpp is a generated file
-if(ENABLE_GITVERSION)
-	list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
-	set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
-		PROPERTIES GENERATED TRUE
-	)
-endif()
+list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
+set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
+	PROPERTIES GENERATED TRUE
+)
 
 set(lib_HEADERS
 	../include/vstd/CLoggerBase.h
@@ -394,6 +400,8 @@ set(lib_HEADERS
 )
 
 set(lib_MAIN_HEADERS
+	filesystem/SavegamePath.h
+
 	../include/vstd/ContainerUtils.h
 	../include/vstd/RNG.h
 
@@ -457,7 +465,6 @@ set(lib_MAIN_HEADERS
 	battle/CObstacleInstance.h
 	battle/CPlayerBattleCallback.h
 	battle/CUnitState.h
-	battle/DamageCalculator.h
 	battle/Destination.h
 	battle/IBattleInfoCallback.h
 	battle/IBattleState.h
@@ -474,6 +481,8 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusList.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
+	bonuses/BonusFilter.h
+	bonuses/BonusMigration.h
 	bonuses/BonusParameters.h
 	bonuses/CBonusSystemNode.h
 	bonuses/IBonusBearer.h
@@ -485,8 +494,8 @@ set(lib_MAIN_HEADERS
 	callback/Calendar.h
 	callback/CBattleCallback.h
 	callback/CBattleGameInterface.h
+	callback/AIFactory.h
 	callback/CCallback.h
-	callback/CDynLibHandler.h
 	callback/CGameInfoCallback.h
 	callback/CGameInterface.h
 	callback/CGlobalAI.h
@@ -559,12 +568,14 @@ set(lib_MAIN_HEADERS
 	gameState/GameStatePackVisitor.h
 	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
+	gameState/ReplayLog.h
 	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
 	gameState/TavernHeroesPool.h
 	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
+	gameState/ScenarioEventJournalEntry.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CDefaultObjectTypeHandler.h
@@ -575,6 +586,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/HillFortInstanceConstructor.h
 	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
+	mapObjectConstructors/KeyGuardInstanceConstructor.h
 	mapObjectConstructors/MarketInstanceConstructor.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
@@ -589,7 +601,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
-	mapObjects/CQuest.h
+	mapObjects/Quest.h
 	mapObjects/CRewardableObject.h
 	mapObjects/FlaggableMapObject.h
 	mapObjects/IMarket.h
@@ -618,6 +630,7 @@ set(lib_MAIN_HEADERS
 	mapping/CMapOperation.h
 	mapping/CMapService.h
 	mapping/MapDifficulty.h
+	mapping/HotaScriptConverter.h
 	mapping/MapEditUtils.h
 	mapping/MapIdentifiersH3M.h
 	mapping/MapFeaturesH3M.h
@@ -656,6 +669,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForLobby.h
 	networkPacks/PacksForServer.h
 	networkPacks/SetRewardableConfiguration.h
+	networkPacks/SetScriptVariable.h
 	networkPacks/SetStackEffect.h
 	networkPacks/SaveLocalState.h
 	networkPacks/StackLocation.h
@@ -686,6 +700,7 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
 	rmg/CZoneGridPlacer.h
+	rmg/ZonePlacementConfig.h
 	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
 	rmg/Zone.h
@@ -725,6 +740,8 @@ set(lib_MAIN_HEADERS
 	serializer/CSerializer.h
 	serializer/CTypeList.h
 	serializer/GameConnectionID.h
+	scripting/IScriptVariablesHost.h
+	scripting/ScriptVariablesStorage.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
@@ -759,16 +776,24 @@ set(lib_MAIN_HEADERS
 	spells/adventure/TownPortalEffect.h
 	spells/adventure/ViewWorldEffect.h
 
+	combatScripts/CombatEventPayload.h
+	combatScripts/ICombatEventScript.h
+	combatScripts/IDamageCalculatorScript.h
+
+	scripting/ScriptHandler.h
+	scripting/ScriptService.h
+	scripting/ScriptTypeDescription.h
+
 	spells/effects/Effect.h
 	spells/effects/Effects.h
 	spells/effects/EffectsFwd.h
 	spells/effects/LocationEffect.h
-	spells/effects/SpellEffectHandler.h
-	spells/effects/SpellEffectService.h
 
 	texts/CGeneralTextHandler.h
 	texts/Languages.h
 	texts/CLegacyConfigParser.h
+	texts/CompositeTranslator.h
+	texts/ITranslator.h
 	texts/MetaString.h
 	texts/TextIdentifier.h
 	texts/TextLocalizationContainer.h
@@ -820,76 +845,31 @@ endif()
 
 assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(vcmi STATIC ${lib_SRCS} ${lib_HEADERS})
-else()
-	add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
-endif()
+add_library(vcmiMain OBJECT ${lib_SRCS} ${lib_HEADERS})
 
-set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
-target_link_libraries(vcmi PUBLIC
+target_compile_definitions(vcmiMain PRIVATE "VCMI_DLL=1")
+target_link_libraries(vcmiMain PUBLIC
 	minizip::minizip ZLIB::ZLIB Iconv::Iconv
-	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::date_time
+	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
-	target_link_libraries(vcmi PUBLIC TBB::tbb)
-endif()
-
-if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
-	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE EmptyAI)
-	target_link_libraries(vcmi PRIVATE vcmiLua)
-
-	if(ENABLE_NULLKILLER2_AI)
-		target_link_libraries(vcmi PRIVATE Nullkiller2)
-	endif()
-
-	if(ENABLE_STUPID_AI)
-		target_link_libraries(vcmi PRIVATE StupidAI)
-	endif()
-
-	if(ENABLE_BATTLE_AI)
-		target_link_libraries(vcmi PRIVATE BattleAI)
-	endif()
-
-	if(ENABLE_MMAI)
-		target_link_libraries(vcmi PRIVATE MMAI)
-	endif()
-endif()
-
-# no longer necessary, but might be useful to keep in future
-# unfortunately at the moment tests do not support namespaced build, so enable only on some systems
-if(IOS OR ANDROID)
-	target_compile_definitions(vcmi PUBLIC VCMI_LIB_NAMESPACE=VCMI)
+	target_link_libraries(vcmiMain PUBLIC TBB::tbb)
 endif()
 
 if(IOS)
-	target_link_libraries(vcmi PUBLIC iOS_utils)
+	target_link_libraries(vcmiMain PUBLIC iOS_utils)
 endif()
 
-target_include_directories(vcmi
+target_include_directories(vcmiMain
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC ${CMAKE_SOURCE_DIR}
 	PUBLIC ${CMAKE_SOURCE_DIR}/include
 )
 
-if(WIN32)
-	set(VCMI_FILE_DESCRIPTION "VCMI Core Library")
-	set(VCMI_ORIGINAL_FILENAME "VCMI_lib.dll")
-	set(VCMI_ICON_RESOURCE "")
-	set(vcmi_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_lib_versioninfo.rc")
-	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${vcmi_ICON}" @ONLY)
-	target_sources(vcmi PRIVATE ${vcmi_ICON})
-	set_target_properties(vcmi
-		PROPERTIES
-			OUTPUT_NAME "VCMI_lib"
-			PROJECT_LABEL "VCMI_lib"
-	)
-	if (MINGW)
-		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
-		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
-	endif()
+if(MINGW)
+	# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+	target_link_libraries(vcmiMain PRIVATE ws2_32 mswsock dbghelp)
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files
@@ -902,72 +882,13 @@ if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()
 
-vcmi_set_output_dir(vcmi "")
+enable_pch(vcmiMain)
 
-enable_pch(vcmi)
-
-# We want to deploy assets into build directory for easier debugging without install
-if(COPY_CONFIG_ON_BUILD)
-	add_custom_command(TARGET vcmi POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/scripts
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/scripts ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/scripts
-	)
-endif()
-
-# Update version before vcmi compiling
+# Update version before vcmiMain compiling
 if(TARGET update_version)
-	add_dependencies(vcmi update_version)
-endif()
-
-if(NOT ENABLE_STATIC_LIBS)
-	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
-endif()
-
-if(IOS AND NOT USING_CONAN)
-	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
-
-	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)
-	foreach(LINKED_LIB IN LISTS LINKED_LIBS)
-		if(NOT TARGET ${LINKED_LIB})
-			if(LINKED_LIB MATCHES "\\${CMAKE_SHARED_LIBRARY_SUFFIX}$")
-				install(FILES ${LINKED_LIB} DESTINATION ${LIB_DIR})
-			endif()
-			continue()
-		endif()
-
-		get_target_property(LIB_TYPE ${LINKED_LIB} TYPE)
-		if(NOT LIB_TYPE STREQUAL "SHARED_LIBRARY")
-			continue()
-		endif()
-
-		get_target_property(_aliased ${LINKED_LIB} ALIASED_TARGET)
-		if(_aliased)
-			set(LINKED_LIB_REAL ${_aliased})
-		else()
-			set(LINKED_LIB_REAL ${LINKED_LIB})
-		endif()
-
-		get_target_property(_imported ${LINKED_LIB_REAL} IMPORTED)
-		if(_imported)
-			set(INSTALL_TYPE IMPORTED_RUNTIME_ARTIFACTS)
-			get_target_property(BOOST_DEPENDENCIES ${LINKED_LIB_REAL} INTERFACE_LINK_LIBRARIES)
-			foreach(BOOST_DEPENDENCY IN LISTS BOOST_DEPENDENCIES)
-				get_target_property(BOOST_DEPENDENCY_TYPE ${BOOST_DEPENDENCY} TYPE)
-				if(BOOST_DEPENDENCY_TYPE STREQUAL "SHARED_LIBRARY")
-					install(IMPORTED_RUNTIME_ARTIFACTS ${BOOST_DEPENDENCY} LIBRARY DESTINATION ${LIB_DIR})
-				endif()
-			endforeach()
-		else()
-			set(INSTALL_TYPE TARGETS)
-		endif()
-		install(${INSTALL_TYPE} ${LINKED_LIB_REAL} LIBRARY DESTINATION ${LIB_DIR})
-	endforeach()
+	add_dependencies(vcmiMain update_version)
 endif()
 
 if(VCMI_PORTMASTER)
-	target_compile_definitions(vcmi PRIVATE VCMI_PORTMASTER)
+	target_compile_definitions(vcmiMain PRIVATE VCMI_PORTMASTER)
 endif()

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class BattleSide : int8_t
 {
 	NONE = -1,
@@ -49,5 +47,3 @@ public:
 		return std::array<T, 2>::at(static_cast<int>(side));
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

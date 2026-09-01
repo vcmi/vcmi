@@ -13,18 +13,24 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/battle/BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
 struct SideInBattle;
-VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery : public CQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::Battle;
+
 	BattleSideArray<const CArmedInstance *> belligerents;
 
 	BattleID battleID;
 	std::optional<BattleResult> result;
+	std::vector<ObjectInstanceID> heroesWithDeferredLevelUp;
+	mutable bool deferredLevelUpsApplied = false;
+
+	bool hasPendingBattleOrVisitQueries() const;
+	std::vector<ObjectInstanceID> takeDeferredLevelUps();
+	void completeDeferredLevelUps() const;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi);
@@ -41,6 +47,8 @@ class CBattleDialogQuery : public CDialogQuery
 	std::optional<BattleResult> result;
 
 public:
+	static constexpr QueryType TYPE = QueryType::BattleDialog;
 	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, const std::optional<BattleResult> & Br);
 	void onRemoval(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
 };

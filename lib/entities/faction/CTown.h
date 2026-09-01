@@ -16,8 +16,6 @@
 #include "../../filesystem/ResourcePath.h"
 #include "../../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBuilding;
 
 /// This is structure used only by client
@@ -109,5 +107,3 @@ public:
 
 	} clientInfo;
 };
-
-VCMI_LIB_NAMESPACE_END

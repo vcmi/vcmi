@@ -14,11 +14,7 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/networkPacks/Component.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Component;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimImage;
 class CLabel;
@@ -39,15 +35,11 @@ public:
 
 private:
 	std::vector<std::shared_ptr<CLabel>> lines;
-	std::shared_ptr<CAnimImage> artifactOverlay;
 
 	size_t getIndex() const;
 	std::vector<AnimationPath> getFileName() const;
 	void setSurface(const AnimationPath & defName, int imgPos);
 
-	void setRewardArtifactBackground(const AnimationPath & artifactDefName, int artifactImgPos);
-	bool shouldUseRewardArtifactBackground(ComponentType Type, ESize imageSize) const;
-	
 	void init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font, const std::string & ValText);
 
 public:

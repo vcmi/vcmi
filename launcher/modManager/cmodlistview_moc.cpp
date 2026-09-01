@@ -955,6 +955,24 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	hideProgressBar();
 }
 
+void CModListView::showExternalProgress(const QString & format, int current, int max)
+{
+	ui->progressWidget->setVisible(true);
+	ui->progressBar->setFormat(format);
+	ui->progressBar->setMaximum(max);
+	ui->progressBar->setValue(current);
+}
+
+void CModListView::hideExternalProgress()
+{
+	if(dlManager == nullptr)
+	{
+		ui->progressWidget->setVisible(false);
+		ui->progressBar->setMaximum(0);
+		ui->progressBar->setValue(0);
+	}
+}
+
 void CModListView::hideProgressBar()
 {
 	if(dlManager == nullptr) // it was not recreated meanwhile
@@ -965,57 +983,125 @@ void CModListView::hideProgressBar()
 	}
 }
 
+bool CModListView::askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll)
+{
+	if(applyToAll)
+		return overwriteAll;
+
+	QMessageBox msgBox(this);
+	msgBox.setIcon(QMessageBox::Question);
+	msgBox.setWindowTitle(windowTitle);
+	msgBox.setText(message);
+
+	QPushButton * yes = msgBox.addButton(QMessageBox::Yes);
+	msgBox.addButton(QMessageBox::No);
+
+	QPushButton * yesAll = nullptr;
+	QPushButton * noAll = nullptr;
+	if(conflictCount > 1)
+	{
+		yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
+		noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
+	}
+
+	msgBox.exec();
+	QAbstractButton * clicked = msgBox.clickedButton();
+
+	if(clicked == yes)
+		return true;
+	if(clicked == yesAll)
+	{
+		applyToAll = true;
+		overwriteAll = true;
+		return true;
+	}
+	if(clicked == noAll)
+	{
+		applyToAll = true;
+		overwriteAll = false;
+		return false;
+	}
+	return false;
+}
+
+namespace
+{
+enum class EZipType
+{
+	MODS,
+	MAPS,
+	SAVES
+};
+
+EZipType classifyZipArchive(const std::vector<std::string> & fileList)
+{
+	bool hasModJson = false;
+	bool hasMaps = false;
+	bool hasSaves = false;
+
+	for(const auto & file : fileList)
+	{
+		QString lower = QString::fromStdString(file).toLower();
+		// Check for mod.json anywhere in archive
+		if(lower.endsWith("mod.json"))
+			hasModJson = true;
+		// Check for map files anywhere
+		if(lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
+			hasMaps = true;
+
+		// Check for save files
+		if(lower.endsWith(".vsgm1"))
+			hasSaves = true;
+	}
+
+	if(hasModJson)
+		return EZipType::MODS;
+	if(hasMaps)
+		return EZipType::MAPS;
+	if(hasSaves)
+		return EZipType::SAVES;
+	return EZipType::MODS;
+}
+}
+
 void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
 	QStringList maps;
+	QStringList saves;
 	QStringList images;
 	QStringList exe;
 	bool repositoryFilesEnqueued = false;
 
-	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
 		QString realFilename = Helper::getRealPath(filename);
-
+	
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 		{
-			try {
-			// TODO: there is some weird crash on Android where this constructor fails to open file
-			ZipArchive archive(qstringToPath(realFilename));
-			auto fileList = archive.listFiles();
-
-			bool hasModJson = false;
-			bool hasMaps = false;
-
-			for (const auto& file : fileList)
+			try
 			{
-				QString lower = QString::fromStdString(file).toLower();
+				ZipArchive archive(qstringToPath(realFilename));
+				auto zipType = classifyZipArchive(archive.listFiles());
 
-				// Check for mod.json anywhere in archive
-				if (lower.endsWith("mod.json"))
-					hasModJson = true;
-
-				// Check for map files anywhere
-				if (lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
-					hasMaps = true;
+				if(zipType == EZipType::MAPS)
+					maps.push_back(filename);
+				else if(zipType == EZipType::SAVES)
+					saves.push_back(filename);
+				else
+					mods.push_back(filename);
 			}
-
-			if (hasModJson)
-				mods.push_back(filename);
-			else if (hasMaps)
-				maps.push_back(filename);
-			else
-				mods.push_back(filename);
-			}
-			catch (const std::runtime_error & e)
+			catch(const std::runtime_error & e)
 			{
+				logGlobal->warn("Install file failed for %s. Reason: %s", filename.toStdString(), e.what());
 				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename).arg(QString::fromStdString(e.what())));
 			}
 
 		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
+		else if(realFilename.endsWith(".vsgm1", Qt::CaseInsensitive))
+			saves.push_back(filename);
 		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
 			exe.push_back(filename);
 		else if(realFilename.endsWith(".json", Qt::CaseInsensitive))
@@ -1101,6 +1187,13 @@ void CModListView::installFiles(QStringList files)
 		logGlobal->info("Installing maps: ended");
 	}
 
+	if(!saves.empty())
+	{
+		logGlobal->info("Installing saves: started");
+		installSaves(saves);
+		logGlobal->info("Installing saves: ended");
+	}
+
 	if(!exe.empty())
 	{
 		logGlobal->info("Installing chronicles: started");
@@ -1143,6 +1236,168 @@ void CModListView::installFiles(QStringList files)
 
 	if(!images.empty())
 		loadScreenshots();
+}
+
+namespace
+{
+QString resolveSaveFileName(const QString & originalPath, const QString & realPath)
+{
+	QString fileName = QFileInfo(realPath).fileName();
+	if(fileName.isEmpty())
+		fileName = QFileInfo(originalPath).fileName();
+	if(fileName.isEmpty())
+		fileName = QUrl(originalPath).fileName();
+	return fileName;
+}
+
+int countSaveConflicts(const QStringList & saves, const QString & saveDestDir)
+{
+	int conflictCount = 0;
+
+	for(const auto & save : saves)
+	{
+		QString realSavePath = Helper::getRealPath(save);
+		if(realSavePath.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			ZipArchive archive(qstringToPath(realSavePath));
+			auto fileList = archive.listFiles();
+
+			for(const auto & file : fileList)
+			{
+				QString relativePath = QString::fromUtf8(file.data(), static_cast<int>(file.size()));
+				if(!relativePath.endsWith(".vsgm1", Qt::CaseInsensitive))
+					continue;
+
+				if(QFile::exists(saveDestDir + relativePath))
+					conflictCount++;
+			}
+			continue;
+		}
+
+		QString fileName = resolveSaveFileName(save, realSavePath);
+		if(fileName.isEmpty())
+			continue;
+		if(QFile::exists(saveDestDir + fileName))
+			conflictCount++;
+	}
+
+	return conflictCount;
+}
+
+template<typename AskOverwriteFn>
+bool shouldOverwriteSave(const AskOverwriteFn & askOverwrite, const QString & destinationPath, const QString & entryName)
+{
+	if(!QFile::exists(destinationPath))
+		return true;
+
+	if(!askOverwrite(entryName))
+		return false;
+
+	QFile::remove(destinationPath);
+	return true;
+}
+
+template<typename AskOverwriteFn>
+void importSaveFromArchive(CModListView * view, ZipArchive & archive, const QString & realSavePath, const boost::filesystem::path & savesPath, const QString & saveDestDir, const AskOverwriteFn & askOverwrite, int & importedCount)
+{
+	const auto fileList = archive.listFiles();
+	for(const auto & file : fileList)
+	{
+		QString relativePath = QString::fromUtf8(file.data(), static_cast<int>(file.size()));
+		if(!relativePath.endsWith(".vsgm1", Qt::CaseInsensitive))
+			continue;
+
+		const QString destinationPath = saveDestDir + relativePath;
+		if(!shouldOverwriteSave(askOverwrite, destinationPath, relativePath))
+			continue;
+
+		if(archive.extract(savesPath, file))
+			importedCount++;
+		else
+		{
+			logGlobal->warn("Failed to import save %s from archive %s", relativePath.toStdString(), realSavePath.toStdString());
+			QMessageBox::warning(view, QObject::tr("Import failed"), QObject::tr("Failed to import save %1 from %2").arg(relativePath, realSavePath));
+		}
+	}
+}
+
+template<typename AskOverwriteFn>
+void importSingleSaveFile(CModListView * view, const QString & sourcePath, const QString & fileName, const QString & saveDestDir, const AskOverwriteFn & askOverwrite, int & importedCount)
+{
+	const QString destinationPath = saveDestDir + fileName;
+	if(!shouldOverwriteSave(askOverwrite, destinationPath, fileName))
+		return;
+
+	if(Helper::performNativeCopy(sourcePath, destinationPath))
+	{
+		importedCount++;
+		return;
+	}
+
+	logGlobal->warn("Failed to import save file %s to %s", sourcePath.toStdString(), destinationPath.toStdString());
+	QMessageBox::warning(view, QObject::tr("Import failed"), QObject::tr("Failed to import save file %1").arg(sourcePath));
+}
+}
+
+void CModListView::installSaves(QStringList saves)
+{
+	const auto savesPath = VCMIDirs::get().userSavePath();
+	boost::filesystem::create_directories(savesPath);
+
+	QDir savesDir(pathToQString(savesPath));
+	const auto saveDestDir = savesDir.absolutePath() + QChar{'/'};
+
+	int importedCount = 0;
+	int conflictCount = 0;
+	try
+	{
+		conflictCount = countSaveConflicts(saves, saveDestDir);
+	}
+	catch(const std::runtime_error & e)
+	{
+		logGlobal->warn("Failed to inspect selected saves for conflicts. Reason: %s", e.what());
+	}
+
+	bool applyToAll = false;
+	bool overwriteAll = false;
+	const auto askOverwrite = [this, conflictCount, &applyToAll, &overwriteAll](const QString & entryName)
+	{
+		return askOverwriteDialog(
+			tr("Save exists"),
+			tr("Save '%1' already exists. Do you want to overwrite it?").arg(entryName),
+			conflictCount,
+			applyToAll,
+			overwriteAll);
+	};
+
+	for(const auto & save : saves)
+	{
+		QString realSavePath = Helper::getRealPath(save);
+
+		if(realSavePath.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			try
+			{
+				ZipArchive archive(qstringToPath(realSavePath));
+				importSaveFromArchive(this, archive, realSavePath, savesPath, saveDestDir, askOverwrite, importedCount);
+			}
+			catch(const std::runtime_error & e)
+			{
+				logGlobal->warn("Failed to import saves from %s. Reason: %s", realSavePath.toStdString(), e.what());
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to import saves from %1.\nReason: %2").arg(realSavePath, QString::fromUtf8(e.what())));
+			}
+			continue;
+		}
+
+		QString fileName = resolveSaveFileName(save, realSavePath);
+		if(fileName.isEmpty())
+			continue;
+
+		importSingleSaveFile(this, realSavePath, fileName, saveDestDir, askOverwrite, importedCount);
+	}
+
+	if(importedCount > 0)
+		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
 void CModListView::installMods(QStringList archives)
@@ -1212,7 +1467,31 @@ void CModListView::installMods(QStringList archives)
 
 	if(!modsToEnable.empty())
 	{
-		manager->enableMods(modsToEnable);
+		try
+		{
+			manager->enableMods(modsToEnable);
+		}
+		catch (const std::exception & e)
+		{
+			// Mods are installed but the dep tree can't be satisfied (a required
+			// dependency wasn't included in the install set). Mod files stay on
+			// disk and disabled; canEnableMod blocks further enable attempts.
+			// Surface still-missing deps via getModsToInstall — works even if the
+			// dep isn't in the repository cache (it just doesn't recurse further).
+			QStringList lines;
+			for(const auto & modID : modsToEnable)
+			{
+				QStringList missing;
+				for(const auto & dep : getModsToInstall(modID))
+					if(dep != modID)
+						missing.push_back(dep);
+				if(!missing.isEmpty())
+					lines.push_back(tr("%1 requires: %2").arg(modID, missing.join(", ")));
+			}
+			QString details = lines.isEmpty() ? QString::fromUtf8(e.what()) : lines.join("\n");
+			QMessageBox::warning(this, tr("Failed to enable mod"),
+				tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
+		}
 	}
 
 	for(const auto & mod : modNames)
@@ -1281,46 +1560,6 @@ void CModListView::installMaps(QStringList maps)
 	bool applyToAll = false;
 	bool overwriteAll = false;
 
-	auto askOverwrite = [&](const QString& name) -> bool {
-		if (applyToAll)
-			return overwriteAll;
-
-		QMessageBox msgBox(this);
-		msgBox.setIcon(QMessageBox::Question);
-		msgBox.setWindowTitle(tr("Map exists"));
-		msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(name));
-
-		QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
-		msgBox.addButton(QMessageBox::No);
-
-		QPushButton* yesAll = nullptr;
-		QPushButton* noAll = nullptr;
-		if (conflictCount > 1)
-		{
-			yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
-			noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
-		}
-
-		msgBox.exec();
-		QAbstractButton* clicked = msgBox.clickedButton();
-
-		if (clicked == yes)
-			return true;
-		if (clicked == yesAll)
-		{
-			applyToAll = true;
-			overwriteAll = true;
-			return true;
-		}
-		if (clicked == noAll)
-		{
-			applyToAll = true;
-			overwriteAll = false;
-			return false;
-		}
-		return false;
-	};
-
 	// Process each map file and archive
 	for (const QString& map : maps)
 	{
@@ -1340,7 +1579,7 @@ void CModListView::installMaps(QStringList maps)
 
 				if (QFile::exists(destFile))
 				{
-					if (!askOverwrite(name))
+					if (!askOverwriteDialog(tr("Map exists"), tr("Map '%1' already exists. Do you want to overwrite it?").arg(name), conflictCount, applyToAll, overwriteAll))
 					{
 						logGlobal->info("Skipped map '%s'", name.toStdString());
 						continue;
@@ -1368,7 +1607,7 @@ void CModListView::installMaps(QStringList maps)
 
 			if (QFile::exists(destFile))
 			{
-				if (!askOverwrite(fileName))
+				if (!askOverwriteDialog(tr("Map exists"), tr("Map '%1' already exists. Do you want to overwrite it?").arg(fileName), conflictCount, applyToAll, overwriteAll))
 				{
 					logGlobal->info("Skipped map '%s'", fileName.toStdString());
 					continue;

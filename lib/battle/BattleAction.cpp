@@ -13,8 +13,6 @@
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static const int32_t INVALID_UNIT_ID = -1000;
 
 BattleAction::BattleAction():
@@ -268,5 +266,3 @@ std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
 	os << ba.toString();
 	return os;
 }
-
-VCMI_LIB_NAMESPACE_END

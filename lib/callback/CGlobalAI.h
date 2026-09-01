@@ -11,13 +11,9 @@
 
 #include "CGameInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	std::shared_ptr<Environment> env;
 	CGlobalAI();
 };
-
-VCMI_LIB_NAMESPACE_END

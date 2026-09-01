@@ -14,15 +14,13 @@
 #include "../bonuses/Bonus.h"
 #include "../json/JsonBonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonUpdater::JsonUpdater(const IInstanceResolver * instanceResolver_, const JsonNode & root_)
 	: JsonTreeSerializer(instanceResolver_, &root_, false, true)
 {
 
 }
 
-void JsonUpdater::serializeInternal(const std::string & fieldName, boost::logic::tribool & value)
+void JsonUpdater::serializeInternal(const std::string & fieldName, std::optional<bool> & value)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 	if(data.getType() == JsonNode::JsonType::DATA_BOOL)
@@ -218,5 +216,3 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

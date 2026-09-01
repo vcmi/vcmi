@@ -22,8 +22,6 @@
 //uncomment to generate dumps afger every step of map generation
 //#define RMG_DUMP
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class RmgMap;
 class CMapGenerator;
 class Modificator;
@@ -154,5 +152,3 @@ protected:
 	FactionID townType;
 	TerrainId terrainType;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,10 +13,9 @@
 #include <vcmi/HeroClass.h>
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
@@ -25,15 +24,20 @@ class HeroInstanceProxy : public RawPointerWrapper<const CGHeroInstance, HeroIns
 {
 	static bool isMale(const CGHeroInstance & hero);
 	static bool isFemale(const CGHeroInstance & hero);
+	static int getLevel(const CGHeroInstance & hero);
+	static int64_t getExperience(const CGHeroInstance & hero);
+	static bool hasArtifact(const CGHeroInstance & hero, ArtifactID artifact);
+	static int ownedArtifacts(const CGHeroInstance & hero, ArtifactID artifact);
+	static int creatureCountInArmy(const CGHeroInstance & hero, CreatureID creature);
 
 public:
-	using Wrapper = RawPointerWrapper<const CGHeroInstance, HeroInstanceProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "HeroInstance";
+	static constexpr std::string_view luaDescription =
+		"A hero placed on the adventure map. Provides access to such information as owner, "
+		"type (Orrin, Kyrre, Astral...), position on map, artifacts, and secondary skills, "
+		"army composition, primary skills, and all bonuses affecting hero.";
 
-	static int getBonuses(lua_State * L);
+	static void registerMethods(MethodRegistrar & R);
 };
 
-
 }
-
-VCMI_LIB_NAMESPACE_END

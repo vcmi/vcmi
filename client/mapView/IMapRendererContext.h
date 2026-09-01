@@ -9,17 +9,20 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../../lib/Color.h"
 
 class int3;
 class Point;
 class CGObjectInstance;
 class ObjectInstanceID;
 struct TerrainTile;
-class ColorRGBA;
 struct CGPath;
 
-VCMI_LIB_NAMESPACE_END
+struct MapTextOverlay
+{
+	std::string text;
+	ColorRGBA color;
+};
 
 class IMapRendererContext
 {
@@ -71,11 +74,8 @@ public:
 	/// returns index of image for overlay on specific tile, or numeric_limits::max if none
 	virtual size_t overlayImageIndex(const int3 & coordinates) const = 0;
 
-	/// returns text that should be used as overlay for current tile
-	virtual std::string overlayText(const int3 & coordinates) const = 0;
-
-	/// returns text that should be used as overlay for current tile
-	virtual ColorRGBA overlayTextColor(const int3 & coordinates) const = 0;
+	/// returns text overlay that should be used for current tile
+	virtual MapTextOverlay overlayText(const int3 & coordinates) const = 0;
 
 	/// returns animation frame for terrain
 	virtual size_t terrainImageIndex(size_t groupSize) const = 0;

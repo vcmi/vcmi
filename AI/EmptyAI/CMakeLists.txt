@@ -8,20 +8,13 @@ set(emptyAI_HEADERS
 		CEmptyAI.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-	list(APPEND emptyAI_SRCS main.cpp StdInc.cpp)
-endif()
 assign_source_group(${emptyAI_SRCS} ${emptyAI_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(EmptyAI STATIC ${emptyAI_SRCS} ${emptyAI_HEADERS})
-else()
-	add_library(EmptyAI SHARED ${emptyAI_SRCS} ${emptyAI_HEADERS})
-	install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
+add_library(EmptyAI OBJECT ${emptyAI_SRCS} ${emptyAI_HEADERS})
+target_compile_definitions(EmptyAI PRIVATE VCMI_DLL=1)
 
 target_include_directories(EmptyAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(EmptyAI PRIVATE vcmi)
+target_link_libraries(EmptyAI PRIVATE vcmiMain)
 
 vcmi_set_output_dir(EmptyAI "AI")
 enable_pch(EmptyAI)

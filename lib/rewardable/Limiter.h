@@ -13,9 +13,8 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include "../mapping/MapDifficulty.h"
 #include "../serializer/Serializeable.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CStackBasicDescriptor;
@@ -98,6 +97,15 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// only player colors can pass limiter
 	std::vector<PlayerColor> players;
 
+	/// keymaster tent colours (subIDs) whose key the player must have collected to pass
+	std::vector<MapObjectSubID> requiredKeys;
+
+	/// game difficulties on which this limiter is active; default (all set) means no restriction
+	MapDifficultySet allowedDifficulties;
+
+	/// objects (by instance id) that the player must have destroyed to pass
+	std::vector<ObjectInstanceID> destroyedObjects;
+
 	/// sub-limiters, all must pass for this limiter to pass
 	LimitersList allOf;
 
@@ -130,33 +138,40 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 			h & movePercentage;
 		}
 		h & canLearnSkills;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & commanderAlive;
-			h & hasExtraCreatures;
-		}
+		h & commanderAlive;
+		h & hasExtraCreatures;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & availableSlots;
-			h & scrolls;
-		}
+		h & availableSlots;
+		h & scrolls;
 		h & spells;
 		h & canLearnSpells;
 		h & creatures;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & canReceiveCreatures;
-		}
+		h & canReceiveCreatures;
 		h & heroes;
 		h & heroClasses;
 		h & players;
 		h & allOf;
 		h & anyOf;
 		h & noneOf;
+		if (h.version >= Handler::Version::QUEST_REWORK)
+		{
+			// requiredKeys are keymaster-colour subIDs; serialize as identifiers (with the
+			// KEYMASTER primary-ID context) so they survive mod identifier renumbering.
+			std::vector<std::string> keyIDs;
+			if(h.saving)
+				for(const auto & key : requiredKeys)
+					keyIDs.push_back(MapObjectSubID::encode(Obj::KEYMASTER, key.getNum()));
+			h & keyIDs;
+			if(!h.saving)
+				for(const auto & keyID : keyIDs)
+					requiredKeys.emplace_back(MapObjectSubID::decode(Obj::KEYMASTER, keyID));
+
+			h & allowedDifficulties;
+			h & destroyedObjects;
+		}
 	}
 	
 	void serializeJson(JsonSerializeFormat & handler);
@@ -166,5 +181,3 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 
 bool DLL_LINKAGE operator== (const Rewardable::Limiter & l, const Rewardable::Limiter & r);
 bool DLL_LINKAGE operator!= (const Rewardable::Limiter & l, const Rewardable::Limiter & r);
-
-VCMI_LIB_NAMESPACE_END

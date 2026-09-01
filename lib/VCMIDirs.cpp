@@ -18,8 +18,6 @@
 #include "CAndroidVMHelper.h"
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
@@ -27,11 +25,6 @@ bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
 bfs::path IVCMIDirs::userExtractedPath() const { return userCachePath() / "extracted"; }
-
-bfs::path IVCMIDirs::fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const
-{
-	return libraryPath() / desiredFolder / libraryName(baseLibName);
-}
 
 std::string IVCMIDirs::genHelpString() const
 {
@@ -42,7 +35,6 @@ std::string IVCMIDirs::genHelpString() const
 
 	return
 		"  game data:		" + gdStringA + "\n"
-		"  libraries:		" + libraryPath().string() + "\n"
 		"  server:			" + serverPath().string() + "\n"
 		"\n"
 		"  user data:		" + userDataPath().string() + "\n"
@@ -92,10 +84,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		bfs::path mapEditorPath() const override;
 		bfs::path serverPath() const override;
 
-		bfs::path libraryPath() const override;
 		bfs::path binaryPath() const override;
-
-		std::string libraryName(const std::string& basename) const override;
 
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
@@ -117,7 +106,7 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 	if (!bfs::exists(configPath))
 		return;
 
-	std::ifstream in(pathToUtf8(configPath), std::ios::binary);
+	std::ifstream in(configPath.wstring(), std::ios::binary);
 	if (!in)
 		return;
 
@@ -205,10 +194,7 @@ bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client
 bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_mapeditor.exe"; }
 bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
 
-bfs::path VCMIDirsWIN32::libraryPath() const { return "."; }
 bfs::path VCMIDirsWIN32::binaryPath() const { return ".";  }
-
-std::string VCMIDirsWIN32::libraryName(const std::string& basename) const { return basename + ".dll"; }
 #elif defined(VCMI_UNIX)
 class IVCMIDirsUNIX : public IVCMIDirs
 {
@@ -224,7 +210,11 @@ bool IVCMIDirsUNIX::developmentMode() const
 {
 	// We want to be able to run VCMI from single directory. E.g to run from build output directory
 	const bool hasConfigs = bfs::exists("config") && bfs::exists("Mods");
-	const bool hasBinaries = bfs::exists("vcmiclient") || bfs::exists("vcmiserver") || bfs::exists("vcmilobby") || bfs::exists("vcmieditor");
+	const bool hasBinaries = bfs::exists("vcmiclient")
+		|| bfs::exists("vcmiserver")
+		|| bfs::exists("vcmilobby")
+		|| bfs::exists("vcmieditor")
+		|| bfs::exists("vcmitest");
 	return hasConfigs && hasBinaries;
 }
 
@@ -237,13 +227,9 @@ class VCMIDirsApple : public IVCMIDirsUNIX
 {
 public:
 	bfs::path userConfigPath() const override;
-
-	std::string libraryName(const std::string& basename) const override;
 };
 
 bfs::path VCMIDirsApple::userConfigPath() const { return userDataPath() / "config"; }
-
-std::string VCMIDirsApple::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
 
 #ifdef VCMI_IOS
 class VCMIDirsIOS final : public VCMIDirsApple
@@ -255,8 +241,6 @@ public:
 
 	std::vector<bfs::path> dataPaths() const override;
 
-	bfs::path libraryPath() const override;
-	bfs::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 	bfs::path binaryPath() const override;
 };
 
@@ -277,16 +261,6 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 	return paths;
 }
 
-bfs::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
-{
-	// iOS has flat libs directory structure
-	// a library can be either a framework or a plain dylib
-	if(const auto frameworkPath = libraryPath() / (baseLibName + ".framework") / baseLibName; bfs::exists(frameworkPath))
-		return frameworkPath;
-	return libraryPath() / libraryName(baseLibName);
-}
-
-bfs::path VCMIDirsIOS::libraryPath() const { return {iOS_utils::frameworksPath()}; }
 bfs::path VCMIDirsIOS::binaryPath() const { return {iOS_utils::bundlePath()}; }
 #elif defined(VCMI_MAC)
 class VCMIDirsOSX final : public VCMIDirsApple
@@ -298,7 +272,6 @@ public:
 
 	std::vector<bfs::path> dataPaths() const override;
 
-	bfs::path libraryPath() const override;
 	bfs::path binaryPath() const override;
 
 	void init() override;
@@ -384,7 +357,6 @@ std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
 bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
 #endif // VCMI_IOS, VCMI_MAC
 
@@ -393,12 +365,8 @@ class VCMIDirsAndroid : public IVCMIDirsUNIX
 {
 	std::string basePath;
 	std::string internalPath;
-	std::string nativePath;
 public:
-	std::string libraryName(const std::string & basename) const override;
-	bfs::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 	bfs::path binaryPath() const override;
-	bfs::path libraryPath() const override;
 	bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userConfigPath() const override;
@@ -408,18 +376,10 @@ public:
 	void init() override;
 };
 
-std::string VCMIDirsAndroid::libraryName(const std::string & basename) const { return "lib" + basename + ".so"; }
 bfs::path VCMIDirsAndroid::binaryPath() const { return "."; }
-bfs::path VCMIDirsAndroid::libraryPath() const { return nativePath; }
 bfs::path VCMIDirsAndroid::userDataPath() const { return basePath; }
 bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
 bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
-
-bfs::path VCMIDirsAndroid::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
-{
-	// ignore passed folder (all libraries in android are dumped into a single folder)
-	return libraryPath() / libraryName(baseLibName);
-}
 
 std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 {
@@ -435,7 +395,6 @@ void VCMIDirsAndroid::init()
 	CAndroidVMHelper envHelper;
 	basePath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "dataRoot");
 	internalPath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "internalDataRoot");
-	nativePath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "nativePath");
 	IVCMIDirsUNIX::init();
 }
 
@@ -449,10 +408,7 @@ public:
 
 	std::vector<bfs::path> dataPaths() const override;
 
-	bfs::path libraryPath() const override;
 	bfs::path binaryPath() const override;
-
-	std::string libraryName(const std::string& basename) const override;
 };
 
 bfs::path VCMIDirsPM::userDataPath() const
@@ -502,15 +458,6 @@ std::vector<bfs::path> VCMIDirsPM::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirsPM::libraryPath() const
-{
-	const char * tempResult;
-	if ((tempResult = getenv("PORTMASTER_HOME")))
-		return bfs::path(tempResult) / "libs";
-	else
-		return M_LIB_DIR;
-}
-
 bfs::path VCMIDirsPM::binaryPath() const
 {
 	const char * tempResult;
@@ -519,8 +466,6 @@ bfs::path VCMIDirsPM::binaryPath() const
 	else
 		return M_BIN_DIR;
 }
-
-std::string VCMIDirsPM::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
 
 #elif defined(VCMI_XDG)
 class VCMIDirsXDG : public IVCMIDirsUNIX
@@ -532,10 +477,7 @@ public:
 
 	std::vector<bfs::path> dataPaths() const override;
 
-	bfs::path libraryPath() const override;
 	bfs::path binaryPath() const override;
-
-	std::string libraryName(const std::string& basename) const override;
 };
 
 bfs::path VCMIDirsXDG::userDataPath() const
@@ -597,7 +539,7 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 			std::string dataDirsEnv = tempResult;
 			std::vector<std::string> dataDirs;
 			boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
-			for (auto & entry : boost::adaptors::reverse(dataDirs))
+			for (auto & entry : std::views::reverse(dataDirs))
 				ret.push_back(bfs::path(entry) / "vcmi");
 		}
 		else
@@ -613,14 +555,6 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirsXDG::libraryPath() const
-{
-	if(developmentMode())
-		return ".";
-	else
-		return M_LIB_DIR;
-}
-
 bfs::path VCMIDirsXDG::binaryPath() const
 {
 	if(developmentMode())
@@ -628,8 +562,6 @@ bfs::path VCMIDirsXDG::binaryPath() const
 	else
 		return M_BIN_DIR;
 }
-
-std::string VCMIDirsXDG::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
 
 #endif // VCMI_APPLE, VCMI_ANDROID, VCMI_XDG
 #endif // VCMI_WINDOWS, VCMI_UNIX
@@ -658,5 +590,3 @@ namespace VCMIDirs
 		return singleton;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

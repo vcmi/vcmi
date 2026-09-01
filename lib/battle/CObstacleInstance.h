@@ -17,8 +17,6 @@
 
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ObstacleInfo;
 class ObstacleChanges;
 class JsonSerializeFormat;
@@ -96,6 +94,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	AudioPath appearSound;
 	AnimationPath appearAnimation;
 	AnimationPath animation;
+	AnimationPath removalAnimation;
 
 	BattleHexArray customSize;
 
@@ -138,5 +137,3 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 		h & customSize;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

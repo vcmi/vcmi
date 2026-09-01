@@ -13,8 +13,7 @@
 #include <vcmi/Skill.h>
 
 #include "../../LuaWrapper.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../MethodRegistrar.h"
 
 namespace scripting::api
 {
@@ -22,10 +21,12 @@ namespace scripting::api
 class SkillProxy : public RawPointerWrapper<const Skill, SkillProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const Skill, SkillProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "Skill";
+	static constexpr std::string_view luaDescription =
+		"A secondary-skill definition (Wisdom, Tactics, Logistics, …). Database metadata; "
+		"per-hero skill levels are read off HeroInstance.";
+
+	static void registerMethods(MethodRegistrar & R);
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -17,8 +17,6 @@
 #include "Color.h"
 #include "filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE TerrainPaletteAnimation
 {
 	/// index of first color to cycle
@@ -146,5 +144,3 @@ inline std::vector<MapLayerId> TerrainType::layersAllowed() const
 {
 	return allowedLayers;
 }
-
-VCMI_LIB_NAMESPACE_END

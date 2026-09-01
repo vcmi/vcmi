@@ -13,8 +13,6 @@
 #include <vstd/RNG.h>
 #include "serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 /// Generator to use for all randomization in game
 /// minstd_rand is selected due to following reasons:
@@ -95,5 +93,3 @@ public:
 	}
 };
 
-
-VCMI_LIB_NAMESPACE_END

@@ -12,9 +12,8 @@
 
 #include "../GameConstants.h"
 #include "../serializer/Serializeable.h"
+#include "../texts/MetaString.h"
 #include "CRmgTemplate.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace vstd
 {
@@ -142,8 +141,22 @@ public:
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
 	void setMapTemplate(const std::string & name);
+	MetaString getMapName() const;
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
+
+	/// Per-level map layer IDs. Always sized to match getLevels() - setLevels() pads/truncates it as needed.
+	/// Defaults are set based on level count: SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
+	void setLevelMapLayers(const std::vector<MapLayerId> & value);
+	const std::vector<MapLayerId> & getLevelMapLayers() const;
+
+	/// Reset per-level map layers to defaults based on current level count.
+	/// SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
+	void resetLevelMapLayers();
+
+	/// Get the default MapLayerId for a given level index.
+	/// Level 0\t→ SURFACE, level 1 → UNDERGROUND, 2+ → UNKNOWN.
+	static MapLayerId getDefaultLayerForLevel(int levelIndex);
 
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
@@ -167,6 +180,8 @@ private:
 	void updateCompOnlyPlayers();
 	void updatePlayers();
 	const CRmgTemplate * getPossibleTemplate(vstd::RNG & rand) const;
+	/// Pads/truncates levelMapLayers to match the current level count, preserving already configured layers.
+	void syncLevelMapLayersSize();
 
 	si32 width;
 	si32 height;
@@ -183,6 +198,8 @@ private:
 	bool customizedPlayers;
 	
 	const CRmgTemplate * mapTemplate;
+	
+	std::vector<MapLayerId> levelMapLayers;
 
 public:
 	template <typename Handler>
@@ -190,22 +207,7 @@ public:
 	{
 		h & width;
 		h & height;
-		if (h.version >= Handler::Version::MORE_MAP_LAYERS)
-			h & levels;
-		else
-		{
-			if (h.saving)
-			{
-				bool hasTwoLevels = levels == 2;
-				h & hasTwoLevels;
-			}
-			else
-			{
-				bool hasTwoLevels;
-				h & hasTwoLevels;
-				levels = hasTwoLevels ? 2 : 1;
-			}
-		}
+		h & levels;
 		h & humanOrCpuPlayerCount;
 		h & teamCount;
 		h & compOnlyPlayerCount;
@@ -225,9 +227,12 @@ public:
 		}
 
 		h & enabledRoads;
+
+		if (h.version >= Handler::Version::MAP_GEN_LEVEL_MAP_LAYERS)
+			h & levelMapLayers;
+		else if (!h.saving)
+			resetLevelMapLayers(); // Old settings without levelMapLayers - derive defaults from level count
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

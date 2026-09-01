@@ -30,6 +30,16 @@
 			"minimum" : 1,
 			"maximum" : 9
 		},
+		"effectiveness" : {
+			"description" : "If set, overrides exchange effectiveness normally derived from efficiency. 1.0 - resources are exchanged at their nominal price",
+			"type" : "number",
+			"exclusiveMinimum" : 0
+		},
+		"resources" : {
+			"description" : "Resources that this market can trade. If not set, all resources can be traded",
+			"type" : "array",
+			"items" : { "type" : "string" }
+		},
 		"offer" : {
 			"type" : "array"
 		},

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE RumorState
 {
 	enum ERumorType : ui8
@@ -39,5 +37,3 @@ struct DLL_LINKAGE RumorState
 		h & last;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

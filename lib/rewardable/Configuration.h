@@ -17,8 +17,6 @@
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Calendar;
 
 namespace Rewardable
@@ -207,8 +205,7 @@ struct DLL_LINKAGE Configuration
 		h & variables;
 		h & visitLimiter;
 		h & canRefuse;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-			h & forceCombat;
+		h & forceCombat;
 		h & showScoutedPreview;
 		h & infoWindowType;
 		h & coastVisitable;
@@ -217,5 +214,3 @@ struct DLL_LINKAGE Configuration
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

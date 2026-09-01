@@ -12,8 +12,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 class JsonNode;
 
@@ -61,6 +59,10 @@ class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
+	/// Loader that provides the resource, or nullptr. Every lookup goes through here,
+	/// so that a resource is located exactly once per query
+	const ISimpleResourceLoader * getLoader(const ResourcePath & resourceName) const;
+
 	//FIXME: this is only compile fix, should be removed in the end
 	CFilesystemList(CFilesystemList &) = delete;
 	CFilesystemList &operator=(CFilesystemList &) = delete;
@@ -78,6 +80,7 @@ public:
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(const std::string & filename, bool update = false) override;
+	bool removeResource(const ResourcePath & resourceName) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
@@ -101,5 +104,3 @@ public:
 	 */
 	bool removeLoader(ISimpleResourceLoader * loader);
 };
-
-VCMI_LIB_NAMESPACE_END

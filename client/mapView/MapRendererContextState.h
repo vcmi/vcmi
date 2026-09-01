@@ -15,10 +15,8 @@
 
 #include <boost/container/small_vector.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
 class CGObjectInstance;
-VCMI_LIB_NAMESPACE_END
 
 class IMapRendererContext;
 

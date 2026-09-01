@@ -26,7 +26,7 @@
 					"demonSummon":{
 						"id":"demon",
 						"permanent":true,
-						"type":"core:demonSummon"
+						"type":"demonSummon"
 					}
 				}
 			},
@@ -73,7 +73,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"heal":{
-						"type":"core:heal",
+						"type":"heal",
 						"healLevel":"heal",
 						"healPower":"permanent",
 						"optional":true
@@ -121,7 +121,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"catapult":{
-						"type":"core:catapult"
+						"type":"catapult"
 					}
 				},
 				"range" : "0"
@@ -201,7 +201,7 @@
 				"targetModifier":{"smart":true},
 				"battleEffects":{
 					"catapult":{
-						"type":"core:catapult",
+						"type":"catapult",
 						"targetsToAttack": 1,
 						"chanceToHitKeep" : 7,
 						"chanceToHitGate" : 30,

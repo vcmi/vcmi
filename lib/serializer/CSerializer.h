@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 /// Helper to detect classes with user-provided serialize(S&, int version) method
@@ -41,5 +39,3 @@ public:
 	virtual ~IBinaryWriter() = default;
 	virtual int write(const std::byte * data, unsigned size) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -17,17 +17,17 @@
 #include "../../LuaCallWrapper.h"
 #include <vcmi/Creature.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../library/Creature.h"
 
 namespace scripting::api
 {
-const std::vector<StackInstanceProxy::CustomRegType> StackInstanceProxy::REGISTER_CUSTOM =
+void StackInstanceProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getType",  LuaMethodWrapper<&CStackBasicDescriptor::getType, CStackInstance>::invoke,  false},
-	{"getCount", LuaMethodWrapper<&CStackBasicDescriptor::getCount, CStackInstance>::invoke, false},
-};
+	R.method<&CStackBasicDescriptor::getType, CStackInstance>("getType", {},
+		"Returns the Creature type of the units in this stack.");
+	R.method<&CStackBasicDescriptor::getCount, CStackInstance>("getCount", {},
+		"Returns the number of creatures currently in this stack.");
+}
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

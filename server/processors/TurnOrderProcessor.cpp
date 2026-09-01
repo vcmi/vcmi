@@ -224,9 +224,6 @@ bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) cons
 	if (leftInfo->isHuman() && !rightInfo->isHuman())
 		return true;
 
-	if (!leftInfo->isHuman() && rightInfo->isHuman())
-		return false;
-
 	return false;
 }
 
@@ -278,9 +275,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	assert(gameHandler->gameInfo().getPlayerState(which));
 	assert(gameHandler->gameInfo().getPlayerState(which)->status == EPlayerStatus::INGAME);
 
-	// Only if player is actually starting his turn (and not loading from save)
-	if (!actingPlayers.count(which))
-		gameHandler->onPlayerTurnStarted(which);
+	const bool wasAlreadyActing = actingPlayers.count(which);
 
 	actingPlayers.insert(which);
 	awaitingPlayers.erase(which);
@@ -298,7 +293,26 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 		pst.queryID = turnQuery->queryID;
 	}
 
-	gameHandler->sendAndApply(pst);
+	if(isHuman)
+	{
+		gameHandler->sendAndApply(pst);
+
+		// Only if player is actually starting his turn (and not loading from save).
+		// Send PlayerStartsTurn first so the client enters the new-turn flow before
+		// deferred turn-start visits (e.g. Battle Scholar Academy) start producing dialogs.
+		if (!wasAlreadyActing)
+			gameHandler->onPlayerTurnStarted(which);
+	}
+	else
+	{
+		// AI starts acting immediately from PlayerStartsTurn/yourTurn, so keep the
+		// original ordering and prepare deferred turn-start visits first.
+		if (!wasAlreadyActing)
+			gameHandler->onPlayerTurnStarted(which);
+
+		gameHandler->sendAndApply(pst);
+	}
+
 	assert(!actingPlayers.empty());
 }
 

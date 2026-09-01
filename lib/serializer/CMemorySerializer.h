@@ -12,8 +12,6 @@
 #include "BinarySerializer.h"
 #include "BinaryDeserializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
 class DLL_LINKAGE CMemorySerializer
 	: public IBinaryReader, public IBinaryWriter
@@ -29,6 +27,12 @@ public:
 	int write(const std::byte * data, unsigned size) override;
 
 	CMemorySerializer();
+
+	/// Prepares a serializer that reads from a buffer written earlier
+	explicit CMemorySerializer(std::vector<std::byte> data);
+
+	/// Hands out everything written so far and leaves this serializer empty
+	std::vector<std::byte> extractBuffer();
 
 	template <typename T>
 	static std::unique_ptr<T> deepCopy(const T &data, IGameInfoCallback * cb = nullptr)
@@ -54,5 +58,3 @@ public:
 		return ret;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

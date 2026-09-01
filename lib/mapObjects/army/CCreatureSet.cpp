@@ -16,8 +16,6 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 	bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
 {
 	return lhs.first->getAIValue() < rhs.first->getAIValue(); // Descendant order sorting
@@ -342,41 +340,39 @@ ui64 CCreatureSet::getPower(const SlotID & slot) const
 	return getStack(slot).getPower();
 }
 
-std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
+MetaString CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 {
 	/// Mode represent return string format
 	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
 	CCreature::CreatureQuantityId quantity = CCreature::getQuantityID(getStackCount(slot));
 
+	MetaString result;
 	if(static_cast<int>(quantity) != 0)
 	{
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-			return CCreature::getQuantityRangeStringForId(quantity);
-
-		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3 * static_cast<int>(quantity)];
+			result.appendRawString(CCreature::getQuantityRangeStringForId(quantity));
+		else
+			result.appendLocalString(EMetaText::ARRAY_TXT, (174 + mode) + 3 * static_cast<int>(quantity));
 	}
-	return "";
+	return result;
 }
 
-std::string CCreatureSet::getArmyDescription() const
+MetaString CCreatureSet::getArmyDescription() const
 {
-	std::string text;
-	std::vector<std::string> guards;
-	for(const auto & elem : stacks)
+	MetaString text;
+	for(auto it = stacks.begin(); it != stacks.end(); ++it)
 	{
-		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->getNamePluralTranslated());
-		guards.push_back(str);
-	}
-	if(!guards.empty())
-	{
-		for(int i = 0; i < guards.size(); i++)
+		if(it != stacks.begin())
 		{
-			text += guards[i];
-			if(i + 2 < guards.size())
-				text += ", ";
-			else if(i + 2 == guards.size())
-				text += LIBRARY->generaltexth->allTexts[237];
+			if(std::next(it) == stacks.end())
+				text.appendTextID("core.genrltxt.237"); // " and "
+			else
+				text.appendRawString(", ");
 		}
+
+		text.append(getRoughAmount(it->first, 2));
+		text.appendRawString(" ");
+		text.appendNamePlural(getCreature(it->first)->getId());
 	}
 	return text;
 }
@@ -668,5 +664,3 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

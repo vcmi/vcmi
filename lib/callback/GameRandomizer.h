@@ -12,8 +12,6 @@
 #include "callback/IGameRandomizer.h"
 #include "CRandomGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EGameSettings;
 
 class CGHeroInstance;
@@ -130,17 +128,12 @@ public:
 	{
 		h & globalRandomNumberGenerator;
 
-		if (h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			h & allocatedArtifacts;
-			h & heroSkillSeed;
-			h & goodMoraleSeed;
-			h & badMoraleSeed;
-			h & goodLuckSeed;
-			h & badLuckSeed;
-			h & combatAbilitySeed;
-		}
+		h & allocatedArtifacts;
+		h & heroSkillSeed;
+		h & goodMoraleSeed;
+		h & badMoraleSeed;
+		h & goodLuckSeed;
+		h & badLuckSeed;
+		h & combatAbilitySeed;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

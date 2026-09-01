@@ -10,7 +10,7 @@ for binary in "../$EXECUTABLE_NAME" $(find . -type f -iname '*.dylib'); do
 	echo "checking $binary"
 	# dyld_info sample output: @rpath/libogg.0.dylib
 	for lib in $(dyld_info -linked_dylibs "$binary" | awk -F / '/@rpath/ {print $2}'); do
-		if [ -L "$lib" ]; then
+		if [[ -L "$lib" ]]; then
 			echo "- symlink: $lib"
 			rpathSymlinks+=("$lib")
 		fi

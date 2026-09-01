@@ -13,12 +13,8 @@
 #include "../../lib/Point.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class CSpell;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class Canvas;
@@ -74,7 +70,16 @@ struct ProjectileRay : ProjectileBase
 	void show(Canvas & canvas) override;
 	void tick(uint32_t msPassed) override;
 
-	std::vector<CCreature::CreatureAnimation::RayColor> rayConfig;
+	std::vector<RayColor> rayConfig;
+
+	/// if non-empty, the ray follows this (jagged) polyline instead of a straight from->dest line
+	std::vector<Point> path;
+
+	/// number of hops (target-to-target jumps) the path is split into; revealed one per hop as progress advances
+	int hopCount = 1;
+
+	/// seconds to keep the fully-drawn ray on screen before it is removed
+	float linger = 0.f;
 };
 
 /// Class that manages all ongoing projectiles in the game
@@ -122,4 +127,7 @@ public:
 	void createProjectile(const CStack * shooter, Point from, Point dest);
 	void createSpellProjectile(const CStack * shooter, Point from, Point dest, const CSpell * spell);
 	void createCatapultProjectile(const CStack * shooter, Point from, Point dest);
+
+	/// creates and immediately emits a jagged ray chaining through the given points (e.g. chain lightning)
+	void createSpellRayProjectile(const CStack * caster, const std::vector<Point> & targetPoints, const std::vector<RayColor> & rayConfig, float jaggedness, float hopDelay, int width);
 };

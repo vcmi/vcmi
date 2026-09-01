@@ -23,10 +23,8 @@ struct AVCodec;
 struct AVFrame;
 struct AVIOContext;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
 class Point;
-VCMI_LIB_NAMESPACE_END
 
 class FFMpegStream : boost::noncopyable
 {
@@ -51,6 +49,7 @@ protected:
 	const AVCodecParameters * getCodecParameters() const;
 	const AVCodecContext * getCodecContext() const;
 	void decodeNextFrame();
+	void endStream(); // release current frame so the stream reports as ended
 	const AVFrame * getCurrentFrame() const;
 	double getCurrentFrameEndTime() const;
 	double getCurrentFrameDuration() const;

@@ -11,10 +11,8 @@
 
 #include "StdInc.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct StartInfo;
 class CMap;
-VCMI_LIB_NAMESPACE_END
 
 class Discord : boost::noncopyable
 {

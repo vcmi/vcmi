@@ -18,8 +18,6 @@
 #include "../lib/serializer/GameConnectionID.h"
 #include "../lib/serializer/PlayerConnectionID.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SideInBattle;
 class IMarket;
 class SpellCastEnvironment;
@@ -34,11 +32,10 @@ struct StartInfo;
 struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
+struct CArtifactOperationPack;
 struct CGarrisonOperationPack;
 struct SetResources;
 struct NewStructures;
-
-VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
 class CVCMIServer;
@@ -51,6 +48,12 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 class IGameServer;
+class TurnStartVisitScheduler;
+
+namespace scripting
+{
+class MapEventDispatcher;
+}
 
 class CGameHandler : public Environment, public IGameEventCallback
 {
@@ -60,6 +63,7 @@ public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
+	std::unique_ptr<TurnStartVisitScheduler> turnStartVisitScheduler;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
@@ -110,17 +114,29 @@ public:
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
+	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
+	void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
+	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);
 	void giveStackExperience(const CArmedInstance * army, TExpType val);
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
+	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
+
+	/// Runs a converted map-event handler under a LuaScriptQuery so blocking script actions can pause and
+	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
+	/// handle (empty when the handler finished without pausing).
+	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
+		const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch);
+	void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
 
@@ -232,7 +248,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool responseStatistic(PlayerColor player);
-	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess);
+	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit = 0);
 	void load(const StartInfo &info);
 
 	void onPlayerTurnStarted(PlayerColor which);
@@ -240,6 +256,7 @@ public:
 	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
+	void sendQueryResolved(QueryID queryID);
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
@@ -257,13 +274,14 @@ public:
 		h & *turnOrder;
 		h & *turnTimerHandler;
 
-		if (h.hasFeature(Handler::Version::SERVER_STATISTICS))
-		{
-			h & *statistics;
-		}
+		h & *statistics;
 	}
 
+	/// applies replay recording options of this game to the log kept inside the gamestate
+	void configureReplayLog(bool gameIsNew);
+
 	void sendAndApply(CPackForClient & pack) override;
+	void sendAndApply(CArtifactOperationPack & pack);
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);
 	void sendAndApply(NewStructures & pack);

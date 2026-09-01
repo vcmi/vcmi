@@ -13,8 +13,6 @@
 #include "../mapObjects/CGMarket.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 {
 	std::string descriptionTextID;
@@ -23,6 +21,10 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 	std::set<EMarketMode> marketModes;
 	JsonNode predefinedOffer;
 	int marketEfficiency;
+	/// resources that this market can trade. If empty, all resources can be traded
+	std::vector<GameResID> tradeableResources;
+	/// if set, overrides exchange effectiveness that is normally derived from market efficiency
+	double exchangeEffectiveness = 0;
 
 	void initTypeData(const JsonNode & config) override;
 public:
@@ -35,6 +37,6 @@ public:
 
 	std::string getSpeechTranslated() const;
 	int getMarketEfficiency() const;
+	const std::vector<GameResID> & getTradeableResources() const;
+	double getMarketExchangeEffectiveness() const;
 };
-
-VCMI_LIB_NAMESPACE_END

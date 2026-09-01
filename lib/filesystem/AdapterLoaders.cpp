@@ -13,8 +13,6 @@
 #include "Filesystem.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
 {
 	for(auto entry : config.Struct())
@@ -76,12 +74,21 @@ CFilesystemList::~CFilesystemList()
 {
 }
 
+const ISimpleResourceLoader * CFilesystemList::getLoader(const ResourcePath & resourceName) const
+{
+	// last loader that has the resource wins - it holds the last overridden version
+	for(const auto & loader : std::views::reverse(loaders))
+		if (loader->existsResource(resourceName))
+			return loader.get();
+
+	return nullptr;
+}
+
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
 {
-	// load resource from last loader that have it (last overridden version)
-	for(const auto & loader : boost::adaptors::reverse(loaders))
-		if (loader->existsResource(resourceName))
-			return loader->load(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->load(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
@@ -89,10 +96,7 @@ std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourc
 
 bool CFilesystemList::existsResource(const ResourcePath & resourceName) const
 {
-	for(const auto & loader : loaders)
-		if (loader->existsResource(resourceName))
-			return true;
-	return false;
+	return getLoader(resourceName) != nullptr;
 }
 
 std::string CFilesystemList::getMountPoint() const
@@ -102,8 +106,9 @@ std::string CFilesystemList::getMountPoint() const
 
 std::optional<boost::filesystem::path> CFilesystemList::getResourceName(const ResourcePath & resourceName) const
 {
-	if (existsResource(resourceName))
-		return getResourcesWithName(resourceName).back()->getResourceName(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getResourceName(resourceName);
 	return std::optional<boost::filesystem::path>();
 }
 
@@ -141,7 +146,7 @@ std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function
 bool CFilesystemList::createResource(const std::string & filename, bool update)
 {
 	logGlobal->trace("Creating %s", filename);
-	for (auto & loader : boost::adaptors::reverse(loaders))
+	for (auto & loader : std::views::reverse(loaders))
 	{
 		if (writeableLoaders.count(loader.get()) != 0                       // writeable,
 			&& loader->createResource(filename, update))          // successfully created
@@ -159,12 +164,25 @@ bool CFilesystemList::createResource(const std::string & filename, bool update)
 	return false;
 }
 
+bool CFilesystemList::removeResource(const ResourcePath & resourceName)
+{
+	logGlobal->trace("Removing %s", resourceName.getOriginalName());
+	for(const auto & loader : std::views::reverse(loaders))
+	{
+		if(writeableLoaders.contains(loader.get()) && loader->existsResource(resourceName))
+			return loader->removeResource(resourceName);
+	}
+
+	logGlobal->trace("Failed to remove resource");
+	return false;
+}
+
 std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName(const ResourcePath & resourceName) const
 {
 	std::vector<const ISimpleResourceLoader *> ret;
 
 	for(const auto & loader : loaders)
-		boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
+		std::ranges::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
 
 	return ret;
 }
@@ -195,9 +213,9 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 
 std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : boost::adaptors::reverse(loaders))
-		if (loader->existsResource(resourceName))
-			return loader->getFullFileURI(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getFullFileURI(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
@@ -205,12 +223,10 @@ std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) co
 
 std::time_t CFilesystemList::getLastWriteTime(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : boost::adaptors::reverse(loaders))
-		if (loader->existsResource(resourceName))
-			return loader->getLastWriteTime(resourceName);
+	const auto * loader = getLoader(resourceName);
+	if (loader)
+		return loader->getLastWriteTime(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
 }
-
-VCMI_LIB_NAMESPACE_END

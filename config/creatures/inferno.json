@@ -98,7 +98,7 @@
 			"fireball" :
 			{
 				"type" : "SPELL_LIKE_ATTACK",
-				"subtype" : "spell.fireballAbility"
+				"subtype" : "fireballAbility"
 			}
 		},
 		"graphics" :
@@ -155,7 +155,7 @@
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"threeHeads" : 
+			"threeHeads" :
 			{
 				"type" : "THREE_HEADED_ATTACK"
 			}
@@ -244,16 +244,16 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"summons50HP" : 
+			"summons50HP" :
 			{
 				"type" : "SPECIFIC_SPELL_POWER",
-				"subtype" : "spell.summonDemons",
+				"subtype" : "summonDemons",
 				"val" : 50
 			},
 			"resurrects" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.summonDemons",
+				"subtype" : "summonDemons",
 				"val" : 0
 			},
 			"castsAmount" :
@@ -281,7 +281,7 @@
 	{
 		"index": 52,
 		"level": 6,
-		"faction": "inferno", 
+		"faction": "inferno",
 		"abilities":
 		{
 			"canFly" :
@@ -291,18 +291,18 @@
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
-			"hateGenies" : 
+			"hateGenies" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.genie",
+				"subtype" : "genie",
 				"val" : 50
 			},
-			"hateMasterGenies" : 
+			"hateMasterGenies" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.masterGenie",
+				"subtype" : "masterGenie",
 				"val" : 50
 			}
 		},
@@ -335,24 +335,27 @@
 			},
 			"fireShield" :
 			{
-				"type" : "FIRE_SHIELD",
-				"val" : 20
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "fireShield",
+				"val" : 20,
+				// only the strongest fire shield is active, so the spell does not add to this one
+				"stacking" : "fireShield"
 			},
 			"immuneToFire" :
 			{
 				"type" : "SPELL_SCHOOL_IMMUNITY",
-				"subtype" : "spellSchool.fire"
+				"subtype" : "fire"
 			},
-			"hateGenies" : 
+			"hateGenies" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.genie",
+				"subtype" : "genie",
 				"val" : 50
 			},
-			"hateMasterGenies" : 
+			"hateMasterGenies" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.masterGenie",
+				"subtype" : "masterGenie",
 				"val" : 50
 			}
 		},
@@ -403,16 +406,16 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"hateAngels" : 
+			"hateAngels" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.angel",
+				"subtype" : "angel",
 				"val" : 50
 			},
-			"hateArchAngels" : 
+			"hateArchAngels" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.archangel",
+				"subtype" : "archangel",
 				"val" : 50,
 				"description" : "Devil -1"
 			}
@@ -466,16 +469,16 @@
 				"type" : "KING",
 				"val" : 2
 			},
-			"hateAngels" : 
+			"hateAngels" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.angel",
+				"subtype" : "angel",
 				"val" : 50
 			},
-			"hateArchAngels" : 
+			"hateArchAngels" :
 			{
 				"type" : "HATE",
-				"subtype" : "creature.archangel",
+				"subtype" : "archangel",
 				"val" : 50
 			}
 		},

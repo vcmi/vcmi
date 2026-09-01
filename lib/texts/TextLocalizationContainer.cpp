@@ -18,14 +18,8 @@
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-std::recursive_mutex TextLocalizationContainer::globalTextMutex;
-
 void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	std::lock_guard globalLock(globalTextMutex);
-
 	assert(!modContext.empty());
 
 	// NOTE: implicitly creates entry, intended - strings added by maps, campaigns, vcmi and potentially - UI mods are not registered anywhere at the moment
@@ -54,33 +48,10 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 	}
 }
 
-void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
-{
-	std::lock_guard globalLock(globalTextMutex);
-
-	assert(!vstd::contains(subContainers, &container));
-	subContainers.push_back(&container);
-}
-
-void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
-{
-	std::lock_guard globalLock(globalTextMutex);
-
-	assert(vstd::contains(subContainers, &container));
-
-	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
-}
-
 const std::string & TextLocalizationContainer::translateString(const TextIdentifier & identifier) const
 {
-	std::lock_guard globalLock(globalTextMutex);
-
 	if(stringsLocalizations.count(identifier.get()) == 0)
 	{
-		for(auto containerIter = subContainers.rbegin(); containerIter != subContainers.rend(); ++containerIter)
-			if((*containerIter)->identifierExists(identifier))
-				return (*containerIter)->translateString(identifier);
-
 		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 		return identifier.get();
 	}
@@ -107,12 +78,12 @@ void TextLocalizationContainer::registerString(const std::string & modContext, c
 
 void TextLocalizationContainer::registerString(const std::string & identifierModContext, const std::string & localizedStringModContext, const TextIdentifier & UID, const std::string & localized)
 {
-	std::lock_guard globalLock(globalTextMutex);
-
 	assert(!identifierModContext.empty());
 	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	assert(stringsLocalizations.count(UID.get()) == 0 || boost::algorithm::starts_with(UID.get(), "map") || boost::algorithm::starts_with(UID.get(), "header")); // registering already registered string? FIXME: "header" is a workaround. VMAP needs proper integration in translation system
+	// re-registering the same text is not a conflict - a spell effect defined in "base" is registered
+	// once per spell level, but its identifier does not include the level
+	assert(allowsStringOverride() || !identifierExists(UID) || stringsLocalizations.at(UID.get()).translatedText == localized);
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{
@@ -140,18 +111,11 @@ void TextLocalizationContainer::loadTranslationOverrides(const std::string & mod
 
 bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const
 {
-	std::lock_guard globalLock(globalTextMutex);
-
 	return stringsLocalizations.count(UID.get());
 }
 
 void TextLocalizationContainer::exportAllTexts(std::map<std::string, ExportedStrings> & storage, bool onlyMissing) const
 {
-	std::lock_guard globalLock(globalTextMutex);
-
-	for (auto const & subContainer : subContainers)
-		subContainer->exportAllTexts(storage, onlyMissing);
-
 	for (auto const & entry : stringsLocalizations)
 	{
 		if (onlyMissing && entry.second.overriden)
@@ -180,7 +144,7 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, ExportedStr
 	}
 }
 
-std::string TextLocalizationContainer::getModLanguage(const std::string & modContext)
+std::string TextLocalizationContainer::getModLanguage(const std::string & modContext) const
 {
 	if (modContext == "core")
 		return CGeneralTextHandler::getInstalledLanguage();
@@ -189,33 +153,6 @@ std::string TextLocalizationContainer::getModLanguage(const std::string & modCon
 
 void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 {
-	std::lock_guard globalLock(globalTextMutex);
-
 	for(auto & s : stringsLocalizations)
 		dest.Struct()[s.first].String() = s.second.translatedText;
 }
-
-TextContainerRegistrable::TextContainerRegistrable()
-{
-	LIBRARY->generaltexth->addSubContainer(*this);
-}
-
-TextContainerRegistrable::~TextContainerRegistrable()
-{
-	LIBRARY->generaltexth->removeSubContainer(*this);
-}
-
-TextContainerRegistrable::TextContainerRegistrable(const TextContainerRegistrable & other)
-	: TextLocalizationContainer(other)
-{
-	LIBRARY->generaltexth->addSubContainer(*this);
-}
-
-TextContainerRegistrable::TextContainerRegistrable(TextContainerRegistrable && other) noexcept
-	:TextLocalizationContainer(other)
-{
-	LIBRARY->generaltexth->addSubContainer(*this);
-}
-
-
-VCMI_LIB_NAMESPACE_END

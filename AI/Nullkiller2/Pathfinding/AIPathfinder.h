@@ -28,12 +28,14 @@ struct PathfinderSettings
 	uint8_t scoutTurnDistanceLimit;
 	uint8_t mainTurnDistanceLimit;
 	bool allowBypassObjects;
+	bool useDimensionDoor;
 
 	PathfinderSettings()
 		:useHeroChain(false),
 		scoutTurnDistanceLimit(MaxTurnDistanceLimit),
 		mainTurnDistanceLimit(MaxTurnDistanceLimit),
-		allowBypassObjects(true)
+		allowBypassObjects(true),
+		useDimensionDoor(true)
 	{ }
 };
 
@@ -42,11 +44,13 @@ class AIPathfinder
 private:
 	std::shared_ptr<AINodeStorage> storage;
 	Nullkiller * aiNk;
-	static std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
+	std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>> heroGraphs;
 
 public:
 	explicit AIPathfinder(Nullkiller * aiNk);
 	void calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph = false) const;
+	void calculatePathSummaries(std::vector<AIPathSummary> & summaries, const int3 & tile) const;
+	bool calculatePathInfo(AIPath & path, const AIPathSummary & summary) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
 	void updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSettings pathfinderSettings);
 	void updateGraphs(const HeroMap<HeroRole> & heroes, uint8_t mainScanDepth, uint8_t scoutScanDepth);

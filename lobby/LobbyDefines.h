@@ -9,9 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 enum class LobbyCookieStatus : int32_t
 {

@@ -11,8 +11,6 @@
 
 #include "CModVersion.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 struct ModVerificationInfo;
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
@@ -59,5 +57,3 @@ struct DLL_LINKAGE ModVerificationInfo
 		h & impactsGameplay;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

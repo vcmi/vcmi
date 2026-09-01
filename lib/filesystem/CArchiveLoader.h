@@ -12,8 +12,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CFileInputStream;
 
 /**
@@ -109,5 +107,3 @@ private:
 
 /** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
 boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName, bool absolute);
-
-VCMI_LIB_NAMESPACE_END

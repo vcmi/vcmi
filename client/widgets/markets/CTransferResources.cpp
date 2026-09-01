@@ -27,7 +27,7 @@
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, bidTradePanel);})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, bidTradePanel);}, GAME->interface())
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 	, CMarketTraderText(Point(28, 48))
 {
@@ -77,7 +77,7 @@ CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() cons
 		return MarketShowcasesParams
 		{
 			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getHighlightedItemId()},
-			ShowcaseParams {LIBRARY->generaltexth->capColors[offerTradePanel->getHighlightedItemId()], offerTradePanel->getHighlightedItemId()}
+			ShowcaseParams {GAME->translator().translate("vcmi.capitalColors", offerTradePanel->getHighlightedItemId()), offerTradePanel->getHighlightedItemId()}
 		};
 	else
 		return MarketShowcasesParams {std::nullopt, std::nullopt};
@@ -104,7 +104,7 @@ std::string CTransferResources::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.165");
 		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		message.replaceName(PlayerColor(offerTradePanel->getHighlightedItemId()));
-		return message.toString();
+		return message.toString(&GAME->translator());
 	}
 	else
 	{

@@ -12,9 +12,7 @@
 #include <QStringList>
 #include <QTranslator>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CConsoleHandler;
-VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {
@@ -22,6 +20,7 @@ class MainWindow;
 const QString appName = "launcher";
 }
 
+class QScreen;
 class QTableWidgetItem;
 class CModList;
 class CModListView;
@@ -47,7 +46,17 @@ class MainWindow : public QMainWindow
 	std::unique_ptr<CConsoleHandler> console;
 #endif
 
+	bool gamepadStartAllowed = false;
+
 	void load();
+	void setGamepadStartAllowed(bool allowed);
+	void startGameFromGamepad();
+	void centerWindowOnScreen(QScreen * screen);
+	void ensureWindowVisibleOnExistingScreen();
+	void handleScreenRemoved();
+	void restoreWindowSettings();
+	void saveWindowSettings();
+	void updateDisplayIndex(QScreen * screen);
 
 	enum TabRows
 	{
@@ -66,12 +75,13 @@ public:
 
 	void updateTranslation();
 	void computeSidePanelSizes();
-	
+
 	void detectPreferredLanguage();
 	void enterSetup();
 	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
+	void moveToScreen(int screenIndex);
 
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent *event) override;
@@ -84,7 +94,7 @@ protected:
 
 public slots:
 	void on_startGameButton_clicked();
-	
+
 private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();

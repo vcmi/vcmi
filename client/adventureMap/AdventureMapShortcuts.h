@@ -12,10 +12,8 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 enum class EShortcut;
 class AdventureMapInterface;
@@ -90,7 +88,7 @@ public:
 
 	std::vector<AdventureMapShortcutState> getShortcuts();
 
-	bool optionCanViewQuests();
+	bool optionCanViewJournal();
 	bool optionCanToggleLevel();
 	int optionMapLevel();
 	bool optionHeroSleeping();
@@ -102,6 +100,7 @@ public:
 	bool optionCanEndTurn();
 	bool optionSpellcasting();
 	bool optionInMapView();
+	bool optionReplayTurn();
 	bool optionInWorldView();
 	bool optionSidePanelActive();
 	bool optionLobbyActive();

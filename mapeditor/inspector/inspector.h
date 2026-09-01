@@ -18,14 +18,13 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGResource.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/FlaggableMapObject.h"
 #include "../../lib/mapObjects/CRewardableObject.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 #define DECLARE_OBJ_TYPE(x) void initialize(x*);
 #define DECLARE_OBJ_PROPERTY_METHODS(x) \
@@ -57,7 +56,7 @@ public:
 	//DECLARE_OBJ_TYPE(CRewardableObject);
 	//DECLARE_OBJ_TYPE(CGEvent);
 	//DECLARE_OBJ_TYPE(CGPandoraBox);
-	//DECLARE_OBJ_TYPE(CGSeerHut);
+	//DECLARE_OBJ_TYPE(SeerHut);
 	
 	Initializer(MapController & controller, CGObjectInstance *, const PlayerColor &);
 
@@ -90,8 +89,8 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CRewardableObject);
 	DECLARE_OBJ_PROPERTY_METHODS(CGPandoraBox);
 	DECLARE_OBJ_PROPERTY_METHODS(CGEvent);
-	DECLARE_OBJ_PROPERTY_METHODS(CGSeerHut);
-	DECLARE_OBJ_PROPERTY_METHODS(CGQuestGuard);
+	DECLARE_OBJ_PROPERTY_METHODS(SeerHut);
+	DECLARE_OBJ_PROPERTY_METHODS(QuestGuard);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);

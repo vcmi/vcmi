@@ -48,8 +48,6 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
@@ -123,7 +121,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CArtHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	auto object = loadFromJson(scope, data, name, objects.size());
 
@@ -134,7 +132,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
-void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CArtHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(scope, data, name, index);
 
@@ -516,5 +514,3 @@ void CArtHandler::afterLoadFinalization()
 	}
 }
 
-
-VCMI_LIB_NAMESPACE_END

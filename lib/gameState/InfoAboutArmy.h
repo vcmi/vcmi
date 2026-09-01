@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../mapObjects/army/CStackBasicDescriptor.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../texts/MetaString.h"
 
 class CGTownInstance;
 class CHeroClass;
@@ -30,7 +29,7 @@ struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 struct DLL_LINKAGE InfoAboutArmy
 {
 	PlayerColor owner;
-	std::string name;
+	MetaString name;
 
 	ArmyDescriptor army;
 
@@ -96,5 +95,3 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 	InfoAboutTown(const CGTownInstance *t, bool detailed);
 	void initFromTown(const CGTownInstance *t, bool detailed);
 };
-
-VCMI_LIB_NAMESPACE_END

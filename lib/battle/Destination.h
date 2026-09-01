@@ -13,8 +13,6 @@
 #include "BattleHex.h"
 #include "vcmi/scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 
@@ -39,13 +37,11 @@ public:
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("unit", unitValue);
-		s("hex", hexValue);
+		s("unit", unitValue, "Targeted unit, or null for location targets.");
+		s("hex",  hexValue,  "Targeted battlefield hex (also set for unit targets — equal to the unit's position).");
 	}
 };
 
 using Target = std::vector<Destination>;
 
 }
-
-VCMI_LIB_NAMESPACE_END

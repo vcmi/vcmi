@@ -21,8 +21,6 @@
 #include "../../IBonusTypeHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CStackInstance::CStackInstance(IGameInfoCallback * cb)
 	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
 {
@@ -159,7 +157,7 @@ void CStackInstance::setCount(TQuantity newCount)
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus> & bonus) const
 {
 	if(!bonus->description.empty())
-		return bonus->description.toString();
+		return bonus->description.toString(LIBRARY->staticTexts());
 	else
 		return LIBRARY->getBth()->bonusToString(bonus, this);
 }
@@ -207,7 +205,7 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return LIBRARY->generaltexth->arraytxt[174 + static_cast<int>(quantity) * 3 - 1 - capitalized];
+		return LIBRARY->generaltexth->translate("core.arraytxt", 174 + static_cast<int>(quantity) * 3 - 1 - capitalized);
 	}
 	else
 		return "";
@@ -356,5 +354,3 @@ const IBonusBearer * CStackInstance::getBonusBearer() const
 {
 	return this;
 }
-
-VCMI_LIB_NAMESPACE_END

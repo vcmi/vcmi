@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class BattleUnitTurnReason : int8_t
 {
 	/// Unit gained turn due to becoming first unit in turn queue
@@ -24,5 +22,3 @@ enum class BattleUnitTurnReason : int8_t
 	/// Unit gained turn for automatic action, player can not select action for this unit
 	AUTOMATIC_ACTION
 };
-
-VCMI_LIB_NAMESPACE_END

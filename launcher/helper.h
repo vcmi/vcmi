@@ -21,11 +21,17 @@ namespace Helper
 	void enableScrollBySwiping(QObject * scrollTarget);
 	QString getRealPath(QString path);
 	bool performNativeCopy(QString src, QString dst);
+	QString createFile(QString target, QString fileName, QString mime);
 	void revealDirectoryInFileBrowser(QString path);
 	MainWindow * getMainWindow();
 	void keepScreenOn(bool isEnabled);
+	/// on Android, gamepad input is handled by the activity - tell it whether starting the game is possible right now
+	void allowGamepadStart(bool isEnabled);
 	bool canUseFolderPicker();
 	void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb);
 	QStringList findFilesForCopy(const QString &treeUri);
 	void sendFileToApp(QString path);
+#ifdef VCMI_ANDROID
+	bool isInstalledFromGooglePlay();
+#endif
 }

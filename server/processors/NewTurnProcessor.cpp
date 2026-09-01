@@ -23,7 +23,10 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include "../../lib/gameState/SThievesGuildInfo.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
@@ -34,6 +37,7 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../TurnStartVisitScheduler.h"
 
 #include <vstd/RNG.h>
 
@@ -55,9 +59,17 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.affectsPlayer(color, gameHandler->gameInfo().getPlayerState(color)->isHuman()))
 			continue;
 
+		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
+		{
+			gameHandler->runScriptedEvent(*dispatcher, color, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onPlayerTurnStart(*gameHandler, event.scriptHandler, color); });
+			continue;
+		}
+
 		InfoWindow iw;
 		iw.player = color;
 		iw.text = event.message;
+		iw.journalInfo = ScenarioEventJournalInfo{int3(-1, -1, -1)};
 
 		//give resources
 		if (!event.resources.empty())
@@ -93,10 +105,18 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
 
+		if (auto * dispatcher = gameHandler->gameState().getMapEventDispatcher(); dispatcher && !event.scriptHandler.empty())
+		{
+			gameHandler->runScriptedEvent(*dispatcher, player, {},
+				[&](scripting::MapEventDispatcher & d){ return d.onTownTurnStart(*gameHandler, event.scriptHandler, town); });
+			continue;
+		}
+
 		// dialog
 		InfoWindow iw;
 		iw.player = player;
 		iw.text = event.message;
+		iw.journalInfo = ScenarioEventJournalInfo{town->visitablePos()};
 
 		if (event.resources.nonZero())
 		{
@@ -149,15 +169,20 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	for (const auto * t : playerState->getTowns())
 		handleTownEvents(t);
 
+	std::deque<PendingTurnStartVisit> visits;
+
 	for (const auto * t : playerState->getTowns())
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		if (t->getGarrisonHero() != nullptr)
-			gameHandler->objectVisited(t, t->getGarrisonHero());
+		if(t->getGarrisonHero() != nullptr)
+			visits.push_back({which, t->id, t->getGarrisonHero()->id});
 
-		if (t->getVisitingHero() != nullptr)
-			gameHandler->objectVisited(t, t->getVisitingHero());
+		if(t->getVisitingHero() != nullptr)
+			visits.push_back({which, t->id, t->getVisitingHero()->id});
 	}
+
+	gameHandler->turnStartVisitScheduler->enqueue(which, std::move(visits));
+	gameHandler->turnStartVisitScheduler->processNext(which);
 }
 
 void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
@@ -517,9 +542,19 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMonth)
 {
+	// creatures without a map object cannot be spawned as wandering monsters, so exclude them from special weeks
+	auto canSpawnAsMapObject = [](const CreatureID & creatureID)
+	{
+		return LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum());
+	};
+
 	std::vector<std::tuple<CreatureID, int>> creaturesWithDeityOfFireBonus;
 	for(const auto & bonus : *gameHandler->gameState().globalEffects.getBonusesOfType(BonusType::DEITYOFFIRE))
-		creaturesWithDeityOfFireBonus.push_back({bonus->subtype.as<CreatureID>(), bonus->val});
+	{
+		CreatureID creatureID = bonus->subtype.as<CreatureID>();
+		if(canSpawnAsMapObject(creatureID))
+			creaturesWithDeityOfFireBonus.push_back({creatureID, bonus->val});
+	}
 	if(!creaturesWithDeityOfFireBonus.empty())
 	{
 		auto item = *RandomGeneratorUtil::nextItem(creaturesWithDeityOfFireBonus, gameHandler->getRandomGenerator());
@@ -539,15 +574,23 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
 			}
-			else if (!LIBRARY->creh->doubledCreatures.empty())
-			{
-				CreatureID creatureID = *RandomGeneratorUtil::nextItem(LIBRARY->creh->doubledCreatures, gameHandler->getRandomGenerator());
-				return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
-			}
 			else
 			{
-				gameHandler->complain("Cannot find creature that can be spawned!");
-				return { EWeekType::NORMAL, CreatureID::NONE, 0};
+				std::vector<CreatureID> spawnableDoubledCreatures;
+				for(const auto & creatureID : LIBRARY->creh->doubledCreatures)
+					if(canSpawnAsMapObject(creatureID))
+						spawnableDoubledCreatures.push_back(creatureID);
+
+				if(!spawnableDoubledCreatures.empty())
+				{
+					CreatureID creatureID = *RandomGeneratorUtil::nextItem(spawnableDoubledCreatures, gameHandler->getRandomGenerator());
+					return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
+				}
+				else
+				{
+					gameHandler->complain("Cannot find creature that can be spawned!");
+					return { EWeekType::NORMAL, CreatureID::NONE, 0};
+				}
 			}
 		}
 
@@ -619,15 +662,15 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 	switch (weekType)
 	{
 		case EWeekType::DOUBLE_GROWTH:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
+			iw.text.appendTextID("core.arraytxt.131");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			break;
 		case EWeekType::PLAGUE:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
+			iw.text.appendTextID("core.arraytxt.132");
 			break;
 		case EWeekType::BONUS_GROWTH:
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
+			iw.text.appendTextID("core.arraytxt.134");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			break;
@@ -637,7 +680,7 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 			CreatureID upgradedCreature = creatureWeek;
 			if(base && !base->upgrades.empty())
 				upgradedCreature = *base->upgrades.rbegin();
-			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
+			iw.text.appendTextID("core.arraytxt.135");
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replaceNameSingular(creatureWeek);
 			iw.text.replacePositiveNumber(additionalGrowth);
@@ -648,12 +691,12 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 		default:
 			if (newMonth)
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 130);
+				iw.text.appendTextID("core.arraytxt.130");
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(32, 41));
 			}
 			else
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 133);
+				iw.text.appendTextID("core.arraytxt.133");
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(43, 57));
 			}
 	}

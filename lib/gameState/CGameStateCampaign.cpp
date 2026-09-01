@@ -33,8 +33,6 @@
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CampaignHeroReplacement::CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId):
 	hero(hero),
 	heroPlaceholderId(heroPlaceholderId)
@@ -385,8 +383,25 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 	}
 }
 
+void CGameStateCampaign::transformMutareIntoDrakeIfApplicable(CGHeroInstance & hero, const CampaignState & campaignState) const
+{
+	// Dragon's Blood scenario 4 ("Blood Thirsty") turns the crossed-over Mutare into Mutare Drake.
+	if (!campaignState.getMutareDrakeID().hasValue())
+		return;
+	if (!boost::starts_with(campaignState.getFilename(), "DATA/BLOOD") || campaignState.currentScenario()->getNum() != 3)
+		return;
+	if (hero.getHeroTypeID() != HeroTypeID(HeroTypeID::decode("mutare")))
+		return;
+
+	hero.setHeroType(campaignState.getMutareDrakeID());
+	hero.setPrimarySkill(PrimarySkill::ATTACK, 4, ChangeValueMode::RELATIVE);
+	hero.setPrimarySkill(PrimarySkill::DEFENSE, 4, ChangeValueMode::RELATIVE);
+}
+
 void CGameStateCampaign::replaceHeroesPlaceholders()
 {
+	auto campaignState = gameState->scenarioOps->campState;
+
 	for(const auto & campaignHeroReplacement : campaignHeroReplacements)
 	{
 		if (!campaignHeroReplacement.heroPlaceholderId.hasValue())
@@ -394,6 +409,8 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 
 		auto heroPlaceholder = gameState->map->getObject(campaignHeroReplacement.heroPlaceholderId);
 		auto heroToPlace = campaignHeroReplacement.hero;
+
+		transformMutareIntoDrakeIfApplicable(*heroToPlace, *campaignState);
 
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
@@ -432,10 +449,10 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		auto donorHero = campaignHeroReplacement.hero;
 
 		if (!donorHero)
-			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
+			throw std::runtime_error("Failed to find hero to take artifacts from!");
 
 		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
-		for (auto const & artLocation : boost::adaptors::reverse(campaignHeroReplacement.transferrableArtifacts))
+		for (auto const & artLocation : std::views::reverse(campaignHeroReplacement.transferrableArtifacts))
 		{
 			auto * artifact = donorHero->getArt(artLocation);
 
@@ -492,7 +509,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 
 		auto hero = campaignState->crossoverDeserialize(node, gameState->map.get());
 
-		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 		campaignHeroReplacements.emplace_back(hero, placeholder->id);
 	}
@@ -502,7 +519,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 	if (lastScenario)
 	{
 		// sort hero placeholders descending power
-		boost::range::sort(placeholdersByPower, [](const CGHeroPlaceholder * a, const CGHeroPlaceholder * b)
+		std::ranges::sort(placeholdersByPower, [](const CGHeroPlaceholder * a, const CGHeroPlaceholder * b)
 		{
 			return *a->powerRank > *b->powerRank;
 		});
@@ -528,7 +545,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
-			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
 			campaignHeroReplacements.emplace_back(hero, placeholder->id);
 		}
@@ -717,5 +734,3 @@ std::unique_ptr<CMap> CGameStateCampaign::getCurrentMap()
 {
 	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE, gameState);
 }
-
-VCMI_LIB_NAMESPACE_END

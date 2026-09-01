@@ -25,7 +25,7 @@
 #include "../../lib/rewardable/Limiter.h"
 #include "../../lib/rewardable/Reward.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/HeroTypeService.h>
@@ -34,6 +34,7 @@
 #include <vcmi/HeroClass.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
+#include "../translator.h"
 
 RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	QDialog(parent),
@@ -66,7 +67,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		str.appendName(GameResID(i));
 		for(auto * w : {ui->rResources, ui->lResources})
 		{
-			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
+			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 			item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
 			w->setItem(i, 0, item);
 			auto * spinBox = new QSpinBox;
@@ -174,7 +175,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	{
 		MetaString str;
 		str.appendName(color);
-		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
@@ -210,7 +211,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "unlimited"));
 	}
 	
-	if(dynamic_cast<CGSeerHut*>(&object))
+	if(dynamic_cast<SeerHut*>(&object))
 	{
 		ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "once"));
 		ui->visitMode->setEnabled(false);
@@ -235,7 +236,7 @@ void RewardsWidget::obtainData()
 	ui->visitMode->setCurrentIndex(object.configuration.visitMode);
 	ui->selectMode->setCurrentIndex(object.configuration.selectMode);
 	ui->windowMode->setCurrentIndex(int(object.configuration.infoWindowType));
-	ui->onSelectText->setText(QString::fromStdString(object.configuration.onSelect.toString()));
+	ui->onSelectText->setText(QString::fromStdString(object.configuration.onSelect.toString(&Translator::instance())));
 	ui->canRefuse->setChecked(object.configuration.canRefuse);
 	
 	//reset parameters
@@ -442,7 +443,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	ui->bonuses->setRowCount(0);
 	
 	const auto & vinfo = object.configuration.info.at(index);
-	ui->rewardMessage->setText(QString::fromStdString(vinfo.message.toString()));
+	ui->rewardMessage->setText(QString::fromStdString(vinfo.message.toString(&Translator::instance())));
 	
 	ui->rHeroLevel->setValue(vinfo.reward.heroLevel);
 	ui->rHeroExperience->setValue(vinfo.reward.heroExperience);
@@ -790,7 +791,7 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 	QStringList textList(QObject::tr("Rewards:"));
 	for (const auto & vinfo : object.configuration.info)
 	{
-		textList += QObject::tr("Reward Message: %1").arg(QString::fromStdString(vinfo.message.toString()));
+		textList += QObject::tr("Reward Message: %1").arg(QString::fromStdString(vinfo.message.toString(&Translator::instance())));
 		textList += QObject::tr("Hero Level: %1").arg(vinfo.reward.heroLevel);
 		textList += QObject::tr("Hero Experience: %1").arg(vinfo.reward.heroExperience);
 		textList += QObject::tr("Mana Diff: %1").arg(vinfo.reward.manaDiff);
@@ -805,7 +806,7 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 				continue;
 			MetaString str;
 			str.appendName(resource);
-			resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(vinfo.reward.resources[resource]);
+			resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString(&Translator::instance()))).arg(vinfo.reward.resources[resource]);
 		}
 		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
 		QStringList artifactsList;

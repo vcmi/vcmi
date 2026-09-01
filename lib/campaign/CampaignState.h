@@ -15,6 +15,7 @@
 
 #include "../filesystem/ResourcePath.h"
 #include "../gameState/HighScore.h"
+#include "../scripting/ScriptVariablesStorage.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -24,13 +25,12 @@ class CampaignProperties;
 class ScenarioProperties;
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
 class CInputStream;
 class CMap;
+class ITranslator;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
@@ -66,21 +66,24 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	HeroTypeID yogWizardID;
 	HeroTypeID gemSorceressID;
+	HeroTypeID mutareDrakeID;
 
+	int hotaVersion = 0; // not serialized - loading only
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
 	bool restrictGarrisonsAI = false;
 
-	TextContainerRegistrable textContainer;
+	/// Shared with the rendering side, which installs it as an overlay - see CMapHeader::texts
+	std::shared_ptr<TextLocalizationContainer> textContainer = std::make_shared<TextLocalizationContainer>();
 public:
 	bool playerSelectedDifficulty() const;
 	CampaignVersion getFormat() const;
 
-	std::string getDescriptionTranslated() const;
-	std::string getNameTranslated() const;
-	std::string getAuthor() const;
-	std::string getAuthorContact() const;
-	std::string getCampaignVersion() const;
+	std::string getDescriptionTranslated(const ITranslator * translator) const;
+	std::string getNameTranslated(const ITranslator * translator) const;
+	std::string getAuthor(const ITranslator * translator) const;
+	std::string getAuthorContact(const ITranslator * translator) const;
+	std::string getCampaignVersion(const ITranslator * translator) const;
 	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
@@ -93,10 +96,11 @@ public:
 
 	HeroTypeID getYogWizardID() const;
 	HeroTypeID getGemSorceressID() const;
+	HeroTypeID getMutareDrakeID() const;
 	bool restrictedGarrisonsForAI() const;
 
 	const CampaignRegions & getRegions() const;
-	TextContainerRegistrable & getTexts();
+	const std::shared_ptr<TextLocalizationContainer> & getTexts();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -110,22 +114,23 @@ public:
 		h & campaignVersion;
 		h & creationDateTime;
 		h & difficultyChosenByPlayer;
-		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
-			h & restrictGarrisonsAI;
+		h & restrictGarrisonsAI;
 		h & filename;
 		h & modName;
 		h & music;
 		h & encoding;
-		h & textContainer;
+		h & *textContainer;
 		h & loadingBackground;
 		h & videoRim;
 		h & introVideo;
 		h & outroVideo;
-		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
-		{
-			h & yogWizardID;
-			h & gemSorceressID;
-		}
+		h & yogWizardID;
+		h & gemSorceressID;
+
+		if(h.hasFeature(Handler::Version::MUTARE_DRAKE_OVERRIDE))
+			h & mutareDrakeID;
+		else if(!h.saving)
+			mutareDrakeID = HeroTypeID();
 	}
 };
 
@@ -164,30 +169,7 @@ struct DLL_LINKAGE CampaignTravel
 		h & artifactsKeptByHero;
 		h & startOptions;
 		h & playerColor;
-		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
-		{
-			h & bonusesToChoose;
-		}
-		else
-		{
-			struct OldBonus{
-				CampaignBonusType type = {};
-				int32_t info1 = 0;
-				int32_t info2 = 0;
-				int32_t info3 = 0;
-
-				void serialize(Handler &h)
-				{
-					h & type;
-					h & info1;
-					h & info2;
-					h & info3;
-				}
-			};
-
-			std::vector<OldBonus> oldBonuses;
-			h & oldBonuses;
-		}
+		h & bonusesToChoose;
 	}
 };
 
@@ -269,8 +251,7 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
-	/// List of previously loaded campaign maps, to prevent translation of transferred hero names getting lost after their original map has been completed
-	std::map<CampaignScenarioID, TextContainerRegistrable> mapTranslations;
+	std::map<CampaignScenarioID, std::shared_ptr<TextLocalizationContainer>> mapTranslations;
 
 	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
@@ -282,14 +263,32 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// Pool of heroes currently reserved for usage in campaign
 	GlobalPoolType globalHeroPool;
 
+	/// Script variables carried over between scenarios (only those declared as persistent)
+	ScriptVariablesStorage persistentScriptVariables;
+	std::time_t startTime = 0;
+	std::string saveDirectory;
+
 public:
 	CampaignState() = default;
+
+	/// Copies persist-flagged script variables of the given map into the campaign state.
+	void savePersistentVariables(const CMap & map);
+	/// Seeds import-flagged script variables of the given map from the campaign state.
+	void seedPersistentVariables(CMap & map) const;
 
 	/// Returns last completed scenario, if any
 	std::optional<CampaignScenarioID> lastScenario() const;
 
 	std::optional<CampaignScenarioID> currentScenario() const;
+	/// Texts of every scenario loaded so far. They stay resolvable for the whole campaign
+	/// so that heroes transferred out of a finished scenario keep their names
+	const std::map<CampaignScenarioID, std::shared_ptr<TextLocalizationContainer>> & getScenarioTexts() const { return mapTranslations; }
+
 	std::set<CampaignScenarioID> conqueredScenarios() const;
+	std::time_t getStartTime() const;
+	void setStartTime(std::time_t value);
+	const std::string & getSaveDirectory() const;
+	void setSaveDirectory(const std::string & value);
 
 	/// Returns bonus selected for specific scenario
 	std::optional<CampaignBonus> getBonus(CampaignScenarioID which) const;
@@ -334,6 +333,22 @@ public:
 
 	std::vector<HighScoreParameter> highscoreParameters;
 
+	/// Scenario texts are stored by value - the pointers exist only so that the rendering side
+	/// can share ownership of them, which is not something a save needs to know about
+	template <typename Handler> void serializeTranslations(Handler & h)
+	{
+		std::map<CampaignScenarioID, TextLocalizationContainer> translations;
+
+		for(const auto & entry : mapTranslations)
+			translations[entry.first] = *entry.second;
+
+		h & translations;
+
+		if(!h.saving)
+			for(auto & entry : translations)
+				mapTranslations[entry.first] = std::make_shared<TextLocalizationContainer>(std::move(entry.second));
+	}
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -344,9 +359,21 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
-		h & mapTranslations;
+		serializeTranslations(h);
 		h & highscoreParameters;
+
+		if(h.hasFeature(Handler::Version::SCRIPT_VARIABLES))
+			h & persistentScriptVariables;
+
+		if(h.hasFeature(Handler::Version::GAME_SESSION_DIRECTORY))
+		{
+			h & startTime;
+			h & saveDirectory;
+		}
+		else if(!h.saving)
+		{
+			startTime = 0;
+			saveDirectory.clear();
+		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

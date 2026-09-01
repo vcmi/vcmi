@@ -54,6 +54,10 @@ private:
 	/// Keeps the thumb from jumping when the user clicks off-centre.
 	int dragOffset;
 
+	/// True while a touch-initiated thumb drag is active.
+	/// Used by gesturePanning to decide whether to use one-to-one thumb tracking.
+	bool touchDragging;
+
 	void updateSliderPos();
 	void updateSlider();
 
@@ -89,6 +93,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void showAll(Canvas & to) override;
 
 	using SliderMovingFunctor = std::function<void(int)>;

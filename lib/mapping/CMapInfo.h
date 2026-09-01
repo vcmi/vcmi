@@ -11,11 +11,10 @@
 
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 
 class CMapHeader;
+class ITranslator;
 class Campaign;
 class ResourcePath;
 
@@ -31,7 +30,6 @@ public:
 	std::unique_ptr<StartInfo> scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string originalFileURI; // no need to serialize
-	std::string fullFileURI; // no need to serialize
 	std::time_t lastWrite; // no need to serialize
 	std::string date;
 	int amountOfPlayersOnMap;
@@ -53,9 +51,9 @@ public:
 	void campaignInit();
 	void countPlayers();
 	
-	std::string getNameTranslated() const;
-	std::string getNameForList() const;
-	std::string getDescriptionTranslated() const;
+	std::string getNameTranslated(const ITranslator * translator) const;
+	std::string getNameForList(const ITranslator * translator) const;
+	std::string getDescriptionTranslated(const ITranslator * translator) const;
 	int getMapSizeIconId() const;
 	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;
@@ -73,5 +71,3 @@ public:
 		h & isRandomMap;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

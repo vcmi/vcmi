@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <component type="desktop">
 	<id>eu.vcmi.VCMI</id>
-	<name>VCMI</name>
+	<name>VCMI - Open Heroes 3</name>
 	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
 	<developer id="eu.vcmi">
 		<name>VCMI Team</name>
@@ -57,6 +57,7 @@
 	<launchable type="desktop-id">vcmilauncher.desktop</launchable>
 	<releases>
 		<release version="1.8.0" date="2026-12-31" type="stable"/>
+		<release version="1.7.5" date="2026-08-14" type="stable"/>
 		<release version="1.7.4" date="2026-05-17" type="stable"/>
 		<release version="1.7.3" date="2026-02-27" type="stable"/>
 		<release version="1.7.2" date="2026-02-13" type="stable"/>

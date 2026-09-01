@@ -21,6 +21,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../translator.h"
 
 static const int FIRST_DAY_FOR_EVENT = 1;
 static const int LAST_DAY_FOR_EVENT = 999;
@@ -74,7 +75,7 @@ void TownEventDialog::initPlayers()
 		MetaString str;
 		str.appendName(PlayerColor(i));
 		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
-		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
@@ -89,7 +90,7 @@ void TownEventDialog::initResources()
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
-		auto name = QString::fromStdString(str.toString());
+		auto name = QString::fromStdString(str.toString(&Translator::instance()));
 		auto * item = new QTableWidgetItem();
 		item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 		item->setText(name);

@@ -16,6 +16,7 @@
 #include "../../constants/StringConstants.h"
 #include "../../CCreatureHandler.h"
 #include "../../IGameSettings.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../bonuses/Limiters.h"
 #include "../../bonuses/Updaters.h"
 #include "../../json/JsonBonus.h"
@@ -24,8 +25,6 @@
 #include "../../CSkillHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 CHeroHandler::~CHeroHandler() = default;
 
@@ -110,7 +109,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 {
 	for(const JsonNode &set : node["skills"].Vector())
 	{
-		int skillLevel = static_cast<int>(boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
+		int skillLevel = static_cast<int>(std::ranges::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
 		if (skillLevel < MasteryLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
@@ -201,6 +200,29 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(
 	return result;
 }
 
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSpellScalingSpecialty(SpellID spellID, int growthPerStep) const
+{
+	if (growthPerStep == 0)
+		growthPerStep = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SPELL_SCALING);
+
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::SPECIAL_SPELL_SCALING;
+	bonus->subtype = BonusSubtypeID(spellID);
+	bonus->val = growthPerStep;
+	return { bonus };
+}
+
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSpellFixedSpecialty(SpellID spellID, const std::vector<int32_t> & values) const
+{
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::SPECIAL_PECULIAR_ENCHANT;
+	bonus->subtype = BonusSubtypeID(spellID);
+	// empty -> legacy per-tier bracket; otherwise explicit per-tier values
+	if (!values.empty())
+		bonus->parameters = std::make_shared<BonusParameters>(values);
+	return { bonus };
+}
+
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
@@ -266,6 +288,34 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		LIBRARY->identifiers()->requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
 		{
 			skillSpecialtiesToGenerate.push_back({hero->ID, SecondarySkill(skill), stepSize});
+		});
+	}
+
+	//damage/heal spell specialty - alias for simplicity
+	if(!specialtyNode["spellScalingPercentage"].isNull())
+	{
+		const JsonNode & spellNode = specialtyNode["spellScalingPercentage"];
+		int val = specialtyNode["spellScalingVal"].Integer();
+
+		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
+		{
+			for (const auto & bonus : createSpellScalingSpecialty(SpellID(spell), val))
+				hero->specialty.push_back(prepSpec(bonus));
+		});
+	}
+
+	//fixed buff/debuff spell specialty - alias for simplicity
+	if(!specialtyNode["spellFixedAdditive"].isNull())
+	{
+		const JsonNode & spellNode = specialtyNode["spellFixedAdditive"];
+		std::vector<int32_t> values;
+		for(const auto & entry : specialtyNode["spellFixedValues"].Vector())
+			values.push_back(static_cast<int32_t>(entry.Integer()));
+
+		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
+		{
+			for (const auto & bonus : createSpellFixedSpecialty(SpellID(spell), values))
+				hero->specialty.push_back(prepSpec(bonus));
 		});
 	}
 
@@ -361,7 +411,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	size_t index = objects.size();
 	static const int specialFramesCount = 2; // reserved for 2 special frames
@@ -373,7 +423,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	registerObject(scope, "hero", name, data, object->getIndex());
 }
 
-void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index);
@@ -386,7 +436,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 ui32 CHeroHandler::level (TExpType experience) const
 {
-	return static_cast<ui32>(boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
+	return static_cast<ui32>(std::ranges::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
 }
 
 TExpType CHeroHandler::reqExp (ui32 level) const
@@ -410,19 +460,17 @@ ui32 CHeroHandler::maxSupportedLevel() const
 	return expPerLevel.size();
 }
 
-std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const
+const std::set<HeroTypeID> & CHeroHandler::getDefaultAllowed() const
 {
-	std::set<HeroTypeID> result;
-
-	for(auto & hero : objects)
-		if (hero && !hero->special)
-			result.insert(hero->getId());
-
-	return result;
+	return defaultAllowed;
 }
 
 void CHeroHandler::afterLoadFinalization()
 {
+	for(const auto & hero : objects)
+		if (hero && !hero->special)
+			defaultAllowed.insert(hero->getId());
+
 	auto prepSpec = [](HeroTypeID hero, std::shared_ptr<Bonus> bonus)
 	{
 		bonus->duration = BonusDuration::PERMANENT;
@@ -442,5 +490,3 @@ void CHeroHandler::afterLoadFinalization()
 			objects.at(specialty.hero.getNum())->specialty.push_back(prepSpec(specialty.hero, bonus));
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

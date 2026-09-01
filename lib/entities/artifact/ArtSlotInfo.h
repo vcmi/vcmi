@@ -14,8 +14,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 {
 	ArtifactInstanceID artifactID;
@@ -30,20 +28,7 @@ struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
-		if(h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & artifactID;
-		}
-		else
-		{
-			std::shared_ptr<CArtifactInstance> pointer;
-			h & pointer;
-			if(pointer->getId() == ArtifactInstanceID())
-				CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
-			artifactID = pointer->getId();
-		}
+		h & artifactID;
 		h & locked;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

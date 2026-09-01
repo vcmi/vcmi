@@ -71,6 +71,9 @@ bool needToRecruitHero(const Nullkiller * aiNk, const CGTownInstance * startupTo
 
 	for(auto obj : aiNk->objectClusterizer->getNearbyObjects())
 	{
+		if(!obj)
+			continue;
+
 		auto armed = dynamic_cast<const CArmedInstance *>(obj);
 
 		if(armed && armed->getArmyStrength() > 0)

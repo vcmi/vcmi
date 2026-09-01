@@ -44,6 +44,8 @@
 #include "media/IMusicPlayer.h"
 #include "media/ISoundPlayer.h"
 
+#include "replay/GameplayReplayer.h"
+
 #include "render/CAnimation.h"
 #include "render/IImage.h"
 #include "render/IRenderHandler.h"
@@ -61,13 +63,14 @@
 #include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
+#include "windows/CScenarioEventJournal.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -114,11 +117,9 @@
 
 #include "../lib/spells/CSpell.h"
 
-#include "../lib/texts/TextOperations.h"
-
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 
-#include <boost/lexical_cast.hpp>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.
@@ -126,19 +127,13 @@
 
 #define BATTLE_EVENT_POSSIBLE_RETURN	if (GAME->interface() != this) return; if (isAutoFightOn && !battleInt) return
 
-namespace
-{
-	constexpr int LEVEL_UP_REQUEST_NONE = -1;
-	constexpr int LEVEL_UP_REQUEST_WAITING_FOR_REPLY = -2;
-}
-
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this)),
 	movementController(std::make_unique<HeroMovementController>()),
 	artifactController(std::make_unique<ArtifactsUIController>())
-	
+
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
 	GAME->setInterfaceInstance(this);
@@ -149,11 +144,10 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new ConditionalWait();
 	cingconsole = new CInGameConsole();
-	autosaveCount = 0;
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
-	hasQuickSave = checkQuickLoadingGame();
+	hasQuickSave = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -169,6 +163,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 {
 	cb = CB;
 	env = ENV;
+	hasQuickSave = checkQuickLoadingGame();
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
@@ -223,11 +218,13 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 	if (player == playerID)
 	{
 		makingTurn = false;
+		delayQueuedDialogsUntilInputSettles = false;
+		levelUpChainPendingContinuation = false;
 		closeAllDialogs();
 
 		// remove all pending dialogs that do not expect query answer
-		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-						   return window->ID == QueryID::NONE;
+		vstd::erase_if(dialogs, [](const PendingDialog & dialog){
+						   return dialog.dropOnTurnEnd;
 					   });
 	}
 }
@@ -258,49 +255,11 @@ void CPlayerInterface::performAutosave()
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getCalendar().getCurrentDay() % frequency == 0)
 	{
-		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
-		std::string prefix = std::string();
-
-		if(usePrefix)
-		{
-			prefix = settings["general"]["savePrefix"].String();
-			if(prefix.empty())
-			{
-				std::string name = cb->getMapHeader()->name.toString();
-				int txtlen = TextOperations::getUnicodeCharactersCount(name);
-
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 14));
-				auto const & isSymbolIllegal = [&](char c) {
-					static const std::string forbiddenChars("\\/:*?\"<>| ");
-
-					bool charForbidden = forbiddenChars.find(c) != std::string::npos;
-					bool charNonprintable = static_cast<unsigned char>(c) < static_cast<unsigned char>(' ');
-
-					return charForbidden || charNonprintable;
-				};
-				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
-
-				prefix = vstd::getFormattedDateTime(cb->getStartInfo()->startTime, "%Y-%m-%d_%H-%M") + "_" + name + "/";
-			}
-		}
-
-		autosaveCount++;
-
-		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
-		if(autosaveCountLimit > 0)
-		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
-			autosaveCount %= autosaveCountLimit;
-		}
-		else
-		{
-			auto calendar = cb->getCalendar();
-			std::string stringifiedDate = std::to_string(calendar.getMonth())
-					+ std::to_string(calendar.getWeek())
-					+ std::to_string(calendar.getDayOfWeek());
-
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
-		}
+		const auto calendar = cb->getCalendar();
+		const auto autosaveCountLimit = static_cast<int>(settings["general"]["autosaveCountLimit"].Integer());
+		cb->saveAutosave(
+			SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar),
+			autosaveCountLimit);
 	}
 }
 
@@ -336,11 +295,12 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
-			std::string msg = LIBRARY->generaltexth->allTexts[13];
-			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
+			MetaString msg;
+			msg.appendTextID("core.genrltxt.13");
+			msg.replaceRawString(cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
-			showInfoDialog(msg, cmp);
+			showInfoDialog(msg.toString(&GAME->translator()), cmp);
 		}
 		else
 		{
@@ -382,13 +342,13 @@ void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 			auto daysWithoutCastle = optDaysWithoutCastle.value();
 			if (daysWithoutCastle < 6)
 			{
-				text.appendLocalString(EMetaText::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+				text.appendTextID("core.arraytxt.128"); //%s, you only have %d days left to capture a town or you will be banished from this land.
 				text.replaceName(playerColor);
 				text.replaceNumber(7 - daysWithoutCastle);
 			}
 			else if (daysWithoutCastle == 6)
 			{
-				text.appendLocalString(EMetaText::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+				text.appendTextID("core.arraytxt.129"); //%s, this is your last day to capture a town or you will be banished from this land.
 				text.replaceName(playerColor);
 			}
 
@@ -425,7 +385,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", GAME->translator().translate(hero->getNameTextID()) % playerID);
 
 	// if hero is not in town garrison
 	if (vstd::contains(localState->getWanderingHeroes(), hero))
@@ -438,6 +398,13 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 void CPlayerInterface::townRemoved(const CGTownInstance* town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	// close town screen if it shows the town being removed, otherwise objectRemovedAfter dereferences a dangling pointer
+	if(castleInt && castleInt->town == town)
+	{
+		castleInt->close();
+		castleInt = nullptr;
+	}
 
 	if(town->tempOwner == playerID)
 	{
@@ -527,50 +494,67 @@ void CPlayerInterface::receivedResource()
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill>& skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog();
-	ENGINE->sound().playSound(soundBase::heroNewLevel);
+	auto availableSkills = skills;
 
-	closePendingLevelUpDialog();
-
-	const bool closeImmediately = queryID < 0;
-	pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
-
-	auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
+	auto showLevelUpDialog = [this, hero, pskill, availableSkills = std::move(availableSkills), queryID]() mutable
 	{
-		if(queryID < 0)
+		ENGINE->sound().playSound(soundBase::heroNewLevel);
+		auto callback = [this, queryID](ui32 selection)
+		{
+			if(queryID < 0)
+				return;
+
+			cb->selectionMade(selection, queryID);
+		};
+
+		if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
+		{
+			levelWindow->updateLevelUpData(hero, pskill, availableSkills, callback);
 			return;
+		}
 
-		pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
-	});
+		closeActiveLevelUpDialog();
 
-	levelWindow->setCloseOnSelection(closeImmediately);
-	if(!closeImmediately)
-		pendingLevelUpDialog = levelWindow;
+		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, callback);
 
-	ENGINE->windows().pushWindow(levelWindow);
+		// Free the visible-dialog gate as soon as the player makes a choice.
+		// The query-backed dialog queue still keeps manual input blocked until the
+		// server resolves this level-up step and advances the chain.
+		levelWindow->setCloseOnSelection(queryID < 0);
+		ENGINE->windows().pushWindow(levelWindow);
+	};
+
+	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showLevelUpDialog), queryID);
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog();
-	ENGINE->sound().playSound(soundBase::heroNewLevel);
-
-	closePendingLevelUpDialog();
-
-	const bool closeImmediately = queryID < 0;
-	pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
-	auto levelWindow = std::make_shared<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
+	auto showCallback = [this, commander, skills = std::move(skills), queryID]() mutable
 	{
-		if(queryID < 0)
-			return;
+		ENGINE->sound().playSound(soundBase::heroNewLevel);
+		auto callback = [this, queryID](ui32 selection)
+		{
+			if(queryID < 0)
+				return;
 
-		pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
-	});
-	levelWindow->setCloseOnSelection(closeImmediately);
-	if(!closeImmediately)
-		pendingLevelUpDialog = levelWindow;
-	ENGINE->windows().pushWindow(levelWindow);
+			cb->selectionMade(selection, queryID);
+		};
+
+		closeActiveLevelUpDialog();
+
+		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, callback);
+
+		// Free the visible-dialog gate as soon as the player makes a choice.
+		// The query-backed dialog queue still keeps manual input blocked until the
+		// server resolves this level-up step and advances the chain.
+		levelWindow->setCloseOnSelection(queryID < 0);
+		ENGINE->windows().pushWindow(levelWindow);
+	};
+
+	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showCallback), queryID);
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
@@ -723,7 +707,7 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 		{
 		case UnitChanges::EOperation::UPDATE:
 			{
-				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id );
+				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id, false);
 
 				if(!stack)
 				{
@@ -754,33 +738,22 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 	}
 }
 
-void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
+void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
-	std::vector<ObstacleChanges> removedObstacles;
-
-	for(auto & change : obstacles)
+	if(obstacle.operation == BattleChanges::EOperation::ADD || obstacle.operation == BattleChanges::EOperation::UPDATE)
 	{
-		if(change.operation == BattleChanges::EOperation::ADD)
-		{
-			auto instance = cb->getBattle(battleID)->battleGetObstacleByID(change.id);
-			if(instance)
-				newObstacles.push_back(instance);
-			else
-				logNetwork->error("Invalid obstacle instance %d", change.id);
-		}
-		if(change.operation == BattleChanges::EOperation::REMOVE)
-			removedObstacles.push_back(change); //Obstacles are already removed, so, show animation based on json struct
+		auto instance = cb->getBattle(battleID)->battleGetObstacleByID(obstacle.id);
+		if(instance)
+			battleInt->obstaclePlaced(instance);
+		else
+			logNetwork->error("Invalid obstacle instance %d", obstacle.id);
 	}
 
-	if (!newObstacles.empty())
-		battleInt->obstaclePlaced(newObstacles);
-
-	if (!removedObstacles.empty())
-		battleInt->obstacleRemoved(removedObstacles);
+	if(obstacle.operation == BattleChanges::EOperation::REMOVE)
+		battleInt->obstacleRemoved(obstacle); //Obstacle is already removed, so, show animation based on json struct
 
 	battleInt->fieldController->redrawBackgroundWithHexes();
 }
@@ -791,8 +764,6 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
-	if(ca.killedTowerShooter != -1)
-		battleInt->stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
 }
 
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
@@ -808,12 +779,19 @@ void CPlayerInterface::actionStarted(const BattleID & battleID, const BattleActi
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
+	if(battleInt)
+		battleInt->trySetActivePlayer(cb->getBattle(battleID)->sideToPlayer(action.side));
+
 	battleInt->startAction(action);
 }
 
 void CPlayerInterface::actionFinished(const BattleID & battleID, const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	if (autofightingAI && !isAutoFightOn)
+		unregisterBattleInterface(autofightingAI);
+
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->endAction(action);
@@ -835,15 +813,11 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 
 	if (autofightingAI)
 	{
-		if (isAutoFightOn)
-		{
-			//FIXME: we want client rendering to proceed while AI is making actions
-			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
-			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-			autofightingAI->activeStack(battleID, stack);
-			return;
-		}
-		unregisterBattleInterface(autofightingAI);
+		//FIXME: we want client rendering to proceed while AI is making actions
+		// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		autofightingAI->activeStack(battleID, stack);
+		return;
 	}
 
 	assert(battleInt);
@@ -863,7 +837,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 	{
 		isAutoFightOn = false;
 		unregisterBattleInterface(autofightingAI);
-
+		waitForAllDialogs();		//eagle eye skill can pop up multiple dialogs before the battle
 		if(!battleInt)
 		{
 			bool allowManualReplay = queryID != QueryID::NONE && !isAutoFightEndBattle;
@@ -877,7 +851,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 					cb->selectionMade(selection, queryID);
 				};
 			}
-			
+
 			isAutoFightEndBattle = false;
 
 			ENGINE->windows().pushWindow(wnd);
@@ -922,6 +896,13 @@ void CPlayerInterface::battleStacksEffectsSet(const BattleID & battleID, const S
 
 	battleInt->battleStacksEffectsSet(sse);
 }
+void CPlayerInterface::battleAnimationPlayed(const BattleID & battleID, const BattleAnimationPlayed & pack)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->effectsController->battleAnimationPlayed(pack);
+}
 void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -958,7 +939,6 @@ void CPlayerInterface::battleStacksAttacked(const BattleID & battleID, const std
 		info.killed         = elem.killed();
 		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
-		info.fireShield     = elem.fireShield();
 
 		if (elem.isSpell())
 			info.spellEffect = elem.spellID;
@@ -979,7 +959,6 @@ void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttac
 	info.lucky = ba->lucky();
 	info.unlucky = ba->unlucky();
 	info.deathBlow = ba->deathBlow();
-	info.lifeDrain = ba->lifeDrain();
 	info.playCustomAnimation = ba->playCustomAnimation();
 	info.tile = ba->tile;
 	info.spellEffect = SpellID::NONE;
@@ -1027,14 +1006,32 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 
 	if(autoTryHover || type == EInfoWindowMode::INFO)
 	{
+		auto showInfoBox = [this, components, text, timer, soundID](bool abortMovement)
+		{
+			adventureInt->showInfoBoxMessage(components, text, timer);
+
+			// Abort movement only when the message is shown synchronously with the event that produced it.
+			// Deferred info-box messages may be displayed later, after movement has already resumed.
+			if(abortMovement)
+				movementController->requestMovementAbort();
+
+			if (makingTurn && ENGINE->windows().count() > 0 && GAME->interface() == this)
+				ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
+		};
+
+		if(showingDialog->isBusy() || !dialogs.empty())
+		{
+			createAndQueueDialog(PendingDialog::Type::NonBlocking, [showInfoBox = std::move(showInfoBox)]() mutable
+			{
+				showInfoBox(false);
+			});
+			tryShowNextPendingDialog();
+			return;
+		}
+
 		waitWhileDialog(); //Fix for mantis #98
-		adventureInt->showInfoBoxMessage(components, text, timer);
-
-		// abort movement, if any. Strictly speaking unnecessary, but prevents some edge cases, like movement sound on visiting Magi Hut with "show messages in status window" on
-		movementController->requestMovementAbort();
-
-		if (makingTurn && ENGINE->windows().count() > 0 && GAME->interface() == this)
-			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
+		closeActiveLevelUpDialog();
+		showInfoBox(true);
 		return;
 	}
 
@@ -1066,24 +1063,37 @@ void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is GAME->interface()=%d", playerID % text % (this==GAME->interface()));
-	waitWhileDialog();
-
 	if (settings["session"]["autoSkip"].Bool() && !ENGINE->isKeyboardShiftDown())
 	{
 		return;
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
-
-	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
+	auto showDialog = [this, temp, soundID]()
 	{
 		ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
 		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		ENGINE->windows().pushWindow(temp);
+	};
+
+	if(showingDialog->isBusy() || !dialogs.empty())
+	{
+		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
+		tryShowNextPendingDialog();
+		return;
+	}
+
+	waitWhileDialog();
+
+	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
+	{
+		closeActiveLevelUpDialog();
+		showDialog();
 	}
 	else
 	{
-		dialogs.push_back(temp);
+		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
+		tryShowNextPendingDialog();
 	}
 }
 
@@ -1091,7 +1101,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	std::string str = text.toString();
+	std::string str = text.toString(&GAME->translator());
 
 	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();
@@ -1109,6 +1119,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
+	closeActiveLevelUpDialog();
 
 	movementController->requestMovementAbort();
 	ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
@@ -1121,9 +1132,21 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 			return;
 		}
 
+		const bool commanderResurrectionDialog = text == LIBRARY->generaltexth->translate("vcmi.commander.resurrectionOffer");
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : components)
-			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
+		for(const auto & component : components)
+		{
+			auto uiComponent = std::make_shared<CComponent>(component);
+			if(commanderResurrectionDialog && intComps.empty() && component.type == ComponentType::CREATURE)
+			{
+				const auto subtitle = uiComponent->getSubtitle();
+				const auto firstSpace = subtitle.find(' ');
+				if(firstSpace != std::string::npos)
+					uiComponent = std::make_shared<CComponent>(component.type, component.subType, subtitle.substr(firstSpace + 1)); //keep only commander name
+				uiComponent->newLine = true;
+			}
+			intComps.push_back(uiComponent); //will be deleted by close in window
+		}
 
 		showYesNoDialog(text, [this, askID](){ cb->selectionMade(1, askID); }, [this, askID](){ cb->selectionMade(0, askID); }, intComps);
 	}
@@ -1174,8 +1197,8 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	const std::string localTitle = title.toString();
-	const std::string localDescription = description.toString();
+	const std::string localTitle = title.toString(&GAME->translator());
+	const std::string localDescription = description.toString(&GAME->translator());
 
 	std::vector<int> tempList;
 	tempList.reserve(objectGuiOrdered.size());
@@ -1282,13 +1305,12 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 		return;
 
 	assert(h);
-	assert(!showingDialog->isBusy());
-	assert(dialogs.empty());
 
 	if (!h)
 		return; //can't find hero
 
-	//It shouldn't be possible to move hero with open dialog (or dialog waiting in bg)
+	// Query-backed level-up chains can keep input blocked briefly after the visible
+	// window closes, until QueryResolved advances or completes the chain.
 	if (showingDialog->isBusy() || !dialogs.empty())
 		return;
 
@@ -1323,23 +1345,44 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
-		if(pendingLevelUpRequestID == static_cast<int>(pa->requestID))
-			closePendingLevelUpDialog();
 		movementController->onQueryReplyApplied();
 	}
 }
 
-void CPlayerInterface::closePendingLevelUpDialog()
+void CPlayerInterface::closeActiveLevelUpDialog()
 {
-	if(!pendingLevelUpDialog)
-	{
-		pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
-		return;
-	}
+	if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
+		levelWindow->close();
+	else if(auto commanderWindow = ENGINE->windows().topWindow<CStackWindow>(); commanderWindow && commanderWindow->isCommanderLevelUpDialog())
+		commanderWindow->close();
+}
 
-	pendingLevelUpDialog->close();
-	pendingLevelUpDialog.reset();
-	pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
+void CPlayerInterface::queryResolved(QueryID queryID)
+{
+	auto dialog = findPendingDialog(queryID);
+	if(dialog == dialogs.end())
+		return;
+
+	const bool wasFront = dialog == dialogs.begin();
+	const bool wasLevelUpDialog = dialog->isLevelUpDialog();
+	dialogs.erase(dialog);
+
+	if(wasFront)
+	{
+		showingDialog->setFree();
+		if(wasLevelUpDialog)
+		{
+			levelUpChainPendingContinuation = true;
+			// Drain any queued accept/click events from the just-confirmed query-backed
+			// dialog before showing whatever comes next. Otherwise the same Enter can
+			// instantly accept the next level-up step or close a queued info dialog.
+			delayQueuedDialogsUntilInputSettles = true;
+			return;
+		}
+
+		closeActiveLevelUpDialog();
+		tryShowNextPendingDialog();
+	}
 }
 
 void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
@@ -1357,7 +1400,10 @@ void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop
 {
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1378,7 +1424,10 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1417,7 +1466,11 @@ void CPlayerInterface::initializeHeroTownList()
 			localState->addOwnedTown(town);
 	}
 
-	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
+	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
+	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
+	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	if(playerState)
+		localState->deserialize(*playerState->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);
@@ -1474,6 +1527,11 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	// while a replay follows another player, the camera stays with him
+	if(replayFollowedPlayer())
+		return;
+
 	waitWhileDialog();
 	ENGINE->cursor().hide();
 	adventureInt->centerOnTile(pos);
@@ -1520,7 +1578,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->onMapTilesChanged(boost::none);
+	adventureInt->onMapTilesChanged(std::nullopt);
 
 	// visiting or garrisoned hero removed - update window
 	if (castleInt)
@@ -1539,12 +1597,13 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
 			adventureInt->onCurrentPlayerChanged(playerID);
-			std::string msg = LIBRARY->generaltexth->translate("vcmi.adventureMap.playerAttacked");
-			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
+			MetaString msg;
+			msg.appendTextID("vcmi.adventureMap.playerAttacked");
+			msg.replaceRawString(cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			makingTurn = true; //workaround for stiff showInfoDialog implementation
-			showInfoDialog(msg, cmp);
+			showInfoDialog(msg.toString(&GAME->translator()), cmp);
 			waitWhileDialog();
 			makingTurn = false;
 		}
@@ -1553,13 +1612,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 
 void CPlayerInterface::update()
 {
-	//if there are any waiting dialogs, show them
-	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
-	{
-		showingDialog->setBusy();
-		ENGINE->windows().pushWindow(dialogs.front());
-		dialogs.pop_front();
-	}
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::endNetwork()
@@ -1588,7 +1641,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 			{
 				char nr = name[namePrefix.size()];
 				if (std::isdigit(nr))
-					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
+					dates[last_write_time(dir->path())] = nr - '0';
 			}
 		}
 	}
@@ -1765,7 +1818,51 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ENGINE->windows().createAndPushWindow<CQuestLog>(GAME->interface()->cb->getMyQuests());
+	auto quests = cb->getMyQuests();
+	vstd::erase_if(quests, [this](const QuestInfo & quest)
+	{
+		return !quest.isDisplayable(cb.get());
+	});
+	if(quests.empty())
+	{
+		const auto entries = cb->getMyScenarioEventJournal();
+		ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+		return;
+	}
+	ENGINE->windows().createAndPushWindow<CQuestLog>(quests);
+}
+
+void CPlayerInterface::showScenarioEventJournal()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	const auto entries = cb->getMyScenarioEventJournal();
+	ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+}
+
+bool CPlayerInterface::hasDisplayableQuests() const
+{
+	const auto quests = cb->getMyQuests();
+	return std::any_of(quests.begin(), quests.end(), [this](const QuestInfo & quest)
+	{
+		return quest.isDisplayable(cb.get());
+	});
+}
+
+bool CPlayerInterface::hasScenarioEventJournalEntries() const
+{
+	return !cb->getMyScenarioEventJournal().empty();
+}
+
+bool CPlayerInterface::hasJournalEntries() const
+{
+	return hasDisplayableQuests() || hasScenarioEventJournalEntries();
+}
+
+void CPlayerInterface::scenarioEventJournalChanged()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(adventureInt)
+		adventureInt->updateActiveState();
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
@@ -1774,7 +1871,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	{
 		MetaString txt;
 		obj->getProblemText(txt);
-		showInfoDialog(txt.toString());
+		showInfoDialog(txt.toString(&GAME->translator()));
 	}
 	else
 		showShipyardDialog(obj);
@@ -1840,6 +1937,85 @@ void CPlayerInterface::waitForAllDialogs()
 	waitWhileDialog();
 }
 
+void CPlayerInterface::createAndQueueDialog(PendingDialog::Type blockingPolicy, std::function<void()> showCallback, QueryID queryID)
+{
+	PendingDialog dialog;
+	dialog.queryID = queryID >= 0 ? queryID : QueryID::NONE;
+	dialog.blockingPolicy = blockingPolicy;
+	// Level-up dialogs currently mean hero/commander level-up prompts.
+	// Keep them alive across turn-end and keep the whole query-backed chain
+	// ahead of ordinary queued info/reward dialogs.
+	dialog.dropOnTurnEnd = !dialog.isLevelUpDialog();
+	dialog.showCallback = std::move(showCallback);
+
+	if(dialog.isLevelUpDialog() && (levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog())))
+		dialogs.insert(findQueryBackedDialogInsertionPoint(), std::move(dialog));
+	else
+		dialogs.push_back(std::move(dialog));
+}
+
+std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::findQueryBackedDialogInsertionPoint()
+{
+	return std::find_if(dialogs.begin(), dialogs.end(), [](const PendingDialog & dialog)
+	{
+		return !dialog.isLevelUpDialog();
+	});
+}
+
+void CPlayerInterface::tryShowNextPendingDialog()
+{
+	if(delayQueuedDialogsUntilInputSettles)
+		return;
+
+	if(dialogs.empty())
+	{
+		if(levelUpChainPendingContinuation)
+		{
+			levelUpChainPendingContinuation = false;
+			closeActiveLevelUpDialog();
+		}
+		return;
+	}
+
+	while(!dialogs.empty() && !showingDialog->isBusy())
+	{
+		auto & dialog = dialogs.front();
+		// Level-up dialogs currently mean hero/commander level-up prompts.
+		// Keep showing those even after makingTurn becomes false, but stop normal queued dialogs.
+		if(!makingTurn && !dialog.isLevelUpDialog())
+			return;
+
+		if(dialog.state != PendingDialog::State::Queued)
+			return;
+
+		if(!dialog.isLevelUpDialog())
+		{
+			levelUpChainPendingContinuation = false;
+			closeActiveLevelUpDialog();
+		}
+
+		dialog.showCallback();
+		if(dialog.isLevelUpDialog())
+		{
+			dialog.state = PendingDialog::State::AwaitingQueryResolution;
+			return;
+		}
+
+		dialogs.pop_front();
+
+		if(dialog.blockingPolicy == PendingDialog::Type::Blocking || showingDialog->isBusy())
+			return;
+	}
+}
+
+std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::findPendingDialog(QueryID queryID)
+{
+	return std::find_if(dialogs.begin(), dialogs.end(), [queryID](const PendingDialog & dialog)
+	{
+		return dialog.queryID == queryID;
+	});
+}
+
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(
@@ -1855,12 +2031,14 @@ void CPlayerInterface::proposeLoadingGame()
 
 void CPlayerInterface::quickSaveGame()
 {
+	const std::string quickSavePath = getQuickSavePath();
+
 	// notify player about saving
 	MetaString txt;
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
-	txt.replaceRawString(QUICKSAVE_PATH);
-	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
-	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
+	txt.replaceRawString(quickSavePath);
+	GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
+	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)
 		adventureInt->updateActiveState();
@@ -1868,24 +2046,25 @@ void CPlayerInterface::quickSaveGame()
 
 bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 {
-	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	const std::string quickSavePath = getQuickSavePath();
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(quickSavePath, EResType::SAVEGAME)))
 	{
 		if(verbose)
-			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->error("No quicksave file found at %s", quickSavePath);
 		else
-			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+			logGlobal->trace("No quicksave file found at %s", quickSavePath);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
 		return false;
 	}
-	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	auto error = GAME->server().canQuickLoadGame(quickSavePath);
 	if(error)
 	{
 		if(verbose)
-			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->error("Cannot quick load game at %s: %s", quickSavePath, *error);
 		else
-			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+			logGlobal->trace("Cannot quick load game at %s: %s", quickSavePath, *error);
 		hasQuickSave = false;
 		if(cb && adventureInt)
 			adventureInt->updateActiveState();
@@ -1899,12 +2078,18 @@ void CPlayerInterface::proposeQuickLoadingGame()
 	if(!checkQuickLoadingGame(true))
 		return;
 
-	auto onYes = [this]() -> void
+	const std::string quickSavePath = getQuickSavePath();
+	auto onYes = [quickSavePath]() -> void
 	{
-		GAME->server().quickLoadGame(QUICKSAVE_PATH);
+		GAME->server().quickLoadGame(quickSavePath);
 	};
 
 	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
+}
+
+std::string CPlayerInterface::getQuickSavePath() const
+{
+	return SavegamePath::getPath(*cb->getStartInfo(), *cb->getMapHeader(), "Quicksave");
 }
 
 bool CPlayerInterface::capturedAllEvents()
@@ -1916,11 +2101,28 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && GAME->map().hasOngoingAnimations();
-	bool quickCombatOngoing = isAutoFightOn && !battleInt;
+	bool quickCombatWithoutDialogs = isAutoFightOn && !battleInt && !showingDialog->isBusy();
+	bool waitingForQueuedDialogInputToSettle = false;
+	bool waitingForQueuedDialogResolution =
+		!showingDialog->isBusy() &&
+		!dialogs.empty() &&
+		dialogs.front().state == PendingDialog::State::AwaitingQueryResolution;
 
-	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
+	if(delayQueuedDialogsUntilInputSettles)
 	{
-		ENGINE->input().ignoreEventsUntilInput();
+		waitingForQueuedDialogInputToSettle = ENGINE->input().ignoreEventsUntilInput();
+
+		if(!waitingForQueuedDialogInputToSettle)
+		{
+			delayQueuedDialogsUntilInputSettles = false;
+			tryShowNextPendingDialog();
+		}
+	}
+
+	if (ignoreEvents || needToLockAdventureMap || quickCombatWithoutDialogs || waitingForQueuedDialogResolution || waitingForQueuedDialogInputToSettle)
+	{
+		if(!delayQueuedDialogsUntilInputSettles)
+			ENGINE->input().ignoreEventsUntilInput();
 		return true;
 	}
 
@@ -1929,10 +2131,11 @@ bool CPlayerInterface::capturedAllEvents()
 
 void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
 {
-	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
+	autofightingAI = AIFactory::createBattleAI(settings["ai"]["combatAlliedAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
 	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+	autocombatPreferences.enableTacticsUsage = settings["battle"]["enableAutocombatTactics"].Bool();
 
 	autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
 	autofightingAI->battleStart(bid, army1, army2, tile, hero1, hero2, side, false);

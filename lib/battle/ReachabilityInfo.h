@@ -12,8 +12,6 @@
 #include "CBattleInfoEssentials.h"
 #include "AccessibilityInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleHexArray;
 
 // Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
@@ -63,5 +61,3 @@ struct DLL_LINKAGE ReachabilityInfo
 		const battle::Unit * defender,
 		BattleHex * chosenHex = nullptr) const;
 };
-
-VCMI_LIB_NAMESPACE_END

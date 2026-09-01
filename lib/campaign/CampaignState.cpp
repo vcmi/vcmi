@@ -17,13 +17,12 @@
 #include "../mapping/CMapService.h"
 #include "../mapping/CMapInfo.h"
 #include "../mapping/CMap.h"
+#include "../modding/ModScope.h"
 #include "../mapping/MapFormatSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 #include "../json/JsonUtils.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 void CampaignScenario::loadPreconditionRegions(ui32 regions)
 {
@@ -44,29 +43,29 @@ CampaignVersion CampaignHeader::getFormat() const
 	return version;
 }
 
-std::string CampaignHeader::getDescriptionTranslated() const
+std::string CampaignHeader::getDescriptionTranslated(const ITranslator * translator) const
 {
-	return description.toString();
+	return description.toString(translator);
 }
 
-std::string CampaignHeader::getNameTranslated() const
+std::string CampaignHeader::getNameTranslated(const ITranslator * translator) const
 {
-	return name.toString();
+	return name.toString(translator);
 }
 
-std::string CampaignHeader::getAuthor() const
+std::string CampaignHeader::getAuthor(const ITranslator * translator) const
 {
-	return authorContact.toString();
+	return author.toString(translator);
 }
 
-std::string CampaignHeader::getAuthorContact() const
+std::string CampaignHeader::getAuthorContact(const ITranslator * translator) const
 {
-	return authorContact.toString();
+	return authorContact.toString(translator);
 }
 
-std::string CampaignHeader::getCampaignVersion() const
+std::string CampaignHeader::getCampaignVersion(const ITranslator * translator) const
 {
-	return campaignVersion.toString();
+	return campaignVersion.toString(translator);
 }
 
 time_t CampaignHeader::getCreationDateTime() const
@@ -119,7 +118,7 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
-TextContainerRegistrable & CampaignHeader::getTexts()
+const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts()
 {
 	return textContainer;
 }
@@ -180,7 +179,7 @@ std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID 
 		bool result = h->tempOwner == owner;
 		return result;
 	};
-	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
+	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | std::views::filter(isOwned);
 
 	if (ownedHeroes.empty())
 		return nullptr;
@@ -216,12 +215,12 @@ const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
 
 void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
 {
-	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
+	std::ranges::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
+	logGlobal->info("Scenario %d of campaign %s has been completed", currentMap->getNum(), getFilename());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
@@ -232,15 +231,29 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 
 		if (reservedHeroes.count(hero->getHeroTypeID()))
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroTypeID(), hero->getNameTextID());
 			globalHeroPool[hero->getHeroTypeID()] = node;
 		}
 		else
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroTypeID(), hero->getNameTextID());
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}
+}
+
+void CampaignState::savePersistentVariables(const CMap & map)
+{
+	for(const auto & declaration : map.scriptVariableDefinitions)
+		if(declaration.persistInCampaign)
+			persistentScriptVariables.set(ModScope::scopeMap(), declaration.name, map.getScriptVariables().get(ModScope::scopeMap(), declaration.name));
+}
+
+void CampaignState::seedPersistentVariables(CMap & map) const
+{
+	for(const auto & declaration : map.scriptVariableDefinitions)
+		if(declaration.importFromPreviousScenario && persistentScriptVariables.has(ModScope::scopeMap(), declaration.name))
+			map.getScriptVariables().set(ModScope::scopeMap(), declaration.name, persistentScriptVariables.get(ModScope::scopeMap(), declaration.name));
 }
 
 std::optional<CampaignBonus> CampaignState::getBonus(CampaignScenarioID which) const
@@ -282,6 +295,7 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 
+	// the loaded map is handed over to the caller, but its texts stay resolvable for the whole campaign
 	mapTranslations[scenarioId] = result->texts;
 	return result;
 }
@@ -351,6 +365,26 @@ std::optional<CampaignScenarioID> CampaignState::currentScenario() const
 	return currentMap;
 }
 
+std::time_t CampaignState::getStartTime() const
+{
+	return startTime;
+}
+
+void CampaignState::setStartTime(std::time_t value)
+{
+	startTime = value;
+}
+
+const std::string & CampaignState::getSaveDirectory() const
+{
+	return saveDirectory;
+}
+
+void CampaignState::setSaveDirectory(const std::string & value)
+{
+	saveDirectory = value;
+}
+
 std::optional<CampaignScenarioID> CampaignState::lastScenario() const
 {
 	if (mapsConquered.empty())
@@ -398,6 +432,8 @@ void Campaign::overrideCampaign()
 		gemSorceressID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroGemSorceress"]));
 	if(!overrides["heroYogWizard"].isNull())
 		yogWizardID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroYogWizard"]));
+	if(!overrides["heroMutareDrake"].isNull())
+		mutareDrakeID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroMutareDrake"]));
 
 	restrictGarrisonsAI	= overrides["restrictedGarrisonsForAI"].Bool();
 }
@@ -443,6 +479,10 @@ HeroTypeID CampaignHeader::getYogWizardID() const
 {
 	return yogWizardID;
 }
+HeroTypeID CampaignHeader::getMutareDrakeID() const
+{
+	return mutareDrakeID;
+}
 HeroTypeID CampaignHeader::getGemSorceressID() const
 {
 	return gemSorceressID;
@@ -451,5 +491,3 @@ bool CampaignHeader::restrictedGarrisonsForAI() const
 {
 	return restrictGarrisonsAI;
 }
-
-VCMI_LIB_NAMESPACE_END

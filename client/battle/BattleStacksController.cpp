@@ -41,6 +41,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../GameInstance.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -143,6 +144,19 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 			});
 		}
 	}
+
+	// removed units are ghosts (excluded from battleGetAllStacks); keep drawing those still fading out
+	for(uint32_t id : fadingStacks)
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(id, false);
+		if(!stack || !stack->isGhost() || stackAnimation.find(id) == stackAnimation.end())
+			continue;
+
+		auto layer = stackAnimation[id]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
+		renderer.insert(layer, getStackCurrentPosition(stack), [this, stack]( BattleRenderer::RendererRef renderer ){
+			showStack(renderer, stack);
+		});
+	}
 }
 
 void BattleStacksController::stackReset(const CStack * stack)
@@ -154,6 +168,8 @@ void BattleStacksController::stackReset(const CStack * stack)
 		logGlobal->error("Unit %d have no animation", stack->unitId());
 		return;
 	}
+
+	fadingStacks.erase(stack->unitId()); // a reset/resurrect makes it eligible to fade out again if killed later
 
 	auto animation = iter->second;
 
@@ -263,14 +279,11 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = spellID.toEntity(LIBRARY)->getPositiveness();
-		if(!boost::logic::indeterminate(positiveness))
-		{
-			if(positiveness)
-				effectsPositivness++;
-			else
-				effectsPositivness--;
-		}
+		const auto * spell = spellID.toEntity(LIBRARY);
+		if(spell->isPositive())
+			effectsPositivness++;
+		else if(spell->isNegative())
+			effectsPositivness--;
 	}
 
 	if (effectsPositivness > 0)
@@ -284,7 +297,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * stack)
 {
-	auto amountBG = getStackAmountBox(stack);
+	auto amountBG = getDisplayedStackAmountBox(stack);
 
 	bool doubleWide = stack->doubleWide();
 	bool turnedRight = facingRight(stack);
@@ -318,19 +331,21 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
+	int32_t displayedCount = getDisplayedStackAmount(stack);
+
 	if(settings["battle"]["showHealthBar"].Bool())
 	{
 		double healthMaxType = stack->unitType()->getMaxHealth();
 		double healthMaxStack = stack->getMaxHealth();
 		double healthMaxRatio = std::min(healthMaxStack / healthMaxType, 1.0);
-		double healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * healthMaxStack, .0) * healthMaxRatio;
+		double healthRemaining = std::max(getDisplayedStackHealth(stack) - (displayedCount - 1) * healthMaxStack, .0) * healthMaxRatio;
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);
 		canvas.drawColor(Rect(r.x, r.y, (r.w / healthMaxStack) * healthRemaining, r.h), Colors::GREEN);
 		canvas.drawBorder(r, Colors::YELLOW);
 	}
 	canvas.draw(amountBG, boxPosition);
-	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(displayedCount, 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
@@ -415,10 +430,67 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
 		setActiveStack(nullptr);
+
+	// guard so a repeated removal call-in won't restart the fade-out
+	if (!fadingStacks.insert(stackID).second)
+		return;
+
+	auto startFade = [this, stackID]()
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(stackID, false);
+		if (stack && stackAnimation.count(stackID))
+			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeOut", nullptr));
+	};
+
+	// while a spell/attack sequence is mid-flight, fade the unit together with its hit effects instead of before them
+	if (owner.hasQueuedStage(EAnimationEvents::HIT))
+		owner.addToAnimationStage(EAnimationEvents::HIT, startFade);
+	else
+		startFade();
+}
+
+void BattleStacksController::lockStackAmountBox(const CStack * stack)
+{
+	displayedStackSnapshot.try_emplace(stack->unitId(), DisplayedStackSnapshot{stack->getCount(), stack->getAvailableHealth(), getStackAmountBox(stack)});
+}
+
+void BattleStacksController::unlockStackAmountBox(uint32_t stackID)
+{
+	displayedStackSnapshot.erase(stackID);
+}
+
+int32_t BattleStacksController::getDisplayedStackAmount(const CStack * stack) const
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.count;
+	return stack->getCount();
+}
+
+int64_t BattleStacksController::getDisplayedStackHealth(const CStack * stack) const
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.availableHealth;
+	return stack->getAvailableHealth();
+}
+
+std::shared_ptr<IImage> BattleStacksController::getDisplayedStackAmountBox(const CStack * stack)
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.amountBox;
+	return getStackAmountBox(stack);
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
+	const bool hitPlayedSynchronously = currentAnimations.empty() && !owner.hasQueuedStage(EAnimationEvents::BEFORE_HIT);
+	if(!hitPlayedSynchronously)
+		for(const auto & attackedInfo : attackedInfos)
+			if(!attackedInfo.killed)
+				lockStackAmountBox(attackedInfo.defender);
+
 	owner.addToAnimationStage(EAnimationEvents::HIT, [this](){
 		// remove any potentially erased petrification effect
 		removeExpiredColorFilters();
@@ -434,7 +506,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			continue;
 
 		// Another type of indirect attack - dragon breath
-		if (!CStack::isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
+		if (!owner.getBattle()->isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
 			continue;
 
 		// defender need to face in direction opposited to out attacker
@@ -456,21 +528,20 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	for(auto & attackedInfo : attackedInfos)
 	{
 		bool useDeathAnim   = attackedInfo.killed;
-		bool useDefenceAnim = attackedInfo.defender->defendingAnim && !attackedInfo.indirectAttack && !attackedInfo.killed;
+		bool useDefenceAnim = attackedInfo.defender->defending && !attackedInfo.indirectAttack && !attackedInfo.killed;
 
 		EAnimationEvents usedEvent = useDefenceAnim ? EAnimationEvents::ATTACK : EAnimationEvents::HIT;
 
 		owner.addToAnimationStage(usedEvent, [this, attackedInfo, useDeathAnim, useDefenceAnim]()
 		{
+			unlockStackAmountBox(attackedInfo.defender->unitId());
+
 			if (useDeathAnim)
 				addNewAnim(new DeathAnimation(owner, attackedInfo.defender, attackedInfo.indirectAttack));
 			else if(useDefenceAnim)
 				addNewAnim(new DefenceAnimation(owner, attackedInfo.defender));
 			else
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
-
-			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, AudioPath::builtin("FIRESHIE"), attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 			{
@@ -497,13 +568,19 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
-				addNewAnim(new ColorTransformAnimation(owner, attackedInfo.defender, "summonFadeOut", nullptr));
 				stackRemoved(attackedInfo.defender->unitId());
 			});
 		}
 	}
-	owner.executeStagedAnimations();
-	owner.waitForAnimations();
+	// While a spell cast is queued/playing, let it drive and batch the hit stage (endAction does the final
+	// sync) so per-unit damage packs (e.g. chain lightning) play together instead of one-by-one. In that case
+	// the displayed count is held by the snapshot above until each hit plays, so deferring is purely about
+	// animation ordering and no longer affects when the number visually drops.
+	if(hitPlayedSynchronously)
+	{
+		owner.executeStagedAnimations();
+		owner.waitForAnimations();
+	}
 }
 
 void BattleStacksController::stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance)
@@ -578,7 +655,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto spellEffect = info.spellEffect;
 	bool needsReverse = false;
 
-	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !CStack::isMeleeAttackPossible(attacker, defender);
+	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !owner.getBattle()->isMeleeAttackPossible(attacker, defender);
 
 	if (info.indirectAttack || longWeaponMelee)
 	{
@@ -600,7 +677,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.lucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45, &GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
 	}
@@ -608,7 +685,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.unlucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44, &GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
 	}
@@ -618,7 +695,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		if (defender)
 		{
 			owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, defender, info]() {
-				owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
+				owner.appendBattleLog(info.attacker->formatGeneralMessage(365, &GAME->translator()));
 				owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 			});
 		}
@@ -648,14 +725,6 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		owner.addToAnimationStage(EAnimationEvents::HIT, [this, spellEffect, tile]()
 		{
 			owner.displaySpellHit(spellEffect.toSpell(), tile);
-		});
-	}
-
-	if (info.lifeDrain)
-	{
-		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attacker]()
-		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
 		});
 	}
 
@@ -695,6 +764,7 @@ void BattleStacksController::endAction(const BattleAction & action)
 	owner.waitForAnimations();
 
 	stackAmountBoxHidden.clear();
+	displayedStackSnapshot.clear();
 
 	owner.windowObject->blockUI(activeStack == nullptr);
 	removeExpiredColorFilters();
@@ -824,8 +894,12 @@ void BattleStacksController::updateHoveredStacks()
 {
 	auto newStacks = selectHoveredStacks();
 
-	if(newStacks.size() == 0)
-		owner.windowObject->updateStackInfoWindow(nullptr);
+	// info panel follows the stack directly under the cursor; the highlight set may hold extra
+	// stacks from a multi-hex attack preview, which must not suppress it
+	const CStack * newInfoStack = newStacks.empty() ? nullptr : newStacks.front();
+	const CStack * oldInfoStack = mouseHoveredStacks.empty() ? nullptr : mouseHoveredStacks.front();
+	if(newInfoStack != oldInfoStack)
+		owner.windowObject->updateStackInfoWindow(newInfoStack);
 
 	for(const auto * stack : mouseHoveredStacks)
 	{
@@ -843,7 +917,6 @@ void BattleStacksController::updateHoveredStacks()
 		if (vstd::contains(mouseHoveredStacks, stack))
 			continue;
 
-		owner.windowObject->updateStackInfoWindow(newStacks.size() == 1 && vstd::find_pos(newStacks, stack) == 0 ? stack : nullptr);
 		stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getBlueBorder());
 		if (stackAnimation[stack->unitId()]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive() && !stack->isFrozen())
 			stackAnimation[stack->unitId()]->playOnce(ECreatureAnimType::MOUSEON);

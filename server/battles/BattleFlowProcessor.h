@@ -12,7 +12,6 @@
 #include "../../lib/battle/BattleSide.h"
 #include "../../lib/battle/BattleUnitTurnReason.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class BattleHex;
 class BattleHexArray;
@@ -23,7 +22,6 @@ namespace battle
 {
 class Unit;
 }
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class BattleProcessor;
@@ -46,15 +44,11 @@ class BattleFlowProcessor : boost::noncopyable
 	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
-	void summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
-	void tryLearnEnemySpellsPreBattle(const CBattleInfoCallback & battle, BattleSide side);
-	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);
 	void activateNextStack(const CBattleInfoCallback & battle);
 	void startNextRound(const CBattleInfoCallback & battle, bool isFirstRound);
 
-	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);

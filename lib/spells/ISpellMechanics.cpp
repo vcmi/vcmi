@@ -31,8 +31,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -86,6 +84,15 @@ public:
 //to be used for spells configured with old format
 class FallbackMechanicsFactory : public CustomMechanicsFactory
 {
+	JsonNode usePowerAsVal(const JsonNode & effectsNode, si32 power) const
+	{
+		JsonNode result = effectsNode;
+		for(auto & [name, bonusNode] : result.Struct())
+			if(bonusNode["val"].isNull())
+				bonusNode["val"].Integer() = power;
+		return result;
+	}
+
 public:
 	FallbackMechanicsFactory(const CSpell * s)
 		: CustomMechanicsFactory(s)
@@ -99,7 +106,7 @@ public:
 			{
 				JsonNode config;
 				config["timed"]["type"].String() = "core:timed";
-				config["timed"]["bonus"] = levelInfo.effects;
+				config["timed"]["bonus"] = usePowerAsVal(levelInfo.effects, levelInfo.power);
 				config.setModScope(s->modScope);
 				loadEffects(config, level);
 			}
@@ -108,7 +115,7 @@ public:
 				JsonNode config;
 				config["timed"]["type"].String() = "core:timed";
 				config["timed"]["cumulative"].Bool() = true;
-				config["timed"]["bonus"] = levelInfo.cumulativeEffects;
+				config["timed"]["bonus"] = usePowerAsVal(levelInfo.cumulativeEffects, levelInfo.power);
 				config.setModScope(s->modScope);
 				loadEffects(config, level);
 			}
@@ -120,9 +127,7 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 	spell(spell_),
 	cb(cb_),
 	caster(caster_),
-	mode(mode_),
-	smart(boost::logic::indeterminate),
-	massive(boost::logic::indeterminate)
+	mode(mode_)
 {
 }
 
@@ -168,14 +173,9 @@ BattleCast::OptionalValue64 BattleCast::getEffectValue() const
 	return effectValue;
 }
 
-boost::logic::tribool BattleCast::isSmart() const
+bool BattleCast::isForceMassive() const
 {
-	return smart;
-}
-
-boost::logic::tribool BattleCast::isMassive() const
-{
-	return massive;
+	return forceMassive;
 }
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
@@ -269,8 +269,7 @@ Mechanics::~Mechanics() = default;
 BaseMechanics::BaseMechanics(const IBattleCast * event):
 	owner(event->getSpell()),
 	mode(event->getMode()),
-	smart(event->isSmart()),
-	massive(event->isMassive()),
+	forceMassive(event->isForceMassive()),
 	cb(event->getBattle())
 {
 	caster = event->getCaster();
@@ -311,7 +310,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
-	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
+	text.appendTextID("core.genrltxt.541");
 	assert(caster);
 	text.replaceTextID(caster->getCasterNameTextID());
 
@@ -340,14 +339,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
-				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
+				text.appendTextID("core.genrltxt.536");
 				text.replaceName(b->sid.as<ArtifactID>());
 				text.replaceTextID(caster->getCasterNameTextID());
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
-				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
+				text.appendTextID("core.genrltxt.537");
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else
@@ -361,7 +360,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 	case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 		{
 			MetaString text;
-			text.appendLocalString(EMetaText::GENERAL_TXT, 185);
+			text.appendTextID("core.genrltxt.185");
 			target.add(std::move(text), spells::Problem::NORMAL);
 		}
 		break;
@@ -406,28 +405,17 @@ int32_t BaseMechanics::getSpellLevel() const
 
 bool BaseMechanics::isSmart() const
 {
-	if(boost::logic::indeterminate(smart))
-	{
-		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-		return targetInfo.smart;
-	}
-	else
-	{
-		return (bool)smart;
-	}
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+	return targetInfo.smart;
 }
 
 bool BaseMechanics::isMassive() const
 {
-	if(boost::logic::indeterminate(massive))
-	{
-		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-		return targetInfo.massive;
-	}
-	else
-	{
-		return (bool)massive;
-	}
+	if(forceMassive)
+		return true;
+
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+	return targetInfo.massive;
 }
 
 bool BaseMechanics::requiresClearTiles() const
@@ -488,12 +476,15 @@ Target BaseMechanics::canonicalizeTarget(const Target & aim) const
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
-	return ownerMatches(unit, owner->getPositiveness());
+	if(owner->isNeutral())
+		return true; // neutral spell: no ownership filtering
+
+	return ownerMatches(unit, owner->isPositive());
 }
 
-bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
+bool BaseMechanics::ownerMatches(const battle::Unit * unit, const bool sameOwner) const
 {
-	return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
+	return cb->battleMatchOwner(caster->getCasterOwner(), unit, sameOwner);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const
@@ -594,5 +585,3 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 
 	return std::make_unique<AdventureSpellMechanics>(s);
 }
-
-VCMI_LIB_NAMESPACE_END

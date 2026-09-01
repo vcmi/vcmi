@@ -11,8 +11,6 @@
 
 #include "CStackInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CCommanderInstance : public CStackInstance
 {
 public:
@@ -51,5 +49,3 @@ public:
 		h & specialSkills;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

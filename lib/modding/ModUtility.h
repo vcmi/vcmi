@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 // NOTE: all methods in this namespace should be considered internal to modding system and should not be used outside of this module
 namespace ModUtility
 {
@@ -21,5 +19,3 @@ namespace ModUtility
 	DLL_LINKAGE std::string makeFullIdentifier(const std::string & scope, const std::string & type, const std::string & identifier);
 
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 import eu.vcmi.vcmi.util.LibsLoader;
 import eu.vcmi.vcmi.util.Log;
+import eu.vcmi.vcmi.util.Notifications;
 
 public class VcmiSDLActivity extends SDLActivity
 {
@@ -115,12 +116,17 @@ public class VcmiSDLActivity extends SDLActivity
         setContentView(outerLayout);
 
         VcmiSDLActivity.this.setWindowStyle(true); // set fullscreen
+
+        Notifications.createChannels(this);
+        startService(new Intent(this, ClientBackgroundService.class));
     }
 
     @Override
     protected void onDestroy()
     {
         unbindServer();
+        Notifications.setForeground(this, false);
+        Notifications.stopService(this);
 
         super.onDestroy();
 
@@ -133,7 +139,15 @@ public class VcmiSDLActivity extends SDLActivity
     protected void onResume()
     {
         super.onResume();
+        Notifications.setForeground(this, true);
         scheduleInputFocusRestore();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        Notifications.setForeground(this, false);
+        super.onPause();
     }
 
     @Override

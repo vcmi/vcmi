@@ -14,17 +14,14 @@
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
 class MetaString;
 
-VCMI_LIB_NAMESPACE_END
-
 class CButton;
+class CControllerActionButton;
 class LRClickableArea;
 class CreatureCostBox;
 class CCreaturePic;
@@ -163,11 +160,14 @@ class CLevelWindow : public CWindowObject
 	const CGHeroInstance * hero;
 
 	void selectionChanged(unsigned to);
+	void initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback);
+	void createLevelUpControls(PrimarySkill pskill);
 	void createSkillBox();
 	void submitSelection();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	void updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback);
 	void setCloseOnSelection(bool value);
 
 	void close() override;
@@ -203,8 +203,9 @@ class CObjectListWindow : public CWindowObject
 	std::vector<std::shared_ptr<IImage>> images;
 
 	std::shared_ptr<CListBox> list;
-	std::shared_ptr<CButton> ok;
-	std::shared_ptr<CButton> exit;
+	std::shared_ptr<CControllerActionButton> ok;
+	std::shared_ptr<CControllerActionButton> exit;
+	bool controllerActionPromptsConfigured = false;
 
 	std::shared_ptr<CTextInput> searchBox;
 	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
@@ -215,6 +216,7 @@ class CObjectListWindow : public CWindowObject
 
 	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled, bool blue);
 	void trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const; // trim item's text to fit within window's width
+	void updateControllerCursorVisibility();
 	void itemsSearchCallback(const std::string & text);
 	void exitPressed();
 public:
@@ -229,6 +231,9 @@ public:
 	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
 	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
+	void setControllerActionPrompts(const std::string & acceptActionText, const std::string & cancelActionText);
+	void activate() override;
+	void deactivate() override;
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -283,7 +288,7 @@ public:
 	std::shared_ptr<VideoWidget> videoPlayer;
 
 	std::shared_ptr<CTextBox> rumor;
-	
+
 	std::shared_ptr<CLabel> inviteHero;
 	std::shared_ptr<CAnimImage> inviteHeroImage;
 	std::shared_ptr<LRClickableArea> inviteHeroImageArea;
@@ -431,7 +436,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
+class CGarrisonWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;

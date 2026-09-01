@@ -1,0 +1,148 @@
+// Descriptions are empty here on purpose: the text every one of these scripts shows to the
+// player lives in the translation files as core.script.<name>.description, so that it is not
+// spelled out twice. A mod is expected to declare the text right here instead.
+{
+	"transmutation" : {
+		"implements" : "combatEvent",
+		"script" : "combat/transmutation",
+		"patches" : [ ],
+		"priority" : 300,
+		"schema" : {
+			"properties" : {
+				"creature" : { "type" : "string", "entity" : "creature", "description" : "creature the victim turns into. Defaults to the creature of the attacker" },
+				"transmuteBy" : { "type" : "string", "enum" : ["health", "count"], "description" : "'health' keeps the total health of the victim, 'count' keeps its creature count" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"summonGuardians" : {
+		"implements" : "combatEvent",
+		"script" : "combat/summonGuardians",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"required" : ["creature"],
+			"properties" : {
+				"creature" : { "type" : "string", "entity" : "creature", "description" : "creature to summon as guardian" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"enchanted" : {
+		"implements" : "combatEvent",
+		"script" : "combat/enchanted",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"required" : ["spell"],
+			"properties" : {
+				"spell" : { "type" : "string", "entity" : "spell", "description" : "spell whose effects are applied" },
+				"level" : { "type" : "number", "description" : "mastery level the effects are applied at" },
+				"massive" : { "type" : "boolean", "description" : "true to affect every allied unit instead of only the bearer" },
+				"duration" : { "type" : "number", "description" : "how many turns the effects last. Defaults to 50, long enough to accumulate rather than expire between rounds" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"lifeDrain" : {
+		"implements" : "combatEvent",
+		"script" : "combat/lifeDrain",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"arrowTowerDamage" : {
+		"implements" : "combatEvent",
+		"script" : "combat/arrowTowerDamage",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {
+				"keepBase" : { "type" : "number", "description" : "damage of the keep in a town with nothing built" },
+				"towerBase" : { "type" : "number", "description" : "damage of the two lesser towers in a town with nothing built" },
+				"perBuilding" : { "type" : "number", "description" : "damage each building adds to the keep; the lesser towers get half of it" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"damageCalculator" : {
+		"implements" : "damageCalculator",
+		"script" : "damage/damageCalculator",
+		"patches" : [
+			// special cases for H3 scenarios
+			"damage/siegeWeapon",
+			"damage/magicElemental",
+			"damage/psychicElemental",
+			// mod-only logic, to be removed after migration
+			"damage/vulnerableFromBack",
+			"damage/hatesTrait",
+			"damage/revenge",
+			"damage/enemyAttackReduction",
+			"damage/damageReceivedCap"
+		],
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		}
+	},
+	"fireShield" : {
+		"implements" : "combatEvent",
+		"script" : "combat/fireShield",
+		"patches" : [ ],
+		"priority" : 50,
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"deathStare" : {
+		"implements" : "combatEvent",
+		"script" : "combat/deathStare",
+		"patches" : [ "combat/deathStareCommander" ],
+		"priority" : 100,
+		"schema" : {
+			"properties" : {
+				"situation" : { "type" : "string", "enum" : ["melee", "ranged", "rangedDistancePenalty", "rangedWallPenalty", "rangedDistanceAndWallPenalty", "commander"], "description" : "when the ability applies. 'commander' is deprecated - it comes from a patch kept for the converted commander skill, and a mod wanting its own kind of stare should stack a patch of its own instead" },
+				"spell" : { "type" : "string", "entity" : "spell", "description" : "spell cast to kill them, deciding the animation, the immunities and the wording of the combat log. Defaults to death stare" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"destruction" : {
+		"implements" : "combatEvent",
+		"script" : "combat/destruction",
+		"patches" : [ ],
+		"priority" : 400,
+		"schema" : {
+			"properties" : {
+				"killBy" : { "type" : "string", "enum" : ["percentage", "count"], "description" : "'percentage' kills a share of the victim's stack, 'count' kills a fixed number" },
+				"amount" : { "type" : "number", "description" : "the share, or the number of creatures, depending on killBy" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"soulSteal" : {
+		"implements" : "combatEvent",
+		"script" : "combat/soulSteal",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {
+				"permanent" : { "type" : "boolean", "description" : "true to keep the gained creatures after the battle" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	}
+}

@@ -12,8 +12,6 @@
 #include "../gui/CIntObject.h"
 #include "../../lib/networkPacks/Component.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGGarrison;
 class CGCreature;
 struct InfoAboutArmy;
@@ -23,8 +21,6 @@ class CArmedInstance;
 class CGTownInstance;
 class CGHeroInstance;
 class AFactionMember;
-
-VCMI_LIB_NAMESPACE_END
 
 class CLabel;
 class CTextBox;

@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include <tbb/parallel_for.h>
+
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
@@ -40,6 +42,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -52,6 +55,8 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
+
+#include <widgets/GraphicalPrimitiveCanvas.h>
 
 class ScenarioTabConfigurable : public InterfaceObjectConfigurable
 {
@@ -172,9 +177,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
 		default:
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
 		}
 	}
 }
@@ -207,6 +212,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	, currentMapSizeFilter(0)
 	, showRandom(false)
 	, deleteMode(false)
+	, positionsToShow(0)
 	, enableUiEnhancements(settings["general"]["enableUiEnhancements"].Bool())
 	, campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 {
@@ -251,22 +257,22 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		}
 	}
 
-	int positionsToShow = 18;
+	positionsToShow = enableUiEnhancements ? 17 : 18;
 	std::string tabTitle;
 	std::string tabTitleDelete;
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[229] + "}";
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.229") + "}";
 		tabTitleDelete = "{red|" + LIBRARY->generaltexth->translate("vcmi.lobby.deleteMapTitle") + "}";
 		break;
 	case ESelectionScreen::loadGame:
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[230] + "}";
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.230") + "}";
 		tabTitleDelete = "{red|" + LIBRARY->generaltexth->translate("vcmi.lobby.deleteSaveGameTitle") + "}";
 		break;
 	case ESelectionScreen::saveGame:
-		positionsToShow = 16;
-		tabTitle = "{" + LIBRARY->generaltexth->arraytxt[231] + "}";
+		positionsToShow = enableUiEnhancements ? 15 : 16;
+		tabTitle = "{" + LIBRARY->generaltexth->translate("core.arraytxt.231") + "}";
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = "{" + LIBRARY->generaltexth->allTexts[726] + "}";
@@ -289,6 +295,29 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		auto sortByDate = std::make_shared<CButton>(Point(371 - (ENGINE->isRoeData() ? 36 : 0), 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
+
+		Rect searchWidgetArea(22, 115, 366, 26);
+		Rect searchTextInputArea(87, 115, 301, 26);
+
+		searchWidgetBackground = std::make_shared<FilledTexturePlayerColored>(searchWidgetArea);
+		searchWidgetBackground->setPlayerColor(PlayerColor(1));
+
+		searchBoxLabel = std::make_shared<CLabel>(55, 128, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "Filter:");
+		searchInputRectangle = std::make_shared<TransparentFilledRectangle>(searchTextInputArea, ColorRGBA(0, 0, 0, 128));
+
+		searchInput = std::make_shared<CTextInput>(searchTextInputArea, FONT_SMALL, ETextAlignment::CENTER, true);
+		searchInput->setCallback([this](const std::string & text) {
+									 std::shared_ptr<ElementInfo> selectedMap = getSelectedMapInfo();
+									 bool hideSelectedElement = !selectedMap || !checkNameFilter(getSelectedMapInfo()->name);
+									 filter(-1, hideSelectedElement);
+									 if (!hideSelectedElement)
+									 {
+										 auto it = find(curItems.begin(), curItems.end(), selectedMap);
+										 if (it != curItems.end())
+											 selectAbs(it - curItems.begin());
+									 }
+								 });
+
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
@@ -344,10 +373,10 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	}
 
 	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
+		listItems.push_back(std::make_shared<ListItem>(Point(30, (enableUiEnhancements ? 154 : 129) + i * 25)));
 
 	labelTabTitle = std::make_shared<CLabel>(205 - (ENGINE->isRoeData() ? 18 : 0), 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
-	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 54 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 54 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(24);
 	slider->setInertiaEnabled(true);
 
@@ -361,6 +390,9 @@ void SelectionTab::toggleMode()
 {
 	allItems.clear();
 	curItems.clear();
+	resourceFiles.clear();
+	folderCompatibility.clear();
+	const bool restoreSelection = curFolder.empty();
 	if(GAME->server().isGuest())
 	{
 		if(slider)
@@ -373,36 +405,36 @@ void SelectionTab::toggleMode()
 		case ESelectionScreen::newGame:
 			{
 				inputName->disable();
-				auto files = getFiles("Maps/", EResType::MAP);
-				files.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
-				files.erase(ResourcePath("Maps/BattleOnlyMode.vmap", EResType::MAP));
-				parseMaps(files);
+				resourceFiles = getFiles("Maps/", EResType::MAP);
+				resourceFiles.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
+				resourceFiles.erase(ResourcePath("Maps/BattleOnlyMode.vmap", EResType::MAP));
 				break;
 			}
 
 		case ESelectionScreen::loadGame:
 			{
 				inputName->disable();
-				auto unsupported = parseSaves(getFiles("Saves/", EResType::SAVEGAME));
-				handleUnsupportedSavegames(unsupported);
+				resourceFiles = getFiles("Saves/", EResType::SAVEGAME);
 				break;
 			}
 
 		case ESelectionScreen::saveGame:
-			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
+			resourceFiles = getFiles("Saves/", EResType::SAVEGAME);
 			inputName->enable();
 			inputName->activate();
-			restoreLastSelection();
+			if(!restoreSelection)
+				inputName->setText(LIBRARY->generaltexth->translate("core.genrltxt.11"));
 			break;
 
 		case ESelectionScreen::campaignList:
-			parseCampaigns(getFiles("Maps/", EResType::CAMPAIGN));
+			resourceFiles = getFiles("Maps/", EResType::CAMPAIGN);
 			break;
 
 		default:
 			assert(0);
 			break;
 		}
+		parseCurrentFolder();
 		if(slider)
 		{
 			slider->block(false);
@@ -414,7 +446,7 @@ void SelectionTab::toggleMode()
 			GAME->server().setCampaignState(GAME->server().campaignStateToSend);
 			GAME->server().campaignStateToSend.reset();
 		}
-		else
+		else if(restoreSelection)
 		{
 			restoreLastSelection();
 		}
@@ -422,6 +454,12 @@ void SelectionTab::toggleMode()
 	slider->setAmount((int)curItems.size());
 	updateListItems();
 	redraw();
+}
+
+void SelectionTab::setCurrentFolder(std::string folder)
+{
+	curFolder = std::move(folder);
+	parseCurrentFolder();
 }
 
 void SelectionTab::clickReleased(const Point & cursorPosition)
@@ -445,7 +483,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 			}
 
 			if(!curItems[py]->isFolder)
-				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + curItems[py]->fullFileURI, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
+				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + getFullFileURI(*curItems[py]), std::vector<std::shared_ptr<CComponent>>(), [this, py](){
 					LobbyDelete ld;
 					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
 					ld.name = curItems[py]->fileURI;
@@ -544,20 +582,20 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		std::string mapVersion;
 		if(tabType != ESelectionScreen::campaignList)
 		{
-			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
-			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
+			author = curItems[py]->mapHeader->author.toString(&GAME->translator()) + (!curItems[py]->mapHeader->authorContact.toString(&GAME->translator()).empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString(&GAME->translator()) + ">") : "");
+			mapVersion = curItems[py]->mapHeader->mapVersion.toString(&GAME->translator());
 			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
 		}
 		else
 		{
-			author = curItems[py]->campaign->getAuthor() + (!curItems[py]->campaign->getAuthorContact().empty() ? (" <" + curItems[py]->campaign->getAuthorContact() + ">") : "");
-			mapVersion = curItems[py]->campaign->getCampaignVersion();
+			author = curItems[py]->campaign->getAuthor(&GAME->translator()) + (!curItems[py]->campaign->getAuthorContact(&GAME->translator()).empty() ? (" <" + curItems[py]->campaign->getAuthorContact(&GAME->translator()) + ">") : "");
+			mapVersion = curItems[py]->campaign->getCampaignVersion(&GAME->translator());
 			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
 		}
 
 		ENGINE->windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->name,
-			curItems[py]->fullFileURI,
+			getFullFileURI(*curItems[py]),
 			creationDateTime,
 			author,
 			mapVersion,
@@ -608,7 +646,7 @@ auto SelectionTab::checkSubfolder(std::string path)
 	}
 
 	if(boost::algorithm::starts_with(pathWithoutPrefix, curFolder))
-		if(boost::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
+		if(std::ranges::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
 			ret.fileInFolder = true;
 
 	return ret;
@@ -637,6 +675,12 @@ void SelectionTab::filter(int size, bool selectFirst)
 
 	for(auto elem : allItems)
 	{
+		if(elem->isFolder)
+		{
+			curItems.push_back(elem);
+			continue;
+		}
+
 		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
 		{
 			if(!isMapCompatibleWithLobbyPlayerCount(*elem))
@@ -645,35 +689,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				continue;
 			}
 
-			if(showRandom)
-				curFolder = "RandomMaps/";
-
-			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(elem->originalFileURI);
-
-			if((showRandom && baseFolder != "RandomMaps") || (!showRandom && baseFolder == "RandomMaps"))
-				continue;
-
-			if(parentExists && !showRandom)
-			{
-				auto folder = std::make_shared<ElementInfo>();
-				folder->isFolder = true;
-				folder->folderName = "..     (" + curFolder + ")";
-				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
-				if (itemIt == curItems.end()) {
-					curItems.push_back(folder);
-				}			
-			}
-
-			auto folder = std::make_shared<ElementInfo>();
-			folder->isFolder = true;
-			folder->folderName = folderName;
-			folder->isAutoSaveFolder = boost::starts_with(baseFolder, "Autosave/") && folderName != "Autosave";
-			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
-			if (itemIt == curItems.end() && folderName != "") {
-				curItems.push_back(folder);
-			}
-
-			if(fileInFolder)
+			if(!enableUiEnhancements || checkNameFilter(elem->name))
 				curItems.push_back(elem);
 		}
 	}
@@ -686,7 +702,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+			int firstPos = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 			if(firstPos < curItems.size())
 			{
 				slider->scrollTo(firstPos);
@@ -727,7 +743,7 @@ void SelectionTab::sort()
 		std::stable_sort(curItems.begin(), curItems.end(), mapSorter(generalSortingBy));
 	std::stable_sort(curItems.begin(), curItems.end(), mapSorter(sortingBy));
 
-	int firstMapIndex = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	int firstMapIndex = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	if(!sortModeAscending)
 	{
 		if(firstMapIndex)
@@ -762,7 +778,8 @@ void SelectionTab::select(int position)
 	else if(position >= listItems.size())
 		slider->scrollBy(position - (int)listItems.size() + 1);
 
-	if(curItems[py]->isFolder) {
+	if(curItems[py]->isFolder)
+	{
 		if(boost::starts_with(curItems[py]->folderName, ".."))
 		{
 			std::vector<std::string> filetree;
@@ -773,14 +790,12 @@ void SelectionTab::select(int position)
 		}
 		else
 			curFolder += curItems[py]->folderName + "/";
+
+		parseCurrentFolder();
 		filter(-1);
 		slider->scrollTo(0);
 
-		int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
-		if(firstPos < curItems.size())
-		{
-			selectAbs(firstPos);
-		}
+		selectNewestFile(tabType == ESelectionScreen::saveGame);
 
 		return;
 	}
@@ -790,8 +805,11 @@ void SelectionTab::select(int position)
 	if(inputName && inputName->isActive())
 	{
 		auto filename = *CResourceHandler::get()->getResourceName(ResourcePath(curItems[py]->fileURI, EResType::SAVEGAME));
-		inputName->setText(filename.stem().string());
+		inputName->setText(TextOperations::filesystemPathToUtf8(filename.stem()));
 	}
+
+	if (curItems.size() <= positionsToShow)
+		slider->scrollToMin();
 
 	updateListItems();
 	redraw();
@@ -802,7 +820,7 @@ void SelectionTab::select(int position)
 void SelectionTab::selectAbs(int position)
 {
 	if(position == -1)
-		position = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+		position = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	select(position - slider->getValue());
 }
 
@@ -857,42 +875,55 @@ int SelectionTab::getLine(const Point & clickPos) const
 	else
 		maxPosY = 564;
 
-	if(clickPos.y > 115 && clickPos.y < maxPosY && clickPos.x > 22 && clickPos.x < 371)
+	int startingPos = enableUiEnhancements ? 140 : 115;
+	if(clickPos.y > startingPos && clickPos.y < maxPosY && clickPos.x > 22 && clickPos.x < 371)
 	{
-		line = (clickPos.y - 115) / 25; //which line
+		line = (clickPos.y - startingPos) / 25; //which line
 	}
 
 	return line;
 }
 
-void SelectionTab::selectFileName(std::string fname)
+bool SelectionTab::selectFileName(std::string fname)
 {
 	boost::to_upper(fname);
 
-	for(int i = (int)allItems.size() - 1; i >= 0; i--)
+	for(const auto & file : resourceFiles)
 	{
-		if(boost::to_upper_copy(allItems[i]->fileURI) == fname)
+		if(file.getName() == fname)
 		{
-			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(allItems[i]->originalFileURI);
+			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(file.getOriginalName());
 			// Keep scenario selection on the root list: random maps are accessed via dedicated UI path.
-			curFolder = (baseFolder != "" && baseFolder != "RandomMaps") ? baseFolder + "/" : "";
+			const bool isRandomMap = tabType == ESelectionScreen::newGame && baseFolder == "RandomMaps";
+			const std::string selectedFolder = baseFolder.empty() || isRandomMap
+				? ""
+				: baseFolder + "/";
+			if(curFolder != selectedFolder)
+			{
+				curFolder = selectedFolder;
+				parseCurrentFolder();
+			}
+			break;
 		}
-
 	}
 
 	filter(-1);
 
 	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
-		if(boost::to_upper_copy(curItems[i]->fileURI) == fname)
+		if(!curItems[i]->isFolder && boost::to_upper_copy(curItems[i]->fileURI) == fname)
 		{
 			slider->scrollTo(i);
 			selectAbs(i);
-			return;
+			return true;
 		}
 	}
 
-	int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	int firstPos = std::ranges::find_if(curItems, [this](const std::shared_ptr<ElementInfo> & element)
+	{
+		return !element->isFolder
+			&& (tabType != ESelectionScreen::saveGame || !SavegamePath::isAutosaveName(element->fileURI));
+	}) - curItems.begin();
 	if(firstPos < curItems.size())
 	{
 		slider->scrollTo(firstPos);
@@ -905,24 +936,142 @@ void SelectionTab::selectFileName(std::string fname)
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
 		inputName->setText(LIBRARY->generaltexth->translate("core.genrltxt.11"));
+
+	return false;
 }
 
-void SelectionTab::selectNewestFile()
+void SelectionTab::selectNewestFile(bool skipAutosaves)
 {
 	time_t newestTime = 0;
 	std::string newestFile = "";
-	for(int i = static_cast<int>(allItems.size()) - 1; i >= 0; i--)
-		if(allItems[i]->lastWrite > newestTime)
+	for(const auto & item : curItems)
+	{
+		if(item->isFolder)
+			continue;
+		if(skipAutosaves && SavegamePath::isAutosaveName(item->fileURI))
+			continue;
+
+		if(item->lastWrite > newestTime || (item->lastWrite == newestTime && item->fileURI > newestFile))
 		{
-			newestTime = allItems[i]->lastWrite;
-			newestFile = allItems[i]->fileURI;
+			newestTime = item->lastWrite;
+			newestFile = item->fileURI;
 		}
+	}
+
+	if(newestFile.empty())
+	{
+		selectionPos = curItems.size();
+		if(callOnSelect)
+			callOnSelect(nullptr);
+		return;
+	}
+
 	selectFileName(newestFile);
+}
+
+std::string SelectionTab::getLastSaveSettingName() const
+{
+	switch(GAME->server().getLoadMode())
+	{
+	case ELoadMode::SINGLE:
+		return "lastScenarioSave";
+	case ELoadMode::CAMPAIGN:
+		return "lastCampaignSave";
+	default:
+		return "";
+	}
+}
+
+void SelectionTab::rememberSave(const std::string & savePath) const
+{
+	Settings lastSave = settings.write["general"]["lastSave"];
+	lastSave->String() = savePath;
+
+	const auto settingName = getLastSaveSettingName();
+	if(!settingName.empty())
+	{
+		Settings modeSave = settings.write["general"][settingName];
+		modeSave->String() = savePath;
+	}
+}
+
+bool SelectionTab::openSaveDirectory(std::string folder)
+{
+	if(folder.empty())
+		return false;
+
+	while(boost::starts_with(folder, "/"))
+		folder.erase(folder.begin());
+	if(!boost::ends_with(folder, "/"))
+		folder += "/";
+
+	const auto previousFolder = curFolder;
+	curFolder = std::move(folder);
+	parseCurrentFolder();
+	filter(-1);
+
+	const bool hasCompatibleSave = std::ranges::any_of(curItems, [](const auto & item)
+	{
+		return !item->isFolder;
+	});
+	if(!hasCompatibleSave)
+	{
+		curFolder = previousFolder;
+		parseCurrentFolder();
+		filter(-1);
+		return false;
+	}
+
+	selectNewestFile();
+	return true;
+}
+
+void SelectionTab::restoreLastSave()
+{
+	const auto settingName = getLastSaveSettingName();
+	if(!settingName.empty())
+	{
+		const auto savePath = settings["general"][settingName].String();
+		if(selectFileName(savePath))
+			return;
+	}
+
+	curFolder.clear();
+	parseCurrentFolder();
+	filter(-1);
+
+	auto candidates = curItems;
+	std::ranges::sort(candidates, [](const auto & lhs, const auto & rhs)
+	{
+		if(lhs->lastWrite != rhs->lastWrite)
+			return lhs->lastWrite > rhs->lastWrite;
+		const auto & lhsName = lhs->isFolder ? lhs->folderName : lhs->fileURI;
+		const auto & rhsName = rhs->isFolder ? rhs->folderName : rhs->fileURI;
+		return lhsName > rhsName;
+	});
+
+	for(const auto & candidate : candidates)
+	{
+		if(candidate->isFolder)
+		{
+			if(!boost::starts_with(candidate->folderName, "..") && openSaveDirectory(candidate->folderName))
+				return;
+		}
+		else
+		{
+			selectFileName(candidate->fileURI);
+			return;
+		}
+	}
+
+	selectionPos = curItems.size();
+	if(callOnSelect)
+		callOnSelect(nullptr);
 }
 
 std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
 {
-	return curItems.empty() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
+	return selectionPos >= curItems.size() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
 }
 
 void SelectionTab::rememberCurrentSelection()
@@ -939,8 +1088,7 @@ void SelectionTab::rememberCurrentSelection()
 	}
 	else if(tabType == ESelectionScreen::loadGame)
 	{
-		Settings lastSave = settings.write["general"]["lastSave"];
-		lastSave->String() = selectedMapInfo->fileURI;
+		rememberSave(selectedMapInfo->fileURI);
 	}
 	else if(tabType == ESelectionScreen::campaignList)
 	{
@@ -960,11 +1108,18 @@ void SelectionTab::restoreLastSelection()
 		selectFileName(settings["general"]["lastCampaign"].String());
 		break;
 	case ESelectionScreen::loadGame:
-		selectNewestFile();
+		restoreLastSave();
 		break;
 	case ESelectionScreen::saveGame:
-		selectFileName(settings["general"]["lastSave"].String());
+		selectNewestFile(true);
 	}
+}
+
+bool SelectionTab::checkNameFilter(const std::string & fullstring) const
+{
+	std::string filter = searchInput->getText();
+	return std::search(fullstring.begin(), fullstring.end(), filter.begin(), filter.end(),
+					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 
 bool SelectionTab::isMapSupported(const CMapInfo & info)
@@ -1024,79 +1179,229 @@ size_t SelectionTab::getHiddenIncompatibleMapsCount() const
 void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
-	allItems.clear();
-	for(auto & file : files)
-	{
-		try
-		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->mapInit(file.getOriginalName());
-			mapInfo->name = mapInfo->getNameForList();
+	auto timeStart = std::chrono::steady_clock::now();
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
 
-			if (isMapSupported(*mapInfo))
-				allItems.push_back(mapInfo);
-		}
-		catch(std::exception & e)
+	// every entry is written by a single thread only, entries of failed maps stay empty
+	const size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, offset](const tbb::blocked_range<size_t> & r)
+	{
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			const auto & file = filesVector[i];
+			try
+			{
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->mapInit(file.getOriginalName());
+
+				if (isMapSupported(*mapInfo))
+					allItems[offset + i] = mapInfo;
+			}
+			catch(std::exception & e)
+			{
+				logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+			}
 		}
-	}
+	});
+
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d maps took %d ms", files.size(), timeElapsed.count());
 }
 
 std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
-	std::vector<ResourcePath> unsupported;
+	auto timeStart = std::chrono::steady_clock::now();
 
-	for(auto & file : files)
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+
+	// every entry is written by a single thread only, entries of failed saves stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+	std::vector<uint8_t> isUnsupported(filesVector.size(), 0);
+
+	ELoadMode loadMode = GAME->server().getLoadMode();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &isUnsupported, offset, loadMode](const tbb::blocked_range<size_t> & r)
+	{
+		for(auto i = r.begin(); i != r.end(); i++)
+		{
+			const auto & file = filesVector[i];
+			try
+			{
+				auto mapInfo = std::make_shared<ElementInfo>();
+				mapInfo->saveInit(file);
+
+				if(!isSaveCompatible(*mapInfo, loadMode))
+					mapInfo->mapHeader.reset();
+
+				allItems[offset + i] = mapInfo;
+			}
+			catch(const IdentifierResolutionException & e)
+			{
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
+			catch(const std::exception & e)
+			{
+				isUnsupported[i] = 1; // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
+				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			}
+		}
+	});
+
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
+
+	std::vector<ResourcePath> unsupported;
+	for(size_t i = 0; i < filesVector.size(); i++)
+		if(isUnsupported[i])
+			unsupported.push_back(filesVector[i]);
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d saves took %d ms", filesVector.size(), timeElapsed.count());
+
+	return unsupported;
+}
+
+bool SelectionTab::isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const
+{
+	if(!info.scenarioOptionsOfSave)
+		return false;
+
+	const bool isCampaign = info.scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
+	const bool isMultiplayer = info.amountOfHumanPlayersInSave > 1;
+	const bool isTutorial = boost::iequals(info.scenarioOptionsOfSave->mapname, "Maps/Tutorial");
+
+	switch(loadMode)
+	{
+	case ELoadMode::SINGLE:
+		return !isCampaign && !isTutorial;
+	case ELoadMode::CAMPAIGN:
+		return isCampaign;
+	case ELoadMode::TUTORIAL:
+		return isTutorial;
+	case ELoadMode::MULTI:
+		return isMultiplayer;
+	default:
+		assert(0);
+		return false;
+	}
+}
+
+std::optional<bool> SelectionTab::isFolderCompatible(
+	const std::string & folderName,
+	const std::vector<ResourcePath> & files)
+{
+	const auto loadMode = GAME->server().getLoadMode();
+	const std::string cacheKey = std::to_string(static_cast<int>(loadMode))
+		+ ":" + curFolder + folderName;
+	if(const auto found = folderCompatibility.find(cacheKey); found != folderCompatibility.end())
+		return found->second;
+
+	// Autosaves always stay in their game's directory, unlike stray manual saves.
+	auto candidates = files;
+	std::ranges::sort(candidates, [](const ResourcePath & lhs, const ResourcePath & rhs)
+	{
+		const bool lhsAutosave = SavegamePath::isAutosaveName(lhs.getOriginalName());
+		const bool rhsAutosave = SavegamePath::isAutosaveName(rhs.getOriginalName());
+		if(lhsAutosave != rhsAutosave)
+			return lhsAutosave;
+
+		const auto lhsTime = CResourceHandler::get()->getLastWriteTime(lhs);
+		const auto rhsTime = CResourceHandler::get()->getLastWriteTime(rhs);
+		if(lhsTime != rhsTime)
+			return lhsTime > rhsTime;
+		return lhs.getName() > rhs.getName();
+	});
+
+	for(const auto & file : candidates)
 	{
 		try
 		{
-			auto mapInfo = std::make_shared<ElementInfo>();
-			mapInfo->saveInit(file);
-			mapInfo->name = mapInfo->getNameForList();
-
-			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
-			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
-			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
-			switch(GAME->server().getLoadMode())
-			{
-			case ELoadMode::SINGLE:
-				if(isCampaign || isTutorial)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::CAMPAIGN:
-				if(!isCampaign)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::TUTORIAL:
-				if(!isTutorial)
-					mapInfo->mapHeader.reset();
-				break;
-			case ELoadMode::MULTI:
-				if(!isMultiplayer)
-					mapInfo->mapHeader.reset();
-				break;
-			default:
-				assert(0);
-				mapInfo->mapHeader.reset();
-				break;
-			}
-
-			allItems.push_back(mapInfo);
+			CMapInfo info;
+			info.saveInit(file);
+			return folderCompatibility[cacheKey] = isSaveCompatible(info, loadMode);
 		}
-		catch(const IdentifierResolutionException & e)
+		catch(const std::exception & e) // NOSONAR: malformed saves can throw several exception types
 		{
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-		}
-		catch(const std::exception & e)
-		{
-			unsupported.push_back(file); // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
-			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
+			logGlobal->debug("Failed to inspect representative save %s: %s", file.getOriginalName(), e.what());
 		}
 	}
 
-	return unsupported;
+	// Keep unreadable folders visible so that their saves are never hidden from the player.
+	return folderCompatibility[cacheKey] = std::nullopt;
+}
+
+void SelectionTab::parseCurrentFolder()
+{
+	allItems.clear();
+	std::unordered_set<ResourcePath> currentFiles;
+	std::map<std::string, std::vector<ResourcePath>> folders;
+	std::map<std::string, std::time_t> folderLastWrite;
+
+	if(!curFolder.empty() && !showRandom)
+	{
+		auto parentFolder = std::make_shared<ElementInfo>();
+		parentFolder->isFolder = true;
+		parentFolder->folderName = "..     (" + curFolder + ")";
+		allItems.push_back(parentFolder);
+	}
+
+	for(const auto & file : resourceFiles)
+	{
+		auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(file.getOriginalName());
+		if(!folderName.empty())
+		{
+			folders[folderName].push_back(file);
+			folderLastWrite[folderName] = std::max(
+				folderLastWrite[folderName],
+				CResourceHandler::get()->getLastWriteTime(file));
+		}
+		if(fileInFolder)
+			currentFiles.insert(file);
+	}
+
+	switch(tabType)
+	{
+	case ESelectionScreen::newGame:
+		parseMaps(currentFiles);
+		break;
+	case ESelectionScreen::loadGame:
+		handleUnsupportedSavegames(parseSaves(currentFiles));
+		break;
+	case ESelectionScreen::saveGame:
+		parseSaves(currentFiles);
+		break;
+	case ESelectionScreen::campaignList:
+		parseCampaigns(currentFiles);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	for(const auto & [folderName, files] : folders)
+	{
+		if(tabType == ESelectionScreen::newGame && folderName == "RandomMaps")
+			continue;
+		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::saveGame)
+		{
+			const auto compatible = isFolderCompatible(folderName, files);
+			if(compatible && !*compatible)
+				continue;
+		}
+
+		auto folder = std::make_shared<ElementInfo>();
+		folder->isFolder = true;
+		folder->folderName = folderName;
+		folder->isAutoSaveFolder = boost::starts_with(curFolder, "Autosave/");
+		folder->lastWrite = folderLastWrite[folderName];
+		allItems.push_back(folder);
+	}
 }
 
 void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & files)
@@ -1105,7 +1410,7 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 	{
 		MetaString text = MetaString::createFromTextID("vcmi.lobby.deleteUnsupportedSave");
 		text.replaceNumber(files.size());
-		CInfoWindow::showYesNoDialog(text.toString(), std::vector<std::shared_ptr<CComponent>>(), [files](){
+		CInfoWindow::showYesNoDialog(text.toString(&GAME->translator()), std::vector<std::shared_ptr<CComponent>>(), [files](){
 			for(auto & file : files)
 			{
 				LobbyDelete ld;
@@ -1119,33 +1424,79 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	allItems.reserve(files.size());
-	for(auto & file : files)
+	auto timeStart = std::chrono::steady_clock::now();
+
+	std::vector<ResourcePath> filesVector(files.begin(), files.end());
+
+	// every entry is written by a single thread only, entries of skipped campaigns stay empty
+	size_t offset = allItems.size();
+	allItems.resize(offset + filesVector.size());
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, offset](const tbb::blocked_range<size_t> & r)
 	{
-		try
+		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			auto info = std::make_shared<ElementInfo>();
-			info->fileURI = file.getOriginalName();
-			info->campaignInit();
-			info->name = info->getNameForList();
-
-			if(info->campaign)
+			const auto & file = filesVector[i];
+			try
 			{
-				// skip campaigns organized in sets
-				bool foundInSet = false;
-				for (auto const & set : campaignSets.Struct())
-					for (auto const & item : set.second["items"].Vector())
-						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = true;
+				auto info = std::make_shared<ElementInfo>();
+				info->fileURI = file.getOriginalName();
+				info->campaignInit();
 
-				if(!foundInSet || !enableUiEnhancements)
-					allItems.push_back(info);
+				if(info->campaign)
+				{
+					// skip campaigns organized in sets
+					bool foundInSet = false;
+					for (auto const & set : campaignSets.Struct())
+						for (auto const & item : set.second["items"].Vector())
+							if(file.getName() == ResourcePath(item["file"].String()).getName())
+								foundInSet = true;
+
+					if(!foundInSet || !enableUiEnhancements)
+						allItems[offset + i] = info;
+				}
+			}
+			catch(const std::exception & e)
+			{
+				logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 			}
 		}
-		catch(const std::exception & e)
-		{
-			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
-		}
+	});
+
+	allItems.erase(std::remove(allItems.begin() + offset, allItems.end(), nullptr), allItems.end());
+	installTexts(offset);
+
+	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
+	logGlobal->debug("Parsing %d campaigns took %d ms", filesVector.size(), timeElapsed.count());
+}
+
+std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
+{
+	EResType resType = EResType::SAVEGAME;
+	if(tabType == ESelectionScreen::newGame)
+		resType = EResType::MAP;
+	if(tabType == ESelectionScreen::campaignList)
+		resType = EResType::CAMPAIGN;
+
+	const ResourcePath resource(item.fileURI, resType);
+
+	return CResourceHandler::get()->getFullFileURI(resource);
+}
+
+void SelectionTab::installTexts(size_t offset)
+{
+	// map texts are inert data, so every listed entry has to be installed before its
+	// name or description can be rendered. Keys are namespaced per map, so the whole
+	// set can stay installed while the picker is open
+	for(size_t i = offset; i < allItems.size(); ++i)
+	{
+		const auto & item = allItems[i];
+		if(item->mapHeader)
+			item->textOverlays.emplace_back(item->mapHeader->texts);
+		if(item->campaign)
+			item->textOverlays.emplace_back(item->campaign->getTexts());
+
+		item->name = item->getNameForList(&GAME->translator());
 	}
 }
 

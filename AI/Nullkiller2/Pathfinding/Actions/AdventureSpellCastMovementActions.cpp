@@ -77,7 +77,7 @@ namespace AIPathfinding
 
 	std::string AdventureCastAction::toString() const
 	{
-		return "Cast " + spellToCast.toSpell()->getNameTranslated() + " by " + hero->getNameTranslated();
+		return "Cast " + spellToCast.toSpell()->getNameTextID() + " by " + hero->getNameTextID();
 	}
 }
 

@@ -87,7 +87,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_MOUSEWHEEL:
 			if (enableMouse)
+			{
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseWheel(current.wheel);
+			}
 			return;
 #endif
 		case SDL_TEXTINPUT:
@@ -117,13 +120,18 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 		case SDL_CONTROLLERAXISMOTION:
 			if (enableController)
 			{
-				setCurrentInputMode(InputMode::CONTROLLER);
+				if(gameControllerHandler->isAxisMotionActive(current.caxis))
+				{
+					gameControllerHandler->setActiveController(current.caxis.which);
+					setCurrentInputMode(InputMode::CONTROLLER);
+				}
 				gameControllerHandler->handleEventAxisMotion(current.caxis);
 			}
 			return;
 		case SDL_CONTROLLERBUTTONDOWN:
 			if (enableController)
 			{
+				gameControllerHandler->setActiveController(current.cbutton.which);
 				setCurrentInputMode(InputMode::CONTROLLER);
 				gameControllerHandler->handleEventButtonDown(current.cbutton);
 			}
@@ -147,6 +155,11 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 InputMode InputHandler::getCurrentInputMode()
 {
 	return currentInputMode;
+}
+
+ControllerPrompt::Family InputHandler::getActiveControllerPromptFamily() const
+{
+	return gameControllerHandler->getActiveControllerPromptFamily();
 }
 
 void InputHandler::copyToClipBoard(const std::string & text)

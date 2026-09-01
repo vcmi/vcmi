@@ -36,8 +36,8 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		ui->checkOnStartup->setCheckState(Qt::CheckState::Checked);
 	
 	currentVersion = GameConstants::VCMI_VERSION;
-	
-	setWindowTitle(QString::fromStdString(currentVersion));
+
+	setWindowTitle(QString(GameConstants::VCMI_PROJECT_NAME_VERSIONED));
 	
 #ifdef VCMI_WINDOWS
 	platformParameter = "windows";

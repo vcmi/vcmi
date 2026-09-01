@@ -24,12 +24,17 @@
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/entities/building/TownFortifications.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/callback/CCallback.h"
+#include "../GameInstance.h"
 
 const std::string & BattleSiegeController::getSiegePrefix() const
 {
@@ -39,7 +44,7 @@ const std::string & BattleSiegeController::getSiegePrefix() const
 		return siegePrefixes.at(currentLayer);
 	else
 	{
-		logGlobal->warn("No siege prefix for town %s for layer %s found, fallback", town->getObjectName(), MapLayerId::encode(currentLayer));
+		logGlobal->warn("No siege prefix for town %s for layer %s found, fallback", town->getObjectName().toString(&GAME->translator()), MapLayerId::encode(currentLayer));
 		if(siegePrefixes.count(MapLayerId::UNKNOWN))
 			return siegePrefixes.at(MapLayerId::UNKNOWN);
 		if(siegePrefixes.count(MapLayerId::SURFACE))
@@ -196,8 +201,14 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistence(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED), EImageBlitMode::COLORKEY);
+		auto fullState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
+		wallPieceImages[g] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), fullState), EImageBlitMode::COLORKEY);
 	}
+
+	// optional: not every town ships the drawbridge front overlay
+	auto gateFrontPath = ImagePath::builtinTODO(getSiegePrefix() + "DRWC.BMP");
+	if (town->fortificationsLevel().wallsHealth > 0 && CResourceHandler::get()->existsResource(gateFrontPath))
+		gateFrontImage = ENGINE->renderHandler().loadImage(gateFrontPath, EImageBlitMode::COLORKEY);
 }
 
 const CCreature *BattleSiegeController::getTurretCreature(const BattleHex & position) const
@@ -247,35 +258,42 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 void BattleSiegeController::gateStateChanged(const EGateState state)
 {
 	auto oldState = owner.getBattle()->battleGetGateState();
-	bool playSound = false;
-	auto stateId = EWallState::NONE;
-	switch(state)
+
+	bool wasClosed = oldState == EGateState::CLOSED || oldState == EGateState::BLOCKED;
+	bool isClosed  = state == EGateState::CLOSED || state == EGateState::BLOCKED;
+
+	// only lowering and raising animate through the partial frame; destruction and blocked<->closed apply at once
+	bool animate = (state == EGateState::OPENED && wasClosed) || (isClosed && oldState == EGateState::OPENED);
+
+	if (animate)
 	{
-	case EGateState::CLOSED:
-		if (oldState != EGateState::BLOCKED)
-			playSound = true;
-		break;
-	case EGateState::BLOCKED:
-		if (oldState != EGateState::CLOSED)
-			playSound = true;
-		break;
-	case EGateState::OPENED:
-		playSound = true;
-		stateId = EWallState::DAMAGED;
-		break;
-	case EGateState::DESTROYED:
-		stateId = EWallState::DESTROYED;
-		break;
+		// block until the bridge finishes lowering/raising, so a unit crossing does not move through it mid-transition
+		owner.stacksController->addNewAnim(new GateAnimation(owner, state));
+		owner.waitForAnimations();
 	}
+	else
+		applyGateState(state);
+}
 
-	if (oldState != EGateState::NONE && oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
-		wallPieceImages[EWallVisual::GATE] = nullptr;
+void BattleSiegeController::showPartialGate()
+{
+	ENGINE->sound().playSound(soundBase::DRAWBRG);
+	auto partialState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
+	wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, partialState), EImageBlitMode::COLORKEY);
+}
 
-	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId), EImageBlitMode::COLORKEY);
+void BattleSiegeController::applyGateState(const EGateState state)
+{
+	auto stateId = EWallState::NONE;
+	if (state == EGateState::OPENED)
+		stateId = EWallState::DAMAGED;
+	else if (state == EGateState::DESTROYED)
+		stateId = EWallState::DESTROYED;
 
-	if (playSound)
-		ENGINE->sound().playSound(soundBase::DRAWBRG);
+	if (stateId == EWallState::NONE)
+		wallPieceImages[EWallVisual::GATE] = nullptr; // closed / blocked -> gate hidden, part of the static wall
+	else
+		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, stateId), EImageBlitMode::COLORKEY);
 }
 
 void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas)
@@ -337,23 +355,100 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			showWallPiece(canvas, wallPiece);
 		});
 	}
+
+	if (gateFrontImage && owner.getBattle()->battleGetGateState() == EGateState::OPENED &&
+		owner.getBattle()->battleGetWallState(EWallPart::GATE) != EWallState::DESTROYED)
+	{
+		renderer.insert( EBattleFieldLayer::OBSTACLES, BattleHex(BattleHex::GATE_BRIDGE), [this](BattleRenderer::RendererRef canvas){
+			const auto & pos = town->getTown()->clientInfo.siegePositions[EWallVisual::GATE];
+			if (pos.isValid())
+				canvas.draw(gateFrontImage, Point(pos.x, pos.y));
+		});
+	}
 }
 
 bool BattleSiegeController::isAttackableByCatapult(const BattleHex & hex) const
 {
-	if (owner.tacticsMode)
+	if (owner.isInTacticsMode())
 		return false;
 
 	auto wallPart = owner.getBattle()->battleHexToWallPart(hex);
 	return owner.getBattle()->isWallPartAttackable(wallPart);
 }
 
+bool BattleSiegeController::isTowerHex(const BattleHex & hex) const
+{
+	const auto fortifications = town->fortificationsLevel();
+	switch(owner.getBattle()->battleHexToWallPart(hex))
+	{
+	case EWallPart::KEEP:         return fortifications.citadelHealth > 0;
+	case EWallPart::UPPER_TOWER:  return fortifications.upperTowerHealth > 0;
+	case EWallPart::BOTTOM_TOWER: return fortifications.lowerTowerHealth > 0;
+	default:                      return false;
+	}
+}
+
+std::string BattleSiegeController::getTowersInfoText() const
+{
+	const auto fortifications = town->fortificationsLevel();
+	std::string result;
+
+	auto appendTower = [&](EWallVisual::EWallVisual creaturePiece, EWallPart wallPart, int towerHealth, const std::string & nameTextID)
+	{
+		if(towerHealth <= 0)
+			return; // tower not built
+
+		if(owner.getBattle()->battleGetWallState(wallPart) == EWallState::DESTROYED)
+		{
+			MetaString text = MetaString::createFromTextID("core.genrltxt.154"); // The %s is destroyed.
+			text.replaceTextID(nameTextID);
+			result += text.toString(&GAME->translator());
+		}
+		else
+		{
+			const CStack * turret = getTurretStack(creaturePiece);
+			MetaString text = MetaString::createFromTextID("core.genrltxt.155"); // The %s has an attack skill of %d and does %d-%d damage.
+			text.replaceTextID(nameTextID);
+			text.replaceNumber(turret->getAttack(true)); // NOTE: H3 bug - tower attack always shows 10, but has no effect. VCMI shows 0
+			text.replaceNumber(turret->getMinDamage(true));
+			text.replaceNumber(turret->getMaxDamage(true));
+			result += text.toString(&GAME->translator());
+		}
+	};
+
+	appendTower(EWallVisual::KEEP_BATTLEMENT,   EWallPart::KEEP,         fortifications.citadelHealth,    "vcmi.battleWindow.siegeTower.keep");
+	appendTower(EWallVisual::UPPER_BATTLEMENT,  EWallPart::UPPER_TOWER,  fortifications.upperTowerHealth, "vcmi.battleWindow.siegeTower.upper");
+	appendTower(EWallVisual::BOTTOM_BATTLEMENT, EWallPart::BOTTOM_TOWER, fortifications.lowerTowerHealth, "vcmi.battleWindow.siegeTower.lower");
+
+	return result;
+}
+
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
+	// swaps a wall piece to its current (damaged) sprite
+	auto updateWallPiece = [this](EWallPart attackedPart)
+	{
+		int wallId = static_cast<int>(attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
+		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackedPart));
+		// the gate's open/close transitions are driven by BattleUpdateGateState; sync only its destroyed sprite
+		// here so a broken gate updates on the breaking shot instead of after the whole catapult sequence
+		if (wallId == EWallVisual::GATE && wallState != EWallState::DESTROYED)
+			return;
+		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
+	};
+
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.getBattle()->battleGetStackByID(ca.attacker);
-		owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt));
+		auto catapult = new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt);
+		catapult->onExplosion = [this, updateWallPiece, ca]()
+		{
+			updateWallPiece(ca.attackedPart);
+			if (ca.killedTowerShooter != -1)
+				owner.stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
+		};
+		owner.stacksController->addNewAnim(catapult);
+		owner.waitForAnimations();
 	}
 	else
 	{
@@ -362,16 +457,14 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		positions.push_back(owner.stacksController->getStackPositionAtHex(ca.destinationTile, nullptr) + Point(99, 120));
 
 		ENGINE->sound().playSound( AudioPath::builtin("WALLHIT") );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
-	}
-	owner.waitForAnimations();
 
-	int wallId = static_cast<int>(ca.attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
-	//gate state changing handled separately
-	if (wallId != EWallVisual::GATE)
-	{
-		auto wallState = EWallState(owner.getBattle()->battleGetWallState(ca.attackedPart));
-		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
+		// swap the wall sprite at the explosion midpoint instead of blocking, so a mid-cast earthquake
+		// deferred into the caster's HIT stage does not wait for animations on the main thread
+		auto attackedPart = ca.attackedPart;
+		auto effect = new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions);
+		effect->onMidpoint = [updateWallPiece, attackedPart](){ updateWallPiece(attackedPart); };
+		owner.stacksController->addNewAnim(effect);
+		owner.fieldController->startShakeAnimation();
 	}
 }
 

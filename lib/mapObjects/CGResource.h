@@ -11,8 +11,6 @@
 
 #include "army/CArmedInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ResourceInstanceConstructor;
 
 class DLL_LINKAGE CGResource : public CArmedInstance
@@ -40,7 +38,7 @@ public:
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
-	std::string getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(PlayerColor player) const override;
 
 	GameResID resourceID() const;
 	uint32_t getAmount() const;
@@ -55,5 +53,3 @@ public:
 		h & message;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

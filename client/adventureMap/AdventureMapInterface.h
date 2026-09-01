@@ -12,7 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "AdventureMapShortcuts.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../../lib/int3.h"
 
 class CGObjectInstance;
 class CGHeroInstance;
@@ -24,8 +24,6 @@ struct ObjectPosInfo;
 struct Component;
 class int3;
 using FowTilesType = std::set<int3>;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class IImage;
@@ -64,6 +62,9 @@ private:
 
 	/// spell for which player is selecting target, or nullptr if none
 	const CSpell *spellBeingCasted;
+
+	/// tile the map view is centered on, kept up to date by onMapViewMoved
+	int3 mapViewCenter;
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
@@ -144,7 +145,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged(boost::optional<FowTilesType> positions);
+	void onMapTilesChanged(std::optional<FowTilesType> positions);
 
 	/// Called by PlayerInterface when hero starts movement
 	void onHeroMovementStarted(const CGHeroInstance * hero);
@@ -176,6 +177,9 @@ public:
 	/// Changes position on map to center selected location
 	void centerOnTile(int3 on);
 	void centerOnObject(const CGObjectInstance *obj);
+
+	/// tile the map view is currently centered on
+	int3 getMapViewCenter() const;
 
 	/// called by MapView whenever currently visible area changes
 	/// visibleArea describes now visible map section measured in tiles

@@ -21,8 +21,6 @@
 #include <algorithm>
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace
 {
 
@@ -275,7 +273,7 @@ void ObstacleProxy::sortObstacles()
 	{
 		possibleObstacles.emplace_back(o);
 	}
-	boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
+	std::ranges::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});
@@ -555,5 +553,3 @@ std::set<std::shared_ptr<CGObjectInstance>> EditorObstaclePlacer::placeObstacles
 	finalInsertion(map->getEditManager(), obstacles);
 	return obstacles;
 }
-
-VCMI_LIB_NAMESPACE_END

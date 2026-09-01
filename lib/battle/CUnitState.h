@@ -14,8 +14,6 @@
 #include "Unit.h"
 #include "../bonuses/BonusCache.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonSerializeFormat;
 class UnitChanges;
 
@@ -130,7 +128,6 @@ class DLL_LINKAGE CUnitState : public Unit
 public:
 	bool cloned;
 	bool defending;
-	bool defendingAnim;
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;
@@ -301,5 +298,3 @@ private:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

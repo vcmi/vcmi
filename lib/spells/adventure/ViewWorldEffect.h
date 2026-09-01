@@ -12,8 +12,6 @@
 
 #include "AdventureSpellEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ViewWorldEffect final : public IAdventureSpellEffect
 {
 	std::vector<MapObjectID> filteredObjects;
@@ -24,5 +22,3 @@ public:
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Structure that describes placement rules for this object in random map
 struct DLL_LINKAGE RandomMapInfo
 {
@@ -34,5 +32,3 @@ struct DLL_LINKAGE RandomMapInfo
 
 	void setMapLimit(ui32 val) { mapLimit = val; }
 };
-
-VCMI_LIB_NAMESPACE_END

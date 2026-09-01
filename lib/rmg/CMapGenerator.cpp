@@ -39,8 +39,6 @@
 
 #include <tbb/task_group.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
@@ -49,7 +47,7 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 	loadConfig();
 	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
-	placer = std::make_shared<CZonePlacer>(*map);
+	placer = std::make_shared<CZonePlacer>(*map, config.zonePlacement);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -91,6 +89,13 @@ void CMapGenerator::loadConfig()
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
+	const auto & zonePlacementJson = randomMapJson["zonePlacement"];
+	config.zonePlacement.attempts = zonePlacementJson["attempts"].Integer();
+	config.zonePlacement.scoreDirect = zonePlacementJson["scoreDirect"].Integer();
+	config.zonePlacement.scoreGate = zonePlacementJson["scoreSubterraneanGate"].Integer();
+	config.zonePlacement.scoreMonolith = zonePlacementJson["scoreMonolith"].Integer();
+	config.zonePlacement.maxGateDistance = zonePlacementJson["maxGateDistance"].Integer();
+	config.zonePlacement.playerRepulsion = zonePlacementJson["playerRepulsion"].Float();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -465,17 +470,8 @@ void CMapGenerator::addHeaderInfo()
 	m.version = EMapFormat::VCMI;
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
-	m.mapLayers.clear();
-	for(int i = 0; i < mapGenOptions.getLevels(); i++)
-	{
-		if(i == 0)
-			m.mapLayers.push_back(MapLayerId::SURFACE);
-		else if(i == 1)
-			m.mapLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			m.mapLayers.push_back(MapLayerId::UNKNOWN); //TODO: multilevel support
-	}
-	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.mapLayers = mapGenOptions.getLevelMapLayers();
+	m.name = mapGenOptions.getMapName();
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();
@@ -510,6 +506,8 @@ void CMapGenerator::addHeaderInfo()
 
 int CMapGenerator::getNextMonlithIndex()
 {
+	std::lock_guard lock(monolithIndexMutex);
+
 	while (true)
 	{
 		if (monolithIndex >= LIBRARY->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
@@ -528,6 +526,49 @@ int CMapGenerator::getNextMonlithIndex()
 			}
 		}
 	}
+}
+
+bool CMapGenerator::canReserveGatePairLocked(const int3 & posA, const int3 & posB) const
+{
+	// Squared 2D distance between the two ends of this pair (z is ignored - gates pair across levels).
+	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
+
+	// Admissible only if both new gates stay strictly farther from every reserved opposite-level gate than
+	// from their own partner, and than that gate is from its partner - that keeps every gate's nearest
+	// opposite-level gate equal to its intended one. Ties are rejected, postInit breaks them by order.
+	auto conflicts = [&](const int3 & pos)
+	{
+		for(const auto & g : reservedGates)
+		{
+			if(g.pos.z == pos.z)
+				continue; // same level never pairs
+			const int d = static_cast<int>(g.pos.dist2dSQ(pos));
+			if(d <= pairSqr || d <= g.pairingDistanceSqr)
+				return true;
+		}
+		return false;
+	};
+
+	return !conflicts(posA) && !conflicts(posB);
+}
+
+bool CMapGenerator::canReserveGatePair(const int3 & posA, const int3 & posB) const
+{
+	std::lock_guard lock(gateReservationMutex);
+	return canReserveGatePairLocked(posA, posB);
+}
+
+bool CMapGenerator::reserveGatePair(const int3 & posA, const int3 & posB)
+{
+	std::lock_guard lock(gateReservationMutex);
+
+	if(!canReserveGatePairLocked(posA, posB))
+		return false;
+
+	const int pairSqr = static_cast<int>(posA.dist2dSQ(posB));
+	reservedGates.push_back({posA, pairSqr});
+	reservedGates.push_back({posB, pairSqr});
+	return true;
 }
 
 std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
@@ -590,5 +631,3 @@ Zone * CMapGenerator::getZoneWater() const
 			return z.second.get();
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

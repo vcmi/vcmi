@@ -21,6 +21,15 @@
 namespace NK2AI
 {
 
+float evaluateMainHeroRoleScore(float heroProfileScore, uint64_t heroTotalStrength, uint64_t strongestHeroTotalStrength)
+{
+	if(strongestHeroTotalStrength == 0)
+		return heroProfileScore;
+
+	const float armyShare = heroTotalStrength / static_cast<float>(strongestHeroTotalStrength);
+	return heroProfileScore + 50.0f * armyShare;
+}
+
 const SecondarySkillEvaluator HeroManager::mainSkillsEvaluator = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
@@ -112,11 +121,15 @@ void HeroManager::update()
 
 	HeroMap<float> scores;
 	auto myHeroes = cc->getHeroesInfo();
+	uint64_t strongestHeroTotalStrength = 0;
+
+	for(auto & hero : myHeroes)
+		vstd::amax(strongestHeroTotalStrength, hero->getTotalStrength());
 
 	for(auto & hero : myHeroes)
 	{
-		scores[hero] = evaluateFightingStrength(hero);
-		knownFightingStrength[hero->id] = hero->getHeroStrength();
+		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->getTotalStrength(), strongestHeroTotalStrength);
+		knownFightingStrength[hero->id] = normalizeHeroStrength(hero->getHeroStrength());
 	}
 
 	auto scoreSort = [&](const CGHeroInstance * h1, const CGHeroInstance * h2) -> bool
@@ -218,7 +231,7 @@ float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
 	auto cached = knownFightingStrength.find(hero->id);
 
 	//FIXME: fallback to hero->getFightingStrength() is VERY slow on higher difficulties (no object graph? map reveal?)
-	return cached != knownFightingStrength.end() ? cached->second : hero->getHeroStrength();
+	return normalizeHeroStrength(cached != knownFightingStrength.end() ? cached->second : hero->getHeroStrength());
 }
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const

@@ -207,6 +207,10 @@ enum class EShortcut
 	BATTLE_OPEN_ACTIVE_UNIT,
 	BATTLE_OPEN_HOVERED_UNIT,
 	BATTLE_TOGGLE_QUICKSPELL,
+	BATTLE_TOGGLE_GRID,
+	BATTLE_TOGGLE_MOUSE_SHADOW,
+	BATTLE_TOGGLE_MOVEMENT_SHADOW,
+	BATTLE_TOGGLE_STACK_INFO,
 	BATTLE_SPELL_SHORTCUT_0,
 	BATTLE_SPELL_SHORTCUT_1,
 	BATTLE_SPELL_SHORTCUT_2,
@@ -248,7 +252,11 @@ enum class EShortcut
 	TOWN_OPEN_HERO,
 	TOWN_OPEN_VISITING_HERO,
 	TOWN_OPEN_GARRISONED_HERO,
+	TOWN_OPEN_BLACKSMITH,
+	TOWN_OPEN_SHIPYARD,
 	TOWN_SWAP_ARMIES, // Swap garrisoned and visiting armies
+	TOWN_UPGRADE_GARRISON, // Upgrade all creatures in town garrison
+	TOWN_UPGRADE_VISITING, // Upgrade all creatures of visiting hero
 
 	// Creature & creature recruitment screen
 	RECRUITMENT_MAX, // Set number of creatures to recruit to max

@@ -2,4 +2,5 @@
 <resources>
     <string name="server_name">VCMI Server</string>
     <string name="shortcut_play">Hrát VCMI</string>
+    <string name="shortcut_editor">Otevřít editor map</string>
 </resources>

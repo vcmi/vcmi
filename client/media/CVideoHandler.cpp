@@ -187,6 +187,12 @@ const AVFrame * FFMpegStream::getCurrentFrame() const
 	return frame;
 }
 
+void FFMpegStream::endStream()
+{
+	av_frame_free(&frame);
+	frame = nullptr;
+}
+
 bool CVideoInstance::openVideo()
 {
 	if (!openContext())
@@ -255,8 +261,7 @@ void FFMpegStream::decodeNextFrame()
 			if(ret == AVERROR_EOF)
 			{
 				av_packet_unref(&packet);
-				av_frame_free(&frame);
-				frame = nullptr;
+				endStream();
 				return;
 			}
 			throwFFmpegError(ret);
@@ -431,14 +436,23 @@ void CVideoInstance::tick(uint32_t msPassed)
 	auto nowTime = std::chrono::steady_clock::now();
 	double difference = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count() / 1000.0;
 
-	int frameskipCounter = 0;
-	while(!videoEnded() && difference >= getCurrentFrameEndTime() + getCurrentFrameDuration() && frameskipCounter < MAX_FRAMESKIP) // Frameskip
+	try
 	{
-		decodeNextFrame();
-		frameskipCounter++;
+		int frameskipCounter = 0;
+		while(!videoEnded() && difference >= getCurrentFrameEndTime() + getCurrentFrameDuration() && frameskipCounter < MAX_FRAMESKIP) // Frameskip
+		{
+			decodeNextFrame();
+			frameskipCounter++;
+		}
+		if(!videoEnded() && difference >= getCurrentFrameEndTime())
+			loadNextFrame();
 	}
-	if(!videoEnded() && difference >= getCurrentFrameEndTime())
-		loadNextFrame();
+	catch(const std::exception & e)
+	{
+		// corrupt/truncated video stream - stop playback (treat as end) instead of aborting
+		logGlobal->error("Video decoding failed, stopping playback: %s", e.what());
+		endStream();
+	}
 }
 
 

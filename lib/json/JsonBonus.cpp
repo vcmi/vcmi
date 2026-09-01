@@ -18,12 +18,13 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusMigration.h"
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
+#include "../scripting/ScriptService.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 template <typename T>
 const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
@@ -77,133 +78,21 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		return;
 	}
 
-	switch (type)
+	const auto entityType = bonusSubtypeEntityType(type);
+
+	if(entityType == EntityTypeEnum::NONE)
 	{
-		case BonusType::MAGIC_SCHOOL_SKILL:
-		case BonusType::SPELL_DAMAGE:
-		case BonusType::SPELLS_OF_SCHOOL:
-		case BonusType::SPELL_DAMAGE_REDUCTION:
-		case BonusType::SPELL_SCHOOL_IMMUNITY:
-		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
-			{
-				subtype = SpellSchool(identifier);
-			});
-			break;
-		}
-		case BonusType::HATES_TRAIT:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "bonus", node, [&subtype](int32_t identifier)
-			{
-				subtype = BonusType(identifier);
-			});
-			break;
-		}
-		case BonusType::NO_TERRAIN_PENALTY:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
-			{
-				subtype = TerrainId(identifier);
-			});
-			break;
-		}
-		case BonusType::PRIMARY_SKILL:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
-			{
-				subtype = PrimarySkill(identifier);
-			});
-			break;
-		}
-		case BonusType::IMPROVED_NECROMANCY:
-		case BonusType::HERO_GRANTS_ATTACKS:
-		case BonusType::BONUS_DAMAGE_CHANCE:
-		case BonusType::BONUS_DAMAGE_PERCENTAGE:
-		case BonusType::SPECIAL_UPGRADE:
-		case BonusType::HATE:
-		case BonusType::SUMMON_GUARDIANS:
-		case BonusType::MANUAL_CONTROL:
-		case BonusType::SKELETON_TRANSFORMER_TARGET:
-		case BonusType::DEITYOFFIRE:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
-			{
-				subtype = CreatureID(identifier);
-			});
-			break;
-		}
-		case BonusType::SPELL_IMMUNITY:
-		case BonusType::SPELL_DURATION:
-		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
-		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
-		case BonusType::SPECIAL_SPELL_LEV:
-		case BonusType::SPECIFIC_SPELL_DAMAGE:
-		case BonusType::SPECIFIC_SPELL_RANGE:
-		case BonusType::SPELL:
-		case BonusType::OPENING_BATTLE_SPELL:
-		case BonusType::SPELL_LIKE_ATTACK:
-		case BonusType::CATAPULT:
-		case BonusType::CATAPULT_EXTRA_SHOTS:
-		case BonusType::HEALER:
-		case BonusType::SPELLCASTER:
-		case BonusType::ENCHANTER:
-		case BonusType::SPELL_AFTER_ATTACK:
-		case BonusType::SPELL_BEFORE_ATTACK:
-		case BonusType::SPECIFIC_SPELL_POWER:
-		case BonusType::ENCHANTED:
-		case BonusType::MORE_DAMAGE_FROM_SPELL:
-		case BonusType::ADJACENT_SPELLCASTER:
-		case BonusType::NOT_ACTIVE:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
-			{
-				subtype = SpellID(identifier);
-			});
-			break;
-		}
-		case BonusType::GENERATE_RESOURCE:
-		case BonusType::RESOURCES_CONSTANT_BOOST:
-		case BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
-			{
-				subtype = GameResID(identifier);
-			});
-			break;
-		}
-		case BonusType::MOVEMENT:
-		case BonusType::WATER_WALKING:
-		case BonusType::FLYING_MOVEMENT:
-		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
-		case BonusType::CREATURE_DAMAGE:
-		case BonusType::FLYING:
-		case BonusType::FIRST_STRIKE:
-		case BonusType::GENERAL_DAMAGE_REDUCTION:
-		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::SOUL_STEAL:
-		case BonusType::TRANSMUTATION:
-		case BonusType::DESTRUCTION:
-		case BonusType::DEATH_STARE:
-		case BonusType::REBIRTH:
-		case BonusType::VISIONS:
-		case BonusType::SPELLS_OF_LEVEL: // spell level
-		case BonusType::CREATURE_GROWTH: // creature level
-		case BonusType::ON_COMBAT_EVENT:
-		{
-			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
-			{
-				subtype = BonusCustomSubtype(identifier);
-			});
-			break;
-		}
-		default:
-		{
-			logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
-			subtype =  BonusSubtypeID();
-		}
+		logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
+		subtype = BonusSubtypeID();
+		return;
 	}
+
+	// deferred, unlike the runtime decodeBonusSubtype: while content loads the identifier this
+	// names may belong to a mod that has not been read yet
+	LIBRARY->identifiers()->requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
+	{
+		subtype = bonusSubtypeOf(entityType, identifier);
+	});
 }
 
 static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value)
@@ -227,15 +116,13 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::IMPROVED_NECROMANCY:
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		case BonusType::DESTRUCTION:
 		case BonusType::LIMITED_SHOOTING_RANGE:
-		case BonusType::ACID_BREATH:
 		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
 		case BonusType::ENCHANTER:
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SLAYER:
 		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
 		case BonusType::FULL_MAP_SCOUTING:
@@ -245,13 +132,8 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
-		case BonusType::TRANSMUTATION:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
-			break;
-		case BonusType::DEATH_STARE:
-			// 1 spell ID
-			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
@@ -286,7 +168,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 					{ 'f', 1 }, { 'l', 6}, {'r', 2}, {'b', 4}
 				};
 				int converted = 0;
-				for (const auto & ch : boost::adaptors::reverse(sequence.String()))
+				for (const auto & ch : std::views::reverse(sequence.String()))
 				{
 					char chLower = std::tolower(ch);
 					if (charToDirection.count(chLower))
@@ -297,11 +179,14 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = loadedData;
 			break;
 		}
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
 		{
 			std::vector<int32_t> loadedData;
-			for(const auto & sequence : value.Vector())
-				loadedData.push_back(sequence.Integer());
+			if (value.isVector()) {
+				for(const auto & sequence : value.Vector())
+					loadedData.push_back(sequence.Integer());
+			}
 			var = loadedData;
 			break;
 		}
@@ -324,7 +209,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 				if (effect["action"].String() == "spell")
 				{
 					int mastery = effect["mastery"].Integer();
-					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
 						SpellID(), mastery, targetEnemy
 					});
@@ -337,11 +221,50 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			}
 			break;
 		}
+		case BonusType::COMBAT_EVENT_TRIGGER:
+		{
+			// the whole addInfo is the script payload - which script runs is the bonus subtype
+			var = BonusParameters(value);
+			break;
+		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
 
 	return result;
+}
+
+/// A combat script validates the parameters the bonus hands it and registers any translatable text
+/// among them. Both need the script itself, which only resolves once every mod has been loaded -
+/// scripts are a content type of their own and may well load after whoever refers to them.
+static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, const TextIdentifier & descriptionID)
+{
+	LIBRARY->identifiers()->requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	{
+		ScriptID scriptID(identifier);
+
+		const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+
+		if (script.kind != ScriptKind::COMBAT_EVENT)
+		{
+			// the bonus stays, but no combat event script will ever be found for it, so it does nothing
+			logMod->error("Bonus '%s' runs script '%s', which is not a combat event script!", descriptionID.get(), script.scriptId);
+			return;
+		}
+
+		// a bonus may pass no parameters at all, while the script requires some. The schema only
+		// applies to an object, so an absent payload is validated as an empty one rather than skipped
+		JsonNode parameters;
+		if (b->parameters)
+			parameters = b->parameters->toCustom<JsonNode>();
+		else
+			parameters.setType(JsonNode::JsonType::DATA_STRUCT);
+
+		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, descriptionID);
+
+		// parameters are immutable once stored, so the prepared payload replaces them wholesale
+		b->parameters = std::make_shared<BonusParameters>(parameters);
+	});
 }
 
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
@@ -541,8 +464,6 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	}
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
@@ -836,11 +757,21 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		return false;
 	}
 
-	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
+	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
+	JsonNode migrated;
+	if (BonusMigration::migrateBonus(ability, migrated))
+		return parseBonus(migrated, b, descriptionID);
+
+	BonusMigration::warnIfRetired(ability, descriptionID);
+
+	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
+
+		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
+			prepareCombatScriptParameters(b, subtypeNode, descriptionID);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
@@ -865,7 +796,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 			}
 		}
 		if (ability["description"].isNumber())
-			b->description.appendTextID("core.arraytxt." + std::to_string(ability["description"].Integer()));
+			b->description.appendTextID("core.arraytxt", ability["description"].Integer());
 	}
 
 	if(!ability["icon"].isNull())
@@ -1039,5 +970,3 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

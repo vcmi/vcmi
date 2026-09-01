@@ -11,16 +11,14 @@
 
 #include "CQuery.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
-VCMI_LIB_NAMESPACE_END
 
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)
 class VisitQuery : public CQuery
 {
 protected:
-	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
+	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, QueryType type);
 
 public:
 	ObjectInstanceID visitedObject;
@@ -31,7 +29,12 @@ public:
 
 class MapObjectVisitQuery final : public VisitQuery
 {
+	std::vector<ObjectInstanceID> deferredBattleLevelUps;
+	bool processingDeferredBattleLevelUps = false;
+
 public:
+	static constexpr QueryType TYPE = QueryType::MapObjectVisit;
+
 	bool removeObjectAfterVisit;
 
 	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
@@ -52,6 +55,8 @@ class TownBuildingVisitQuery final : public VisitQuery
 	std::vector<BuildingVisit> visitedBuilding;
 
 public:
+	static constexpr QueryType TYPE = QueryType::TownBuildingVisit;
+
 	TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
 
 	void onAdded(PlayerColor color) final;

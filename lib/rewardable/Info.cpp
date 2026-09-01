@@ -26,8 +26,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace {
 	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier, EMetaText textSource = EMetaText::ADVOB_TXT )
 	{
@@ -352,7 +350,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			loot.replaceName(creature.getId(), creature.getCount());
 		}
 
-		target.replaceRawString(loot.buildList());
+		target.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
 	}
 	else
 	{
@@ -588,5 +586,3 @@ const JsonNode & Rewardable::Info::getParameters() const
 {
 	return parameters;
 }
-
-VCMI_LIB_NAMESPACE_END

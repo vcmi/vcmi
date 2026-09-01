@@ -11,8 +11,6 @@
 
 #include <condition_variable>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE TerminationRequestedException : public std::exception
 {
 public:
@@ -65,7 +63,9 @@ class ConditionalWait
 {
 	bool isBusyValue = false;
 	bool isTerminating = false;
+	int activeWaiters = 0;
 	std::condition_variable cond;
+	std::condition_variable waitersExited;
 	std::mutex mx;
 
 	void set(bool value)
@@ -76,6 +76,14 @@ class ConditionalWait
 
 public:
 	ConditionalWait() = default;
+
+	~ConditionalWait()
+	{
+		// Defensive: if owner forgot to call requestTermination(), block destruction
+		// until any waiter has actually exited waitWhileBusy(). Without this, the
+		// waiter can race past notify_all and re-lock a destroyed mutex.
+		requestTermination();
+	}
 
 	void setBusy()
 	{
@@ -90,8 +98,11 @@ public:
 
 	void requestTermination()
 	{
+		std::unique_lock un(mx);
 		isTerminating = true;
-		setFree();
+		isBusyValue = false;
+		cond.notify_all();
+		waitersExited.wait(un, [this]{ return activeWaiters == 0; });
 	}
 
 	bool isBusy()
@@ -103,11 +114,14 @@ public:
 	void waitWhileBusy()
 	{
 		std::unique_lock un(mx);
+		++activeWaiters;
 		cond.wait(un, [this](){ return !isBusyValue;});
 
-		if (isTerminating)
+		const bool terminate = isTerminating;
+		if (--activeWaiters == 0)
+			waitersExited.notify_all();
+
+		if (terminate)
 			throw TerminationRequestedException();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

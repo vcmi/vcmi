@@ -25,7 +25,7 @@ BEGIN
             VALUE "InternalName", "@VCMI_ORIGINAL_FILENAME@"
             VALUE "LegalCopyright", "Copyright \xA9 VCMI Team. All rights reserved."
             VALUE "OriginalFilename", "@VCMI_ORIGINAL_FILENAME@"
-            VALUE "ProductName", "VCMI"
+            VALUE "ProductName", "@VCMI_PROJECT_NAME@"
             VALUE "ProductVersion", "@VCMI_VERSION_STRING@"
         END
     END

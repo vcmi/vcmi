@@ -13,8 +13,6 @@
 #include "../IHandlerBase.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class AObjectTypeHandler;
 class ObjectTemplate;
 struct SObjectSounds;
@@ -74,8 +72,8 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 	void loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID);
 	void removeSubObject(MapObjectID ID, MapObjectSubID subID);
@@ -94,7 +92,8 @@ public:
 	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	CompoundMapObjectID getCompoundIdentifier(const std::string & objectName) const;
 
-	std::string getObjectName(MapObjectID type, MapObjectSubID subtype) const;
+	/// Name shared by every object of this group, used when an object type provides no name of its own
+	std::string getObjectGroupNameTextID(MapObjectID type) const;
 
 	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;
 
@@ -105,5 +104,3 @@ public:
 
 	std::string getJsonKey(MapObjectID type) const;
 };
-
-VCMI_LIB_NAMESPACE_END

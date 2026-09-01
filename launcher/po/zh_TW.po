@@ -7,23 +7,27 @@ msgstr ""
 "Project-Id-Version: VCMI 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 20:10+0200\n"
-"PO-Revision-Date: 2026-05-16 12:13+0000\n"
-"Language: zh\n"
+"PO-Revision-Date: 2026-07-03 16:29+0000\n"
+"Language: zh_TW\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"Last-Translator: zqtndfj89fed10724aa4649 <zqtndfj@gmail.com>\n"
+"Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
+"projects/vcmi/linux/zh_Hant/>\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "英雄無敵3開源遊戲引擎"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "VCMI團隊"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -31,65 +35,69 @@ msgid ""
 "possibilities. Years of intensive work resulted in an impressive amount of "
 "features. Among the current features are:"
 msgstr ""
+"VCMI是英雄無敵3的開源引擎，並帶來了全新的可能性。經過多年的持續開發，如今已擁"
+"有數量眾多的功能。其中包括："
 
 #: eu.vcmi.VCMI.metainfo.xml:14
 msgid "Complete gameplay mechanics"
-msgstr ""
+msgstr "完整遊戲機制"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
-msgstr ""
+msgstr "包含接近全部物體、能力、法術及其他內容"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"
-msgstr ""
+msgstr "基礎戰鬥AI與冒險AI"
 
 #: eu.vcmi.VCMI.metainfo.xml:17
 msgid "Many GUI improvements: high resolutions, stack queue, creature window"
-msgstr ""
+msgstr "大量介面改進：高解析度、部隊行動佇列、生物視窗"
 
 #: eu.vcmi.VCMI.metainfo.xml:18
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
 msgstr ""
+"強大且易用的模組支援——可自由新增城鎮、生物、英雄、寶物和法術，無數量限制且互"
+"不衝突"
 
 #: eu.vcmi.VCMI.metainfo.xml:19
 msgid ""
 "Launcher for easy configuration - download mods from our server and install "
 "them immediately!"
-msgstr ""
+msgstr "易於設定的啟動器，可直接從伺服器下載並安裝模組！"
 
 #: eu.vcmi.VCMI.metainfo.xml:20
 msgid "Random map generator that supports objects added by mods"
-msgstr ""
+msgstr "支援模組引入的新物體的隨機地圖產生器"
 
 #: eu.vcmi.VCMI.metainfo.xml:22
 msgid ""
 "Note: In order to play the game using VCMI you need to own data files for "
 "Heroes of Might and Magic III: The Shadow of Death."
-msgstr ""
+msgstr "注意：使用VCMI遊玩遊戲需要擁有英雄無敵3死亡陰影的資料檔案。"
 
 #: eu.vcmi.VCMI.metainfo.xml:23
 msgid "If you want help, please check our forum, bug tracker or GitHub page."
-msgstr ""
+msgstr "如果需要幫助，請查看我們的論壇、錯誤追蹤器或GitHub頁面。"
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
-msgstr ""
+msgstr "heroes3"
 
 #: eu.vcmi.VCMI.metainfo.xml:128
 msgid "homm3"
-msgstr ""
+msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
-msgstr ""
+msgstr "策略遊戲"
 
 #: vcmilauncher.desktop:6
 msgid "Open-source recreation of Heroes of Might & Magic III"
-msgstr ""
+msgstr "英雄無敵3的開源重製"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
-msgstr ""
+msgstr "heroes of might and magic;heroes;homm;homm3;strategy;"

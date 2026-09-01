@@ -114,14 +114,16 @@
 			"name": "tacticNext",
 			"position": {"x": 213, "y": 560},
 			"image": "icm011",
+			"help": "core.help.388",
 			"hotkey": "battleTacticsNext"
 		},
-		
+
 		{
 			"type": "button",
 			"name": "tacticEnd",
 			"position": {"x": 419, "y": 560},
 			"image": "icm012",
+			"help": "core.help.389",
 			"hotkey": "battleTacticsEnd"
 		}
 	]

@@ -37,12 +37,13 @@ On the step where you need to replace **PROFILE**, choose:
 ### Homebrew
 
 1. [Install Homebrew](https://brew.sh/)
-2. Install dependencies: `brew install boost minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb libsquish onnxruntime fmt glaze`
-    - you can also use minizip-ng instead of minizip
-3. If you want to watch in-game videos, also install FFmpeg: `brew install ffmpeg` (you can also use an earlier FFmpeg version)
-4. Install Qt dependency in either of the ways (note that you can skip this if you're not going to build Launcher and Map editor):
-    - `brew install qt@5` for Qt 5 or `brew install qt` for Qt 6
-    - using [Qt Online Installer](https://www.qt.io/download-qt-installer-oss)
+2. Install dependencies, execute from the repo root: `brew bundle`.
+
+Possible customizations:
+
+- `minizip` is installed by default, but you can also use `minizip-ng` instead
+- `ffmpeg` is installed by default, but you can also use any earlier version like `ffmpeg@4` instead
+- `qt` (Qt 6) is installed by default, but you can also use `qt@5` instead
 
 ## Preparing build environment
 
@@ -67,9 +68,7 @@ The following walkthrough lists only the bare minimum of required CMake options.
 4. If you picked Makefiles or Ninja, pick desired *build type* - either of `Debug` / `RelWithDebInfo` / `Release` / `MinSizeRel` - and pass it in `CMAKE_BUILD_TYPE` option, example: `-D CMAKE_BUILD_TYPE=Debug`. If you use don't pass this option, `RelWithDebInfo` will be used.
 5. Next step depends on the dependency manager you have picked:
     - Conan: pass `--toolchain conan-generated/conan_toolchain.cmake` (or via `CMAKE_TOOLCHAIN_FILE` variable) where **conan-generated** must be replaced with your directory choice
-    - Homebrew: if you installed Qt 5 or from the Online Installer, you need to pass `-D "CMAKE_PREFIX_PATH="` variable. See below what you can insert after `=` (but **before the closing quote**), multiple values must be separated with `;` (semicolon):
-        - if you installed Qt 5 from Homebrew, insert `$(brew --prefix qt@5)`
-        - if you installed Qt from Online Installer, insert your path to Qt directory, example: `/Users/kambala/dev/Qt-libs/5.15.2/Clang64`
+    - Homebrew: if you installed any non-default formula (the one that has `@` like `qt@5`), you need to pass `-D "CMAKE_PREFIX_PATH="` variable. Multiple values must be separated with `;` (semicolon), example: `-D "CMAKE_PREFIX_PATH=$(brew --prefix qt@5);$(brew --prefix ffmpeg@4)"`
 6. Now press Return
 
 ## Building project

@@ -328,9 +328,9 @@
 							"SPELLCASTER", 
 							"FEROCITY", 
 							"PRIMARY_SKILL", 
-							"ENCHANTER", 
-							"SPECIAL_PECULIAR_ENCHANT", 
-							"SPELL_IMMUNITY", 
+							"ENCHANTER",
+							"SLAYER",
+							"SPELL_IMMUNITY",
 							"DARKNESS", 
 							"FULL_MAP_SCOUTING", 
 							"FULL_MAP_DARKNESS", 
@@ -346,6 +346,23 @@
 							{ "type" : "number" },
 							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
 						],
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "SPECIAL_PECULIAR_ENCHANT" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{ "type" : "array", "items" : { "type" : "number" } }
+						]
 					}
 				}
 			}
@@ -405,6 +422,22 @@
 			"then" : {
 				"properties" : {
 					"addInfo" : { "type" : "array", "minItems" : 1, "maxItems" : 7, "items" : { "type" : "number" } }
+				}
+			}
+		},
+		{
+			"if" : {
+				// generated specialty bonuses reach validation without a type, and a missing
+				// property satisfies "properties" - so match only nodes that actually declare one
+				"required" : [ "type" ],
+				"properties" : {
+					"type" : { "enum" : [ "COMBAT_EVENT_TRIGGER" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					// parameters of the combat script, whose shape only that script knows
+					"addInfo" : { "type" : "object" }
 				}
 			}
 		},

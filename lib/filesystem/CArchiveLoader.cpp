@@ -17,8 +17,6 @@
 #include "CBinaryReader.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
 {
@@ -263,5 +261,3 @@ boost::filesystem::path createExtractedFilePath(const std::string & outputSubFol
 
 	return extractedFilePath;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ObjectInfo::ObjectInfo(si32 ID, si32 subID):
 	primaryID(ID),
 	secondaryID(subID),
@@ -81,5 +79,3 @@ CompoundMapObjectID ObjectInfo::getCompoundID() const
 {
 	return CompoundMapObjectID(primaryID, secondaryID);
 }
-
-VCMI_LIB_NAMESPACE_END

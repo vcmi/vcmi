@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "GraphPaths.h"
 #include "AIPathfinderConfig.h"
-#include "../../../lib/mapObjects/CQuest.h"
+#include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
@@ -57,7 +57,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 	graph.copyFrom(*aiNk->baseGraph);
 	graph.connectHeroes(aiNk);
 
-	visualKey = std::to_string(aiNk->playerID.getNum()) + ":" + targetHero->getNameTranslated();
+	visualKey = std::to_string(aiNk->playerID.getNum()) + ":" + targetHero->getNameTextID();
 	pathNodes.clear();
 
 	GraphNodeComparer cmp(pathNodes);
@@ -76,20 +76,18 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		if(node.obj)
 		{
-			if(node.obj->ID == Obj::QUEST_GUARD
-				|| node.obj->ID == Obj::BORDERGUARD
-				|| node.obj->ID == Obj::BORDER_GATE)
+			if(const auto * source = node.obj->asQuestSource(); source && source->requiresQuestToPass())
 			{
-				auto questObj = dynamic_cast<const IQuestObject *>(node.obj);
-				auto questInfo = QuestInfo(node.obj->id);
-
-				if(node.obj->ID == Obj::QUEST_GUARD
-					&& questObj->getQuest().mission == Rewardable::Limiter{}
-					&& questObj->getQuest().killTarget == ObjectInstanceID::NONE)
-				{
+				// skip a blocker with no actual requirements (empty quest guard)
+				if(!source->getActiveQuest() || source->getActiveQuest()->mission == Rewardable::Limiter{})
 					continue;
-				}
 
+				// TODO: the AI cannot weigh a toll gate's per-pass resource cost yet; treat toll
+				//       gates as impassable for now rather than paying the toll on every transit.
+				if(!node.obj->isBlockedVisitable() && source->getActiveQuest()->isToll())
+					continue;
+
+				auto questInfo = QuestInfo(node.obj->id);
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
 
 				if(!questAction->canAct(aiNk, targetHero))
@@ -203,8 +201,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 		uint64_t danger = node.linkDanger;
 		float cost = node.cost;
-		bool allowBattle = false;
-
+		bool hasDangerousGraphTransition = false;
 		auto current = GraphPathNodePointer(nodes->first, node.nodeType);
 
 		while(true)
@@ -219,7 +216,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			if(!currentNode.previous.valid())
 				break;
 
-			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
+			hasDangerousGraphTransition = hasDangerousGraphTransition || currentNode.nodeType == GrapthPathNodeType::BATTLE;
 			vstd::amax(danger, currentNode.linkDanger);
 			vstd::amax(cost, currentNode.cost);
 
@@ -290,7 +287,10 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			}
 
 			path.armyLoss += loss;
-			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
+			// TODO: Preserve endpoint visit semantics in graph paths so this can distinguish visit actions
+			// from true target-tile guard checks instead of relying on graph transition type.
+			const bool checkTargetTileGuards = !hasDangerousGraphTransition;
+			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, checkTargetTileGuards);
 			// TODO: Mircea: This is similar same as 263, so what's happening here? Why strength is passed differently?
 			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
@@ -315,8 +315,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 		uint64_t danger = targetNode.linkDanger;
 		float cost = targetNode.cost;
-		bool allowBattle = false;
-
+		bool hasDangerousGraphTransition = false;
 		auto current = GraphPathNodePointer(nodes->first, targetNode.nodeType);
 
 		while(true)
@@ -328,7 +327,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 			auto currentNode = currentTile->second[current.nodeType];
 
-			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
+			hasDangerousGraphTransition = hasDangerousGraphTransition || currentNode.nodeType == GrapthPathNodeType::BATTLE;
 			vstd::amax(danger, currentNode.linkDanger);
 			vstd::amax(cost, currentNode.cost);
 
@@ -356,7 +355,10 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			path.heroArmy = entryPath.heroArmy;
 			path.exchangeCount = entryPath.exchangeCount;
 			path.armyLoss = entryPath.armyLoss + aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
-			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
+			// TODO: Preserve endpoint visit semantics in graph paths so this can distinguish visit actions
+			// from true target-tile guard checks instead of relying on graph transition type.
+			const bool checkTargetTileGuards = !hasDangerousGraphTransition;
+			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, checkTargetTileGuards);
 			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			AIPathNodeInfo n;

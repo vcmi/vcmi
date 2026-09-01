@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE CompoundMapObjectID
 {
 	si32 primaryID;
@@ -34,5 +32,3 @@ struct DLL_LINKAGE CompoundMapObjectID
 		return (this->primaryID == other.primaryID) && (this->secondaryID == other.secondaryID);
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "IOwnableObject.h"
 #include "../bonuses/CBonusSystemNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 class FlaggableInstanceConstructor;
 
@@ -49,11 +47,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 
-		if (h.version >= Handler::Version::FLAGGABLE_BONUS_SYSTEM_NODE)
-			h & static_cast<CBonusSystemNode&>(*this);
-		else
-			initBonuses();
+		h & static_cast<CBonusSystemNode&>(*this);
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

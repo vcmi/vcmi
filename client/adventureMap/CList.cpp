@@ -265,7 +265,10 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated()) + hero->getMovementPointsTextIfOwner(hero->getOwner());
+	MetaString hoverText = hero->getObjectName();
+	hoverText.append(hero->getMovementPointsTextIfOwner(hero->getOwner()));
+
+	return hoverText.toString(&GAME->translator());
 }
 
 void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -551,7 +554,7 @@ void CTownList::CTownItem::keyPressed(EShortcut key)
 
 std::string CTownList::CTownItem::getHoverText()
 {
-	return town->getObjectName();
+	return town->getObjectName().toString(&GAME->translator());
 }
 
 CTownList::CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)

@@ -12,15 +12,16 @@
 
 #include <vcmi/Environment.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <boost/filesystem/path.hpp>
 
-namespace spells::effects
-{
-    class SpellEffectService;
-}
+class CGameState;
+
+class ScriptService;
 
 namespace scripting
 {
+
+class MapEventDispatcher;
 
 using BattleCb = Environment::BattleCb;
 using GameCb = Environment::GameCb;
@@ -37,7 +38,6 @@ public:
 	virtual ~Script() = default;
 
 	virtual std::string getIdentifier() const = 0;
-	virtual const std::string & getSource() const = 0;
 };
 
 class DLL_LINKAGE Pool
@@ -53,12 +53,16 @@ class DLL_LINKAGE Service
 public:
 	virtual ~Service() = default;
 
-	virtual void installScripting(spells::effects::SpellEffectService * spellEffects) = 0;
+	/// Registers this language as a script backend. Called once, before any content is loaded.
+	virtual void installScripting(ScriptService & scripts) = 0;
 
 	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
 
+	/// Builds the dispatcher for the game's map event script, or nullptr if the map has none
+	virtual std::unique_ptr<MapEventDispatcher> createMapScriptDispatcher(CGameState & gs, bool runInit) const = 0;
+
+	/// Writes Markdown and Lua Language Server reference files describing every exposed API type into the given output directory
+	virtual void exportDocs(const boost::filesystem::path & outDir) const = 0;
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

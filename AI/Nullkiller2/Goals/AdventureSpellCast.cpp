@@ -11,6 +11,7 @@
 #include "AdventureSpellCast.h"
 #include "../AIGateway.h"
 #include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/Problem.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../../../lib/spells/CSpell.h"
 
@@ -21,7 +22,10 @@ using namespace Goals;
 
 bool AdventureSpellCast::operator==(const AdventureSpellCast & other) const
 {
-	return hero == other.hero;
+	return hero == other.hero
+		&& spellID == other.spellID
+		&& tile == other.tile
+		&& town == other.town;
 }
 
 void AdventureSpellCast::accept(AIGateway * aiGw)
@@ -31,7 +35,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 
 	auto spell = getSpell();
 
-	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getNameTranslated(), hero->getNameTranslated());
+	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getNameTextID(), hero->getNameTextID());
 
 	if(!spell->isAdventure())
 		throw cannotFulfillGoalException(spell->getNameTranslated() + " is not an adventure spell.");
@@ -54,15 +58,23 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 		}
 
 		if(town->getVisitingHero())
-			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTranslated());
+			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTextID());
 	}
 
 	if (hero->isGarrisoned())
 		aiGw->cc->swapGarrisonHero(hero->getVisitedTown());
 
+	if(aiGw->cc->isInTheMap(tile))
+	{
+		spells::detail::ProblemImpl problem;
+		if(!spell->getAdventureMechanics().canBeCastAt(problem, aiGw->cc.get(), hero, tile))
+			throw cannotFulfillGoalException("Can not cast " + spell->getNameTranslated() + " at " + tile.toString());
+	}
+
 	const auto wait = aiGw->cc->waitTillRealize;
 	aiGw->cc->waitTillRealize = true;
 	aiGw->cc->castSpell(hero, spellID, tile);
+	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up queries.
 
 	if(town && townPortalEffect)
 	{

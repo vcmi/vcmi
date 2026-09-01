@@ -41,7 +41,7 @@ struct ResourceManagerTest : public Test//, public IResourceManager
 		buildAny = sptr(StrictMock<Build>());
 		recruitHero = sptr(StrictMock<RecruitHero>());
 
-		//auto AI = CDynLibHandler::getNewAI("VCAI.dll");
+		//auto AI = AIFactory::createAdventureAI("VCAI");
 		//SET_GLOBAL_STATE(AI);
 
 		//gtest couldn't deduce default return value;

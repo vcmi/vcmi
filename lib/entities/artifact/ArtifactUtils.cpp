@@ -15,13 +15,13 @@
 #include "CArtifact.h"
 #include "CArtifactFittingSet.h"
 
+
 #include "../../IGameSettings.h"
 #include "../../GameLibrary.h"
 #include "../../mapObjects/CGHeroInstance.h"
+#include "../../texts/CGeneralTextHandler.h"
 
 #include <vcmi/spells/Spell.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 DLL_LINKAGE bool ArtifactUtils::checkIfSlotValid(const CArtifactSet & artSet, const ArtifactPosition & slot)
 {
@@ -233,19 +233,16 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)
 {
-	// We expect scroll description to be like this: This scroll contains the [spell name] spell which is added
-	// into spell book for as long as hero carries the scroll. So we want to replace text in [...] with a spell name.
-	// However other language versions don't have name placeholder at all, so we have to be careful
-	auto nameStart = description.find_first_of('[');
-	auto nameEnd = description.find_first_of(']', nameStart);
+	std::string replacement = sid.getNum() >= 0 ? sid.toEntity(LIBRARY)->getNameTranslated()
+												: LIBRARY->generaltexth->translate("artifact.core.spellScroll.spellName.default");
+	const static std::string placeholder = "[spell name]";
 
-	if(nameStart != std::string::npos && nameEnd != std::string::npos)
-	{
-		if(sid.getNum() >= 0)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY)->getNameTranslated());
-		else
-			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
-	}
+	MetaString text = MetaString::createFromRawString(description);
+
+	if (replacement.empty())
+		text.replaceTokenRawString(placeholder + " ", replacement);	// in most languages if replacement is empty we need to remove additional space after placeholder
+
+	text.replaceTokenRawString(placeholder, replacement);
+
+	description = text.toString(LIBRARY->staticTexts());
 }
-
-VCMI_LIB_NAMESPACE_END

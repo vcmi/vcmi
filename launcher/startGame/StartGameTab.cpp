@@ -23,6 +23,7 @@
 #include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/GameConstants.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../vcmiqt/MessageBox.h"
 #include "../../vcmiqt/convpathqstring.h"
@@ -229,7 +230,7 @@ void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 {
 	QString availableVersion; // TODO
 
-	ui->labelTitleEngine->setText("VCMI " VCMI_VERSION_STRING);
+	ui->labelTitleEngine->setText(QString(GameConstants::VCMI_PROJECT_NAME_VERSIONED));
 	ui->buttonUpdateCheck->setVisible(status == EGameUpdateStatus::NOT_CHECKED);
 	ui->labelUpdateNotFound->setVisible(status == EGameUpdateStatus::NO_UPDATE);
 	ui->labelUpdateAvailable->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
@@ -263,8 +264,31 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 
 void StartGameTab::on_buttonGameEditor_clicked()
 {
-	Helper::getMainWindow()->hide();
-	startEditor({});
+	auto mainWindow = Helper::getMainWindow();
+	mainWindow->hide();
+	startEditor({}, mainWindow);
+}
+
+QStringList StartGameTab::selectImportFiles()
+{
+#ifndef VCMI_MOBILE
+	QString filter =
+		tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.vsgm1 *.zip *.json *.exe);;" +
+		tr("Maps") + " (*.h3m *.vmap);;" +
+		tr("Campaigns") + " (*.h3c *.vcmp);;" +
+		tr("Saves") + " (*.vsgm1);;" +
+		tr("Configs") + " (*.json);;" +
+		tr("Mods") + " (*.zip);;" +
+		tr("Gog files") + " (*.exe)";
+#else
+	//Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
+	QString filter = tr("All files (*.*)");
+#endif
+	return QFileDialog::getOpenFileNames(
+		this,
+		tr("Select files (configs, mods, saves, maps, campaigns, gog files) to install..."),
+		QDir::homePath(),
+		filter);
 }
 
 void StartGameTab::on_buttonInstallGame_clicked()
@@ -290,29 +314,80 @@ void StartGameTab::on_buttonInstallGame_clicked()
 	Helper::getMainWindow()->enterSetup();
 }
 
+QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
+{
+	QStringList preparedFiles;
+	preparedFiles.reserve(files.size());
+
+	QDir userDataDir(pathToQString(VCMIDirs::get().userDataPath()));
+	const QString importCachePath = userDataDir.filePath("tmp/import-cache");
+
+	QDir importCacheDir(importCachePath);
+	if(importCacheDir.exists() && !importCacheDir.removeRecursively())
+		logGlobal->warn("Failed to cleanup import cache dir: %s", importCachePath.toStdString());
+
+	userDataDir.mkpath("tmp/import-cache");
+	importCacheDir.setPath(importCachePath);
+
+	auto * modView = Helper::getMainWindow()->getModView();
+	modView->showExternalProgress(tr("Preparing selected files for import..."), 0, files.size());
+
+	for(int index = 0; index < files.size(); ++index)
+	{
+		const QString file = files[index];
+		modView->showExternalProgress(tr("Preparing selected files for import... %1/%2").arg(index + 1).arg(files.size()), index, files.size());
+		qApp->processEvents();
+
+		QString importPath = file;
+		QFile sourceFile(file);
+		if(!sourceFile.open(QIODevice::ReadOnly))
+		{
+			QString baseName = QFileInfo(Helper::getRealPath(file)).fileName();
+			if(baseName.isEmpty())
+				baseName = QStringLiteral("import_%1").arg(index + 1);
+
+			QString stagedPath = importCacheDir.filePath(QStringLiteral("%1_%2").arg(index + 1).arg(baseName));
+			int duplicateIndex = 1;
+			while(QFileInfo::exists(stagedPath))
+			{
+				stagedPath = importCacheDir.filePath(QStringLiteral("%1_%2_%3").arg(index + 1).arg(duplicateIndex).arg(baseName));
+				duplicateIndex++;
+			}
+
+			if(!Helper::performNativeCopy(file, stagedPath))
+			{
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to prepare file for import: %1").arg(Helper::getRealPath(file)));
+				continue;
+			}
+			importPath = stagedPath;
+		}
+
+		preparedFiles << importPath;
+	}
+
+	modView->showExternalProgress(tr("Preparing selected files for import..."), files.size(), files.size());
+	modView->hideExternalProgress();
+	return preparedFiles;
+}
+
+void StartGameTab::importPreparedFiles(const QStringList & files)
+{
+	for(const auto & file : files)
+	{
+		logGlobal->info("Importing file %s", file.toStdString());
+		Helper::getMainWindow()->manualInstallFile(file);
+	}
+}
+
 void StartGameTab::on_buttonImportFiles_clicked()
 {
 	const auto & importFunctor = [this]
 	{
-#ifndef VCMI_MOBILE
-		QString filter =
-			tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" +
-			tr("Maps") + " (*.h3m *.vmap);;" +
-			tr("Campaigns") + " (*.h3c *.vcmp);;" +
-			tr("Configs") + " (*.json);;" +
-			tr("Mods") + " (*.zip);;" +
-			tr("Gog files") + " (*.exe)";
-#else
-		//Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
-		QString filter = tr("All files (*.*)");
-#endif
-		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
+		QStringList files = selectImportFiles();
+		if(files.isEmpty())
+			return;
 
-		for(const auto & file : files)
-		{
-			logGlobal->info("Importing file %s", file.toStdString());
-			Helper::getMainWindow()->manualInstallFile(file);
-		}
+		importPreparedFiles(stageUnreadableFiles(files));
 	};
 
 	// iOS can't display modal dialogs when called directly on button press
@@ -356,6 +431,8 @@ void StartGameTab::on_buttonHelpImportFiles_clicked()
 		" - Heroes III Campaigns (.h3c or .vcmp).\n"
 		" - Heroes III Chronicles using offline backup installer from GOG.com (.exe).\n"
 		" - VCMI mods in zip format (.zip)\n"
+		" - VCMI saves archive in zip format (.zip)\n"
+		" - VCMI save files (.vsgm1)\n"
 		" - VCMI configuration files (.json)\n"
 	);
 

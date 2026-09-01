@@ -139,8 +139,12 @@ class CursorHandler final
 	int32_t currentFrame {};
 	Cursor::ShowType showType;
 	bool showing;
+	bool showingRequested;
+	bool controllerNativeHidden;
+	bool cursorImageUpdatePending;
 
 	void updateAnimatedCursor();
+	void applyCursorImage();
 
 	std::unique_ptr<ICursor> cursor;
 
@@ -171,6 +175,7 @@ public:
 
 	void hide();
 	void show();
+	void setControllerNativeHidden(bool hidden);
 	void onScreenResize();
 
 	/// change cursor's positions to (x, y)

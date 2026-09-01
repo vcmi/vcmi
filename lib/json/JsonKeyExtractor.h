@@ -5,8 +5,6 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE JsonKeyExtractor
 {
 
@@ -22,6 +20,8 @@ public:
 	IdentifierType decodeKey(const std::string & modScope, const std::string & value, const Variables & variables);
 
 	si32 loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
+
+	bool canOverwriteMapSettings(const JsonNode & value) const;
 
 private:
 	template<typename IdentifierType>
@@ -40,8 +40,11 @@ private:
 template<typename IdentifierType>
 std::set<IdentifierType> JsonKeyExtractor::filterKeys(const JsonNode & value, const std::set<IdentifierType> & valuesSet, const Variables & variables)
 {
-	if(value.isString())
-		return {decodeKey<IdentifierType>(value, variables)};
+    // if value is string do not filter value through valueSet. It allows objects like scholar to override map settings
+    // (i.e grant a skill that is blocked by map settings). It is intentional.
+    // TODO: refactor class so this behaviour is clearly reflected by api.
+	if(canOverwriteMapSettings(value))
+        return {decodeKey<IdentifierType>(value, variables)};
 
 	assert(value.isStruct());
 
@@ -138,5 +141,3 @@ std::set<IdentifierType> JsonKeyExtractor::filterKeysTyped(const JsonNode & valu
 {
 	return valuesSet;
 }
-
-VCMI_LIB_NAMESPACE_END

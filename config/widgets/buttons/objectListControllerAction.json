@@ -1,0 +1,56 @@
+{
+	"normal" : {
+		"width" : 124,
+		"height" : 32,
+		"items" : [
+			{
+				"type" : "graphicalPrimitive",
+				"rect" : { "x" : 0, "y" : 0, "w" : 124, "h" : 32 },
+				"primitives" : [
+					{ "type" : "filledBox", "a" : { "x" : 0, "y" : 0 }, "b" : { "x" : -1, "y" : -1 }, "color" : [ 78, 48, 20, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 1, "y" : 1 }, "b" : { "x" : -2, "y" : -2 }, "color" : [ 209, 170, 86, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 3, "y" : 3 }, "b" : { "x" : -4, "y" : -4 }, "color" : [ 238, 211, 139, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : 2 }, "b" : { "x" : -3, "y" : 2 }, "color" : [ 255, 239, 184, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : 2 }, "b" : { "x" : 2, "y" : -3 }, "color" : [ 255, 239, 184, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : -3 }, "b" : { "x" : -3, "y" : -3 }, "color" : [ 128, 86, 38, 255 ] },
+					{ "type" : "line", "a" : { "x" : -3, "y" : 2 }, "b" : { "x" : -3, "y" : -3 }, "color" : [ 128, 86, 38, 255 ] }
+				]
+			}
+		]
+	},
+	"pressed" : {
+		"width" : 124,
+		"height" : 32,
+		"items" : [
+			{
+				"type" : "graphicalPrimitive",
+				"rect" : { "x" : 0, "y" : 0, "w" : 124, "h" : 32 },
+				"primitives" : [
+					{ "type" : "filledBox", "a" : { "x" : 0, "y" : 0 }, "b" : { "x" : -1, "y" : -1 }, "color" : [ 72, 42, 18, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 1, "y" : 1 }, "b" : { "x" : -2, "y" : -2 }, "color" : [ 188, 143, 68, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 3, "y" : 3 }, "b" : { "x" : -4, "y" : -4 }, "color" : [ 224, 193, 116, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : 2 }, "b" : { "x" : -3, "y" : 2 }, "color" : [ 104, 66, 30, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : 2 }, "b" : { "x" : 2, "y" : -3 }, "color" : [ 104, 66, 30, 255 ] },
+					{ "type" : "line", "a" : { "x" : 2, "y" : -3 }, "b" : { "x" : -3, "y" : -3 }, "color" : [ 255, 235, 174, 255 ] },
+					{ "type" : "line", "a" : { "x" : -3, "y" : 2 }, "b" : { "x" : -3, "y" : -3 }, "color" : [ 255, 235, 174, 255 ] }
+				]
+			}
+		]
+	},
+	"blocked" : {
+		"width" : 124,
+		"height" : 32,
+		"items" : [
+			{
+				"type" : "graphicalPrimitive",
+				"rect" : { "x" : 0, "y" : 0, "w" : 124, "h" : 32 },
+				"primitives" : [
+					{ "type" : "filledBox", "a" : { "x" : 0, "y" : 0 }, "b" : { "x" : -1, "y" : -1 }, "color" : [ 74, 62, 42, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 1, "y" : 1 }, "b" : { "x" : -2, "y" : -2 }, "color" : [ 143, 127, 86, 255 ] },
+					{ "type" : "filledBox", "a" : { "x" : 3, "y" : 3 }, "b" : { "x" : -4, "y" : -4 }, "color" : [ 174, 154, 108, 255 ] },
+					{ "type" : "rectangle", "a" : { "x" : 2, "y" : 2 }, "b" : { "x" : -3, "y" : -3 }, "color" : [ 102, 86, 60, 255 ] }
+				]
+			}
+		]
+	}
+}

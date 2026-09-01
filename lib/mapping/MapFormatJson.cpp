@@ -42,8 +42,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -123,12 +121,13 @@ namespace HeaderDetail
 
 namespace TriggeredEventsDetail
 {
-	static const std::array conditionNames =
-	{
-		"haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
-		"control",      "destroy",         "transport",       "daysPassed",
-		"isHuman",      "daysWithoutTown", "standardWin",     "constValue"
-	};
+		static const std::array conditionNames =
+		{
+			"haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
+			"control",      "destroy",         "transport",       "daysPassed",
+			"isHuman",      "daysWithoutTown", "standardWin",     "constValue",
+			"controlCurrent"
+		};
 
 	static const std::array typeNames = { "victory", "defeat" };
 
@@ -177,6 +176,7 @@ namespace TriggeredEventsDetail
 						event.objectType = BuildingID(BuildingID::decode(data["type"].String()));
 					break;
 				case EventCondition::CONTROL:
+					case EventCondition::CONTROL_CURRENT:
 				case EventCondition::DESTROY:
 					if (data["type"].isNumber()) // compatibility
 						event.objectType = MapObjectID(data["type"].Integer());
@@ -244,6 +244,7 @@ const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
+const std::string CMapFormatJson::SCRIPT_FILE_NAME = "script.lua";
 
 std::string getTerrainFilename(int i)
 {
@@ -771,7 +772,7 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 {
 	serializeRumors(handler);
-	
+
 	serializeTimedEvents(handler);
 
 	serializePredefinedHeroes(handler);
@@ -883,8 +884,19 @@ void CMapLoaderJson::readMap()
 	map->initTerrain();
 	readTerrain();
 	readObjects();
+	readScript();
 
 	map->calculateGuardingGreaturePositions();
+}
+
+void CMapLoaderJson::readScript()
+{
+	ScriptPath scriptPath = ScriptPath::builtin(SCRIPT_FILE_NAME);
+	if(!loader.existsResource(scriptPath))
+		return;
+
+	auto data = loader.load(scriptPath)->readAll();
+	map->scriptSource = std::string(reinterpret_cast<char *>(data.first.get()), data.second);
 }
 
 void CMapLoaderJson::readHeader(const bool complete)
@@ -920,7 +932,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	}
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
-	
+
 	//loading mods
 	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
@@ -1282,15 +1294,15 @@ void CMapLoaderJson::readTranslations()
 		if(isExistArchive(language.identifier + ".json"))
 			translationsFromFile.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
 	}
-	
+
 	// Register translations with map name prefix
 	if(!translationsFromFile.Struct().empty())
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
-		
+
 		std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
 		std::string baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
-		
+
 		// Determine base language from translations with most strings
 		int maxStrings = 0;
 		for(auto & translation : translationsFromFile.Struct())
@@ -1301,14 +1313,14 @@ void CMapLoaderJson::readTranslations()
 				baseLanguage = translation.first;
 			}
 		}
-		
+
 		// Load base language translations
 		if(translationsFromFile.Struct().count(baseLanguage))
 		{
 			for(auto & str : translationsFromFile[baseLanguage].Struct())
 			{
 				// Keys in JSON don't have map name (e.g. "header.name"), add map name when registering: map.<mapName>.<identifier>
-				TextIdentifier fullIdentifier = runningInMapEditor 
+				TextIdentifier fullIdentifier = runningInMapEditor
 					? TextIdentifier(str.first)
 					: TextIdentifier("map", actualMapName, str.first);
 				mapRegisterLocalizedString("map", *mapHeader, fullIdentifier, str.second.String(), baseLanguage);
@@ -1321,12 +1333,12 @@ void CMapLoaderJson::readTranslations()
 			JsonNode translationOverrides;
 			for(auto & str : translationsFromFile[preferredLanguage].Struct())
 			{
-				TextIdentifier fullIdentifier = runningInMapEditor 
+				TextIdentifier fullIdentifier = runningInMapEditor
 					? TextIdentifier(str.first)
 					: TextIdentifier("map", actualMapName, str.first);
 				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();
 			}
-			mapHeader->texts.loadTranslationOverrides("map", preferredLanguage, translationOverrides);
+			mapHeader->texts->loadTranslationOverrides("map", preferredLanguage, translationOverrides);
 		}
 	}
 }
@@ -1368,6 +1380,19 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 	writeHeader();
 	writeTerrain();
 	writeObjects();
+	writeScript();
+}
+
+void CMapSaverJson::writeScript()
+{
+	if(map->scriptSource.empty())
+		return;
+
+	const std::string & source = map->scriptSource;
+	std::unique_ptr<COutputStream> stream = saver.addFile(SCRIPT_FILE_NAME);
+
+	if(stream->write(reinterpret_cast<const ui8 *>(source.c_str()), source.size()) != source.size())
+		throw std::runtime_error("CMapSaverJson::writeScript() zip compression failed.");
 }
 
 void CMapSaverJson::writeHeader()
@@ -1543,5 +1568,3 @@ void CMapSaverJson::writeTranslations()
 		addToArchive(translationsToSave, language + ".json");
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

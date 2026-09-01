@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "JsonWriter.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename Iterator>
 void JsonWriter::writeContainer(Iterator begin, Iterator end)
 {
@@ -140,5 +138,3 @@ JsonWriter::JsonWriter(std::ostream & output, bool compact)
 	, compact(compact)
 {
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 
 /**
@@ -38,6 +36,7 @@ public:
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	bool createResource(const std::string & filename, bool update = false) override;
+	bool removeResource(const ResourcePath & resourceName) override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
@@ -48,7 +47,9 @@ private:
 	/** The base directory which is scanned and indexed. */
 	boost::filesystem::path baseDirectory;
 
-	mutable std::mutex fileListGuard;
+	// file list is rebuilt only when the game rescans a directory, while lookups happen from
+	// every thread that touches the filesystem - so readers must not exclude each other
+	mutable std::shared_mutex fileListGuard;
 	std::string mountPoint;
 	
 	size_t recursiveDepth;
@@ -70,5 +71,3 @@ private:
 	 */
 	std::unordered_map<ResourcePath, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };
-
-VCMI_LIB_NAMESPACE_END

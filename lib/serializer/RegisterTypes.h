@@ -29,7 +29,7 @@
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
@@ -41,9 +41,8 @@
 #include "../networkPacks/PacksForServer.h"
 #include "../networkPacks/SaveLocalState.h"
 #include "../networkPacks/SetRewardableConfiguration.h"
+#include "../networkPacks/SetScriptVariable.h"
 #include "../networkPacks/SetStackEffect.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 /// This method defines all types that are part of Serializeable hieararchy and can be serialized as their base type
 /// Each class is registered with a unique index that is used to determine correct type on deserialization
@@ -61,10 +60,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSubterraneanGate>(5);
 	s.template registerType<CGWhirlpool>(6);
 	s.template registerType<CGSignBottle>(7);
-	s.template registerType<CGKeys>(8);
-	s.template registerType<CGKeymasterTent>(9);
-	s.template registerType<CGBorderGuard>(10);
-	s.template registerType<CGBorderGate>(12);
+	s.template registerType<KeymasterTent>(9);
+	s.template registerType<QuestGate>(12);
 	s.template registerType<CGBoat>(13);
 	s.template registerType<CGMagi>(14);
 	s.template registerType<CGSirens>(15);
@@ -89,8 +86,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGArtifact>(36);
 	s.template registerType<CGResource>(37);
 	s.template registerType<CGMine>(38);
-	s.template registerType<CGSeerHut>(40);
-	s.template registerType<CGQuestGuard>(41);
+	s.template registerType<SeerHut>(40);
+	s.template registerType<QuestGuard>(41);
 	s.template registerType<IUpdater>(42);
 	s.template registerType<GrowsWithLevelUpdater>(43);
 	s.template registerType<TimesHeroLevelUpdater>(44);
@@ -129,6 +126,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CObstacleInstance>(79);
 	s.template registerType<SpellCreatedObstacle>(80);
 	s.template registerType<CPack>(82);
+	s.template registerType<QueryResolved>(83);
 	s.template registerType<PackageApplied>(84);
 	s.template registerType<SystemMessage>(85);
 	s.template registerType<PlayerBlocked>(86);
@@ -305,6 +303,9 @@ void registerTypes(Serializer &s)
 	s.template registerType<ChangeTactics>(262);
 	s.template registerType<CompositeUpdater>(263);
 	s.template registerType<BonusParameters>(264);
+	s.template registerType<LobbyQueryState>(265);
+	s.template registerType<LobbyModsCheck>(266);
+	s.template registerType<SetScriptVariable>(267);
+	s.template registerType<SetQuestHint>(268);
+	s.template registerType<BattleAnimationPlayed>(269);
 }
-
-VCMI_LIB_NAMESPACE_END

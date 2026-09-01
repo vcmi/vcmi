@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="server_name">VCMI Serveris</string>
+    <string name="shortcut_play">Žaisti VCMI</string>
+    <string name="shortcut_editor">Atverti VCMI Redaktorių</string>
+</resources>

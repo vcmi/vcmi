@@ -132,8 +132,8 @@ void HdExtractor::createModJson(std::optional<SubModType> submodType, QDir path,
 		}
 		
 		QFile jsonFile(path.filePath("mod.json"));
-		jsonFile.open(QFile::WriteOnly);
-		jsonFile.write(QJsonDocument(mod).toJson());
+		if (jsonFile.open(QFile::WriteOnly))
+			jsonFile.write(QJsonDocument(mod).toJson());
 	}
 	else
 	{
@@ -148,7 +148,7 @@ void HdExtractor::createModJson(std::optional<SubModType> submodType, QDir path,
 		};
 		
 		QFile jsonFile(path.filePath("mod.json"));
-		jsonFile.open(QFile::WriteOnly);
-		jsonFile.write(QJsonDocument(mod).toJson());
+		if (jsonFile.open(QFile::WriteOnly))
+			jsonFile.write(QJsonDocument(mod).toJson());
 	}
 }

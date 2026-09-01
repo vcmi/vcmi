@@ -18,8 +18,6 @@
 #include "../GameLibrary.h"
 #include "../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	: useFlying(true)
 	, useWaterWalking(true)
@@ -35,6 +33,7 @@ PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	, oneTurnSpecialLayersLimit(true)
 	, turnLimit(std::numeric_limits<uint8_t>::max())
 	, canUseCast(false)
+	, useDimensionDoor(false)
 	, allowLayerTransitioningAfterBattle(false)
 	, forceUseTeleportWhirlpool(false)
 {
@@ -73,5 +72,3 @@ CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(cons
 
 	return pathfinderHelper.get();
 }
-
-VCMI_LIB_NAMESPACE_END

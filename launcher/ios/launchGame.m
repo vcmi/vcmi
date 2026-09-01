@@ -1,5 +1,5 @@
 /*
- * main.m, part of VCMI engine
+ * launchGame.m, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,8 @@
  */
 #import <UIKit/UIKit.h>
 
-void launchGame(int argc, char * argv[]) {
+void launchGame(int argc, char * argv[])
+{
 	@autoreleasepool {
 		__auto_type app = UIApplication.sharedApplication;
 		__auto_type qtNativeWindowIndex = [app.windows indexOfObjectPassingTest:^BOOL(__kindof UIWindow * _Nonnull window, NSUInteger idx, BOOL * _Nonnull stop) {

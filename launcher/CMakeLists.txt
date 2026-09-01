@@ -73,6 +73,12 @@ set(launcher_HEADERS
 		prepare_p.h
 )
 
+# gamepad support relies on SDL, which is not linked into launcher on mobile platforms
+if(NOT ANDROID AND NOT IOS)
+	list(APPEND launcher_SRCS gamepadHandler.cpp)
+	list(APPEND launcher_HEADERS gamepadHandler.h)
+endif()
+
 set(launcher_FORMS
 		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
@@ -169,7 +175,10 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
-	vcmi_create_exe_shim(vcmilauncher)
+	if(USING_CONAN)
+		vcmi_copy_conan_runtime_deps(vcmilauncher)
+		vcmi_deploy_qt_runtime(vcmilauncher)
+	endif()
 endif()
 
 if(ENABLE_TRANSLATIONS)

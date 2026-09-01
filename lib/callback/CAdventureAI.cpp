@@ -10,9 +10,7 @@
 #include "StdInc.h"
 #include "CAdventureAI.h"
 
-#include "CDynLibHandler.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "AIFactory.h"
 
 CGlobalAI::CGlobalAI()
 {
@@ -34,7 +32,7 @@ void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * a
 {
 	assert(!battleAI);
 	assert(cbc);
-	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
+	battleAI = AIFactory::createBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
 	battleAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
@@ -69,9 +67,9 @@ void CAdventureAI::battleTriggerEffect(const BattleID & battleID, const BattleTr
     battleAI->battleTriggerEffect(battleID, bte);
 }
 
-void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
+void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle)
 {
-	battleAI->battleObstaclesChanged(battleID, obstacles);
+	battleAI->battleObstaclesChanged(battleID, obstacle);
 }
 
 void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
@@ -109,5 +107,3 @@ void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
 	battleAI->yourTacticPhase(battleID, distance);
 }
-
-VCMI_LIB_NAMESPACE_END

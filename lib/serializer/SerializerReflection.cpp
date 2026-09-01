@@ -25,8 +25,6 @@
 #include "../mapping/CCastleEvent.h"
 #include "../rmg/CMapGenOptions.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename Type>
 class SerializerReflection final : public ISerializerReflection
 {
@@ -64,6 +62,28 @@ public:
 	}
 };
 
+/// Loads pre-QUEST_REWORK CGBorderGuard instances (type id 10, removed in the quest
+/// rework) as QuestGuard, reading the old CGKeys-based layout and synthesising
+/// the requiredKeys limiter from the object's colour. Load-only.
+class BorderGuardCompatibility final : public ISerializerReflection
+{
+public:
+	Serializeable * createPtr(BinaryDeserializer & ar, IGameInfoCallback * cb) const override
+	{
+		return ClassObjectCreator<QuestGuard>::invoke(cb);
+	}
+
+	void loadPtr(BinaryDeserializer & ar, IGameInfoCallback * cb, Serializeable * data) const override
+	{
+		loadLegacyBorderGuard(ar, *dynamic_cast<QuestGuard*>(data));
+	}
+
+	void savePtr(BinarySerializer & s, const Serializeable * data) const override
+	{
+		throw std::runtime_error("Legacy CGBorderGuard must never be saved!");
+	}
+};
+
 template<typename Type>
 void CSerializationApplier::registerType(uint16_t ID)
 {
@@ -74,6 +94,8 @@ void CSerializationApplier::registerType(uint16_t ID)
 CSerializationApplier::CSerializationApplier()
 {
 	registerTypes(*this);
+	// legacy: pre-QUEST_REWORK CGBorderGuard (type id 10) loads as a QuestGuard
+	apps[10].reset(new BorderGuardCompatibility());
 }
 
 CSerializationApplier & CSerializationApplier::getInstance()
@@ -81,5 +103,3 @@ CSerializationApplier & CSerializationApplier::getInstance()
 	static CSerializationApplier registry;
 	return registry;
 }
-
-VCMI_LIB_NAMESPACE_END

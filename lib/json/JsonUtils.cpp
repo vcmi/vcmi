@@ -15,7 +15,6 @@
 
 #include "../filesystem/Filesystem.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 static const JsonNode nullNode;
 
@@ -110,8 +109,6 @@ static void maximizeNode(JsonNode & node, const JsonNode & schema)
 
 	eraseOptionalNodes(node, schema);
 }
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
@@ -421,5 +418,3 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

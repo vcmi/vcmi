@@ -10,13 +10,11 @@
 #include "StdInc.h"
 #include "CSaveFile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CSaveFile::CSaveFile()
 	: serializer(this)
 {
 	saveData.reserve(128*1024);
-	static const char * SAVE_HEADER = "VCMI";
+	static constexpr const char * SAVE_HEADER = "VCMI";
 
 	write(reinterpret_cast<const std::byte*>(SAVE_HEADER), 4); //write magic identifier
 	serializer & ESerializationVersion::CURRENT; //write format version
@@ -40,5 +38,3 @@ int CSaveFile::write(const std::byte * data, unsigned size)
 	saveData.insert(saveData.end(), data, data + size);
 	return size;
 }
-
-VCMI_LIB_NAMESPACE_END

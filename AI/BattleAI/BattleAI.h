@@ -12,14 +12,9 @@
 #include "../../lib/callback/CGameInterface.h"
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "TacticsHandler.h"
 
 class CSpell;
-
-VCMI_LIB_NAMESPACE_END
-
-class EnemyInfo;
 
 /*
 struct CurrentOffensivePotential
@@ -62,6 +57,8 @@ class CBattleAI : public CBattleGameInterface
 	bool wasWaitingForRealize;
 	int movesSkippedByDefense;
 
+	std::unique_ptr<TacticsHandler> tacticsHandler;
+
 public:
 	CBattleAI();
 	~CBattleAI();
@@ -79,7 +76,7 @@ public:
 	BattleAction useHealingTent(const BattleID & battleID, const CStack *stack);
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
-	//void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
+	void actionFinished(const BattleID & battleID, const BattleAction & action) override;
 	//void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
 	//void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
 	//void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override; //called when stack receives damage (after battleAttack())
@@ -87,7 +84,7 @@ public:
 	//void battleResultsApplied() override; //called when all effects of last battle are applied
 	//void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied;
 	//void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	//void battleStackMoved(const CStack * stack, BattleHexArray dest, int distance) override;
+	//void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	//void battleSpellCast(const BattleSpellCast *sc) override;
 	//void battleStacksEffectsSet(const SetStackEffect & sse) override;//called when a specific effect is set to stacks
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;

@@ -17,14 +17,18 @@
 #include "../filesystem/ResourcePath.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBonusBearer;
 class IPropagator;
 class IUpdater;
 class CSelector;
 class IGameInfoCallback;
 class BonusParameters;
+struct Bonus;
+
+namespace BonusMigration
+{
+DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);
+}
 
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
@@ -77,10 +81,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & sid;
 		h & description;
 
-		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
-			h & customIconPath;
-		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
-			h & hidden;
+		h & customIconPath;
+		h & hidden;
 		if (h.hasFeature(Handler::Version::BONUS_TRIGGER))
 		{
 			h & parameters;
@@ -100,6 +102,13 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & updater;
 		h & propagationUpdater;
 		h & targetSourceType;
+
+		//old saves stored BATTLE_NO_FLEEING in the slot now used by BATTLE_CAN_FLEE, it blocked retreating unconditionally
+		if(!h.saving && !h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && type == BonusType::BATTLE_CAN_FLEE)
+			val = -GameConstants::BATTLE_RETREAT_BLOCK;
+
+		if (!h.saving && !h.hasFeature(Handler::Version::COMBAT_ABILITY_SCRIPTS))
+			BonusMigration::migrateCombatAbility(*this);
 	}
 
 	void convertAddInfo(const std::vector<int> & oldAddInfo);
@@ -188,5 +197,3 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
-
-VCMI_LIB_NAMESPACE_END

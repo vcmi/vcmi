@@ -2,17 +2,64 @@
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI script format",
-	"description" : "Format used to configure script environment",
-	"required" : ["source"],
+	"description" : "Format used to define scripts of any kind in VCMI",
+	"required" : [ "implements", "script", "patches", "schema" ],
+	"additionalProperties" : false,
+	"allOf" : [
+		{
+			"if" : {
+				"required" : [ "implements" ],
+				"properties" : {
+					"implements" : { "const" : "combatEvent" }
+				}
+			},
+			"then" : {
+				"required" : [ "description", "priority" ]
+			}
+		}
+	],
 	"properties" : {
-		"source" : {
-			"type" : "string",
-			"description" : "Full VFS path to script source (extension required)"
-		},
 		"implements" : {
 			"type" : "string",
-			"enum" : ["ANYTHING", "BATTLE_EFFECT"],
-			"description" : ""
+			"enum" : [ "spellEffect", "combatEvent", "damageCalculator" ],
+			"description" : "Which part of the game this script implements. 'spellEffect' is an effect of a spell, 'combatEvent' reacts to events that happen to a unit in combat, 'damageCalculator' decides what an attack is worth"
+		},
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
+		"script" : {
+			"type" : "string",
+			"description" : "path to the script that represents this object"
+		},
+		"patches" : {
+			"type" : "array",
+			"description" : "Scripts stacked over this one, in order, each extending the previous. Declare an empty list when there are none, so that mods have a place to append to",
+			"items" : {
+				"type" : "string"
+			}
+		},
+		"schema" : {
+			"type" : "object",
+			"description" : "Json schema for validating the parameters that every user of this script passes to it. Declare a closed, empty one when the script takes none, so that anything passed by mistake is reported"
+		},
+		"stringRegistrations" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Parameters of this script that hold text shown to the player, and are to be registered for translation"
+		},
+		"description" : {
+			"type" : "string",
+			"description" : "description of the ability shown to the player, may refer to script parameters as ${parameterName}. Required of a combat event script, which shares one bonus type with every other and so has nothing else to describe it by"
+		},
+		"priority" : {
+			"type" : "number",
+			"description" : "order in which scripts reacting to the same combat event run, from lowest to highest. Required of a combat event script, since which of two abilities acts first is part of what each of them does"
 		}
 	}
 }

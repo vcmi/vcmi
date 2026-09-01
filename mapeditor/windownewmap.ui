@@ -16,18 +16,6 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>390</width>
-    <height>351</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>999</width>
-    <height>999</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Create new map</string>
   </property>
@@ -329,6 +317,19 @@
        </property>
        <property name="maximum">
         <number>99</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnMapLayers">
+       <property name="text">
+        <string>Layer</string>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>16777215</height>
+        </size>
        </property>
       </widget>
      </item>

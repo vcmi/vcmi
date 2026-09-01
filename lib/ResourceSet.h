@@ -12,8 +12,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using TResource = int32_t;
 using TResourceCap = int64_t; //to avoid overflow when adding integers. Signed values are easier to control.
 
@@ -222,25 +220,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		if (h.version >= Handler::Version::CONFIGURABLE_RESOURCES)
-			h & container;
-		else
-		{
-			if (h.saving)
-			{
-				std::array<TResource, 8> tmp = {};
-				for (size_t i = 0; i < 7; ++i)
-        			tmp[i] = container[i];
-				tmp[7] = TResource{};
-				h & tmp;
-			}
-			else
-			{
-				std::array<TResource, 8> tmp = {};
-				h & tmp;
-				container = std::vector<TResource>(tmp.begin(), tmp.begin() + 7);
-			}
-		}
+		h & container;
 	}
 
 	DLL_LINKAGE void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
@@ -281,5 +261,3 @@ public:
 
 using TResources = ResourceSet;
 
-
-VCMI_LIB_NAMESPACE_END

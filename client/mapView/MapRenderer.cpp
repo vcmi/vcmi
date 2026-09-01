@@ -503,12 +503,12 @@ std::shared_ptr<IImage> MapRendererObjects::getImageToRender(const IMapRendererC
 	return animation->getImage(frameIndex, groupIndex);
 }
 
-void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image)
+void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image, double transparencyFactor)
 {
 	if(!image)
 		return;
 
-	auto transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id, coordinates)));
+	auto transparency = static_cast<uint8_t>(std::round(255 * context.objectTransparency(object->id, coordinates) * transparencyFactor));
 
 	if (transparency == 0)
 		return;
@@ -532,15 +532,18 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 	}
 }
 
-void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
+void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance, double transparencyFactor)
 {
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)), transparencyFactor);
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)), transparencyFactor);
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)), transparencyFactor);
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	const CGObjectInstance * activeHero = nullptr;
+	bool activeHeroCovered = false;
+
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
@@ -552,8 +555,18 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 			continue;
 		}
 
+		if(context.isActiveHero(objectInstance))
+			activeHero = objectInstance;
+		else if(activeHero)
+			activeHeroCovered = true;
+
 		renderObject(context, target, coordinates, objectInstance);
 	}
+
+	// Like H3, draw the active hero a second time on top of the objects that cover him,
+	// so he stays visible behind obstacles - e.g. a town, or anything he flies over
+	if(activeHeroCovered)
+		renderObject(context, target, coordinates, activeHero, activeHeroTransparency);
 }
 
 uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 & coordinates)
@@ -735,7 +748,7 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 	if(!path)
 		return std::numeric_limits<size_t>::max();
 
-	const auto & iter = boost::range::find_if(path->nodes, functor);
+	const auto & iter = std::ranges::find_if(path->nodes, functor);
 
 	if(iter == path->nodes.end())
 		return std::numeric_limits<size_t>::max();
@@ -770,7 +783,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 	// computes basic checksum to determine whether tile needs an update
 	// if any component gives different value, tile will be updated
 	TileChecksum result;
-	boost::range::fill(result, std::numeric_limits<uint8_t>::max());
+	std::ranges::fill(result, std::numeric_limits<uint8_t>::max());
 
 	if(!context.isInMap(coordinates))
 	{

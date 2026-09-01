@@ -132,12 +132,14 @@ const JsonNode & ButtonBase::getCurrentConfig() const
 void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
 {
 	OBJECT_CONSTRUCTION;
+	const Point currentPosition = pos.topLeft();
 
 	config = std::make_unique<JsonNode>(jsonName);
 
 	image.reset();
 	configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 	pos = configurable->pos;
+	moveTo(currentPosition);
 
 	if (playerColoredButton)
 		image->setPlayerColor(GAME->interface()->playerID);
@@ -169,8 +171,10 @@ void ButtonBase::setStateImpl(EButtonState newState)
 	if (configurable)
 	{
 		OBJECT_CONSTRUCTION;
+		const Point currentPosition = pos.topLeft();
 		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 		pos = configurable->pos;
+		moveTo(currentPosition);
 
 		if (overlay)
 		{
@@ -189,7 +193,15 @@ void CButton::setState(EButtonState newState)
 		return;
 
 	if (newState == EButtonState::BLOCKED)
+	{
 		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+		// a blocked button no longer receives hover-out, so drop any status-bar text it set
+		const std::string & name = hoverTexts[vstd::to_underlying(getState())].empty()
+			? hoverTexts[0]
+			: hoverTexts[vstd::to_underlying(getState())];
+		if(!name.empty())
+			ENGINE->statusbar()->clearIfMatching(name);
+	}
 	else
 		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
@@ -226,11 +238,6 @@ void CButton::setSoundDisabled(bool on)
 	soundDisabled = on;
 }
 
-void CButton::setActOnDown(bool on)
-{
-	actOnDown = on;
-}
-
 void CButton::setHelp(const std::pair<std::string, std::string> & help)
 {
 	hoverTexts[0] = help.first;
@@ -258,6 +265,19 @@ void CButton::onButtonClicked()
 	callback();
 }
 
+void CButton::playClickSound(bool released)
+{
+	// on touch the pressed state is already shown on finger-down, so sound is played on click instead
+	// otherwise long press or panning would also sound like a click
+	bool playOnRelease = ENGINE->input().getCurrentInputMode() == InputMode::TOUCH;
+
+	if(!soundDisabled && released == playOnRelease)
+	{
+		ENGINE->sound().playSound(soundBase::button);
+		ENGINE->input().hapticFeedback();
+	}
+}
+
 void CButton::clickPressed(const Point & cursorPosition)
 {
 	if(isBlocked())
@@ -265,41 +285,32 @@ void CButton::clickPressed(const Point & cursorPosition)
 
 	if (getState() != EButtonState::PRESSED)
 	{
-		if (!soundDisabled)
-		{
-			ENGINE->sound().playSound(soundBase::button);
-			ENGINE->input().hapticFeedback();
-		}
+		playClickSound(false);
 		setState(EButtonState::PRESSED);
-
-		if (actOnDown)
-			onButtonClicked();
 	}
+}
+
+bool CButton::isHoverHighlighted() const
+{
+	// touch input has no real hovering - highlight would remain visible after finger is lifted
+	return hoverable && isHovered() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH;
 }
 
 void CButton::clickReleased(const Point & cursorPosition)
 {
 	if (getState() == EButtonState::PRESSED)
 	{
-		if(hoverable && isHovered())
-			setState(EButtonState::HIGHLIGHTED);
-		else
-			setState(EButtonState::NORMAL);
+		playClickSound(true);
+		setState(isHoverHighlighted() ? EButtonState::HIGHLIGHTED : EButtonState::NORMAL);
 
-		if (!actOnDown)
-			onButtonClicked();
+		onButtonClicked();
 	}
 }
 
 void CButton::clickCancel(const Point & cursorPosition)
 {
 	if (getState() == EButtonState::PRESSED)
-	{
-		if(hoverable && isHovered())
-			setState(EButtonState::HIGHLIGHTED);
-		else
-			setState(EButtonState::NORMAL);
-	}
+		setState(isHoverHighlighted() ? EButtonState::HIGHLIGHTED : EButtonState::NORMAL);
 }
 
 void CButton::showPopupWindow(const Point & cursorPosition)
@@ -310,9 +321,18 @@ void CButton::showPopupWindow(const Point & cursorPosition)
 		CRClickPopup::createAndPush(helpBox);
 }
 
+void CButton::onTouchPress(bool on)
+{
+	// touch press only shows click state, actual click is handled on finger-up
+	if(on)
+		clickPressed(ENGINE->getCursorPosition());
+	else
+		clickCancel(ENGINE->getCursorPosition());
+}
+
 void CButton::hover (bool on)
 {
-	if(hoverable && !isBlocked())
+	if(hoverable && !isBlocked() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH)
 	{
 		if(on)
 			setState(EButtonState::HIGHLIGHTED);
@@ -363,7 +383,6 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	ButtonBase(position, defName, key, playerColoredButton),
 	callback(Callback),
 	helpBox(help.second),
-	actOnDown(false),
 	hoverable(false),
 	soundDisabled(false)
 {
@@ -498,10 +517,9 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (canActivate())
+	if (canActivate() && getState() != EButtonState::PRESSED)
 	{
-		ENGINE->sound().playSound(soundBase::button);
-		ENGINE->input().hapticFeedback();
+		playClickSound(false);
 		setState(EButtonState::PRESSED);
 	}
 }
@@ -517,6 +535,7 @@ void CToggleButton::clickReleased(const Point & cursorPosition)
 
 	if (getState() == EButtonState::PRESSED && canActivate())
 	{
+		playClickSound(true);
 		onButtonClicked();
 		setSelected(!isSelected());
 	}

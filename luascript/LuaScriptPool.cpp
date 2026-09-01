@@ -15,8 +15,6 @@
 
 #include "../lib/json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -25,17 +23,29 @@ LuaScriptPool::LuaScriptPool(const LuaModule & luaModule, const Environment * EN
 {
 }
 
+LuaScriptPool::~LuaScriptPool() = default;
+
 void LuaScriptPool::registerScript(const LuaScriptInstance * script)
 {
-	auto context = script->createContext(env);
-	cache[script] = context;
-	context->initialize();
+	scripts[script] = script;
+
+	// Build the state of the registering thread right away so that a broken script is reported
+	// on session start, as before, instead of on first use in the middle of a game
+	getContext(script);
 }
 
 std::shared_ptr<Context> LuaScriptPool::getContext(const Script * script) const
 {
-	return cache.at(script);
-}
-}
+	auto & threadContexts = contexts.local();
 
-VCMI_LIB_NAMESPACE_END
+	auto it = threadContexts.find(script);
+	if(it == threadContexts.end())
+	{
+		auto context = scripts.at(script)->createContext(env);
+		context->initialize();
+		it = threadContexts.emplace(script, std::move(context)).first;
+	}
+
+	return it->second;
+}
+}

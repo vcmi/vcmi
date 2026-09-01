@@ -19,7 +19,36 @@
 
 #include <iconv.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
+const static int CHAR_PER_TYPO_ALLOWED = 4;
+
+/// iconv_open takes a process-wide lock, so opening a descriptor per converted string
+/// serializes all threads. Descriptors carry conversion state and must not be shared
+/// between threads, hence one cache per thread rather than one global cache.
+static iconv_t getConversionDescriptor(const std::string & fromEncoding, const std::string & destEncoding)
+{
+    struct DescriptorCache : boost::noncopyable
+	{
+		std::map<std::pair<std::string, std::string>, iconv_t> descriptors;
+
+		~DescriptorCache()
+		{
+			for(const auto & entry : descriptors)
+				if(entry.second != reinterpret_cast<iconv_t>(-1))
+					iconv_close(entry.second);
+		}
+	};
+
+	static thread_local DescriptorCache cache;
+
+	std::pair key(fromEncoding, destEncoding);
+	auto it = cache.descriptors.find(key);
+
+	// failed opens are cached as well, to avoid retrying an encoding that iconv does not know
+	if(it == cache.descriptors.end())
+        it = cache.descriptors.try_emplace(key, iconv_open(destEncoding.c_str(), fromEncoding.c_str())).first;
+
+	return it->second;
+}
 
 template<typename FromString, typename DestString>
 FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
@@ -27,7 +56,7 @@ FromString convertTextEncoding(const DestString & fromString, const std::string 
 	constexpr auto fromCharSize = sizeof(typename DestString::value_type);
 	constexpr auto destCharSize = sizeof(typename FromString::value_type);
 
-	iconv_t cd = iconv_open(destEncoding.c_str(), fromEncoding.c_str());
+	iconv_t cd = getConversionDescriptor(fromEncoding, destEncoding);
 	if(cd == reinterpret_cast<iconv_t>(-1))
 	{
 		logGlobal->error("Encoding coversion failure. Invalid encoding %s -> %s", fromEncoding, destEncoding);
@@ -46,7 +75,10 @@ FromString convertTextEncoding(const DestString & fromString, const std::string 
 	size_t destLeft = destString.size() * destCharSize;
 
 	size_t ret = iconv(cd, &fromData, &fromLeft, &destData, &destLeft);
-	iconv_close(cd);
+
+	// descriptor outlives this call, so shift state - including state left behind by a
+	// failed conversion - must not leak into the next string
+	iconv(cd, nullptr, nullptr, nullptr, nullptr);
 
 	if(ret == static_cast<size_t>(-1))
 	{
@@ -391,20 +423,28 @@ DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, 
 	) < 0;
 }
 
-std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & needle, const std::string & haystack)
+bool TextOperations::isFuzzyMatch(const std::string & needle, const std::string & haystack)
 {
-	// 0 - Best possible match: text starts with the search string
-	if(haystack.rfind(needle, 0) == 0)
-		return 0;
+	return isRelevantScore(needle, textSearchSimilarityScore(needle, haystack));
+}
 
-	// 1 - Strong match: text contains the search string
+bool TextOperations::isRelevantScore(const std::string & needle, const int & score)
+{
+	int charCount = getUnicodeCharactersCount(needle);
+	if (charCount == 0)
+		return score == 0;
+	return score == 0 || score <= charCount/CHAR_PER_TYPO_ALLOWED;
+}
+
+int TextOperations::textSearchSimilarityScore(const std::string & needle, const std::string & haystack)	//here
+{
+	// Strong match: text contains the search string
 	if(haystack.find(needle) != std::string::npos)
-		return 1;
+		return 0;
 
 	// Dynamic threshold: Reject if too many typos based on word length
 	int haystackCodepoints = getUnicodeCharactersCount(haystack);
 	int needleCodepoints = getUnicodeCharactersCount(needle);
-	int maxAllowedDistance = needleCodepoints / 2;
 
 	// Compute Levenshtein distance for fuzzy similarity
 	int minDist = std::numeric_limits<int>::max();
@@ -423,11 +463,7 @@ std::optional<int> TextOperations::textSearchSimilarityScore(const std::string &
 		minDist = std::min(minDist, dist);
 	}
 
-	// Apply scaling: Short words tolerate smaller distances
-	if(needle.size() > 2 && minDist <= 2)
-		minDist += 1;
-
-	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
+	return minDist;
 }
 
 std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& path)
@@ -461,5 +497,3 @@ std::string TextOperations::convertMapName(std::string input)
 
 	return input;
 }
-
-VCMI_LIB_NAMESPACE_END

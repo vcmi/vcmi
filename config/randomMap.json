@@ -1,48 +1,65 @@
 {
-  "waterZone" :
-  {
-    "treasure" :
-    [
-        { "min" : 4000, "max" : 12000, "density" : 1 },
-        { "min" : 1000, "max" : 4000, "density" : 3 },
-        { "min" : 100, "max" : 1000, "density" : 6 }
-    ],
-    "shipyard" :
-    {
-      "value" : 3500
-    }
-  },
-  "mines" :
-  {
-    "extraResourcesLimit" : 3
-  },
-  "minGuardStrength" : 2000,
-  "defaultRoadType" : "cobblestoneRoad",
-  "secondaryRoadType": "dirtRoad",
-  "treasureValueLimit" : 20000, //generate pandora with gold for treasure above this limit
-  "prisons" :
-  {
-    "experience" : [0, 5000, 15000, 90000, 500000],
-    "value" : [2500, 5000, 10000, 20000, 30000],
-  },
-  "scrolls" :
-  {
-    "value" : [500, 2000, 3000, 4000, 5000],
-  },
-  "pandoras" :
-  {
-    "valueMultiplierGold" : 5000,
-    "valueMultiplierExperience" : 6000,
-    "valueMultiplierSpells" : 2500,
-    "valueSpellSchool" : 15000,
-    "valueSpell60" : 30000,
-    "creaturesValue" : [5000, 7000, 9000, 12000, 16000, 21000, 27000]
-  },
-  "quests" : 
-  {
-    "seerHutValue" : 500,
-    "value" : [2000, 5333, 8666, 12000],
-    "rewardValue" : [5000, 10000, 15000, 20000]
-  },
-  "singleThread" : false
+	"waterZone" :
+	{
+		"treasure" :
+		[
+			{ "min" : 4000, "max" : 12000, "density" : 1 },
+			{ "min" : 1000, "max" : 4000, "density" : 3 },
+			{ "min" : 100, "max" : 1000, "density" : 6 }
+		],
+		"shipyard" :
+		{
+			"value" : 3500
+		}
+	},
+	"mines" :
+	{
+		"extraResourcesLimit" : 3
+	},
+	"minGuardStrength" : 2000,
+	"defaultRoadType" : "cobblestoneRoad",
+	"secondaryRoadType": "dirtRoad",
+	"treasureValueLimit" : 20000, //generate pandora with gold for treasure above this limit
+	"prisons" :
+	{
+		"experience" : [0, 5000, 15000, 90000, 500000],
+		"value" : [2500, 5000, 10000, 20000, 30000],
+	},
+	"scrolls" :
+	{
+		"value" : [500, 2000, 3000, 4000, 5000],
+	},
+	"pandoras" :
+	{
+		"valueMultiplierGold" : 5000,
+		"valueMultiplierExperience" : 6000,
+		"valueMultiplierSpells" : 2500,
+		"valueSpellSchool" : 15000,
+		"valueSpell60" : 30000,
+		"creaturesValue" : [5000, 7000, 9000, 12000, 16000, 21000, 27000]
+	},
+	"quests" :
+	{
+		"seerHutValue" : 500,
+		"value" : [2000, 5333, 8666, 12000],
+		"rewardValue" : [5000, 10000, 15000, 20000]
+	},
+	"singleThread" : false,
+
+	"zonePlacement" :
+	{
+		// max distance between the two ends of a subterranean gate (0 = gates must share a column)
+		"maxGateDistance" : 16,
+
+		// number of layouts to test, best connection score wins
+		"attempts" : 8,
+
+		// how strongly the initial zone grid keeps player starts apart, without giving up an adjacency (0 = off)
+		"playerRepulsion" : 1.0,
+
+		// connection score weights, lower total is better
+		"scoreDirect" : 0,
+		"scoreSubterraneanGate" : 2,
+		"scoreMonolith" : 10
+	}
 }

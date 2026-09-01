@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LuaCallWrapper.h"
+#include "api/LuaRegistrar.h"
 
 /*
  * Original code is LunaWrapper by nornagon.
@@ -20,20 +21,11 @@
  *
  */
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
 namespace detail
 {
-	struct CustomRegType
-	{
-		const char * name;
-		lua_CFunction functor;
-		bool isStatic;
-	};
-
 	template <typename P, typename U>
 	struct Dispatcher
 	{
@@ -46,15 +38,9 @@ namespace detail
 
 			lua_newtable(L);
 
-			for(auto & reg : ProxyType::REGISTER_CUSTOM)
-			{
-				if(!reg.isStatic)
-				{
-					lua_pushstring(L, reg.name);
-					lua_pushcclosure(L, reg.functor, 0);
-					lua_rawset(L, -3);
-				}
-			}
+			api::LuaRegistrar reg(L, lua_gettop(L));
+			ProxyType::registerMethods(reg);
+
 			lua_rawset(L, -3);
 		}
 
@@ -115,16 +101,24 @@ public:
 	using UDataType = ObjectType *;
 	using CUDataType = const ObjectType *;
 
-	using CustomRegType = detail::CustomRegType;
-
 	static_assert(std::is_base_of_v<TagRawPointer, ObjectType>, "Class must inherit from ApiRawPointer to be used with this class!");
 	static_assert(!std::is_base_of_v<TagSharedPointer, ObjectType>, "Class must not inherit from ApiSharedPointer to be used with this class!");
 	static_assert(!std::is_base_of_v<TagCopyable, ObjectType>, "Class must not inherit from ApiCopyable to be used with this class!");
 
-	void pushMetatable(lua_State * L) const override final
+	void collectDocs(api::MethodRegistrar & sink) const final
+	{
+		Proxy::registerMethods(sink);
+	}
+
+	std::string_view getDescription() const final
+	{
+		return Proxy::luaDescription;
+	}
+
+	void pushMetatable(lua_State * L) const final
 	{
 		static const auto KEY = api::Registry::get()->getTypeName<UDataType>();
-		static auto S_KEY = api::Registry::get()->getTypeName<CUDataType>();
+		static const auto S_KEY = api::Registry::get()->getTypeName<CUDataType>();
 
 		LuaStack S(L);
 
@@ -144,7 +138,7 @@ public:
 	}
 
 protected:
-	void adjustMetatable(lua_State * L) const override
+	void adjustMetatable(lua_State * L) const final
 	{
 		detail::Dispatcher<Proxy, UDataType>::setIndexTable(L);
 
@@ -181,11 +175,19 @@ class SharedPointerWrapper : public RegistarBase
 public:
 	using ObjectType = typename std::remove_cv_t<T>;
 	using UDataType = std::shared_ptr<T>;
-	using CustomRegType = detail::CustomRegType;
-
 	static_assert(std::is_base_of_v<TagSharedPointer, ObjectType>, "Class must inherit from ApiSharedPointer to be used with this class!");
 	static_assert(!std::is_base_of_v<TagRawPointer, ObjectType>, "Class must not inherit from ApiRawPointer to be used with this class!");
 	static_assert(!std::is_base_of_v<TagCopyable, ObjectType>, "Class must not inherit from ApiCopyable to be used with this class!");
+
+	void collectDocs(api::MethodRegistrar & sink) const final
+	{
+		Proxy::registerMethods(sink);
+	}
+
+	std::string_view getDescription() const final
+	{
+		return Proxy::luaDescription;
+	}
 
 	static int constructor(lua_State * L)
 	{
@@ -196,7 +198,7 @@ public:
 		return 1;
 	}
 
-	void pushMetatable(lua_State * L) const override final
+	void pushMetatable(lua_State * L) const final
 	{
 		static const auto KEY = api::Registry::get()->getTypeName<UDataType>();
 
@@ -218,7 +220,7 @@ public:
 		adjustStaticTable(L);
 	}
 protected:
-	void adjustMetatable(lua_State * L) const override
+	void adjustMetatable(lua_State * L) const final
 	{
 		detail::Dispatcher<Proxy, UDataType>::setIndexTable(L);
 
@@ -254,11 +256,19 @@ class CopyableWrapper : public RegistarBase
 public:
 	using ObjectType = typename std::remove_cv_t<T>;
 	using UDataType = T;
-	using CustomRegType = detail::CustomRegType;
-
 	static_assert(std::is_base_of_v<TagCopyable, ObjectType>, "Class must inherit from ApiCopyable to be used with this class!");
 	static_assert(!std::is_base_of_v<TagRawPointer, ObjectType>, "Class must not inherit from ApiRawPointer to be used with this class!");
 	static_assert(!std::is_base_of_v<TagSharedPointer, ObjectType>, "Class must not inherit from ApiSharedPointer to be used with this class!");
+
+	void collectDocs(api::MethodRegistrar & sink) const final
+	{
+		Proxy::registerMethods(sink);
+	}
+
+	std::string_view getDescription() const final
+	{
+		return Proxy::luaDescription;
+	}
 
 	static int constructor(lua_State * L)
 	{
@@ -269,7 +279,7 @@ public:
 		return 1;
 	}
 
-	void pushMetatable(lua_State * L) const override final
+	void pushMetatable(lua_State * L) const final
 	{
 		static const auto KEY = api::Registry::get()->getTypeName<UDataType>();
 
@@ -291,7 +301,7 @@ public:
 		adjustStaticTable(L);
 	}
 protected:
-	void adjustMetatable(lua_State * L) const override
+	void adjustMetatable(lua_State * L) const final
 	{
 		detail::Dispatcher<Proxy, UDataType>::setIndexTable(L);
 
@@ -325,5 +335,3 @@ private:
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

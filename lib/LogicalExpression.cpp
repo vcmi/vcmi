@@ -14,12 +14,13 @@
 #include "GameLibrary.h"
 #include "texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string LogicalExpressionDetail::getTextForOperator(const std::string & operation)
 {
 	//placed in cpp mostly to avoid unnecessary includes in header
 	return LIBRARY->generaltexth->translate("vcmi.logicalExpressions." + operation);
 }
 
-VCMI_LIB_NAMESPACE_END
+std::string LogicalExpressionDetail::getTextForSeparator(const std::string & separator)
+{
+	return LIBRARY->generaltexth->translate("vcmi.logicalExpressions.separator." + separator);
+}

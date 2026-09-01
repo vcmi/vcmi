@@ -6,8 +6,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonKeyExtractor::JsonKeyExtractor(IGameInfoCallback * cb) : cb(cb) {}
 
 si32 JsonKeyExtractor::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
@@ -26,6 +24,11 @@ si32 JsonKeyExtractor::loadVariable(const std::string & variableGroup, const std
 		return defaultValue;
 	}
 	return variables.at(variableID);
+}
+
+bool JsonKeyExtractor::canOverwriteMapSettings(const JsonNode & value) const
+{
+	return value.isString();
 }
 
 std::set<ArtifactID> JsonKeyExtractor::filterKeysTyped(const JsonNode & value, const std::set<ArtifactID> & valuesSet)
@@ -138,5 +141,3 @@ std::set<SpellID> JsonKeyExtractor::filterKeysTyped(const JsonNode & value, cons
 	}
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

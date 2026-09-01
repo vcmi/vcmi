@@ -30,13 +30,11 @@
 #include "MapFormatJson.h"
 #include "../callback/EditorCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameInfoCallback * cb) const
 {
 	std::string modName = LIBRARY->modh->findResourceOrigin(name);
-	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
+	std::string encoding = LIBRARY->modh->getResourceEncoding(name, modName);
 
 	auto stream = getStreamFromFS(name);
 	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
@@ -50,7 +48,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameInfoC
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name, bool isEditor) const
 {
 	std::string modName = LIBRARY->modh->findResourceOrigin(name);
-	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
+	std::string encoding = LIBRARY->modh->getResourceEncoding(name, modName);
 
 	auto stream = getStreamFromFS(name);
 	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
@@ -187,5 +185,3 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 	logGlobal->debug("Request to patch map %s", scenarioName);
 	return std::make_unique<CMapPatcher>(LIBRARY->mapFormat->mapOverrides(scenarioName));
 }
-
-VCMI_LIB_NAMESPACE_END

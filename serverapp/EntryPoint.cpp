@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include <vstd/DateUtils.h>
+
 #include "../server/CVCMIServer.h"
 
 #include "../lib/CConsoleHandler.h"
@@ -25,11 +27,23 @@
 #include "mapping/CMapService.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
+#include "../luascript/LuaModule.h"
 
 #include <boost/program_options.hpp>
 
+#include <vcmi/scripting/Service.h>
+
 static const std::string SERVER_NAME_AFFIX = "server";
-static const std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
+static const std::string SERVER_NAME = std::string(GameConstants::VCMI_PROJECT_NAME_VERSIONED) + " (" + SERVER_NAME_AFFIX + ')';
+
+static void exportLuaApiDocs(const boost::filesystem::path & outPath)
+{
+	auto scriptHandler = std::make_unique<scripting::LuaModule>();
+	scriptHandler->exportDocs(outPath);
+
+	logGlobal->info("Lua API documentation export complete");
+	logGlobal->info("Generated files can be found in " + outPath.string() + " directory");
+}
 
 static void generateTranslations(const std::string & modID)
 {
@@ -37,17 +51,20 @@ static void generateTranslations(const std::string & modID)
 	LIBRARY->loadFilesystem(false);
 	settings.init("config/settings.json", "vcmi:settings");
 
-	ModManager mods;
+	auto mods = std::make_unique<ModManager>();
 
-	if (!mods.isModActive(modID))
-		mods.tryEnableMods({modID});
+	std::string oldPresetName = mods->getActivePreset();
+	mods->createNewPreset("translation-export");
+	mods->activatePreset("translation-export");
+	mods = std::make_unique<ModManager>();
+	mods->tryEnableMods({modID});
 
-	for (const auto & submod : mods.getModSettings(modID))
+	for (const auto & submod : mods->getModSettings(modID))
 	{
 		try
 		{
 			if (!submod.second)
-				mods.tryEnableMods({modID + '.' + submod.first});
+				mods->tryEnableMods({modID + '.' + submod.first});
 		}
 		catch (const std::exception &)
 		{
@@ -55,7 +72,7 @@ static void generateTranslations(const std::string & modID)
 		}
 	}
 
-	for (const auto & submod : mods.getModSettings(modID))
+	for (const auto & submod : mods->getModSettings(modID))
 		if (!submod.second)
 			logGlobal->warn("Failed to enable submod %s", submod.first);
 
@@ -147,8 +164,29 @@ static void generateTranslations(const std::string & modID)
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translationFull";
 	boost::filesystem::create_directories(outPath);
 
-	for (const auto & modWithOverrides : modsWithOverrides)
-		mods.tryDisableMod(modWithOverrides);
+	mods->createNewPreset("translation-export-base");
+	mods->activatePreset("translation-export-base");
+	mods = std::make_unique<ModManager>();
+	mods->tryEnableMods({modID});
+
+	for (const auto & submod : mods->getModSettings(modID))
+	{
+		try
+		{
+			std::string fullModID = modID + '.' + submod.first;
+			bool hasOverrides = vstd::contains(modsWithOverrides, fullModID);
+			if (!submod.second && !hasOverrides)
+				mods->tryEnableMods({fullModID});
+
+			if (submod.second && hasOverrides)
+				mods->tryDisableMod(fullModID);
+		}
+		catch (const std::exception &)
+		{
+			// failed to enable mod - ignore, will be logged later
+		}
+	}
+
 
 	CResourceHandler::destroy();
 	delete LIBRARY;
@@ -179,6 +217,9 @@ static void generateTranslations(const std::string & modID)
 		}
 	}
 
+	mods->activatePreset(oldPresetName);
+	mods->deletePreset("translation-export");
+	mods->deletePreset("translation-export-base");
 	logGlobal->info("Translation export complete");
 	logGlobal->info("Extracted files can be found in " + outPath.string() + " directory\n");
 
@@ -193,6 +234,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("run-by-client", "indicate that server launched by client on same machine")
 	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("translate-mod", boost::program_options::value<std::string>(), "Export translations for specified mod")
+	("export-lua-docs", boost::program_options::value<std::string>(), "Export Lua scripting API documentation to specified directory")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
@@ -213,8 +255,9 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	if(options.count("help"))
 	{
 		auto time = std::time(nullptr);
-		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
+		std::tm tm = vstd::safeLocalTime(time);
+		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", tm.tm_year + 1900);
 		printf("This is free software; see the source for copying conditions. There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		printf("\n");
@@ -229,9 +272,15 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		exit(0);
 	}
 
+	if(options.count("export-lua-docs"))
+	{
+		exportLuaApiDocs(options["export-lua-docs"].as<std::string>());
+		exit(0);
+	}
+
 	if(options.count("version"))
 	{
-		printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+		printf("%s\n", GameConstants::VCMI_VERSION);
 		std::cout << VCMIDirs::get().genHelpString();
 		exit(0);
 	}
@@ -266,7 +315,6 @@ int main(int argc, const char * argv[])
 		CVCMIServer server(port, runByClient);
 		server.prepare(connectToLobby, true);
 		server.run();
-
 		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 

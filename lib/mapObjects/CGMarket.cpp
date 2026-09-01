@@ -27,8 +27,6 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ObjectInstanceID CGMarket::getObjInstanceID() const
 {
 	return id;
@@ -44,18 +42,18 @@ void CGMarket::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 	gameEvents.showObjectWindow(this, EOpenWindowMode::MARKET_WINDOW, h, true);
 }
 
-std::string CGMarket::getPopupText(PlayerColor player) const
+MetaString CGMarket::getPopupText(PlayerColor player) const
 {
 	if (!getMarketHandler()->hasDescription())
 		return getHoverText(player);
 
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
-	message.replaceName(ID, subID);
+	message.replaceTextID(getObjectNameTextID());
 	message.replaceTextID(getMarketHandler()->getDescriptionTextID());
-	return message.toString();
+	return message;
 }
 
-std::string CGMarket::getPopupText(const CGHeroInstance * hero) const
+MetaString CGMarket::getPopupText(const CGHeroInstance * hero) const
 {
 	return getPopupText(hero->getOwner());
 }
@@ -68,6 +66,26 @@ int CGMarket::getMarketEfficiency() const
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	return -1;
+}
+
+std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
+{
+	const auto & tradeableResources = getMarketHandler()->getTradeableResources();
+
+	// market that trades only some of the resources, e.g. Warlock's Lab
+	if(!tradeableResources.empty() && mode == EMarketMode::RESOURCE_RESOURCE)
+		return std::vector<TradeItemBuy>(tradeableResources.begin(), tradeableResources.end());
+
+	return IMarket::availableItemsIds(mode);
+}
+
+double CGMarket::getMarketExchangeEffectiveness() const
+{
+	// market with exchange effectiveness set explicitly in its config, e.g. Warlock's Lab
+	if(double effectiveness = getMarketHandler()->getMarketExchangeEffectiveness(); effectiveness > 0)
+		return effectiveness;
+
+	return IMarket::getMarketExchangeEffectiveness();
 }
 
 std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
@@ -165,5 +183,3 @@ std::vector<Component> CGUniversity::getPopupComponents(PlayerColor player) cons
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

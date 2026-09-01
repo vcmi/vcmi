@@ -13,11 +13,9 @@
 #include <QDialog>
 #include <set>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
-VCMI_LIB_NAMESPACE_END
+class CGObjectInstance;
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class Validator;
@@ -51,6 +49,22 @@ private:
 
 	QRect screenGeometry;
 
+	enum PresetState
+	{
+        VALID,
+        OVERWRITES_MAP_SETTINGS,
+        ILLEGAL,
+        INVALID
+	};
+
+	template<typename IdentifierType>
+	static PresetState validatePreset(
+        const CMap * map,
+		const std::shared_ptr<CGObjectInstance> & object,
+		const std::string & category,
+		const std::string & name,
+		const std::set<IdentifierType> & allowedEntities
+	);
 	void showValidationResults(const CMap * map);
 	void adjustWindowSize();
 };

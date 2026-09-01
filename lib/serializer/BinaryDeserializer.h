@@ -14,8 +14,6 @@
 #include "SerializerReflection.h"
 #include "../bonuses/BonusEnum.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Main class for deserialization of classes from binary form
 /// Effectively revesed version of BinarySerializer
 class BinaryDeserializer
@@ -45,7 +43,6 @@ public:
 	{
 		loadedPointers.clear();
 		loadedSharedPointers.clear();
-		loadedUniquePointers.clear();
 	}
 
 	bool hasFeature(Version v) const
@@ -57,9 +54,10 @@ private:
 	static constexpr bool trackSerializedPointers = true;
 
 	std::vector<std::string> loadedStrings;
-	std::map<uint32_t, Serializeable *> loadedPointers;
-	std::set<Serializeable *> loadedUniquePointers;
-	std::map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
+	// unordered_map: only ever looked up / inserted by key, never iterated,
+	// so hash-map lookup (O(1) avg) is a safe drop-in win over the O(log n) tree lookup.
+	std::unordered_map<uint32_t, Serializeable *> loadedPointers;
+	std::unordered_map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IBinaryReader * reader;
 
 	uint32_t readAndCheckLength()
@@ -161,10 +159,6 @@ private:
 	{
 		int32_t read;
 		load(read);
-
-		if (!hasFeature(Version::RANDOMIZATION_REWORK))
-			read += 1;
-
 		data = static_cast<BonusType>(read);
 	}
 
@@ -183,6 +177,17 @@ private:
 		load(read);
 		assert(read == 0 || read == 1);
 		data = static_cast<bool>(read);
+	}
+
+	/// raw blob of bytes, e.g. a gamestate snapshot - read in bulk instead of byte by byte.
+	/// Byte order is irrelevant for a blob, so the endianness-swapping read() is bypassed.
+	void load(std::vector<std::byte> & data)
+	{
+		uint32_t length = 0;
+		load(length);
+		data.resize(length);
+		if(length != 0)
+			reader->read(data.data(), length);
 	}
 
 	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
@@ -230,9 +235,6 @@ private:
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
 				data = dynamic_cast<T>(i->second);
-				if (vstd::contains(loadedUniquePointers, data))
-					throw std::runtime_error("Attempt to deserialize duplicated unique_ptr!");
-
 				return;
 			}
 		}
@@ -324,8 +326,6 @@ private:
 		T * internalPtr;
 		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
-		if (internalPtr != nullptr)
-			loadedUniquePointers.insert(internalPtr);
 	}
 
 	template<typename T, size_t N>
@@ -478,5 +478,3 @@ private:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

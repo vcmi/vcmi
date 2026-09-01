@@ -16,12 +16,11 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleUnitTurnReason.h"
+#include "../filesystem/ResourcePath.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
 
 class CClient;
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CArmedInstance;
@@ -197,7 +196,7 @@ struct BattleStackAttacked
 	ui32 killedAmount = 0;
 	int64_t damageAmount = 0;
 	UnitChanges newState;
-	enum EFlags { KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, FIRE_SHIELD = 32, };
+	enum EFlags { KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, };
 	ui32 flags = 0; //uses EFlags (above)
 	SpellID spellID = SpellID::NONE; //only if flag SPELL_EFFECT is set
 
@@ -221,10 +220,6 @@ struct BattleStackAttacked
 	bool willRebirth() const//resurrection, e.g. Phoenix
 	{
 		return flags & REBIRTH;
-	}
-	bool fireShield() const
-	{
-		return flags & FIRE_SHIELD;
 	}
 
 	template <typename Handler> void serialize(Handler & h)
@@ -251,7 +246,7 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking = 0;
 	ui32 flags = 0; //uses Eflags (below)
-	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128, CUSTOM_ANIMATION = 256};
+	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, CUSTOM_ANIMATION = 256};
 
 	BattleHex tile;
 	SpellID spellID = SpellID::NONE; //for SPELL_LIKE
@@ -283,10 +278,6 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	bool spellLike() const
 	{
 		return flags & SPELL_LIKE;
-	}
-	bool lifeDrain() const
-	{
-		return flags & LIFE_DRAIN;
 	}
 	bool playCustomAnimation() const
 	{
@@ -349,7 +340,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 	SpellID spellID; //id of spell
 	ui8 manaGained = 0; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
+	std::vector<ui32> affectedCres; //ids of creatures affected by this spell, in effect order (e.g. chain-lightning hop order); generally used if spell does not set any effect (like dispel or cure)
 	std::set<ui32> resistedCres; // creatures that resisted the spell (e.g. Dwarves)
 	std::set<ui32> reflectedCres; // creatures that reflected the spell (e.g. Magic Mirror spell)
 	si32 casterStack = -1; // -1 if not cated by creature, >=0 caster stack ID
@@ -434,14 +425,14 @@ struct DLL_LINKAGE BattleEnded : public CPackForClient
 struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
-	std::vector<ObstacleChanges> changes;
+	ObstacleChanges change;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & changes;
+		h & change;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -516,6 +507,50 @@ protected:
 	void visitTyped(ICPackVisitor & visitor) override;
 };
 
+/// Plays a one-shot animation with an optional sound on the battlefield. Presentation only -
+/// changes no game state, so anything that needs a visual for a change it made itself can send it.
+struct DLL_LINKAGE BattleAnimationPlayed : public CPackForClient
+{
+	/// Where one copy of the animation is played. Mirrors battle::Destination - a unit is carried
+	/// by id so that playback follows it if it moved since the pack was sent.
+	struct DLL_LINKAGE Target
+	{
+		int32_t unitID = -1;
+		BattleHex tile;
+
+		template <typename Handler> void serialize(Handler & h)
+		{
+			h & unitID;
+			h & tile;
+		}
+	};
+
+	BattleID battleID = BattleID::NONE;
+	AnimationPath animation;
+	AudioPath sound;
+	std::vector<Target> targets;
+	float transparency = 1.0f;
+
+	/// Play together with the animations of the next pack instead of on its own, e.g. so that fire
+	/// shield flames and the flinch of the burned attacker start on the same frame. Nothing is
+	/// played at all unless such a pack follows.
+	bool deferred = false;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & battleID;
+		h & animation;
+		h & sound;
+		h & targets;
+		h & transparency;
+		h & deferred;
+		assert(battleID != BattleID::NONE);
+	}
+
+protected:
+	void visitTyped(ICPackVisitor & visitor) override;
+};
+
 struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
@@ -530,5 +565,3 @@ struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 protected:
 	void visitTyped(ICPackVisitor & visitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

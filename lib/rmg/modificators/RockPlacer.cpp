@@ -22,8 +22,6 @@
 #include "../../GameLibrary.h"
 #include "../TileInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TileInfo;
 
 void RockPlacer::process()
@@ -84,9 +82,9 @@ void RockPlacer::postProcess()
 void RockPlacer::init()
 {
 	DEPENDENCY(RoadPlacer);
-	for (const auto& zone : map.getZonesOnLevel(1))
+	for (const auto& z : map.getZonesOnLevel(zone.getPos().z))
 	{
-		auto * tp = zone.second->getModificator<TreasurePlacer>();
+		auto * tp = z.second->getModificator<TreasurePlacer>();
 		if (tp)
 		{
 			dependency(tp);
@@ -102,5 +100,3 @@ char RockPlacer::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

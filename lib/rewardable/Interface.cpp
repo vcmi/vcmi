@@ -27,8 +27,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstance * hero, Rewardable::EEventType event) const
 {
 	std::vector<ui32> ret;
@@ -271,22 +269,24 @@ void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
 void Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
-	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
-	// show message only if it is not empty or in infobox
-	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
-	{
-		InfoWindow iw;
-		iw.player = contextHero->tempOwner;
-		iw.text = vi.message;
-		vi.reward.loadComponents(iw.components, contextHero);
-		iw.type = configuration.infoWindowType;
-		if(!iw.components.empty() || !iw.text.toString().empty())
-			gameEvents.showInfoDialog(&iw);
-	}
+	logGlobal->debug("Granting reward %d", index);
+
+	InfoWindow iw;
+	iw.player = contextHero->tempOwner;
+	iw.text = vi.message;
+	vi.reward.loadComponents(iw.components, contextHero);
+	iw.type = configuration.infoWindowType;
+	configureInfoWindow(iw, contextHero, index);
+	gameEvents.showInfoDialog(&iw);
+
 	// grant reward afterwards. Note that it may remove object
 	if(markAsVisit)
 		markAsVisited(gameEvents, contextHero);
 	grantReward(gameEvents, index, contextHero);
+}
+
+void Rewardable::Interface::configureInfoWindow(InfoWindow &, const CGHeroInstance *, int) const
+{
 }
 
 void Rewardable::Interface::selectRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
@@ -428,5 +428,3 @@ void Rewardable::Interface::onBlockingDialogAnswered(IGameEventCallback & gameEv
 		throw std::runtime_error("Unhandled choice");
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

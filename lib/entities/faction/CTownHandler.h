@@ -18,8 +18,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBuilding;
 class CTown;
 
@@ -70,8 +68,8 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
@@ -86,5 +84,3 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
-
-VCMI_LIB_NAMESPACE_END

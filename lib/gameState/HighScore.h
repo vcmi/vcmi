@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../texts/MetaString.h"
 
 class CGameState;
 
@@ -25,7 +24,8 @@ public:
 	bool hasGrail;
 	bool allEnemiesDefeated;
 	std::string campaignName;
-	std::string scenarioName;
+	/// map name lives in a map overlay, so it stays unresolved until the client displays it
+	MetaString scenarioName;
 	std::string playerName;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -37,7 +37,17 @@ public:
 		h & hasGrail;
 		h & allEnemiesDefeated;
 		h & campaignName;
-		h & scenarioName;
+		if(h.hasFeature(Handler::Version::RECORD_TEXTS_METASTRING))
+		{
+			h & scenarioName;
+		}
+		else
+		{
+			// older saves stored the name already rendered in the writer's language
+			std::string legacyScenarioName;
+			h & legacyScenarioName;
+			scenarioName = MetaString::createFromRawString(legacyScenarioName);
+		}
 		h & playerName;
 	}
 };
@@ -64,5 +74,3 @@ public:
 	Result calculate();
 	static CreatureID getCreatureForPoints(int points, bool campaign);
 };
-
-VCMI_LIB_NAMESPACE_END

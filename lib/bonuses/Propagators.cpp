@@ -12,8 +12,6 @@
 
 #include "Propagators.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 {
 	{"BATTLE_WIDE", std::make_shared<CPropagatorNodeType>(BonusNodeType::BATTLE_WIDE)},
@@ -62,5 +60,3 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest) const
 
 	return false;
 }
-
-VCMI_LIB_NAMESPACE_END
