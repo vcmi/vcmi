@@ -639,17 +639,6 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	const CStack* battleStack = parent->info->stack;
 
-	int dmgMultiply = 1;
-	if (battleStack != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
-	{
-		static const auto bonusSelector =
-			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
-			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
-			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
-
-		dmgMultiply += battleStack->valOfBonuses(bonusSelector);
-	}
-
 	static const std::array<std::string, 8> iconNames = {
 		"stackWindow/iconAttack", "stackWindow/iconDefense", "stackWindow/iconShots", "stackWindow/iconDamage",
 		"stackWindow/iconHealth", "stackWindow/iconHealthLeft", "stackWindow/iconSpeed", "stackWindow/iconMana"
@@ -667,7 +656,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	{
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(battleStack->isShooter()), battleStack->getAttack(battleStack->isShooter()));
 		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(battleStack->isShooter()), battleStack->getDefense(battleStack->isShooter()));
-		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(battleStack->isShooter()) * dmgMultiply, battleStack->getMaxDamage(battleStack->isShooter()) * dmgMultiply);
+		addStatLabel(EStat::DAMAGE, battleStack->getMinDamage(battleStack->isShooter()), battleStack->getMaxDamage(battleStack->isShooter()));
 		addStatLabel(EStat::HEALTH, parent->info->creature->getMaxHealth(), battleStack->getMaxHealth());
 		addStatLabel(EStat::SPEED, parent->info->creature->getMovementRange(), battleStack->getMovementRange());
 
