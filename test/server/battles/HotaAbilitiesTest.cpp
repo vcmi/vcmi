@@ -459,9 +459,9 @@ public:
 	static constexpr int flagSpellIdentified = 2;
 	static constexpr int flagSpellOnAttack = 4;
 
-	CStack * addProbe(BattleSide side, const BattleHex & hex)
+	CStack * addProbe(BattleSide side, const BattleHex & hex, int32_t count = bigStack)
 	{
-		return addStack(side, creatureByName("vcmi-test:testApiProbe"), hex, bigStack);
+		return addStack(side, creatureByName("vcmi-test:testApiProbe"), hex, count);
 	}
 
 	static void grant(CStack * unit, BonusType type, int value)
@@ -748,4 +748,23 @@ TEST_F(ScriptApiTest, AHeroSpellFinishesAsItsOwnAction)
 	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
 	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
 	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 0) << "a hero acted, so no unit did";
+}
+
+/// A unit the action killed is still told that the action is over - which is what lets an ability
+/// answer a death that no attack and no cast caused, such as one to a moat.
+TEST_F(ScriptApiTest, AKilledUnitIsStillToldTheActionEnded)
+{
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex), 1);
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(attacker, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+	ASSERT_FALSE(probe->alive()) << "the probe has to die for the scenario to say anything";
+
+	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
 }

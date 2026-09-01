@@ -40,6 +40,7 @@
 			{
 				"type" : "SIEGE_WEAPON"
 			},
+			"heroAttackDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "ballistaDamage" },
 			"shooter" :
 			{
 				"type" : "SHOOTER"
@@ -83,6 +84,7 @@
 			{
 				"type" : "SIEGE_WEAPON"
 			},
+			"heroAttackDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "ballistaDamage" },
 			"shooter" :
 			{
 				"type" : "SHOOTER"
@@ -120,6 +122,7 @@
 			{
 				"type" : "SIEGE_WEAPON"
 			},
+			"heroAttackDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "ballistaDamage" },
 			"heals" :
 			{
 				"type" : "HEALER" ,
@@ -148,6 +151,7 @@
 			{
 				"type" : "SIEGE_WEAPON"
 			},
+			"heroAttackDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "ballistaDamage" },
 			"inactive" :
 			{
 				"type" : "NOT_ACTIVE"

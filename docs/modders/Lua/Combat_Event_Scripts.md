@@ -139,6 +139,22 @@ Every combat event script declares a `priority` in its `scripts` entry. Scripts 
 
 Four of the scripts below exist only so that content declaring the bonus they replaced keeps working. They reproduce the H3 and WoG behaviour they were converted from, quirks included, and will not grow options beyond what that behaviour needs. A mod that wants an ability of that kind should ship its own script rather than try to configure these.
 
+### ballistaDamage
+
+Scales what a war machine deals by the attack of the hero owning it - only what that hero is worth on its own and what it wears, not what an army or a spell adds. The scaling is settled once, when the battle is laid out, and granted as a `CREATURE_DAMAGE` bonus, so that every window, tooltip and damage roll reads one number rather than each working it out again.
+
+Override `getDamageRange(unit, minDamage, maxDamage)` in a patch to change the formula; it answers the damage the machine ends up with, and the script grants the difference from what the machine deals on its own.
+
+### arrowTowerDamage
+
+Decides what an arrow tower shoots for from the town it defends, and grants it the same way and at the same moment as the script above. Outside a siege the tower has no town to read and keeps the damage of its creature.
+
+Parameters:
+
+- `keepBase` - damage of the keep in a town with nothing built
+- `towerBase` - damage of the two lesser towers in a town with nothing built
+- `perBuilding` - damage each building adds to the keep; the lesser towers get half of it
+
 ### lifeDrain
 
 Restores part of the damage its bearer dealt back to it as health, resurrecting fallen creatures of the stack. Only damage dealt to living targets counts.

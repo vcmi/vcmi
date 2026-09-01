@@ -184,6 +184,11 @@ void BattleTestFixture::startBattle(TerrainId terrain)
 
 void BattleTestFixture::beginCombat()
 {
+	// units a scenario placed belong to the battle it laid out, so they are told that it was laid
+	// out - the flow processor does this for the units the layout itself placed, before tactics
+	for(const auto & unit : battle()->stacks)
+		gameHandler->battles->processBattleEventTriggers(*battle(), CombatEventType::BATTLE_SETUP, unit.get(), nullptr);
+
 	// ending the tactics phase is what fires the battle-start triggers, so the battle is put back
 	// into one for as long as it takes to end it
 	battle()->tacticDistance = 1;
