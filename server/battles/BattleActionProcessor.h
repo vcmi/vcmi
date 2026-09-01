@@ -109,6 +109,10 @@ class BattleActionProcessor : boost::noncopyable
 	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const AttackDescriptor & attack);
 
+	/// Runs one melee attack to its end: first strike, every blow the attacker is entitled to, the
+	/// retaliation, and the expiry of bonuses that last for the sequence.
+	void performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance);
+
 	/// Rolls what is decided before any damage: luck, and the abilities that double it by chance.
 	void rollAttackFlags(const CBattleInfoCallback & battle, const CStack * attacker, BattleAttack & bat) const;
 	/// Fills in what a script reacting before the attack gets to see - who is about to be hit and how
