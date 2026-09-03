@@ -96,6 +96,16 @@ Gives specific creature in every slot, with optional amount. Examples:
 - `nwcphisherprice` or `vcmicolor` - change game color palette to Heroes II like until game restart
 - `vcmigray` - change game color palette to grayscale until game restart
 
+- `gosolo` or `vcmigosolo` - hands your turn over to the AI. You keep watching the map with your own fog of war, and after each turn the AI plays you are asked whether it shall continue. Enter the cheat again at any time to take control back - the AI finishes the turn it is playing, and you act again on the next one
+
+- Alternative usage: `gosolo <mode>` - the AI plays on until you take control back, instead of asking after every turn:
+  - `gosolo infinite` - as above, watched with your own fog of war
+  - `gosolo spectate` - enemy turns and the whole map are shown as well. Unlike the other modes this reveals what you could not see, so it counts as a real cheat
+  - `gosolo spectatewithoutbattles` - as above, but combats are skipped instead of being played out
+  - `gosolo hidden` - no interface at all
+
+With more than one human player, and for as long as simultaneous turns last, only `gosolo` and `gosolo infinite` are available - the other modes either reveal the map or leave you unable to act while somebody else is playing next to you.
+
 ## Using cheat codes on other players
 
 By default, all cheat codes apply to current player. Alternatively, it is possible to specify player that you want to target:
@@ -163,7 +173,6 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 #### AI commands
 
 - `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit
-- `gosolo` - AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)
 - `controlai <[red][blue][tan][green][orange][purple][teal][pink]>` - gives you control over specified AI player. If none is specified gives you control over all AI players
 - `autoskip` - Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves. However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually. Press `[Shift]` before your turn starts to not skip it
 

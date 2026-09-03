@@ -376,6 +376,132 @@ void CClient::installObserverInterface(PlayerColor color)
 	installNewPlayerInterface(interfacePtr, color);
 }
 
+void CClient::installSpectatorInterface()
+{
+	assert(gamestate);
+
+	playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(
+		PlayerColor::SPECTATOR,
+		this,
+		std::make_shared<CCallback>(gamestate, findPlayerColorForSpectatorInterface(), this));
+
+	const PlayerColor spectatorInterfacePlayer = findPlayerColorForSpectatorInterface().value_or(PlayerColor(0));
+	installNewPlayerInterface(std::make_shared<CPlayerInterface>(spectatorInterfacePlayer), PlayerColor::SPECTATOR, true);
+}
+
+void CClient::removeSpectatorInterface()
+{
+	playerint.erase(PlayerColor::SPECTATOR);
+	battleints.erase(PlayerColor::SPECTATOR);
+	battleCallbacks.erase(PlayerColor::SPECTATOR);
+	playerEnvironments.erase(PlayerColor::SPECTATOR);
+}
+
+void CClient::giveTurnLocally(PlayerColor color)
+{
+	PlayerStartsTurn yt;
+	yt.player = color;
+	yt.queryID = QueryID::NONE;
+
+	ApplyClientNetPackVisitor visitor(*this, gameState());
+	yt.visit(visitor);
+}
+
+void CClient::toggleAiSolo(EAiSoloMode mode)
+{
+	Settings session = settings.write["session"];
+
+	const auto & playerInfos = gameInfo().getStartInfo()->playerInfos;
+
+	std::vector<PlayerColor> humanPlayers;
+	for(const auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
+		if(color.isValidPlayer() && playerInfos.count(color) && playerInfos.at(color).isControlledByHuman())
+			humanPlayers.push_back(color);
+
+	if(humanPlayers.empty())
+	{
+		logGlobal->warn("No human player on this client to hand over to an AI");
+		return;
+	}
+
+	// any further use of the cheat gives control back, whichever mode it asked for
+	const bool aiTakesOver = !session["aiSolo"].Bool();
+
+	if(aiTakesOver && !GAME->interface())
+	{
+		logGlobal->warn("No human player interface to replace with an AI");
+		return;
+	}
+
+	if(!aiTakesOver)
+	{
+		// the player acts again, so the spectator and everything set up for him has to go
+		removeGUI();
+		removeSpectatorInterface();
+
+		session["aiSolo"].Bool() = false;
+		session["aiSoloAskEachTurn"].Bool() = false;
+		session["aiSoloStopRequested"].Bool() = false;
+		session["spectate"].Bool() = false;
+		session["spectate-own-vision"].Bool() = false;
+		session["spectate-skip-battle"].Bool() = false;
+		session["spectate-skip-battle-result"].Bool() = false;
+
+		PlayerColor turnOwner = humanPlayers.front();
+		for(const auto & color : humanPlayers)
+		{
+			installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+
+			if(gameState().actingPlayers.count(color))
+				turnOwner = color;
+		}
+
+		// giveTurnLocally puts the adventure map that removeGUI() dropped back onto the window stack
+		ENGINE->windows().totalRedraw();
+		giveTurnLocally(turnOwner);
+		return;
+	}
+
+	PlayerColor currentColor = GAME->interface()->playerID;
+
+	std::map<PlayerColor, std::string> aiForPlayer;
+	for(const auto & color : humanPlayers)
+	{
+		aiForPlayer[color] = aiNameForPlayer(*gameInfo().getPlayerSettings(color), false, false);
+		logGlobal->info("Player %s will be lead by %s", color.toString(), aiForPlayer[color]);
+	}
+
+	removeGUI();
+
+	for(const auto & [color, aiName] : aiForPlayer)
+		installNewPlayerInterface(AIFactory::createAdventureAI(aiName), color);
+
+	// set before the AI starts acting - the map renderer and battleStarted() read these right away
+	session["aiSolo"].Bool() = true;
+	session["aiSoloAskEachTurn"].Bool() = mode == EAiSoloMode::SINGLE_TURN;
+	session["aiSoloStopRequested"].Bool() = false;
+	session["spectate-own-vision"].Bool() = mode == EAiSoloMode::SINGLE_TURN || mode == EAiSoloMode::CONTINUOUS;
+	session["spectate-skip-battle"].Bool() = mode == EAiSoloMode::SPECTATE_NO_BATTLES;
+	// the AI answers the battle end query, so a result window would only be in the way
+	session["spectate-skip-battle-result"].Bool() = true;
+
+	if(mode != EAiSoloMode::HIDDEN)
+	{
+		// without an interface of our own nothing would draw the game that the AI now plays
+		installSpectatorInterface();
+
+		ENGINE->windows().pushWindow(adventureInt);
+		adventureInt->onEnemyTurnStarted(currentColor, false);
+		adventureInt->onMapTilesChanged(std::nullopt);
+
+		// set last: it makes onEnemyTurnStarted a no-op, so the map stays in the state set above
+		session["spectate"].Bool() = true;
+	}
+
+	ENGINE->windows().totalRedraw();
+	giveTurnLocally(currentColor);
+}
+
 std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return playerint[player]->makeSurrenderRetreatDecision(battleID, battleState);
@@ -479,8 +605,17 @@ void CClient::battleStarted(const BattleID & battleID)
 		{
 			//TODO: This certainly need improvement
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
-			spectratorInt->cb->onBattleStarted(info);
-			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.getArmy(), rightSide.getArmy(), leftSide.getHero(), rightSide.getHero(), att, def, spectratorInt);
+
+			// under gosolo the spectator stands in for a real player: battles he has no side in are
+			// none of his business, and his callback could not tell which side he is watching from
+			const bool ownBattlesOnly = settings["session"]["spectate-own-vision"].Bool();
+			const bool isOwnBattle = spectratorInt->playerID == leftSide.color || spectratorInt->playerID == rightSide.color;
+
+			if(!ownBattlesOnly || isOwnBattle)
+			{
+				spectratorInt->cb->onBattleStarted(info);
+				CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.getArmy(), rightSide.getArmy(), leftSide.getHero(), rightSide.getHero(), att, def, spectratorInt);
+			}
 		}
 	}
 
@@ -495,14 +630,21 @@ void CClient::battleStarted(const BattleID & battleID)
 
 void CClient::battleFinished(const BattleID & battleID)
 {
-	for(auto side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
-	{
-		if(battleCallbacks.count(gameState().getBattle(battleID)->getSide(side).color))
-			battleCallbacks[gameState().getBattle(battleID)->getSide(side).color]->onBattleEnded(battleID);
-	}
+	// Mirror of battleStarted(): whoever was told that the battle started has to be told that it
+	// ended, or keeps a CPlayerBattleCallback pointing at the BattleInfo the gamestate now frees.
+	// Which callbacks those are depends on the spectate settings, so ask them instead of guessing.
+	for(auto & battleCb : battleCallbacks)
+		if(battleCb.second->getActiveBattles().count(battleID))
+			battleCb.second->onBattleEnded(battleID);
 
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		battleCallbacks[PlayerColor::SPECTATOR]->onBattleEnded(battleID);
+	// the spectator interface holds a callback of its own, separate from battleCallbacks[SPECTATOR]
+	auto spectator = playerint.find(PlayerColor::SPECTATOR);
+	if(spectator != playerint.end())
+	{
+		auto spectatorInt = std::dynamic_pointer_cast<CPlayerInterface>(spectator->second);
+		if(spectatorInt && spectatorInt->cb->getActiveBattles().count(battleID))
+			spectatorInt->cb->onBattleEnded(battleID);
+	}
 }
 
 void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor color)

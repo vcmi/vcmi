@@ -3,7 +3,8 @@
 	"localCheats" : {
 		"color" :             [                            "vcmicolor",       "nwcphisherprice"                                                      ],
 		"gray" :              [                            "vcmigray"                                                                                ],
-		"battleVictory" :     [                            "vcmideathpunch"                                                                          ]
+		"battleVictory" :     [                            "vcmideathpunch"                                                                          ],
+		"aiSolo" :            [ "vcmigosolo",              "gosolo"                                                                                  ]
     },
 	"townTargetedCheats" : {
 		"buildTown" :         [ "vcmiarmenelos",           "vcmibuild",       "nwczion",                 "nwccoruscant",       "nwconlyamodel"       ]
