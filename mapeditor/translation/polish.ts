@@ -1477,7 +1477,7 @@ Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem)</translati
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekskluzywni bohaterowie</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
@@ -1574,7 +1574,7 @@ Czy chcesz to zrobić teraz?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurator warstwy mapy</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
@@ -1584,12 +1584,12 @@ Czy chcesz to zrobić teraz?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Warstwa mapy</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom %1</translation>
     </message>
 </context>
 <context>
@@ -2683,7 +2683,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Losowy</translation>
     </message>
 </context>
 <context>
@@ -3466,7 +3466,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie mogę otworzyć edytora!</translation>
     </message>
 </context>
 <context>
@@ -3479,7 +3479,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Losowy</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
@@ -3489,12 +3489,12 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytorowi mapy nie udało się wczytać zamierzonego poziomu zaklęcia dla tego typu kapliczki</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamierzony poziom zaklęcia %1 dla tej kapliczki nie jest poprawny</translation>
     </message>
 </context>
 <context>
@@ -4971,37 +4971,37 @@ Strażnik: %3</translation>
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chatka wiedźmy na x: %1 y: %2 na %3 warstwie zawiera niepoprawną nagrodę.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chatka wiedźmy na x: %1 y: %2 na %3 nie może być sprawdzona przez edytor.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uczony na x: %1 y: %2 na warstwie %3 zawiera niepoprawną nagrodę.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Uczony na x: %1 y: %2 na warstwie %3 przyznaje nagrodę zabronioną&#xa0;przez ustawienia mapy. Czy jest to intencyjne?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uczony na x: %1 y: %2 na warstwie %3 nie może być sprawdzony przez edytor.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapliczka na x: %1 y: %2 na warstwie %3 zawiera niepoprawne zaklęcie.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapliczka na x: %1 y: %2 na warstwie %3 gwarantuje zaklęcie zabronione przez ustawienia mapy. Czy jest to intencyjne?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="228"/>
@@ -5235,7 +5235,7 @@ Strażnik: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartstwa</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>

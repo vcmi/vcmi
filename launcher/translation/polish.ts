@@ -486,7 +486,7 @@ Proszę zgłoś ten problem deweloperom</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapis istnieje</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
@@ -1554,7 +1554,7 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Łzy Ashan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
@@ -1794,7 +1794,7 @@ Bin (%n bajtów):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litewski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
