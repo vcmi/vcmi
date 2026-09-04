@@ -1538,27 +1538,27 @@ Sie müssen den Offline-Installer von GOG auswählen.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt Verbesserungen an der Benutzeroberfläche und am Gameplay hinzu, darunter eine optimierte Benutzeroberfläche für Zufallskarten, Schaltflächen zum erneuten Besuchen von Objekten und Suchen nach Objekten auf der Abenteuerkarte, zum schnellen Heldenaustausch, Symbole für Boni und Immunitäten sowie Aktionen im Kampf</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine ausgefeilte Fan-Erweiterung, welche die Städte &apos;Bucht&apos;, &apos;Fabrik&apos; und &apos;Bollwerk&apos;, neue Kampagnen, Helden, Artefakte, Kartenobjekte, die Sekundärfähigkeiten &apos;Interferenz&apos; und &apos;Runen&apos;, Balancing-Anpassungen und neue Terrains hinzufügt und dabei dem Geist von Heroes III treu bleibt</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweitert Heroes III um Kommandanten, Truppenerfahrung, Truppenartefakte, zahlreiche neue Helden- und Kommandanten-Artefakte, zusätzliche Fortschrittssysteme und interaktive Objekte auf der Abenteuerkarte</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Tears of Ashan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine von Fans erstellte Erweiterung, die von Heroes V inspiriert ist und Heroes III alternative Kreaturen-Aufrüstungen, Licht- und Schattenmagie, Beschwörungen, eine höhere Obergrenze für Sekundärfähigkeiten sowie ein überarbeitetes Konflux-Gameplay hinzufügt</translation>
     </message>
 </context>
 <context>
@@ -1787,7 +1787,7 @@ Bin (%n Bytes):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litauisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
