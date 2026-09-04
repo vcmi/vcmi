@@ -66,6 +66,31 @@ float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount)
 	return std::max(baseValue * 3.0f, 4.0f);
 }
 
+float evaluateArmyPowerRatio(const IArmyManager & armyManager, const CCreatureSet * army)
+{
+	const float armyPower = army->estimateCombatValue();
+	std::set<CreatureID> creatureTypes;
+	for(const auto & slot : army->Slots())
+		creatureTypes.insert(slot.second->getCreatureID());
+
+	uint64_t totalPower = 0;
+	for(const auto creature : creatureTypes)
+		totalPower += armyManager.getTotalCreaturesAvailable(creature).power;
+
+	if(armyPower <= 0)
+		return 0;
+
+	return totalPower > armyPower ? armyPower / static_cast<float>(totalPower) : 1.0f;
+}
+
+float evaluateMaxArmyLossRatio(float configuredMaxArmyLoss, float armyPowerRatio, bool isWithoutCastle)
+{
+	if(isWithoutCastle)
+		return 1.0f;
+
+	return armyPowerRatio > 0 ? std::min(configuredMaxArmyLoss / armyPowerRatio, 1.0f) : 1.0f;
+}
+
 float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest)
 {
 	if(!isEnemyTownConquest || conquestValue <= MAX_CRITICAL_VALUE)
@@ -1221,19 +1246,7 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		const float armyPower = army->estimateCombatValue();
-		float totalPower = 0;
-
-		std::set<CreatureID> armyCreatures;
-		for(const auto & slot : army->Slots())
-			armyCreatures.insert(slot.second->getCreatureID());
-
-		for(const auto & creatureID : armyCreatures)
-			totalPower += aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
-
-		// Planned army may hold creatures that are not owned yet, to be upgraded or bought on the way
-		if(armyPower > 0)
-			evaluationContext.powerRatio = totalPower > armyPower ? armyPower / totalPower : 1.0f;
+		evaluationContext.powerRatio = evaluateArmyPowerRatio(*aiNk->armyManager, army);
 
 		if (target)
 		{
@@ -1609,14 +1622,8 @@ float PriorityEvaluator::evaluate(
 		float score = 0;
 
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		float maxWillingToLose = 1.0f;
-		if(!amIWithoutCastle && evaluationContext.powerRatio > 0)
-		{
-			// Convert the player-wide loss budget to a fraction of the committed army.
-			maxWillingToLose = std::min(
-				aiNk->settings->getMaxArmyLossTarget() / evaluationContext.powerRatio,
-				1.0f);
-		}
+		const float maxWillingToLose = evaluateMaxArmyLossRatio(
+			aiNk->settings->getMaxArmyLossTarget(), evaluationContext.powerRatio, amIWithoutCastle);
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
