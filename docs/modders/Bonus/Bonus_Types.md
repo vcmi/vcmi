@@ -1339,6 +1339,14 @@ Blocks casting spells of the level above specified one in battles affected by th
 
 Blocks casting of all spells in battles affected by this bonus
 
+### BLOCK_CREATURE_MAGIC
+
+Blocks casting of all magical spells and abilities by creatures in battles affected by this bonus. Non-magical abilities, such as Death Stare, are not affected
+
+### BLOCK_NATIVE_TERRAIN_BONUS
+
+Prevents creatures from receiving bonuses of their native terrain in battles affected by this bonus, eg. Cursed Ground
+
 ### GENERAL_DAMAGE_PREMY
 
 Affected unit will deal more damage in all attacks (Adela specialty)

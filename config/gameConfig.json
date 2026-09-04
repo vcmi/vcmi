@@ -524,12 +524,14 @@
 			"tavernInvite"            : false,
 			// minimal primary skills for heroes
 			"minimalPrimarySkills": [ 0, 0, 1, 1],
+			// maximal primary skills for heroes. Values above this limit have no effect
+			"maximalPrimarySkills": [ 99, 99, 99, 99],
 
 			/// minimal movement cost from one tile to another while offroad. Also see BASE_TILE_MOVEMENT_COST bonus type
 			/// Also affects cost of Town Portal spell and movement cost when using Fly spell
 			"movementCostBase" : 100,
 			/// movement points hero can get on start of the turn when on land, depending on speed of slowest creature (0-based list)
-			"movementPointsLand" : [ 1500, 1500, 1500, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
+			"movementPointsLand" : [ 1300, 1360, 1430, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
 			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
 			"movementPointsSea" : [ 1500 ],
 
@@ -606,12 +608,14 @@
 			// Bias for luck rolls. See abilityBias for detailed description
 			// Recommended value is around luckDiceSize / 4
 			"luckBias" : 8,
+			// If set to true, a lucky strike doubles damage on every target of a multi-target attack (e.g. Hydra), not just the one directly attacked - HotA behavior. SoD default is false
+			"luckyStrikeAffectsAllTargets" : false,
 
 
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05,
 			// limit of damage increase that can be achieved by overpowering attack points
-			"attackPointDamageFactorCap": 4.0,
+			"attackPointDamageFactorCap": 3.0,
 			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
 			"defensePointDamageFactor": 0.025,
 			// limit of damage reduction that can be achieved by overpowering defense points

@@ -215,8 +215,18 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	if(side == BattleSide::NONE)
 		return adaptProblem(ESpellCastProblem::INVALID, problem);
 
+	//Cursed Ground blocks magic of creatures - their active casts as well as passively triggered abilities
+	bool castByCreature = (mode == Mode::CREATURE_ACTIVE || mode == Mode::ENCHANTER || mode == Mode::PASSIVE) && !caster->getHeroCaster();
+
+	if(castByCreature && owner->isMagical())
+	{
+		const auto * unitCaster = battle()->battleGetUnitByID(caster->getCasterUnitId());
+
+		if(unitCaster && unitCaster->hasBonusOfType(BonusType::BLOCK_CREATURE_MAGIC))
+			return adaptProblem(ESpellCastProblem::MAGIC_IS_BLOCKED, problem);
+	}
+
 	//effect like Recanter's Cloak. Blocks also passive casting.
-	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
 	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())

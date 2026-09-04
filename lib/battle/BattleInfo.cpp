@@ -382,14 +382,22 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 		currentBattle->addNewBonus(bonus);
 	}
 
-	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<AllOfLimiter>();
-	nativeTerrain->add(std::make_shared<TerrainLimiter>());
-	nativeTerrain->add(std::make_shared<CreatureLevelLimiter>()); // creature only limiter - exclude hero
+	//native terrain bonuses - some battlefields, such as Cursed Ground, block them
+	bool blocksNativeTerrainBonus = std::any_of(bgInfo->bonuses.begin(), bgInfo->bonuses.end(), [](const std::shared_ptr<Bonus> & bonus)
+	{
+		return bonus->type == BonusType::BLOCK_NATIVE_TERRAIN_BONUS;
+	});
 
-	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
-	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
-	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
+	if(!blocksNativeTerrainBonus)
+	{
+		auto nativeTerrain = std::make_shared<AllOfLimiter>();
+		nativeTerrain->add(std::make_shared<TerrainLimiter>());
+		nativeTerrain->add(std::make_shared<CreatureLevelLimiter>()); // creature only limiter - exclude hero
+
+		currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
+		currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
+		currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
+	}
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics

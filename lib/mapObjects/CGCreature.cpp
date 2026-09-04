@@ -379,7 +379,10 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
+	//WANDERING_CREATURES_JOIN_BONUS is a disposition factor, not a mastery level - it is only capped here
+	//because in H3, easiest difficulty grants a bonus equal to one more level of Diplomacy, up to expert
+	static constexpr int maxDiplomacyDisposition = 3; // as granted by expert Diplomacy
+	int diplomacy = std::min<int>(h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS), maxDiplomacyDisposition);
 	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < agression)

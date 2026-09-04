@@ -412,6 +412,11 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
+
+	//Magic Plains raise level of spells cast by creatures, unlike battlefields of a specific magic school
+	if(spell->getLevel() > 0)
+		vstd::amax(skill, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+
 	vstd::abetween(skill, 0, 3);
 	return skill;
 }

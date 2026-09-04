@@ -599,7 +599,7 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "curse",
-				"val" : 50
+				"val" : 25
 			}
 		},
 		"graphics" :

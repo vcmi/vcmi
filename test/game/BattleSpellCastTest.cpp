@@ -680,21 +680,21 @@ TEST_F(BattleSpellCastTest, battleInterference)
 	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
-	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 99, ChangeValueMode::ABSOLUTE);
 	attacker->addNewBonus(skillBonus);
 	attacker->addNewBonus(specialtyBonus);
 	attacker->level = 20;
 
-	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 99, ChangeValueMode::ABSOLUTE);
 	defender->level = 10;
 
-	ASSERT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
-	ASSERT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
+	ASSERT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 99);
+	ASSERT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 99);
 
 	startTestBattle(attacker, defender);
 
-	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
-	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 80);
+	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 99);
+	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 79);
 }
 
 // Chain Lightning must chain to distinct nearest units (not hit the same unit repeatedly)

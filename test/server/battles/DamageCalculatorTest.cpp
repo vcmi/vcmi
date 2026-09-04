@@ -174,11 +174,11 @@ TEST_F(DamageCalculatorTest, AttackAdvantageAddsFivePercentPerPoint)
 	EXPECT_EQ(result.kills.min, 37);
 }
 
-TEST_F(DamageCalculatorTest, AttackAdvantageIsCappedAtFourHundredPercent)
+TEST_F(DamageCalculatorTest, AttackAdvantageIsCappedAtThreeHundredPercent)
 {
 	attackerSideHero->setPrimarySkill(PrimarySkill::ATTACK, 200, ChangeValueMode::ABSOLUTE); // +1000%, capped
 
-	EXPECT_EQ(estimate(attacker(angel), defender(angel)).damage.min, 25000);
+	EXPECT_EQ(estimate(attacker(angel), defender(angel)).damage.min, 20000);
 }
 
 TEST_F(DamageCalculatorTest, DefenseAdvantageRemovesTwoAndAHalfPercentPerPoint)

@@ -47,6 +47,7 @@ public:
 
 		EXPECT_CALL(spellMock, getId()).WillRepeatedly(Return(SpellID(DEFAULT_SPELL_INDEX)));
 		EXPECT_CALL(spellMock, getIndex()).WillRepeatedly(Return(DEFAULT_SPELL_INDEX));
+		EXPECT_CALL(spellMock, getLevel()).WillRepeatedly(Return(1));
 	}
 
 	void initUnit()

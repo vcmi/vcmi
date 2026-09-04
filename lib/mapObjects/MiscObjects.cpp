@@ -610,15 +610,20 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 
 	if(!isProtected(h))
 	{
+		//weakest stack is determined by fight value of creatures in it, not by their AI value
+		auto stackStrength = [h](const SlotID & slot) -> uint64_t
+		{
+			return static_cast<uint64_t>(h->getCreature(slot)->getFightValue()) * h->getStackCount(slot);
+		};
+
 		SlotID targetstack = h->Slots().begin()->first; //slot numbers may vary
 		for(auto i = h->Slots().rbegin(); i != h->Slots().rend(); i++)
 		{
-			if(h->getPower(targetstack) > h->getPower(i->first))
+			if(stackStrength(targetstack) > stackStrength(i->first))
 				targetstack = (i->first);
 		}
 
-		auto countToTake = static_cast<TQuantity>(h->getStackCount(targetstack) * 0.5);
-		vstd::amax(countToTake, 1);
+		auto countToTake = static_cast<TQuantity>((h->getStackCount(targetstack) + 1) / 2); // 50%, rounded up
 
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;
@@ -626,7 +631,7 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 		iw.text.appendTextID("core.advevent.168");
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		gameEvents.showInfoDialog(&iw);
-		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
+		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE); // server already refuses to take hero's last stack
 	}
 	else
 	{
