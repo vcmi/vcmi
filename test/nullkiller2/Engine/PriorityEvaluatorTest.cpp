@@ -127,6 +127,21 @@ TEST(Nullkiller2_Engine_PriorityEvaluator, ordinaryTargetsKeepArmyLossLimit)
 		<< "the relaxed loss cap is only for enemy-town conquest";
 }
 
+TEST(Nullkiller2_Engine_PriorityEvaluator, armyLossLimitScalesWithShareOfAvailableArmy)
+{
+	EXPECT_FLOAT_EQ(NK2AI::evaluateMaxArmyLossRatio(0.35f, 0.5f, false), 0.175f);
+}
+
+TEST(Nullkiller2_Engine_PriorityEvaluator, armyLossLimitIsRelaxedWithoutCastle)
+{
+	EXPECT_FLOAT_EQ(NK2AI::evaluateMaxArmyLossRatio(0.35f, 0.5f, true), 1.0f);
+}
+
+TEST(Nullkiller2_Engine_PriorityEvaluator, armyLossLimitIsRelaxedWhenArmyShareIsUnknown)
+{
+	EXPECT_FLOAT_EQ(NK2AI::evaluateMaxArmyLossRatio(0.35f, 0.0f, false), 1.0f);
+}
+
 TEST_F(Nullkiller2_Engine_CreatureBankReward, fullNecropolisArmyCannotUseAngelReward)
 {
 	ASSERT_EQ(hero->stacksCount(), GameConstants::ARMY_SIZE);

@@ -631,8 +631,23 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				{
 					bool dangerUnknown = danger == 0;
 					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
+					bool armyLossTooHigh = false;
+					if(guardedRewardable)
+					{
+						dangerTooHigh = !isSafeToVisit(heroPtr.get(), danger, nullkiller->settings->getSafeAttackRatio());
+						const auto armyStrength = getHeroArmyStrengthWithCommander(heroPtr.get(), heroPtr.get());
+						const auto armyLoss = nullkiller->pathfinder->getStorage()->evaluateArmyLoss(
+							heroPtr.get(), armyStrength, danger);
+						const auto armyLossRatio = static_cast<float>(armyLoss) / heroPtr->getArmyStrength();
+						const auto playerState = cc->getPlayerState(playerID);
+						const auto maxArmyLoss = evaluateMaxArmyLossRatio(
+							nullkiller->settings->getMaxArmyLossTarget(),
+							evaluateArmyPowerRatio(*nullkiller->armyManager, heroPtr.get()),
+							playerState->daysWithoutCastle.has_value());
+						armyLossTooHigh = armyLossRatio > maxArmyLoss;
+					}
 
-					answer = !dangerUnknown && !dangerTooHigh;
+					answer = !dangerUnknown && !dangerTooHigh && !armyLossTooHigh;
 				}
 
 				if(answer && objType == Obj::CREATURE_BANK
