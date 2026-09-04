@@ -1197,7 +1197,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation>Bạn có thể sao chép thủ công các thư mục Maps, Data và Mp3 từ thư mục trò chơi gốc vào thư mục dữ liệu VCMI hiện bên dưới</translation>
+        <translation>Bạn có thể sao chép thủ công các thư mục Data, Maps và Mp3 từ thư mục trò chơi gốc vào thư mục đã cài đặt VCMI theo đường dẫn bên dưới</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
@@ -1327,12 +1327,12 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
         <source>Manual Installation</source>
-        <translation>Cài đặt thủ công</translation>
+        <translation>Cài đặt dữ liệu thủ công</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="368"/>
         <source>Search again</source>
-        <translation>Tìm kiếm lại</translation>
+        <translation>Tìm kiếm lại dữ liệu</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="450"/>
