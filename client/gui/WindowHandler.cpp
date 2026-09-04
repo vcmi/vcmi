@@ -13,7 +13,10 @@
 #include "GameEngine.h"
 #include "CIntObject.h"
 #include "CursorHandler.h"
+#include "EventDispatcher.h"
+#include "Shortcut.h"
 
+#include "events/InputHandler.h"
 #include "render/Canvas.h"
 #include "render/IScreenHandler.h"
 #include "render/Colors.h"
@@ -23,11 +26,12 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 	if (windowsStack.back() != top)
 		throw std::runtime_error("Attempt to pop non-top window from stack!");
 
+	ENGINE->input().clearControllerAxisMotion();
 	top->deactivate();
 	disposed.push_back(top);
 	windowsStack.pop_back();
-	if(!windowsStack.empty())
-		windowsStack.back()->activate();
+	vstd::erase(pendingClose, top);
+	activateTopWindow();
 
 	totalRedraw();
 }
@@ -40,6 +44,8 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if (vstd::contains(windowsStack, newInt))
 		throw std::runtime_error("Attempt to add already existing window to stack!");
 
+	if(!ENGINE->events().isStartingGesture())
+		ENGINE->input().clearControllerAxisMotion();
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
@@ -62,19 +68,40 @@ void WindowHandler::popWindows(int howMany)
 		return; //senseless but who knows...
 
 	assert(windowsStack.size() >= howMany);
+	ENGINE->input().clearControllerAxisMotion();
 	windowsStack.back()->deactivate();
 	for(int i = 0; i < howMany; i++)
 	{
 		disposed.push_back(windowsStack.back());
+		vstd::erase(pendingClose, windowsStack.back());
 		windowsStack.pop_back();
 	}
 
-	if(!windowsStack.empty())
-	{
-		windowsStack.back()->activate();
-		totalRedraw();
-	}
+	activateTopWindow();
+	totalRedraw();
 	ENGINE->fakeMouseMove();
+}
+
+void WindowHandler::requestCloseWindow(IShowActivatable * window)
+{
+	const auto found = std::ranges::find_if(windowsStack, [window](const auto & entry) { return entry.get() == window; });
+	if(found == windowsStack.end() || vstd::contains(pendingClose, *found))
+		return;
+
+	pendingClose.push_back(*found);
+	(*found)->deactivate();
+}
+
+void WindowHandler::activateTopWindow()
+{
+	while(!windowsStack.empty() && vstd::contains(pendingClose, windowsStack.back()))
+	{
+		disposed.push_back(windowsStack.back());
+		vstd::erase(pendingClose, windowsStack.back());
+		windowsStack.pop_back();
+	}
+	if(!windowsStack.empty())
+		windowsStack.back()->activate();
 }
 
 std::shared_ptr<IShowActivatable> WindowHandler::topWindowImpl() const
@@ -181,6 +208,11 @@ void WindowHandler::onScreenResize()
 
 void WindowHandler::onFrameRendered()
 {
+	if(!windowsStack.empty() && vstd::contains(pendingClose, windowsStack.back()))
+	{
+		activateTopWindow();
+		totalRedraw();
+	}
 	disposed.clear();
 }
 
@@ -195,6 +227,7 @@ void WindowHandler::clear()
 		windowsStack.back()->deactivate();
 
 	windowsStack.clear();
+	pendingClose.clear();
 	disposed.clear();
 }
 
@@ -218,7 +251,14 @@ std::vector<std::shared_ptr<IShowActivatable>> WindowHandler::detachAll()
 
 	auto result = std::move(windowsStack);
 	windowsStack.clear();
-	disposed.clear();
+	std::erase_if(result, [this](const auto & window)
+	{
+		if(!vstd::contains(pendingClose, window))
+			return false;
+		disposed.push_back(window);
+		return true;
+	});
+	pendingClose.clear();
 	return result;
 }
 
@@ -228,8 +268,64 @@ void WindowHandler::attachAll(std::vector<std::shared_ptr<IShowActivatable>> win
 
 	windowsStack = std::move(windows);
 
-	if(!windowsStack.empty())
-		windowsStack.back()->activate();
+	activateTopWindow();
 
 	totalRedraw();
+}
+
+bool WindowHandler::dispatchControllerAxis(int instanceId, const std::vector<EShortcut> & actions, double value)
+{
+	const bool ownsAxis = std::ranges::any_of(actions, [](EShortcut action)
+	{
+		switch(action)
+		{
+		case EShortcut::CONTROLLER_NAVIGATE_X:
+		case EShortcut::CONTROLLER_NAVIGATE_Y:
+		case EShortcut::CONTROLLER_BROWSE_X:
+		case EShortcut::CONTROLLER_BROWSE_Y:
+		case EShortcut::MOUSE_CURSOR_X:
+		case EShortcut::MOUSE_CURSOR_Y:
+		case EShortcut::MOUSE_SWIPE_X:
+		case EShortcut::MOUSE_SWIPE_Y:
+			return true;
+		default:
+			return false;
+		}
+	});
+	if(!ownsAxis)
+		return false;
+
+	for(auto iterator = windowsStack.rbegin(); iterator != windowsStack.rend(); ++iterator)
+	{
+		if(!(*iterator)->usesNativeControllerAxis())
+			continue;
+
+		// A modal above a native owner blocks the axis instead of delivering it through the window stack.
+		if(iterator != windowsStack.rbegin())
+			return true;
+		return (*iterator)->controllerAxisMoved(instanceId, actions, value);
+	}
+	return false;
+}
+
+void WindowHandler::resetControllerInput()
+{
+	const auto windows = windowsStack;
+	for(auto iterator = windows.rbegin(); iterator != windows.rend(); ++iterator)
+		(*iterator)->controllerInputReset();
+}
+
+void WindowHandler::notifyPointerInput(InputMode inputMode)
+{
+	const auto windows = windowsStack;
+	for(const auto & window : windows)
+		window->pointerInputChanged(inputMode);
+}
+
+bool WindowHandler::hasNativeControllerAxisContext() const
+{
+	return std::ranges::any_of(windowsStack, [](const auto & window)
+	{
+		return window->usesNativeControllerAxis();
+	});
 }

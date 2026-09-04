@@ -192,6 +192,11 @@ bool CRClickPopup::isPopupWindow() const
 
 void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo & comps)
 {
+	createAndPushForRelease(txt, comps, EShortcut::NONE);
+}
+
+std::shared_ptr<WindowBase> CRClickPopup::createAndPushForRelease(const std::string & txt, const CInfoWindow::TCompsInfo & comps, EShortcut closeOnRelease)
+{
 	PlayerColor player = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1); //if no player, then use blue
 	if(settings["session"]["spectate"].Bool()) //TODO: there must be better way to implement this
 		player = PlayerColor(1);
@@ -203,7 +208,9 @@ void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCo
 #endif
 	temp->fitToScreen(10);
 
-	ENGINE->windows().createAndPushWindow<CRClickPopupInt>(temp);
+	auto popup = std::make_shared<CRClickPopupInt>(temp, closeOnRelease);
+	ENGINE->windows().pushWindow(popup);
+	return popup;
 }
 
 void CRClickPopup::createAndPush(const std::string & txt, const std::shared_ptr<CComponent> & component)
@@ -244,9 +251,17 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 }
 
 CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our) :
-	dragDistance(Point(0, 0))
+	CRClickPopupInt(our, EShortcut::NONE)
+{
+}
+
+CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our, EShortcut closeOnRelease) :
+	dragDistance(Point(0, 0)),
+	closeOnRelease(closeOnRelease)
 {
 	addUsedEvents(DRAG_POPUP);
+	if(closeOnRelease != EShortcut::NONE)
+		addUsedEvents(KEYBOARD);
 
 	ENGINE->cursor().hide();
 	inner = our;
@@ -256,6 +271,17 @@ CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our) :
 CRClickPopupInt::~CRClickPopupInt()
 {
 	ENGINE->cursor().show();
+}
+
+bool CRClickPopupInt::captureThisKey(EShortcut key)
+{
+	return closeOnRelease != EShortcut::NONE && key == closeOnRelease;
+}
+
+void CRClickPopupInt::keyReleased(EShortcut key)
+{
+	if(key == closeOnRelease)
+		close();
 }
 
 void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)

@@ -26,10 +26,17 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "render/CAnimation.h"
+#include "../ControllerPromptFamily.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/ShortcutHandler.h"
+#include "../gui/TextAlignment.h"
+#include "events/InputHandler.h"
 #include "render/CAnimation.h"
 #include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
+#include "render/IFont.h"
 #include "render/IImage.h"
 #include "render/IRenderHandler.h"
 #include "render/IScreenHandler.h"
@@ -37,10 +44,113 @@
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/spells/CSpell.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
+
+namespace
+{
+constexpr int CONTROLLER_PROMPT_WIDTH = 196;
+constexpr int CONTROLLER_PROMPT_HEIGHT = 27;
+constexpr int CONTROLLER_PROMPT_GAP = 3;
+constexpr int CONTROLLER_FACE_GLYPH_SIZE = 24;
+constexpr int CONTROLLER_SHOULDER_GLYPH_WIDTH = 72;
+constexpr int CONTROLLER_SHOULDER_GLYPH_HEIGHT = 20;
+constexpr int CONTROLLER_GLYPH_TEXT_SPACING = 4;
+constexpr int CONTROLLER_TEXT_OUTLINE_WIDTH = 1;
+constexpr double CONTROLLER_UNIT_NAVIGATION_CONE_ALIGNMENT = 0.5;
+
+Rect controllerPromptBounds(const Point & battlefieldOrigin)
+{
+	return Rect(battlefieldOrigin.x + 79, battlefieldOrigin.y + 86, 642, 469);
+}
+
+Rect controllerPromptGroupBounds(const Rect & bounds, const Rect & anchor, int rowCount, bool preferBelow)
+{
+	const int rowWidth = std::min(CONTROLLER_PROMPT_WIDTH, bounds.w);
+	const int groupHeight = rowCount * CONTROLLER_PROMPT_HEIGHT + (rowCount - 1) * CONTROLLER_PROMPT_GAP;
+	const int x = std::clamp(anchor.center().x - rowWidth / 2, bounds.x, bounds.x + bounds.w - rowWidth);
+	int y = preferBelow
+		? anchor.y + anchor.h + CONTROLLER_PROMPT_GAP
+		: anchor.y - groupHeight - CONTROLLER_PROMPT_GAP;
+	if(y < bounds.y || y + groupHeight > bounds.y + bounds.h)
+	{
+		y = preferBelow
+			? anchor.y - groupHeight - CONTROLLER_PROMPT_GAP
+			: anchor.y + anchor.h + CONTROLLER_PROMPT_GAP;
+	}
+	y = std::clamp(y, bounds.y, bounds.y + bounds.h - groupHeight);
+	return Rect(x, y, rowWidth, groupHeight);
+}
+
+std::string fitControllerPromptText(const std::string & text, const IFont & font, int maxWidth)
+{
+	if(maxWidth <= 0)
+		return {};
+	if(font.getStringWidth(text) <= maxWidth)
+		return text;
+
+	const std::string ellipsis = "...";
+	if(font.getStringWidth(ellipsis) > maxWidth)
+		return {};
+
+	std::string result;
+	for(size_t index = 0; index < text.size();)
+	{
+		const size_t characterSize = TextOperations::getUnicodeCharacterSize(text[index]);
+		const std::string candidate = result + text.substr(index, characterSize) + ellipsis;
+		if(font.getStringWidth(candidate) > maxWidth)
+			break;
+		result += text.substr(index, characterSize);
+		index += characterSize;
+	}
+	return result + ellipsis;
+}
+
+int controllerOutlinedTextWidth(const IFont & font, const std::string & text)
+{
+	return text.empty() ? 0 : static_cast<int>(font.getStringWidth(text)) + CONTROLLER_TEXT_OUTLINE_WIDTH * 2;
+}
+
+void drawControllerOutlinedText(Canvas & to, const Point & center, const std::string & text)
+{
+	to.drawText(center + Point(-CONTROLLER_TEXT_OUTLINE_WIDTH, 0), FONT_MEDIUM, Colors::BLACK, ETextAlignment::CENTER, text);
+	to.drawText(center + Point(CONTROLLER_TEXT_OUTLINE_WIDTH, 0), FONT_MEDIUM, Colors::BLACK, ETextAlignment::CENTER, text);
+	to.drawText(center + Point(0, -CONTROLLER_TEXT_OUTLINE_WIDTH), FONT_MEDIUM, Colors::BLACK, ETextAlignment::CENTER, text);
+	to.drawText(center + Point(0, CONTROLLER_TEXT_OUTLINE_WIDTH), FONT_MEDIUM, Colors::BLACK, ETextAlignment::CENTER, text);
+	to.drawText(center, FONT_MEDIUM, Colors::WHITE, ETextAlignment::CENTER, text);
+}
+
+std::optional<std::string> battleFaceButtonSprite(
+	ControllerPrompt::Family family, const std::string & binding, bool pressed)
+{
+	if(binding != "a" && binding != "b" && binding != "x" && binding != "y")
+		return std::nullopt;
+	const auto state = pressed ? ControllerPrompt::State::PRESSED : ControllerPrompt::State::NORMAL;
+	return ControllerPrompt::faceButtonSprite(family, binding, state);
+}
+
+std::optional<std::string> battleShoulderSprite(
+	ControllerPrompt::Family family,
+	const std::vector<std::string> & previousBindings,
+	const std::vector<std::string> & nextBindings,
+	bool pressed = false)
+{
+	if(previousBindings.size() != 1 || nextBindings.size() != 1
+		|| previousBindings.front() != "leftshoulder" || nextBindings.front() != "rightshoulder")
+		return std::nullopt;
+	const std::string state = pressed ? "pressed" : "normal";
+	if(family == ControllerPrompt::Family::PLAYSTATION)
+		return "controllerActionBar/playstation-shoulders-" + state + ".png";
+	if(family == ControllerPrompt::Family::GENERIC || family == ControllerPrompt::Family::XBOX)
+		return "controllerActionBar/generic-shoulders-" + state + ".png";
+	return std::nullopt;
+}
+}
 
 namespace HexMasks
 {
@@ -131,6 +241,91 @@ static const std::map<int, int> hexEdgeMaskToFrameIndex =
     { HexMasks::topLeftCorner, 18 }
 };
 
+namespace
+{
+constexpr uint32_t NAVIGATION_SETTLE_DELAY_MS = 16;
+constexpr uint32_t NAVIGATION_INITIAL_REPEAT_MS = 320;
+constexpr uint32_t NAVIGATION_REPEAT_MS = 110;
+constexpr double NAVIGATION_DIRECTION_CHANGE_DEGREES = 30.0;
+constexpr double NAVIGATION_HYSTERESIS_DEGREES = 10.0;
+
+double angularDistance(double x1, double y1, double x2, double y2)
+{
+	const double first = std::atan2(y1, x1) * 180.0 / M_PI;
+	const double second = std::atan2(y2, x2) * 180.0 / M_PI;
+	double result = std::fmod(std::abs(first - second), 360.0);
+	return result > 180.0 ? 360.0 - result : result;
+}
+
+}
+
+void BattleFieldController::RepeatState::start(bool settleFirst)
+{
+	elapsed = 0;
+	initialPending = settleFirst;
+	repeating = false;
+}
+
+bool BattleFieldController::RepeatState::ready(uint32_t msPassed)
+{
+	elapsed += msPassed;
+	if(initialPending)
+	{
+		if(elapsed < NAVIGATION_SETTLE_DELAY_MS)
+			return false;
+		initialPending = false;
+		elapsed = 0;
+		return true;
+	}
+
+	const uint32_t threshold = repeating ? NAVIGATION_REPEAT_MS : NAVIGATION_INITIAL_REPEAT_MS;
+	if(elapsed < threshold)
+		return false;
+	elapsed -= threshold;
+	repeating = true;
+	return true;
+}
+
+void BattleFieldController::RepeatState::reset()
+{
+	elapsed = 0;
+	initialPending = false;
+	repeating = false;
+}
+
+void BattleFieldController::NavigationState::update(bool horizontal, double value)
+{
+	(horizontal ? x : y) = value;
+	const bool nextActive = !vstd::isAlmostZero(x) || !vstd::isAlmostZero(y);
+	if(!nextActive)
+	{
+		active = false;
+		directionX = directionY = 0.0;
+		repeat.reset();
+		return;
+	}
+
+	if(!active || angularDistance(directionX, directionY, x, y) > NAVIGATION_DIRECTION_CHANGE_DEGREES)
+		repeat.start(true);
+	active = true;
+	directionX = x;
+	directionY = y;
+}
+
+bool BattleFieldController::NavigationState::ready(uint32_t msPassed)
+{
+	if(!active)
+		return false;
+	return repeat.ready(msPassed);
+}
+
+void BattleFieldController::NavigationState::reset()
+{
+	x = y = directionX = directionY = 0.0;
+	active = false;
+	repeat.reset();
+}
+
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
@@ -164,7 +359,13 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	pos.h = background->height();
 
 	updateAccessibleHexes();
+	controllerOwnsPresentation = ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER;
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
+}
+
+BattleFieldController::~BattleFieldController()
+{
+	ENGINE->cursor().setControllerNativeHidden(false);
 }
 
 void BattleFieldController::startShakeAnimation()
@@ -193,6 +394,34 @@ void BattleFieldController::activate()
 {
 	GAME->interface()->cingconsole->pos = this->pos;
 	CIntObject::activate();
+	if(isControllerNativeMode())
+	{
+		ENGINE->cursor().setControllerNativeHidden(true);
+		ensureControllerFocus();
+		refreshControllerPresentation();
+	}
+}
+
+void BattleFieldController::pointerInputChanged(InputMode inputMode)
+{
+	const bool controllerInput = inputMode == InputMode::CONTROLLER;
+	if(controllerOwnsPresentation == controllerInput)
+		return;
+	controllerOwnsPresentation = controllerInput;
+	if(isControllerNativeMode())
+	{
+		ENGINE->cursor().setControllerNativeHidden(true);
+		if(controllerRestoreHex.isValid())
+			focusHex(controllerRestoreHex);
+		else
+			focusActiveStack();
+		refreshControllerPresentation();
+	}
+	else
+	{
+		ENGINE->cursor().setControllerNativeHidden(false);
+	}
+	redraw();
 }
 
 void BattleFieldController::createHeroes()
@@ -210,7 +439,7 @@ void BattleFieldController::createHeroes()
 void BattleFieldController::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (!on && pos.isInside(finalPosition))
-		clickPressed(finalPosition);
+		activateHex(getHoveredHex());
 }
 
 void BattleFieldController::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
@@ -230,6 +459,9 @@ void BattleFieldController::gesturePanning(const Point & initialPosition, const 
 
 void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
+	if(isControllerNativeMode())
+		return;
+
 	currentAttackOriginPoint = cursorPosition;
 
 	// hex rects of the bottom rows extend under the command panel, so only treat the cursor as hovering a hex
@@ -254,27 +486,613 @@ void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point
 	}
 }
 
-void BattleFieldController::clickPressed(const Point & cursorPosition)
+bool BattleFieldController::isControllerNativeMode() const
 {
-	// a click on the battlefield cancels ongoing auto-combat (H3 behavior)
+	return controllerOwnsPresentation && !controllerCursorMode;
+}
+
+bool BattleFieldController::isControllerCursorMode() const
+{
+	return controllerCursorMode;
+}
+
+void BattleFieldController::focusHex(const BattleHex & hex, std::optional<uint32_t> unitId)
+{
+	if(!hex.isValid())
+		return;
+
+	hoveredHex = hex;
+	controllerRestoreHex = hex;
+	const CStack * stack = owner.getBattle()->battleGetStackByPos(hex, true);
+	controllerFocusedUnitId = unitId;
+	if(!unitId && stack != nullptr)
+		controllerFocusedUnitId = stack->unitId();
+	currentAttackOriginPoint = hexPositionAbsolute(hex).center();
+	const auto meleeDirections = owner.actionsController->hasMeleeActionAt(hex)
+		? availableAttackDirections(hex)
+		: std::vector<BattleHex::EDir>();
+	if(!meleeDirections.empty())
+		currentAttackOriginPoint = attackDirectionPoint(hex, meleeDirections.front());
+}
+
+void BattleFieldController::ensureControllerFocus()
+{
+	if(hoveredHex.isValid())
+		return;
+	focusActiveStack();
+}
+
+void BattleFieldController::focusActiveStack()
+{
+	const CStack * activeStack = owner.stacksController->getActiveStack();
+	if(activeStack != nullptr)
+	{
+		focusHex(activeStack->getPosition(), activeStack->unitId());
+		refreshControllerPresentation();
+	}
+}
+
+void BattleFieldController::restoreControllerFocus(const BattleHex & hex)
+{
+	if(!isControllerNativeMode() || !hex.isValid())
+		return;
+	focusHex(hex);
+	refreshControllerPresentation();
+}
+
+void BattleFieldController::controllerStackMoved(const CStack * stack)
+{
+	if(isControllerNativeMode() && stack != nullptr && controllerFocusedUnitId == stack->unitId())
+	{
+		focusHex(stack->getPosition(), stack->unitId());
+		refreshControllerPresentation();
+	}
+}
+
+void BattleFieldController::controllerStackRemoved(uint32_t stackId)
+{
+	if(controllerFocusedUnitId == stackId)
+	{
+		controllerFocusedUnitId.reset();
+		focusActiveStack();
+	}
+}
+
+BattleHex BattleFieldController::getControllerFocusedHex() const
+{
+	return controllerRestoreHex.isValid() ? controllerRestoreHex : hoveredHex;
+}
+
+void BattleFieldController::updateNavigationOwner(NavigationOwner changedOwner)
+{
+	const NavigationState & changed = changedOwner == NavigationOwner::HEX ? hexNavigation : unitNavigation;
+	const NavigationState & other = changedOwner == NavigationOwner::HEX ? unitNavigation : hexNavigation;
+
+	if(navigationOwner == NavigationOwner::NONE && changed.active)
+		navigationOwner = changedOwner;
+	else if(navigationOwner == changedOwner && !changed.active)
+	{
+		navigationOwner = NavigationOwner::NONE;
+		if(other.active)
+			navigationOwner = changedOwner == NavigationOwner::HEX ? NavigationOwner::UNIT : NavigationOwner::HEX;
+	}
+}
+
+bool BattleFieldController::controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value)
+{
+	bool handled = false;
+	if(controllerInstance != -1 && controllerInstance != instanceId)
+		resetControllerInput();
+	controllerInstance = instanceId;
+
+	for(const auto action : actions)
+	{
+		switch(action)
+		{
+		case EShortcut::CONTROLLER_NAVIGATE_X:
+			hexNavigation.update(true, value);
+			updateNavigationOwner(NavigationOwner::HEX);
+			handled = true;
+			break;
+		case EShortcut::CONTROLLER_NAVIGATE_Y:
+			hexNavigation.update(false, value);
+			updateNavigationOwner(NavigationOwner::HEX);
+			handled = true;
+			break;
+		case EShortcut::CONTROLLER_BROWSE_X:
+			unitNavigation.update(true, value);
+			updateNavigationOwner(NavigationOwner::UNIT);
+			handled = true;
+			break;
+		case EShortcut::CONTROLLER_BROWSE_Y:
+			unitNavigation.update(false, value);
+			updateNavigationOwner(NavigationOwner::UNIT);
+			handled = true;
+			break;
+		case EShortcut::MOUSE_CURSOR_X:
+		case EShortcut::MOUSE_CURSOR_Y:
+		case EShortcut::MOUSE_SWIPE_X:
+		case EShortcut::MOUSE_SWIPE_Y:
+			handled = true;
+			break;
+		default:
+			break;
+		}
+	}
+	if(!hexNavigation.active)
+		controllerNavigationDirection.reset();
+	return handled;
+}
+
+void BattleFieldController::resetControllerInput()
+{
+	const bool presentationChanged = controllerPressedHex.isValid() || controllerMeleeRepeatDirection.has_value();
+	hexNavigation.reset();
+	controllerNavigationDirection.reset();
+	unitNavigation.reset();
+	navigationOwner = NavigationOwner::NONE;
+	controllerInstance = -1;
+	controllerPressedHex = BattleHex::INVALID;
+	controllerMeleeRepeatDirection.reset();
+	controllerMeleeRepeat.reset();
+	if(presentationChanged)
+		redraw();
+}
+
+BattleHex::EDir BattleFieldController::controllerHexDirection()
+{
+	if(controllerNavigationDirection)
+	{
+		const double center = (static_cast<int>(*controllerNavigationDirection) - BattleHex::RIGHT) * M_PI / 3.0;
+		if(angularDistance(std::cos(center), std::sin(center), hexNavigation.directionX, hexNavigation.directionY)
+			<= NAVIGATION_DIRECTION_CHANGE_DEGREES + NAVIGATION_HYSTERESIS_DEGREES)
+			return *controllerNavigationDirection;
+	}
+
+	const double angle = std::atan2(hexNavigation.directionY, hexNavigation.directionX) * 180.0 / M_PI;
+	if(angle < -150.0 || angle >= 150.0) controllerNavigationDirection = BattleHex::LEFT;
+	else if(angle < -90.0) controllerNavigationDirection = BattleHex::TOP_LEFT;
+	else if(angle < -30.0) controllerNavigationDirection = BattleHex::TOP_RIGHT;
+	else if(angle < 30.0) controllerNavigationDirection = BattleHex::RIGHT;
+	else if(angle < 90.0) controllerNavigationDirection = BattleHex::BOTTOM_RIGHT;
+	else controllerNavigationDirection = BattleHex::BOTTOM_LEFT;
+	return *controllerNavigationDirection;
+}
+
+bool BattleFieldController::moveControllerHex()
+{
+	ensureControllerFocus();
+	if(!hoveredHex.isValid())
+		return false;
+
+	auto tryDirection = [this](BattleHex::EDir direction)
+	{
+		try
+		{
+			focusHex(hoveredHex.cloneInDirection(direction, true));
+			return true;
+		}
+		catch(const std::out_of_range &)
+		{
+			return false;
+		}
+	};
+
+	const auto direction = controllerHexDirection();
+	if(tryDirection(direction))
+		return true;
+
+	const double angle = std::atan2(hexNavigation.directionY, hexNavigation.directionX) * 180.0 / M_PI;
+	const double verticalAngle = hexNavigation.directionY < 0.0 ? -90.0 : 90.0;
+	if(std::abs(angle - verticalAngle) > 10.0)
+		return false;
+	if(direction == BattleHex::TOP_LEFT) return tryDirection(BattleHex::TOP_RIGHT);
+	if(direction == BattleHex::TOP_RIGHT) return tryDirection(BattleHex::TOP_LEFT);
+	if(direction == BattleHex::BOTTOM_LEFT) return tryDirection(BattleHex::BOTTOM_RIGHT);
+	if(direction == BattleHex::BOTTOM_RIGHT) return tryDirection(BattleHex::BOTTOM_LEFT);
+	return false;
+}
+
+Point BattleFieldController::controllerStackCenter(const CStack & stack) const
+{
+	Point result = hexPositionAbsolute(stack.getPosition()).center();
+	if(stack.doubleWide())
+		result = (result + hexPositionAbsolute(stack.occupiedHex()).center()) / 2;
+	return result;
+}
+
+bool BattleFieldController::browseControllerUnit()
+{
+	ensureControllerFocus();
+	if(!hoveredHex.isValid())
+		return false;
+
+	const CStack * focusedStack = controllerFocusedUnitId
+		? owner.getBattle()->battleGetStackByID(*controllerFocusedUnitId, false)
+		: nullptr;
+	const CStack * originStack = focusedStack != nullptr && focusedStack->coversPos(hoveredHex)
+		? focusedStack : nullptr;
+	const Point origin = originStack ? controllerStackCenter(*originStack) : hexPositionAbsolute(hoveredHex).center();
+	const double directionMagnitudeSquared = unitNavigation.directionX * unitNavigation.directionX
+		+ unitNavigation.directionY * unitNavigation.directionY;
+	const CStack * bestStack = nullptr;
+	bool bestInsideCone = false;
+	double bestAlignment = -1.0;
+	si64 bestDistance = 0;
+
+	for(const CStack * stack : owner.getBattle()->battleGetAllStacks())
+	{
+		if(!stack->isValidTarget(false) || !stack->getPosition().isValid())
+			continue;
+		if(originStack && stack->unitId() == originStack->unitId())
+			continue;
+
+		const Point candidate = controllerStackCenter(*stack);
+		const double deltaX = candidate.x - origin.x;
+		const double deltaY = candidate.y - origin.y;
+		const double dot = deltaX * unitNavigation.directionX + deltaY * unitNavigation.directionY;
+		if(dot <= 0.0)
+			continue;
+		const si64 distance = static_cast<si64>(deltaX * deltaX + deltaY * deltaY);
+		const double alignment = dot * dot / (static_cast<double>(distance) * directionMagnitudeSquared);
+		const bool insideCone = alignment >= CONTROLLER_UNIT_NAVIGATION_CONE_ALIGNMENT;
+		const bool sameDistance = distance == bestDistance;
+		const bool sameAlignment = vstd::isAlmostEqual(alignment, bestAlignment);
+		const bool betterInsideCone = insideCone && (!bestInsideCone || distance < bestDistance
+			|| (sameDistance && alignment > bestAlignment));
+		const bool betterOutsideCone = !insideCone && !bestInsideCone && (alignment > bestAlignment
+			|| (sameAlignment && distance < bestDistance));
+		if(!bestStack || betterInsideCone || betterOutsideCone
+			|| (insideCone == bestInsideCone && sameAlignment && sameDistance && stack->unitId() < bestStack->unitId()))
+		{
+			bestStack = stack;
+			bestInsideCone = insideCone;
+			bestAlignment = alignment;
+			bestDistance = distance;
+		}
+	}
+
+	if(bestStack == nullptr)
+		return false;
+	focusHex(bestStack->getPosition(), bestStack->unitId());
+	return true;
+}
+
+void BattleFieldController::refreshControllerPresentation()
+{
+	if(!isActive() || !isControllerNativeMode() || !hoveredHex.isValid())
+		return;
+	if(controllerBrowseOnly())
+	{
+		if(!owner.actionsController->onHexRightHovered(hoveredHex))
+			owner.actionsController->onHoverEnded();
+	}
+	else
+		owner.actionsController->onHexHovered(hoveredHex);
+	redraw();
+}
+
+bool BattleFieldController::controllerBrowseOnly() const
+{
+	const CStack * activeStack = owner.stacksController->getActiveStack();
+	return owner.isInTacticsMode()
+		|| (activeStack != nullptr && activeStack->hasBonusOfType(BonusType::SIEGE_WEAPON));
+}
+
+std::string BattleFieldController::controllerPrimaryActionNameAt(const BattleHex & hex) const
+{
+	if(!isControllerNativeMode() || !hex.isValid() || owner.stacksController->getActiveStack() == nullptr)
+		return "none";
+
+	if(controllerBrowseOnly())
+		return owner.actionsController->canPresentStackInfoAt(hex) ? "inspect" : "none";
+	return owner.actionsController->primaryActionNameAt(hex);
+}
+
+bool BattleFieldController::controllerPrimaryPressed()
+{
+	if(controllerPrimaryActionNameAt(hoveredHex) == "none")
+		return false;
+	controllerPressedHex = hoveredHex;
+	redraw();
+	return true;
+}
+
+bool BattleFieldController::controllerPrimaryReleased()
+{
+	const BattleHex pressedHex = controllerPressedHex;
+	controllerPressedHex = BattleHex::INVALID;
+	redraw();
+	if(hoveredHex != pressedHex || controllerPrimaryActionNameAt(hoveredHex) == "none")
+		return false;
+
+	if(controllerBrowseOnly())
+		owner.windowObject->openControllerInspect();
+	else
+		owner.windowObject->activateControllerPrimary();
+	return true;
+}
+
+bool BattleFieldController::controllerInspectAvailable() const
+{
+	return isControllerNativeMode() && hoveredHex.isValid()
+		&& owner.stacksController->getActiveStack() != nullptr
+		&& owner.actionsController->canInspectAt(hoveredHex);
+}
+
+Point BattleFieldController::attackDirectionPoint(const BattleHex & target, BattleHex::EDir direction) const
+{
+	const BattleHexArray & neighbours = target.getAllNeighbouringTiles();
+	if(direction >= BattleHex::TOP_LEFT && direction <= BattleHex::LEFT)
+		return hexPositionAbsolute(neighbours[direction]).center();
+	if(direction == BattleHex::TOP)
+		return (hexPositionAbsolute(neighbours[0]).center() + hexPositionAbsolute(neighbours[1]).center()) / 2 + Point(0, -5);
+	if(direction == BattleHex::BOTTOM)
+		return (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0, 5);
+	return Point::makeInvalid();
+}
+
+std::vector<BattleHex::EDir> BattleFieldController::availableAttackDirections(const BattleHex & target) const
+{
+	std::vector<BattleHex::EDir> result;
+	const CStack * attacker = owner.stacksController->getActiveStack();
+	if(attacker == nullptr || !target.isValid())
+		return result;
+
+	for(int index = 0; index < 8; ++index)
+	{
+		const auto direction = static_cast<BattleHex::EDir>(index);
+		if(owner.getBattle()->battleCanAttackHex(availableHexes, attacker, target, direction))
+			result.push_back(direction);
+	}
+	return result;
+}
+
+bool BattleFieldController::controllerMeleeDirectionAvailable() const
+{
+	return owner.actionsController->hasMeleeActionAt(hoveredHex)
+		&& availableAttackDirections(hoveredHex).size() > 1;
+}
+
+bool BattleFieldController::cycleControllerMeleeDirection(bool forward)
+{
+	if(!owner.actionsController->hasMeleeActionAt(hoveredHex))
+		return false;
+	const auto directions = availableAttackDirections(hoveredHex);
+	if(directions.size() <= 1)
+		return false;
+
+	const auto current = selectAttackDirection(hoveredHex);
+	auto iterator = std::find(directions.begin(), directions.end(), current);
+	size_t index = iterator == directions.end() ? 0 : std::distance(directions.begin(), iterator);
+	index = forward ? (index + 1) % directions.size() : (index + directions.size() - 1) % directions.size();
+	currentAttackOriginPoint = attackDirectionPoint(hoveredHex, directions[index]);
+	controllerPressedHex = BattleHex::INVALID;
+	refreshControllerPresentation();
+	return true;
+}
+
+bool BattleFieldController::controllerMeleeDirectionPressed(bool forward)
+{
+	if(!cycleControllerMeleeDirection(forward))
+		return false;
+	controllerMeleeRepeatDirection = forward;
+	controllerMeleeRepeat.start(false);
+	return true;
+}
+
+bool BattleFieldController::controllerMeleeDirectionReleased(bool forward)
+{
+	if(controllerMeleeRepeatDirection != forward)
+		return false;
+	controllerMeleeRepeatDirection.reset();
+	controllerMeleeRepeat.reset();
+	redraw();
+	return true;
+}
+
+void BattleFieldController::toggleControllerCursorMode()
+{
+	if(ENGINE->input().getCurrentInputMode() != InputMode::CONTROLLER)
+		return;
+
+	ENGINE->input().clearControllerAxisMotion();
+	// Cancel held presentation/state under the old routing mode without firing actions.
+	// The backend suppresses the matching later SDL releases.
+	ENGINE->input().cancelControllerPressesForModeTransition();
+	if(!controllerCursorMode)
+	{
+		controllerRestoreHex = hoveredHex;
+		controllerCursorMode = true;
+		ENGINE->cursor().setControllerNativeHidden(false);
+	}
+	else
+	{
+		controllerCursorMode = false;
+		ENGINE->cursor().setControllerNativeHidden(true);
+		if(controllerRestoreHex.isValid())
+			focusHex(controllerRestoreHex);
+		else
+			focusActiveStack();
+		refreshControllerPresentation();
+	}
+	redraw();
+}
+
+std::shared_ptr<IImage> BattleFieldController::controllerPromptSprite(const std::string & path)
+{
+	auto [iterator, inserted] = controllerPromptSprites.try_emplace(path);
+	if(inserted)
+		iterator->second = ENGINE->renderHandler().loadImage(ImagePath::builtin(path), EImageBlitMode::COLORKEY);
+	return iterator->second;
+}
+
+void BattleFieldController::drawControllerFaceGlyph(Canvas & to, const Point & position,
+	ControllerPrompt::Family family, const std::string & binding, bool pressed)
+{
+	const auto spritePath = battleFaceButtonSprite(family, binding, pressed);
+	if(spritePath)
+		to.draw(controllerPromptSprite(*spritePath), position);
+	if(!spritePath || ControllerPrompt::usesRuntimeFaceLabel(family))
+	{
+		const auto color = spritePath
+			? ControllerPrompt::runtimeFaceLabelColor(ControllerPrompt::State::NORMAL) : Colors::WHITE;
+		to.drawText(position + Point(CONTROLLER_FACE_GLYPH_SIZE / 2, CONTROLLER_FACE_GLYPH_SIZE / 2),
+			FONT_SMALL, color, ETextAlignment::CENTER, ControllerPrompt::buttonLabel(family, binding));
+	}
+}
+
+void BattleFieldController::drawControllerShoulderGlyph(Canvas & to, const Point & position,
+	const std::string & normalSprite, const std::optional<std::string> & pressedSprite)
+{
+	to.draw(controllerPromptSprite(normalSprite), position);
+	if(!controllerMeleeRepeatDirection || !pressedSprite)
+		return;
+	const int halfWidth = CONTROLLER_SHOULDER_GLYPH_WIDTH / 2;
+	const int sourceX = *controllerMeleeRepeatDirection ? halfWidth : 0;
+	to.draw(controllerPromptSprite(*pressedSprite), position + Point(sourceX, 0),
+		Rect(sourceX, 0, halfWidth, CONTROLLER_SHOULDER_GLYPH_HEIGHT));
+}
+
+bool BattleFieldController::drawControllerPrompts(Canvas & to)
+{
+	const auto actionName = controllerPrimaryActionNameAt(hoveredHex);
+	const auto family = ENGINE->input().getActiveControllerPromptFamily();
+	if(family == ControllerPrompt::Family::UNKNOWN)
+		return false;
+
+	const auto acceptBindings = ENGINE->shortcuts().getJoystickButtonBindings(EShortcut::GLOBAL_ACCEPT, family);
+	const auto inspectBindings = ENGINE->shortcuts().getJoystickButtonBindings(EShortcut::GLOBAL_CANCEL, family);
+	const auto previousBindings = ENGINE->shortcuts().getJoystickButtonBindings(EShortcut::BATTLE_DEFEND, family);
+	const auto nextBindings = ENGINE->shortcuts().getJoystickButtonBindings(EShortcut::BATTLE_WAIT, family);
+	const auto directionSprite = battleShoulderSprite(family, previousBindings, nextBindings);
+	const bool directionBindingsAvailable = previousBindings.size() == 1 && nextBindings.size() == 1;
+	const bool drawPrimary = actionName != "none" && acceptBindings.size() == 1;
+	const bool drawInspect = controllerInspectAvailable() && inspectBindings.size() == 1;
+	const bool drawDirection = drawPrimary && controllerMeleeDirectionAvailable()
+		&& (directionSprite || directionBindingsAvailable);
+	const int rowCount = static_cast<int>(drawPrimary) + static_cast<int>(drawInspect) + static_cast<int>(drawDirection);
+	if(rowCount == 0)
+		return false;
+
+	const Rect bounds = controllerPromptBounds(pos.topLeft());
+	const Rect anchor = hexPositionAbsolute(hoveredHex);
+	const Rect group = controllerPromptGroupBounds(bounds, anchor, rowCount, actionName != "inspect");
+	int y = group.y;
+
+	std::optional<Rect> directionRow;
+	std::optional<Rect> primaryRow;
+	std::optional<Rect> inspectRow;
+	auto addRow = [&](std::optional<Rect> & row)
+	{
+		row = Rect(group.x, y, group.w, CONTROLLER_PROMPT_HEIGHT);
+		y += CONTROLLER_PROMPT_HEIGHT + CONTROLLER_PROMPT_GAP;
+	};
+	if(drawDirection) addRow(directionRow);
+	if(drawPrimary) addRow(primaryRow);
+	if(drawInspect) addRow(inspectRow);
+
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_MEDIUM);
+	auto contentLayout = [&](const Rect & row, int textWidth, int glyphWidth, int glyphHeight)
+	{
+		const int spacing = glyphWidth > 0 ? CONTROLLER_GLYPH_TEXT_SPACING : 0;
+		const int contentWidth = glyphWidth + spacing + textWidth;
+		const int rightmostX = bounds.x + std::max(0, bounds.w - contentWidth);
+		const int glyphX = std::clamp(row.center().x - contentWidth / 2, bounds.x, rightmostX);
+		return std::pair(
+			Point(glyphX, row.center().y - glyphHeight / 2),
+			Point(glyphX + glyphWidth + spacing + textWidth / 2, row.center().y));
+	};
+	auto drawFaceRow = [&](const Rect & row, const std::vector<std::string> & bindings, const std::string & text, bool pressed)
+	{
+		const std::string fittedText = fitControllerPromptText(text, *font,
+			std::max(0, bounds.w - CONTROLLER_FACE_GLYPH_SIZE - CONTROLLER_GLYPH_TEXT_SPACING
+				- CONTROLLER_TEXT_OUTLINE_WIDTH * 2));
+		const auto [glyph, textCenter] = contentLayout(row,
+			controllerOutlinedTextWidth(*font, fittedText),
+			CONTROLLER_FACE_GLYPH_SIZE, CONTROLLER_FACE_GLYPH_SIZE);
+		drawControllerFaceGlyph(to, glyph, family, bindings.front(), pressed);
+		drawControllerOutlinedText(to, textCenter, fittedText);
+	};
+	auto drawDirectionRow = [&](const Rect & row)
+	{
+		const std::string directionText = LIBRARY->generaltexth->translate("vcmi.battleWindow.controller.attackDirection");
+		const std::string bindingText = directionSprite ? directionText
+			: ControllerPrompt::buttonLabel(family, previousBindings.front())
+			+ "/" + ControllerPrompt::buttonLabel(family, nextBindings.front()) + " " + directionText;
+		const int glyphWidth = directionSprite ? CONTROLLER_SHOULDER_GLYPH_WIDTH : 0;
+		const int glyphHeight = directionSprite ? CONTROLLER_SHOULDER_GLYPH_HEIGHT : 0;
+		const int spacing = directionSprite ? CONTROLLER_GLYPH_TEXT_SPACING : 0;
+		const std::string fittedText = fitControllerPromptText(bindingText, *font,
+			std::max(0, bounds.w - glyphWidth - spacing - CONTROLLER_TEXT_OUTLINE_WIDTH * 2));
+		const auto [glyph, textCenter] = contentLayout(row,
+			controllerOutlinedTextWidth(*font, fittedText), glyphWidth, glyphHeight);
+		if(directionSprite)
+			drawControllerShoulderGlyph(to, glyph, *directionSprite,
+				battleShoulderSprite(family, previousBindings, nextBindings, true));
+		drawControllerOutlinedText(to, textCenter, fittedText);
+	};
+
+	if(directionRow)
+		drawDirectionRow(*directionRow);
+	if(primaryRow)
+	{
+		const std::string textKey = "vcmi.battleWindow.controller." + actionName;
+		drawFaceRow(*primaryRow, acceptBindings,
+			LIBRARY->generaltexth->translate(textKey), controllerPressedHex == hoveredHex);
+	}
+	if(inspectRow)
+		drawFaceRow(*inspectRow, inspectBindings,
+			LIBRARY->generaltexth->translate("vcmi.battleWindow.controller.holdInspect"), false);
+	return true;
+}
+
+void BattleFieldController::activateHex(const BattleHex & hex,
+	const std::function<void(const CStack *)> & stackInfo)
+{
+	// A battlefield left click cancels ongoing auto-combat before any action is
+	// considered. Typed controller activation shares this exact lifecycle owner.
 	if(owner.curInt->isAutoFightOn)
 	{
 		owner.curInt->isAutoFightOn = false;
 		return;
 	}
 
-	BattleHex selectedHex = getHoveredHex();
+	if(!hex.isValid())
+		return;
 
-	if (selectedHex != BattleHex::INVALID)
-		owner.actionsController->onHexLeftClicked(selectedHex);
+	BattleActionsController::LeftClickPresentation presentation;
+	presentation.stackInfo = stackInfo;
+	owner.actionsController->onHexLeftClicked(hex, presentation);
+}
+
+void BattleFieldController::activateControllerPrimary(const std::function<void(const CStack *)> & stackInfo)
+{
+	activateHex(getControllerFocusedHex(), stackInfo);
+}
+
+void BattleFieldController::clickPressed(const Point & cursorPosition)
+{
+	if(ENGINE->input().getCurrentInputMode() != InputMode::CONTROLLER)
+		mouseMoved(cursorPosition, Point());
+
+	activateHex(getHoveredHex());
 }
 
 void BattleFieldController::showPopupWindow(const Point & cursorPosition)
 {
+	if(ENGINE->input().getCurrentInputMode() != InputMode::CONTROLLER)
+		mouseMoved(cursorPosition, Point());
+
 	BattleHex selectedHex = getHoveredHex();
 
 	if (selectedHex != BattleHex::INVALID)
-		owner.actionsController->onHexRightClicked(selectedHex);
+	{
+		if(ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER && isControllerCursorMode())
+			owner.windowObject->openControllerHoldInspect(selectedHex);
+		else
+			owner.actionsController->onHexRightClicked(selectedHex);
+	}
 }
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
@@ -327,6 +1145,7 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 
 void BattleFieldController::deactivate()
 {
+	resetControllerInput();
 	// Released on deactivation rather than in the destructor, which runs after the window is
 	// already gone. A window that is merely covered reclaims the layer on the next redraw.
 	ENGINE->screenHandler().releaseLayer(GpuRenderLayer::BATTLE);
@@ -825,21 +1644,12 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 	if(!pos.isInside(originPoint) && getQueueHoveredStack() != nullptr)
 		originPoint = hexPositionAbsolute(attacker->getPosition()).center();
 
-	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
-	// For each valid direction, select position to test against
+	// Use the same canonical direction set for pointer nearest-selection and
+	// controller forward/back cycling.
 	std::array<Point, 8> testPoint;
 	testPoint.fill(Point::makeInvalid());
-
-	for (size_t i = 0; i < 6; ++i)
-		if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i)))
-			testPoint[i] = hexPositionAbsolute(neighbours[i]).center();
-
-	// For bottom/top directions select central point, but move it a bit away from true center to reduce zones allocated to them
-	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(6)))
-		testPoint[6] = (hexPositionAbsolute(neighbours[0]).center() + hexPositionAbsolute(neighbours[1]).center()) / 2 + Point(0, -5);
-
-	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(7)))
-		testPoint[7] = (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0,  5);
+	for(const auto direction : availableAttackDirections(myNumber))
+		testPoint[direction] = attackDirectionPoint(myNumber, direction);
 
 	// Compute distance between tested position & cursor position and pick nearest
 	int nearestDistance = std::numeric_limits<int>::max();
@@ -889,6 +1699,33 @@ void BattleFieldController::tick(uint32_t msPassed)
 	owner.stacksController->tick(msPassed);
 	owner.obstacleController->tick(msPassed);
 	owner.projectilesController->tick(msPassed);
+
+	if(!isControllerNativeMode() || owner.stacksController->getActiveStack() == nullptr)
+	{
+		resetControllerInput();
+		return;
+	}
+
+	ensureControllerFocus();
+	bool focusMoved = false;
+	if(navigationOwner == NavigationOwner::HEX && hexNavigation.ready(msPassed))
+		focusMoved = moveControllerHex();
+	else if(navigationOwner == NavigationOwner::UNIT && unitNavigation.ready(msPassed))
+		focusMoved = browseControllerUnit();
+	if(focusMoved)
+	{
+		controllerPressedHex = BattleHex::INVALID;
+		controllerMeleeRepeatDirection.reset();
+		refreshControllerPresentation();
+	}
+
+	if(controllerMeleeRepeatDirection && controllerMeleeRepeat.ready(msPassed)
+		&& !cycleControllerMeleeDirection(*controllerMeleeRepeatDirection))
+	{
+		controllerMeleeRepeatDirection.reset();
+		controllerMeleeRepeat.reset();
+		redraw();
+	}
 }
 
 void BattleFieldController::show(Canvas & to)
@@ -905,9 +1742,7 @@ void BattleFieldController::show(Canvas & to)
 
 		Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::BATTLE);
 		renderBattlefield(layer);
-
-		if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
-			layer.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
+		drawInputOverlay(layer);
 
 		return;
 	}
@@ -915,14 +1750,37 @@ void BattleFieldController::show(Canvas & to)
 	CanvasClipRectGuard guard(to, pos);
 
 	renderBattlefield(to);
+	drawInputOverlay(to);
+}
 
-	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
+void BattleFieldController::drawInputOverlay(Canvas & to)
+{
+	if(isActive() && isControllerNativeMode() && getHoveredHex().isValid()
+		&& owner.stacksController->getActiveStack() != nullptr
+		&& (controllerPrimaryActionNameAt(getHoveredHex()) != "none" || controllerInspectAvailable()))
+	{
 		to.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
+		drawControllerPrompts(to);
+	}
+	else if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
+		to.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
+
+	if(isActive() && ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER && controllerCursorMode)
+	{
+		const Rect bounds = controllerPromptBounds(pos.topLeft());
+		const Rect indicator(bounds.center().x - 60, bounds.y + 8, 120, 22);
+		to.drawColorBlended(indicator, ColorRGBA(45, 28, 16, 190));
+		to.drawBorder(indicator, ColorRGBA(198, 164, 104), 1);
+		to.drawText(indicator.center(), FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER,
+			LIBRARY->generaltexth->translate("vcmi.battleWindow.controller.cursorMode"));
+	}
 }
 
 bool BattleFieldController::receiveEvent(const Point & position, int eventType) const
 {
 	if (eventType == HOVER)
+		return true;
+	if(eventType == GESTURE && ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER && controllerCursorMode)
 		return true;
 	return CIntObject::receiveEvent(position, eventType);
 }

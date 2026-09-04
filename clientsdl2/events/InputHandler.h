@@ -136,6 +136,9 @@ public:
 
 	InputMode getCurrentInputMode();
 	ControllerPrompt::Family getActiveControllerPromptFamily() const;
+	void clearControllerAxisMotion();
+	void resetControllerInput();
+	void cancelControllerPressesForModeTransition();
 
 	bool inputModeSupportsHover() const;
 	bool inputModeUsesGestures() const;

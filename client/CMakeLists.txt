@@ -202,6 +202,7 @@ set(vcmiclientcommon_SRCS
 
 set(vcmiclientcommon_HEADERS
 	StdInc.h
+	ControllerPromptFamily.h
 
 	adventureMap/AdventureMapInterface.h
 	adventureMap/AdventureMapShortcuts.h

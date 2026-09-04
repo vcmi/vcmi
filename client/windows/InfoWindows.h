@@ -32,6 +32,7 @@ class TransparentFilledRectangle;
 class CMinimapInstance;
 class CLabel;
 class CSlider;
+enum class EShortcut;
 
 /// text + comp. + ok button
 class CInfoWindow : public WindowBase
@@ -71,6 +72,7 @@ public:
 
 	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo & comps = CInfoWindow::TCompsInfo());
+	static std::shared_ptr<WindowBase> createAndPushForRelease(const std::string & txt, const CInfoWindow::TCompsInfo & comps, EShortcut closeOnRelease);
 	static void createAndPush(const std::string & txt, const std::shared_ptr<CComponent> & component);
 	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
 };
@@ -81,11 +83,15 @@ class CRClickPopupInt : public CRClickPopup
 	std::shared_ptr<CIntObject> inner;
 
 	Point dragDistance;
+	EShortcut closeOnRelease;
 
 public:
 	CRClickPopupInt(const std::shared_ptr<CIntObject> & our);
+	CRClickPopupInt(const std::shared_ptr<CIntObject> & our, EShortcut closeOnRelease);
 	~CRClickPopupInt();
 
+	bool captureThisKey(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };
 

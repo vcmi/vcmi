@@ -62,7 +62,10 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 		panningState = false;
 
 	if (!(activeState & LCLICK) && mouseClickedState)
+	{
 		mouseClickedState = false;
+		clickCancel(ENGINE->getCursorPosition());
+	}
 
 // FIXME: might lead to regressions, recheck before enabling
 //	if (!(activeState & HOVER))

@@ -38,6 +38,7 @@ class EventDispatcher
 	EventReceiversList keyNameInterested;
 
 	std::vector<AEventsReceiver *> touchPressedElements;
+	bool gestureStartInProgress = false;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
@@ -47,6 +48,9 @@ class EventDispatcher
 	void processLists(ui16 activityFlag, const Functor & cb);
 
 public:
+	/// A gesture-start callback may transfer the remaining gesture to a newly pushed window.
+	bool isStartingGesture() const { return gestureStartInProgress; }
+
 	/// add specified UI element as interested. Uses unnamed enum from AEventsReceiver for activity flags
 	void activateElement(AEventsReceiver * elem, ui16 activityFlag);
 
@@ -59,6 +63,7 @@ public:
 	/// Shortcut events (e.g. keyboard keys)
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
+	void cancelShortcutPress(const std::vector<EShortcut> & shortcuts);
 
 	/// Key events (to get keyname of pressed key)
 	void dispatchKeyPressed(const std::string & keyName);
@@ -79,6 +84,7 @@ public:
 
 	void dispatchGesturePanningStarted(const Point & initialPosition);
 	void dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition);
+	void dispatchGesturePanningCanceled();
 	void dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance);
 	void dispatchGesturePinch(const Point & initialPosition, double distance);
 

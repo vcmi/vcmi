@@ -292,6 +292,12 @@ bool CViewport::receiveEvent(const Point & position, int eventType) const
 	return CIntObject::receiveEvent(position, eventType);
 }
 
+void CViewport::gestureCanceled()
+{
+	smoothH.stop();
+	smoothV.stop();
+}
+
 void CViewport::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if(on)

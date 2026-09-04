@@ -12,6 +12,7 @@
 #include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
+#include "../ControllerPromptFamily.h"
 
 class CStack;
 class Rect;
@@ -25,6 +26,38 @@ class BattleInterface;
 /// Handles battlefield grid as well as rendering of background layer of battle interface
 class BattleFieldController : public CIntObject
 {
+	enum class NavigationOwner
+	{
+		NONE,
+		HEX,
+		UNIT
+	};
+
+	struct RepeatState
+	{
+		uint32_t elapsed = 0;
+		bool initialPending = false;
+		bool repeating = false;
+
+		void start(bool settleFirst);
+		bool ready(uint32_t msPassed);
+		void reset();
+	};
+
+	struct NavigationState
+	{
+		double x = 0.0;
+		double y = 0.0;
+		double directionX = 0.0;
+		double directionY = 0.0;
+		bool active = false;
+		RepeatState repeat;
+
+		void update(bool horizontal, double value);
+		bool ready(uint32_t msPassed);
+		void reset();
+	};
+
 	BattleInterface & owner;
 
 	std::shared_ptr<IImage> background;
@@ -101,9 +134,23 @@ class BattleFieldController : public CIntObject
 	void showBackgroundImageWithHexes(Canvas & canvas);
 	void showHighlightedHexes(Canvas & canvas);
 	void updateAccessibleHexes();
+	void focusHex(const BattleHex & hex, std::optional<uint32_t> unitId = std::nullopt);
+	void ensureControllerFocus();
+	bool moveControllerHex();
+	bool browseControllerUnit();
+	BattleHex::EDir controllerHexDirection();
+	void updateNavigationOwner(NavigationOwner changedOwner);
+	void refreshControllerPresentation();
+	bool controllerBrowseOnly() const;
+	std::vector<BattleHex::EDir> availableAttackDirections(const BattleHex & target) const;
+	bool cycleControllerMeleeDirection(bool forward);
+	Point attackDirectionPoint(const BattleHex & target, BattleHex::EDir direction) const;
+	std::string controllerPrimaryActionNameAt(const BattleHex & hex) const;
+	void activateHex(const BattleHex & hex, const std::function<void(const CStack *)> & stackInfo = {});
+	bool drawControllerPrompts(Canvas & to);
+	void drawInputOverlay(Canvas & to);
 
 	BattleHex getHexAtPosition(Point hoverPosition);
-
 	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
 	bool isPixelInHex(Point const & position);
 	size_t selectBattleCursor(const BattleHex & myNumber);
@@ -123,7 +170,9 @@ class BattleFieldController : public CIntObject
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 public:
+	void pointerInputChanged(InputMode inputMode) override;
 	BattleFieldController(BattleInterface & owner);
+	~BattleFieldController() override;
 
 	void createHeroes();
 
@@ -153,8 +202,45 @@ public:
 	/// starts screen shake effect (used by earthquake spell)
 	void startShakeAnimation();
 
+	bool isControllerNativeMode() const;
+	bool isControllerCursorMode() const;
+	bool controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value) override;
+	void resetControllerInput();
+	void toggleControllerCursorMode();
+	bool controllerPrimaryPressed();
+	bool controllerPrimaryReleased();
+	void activateControllerPrimary(const std::function<void(const CStack *)> & stackInfo);
+	bool controllerMeleeDirectionAvailable() const;
+	bool controllerMeleeDirectionPressed(bool forward);
+	bool controllerMeleeDirectionReleased(bool forward);
+	void focusActiveStack();
+	void restoreControllerFocus(const BattleHex & hex);
+	void controllerStackMoved(const CStack * stack);
+	void controllerStackRemoved(uint32_t stackId);
+	BattleHex getControllerFocusedHex() const;
+
 private:
 	void updateShake();
+	Point controllerStackCenter(const CStack & stack) const;
+	std::shared_ptr<IImage> controllerPromptSprite(const std::string & path);
+	void drawControllerFaceGlyph(Canvas & to, const Point & position, ControllerPrompt::Family family,
+		const std::string & binding, bool pressed);
+	void drawControllerShoulderGlyph(Canvas & to, const Point & position, const std::string & normalSprite,
+		const std::optional<std::string> & pressedSprite);
+	bool controllerInspectAvailable() const;
+	NavigationState hexNavigation;
+	NavigationState unitNavigation;
+	NavigationOwner navigationOwner = NavigationOwner::NONE;
+	int controllerInstance = -1;
+	bool controllerCursorMode = false;
+	bool controllerOwnsPresentation = false;
+	std::optional<BattleHex::EDir> controllerNavigationDirection;
+	BattleHex controllerRestoreHex = BattleHex::INVALID;
+	std::optional<uint32_t> controllerFocusedUnitId;
+	BattleHex controllerPressedHex = BattleHex::INVALID;
+	std::optional<bool> controllerMeleeRepeatDirection;
+	RepeatState controllerMeleeRepeat;
+	std::map<std::string, std::shared_ptr<IImage>> controllerPromptSprites;
 
 	/// current shake offset and animation progress
 	Point shakeOffset;

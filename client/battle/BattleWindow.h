@@ -27,6 +27,8 @@ class HeroInfoBasicPanel;
 class StackInfoBasicPanel;
 class QuickSpellPanel;
 class UnitActionPanel;
+class CStackWindow;
+class IShowActivatable;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -96,6 +98,11 @@ class BattleWindow : public InterfaceObjectConfigurable
 	bool hasSpaceForQuickActions() const;
 	bool quickActionsPanelActive() const;
 	bool placeInfoWindowsOutside() const;
+	void closeControllerHoldInspect();
+	std::weak_ptr<IShowActivatable> controllerHoldInspectWindow;
+	std::optional<BattleHex> controllerInspectRestoreHex;
+	bool controllerMeleeLeftHeld = false;
+	bool controllerMeleeRightHeld = false;
 
 public:
 	BattleWindow(BattleInterface & owner );
@@ -139,7 +146,12 @@ public:
 	void activate() override;
 	void deactivate() override;
 	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
+	bool usesNativeControllerAxis() const override;
+	bool controllerAxisMoved(int instanceId, const std::vector<EShortcut> & actions, double value) override;
+	void controllerInputReset() override;
+	void pointerInputChanged(InputMode inputMode) override;
 	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -156,5 +168,11 @@ public:
 
 	/// ends battle with autocombat
 	void endWithAutocombat();
-};
 
+	/// Opens the canonical persistent stack info view with Battle Native button ownership.
+	void openControllerInspect();
+	/// Routes the focused Native primary action through the canonical left-click owner.
+	void activateControllerPrimary();
+	/// Presents a hold-to-inspect view after canonical right-click routing.
+	void openControllerHoldInspect(const BattleHex & targetHex);
+};
