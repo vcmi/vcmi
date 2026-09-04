@@ -1,3 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    </resources>
+    <string name="server_name">Máy chủ VCMI</string>
+    <string name="shortcut_play">Chơi VCMI</string>
+    <string name="shortcut_editor">Mở VCMI Editor</string>
+    <string name="notification_channel_running">Đang chạy ngầm</string>
+    <string name="notification_channel_game">Sự kiện trò chơi</string>
+    <string name="notification_running_title">VCMI đang chạy</string>
+    <string name="notification_running_text">Trò chơi vẫn đang chạy ngầm trong nền</string>
+    <string name="notification_quit">Thoát</string>
+    <string name="quit_title">Thoát VCMI</string>
+    <string name="notification_permission_title">Thông báo đã bị tắt</string>
+    <string name="notification_permission_denied">VCMI cần được cấp quyền để gửi thông báo cho bạn khi đến lượt chơi của bạn hoặc bạn có tin nhắn mới, khi trò chơi đang chạy ở chế độ nền. Nếu không cấp quyền này, trò chơi vẫn chạy ngầm nhưng bạn sẽ không nhận được thông báo.</string>
+    <string name="notification_permission_settings">Cài đặt</string>
+    <string name="quit_message">Bạn có chắc muốn kết thúc trò chơi không? Mọi thay đổi chưa được lưu sẽ bị mất.</string>
+    <string name="data_folder_name">Dữ liệu VCMI</string>
+    <string name="notification_game_title">VCMI</string>
+</resources>

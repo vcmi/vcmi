@@ -1524,27 +1524,27 @@ Du måste välja det offlinebaserade GOG-installationsprogrammet.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägger till gränssnitts‑ och spelmekaniska förbättringar, såsom ett bättre gränssnitt för slumpkartor, återbesöks‑ och sökknappar på äventyrskartan, snabbbyte mellan hjältar, bonus‑ och immunitetsikoner samt nya åtgärder i strid</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>En finslipad fan‑skapad expansion som lägger till städerna Viken, Fabriken och Bålverket, nya kampanjer, hjältar, artefakter, kartobjekt, färdigheterna Störning och Runor, balansfixar och nya terränger - samtidigt som den förblir trogen Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördjupar Heroes III med adjutanter, trupp‑erfarenhet, trupp‑artefakter, många nya artefakter för hjältar och adjutanter, extra utvecklingssystem samt interaktiva objekt på äventyrskartan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Ashans Tårar</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>En fan‑skapad expansion inspirerad av Heroes V som lägger till alternativa enhetsuppgraderingar, Ljus‑ och Mörkermagi, Portning, en högre gräns för färdigheter samt ett omarbetat Sammanflödes‑spelupplägg i Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
@@ -1787,7 +1787,7 @@ Bin-filer (%n byte):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Litauiska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>

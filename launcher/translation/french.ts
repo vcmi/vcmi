@@ -104,7 +104,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Zip archives (*.zip)</source>
-        <translation>Archives ZIP (*.zip)</translation>
+        <translation>Archives Zip (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
@@ -396,8 +396,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>Ce sous-mod ne peut pas être installé ou mis à jour séparément du mod parent
-            </translation>
+        <translation>Ce sous-mod ne peut pas être installé ou mis à jour séparément du mod parent</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
@@ -470,17 +469,17 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Erreur d&apos;extraction !</translation>
+        <translation>Erreur d&apos;extraction&#x202f;!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Fichier sélectionné invalide</translation>
+        <translation>Fichier sélectionné invalide</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">Vous devez sélectionner un fichier d&apos;installation de Heroes Chronicles !</translation>
+        <translation>Vous devez sélectionner un fichier d&apos;installation de Heroes Chronicles&#x202f;!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
@@ -501,7 +500,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
-        <translation type="unfinished">Succès</translation>
+        <translation>Succès</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
@@ -937,7 +936,7 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="747"/>
         <source>Autosave prefix</source>
-        <translation>Préfix de sauvegarde auto.</translation>
+        <translation>Préfix de sauvegarde auto</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="782"/>
@@ -1100,12 +1099,12 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
         <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
-        <translation>Heroes Chronicles</translation>
+        <translation>Chroniques des héros</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation>Heroes Chronicles %1 - %2</translation>
+        <translation>Chroniques des héros %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1191,13 +1190,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Merci d&apos;avoir installé VCMI !
+        <translation>Merci d&apos;avoir installé VCMI&#x202f;!
 
 Avant de pouvoir commencer à jouer, il y a encore quelques étapes à compléter.
 
-Veuillez noter que pour utiliser VCMI, vous devez posséder les fichiers de données originaux de Heroes® of Might and Magic® III: Complete ou The Shadow of Death.
+Veuillez noter que pour utiliser VCMI, vous devez posséder les fichiers de données originaux de Heroes® of Might and Magic® III&#xa0;: Complete ou The Shadow of Death.
 
-Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge !</translation>
+Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge&#x202f;!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="253"/>
@@ -1217,7 +1216,7 @@ Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
         <source>Install gog.com files</source>
-        <translation>Installer les fichier de GOG.com</translation>
+        <translation>Installer les fichier de gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
@@ -1356,7 +1355,7 @@ L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
         <source>Horn of the Abyss</source>
-        <translation>Horn of the Abyss</translation>
+        <translation>La Corne de l&apos;Abîme (Horn of the Abyss)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
@@ -1370,7 +1369,7 @@ L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
         <source>In The Wake of Gods</source>
-        <translation>In The Wake of Gods</translation>
+        <translation>Dans le sillage des dieux (In The Wake of Gods)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
@@ -1388,7 +1387,7 @@ L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Heroes III installation found!</source>
-        <translation>Installation de Heroes III trouvée!</translation>
+        <translation>Installation de Heroes III trouvée&#x202f;!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
@@ -1415,15 +1414,15 @@ L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; 
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="561"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation>Les fichiers de Heroes III: HD Edition ne sont pas pris en charge par VCMI.
-Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
+        <translation>Les fichiers de Heroes III&#xa0;: HD Edition ne sont pas pris en charge par VCMI.
+Veuillez sélectionner le répertoire contenant Heroes III&#xa0;: Complete Edition ou Heroes III&#xa0;: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="563"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Version inconnue ou non prise en charge de Heroes III détectée.
-Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
+Veuillez sélectionner le répertoire contenant Heroes III&#xa0;: Complete Edition ou Heroes III&#xa0;: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
@@ -1444,7 +1443,7 @@ Veuillez sélectionner le répertoire contenant Heroes III: Complete Edition ou 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
         <source>No Heroes III data!</source>
-        <translation>Pas de données Heroes III!</translation>
+        <translation>Pas de données Heroes III&#x202f;!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
@@ -1491,7 +1490,7 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Fichier sélectionné invalide</translation>
+        <translation>Fichier sélectionné invalide</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
@@ -1714,7 +1713,7 @@ Bin (%n octets):
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Dutch</source>
-        <translation type="unfinished">Néerlandais</translation>
+        <translation>Néerlandais</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
@@ -1724,7 +1723,7 @@ Bin (%n octets):
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Filipino</source>
-        <translation type="unfinished">Philippin</translation>
+        <translation>Philippin</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
@@ -1971,7 +1970,8 @@ Bin (%n octets):
         <location filename="../modManager/modstatecontroller.cpp" line="348"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation>Le mod est situé dans un répertoire protégé, veuillez le supprimer manuellement :</translation>
+        <translation>Le mod est situé dans un répertoire protégé, veuillez le supprimer manuellement&#xa0;:
+</translation>
     </message>
 </context>
 <context>
@@ -2111,7 +2111,7 @@ Raison&#xa0;: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">Échec de l’importation</translation>
+        <translation>Échec de l’importation</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
@@ -2369,7 +2369,7 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
-        <translation type="unfinished">Échec de l’importation</translation>
+        <translation>Échec de l’importation</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
@@ -2498,7 +2498,7 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>Impossible de lire le JSON depuis l&apos;URL ou les données JSON sont incorrectes.</translation>
+        <translation>Impossible de lire le JSON depuis l&apos;URL ou les données JSON sont incorrectes</translation>
     </message>
 </context>
 </TS>
