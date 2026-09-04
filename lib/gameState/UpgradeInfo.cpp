@@ -24,9 +24,11 @@ void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * crea
 		auto pos = std::distance(upgradesIDs.begin(), idIt);
 		ResourceSet & existingCost = upgradesCosts[pos];
 
+		// Prefer an available offer over an unavailable one;
+		// otherwise replace only with an offer no more expensive in any resource.
 		if (upgradeAvaiable && (!isAvailable || existingCost.canAfford(upgradeCost)))
 		{
-			existingCost = std::move(upgradeCost);
+			existingCost = upgradeCost;
 			isAvailable = true;
 		}
 
