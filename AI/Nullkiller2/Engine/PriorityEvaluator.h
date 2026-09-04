@@ -15,11 +15,15 @@
 namespace NK2AI
 {
 
+class IArmyManager;
+class Nullkiller;
+
 float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount);
+float evaluateArmyPowerRatio(const IArmyManager & armyManager, const CCreatureSet * army);
+float evaluateMaxArmyLossRatio(float configuredMaxArmyLoss, float armyPowerRatio, bool isWithoutCastle);
 float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest);
 
 class BuildingInfo;
-class Nullkiller;
 struct HitMapInfo;
 
 class RewardEvaluator
