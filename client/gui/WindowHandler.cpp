@@ -14,9 +14,9 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
-#include "../render/Colors.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
+#include "render/Colors.h"
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
@@ -102,6 +102,39 @@ void WindowHandler::totalRedraw()
 	totalRedrawRequested = true;
 }
 
+void WindowHandler::requestRedraw(CIntObject * object)
+{
+	if(!vstd::contains(pendingRedraws, object))
+		pendingRedraws.push_back(object);
+
+	hasPendingRedraws = true;
+}
+
+void WindowHandler::cancelRedraw(CIntObject * object)
+{
+	// every destroyed widget passes here, so the common case must stay cheap
+	if(!hasPendingRedraws)
+		return;
+
+	vstd::erase(pendingRedraws, object);
+	hasPendingRedraws = !pendingRedraws.empty();
+}
+
+void WindowHandler::processPendingRedraws()
+{
+	std::vector<CIntObject *> pending;
+	pending.swap(pendingRedraws);
+	hasPendingRedraws = false;
+
+	if(pending.empty())
+		return;
+
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
+
+	for(CIntObject * object : pending)
+		object->showAll(target);
+}
+
 void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
@@ -117,6 +150,8 @@ void WindowHandler::totalRedrawImpl()
 
 void WindowHandler::simpleRedraw()
 {
+	processPendingRedraws();
+
 	if (totalRedrawRequested)
 		totalRedrawImpl();
 	else

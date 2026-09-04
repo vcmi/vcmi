@@ -17,7 +17,7 @@
 #include "render/IScreenHandler.h"
 #include "windows/GUIClasses.h"
 
-#include "../../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../gui/WindowHandler.h"
@@ -96,7 +96,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", ENGINE->input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("touchscreen", ENGINE->input().inputModeUsesGestures());
 	addConditional("keyboardMouse", ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
 	addConditional("controller", ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE

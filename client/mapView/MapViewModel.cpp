@@ -13,9 +13,19 @@
 
 #include "../../lib/int3.h"
 
+Point MapViewModel::getNativeTileSize()
+{
+	return Point(32, 32);
+}
+
 void MapViewModel::setTileSize(const Point & newValue)
 {
 	tileSize = newValue;
+}
+
+void MapViewModel::setCacheAtNativeSize(bool newValue)
+{
+	cacheAtNativeSize = newValue;
 }
 
 void MapViewModel::setViewCenter(const Point & newValue)
@@ -48,6 +58,18 @@ Point MapViewModel::getSingleTileSizeLowerLimit() const
 Point MapViewModel::getSingleTileSize() const
 {
 	return tileSize;
+}
+
+/// Below this the unscaled cache would hold several times the pixels the window shows, since the
+/// tiles keep their native size while their number grows - there it stores them ready-scaled
+static constexpr int minimalNativeCacheTileSize = 16;
+
+Point MapViewModel::getCacheTileSize() const
+{
+	if(!cacheAtNativeSize || tileSize.x < minimalNativeCacheTileSize || tileSize.y < minimalNativeCacheTileSize)
+		return tileSize;
+
+	return getNativeTileSize();
 }
 
 Point MapViewModel::getMapViewCenter() const
@@ -102,6 +124,11 @@ int3 MapViewModel::getTileAtPoint(const Point & position) const
 
 Point MapViewModel::getCacheDimensionsPixels() const
 {
+	// a cache at native size holds exactly the visible tiles, so it follows their number rather
+	// than the window - zooming out asks for more tiles and thus for a larger canvas
+	if(cacheAtNativeSize)
+		return getTilesVisibleDimensions() * getCacheTileSize();
+
 	return getPixelsVisibleDimensions() + getSingleTileSizeUpperLimit() * 2;
 }
 
@@ -116,7 +143,7 @@ Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const
 		(getTilesVisibleDimensions().y + coordinates.y) % getTilesVisibleDimensions().y
 	};
 
-	return Rect(tileIndex * getSingleTileSize(), getSingleTileSize());
+	return Rect(tileIndex * getCacheTileSize(), getCacheTileSize());
 }
 
 Rect MapViewModel::getTargetTileArea(const int3 & coordinates) const

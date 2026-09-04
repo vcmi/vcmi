@@ -18,7 +18,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground)
-	: CIntObject(0)
+	: BattleSidePanel(0)
 {
 	OBJECT_CONSTRUCTION;
 	if(position != nullptr)
@@ -76,12 +76,7 @@ void HeroInfoBasicPanel::update(const InfoAboutHero & updatedInfo)
 	labels.clear();
 
 	initializeData(updatedInfo);
-}
-
-void HeroInfoBasicPanel::show(Canvas & to)
-{
-	showAll(to);
-	CIntObject::show(to);
+	redraw();
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, const Point * position)

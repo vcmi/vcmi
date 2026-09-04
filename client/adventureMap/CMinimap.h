@@ -24,7 +24,9 @@ class CMinimapInstance : public CIntObject
 	int level;
 
 	//get color of selected tile on minimap
-	ColorRGBA getTileColor(const int3 & pos) const;
+	//minimapShowHeroes is passed in rather than read here: it is a settings lookup,
+	//and redrawMinimap() calls this once per tile of the entire map
+	ColorRGBA getTileColor(const int3 & pos, bool minimapShowHeroes) const;
 
 	void redrawMinimap();
 public:
@@ -32,7 +34,7 @@ public:
 	~CMinimapInstance();
 
 	void showAll(Canvas & to) override;
-	void refreshTile(const int3 & pos);
+	void refreshTile(const int3 & pos, bool minimapShowHeroes);
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map

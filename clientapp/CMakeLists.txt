@@ -41,6 +41,17 @@ endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 
+# this executable provides the entry point, so it talks to SDL directly. the lookup is
+# repeated here because imported targets are scoped to the directory that creates them.
+if(ENABLE_SDL3)
+	find_package(SDL3 REQUIRED)
+	target_link_libraries(vcmiclient PRIVATE ${SDL3_CORE_TARGET})
+	target_compile_definitions(vcmiclient PRIVATE VCMI_SDL3)
+else()
+	find_package(SDL2 REQUIRED)
+	target_link_libraries(vcmiclient PRIVATE SDL2::SDL2)
+endif()
+
 if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
@@ -68,7 +79,11 @@ if(WIN32)
 	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vcmiclient)
 	if(NOT ENABLE_DEBUG_CONSOLE)
 		set_target_properties(vcmiclient PROPERTIES WIN32_EXECUTABLE)
-		target_link_libraries(vcmiclient SDL2::SDL2main)
+		# SDL3 emits the WinMain entry point from SDL_main.h, so there is no
+		# equivalent of SDL2main to link against
+		if(NOT ENABLE_SDL3)
+			target_link_libraries(vcmiclient SDL2::SDL2main)
+		endif()
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(IOS)

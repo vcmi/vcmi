@@ -21,10 +21,12 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/IImage.h"
-#include "../eventsSDL/InputHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/IImage.h"
+#include "render/IScreenHandler.h"
+#include "events/InputHandler.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -46,10 +48,11 @@ std::shared_ptr<MapViewModel> BasicMapView::createModel(const Point & dimensions
 	return result;
 }
 
-BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
+BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool useGpuLayer)
 	: model(createModel(dimensions))
-	, tilesCache(new MapViewCache(model))
+	, tilesCache(new MapViewCache(model, useGpuLayer))
 	, controller(new MapViewController(model, tilesCache))
+	, gpuLayerEligible(useGpuLayer)
 	, needFullUpdate(false)
 {
 	OBJECT_CONSTRUCTION;
@@ -60,6 +63,20 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
+	if(gpuLayerEligible && ENGINE->screenHandler().isGpuRenderingEnabled())
+	{
+		// The software screen keeps a transparent hole over the map's GPU layer. Punched every
+		// frame, since any widget redrawing its background would fill it back in. Thread safe.
+		target.drawColor(pos, ColorRGBA(0, 0, 0, 0));
+
+		// a redraw arriving from another thread is queued by CIntObject::redraw() and reaches us
+		// from the next frame instead, so by here the GL context is ours
+		assert(ENGINE->amIGuiThread());
+
+		renderGpu(fullUpdate);
+		return;
+	}
+
 	Canvas targetClipped(target, pos);
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
@@ -68,9 +85,36 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	logVisual->visualize(r);
 }
 
+void BasicMapView::renderGpu(bool fullUpdate)
+{
+	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
+	Canvas targetClipped(layer, pos);
+
+	// tick() normally filled the cache; a scroll, zoom or level change since then invalidates it
+	if(!tilesCache->isUpdatedThisFrame())
+		tilesCache->update(controller->getContext());
+
+	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
+}
+
 void BasicMapView::tick(uint32_t msPassed)
 {
 	controller->tick(msPassed);
+
+	// tick() only ever runs from the timer dispatch, which is part of the frame
+	assert(ENGINE->amIGuiThread());
+
+	// Draw the tiles into the cache now, so the GPU can work while the rest of the frame is
+	// prepared - reading the cache straight after writing it stalls until that drawing is done.
+	if(gpuLayerEligible && ENGINE->screenHandler().isGpuRenderingEnabled())
+	{
+		tilesCache->update(controller->getContext());
+#ifndef VCMI_MOBILE
+		// a tile-based mobile GPU resolves its render target on every flush, which costs
+		// more than the stall this avoids on desktop
+		ENGINE->screenHandler().flushRenderCommands();
+#endif
+	}
 }
 
 void BasicMapView::show(Canvas & to)
@@ -102,7 +146,7 @@ void MapView::show(Canvas & to)
 }
 
 MapView::MapView(const Point & offset, const Point & dimensions)
-	: BasicMapView(offset, dimensions)
+	: BasicMapView(offset, dimensions, true)
 {
 	OBJECT_CONSTRUCTION;
 	actions = std::make_shared<MapViewActions>(*this, model);
@@ -220,7 +264,7 @@ void MapView::onViewMapActivated()
 }
 
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)
-	: BasicMapView(offset, dimensions)
+	: BasicMapView(offset, dimensions, false)
 {
 	controller->activatePuzzleMapContext(tileToCenter);
 	controller->setViewCenter(tileToCenter);

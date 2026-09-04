@@ -24,8 +24,12 @@
 
 #include "../../lib/CConfigHandler.h"
 
-#ifndef VCMI_MOBILE
+#if !defined(VCMI_MOBILE) || defined(VCMI_SDL3)
+#ifdef VCMI_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 #endif
 
 static QString resolutionToString(const QSize & resolution)
@@ -370,11 +374,15 @@ void CSettingsView::fillValidScalingRange()
 	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
 }
 
-#ifndef VCMI_MOBILE
+#if !defined(VCMI_MOBILE) || defined(VCMI_SDL3)
 
 static QStringList getAvailableRenderingDrivers()
 {
+	// SDL3 lists the compiled-in render drivers without an initialized video subsystem,
+	// which matters on mobile where the launcher shares its process with the client
+#ifndef VCMI_SDL3
 	SDL_InitSubSystem(SDL_INIT_VIDEO);
+#endif
 	QStringList result;
 
 	result += QString(); // empty value for autoselection
@@ -383,14 +391,55 @@ static QStringList getAvailableRenderingDrivers()
 
 	for(int it = 0; it < driversCount; it++)
 	{
+#ifdef VCMI_SDL3
+		const char * driver = SDL_GetRenderDriver(it);
+
+		// "vulkan" is not stable enough to use, and "gpu" holds on to every rendering operation
+		// queued into a render target until a present, which the map cache fills thousands of
+		// at a time - https://github.com/libsdl-org/SDL/issues/15799
+		const bool usable = driver != nullptr
+			&& QLatin1String(driver) != QLatin1String("vulkan")
+			&& QLatin1String(driver) != QLatin1String("gpu");
+
+		if (usable)
+			result += QString::fromLatin1(driver);
+#else
 		SDL_RendererInfo info;
 		if (SDL_GetRenderDriverInfo(it, &info) == 0)
 			result += QString::fromLatin1(info.name);
+#endif
 	}
 
+#ifndef VCMI_SDL3
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 	return result;
 }
+
+void CSettingsView::fillValidRenderers()
+{
+	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
+
+	ui->comboBoxRendererType->clear();
+
+	auto driversList = getAvailableRenderingDrivers();
+	ui->comboBoxRendererType->addItems(driversList);
+
+	std::string rendererName = settings["video"]["driver"].String();
+
+	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
+	ui->comboBoxRendererType->setCurrentIndex(index);
+}
+#else
+void CSettingsView::fillValidRenderers()
+{
+	// SDL2 renderer selection is untested on mobile platforms
+	ui->comboBoxRendererType->hide();
+	ui->labelRendererType->hide();
+}
+#endif
+
+#ifndef VCMI_MOBILE
 
 static QVector<QSize> findAvailableResolutions(int displayIndex)
 {
@@ -399,6 +448,21 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 	QVector<QSize> result;
 	SDL_InitSubSystem(SDL_INIT_VIDEO);
 
+#ifdef VCMI_SDL3
+	// SDL3 identifies displays by opaque ID's while our settings store a plain index
+	int displaysCount = 0;
+	SDL_DisplayID * displays = SDL_GetDisplays(&displaysCount);
+	SDL_DisplayID displayID = (displays && displayIndex >= 0 && displayIndex < displaysCount) ? displays[displayIndex] : SDL_GetPrimaryDisplay();
+	SDL_free(displays);
+
+	int modesCount = 0;
+	SDL_DisplayMode ** modes = SDL_GetFullscreenDisplayModes(displayID, &modesCount);
+
+	for (int i = 0; modes && i < modesCount; ++i)
+		result.push_back(QSize(modes[i]->w, modes[i]->h));
+
+	SDL_free(modes);
+#else
 	int modesCount = SDL_GetNumDisplayModes(displayIndex);
 
 	for (int i = 0; i < modesCount; ++i)
@@ -411,6 +475,7 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 
 		result.push_back(resolution);
 	}
+#endif
 
 	std::ranges::sort(result, [](const auto & left, const auto & right)
 	{
@@ -483,34 +548,12 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 		}
 	}
 }
-
-void CSettingsView::fillValidRenderers()
-{
-	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
-
-	ui->comboBoxRendererType->clear();
-
-	auto driversList = getAvailableRenderingDrivers();
-	ui->comboBoxRendererType->addItems(driversList);
-
-	std::string rendererName = settings["video"]["driver"].String();
-
-	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
-	ui->comboBoxRendererType->setCurrentIndex(index);
-}
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	// resolutions are not selectable on mobile platforms
 	ui->comboBoxResolution->hide();
 	ui->labelResolution->hide();
-}
-
-void CSettingsView::fillValidRenderers()
-{
-	// untested on mobile platforms
-	ui->comboBoxRendererType->hide();
-	ui->labelRendererType->hide();
 }
 #endif
 

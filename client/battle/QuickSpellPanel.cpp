@@ -10,11 +10,12 @@
 #include "StdInc.h"
 #include "QuickSpellPanel.h"
 
+#include "BattleFieldController.h"
 #include "BattleInterface.h"
 #include "BattleWindow.h"
 
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
@@ -101,7 +102,10 @@ void QuickSpellPanel::create()
 
 	const auto * hero = owner.getBattle()->battleGetMyHero();
 	if(!hero)
+	{
+		redraw();
 		return;
+	}
 
 	auto spells = getSpells();
 	for(int i = 0; i < QUICKSPELL_SLOTS; i++)
@@ -146,6 +150,8 @@ void QuickSpellPanel::create()
 
 		buttons.push_back(button);
 	}
+
+	redraw();
 }
 
 void QuickSpellPanel::changeSelectedSpell(int i, SpellID spell)
@@ -160,7 +166,9 @@ void QuickSpellPanel::changeSelectedSpell(int i, SpellID spell)
 
 void QuickSpellPanel::show(Canvas & to)
 {
-	showAll(to);
+	// the battlefield erases its own area every frame, so only a panel above it must repaint
+	if(owner.fieldController && pos.intersectionTest(owner.fieldController->pos))
+		showAll(to);
 	CIntObject::show(to);
 }
 

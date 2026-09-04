@@ -13,7 +13,7 @@
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "adventureMap/AdventureMapInterface.h"
-#include "eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
 #include "gui/CursorHandler.h"

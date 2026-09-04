@@ -18,10 +18,10 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
-#include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
+#include "media/ISoundPlayer.h"
+#include "render/Canvas.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"

@@ -12,13 +12,13 @@
 
 #include "../../widgets/Images.h"
 #include "../../widgets/TextControls.h"
-#include "../../render/Canvas.h"
-#include "../../render/Colors.h"
-#include "../../render/EFont.h"
-#include "../../render/IFont.h"
-#include "../../render/IRenderHandler.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
+#include "render/EFont.h"
+#include "render/IFont.h"
+#include "render/IRenderHandler.h"
 #include "../../GameEngine.h"
-#include "../../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/GameLibrary.h"
@@ -74,7 +74,7 @@ void WikiClickable::showAll(Canvas & to)
 {
 	const Point cur = ENGINE->getCursorPosition();
 	const bool inClip = !clipRect || clipRect->isInside(cur);
-	hovered = pos.isInside(cur) && inClip && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH;
+	hovered = pos.isInside(cur) && inClip && ENGINE->input().inputModeSupportsHover();
 	if(hovered)
 	{
 		const ColorRGBA hoverCol = blueTheme

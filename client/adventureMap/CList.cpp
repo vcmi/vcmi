@@ -25,8 +25,8 @@
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
+#include "render/Canvas.h"
+#include "render/Colors.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

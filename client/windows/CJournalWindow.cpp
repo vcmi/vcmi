@@ -14,7 +14,7 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
-#include "../render/Canvas.h"
+#include "render/Canvas.h"
 #include "../render/Colors.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"

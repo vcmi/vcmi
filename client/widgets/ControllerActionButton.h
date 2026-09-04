@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Buttons.h"
-#include "../eventsSDL/ControllerPromptFamily.h"
+#include "events/ControllerPromptFamily.h"
 
 class CControllerActionButton final : public CButton
 {

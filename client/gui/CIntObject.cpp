@@ -14,8 +14,8 @@
 #include "WindowHandler.h"
 #include "EventDispatcher.h"
 #include "Shortcut.h"
-#include "../render/Canvas.h"
-#include "../render/IScreenHandler.h"
+#include "render/Canvas.h"
+#include "render/IScreenHandler.h"
 #include "../windows/CMessage.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
@@ -33,6 +33,9 @@ CIntObject::CIntObject(int used_, Point pos_):
 
 CIntObject::~CIntObject()
 {
+	// a deferred repaint must never outlive its object
+	ENGINE->windows().cancelRedraw(this);
+
 	if(isActive())
 		deactivate();
 
@@ -243,6 +246,13 @@ void CIntObject::redraw()
 		}
 		else
 		{
+			// redraw() is reachable from the network thread, but the screen belongs to this one
+			if(!ENGINE->amIGuiThread())
+			{
+				ENGINE->windows().requestRedraw(this);
+				return;
+			}
+
 			Canvas buffer = ENGINE->screenHandler().getScreenCanvas();
 			showAll(buffer);
 		}

@@ -55,4 +55,12 @@ public:
 	virtual std::shared_ptr<AssetGenerator> getAssetGenerator() = 0;
 
 	virtual void updateGeneratedAssets() = 0;
+
+	/// Counts draws that fell back to the stretched stand-in of an unfinished upscale. A tile
+	/// whose count did not move was drawn from final images.
+	virtual uint32_t getPlaceholderDrawCount() const = 0;
+
+	/// Hands assets the memory cache gave up back what they can rebuild. Rendering thread only,
+	/// since freeing an image touches the same data a draw would read.
+	virtual void reclaimEvictedAssets() {}
 };

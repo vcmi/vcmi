@@ -37,7 +37,7 @@ public:
 	virtual void setType(const CCreature * c);
 	virtual void setCount(TQuantity amount);
 
-	friend bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
+	friend DLL_LINKAGE bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template<typename Handler>
 	void serialize(Handler & h)

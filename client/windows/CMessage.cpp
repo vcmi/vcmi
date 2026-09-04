@@ -12,12 +12,12 @@
 #include "CMessage.h"
 
 #include "../GameEngine.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/Graphics.h"
-#include "../render/IFont.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/Graphics.h"
+#include "render/IFont.h"
+#include "render/IImage.h"
+#include "render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
@@ -59,6 +59,10 @@ void CMessage::dispose()
 {
 	for(auto & item : dialogBorders)
 		item.reset();
+
+	// each image is also cached here in its own right, not only inside its animation above
+	for(auto & item : piecesOfBox)
+		item.clear();
 }
 
 std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)

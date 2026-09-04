@@ -13,6 +13,7 @@ To compile, the following packages (and their development counterparts) are need
 
 - CMake
 - SDL2 with devel packages: mixer, image, ttf
+  - alternatively SDL3: if SDL3, SDL3_image, SDL3_mixer and SDL3_ttf are all installed, the SDL3 backend is used automatically (override with `-D ENABLE_SDL3=ON/OFF`). Few distributions package them yet, so this usually means compiling SDL3 yourself.
 - minizip or minizip-ng
 - zlib and zlib-devel
 - `LuaJIT`, or Lua (if LuaJit is not available)

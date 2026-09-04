@@ -65,6 +65,7 @@ public:
 	void onGlobalLobbyInterfaceActivated() final;
 	void onUpdate() final;
 	bool capturedAllEvents() final;
+	bool wantsFrameRendered() final;
 	void onShutdownRequested(bool askForConfirmation) final;
 	void onAppPaused() final;
 };

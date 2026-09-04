@@ -19,7 +19,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 template<typename Functor>
 void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)

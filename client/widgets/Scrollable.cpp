@@ -12,7 +12,7 @@
 #include "Scrollable.h"
 
 #include "../GameEngine.h"
-#include "../eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 // SmoothScrollHelper
 

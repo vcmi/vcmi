@@ -12,7 +12,6 @@
 #include "FramerateManager.h"
 
 #include "../../lib/CConfigHandler.h"
-#include <SDL_video.h>
 
 FramerateManager::FramerateManager(int targetFrameRate)
 	: targetFrameTime(Duration(std::chrono::seconds(1)) / targetFrameRate)
@@ -44,11 +43,19 @@ void FramerateManager::framerateDelay()
 	lastTimePoint = currentTicks;
 	lastFrameIndex = (lastFrameIndex + 1) % lastFrameTimes.size();
 	lastFrameTimes[lastFrameIndex] = timeElapsed;
+	elapsedSinceConsumed += timeElapsed;
 }
 
 ui32 FramerateManager::getElapsedMilliseconds() const
 {
 	return lastFrameTimes[lastFrameIndex] / std::chrono::milliseconds(1);
+}
+
+ui32 FramerateManager::consumeElapsedMilliseconds()
+{
+	ui32 result = elapsedSinceConsumed / std::chrono::milliseconds(1);
+	elapsedSinceConsumed -= std::chrono::milliseconds(result);
+	return result;
 }
 
 ui32 FramerateManager::getFramerate() const

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../render/EFont.h"
+#include "render/EFont.h"
 #include "../../lib/FunctionList.h"
 #include "../../lib/filesystem/ResourcePath.h"
 

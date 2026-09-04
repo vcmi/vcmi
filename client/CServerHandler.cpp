@@ -31,6 +31,8 @@
 #include "netlag/NetworkLagCompensator.h"
 #include "replay/GameplayReplayer.h"
 
+#include "render/SDL_Extensions.h"
+
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
 
@@ -67,7 +69,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 
 #include <vcmi/events/EventBus.h>
-#include <SDL_thread.h>
 
 
 CServerHandler::~CServerHandler()
@@ -144,11 +145,11 @@ void CServerHandler::threadRunNetwork()
 	{
 		// VCMI can run SDL methods on network thread, leading to usage of thread-local storage by SDL
 		// Such storage needs to be cleaned up manually for threads that were not created by SDL
-		SDL_TLSCleanup();
+		CSDL_Ext::cleanupThreadLocalStorage();
 		logGlobal->info("Terminating network thread");
 		return;
 	}
-	SDL_TLSCleanup();
+	CSDL_Ext::cleanupThreadLocalStorage();
 	logGlobal->info("Ending network thread");
 }
 

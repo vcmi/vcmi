@@ -231,7 +231,8 @@
 				"downscalingFilter",
 				"allowPortrait",
 				"asyncUpscaling",
-				"useHdTextures"
+				"useHdTextures",
+				"assetCacheSize"
 			],
 			"properties" : {
 				"resolution" : {
@@ -271,9 +272,8 @@
 				},
 				"driver" : {
 					"type" : "string",
-					"defaultWindows" : "",
-					"default" : "opengl",
-					"description" : "preferred graphics backend driver name for SDL2"
+					"default" : "",
+					"description" : "preferred graphics backend driver name, empty to let SDL choose"
 				},
 				"displayIndex" : {
 					"type" : "number",
@@ -337,6 +337,11 @@
 				"useHdTextures" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"assetCacheSize" : {
+					"type" : "number",
+					"description" : "Memory budget in MiB for cached images and def files; 0 derives it from system RAM",
+					"default" : 0
 				}
 			}
 		},

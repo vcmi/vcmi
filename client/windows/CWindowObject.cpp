@@ -18,20 +18,17 @@
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
 #include "CMessage.h"
-#include "../renderSDL/SDL_PixelAccess.h"
-#include "../render/IImage.h"
-#include "../render/IScreenHandler.h"
-#include "../render/IRenderHandler.h"
-#include "../render/CAnimation.h"
-#include "../render/Canvas.h"
-#include "../render/CanvasImage.h"
+#include "render/IImage.h"
+#include "render/IScreenHandler.h"
+#include "render/IRenderHandler.h"
+#include "render/CAnimation.h"
+#include "render/Canvas.h"
+#include "render/CanvasImage.h"
 
 #include "../CPlayerInterface.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
-
-#include <SDL_surface.h>
 
 CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point centerAt):
 	WindowBase(0, Point()),

@@ -18,7 +18,7 @@
 #include "gui/FramerateManager.h"
 #include "gui/WindowHandler.h"
 #include "gui/EventDispatcher.h"
-#include "eventsSDL/InputHandler.h"
+#include "events/InputHandler.h"
 
 #include "media/CMusicHandler.h"
 #include "media/CSoundHandler.h"
@@ -30,8 +30,8 @@
 #include "render/Colors.h"
 #include "render/IFont.h"
 #include "render/EFont.h"
-#include "renderSDL/ScreenHandler.h"
-#include "renderSDL/RenderHandler.h"
+#include "render/ScreenHandler.h"
+#include "render/RenderHandler.h"
 #include "GameEngineUser.h"
 #include "battle/BattleInterface.h"
 
@@ -39,8 +39,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-
-#include <SDL_render.h>
 
 std::unique_ptr<GameEngine> ENGINE;
 
@@ -95,7 +93,7 @@ GameEngine::GameEngine()
 
 void GameEngine::handleEvents()
 {
-	events().dispatchTimer(framerate().getElapsedMilliseconds());
+	events().dispatchTimer(framerate().consumeElapsedMilliseconds());
 
 	//player interface may want special event handling
 	if(engineUser->capturedAllEvents())
@@ -116,6 +114,21 @@ void GameEngine::fakeMouseMove()
 	for (;;)
 	{
 		input().fetchEvents();
+
+		// A frame with nothing new to show would still hold interfaceMutex, which is the lock the
+		// network thread needs to produce the next one. The time bound is only a safety net.
+		const auto now = std::chrono::steady_clock::now();
+
+		if(!engineUser->wantsFrameRendered() && now - lastFrameRendered < maxFrameSkipDuration)
+		{
+			// Nothing to show yet - sleep 1ms, just enough to stop the SDL_PollEvent busy-spin.
+			// Not framerateDelay(): it pads to a full frame every call, delaying the netpack
+			// this skip exists to keep fast.
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			continue;
+		}
+
+		lastFrameRendered = now;
 		updateFrame();
 		screenHandlerInstance->presentScreenTexture();
 		framerate().framerateDelay(); // holds a constant FPS
@@ -129,6 +142,10 @@ void GameEngine::updateFrame()
 	engineUser->onUpdate();
 
 	handleEvents();
+
+	// before the redraw, so that a window that was only covered can reclaim its layer
+	screenHandlerInstance->clearReleasedLayers();
+
 	windows().simpleRedraw();
 
 	if (settings["video"]["performanceOverlay"]["show"].Bool())
