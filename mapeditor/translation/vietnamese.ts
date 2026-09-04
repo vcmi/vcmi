@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Năng lực</translation>
+        <translation>Kỹ năng</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Bỏ chọn tất cả</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn tất cả</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Tùy chỉnh</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Các kỹ năng được hiển thị dựa trên cơ chế mặc định của lều phù thủy. Các bản mod có thể thay đổi điều này.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -53,7 +53,7 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation type="unfinished">Di vật</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
@@ -87,7 +87,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="48"/>
         <source>Edit</source>
-        <translation>Hiệu chỉnh</translation>
+        <translation>Chỉnh sửa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="55"/>
@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Thoát</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="139"/>
@@ -176,17 +176,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="81"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="446"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể mở chiến dịch</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Xác thực thất bại</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiến dịch chưa được thiết lập bản đồ.</translation>
     </message>
     <message>
         <source>Open map</source>
@@ -195,7 +195,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="266"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Mở chiến dịch</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="268"/>
@@ -430,7 +430,7 @@
     <message>
         <location filename="../mainwindow.ui" line="96"/>
         <source>Edit</source>
-        <translation>Hiệu chỉnh</translation>
+        <translation>Chỉnh sửa</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="109"/>
@@ -465,7 +465,7 @@
     <message>
         <location filename="../mainwindow.ui" line="397"/>
         <source>Inspector</source>
-        <translation>Giám định</translation>
+        <translation>Thuộc tính</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="439"/>
@@ -710,7 +710,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1245"/>
         <source>Validate</source>
-        <translation>Hiệu lực</translation>
+        <translation>Kiểm tra bản đồ</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1248"/>
@@ -721,7 +721,7 @@
         <location filename="../mainwindow.ui" line="1256"/>
         <location filename="../mainwindow.cpp" line="1545"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn tầng bản đồ</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1267"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Thoát</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -932,14 +932,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Chỉnh sửa bản đồ</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="486"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Chỉnh sửa bản đồ trên Android đang trong giai đoạn thử nghiệm
+
+Để có trải nghiệm tốt nhất, chúng tôi khuyên bạn nên sử dụng trình chỉnh sửa bản đồ trên máy tính bảng (hoặc sử dụng chuột/bút cảm ứng).</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="505"/>
@@ -955,7 +957,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../mainwindow.cpp" line="578"/>
         <location filename="../mainwindow.cpp" line="1562"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Cấp %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="604"/>
@@ -991,12 +993,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="761"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished">Bản đồ có lỗi nghiêm trọng và rất có thể sẽ không thể chơi được. Mở Trình xác minh từ menu Bản đồ để xem lỗi.</translation>
+        <translation>Bản đồ có lỗi nghiêm trọng và có thể sẽ không chơi được nữa. Mở Kiểm tra bản đồ từ menu Bản đồ để xem lỗi.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="763"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished">Bản đồ có một số lỗi. Mở Trình xác minh từ menu Bản đồ để xem lỗi.</translation>
+        <translation>Bản đồ có một số lỗi. Mở Kiểm tra bản đồ từ menu Bản đồ để xem lỗi.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="790"/>
@@ -1036,7 +1038,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1033"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1034"/>
@@ -1151,17 +1153,17 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1546"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Loại:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1607"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Định dạng ảnh</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1608"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn định dạng ảnh:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1622"/>
@@ -1172,12 +1174,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1668"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể lưu hình ảnh</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1668"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể lưu hình ảnh vào %1.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1688"/>
@@ -1198,7 +1200,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1698"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Thư mục</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1719"/>
@@ -1322,7 +1324,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished">Phiên bản bản đồ</translation>
+        <translation>Mẫu tạo bản đồ</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
@@ -1368,7 +1370,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation type="unfinished">Di vật</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
@@ -1386,7 +1388,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation type="unfinished">Kỹ năng anh hùng</translation>
+        <translation>Kỹ năng tướng</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -1470,17 +1472,17 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tất cả các tướng</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tướng chỉ định</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Anh hùng bị cấm</translation>
+        <translation>Tướng bị cấm</translation>
     </message>
 </context>
 <context>
@@ -1536,7 +1538,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapcontroller.cpp" line="612"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">Không thể tạo anh hùng %1 là TRUNG LẬP.</translation>
+        <translation>Không thể tạo tướng %1 là TRUNG LẬP.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="626"/>
@@ -1548,8 +1550,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished">
-
+        <translation>
 
 Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     </message>
@@ -1564,7 +1565,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Không thể đặt vật thể</translation>
+        <translation>Không thể đặt đối tượng</translation>
     </message>
 </context>
 <context>
@@ -1573,7 +1574,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn Tầng Bản Đồ</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
@@ -1583,12 +1584,12 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Tầng bản đồ</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mức %1</translation>
     </message>
 </context>
 <context>
@@ -1606,7 +1607,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="61"/>
         <source>Mods</source>
-        <translation>Bản sửa đổi</translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="80"/>
@@ -1636,7 +1637,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
         <source>Abilities</source>
-        <translation>Năng lực</translation>
+        <translation>Kỹ năng</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="214"/>
@@ -1646,7 +1647,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="249"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="284"/>
@@ -1713,7 +1714,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="46"/>
         <source>Mod name</source>
-        <translation>Tên bản sửa đổi</translation>
+        <translation>Tên Mod</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="51"/>
@@ -1761,7 +1762,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Đối tượng bắt buộc</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
@@ -1883,7 +1884,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="227"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Số lượng</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="227"/>
@@ -1974,7 +1975,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="55"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished">Không thể tạo anh hùng là TRUNG LẬP</translation>
+        <translation>Không thể tạo tướng là TRUNG LẬP</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="61"/>
@@ -1992,7 +1993,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn người chơi</translation>
     </message>
 </context>
 <context>
@@ -2062,7 +2063,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="177"/>
         <source>Random hero secondary skills</source>
-        <translation type="unfinished">Kỹ năng phụ của anh hùng ngẫu nhiên</translation>
+        <translation>Kỹ năng phụ của tướng ngẫu nhiên</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="183"/>
@@ -2108,12 +2109,12 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="304"/>
         <source>HERO TYPE</source>
-        <translation type="unfinished">LOẠI ANH HÙNG</translation>
+        <translation>LOẠI TƯỚNG</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
         <source>Hero class</source>
-        <translation type="unfinished">Lớp anh hùng</translation>
+        <translation>Lớp tướng</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
@@ -2156,7 +2157,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="449"/>
         <source>Artifact reward</source>
-        <translation type="unfinished">Phần thưởng di vật</translation>
+        <translation>Phần thưởng báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="517"/>
@@ -2217,7 +2218,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="264"/>
         <location filename="../inspector/inspector.cpp" line="718"/>
         <source>Same as town</source>
-        <translation type="unfinished">Giống như thành phố</translation>
+        <translation>Giống như thành</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="280"/>
@@ -2243,7 +2244,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="762"/>
         <location filename="../inspector/inspector.cpp" line="786"/>
         <source>Hero type</source>
-        <translation type="unfinished">Loại anh hùng</translation>
+        <translation>Loại tướng</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="326"/>
@@ -2297,7 +2298,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="373"/>
         <location filename="../inspector/inspector.cpp" line="675"/>
         <source>Town name</source>
-        <translation type="unfinished">Tên thành phố</translation>
+        <translation>Tên thành</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="380"/>
@@ -2352,7 +2353,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="502"/>
         <location filename="../inspector/inspector.cpp" line="653"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Có sẵn</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="977"/>
@@ -2364,7 +2365,8 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Có sẵn:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="447"/>
@@ -2441,7 +2443,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="417"/>
         <source>Can&apos;t place object</source>
-        <translation>Không thể đặt vật thể</translation>
+        <translation>Không thể đặt đối tượng</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="594"/>
@@ -2504,13 +2506,13 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../inspector/questwidget.cpp" line="454"/>
         <location filename="../inspector/rewardswidget.cpp" line="794"/>
         <source>Hero Level: %1</source>
-        <translation type="unfinished">Cấp độ anh hùng: %1</translation>
+        <translation>Cấp độ tướng: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="455"/>
         <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Hero Experience: %1</source>
-        <translation type="unfinished">Kinh nghiệm anh hùng: %1</translation>
+        <translation>Kinh nghiệm của tướng: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="456"/>
@@ -2539,7 +2541,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../inspector/questwidget.cpp" line="476"/>
         <location filename="../inspector/rewardswidget.cpp" line="816"/>
         <source>Artifacts: %1</source>
-        <translation type="unfinished">Di vật: %1</translation>
+        <translation>Báu vật: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="483"/>
@@ -2562,12 +2564,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.cpp" line="504"/>
         <source>Heroes: %1</source>
-        <translation type="unfinished">Anh hùng: %1</translation>
+        <translation>Tướng: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="511"/>
         <source>Hero Classes: %1</source>
-        <translation type="unfinished">Lớp anh hùng: %1</translation>
+        <translation>Lớp tướng: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="520"/>
@@ -2637,44 +2639,44 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="235"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể mở chiến dịch</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn muốn mở tập tin từ đâu?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Bên trong</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Bên ngoài</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn muốn lưu tập tin ở đâu?</translation>
     </message>
     <message>
         <location filename="../helper.cpp" line="95"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Đóng</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="215"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Không hợp lệ</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tướng tạm thời (xếp hạng sức mạnh %1)</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
@@ -2702,12 +2704,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Cấp độ anh hùng</translation>
+        <translation>Cấp độ tướng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Kinh nghiệm anh hùng</translation>
+        <translation>Kinh nghiệm của tướng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="136"/>
@@ -2722,7 +2724,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Giết anh hùng/quái vật</translation>
+        <translation>Giết tướng/quái vật</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="197"/>
@@ -2797,7 +2799,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Lớp anh hùng</translation>
+        <translation>Lớp tướng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
@@ -2876,12 +2878,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> tuần</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> tháng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -2917,13 +2919,13 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../inspector/rewardswidget.ui" line="268"/>
         <location filename="../inspector/rewardswidget.ui" line="1055"/>
         <source>Hero level</source>
-        <translation type="unfinished">Cấp độ anh hùng</translation>
+        <translation>Cấp độ tướng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="285"/>
         <location filename="../inspector/rewardswidget.ui" line="1072"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Kinh nghiệm anh hùng</translation>
+        <translation>Kinh nghiệm của tướng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="325"/>
@@ -3080,7 +3082,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1509"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Lớp anh hùng</translation>
+        <translation>Lớp tướng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1541"/>
@@ -3224,7 +3226,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Phim</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -3257,7 +3259,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="364"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished">Giữ lại anh hùng chuyển tiếp</translation>
+        <translation>Tướng qua màn được giữ lại</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="370"/>
@@ -3297,7 +3299,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="465"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished">Di vật chuyển tiếp</translation>
+        <translation>Báu vật chuyển tiếp</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="494"/>
@@ -3317,12 +3319,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="514"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished">Tùy chọn anh hùng chuyển tiếp</translation>
+        <translation>Tùy chọn tướng qua màn</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="521"/>
         <source>Starting hero options</source>
-        <translation type="unfinished">Tùy chọn anh hùng khởi đầu</translation>
+        <translation>Tùy chọn tướng khởi đầu</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="539"/>
@@ -3344,7 +3346,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="566"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished">Anh hùng khởi đầu/Chuyển tiếp</translation>
+        <translation>Tướng khởi đầu/Chuyển tiếp</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="584"/>
@@ -3426,7 +3428,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Hero</source>
-        <translation type="unfinished">Anh hùng</translation>
+        <translation>Tướng</translation>
     </message>
 </context>
 <context>
@@ -3434,7 +3436,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Học giả</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
@@ -3444,12 +3446,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Kỹ năng chính</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Kỹ năng phụ</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
@@ -3462,7 +3464,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể mở trình chỉnh sửa!</translation>
     </message>
 </context>
 <context>
@@ -3470,7 +3472,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Học giả</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
@@ -3485,12 +3487,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>Trình chỉnh sửa bản đồ không thể đọc được cấp của phép thuật dự định cho loại đền thờ này</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Cấp độ phép thuật dự định %1 cho loại đền thờ này không hợp lệ</translation>
     </message>
 </context>
 <context>
@@ -3532,7 +3534,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation type="unfinished">Di vật</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
@@ -3655,17 +3657,17 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="320"/>
         <source>strongest hero</source>
-        <translation type="unfinished">anh hùng mạnh nhất</translation>
+        <translation>tướng mạnh nhất</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
         <source>generated hero</source>
-        <translation type="unfinished">anh hùng được tạo</translation>
+        <translation>tướng được tạo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
         <source>random hero</source>
-        <translation type="unfinished">anh hùng ngẫu nhiên</translation>
+        <translation>tướng ngẫu nhiên</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="355"/>
@@ -3680,7 +3682,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="369"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished">di vật %1 cho %2</translation>
+        <translation>báu vật %1 cho %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="374"/>
@@ -3846,7 +3848,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="531"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Anh hùng bị cấm</translation>
+        <translation>Tướng bị cấm</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="563"/>
@@ -4128,12 +4130,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Thoát</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="253"/>
@@ -4299,37 +4301,37 @@ Lính gác: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="674"/>
         <source>Validation failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Xác thực thất bại!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="679"/>
         <source>No player range defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chưa xác định phạm vi người chơi.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="686"/>
         <source>Invalid range for players.</source>
-        <translation type="unfinished"></translation>
+        <translation>Phạm vi người chơi không hợp lệ.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="694"/>
         <source>Invalid range for human players.</source>
-        <translation type="unfinished"></translation>
+        <translation>Phạm vi người chơi do người điều khiển không hợp lệ.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="709"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Liên kết đến vùng không tồn tại: %1 - %2</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="721"/>
         <source>Zone %1 has no connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Khu vực %1 không có liên kết nào.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="745"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Người chơi %1 phải có một nơi khởi đầu (tìm thấy %2).</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="782"/>
@@ -4376,7 +4378,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="966"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Quá ít mẫu!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="966"/>
@@ -4386,12 +4388,12 @@ Lính gác: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1216"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Quá ít khu vực</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1216"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hãy tạo ít nhất hai vùng trước khi thêm kết nối.</translation>
     </message>
 </context>
 <context>
@@ -4575,7 +4577,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="219"/>
         <source>Creatures</source>
-        <translation type="unfinished">Sinh vật</translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="258"/>
@@ -4585,7 +4587,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="174"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
-        <translation type="unfinished">Sinh vật cấp %1 / Sinh vật cấp %1 nâng cấp</translation>
+        <translation>Quân cấp %1 / Nâng cấp lên quân cấp %1</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="216"/>
@@ -4861,7 +4863,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Bộ chọn loại anh hùng</translation>
+        <translation>Chọn loại tướng</translation>
     </message>
 </context>
 <context>
@@ -4899,7 +4901,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../validator.cpp" line="90"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí có thể đến %2 của đối tượng %1 nằm ngoài giới hạn bản đồ</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="105"/>
@@ -4914,12 +4916,12 @@ Lính gác: %3</translation>
     <message>
         <location filename="../validator.cpp" line="156"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished">Di vật %1 bị cấm bởi cài đặt bản đồ</translation>
+        <translation>Báu vật %1 bị cấm bởi cài đặt bản đồ</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="226"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished">Người chơi %1 không có thành phố và anh hùng được chỉ định</translation>
+        <translation>Người chơi %1 không có thành và tướng được chỉ định</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="118"/>
@@ -4959,37 +4961,37 @@ Lính gác: %3</translation>
     <message>
         <location filename="../validator.cpp" line="165"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lều phù thủy tại x: %1 y: %2 ở %3 có phần thưởng không hợp lệ.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trình chỉnh sửa không thể xác định Lều phù thủy tại x: %1 y: %2 ở %3.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Học giả tại x: %1 y: %2 ở %3 có phần thưởng không hợp lệ.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="189"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Học giả tại x: %1 y: %2 ở %3 trao phần thưởng bị cấm bởi thiết lập bản đồ. Bạn có cố ý làm vậy không?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="195"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trình chỉnh sửa không thể xác định Học giả tại x: %1 y: %2 ở %3.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Đền thờ tại x: %1 y: %2 ở %3 có phép thuật không hợp lệ.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="212"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Đền thờ tại x: %1 y: %2 ở %3 cung cấp phép thuật bị cấm bởi thiết lập bản đồ. Bạn có cố ý làm vậy không?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="228"/>
@@ -5009,22 +5011,22 @@ Lính gác: %3</translation>
     <message>
         <location filename="../validator.cpp" line="253"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>đánh bại một tướng được chỉ định</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="254"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>mất một tướng được chỉ định</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="257"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>tướng tạm thời</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="259"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sự kiện ‘%1’ được kích hoạt sử dụng điều kiện %2 nhắm tới %3 - %4. Cách thiết lập này không phổ biến và nên tránh; bản đồ vẫn có thể chơi được, nhưng điều kiện sẽ không được xử lý nếu không hỗ trợ thay thế đối tượng cố định.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="327"/>
@@ -5077,17 +5079,17 @@ Lính gác: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Capture artifact</source>
-        <translation>Đoạt vật phẩm</translation>
+        <translation>Chiếm lấy báu vật</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Hire creatures</source>
-        <translation>Thuê quái</translation>
+        <translation>Chiêu mộ quân</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Accumulate resources</source>
-        <translation>Cộng dồn tài nguyên</translation>
+        <translation>Tích lũy tài nguyên</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
@@ -5097,7 +5099,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Capture town</source>
-        <translation>Đoạt thành</translation>
+        <translation>Chiếm lấy thành</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
@@ -5107,7 +5109,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
         <source>Transport artifact</source>
-        <translation>Vận chuyển vật phẩm</translation>
+        <translation>Chuyển báu vật</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
@@ -5223,7 +5225,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>
@@ -5325,7 +5327,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../windownewmap.cpp" line="310"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
-        <translation>Không có mẫu cho tham số chỉ định. Bản đồ ngẫu nhiên không thể tạo</translation>
+        <translation>Không có mẫu cho tham số chỉ định. Bản đồ ngẫu nhiên không thể tạo.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="332"/>
@@ -5353,7 +5355,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../mainwindow.cpp" line="195"/>
         <source>Filepath of the map to open.</source>
-        <translation>Đường dẫn bản đồ</translation>
+        <translation>Đường dẫn bản đồ.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="198"/>

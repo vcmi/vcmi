@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Xuất dữ liệu</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp tin được lưu vào %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể lưu tệp tin vào vị trí đã chọn</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn nơi lưu tập tin</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hãy chọn nơi lưu và đặt tên tập tin là vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp tin nén Zip (*.zip);;Tất cả tệp tin (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang xuất nhật ký...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Hủy bỏ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Xuất nhật ký</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -426,7 +426,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="906"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang giải nén tệp tin.zip (%1/%2) cho %3</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="913"/>
@@ -458,7 +458,9 @@ Cài đặt đã tải xuống thành công?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể cài đặt tệp tin %1.
+Lý do: %2.
+Hãy báo lỗi này cho nhóm phát triển</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
@@ -468,7 +470,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Có lỗi khi giải nén</translation>
+        <translation>Có lỗi khi giải nén!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
@@ -483,18 +485,19 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp tin đã tồn tại</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp tin &apos;%1&apos; đã tồn tại. Bạn có muốn ghi đè lên nó không?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể nhập tệp tin đã lưu từ %1.
+Lý do: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
@@ -504,7 +507,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã nhập %1 tệp tin</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -541,19 +544,19 @@ Reason: %2</source>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
         <source>%n map(s) successfully imported.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Đã nhập thành công %n bản đồ.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Gỡ cài đặt mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn có chắc chắn muốn gỡ cài đặt %1 không?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
@@ -567,7 +570,9 @@ Reason: %2</source>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Xử lý các tệp tin đã tải xuống thành công?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
@@ -799,12 +804,12 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation type="unfinished"></translation>
+        <translation>Giải nén toàn bộ mod</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiện trạng thái trên Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
@@ -829,7 +834,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1543"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Lưu trước khi đến đối tượng</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
@@ -1192,7 +1197,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn có thể sao chép thủ công các thư mục Maps, Data và Mp3 từ thư mục trò chơi gốc vào thư mục dữ liệu VCMI hiện bên dưới</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
@@ -1202,12 +1207,12 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Không có dữ liệu Heroes III? Hãy tải bản demo miễn phí để trải nghiệm VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Tải xuống bản Demo</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1237,7 +1242,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Cài đặt các mod VCMI được đề xuất</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
@@ -1251,7 +1256,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
@@ -1260,12 +1265,12 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Một bản mở rộng với nhiều tính năng, giúp đa dạng hóa lối chơi với một đơn vị quân thay thế cho mỗi thành trong số 9 thành cơ bản, cùng các quân trung lập, các kho quân, các kỹ năng và phép thuật mới</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Hãy dấn thân vào thế giới ngầm và khám phá Casemate - một phe phái mới, nơi nấm, đá và ma thuật rune phát triển mạnh mẽ trong bóng tối, được tạo ra dành cho VCMI</translation>
     </message>
     <message>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
@@ -1274,12 +1279,12 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Fallen of the Depth</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -1344,7 +1349,7 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
         <translation>Nếu bạn đã có bộ cài đặt Heroes III tải trên trang gog.com, bạn có thể chọn cài đặt tệp tin từ gog.com ngoại tuyến. Khi đó, VCMI sẽ sao chép các tệp tin dữ liệu của Heroes III.
-Cài đặt ngoại tuyến bao gồm hai tệp tin sau: &quot;.exe&quot; và &quot;.bin&quot;</translation>
+Cài đặt ngoại tuyến bao gồm hai tệp tin sau: &quot;.exe&quot; và &quot;.bin&quot; - bạn phải tải về hai tệp tin này trước.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1416,7 +1421,7 @@ Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shado
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang tải bản demo Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="400"/>
@@ -1428,23 +1433,24 @@ Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shado
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="446"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bạn cần chọn một tệp tin %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="428"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã chọn trình cài đặt không đúng.
+Bạn cần chọn trình cài đặt GOG ngoại tuyến.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="440"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn đã chọn trình cài đặt GOG Galaxy. Tệp tin này không chứa trò chơi. Hãy tải bản cài đặt trò chơi ngoại tuyến để sao lưu.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn trình cài đặt GOG ngoại tuyến (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
@@ -1456,34 +1462,34 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Chọn tệp tin dữ liệu GOG ngoại tuyến: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp tin dữ liệu không hợp lệ</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang nhập dữ liệu Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang chuẩn bị cài đặt...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang giải nén trình cài đặt...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
         <source>Extracting error!</source>
-        <translation>Có lỗi khi giải nén</translation>
+        <translation>Có lỗi khi giải nén!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
@@ -1503,7 +1509,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang quét thư mục đã chọn...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
