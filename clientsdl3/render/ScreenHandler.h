@@ -52,6 +52,16 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Texture * screenTarget = nullptr;
 
 	/// Render targets composited under screenTexture, in GpuRenderLayer order
+	/// What presentFromCanvas() registered per layer: regions of an offscreen canvas drawn while
+	/// the frame is composed, in place of that layer's own content. Kept across frames, like the
+	/// layer textures themselves.
+	struct PresentedCanvas
+	{
+		SDL_Texture * source = nullptr;
+		std::vector<PresentedRegion> regions;
+	};
+	std::array<PresentedCanvas, static_cast<size_t>(GpuRenderLayer::COUNT)> presentedCanvases;
+
 	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
 
 	/// Whether a layer currently holds content that should be composited
@@ -154,6 +164,8 @@ public:
 	Canvas createOffscreenCanvas(const Point & size) const final;
 	int maxOffscreenCanvasSize() const final;
 	void flushRenderCommands() final;
+	void presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions) final;
+	void clearPresentedCanvas(GpuRenderLayer layer) final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
 

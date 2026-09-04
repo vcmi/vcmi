@@ -11,11 +11,19 @@
 #pragma once
 
 #include "lib/constants/Enumerations.h"
+#include "lib/Rect.h"
 
 class Point;
 class Rect;
 
 class Canvas;
+
+/// One region of an offscreen canvas. Unused here; client code is shared between backends.
+struct PresentedRegion
+{
+	Rect source;
+	Rect target;
+};
 
 /// GPU layers composited under the software screen. This backend has none, but client code
 /// is shared between backends and names them.
@@ -90,4 +98,8 @@ public:
 
 	/// No GPU drawing happens in this backend, so there is nothing queued to hand over
 	void flushRenderCommands() {}
+
+	/// This backend composes in software, so there is no separate present to defer a copy to
+	void presentFromCanvas(GpuRenderLayer, const Canvas &, const std::vector<PresentedRegion> &) {}
+	void clearPresentedCanvas(GpuRenderLayer) {}
 };

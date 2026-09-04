@@ -717,6 +717,9 @@ void ScreenHandler::clearLayer(size_t index)
 
 void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
+	// whatever was registered referred to canvases sized for the previous resolution
+	presentedCanvases = {};
+
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// The software driver supports render targets too, but rasterizes them on the CPU -
@@ -773,6 +776,7 @@ void ScreenHandler::destroyWindow()
 {
 	if(nullptr != GpuResources::get().renderer())
 	{
+		presentedCanvases = {};
 		GpuResources::get().destroyRenderer();
 	}
 
@@ -822,6 +826,9 @@ Canvas ScreenHandler::getLayerCanvas(GpuRenderLayer layer)
 
 	layerActive.at(index) = true;
 	layerReleasedMask &= ~(1u << index);
+
+	// this layer is drawn the ordinary way from now on
+	presentedCanvases.at(index) = PresentedCanvas{};
 
 	return Canvas::createFromRenderTarget(layerTextures.at(index), getLogicalResolution(), CanvasScalingPolicy::AUTO);
 }
@@ -928,6 +935,27 @@ void ScreenHandler::flushRenderCommands()
 	SDL_FlushRenderer(GpuResources::get().renderer());
 }
 
+void ScreenHandler::presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions)
+{
+	const size_t index = static_cast<size_t>(layer);
+
+	PresentedCanvas & presented = presentedCanvases.at(index);
+
+	presented.source = source.getRenderTargetTexture();
+	presented.regions = presented.source ? regions : std::vector<PresentedRegion>{};
+
+	// What is registered here is drawn instead of the layer, so the layer has to stop being
+	// composited - otherwise whatever it held last stays on screen on top of it. Only while it is
+	// still active, so that this does not clear an already empty layer every frame.
+	if(layerActive.at(index))
+		releaseLayer(layer);
+}
+
+void ScreenHandler::clearPresentedCanvas(GpuRenderLayer layer)
+{
+	presentedCanvases.at(static_cast<size_t>(layer)) = PresentedCanvas{};
+}
+
 void ScreenHandler::presentScreenTexture()
 {
 	// the memory cache gives assets up on whichever thread loaded one; freeing what they hold has
@@ -949,8 +977,28 @@ void ScreenHandler::presentScreenTexture()
 	SDL_RenderClear(renderer);
 
 	for(size_t i = 0; i < layerTextures.size(); ++i)
+	{
+		// The canvas registered for this layer comes first, so that whatever the layer itself
+		// holds still lands on top of it. This is the copy that would otherwise have been made
+		// into the layer in the middle of the frame, where reading a render target makes a tiling
+		// GPU resolve it and, on some drivers, stalls every process on the device.
+		const PresentedCanvas & presented = presentedCanvases[i];
+
+		for(const PresentedRegion & region : presented.regions)
+		{
+			SDL_SetTextureBlendMode(presented.source, SDL_BLENDMODE_NONE);
+			SDL_SetTextureScaleMode(presented.source, SDL_SCALEMODE_NEAREST);
+
+			SDL_FRect from = CSDL_Ext::toSDLFloat(region.source);
+			SDL_FRect to = CSDL_Ext::toSDLFloat(region.target);
+
+			if(!SDL_RenderTexture(renderer, presented.source, &from, &to))
+				logGlobal->error("Failed to compose a presented canvas region: %s", SDL_GetError());
+		}
+
 		if(layerTextures[i] && layerActive[i])
 			SDL_RenderTexture(renderer, layerTextures[i], nullptr, nullptr);
+	}
 
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
 	ENGINE->cursor().render();
