@@ -289,6 +289,24 @@ void MapController::initializeMap()
 	}
 }
 
+void MapController::addLevel(const MapLayerId & layerType)
+{
+	if(!canAddLevel())
+		return;
+
+	_map->addLevel(layerType);
+
+	resetMapHandler();
+	initializeMap();
+
+	main->mapChanged();
+}
+
+bool MapController::canAddLevel() const
+{
+	return _map && _map->levels() < MAX_LEVELS;
+}
+
 void MapController::sceneForceUpdate()
 {
 	for(int i = 0; i < _map->levels(); i++)

@@ -90,6 +90,7 @@
     <addaction name="actionUpdate_appearance"/>
     <addaction name="actionRecreate_obstacles"/>
     <addaction name="actionMapLayer"/>
+    <addaction name="actionAddLevel"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1257,6 +1258,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+L</string>
+   </property>
+  </action>
+  <action name="actionAddLevel">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Add level</string>
    </property>
   </action>
   <action name="actionUpdate_appearance">

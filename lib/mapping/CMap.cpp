@@ -15,9 +15,11 @@
 #include "CCastleEvent.h"
 
 #include "../CCreatureHandler.h"
+#include "../CRandomGenerator.h"
 #include "../CSkillHandler.h"
 #include "../GameLibrary.h"
 #include "../GameSettings.h"
+#include "../MapLayerHandler.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -864,6 +866,20 @@ void CMap::initTerrain()
 {
 	terrain = MapTilesStorage<TerrainTile>(int3(width, height, levels()));
 	guardingCreaturePositions = MapTilesStorage<int3>(int3(width, height, levels()));
+}
+
+void CMap::addLevel(const MapLayerId & layerType)
+{
+	terrain.addLevel();
+	guardingCreaturePositions.addLevel();
+	mapLayers.push_back(layerType);
+
+	int newLevel = levels() - 1;
+	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, newLevel), width, height));
+	getEditManager()->drawTerrain(layerType.toEntity(LIBRARY)->getDefaultTerrain(), 0, &CRandomGenerator::getDefault());
+
+	// newly appended tiles start default-constructed, which is not a valid "no guard" sentinel
+	calculateGuardingGreaturePositions();
 }
 
 CMapEditManager * CMap::getEditManager()

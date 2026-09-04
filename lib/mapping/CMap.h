@@ -97,6 +97,8 @@ public:
 	explicit CMap(IGameInfoCallback *cb);
 	~CMap();
 	void initTerrain();
+	/// Appends a new, empty level filled with the layer type's default terrain.
+	void addLevel(const MapLayerId & layerType);
 
 	CMapEditManager * getEditManager();
 	inline TerrainTile & getTile(const int3 & tile);
