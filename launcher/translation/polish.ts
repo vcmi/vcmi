@@ -1286,7 +1286,7 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
         <source>Tides of War</source>
-        <translation type="unfinished">Losy wojny</translation>
+        <translation>Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
@@ -1539,27 +1539,27 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaje ulepszenia interfejsu i rozgrywki, takie jak lepszy interfejs dla losowych map, przyciski powrotu i wyszukiwania na mapie przygody, szybką wymianę bohaterów, ikony bonusów i odporności oraz akcje w bitwie</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Dopracowane rozszerzenie stworzone przez fanów, które dodaje miasta Przystań, Fabryka i Warownia, nowe kampanie, bohaterów, artefakty, obiekty na mapie, umiejętności Interferencji i Run, poprawki balansu i nowe tereny, a jednocześnie pozostaje wierne grze Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Pogłębia grę Heroes III dzięki Dowódcom, oddziałom, które mogą awansować na wyższe poziomy doświadczenia, artefaktom dla oddziałów, wielu nowym artefaktom bohaterów i dowódców, dodatkowym systemom postępu i interaktywnym obiektom na mapie przygody</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>Tears of Ashan</source>
-        <translation>Łzy Ashan</translation>
+        <translation>Tears of Ashan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozszerzenie stworzone przez fanów, inspirowane grą Heroes V, które dodaje alternatywne ulepszenia stworzeń, magię światła i ciemności, bramy, wyższy limit umiejętności drugorzędnych oraz przeprojektowane miasto Wrót Żywiołów do gry Heroes III</translation>
     </message>
 </context>
 <context>
