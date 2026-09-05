@@ -510,14 +510,31 @@ Reason: %2</source>
         <translation>Installazione del mod %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
+        <source>%1 requires: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
+        <source>Failed to enable mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
+        <source>One or more installed mods could not be enabled:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map exists</source>
         <translation type="unfinished">La mappa esiste</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1558"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1586"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">La mappa &apos;%1&apos; esiste già. Vuoi sovrascriverla?</translation>
     </message>
@@ -532,12 +549,12 @@ Reason: %2</source>
         <translation type="unfinished">No a tutto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>Import complete</source>
         <translation type="unfinished">Importazione completata</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1605"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform>%n mappa(e) importata(e) con successo.</numerusform>
@@ -545,19 +562,19 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Uninstall mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1741"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Import failed</source>
         <translation type="unfinished">Importazione non riuscita</translation>
     </message>
@@ -569,30 +586,30 @@ Process successfully downloaded files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1608"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation type="unfinished">Impossibile importare le seguenti mappe:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1638"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
         <source>Operation failed</source>
         <translation>Operazione fallita</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Encountered errors:
 </source>
         <translation>Errori riscontrati:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1691"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
         <source>screenshots</source>
         <translation>screenshot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
         <source>Screenshot %1</source>
         <translation>Screenshot %1</translation>
     </message>
@@ -606,7 +623,7 @@ Process successfully downloaded files?</source>
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="121"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="125"/>
         <source>Off</source>
         <translation>Spento</translation>
     </message>
@@ -621,17 +638,17 @@ Process successfully downloaded files?</source>
         <translation>Scala interfaccia</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1328"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1298"/>
         <source>Neutral AI in battles</source>
         <translation>IA neutrale nelle battaglie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="904"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="874"/>
         <source>Enemy AI in battles</source>
         <translation>IA nemica nelle battaglie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
         <source>Additional repository</source>
         <translation>Repository aggiuntivo</translation>
     </message>
@@ -646,7 +663,7 @@ Process successfully downloaded files?</source>
         <translation>Porta della Lobby Online</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
         <source>Autocombat AI in battles</source>
         <translation>IA in auto-combattimento</translation>
     </message>
@@ -656,24 +673,24 @@ Process successfully downloaded files?</source>
         <translation>Sensibilità dei comandi</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1240"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1210"/>
         <source>Automatic (Linear)</source>
         <translation>Automatico (Lineare)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="733"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="717"/>
         <source>Haptic Feedback</source>
         <translation>Feedback aptico</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="875"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="845"/>
         <source>Software Cursor</source>
         <translation>Cursore software</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="654"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="888"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="858"/>
         <source>Automatic</source>
         <translation>Automatico</translation>
     </message>
@@ -683,7 +700,7 @@ Process successfully downloaded files?</source>
         <translation>Validazione mod</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1348"/>
         <source>Config editor</source>
         <translation type="unfinished">Editor di configurazione</translation>
     </message>
@@ -718,22 +735,22 @@ Process successfully downloaded files?</source>
         <translation>Completo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="881"/>
         <source>Allow portrait mode</source>
         <translation type="unfinished">Consenti modalità verticale</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1032"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1002"/>
         <source>Use scalable fonts</source>
         <translation>Usa font scalabili</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1305"/>
         <source>Online Lobby address</source>
         <translation>Indirizzo della Lobby Online</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="678"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
         <source>Handle back as right mouse button</source>
         <translation>Gestisci il tasto indietro come pulsante destro del mouse</translation>
     </message>
@@ -743,7 +760,7 @@ Process successfully downloaded files?</source>
         <translation>Scala cursore</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="954"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="924"/>
         <source>Scalable</source>
         <translation>Scalabile</translation>
     </message>
@@ -753,7 +770,7 @@ Process successfully downloaded files?</source>
         <translation>Varie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -775,12 +792,12 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Scala caratteri (sperimentale)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1013"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="983"/>
         <source>Original</source>
         <translation>Originale</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="723"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="707"/>
         <source>Upscaling Filter</source>
         <translation>Filtro di upscaling</translation>
     </message>
@@ -805,32 +822,37 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="669"/>
         <source>Use Relative Pointer Mode</source>
         <translation>Usa modalità puntatore relativo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1230"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1185"/>
+        <source>Autosaves per game (0 = unlimited)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
         <source>Nearest</source>
         <translation>Più vicino</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1235"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
         <source>Linear</source>
         <translation>Lineare</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1275"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1245"/>
         <source>Input - Touchscreen</source>
         <translation>Input - Touchscreen</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1543"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1513"/>
         <source>Save Before Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="792"/>
         <source>Adventure Map Enemies</source>
         <translation>Nemici nella Mappa Avventura</translation>
     </message>
@@ -850,27 +872,27 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Rete</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="952"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
         <source>Relative Pointer Speed</source>
         <translation>Velocità del puntatore relativo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="934"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="904"/>
         <source>Music Volume</source>
         <translation>Volume della musica</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1308"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
         <source>Ignore SSL errors</source>
         <translation>Ignora errori SSL</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1260"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1230"/>
         <source>Input - Mouse</source>
         <translation>Input - Mouse</translation>
     </message>
@@ -880,47 +902,46 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Durata del tocco lungo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1371"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1341"/>
         <source>Controller Click Tolerance</source>
         <translation>Tolleranza al clic del controller</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="664"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="648"/>
         <source>Touch Tap Tolerance</source>
         <translation>Tolleranza al tocco</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1175"/>
         <source>Input - Controller</source>
         <translation>Input - Controller</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1301"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1271"/>
         <source>Sound Volume</source>
         <translation>Volume effetti sonori</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1449"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1419"/>
         <source>Windowed</source>
         <translation>Finestra</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1454"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1424"/>
         <source>Borderless fullscreen</source>
         <translation>Schermo intero senza bordi</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1459"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
         <source>Exclusive fullscreen</source>
         <translation>Schermo intero esclusivo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1215"/>
         <source>Autosave limit (0 = off)</source>
-        <translation>Limite salvataggi automatici (0 = off)</translation>
+        <translation type="vanished">Limite salvataggi automatici (0 = off)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="671"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="655"/>
         <source>Downscaling Filter</source>
         <translation>Filtro di downscaling</translation>
     </message>
@@ -930,24 +951,22 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Limite frame rate</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="747"/>
         <source>Autosave prefix</source>
-        <translation>Prefisso salvataggio automatico</translation>
+        <translation type="vanished">Prefisso salvataggio automatico</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="740"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="724"/>
         <source>Mouse Click Tolerance</source>
         <translation>Tolleranza al clic del mouse</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1129"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1099"/>
         <source>Sticks Acceleration</source>
         <translation>Accelerazione dei comandi</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="782"/>
         <source>empty = map name prefix</source>
-        <translation>vuoto = prefisso nome mappa</translation>
+        <translation type="vanished">vuoto = prefisso nome mappa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="490"/>
@@ -960,17 +979,17 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Repository predefinito</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1192"/>
         <source>Renderer</source>
         <translation>Renderizzatore</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="119"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>On</source>
         <translation>Attivo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1248"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
         <source>Reserved screen area</source>
         <translation>Area dello schermo riservata</translation>
     </message>
@@ -985,7 +1004,7 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Controlla all&apos;avvio</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1156"/>
         <source>Fullscreen</source>
         <translation>Schermo intero</translation>
     </message>
@@ -1000,7 +1019,7 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Lingua VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="845"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="815"/>
         <source>Resolution</source>
         <translation>Risoluzione</translation>
     </message>
@@ -1015,7 +1034,7 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>VSync</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
         <source>Display index</source>
         <translation>Indice dello schermo</translation>
     </message>
@@ -1025,27 +1044,27 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation>Porta di rete</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="997"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="967"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="970"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="940"/>
         <source>Show intro</source>
         <translation>Mostra l&apos;introduzione</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="130"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="134"/>
         <source>StupidAI (deprecated)</source>
         <translation type="unfinished">StupidAI (deprecata)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="134"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
         <source>BattleAI (default, recommended)</source>
         <translation type="unfinished">BattleAI (predefinita, consigliata)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>MMAI (experimental)</source>
         <translation type="unfinished">MMAI (sperimentale)</translation>
     </message>
@@ -1054,37 +1073,37 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation type="obsolete">Nullkiller (sostituita da Nullkiller2)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="151"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation type="unfinished">Nullkiller2 (predefinita, consigliata)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="161"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="165"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation type="unfinished">EmptyAI - Nessuna libreria IA valida trovata!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="716"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="757"/>
         <source>Active</source>
         <translation>Attivo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="721"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="762"/>
         <source>Disabled</source>
         <translation>Disabilitato</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="722"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
         <source>Enable</source>
         <translation>Abilita</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="727"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
         <source>Not Installed</source>
         <translation>Non installato</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="728"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
         <source>Install</source>
         <translation>Installa</translation>
     </message>
@@ -1247,7 +1266,7 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation type="vanished">Installa una versione compatibile di &quot;Horn of the Abyss&quot;, un&apos;espansione fan-made di Heroes III portata dal team di VCMI</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
         <source>VCMI Extras</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1256,12 +1275,12 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation type="vanished">Installa una versione compatibile di &quot;In The Wake of Gods&quot;, un&apos;espansione fan-made di Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="793"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="820"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1270,12 +1289,12 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
         <translation type="vanished">Installa il mod che fornisce vari miglioramenti all&apos;interfaccia, come un&apos;interfaccia migliore per le mappe casuali e azioni selezionabili nelle battaglie</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="792"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Tides of War</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="797"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>Fallen of the Depth</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1351,7 +1370,7 @@ L&apos;installer offline è composto da due file: &quot;.exe&quot; e &quot;.bin&
         <translation>Indietro</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="782"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="804"/>
         <source>Horn of the Abyss</source>
         <translation>Horn of the Abyss</translation>
     </message>
@@ -1361,7 +1380,7 @@ L&apos;installer offline è composto da due file: &quot;.exe&quot; e &quot;.bin&
         <translation>Traduzione di Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="787"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
     </message>
@@ -1387,7 +1406,7 @@ L&apos;installer offline è composto da due file: &quot;.exe&quot; e &quot;.bin&
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="677"/>
         <source>GOG installer</source>
         <translation>Installer GOG</translation>
     </message>
@@ -1407,7 +1426,7 @@ Seleziona la directory con Heroes III: Complete Edition o Heroes III: Shadow of 
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="690"/>
         <source>GOG data</source>
         <translation>Dati GOG</translation>
     </message>
@@ -1446,7 +1465,7 @@ You need to select the offline GOG installer.</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="671"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="680"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">File selezionato non valido</translation>
     </message>
@@ -1458,73 +1477,73 @@ You need to select the offline GOG installer.</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
         <source>Invalid data file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="736"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="755"/>
         <source>Importing Heroes III data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="639"/>
         <source>Preparing installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="702"/>
         <source>Extracting installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="720"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="739"/>
         <source>Extracting error!</source>
         <translation>Errore durante l&apos;estrazione!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="724"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
         <source>Hash error!</source>
         <translation>Errore di hash!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>No Heroes III data!</source>
         <translation>Nessun dato di Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="728"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>I file selezionati non contengono dati di Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="750"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="772"/>
         <source>Scanning selected folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="777"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="799"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="783"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="805"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="788"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="810"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Tears of Ashan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="825"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1860,17 +1879,17 @@ Bin (%n byte):
         <translation>Mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="50"/>
+        <location filename="../mainwindow_moc.cpp" line="53"/>
         <source>Error starting executable</source>
         <translation>Errore nell&apos;avvio dell&apos;eseguibile</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="432"/>
+        <location filename="../mainwindow_moc.cpp" line="460"/>
         <source>Replace config file?</source>
         <translation>Sostituire il file di configurazione?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="432"/>
+        <location filename="../mainwindow_moc.cpp" line="460"/>
         <source>Do you want to replace %1?</source>
         <translation>Vuoi sostituire %1?</translation>
     </message>

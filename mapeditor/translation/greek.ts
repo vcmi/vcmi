@@ -75,7 +75,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="174"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
         <source>VCMI Campaign Editor</source>
         <translation type="unfinished">VCMI Επεξεργαστής Εκστρατείας</translation>
     </message>
@@ -158,33 +158,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="153"/>
         <source>Scenario editor</source>
         <translation type="unfinished">Επεξεργαστής σεναρίου</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="162"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="176"/>
         <source>Confirmation</source>
         <translation type="unfinished">Επιβεβαίωση</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="162"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="176"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Οι μη αποθηκευμένες αλλαγές θα χαθούν, είστε βέβαιοι;</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="81"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="446"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="82"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="462"/>
         <source>Failed to open campaign</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="202"/>
         <source>Validation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="202"/>
         <source>Campaign has no maps defined.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -193,53 +193,53 @@
         <translation type="obsolete">Άνοιγμα χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="266"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open campaign</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="268"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="282"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translation type="unfinished">Όλες οι υποστηριζόμενες εκστρατείες (*.vcmp *.h3c);;VCMI εκστρατείες(*.vcmp);;HoMM3 εκστρατείες(*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="297"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="311"/>
         <source>Open Campaign set</source>
         <translation type="unfinished">Άνοιγμα σετ εκστρατειών</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="297"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="311"/>
         <source>Select Campaign set</source>
         <translation type="unfinished">Επιλογή σετ εκστρατειών</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="309"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="325"/>
         <source>Open Campaign</source>
         <translation type="unfinished">Άνοιγμα εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="309"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="325"/>
         <source>Select Campaign</source>
         <translation type="unfinished">Επιλογή εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="325"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="341"/>
         <source>Save campaign</source>
         <translation type="unfinished">Αποθήκευση εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="327"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="343"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">VCMI εκστρατείες (*.vcmp)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="464"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="480"/>
         <source>Mods are required</source>
         <translation>Απαιτούνται mods</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="472"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="477"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="488"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="493"/>
         <source>Failed to open map</source>
         <translation>Αποτυχία ανοίγματος χάρτη</translation>
     </message>
@@ -248,7 +248,7 @@
     <name>CampaignProperties</name>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="29"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="30"/>
         <source>Campaign Properties</source>
         <translation type="unfinished">Ιδιότητες Εκστρατείας</translation>
     </message>
@@ -369,42 +369,42 @@
         <translation type="unfinished">Τελικό βίντεο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="58"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="59"/>
         <source>Custom</source>
         <translation type="unfinished">Προσαρμοσμένο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Infix</source>
         <translation type="unfinished">Ενδιάμεσο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>X</source>
         <translation type="unfinished">X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Y</source>
         <translation type="unfinished">Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Label Pos X</source>
         <translation type="unfinished">Θέση ετικέτας Χ</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Label Pos Y</source>
         <translation type="unfinished">Θέση ετικέτας Υ</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="202"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="203"/>
         <source>Fewer Scenarios</source>
         <translation type="unfinished">Λιγότερα σενάρια</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="202"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="203"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translation type="unfinished">Η νέα ρύθμιση περιοχής υποστηρίζει λιγότερα σενάρια από πριν. Μερικά θα αφαιρεθούν. Συνέχεια;</translation>
     </message>
@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="539"/>
+        <location filename="../mainwindow.cpp" line="529"/>
         <source>VCMI Map Editor</source>
         <translation>Επεξεργαστής χάρτη VCMI</translation>
     </message>
@@ -424,7 +424,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1043"/>
+        <location filename="../mainwindow.ui" line="1044"/>
         <source>Open Recent</source>
         <translation type="unfinished">Άνοιγμα πρόσφατων</translation>
     </message>
@@ -434,804 +434,823 @@
         <translation type="unfinished">Χάρτης</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="96"/>
+        <location filename="../mainwindow.ui" line="97"/>
         <source>Edit</source>
         <translation type="unfinished">Επεξεργασία</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="109"/>
+        <location filename="../mainwindow.ui" line="110"/>
         <source>View</source>
         <translation type="unfinished">Προβολή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="121"/>
+        <location filename="../mainwindow.ui" line="122"/>
         <source>Player</source>
         <translation type="unfinished">Παίκτης</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="141"/>
+        <location filename="../mainwindow.ui" line="142"/>
         <source>Toolbar</source>
         <translation type="unfinished">Γραμμή εργαλείων</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="202"/>
+        <location filename="../mainwindow.ui" line="203"/>
         <source>Minimap</source>
         <translation type="unfinished">Μικροχάρτης</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="275"/>
+        <location filename="../mainwindow.ui" line="276"/>
         <source>Map Objects View</source>
         <translation type="unfinished">Προβολή αντικειμένων χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="319"/>
+        <location filename="../mainwindow.ui" line="320"/>
         <source>Browser</source>
         <translation type="unfinished">Περιηγητής</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="397"/>
+        <location filename="../mainwindow.ui" line="398"/>
         <source>Inspector</source>
         <translation type="unfinished">Επιθεωρητής</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="439"/>
+        <location filename="../mainwindow.ui" line="440"/>
         <source>Property</source>
         <translation type="unfinished">Ιδιότητα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="444"/>
+        <location filename="../mainwindow.ui" line="445"/>
         <source>Value</source>
         <translation type="unfinished">Τιμή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="468"/>
+        <location filename="../mainwindow.ui" line="469"/>
         <source>Tools</source>
         <translation type="unfinished">Εργαλεία</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="832"/>
+        <location filename="../mainwindow.ui" line="833"/>
         <source>Painting</source>
         <translation type="unfinished">Ζωγραφική</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="884"/>
+        <location filename="../mainwindow.ui" line="885"/>
         <source>Terrains</source>
         <translation type="unfinished">Εδάφη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="927"/>
+        <location filename="../mainwindow.ui" line="928"/>
         <source>Roads</source>
         <translation type="unfinished">Δρόμοι</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="967"/>
+        <location filename="../mainwindow.ui" line="968"/>
         <source>Rivers</source>
         <translation type="unfinished">Ποτάμια</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1001"/>
+        <location filename="../mainwindow.ui" line="1002"/>
         <source>Preview</source>
         <translation type="unfinished">Προεπισκόπηση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1035"/>
+        <location filename="../mainwindow.ui" line="1036"/>
         <source>Open</source>
         <translation type="unfinished">Άνοιγμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1038"/>
+        <location filename="../mainwindow.ui" line="1039"/>
         <source>Ctrl+O</source>
         <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1048"/>
+        <location filename="../mainwindow.ui" line="1049"/>
         <source>More...</source>
         <translation type="unfinished">Περισσότερα...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1056"/>
+        <location filename="../mainwindow.ui" line="1057"/>
         <source>Save</source>
         <translation type="unfinished">Αποθήκευση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1059"/>
+        <location filename="../mainwindow.ui" line="1060"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1064"/>
+        <location filename="../mainwindow.ui" line="1065"/>
         <source>New</source>
         <translation type="unfinished">Νέο</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1067"/>
+        <location filename="../mainwindow.ui" line="1068"/>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.ui" line="1073"/>
         <source>Save as...</source>
         <translation type="unfinished">Αποθήκευση ως...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1075"/>
+        <location filename="../mainwindow.ui" line="1076"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished">Ctrl+Maj+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1080"/>
-        <location filename="../mainwindow.ui" line="1083"/>
+        <location filename="../mainwindow.ui" line="1081"/>
+        <location filename="../mainwindow.ui" line="1084"/>
         <source>Campaign editor</source>
         <translation type="unfinished">Επεξεργαστής εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1088"/>
-        <location filename="../mainwindow.ui" line="1091"/>
+        <location filename="../mainwindow.ui" line="1089"/>
+        <location filename="../mainwindow.ui" line="1092"/>
         <source>Template editor</source>
         <translation type="unfinished">Επεξεργαστής προτύπων</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1099"/>
-        <location filename="../mainwindow.ui" line="1102"/>
+        <location filename="../mainwindow.ui" line="1100"/>
+        <location filename="../mainwindow.ui" line="1103"/>
         <source>View underground</source>
         <translation type="unfinished">Προβολή υπόγειου</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1105"/>
+        <location filename="../mainwindow.ui" line="1106"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1113"/>
+        <location filename="../mainwindow.ui" line="1114"/>
         <source>Pass</source>
         <translation type="unfinished">Πάσο</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1116"/>
+        <location filename="../mainwindow.ui" line="1117"/>
         <source>Ctrl+Shift+P</source>
         <translation type="unfinished">Ctrl+Maj+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1121"/>
+        <location filename="../mainwindow.ui" line="1122"/>
         <source>Cut</source>
         <translation type="unfinished">Αποκοπή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1124"/>
+        <location filename="../mainwindow.ui" line="1125"/>
         <source>Ctrl+X</source>
         <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1129"/>
+        <location filename="../mainwindow.ui" line="1130"/>
         <source>Copy</source>
         <translation type="unfinished">Αντιγραφή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1132"/>
+        <location filename="../mainwindow.ui" line="1133"/>
         <source>Ctrl+C</source>
         <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1137"/>
+        <location filename="../mainwindow.ui" line="1138"/>
         <source>Paste</source>
         <translation type="unfinished">Επικόλληση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1140"/>
+        <location filename="../mainwindow.ui" line="1141"/>
         <source>Ctrl+V</source>
         <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1145"/>
+        <location filename="../mainwindow.ui" line="1146"/>
         <source>Fill</source>
         <translation type="unfinished">Γέμισμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1148"/>
+        <location filename="../mainwindow.ui" line="1149"/>
         <source>Fills the selection with obstacles</source>
         <translation type="unfinished">Γεμίζει την επιλογή με εμπόδια</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1159"/>
+        <location filename="../mainwindow.ui" line="1160"/>
         <source>Grid</source>
         <translation type="unfinished">Πλέγμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1162"/>
+        <location filename="../mainwindow.ui" line="1163"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1170"/>
+        <location filename="../mainwindow.ui" line="1171"/>
         <source>General</source>
         <translation type="unfinished">Γενικά</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1173"/>
+        <location filename="../mainwindow.ui" line="1174"/>
         <source>Map title and description</source>
         <translation type="unfinished">Τίτλος και περιγραφή χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1176"/>
+        <location filename="../mainwindow.ui" line="1177"/>
         <source>Ctrl+Enter</source>
         <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1184"/>
+        <location filename="../mainwindow.ui" line="1185"/>
         <source>Players settings</source>
         <translation type="unfinished">Ρυθμίσεις παικτών</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1187"/>
+        <location filename="../mainwindow.ui" line="1188"/>
         <source>Ctrl+P</source>
         <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1195"/>
-        <location filename="../mainwindow.ui" line="1198"/>
+        <location filename="../mainwindow.ui" line="1196"/>
+        <location filename="../mainwindow.ui" line="1199"/>
         <source>Undo</source>
         <translation type="unfinished">Αναίρεση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1201"/>
+        <location filename="../mainwindow.ui" line="1202"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1212"/>
+        <location filename="../mainwindow.ui" line="1213"/>
         <source>Redo</source>
         <translation type="unfinished">Επαναφορά</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1215"/>
+        <location filename="../mainwindow.ui" line="1216"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1226"/>
+        <location filename="../mainwindow.ui" line="1227"/>
         <source>Erase</source>
         <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1229"/>
+        <location filename="../mainwindow.ui" line="1230"/>
         <source>Del</source>
         <translation type="unfinished">Del</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1237"/>
+        <location filename="../mainwindow.ui" line="1238"/>
         <source>Neutral</source>
         <translation type="unfinished">Ουδέτερος</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1240"/>
+        <location filename="../mainwindow.ui" line="1241"/>
         <source>Ctrl+0</source>
         <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1245"/>
+        <location filename="../mainwindow.ui" line="1246"/>
         <source>Validate</source>
         <translation type="unfinished">Επικύρωση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1248"/>
+        <location filename="../mainwindow.ui" line="1249"/>
         <source>Ctrl+Shift+V</source>
         <translation type="unfinished">Ctrl+Maj+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1256"/>
-        <location filename="../mainwindow.cpp" line="1545"/>
+        <location filename="../mainwindow.ui" line="1257"/>
+        <location filename="../mainwindow.cpp" line="1591"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1267"/>
-        <location filename="../mainwindow.cpp" line="1454"/>
-        <location filename="../mainwindow.cpp" line="1458"/>
-        <location filename="../mainwindow.cpp" line="1516"/>
+        <location filename="../mainwindow.ui" line="1268"/>
+        <location filename="../mainwindow.cpp" line="1531"/>
+        <location filename="../mainwindow.cpp" line="1546"/>
+        <source>Add level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1276"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1444"/>
+        <location filename="../mainwindow.cpp" line="1502"/>
         <source>Update appearance</source>
         <translation type="unfinished">Ενημέρωση εμφάνισης</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1278"/>
+        <location filename="../mainwindow.ui" line="1287"/>
         <source>Recreate obstacles</source>
         <translation type="unfinished">Αναδημιουργία εμποδίων</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1289"/>
+        <location filename="../mainwindow.ui" line="1298"/>
         <source>Player 1</source>
         <translation type="unfinished">Παίκτης 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1292"/>
+        <location filename="../mainwindow.ui" line="1301"/>
         <source>Ctrl+1</source>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1300"/>
+        <location filename="../mainwindow.ui" line="1309"/>
         <source>Player 2</source>
         <translation type="unfinished">Παίκτης 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1303"/>
+        <location filename="../mainwindow.ui" line="1312"/>
         <source>Ctrl+2</source>
         <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1311"/>
+        <location filename="../mainwindow.ui" line="1320"/>
         <source>Player 3</source>
         <translation type="unfinished">Παίκτης 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1314"/>
+        <location filename="../mainwindow.ui" line="1323"/>
         <source>Ctrl+3</source>
         <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1322"/>
+        <location filename="../mainwindow.ui" line="1331"/>
         <source>Player 4</source>
         <translation type="unfinished">Παίκτης 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1325"/>
+        <location filename="../mainwindow.ui" line="1334"/>
         <source>Ctrl+4</source>
         <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1333"/>
+        <location filename="../mainwindow.ui" line="1342"/>
         <source>Player 5</source>
         <translation type="unfinished">Παίκτης 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1336"/>
+        <location filename="../mainwindow.ui" line="1345"/>
         <source>Ctrl+5</source>
         <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1344"/>
+        <location filename="../mainwindow.ui" line="1353"/>
         <source>Player 6</source>
         <translation type="unfinished">Παίκτης 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1347"/>
+        <location filename="../mainwindow.ui" line="1356"/>
         <source>Ctrl+6</source>
         <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1355"/>
+        <location filename="../mainwindow.ui" line="1364"/>
         <source>Player 7</source>
         <translation type="unfinished">Παίκτης 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1358"/>
+        <location filename="../mainwindow.ui" line="1367"/>
         <source>Ctrl+7</source>
         <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1366"/>
+        <location filename="../mainwindow.ui" line="1375"/>
         <source>Player 8</source>
         <translation type="unfinished">Παίκτης 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1369"/>
+        <location filename="../mainwindow.ui" line="1378"/>
         <source>Ctrl+8</source>
         <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1374"/>
+        <location filename="../mainwindow.ui" line="1383"/>
         <source>Export as...</source>
         <translation type="unfinished">Εξαγωγή ως...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1377"/>
+        <location filename="../mainwindow.ui" line="1386"/>
         <source>Ctrl+E</source>
         <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1385"/>
+        <location filename="../mainwindow.ui" line="1394"/>
         <source>Translations</source>
         <translation type="unfinished">Μεταφράσεις</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1388"/>
+        <location filename="../mainwindow.ui" line="1397"/>
         <source>Ctrl+T</source>
         <translation type="unfinished">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1393"/>
-        <location filename="../mainwindow.ui" line="1396"/>
+        <location filename="../mainwindow.ui" line="1402"/>
+        <location filename="../mainwindow.ui" line="1405"/>
         <source>h3m converter</source>
         <translation type="unfinished">Μετατροπέας h3m</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1399"/>
+        <location filename="../mainwindow.ui" line="1408"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished">Ctrl+Maj+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1404"/>
-        <location filename="../mainwindow.ui" line="1407"/>
+        <location filename="../mainwindow.ui" line="1413"/>
+        <location filename="../mainwindow.ui" line="1416"/>
         <source>h3c converter</source>
         <translation type="unfinished">Μετατροπέας h3c</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1410"/>
+        <location filename="../mainwindow.ui" line="1419"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished">Ctrl+Maj+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1415"/>
+        <location filename="../mainwindow.ui" line="1424"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1418"/>
+        <location filename="../mainwindow.ui" line="1427"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1423"/>
+        <location filename="../mainwindow.ui" line="1432"/>
         <source>Lock</source>
         <translation type="unfinished">Κλείδωμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1426"/>
+        <location filename="../mainwindow.ui" line="1435"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation type="unfinished">Κλειδώστε αντικείμενα στον χάρτη για να αποφύγετε περιττές αλλαγές</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1429"/>
+        <location filename="../mainwindow.ui" line="1438"/>
         <source>Ctrl+L</source>
         <translation type="unfinished">Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1434"/>
+        <location filename="../mainwindow.ui" line="1443"/>
         <source>Unlock</source>
         <translation type="unfinished">Ξεκλείδωμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1437"/>
+        <location filename="../mainwindow.ui" line="1446"/>
         <source>Unlock all objects on the map</source>
         <translation type="unfinished">Ξεκλειδώστε όλα τα αντικείμενα στον χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1259"/>
-        <location filename="../mainwindow.ui" line="1440"/>
+        <location filename="../mainwindow.ui" line="1260"/>
+        <location filename="../mainwindow.ui" line="1449"/>
         <source>Ctrl+Shift+L</source>
         <translation type="unfinished">Ctrl+Maj+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1445"/>
+        <location filename="../mainwindow.ui" line="1454"/>
         <source>Zoom in</source>
         <translation type="unfinished">Μεγέθυνση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1448"/>
+        <location filename="../mainwindow.ui" line="1457"/>
         <source>Ctrl++</source>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1453"/>
+        <location filename="../mainwindow.ui" line="1462"/>
         <source>Zoom out</source>
         <translation type="unfinished">Σμίκρυνση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1456"/>
+        <location filename="../mainwindow.ui" line="1465"/>
         <source>Ctrl+-</source>
         <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1461"/>
+        <location filename="../mainwindow.ui" line="1470"/>
         <source>Zoom reset</source>
         <translation type="unfinished">Επαναφορά ζουμ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1464"/>
+        <location filename="../mainwindow.ui" line="1473"/>
         <source>Ctrl+Shift+=</source>
         <translation type="unfinished">Ctrl+Maj+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="485"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>Mapeditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="486"/>
+        <location filename="../mainwindow.cpp" line="476"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="505"/>
+        <location filename="../mainwindow.cpp" line="495"/>
         <source>Confirmation</source>
         <translation type="unfinished">Επιβεβαίωση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="505"/>
+        <location filename="../mainwindow.cpp" line="495"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Οι μη αποθηκευμένες αλλαγές θα χαθούν, είστε βέβαιοι;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="578"/>
-        <location filename="../mainwindow.cpp" line="1562"/>
+        <location filename="../mainwindow.cpp" line="1519"/>
+        <location filename="../mainwindow.cpp" line="1608"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="604"/>
+        <location filename="../mainwindow.cpp" line="588"/>
         <source>Mods are required</source>
         <translation type="unfinished">Απαιτούνται mods</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="612"/>
-        <location filename="../mainwindow.cpp" line="618"/>
+        <location filename="../mainwindow.cpp" line="596"/>
+        <location filename="../mainwindow.cpp" line="602"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Αποτυχία ανοίγματος χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="649"/>
+        <location filename="../mainwindow.cpp" line="633"/>
         <source>Open map</source>
         <translation type="unfinished">Άνοιγμα χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="651"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Όλοι οι υποστηριζόμενοι χάρτες (*.vmap *.h3m);;Χάρτες VCMI(*.vmap);;Χάρτες HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="706"/>
+        <location filename="../mainwindow.cpp" line="690"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Πρόσφατα Ανοιγμένα Αρχεία</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="759"/>
+        <location filename="../mainwindow.cpp" line="743"/>
         <source>Map validation</source>
         <translation type="unfinished">Επικύρωση χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="761"/>
+        <location filename="../mainwindow.cpp" line="745"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Ο χάρτης έχει κρίσιμα προβλήματα και πιθανότατα δεν θα είναι αναπαίξιμος. Ανοίξτε τον Επικυρωτή από το μενού Χάρτης για να δείτε τα προβλήματα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="763"/>
+        <location filename="../mainwindow.cpp" line="747"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Ο χάρτης έχει κάποια σφάλματα. Ανοίξτε τον Επικυρωτή από το μενού Χάρτης για να δείτε τα προβλήματα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="790"/>
+        <location filename="../mainwindow.cpp" line="774"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Αποτυχία αποθήκευσης χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="803"/>
+        <location filename="../mainwindow.cpp" line="787"/>
         <source>Save map</source>
         <translation type="unfinished">Αποθήκευση χάρτη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="804"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">Χάρτες VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1003"/>
         <source>Type</source>
         <translation type="unfinished">Τύπος</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1016"/>
         <source>Towns</source>
         <translation type="unfinished">Πόλεις</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Objects</source>
         <translation type="unfinished">Αντικείμενα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1032"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Heroes</source>
         <translation type="unfinished">Ήρωες</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1033"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Artifacts</source>
         <translation type="unfinished">Τεχνουργήματα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1034"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Resources</source>
         <translation type="unfinished">Πόροι</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1035"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Banks</source>
         <translation type="unfinished">Τράπεζες</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1036"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Dwellings</source>
         <translation type="unfinished">Κατοικίες</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1037"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Grounds</source>
         <translation type="unfinished">Εδάφη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Teleports</source>
         <translation type="unfinished">Τηλεμεταφορές</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Mines</source>
         <translation type="unfinished">Ορυχεία</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Triggers</source>
         <translation type="unfinished">Ενεργοποιητές</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1041"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Monsters</source>
         <translation type="unfinished">Τέρατα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1042"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Quests</source>
         <translation type="unfinished">Αποστολές</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1043"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Wog Objects</source>
         <translation type="unfinished">Αντικείμενα Wog</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1044"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Obstacles</source>
         <translation type="unfinished">Εμπόδια</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1045"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Other</source>
         <translation type="unfinished">Άλλα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1182"/>
+        <location filename="../mainwindow.cpp" line="1168"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Πρόβλημα φόρτωσης Mods</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1182"/>
+        <location filename="../mainwindow.cpp" line="1168"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Κρίσιμο σφάλμα κατά τη φόρτωση των Mods. Απενεργοποιήστε τα άκυρα mods και επανεκκινήστε.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1188"/>
+        <location filename="../mainwindow.cpp" line="1174"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Κλικ στο Αναίρεση</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1199"/>
+        <location filename="../mainwindow.cpp" line="1185"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Κλικ στο Επανάληψη</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1210"/>
+        <location filename="../mainwindow.cpp" line="1196"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Κλικ στην Περπατησιμότητα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1223"/>
+        <location filename="../mainwindow.cpp" line="1209"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Κλικ στο Πλέγμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1304"/>
+        <location filename="../mainwindow.cpp" line="1290"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Κλικ στο Γέμισμα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1454"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>No objects selected</source>
         <translation type="unfinished">Δεν επιλέχθηκαν αντικείμενα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1458"/>
+        <location filename="../mainwindow.cpp" line="1444"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Αυτή η ενέργεια είναι μη αναστρέψιμη. Θέλετε να συνεχίσετε;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1516"/>
+        <location filename="../mainwindow.cpp" line="1502"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">Παρουσιάστηκαν σφάλματα. %1 αντικείμενα δεν ενημερώθηκαν</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1546"/>
+        <location filename="../mainwindow.cpp" line="1531"/>
+        <source>This map already has the maximum number of levels supported by the editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1547"/>
+        <source>Select the type of the new level.
+
+Warning: levels cannot be removed once added.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1607"/>
+        <location filename="../mainwindow.cpp" line="1653"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1608"/>
+        <location filename="../mainwindow.cpp" line="1654"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1622"/>
-        <location filename="../mainwindow.cpp" line="1626"/>
+        <location filename="../mainwindow.cpp" line="1668"/>
+        <location filename="../mainwindow.cpp" line="1672"/>
         <source>Save to image</source>
         <translation type="unfinished">Αποθήκευση ως εικόνα</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1668"/>
+        <location filename="../mainwindow.cpp" line="1714"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1668"/>
+        <location filename="../mainwindow.cpp" line="1714"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1688"/>
+        <location filename="../mainwindow.cpp" line="1734"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Επιλέξτε χάρτες για μετατροπή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1690"/>
+        <location filename="../mainwindow.cpp" line="1736"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Χάρτες HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1696"/>
-        <location filename="../mainwindow.cpp" line="1703"/>
+        <location filename="../mainwindow.cpp" line="1742"/>
+        <location filename="../mainwindow.cpp" line="1749"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Επιλέξτε κατάλογο για αποθήκευση μετατρεπόμενων χαρτών</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1698"/>
+        <location filename="../mainwindow.cpp" line="1744"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1719"/>
+        <location filename="../mainwindow.cpp" line="1765"/>
         <source>Operation completed</source>
         <translation type="unfinished">Η λειτουργία ολοκληρώθηκε</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1719"/>
+        <location filename="../mainwindow.cpp" line="1765"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">Μετατράπηκαν επιτυχώς %1 χάρτες</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1723"/>
+        <location filename="../mainwindow.cpp" line="1769"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Αποτυχία μετατροπής του χάρτη. Διακοπή λειτουργίας</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1731"/>
+        <location filename="../mainwindow.cpp" line="1777"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Επιλέξτε καμπάνια για μετατροπή</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1732"/>
+        <location filename="../mainwindow.cpp" line="1778"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">Καμπάνιες HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1738"/>
+        <location filename="../mainwindow.cpp" line="1784"/>
         <source>Select destination file</source>
         <translation type="unfinished">Επιλέξτε αρχείο προορισμού</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1739"/>
+        <location filename="../mainwindow.cpp" line="1785"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">Καμπάνιες VCMI (*.vcmp)</translation>
     </message>
@@ -1268,7 +1287,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <translation type="unfinished">Αφαίρεση</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="150"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="151"/>
         <source>New event</source>
         <translation type="unfinished">Νέο γεγονός</translation>
     </message>
@@ -1506,27 +1525,27 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <translation type="unfinished">Παράμετροι</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="37"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="38"/>
         <source>No special loss</source>
         <translation type="unfinished">Χωρίς ειδική ήττα</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="38"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>Lose castle</source>
         <translation type="unfinished">Απώλεια κάστρου</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Lose hero</source>
         <translation type="unfinished">Απώλεια ήρωα</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Time expired</source>
         <translation type="unfinished">Έληξε ο χρόνος</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
         <source>Days without town</source>
         <translation type="unfinished">Ημέρες χωρίς πόλη</translation>
     </message>
@@ -1534,17 +1553,17 @@ For the best experience, we recommend using the map editor on a tablet (or with 
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="612"/>
+        <location filename="../mapcontroller.cpp" line="640"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Ο Ήρωας %1 δεν μπορεί να δημιουργηθεί ως ΟΥΔΕΤΕΡΟΣ.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="626"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Λείπει απαιτούμενο Mod</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="626"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>
 
 Do you want to do that now ?</source>
@@ -1554,7 +1573,7 @@ Do you want to do that now ?</source>
 Θέλετε να το κάνετε τώρα ;</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="636"/>
+        <location filename="../mapcontroller.cpp" line="664"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">Το mod αυτού του αντικειμένου είναι υποχρεωτικό για να παραμείνει ο χάρτης έγκυρος.</translation>
     </message>
@@ -1562,7 +1581,7 @@ Do you want to do that now ?</source>
 <context>
     <name>MapEditor::MapView</name>
     <message>
-        <location filename="../mapview.cpp" line="664"/>
+        <location filename="../mapview.cpp" line="671"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Αδυναμία τοποθέτησης αντικειμένου</translation>
     </message>
@@ -1774,134 +1793,134 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Απαγορευμένες κατηγορίες αντικειμένων</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="34"/>
+        <location filename="../templateeditor/objectselector.cpp" line="35"/>
         <source>Object Selector</source>
         <translation type="unfinished">Επιλογέας αντικειμένων</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="97"/>
+        <location filename="../templateeditor/objectselector.cpp" line="99"/>
         <source>Category</source>
         <translation type="unfinished">Κατηγορία</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="97"/>
-        <location filename="../templateeditor/objectselector.cpp" line="165"/>
-        <location filename="../templateeditor/objectselector.cpp" line="227"/>
-        <location filename="../templateeditor/objectselector.cpp" line="311"/>
+        <location filename="../templateeditor/objectselector.cpp" line="99"/>
+        <location filename="../templateeditor/objectselector.cpp" line="167"/>
+        <location filename="../templateeditor/objectselector.cpp" line="229"/>
+        <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Action</source>
         <translation type="unfinished">Ενέργεια</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="101"/>
+        <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Other</source>
         <translation>Άλλα</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>All</source>
         <translation>Όλα</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="103"/>
-        <location filename="../templateeditor/objectselector.cpp" line="258"/>
+        <location filename="../templateeditor/objectselector.cpp" line="105"/>
+        <location filename="../templateeditor/objectselector.cpp" line="260"/>
         <source>None</source>
         <translation type="unfinished">Καμία</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="104"/>
+        <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Creature bank</source>
         <translation type="unfinished">Τράπεζα πλασμάτων</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="105"/>
+        <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Bonus</source>
         <translation>Μπόνους</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="106"/>
+        <location filename="../templateeditor/objectselector.cpp" line="108"/>
         <source>Dwelling</source>
         <translation type="unfinished">Κατοικία</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="107"/>
+        <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Resource</source>
         <translation>Πόρος</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="108"/>
+        <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Resource generator</source>
         <translation type="unfinished">Γεννήτρια πόρων</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="109"/>
+        <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Spell scroll</source>
         <translation>Κύλινδρος ξορκιού</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="110"/>
+        <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Random artifact</source>
         <translation type="unfinished">Τυχαίο τεχντούργημα</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="111"/>
+        <location filename="../templateeditor/objectselector.cpp" line="113"/>
         <source>Pandoras box</source>
         <translation type="unfinished">Σκουτί της Πανδώρας</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="112"/>
+        <location filename="../templateeditor/objectselector.cpp" line="114"/>
         <source>Quest artifact</source>
         <translation type="unfinished">Τεχντούργημα αποστολής</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="113"/>
+        <location filename="../templateeditor/objectselector.cpp" line="115"/>
         <source>Seer hut</source>
         <translation type="unfinished">Καλύβα μάντη</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="125"/>
-        <location filename="../templateeditor/objectselector.cpp" line="185"/>
-        <location filename="../templateeditor/objectselector.cpp" line="262"/>
-        <location filename="../templateeditor/objectselector.cpp" line="346"/>
+        <location filename="../templateeditor/objectselector.cpp" line="127"/>
+        <location filename="../templateeditor/objectselector.cpp" line="187"/>
+        <location filename="../templateeditor/objectselector.cpp" line="264"/>
+        <location filename="../templateeditor/objectselector.cpp" line="348"/>
         <source>Delete</source>
         <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="140"/>
-        <location filename="../templateeditor/objectselector.cpp" line="200"/>
-        <location filename="../templateeditor/objectselector.cpp" line="279"/>
-        <location filename="../templateeditor/objectselector.cpp" line="361"/>
+        <location filename="../templateeditor/objectselector.cpp" line="142"/>
+        <location filename="../templateeditor/objectselector.cpp" line="202"/>
+        <location filename="../templateeditor/objectselector.cpp" line="281"/>
+        <location filename="../templateeditor/objectselector.cpp" line="363"/>
         <source>Add</source>
         <translation type="unfinished">Προσθήκη</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="165"/>
-        <location filename="../templateeditor/objectselector.cpp" line="227"/>
-        <location filename="../templateeditor/objectselector.cpp" line="311"/>
+        <location filename="../templateeditor/objectselector.cpp" line="167"/>
+        <location filename="../templateeditor/objectselector.cpp" line="229"/>
+        <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Object</source>
         <translation type="unfinished">Αντικείμενο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="227"/>
+        <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <source>Count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="227"/>
+        <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <source>Guard</source>
         <translation type="unfinished">Φρουρά</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="311"/>
+        <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Value</source>
         <translation>Τιμή</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="311"/>
+        <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Probability</source>
         <translation type="unfinished">Πιθανότητα</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="311"/>
+        <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Max per zone</source>
         <translation type="unfinished">Μέγιστο ανά ζώνη</translation>
     </message>
@@ -1954,12 +1973,12 @@ Do you want to do that now ?</source>
         <translation type="unfinished">(προεπιλογή)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="27"/>
+        <location filename="../playerparams.cpp" line="28"/>
         <source>No team</source>
         <translation type="unfinished">Χωρίς ομάδα</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="108"/>
+        <location filename="../playerparams.cpp" line="109"/>
         <source>Player ID: %1</source>
         <translation type="unfinished">Αναγνωριστικό Παίκτη: %1</translation>
     </message>
@@ -2040,99 +2059,99 @@ Do you want to do that now ?</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="23"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
         <source>Beginner</source>
         <translation type="unfinished">Αρχάριος</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="25"/>
         <source>Advanced</source>
         <translation type="unfinished">Προχωρημένος</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="25"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="26"/>
         <source>Expert</source>
         <translation type="unfinished">Ειδικός</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="172"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="173"/>
         <source>Default secondary skills:</source>
         <translation type="unfinished">Προεπιλεγμένες δευτερεύουσες ικανότητες:</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="177"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="178"/>
         <source>Random hero secondary skills</source>
         <translation type="unfinished">Τυχαίες δευτερεύουσες ικανότητες ήρωα</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="183"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="184"/>
         <source>Secondary skills:</source>
         <translation type="unfinished">Δευτερεύουσες ικανότητες:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1008"/>
+        <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Compliant</source>
         <translation type="unfinished">Συμβατός</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1009"/>
+        <location filename="../inspector/inspector.cpp" line="1010"/>
         <source>Friendly</source>
         <translation type="unfinished">Φιλικός</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1010"/>
+        <location filename="../inspector/inspector.cpp" line="1011"/>
         <source>Aggressive</source>
         <translation type="unfinished">Επιθετικός</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1011"/>
+        <location filename="../inspector/inspector.cpp" line="1012"/>
         <source>Hostile</source>
         <translation type="unfinished">Εχθρικός</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1012"/>
+        <location filename="../inspector/inspector.cpp" line="1013"/>
         <source>Savage</source>
         <translation type="unfinished">Άγριος</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="361"/>
-        <location filename="../inspector/inspector.cpp" line="364"/>
+        <location filename="../inspector/inspector.cpp" line="362"/>
+        <location filename="../inspector/inspector.cpp" line="365"/>
         <source>No patrol</source>
         <translation type="unfinished">Χωρίς περιπολία</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="304"/>
+        <location filename="../inspector/inspector.cpp" line="305"/>
         <source>POWER RANK</source>
         <translation type="unfinished">ΚΑΤΑΤΑΞΗ ΔΥΝΑΜΗΣ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="304"/>
+        <location filename="../inspector/inspector.cpp" line="305"/>
         <source>HERO TYPE</source>
         <translation type="unfinished">ΤΥΠΟΣ ΗΡΩΑ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
+        <location filename="../inspector/inspector.cpp" line="328"/>
         <source>Hero class</source>
         <translation type="unfinished">Κλάση ήρωα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="337"/>
         <source>Portrait</source>
         <translation type="unfinished">Πορτρέτο</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="339"/>
+        <location filename="../inspector/inspector.cpp" line="340"/>
         <source>Skills</source>
         <translation type="unfinished">Ικανότητες</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="341"/>
+        <location filename="../inspector/inspector.cpp" line="342"/>
         <source>Artifacts</source>
         <translation type="unfinished">Αντικείμενα</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="363"/>
         <location filename="../inspector/inspector.cpp" line="364"/>
+        <location filename="../inspector/inspector.cpp" line="365"/>
         <source>%n tile(s)</source>
         <translation type="unfinished">
             <numerusform>%n κελί(α)</numerusform>
@@ -2140,208 +2159,208 @@ Do you want to do that now ?</source>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="376"/>
+        <location filename="../inspector/inspector.cpp" line="377"/>
         <source>Buildings</source>
         <translation type="unfinished">Κτίρια</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="378"/>
+        <location filename="../inspector/inspector.cpp" line="379"/>
         <source>Events</source>
         <translation type="unfinished">Γεγονότα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="418"/>
+        <location filename="../inspector/inspector.cpp" line="419"/>
         <source>Resource</source>
         <translation type="unfinished">Πόρος</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="449"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
         <source>Artifact reward</source>
         <translation type="unfinished">Ανταμοιβή αντικειμένου</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="517"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
         <source>Quest</source>
         <translation type="unfinished">Αποστολή</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="535"/>
+        <location filename="../inspector/inspector.cpp" line="536"/>
         <source>Identifier</source>
         <translation type="unfinished">Αναγνωριστικό</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="536"/>
+        <location filename="../inspector/inspector.cpp" line="537"/>
         <source>ID</source>
         <translation type="unfinished">ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="537"/>
+        <location filename="../inspector/inspector.cpp" line="538"/>
         <source>SubID</source>
         <translation type="unfinished">SubID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="538"/>
+        <location filename="../inspector/inspector.cpp" line="539"/>
         <source>InstanceName</source>
         <translation type="unfinished">ΌνομαΣτιγμιότυπου</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="544"/>
         <source>IsStatic</source>
         <translation type="unfinished">ΕίναιΣτατικό</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="934"/>
-        <location filename="../inspector/inspector.cpp" line="1062"/>
+        <location filename="../inspector/inspector.cpp" line="935"/>
+        <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>neutral</source>
         <translation type="unfinished">ουδέτερος</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="252"/>
-        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="253"/>
+        <location filename="../inspector/inspector.cpp" line="451"/>
         <source>Army</source>
         <translation type="unfinished">Στρατός</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="259"/>
-        <location filename="../inspector/inspector.cpp" line="272"/>
-        <location filename="../inspector/inspector.cpp" line="279"/>
-        <location filename="../inspector/inspector.cpp" line="287"/>
-        <location filename="../inspector/inspector.cpp" line="294"/>
-        <location filename="../inspector/inspector.cpp" line="325"/>
-        <location filename="../inspector/inspector.cpp" line="416"/>
-        <location filename="../inspector/inspector.cpp" line="546"/>
-        <location filename="../inspector/inspector.cpp" line="593"/>
+        <location filename="../inspector/inspector.cpp" line="260"/>
+        <location filename="../inspector/inspector.cpp" line="273"/>
+        <location filename="../inspector/inspector.cpp" line="280"/>
+        <location filename="../inspector/inspector.cpp" line="288"/>
+        <location filename="../inspector/inspector.cpp" line="295"/>
+        <location filename="../inspector/inspector.cpp" line="326"/>
+        <location filename="../inspector/inspector.cpp" line="417"/>
+        <location filename="../inspector/inspector.cpp" line="547"/>
+        <location filename="../inspector/inspector.cpp" line="594"/>
         <source>Owner</source>
         <translation type="unfinished">Ιδιοκτήτης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="264"/>
-        <location filename="../inspector/inspector.cpp" line="718"/>
+        <location filename="../inspector/inspector.cpp" line="265"/>
+        <location filename="../inspector/inspector.cpp" line="719"/>
         <source>Same as town</source>
         <translation type="unfinished">Ίδιος με την πόλη</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="280"/>
-        <location filename="../inspector/inspector.cpp" line="733"/>
+        <location filename="../inspector/inspector.cpp" line="281"/>
+        <location filename="../inspector/inspector.cpp" line="734"/>
         <source>Removable units</source>
         <translation type="unfinished">Αφαιρούμενες μονάδες</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
-        <location filename="../inspector/inspector.cpp" line="741"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
+        <location filename="../inspector/inspector.cpp" line="742"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Τύπος placeholder</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="308"/>
-        <location filename="../inspector/inspector.cpp" line="759"/>
+        <location filename="../inspector/inspector.cpp" line="309"/>
+        <location filename="../inspector/inspector.cpp" line="760"/>
         <source>Power rank</source>
         <translation type="unfinished">Κατάταξη δύναμης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="316"/>
-        <location filename="../inspector/inspector.cpp" line="356"/>
-        <location filename="../inspector/inspector.cpp" line="762"/>
-        <location filename="../inspector/inspector.cpp" line="786"/>
+        <location filename="../inspector/inspector.cpp" line="317"/>
+        <location filename="../inspector/inspector.cpp" line="357"/>
+        <location filename="../inspector/inspector.cpp" line="763"/>
+        <location filename="../inspector/inspector.cpp" line="787"/>
         <source>Hero type</source>
         <translation type="unfinished">Τύπος ήρωα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="326"/>
-        <location filename="../inspector/inspector.cpp" line="783"/>
+        <location filename="../inspector/inspector.cpp" line="327"/>
+        <location filename="../inspector/inspector.cpp" line="784"/>
         <source>Experience</source>
         <translation type="unfinished">Εμπειρία</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="331"/>
         <location filename="../inspector/inspector.cpp" line="332"/>
+        <location filename="../inspector/inspector.cpp" line="333"/>
         <source>MALE</source>
         <translation type="unfinished">ΑΝΔΡΑΣ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="331"/>
         <location filename="../inspector/inspector.cpp" line="332"/>
+        <location filename="../inspector/inspector.cpp" line="333"/>
         <source>FEMALE</source>
         <translation type="unfinished">ΓΥΝΑΙΚΑ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
-        <location filename="../inspector/inspector.cpp" line="772"/>
+        <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="773"/>
         <source>Gender</source>
         <translation type="unfinished">Φύλο</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="334"/>
-        <location filename="../inspector/inspector.cpp" line="775"/>
+        <location filename="../inspector/inspector.cpp" line="335"/>
+        <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Name</source>
         <translation type="unfinished">Όνομα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="779"/>
+        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="780"/>
         <source>Biography</source>
         <translation type="unfinished">Βιογραφία</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="340"/>
-        <location filename="../inspector/inspector.cpp" line="377"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
+        <location filename="../inspector/inspector.cpp" line="378"/>
         <source>Spells</source>
         <translation type="unfinished">Ξόρκια</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="365"/>
-        <location filename="../inspector/inspector.cpp" line="798"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
+        <location filename="../inspector/inspector.cpp" line="799"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Ακτίνα περιπολίας</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="373"/>
-        <location filename="../inspector/inspector.cpp" line="675"/>
+        <location filename="../inspector/inspector.cpp" line="374"/>
+        <location filename="../inspector/inspector.cpp" line="676"/>
         <source>Town name</source>
         <translation type="unfinished">Όνομα πόλης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="380"/>
-        <location filename="../inspector/inspector.cpp" line="679"/>
+        <location filename="../inspector/inspector.cpp" line="381"/>
+        <location filename="../inspector/inspector.cpp" line="680"/>
         <source>Same as player</source>
         <translation type="unfinished">Ίδιο με τον παίκτη</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="387"/>
-        <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="434"/>
-        <location filename="../inspector/inspector.cpp" line="441"/>
-        <location filename="../inspector/inspector.cpp" line="491"/>
-        <location filename="../inspector/inspector.cpp" line="635"/>
-        <location filename="../inspector/inspector.cpp" line="687"/>
-        <location filename="../inspector/inspector.cpp" line="704"/>
-        <location filename="../inspector/inspector.cpp" line="823"/>
+        <location filename="../inspector/inspector.cpp" line="388"/>
+        <location filename="../inspector/inspector.cpp" line="428"/>
+        <location filename="../inspector/inspector.cpp" line="435"/>
+        <location filename="../inspector/inspector.cpp" line="442"/>
+        <location filename="../inspector/inspector.cpp" line="492"/>
+        <location filename="../inspector/inspector.cpp" line="636"/>
+        <location filename="../inspector/inspector.cpp" line="688"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
+        <location filename="../inspector/inspector.cpp" line="824"/>
         <source>Message</source>
         <translation type="unfinished">Μήνυμα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="407"/>
-        <location filename="../inspector/inspector.cpp" line="708"/>
+        <location filename="../inspector/inspector.cpp" line="408"/>
+        <location filename="../inspector/inspector.cpp" line="709"/>
         <source>Spell</source>
         <translation type="unfinished">Ξόρκι</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="419"/>
-        <location filename="../inspector/inspector.cpp" line="696"/>
+        <location filename="../inspector/inspector.cpp" line="420"/>
+        <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Productivity</source>
         <translation type="unfinished">Παραγωγικότητα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="426"/>
-        <location filename="../inspector/inspector.cpp" line="451"/>
-        <location filename="../inspector/inspector.cpp" line="815"/>
-        <location filename="../inspector/inspector.cpp" line="832"/>
+        <location filename="../inspector/inspector.cpp" line="427"/>
+        <location filename="../inspector/inspector.cpp" line="452"/>
+        <location filename="../inspector/inspector.cpp" line="816"/>
+        <location filename="../inspector/inspector.cpp" line="833"/>
         <source>Amount</source>
         <translation type="unfinished">Ποσότητα</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="445"/>
-        <location filename="../inspector/inspector.cpp" line="826"/>
+        <location filename="../inspector/inspector.cpp" line="446"/>
+        <location filename="../inspector/inspector.cpp" line="827"/>
         <source>Character</source>
         <translation type="unfinished">Χαρακτήρας</translation>
     </message>
@@ -2350,112 +2369,112 @@ Do you want to do that now ?</source>
         <translation type="obsolete">Ικανότητες</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="502"/>
-        <location filename="../inspector/inspector.cpp" line="653"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
+        <location filename="../inspector/inspector.cpp" line="654"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="977"/>
+        <location filename="../inspector/inspector.cpp" line="978"/>
         <source>Select town</source>
         <translation type="unfinished">Επιλογή πόλης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="988"/>
-        <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
+        <location filename="../inspector/inspector.cpp" line="989"/>
+        <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="447"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="448"/>
+        <location filename="../inspector/inspector.cpp" line="829"/>
         <source>Never flees</source>
         <translation type="unfinished">Δεν τρέπεται ποτέ σε φυγή</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="830"/>
+        <location filename="../inspector/inspector.cpp" line="449"/>
+        <location filename="../inspector/inspector.cpp" line="831"/>
         <source>Not growing</source>
         <translation type="unfinished">Δεν αυξάνεται</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="484"/>
-        <location filename="../inspector/inspector.cpp" line="525"/>
+        <location filename="../inspector/inspector.cpp" line="485"/>
+        <location filename="../inspector/inspector.cpp" line="526"/>
         <source>Reward</source>
         <translation type="unfinished">Ανταμοιβή</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="498"/>
-        <location filename="../inspector/inspector.cpp" line="644"/>
+        <location filename="../inspector/inspector.cpp" line="499"/>
+        <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Remove after</source>
         <translation type="unfinished">Αφαίρεση μετά από</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="499"/>
-        <location filename="../inspector/inspector.cpp" line="647"/>
+        <location filename="../inspector/inspector.cpp" line="500"/>
+        <location filename="../inspector/inspector.cpp" line="648"/>
         <source>Human trigger</source>
         <translation type="unfinished">Ενεργοποίηση από άνθρωπο</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="500"/>
-        <location filename="../inspector/inspector.cpp" line="650"/>
+        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="651"/>
         <source>Cpu trigger</source>
         <translation type="unfinished">Ενεργοποίηση από Υπολογιστή</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="509"/>
-        <location filename="../inspector/inspector.cpp" line="840"/>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>First visit text</source>
         <translation type="unfinished">Κείμενο πρώτης επίσκεψης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="511"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Next visit text</source>
         <translation type="unfinished">Κείμενο επόμενης επίσκεψης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="846"/>
+        <location filename="../inspector/inspector.cpp" line="512"/>
+        <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Completed text</source>
         <translation type="unfinished">Κείμενο ολοκλήρωσης</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="526"/>
-        <location filename="../inspector/inspector.cpp" line="849"/>
+        <location filename="../inspector/inspector.cpp" line="513"/>
+        <location filename="../inspector/inspector.cpp" line="527"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Repeat quest</source>
         <translation type="unfinished">Επανάληψη αποστολής</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="513"/>
-        <location filename="../inspector/inspector.cpp" line="851"/>
+        <location filename="../inspector/inspector.cpp" line="514"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Time limit</source>
         <translation type="unfinished">Χρονικό όριο</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="932"/>
+        <location filename="../inspector/inspector.cpp" line="933"/>
         <source>UNFLAGGABLE</source>
         <translation type="unfinished">ΧΩΡΙΣ ΣΗΜΑΙΑ</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="417"/>
+        <location filename="../mapcontroller.cpp" line="445"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Αδυναμία τοποθέτησης αντικειμένου</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="594"/>
+        <location filename="../mapcontroller.cpp" line="622"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Μπορεί να υπάρχει μόνο ένα αντικείμενο Γκράαλ στον χάρτη.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="649"/>
+        <location filename="../mapcontroller.cpp" line="677"/>
         <source> (submod of %1)</source>
         <translation type="unfinished"> (υπο-τροποποίηση του %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="651"/>
+        <location filename="../mapcontroller.cpp" line="679"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2477,7 +2496,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="216"/>
         <location filename="../inspector/portraitwidget.cpp" line="153"/>
-        <location filename="../inspector/scholarwidget.cpp" line="206"/>
+        <location filename="../inspector/scholarwidget.cpp" line="207"/>
         <source>Default</source>
         <translation type="unfinished">Προεπιλογή</translation>
     </message>
@@ -2487,126 +2506,126 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Προσαρμοσμένο</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="451"/>
+        <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation type="unfinished">Αποστολή:</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="452"/>
+        <location filename="../inspector/questwidget.cpp" line="453"/>
         <source>Day of Week: %1</source>
         <translation type="unfinished">Ημέρα Εβδομάδας: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="453"/>
+        <location filename="../inspector/questwidget.cpp" line="454"/>
         <source>Days Passed: %1</source>
         <translation type="unfinished">Ημέρες που πέρασαν: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="454"/>
-        <location filename="../inspector/rewardswidget.cpp" line="794"/>
+        <location filename="../inspector/questwidget.cpp" line="455"/>
+        <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Hero Level: %1</source>
         <translation type="unfinished">Επίπεδο Ήρωα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="455"/>
-        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <location filename="../inspector/questwidget.cpp" line="456"/>
+        <location filename="../inspector/rewardswidget.cpp" line="796"/>
         <source>Hero Experience: %1</source>
         <translation type="unfinished">Εμπειρία Ήρωα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="456"/>
+        <location filename="../inspector/questwidget.cpp" line="457"/>
         <source>Mana Points: %1</source>
         <translation type="unfinished">Πόντοι Μάνα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="457"/>
-        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <location filename="../inspector/questwidget.cpp" line="458"/>
+        <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Mana Percentage: %1</source>
         <translation type="unfinished">Ποσοστό Μάνα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="458"/>
-        <location filename="../inspector/rewardswidget.cpp" line="800"/>
+        <location filename="../inspector/questwidget.cpp" line="459"/>
+        <location filename="../inspector/rewardswidget.cpp" line="801"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation type="unfinished">Πρωτεύοντα Χαρακτηριστικά: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="469"/>
-        <location filename="../inspector/rewardswidget.cpp" line="810"/>
+        <location filename="../inspector/questwidget.cpp" line="470"/>
+        <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Resources: %1</source>
         <translation type="unfinished">Πόροι: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="476"/>
-        <location filename="../inspector/rewardswidget.cpp" line="816"/>
+        <location filename="../inspector/questwidget.cpp" line="477"/>
+        <location filename="../inspector/rewardswidget.cpp" line="817"/>
         <source>Artifacts: %1</source>
         <translation type="unfinished">Τεχνουργήματα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="483"/>
-        <location filename="../inspector/rewardswidget.cpp" line="822"/>
+        <location filename="../inspector/questwidget.cpp" line="484"/>
+        <location filename="../inspector/rewardswidget.cpp" line="823"/>
         <source>Spells: %1</source>
         <translation type="unfinished">Ξόρκια: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="490"/>
-        <location filename="../inspector/rewardswidget.cpp" line="828"/>
+        <location filename="../inspector/questwidget.cpp" line="491"/>
+        <location filename="../inspector/rewardswidget.cpp" line="829"/>
         <source>Secondary Skills: %1</source>
         <translation type="unfinished">Δευτερεύουσες Δεξιότητες: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="497"/>
-        <location filename="../inspector/rewardswidget.cpp" line="834"/>
+        <location filename="../inspector/questwidget.cpp" line="498"/>
+        <location filename="../inspector/rewardswidget.cpp" line="835"/>
         <source>Creatures: %1</source>
         <translation type="unfinished">Μονάδες: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="504"/>
+        <location filename="../inspector/questwidget.cpp" line="505"/>
         <source>Heroes: %1</source>
         <translation type="unfinished">Ήρωες: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="511"/>
+        <location filename="../inspector/questwidget.cpp" line="512"/>
         <source>Hero Classes: %1</source>
         <translation type="unfinished">Κατηγορίες Ηρώων: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="520"/>
+        <location filename="../inspector/questwidget.cpp" line="521"/>
         <source>Players: %1</source>
         <translation type="unfinished">Παίκτες: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="790"/>
+        <location filename="../inspector/rewardswidget.cpp" line="791"/>
         <source>Rewards:</source>
         <translation type="unfinished">Ανταμοιβές:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="793"/>
+        <location filename="../inspector/rewardswidget.cpp" line="794"/>
         <source>Reward Message: %1</source>
         <translation type="unfinished">Μήνυμα Ανταμοιβής: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
+        <location filename="../inspector/rewardswidget.cpp" line="797"/>
         <source>Mana Diff: %1</source>
         <translation type="unfinished">Διαφορά Μάνα: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/rewardswidget.cpp" line="799"/>
         <source>Move Points: %1</source>
         <translation type="unfinished">Πόντοι Κίνησης: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="799"/>
+        <location filename="../inspector/rewardswidget.cpp" line="800"/>
         <source>Move Percentage: %1</source>
         <translation type="unfinished">Ποσοστό Κίνησης: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="837"/>
+        <location filename="../inspector/rewardswidget.cpp" line="838"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation type="unfinished">Ρίψη Ξορκιού: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="845"/>
+        <location filename="../inspector/rewardswidget.cpp" line="846"/>
         <source>Bonuses: %1</source>
         <translation type="unfinished">Μπόνους: %1</translation>
     </message>
@@ -2621,7 +2640,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Απαγορευμένα κτίρια:</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="185"/>
+        <location filename="../inspector/towneventswidget.cpp" line="186"/>
         <source>Town Events:</source>
         <translation type="unfinished">Γεγονότα πόλης:</translation>
     </message>
@@ -2636,7 +2655,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Πιθανά:</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="235"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="249"/>
         <source>Failed to open campaign</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2663,17 +2682,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../helper.cpp" line="95"/>
+        <location filename="../helper.cpp" line="96"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/scholarwidget.cpp" line="215"/>
+        <location filename="../inspector/scholarwidget.cpp" line="216"/>
         <source>Invalid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
+        <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
         <source>Hero placeholder (power rank %1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2806,12 +2825,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Παίκτες</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="42"/>
+        <location filename="../inspector/questwidget.cpp" line="43"/>
         <source>None</source>
         <translation type="unfinished">Κανένας</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="44"/>
+        <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>Day %1</source>
         <translation type="unfinished">Ημέρα %1</translation>
     </message>
@@ -3089,18 +3108,18 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Παίκτες</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="56"/>
+        <location filename="../inspector/rewardswidget.cpp" line="57"/>
         <source>None</source>
         <translation type="unfinished">Κανένας</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="58"/>
+        <location filename="../inspector/rewardswidget.cpp" line="59"/>
         <source>Day %1</source>
         <translation type="unfinished">Ημέρα %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="251"/>
-        <location filename="../inspector/rewardswidget.cpp" line="624"/>
+        <location filename="../inspector/rewardswidget.cpp" line="252"/>
+        <location filename="../inspector/rewardswidget.cpp" line="625"/>
         <source>Reward %1</source>
         <translation type="unfinished">Ανταμοιβή %1</translation>
     </message>
@@ -3128,7 +3147,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Αφαίρεση</translation>
     </message>
     <message>
-        <location filename="../mapsettings/rumorsettings.cpp" line="59"/>
+        <location filename="../mapsettings/rumorsettings.cpp" line="60"/>
         <source>New rumor</source>
         <translation type="unfinished">Νέα φήμη</translation>
     </message>
@@ -3137,7 +3156,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="39"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="40"/>
         <source>Scenario Properties</source>
         <translation type="unfinished">Ιδιότητες Σεναρίου</translation>
     </message>
@@ -3332,8 +3351,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="476"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="496"/>
         <source>Player position</source>
         <translation type="unfinished">Θέση παίκτη</translation>
     </message>
@@ -3358,74 +3377,74 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Επεξεργασία...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="125"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
         <source>Strongest</source>
         <translation type="unfinished">Ισχυρότερος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="127"/>
         <source>Generated</source>
         <translation type="unfinished">Δημιουργήθηκε</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="127"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="128"/>
         <source>Random</source>
         <translation type="unfinished">Τυχαίος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="144"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="154"/>
         <source>No map</source>
         <translation type="unfinished">Χωρίς χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="187"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="197"/>
         <source>Player</source>
         <translation type="unfinished">Παίκτης</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="405"/>
         <source>Open map</source>
         <translation type="unfinished">Άνοιγμα χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="397"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="407"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Όλοι οι υποστηριζόμενοι χάρτες (*.vmap *.h3m);;Χάρτες VCMI(*.vmap);;Χάρτες HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="406"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
         <source>Error</source>
         <translation type="unfinished">Σφάλμα</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="406"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
         <source>Could not open the file.</source>
         <translation type="unfinished">Δεν ήταν δυνατό το άνοιγμα του αρχείου.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="433"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="443"/>
         <source>Save map</source>
         <translation type="unfinished">Αποθήκευση χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="435"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>VCMI maps (*.vmap);</source>
         <translation type="unfinished">Χάρτες VCMI (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="435"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translation type="unfinished">Χάρτες HoMM3 (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="476"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Source scenario</source>
         <translation type="unfinished">Σενάριο πηγής</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="496"/>
         <source>Hero</source>
         <translation type="unfinished">Ήρωας</translation>
     </message>
@@ -3524,7 +3543,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
         <location filename="../campaigneditor/startingbonus.ui" line="184"/>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="364"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="365"/>
         <source>Building</source>
         <translation type="unfinished">Κτίριο</translation>
     </message>
@@ -3551,14 +3570,14 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
         <location filename="../campaigneditor/startingbonus.ui" line="364"/>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="388"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="389"/>
         <source>Secondary skill</source>
         <translation type="unfinished">Δευτερεύουσα ικανότητα</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="392"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="393"/>
         <source>Resource</source>
         <translation type="unfinished">Πόρος</translation>
     </message>
@@ -3614,82 +3633,82 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Τύπος πόρου</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="35"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="36"/>
         <source>Edit Starting Bonus</source>
         <translation type="unfinished">Επεξεργασία Αρχικού Μπόνους</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="63"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
         <source>Strongest</source>
         <translation type="unfinished">Ισχυρότερος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="65"/>
         <source>Generated</source>
         <translation type="unfinished">Δημιουργήθηκε</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="65"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="66"/>
         <source>Random</source>
         <translation type="unfinished">Τυχαίος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="96"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="97"/>
         <source>Main town is of random faction</source>
         <translation type="unfinished">Η κύρια πόλη είναι τυχαίας παράταξης</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="108"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="109"/>
         <source>Player does not have a main town!</source>
         <translation type="unfinished">Ο παίκτης δεν έχει κύρια πόλη!</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="133"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="134"/>
         <source>Common (%1 and %2)</source>
         <translation type="unfinished">Κοινό (%1 και %2)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="138"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="139"/>
         <source>Rare (%1, %2, %3, %4)</source>
         <translation type="unfinished">Σπάνιο (%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="320"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="321"/>
         <source>strongest hero</source>
         <translation type="unfinished">ισχυρότερος ήρωας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="323"/>
         <source>generated hero</source>
         <translation type="unfinished">παραγόμενος ήρωας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="325"/>
         <source>random hero</source>
         <translation type="unfinished">τυχαίος ήρωας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="355"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="356"/>
         <source>%1 spell for %2</source>
         <translation type="unfinished">%1 ξόρκι για %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="360"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="361"/>
         <source>%1 %2 for %3</source>
         <translation type="unfinished">%1 %2 για %3</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="369"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="370"/>
         <source>%1 artifact for %2</source>
         <translation type="unfinished">%1 τεχνουργήματα για %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="374"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="375"/>
         <source>%1 spell scroll for %2</source>
         <translation type="unfinished">%1 κύλινδρος ξορκιού για %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="379"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="380"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
         <translation type="unfinished">Πρωτεύουσα ικανότητα (Επίθεση: %1, Άμυνα: %2, Ξόρκι: %3, Γνώση: %4) για %5</translation>
     </message>
@@ -3698,7 +3717,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="662"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="663"/>
         <source>VCMI Template Editor</source>
         <translation type="unfinished">Επεξεργαστής Προτύπων VCMI</translation>
     </message>
@@ -3730,7 +3749,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="139"/>
         <location filename="../templateeditor/templateeditor.ui" line="1327"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="282"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="283"/>
         <source>Add</source>
         <translation>Προσθήκη</translation>
     </message>
@@ -3808,14 +3827,14 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="480"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="433"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="421"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="434"/>
         <source>None</source>
         <translation type="unfinished">Καμία</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="487"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="436"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="437"/>
         <source>Normal</source>
         <translation>Κανονική</translation>
     </message>
@@ -3877,7 +3896,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="691"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Type</source>
         <translation>Τύπος</translation>
     </message>
@@ -3925,7 +3944,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="787"/>
         <location filename="../templateeditor/templateeditor.ui" line="1231"/>
         <location filename="../templateeditor/templateeditor.ui" line="1237"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="395"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Treasure</source>
         <translation type="unfinished">Θησαυρός</translation>
     </message>
@@ -4072,7 +4091,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1391"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="485"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="486"/>
         <source>Del</source>
         <translation type="unfinished">Διαγρ.</translation>
     </message>
@@ -4137,149 +4156,149 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="253"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Min</source>
         <translation type="unfinished">Ελάχ.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="253"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Max</source>
         <translation type="unfinished">Μέγ.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="253"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Action</source>
         <translation type="unfinished">Ενέργεια</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="271"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="486"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="272"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="487"/>
         <source>Delete</source>
         <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="310"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="311"/>
         <source>ID: %1</source>
         <translation type="unfinished">ID: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="312"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="313"/>
         <source>Max treasure: %1</source>
         <translation type="unfinished">Μέγιστος θησαυρός: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="393"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="394"/>
         <source>Player start</source>
         <translation type="unfinished">Έναρξη παίκτη</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="394"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="395"/>
         <source>CPU start</source>
         <translation type="unfinished">Έναρξη CPU</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="397"/>
         <source>Junction</source>
         <translation type="unfinished">Κόμβος</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="397"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="398"/>
         <source>Water</source>
         <translation type="unfinished">Νερό</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="398"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="399"/>
         <source>Sealed</source>
         <translation type="unfinished">Σφραγισμένο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="425"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="426"/>
         <source>Automatic</source>
         <translation type="unfinished">Αυτόματο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="426"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
         <source>Surface</source>
         <translation>Επιφάνεια</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
         <source>Underground</source>
         <translation>Υπόγειο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="434"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="473"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="474"/>
         <source>Random</source>
         <translation type="unfinished">Τυχαίο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="436"/>
         <source>Weak</source>
         <translation>Αδύναμη</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="437"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="438"/>
         <source>Strong</source>
         <translation>Δυνατή</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Zone A</source>
         <translation type="unfinished">Ζώνη Α</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Zone B</source>
         <translation type="unfinished">Ζώνη Β</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Guard</source>
         <translation type="unfinished">Φρουρά</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Road</source>
         <translation type="unfinished">Δρόμος</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="468"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="469"/>
         <source>Guarded</source>
         <translation type="unfinished">Φρουρούμενο</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="469"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="470"/>
         <source>Fictive</source>
         <translation type="unfinished">Εικονικό</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="470"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="471"/>
         <source>Repulsive</source>
         <translation type="unfinished">Απωθητικό</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="471"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="472"/>
         <source>Wide</source>
         <translation type="unfinished">Ευρύ</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="472"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="473"/>
         <source>Force portal</source>
         <translation type="unfinished">Εξαναγκασμός πύλης</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="474"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="475"/>
         <source>Yes</source>
         <translation type="unfinished">Ναι</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="475"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="476"/>
         <source>No</source>
         <translation type="unfinished">Όχι</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="590"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="591"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
@@ -4288,109 +4307,109 @@ Guard: %3</source>
 Φρουρά: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="650"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="651"/>
         <source>Confirmation</source>
         <translation>Επιβεβαίωση</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="650"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="651"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Οι μη αποθηκευμένες αλλαγές θα χαθούν, είστε βέβαιοι;</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="674"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="675"/>
         <source>Validation failed!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="679"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="680"/>
         <source>No player range defined.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="686"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="687"/>
         <source>Invalid range for players.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="694"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="695"/>
         <source>Invalid range for human players.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="709"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="710"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="721"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="722"/>
         <source>Zone %1 has no connections.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="745"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="746"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="782"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="783"/>
         <source>Open template</source>
         <translation type="unfinished">Άνοιγμα προτύπου</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="784"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="785"/>
         <source>VCMI templates(*.json)</source>
         <translation type="unfinished">Πρότυπα VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="802"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="803"/>
         <source>Save template</source>
         <translation type="unfinished">Αποθήκευση προτύπου</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="803"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="804"/>
         <source>VCMI templates (*.json)</source>
         <translation type="unfinished">Πρότυπα VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="942"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="983"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="943"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="984"/>
         <source>Enter Name</source>
         <translation type="unfinished">Εισαγωγή ονόματος</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="942"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="983"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="943"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="984"/>
         <source>Name:</source>
         <translation type="unfinished">Όνομα:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="949"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="950"/>
         <source>Already existing!</source>
         <translation type="unfinished">Υπάρχει ήδη!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="949"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="950"/>
         <source>A template with this name is already existing.</source>
         <translation type="unfinished">Υπάρχει ήδη πρότυπο με αυτό το όνομα.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="966"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="967"/>
         <source>Too few templates!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="966"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="967"/>
         <source>At least one template should remain after removing.</source>
         <translation type="unfinished">Μετά την αφαίρεση πρέπει να παραμείνει τουλάχιστον ένα πρότυπο.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1216"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
         <source>Too few zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1216"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
         <source>Create at least two zones before adding a connection.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4584,12 +4603,12 @@ Guard: %3</source>
         <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="174"/>
+        <location filename="../inspector/towneventdialog.cpp" line="175"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation type="unfinished">Επίπεδο πλάσματος %1 / Αναβάθμιση πλάσματος επιπέδου %1</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="216"/>
+        <location filename="../inspector/towneventdialog.cpp" line="217"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished">Ημέρα %1 - %2</translation>
     </message>
@@ -4597,7 +4616,7 @@ Guard: %3</source>
 <context>
     <name>TownEventsDelegate</name>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="189"/>
+        <location filename="../inspector/towneventswidget.cpp" line="190"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished">Ημέρα %1 - %2</translation>
     </message>
@@ -4625,12 +4644,12 @@ Guard: %3</source>
         <translation type="unfinished">Αφαίρεση</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="109"/>
+        <location filename="../inspector/towneventswidget.cpp" line="110"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished">Ημέρα %1 - %2</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="130"/>
+        <location filename="../inspector/towneventswidget.cpp" line="131"/>
         <source>New event</source>
         <translation type="unfinished">Νέο γεγονός</translation>
     </message>
@@ -4873,172 +4892,172 @@ Guard: %3</source>
         <translation type="unfinished">Αποτελέσματα επικύρωσης χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="50"/>
+        <location filename="../validator.cpp" line="51"/>
         <source>Map is not loaded</source>
         <translation type="unfinished">Ο χάρτης δεν έχει φορτωθεί</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="72"/>
+        <location filename="../validator.cpp" line="73"/>
         <source>No factions allowed for player %1</source>
         <translation type="unfinished">Δεν επιτρέπονται φατρίες για τον παίκτη %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="75"/>
+        <location filename="../validator.cpp" line="76"/>
         <source>No players allowed to play this map</source>
         <translation type="unfinished">Δεν επιτρέπονται παίκτες να παίξουν αυτόν τον χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="77"/>
+        <location filename="../validator.cpp" line="78"/>
         <source>Map is allowed for one player and cannot be started</source>
         <translation type="unfinished">Ο χάρτης επιτρέπεται για έναν παίκτη και δεν μπορεί να ξεκινήσει</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="79"/>
+        <location filename="../validator.cpp" line="80"/>
         <source>No human players allowed to play this map</source>
         <translation type="unfinished">Δεν επιτρέπονται ανθρώπινοι παίκτες να παίξουν αυτόν τον χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="90"/>
+        <location filename="../validator.cpp" line="91"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="105"/>
+        <location filename="../validator.cpp" line="106"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation type="unfinished">Το αντικείμενο %1 έχει ανατεθεί σε μη παικτικό παίκτη %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="150"/>
+        <location filename="../validator.cpp" line="151"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation type="unfinished">Το ειλητάριο ξορκιού %1 δεν έχει ανατεθεί σε παρουσία και πρέπει να αφαιρεθεί</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="156"/>
+        <location filename="../validator.cpp" line="157"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation type="unfinished">Το αντικείμενο %1 απαγορεύεται από τις ρυθμίσεις χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="226"/>
+        <location filename="../validator.cpp" line="227"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation type="unfinished">Ο παίκτης %1 δεν έχει ανατεθειμένες πόλεις και ήρωες</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="118"/>
+        <location filename="../validator.cpp" line="119"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation type="unfinished">Η φυλακή %1 πρέπει να είναι ΟΥΔΕΤΕΡΗ</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="99"/>
+        <location filename="../validator.cpp" line="100"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
         <translation type="unfinished">Το αντικείμενο που μπορεί να αποκτηθεί %1 είναι ΜΗ ΣΗΜΑΙΝΟΜΕΝΟ αλλά πρέπει να έχει ΟΥΔΕΤΕΡΟ ή παίκτη ιδιοκτήτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="123"/>
+        <location filename="../validator.cpp" line="124"/>
         <source>Hero %1 must have an owner</source>
         <translation type="unfinished">Ο ήρωας %1 πρέπει να έχει ιδιοκτήτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="130"/>
+        <location filename="../validator.cpp" line="131"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation type="unfinished">Ο ήρωας %1 απαγορεύεται από τις ρυθμίσεις χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="133"/>
+        <location filename="../validator.cpp" line="134"/>
         <source>Hero %1 has duplicate on map</source>
         <translation type="unfinished">Ο ήρωας %1 έχει διπλότυπο στον χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="136"/>
+        <location filename="../validator.cpp" line="137"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation type="unfinished">Ο ήρωας %1 δεν έχει τύπο και πρέπει να αφαιρεθεί</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="147"/>
+        <location filename="../validator.cpp" line="148"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation type="unfinished">Το ειλητάριο ξορκιού %1 απαγορεύεται από τις ρυθμίσεις χάρτη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="165"/>
+        <location filename="../validator.cpp" line="166"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="170"/>
+        <location filename="../validator.cpp" line="171"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="183"/>
+        <location filename="../validator.cpp" line="184"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="189"/>
+        <location filename="../validator.cpp" line="190"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="195"/>
+        <location filename="../validator.cpp" line="196"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="206"/>
+        <location filename="../validator.cpp" line="207"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="212"/>
+        <location filename="../validator.cpp" line="213"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="228"/>
+        <location filename="../validator.cpp" line="229"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation type="unfinished">Ο παίκτης %1 δεν έχει καμία αρχική πόλη</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="234"/>
+        <location filename="../validator.cpp" line="235"/>
         <source>Map name is not specified</source>
         <translation type="unfinished">Το όνομα χάρτη δεν έχει καθοριστεί</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="236"/>
+        <location filename="../validator.cpp" line="237"/>
         <source>Map description is not specified</source>
         <translation type="unfinished">Η περιγραφή χάρτη δεν έχει καθοριστεί</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="253"/>
+        <location filename="../validator.cpp" line="254"/>
         <source>defeat a specific hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="254"/>
+        <location filename="../validator.cpp" line="255"/>
         <source>lose a specific hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="257"/>
+        <location filename="../validator.cpp" line="258"/>
         <source>hero placeholder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="259"/>
+        <location filename="../validator.cpp" line="260"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="327"/>
+        <location filename="../validator.cpp" line="328"/>
         <source>The map is valid and has no issues.</source>
         <translation type="unfinished">Ο χάρτης είναι έγκυρος και δεν έχει προβλήματα.</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="272"/>
+        <location filename="../validator.cpp" line="273"/>
         <source>Exception occurs during validation: %1</source>
         <translation type="unfinished">Παρουσιάστηκε εξαίρεση κατά την επικύρωση: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="276"/>
+        <location filename="../validator.cpp" line="277"/>
         <source>Unknown exception occurs during validation</source>
         <translation type="unfinished">Παρουσιάστηκε άγνωστη εξαίρεση κατά την επικύρωση</translation>
     </message>
@@ -5071,52 +5090,52 @@ Guard: %3</source>
         <translation type="unfinished">Παράμετροι</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>No special victory</source>
         <translation type="unfinished">Χωρίς ειδική νίκη</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Capture artifact</source>
         <translation type="unfinished">Κατάκτηση αντικειμένου</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Hire creatures</source>
         <translation type="unfinished">Πρόσληψη πλασμάτων</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Accumulate resources</source>
         <translation type="unfinished">Συσσώρευση πόρων</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Construct building</source>
         <translation type="unfinished">Κατασκευή κτηρίου</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
         <source>Capture town</source>
         <translation type="unfinished">Κατάκτηση πόλης</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
         <source>Defeat hero</source>
         <translation type="unfinished">Ήττα ήρωα</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
         <source>Transport artifact</source>
         <translation type="unfinished">Μεταφορά αντικειμένου</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="50"/>
         <source>Kill monster</source>
         <translation type="unfinished">Σκοτώστε τέρας</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="436"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="437"/>
         <source>Any town</source>
         <translation type="unfinished">Οποιαδήποτε πόλη</translation>
     </message>
@@ -5352,27 +5371,27 @@ Guard: %3</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="195"/>
+        <location filename="../mainwindow.cpp" line="185"/>
         <source>Filepath of the map to open.</source>
         <translation type="unfinished">Διαδρομή αρχείου του χάρτη προς άνοιγμα.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="198"/>
+        <location filename="../mainwindow.cpp" line="188"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation type="unfinished">Εξαγωγή των αρχικών αρχείων H3 σε ξεχωριστό φάκελο.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="199"/>
+        <location filename="../mainwindow.cpp" line="189"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation type="unfinished">Από εξαγόμενο αρχείο, χωρίζει τα TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 και Un44 σε μεμονωμένα PNG.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="200"/>
+        <location filename="../mainwindow.cpp" line="190"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation type="unfinished">Από εξαγόμενο αρχείο, μετατρέπει μεμονωμένες εικόνες (στο φάκελο Images) από .pcx σε png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="201"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation type="unfinished">Διαγραφή αρχικών αρχείων για εκείνα που χωρίστηκαν / μετατράπηκαν.</translation>
     </message>
