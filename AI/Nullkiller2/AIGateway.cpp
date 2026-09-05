@@ -567,6 +567,20 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
+const CGObjectInstance * AIGateway::selectBlockingDialogObject(
+	const std::vector<const CGObjectInstance *> & objects,
+	ObjectInstanceID activeHero,
+	const CGObjectInstance * plannedTarget)
+{
+	if(objects.empty() || objects.front()->id != activeHero)
+		return vstd::frontOrNull(objects);
+
+	if(objects.size() > 1)
+		return objects.back();
+
+	return plannedTarget && plannedTarget->id != activeHero ? plannedTarget : nullptr;
+}
+
 void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
 	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
@@ -586,9 +600,15 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 			if(heroPtr.isVerified() && target.isValid() && !objects.empty())
 			{
-				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
-				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
+				auto topObj = selectBlockingDialogObject(objects, heroPtr->id, cc->getObj(goalObjectID, false));
+				if(!topObj)
+				{
+					answerQuery(askID, 1);
+					return;
+				}
+
+				auto objType = topObj->ID;
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
 				auto ratio = static_cast<float>(danger) / heroPtr->getTotalStrength();
 
