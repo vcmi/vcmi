@@ -201,6 +201,7 @@ class CObjectListWindow : public CWindowObject
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> descr;
 	std::vector<std::shared_ptr<IImage>> images;
+	std::function<std::shared_ptr<IImage>(size_t)> imageLoader;
 
 	std::shared_ptr<CListBox> list;
 	std::shared_ptr<CControllerActionButton> ok;
@@ -231,6 +232,9 @@ public:
 	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
 	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::function<std::shared_ptr<IImage>(size_t)> imageLoader, bool searchBoxEnabled = false, bool blue = false);
+	/// Creates a lazy loader that loads and caches small hero portraits (PortraitsSmall) on demand.
+	static std::function<std::shared_ptr<IImage>(size_t)> makeLazyHeroPortraitLoader(std::vector<int32_t> iconIndices);
 	void setControllerActionPrompts(const std::string & acceptActionText, const std::string & cancelActionText);
 	void activate() override;
 	void deactivate() override;
