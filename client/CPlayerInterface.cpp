@@ -1993,6 +1993,9 @@ void CPlayerInterface::tryShowNextPendingDialog()
 		if(dialog.state != PendingDialog::State::Queued)
 			return;
 
+		if(dialog.isLevelUpDialog() && GAME->map().hasOngoingAnimations())
+			return;
+
 		if(!dialog.isLevelUpDialog())
 		{
 			levelUpChainPendingContinuation = false;
