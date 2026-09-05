@@ -1769,7 +1769,8 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 		{
 			auto nid = it->parameters->toCreature();
 			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
-				info.addUpgrade(nid, stack.getType());
+				// SPECIAL_UPGRADE value adjusts the default 100% cost; clamp the final modifier to 0%.
+				info.addUpgrade(nid, stack.getType(), std::max(0, 100 + it->val));
 		}
 	}
 }
