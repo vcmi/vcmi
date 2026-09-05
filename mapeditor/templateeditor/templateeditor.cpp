@@ -781,7 +781,7 @@ void TemplateEditor::on_actionOpen_triggered()
 		return;
 
 	auto title = tr("Open template");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = tr("VCMI templates(*.json)");
 
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter, /*externalOnly=*/true);

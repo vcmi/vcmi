@@ -20,6 +20,7 @@
 
 #include "../GameSettings.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextOperations.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -379,7 +380,7 @@ void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomG
 				mapService->saveMap(map, fullPath);
 
 				logGlobal->info("Random map has been saved to:");
-				logGlobal->info(fullPath.string());
+				logGlobal->info(TextOperations::filesystemPathToUtf8(fullPath));
 			}
 			catch(...)
 			{

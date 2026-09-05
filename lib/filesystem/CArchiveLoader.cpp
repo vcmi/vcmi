@@ -36,7 +36,7 @@ CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path 
 		return;
 
 	// Retrieve file extension of archive in uppercase
-	const std::string ext = boost::to_upper_copy(archive.extension().string());
+	const std::string ext = boost::to_upper_copy(TextOperations::filesystemPathToUtf8(archive.extension()));
 
 	// Init the specific lod container format
 	if(ext == ".LOD" || ext == ".PAC")
@@ -46,9 +46,9 @@ CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path 
 	else if(ext == ".SND")
 		initSNDArchive(mountPoint, fileStream);
 	else
-		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive.string());
+		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + TextOperations::filesystemPathToUtf8(archive));
 
-	logGlobal->trace("%sArchive \"%s\" loaded (%d files found).", ext, archive.filename(), entries.size());
+	logGlobal->trace("%sArchive \"%s\" loaded (%d files found).", ext, TextOperations::filesystemPathToUtf8(archive.filename()), entries.size());
 }
 
 void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream)
@@ -254,7 +254,11 @@ std::time_t CArchiveLoader::getLastWriteTime(const ResourcePath& resourceName) c
 
 boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName, bool absolute)
 {
-	boost::filesystem::path extractionFolderPath = absolute ? outputSubFolder : VCMIDirs::get().userExtractedPath() / outputSubFolder;
+	// outputSubFolder is UTF-8, so it must not go through the implicit path constructor:
+	// on Windows that decodes it using the ANSI codepage instead.
+	// entryName is archive-supplied and stays on the legacy conversion
+	const boost::filesystem::path subFolder = TextOperations::Utf8TofilesystemPath(outputSubFolder);
+	boost::filesystem::path extractionFolderPath = absolute ? subFolder : VCMIDirs::get().userExtractedPath() / subFolder;
 	boost::filesystem::path extractedFilePath = extractionFolderPath / entryName;
 
 	boost::filesystem::create_directories(extractionFolderPath);

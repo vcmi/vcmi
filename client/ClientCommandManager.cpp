@@ -46,6 +46,7 @@
 #include "../lib/modding/ModUtility.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/ObstacleHandler.h"
 #include "../lib/logging/VisualLogger.h"
 
@@ -223,7 +224,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 	}
 
 	printCommandMessage("Translation export complete");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 }
 
 void ClientCommandManager::handleTranslateMapsCommand()
@@ -306,7 +307,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	printCommandMessage("Translation export complete");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 
 }
 
@@ -348,7 +349,7 @@ void ClientCommandManager::handleGetConfigCommand()
 	}
 
 	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 }
 
 void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
@@ -400,7 +401,7 @@ void ClientCommandManager::handleGetTextCommand()
 	}
 
 	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 }
 
 void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBuffer)

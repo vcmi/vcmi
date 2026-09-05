@@ -11,6 +11,7 @@
 #include "MinizipExtensions.h"
 
 #include "CMemoryBuffer.h"
+#include "../texts/TextOperations.h"
 
 #include <mutex>
 
@@ -273,7 +274,7 @@ int ZCALLBACK CProxyIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 
 CInputOutputStream * CProxyIOApi::openFile(const boost::filesystem::path & filename, int mode)
 {
-	logGlobal->trace("CProxyIOApi: stream opened for %s with mode %d", filename.string(), mode);
+	logGlobal->trace("CProxyIOApi: stream opened for %s with mode %d", TextOperations::filesystemPathToUtf8(filename), mode);
 
 	data->seek(0);
 	return data;
@@ -306,7 +307,7 @@ zlib_filefunc64_def CProxyROIOApi::getApiStructure()
 
 CInputStream * CProxyROIOApi::openFile(const boost::filesystem::path& filename, int mode)
 {
-	logGlobal->trace("CProxyROIOApi: stream opened for %s with mode %d", filename.string(), mode);
+	logGlobal->trace("CProxyROIOApi: stream opened for %s with mode %d", TextOperations::filesystemPathToUtf8(filename), mode);
 
 	data->seek(0);
 	return data;

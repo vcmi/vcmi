@@ -63,7 +63,7 @@ public:
 		auto rn = getResourceName(resourceName);
 		if(rn)
 		{
-			result.insert(rn->string());
+			result.insert(*rn);
 		}
 		return result;
 	}
