@@ -204,6 +204,7 @@ double getNormalizedHeroStrength(const CGHeroInstance * hero);
 bool isQuestBlocker(const CGObjectInstance * obj);
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength, float safeAttackRatio);
+SlotID getWeakestTransferableStack(const CCreatureSet * source, const CCreatureSet * destination);
 
 bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);

@@ -13,6 +13,7 @@
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Invalid.h"
+#include "../Goals/PrepareFreeSlotForCreatureBankReward.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
 
@@ -20,6 +21,46 @@ namespace NK2AI
 {
 
 using namespace Goals;
+
+static std::optional<AIPath> findCreatureBankRewardPreparationPath(const Nullkiller * nullkiller, const AIPath & rewardPath)
+{
+	const auto * rewardHero = rewardPath.targetHero;
+	auto paths = nullkiller->pathfinder->getPathInfo(rewardHero->visitablePos(), nullkiller->isObjectGraphAllowed());
+	const AIPath * bestPath = nullptr;
+
+	for(const auto & path : paths)
+	{
+		if(path.targetHero == rewardHero
+			|| path.targetHero->getOwner() != nullkiller->playerID
+			|| path.turn() > 1
+			|| path.exchangeCount != 1)
+			continue;
+		if(path.containsHero(rewardHero) || path.getFirstBlockedAction() || nullkiller->arePathHeroesLocked(path))
+			continue;
+		if(!isSafeToVisit(path.targetHero, path.heroArmy, path.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
+			continue;
+
+		const auto transferSlot = getWeakestTransferableStack(rewardHero, path.targetHero);
+		if(!transferSlot.validSlot())
+			continue;
+
+		CCreatureSet remainingArmy;
+		for(const auto & slot : rewardHero->Slots())
+		{
+			if(slot.first != transferSlot)
+				remainingArmy.addToSlot(slot.first, slot.second->getCreatureID(), slot.second->getCount());
+		}
+		if(!isSafeToVisit(rewardHero, &remainingArmy, rewardPath.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
+			continue;
+
+		if(!bestPath
+			|| path.turn() < bestPath->turn()
+			|| (path.turn() == bestPath->turn() && path.movementCost() < bestPath->movementCost()))
+			bestPath = &path;
+	}
+
+	return bestPath ? std::optional<AIPath>(*bestPath) : std::nullopt;
+}
 
 template <typename T>
 bool vectorEquals(const std::vector<T> & v1, const std::vector<T> & v2)
@@ -179,7 +220,25 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			auto sharedPtr = sptr(ExecuteHeroChain(path, objToVisit));
 
 			waysToVisitObj.push_back(sharedPtr);
-			tasks[tasks.size() - 1] = sharedPtr;
+
+			const auto creatureReward = objToVisit && objToVisit->ID == Obj::CREATURE_BANK && path.exchangeCount == 1
+				? RewardEvaluator(nullkiller).getCreatureReward(objToVisit, path.targetHero, path.heroArmy)
+				: std::optional<uint64_t>();
+			if(creatureReward == 0)
+			{
+				const auto preparationPath = findCreatureBankRewardPreparationPath(nullkiller, path);
+				if(!preparationPath)
+					continue;
+
+				Composition composition;
+				composition.addNext(sharedPtr);
+				composition.addNext(PrepareFreeSlotForCreatureBankReward(*preparationPath, path.targetHero, objToVisit));
+				tasks[tasks.size() - 1] = sptr(composition);
+			}
+			else
+			{
+				tasks[tasks.size() - 1] = sharedPtr;
+			}
 		}
 	}
 

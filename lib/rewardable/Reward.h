@@ -128,6 +128,8 @@ struct DLL_LINKAGE Reward final
 	si32 calculateMovePoints(const CGHeroInstance * h) const;
 
 	Reward();
+	Reward(const Reward &);
+	Reward & operator=(const Reward &);
 	~Reward();
 
 	template <typename Handler> void serialize(Handler &h)

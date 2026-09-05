@@ -10,10 +10,21 @@
 #pragma once
 
 #include "MapInfoCallback.h"
+#include "../rewardable/Reward.h"
 
 struct SThievesGuildInfo;
 class ITranslator;
 class Player;
+
+struct DLL_LINKAGE RewardableObjectInfo
+{
+	bool scouted = false;
+	bool rewardAvailable = false;
+	bool rewardValueKnown = false;
+	uint64_t guardStrength = 0;
+	/// Player-visible reward values available to the context hero.
+	std::vector<Rewardable::Reward> rewards;
+};
 
 class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback
 {
@@ -73,6 +84,7 @@ public:
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
+	bool getRewardableObjectInfo(const CGObjectInstance * object, RewardableObjectInfo & out, const CGHeroInstance * hero = nullptr) const;
 
 	//map
 

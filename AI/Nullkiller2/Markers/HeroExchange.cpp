@@ -34,11 +34,11 @@ uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) con
 {
 	assert(exchangePath.targetHero && exchangePath.heroArmy);
 
-	return aiNk->armyManager->howManyReinforcementsCanGet(
+	return aiNk->armyManager->getBestArmyInfo(
 		hero,
 		hero,
 		exchangePath.heroArmy,
-		aiNk->cc->getTile(exchangePath.targetTile())->getTerrainID());
+		aiNk->cc->getTile(exchangePath.targetTile())->getTerrainID()).strengthGain;
 }
 
 }
