@@ -752,6 +752,29 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	addInvite();
 }
 
+std::function<std::shared_ptr<IImage>(size_t)> CObjectListWindow::makeLazyHeroPortraitLoader(std::vector<int32_t> iconIndices)
+{
+	auto imageCache = std::make_shared<std::map<int32_t, std::shared_ptr<IImage>>>();
+	return [imageCache, iconIndices = std::move(iconIndices)](size_t index) -> std::shared_ptr<IImage>
+	{
+		if(index >= iconIndices.size())
+			return nullptr;
+
+		const int32_t iconIndex = iconIndices[index];
+		if(iconIndex < 0)
+			return nullptr;
+
+		auto it = imageCache->find(static_cast<int32_t>(index));
+		if(it != imageCache->end())
+			return it->second;
+
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), iconIndex, 0, EImageBlitMode::OPAQUE);
+		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
+		(*imageCache)[static_cast<int32_t>(index)] = image;
+		return image;
+	};
+}
+
 void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::map<HeroTypeID, CGHeroInstance*> & inviteableHeroes, const std::function<void(CGHeroInstance*)> & onChoose)
 {
 	auto comp = [](const HeroTypeID& a, const HeroTypeID& b)
@@ -789,21 +812,7 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 	}
 
 	// Load portraits lazily: only visible list items are created, so avoid decoding all of them upfront.
-	auto imageCache = std::make_shared<std::map<int32_t, std::shared_ptr<IImage>>>();
-	auto imageLoader = [imageCache, heroIconIndices](size_t index) -> std::shared_ptr<IImage>
-	{
-		if(index >= heroIconIndices.size())
-			return nullptr;
-
-		auto it = imageCache->find(static_cast<int32_t>(index));
-		if(it != imageCache->end())
-			return it->second;
-
-		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), heroIconIndices[index], 0, EImageBlitMode::OPAQUE);
-		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
-		(*imageCache)[static_cast<int32_t>(index)] = image;
-		return image;
-	};
+	auto imageLoader = CObjectListWindow::makeLazyHeroPortraitLoader(std::move(heroIconIndices));
 
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [onChoose, heroes](int index){
 		onChoose(heroes.at(index));
