@@ -22,12 +22,12 @@ class DispelFixture : public Test, public EffectFixture
 {
 public:
 	// Real game spell IDs so SpellID::encode() round-trips through LIBRARY correctly.
-	const SpellID positiveID  = SpellID::BLESS;
-	const SpellID negativeID  = SpellID::CURSE;
-	const SpellID neutralID   = SpellID::BLIND;
-	const SpellID persistentID = SpellID::HASTE;
-	const SpellID adventureID = SpellID::SLOW;
-	const SpellID currentID   = SpellID::DISPEL;
+	const SpellWithMasteryID positiveID  = SpellWithMasteryID(SpellMastery::NONE, SpellID::BLESS);
+	const SpellWithMasteryID negativeID  = SpellWithMasteryID(SpellMastery::NONE, SpellID::CURSE);
+	const SpellWithMasteryID neutralID   = SpellWithMasteryID(SpellMastery::NONE, SpellID::BLIND);
+	const SpellWithMasteryID persistentID = SpellWithMasteryID(SpellMastery::NONE, SpellID::HASTE);
+	const SpellWithMasteryID adventureID = SpellWithMasteryID(SpellMastery::NONE, SpellID::SLOW);
+	const SpellWithMasteryID currentID   = SpellWithMasteryID(SpellMastery::NONE, SpellID::DISPEL);
 
 	StrictMock<SpellMock> positiveSpell;
 	StrictMock<SpellMock> negativeSpell;
@@ -45,31 +45,31 @@ public:
 	// so the Lua filter's LIBRARY:getSpellByName() calls are satisfied.
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(positiveID.getNum())))).WillRepeatedly(Return(&positiveSpell));
+		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(positiveID.getSpellID().getNum())))).WillRepeatedly(Return(&positiveSpell));
 		EXPECT_CALL(positiveSpell, isPersistent()).WillRepeatedly(Return(false));
 		EXPECT_CALL(positiveSpell, isAdventure()).WillRepeatedly(Return(false));
 		EXPECT_CALL(positiveSpell, isPositive()).WillRepeatedly(Return(true));
 		EXPECT_CALL(positiveSpell, isNegative()).WillRepeatedly(Return(false));
 		EXPECT_CALL(positiveSpell, isNeutral()).WillRepeatedly(Return(false));
 
-		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(negativeID.getNum())))).WillRepeatedly(Return(&negativeSpell));
+		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(negativeID.getSpellID().getNum())))).WillRepeatedly(Return(&negativeSpell));
 		EXPECT_CALL(negativeSpell, isPersistent()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isAdventure()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isPositive()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isNegative()).WillRepeatedly(Return(true));
 		EXPECT_CALL(negativeSpell, isNeutral()).WillRepeatedly(Return(false));
 
-		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(neutralID.getNum())))).WillRepeatedly(Return(&neutralSpell));
+		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(neutralID.getSpellID().getNum())))).WillRepeatedly(Return(&neutralSpell));
 		EXPECT_CALL(neutralSpell, isPersistent()).WillRepeatedly(Return(false));
 		EXPECT_CALL(neutralSpell, isAdventure()).WillRepeatedly(Return(false));
 		EXPECT_CALL(neutralSpell, isPositive()).WillRepeatedly(Return(false));
 		EXPECT_CALL(neutralSpell, isNegative()).WillRepeatedly(Return(false));
 		EXPECT_CALL(neutralSpell, isNeutral()).WillRepeatedly(Return(true));
 
-		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(persistentID.getNum())))).WillRepeatedly(Return(&persistentSpell));
+		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(persistentID.getSpellID().getNum())))).WillRepeatedly(Return(&persistentSpell));
 		EXPECT_CALL(persistentSpell, isPersistent()).WillRepeatedly(Return(true));
 
-		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(adventureID.getNum())))).WillRepeatedly(Return(&adventureSpell));
+		EXPECT_CALL(spellServiceMock, getByName(Eq(SpellID::encode(adventureID.getSpellID().getNum())))).WillRepeatedly(Return(&adventureSpell));
 		EXPECT_CALL(adventureSpell, isPersistent()).WillRepeatedly(Return(false));
 		EXPECT_CALL(adventureSpell, isAdventure()).WillRepeatedly(Return(true));
 	}
@@ -82,7 +82,7 @@ protected:
 		// bonus list is empty, so set this up once for all tests in the fixture.
 		EXPECT_CALL(mechanicsMock, getSpell()).Times(AnyNumber()).WillRepeatedly(Return(&currentSpell));
 		EXPECT_CALL(currentSpell, getJsonKey()).Times(AnyNumber())
-			.WillRepeatedly(Return(SpellID::encode(currentID.getNum())));
+			.WillRepeatedly(Return(SpellID::encode(currentID.getSpellID().getNum())));
 	}
 };
 

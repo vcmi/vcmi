@@ -270,16 +270,16 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 
 std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack * stack)
 {
-	std::vector<SpellID> activeSpells = stack->activeSpells();
+	std::vector<SpellWithMasteryID> activeSpells = stack->activeSpells();
 
 	if ( activeSpells.empty())
 		return amountNormal;
 
 	int effectsPositivness = 0;
 
-	for(const auto & spellID : activeSpells)
+	for(const auto & spellWithMasteryID : activeSpells)
 	{
-		const auto * spell = spellID.toEntity(LIBRARY);
+		const auto * spell = spellWithMasteryID.getSpellID().toEntity(LIBRARY);
 		if(spell->isPositive())
 			effectsPositivness++;
 		else if(spell->isNegative())

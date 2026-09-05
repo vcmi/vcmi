@@ -1061,6 +1061,21 @@ public:
 	const spells::SpellSchoolType * toEntity(const Services * services) const;
 };
 
+class DLL_LINKAGE SpellMastery : public StaticIdentifier<SpellMastery>
+{
+public:
+	using StaticIdentifier<SpellMastery>::StaticIdentifier;
+
+	static const SpellMastery NONE;
+	static const SpellMastery BASIC;
+	static const SpellMastery ADVANCED;
+	static const SpellMastery EXPERT;
+	static const SpellMastery ANY;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+};
+
 /// Identifies a script of any kind - spell effect, combat event handler
 class DLL_LINKAGE ScriptID : public EntityIdentifier<ScriptID>
 {
@@ -1133,6 +1148,42 @@ public:
 
 		if (!h.saving)
 			*this = BuildingTypeUniqueID(faction, building);
+	}
+};
+
+class DLL_LINKAGE SpellWithMasteryID : public Identifier<SpellWithMasteryID>
+{
+public:
+	SpellWithMasteryID(SpellMastery mastery, SpellID spell);
+	SpellWithMasteryID(SpellID spell) : SpellWithMasteryID(SpellMastery::ANY, spell) {}
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+
+	SpellMastery getMastery() const;
+	SpellID getSpellID() const;
+	const CSpell * toSpell() const;
+
+	using Identifier<SpellWithMasteryID>::Identifier;
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		SpellID spell = getSpellID();
+		SpellMastery mastery = getMastery();
+
+		h & spell;
+		h & mastery;
+
+		if (!h.saving)
+			*this = SpellWithMasteryID(mastery, spell);
+	}
+
+	bool operator==(const SpellWithMasteryID & other) const
+	{
+		if (other.getMastery() == SpellMastery::ANY)
+			return getSpellID() == other.getSpellID();
+		return getSpellID() == other.getSpellID() && getMastery() == other.getMastery();
 	}
 };
 

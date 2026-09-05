@@ -24,6 +24,7 @@ function Script:convertBonuses(mechanics)
 
 		nb.sourceType = "SPELL_EFFECT"
 		nb.sourceID = spellKey
+		nb.sourceSecondaryID = mechanics:getEffectLevel()
 
 		converted[name] = nb
 	end
