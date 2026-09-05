@@ -172,7 +172,7 @@ void DemoInstaller::install(QString filename)
         CCompressedStream innerStream(std::move(innerMem), true);
         QByteArray fileData = readStreamFully(innerStream);
 
-        QDir dir(QString::fromStdString(VCMIDirs::get().userDataPath().string()));
+        QDir dir(pathToQString(VCMIDirs::get().userDataPath()));
         QString folder = fileEntry.name.split("/")[0];
         if(!dir.exists(folder))
             dir.mkpath(folder);

@@ -17,6 +17,7 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/texts/TextOperations.h"
 
 bool CAnimation::loadFrame(size_t frame, size_t group, bool verbose)
 {
@@ -93,7 +94,7 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 		}
 	}
 
-	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
+	logGlobal->info("Exported %d frames to %s", counter, TextOperations::filesystemPathToUtf8(actualPath));
 }
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const

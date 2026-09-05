@@ -74,6 +74,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CStack.h"
@@ -1641,7 +1642,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	{
 		if (is_regular_file(dir->status()))
 		{
-			std::string name = dir->path().filename().string();
+			std::string name = TextOperations::filesystemPathToUtf8(dir->path().filename());
 			if (starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
 			{
 				char nr = name[namePrefix.size()];

@@ -25,6 +25,7 @@
 
 #include "lib/AsyncRunner.h"
 #include "lib/CConfigHandler.h"
+#include "lib/texts/TextOperations.h"
 
 #include <tbb/parallel_for.h>
 
@@ -501,7 +502,7 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
-	IMG_SavePNG(surf, path.string().c_str());
+	IMG_SavePNG(surf, TextOperations::filesystemPathToUtf8(path).c_str());
 	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
