@@ -38,6 +38,10 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	std::atomic_bool upscalingInProgress = false;
 	bool asyncUpscale = true;
 
+	/// Set when the source surface already holds color multiplied by its alpha, as compositing
+	/// onto a transparent surface leaves it - such a texture must not be multiplied a second time
+	bool premultipliedAlpha = false;
+
 	/// GPU copy of surf, built on first use by getTexture()
 	mutable SDL_Texture * texture = nullptr;
 	/// Palette the texture was built with, and the renderer generation it belongs to. The
@@ -61,7 +65,7 @@ public:
 	//Load from bitmap file
 	SDLImageShared(const ImagePath & filename, bool optimizeImage=true);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImageShared(SDL_Surface * from);
+	SDLImageShared(SDL_Surface * from, bool premultipliedAlpha = false);
 	~SDLImageShared();
 
 	/// Creates image at specified scaling factor from source image
