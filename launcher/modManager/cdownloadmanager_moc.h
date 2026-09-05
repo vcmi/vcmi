@@ -9,7 +9,14 @@
  */
 #pragma once
 
+#include <QSet>
+#include <QSharedPointer>
+#include <QtNetwork/QNetworkReply>
 #include "../../lib/network/HttpDownloader.h"
+
+#include <QTimer>
+#include <QUrl>
+
 
 #include <QTimer>
 #include <QUrl>
@@ -38,21 +45,37 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 	};
 
 	QStringList encounteredErrors;
-	bool certificateErrorEncountered = false;
+QStringList encounteredErrors;
+bool certificateErrorEncountered = false;
+QSet<QNetworkReply *> ignoredReplies;
+
+HttpDownloader downloader;
+QTimer pollTimer;
+
 
 	HttpDownloader downloader;
 	QTimer pollTimer;
 
 	QList<FileEntry> currentDownloads;
+	bool downloadsPaused = false;
 
-	FileEntry & getEntry(HttpDownloadID download);
-	void copyLocalFile(FileEntry & entry);
-	void finishEntry(FileEntry & entry, const std::string & errorMessage);
-	void startNextDownloads();
-	int countDownloadsInProgress() const;
+QList<FileEntry> currentDownloads;
+bool downloadsPaused = false;
 
-	void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
-	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
+FileEntry & getEntry(HttpDownloadID download);
+FileEntry & getEntry(QNetworkReply * reply);
+bool openDownloadFile(FileEntry & entry);
+void copyLocalFile(FileEntry & entry);
+void finishEntry(FileEntry & entry, const std::string & errorMessage);
+void startDownload(FileEntry & entry);
+void startNextDownload();
+void startNextDownloads();
+bool hasDownloadInProgress() const;
+int countDownloadsInProgress() const;
+
+void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
+void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
+
 
 public:
 	CDownloadManager();
@@ -60,6 +83,8 @@ public:
 	// returns true if download with such URL is in progress/queued
 	// FIXME: not sure what's right place for "mod download in progress" check
 	bool downloadInProgress(const QUrl & url) const;
+	void pauseDownloads();
+	void resumeDownloads();
 
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
 

@@ -32,15 +32,48 @@ void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint
 	entry.filename = file;
 	entry.filePath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), file);
 	entry.downloadID = 0;
+
 	entry.bytesReceived = 0;
 	entry.totalSize = bytesTotal;
 	entry.status = FileEntry::QUEUED;
+
+	if(!downloadsPaused)
+		openDownloadFile(entry);
+
+	// even if failed - add it into list to report it in finished() call
+	currentDownloads.push_back(entry);
+	startNextDownloads();
 
 	currentDownloads.push_back(entry);
 	startNextDownloads();
 }
 
+bool CDownloadManager::openDownloadFile(FileEntry & entry)
+{
+	QDir().mkpath(CLauncherDirs::downloadsPath());
+	entry.file.reset(new QFile(QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), entry.filename)));
+
+	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
+		return true;
+
+	entry.status = FileEntry::FAILED;
+	encounteredErrors += entry.file->errorString();
+	return false;
+}
+
+CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
+{
+	for(auto & entry : currentDownloads)
+	{
+		if(entry.reply == reply)
+			return entry;
+	}
+
+	throw std::runtime_error("No matching download entry found");
+}
+
 CDownloadManager::FileEntry & CDownloadManager::getEntry(HttpDownloadID download)
+
 {
 	for(auto & entry : currentDownloads)
 	{
@@ -52,10 +85,19 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(HttpDownloadID download
 
 void CDownloadManager::onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError)
 {
+	if(ignoredReplies.remove(reply))
+	{
+		reply->deleteLater();
+		return;
+	}
+
+	FileEntry & file = getEntry(reply);
+
 	if(certificateError)
 		certificateErrorEncountered = true;
-	finishEntry(getEntry(download), errorMessage);
-}
+
+	finishEntry(file, errorMessage);
+
 
 void CDownloadManager::finishEntry(FileEntry & file, const std::string & errorMessage)
 {
@@ -133,11 +175,85 @@ bool CDownloadManager::downloadInProgress(const QUrl & url) const
 	return false;
 }
 
+void CDownloadManager::pauseDownloads()
+{
+	if(downloadsPaused)
+		return;
+
+	downloadsPaused = true;
+	for(auto & entry : currentDownloads)
+	{
+		if(entry.status != FileEntry::QUEUED && entry.status != FileEntry::IN_PROGRESS)
+			continue;
+
+		if(entry.reply)
+		{
+			disconnect(entry.reply, nullptr, this, nullptr);
+			ignoredReplies.insert(entry.reply);
+			entry.reply->abort();
+			entry.reply->deleteLater();
+			entry.reply = nullptr;
+		}
+		if(entry.file)
+		{
+			entry.file->close();
+			entry.file->remove();
+			entry.file.reset();
+		}
+		entry.status = FileEntry::QUEUED;
+		entry.bytesReceived = 0;
+	}
+}
+
+void CDownloadManager::resumeDownloads()
+{
+	if(!downloadsPaused)
+		return;
+
+	downloadsPaused = false;
+	for(auto & entry : currentDownloads)
+	{
+		if(entry.status == FileEntry::QUEUED)
+			openDownloadFile(entry);
+	}
+	startNextDownload();
+}
+
+void CDownloadManager::startDownload(FileEntry & entry)
+
+{
+	int downloadsInProgress = countDownloadsInProgress();
+
+	connect(entry.reply, SIGNAL(downloadProgress(qint64,qint64)),
+		SLOT(downloadProgressChanged(qint64,qint64)));
+}
+
+void CDownloadManager::startNextDownload()
+{
+	if(downloadsPaused)
+		return;
+
+	if(hasDownloadInProgress())
+		return;
+
+	for(auto & entry : currentDownloads)
+	{
+		if(entry.status != FileEntry::QUEUED)
+			continue;
+	}
+}
+
 void CDownloadManager::startNextDownloads()
 {
 	int downloadsInProgress = countDownloadsInProgress();
 
 	for(qsizetype index = 0; index < currentDownloads.size() && downloadsInProgress < MAX_PARALLEL_DOWNLOADS; ++index)
+	{
+		FileEntry & entry = currentDownloads[index];
+		if(entry.status != FileEntry::QUEUED)
+			continue;
+	}
+
 	{
 		FileEntry & entry = currentDownloads[index];
 		if(entry.status != FileEntry::QUEUED)
