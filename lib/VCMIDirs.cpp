@@ -56,15 +56,30 @@ void IVCMIDirs::init()
 	bfs::create_directories(userSavePath());
 }
 
+boost::filesystem::path IVCMIDirs::userPath(EUserDirectory directory) const
+{
+	switch(directory)
+	{
+	case EUserDirectory::DATA:
+		return userDataPath();
+	case EUserDirectory::CACHE:
+		return userCachePath();
+	case EUserDirectory::CONFIG:
+		return userConfigPath();
+	case EUserDirectory::LOGS:
+		return userLogsPath();
+	case EUserDirectory::SAVES:
+		return userSavePath();
+	}
+	return {};
+}
+
+bool IVCMIDirs::setUserPath(EUserDirectory, const bfs::path &)
+{
+	return false;
+}
+
 #ifdef VCMI_WINDOWS
-
-#ifdef __MINGW32__
-	#define _WIN32_IE 0x0500
-
-	#ifndef CSIDL_MYDOCUMENTS
-	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif
-#endif // __MINGW32__
 
 #include <windows.h>
 #include <shlobj.h>
@@ -86,11 +101,14 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		bfs::path serverPath() const override;
 
 		bfs::path binaryPath() const override;
+		bool setUserPath(EUserDirectory directory, const bfs::path & path) override;
 
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
+		bfs::path dirsConfigPath;
 
 		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
+		bool setPathInConfig(const std::string & key, const bfs::path & path);
 		bfs::path getDefaultUserDataPath() const;
 
 		std::wstring utf8ToWstring(const std::string& str) const;
@@ -102,17 +120,73 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 {
 	wchar_t currentPath[MAX_PATH];
 	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
-	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
+	dirsConfigPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
 
-	if (!bfs::exists(configPath))
+	if (!bfs::exists(dirsConfigPath))
 		return;
 
-	std::ifstream in(configPath.wstring(), std::ios::binary);
+	std::ifstream in(dirsConfigPath.wstring(), std::ios::binary);
 	if (!in)
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
+	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(dirsConfigPath));
+}
+
+bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & path)
+{
+	try
+	{
+		JsonNode updatedConfig = dirsConfig ? *dirsConfig : JsonNode(JsonMap{});
+		bfs::path preferredPath = path;
+		preferredPath.make_preferred();
+		updatedConfig[key].String() = pathToUtf8(preferredPath);
+		bfs::create_directories(dirsConfigPath.parent_path());
+
+		bfs::path temporaryPath = dirsConfigPath;
+		temporaryPath += ".tmp";
+		std::ofstream out(temporaryPath.wstring(), std::ios::binary | std::ios::trunc);
+		if(!out)
+			return false;
+		out << updatedConfig.toString() << '\n';
+		out.close();
+		if(!out)
+		{
+			bfs::remove(temporaryPath);
+			return false;
+		}
+		if(!MoveFileExW(temporaryPath.c_str(), dirsConfigPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+		{
+			bfs::remove(temporaryPath);
+			return false;
+		}
+
+		dirsConfig = std::make_unique<JsonNode>(std::move(updatedConfig));
+		IVCMIDirs::init();
+		return true;
+	}
+	catch(const std::exception &)
+	{
+		return false;
+	}
+}
+
+bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path)
+{
+	switch(directory)
+	{
+	case EUserDirectory::DATA:
+		return setPathInConfig("userDataPath", path);
+	case EUserDirectory::CACHE:
+		return setPathInConfig("userCachePath", path);
+	case EUserDirectory::CONFIG:
+		return setPathInConfig("userConfigPath", path);
+	case EUserDirectory::LOGS:
+		return setPathInConfig("userLogsPath", path);
+	case EUserDirectory::SAVES:
+		return setPathInConfig("userSavePath", path);
+	}
+	return false;
 }
 
 std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
@@ -136,7 +210,8 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 	return result;
 }
 
-bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
+bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
+	const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
 {
 	if (!dirsConfig || !dirsConfig->isStruct())
 		return fallbackFunc();
@@ -570,7 +645,7 @@ bfs::path VCMIDirsXDG::binaryPath() const
 // Getters for interfaces are separated for clarity.
 namespace VCMIDirs
 {
-	const IVCMIDirs& get()
+	IVCMIDirs & get()
 	{
 		#ifdef VCMI_WINDOWS
 			static VCMIDirsWIN32 singleton;
