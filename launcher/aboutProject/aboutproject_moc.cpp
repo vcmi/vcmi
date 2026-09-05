@@ -11,6 +11,9 @@
 #include "aboutproject_moc.h"
 #include "ui_aboutproject_moc.h"
 
+#include <QCheckBox>
+#include <QUuid>
+
 #if defined(VCMI_ANDROID)
 #include <QAndroidJniObject>
 #endif
@@ -20,20 +23,189 @@
 
 #include "../updatedialog_moc.h"
 #include "../helper.h"
+#include "../mainwindow_moc.h"
+#include "../firstLaunch/progressoverlay.h"
+#include "../modManager/cmodlistview_moc.h"
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/CZipSaver.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-namespace
+bool AboutProjectView::isSameOrChildPath(const QString & path, const QString & parent) const
 {
-void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
+	const QString cleanPath = QDir::cleanPath(QFileInfo(path).absoluteFilePath());
+	QString cleanParent = QDir::cleanPath(QFileInfo(parent).absoluteFilePath());
+
+	if(cleanPath.compare(cleanParent, Qt::CaseInsensitive) == 0)
+		return true;
+
+	if(!cleanParent.endsWith(QDir::separator()))
+		cleanParent += QDir::separator();
+
+	return cleanPath.startsWith(cleanParent, Qt::CaseInsensitive);
+}
+
+bool AboutProjectView::containsActiveUserDirectory(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & path) const
+{
+	static constexpr std::array userDirectories = {
+		EUserDirectory::DATA,
+		EUserDirectory::CACHE,
+		EUserDirectory::CONFIG,
+		EUserDirectory::LOGS,
+		EUserDirectory::SAVES
+	};
+
+	for(const auto directory : userDirectories)
+	{
+		if(directory != changedDirectory && isSameOrChildPath(pathToQString(dirs.userPath(directory)), path))
+			return true;
+	}
+
+	return false;
+}
+
+bool AboutProjectView::copyDirectoryContents(const QString & source, const QString & destination, ProgressOverlay & progress, QString & error, bool overwrite)
+{
+	QDir sourceDir(source);
+	int totalFiles = 0;
+	QDirIterator counter(source, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	while(counter.hasNext())
+	{
+		counter.next();
+		++totalFiles;
+		if(totalFiles % 256 == 0)
+		{
+			progress.setFileName(tr("Scanning files..."));
+			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+		}
+	}
+	progress.setRange(totalFiles);
+
+	int copiedFiles = 0;
+	QDirIterator iterator(source, QDir::NoDotAndDotDot | QDir::AllEntries, QDirIterator::Subdirectories);
+	while(iterator.hasNext())
+	{
+		const QString sourcePath = iterator.next();
+		const QString relativePath = sourceDir.relativeFilePath(sourcePath);
+		const QString destinationPath = QDir(destination).filePath(relativePath);
+		const QFileInfo sourceInfo(sourcePath);
+		if(sourceInfo.isDir())
+		{
+			if(overwrite && QFileInfo(destinationPath).isFile() && !QFile::remove(destinationPath))
+			{
+				error = tr("Failed to replace file with directory: %1").arg(destinationPath);
+				return false;
+			}
+			if(!QDir().mkpath(destinationPath))
+			{
+				error = tr("Failed to create directory: %1").arg(destinationPath);
+				return false;
+			}
+		}
+		else
+		{
+			progress.setValue(copiedFiles);
+			progress.setFileName(QDir::toNativeSeparators(relativePath));
+			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+			if(overwrite && QFileInfo::exists(destinationPath))
+			{
+				const QFileInfo destinationInfo(destinationPath);
+				const bool removed = destinationInfo.isDir() ? QDir(destinationPath).removeRecursively() : QFile::remove(destinationPath);
+				if(!removed)
+				{
+					error = tr("Failed to overwrite: %1").arg(destinationPath);
+					return false;
+				}
+			}
+			if(!QDir().mkpath(QFileInfo(destinationPath).absolutePath()) || !QFile::copy(sourcePath, destinationPath))
+			{
+				error = tr("Failed to copy file: %1").arg(sourcePath);
+				return false;
+			}
+			++copiedFiles;
+		}
+	}
+	progress.setValue(totalFiles);
+	progress.setFileName(QString());
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+	return true;
+}
+
+std::optional<AboutProjectView::EExistingTargetAction> AboutProjectView::askExistingTargetAction(const QString & target)
+{
+	QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, this);
+	dialog.setInformativeText(tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
+
+	auto * mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
+	auto * backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
+	auto * replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+
+	dialog.addButton(QMessageBox::Cancel);
+	dialog.setDefaultButton(backupButton);
+	dialog.exec();
+
+	if(dialog.clickedButton() == mergeButton)
+		return EExistingTargetAction::MERGE;
+
+	if(dialog.clickedButton() == backupButton)
+		return EExistingTargetAction::BACK_UP;
+
+	if(dialog.clickedButton() == replaceButton)
+		return EExistingTargetAction::REPLACE;
+
+	return std::nullopt;
+}
+
+QString AboutProjectView::availableBackupPath(const QString & target) const
+{
+	const QString basePath = target + QStringLiteral("_backup");
+	if(!QFileInfo::exists(basePath))
+		return basePath;
+
+	for(int index = 2; ; ++index)
+	{
+		const QString candidate = basePath + QStringLiteral("_%1").arg(index);
+		if(!QFileInfo::exists(candidate))
+			return candidate;
+	}
+}
+
+bool AboutProjectView::installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & backupPath, QString & error)
+{
+	const QFileInfo targetInfo(target);
+	const QString temporaryPath = targetInfo.dir().filePath(QStringLiteral(".%1-vcmi-old-%2").arg(targetInfo.fileName(), QUuid::createUuid().toString(QUuid::Id128)));
+	const QString displacedPath = action == EExistingTargetAction::BACK_UP ? availableBackupPath(target) : temporaryPath;
+
+	if(!QDir().rename(target, displacedPath))
+	{
+		error = tr("Failed to move the existing target directory: %1").arg(target);
+		return false;
+	}
+
+	if(!QDir().rename(staging, target))
+	{
+		QDir().rename(displacedPath, target);
+		error = tr("Failed to place copied files in the selected directory.");
+		return false;
+	}
+
+	if(action == EExistingTargetAction::BACK_UP)
+		backupPath = displacedPath;
+	else if(!QDir(displacedPath).removeRecursively())
+	{
+		error = tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedPath);
+	}
+	return true;
+}
+
+static void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
 {
 	const auto json = JsonUtils::assembleFromFiles("config/settings.json");
 	const auto lastSavePath = json["general"]["lastSave"].String();
-	if (lastSavePath.empty())
+	if(lastSavePath.empty())
 		return;
 	const auto rsave = ResourcePath(lastSavePath, EResType::SAVEGAME);
 	const auto * rhandler = CResourceHandler::get();
@@ -46,7 +218,6 @@ void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
 	const auto & [data, length] = rhandler->load(rsave)->readAll();
 	auto stream = saver.addFile(name + ".vsgm1");
 	stream->write(data.get(), length);
-}
 }
 
 void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch)
@@ -69,12 +240,18 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 {
 	ui->setupUi(this);
 
-	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
-	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
-	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
-	ui->lineEditConfigDir->setText(pathToQString(VCMIDirs::get().userConfigPath()));
+	refreshDirectoryPaths();
+	ui->lineEditGameDir->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().binaryPath())));
 	ui->lineEditBuildVersion->setText(QString(GameConstants::VCMI_VERSION));
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
+
+#ifndef VCMI_WINDOWS
+	ui->changeUserDataDir->hide();
+	ui->changeTempDir->hide();
+	ui->changeCacheDir->hide();
+	ui->changeConfigDir->hide();
+	ui->changeSaveDir->hide();
+#endif
 
 #ifdef VCMI_MOBILE
 	// On mobile platforms these directories are generally not accessible from phone itself, only via USB connection from PC
@@ -82,15 +259,27 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	hideAndStretchWidget(ui->gridLayout, ui->openGameDataDir, ui->lineEditGameDir);
 #ifdef VCMI_ANDROID
 	hideAndStretchWidget(ui->gridLayout, ui->openUserDataDir, ui->lineEditUserDataDir);
+	hideAndStretchWidget(ui->gridLayout, ui->openCacheDir, ui->lineEditCacheDir);
 	hideAndStretchWidget(ui->gridLayout, ui->openTempDir, ui->lineEditTempDir);
 	hideAndStretchWidget(ui->gridLayout, ui->openConfigDir, ui->lineEditConfigDir);
+	hideAndStretchWidget(ui->gridLayout, ui->openSaveDir, ui->lineEditSaveDir);
 #endif
 #endif
 }
 
 AboutProjectView::~AboutProjectView() = default;
 
-void AboutProjectView::changeEvent(QEvent *event)
+void AboutProjectView::refreshDirectoryPaths()
+{
+	const auto & dirs = VCMIDirs::get();
+	ui->lineEditUserDataDir->setText(pathToQString(dirs.userDataPath()));
+	ui->lineEditCacheDir->setText(pathToQString(dirs.userCachePath()));
+	ui->lineEditConfigDir->setText(pathToQString(dirs.userConfigPath()));
+	ui->lineEditTempDir->setText(pathToQString(dirs.userLogsPath()));
+	ui->lineEditSaveDir->setText(pathToQString(dirs.userSavePath()));
+}
+
+void AboutProjectView::changeEvent(QEvent * event)
 {
 	if(event->type() == QEvent::LanguageChange)
 		ui->retranslateUi(this);
@@ -121,6 +310,205 @@ void AboutProjectView::on_openTempDir_clicked()
 void AboutProjectView::on_openConfigDir_clicked()
 {
 	Helper::revealDirectoryInFileBrowser(ui->lineEditConfigDir->text());
+}
+
+void AboutProjectView::changeDirectory(EUserDirectory directory, const QString & title)
+{
+#ifdef VCMI_WINDOWS
+	auto * mainWindow = qobject_cast<MainWindow *>(window());
+	auto & dirs = VCMIDirs::get();
+	const QString source = pathToQString(dirs.userPath(directory));
+	const QString selected = QFileDialog::getExistingDirectory(this, title, source);
+
+	if(selected.isEmpty())
+		return;
+
+	if(isSameOrChildPath(selected, source) && isSameOrChildPath(source, selected))
+		return;
+
+	if(isSameOrChildPath(selected, source))
+	{
+		QMessageBox::warning(this, tr("Invalid directory"), tr("The new directory cannot be inside the current directory."));
+		return;
+	}
+
+	if(isSameOrChildPath(source, selected))
+	{
+		QMessageBox::warning(this, tr("Invalid directory"), tr("The new directory cannot contain the current directory."));
+		return;
+	}
+
+	const QString oldLogPath = pathToQString(dirs.userLogsPath());
+	bool moveExistingData = false;
+	bool downloadsPaused = false;
+	QString targetBackupPath;
+
+	auto cancelPausedDownloads = vstd::makeScopeGuard([&]()
+	{
+		if(downloadsPaused && mainWindow)
+			mainWindow->getModView()->cancelDownloads();
+	});
+
+	auto pauseDownloads = [&]()
+	{
+		if(!downloadsPaused && mainWindow)
+			downloadsPaused = mainWindow->getModView()->pauseDownloads();
+	};
+
+	QDir sourceDir(source);
+	const bool sourceHasData = sourceDir.exists() && !sourceDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
+
+	if(sourceHasData)
+	{
+		QMessageBox copyDialog(QMessageBox::Question, tr("Copy existing data?"), tr("Do you want to copy the existing files?\n\nFrom:\n%1\n\nTo:\n%2").arg(QDir::toNativeSeparators(source), QDir::toNativeSeparators(selected)), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
+		copyDialog.setDefaultButton(QMessageBox::Yes);
+
+		auto * moveCheckBox = new QCheckBox(tr("Move existing data (remove the original files after a successful reload)"));
+		copyDialog.setCheckBox(moveCheckBox);
+
+		const auto answer = static_cast<QMessageBox::StandardButton>(copyDialog.exec());
+
+		if(answer == QMessageBox::Cancel)
+			return;
+
+		if(answer == QMessageBox::Yes)
+		{
+			moveExistingData = moveCheckBox->isChecked();
+			QDir destinationDir(selected);
+			EExistingTargetAction targetAction = EExistingTargetAction::REPLACE;
+
+			if(!destinationDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty())
+			{
+				const auto selectedAction = askExistingTargetAction(selected);
+				if(!selectedAction)
+					return;
+
+				targetAction = *selectedAction;
+			}
+
+			pauseDownloads();
+
+			QTemporaryDir stagingDirectory(QFileInfo(selected).dir().filePath(QStringLiteral(".vcmi-transfer-XXXXXX")));
+			if(!stagingDirectory.isValid())
+			{
+				QMessageBox::critical(this, tr("Error"), tr("Failed to create a temporary transfer directory."));
+				return;
+			}
+
+			auto progressOverlay = std::make_unique<ProgressOverlay>(window(), 0);
+			progressOverlay->setTitle(tr("Copying directory..."));
+			progressOverlay->setIndeterminate(true);
+			progressOverlay->show();
+			progressOverlay->raise();
+			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			QString error;
+			if(targetAction == EExistingTargetAction::MERGE && !copyDirectoryContents(selected, stagingDirectory.path(), *progressOverlay, error))
+			{
+				progressOverlay.reset();
+				QMessageBox::critical(this, tr("Copy failed"), error);
+				return;
+			}
+
+			if(!copyDirectoryContents(source, stagingDirectory.path(), *progressOverlay, error, targetAction == EExistingTargetAction::MERGE))
+			{
+				progressOverlay.reset();
+				QMessageBox::critical(this, tr("Copy failed"), error);
+				return;
+			}
+
+			progressOverlay.reset();
+
+			const QString stagingPath = stagingDirectory.path();
+			if(!installStagedDirectory(stagingPath, selected, targetAction, targetBackupPath, error))
+			{
+				QMessageBox::critical(this, tr("Copy failed"), error);
+				return;
+			}
+
+			stagingDirectory.setAutoRemove(false);
+			if(!error.isEmpty())
+				QMessageBox::warning(this, tr("Cleanup failed"), error);
+		}
+	}
+	pauseDownloads();
+
+	if(!dirs.setUserPath(directory, qstringToPath(selected)))
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Failed to save directory settings to config/dirs.json."));
+		return;
+	}
+
+	refreshDirectoryPaths();
+	const QString newLogPath = pathToQString(dirs.userLogsPath());
+
+	if(oldLogPath != newLogPath)
+		emit logDirectoryChanged(newLogPath);
+
+	if(!mainWindow || !mainWindow->reloadDirectories())
+		return;
+
+	if(downloadsPaused)
+	{
+		mainWindow->getModView()->resumeDownloads();
+		downloadsPaused = false;
+	}
+
+	if(moveExistingData)
+	{
+		if(containsActiveUserDirectory(dirs, directory, source))
+		{
+			QMessageBox::warning(this, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
+			return;
+		}
+		if(!QDir(source).removeRecursively())
+		{
+			QMessageBox::warning(this, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
+			return;
+		}
+	}
+	const QString successMessage = targetBackupPath.isEmpty() ? tr("The launcher has reloaded files from the new directory.") : tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(targetBackupPath));
+	QMessageBox::information(this, tr("Directory changed"), successMessage);
+#else
+	// TODO: Every Non-Windows OS is unsupported
+	Q_UNUSED(directory);
+	Q_UNUSED(title);
+#endif
+}
+
+void AboutProjectView::on_changeUserDataDir_clicked()
+{
+	changeDirectory(EUserDirectory::DATA, tr("Select user data directory"));
+}
+
+void AboutProjectView::on_changeTempDir_clicked()
+{
+	changeDirectory(EUserDirectory::LOGS, tr("Select log files directory"));
+}
+
+void AboutProjectView::on_openCacheDir_clicked()
+{
+	Helper::revealDirectoryInFileBrowser(ui->lineEditCacheDir->text());
+}
+
+void AboutProjectView::on_changeCacheDir_clicked()
+{
+	changeDirectory(EUserDirectory::CACHE, tr("Select cache directory"));
+}
+
+void AboutProjectView::on_changeConfigDir_clicked()
+{
+	changeDirectory(EUserDirectory::CONFIG, tr("Select configuration files directory"));
+}
+
+void AboutProjectView::on_openSaveDir_clicked()
+{
+	Helper::revealDirectoryInFileBrowser(ui->lineEditSaveDir->text());
+}
+
+void AboutProjectView::on_changeSaveDir_clicked()
+{
+	changeDirectory(EUserDirectory::SAVES, tr("Select saved games directory"));
 }
 
 void AboutProjectView::on_pushButtonDiscord_clicked()
