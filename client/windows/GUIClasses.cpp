@@ -754,8 +754,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 
 std::function<std::shared_ptr<IImage>(size_t)> CObjectListWindow::makeLazyHeroPortraitLoader(std::vector<int32_t> iconIndices)
 {
-	auto imageCache = std::make_shared<std::map<int32_t, std::shared_ptr<IImage>>>();
-	return [imageCache, iconIndices = std::move(iconIndices)](size_t index) -> std::shared_ptr<IImage>
+	return [iconIndices = std::move(iconIndices)](size_t index) -> std::shared_ptr<IImage>
 	{
 		if(index >= iconIndices.size())
 			return nullptr;
@@ -764,13 +763,8 @@ std::function<std::shared_ptr<IImage>(size_t)> CObjectListWindow::makeLazyHeroPo
 		if(iconIndex < 0)
 			return nullptr;
 
-		auto it = imageCache->find(static_cast<int32_t>(index));
-		if(it != imageCache->end())
-			return it->second;
-
 		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), iconIndex, 0, EImageBlitMode::OPAQUE);
 		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
-		(*imageCache)[static_cast<int32_t>(index)] = image;
 		return image;
 	};
 }
