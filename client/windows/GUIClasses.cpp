@@ -768,8 +768,8 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 	orderedHeroes.insert(inviteableHeroes.begin(), inviteableHeroes.end());
 
 	std::vector<std::string> texts;
-	std::vector<std::shared_ptr<IImage>> images;
 	std::vector<CGHeroInstance*> heroes;
+	std::vector<int32_t> heroIconIndices;
 	for (const auto & h : orderedHeroes)
 	{
 		heroes.push_back(h.second);
@@ -778,10 +778,7 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 		auto hero = heroFromMapPool ? heroFromMapPool : h.second;
 
 		texts.push_back(GAME->translator().translate(hero->getNameTextID()));
-
-		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex(), 0, EImageBlitMode::OPAQUE);
-		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
-		images.push_back(image);
+		heroIconIndices.push_back(hero->getIconIndex());
 	}
 
 	int selectedIndex = 0;
@@ -791,9 +788,26 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 		selectedIndex = std::distance(heroes.begin(), it);
 	}
 
+	// Load portraits lazily: only visible list items are created, so avoid decoding all of them upfront.
+	auto imageCache = std::make_shared<std::map<int32_t, std::shared_ptr<IImage>>>();
+	auto imageLoader = [imageCache, heroIconIndices](size_t index) -> std::shared_ptr<IImage>
+	{
+		if(index >= heroIconIndices.size())
+			return nullptr;
+
+		auto it = imageCache->find(static_cast<int32_t>(index));
+		if(it != imageCache->end())
+			return it->second;
+
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), heroIconIndices[index], 0, EImageBlitMode::OPAQUE);
+		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
+		(*imageCache)[static_cast<int32_t>(index)] = image;
+		return image;
+	};
+
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [onChoose, heroes](int index){
 		onChoose(heroes.at(index));
-	}, selectedIndex, images, true, false);
+	}, selectedIndex, imageLoader, true, false);
 	window->onPopup = [heroes](int index) {
 		ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroes.at(index)));
 	};
@@ -1751,8 +1765,20 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 
 	auto it = std::find(parent->items.begin(), parent->items.end(), parent->itemsVisible[index]);
 	int imgIndex = (it != parent->items.end()) ? std::distance(parent->items.begin(), it) : -1;
-	if(imgIndex >= 0 && imgIndex < parent->images.size() && parent->images[imgIndex])
-		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1,1));
+
+	std::shared_ptr<IImage> image;
+	if(parent->imageLoader)
+	{
+		if(imgIndex >= 0)
+			image = parent->imageLoader(imgIndex);
+	}
+	else if(imgIndex >= 0 && imgIndex < parent->images.size())
+	{
+		image = parent->images[imgIndex];
+	}
+
+	if(image)
+		icon = std::make_shared<CPicture>(image, Point(1,1));
 
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
@@ -1828,6 +1854,30 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
+{
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(KEYBOARD);
+
+	items.reserve(_items.size());
+
+	for(size_t i = 0; i < _items.size(); i++)
+	{
+		std::string objectName = _items[i];
+		trimTextIfTooWide(objectName, true);
+		items.emplace_back(static_cast<int>(i), objectName);
+	}
+	itemsVisible = items;
+
+	init(titleWidget_, _title, _descr, searchBoxEnabled, blue);
+	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
+}
+
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::function<std::shared_ptr<IImage>(size_t)> imageLoader, bool searchBoxEnabled, bool blue)
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
+	onSelect(Callback),
+	selected(initialSelection),
+	imageLoader(imageLoader)
 {
 	OBJECT_CONSTRUCTION;
 
