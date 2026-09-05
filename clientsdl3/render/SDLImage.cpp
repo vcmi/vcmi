@@ -57,11 +57,12 @@ SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group
 	savePalette();
 }
 
-SDLImageShared::SDLImageShared(SDL_Surface * from)
+SDLImageShared::SDLImageShared(SDL_Surface * from, bool premultipliedAlpha)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	premultipliedAlpha(premultipliedAlpha)
 {
 	surf = from;
 	if (surf == nullptr)
@@ -268,7 +269,7 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 	// Unlike the surface path this cannot test the alpha mask: SDL_CreateTextureFromSurface turns
 	// a paletted surface's color key into real alpha, so only a truly opaque image may skip blending
 	if(alpha != SDL_ALPHA_OPAQUE || mode != EImageBlitMode::OPAQUE)
-		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_BLEND);
+		SDL_SetTextureBlendMode(source, premultipliedAlpha ? SDL_BLENDMODE_BLEND_PREMULTIPLIED : SDL_BLENDMODE_BLEND);
 	else
 		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
 
