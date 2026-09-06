@@ -33,7 +33,6 @@
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
@@ -311,31 +310,23 @@ bool CVideoInstance::loadNextFrame()
 	if(!frame)
 		return false;
 
-	uint8_t * data[4] = {};
-	int linesize[4] = {};
+	// Avoid buffer overflow caused by sws_scale():
+	// http://trac.ffmpeg.org/ticket/9254
+	const size_t pitch = surface ? surface->pitch : scaledSize.x * 4;
+	const size_t pic_bytes = pitch * scaledSize.y;
+	const size_t ffmpeg_pad = 1024; /* a few bytes of overflow will go here */
+
+	uint8_t * data[4] = { static_cast<uint8_t *>(av_malloc(pic_bytes + ffmpeg_pad)) };
+	int linesize[4] = { static_cast<int>(pitch) };
+
+	sws_scale(sws, frame->data, frame->linesize, 0, getCodecContext()->height, data, linesize);
 
 	if(textureRGB)
-	{
-		av_image_alloc(data, linesize, scaledSize.x, scaledSize.y, AV_PIX_FMT_RGB32, 1);
-		sws_scale(sws, frame->data, frame->linesize, 0, getCodecContext()->height, data, linesize);
 		SDL_UpdateTexture(textureRGB, nullptr, data[0], linesize[0]);
-		av_freep(&data[0]);
-	}
 	if(surface)
-	{
-		// Avoid buffer overflow caused by sws_scale():
-		// http://trac.ffmpeg.org/ticket/9254
+		memcpy(surface->pixels, data[0], pic_bytes);
 
-		size_t pic_bytes = surface->pitch * surface->h;
-		size_t ffmped_pad = 1024; /* a few bytes of overflow will go here */
-		void * for_sws = av_malloc(pic_bytes + ffmped_pad);
-		data[0] = (ui8 *)for_sws;
-		linesize[0] = surface->pitch;
-
-		sws_scale(sws, frame->data, frame->linesize, 0, getCodecContext()->height, data, linesize);
-		memcpy(surface->pixels, for_sws, pic_bytes);
-		av_free(for_sws);
-	}
+	av_free(data[0]);
 	return true;
 }
 
