@@ -597,7 +597,7 @@ void Nullkiller::makeTurn()
 	{
 		if (pathfinderTurnStorageMisses.load() != 0)
 		{
-			logAi->warn("Nullkiller::makeTurn AINodeStorage had %d nodeAllocationFailures in previous pass", pathfinderTurnStorageMisses.load());
+			logAi->trace("Nullkiller::makeTurn AINodeStorage had %d nodeAllocationFailures in previous pass", pathfinderTurnStorageMisses.load());
 			pathfinderTurnStorageMisses.store(0);
 		}
 

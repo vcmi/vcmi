@@ -57,7 +57,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		// to buy a capitol for example
 		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
 
-		logAi->info(
+		logAi->trace(
 			"ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s",
 			freeResources.toString(),
 			freeAfterMissingTotal.toString(),
@@ -102,7 +102,7 @@ bool ResourceTrader::tradeHelper(
 			int receivedPerUnit;
 			market.getOffer(i, GameResID::GOLD, givenPerUnit, receivedPerUnit, EMarketMode::RESOURCE_RESOURCE);
 			score *= receivedPerUnit;
-			logAi->trace("ResourceTrader: mostWantedScoreNeg %d for %d with market receivedPerUnit %d", mostWantedScoreNeg, i, receivedPerUnit);
+			logAi->trace("ResourceTrader: score %d for %s with market receivedPerUnit %d", score, GameResID::encode(i), receivedPerUnit);
 		}
 
 		if(score < mostWantedScoreNeg)
@@ -139,10 +139,10 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	logAi->trace(
-		"ResourceTrader: mostWanted: %d, mostWantedScoreNeg %d, mostExpendable: %d, mostExpendableAmountPos %d",
-		mostWanted,
+		"ResourceTrader: mostWanted: %s, mostWantedScoreNeg %d, mostExpendable: %s, mostExpendableAmountPos %d",
+		mostWanted == EMPTY ? "none" : GameResID::encode(mostWanted),
 		mostWantedScoreNeg,
-		mostExpendable,
+		mostExpendable == EMPTY ? "none" : GameResID::encode(mostExpendable),
 		mostExpendableAmountPos
 	);
 
@@ -156,7 +156,11 @@ bool ResourceTrader::tradeHelper(
 	if(!givenPerUnit || !receivedPerUnit)
 	{
 		logGlobal->error(
-			"ResourceTrader: No offer for %d of %d, given %d, received %d. Should never happen", mostExpendable, mostWanted, givenPerUnit, receivedPerUnit
+			"ResourceTrader: No offer for %s to %s, given %d, received %d. Should never happen",
+			GameResID::encode(mostExpendable),
+			GameResID::encode(mostWanted),
+			givenPerUnit,
+			receivedPerUnit
 		);
 		return false;
 	}
@@ -180,7 +184,13 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	cc.trade(market.getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
-	logAi->info("ResourceTrader: Traded %d of %s for %d receivedPerUnit of %s", givenMultiplied, mostExpendable, receivedPerUnit, mostWanted);
+	logAi->debug(
+		"ResourceTrader: Traded %d %s for %d %s",
+		givenMultiplied,
+		GameResID::encode(mostExpendable),
+		receivedPerUnit * multiplier,
+		GameResID::encode(mostWanted)
+	);
 	return true;
 }
 }
