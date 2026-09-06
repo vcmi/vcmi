@@ -370,6 +370,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 		redraw();
 	});
 	warMachines->setSelectedSilent(parent.startInfo->warMachines[id]);
+	warMachines->pos = warMachines->pos.include(addIcon.back()->pos);
 
 	setHeroIcon();
 	setCreatureIcons();
