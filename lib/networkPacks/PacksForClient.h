@@ -714,7 +714,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	/// Tiles that were revealed by this move
 	FowTilesType fowRevealed;
 	/// If hero moves on guarded tile, this field will be set to visitable pos of attacked wandering monster
-	int3 attackedFrom;
+	int3 attackedFrom = int3(-1);
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
