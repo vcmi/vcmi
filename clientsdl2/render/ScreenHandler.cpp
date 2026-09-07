@@ -135,12 +135,33 @@ int ScreenHandler::getScalingFactor() const
 	switch (upscalingFilter)
 	{
 		case EUpscalingFilter::NONE: return 1;
-		case EUpscalingFilter::XBRZ_2: return 2;
-		case EUpscalingFilter::XBRZ_3: return 3;
-		case EUpscalingFilter::XBRZ_4: return 4;
+		case EUpscalingFilter::XBRZ_2:
+		case EUpscalingFilter::XBRZ_2_RCAS: return 2;
+		case EUpscalingFilter::XBRZ_3:
+		case EUpscalingFilter::XBRZ_3_RCAS: return 3;
+		case EUpscalingFilter::XBRZ_4:
+		case EUpscalingFilter::XBRZ_4_RCAS: return 4;
 	}
 
 	throw std::runtime_error("invalid upscaling filter");
+}
+
+bool ScreenHandler::isSharpeningEnabled() const
+{
+	switch (upscalingFilter)
+	{
+		case EUpscalingFilter::XBRZ_2_RCAS:
+		case EUpscalingFilter::XBRZ_3_RCAS:
+		case EUpscalingFilter::XBRZ_4_RCAS:
+			return true;
+		default:
+			return false;
+	}
+}
+
+float ScreenHandler::getSharpeningStrength() const
+{
+	return settings["video"]["upscalingFilterSharpness"].Float();
 }
 
 Point ScreenHandler::getLogicalResolution() const
@@ -363,8 +384,11 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		{"auto", EUpscalingFilter::AUTO },
 		{"none", EUpscalingFilter::NONE },
 		{"xbrz2", EUpscalingFilter::XBRZ_2 },
+		{"xbrz2rcas", EUpscalingFilter::XBRZ_2_RCAS },
 		{"xbrz3", EUpscalingFilter::XBRZ_3 },
-		{"xbrz4", EUpscalingFilter::XBRZ_4 }
+		{"xbrz3rcas", EUpscalingFilter::XBRZ_3_RCAS },
+		{"xbrz4", EUpscalingFilter::XBRZ_4 },
+		{"xbrz4rcas", EUpscalingFilter::XBRZ_4_RCAS }
 	};
 
 	auto filterName = settings["video"]["upscalingFilter"].String();

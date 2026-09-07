@@ -54,6 +54,10 @@ public:
 	/// Performs upscaling by specified integral factor, potentially using xbrz algorithm if requested
 	void scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm algorithm);
 
+	/// Applies an FSR RCAS sharpen pass to the result of a previous scale call, in place.
+	/// sharpness follows AMD's own convention: 0 is the strongest setting.
+	void sharpenResult(float sharpness);
+
 	/// Aquires resulting surface and transfers surface ownership to the caller
 	/// May return nullptr if input image was empty
 	SDL_Surface * acquireResultSurface();

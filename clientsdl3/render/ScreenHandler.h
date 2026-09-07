@@ -36,8 +36,11 @@ enum class EUpscalingFilter
 	//BILINEAR, // TODO?
 	//BICUBIC, // TODO?
 	XBRZ_2,
+	XBRZ_2_RCAS, // xBRZ followed by an FSR RCAS sharpen pass, done in software on the same buffer
 	XBRZ_3,
+	XBRZ_3_RCAS,
 	XBRZ_4,
+	XBRZ_4_RCAS,
 	// NOTE: xbrz also provides x5 and x6 filters, but those would require high-end gaming PC's due to huge memory usage with no visible gain
 };
 
@@ -142,6 +145,10 @@ public:
 	Point getLogicalResolution() const final;
 
 	int getScalingFactor() const final;
+
+	bool isSharpeningEnabled() const final;
+
+	float getSharpeningStrength() const final;
 
 	int getInterfaceScalingPercentage() const final;
 

@@ -227,6 +227,7 @@
 				"cursorScalingFactor",
 				"fontScalingFactor",
 				"upscalingFilter",
+				"upscalingFilterSharpness",
 				"fontUpscalingFilter",
 				"downscalingFilter",
 				"allowPortrait",
@@ -318,8 +319,13 @@
 				},
 				"upscalingFilter" : {
 					"type" : "string",
-					"enum" : [ "auto", "none", "xbrz2", "xbrz3", "xbrz4" ],
+					"enum" : [ "auto", "none", "xbrz2", "xbrz2rcas", "xbrz3", "xbrz3rcas", "xbrz4", "xbrz4rcas" ],
 					"default" : "auto"
+				},
+				"upscalingFilterSharpness" : {
+					"type" : "number",
+					"default" : 0.2,
+					"description" : "Sharpen strength for upscaling filters that support it (currently AMD FSR RCAS, used by the *rcas filters); 0 is strongest, higher values are weaker"
 				},
 				"downscalingFilter" : {
 					"type" : "string",

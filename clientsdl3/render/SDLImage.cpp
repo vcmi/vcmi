@@ -402,6 +402,10 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 	const auto & scalingTask = [self, algorithm, scaler]()
 	{
 		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
+
+		if (ENGINE->screenHandler().isSharpeningEnabled())
+			scaler->sharpenResult(ENGINE->screenHandler().getSharpeningStrength());
+
 		self->surf = scaler->acquireResultSurface();
 		self->fullSize = scaler->getResultDimensions().dimensions();
 		self->margins = scaler->getResultDimensions().topLeft();

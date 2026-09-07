@@ -66,6 +66,12 @@ public:
 
 	virtual int getScalingFactor() const = 0;
 
+	/// True when the selected upscaling filter also applies an FSR RCAS sharpen pass
+	virtual bool isSharpeningEnabled() const = 0;
+
+	/// Strength of the FSR RCAS sharpen pass, in AMD's own convention (0 = strongest)
+	virtual float getSharpeningStrength() const = 0;
+
 	virtual void screenShot() const = 0;
 
 	/// Window has focus
