@@ -11,6 +11,7 @@
 
 #include "hdextractor.h"
 
+#include "../helper.h"
 #include "../../lib/VCMIDirs.h"
 
 HdExtractor::HdExtractor(QWidget *p) :
@@ -35,9 +36,20 @@ HdExtractor::SubModType HdExtractor::archiveTypeToSubModType(ArchiveType v)
 
 void HdExtractor::installHd()
 {
-	QString tmpDir = QFileDialog::getExistingDirectory(parent, tr("Select Directory with HD Edition (Steam folder)"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	QString tmpDir = Helper::findSteamGameInstallDir("297000", "Heroes of Might and Magic 3 - HD Edition"); // "Heroes of Might & Magic III - HD Edition" on Steam
+	if(!tmpDir.isEmpty())
+	{
+		auto reply = QMessageBox::question(parent, tr("HD Edition installation found!"), tr("Heroes III HD Edition installation was found. Install HD graphics mod using this installation?"), QMessageBox::Yes | QMessageBox::No);
+		if(reply != QMessageBox::Yes)
+			tmpDir.clear();
+	}
+
 	if(tmpDir.isEmpty())
-		return;
+	{
+		tmpDir = QFileDialog::getExistingDirectory(parent, tr("Select Directory with HD Edition (Steam folder)"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+		if(tmpDir.isEmpty())
+			return;
+	}
 
 	QDir dir(tmpDir);
 
