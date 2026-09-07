@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "JsonWriter.h"
 
+#include <limits>
+
 template<typename Iterator>
 void JsonWriter::writeContainer(Iterator begin, Iterator end)
 {
@@ -86,6 +88,30 @@ void JsonWriter::writeString(const std::string & string)
 	out << '\"';
 }
 
+void JsonWriter::writeFloat(double value)
+{
+	// An ostream writes six significant digits by default, which rounds off a value that the parser
+	// read as the double nearest to the number in the file, so reading a file and writing it back
+	// changes what it says. Write the shortest form that reads back as the same double instead.
+	std::string result;
+
+	for(int precision = std::numeric_limits<double>::digits10; precision <= std::numeric_limits<double>::max_digits10; ++precision)
+	{
+		std::ostringstream formatted;
+		formatted << std::setprecision(precision) << value;
+		result = formatted.str();
+
+		std::istringstream reader(result);
+		double readBack = 0;
+		reader >> readBack;
+
+		if(readBack == value)
+			break;
+	}
+
+	out << result;
+}
+
 void JsonWriter::writeNode(const JsonNode & node)
 {
 	bool originalMode = compactMode;
@@ -106,7 +132,7 @@ void JsonWriter::writeNode(const JsonNode & node)
 			break;
 
 		case JsonNode::JsonType::DATA_FLOAT:
-			out << node.Float();
+			writeFloat(node.Float());
 			break;
 
 		case JsonNode::JsonType::DATA_STRING:
