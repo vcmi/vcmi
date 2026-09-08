@@ -461,6 +461,9 @@
 
 	"SHOOTER":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.mobileShooter" : null,
+		}
 	},
 
 	"SHOOTS_ALL_ADJACENT":

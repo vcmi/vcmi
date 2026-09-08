@@ -157,6 +157,14 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 			showStack(renderer, stack);
 		});
 	}
+
+	if(moveAndShootGhost && moveAndShootGhostStack && moveAndShootGhostHex.isValid())
+	{
+		renderer.insert(EBattleFieldLayer::STACKS, moveAndShootGhostHex, [this](BattleRenderer::RendererRef renderer)
+		{
+			moveAndShootGhost->nextFrame(renderer, Colors::TRANSPARENCY, 128, facingRight(moveAndShootGhostStack));
+		});
+	}
 }
 
 void BattleStacksController::stackReset(const CStack * stack)
@@ -246,6 +254,40 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 
 	if (activeStack)
 		stackAmountBoxHidden.clear();
+}
+
+void BattleStacksController::setMoveAndShootGhost(const CStack * stack, const BattleHex & destination)
+{
+	if(!stack || !destination.isValid())
+	{
+		clearMoveAndShootGhost();
+		return;
+	}
+
+	if(moveAndShootGhostStack != stack)
+	{
+		moveAndShootGhost = AnimationControls::getAnimation(stack->unitType());
+		moveAndShootGhost->pos.h = moveAndShootGhost->getHeight();
+		moveAndShootGhost->pos.w = moveAndShootGhost->getWidth();
+		moveAndShootGhost->setType(ECreatureAnimType::HOLDING);
+		moveAndShootGhost->setBorderColor(AnimationControls::getBlueBorder());
+		moveAndShootGhostStack = stack;
+	}
+
+	moveAndShootGhostHex = destination;
+	moveAndShootGhost->pos.moveTo(getStackPositionAtHex(destination, stack));
+	ENGINE->windows().totalRedraw();
+}
+
+void BattleStacksController::clearMoveAndShootGhost()
+{
+	if(!moveAndShootGhost)
+		return;
+
+	moveAndShootGhost.reset();
+	moveAndShootGhostStack = nullptr;
+	moveAndShootGhostHex = BattleHex::INVALID;
+	ENGINE->windows().totalRedraw();
 }
 
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const

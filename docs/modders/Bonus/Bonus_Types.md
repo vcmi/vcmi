@@ -639,6 +639,13 @@ Affected unit can fly on the battlefield
 
 Affected unit can shoot
 
+- subtype: `bonusSubtype.mobileShooter` - unit can move and then perform a ranged attack. The unit remains a regular
+  shooter and can still shoot without moving using its normal range.
+  - `val`: optional maximum shooting range after moving.
+  - `addInfo`: optional full-damage range after moving.
+  - If either value is omitted, the corresponding value from `LIMITED_SHOOTING_RANGE` is used. If that bonus is not
+    present, the standard ranged attack rules apply.
+
 ### CHARGE_IMMUNITY
 
 Affected unit is immune to JOUSTING ability of (ie. Champions).

@@ -73,5 +73,6 @@
 	"combatHeal"          : { "pivotX" : 12, "pivotY" : 12, "animation" : "CRCOMBAT", "frame" : 17},
 	"combatSacrifice"     : { "pivotX" : 12, "pivotY" : 12, "animation" : "CRCOMBAT", "frame" : 18},
 	"combatTeleport"      : { "pivotX" : 14, "pivotY" : 20, "animation" : "CRCOMBAT", "frame" : 19},
+	"combatMoveAndShoot"  : { "pivotX" : 28, "pivotY" :  3, "image" : "battle/combatMoveAndShoot.png"},
 	"castSpell"           : { "pivotX" : 18, "pivotY" : 28, "animation" : "CRSPELL", "animated" : true }
 }

@@ -255,6 +255,8 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				else if(bestAttack.attack.shooting)
 				{
 					activeActionMade = true;
+					if(bestAttack.from.isValid() && bestAttack.from != stack->getPosition())
+						return BattleAction::makeWalkAndShoot(stack, bestAttack.from, battle::Destination(bestAttack.attack.defender));
 					return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 				}
 				else

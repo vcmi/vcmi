@@ -10,8 +10,8 @@
 #pragma once
 
 #include "../../lib/Color.h"
+#include "../../lib/battle/BattleHex.h"
 
-class BattleHex;
 class BattleHexArray;
 class BattleAction;
 class CStack;
@@ -61,6 +61,11 @@ class BattleStacksController
 
 	/// animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation;
+
+	/// visual-only preview used while selecting a move-and-shoot target
+	std::shared_ptr<CreatureAnimation> moveAndShootGhost;
+	const CStack * moveAndShootGhostStack = nullptr;
+	BattleHex moveAndShootGhostHex;
 
 	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	std::map<int, bool> stackFacingRight;
@@ -138,6 +143,8 @@ public:
 	void activateStack(); //copy stackToActivate to activeStack to enable controls of the stack
 
 	void setActiveStack(const CStack *stack);
+	void setMoveAndShootGhost(const CStack * stack, const BattleHex & destination);
+	void clearMoveAndShootGhost();
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
 	void showStack(Canvas & canvas, const CStack * stack);
