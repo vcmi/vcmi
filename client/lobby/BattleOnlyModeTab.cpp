@@ -486,18 +486,18 @@ void BattleOnlyModeHeroSelector::selectHero()
 	})));
 	
 	std::vector<std::string> texts;
-	std::vector<std::shared_ptr<IImage>> images;
+	std::vector<int32_t> heroIconIndices;
 	// Add "no hero" option
 	texts.push_back(LIBRARY->generaltexth->translate("core.genrltxt.507"));
-	images.push_back(nullptr);
+	heroIconIndices.push_back(-1);
 	for (const auto & h : heroes)
 	{
 		texts.push_back(h.toHeroType()->getNameTranslated());
-
-		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), h.toHeroType()->imageIndex, 0, EImageBlitMode::OPAQUE);
-		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
-		images.push_back(image);
+		heroIconIndices.push_back(h.toHeroType()->imageIndex);
 	}
+
+	// Load portraits lazily: only visible list items are created, so avoid decoding all of them upfront.
+	auto imageLoader = CObjectListWindow::makeLazyHeroPortraitLoader(std::move(heroIconIndices));
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 		if(index == 0)
 		{
@@ -521,7 +521,7 @@ void BattleOnlyModeHeroSelector::selectHero()
 		parent.startInfo->spellBook[id] = heroes[index].toHeroType()->haveSpellBook;
 
 		parent.onChange();
-	}, selectedIndex, images, true, true);
+	}, selectedIndex, imageLoader, true, true);
 	window->onPopup = [heroes](int index) {
 		if(index == 0)
 			return;
