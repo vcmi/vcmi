@@ -44,6 +44,16 @@ TinyH3M::TinyH3MBuilder makeQuestlessSeerMap()
 class Nullkiller2_AIUtility : public NullkillerTest {};
 }
 
+TEST(Nullkiller2_AIGateway, blockingDialogFallsBackToPlannedObjectWhenTargetOnlyContainsHero)
+{
+	CGObjectInstance hero(nullptr);
+	CGObjectInstance plannedTarget(nullptr);
+	hero.id = ObjectInstanceID(1);
+	plannedTarget.id = ObjectInstanceID(2);
+
+	EXPECT_EQ(NK2AI::AIGateway::selectBlockingDialogObject({&hero}, hero.id, &plannedTarget), &plannedTarget);
+}
+
 TEST_F(Nullkiller2_AIUtility, trackedSeerWithoutActiveQuestIsNotVisitable)
 {
 	ASSERT_NO_FATAL_FAILURE(startWithMap(makeQuestlessSeerMap()));
