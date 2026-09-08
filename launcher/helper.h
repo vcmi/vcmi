@@ -31,6 +31,8 @@ namespace Helper
 	void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb);
 	QStringList findFilesForCopy(const QString &treeUri);
 	void sendFileToApp(QString path);
+	/// looks up a Steam game's install directory by AppID (Windows only - returns empty string elsewhere or if not found)
+	QString findSteamGameInstallDir(const QString & appId, const QString & fallbackInstallDir = QString());
 #ifdef VCMI_ANDROID
 	bool isInstalledFromGooglePlay();
 #endif
