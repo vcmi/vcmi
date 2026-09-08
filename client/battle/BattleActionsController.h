@@ -46,6 +46,10 @@ class BattleActionsController
 	/// stack that has been selected as first target for multi-target spells (Teleport & Sacrifice)
 	const CStack * selectedStack;
 
+	/// locally selected firing position for a move-and-shoot action
+	std::optional<BattleHex> selectedMovementHex;
+	bool selectedMovementHexRequiresMouseExit = false;
+
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
@@ -76,6 +80,11 @@ class BattleActionsController
 
 	/// returns true if current stack is a spellcaster
 	bool isActiveStackSpellcaster() const;
+	bool isMovementDestinationHex(const BattleHex & hex) const;
+	bool isFiringPositionHex(const BattleHex & hex) const;
+	bool isSelectedMovementDestinationHex(const BattleHex & hex) const;
+	void selectMovementDestination(const BattleHex & hex);
+	std::string getMoveAndShootSelectionPrompt() const;
 
 public:
 	BattleActionsController(BattleInterface & owner);
@@ -120,6 +129,10 @@ public:
 
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex);
+
+	bool moveAndShootSelectionActive() const;
+	std::optional<BattleHex> getSelectedMovementHex() const;
+	void cancelMoveAndShootSelection();
 
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);

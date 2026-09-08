@@ -60,6 +60,8 @@ public:
 	static const BonusCustomSubtype freeShootingNoPenalty; // 0
 	static const BonusCustomSubtype freeShootingExceptAdjacent; // 1
 
+	static const BonusCustomSubtype mobileShooter; // 0
+
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
 	static BonusCustomSubtype alignment(EAlignment alignment);

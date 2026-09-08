@@ -289,6 +289,11 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 			rangeAttack.aimToUnit(forcedAction.target);
 			makeAutomaticAction(battle, next, rangeAttack);
 		}
+		else if(forcedAction.type == EActionType::WALK_AND_SHOOT)
+		{
+			makeAutomaticAction(battle, next,
+				BattleAction::makeWalkAndShoot(next, forcedAction.position, battle::Destination(forcedAction.target)));
+		}
 		else if (forcedAction.type == EActionType::WALK_AND_ATTACK)
 		{
 			BattleAction meleeAttack;
@@ -336,9 +341,52 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 {
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
+	const bool manualControlGranted = curOwner
+		&& gameHandler->randomizer->rollCombatAbility(curOwner->id,
+			curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)));
+	const bool automaticallyControlled = next->hasBonusOfType(BonusType::CPU_CONTROLLED) && !manualControlGranted;
+	const bool hasStationaryTarget = !battle.battleGetStacksIf([&next, &battle](const CStack * stack)
+	{
+		return stack->unitOwner() != next->unitOwner()
+			&& stack->isValidTarget() && battle.battleCanShoot(next, stack->getPosition());
+	}).empty();
 
-	if (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && (battle.battleCanShoot(next) || !next->isMeleeAttacker())
-		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
+	if(automaticallyControlled && !hasStationaryTarget && battle.battleGetMobileShooterRange(next) > 0)
+	{
+		const auto reachability = battle.getReachability(next);
+		const auto availableHexes = battle.battleGetAvailableHexes(reachability, next, false);
+		const CStack * selectedTarget = nullptr;
+		BattleHex selectedPosition = BattleHex::INVALID;
+		int selectedDistance = std::numeric_limits<int>::max();
+
+		for(const CStack * target : battle.battleGetStacksIf([&next](const CStack * stack)
+		{
+			return stack->unitOwner() != next->unitOwner() && stack->isValidTarget();
+		}))
+		{
+			for(const BattleHex & position : availableHexes)
+			{
+				if(!battle.battleCanMoveAndShoot(next, position, target->getPosition()))
+					continue;
+				const int distance = reachability.distances[position.toInt()];
+				if(!selectedTarget || distance < selectedDistance || (distance == selectedDistance && position < selectedPosition))
+				{
+					selectedTarget = target;
+					selectedPosition = position;
+					selectedDistance = distance;
+				}
+			}
+		}
+
+		if(selectedTarget)
+		{
+			makeAutomaticAction(battle, next,
+				BattleAction::makeWalkAndShoot(next, selectedPosition, battle::Destination(selectedTarget)));
+			return true;
+		}
+	}
+
+	if(automaticallyControlled && (battle.battleCanShoot(next) || !next->isMeleeAttacker()))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;

@@ -30,6 +30,7 @@ public:
 		CATAPULT,
 		HEAL,
 		WALK_AND_SPELLCAST,
+		WALK_AND_SHOOT,
 
 		RANDOM_GENIE_SPELL,   // random spell on a friendly creature
 

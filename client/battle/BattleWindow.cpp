@@ -519,7 +519,8 @@ void BattleWindow::deactivate()
 
 bool BattleWindow::captureThisKey(EShortcut key)
 {
-	return owner.openingPlaying();
+	return owner.openingPlaying() ||
+		(owner.actionsController->moveAndShootSelectionActive() && key == EShortcut::GLOBAL_CANCEL);
 }
 
 void BattleWindow::keyPressed(EShortcut key)
@@ -527,6 +528,11 @@ void BattleWindow::keyPressed(EShortcut key)
 	if (owner.openingPlaying())
 	{
 		owner.openingEnd();
+		return;
+	}
+	if(key == EShortcut::GLOBAL_CANCEL && owner.actionsController->moveAndShootSelectionActive())
+	{
+		owner.actionsController->cancelMoveAndShootSelection();
 		return;
 	}
 	InterfaceObjectConfigurable::keyPressed(key);
@@ -911,6 +917,23 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !tacticsMode);
 
+	quickSpellWindow->setInputEnabled(!on);
+	unitActionWindow->setInputEnabled(!on);
+}
+
+void BattleWindow::setMoveAndShootSelectionMode(bool on)
+{
+	if(!on)
+	{
+		blockUI(false);
+		return;
+	}
+
+	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on);
+	setShortcutBlocked(EShortcut::BATTLE_WAIT, on);
+	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, on);
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on);
 	quickSpellWindow->setInputEnabled(!on);
 	unitActionWindow->setInputEnabled(!on);
 }

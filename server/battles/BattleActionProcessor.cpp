@@ -411,11 +411,54 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		return false;
 	}
 
-	auto destination = target.at(0).hexValue;
+	return executeShot(battle, stack, target.at(0).hexValue, ba.side);
+}
+
+bool BattleActionProcessor::doWalkAndShootAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+{
+	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
+	battle::Target target = ba.getTarget(&battle);
+
+	if(!canStackAct(battle, stack))
+		return false;
+
+	if(target.size() != 2)
+	{
+		gameHandler->complain("Two destinations required for walk and shoot action.");
+		return false;
+	}
+
+	const BattleHex movementDestination = target.at(0).hexValue;
+	const BattleHex shootingDestination = target.at(1).hexValue;
+	if(!battle.battleCanMoveAndShoot(stack, movementDestination, shootingDestination))
+	{
+		gameHandler->complain("Cannot move and shoot!");
+		return false;
+	}
+
+	const auto movementResult = moveStack(battle, ba.stackNumber, movementDestination);
+	if(movementResult.invalidRequest)
+	{
+		gameHandler->complain("Stack failed walk and shoot - unable to reach destination!");
+		return false;
+	}
+
+	if(movementResult.obstacleHit)
+		return true;
+
+	return executeShot(battle, stack, shootingDestination, ba.side, true);
+}
+
+bool BattleActionProcessor::executeShot(const CBattleInfoCallback & battle, const CStack * stack,
+	const BattleHex & destination, BattleSide side, bool mobileShooting)
+{
 
 	const CStack * destinationStack = battle.battleGetStackByPos(destination);
 
-	if (!battle.battleCanShoot(stack, destination))
+	const bool canShoot = mobileShooting
+		? battle.battleCanShootAfterMoving(stack, destination)
+		: battle.battleCanShoot(stack, destination);
+	if(!canShoot)
 	{
 		gameHandler->complain("Cannot shoot!");
 		return false;
@@ -437,7 +480,8 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	}
 
 	if (!firstStrike)
-		makeAttack(battle, stack, destinationStack, {.targetHex = destination, .first = true, .ranged = true});
+		makeAttack(battle, stack, destinationStack,
+			{.targetHex = destination, .first = true, .ranged = true, .mobileShooting = mobileShooting});
 
 	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
 	BonusList defenderBonusesToRemove;
@@ -459,7 +503,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	int totalRangedAttacks = stack->getTotalAttacks(true);
 
 	//TODO: move to CUnitState
-	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
+	const auto * attackingHero = battle.battleGetFightingHero(side);
 	if(attackingHero)
 	{
 		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
@@ -473,7 +517,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		{
 			// when the defender strikes first the opening shot above is skipped and this loop makes
 			// it instead, so the shot that abilities fire on is the first one this loop makes
-			makeAttack(battle, stack, destinationStack, {.targetHex = destination, .attackIndex = i, .first = i == 0, .ranged = true});
+			makeAttack(battle, stack, destinationStack,
+				{.targetHex = destination, .attackIndex = i, .first = i == 0,
+					.ranged = true, .mobileShooting = mobileShooting});
 		}
 	}
 
@@ -717,6 +763,8 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
 			return doWalkAndSpellcastAction(battle, ba);
+		case EActionType::WALK_AND_SHOOT:
+			return doWalkAndShootAction(battle, ba);
 		case EActionType::SHOOT:
 			return doShootAction(battle, ba);
 		case EActionType::CATAPULT:
@@ -1190,7 +1238,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	// only primary target
 	if(defender && defender->alive())
-		applyBattleEffects(battle, bat, attackerState, payload, defender, attack.distance, false);
+		applyBattleEffects(battle, bat, attackerState, payload, defender, attack.distance, false, attack.mobileShooting);
 
 	for(const auto * unit : secondaryTargets)
 	{
@@ -1198,7 +1246,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		if(!unit->alive())
 			continue;
 
-		applyBattleEffects(battle, bat, attackerState, payload, unit, attack.distance, true);
+		applyBattleEffects(battle, bat, attackerState, payload, unit, attack.distance, true, attack.mobileShooting);
 		removeBonuses(battle, unit, *unit->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 	}
 
@@ -1376,7 +1424,9 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		attackCasting(battle, payload.ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
 }
 
-void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload, const battle::Unit * def, int distance, bool secondary) const
+void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat,
+	std::shared_ptr<battle::CUnitState> attackerState, CombatEventPayload & payload,
+	const battle::Unit * def, int distance, bool secondary, bool mobileShooting) const
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1386,6 +1436,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	bsa.stackAttacked = def->unitId();
 
 	BattleAttackInfo bai(attackerState.get(), def, distance, bat.shot());
+	bai.mobileShooting = mobileShooting;
 	bai.deathBlow = bat.deathBlow();
 	bai.doubleDamage = bat.ballistaDoubleDmg();
 	bai.luckyStrike  = bat.lucky();
