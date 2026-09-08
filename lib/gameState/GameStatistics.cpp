@@ -12,6 +12,7 @@
 #include "../CPlayerState.h"
 #include "../constants/StringConstants.h"
 #include "../VCMIDirs.h"
+#include "../texts/TextOperations.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
 #include "StartInfo.h"
@@ -290,7 +291,7 @@ std::string StatisticDataSet::writeCsv(const ITranslator * translator) const
 	std::string csv = toCsv(";", translator);
 	file << csv;
 
-	return filePath.string();
+	return TextOperations::filesystemPathToUtf8(filePath);
 }
 
 //calculates total number of artifacts that belong to given player

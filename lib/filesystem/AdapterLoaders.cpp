@@ -120,7 +120,7 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 		auto rn = loader->getResourceName(resourceName);
 		if(rn)
 		{
-			paths.insert(rn->string());
+			paths.insert(*rn);
 		}
 	}
 	return paths;

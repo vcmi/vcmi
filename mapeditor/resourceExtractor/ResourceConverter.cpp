@@ -14,6 +14,7 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/TextOperations.h"
 
 #include "BitmapHandler.h"
 #include "Animation.h"
@@ -39,7 +40,7 @@ void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversi
 
 void ResourceConverter::doConvertPcxToPng(const boost::filesystem::path & sourceFolder, bool deleteOriginals)
 {
-	logGlobal->info("Converting .pcx to .png from folder: %s ...\n", sourceFolder);
+	logGlobal->info("Converting .pcx to .png from folder: %s ...\n", TextOperations::filesystemPathToUtf8(sourceFolder));
 
 	for(const auto & directoryEntry : boost::filesystem::directory_iterator(sourceFolder))
 	{
@@ -49,13 +50,12 @@ void ResourceConverter::doConvertPcxToPng(const boost::filesystem::path & source
 			if(!boost::filesystem::is_regular_file(directoryEntry))
 				continue;
 
-			std::string fileStem = directoryEntry.path().stem().string();
-			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename.string());
+			std::string filenameLowerCase = boost::algorithm::to_lower_copy(TextOperations::filesystemPathToUtf8(filename));
 
-			if(boost::algorithm::to_lower_copy(filename.extension().string()) == ".pcx")
+			if(boost::algorithm::to_lower_copy(TextOperations::filesystemPathToUtf8(filename.extension())) == ".pcx")
 			{
 				auto img = BitmapHandler::loadBitmap(filenameLowerCase);
-				boost::filesystem::path pngFilePath = sourceFolder / (fileStem + ".png");
+				boost::filesystem::path pngFilePath = boost::filesystem::path(directoryEntry.path()).replace_extension(".png");
 				img.save(pathToQString(pngFilePath), "PNG");
 
 				if(deleteOriginals)
@@ -64,7 +64,7 @@ void ResourceConverter::doConvertPcxToPng(const boost::filesystem::path & source
 		}
 		catch(const std::exception& ex)
 		{
-			logGlobal->info(filename.string() + " " + ex.what() + "\n");
+			logGlobal->info(TextOperations::filesystemPathToUtf8(filename) + " " + ex.what() + "\n");
 		}
 	}
 }
@@ -78,7 +78,7 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const boost::
 		anim->exportBitmaps(pathToQString(sourceFolder));
 
 		if(deleteOriginals)
-			boost::filesystem::remove(sourceFolder / fileName);
+			boost::filesystem::remove(sourceFolder / TextOperations::Utf8TofilesystemPath(fileName));
 	}
 	else
 		logGlobal->error("Def File Split error! " + fileName);
@@ -86,7 +86,7 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const boost::
 
 void ResourceConverter::splitDefFiles(const std::vector<std::string> & defFileNames, const boost::filesystem::path & sourceFolder, bool deleteOriginals)
 {
-	logGlobal->info("Splitting Def Files from folder: %s ...\n", sourceFolder);
+	logGlobal->info("Splitting Def Files from folder: %s ...\n", TextOperations::filesystemPathToUtf8(sourceFolder));
 
 	for(const auto & defFilename : defFileNames)
 		splitDefFile(defFilename, sourceFolder, deleteOriginals);

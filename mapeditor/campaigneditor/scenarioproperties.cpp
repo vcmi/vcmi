@@ -403,7 +403,7 @@ void ScenarioProperties::on_pushButtonCreatureTypeNone_clicked()
 void ScenarioProperties::on_pushButtonImport_clicked()
 {
 	auto title = tr("Open map");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)");
 
 	auto filename = EditorFileDialog::getOpenFileName(this, title, dir, filter);
@@ -441,7 +441,7 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 	bool isVmap = mapName.toLower().endsWith(".vmap");
 
 	auto title = tr("Save map");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = isVmap ? tr("VCMI maps (*.vmap);") : tr("HoMM3 maps (*.h3m);");
 
 	QString contentUri;

@@ -453,7 +453,7 @@ void MainWindow::manualInstallFile(QString filePath)
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
-		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
+		QDir configDir(pathToQString(VCMIDirs::get().userConfigPath()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
 		if(!configFile.empty())
 		{

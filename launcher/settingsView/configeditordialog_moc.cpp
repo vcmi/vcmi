@@ -133,7 +133,7 @@ void ConfigEditorDialog::onSaveButtonClicked()
 
 QString ConfigEditorDialog::loadFile(QString filename)
 {
-	auto file = pathToQString(VCMIDirs::get().userConfigPath() / filename.toStdString());
+	auto file = pathToQString(VCMIDirs::get().userConfigPath() / qstringToPath(filename));
 	QFile f(file);
 	if(!f.open(QFile::ReadOnly | QFile::Text))
 	{
@@ -148,7 +148,7 @@ QString ConfigEditorDialog::loadFile(QString filename)
 
 void ConfigEditorDialog::saveFile(QString filename, QString content)
 {
-	auto file = pathToQString(VCMIDirs::get().userConfigPath() / filename.toStdString());
+	auto file = pathToQString(VCMIDirs::get().userConfigPath() / qstringToPath(filename));
 	QFile f(file);
 	if(!f.open(QFile::WriteOnly | QFile::Text))
 	{

@@ -28,6 +28,7 @@
 #include "lib/constants/StringConstants.h"
 #include "lib/VCMIDirs.h"
 #include "lib/texts/MetaString.h"
+#include "lib/texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
 
@@ -750,7 +751,7 @@ void ScreenHandler::screenShot() const
 	img->exportBitmap(filePath, nullptr);
 	MetaString txt;
 	txt.appendTextID("vcmi.client.screenShot");
-	txt.replaceRawString(filePath.string());
+	txt.replaceRawString(TextOperations::filesystemPathToUtf8(filePath));
 	if(GAME->interface())
 		GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
 }

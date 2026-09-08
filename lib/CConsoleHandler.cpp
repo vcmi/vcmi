@@ -13,6 +13,7 @@
 
 #include "CThreadHelper.h"
 #include "VCMIDirs.h"
+#include "texts/TextOperations.h"
 #include <boost/stacktrace.hpp>
 
 #if defined(NDEBUG) && !defined(VCMI_ANDROID)
@@ -60,7 +61,7 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 	const auto dumpName = boost::filesystem::path(executablePath.data()).filename().wstring() + L"_crashinfo.dmp";
 	const auto dumpPath = VCMIDirs::get().userLogsPath() / dumpName;
 	HANDLE dfile = CreateFileW(dumpPath.c_str(), GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-	logGlobal->error("Crash info will be put in %s", dumpPath.string());
+	logGlobal->error("Crash info will be put in %s", TextOperations::filesystemPathToUtf8(dumpPath));
 	
 	auto dumpType = MiniDumpWithDataSegs;
 

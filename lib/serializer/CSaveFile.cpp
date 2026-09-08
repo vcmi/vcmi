@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CSaveFile.h"
 
+#include "../texts/TextOperations.h"
+
 CSaveFile::CSaveFile()
 	: serializer(this)
 {
@@ -28,7 +30,7 @@ void CSaveFile::write(const boost::filesystem::path & fileName)
 	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 	if(!sfile)
-		throw std::runtime_error("Error: cannot open file '" + fileName.string() + "' for writing!");
+		throw std::runtime_error("Error: cannot open file '" + TextOperations::filesystemPathToUtf8(fileName) + "' for writing!");
 
 	sfile.write(reinterpret_cast<const char *>(saveData.data()), saveData.size());
 }

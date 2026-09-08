@@ -27,6 +27,7 @@
 #include "mapping/CMapService.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
+#include "texts/TextOperations.h"
 #include "../luascript/LuaModule.h"
 
 #include <boost/program_options.hpp>
@@ -42,7 +43,7 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 	scriptHandler->exportDocs(outPath);
 
 	logGlobal->info("Lua API documentation export complete");
-	logGlobal->info("Generated files can be found in " + outPath.string() + " directory");
+	logGlobal->info("Generated files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory");
 }
 
 static void generateTranslations(const std::string & modID)
@@ -221,7 +222,7 @@ static void generateTranslations(const std::string & modID)
 	mods->deletePreset("translation-export");
 	mods->deletePreset("translation-export-base");
 	logGlobal->info("Translation export complete");
-	logGlobal->info("Extracted files can be found in " + outPath.string() + " directory\n");
+	logGlobal->info("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 
 }
 
