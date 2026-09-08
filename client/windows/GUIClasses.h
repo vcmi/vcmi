@@ -200,7 +200,6 @@ class CObjectListWindow : public CWindowObject
 	std::shared_ptr<CIntObject> titleWidget;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> descr;
-	std::vector<std::shared_ptr<IImage>> images;
 	std::function<std::shared_ptr<IImage>(size_t)> imageLoader;
 
 	std::shared_ptr<CListBox> list;

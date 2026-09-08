@@ -1770,15 +1770,8 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	int imgIndex = (it != parent->items.end()) ? std::distance(parent->items.begin(), it) : -1;
 
 	std::shared_ptr<IImage> image;
-	if(parent->imageLoader)
-	{
-		if(imgIndex >= 0)
-			image = parent->imageLoader(imgIndex);
-	}
-	else if(imgIndex >= 0 && imgIndex < parent->images.size())
-	{
-		image = parent->images[imgIndex];
-	}
+	if(parent->imageLoader && imgIndex >= 0)
+		image = parent->imageLoader(imgIndex);
 
 	if(image)
 		icon = std::make_shared<CPicture>(image, Point(1,1));
@@ -1832,7 +1825,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
-	images(images)
+	imageLoader([images](size_t index) { return index < images.size() ? images[index] : std::shared_ptr<IImage>(); })
 {
 	OBJECT_CONSTRUCTION;
 
