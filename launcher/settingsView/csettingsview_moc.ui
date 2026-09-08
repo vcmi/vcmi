@@ -491,7 +491,29 @@
          </property>
         </widget>
        </item>
-       <item row="26" column="1" colspan="5">
+       <item row="26" column="4" colspan="2">
+        <widget class="QDoubleSpinBox" name="spinBoxUpscalingFilterSharpness">
+         <property name="toolTip">
+          <string>Sharpening strength for the xBRZ + Sharpen upscaling filters</string>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>0.0</double>
+         </property>
+         <property name="maximum">
+          <double>2.0</double>
+         </property>
+         <property name="singleStep">
+          <double>0.05</double>
+         </property>
+         <property name="value">
+          <double>0.2</double>
+         </property>
+        </widget>
+       </item>
+       <item row="26" column="1" colspan="3">
         <widget class="QComboBox" name="comboBoxUpscalingFilter">
          <item>
           <property name="text">
@@ -510,12 +532,27 @@
          </item>
          <item>
           <property name="text">
+           <string>xBRZ x2 + Sharpen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>xBRZ x3</string>
           </property>
          </item>
          <item>
           <property name="text">
+           <string>xBRZ x3 + Sharpen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>xBRZ x4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>xBRZ x4 + Sharpen</string>
           </property>
          </item>
         </widget>

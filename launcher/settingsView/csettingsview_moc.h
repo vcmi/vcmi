@@ -73,6 +73,7 @@ private slots:
 
 	void on_buttonIgnoreSslErrors_clicked(bool checked);
 	void on_comboBoxUpscalingFilter_currentIndexChanged(int index);
+	void on_spinBoxUpscalingFilterSharpness_valueChanged(double value);
 	void on_comboBoxDownscalingFilter_currentIndexChanged(int index);
 	void on_sliderMusicVolume_valueChanged(int value);
 	void on_sliderSoundVolume_valueChanged(int value);
