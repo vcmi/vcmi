@@ -205,6 +205,12 @@ void CTextInput::setFilterNumber(int minValue, int maxValue, int metricDigits)
 	numberInputOnly = true;
 }
 
+void CTextInput::setFilterCustom(TextFilterCallback filter, bool numbersOnly)
+{
+	onTextFiltering = std::move(filter);
+	numberInputOnly = numbersOnly;
+}
+
 std::string CTextInput::getVisibleText() const
 {
 	return hasFocus() ? currentText + composedText + "_" : currentText;

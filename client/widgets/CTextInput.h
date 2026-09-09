@@ -105,6 +105,9 @@ public:
 	void setFilterFilename();
 	/// Enable filtering entered text that ensures that text is valid number in provided range [min, max]
 	void setFilterNumber(int minValue, int maxValue, int metricDigits=0);
+	/// Enables filtering entered text through a caller-provided filter. If numbersOnly is set,
+	/// on-screen keyboards will be hinted to show a numeric layout, same as with setFilterNumber
+	void setFilterCustom(TextFilterCallback filter, bool numbersOnly);
 
 	void setFont(EFonts Font);
 	void setColor(const ColorRGBA & Color);
