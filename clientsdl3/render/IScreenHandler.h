@@ -27,6 +27,17 @@ enum class GpuRenderLayer : uint8_t
 	COUNT
 };
 
+/// State of the OS taskbar/dock progress indicator (Windows taskbar, macOS dock, Linux launchers)
+enum class TaskbarProgress : uint8_t
+{
+	/// No progress indicator shown
+	HIDDEN,
+	/// Busy indicator with no known completion fraction
+	INDETERMINATE,
+	/// Indicator filled to a known completion fraction, in range [0, 1]
+	NORMAL
+};
+
 class IScreenHandler
 {
 public:
@@ -106,4 +117,9 @@ public:
 	/// Hands everything drawn so far to the GPU instead of leaving it queued. Lets drawing
 	/// that a later pass reads back start early, rather than stalling on the first read.
 	virtual void flushRenderCommands() = 0;
+
+	/// Sets the OS taskbar/dock progress indicator, mirroring the adventure map's own
+	/// hourglass while another player (AI or hotseat) is taking their turn. value is only
+	/// used when state is NORMAL, and must be in range [0, 1].
+	virtual void setTaskbarProgress(TaskbarProgress state, float value) = 0;
 };

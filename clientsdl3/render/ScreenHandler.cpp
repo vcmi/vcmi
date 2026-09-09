@@ -1062,6 +1062,23 @@ void ScreenHandler::setColorScheme(ColorScheme scheme)
 	ENGINE->windows().totalRedraw();
 }
 
+void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
+{
+	switch (state)
+	{
+		case TaskbarProgress::HIDDEN:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NONE);
+			break;
+		case TaskbarProgress::INDETERMINATE:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_INDETERMINATE);
+			break;
+		case TaskbarProgress::NORMAL:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NORMAL);
+			SDL_SetWindowProgressValue(mainWindow, std::clamp(value, 0.f, 1.f));
+			break;
+	}
+}
+
 void ScreenHandler::screenShot() const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
