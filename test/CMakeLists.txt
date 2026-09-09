@@ -184,6 +184,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
 		nullkiller2/Behaviors/GatherArmyBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Engine/DecisionPolicyTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp
@@ -289,3 +290,16 @@ foreach(resource ${testdata})
 	set(output "${CMAKE_BINARY_DIR}/bin/test/testdata/${output}/${filename}")
 	configure_file(${resource} ${output} COPYONLY)
 endforeach()
+
+if(ENABLE_NULLKILLER2_AI)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/config/ai/nk2ai/policies/reference.json
+		${CMAKE_BINARY_DIR}/bin/test/testdata/nk2/reference.json
+		COPYONLY
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/config/ai/nk2ai/policies/reference.lua
+		${CMAKE_BINARY_DIR}/bin/test/testdata/nk2/reference.lua
+		COPYONLY
+	)
+endif()

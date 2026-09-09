@@ -1,0 +1,839 @@
+[
+  {
+    "request": {
+      "candidates": [
+        {
+          "description": "Buy army at Manufactury",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 0,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 0,
+              "resources": {
+                "crystal": 0,
+                "gems": 0,
+                "gold": 0,
+                "mercury": 0,
+                "ore": 0,
+                "sulfur": 0,
+                "wood": 0
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 0,
+            "goldReward": 0,
+            "heroRole": "scout",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0,
+            "movementCostByRole": {
+              "main": 0,
+              "scout": 0
+            },
+            "powerRatio": 0,
+            "skillReward": 0,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "buyArmy",
+          "goalTypeId": 16,
+          "id": 0,
+          "initialPriority": 704,
+          "target": {
+            "x": -1,
+            "y": -1,
+            "z": -1
+          },
+          "townId": 347
+        },
+        {
+          "description": "Build Mage Guild Level 1 in Manufactury",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 0,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 31500,
+              "resources": {
+                "crystal": 10,
+                "gems": 10,
+                "gold": 4000,
+                "mercury": 10,
+                "ore": 15,
+                "sulfur": 10,
+                "wood": 15
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 2000,
+            "goldReward": 0,
+            "heroRole": "main",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0,
+            "movementCostByRole": {
+              "main": 3,
+              "scout": 0
+            },
+            "powerRatio": 0,
+            "skillReward": 2,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "buildStructure",
+          "goalTypeId": 8,
+          "id": 5,
+          "initialPriority": 0,
+          "target": {
+            "x": -1,
+            "y": -1,
+            "z": -1
+          },
+          "townId": 347
+        }
+      ],
+      "day": 1,
+      "parameters": {},
+      "player": "red",
+      "playerId": 0,
+      "priorityTier": "buildings",
+      "priorityTierId": 0,
+      "schemaVersion": 3,
+      "state": {
+        "dailyIncome": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 500,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "dayOfWeek": 1,
+        "daysInWeek": 7,
+        "daysWithoutCastle": false,
+        "goldPressureOverMax": false,
+        "hasTownWithoutMarketplace": true,
+        "heroCount": 1,
+        "heroes": [
+          {
+            "armyStrength": 1628,
+            "experience": 73,
+            "id": 350,
+            "level": 1,
+            "mana": 21,
+            "movement": 1560,
+            "totalStrength": 1888
+          }
+        ],
+        "knownObjectCount": 13,
+        "lockedResourceMarketValue": 0,
+        "lockedResources": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 0,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "maximumArmyLossTarget": 0.5,
+        "ownedObjectCount": 2,
+        "resourceMarketValue": 20500,
+        "resources": {
+          "crystal": 4,
+          "gems": 4,
+          "gold": 7500,
+          "mercury": 4,
+          "ore": 10,
+          "sulfur": 4,
+          "wood": 10
+        },
+        "revealedTileCount": 151,
+        "totalArmyStrength": 1628,
+        "totalBuildings": 4,
+        "totalFortLevel": 1,
+        "totalHeroArmyStrength": 1628,
+        "totalHeroExperience": 73,
+        "totalHeroLevels": 1,
+        "totalHeroStrength": 1888,
+        "totalTownArmyStrength": 0,
+        "townCount": 1,
+        "towns": [
+          {
+            "armyStrength": 0,
+            "buildingCount": 4,
+            "dailyIncome": {
+              "crystal": 0,
+              "gems": 0,
+              "gold": 500,
+              "mercury": 0,
+              "ore": 0,
+              "sulfur": 0,
+              "wood": 0
+            },
+            "fortLevel": 1,
+            "hallLevel": 0,
+            "hasResourceMarketplace": false,
+            "id": 347,
+            "mageGuildLevel": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "candidates": [
+        {
+          "description": "ExecuteHeroChain resource(1 3 0) by Neela",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 1110,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 0,
+              "resources": {
+                "crystal": 0,
+                "gems": 0,
+                "gold": 0,
+                "mercury": 0,
+                "ore": 0,
+                "sulfur": 0,
+                "wood": 0
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 0,
+            "goldReward": 100,
+            "heroRole": "main",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0.346795,
+            "movementCostByRole": {
+              "main": 0.346795,
+              "scout": 0
+            },
+            "powerRatio": 0.698113,
+            "skillReward": 0,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "executeHeroChain",
+          "goalTypeId": 21,
+          "heroId": 350,
+          "id": 0,
+          "initialPriority": 0,
+          "objectId": 332,
+          "target": {
+            "x": 1,
+            "y": 3,
+            "z": 0
+          }
+        }
+      ],
+      "day": 1,
+      "parameters": {},
+      "player": "red",
+      "playerId": 0,
+      "priorityTier": "instakill",
+      "priorityTierId": 1,
+      "schemaVersion": 3,
+      "state": {
+        "dailyIncome": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 500,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "dayOfWeek": 1,
+        "daysInWeek": 7,
+        "daysWithoutCastle": false,
+        "goldPressureOverMax": false,
+        "hasTownWithoutMarketplace": true,
+        "heroCount": 1,
+        "heroes": [
+          {
+            "armyStrength": 1628,
+            "experience": 73,
+            "id": 350,
+            "level": 1,
+            "mana": 21,
+            "movement": 1560,
+            "totalStrength": 1888
+          }
+        ],
+        "knownObjectCount": 13,
+        "lockedResourceMarketValue": 0,
+        "lockedResources": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 0,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "maximumArmyLossTarget": 0.5,
+        "ownedObjectCount": 2,
+        "resourceMarketValue": 14620,
+        "resources": {
+          "crystal": 4,
+          "gems": 4,
+          "gold": 4120,
+          "mercury": 4,
+          "ore": 5,
+          "sulfur": 4,
+          "wood": 5
+        },
+        "revealedTileCount": 151,
+        "totalArmyStrength": 3832,
+        "totalBuildings": 5,
+        "totalFortLevel": 1,
+        "totalHeroArmyStrength": 1628,
+        "totalHeroExperience": 73,
+        "totalHeroLevels": 1,
+        "totalHeroStrength": 1888,
+        "totalTownArmyStrength": 2204,
+        "townCount": 1,
+        "towns": [
+          {
+            "armyStrength": 2204,
+            "buildingCount": 5,
+            "dailyIncome": {
+              "crystal": 0,
+              "gems": 0,
+              "gold": 500,
+              "mercury": 0,
+              "ore": 0,
+              "sulfur": 0,
+              "wood": 0
+            },
+            "fortLevel": 1,
+            "hallLevel": 0,
+            "hasResourceMarketplace": false,
+            "id": 347,
+            "mageGuildLevel": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "candidates": [
+        {
+          "description": "ExecuteHeroChain resource(1 3 0) by Neela",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 1110,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 0,
+              "resources": {
+                "crystal": 0,
+                "gems": 0,
+                "gold": 0,
+                "mercury": 0,
+                "ore": 0,
+                "sulfur": 0,
+                "wood": 0
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 0,
+            "goldReward": 100,
+            "heroRole": "main",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0.346795,
+            "movementCostByRole": {
+              "main": 0.346795,
+              "scout": 0
+            },
+            "powerRatio": 0.698113,
+            "skillReward": 0,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "executeHeroChain",
+          "goalTypeId": 21,
+          "heroId": 350,
+          "id": 0,
+          "initialPriority": 0,
+          "objectId": 332,
+          "target": {
+            "x": 1,
+            "y": 3,
+            "z": 0
+          }
+        }
+      ],
+      "day": 1,
+      "parameters": {},
+      "player": "red",
+      "playerId": 0,
+      "priorityTier": "instaDefend",
+      "priorityTierId": 2,
+      "schemaVersion": 3,
+      "state": {
+        "dailyIncome": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 500,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "dayOfWeek": 1,
+        "daysInWeek": 7,
+        "daysWithoutCastle": false,
+        "goldPressureOverMax": false,
+        "hasTownWithoutMarketplace": true,
+        "heroCount": 1,
+        "heroes": [
+          {
+            "armyStrength": 1628,
+            "experience": 73,
+            "id": 350,
+            "level": 1,
+            "mana": 21,
+            "movement": 1560,
+            "totalStrength": 1888
+          }
+        ],
+        "knownObjectCount": 13,
+        "lockedResourceMarketValue": 0,
+        "lockedResources": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 0,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "maximumArmyLossTarget": 0.5,
+        "ownedObjectCount": 2,
+        "resourceMarketValue": 14620,
+        "resources": {
+          "crystal": 4,
+          "gems": 4,
+          "gold": 4120,
+          "mercury": 4,
+          "ore": 5,
+          "sulfur": 4,
+          "wood": 5
+        },
+        "revealedTileCount": 151,
+        "totalArmyStrength": 3832,
+        "totalBuildings": 5,
+        "totalFortLevel": 1,
+        "totalHeroArmyStrength": 1628,
+        "totalHeroExperience": 73,
+        "totalHeroLevels": 1,
+        "totalHeroStrength": 1888,
+        "totalTownArmyStrength": 2204,
+        "townCount": 1,
+        "towns": [
+          {
+            "armyStrength": 2204,
+            "buildingCount": 5,
+            "dailyIncome": {
+              "crystal": 0,
+              "gems": 0,
+              "gold": 500,
+              "mercury": 0,
+              "ore": 0,
+              "sulfur": 0,
+              "wood": 0
+            },
+            "fortLevel": 1,
+            "hallLevel": 0,
+            "hasResourceMarketplace": false,
+            "id": 347,
+            "mageGuildLevel": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "candidates": [
+        {
+          "description": "ExecuteHeroChain resource(1 3 0) by Neela",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 1110,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 0,
+              "resources": {
+                "crystal": 0,
+                "gems": 0,
+                "gold": 0,
+                "mercury": 0,
+                "ore": 0,
+                "sulfur": 0,
+                "wood": 0
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 0,
+            "goldReward": 100,
+            "heroRole": "main",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0.346795,
+            "movementCostByRole": {
+              "main": 0.346795,
+              "scout": 0
+            },
+            "powerRatio": 0.698113,
+            "skillReward": 0,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "executeHeroChain",
+          "goalTypeId": 21,
+          "heroId": 350,
+          "id": 0,
+          "initialPriority": 0,
+          "objectId": 332,
+          "target": {
+            "x": 1,
+            "y": 3,
+            "z": 0
+          }
+        }
+      ],
+      "day": 1,
+      "parameters": {},
+      "player": "red",
+      "playerId": 0,
+      "priorityTier": "kill",
+      "priorityTierId": 3,
+      "schemaVersion": 3,
+      "state": {
+        "dailyIncome": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 500,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "dayOfWeek": 1,
+        "daysInWeek": 7,
+        "daysWithoutCastle": false,
+        "goldPressureOverMax": false,
+        "hasTownWithoutMarketplace": true,
+        "heroCount": 1,
+        "heroes": [
+          {
+            "armyStrength": 1628,
+            "experience": 73,
+            "id": 350,
+            "level": 1,
+            "mana": 21,
+            "movement": 1560,
+            "totalStrength": 1888
+          }
+        ],
+        "knownObjectCount": 13,
+        "lockedResourceMarketValue": 0,
+        "lockedResources": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 0,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "maximumArmyLossTarget": 0.5,
+        "ownedObjectCount": 2,
+        "resourceMarketValue": 14620,
+        "resources": {
+          "crystal": 4,
+          "gems": 4,
+          "gold": 4120,
+          "mercury": 4,
+          "ore": 5,
+          "sulfur": 4,
+          "wood": 5
+        },
+        "revealedTileCount": 151,
+        "totalArmyStrength": 3832,
+        "totalBuildings": 5,
+        "totalFortLevel": 1,
+        "totalHeroArmyStrength": 1628,
+        "totalHeroExperience": 73,
+        "totalHeroLevels": 1,
+        "totalHeroStrength": 1888,
+        "totalTownArmyStrength": 2204,
+        "townCount": 1,
+        "towns": [
+          {
+            "armyStrength": 2204,
+            "buildingCount": 5,
+            "dailyIncome": {
+              "crystal": 0,
+              "gems": 0,
+              "gold": 500,
+              "mercury": 0,
+              "ore": 0,
+              "sulfur": 0,
+              "wood": 0
+            },
+            "fortLevel": 1,
+            "hallLevel": 0,
+            "hasResourceMarketplace": false,
+            "id": 347,
+            "mageGuildLevel": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "candidates": [
+        {
+          "description": "ExecuteHeroChain resource(1 3 0) by Neela",
+          "evaluation": {
+            "armyGrowth": 0,
+            "armyInvolvement": 1110,
+            "armyLossRatio": 0,
+            "armyReward": 0,
+            "buildingCost": {
+              "marketValue": 0,
+              "resources": {
+                "crystal": 0,
+                "gems": 0,
+                "gold": 0,
+                "mercury": 0,
+                "ore": 0,
+                "sulfur": 0,
+                "wood": 0
+              }
+            },
+            "closestWayRatio": 1,
+            "conquestValue": 0,
+            "danger": 0,
+            "defenseValue": 0,
+            "enemyHeroDangerRatio": 0,
+            "explorePriority": 0,
+            "goldCost": 0,
+            "goldReward": 100,
+            "heroRole": "main",
+            "involvesSailing": false,
+            "isArmyUpgrade": false,
+            "isDefend": false,
+            "isEnemy": false,
+            "isExchange": false,
+            "isHero": false,
+            "isTradeBuilding": false,
+            "manaCost": 0,
+            "movementCost": 0.346795,
+            "movementCostByRole": {
+              "main": 0.346795,
+              "scout": 0
+            },
+            "powerRatio": 0.698113,
+            "skillReward": 0,
+            "strategicalValue": 0,
+            "threat": 0,
+            "threatTurns": 2147483647,
+            "turn": 0
+          },
+          "goalType": "executeHeroChain",
+          "goalTypeId": 21,
+          "heroId": 350,
+          "id": 0,
+          "initialPriority": 0,
+          "objectId": 332,
+          "reference": {
+            "escape": {
+              "currentDanger": 0,
+              "currentDangerTurn": 255,
+              "currentThreat": 0,
+              "destinationThreat": 0,
+              "heroTotalStrength": 1888
+            }
+          },
+          "target": {
+            "x": 1,
+            "y": 3,
+            "z": 0
+          }
+        }
+      ],
+      "day": 1,
+      "parameters": {},
+      "player": "red",
+      "playerId": 0,
+      "priorityTier": "escape",
+      "priorityTierId": 4,
+      "schemaVersion": 3,
+      "state": {
+        "dailyIncome": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 500,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "dayOfWeek": 1,
+        "daysInWeek": 7,
+        "daysWithoutCastle": false,
+        "goldPressureOverMax": false,
+        "hasTownWithoutMarketplace": true,
+        "heroCount": 1,
+        "heroes": [
+          {
+            "armyStrength": 1628,
+            "experience": 73,
+            "id": 350,
+            "level": 1,
+            "mana": 21,
+            "movement": 1560,
+            "totalStrength": 1888
+          }
+        ],
+        "knownObjectCount": 13,
+        "lockedResourceMarketValue": 0,
+        "lockedResources": {
+          "crystal": 0,
+          "gems": 0,
+          "gold": 0,
+          "mercury": 0,
+          "ore": 0,
+          "sulfur": 0,
+          "wood": 0
+        },
+        "maximumArmyLossTarget": 0.5,
+        "ownedObjectCount": 2,
+        "resourceMarketValue": 14620,
+        "resources": {
+          "crystal": 4,
+          "gems": 4,
+          "gold": 4120,
+          "mercury": 4,
+          "ore": 5,
+          "sulfur": 4,
+          "wood": 5
+        },
+        "revealedTileCount": 151,
+        "totalArmyStrength": 3832,
+        "totalBuildings": 5,
+        "totalFortLevel": 1,
+        "totalHeroArmyStrength": 1628,
+        "totalHeroExperience": 73,
+        "totalHeroLevels": 1,
+        "totalHeroStrength": 1888,
+        "totalTownArmyStrength": 2204,
+        "townCount": 1,
+        "towns": [
+          {
+            "armyStrength": 2204,
+            "buildingCount": 5,
+            "dailyIncome": {
+              "crystal": 0,
+              "gems": 0,
+              "gold": 500,
+              "mercury": 0,
+              "ore": 0,
+              "sulfur": 0,
+              "wood": 0
+            },
+            "fortLevel": 1,
+            "hallLevel": 0,
+            "hasResourceMarketplace": false,
+            "id": 347,
+            "mageGuildLevel": 0
+          }
+        ]
+      }
+    }
+  }
+]

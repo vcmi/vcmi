@@ -39,6 +39,10 @@ public:
 	/// Returns true if the script table defines a function with the given name
 	bool hasFunction(const std::string & name);
 
+	/// Adds an engine-provided function to the script's global namespace.
+	template<lua_CFunction Function>
+	void setGlobalFunction(const std::string & name);
+
 	/// Calls a method on the script class using OOP convention.
 	/// params is pushed as self (with __index = scriptTable), remaining args follow.
 	/// Return value (if any) is converted from Lua and returned.
@@ -100,6 +104,13 @@ template<typename ReturnType, typename... Args>
 ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & params, Args&&... args)
 {
 	return callImpl<ReturnType>(scriptTable, &params, name, std::forward<Args>(args)...);
+}
+
+template<lua_CFunction Function>
+void LuaContext::setGlobalFunction(const std::string & name)
+{
+	lua_pushcfunction(L, Function);
+	lua_setglobal(L, name.c_str());
 }
 
 template<typename ReturnType, typename... Args>

@@ -24,9 +24,12 @@
 #include "../../../lib/ConditionalWait.h"
 
 class PathfinderCache;
+class JsonNode;
 
 namespace NK2AI
 {
+
+class IDecisionPolicy;
 
 const float MIN_PRIORITY = 0.01f;
 const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
@@ -110,6 +113,7 @@ public:
 	std::unique_ptr<DeepDecomposer> decomposer;
 	std::unique_ptr<ArmyFormation> armyFormation;
 	std::unique_ptr<Settings> settings;
+	std::unique_ptr<IDecisionPolicy> decisionPolicy;
 	/// Same value as AIGateway->playerID
 	PlayerColor playerID;
 	AIGateway * aiGw;
@@ -154,8 +158,14 @@ private:
 	const CGHeroInstance * findRequiredTownDefender(const CGTownInstance * town) const;
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
+	JsonNode buildPolicyState() const;
 	using EvaluationContextMap = std::map<const Goals::AbstractGoal *, EvaluationContext>;
 	EvaluationContextMap buildEvaluationContexts(const Goals::TGoalVec & tasks) const;
+	void applyDecisionPolicy(
+		Goals::TGoalVec & tasks,
+		const EvaluationContextMap & evaluationContexts,
+		int priorityTier,
+		const std::vector<float> & initialPriorities) const;
 	Goals::TTaskVec buildPlanAndFilter(
 		Goals::TGoalVec & tasks,
 		const EvaluationContextMap & evaluationContexts,
