@@ -105,7 +105,8 @@ public:
 	void setCursorPosition(const Point & position);
 
 	/// Initiates text input in selected area, potentially creating IME popup (mobile systems only at the moment)
-	void startTextInput(const Rect & where);
+	/// If numbersOnly is set, on-screen keyboards will be hinted to show a numeric layout, where supported
+	void startTextInput(const Rect & where, bool numbersOnly = false);
 
 	/// Ends any existing text input state
 	void stopTextInput();

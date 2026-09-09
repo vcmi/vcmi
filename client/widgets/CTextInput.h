@@ -34,6 +34,9 @@ class CFocusable : public CIntObject
 	virtual void onFocusGot() = 0;
 	virtual void onFocusLost() = 0;
 
+	/// Whether the on-screen keyboard, if any, should restrict itself to numeric input
+	virtual bool isNumberInputOnly() const { return false; }
+
 public:
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
@@ -54,6 +57,7 @@ protected:
 	std::string currentText;
 	std::string composedText;
 	ETextAlignment originalAlignment;
+	bool numberInputOnly = false;
 
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CLabel> label;
@@ -78,6 +82,7 @@ protected:
 	void onFocusGot() override;
 	void onFocusLost() override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	bool isNumberInputOnly() const override { return numberInputOnly; }
 
 	CTextInput(const Rect & Pos);
 public:

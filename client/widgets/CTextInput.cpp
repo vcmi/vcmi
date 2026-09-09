@@ -202,6 +202,7 @@ void CTextInput::setFilterFilename()
 void CTextInput::setFilterNumber(int minValue, int maxValue, int metricDigits)
 {
 	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue, metricDigits);
+	numberInputOnly = true;
 }
 
 std::string CTextInput::getVisibleText() const
@@ -400,7 +401,7 @@ void CTextInput::activate()
 #if defined(VCMI_MOBILE)
 		//giveFocus();
 #else
-		ENGINE->input().startTextInput(pos);
+		ENGINE->input().startTextInput(pos, numberInputOnly);
 #endif
 	}
 }
@@ -431,7 +432,7 @@ void CTextInput::onFocusLost()
 void CFocusable::focusGot()
 {
 	if (isActive())
-		ENGINE->input().startTextInput(pos);
+		ENGINE->input().startTextInput(pos, isNumberInputOnly());
 	onFocusGot();
 }
 
