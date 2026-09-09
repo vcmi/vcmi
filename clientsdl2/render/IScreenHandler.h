@@ -107,4 +107,7 @@ public:
 	void flushRenderCommands() {}
 
 	void setTaskbarProgress(TaskbarProgress state, float value) {}
+
+	/// SDL2 has no cross-platform equivalent of SDL3's window flash API
+	void flashWindowIfUnfocused() {}
 };

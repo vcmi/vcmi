@@ -1047,6 +1047,14 @@ bool ScreenHandler::hasFocus()
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
+void ScreenHandler::flashWindowIfUnfocused()
+{
+	if(hasFocus())
+		return;
+
+	SDL_FlashWindow(mainWindow, SDL_FLASH_UNTIL_FOCUSED);
+}
+
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
 	if(colorScheme == scheme)

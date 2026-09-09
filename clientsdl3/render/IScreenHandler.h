@@ -122,4 +122,8 @@ public:
 	/// hourglass while another player (AI or hotseat) is taking their turn. value is only
 	/// used when state is NORMAL, and must be in range [0, 1].
 	virtual void setTaskbarProgress(TaskbarProgress state, float value) = 0;
+
+	/// Flashes the window's taskbar/dock entry if it does not currently have focus, so that
+	/// a notification is not missed while the game is in the background. No-op if focused.
+	virtual void flashWindowIfUnfocused() = 0;
 };
