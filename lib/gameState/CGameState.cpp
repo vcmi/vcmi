@@ -1495,6 +1495,11 @@ PlayerColor CGameState::checkForStandardWin() const
 				//current candidate has enemy remaining in game -> no vicotry
 				return PlayerColor::NEUTRAL;
 			}
+			else if(!players.at(supposedWinner).human && elem.second.human)
+			{
+				//prefer a human winner over an AI ally from the same surviving team
+				supposedWinner = elem.second.color;
+			}
 		}
 	}
 
