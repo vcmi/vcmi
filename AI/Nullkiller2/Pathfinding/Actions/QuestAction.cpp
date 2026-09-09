@@ -53,7 +53,11 @@ namespace AIPathfinding
 
 	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		if(aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc.get()))
+			== HeroMovementResult::BLOCKED)
+		{
+			throw cannotFulfillGoalException("Unable to reach quest target.");
+		}
 	}
 
 	std::string QuestAction::toString() const

@@ -53,6 +53,20 @@ TinyH3M::TinyH3MBuilder makeStrategicNeighbourMap()
 	return builder;
 }
 
+TinyH3M::TinyH3MBuilder makeVisitedObjectNeighbourMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("NK2VisitedObjectNeighbour")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.heroGarrison({{CreatureID(27), 1}})
+		.resource({9, 5, 0}, GameResID::GOLD, 1000);
+
+	return builder;
+}
+
 class VisitabilityTrapObject : public CGObjectInstance
 {
 public:
@@ -144,7 +158,7 @@ TEST(Nullkiller2_Goals_ExploreNeighbourTile, rejectsMoveWithNoDiscovery)
 	EXPECT_FALSE(NK2AI::evaluateNeighbourExplorationCandidate(candidate).accepted);
 }
 
-TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, findsVisibleStrategicTargetWithoutNewDiscovery)
+TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, rejectsVisibleStrategicTargetWithoutNewDiscovery)
 {
 	startWithMap(makeStrategicNeighbourMap());
 
@@ -160,8 +174,8 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, findsVisibleStrategicTar
 		hero,
 		gateway->nullkiller.get());
 
-	ASSERT_TRUE(target.has_value());
-	EXPECT_EQ(target->tilesDiscovered, 0);
+	EXPECT_FALSE(target.has_value())
+		<< "zero-discovery movement must be expressed as a semantic object task";
 }
 
 TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, ignoresKnownObjectsBeforeVisitabilityChecks)
@@ -184,6 +198,26 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, ignoresKnownObjectsBefor
 		hero,
 		gateway->nullkiller.get());
 
-	ASSERT_TRUE(target.has_value());
-	EXPECT_EQ(target->tilesDiscovered, 0);
+	EXPECT_FALSE(target.has_value());
+}
+
+TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, rejectsZeroDiscoveryMoveTowardVisitedObject)
+{
+	startWithMap(makeVisitedObjectNeighbourMap());
+
+	auto * hero = findHeroByOwner(PLAYER);
+	auto * artifact = findObjectAt({9, 5, 0});
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(artifact, nullptr);
+	hero->setMovementPoints(2000);
+	revealMap(PLAYER);
+
+	const auto callback = makeCallback(PLAYER);
+	const auto gateway = makeGateway(callback);
+	gateway->nullkiller->memory->markObjectVisited(artifact);
+
+	EXPECT_FALSE(NK2AI::Goals::ExploreNeighbourTile::findTarget(
+		hero,
+		gateway->nullkiller.get()).has_value())
+		<< "visited objects must not make a hero oscillate through already explored tiles";
 }

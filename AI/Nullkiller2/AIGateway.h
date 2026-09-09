@@ -25,6 +25,13 @@ class AsyncRunner;
 namespace NK2AI
 {
 
+enum class HeroMovementResult
+{
+	COMPLETE,
+	PROGRESSED,
+	BLOCKED
+};
+
 class AIStatus
 {
 	AIGateway * aiGw;
@@ -78,6 +85,7 @@ public:
 	ObjectInstanceID selectedObject;
 
 	std::unique_ptr<Nullkiller> nullkiller;
+	std::atomic_bool oneWayPortalStateDirty = false;
 
 	AIGateway();
 	~AIGateway();
@@ -154,6 +162,7 @@ public:
 	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
 	void makeTurn();
+	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
@@ -166,7 +175,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
+	HeroMovementResult moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	void lostHero(const HeroPtr & heroPtr) const; //should remove all references to hero (assigned tasks and so on)

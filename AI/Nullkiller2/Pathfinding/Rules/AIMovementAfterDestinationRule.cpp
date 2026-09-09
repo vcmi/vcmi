@@ -43,6 +43,18 @@ namespace AIPathfinding
 
 			return;
 		}
+
+		// A hero may deliberately finish a path on a one-way entrance, but can never
+		// continue walking through it: visiting the tile immediately teleports him to
+		// a server-selected exit. Keep the entrance as a reachable terminal node so
+		// portal-probe goals can still target it.
+		if(destination.nodeObject
+			&& destination.nodeObject->ID == Obj::MONOLITH_ONE_WAY_ENTRANCE)
+		{
+			destination.node->locked = true;
+			destination.blocked = true;
+			return;
+		}
 		
 		if(!allowBypassObjects
 			&& destination.action == EPathNodeAction::EMBARK

@@ -84,7 +84,11 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		aiGw->cc->swapGarrisonHero(town);
 
 	aiGw->makePossibleUpgrades(town);
-	aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
+	if(aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()))
+		!= HeroMovementResult::COMPLETE)
+	{
+		throw cannotFulfillGoalException("Unable to move garrison hero into the visiting slot.");
+	}
 
 	auto upperArmy = town->getUpperArmy();
 	

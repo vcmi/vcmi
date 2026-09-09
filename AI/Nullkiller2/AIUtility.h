@@ -53,6 +53,7 @@ using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 namespace NK2AI
 {
 struct creInfo;
+struct AIPath;
 class AIGateway;
 class Nullkiller;
 
@@ -218,6 +219,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
+const CGObjectInstance * getOneWayPortalEntranceInPath(const AIPath & path, const Nullkiller * aiNk);
 
 template <class T>
 class SharedPool

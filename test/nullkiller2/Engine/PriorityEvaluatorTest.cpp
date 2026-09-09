@@ -8,7 +8,89 @@
  */
 #include "StdInc.h"
 
+#include "AI/Nullkiller2/Analyzers/ArmyManager.h"
 #include "AI/Nullkiller2/Engine/PriorityEvaluator.h"
+#include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include "AI/Nullkiller2/Goals/Composition.h"
+#include "AI/Nullkiller2/Goals/ExecuteHeroChain.h"
+#include "AI/Nullkiller2/Markers/ExplorationPoint.h"
+
+#include "mock/TinyH3MBuilder.h"
+#include "nullkiller2/NullkillerTest.h"
+
+#include "lib/mapObjects/CGHeroInstance.h"
+
+namespace
+{
+const PlayerColor PLAYER(0);
+
+TinyH3M::TinyH3MBuilder makePlannedArmyEvaluationMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("NK2PlannedArmyEvaluation")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 10}})
+		.hero({6, 5, 0}, HeroTypeID(1), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 50}})
+		.hero({7, 5, 0}, HeroTypeID(2), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 40}})
+		.town({10, 10, 0}, FactionID::CASTLE, PLAYER);
+
+	return builder;
+}
+
+class PlannedArmyEvaluationTest : public NullkillerTest
+{
+};
+}
+
+TEST_F(PlannedArmyEvaluationTest, UsesPlannedArmyForGlobalLossBudget)
+{
+	startWithMap(makePlannedArmyEvaluationMap());
+
+	const auto gateway = makeGateway(PLAYER);
+	const auto * targetHero = findHeroAt({5, 5, 0});
+	const auto * plannedArmy = findHeroAt({6, 5, 0});
+	ASSERT_NE(targetHero, nullptr);
+	ASSERT_NE(plannedArmy, nullptr);
+	gateway->nullkiller->armyManager->update();
+
+	NK2AI::AIPath path;
+	path.targetHero = targetHero;
+	path.heroArmy = plannedArmy;
+	path.exchangeCount = 1;
+	path.targetObjectDanger = 0;
+	path.armyLoss = plannedArmy->getArmyStrength() * 2 / 5;
+	path.targetObjectArmyLoss = 0;
+	path.chainMask = 1;
+	path.nodes.push_back({
+		0.5f,
+		0,
+		{8, 5, 0},
+		EPathfindingLayer::LAND,
+		0,
+		targetHero,
+		-1,
+		1,
+		{},
+		false});
+
+	const auto task = sptr(NK2AI::Goals::Composition()
+		.addNext(NK2AI::Goals::ExplorationPoint({8, 5, 0}, 80))
+		.addNext(NK2AI::Goals::ExecuteHeroChain(path, nullptr)));
+	auto context = gateway->nullkiller->priorityEvaluator->buildEvaluationContext(task);
+	// This focused evaluator test does not initialize the danger hit map.
+	context.enemyHeroDangerRatio = 0;
+
+	EXPECT_NEAR(context.powerRatio, 0.5f, 0.001f);
+	EXPECT_GT(gateway->nullkiller->priorityEvaluator->evaluate(
+		task,
+		NK2AI::PriorityEvaluator::EXPLORE_AND_GATHER,
+		context), 0.0f);
+}
 
 TEST(Nullkiller2_Engine_PriorityEvaluator, enemyTownConquestBeatsOrdinaryHeroHunting)
 {

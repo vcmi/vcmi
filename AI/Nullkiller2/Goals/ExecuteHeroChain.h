@@ -14,6 +14,8 @@
 
 namespace NK2AI
 {
+enum class HeroMovementResult;
+
 namespace Goals
 {
 	class DLL_EXPORT ExecuteHeroChain : public ElementarGoal<ExecuteHeroChain>
@@ -38,7 +40,7 @@ namespace Goals
 		bool isObjectAffected(ObjectInstanceID id) const override;
 
 	private:
-		bool moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile);
+		HeroMovementResult moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile);
 	};
 }
 

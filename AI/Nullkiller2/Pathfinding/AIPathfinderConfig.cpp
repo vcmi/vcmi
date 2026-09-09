@@ -44,8 +44,11 @@ namespace AIPathfinding
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;
-		options.useTeleportOneWay = aiNk->settings->isOneWayMonolithUsageAllowed();
-		options.useTeleportOneWayRandom = aiNk->settings->isOneWayMonolithUsageAllowed();
+		// One-way exits are selected randomly by the server. NK2 plans only to
+		// the entrance and observes the actual exit instead of creating a
+		// deterministic path edge to a preferred destination.
+		options.useTeleportOneWay = false;
+		options.useTeleportOneWayRandom = false;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
