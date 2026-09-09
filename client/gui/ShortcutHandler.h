@@ -12,12 +12,17 @@
 
 enum class EShortcut;
 
+namespace ControllerPrompt
+{
+enum class Family;
+}
+
 class JsonNode;
 
 class ShortcutHandler
 {
 	std::multimap<std::string, EShortcut> mappedKeyboardShortcuts;
-	std::multimap<std::string, EShortcut> mappedJoystickShortcuts;
+	std::map<ControllerPrompt::Family, std::multimap<std::string, EShortcut>> mappedJoystickShortcuts;
 	std::multimap<std::string, EShortcut> mappedJoystickAxes;
 
 	std::multimap<std::string, EShortcut> loadShortcuts(const JsonNode & data) const;
@@ -31,12 +36,12 @@ public:
 	/// returns list of shortcuts assigned to provided SDL keycode
 	std::vector<EShortcut> translateKeycode(const std::string & key) const;
 
-	std::vector<EShortcut> translateJoystickButton(const std::string & key) const;
+	std::vector<EShortcut> translateJoystickButton(const std::string & key, ControllerPrompt::Family family) const;
 
 	std::vector<EShortcut> translateJoystickAxis(const std::string & key) const;
 
 	/// Returns sorted unique joystick button bindings assigned to the provided shortcut.
-	std::vector<std::string> getJoystickButtonBindings(EShortcut shortcut) const;
+	std::vector<std::string> getJoystickButtonBindings(EShortcut shortcut, ControllerPrompt::Family family) const;
 
 	/// attempts to find shortcut by its unique identifier. Returns EShortcut::NONE on failure
 	EShortcut findShortcut(const std::string & identifier ) const;

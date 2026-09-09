@@ -225,6 +225,7 @@ void BattleInterface::stackAdded(const CStack * stack)
 void BattleInterface::stackRemoved(uint32_t stackID)
 {
 	stacksController->stackRemoved(stackID);
+	fieldController->controllerStackRemoved(stackID);
 	fieldController->redrawBackgroundWithHexes();
 	windowObject->updateQueue();
 }
@@ -240,6 +241,7 @@ void BattleInterface::stackMoved(const CStack *stack, const BattleHexArray & des
 		stacksController->stackTeleported(stack, destHex, distance);
 	else
 		stacksController->stackMoved(stack, destHex, distance);
+	fieldController->controllerStackMoved(stack);
 }
 
 void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -677,7 +679,10 @@ void BattleInterface::activateStack()
 	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
-	ENGINE->fakeMouseMove();
+	if(fieldController->isControllerNativeMode())
+		fieldController->focusActiveStack();
+	else
+		ENGINE->fakeMouseMove();
 }
 
 bool BattleInterface::makingTurn() const

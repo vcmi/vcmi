@@ -12,6 +12,7 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 class BattleAction;
+class IShowActivatable;
 namespace spells {
 class Caster;
 enum class Mode;
@@ -23,6 +24,30 @@ class BattleInterface;
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
 {
+public:
+	struct LeftClickPresentation
+	{
+		std::function<void(const CStack *)> stackInfo;
+	};
+
+	struct RightClickPresentation
+	{
+		std::function<std::shared_ptr<IShowActivatable>()> spellCancelled;
+		std::function<std::shared_ptr<IShowActivatable>(const CStack *)> stackInfo;
+		std::function<std::shared_ptr<IShowActivatable>(const std::string &)> towerInfo;
+		std::function<void(const std::shared_ptr<IShowActivatable> &)> windowOpened;
+	};
+
+private:
+	enum class RightClickAction
+	{
+		NONE,
+		CANCEL_SPELL,
+		STACK_INFO,
+		TOWER_INFO,
+		HERO_INFO
+	};
+
 	BattleInterface & owner;
 	
 	/// all actions possible to call at the moment by player
@@ -57,8 +82,12 @@ class BattleActionsController
 
 	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	std::string shootingBlockedStatusMessage(const BattleHex & hoveredHex) const;
+	void updateStatusMessage(const std::string & message);
+	RightClickAction rightClickActionAt(const BattleHex & clickedHex) const;
+	std::optional<PossiblePlayerBattleAction> legalActionAt(const BattleHex & targetHex);
 
-	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex, const LeftClickPresentation & presentation);
 
 	PossiblePlayerBattleAction selectAction(const BattleHex & myNumber);
 
@@ -111,15 +140,28 @@ public:
 
 	/// update cursor and status bar according to new active hex
 	void onHexHovered(const BattleHex & hoveredHex);
+	/// preview the canonical stack-info right-click interaction, if available at this hex
+	bool onHexRightHovered(const BattleHex & hoveredHex);
 
 	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
 	void onHoverEnded();
 
 	/// performs action according to selected hex
 	void onHexLeftClicked(const BattleHex & clickedHex);
+	void onHexLeftClicked(const BattleHex & clickedHex, const LeftClickPresentation & presentation);
 
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex);
+	void onHexRightClicked(const BattleHex & clickedHex, const RightClickPresentation & presentation);
+
+	/// Returns whether the canonical right-click action would present stack information.
+	bool canPresentStackInfoAt(const BattleHex & clickedHex) const;
+	/// Returns whether the canonical right-click action would present inspectable information.
+	bool canInspectAt(const BattleHex & clickedHex) const;
+	/// Returns the concise prompt name for the canonical legal action at a hex.
+	std::string primaryActionNameAt(const BattleHex & targetHex);
+	/// Returns whether the canonical legal action at a hex is melee.
+	bool hasMeleeActionAt(const BattleHex & targetHex);
 
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);

@@ -73,6 +73,7 @@
 		"battleToggleMouseShadow":  "F7",
 		"battleToggleMovementShadow": "F8",
 		"battleToggleStackInfo":     "F5",
+		"battleToggleCursorMode":    [],
 		"battleSpellShortcut0":     "1",
 		"battleSpellShortcut1":     "2",
 		"battleSpellShortcut2":     "3",
@@ -286,6 +287,10 @@
 	
 	"joystickAxes":
 	{
+		"controllerNavigateX" : "leftx",
+		"controllerNavigateY" : "lefty",
+		"controllerBrowseX" : "rightx",
+		"controllerBrowseY" : "righty",
 		"mouseCursorX" : "leftx",
 		"mouseCursorY" : "lefty",
 		"mouseSwipeX" : "rightx",
@@ -304,6 +309,7 @@
 		"adventureViewSelected" : "a",
 		"adventureExitWorldView" : [ "a", "b" ],
 		"battleTacticsEnd" : "a",
+		"battleToggleCursorMode" : "back",
 		
 		"mouseClickLeft": "x",
 		"mouseClickRight": "y",
@@ -322,7 +328,7 @@
 		"battleCastSpell" : "righttrigger",
 		
 		"adventureEndTurn" : "back",
-		"battleAutocombatEnd" : "back",
+		"battleAutocombatEnd" : [],
 		
 		"globalOptions" : "start",
 		"adventureGameOptions" : "start",
@@ -350,5 +356,21 @@
 		
 		"adventureToggleGrid" : "rightstick",
 		"battleToggleQueue" : "rightstick",
+	},
+	"joystickButtonsGeneric": {
+		"battleToggleCursorMode": "back",
+		"battleAutocombatEnd": []
+	},
+	"joystickButtonsNintendo": {
+		"battleToggleCursorMode": "back",
+		"battleAutocombatEnd": []
+	},
+	"joystickButtonsPlayStation": {
+		"battleToggleCursorMode": "touchpad",
+		"battleAutocombatEnd": []
+	},
+	"joystickButtonsXbox": {
+		"battleToggleCursorMode": "back",
+		"battleAutocombatEnd": []
 	}
 }

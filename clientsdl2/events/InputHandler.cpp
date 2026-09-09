@@ -23,6 +23,7 @@
 #include "gui/CursorHandler.h"
 #include "gui/EventDispatcher.h"
 #include "gui/MouseButton.h"
+#include "gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "CMT.h"
@@ -71,6 +72,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseMotion(current.motion);
 			}
 			return;
@@ -78,6 +80,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
 			}
 			return;
@@ -89,6 +92,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseWheel(current.wheel);
 			}
 			return;
@@ -103,6 +107,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableTouch)
 			{
 				setCurrentInputMode(InputMode::TOUCH);
+				ENGINE->windows().notifyPointerInput(InputMode::TOUCH);
 				fingerHandler->handleEventFingerMotion(current.tfinger);
 			}
 			return;
@@ -110,6 +115,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableTouch)
 			{
 				setCurrentInputMode(InputMode::TOUCH);
+				ENGINE->windows().notifyPointerInput(InputMode::TOUCH);
 				fingerHandler->handleEventFingerDown(current.tfinger);
 			}
 			return;
@@ -124,6 +130,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 				{
 					gameControllerHandler->setActiveController(current.caxis.which);
 					setCurrentInputMode(InputMode::CONTROLLER);
+					ENGINE->windows().notifyPointerInput(InputMode::CONTROLLER);
 				}
 				gameControllerHandler->handleEventAxisMotion(current.caxis);
 			}
@@ -133,6 +140,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			{
 				gameControllerHandler->setActiveController(current.cbutton.which);
 				setCurrentInputMode(InputMode::CONTROLLER);
+				ENGINE->windows().notifyPointerInput(InputMode::CONTROLLER);
 				gameControllerHandler->handleEventButtonDown(current.cbutton);
 			}
 			return;
@@ -147,8 +155,12 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
 	{
+		if(currentInputMode == InputMode::CONTROLLER && modi != InputMode::CONTROLLER)
+			resetControllerInput();
 		currentInputMode = modi;
 		ENGINE->events().dispatchInputModeChanged(modi);
+		if(ENGINE->windows().hasNativeControllerAxisContext())
+			ENGINE->cursor().setControllerNativeHidden(true);
 	}
 }
 
@@ -160,6 +172,24 @@ InputMode InputHandler::getCurrentInputMode()
 ControllerPrompt::Family InputHandler::getActiveControllerPromptFamily() const
 {
 	return gameControllerHandler->getActiveControllerPromptFamily();
+}
+
+void InputHandler::clearControllerAxisMotion()
+{
+	gameControllerHandler->clearAxisMotion();
+}
+
+void InputHandler::resetControllerInput()
+{
+	gameControllerHandler->resetControllerInput();
+	ENGINE->windows().resetControllerInput();
+	ENGINE->cursor().setControllerNativeHidden(false);
+}
+
+void InputHandler::cancelControllerPressesForModeTransition()
+{
+	gameControllerHandler->cancelControllerPresses();
+	ENGINE->windows().resetControllerInput();
 }
 
 bool InputHandler::inputModeSupportsHover() const
