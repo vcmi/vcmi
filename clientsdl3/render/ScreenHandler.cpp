@@ -450,7 +450,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 
 	// Only using xbrz2 for autoselection.
 	// Higher options may have high system requirements and should be only selected explicitly by player
-	return EUpscalingFilter::XBRZ_2;
+	return EUpscalingFilter::XBRZ_2_RCAS;
 }
 
 void ScreenHandler::selectUpscalingFilter()
