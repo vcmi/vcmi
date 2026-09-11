@@ -128,7 +128,7 @@ public:
 	Nullkiller();
 	virtual ~Nullkiller();
 	void init(const std::shared_ptr<CCallback> & cbInput, AIGateway * aiGwInput);
-	virtual void makeTurn();
+	virtual void makeTurn(bool newTurn = true);
 	bool updateStateAndExecutePriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
@@ -139,6 +139,7 @@ public:
 	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
 	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
+	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
 	void unlockHero(const CGHeroInstance * hero);
 	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
 	bool arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender = nullptr) const;
@@ -171,7 +172,6 @@ private:
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
-	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
 	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };

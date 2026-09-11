@@ -169,7 +169,7 @@ public:
 	void invalidatePaths() override;
 	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
-	void makeTurn();
+	void makeTurn(bool newTurn);
 
 	// Defers callback execution until AI is ready to continue again.
 	// The callback is executed first; if AI still has turn afterwards, planning resume is scheduled.
@@ -179,7 +179,7 @@ public:
 	void requestPlanningResume();
 
 	// Schedules AI planning to resume once it is ready to continue
-	void schedulePlanningResume();
+	void schedulePlanningResume(bool newTurn);
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
@@ -216,7 +216,9 @@ public:
 	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 
 private:
+	std::mutex asyncTasksMutex;
 	std::atomic_bool shuttingDown = false;
+	bool tryRunAsyncTask(std::function<void()> task);
 };
 
 }

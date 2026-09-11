@@ -585,13 +585,16 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
-void Nullkiller::makeTurn()
+void Nullkiller::makeTurn(bool newTurn)
 {
-	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
-	resetState();
 	Goals::TGoalVec tasks;
-	tracePlayerStatus(true);
+	if(newTurn)
+	{
+		pathfinderTurnStorageMisses.store(0);
+		resetState();
+		tracePlayerStatus(true);
+	}
 
 	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{

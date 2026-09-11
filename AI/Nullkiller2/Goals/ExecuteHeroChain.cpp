@@ -323,7 +323,15 @@ void ExecuteHeroChain::execute(AIGateway * aiGw, int firstNodeIndex, std::set<in
 									goal.chainPath.nodes[nodeIndex].coord.toString(), completed ? "yes" : "no");
 								if(completed || resumedHero->visitablePos() == goal.chainPath.nodes[nodeIndex].coord)
 									nodeIndex--;
-								goal.execute(aiGw, nodeIndex, std::move(blockedIndexes));
+								try
+								{
+									goal.execute(aiGw, nodeIndex, std::move(blockedIndexes));
+								}
+								catch(const cannotFulfillGoalException &)
+								{
+									aiGw->nullkiller->lockTaskHeroes(Goals::taskptr(goal), HeroLockedReason::HERO_CHAIN);
+									throw;
+								}
 							}
 						);
 						throw;
