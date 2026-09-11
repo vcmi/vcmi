@@ -1362,23 +1362,32 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
-	shuttingDown = true;
-
 	nullkiller->makingTurnInterruption.interruptThread();
 
-	if (asyncTasks)
+	std::unique_ptr<AsyncRunner> tasks;
 	{
-		asyncTasks->wait();
-		asyncTasks.reset();
+		std::lock_guard lock(asyncTasksMutex);
+		shuttingDown = true;
+		tasks = std::move(asyncTasks);
 	}
+
+	if(tasks)
+		tasks->wait();
+}
+
+bool AIGateway::tryRunAsyncTask(std::function<void()> task)
+{
+	std::lock_guard lock(asyncTasksMutex);
+	if(shuttingDown || !asyncTasks)
+		return false;
+
+	asyncTasks->run(std::move(task));
+	return true;
 }
 
 void AIGateway::executeActionAsync(const std::string & description, const std::function<void()> & whatToDo)
 {
-	if (!asyncTasks)
-		throw std::runtime_error("Attempt to execute task on shut down AI state!");
-
-	asyncTasks->run([description, whatToDo]() noexcept
+	if(!tryRunAsyncTask([description, whatToDo]() noexcept
 	{
 		ScopedThreadName guard("NK2AI::AIGateway::" + description);
 		std::shared_lock gsLock(CGameState::mutex);
@@ -1390,7 +1399,8 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 		{
 			logAi->debug("%s thread has been terminated. We'll end it immediately", description);
 		}
-	});
+	}))
+		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 }
 
 void AIGateway::lostHero(const HeroPtr & heroPtr) const
@@ -1938,21 +1948,18 @@ void AIGateway::schedulePlanningResume()
 				return;
 			}
 
-			if(!asyncTasks)
-			{
-				logAi->warn("Unable to resume AI planning: executor is unavailable");
-
-				status.markTaskDone();
-				return;
-			}
-			asyncTasks->run(
+			if(!tryRunAsyncTask(
 				[this]()
 				{
 					ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
 					auto onExit = vstd::makeScopeGuard([this](){ status.markTaskDone(); });
 					makeTurn();
 				}
-			);
+			))
+			{
+				logAi->warn("Unable to resume AI planning: executor is unavailable");
+				status.markTaskDone();
+			}
 		}
 	);
 }
@@ -1962,13 +1969,13 @@ void AIGateway::deferUntilReadyToContinue(std::function<void()> callback)
 	status.whenReadyToContinue(
 		[this, callback = std::move(callback)]() mutable
 		{
-			if(shuttingDown || !status.haveTurn() || !asyncTasks)
+			if(shuttingDown || !status.haveTurn())
 			{
 				status.markTaskDone();
 				return;
 			}
 
-			asyncTasks->run([this, callback = std::move(callback)]()
+			if(!tryRunAsyncTask([this, callback = std::move(callback)]()
 			{
 				ScopedThreadName guard("NK2AI::AIGateway::deferredContinuation");
 				auto onExit = vstd::makeScopeGuard([this](){ status.markTaskDone(); });
@@ -1989,6 +1996,11 @@ void AIGateway::deferUntilReadyToContinue(std::function<void()> callback)
 				{
 					return;
 				}
+				catch(const cannotFulfillGoalException & e)
+				{
+					nullkiller->invalidatePathfinderData();
+					logAi->error("Deferred continuation could not be fulfilled: %s", e.what());
+				}
 				catch(const std::exception & e)
 				{
 					logAi->error("Deferred continuation failed: %s", e.what());
@@ -1996,7 +2008,8 @@ void AIGateway::deferUntilReadyToContinue(std::function<void()> callback)
 
 				if(status.haveTurn())
 					schedulePlanningResume();
-			});
+			}))
+				status.markTaskDone();
 		}
 	);
 }

@@ -215,7 +215,9 @@ public:
 	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 
 private:
+	std::mutex asyncTasksMutex;
 	std::atomic_bool shuttingDown = false;
+	bool tryRunAsyncTask(std::function<void()> task);
 };
 
 }
