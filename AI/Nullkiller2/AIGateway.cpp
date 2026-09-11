@@ -1032,10 +1032,13 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
 
-	auto afterMovementCheck = [&]() -> void
+	auto afterMovementCheck = [&](bool completed = false) -> void
 	{
 		if(!status.isReadyToContinue())
 		{
+			logAi->trace("afterMovementCheck: Movement deferred hero=%s current=%s destination=%s completed=%s queries=%d battle=%s",
+				heroPtr->getNameTextID(), heroPtr->visitablePos().toString(), dst.toString(), completed ? "yes" : "no",
+				status.getQueriesCount(), static_cast<int>(status.getBattle()) ? "yes" : "no");
 			deferUntilReadyToContinue([this, heroPtr]()
 			{
 				if(!heroPtr.isVerified())
@@ -1050,7 +1053,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			});
 
 			// ensure planner resumes after dialog/battle
-			throw deferExecutionException();
+			throw deferExecutionException(completed);
 		}
 
 		if(!heroPtr.isVerified())
@@ -1071,7 +1074,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), false);
-		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+		afterMovementCheck(true); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
@@ -1126,8 +1129,10 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit, layer);
 		};
 
-		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos, bool completed = false)
 		{
+			logAi->trace("doTeleportMovement: hero=%s currentPos=%s exitPos=%s completed=%d",
+				heroPtr->getNameTextID(), heroPtr->visitablePos().toString(), exitPos.toString(), completed);
 			if(cc->getObj(exitId) && cc->getObj(exitId)->ID == Obj::WHIRLPOOL)
 			{
 				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*heroPtr);
@@ -1139,7 +1144,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			cc->moveHero(*heroPtr, heroPtr->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
-			afterMovementCheck();
+			afterMovementCheck(completed);
 		};
 
 		auto doChannelProbing = [&]() -> void
@@ -1172,6 +1177,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		teleportChannelProbingList.clear();
 		status.setChannelProbing(false);
 
+		// The final step stays complete even if visiting its tile teleports the hero elsewhere.
 		for(; i > 0; i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
@@ -1184,8 +1190,8 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
 			if(isTeleportAction(nextNode.action) && destTeleportObj != nullptr)
 			{
-				//we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(destTeleportObj->id, nextCoord);
+				const bool completed = i == 1;
+				doTeleportMovement(destTeleportObj->id, nextCoord, completed);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 				nullkiller->memory->markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
@@ -1217,7 +1223,8 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			else
 				doMovement(nextCoord, false, nextNode.layer);
 
-			afterMovementCheck();
+			const bool completed = i == 1;
+			afterMovementCheck(completed);
 
 			if(teleportChannelProbingList.size())
 				doChannelProbing();

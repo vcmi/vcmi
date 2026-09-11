@@ -193,7 +193,19 @@ namespace Goals
 
 class deferExecutionException : public std::exception
 {
+	bool completed;
+
 	public:
+	explicit deferExecutionException(bool completed = false)
+		: completed(completed)
+	{
+	}
+
+	bool operationCompleted() const
+	{
+		return completed;
+	}
+
 	const char * what() const noexcept override
 	{
 		return "Deferred execution (waiting for queries/battle/movement/visit)";
