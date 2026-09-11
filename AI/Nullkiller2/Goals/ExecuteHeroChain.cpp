@@ -261,7 +261,8 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTextID(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException(
+			"Expected hero to arrive in 0 turns but current path info says it is impossible");
 					}
 
 					if(targetNode->turns != 0)
@@ -345,9 +346,10 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException(
+	"Expected hero to arrive in 0 turns but current path info says it is impossible");
 			}
-			
+
 			// no exception means we were not able to reach the tile
 			aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);
