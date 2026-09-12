@@ -232,3 +232,18 @@ TEST(JsonTest, floatsWithMoreDigitsThanADoubleHoldsDoNotOverflow)
 	EXPECT_NEAR(json["a"].Float() / 0.12345678901234567890123456789, 1.0, 1e-15);
 	EXPECT_NEAR(json["b"].Float() / 9007199254740993.5, 1.0, 1e-15);
 }
+
+TEST(JsonTest, floatsSurviveBeingWrittenAndReadBack)
+{
+	constexpr char text[] = R"({ "a" : 0.7, "b" : -0.15, "c" : 1234.5678, "d" : 0.1234567890123 })";
+
+	JsonNode json(text, std::size(text), "Test");
+
+	std::string written = json.toCompactString();
+	JsonNode readBack(written.data(), written.size(), "Test");
+
+	EXPECT_EQ(readBack["a"].Float(), json["a"].Float());
+	EXPECT_EQ(readBack["b"].Float(), json["b"].Float());
+	EXPECT_EQ(readBack["c"].Float(), json["c"].Float());
+	EXPECT_EQ(readBack["d"].Float(), json["d"].Float());
+}
