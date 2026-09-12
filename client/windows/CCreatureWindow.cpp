@@ -356,11 +356,6 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	lines->onScroll = [owner](){ owner->redraw(); };
 }
 
-static std::string getUpgradeConfirmationTextID(bool freeUpgrade)
-{
-	return freeUpgrade ? "vcmi.upgrade.freeConfirm" : "core.genrltxt.207";
-}
-
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 	: CWindowSection(owner, ImagePath::builtin("stackWindow/button-panel"), yOffset)
 {
@@ -407,7 +402,9 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{
-					const std::string textID = getUpgradeConfirmationTextID(totalCost.empty());
+					const std::string textID = totalCost.empty()
+						? "vcmi.upgrade.freeConfirm"
+						: "core.genrltxt.207";
 					GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate(textID), onUpgrade, nullptr, resComps);
 				}
 				else
