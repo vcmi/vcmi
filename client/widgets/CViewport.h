@@ -71,6 +71,7 @@ protected:
 
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gestureCanceled() override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 
 public:

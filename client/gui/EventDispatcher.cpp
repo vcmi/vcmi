@@ -19,6 +19,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
+#include "../../lib/ScopeGuard.h"
 #include "events/InputHandler.h"
 
 template<typename Functor>
@@ -84,16 +85,16 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 {
 	bool keysCaptured = false;
 
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	EventReceiversList miCopy = keyinterested;
 
@@ -113,16 +114,16 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 {
 	bool keysCaptured = false;
 
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
-
-	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchClosePopup(ENGINE->getCursorPosition());
-
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchClosePopup(ENGINE->getCursorPosition());
 
 	EventReceiversList miCopy = keyinterested;
 
@@ -135,6 +136,42 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 				if (keysCaptured)
 					return;
 			}
+	}
+}
+
+void EventDispatcher::cancelShortcutPress(const std::vector<EShortcut> & shortcutsVector)
+{
+	bool keysCaptured = false;
+	for(auto & receiver : keyinterested)
+		for(const auto shortcut : shortcutsVector)
+			keysCaptured |= receiver->captureThisKey(shortcut);
+
+	if(!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+	{
+		const auto receivers = lclickable;
+		for(auto * receiver : receivers)
+		{
+			if(vstd::contains(lclickable, receiver) && receiver->mouseClickedState)
+			{
+				receiver->mouseClickedState = false;
+				receiver->clickCancel(ENGINE->getCursorPosition());
+			}
+		}
+	}
+	if(!keysCaptured && vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchClosePopup(ENGINE->getCursorPosition());
+
+	const auto receivers = keyinterested;
+	for(auto * receiver : receivers)
+	{
+		for(const auto shortcut : shortcutsVector)
+		{
+			if(!vstd::contains(keyinterested, receiver) || (keysCaptured && !receiver->captureThisKey(shortcut)))
+				continue;
+			receiver->keyCanceled(shortcut);
+			if(keysCaptured)
+				return;
+		}
 	}
 }
 
@@ -376,7 +413,22 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 		if (!it->isGesturing() && it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
 		{
 			it->panningState = true;
+			const bool previous = std::exchange(gestureStartInProgress, true);
+			auto guard = vstd::makeScopeGuard([this, previous]() { gestureStartInProgress = previous; });
 			it->gesture(true, initialPosition, initialPosition);
+		}
+	}
+}
+
+void EventDispatcher::dispatchGesturePanningCanceled()
+{
+	const auto receivers = panningInterested;
+	for(auto * receiver : receivers)
+	{
+		if(vstd::contains(panningInterested, receiver) && receiver->isGesturing())
+		{
+			receiver->panningState = false;
+			receiver->gestureCanceled();
 		}
 	}
 }

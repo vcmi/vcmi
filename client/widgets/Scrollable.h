@@ -59,6 +59,7 @@ protected:
 	Scrollable(int used, Point position, Orientation orientation);
 
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gestureCanceled() override;
 	void wheelScrolled(int distance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void tick(uint32_t msPassed) override;

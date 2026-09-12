@@ -333,6 +333,12 @@ CKeyShortcut::CKeyShortcut(EShortcut key)
 {
 }
 
+void CKeyShortcut::deactivate()
+{
+	keyCanceled(assignedKey);
+	CIntObject::deactivate();
+}
+
 void CKeyShortcut::keyPressed(EShortcut key)
 {
 	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
@@ -348,6 +354,15 @@ void CKeyShortcut::keyReleased(EShortcut key)
 	{
 		shortcutPressed = false;
 		clickReleased(ENGINE->getCursorPosition());
+	}
+}
+
+void CKeyShortcut::keyCanceled(EShortcut key)
+{
+	if(assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
+	{
+		shortcutPressed = false;
+		clickCancel(ENGINE->getCursorPosition());
 	}
 }
 
