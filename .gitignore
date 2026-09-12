@@ -77,3 +77,4 @@ compile_commands.json
 
 # CLion
 .idea/
+.qtcreator/

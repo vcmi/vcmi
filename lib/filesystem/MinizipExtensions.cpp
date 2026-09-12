@@ -53,7 +53,7 @@ inline long streamSeek(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin
 			break;
 		case ZLIB_FILEFUNC_SEEK_END:
 		{
-			const si64 pos = actualStream->getSize() - offset;
+			const si64 pos = actualStream->getSize() + offset;
 			if(actualStream->seek(pos) != pos)
 				ret = -1;
 		}

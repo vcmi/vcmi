@@ -299,7 +299,12 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 		auto newArmyStrength = newArmy->getArmyStrength();
 		auto oldArmyStrength = actor->creatureSet->getArmyStrength();
 
-		if(newArmyStrength <= oldArmyStrength) return result;
+		if(newArmyStrength <= oldArmyStrength)
+		{
+			delete newArmy;
+
+			return result;
+		}
 
 		auto reinforcement = newArmyStrength - oldArmyStrength;
 
