@@ -518,19 +518,21 @@ Ok: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>A(z) %1 modnak szüksége van erre: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült engedélyezni a modot</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült engedélyezni egy vagy több telepített modot
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
@@ -837,7 +839,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1185"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Játékonkénti automatikus mentések maximális száma (0 = korlátlan)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
