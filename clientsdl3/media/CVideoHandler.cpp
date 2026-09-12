@@ -349,7 +349,7 @@ CVideoInstance::CVideoInstance()
 CVideoInstance::~CVideoInstance()
 {
 	sws_freeContext(sws);
-	SDL_DestroyTexture(textureRGB);
+	GpuResources::get().destroyTextureDeferred(textureRGB);
 	SDL_DestroySurface(surface);
 }
 
