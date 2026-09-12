@@ -105,23 +105,23 @@ si32 CStack::magicResistance() const
 	return static_cast<si32>(100 - castChance);
 }
 
-std::vector<SpellID> CStack::activeSpells() const
+std::vector<SpellWithMasteryID> CStack::activeSpells() const
 {
-	std::vector<SpellID> ret;
+	std::vector<SpellWithMasteryID> ret;
 
 	std::stringstream cachingStr;
 	cachingStr << "!type_" << vstd::to_underlying(BonusType::NONE) << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT);
 	CSelector selector = Selector::sourceType()(BonusSource::SPELL_EFFECT)
 						 .And(CSelector([](const Bonus * b)->bool
 	{
-		return b->type != BonusType::NONE && b->sid.as<SpellID>().toSpell() && !b->sid.as<SpellID>().toSpell()->isAdventure();
+		return b->type != BonusType::NONE && b->sid.as<SpellWithMasteryID>().getSpellID().toSpell() && !b->sid.as<SpellWithMasteryID>().getSpellID().toSpell()->isAdventure();
 	}));
 
 	TConstBonusListPtr spellEffects = getBonuses(selector, cachingStr.str());
 	for(const auto & it : *spellEffects)
 	{
-		if(!vstd::contains(ret, it->sid.as<SpellID>()))  //do not duplicate spells with multiple effects
-			ret.push_back(it->sid.as<SpellID>());
+		if(!vstd::contains(ret, it->sid.as<SpellWithMasteryID>()))  //do not duplicate spells with multiple effects
+			ret.push_back(it->sid.as<SpellWithMasteryID>());
 	}
 
 	return ret;

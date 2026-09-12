@@ -86,7 +86,7 @@ public:
 };
 
 using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool, BonusTypeID, ScriptID>;
-using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;
+using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellWithMasteryID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;
 
 /// Kind of entity an identifier names - a creature, a spell, a terrain, ... The same vocabulary as
 /// `Identifier::entityType()`, as an enum. Bonus subtypes are given as plain identifiers

@@ -785,7 +785,7 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: persistent effects, such as DISRUPTING_RAY, survive death
-			return b->source == BonusSource::SPELL_EFFECT && !b->sid.as<SpellID>().toSpell()->isPersistent();
+			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellWithMasteryID>().getSpellID().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}

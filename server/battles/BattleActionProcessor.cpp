@@ -1358,7 +1358,10 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 		bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
 			[&](const std::shared_ptr<Bonus> spell)
 			{
-				std::vector<SpellID> activeSpells = defender->activeSpells();
+				std::vector<SpellWithMasteryID> activeCasts = defender->activeSpells();
+				std::vector<SpellID> activeSpells;
+				for (const SpellWithMasteryID & cast : activeCasts)
+					activeSpells.push_back(cast.getSpellID());
 				return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
 			});
 

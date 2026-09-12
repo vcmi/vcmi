@@ -82,6 +82,19 @@ const SpellSchool SpellSchool::WATER(3);
 
 const ScriptID ScriptID::NONE(-1);
 
+const SpellMastery SpellMastery::NONE(0);
+const SpellMastery SpellMastery::BASIC(1);
+const SpellMastery SpellMastery::ADVANCED(2);
+const SpellMastery SpellMastery::EXPERT(3);
+const SpellMastery SpellMastery::ANY(4); //used on rhs in equality operator to make it ignore mastery
+
+const std::map<int32_t, std::string> masteryIdToName = {
+	{SpellMastery::NONE.getNum() , "NONE"},
+	{SpellMastery::BASIC.getNum(), "BASIC"},
+	{SpellMastery::ADVANCED.getNum(), "ADVANCED"},
+	{SpellMastery::EXPERT.getNum(), "EXPERT"}
+};
+
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
 const FactionID FactionID::RANDOM(-1);
@@ -146,6 +159,41 @@ BuildingID BuildingTypeUniqueID::getBuilding() const
 FactionID BuildingTypeUniqueID::getFaction() const
 {
 	return FactionID(getNum() / 0x10000);
+}
+
+SpellWithMasteryID::SpellWithMasteryID(SpellMastery mastery, SpellID spell):
+	Identifier(spell.getNum() * 0x1000 + mastery.getNum())
+{
+	assert(mastery.getNum() >= 0);
+	assert(mastery.getNum() < 0x1000);
+	assert(spell.getNum() >= 0);
+	assert(spell.getNum() < std::numeric_limits<int32_t>::max() - 0x1000);
+}
+
+si32 SpellWithMasteryID::decode(const std::string & identifier)
+{
+	return SpellID::decode(identifier);
+}
+
+std::string SpellWithMasteryID::encode(const si32 index)
+{
+	return SpellID::encode(SpellWithMasteryID(index).getSpellID().getNum());
+}
+
+
+SpellMastery SpellWithMasteryID::getMastery() const
+{
+	return SpellMastery(getNum() % 0x1000);
+}
+
+SpellID SpellWithMasteryID::getSpellID() const
+{
+	return SpellID(getNum() / 0x1000);
+}
+
+const CSpell * SpellWithMasteryID::toSpell() const
+{
+	return getSpellID().toSpell();
 }
 
 int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const std::string identifier)
@@ -678,6 +726,23 @@ std::string SpellSchool::entityType()
 const spells::SpellSchoolType * SpellSchool::toEntity(const Services * services) const
 {
 	return services->spellSchools()->getByIndex(getNum());
+}
+
+si32 SpellMastery::decode(const std::string & identifier)
+{
+	for (auto const & spellToName : masteryIdToName)
+	{
+		if (spellToName.second == identifier)
+			return spellToName.first;
+	}
+	return SpellMastery::ANY.getNum();
+}
+
+std::string SpellMastery::encode(const si32 index)
+{
+	if (masteryIdToName.contains(index))
+		return masteryIdToName.at(index);
+	return "ANY";
 }
 
 si32 GameResID::decode(const std::string & identifier)
