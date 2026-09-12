@@ -28,6 +28,15 @@ enum class GpuRenderLayer : uint8_t
 	COUNT
 };
 
+/// State of the OS taskbar/dock progress indicator (Windows taskbar, macOS dock, Linux launchers)
+enum class TaskbarProgress : uint8_t
+{
+	/// No progress indicator shown
+	HIDDEN,
+	/// Busy indicator with no known completion fraction
+	INDETERMINATE,
+	/// Indicator filled to a known completion fraction, in range [0, 1]
+	NORMAL
 /// One region of an offscreen canvas, drawn onto the screen while the frame is composed
 struct PresentedRegion
 {
@@ -115,6 +124,14 @@ public:
 	/// that a later pass reads back start early, rather than stalling on the first read.
 	virtual void flushRenderCommands() = 0;
 
+	/// Sets the OS taskbar/dock progress indicator, mirroring the adventure map's own
+	/// hourglass while another player (AI or hotseat) is taking their turn. value is only
+	/// used when state is NORMAL, and must be in range [0, 1].
+	virtual void setTaskbarProgress(TaskbarProgress state, float value) = 0;
+
+	/// Flashes the window's taskbar/dock entry if it does not currently have focus, so that
+	/// a notification is not missed while the game is in the background. No-op if focused.
+	virtual void flashWindowIfUnfocused() = 0;
 	/// Draws parts of an offscreen canvas onto the screen while the frame is composed, in place of
 	/// the given layer, instead of copying them into that layer during the frame.
 	///

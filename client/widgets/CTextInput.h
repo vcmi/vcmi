@@ -34,6 +34,9 @@ class CFocusable : public CIntObject
 	virtual void onFocusGot() = 0;
 	virtual void onFocusLost() = 0;
 
+	/// Whether the on-screen keyboard, if any, should restrict itself to numeric input
+	virtual bool isNumberInputOnly() const { return false; }
+
 public:
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
@@ -54,6 +57,7 @@ protected:
 	std::string currentText;
 	std::string composedText;
 	ETextAlignment originalAlignment;
+	bool numberInputOnly = false;
 
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CLabel> label;
@@ -78,6 +82,7 @@ protected:
 	void onFocusGot() override;
 	void onFocusLost() override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	bool isNumberInputOnly() const override { return numberInputOnly; }
 
 	CTextInput(const Rect & Pos);
 public:
@@ -100,6 +105,9 @@ public:
 	void setFilterFilename();
 	/// Enable filtering entered text that ensures that text is valid number in provided range [min, max]
 	void setFilterNumber(int minValue, int maxValue, int metricDigits=0);
+	/// Enables filtering entered text through a caller-provided filter. If numbersOnly is set,
+	/// on-screen keyboards will be hinted to show a numeric layout, same as with setFilterNumber
+	void setFilterCustom(TextFilterCallback filter, bool numbersOnly);
 
 	void setFont(EFonts Font);
 	void setColor(const ColorRGBA & Color);

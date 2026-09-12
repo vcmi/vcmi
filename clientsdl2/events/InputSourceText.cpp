@@ -37,8 +37,9 @@ void InputSourceText::handleEventTextEditing(const SDL_TextEditingEvent & text)
 	ENGINE->events().dispatchTextEditing(text.text);
 }
 
-void InputSourceText::startTextInput(const Rect & whereInput)
+void InputSourceText::startTextInput(const Rect & whereInput, bool numbersOnly)
 {
+	// SDL2 has no API to hint the on-screen keyboard towards a numeric-only layout
 	ENGINE->dispatchMainThread([whereInput]()
 	{
 		Rect rectInScreenCoordinates = ENGINE->screenHandler().convertLogicalPointsToWindow(whereInput);
