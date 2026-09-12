@@ -34,7 +34,7 @@ const IObjectInterface * CRewardableObject::getObject() const
 
 void CRewardableObject::markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, hero->id);
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
 	gameEvents.sendAndApply(cov);
 }
 
@@ -173,6 +173,7 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case Rewardable::VISIT_LIMITER:
 			return false;
 		case Rewardable::VISIT_ONCE:
+			return onceVisitableObjectCleared && wasScouted(player);
 		case Rewardable::VISIT_PLAYER:
 			return cb->getPlayerState(player)->visitedObjects.count(ObjectInstanceID(id)) != 0;
 		case Rewardable::VISIT_PLAYER_GLOBAL:
@@ -184,6 +185,7 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 
 bool CRewardableObject::wasScouted(PlayerColor player) const
 {
+	if(configuration.getVisitMode() == Rewardable::VISIT_PLAYER_GLOBAL && wasVisited(player)) return true;
 	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
 }
 

@@ -42,6 +42,7 @@ set(Nullkiller2_SRCS
 		Goals/CompleteQuest.cpp
 		Goals/StayAtTown.cpp
 		Goals/ExploreNeighbourTile.cpp
+		Goals/PrepareFreeSlotForCreatureBankReward.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
@@ -59,7 +60,6 @@ set(Nullkiller2_SRCS
 		Behaviors/BuyArmyBehavior.cpp
 		Behaviors/DefenceBehavior.cpp
 		Behaviors/EscapeBehavior.cpp
-		Behaviors/StartupBehavior.cpp
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
@@ -120,6 +120,7 @@ set(Nullkiller2_HEADERS
 		Goals/Goals.h
 		Goals/StayAtTown.h
 		Goals/ExploreNeighbourTile.h
+		Goals/PrepareFreeSlotForCreatureBankReward.h
 		Helpers/DimensionDoorUtils.h
 		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
@@ -140,7 +141,6 @@ set(Nullkiller2_HEADERS
 		Behaviors/DefenceBehavior.h
 		Behaviors/DefenceBehaviorUtils.h
 		Behaviors/EscapeBehavior.h
-		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h

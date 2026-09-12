@@ -328,6 +328,11 @@ void GameStatePackVisitor::visitChangeObjectVisitors(ChangeObjectVisitors & pack
 	{
 		case ChangeObjectVisitors::VISITOR_ADD_HERO:
 			gs.getHero(pack.hero)->visitedObjects.insert(pack.object);
+			if(objectPtr->ID == Obj::CARTOGRAPHER)
+			{
+				for(PlayerColor player : gs.getPlayerTeam(gs.getHero(pack.hero)->tempOwner)->players)
+					gs.getPlayerState(player)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
+			}
 			[[fallthrough]];
 		case ChangeObjectVisitors::VISITOR_ADD_PLAYER:
 			gs.getPlayerTeam(gs.getHero(pack.hero)->tempOwner)->scoutedObjects.insert(pack.object);

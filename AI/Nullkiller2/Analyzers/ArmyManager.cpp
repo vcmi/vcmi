@@ -47,16 +47,6 @@ void ArmyUpgradeInfo::addArmyToBuy(std::vector<SlotInfo> army)
 	}
 }
 
-void ArmyUpgradeInfo::addArmyToGet(std::vector<SlotInfo> army)
-{
-	for(auto slot : army)
-	{
-		resultingArmy.push_back(slot);
-
-		upgradeValue += slot.power;
-	}
-}
-
 std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 {
 	std::vector<SlotInfo> result;
@@ -73,11 +63,6 @@ std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 	}
 
 	return result;
-}
-
-uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
-{
-	return howManyReinforcementsCanGet(hero, hero, source, aiNk->cc->getTile(hero->visitablePos())->getTerrainID());
 }
 
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
@@ -173,33 +158,123 @@ class TemporaryArmy : public CArmedInstance
 {
 public:
 	void armyChanged() override {}
-	TemporaryArmy()
+	TemporaryArmy(const IBonusBearer * armyCarrier = nullptr)
 		:CArmedInstance(nullptr, BonusNodeType::UNKNOWN, true)
 	{
+		if(!armyCarrier)
+			return;
+
+		const auto moraleBonuses = Selector::type()(BonusType::MORALE)
+			.Or(Selector::type()(BonusType::MAX_MORALE))
+			.Or(Selector::type()(BonusType::NO_MORALE))
+			.Or(Selector::type()(BonusType::ALIGNMENT_MIX))
+			.Or(Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX));
+		const auto externalBonuses = moraleBonuses
+			.And(Selector::sourceType()(BonusSource::ARMY).Not())
+			.And(Selector::sourceType()(BonusSource::CREATURE_ABILITY).Not());
+
+		for(const auto & bonus : *armyCarrier->getBonuses(externalBonuses))
+			addNewBonus(std::make_shared<Bonus>(*bonus));
 	}
 };
 
-std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
+uint64_t ArmyManager::evaluateArmyStrength(const IBonusBearer * armyCarrier, const std::vector<SlotInfo> & army) const
 {
-	auto sortedSlots = getSortedSlots(target, source);
-	if(source->stacksCount() == 0)
-		return sortedSlots;
+	TemporaryArmy armyInstance(armyCarrier);
 
-	std::map<FactionID, uint64_t> alignmentMap;
-
-	for(auto & slot : sortedSlots)
+	for(const auto & slot : army)
 	{
-		alignmentMap[slot.creature->getFactionID()] += slot.power;
+		auto slotID = armyInstance.getSlotFor(slot.creature->getId());
+		if(slotID.validSlot())
+			armyInstance.setCreature(slotID, slot.creature->getId(), slot.count);
 	}
 
-	std::set<FactionID> allowedFactions;
-	std::vector<SlotInfo> resultingArmy;
-	uint64_t armyValue = 0;
-	TemporaryArmy newArmyInstance;
+	armyInstance.updateMoraleBonusFromArmy();
 
+	uint64_t result = 0;
 	const auto & badMoraleChance = cpsic->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
 	const auto & highMoraleChance = cpsic->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
-	int moraleDiceSize = cpsic->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
+	const int moraleDiceSize = cpsic->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
+
+	for(const auto & slot : armyInstance.Slots())
+	{
+		const auto morale = slot.second->moraleVal();
+		auto multiplier = 1.0f;
+
+		if(morale < 0 && !badMoraleChance.empty())
+		{
+			const size_t chanceIndex = std::min<size_t>(badMoraleChance.size(), -morale) - 1;
+			multiplier -= 1.0 / moraleDiceSize * badMoraleChance.at(chanceIndex);
+		}
+		else if(morale > 0 && !highMoraleChance.empty())
+		{
+			const size_t chanceIndex = std::min<size_t>(highMoraleChance.size(), morale) - 1;
+			multiplier += 1.0 / moraleDiceSize * highMoraleChance.at(chanceIndex);
+		}
+
+		result += multiplier * slot.second->getPower();
+	}
+
+	return result;
+}
+
+uint64_t ArmyManager::evaluateArmyStrength(const IBonusBearer * armyCarrier, const CCreatureSet * army) const
+{
+	CCreatureSet emptyArmy;
+	return evaluateArmyStrength(armyCarrier, getSortedSlots(army, &emptyArmy));
+}
+
+BestArmyInfo ArmyManager::getBestArmyInfo(
+	const IBonusBearer * armyCarrier,
+	const CCreatureSet * target,
+	const CCreatureSet * source,
+	const TerrainId & armyTerrain) const
+{
+	auto sortedSlots = getSortedSlots(target, source);
+	const auto currentStrength = evaluateArmyStrength(armyCarrier, target);
+	const auto makeResult = [&](std::vector<SlotInfo> army)
+	{
+		BestArmyInfo result;
+		result.army = std::move(army);
+		const auto selectedStrength = evaluateArmyStrength(armyCarrier, result.army);
+		result.strengthGain = selectedStrength > currentStrength ? selectedStrength - currentStrength : 0;
+
+		for(const auto & selectedSlot : result.army)
+		{
+			int targetCount = 0;
+			int sourceCount = 0;
+
+			for(const auto & targetSlot : target->Slots())
+			{
+				if(targetSlot.second->getCreature() == selectedSlot.creature)
+					targetCount += targetSlot.second->getCount();
+			}
+
+			for(const auto & sourceSlot : source->Slots())
+			{
+				if(sourceSlot.second->getCreature() == selectedSlot.creature)
+					sourceCount += sourceSlot.second->getCount();
+			}
+
+			const int selectedSourceCount = std::min(sourceCount, std::max(0, selectedSlot.count - targetCount));
+			result.sourceStrength += evaluateStackPower(selectedSlot.creature, selectedSourceCount);
+		}
+
+		return result;
+	};
+
+	if(source->stacksCount() == 0)
+		return makeResult(std::move(sortedSlots));
+
+	std::map<FactionID, uint64_t> alignmentMap;
+	for(const auto & slot : sortedSlots)
+		alignmentMap[slot.creature->getFactionID()] += slot.power;
+
+	CCreatureSet emptyArmy;
+	std::set<FactionID> allowedFactions;
+	std::vector<SlotInfo> resultingArmy = getSortedSlots(target, &emptyArmy);
+	uint64_t bestValue = currentStrength;
+	uint64_t previousValue = 0;
 
 	while(allowedFactions.size() < alignmentMap.size())
 	{
@@ -211,62 +286,32 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		allowedFactions.insert(strongestAlignment->first);
 
 		std::vector<SlotInfo> newArmy;
-		uint64_t newValue = 0;
-		newArmyInstance.clearSlots();
-
-		for(auto & slot : sortedSlots)
+		for(const auto & slot : sortedSlots)
 		{
-			if(vstd::contains(allowedFactions, slot.creature->getFactionID()))
-			{
-				auto slotID = newArmyInstance.getSlotFor(slot.creature->getId());
-
-				if(slotID.validSlot())
-				{
-					newArmyInstance.setCreature(slotID, slot.creature->getId(), slot.count);
-					newArmy.push_back(slot);
-				}
-			}
+			if(vstd::contains(allowedFactions, slot.creature->getFactionID()) && newArmy.size() < GameConstants::ARMY_SIZE)
+				newArmy.push_back(slot);
 		}
 
-		newArmyInstance.updateMoraleBonusFromArmy();
-
-		for(auto & slot : newArmyInstance.Slots())
-		{
-			auto morale = slot.second->moraleVal();
-			auto multiplier = 1.0f;
-
-			if(morale < 0 && !badMoraleChance.empty())
-			{
-				size_t chanceIndex = std::min<size_t>(badMoraleChance.size(), -morale) - 1;
-				multiplier -= 1.0 / moraleDiceSize * badMoraleChance.at(chanceIndex);
-			}
-			else if(morale > 0 && !highMoraleChance.empty())
-			{
-				size_t chanceIndex = std::min<size_t>(highMoraleChance.size(), morale) - 1;
-				multiplier += 1.0 / moraleDiceSize * highMoraleChance.at(chanceIndex);
-			}
-
-			newValue += multiplier * slot.second->getPower();
-		}
-
-		if(armyValue >= newValue)
-		{
+		const auto newValue = evaluateArmyStrength(armyCarrier, newArmy);
+		if(previousValue >= newValue)
 			break;
-		}
 
-		resultingArmy = newArmy;
-		armyValue = newValue;
+		previousValue = newValue;
+		if(bestValue < newValue)
+		{
+			resultingArmy = newArmy;
+			bestValue = newValue;
+		}
 	}
 
-	if(resultingArmy.size() <= GameConstants::ARMY_SIZE
-		&& allowedFactions.size() == alignmentMap.size()
-		&& source->needsLastStack())
+	const bool takesEntireSourceArmy = makeResult(resultingArmy).sourceStrength == source->getArmyStrength();
+	if(bestValue > currentStrength && takesEntireSourceArmy && source->needsLastStack())
 	{
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 		if(weakest->count == 1)
 		{
-			if (resultingArmy.size() == 1)
-				logAi->warn("ArmyManager::getBestArmy Unexpected resulting army size!");
+			if(resultingArmy.size() == 1)
+				logAi->warn("ArmyManager::getBestArmyInfo Unexpected resulting army size!");
 
 			resultingArmy.erase(weakest);
 		}
@@ -277,7 +322,10 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		}
 	}
 
-	return resultingArmy;
+	if(evaluateArmyStrength(armyCarrier, resultingArmy) <= currentStrength)
+		resultingArmy = getSortedSlots(target, &emptyArmy);
+
+	return makeResult(std::move(resultingArmy));
 }
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
@@ -440,25 +488,6 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	}
 
 	return creaturesInDwellings;
-}
-
-ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
-{
-	if(source->stacksCount() == 0)
-	{
-		return 0;
-	}
-
-	auto bestArmy = getBestArmy(armyCarrier, target, source, armyTerrain);
-	uint64_t newArmy = 0;
-	uint64_t oldArmy = target->getArmyStrength();
-
-	for(auto & slot : bestArmy)
-	{
-		newArmy += slot.power;
-	}
-
-	return newArmy > oldArmy ? newArmy - oldArmy : 0;
 }
 
 uint64_t ArmyManager::evaluateStackPower(const Creature * creature, int count) const
