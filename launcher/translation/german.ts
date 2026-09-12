@@ -518,19 +518,21 @@ Ursache: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 benötigt: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Mod nicht aktivieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine oder mehrere Mods konnten nicht aktiviert werden:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
@@ -843,7 +845,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1185"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Autospeicherstände pro Spiel (0 = unendlich)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
