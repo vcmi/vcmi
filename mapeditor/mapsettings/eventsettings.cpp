@@ -16,6 +16,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/modding/ModScope.h"
 #include "../translator.h"
 
 QString toQString(const PlayerColor & player)
@@ -54,6 +55,7 @@ TResources resourcesFromVariant(const QVariant & v)
 	JsonNode vJson;
 	for(auto r : v.toMap().keys())
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
+	vJson.setModScope(ModScope::scopeMap());
 	ResourceSet res;
 	res.resolveFromJson(vJson);
 	return res;
