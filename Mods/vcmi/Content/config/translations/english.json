@@ -276,6 +276,8 @@
 	"vcmi.adventureMap.confirmQuickLoadGame": "Are you sure you want to load the quicksave?",
 	"vcmi.adventureMap.dateFormat": "%MONTH: %MONTHNUMBER, %WEEK: %WEEKNUMBER, %DAY: %DAYNUMBER",
 	"vcmi.adventureMap.confirmRestartGame": "Are you sure you want to restart the game?",
+	"vcmi.adventureMap.confirmAiSoloContinue": "The AI has finished your turn. Shall it keep playing for you?",
+	"vcmi.adventureMap.aiSoloStopsNextTurn": "The AI will finish this turn, you take over on the next one.",
 	"vcmi.adventureMap.disembark.help": "{Disembark from airship}\n\nHero gets down from airship to the next tile.",
 	"vcmi.adventureMap.disembark.hover": "Disembark from airship",
 	"vcmi.adventureMap.dwelling2": "{%s}\n\nWould you like to recruit %s or %s?",
