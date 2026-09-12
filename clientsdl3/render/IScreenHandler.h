@@ -11,6 +11,7 @@
 #pragma once
 
 #include "lib/constants/Enumerations.h"
+#include "lib/Rect.h"
 
 class Point;
 class Rect;
@@ -36,6 +37,11 @@ enum class TaskbarProgress : uint8_t
 	INDETERMINATE,
 	/// Indicator filled to a known completion fraction, in range [0, 1]
 	NORMAL
+/// One region of an offscreen canvas, drawn onto the screen while the frame is composed
+struct PresentedRegion
+{
+	Rect source; ///< within the canvas
+	Rect target; ///< in screen pixels
 };
 
 class IScreenHandler
@@ -126,4 +132,19 @@ public:
 	/// Flashes the window's taskbar/dock entry if it does not currently have focus, so that
 	/// a notification is not missed while the game is in the background. No-op if focused.
 	virtual void flashWindowIfUnfocused() = 0;
+	/// Draws parts of an offscreen canvas onto the screen while the frame is composed, in place of
+	/// the given layer, instead of copying them into that layer during the frame.
+	///
+	/// Reading a render target in the middle of a frame makes a tiling GPU resolve it right then.
+	/// On some Android drivers that reorganises memory and stalls every process on the device for
+	/// a fifth of a second; the same read costs nothing once the frame is being handed over.
+	///
+	/// What is registered here replaces the previous registration and stays until it is replaced,
+	/// or clearPresentedCanvas() is called - a layer keeps its content across frames, and a window
+	/// opening over the map must not blank it. The layer it stands in for stops being composited.
+	virtual void presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions) = 0;
+
+	/// Forgets what presentFromCanvas() registered. Must be called before the canvas it refers to
+	/// is destroyed, since only the caller knows when that happens.
+	virtual void clearPresentedCanvas(GpuRenderLayer layer) = 0;
 };

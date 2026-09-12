@@ -87,12 +87,21 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 
 void BasicMapView::renderGpu(bool fullUpdate)
 {
-	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
-	Canvas targetClipped(layer, pos);
-
 	// tick() normally filled the cache; a scroll, zoom or level change since then invalidates it
 	if(!tilesCache->isUpdatedThisFrame())
 		tilesCache->update(controller->getContext());
+
+	// Nothing is drawn over the terrain in the usual case, so the cache is composed straight onto
+	// the screen. Copying it into a layer here would mean reading a render target in the middle of
+	// the frame, which is what stalls the GLES driver on some devices.
+	if(!tilesCache->needsOwnLayer(controller->getContext()))
+	{
+		tilesCache->present(pos * ENGINE->screenHandler().getScalingFactor());
+		return;
+	}
+
+	Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::MAP);
+	Canvas targetClipped(layer, pos);
 
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }

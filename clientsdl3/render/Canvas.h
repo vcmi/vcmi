@@ -101,6 +101,10 @@ public:
 	/// True when this canvas draws with the GPU rather than into a surface
 	bool isRenderTarget() const { return renderTarget != nullptr; }
 
+	/// The texture this canvas draws onto, for the screen handler to read from while it composes
+	/// the frame. Null for a surface-backed canvas.
+	SDL_Texture * getRenderTargetTexture() const { return renderTarget; }
+
 	~Canvas();
 
 	/// if set to true, drawing this canvas onto another canvas will use alpha channel information
