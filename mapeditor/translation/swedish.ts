@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1531"/>
         <location filename="../mainwindow.cpp" line="1546"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till nivå</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -1160,14 +1160,16 @@ För bästa upplevelse rekommenderar vi att du använder kartredigeraren på en 
     <message>
         <location filename="../mainwindow.cpp" line="1531"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här kartan har redan det maximala antalet nivåer som redigeraren stöder.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj typ för den nya nivån.
+
+Varning: nivåer kan inte tas bort när de väl har lagts till.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1592"/>

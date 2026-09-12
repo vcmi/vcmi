@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Вихід</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="153"/>
@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1531"/>
         <location filename="../mainwindow.cpp" line="1546"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати рівень</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -868,12 +868,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1424"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Вихід</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1427"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1432"/>
@@ -1160,14 +1160,16 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1531"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ця мапа вже має максимальну кількість рівнів, підтримувану редактором.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть тип нового рівня.
+
+Увага: додані рівні не можна видалити.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1592"/>
@@ -1593,22 +1595,22 @@ Do you want to do that now ?</source>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Конфігурація рівнів мапи</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Рівень</translation>
+        <translation>Рівень</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Рівень мапи</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Рівень %1</translation>
     </message>
 </context>
 <context>
@@ -2687,22 +2689,22 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../helper.cpp" line="96"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрити</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="216"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Недійсний</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Заглушка героя (ранг сили %1)</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished">Випадково</translation>
+        <translation>Випадково</translation>
     </message>
 </context>
 <context>
@@ -3457,27 +3459,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Вчений</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Випадково</translation>
+        <translation>Випадково</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Основна навичка</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Вторинна навичка</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">Закляття</translation>
+        <translation>Закляття</translation>
     </message>
 </context>
 <context>
@@ -3485,7 +3487,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося відкрити редактор!</translation>
     </message>
 </context>
 <context>
@@ -3493,27 +3495,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>Вчений</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Випадково</translation>
+        <translation>Випадково</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Закляття</translation>
+        <translation>Закляття</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>MapEditor не зміг прочитати передбачений рівень закляття для цього типу святилища</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Передбачений рівень закляття %1 для цього типу святилища є недійсним</translation>
     </message>
 </context>
 <context>
@@ -4151,12 +4153,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Вихід</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
@@ -4922,7 +4924,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="91"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Позиція відвідування об&apos;єкта %1 %2 знаходиться за межами мапи</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="106"/>
@@ -5001,22 +5003,22 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="254"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>перемогти певного героя</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="255"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>втратити певного героя</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="258"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>місце для героя</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="260"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спровокована подія «%1» використовує умову %2 з ціллю %3 на %4. Таке налаштування є незвичайним і його слід уникати; мапа залишиться ігрою, але умова залишиться невирішеною, якщо заміна місць героїв не підтримується.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="328"/>
@@ -5031,37 +5033,37 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="166"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Хатка відьми за координатами x: %1 y: %2 на рівні %3 містить некоректну винагороду.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="171"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Хатку відьми за координатами x: %1 y: %2 на рівні %3 не вдалося перевірити в редакторі.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="184"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вчений за координатами x: %1 y: %2 на рівні %3 має некоректну винагороду.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="190"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вчений за координатами x: %1 y: %2 на рівні %3 надає винагороду, заборонену налаштуваннями мапи. Це зроблено навмисно?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="196"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вченого за координатами x: %1 y: %2 на рівні %3 не вдалося перевірити в редакторі.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="207"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Святилище за координатами x: %1 y: %2 на рівні %3 містить некоректне закляття.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="213"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>Святилище за координатами x: %1 y: %2 на рівні %3 дає закляття, заборонене налаштуваннями мапи. Це зроблено навмисно?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="277"/>
@@ -5250,7 +5252,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Рівень</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>

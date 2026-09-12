@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1531"/>
         <location filename="../mainwindow.cpp" line="1546"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Thêm tầng bản đồ</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -964,7 +964,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../mainwindow.cpp" line="1519"/>
         <location filename="../mainwindow.cpp" line="1608"/>
         <source>Level %1: %2</source>
-        <translation>Cấp %1: %2</translation>
+        <translation>Tầng %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="588"/>
@@ -1160,14 +1160,16 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1531"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bản đồ này đã đạt đến số tầng tối đa được hỗ trợ.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn tầng bản đồ mới.
+
+Cảnh báo: Không thể xóa tầng bản đồ sau khi đã thêm.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1592"/>
@@ -1369,7 +1371,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
@@ -2148,14 +2150,14 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="342"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="364"/>
         <location filename="../inspector/inspector.cpp" line="365"/>
         <source>%n tile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n ô</numerusform>
         </translation>
     </message>
     <message>
@@ -2467,7 +2469,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="622"/>
         <source>There can only be one grail object on the map.</source>
-        <translation type="unfinished">Chỉ có thể có một vật phẩm chén thánh trên bản đồ.</translation>
+        <translation>Mỗi bản đồ chỉ được phép có duy nhất một Grail.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="677"/>
@@ -2783,7 +2785,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="370"/>
@@ -3015,7 +3017,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../inspector/rewardswidget.ui" line="573"/>
         <location filename="../inspector/rewardswidget.ui" line="1277"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="605"/>
@@ -3303,7 +3305,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="398"/>
         <source>Artifacts</source>
-        <translation>Vật phẩm</translation>
+        <translation>Báu vật</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="431"/>

@@ -517,19 +517,21 @@ Lý do: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 cần có: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể bật mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể bật một hoặc nhiều mod đã cài đặt:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
@@ -836,7 +838,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1185"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Số lần lưu tự động (0 = không giới hạn)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>

@@ -343,7 +343,7 @@
 	"vcmi.adventureOptions.numericQuantities.help": "{Numerische Kreaturenmengen}\n\n Zeigt die ungefähre Menge der feindlichen Kreaturen im numerischen Format A-B an.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numerische Kreaturenmengen",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Kämpfe in Wiederholungen anzeigen}\n\nJeder Kampf, der während des wiedergegebenen Zuges stattgefunden hat, wird nachgespielt. Ist diese Option deaktiviert, werden solche Kämpfe übersprungen.",
-	"vcmi.adventureOptions.replayShowBattles.hover": "Kämpfe in Wiederholungen anzeigen",
+	"vcmi.adventureOptions.replayShowBattles.hover": "Kämpfe in Wiederh. anz.",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Ziehen mit Rechts}\n\nWenn aktiviert, kann mit gedrückter rechter Taste die Kartenansicht gezogen werden.",
 	"vcmi.adventureOptions.rightButtonDrag.hover": "Ziehen mit Rechts",
 	"vcmi.adventureOptions.showGrid.help": "{Raster anzeigen}\n\n Zeigt eine Rasterüberlagerung, welche die Grenzen zwischen den Kacheln der Abenteuerkarte anzeigt.",
