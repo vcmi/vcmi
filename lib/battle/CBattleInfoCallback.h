@@ -118,11 +118,20 @@ public:
 	bool battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const; //determines if attacker can attack target (no spatial reasoning)
 	bool battleCanShoot(const battle::Unit * attacker, const BattleHex & dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
+	bool battleCanShootFrom(const battle::Unit * attacker, const BattleHex & attackerPosition,
+		const BattleHex & dest) const;
+	bool battleCanShootFrom(const battle::Unit * attacker, const BattleHex & attackerPosition) const;
+	bool battleCanMoveAndShoot(const battle::Unit * attacker, const BattleHex & movementDestination,
+		const BattleHex & dest) const;
+	bool battleCanShootAfterMoving(const battle::Unit * attacker, const BattleHex & dest) const;
+	int battleGetMobileShooterRange(const battle::Unit * attacker) const;
+	int battleGetMobileShooterFullDamageRange(const IBonusBearer * attacker) const;
 	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const;
 	//hexes of the defender that the attacker can reach in melee; empty if no melee attack is possible
 	BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
 	bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
+	bool battleIsUnitBlocked(const battle::Unit * unit, const BattleHex & assumedPosition) const;
 	battle::Units battleAdjacentUnits(const battle::Unit * unit) const;
 
 	DamageEstimation calculateDmgRange(const BattleAttackInfo & info) const;
@@ -145,9 +154,12 @@ public:
 
 	bool battleIsInsideWalls(const BattleHex & from) const;
 	bool battleHasPenaltyOnLine(const BattleHex & from, const BattleHex & dest, bool checkWall, bool checkMoat) const;
-	bool battleHasDistancePenalty(const IBonusBearer * shooter, const BattleHex & shooterPosition, const BattleHex & destHex) const;
+	bool battleHasDistancePenalty(const IBonusBearer * shooter, const BattleHex & shooterPosition,
+		const BattleHex & destHex, bool mobileShooting = false) const;
 	bool battleHasWallPenalty(const IBonusBearer * shooter, const BattleHex & shooterPosition, const BattleHex & destHex) const;
 	bool battleHasShootingPenalty(const battle::Unit * shooter, const BattleHex & destHex) const;
+	bool battleHasShootingPenalty(const battle::Unit * shooter, const BattleHex & shooterPosition,
+		const BattleHex & destHex, bool mobileShooting = false) const;
 
 	BattleHex wallPartToBattleHex(EWallPart part) const override;
 	EWallPart battleHexToWallPart(const BattleHex & hex) const override; //returns part of destructible wall / gate / keep under given hex or -1 if not found
@@ -209,6 +221,8 @@ public:
 	/// find free hex suitable to place new unit. If no initial position was provided, hex located on left size (attacker) or right side (defender) will be selected
 	BattleHex getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos = {}) const override;
 protected:
+	bool battleCanShootAtRange(const battle::Unit * attacker, const BattleHex & attackerPosition,
+		const BattleHex & dest, unsigned int shootingRange) const;
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;
 	bool isInObstacle(const BattleHex & hex, const BattleHexArray & obstacles, const ReachabilityInfo::Parameters & params) const;

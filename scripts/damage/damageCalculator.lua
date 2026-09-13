@@ -319,7 +319,8 @@ end
 --- Shooting too far, or shooting at all with something meant for melee.
 function Script:getRangePenaltyFactor(info)
 	if info.shooting then
-		if info.battle:hasDistancePenalty(info.attacker, info.defender, info.attackerHex, info.defenderHex) then return -0.5 end
+		if info.battle:hasDistancePenalty(
+			info.attacker, info.defender, info.attackerHex, info.defenderHex, info.mobileShooting) then return -0.5 end
 
 		return 0
 	end
