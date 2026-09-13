@@ -173,7 +173,7 @@ struct DLL_LINKAGE CampaignTravel
 	}
 };
 
-struct DLL_LINKAGE CampaignScenario
+struct CampaignScenario
 {
 	std::string mapName; //*.h3m
 	MetaString scenarioName; //from header

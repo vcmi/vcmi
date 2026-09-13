@@ -25,7 +25,7 @@ namespace spells
 class Mechanics;
 
 
-class DLL_LINKAGE TargetConditionItem : public IReceptiveCheck
+class TargetConditionItem : public IReceptiveCheck
 {
 public:
 	virtual void setInverted(bool value) = 0;
@@ -34,7 +34,7 @@ public:
 	virtual bool isExclusive() const = 0;
 };
 
-class DLL_LINKAGE TargetConditionItemFactory
+class TargetConditionItemFactory
 {
 public:
 	using Object = std::shared_ptr<TargetConditionItem>;
@@ -56,7 +56,7 @@ public:
 	virtual Object createImmunityNegation() const = 0;
 };
 
-class DLL_LINKAGE TargetCondition : public IReceptiveCheck
+class TargetCondition : public IReceptiveCheck
 {
 public:
 	using Item = TargetConditionItem;

@@ -20,7 +20,7 @@
 
 class ResourceTypeHandler;
 
-class DLL_LINKAGE Resource : public ResourceType
+class Resource : public ResourceType
 {
 	friend class ResourceTypeHandler;
 

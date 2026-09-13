@@ -15,7 +15,7 @@
 namespace events
 {
 
-class DLL_LINKAGE CGameResumed : public GameResumed
+class CGameResumed : public GameResumed
 {
 public:
 	CGameResumed();

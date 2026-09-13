@@ -15,7 +15,7 @@
 
 class CZipSaver;
 
-class DLL_LINKAGE CZipOutputStream: public COutputStream
+class CZipOutputStream: public COutputStream
 {
 public:
 	/**

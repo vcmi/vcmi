@@ -57,7 +57,7 @@ public:
 	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
 };
 
-class DLL_LINKAGE ObstacleService : public EntityServiceT<Obstacle, ObstacleInfo>
+class ObstacleService : public EntityServiceT<Obstacle, ObstacleInfo>
 {
 public:
 };

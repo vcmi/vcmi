@@ -13,7 +13,7 @@
 
 struct z_stream_s;
 
-class DLL_LINKAGE DecompressionException : public std::runtime_error
+class DecompressionException : public std::runtime_error
 {
 public:
 	using runtime_error::runtime_error;

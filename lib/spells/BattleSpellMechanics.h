@@ -24,7 +24,7 @@ namespace battle
 namespace spells
 {
 
-class DLL_LINKAGE BattleSpellMechanics : public BaseMechanics
+class BattleSpellMechanics : public BaseMechanics
 {
 public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);

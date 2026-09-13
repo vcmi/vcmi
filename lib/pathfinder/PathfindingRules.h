@@ -26,7 +26,7 @@ public:
 		CPathfinderHelper * pathfinderHelper) const = 0;
 };
 
-class DLL_LINKAGE MovementCostRule : public IPathfindingRule
+class MovementCostRule : public IPathfindingRule
 {
 public:
 	void process(
@@ -36,7 +36,7 @@ public:
 		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class DLL_LINKAGE LayerTransitionRule : public IPathfindingRule
+class LayerTransitionRule : public IPathfindingRule
 {
 public:
 	void process(
@@ -46,7 +46,7 @@ public:
 		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class DLL_LINKAGE DestinationActionRule : public IPathfindingRule
+class DestinationActionRule : public IPathfindingRule
 {
 public:
 	void process(
@@ -56,7 +56,7 @@ public:
 		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class DLL_LINKAGE PathfinderBlockingRule : public IPathfindingRule
+class PathfinderBlockingRule : public IPathfindingRule
 {
 public:
 	void process(
@@ -84,7 +84,7 @@ protected:
 		const CPathfinderHelper * pathfinderHelper) const = 0;
 };
 
-class DLL_LINKAGE MovementAfterDestinationRule : public PathfinderBlockingRule
+class MovementAfterDestinationRule : public PathfinderBlockingRule
 {
 public:
 	void process(
@@ -101,7 +101,7 @@ protected:
 		const CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class DLL_LINKAGE MovementToDestinationRule : public PathfinderBlockingRule
+class MovementToDestinationRule : public PathfinderBlockingRule
 {
 protected:
 	BlockingReason getBlockingReason(

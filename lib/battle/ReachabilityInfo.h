@@ -16,14 +16,14 @@ class BattleHexArray;
 
 // Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
 // startPosition and perspective.
-struct DLL_LINKAGE ReachabilityInfo
+struct ReachabilityInfo
 {
 	using TDistances = std::array<uint32_t, GameConstants::BFIELD_SIZE>;
 	using TPredecessors = std::array<BattleHex, GameConstants::BFIELD_SIZE>;
 
 	enum { INFINITE_DIST = 1000000 };
 
-	struct DLL_LINKAGE Parameters
+	struct Parameters
 	{
 		BattleSide side = BattleSide::NONE;
 		bool doubleWide = false;

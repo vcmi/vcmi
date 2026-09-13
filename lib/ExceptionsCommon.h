@@ -16,7 +16,7 @@ public:
 	~DataLoadingException() override;
 };
 
-class DLL_LINKAGE ModLoadingException: public DataLoadingException
+class ModLoadingException: public DataLoadingException
 {
 public:
 	ModLoadingException(const std::string & modName, const std::string & reason)

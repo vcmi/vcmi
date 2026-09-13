@@ -27,7 +27,7 @@ struct Bonus;
 
 namespace BonusMigration
 {
-DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);
+bool migrateCombatAbility(Bonus & bonus);
 }
 
 using TBonusListPtr = std::shared_ptr<BonusList>;

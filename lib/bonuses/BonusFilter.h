@@ -18,7 +18,7 @@
 /// Which bonuses of a bearer a script is asking about. Every field left out widens the answer, so
 /// an empty filter asks for all of them. Anything the fields below cannot express is for the script
 /// to sort out over the bonuses this returns.
-struct DLL_LINKAGE BonusFilter final : public scripting::ApiSerializable<BonusFilter>
+struct BonusFilter final : public scripting::ApiSerializable<BonusFilter>
 {
 	static constexpr std::string_view luaName = "BonusFilter";
 	static constexpr std::string_view luaDescription =
