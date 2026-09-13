@@ -309,11 +309,18 @@ public:
 	void checkVictoryLossConditionsForPlayer(PlayerColor player);
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
+	void resumeDeferredVictoryLossChecks();
 
 	vstd::RNG & getRandomGenerator() override;
 
 	friend class CVCMIServer;
+
 private:
+	/// Victory processing is deferred globally because one player's loss can make another player
+	/// with a pending level-up win.
+	std::set<PlayerColor> playersWithDeferredVictoryLossChecks;
+
+	bool hasPendingLevelUpQuery() const;
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 
 	const std::string complainNoCreatures;

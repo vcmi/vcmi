@@ -3837,11 +3837,43 @@ void CGameHandler::checkVictoryLossConditionsForAll()
 	checkVictoryLossConditions(playerColors);
 }
 
+bool CGameHandler::hasPendingLevelUpQuery() const
+{
+	const QueriesProcessor & queryProcessor = *queries;
+	for(const auto & query : queryProcessor.allQueries())
+	{
+		const auto type = query->getType();
+		if(type == QueryType::HeroLevelUpDialog || type == QueryType::CommanderLevelUpDialog)
+			return true;
+	}
+
+	return false;
+}
+
+void CGameHandler::resumeDeferredVictoryLossChecks()
+{
+	if(playersWithDeferredVictoryLossChecks.empty() || hasPendingLevelUpQuery())
+		return;
+
+	auto playersToCheck = std::move(playersWithDeferredVictoryLossChecks);
+	playersWithDeferredVictoryLossChecks.clear();
+	checkVictoryLossConditions(playersToCheck);
+}
+
 void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState * p = gameInfo().getPlayerState(player);
 
-	if(!p || p->status != EPlayerStatus::INGAME) return;
+	if(!p || p->status != EPlayerStatus::INGAME)
+		return;
+
+	if(hasPendingLevelUpQuery())
+	{
+		playersWithDeferredVictoryLossChecks.insert(player);
+		return;
+	}
+
+	playersWithDeferredVictoryLossChecks.erase(player);
 
 	if(gameState().getMap().battleOnly)
 	{
