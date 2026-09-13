@@ -25,6 +25,7 @@
                 "ENABLE_TEST": "OFF",
                 "ENABLE_STRICT_COMPILATION": "ON",
                 "ENABLE_GOLDMASTER": "$env{VCMI_PACKAGE_GOLDMASTER}",
+                "ENABLE_LTO": "$env{VCMI_ENABLE_LTO}",
                 "ENABLE_PCH" : "OFF"
             }
         },

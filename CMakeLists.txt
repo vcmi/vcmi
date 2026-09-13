@@ -60,8 +60,8 @@ option(ENABLE_MMAI "Enable compilation of MMAI AI library" ON)
 # Compilation options
 
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-# Defaults to on for public releases - master branch builds set ENABLE_GOLDMASTER
-option(ENABLE_LTO "Enable link-time optimization in non-Debug builds" ${ENABLE_GOLDMASTER})
+# Release presets take the value from the VCMI_ENABLE_LTO environment variable
+option(ENABLE_LTO "Enable link-time optimization in non-Debug builds" OFF)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
