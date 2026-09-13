@@ -312,7 +312,9 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				moveTarget.cachedAttack->attack.defender->getPosition(),
 				moveTarget.score);
 
-			return goTowardsNearest(stack, moveTarget.positions, *targets);
+			const auto primaryTargetHexes = moveTarget.cachedAttack->attack.defender->getAttackableHexes(stack);
+
+			return goTowardsNearest(stack, moveTarget.positions, *targets, primaryTargetHexes);
 		}
 		else
 		{
@@ -337,7 +339,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
 				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 			else
-				return goTowardsNearest(stack, brokenWallMoat, *targets);
+				return goTowardsNearest(stack, brokenWallMoat, *targets, brokenWallMoat);
 		}
 	}
 
@@ -351,16 +353,22 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, const BattleHex & hex, const PotentialTargets & targets)
+BattleAction BattleEvaluator::moveOrAttack(
+	const CStack * stack,
+	const BattleHex & movementTarget,
+	const PotentialTargets & targets,
+	const BattleHexArray & allowedAttackOrigins)
 {
-	auto additionalScore = 0;
+	float bestAttackValue = 0.0f;
 	std::optional<AttackPossibility> attackOnTheWay;
 
-	for(auto & target : targets.possibleAttacks)
+	for(const auto & target : targets.possibleAttacks)
 	{
-		if(!target.attack.shooting && target.from == hex && target.attackValue() > additionalScore)
+		if(!target.attack.shooting
+			&& (target.from == movementTarget || allowedAttackOrigins.contains(target.from))
+			&& target.attackValue() > bestAttackValue)
 		{
-			additionalScore = target.attackValue();
+			bestAttackValue = target.attackValue();
 			attackOnTheWay = target;
 		}
 	}
@@ -372,14 +380,18 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, const BattleHex
 	}
 	else
 	{
-		if(stack->position == hex)
+		if(stack->position == movementTarget)
 			return BattleAction::makeDefend(stack);
 		else
-			return BattleAction::makeMove(stack, hex);
+			return BattleAction::makeMove(stack, movementTarget);
 	}
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const BattleHexArray & hexes, const PotentialTargets & targets)
+BattleAction BattleEvaluator::goTowardsNearest(
+	const CStack * stack,
+	const BattleHexArray & movementTargets,
+	const PotentialTargets & targets,
+	const BattleHexArray & finalDestinationHexes)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -401,32 +413,87 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		});
 	}
 
-	if(avHexes.empty() || hexes.empty()) //we are blocked or dest is blocked
+	if(avHexes.empty() || movementTargets.empty()) //we are blocked or dest is blocked
 	{
 		return BattleAction::makeDefend(stack);
 	}
 
-	BattleHexArray targetHexes = hexes;
+	BattleHexArray sortedMovementTargets = movementTargets;
 
-	targetHexes.sort([&reachability](const BattleHex & h1, const BattleHex & h2) -> bool
+	sortedMovementTargets.sort([&reachability](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
 
-	BattleHex bestNeighbour = targetHexes.front();
+	BattleHex nearestMovementTarget = sortedMovementTargets.front();
 
-	if(reachability.distances[bestNeighbour.toInt()] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[nearestMovementTarget.toInt()] > GameConstants::BFIELD_SIZE)
 	{
 		logAi->trace("No reachable hexes.");
 		return BattleAction::makeDefend(stack);
 	}
 
+	auto moveOrAttackTowards = [&](const BattleHex & movementDestination) -> BattleAction
+	{
+		BattleHexArray allowedAttackOrigins;
+		const auto movementRange = stack->getMovementRange(0);
+
+		if(movementRange == 0)
+			return moveOrAttack(stack, movementDestination, targets);
+
+		ReachabilityInfo::TDistances remainingDistances;
+		remainingDistances.fill(ReachabilityInfo::INFINITE_DIST);
+
+		// The closest final destination may change after taking a useful target on the way.
+		for(const auto & finalDestinationHex : finalDestinationHexes)
+		{
+			if(!reachability.isReachable(finalDestinationHex))
+				continue;
+
+			BattleHexArray knownAccessible = stack->getHexes();
+			knownAccessible.insert(battle::Unit::getHexes(
+				finalDestinationHex,
+				stack->doubleWide(),
+				stack->unitSide()));
+
+			ReachabilityInfo::Parameters targetParams(stack, finalDestinationHex);
+			targetParams.knownAccessible = &knownAccessible;
+			auto targetReachability = cb->getBattle(battleID)->getReachability(targetParams);
+
+			for(size_t i = 0; i < remainingDistances.size(); ++i)
+				remainingDistances[i] = std::min(remainingDistances[i], targetReachability.distances[i]);
+		}
+
+		const auto movementDistance = remainingDistances[movementDestination.toInt()];
+		const auto turnsAfterMovement = (movementDistance + movementRange - 1) / movementRange;
+
+		for(const auto & target : targets.possibleAttacks)
+		{
+			if(target.attack.shooting
+				|| !avHexes.contains(target.from)
+				|| remainingDistances[target.from.toInt()] == ReachabilityInfo::INFINITE_DIST
+				|| scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, target.from))
+				continue;
+
+			const auto distanceAfterAttack = remainingDistances[target.from.toInt()];
+			const auto turnsAfterAttack = (distanceAfterAttack + movementRange - 1) / movementRange;
+
+			// The attack origin must not delay arrival at the final destination.
+			if(turnsAfterAttack <= turnsAfterMovement)
+			{
+				allowedAttackOrigins.insert(target.from);
+			}
+		}
+
+		return moveOrAttack(stack, movementDestination, targets, allowedAttackOrigins);
+	};
+
 	// this turn
-	for(const auto & hex : targetHexes)
+	for(const auto & hex : sortedMovementTargets)
 	{
 		if(avHexes.contains(hex))
 		{
-			return moveOrAttack(stack, hex, targets);
+			return moveOrAttackTowards(hex);
 		}
 
 		if(stack->coversPos(hex))
@@ -459,12 +526,12 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [this, &bestNeighbour, &stack, &obstacleHexes](const BattleHex & hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [this, &nearestMovementTarget, &stack, &obstacleHexes](const BattleHex & hex) -> int
 		{
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
-			auto distance = BattleHex::getDistance(bestNeighbour, hex);
+			auto distance = BattleHex::getDistance(nearestMovementTarget, hex);
 
 			if(obstacleHexes.contains(hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
@@ -472,11 +539,11 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
 		});
 
-		return moveOrAttack(stack, *nearestAvailableHex, targets);
+		return moveOrAttackTowards(*nearestAvailableHex);
 	}
 	else
 	{
-		BattleHex currentDest = bestNeighbour;
+		BattleHex currentDest = nearestMovementTarget;
 
 		while(true)
 		{
@@ -488,7 +555,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 			if(avHexes.contains(currentDest)
 				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
 			{
-				return moveOrAttack(stack, currentDest, targets);
+				return moveOrAttackTowards(currentDest);
 			}
 
 			currentDest = reachability.predecessors[currentDest.toInt()];
