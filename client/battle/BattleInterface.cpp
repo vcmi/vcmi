@@ -373,10 +373,15 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 	curInt->waitWhileDialog();
 
+	// a spectator watches a battle it has no side in, so the query belongs to whoever fights it
+	const bool ownsQuery = attackerInt || defenderInt;
+
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
-		curInt->cb->selectionMade(0, queryID);
+		if(ownsQuery)
+			curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
+		CPlayerInterface::battleInt.reset(); // must stay last, it destroys this object
 		return;
 	}
 
@@ -389,10 +394,13 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	}
 
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
-	wnd->resultCallback = [this, queryID](ui32 selection)
+	if(ownsQuery)
 	{
-		curInt->cb->selectionMade(selection, queryID);
-	};
+		wnd->resultCallback = [this, queryID](ui32 selection)
+		{
+			curInt->cb->selectionMade(selection, queryID);
+		};
+	}
 	ENGINE->windows().pushWindow(wnd);
 
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897

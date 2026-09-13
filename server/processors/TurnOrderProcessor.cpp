@@ -45,6 +45,13 @@ int TurnOrderProcessor::simturnsTurnsMinLimit() const
 	return gameHandler->gameInfo().getStartInfo()->simturnsInfo.requiredTurns;
 }
 
+bool TurnOrderProcessor::isSimturnsActive() const
+{
+	// same day limits that computeCanActSimultaneously() applies
+	int currentDay = gameHandler->gameInfo().getCalendar().getCurrentDay();
+	return currentDay < simturnsTurnsMinLimit() || currentDay <= simturnsTurnsMaxLimit();
+}
+
 std::vector<TurnOrderProcessor::PlayerPair> TurnOrderProcessor::computeContactStatus() const
 {
 	std::vector<PlayerPair> result;
