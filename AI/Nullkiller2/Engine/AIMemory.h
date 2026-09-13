@@ -27,7 +27,7 @@ public:
 	void removeFromMemory(ObjectIdRef obj);
 	void addSubterraneanGate(const CGObjectInstance * entrance, const CGObjectInstance * exit);
 	void addVisitableObject(const CGObjectInstance * obj);
-	void markObjectVisited(const CGObjectInstance * obj);
+	void markObjectVisited(const CGObjectInstance * obj, const CCallback & cc);
 	void markObjectUnvisited(const CGObjectInstance * obj);
 	bool wasVisited(const CGObjectInstance * obj) const;
 	void removeInvisibleOrDeletedObjects(const CCallback & cc);
