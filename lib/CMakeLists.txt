@@ -102,6 +102,7 @@ set(lib_MAIN_SRCS
 	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
+	constants/StringConstants.cpp
 	constants/IdentifierBase.cpp
 
 	entities/artifact/ArtifactUtils.cpp
