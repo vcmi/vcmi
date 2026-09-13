@@ -27,6 +27,7 @@
 #include "render/IRenderHandler.h"
 
 #include "lib/CConfigHandler.h"
+#include "lib/GameConstants.h"
 #include "lib/constants/StringConstants.h"
 #include "lib/VCMIDirs.h"
 #include "lib/texts/MetaString.h"
@@ -272,8 +273,35 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 #endif
 }
 
+#ifdef VCMI_ANDROID
+static constexpr auto appIdentifier = "is.xyz.vcmi";
+#else
+static constexpr auto appIdentifier = "eu.vcmi.VCMI";
+#endif
+
+/// Fills in the metadata SDL3 uses for OS integration (About dialogs, window manager
+/// tooltips, crash reporters, etc). Must run before SDL_Init to take effect everywhere.
+static void setApplicationMetadata()
+{
+	SDL_SetAppMetadata(GameConstants::VCMI_PROJECT_NAME, GameConstants::VCMI_VERSION, appIdentifier);
+
+	auto time = std::time(nullptr);
+	std::tm tm = vstd::safeLocalTime(time);
+	std::string copyright = "Copyright (C) 2007-" + std::to_string(tm.tm_year + 1900) + " VCMI dev team";
+
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, GameConstants::VCMI_PROJECT_NAME);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, appIdentifier);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "VCMI dev team");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, copyright.c_str());
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://vcmi.eu");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
+}
+
 ScreenHandler::ScreenHandler()
 {
+	setApplicationMetadata();
+
 	// NOTE: SDL3 is always per-monitor DPI aware, so the Windows-specific
 	// SDL_HINT_WINDOWS_DPI_AWARENESS of SDL2 has no equivalent here
 	if(settings["video"]["allowPortrait"].Bool())
@@ -1073,6 +1101,14 @@ bool ScreenHandler::hasFocus()
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
+void ScreenHandler::flashWindowIfUnfocused()
+{
+	if(hasFocus())
+		return;
+
+	SDL_FlashWindow(mainWindow, SDL_FLASH_UNTIL_FOCUSED);
+}
+
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
 	if(colorScheme == scheme)
@@ -1086,6 +1122,23 @@ void ScreenHandler::setColorScheme(ColorScheme scheme)
 		releaseLayer(static_cast<GpuRenderLayer>(i));
 
 	ENGINE->windows().totalRedraw();
+}
+
+void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
+{
+	switch (state)
+	{
+		case TaskbarProgress::HIDDEN:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NONE);
+			break;
+		case TaskbarProgress::INDETERMINATE:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_INDETERMINATE);
+			break;
+		case TaskbarProgress::NORMAL:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NORMAL);
+			SDL_SetWindowProgressValue(mainWindow, std::clamp(value, 0.f, 1.f));
+			break;
+	}
 }
 
 void ScreenHandler::screenShot() const

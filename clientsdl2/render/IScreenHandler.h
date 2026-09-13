@@ -35,6 +35,15 @@ enum class GpuRenderLayer : uint8_t
 	COUNT
 };
 
+/// State of the OS taskbar/dock progress indicator. SDL2 has no cross-platform equivalent
+/// of SDL3's window progress API, so this backend never actually shows one.
+enum class TaskbarProgress : uint8_t
+{
+	HIDDEN,
+	INDETERMINATE,
+	NORMAL
+};
+
 class IScreenHandler
 {
 public:
@@ -105,6 +114,10 @@ public:
 	/// No GPU drawing happens in this backend, so there is nothing queued to hand over
 	void flushRenderCommands() {}
 
+	void setTaskbarProgress(TaskbarProgress state, float value) {}
+
+	/// SDL2 has no cross-platform equivalent of SDL3's window flash API
+	void flashWindowIfUnfocused() {}
 	/// This backend composes in software, so there is no separate present to defer a copy to
 	void presentFromCanvas(GpuRenderLayer, const Canvas &, const std::vector<PresentedRegion> &) {}
 	void clearPresentedCanvas(GpuRenderLayer) {}

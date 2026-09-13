@@ -184,4 +184,8 @@ public:
 	void screenShot() const final;
 
 	void setColorScheme(ColorScheme filter) final;
+
+	void setTaskbarProgress(TaskbarProgress state, float value) final;
+
+	void flashWindowIfUnfocused() final;
 };
