@@ -324,6 +324,13 @@ if(ENABLE_LTO)
 		foreach(config RELEASE RELWITHDEBINFO MINSIZEREL)
 			set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_${config} ON)
 		endforeach()
+
+		# lto1 repeats optimization while linking, raising false positives inside
+		# libstdc++ internals that differ between compiler versions. Compilation
+		# itself stays strict - this only relaxes the link step.
+		if(ENABLE_STRICT_COMPILATION AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+			add_link_options(-Wno-error)
+		endif()
 	else()
 		message(WARNING "ENABLE_LTO requested but not supported by toolchain: ${IPO_ERROR}")
 	endif()
