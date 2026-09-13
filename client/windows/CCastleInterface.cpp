@@ -819,6 +819,8 @@ void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBu
 			backColor = Colors::PURPLE; // dwelling
 
 		auto contentRect = buildingRect->border->contentRect();
+		if(contentRect.w <= 0 || contentRect.h <= 0)
+			continue; // border image has no visible content (e.g. fully transparent), nothing to label
 		auto center = Rect(buildingRect->pos.x + contentRect.x, buildingRect->pos.y + contentRect.y, contentRect.w, contentRect.h).center();
 		Point dimensions(font->getStringWidth(overlay), font->getLineHeight());
 		Rect textRect = Rect(center - dimensions / 2, dimensions).resize(2);
