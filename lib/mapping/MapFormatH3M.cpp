@@ -1107,6 +1107,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
+	reward.manaOverflowFactor = 100;
 	if(auto val = reader->readInt8Checked(-3, 3))
 		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven)));
 	if(auto val = reader->readInt8Checked(-3, 3))
