@@ -54,7 +54,7 @@ public:
 using TLimiterPtr = std::shared_ptr<const ILimiter>;
 extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
 
-class DLL_LINKAGE AggregateLimiter : public ILimiter
+class AggregateLimiter : public ILimiter
 {
 protected:
 	virtual const std::string & getAggregator() const = 0;
@@ -71,7 +71,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
+class AllOfLimiter : public AggregateLimiter
 {
 protected:
 	const std::string & getAggregator() const override;
@@ -81,7 +81,7 @@ public:
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
-class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
+class AnyOfLimiter : public AggregateLimiter
 {
 protected:
 	const std::string & getAggregator() const override;
@@ -91,7 +91,7 @@ public:
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
-class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
+class NoneOfLimiter : public AggregateLimiter
 {
 protected:
 	const std::string & getAggregator() const override;
@@ -101,7 +101,7 @@ public:
 	EDecision limit(const BonusLimitationContext & context) const override;
 };
 
-class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
+class CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
 	CreatureID creatureID;
@@ -123,7 +123,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
+class HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
 {
 public:
 	BonusType type;
@@ -163,7 +163,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE TerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
+class TerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
 	TerrainId terrainType;
@@ -181,7 +181,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureLevelLimiter : public ILimiter //applies only to creatures of given faction
+class CreatureLevelLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
 	uint32_t minLevel;
@@ -201,7 +201,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE FactionLimiter : public ILimiter //applies only to creatures of given faction
+class FactionLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
 	FactionID faction;
@@ -218,7 +218,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
+class CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
 {
 public:
 	EAlignment alignment;
@@ -235,7 +235,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
+class OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
 {
 public:
 	OppositeSideLimiter();
@@ -248,7 +248,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
+class RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
 {
 public:
 	ui8 minRank;
@@ -266,7 +266,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE UnitOnHexLimiter : public ILimiter //works only on selected hexes
+class UnitOnHexLimiter : public ILimiter //works only on selected hexes
 {
 public:
 	BattleHexArray applicableHexes;
@@ -282,7 +282,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE UnitAdjacentLimiter : public ILimiter // applis if unit is adjacent to another unit
+class UnitAdjacentLimiter : public ILimiter // applis if unit is adjacent to another unit
 {
 public:
 	CreatureID targetUnit;
@@ -298,7 +298,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE HasChargesLimiter : public ILimiter // works with bonuses that consume charges
+class HasChargesLimiter : public ILimiter // works with bonuses that consume charges
 {
 public:
 	uint16_t chargeCost;

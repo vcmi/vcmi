@@ -62,7 +62,7 @@ struct SpellEffectValue : public scripting::ApiSerializable<SpellEffectValue>
 	}
 };
 
-class DLL_LINKAGE Effect
+class Effect
 {
 public:
 	bool indirect = false;

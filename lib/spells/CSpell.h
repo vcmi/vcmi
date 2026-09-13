@@ -112,7 +112,7 @@ public:
 	std::string identifier;
 	std::string modScope;
 public:
-	struct DLL_LINKAGE TargetInfo
+	struct TargetInfo
 	{
 		spells::AimType type;
 		bool smart;

@@ -16,7 +16,7 @@
 #include "IHandlerBase.h"
 #include "filesystem/ResourcePath.h"
 
-class DLL_LINKAGE RoadType : public EntityT<RoadId>
+class RoadType : public EntityT<RoadId>
 {
 	friend class RoadTypeHandler;
 	std::string identifier;
@@ -41,12 +41,12 @@ public:
 	RoadType();
 };
 
-class DLL_LINKAGE RoadTypeService : public EntityServiceT<RoadId, RoadType>
+class RoadTypeService : public EntityServiceT<RoadId, RoadType>
 {
 public:
 };
 
-class DLL_LINKAGE RoadTypeHandler : public CHandlerBase<RoadId, RoadType, RoadType, RoadTypeService>
+class RoadTypeHandler : public CHandlerBase<RoadId, RoadType, RoadType, RoadTypeService>
 {
 public:
 	std::shared_ptr<RoadType> loadFromJson(

@@ -39,7 +39,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE GrowsWithLevelUpdater : public IUpdater
+class GrowsWithLevelUpdater : public IUpdater
 {
 public:
 	int valPer20 = 0;
@@ -60,7 +60,7 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
+class TimesHeroLevelUpdater : public IUpdater
 {
 	int stepSize = 1;
 public:
@@ -82,7 +82,7 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE TimesStackSizeUpdater : public IUpdater
+class TimesStackSizeUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int count) const;
 
@@ -112,7 +112,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE TimesArmySizeUpdater : public IUpdater
+class TimesArmySizeUpdater : public IUpdater
 {
 public:
 	int minimum = std::numeric_limits<int>::min();
@@ -139,7 +139,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
+class TimesStackLevelUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 
@@ -149,7 +149,7 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE DivideStackLevelUpdater : public IUpdater
+class DivideStackLevelUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 
@@ -169,7 +169,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE TimesHeroLevelDivideStackLevelUpdater : public TimesHeroLevelUpdater
+class TimesHeroLevelDivideStackLevelUpdater : public TimesHeroLevelUpdater
 {
 	std::shared_ptr<DivideStackLevelUpdater> divideStackLevel;
 public:
@@ -188,7 +188,7 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE OwnerUpdater : public IUpdater
+class OwnerUpdater : public IUpdater
 {
 public:
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
@@ -196,7 +196,7 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE CompositeUpdater : public IUpdater
+class CompositeUpdater : public IUpdater
 {
 public:
 	std::vector<TUpdaterPtr> updaters;

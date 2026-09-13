@@ -24,7 +24,7 @@ namespace ELogLevel
 }
 
 /// The class CLoggerDomain provides convenient access to super domains from a sub domain.
-class DLL_LINKAGE CLoggerDomain
+class CLoggerDomain
 {
 public:
 	/// Constructs a CLoggerDomain with the domain designated by name.
@@ -44,7 +44,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger final: public vstd::CLoggerBase
+class CLogger final: public vstd::CLoggerBase
 {
 public:
 	ELogLevel::ELogLevel getLevel() const;
@@ -84,7 +84,7 @@ private:
 /* ---------------------------------------------------------------------------- */
 
 /// The class CLogManager is a global storage for logger objects.
-class DLL_LINKAGE CLogManager final : public boost::noncopyable
+class CLogManager final : public boost::noncopyable
 {
 public:
 	static CLogManager & get();
@@ -103,7 +103,7 @@ private:
 };
 
 /// The struct LogRecord holds the log message and additional logging information.
-struct DLL_LINKAGE LogRecord
+struct LogRecord
 {
 	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message);
 
@@ -122,7 +122,7 @@ struct DLL_LINKAGE LogRecord
 /// %n = Logger name
 /// %t = Thread ID
 /// %m = Message
-class DLL_LINKAGE CLogFormatter
+class CLogFormatter
 {
 public:
 	CLogFormatter();
@@ -150,7 +150,7 @@ public:
 };
 
 /// The class CColorMapping maps a logger name and a level to a specific color. Supports domain inheritance.
-class DLL_LINKAGE CColorMapping
+class CColorMapping
 {
 public:
 	CColorMapping();
@@ -165,7 +165,7 @@ private:
 /// This target is a logging target which writes message to the console.
 /// The target may be shared among multiple loggers. All methods except write aren't thread-safe.
 /// The console target is intended to be configured once and then added to a logger.
-class DLL_LINKAGE CLogConsoleTarget : public ILogTarget
+class CLogConsoleTarget : public ILogTarget
 {
 public:
 	explicit CLogConsoleTarget(CConsoleHandler * console);
@@ -198,7 +198,7 @@ private:
 /// This target is a logging target which writes messages to a log file.
 /// The target may be shared among multiple loggers. All methods except write aren't thread-safe.
 /// The file target is intended to be configured once and then added to a logger.
-class DLL_LINKAGE CLogFileTarget : public ILogTarget
+class CLogFileTarget : public ILogTarget
 {
 public:
 	/// Constructs a CLogFileTarget and opens the file designated by filePath. If the append parameter is true, the file

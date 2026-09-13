@@ -22,7 +22,7 @@ class CGObjectInstance;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 /// Class responsible for creation of adventure map objects of specific type
-class DLL_LINKAGE ObjectClass : boost::noncopyable
+class ObjectClass : boost::noncopyable
 {
 public:
 	std::string modScope;

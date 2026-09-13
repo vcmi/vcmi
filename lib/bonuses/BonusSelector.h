@@ -77,7 +77,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CWillLastTurns
+class CWillLastTurns
 {
 	int turnsRequested;
 public:
@@ -93,7 +93,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CWillLastDays
+class CWillLastDays
 {
 	int daysRequested;
 

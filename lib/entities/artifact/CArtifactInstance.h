@@ -65,7 +65,7 @@ public:
 	SpellID getScrollSpellID() const;
 };
 
-class DLL_LINKAGE CGrowingArtifactInstance
+class CGrowingArtifactInstance
 {
 protected:
 	CGrowingArtifactInstance() = default;

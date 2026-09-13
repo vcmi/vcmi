@@ -27,7 +27,7 @@ struct Component;
 class CStackBasicDescriptor;
 class IGameRandomizer;
 
-class DLL_LINKAGE JsonRandomizationException : public std::runtime_error
+class JsonRandomizationException : public std::runtime_error
 {
 	std::string cleanupJson(const JsonNode & value);
 public:

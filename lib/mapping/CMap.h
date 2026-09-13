@@ -41,7 +41,7 @@ struct TeleportChannel;
 enum class EGameSettings;
 
 /// The rumor struct consists of a rumor name and text.
-struct DLL_LINKAGE Rumor
+struct Rumor
 {
 	std::string name;
 	MetaString text;

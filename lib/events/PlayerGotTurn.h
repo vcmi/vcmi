@@ -17,7 +17,7 @@
 namespace events
 {
 
-class DLL_LINKAGE CPlayerGotTurn : public PlayerGotTurn
+class CPlayerGotTurn : public PlayerGotTurn
 {
 public:
 	CPlayerGotTurn();

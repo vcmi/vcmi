@@ -19,7 +19,7 @@ namespace battle
 
 class CGHeroInstance;
 
-class DLL_LINKAGE BattleStateInfoForRetreat
+class BattleStateInfoForRetreat
 {
 public:
 	bool canFlee;

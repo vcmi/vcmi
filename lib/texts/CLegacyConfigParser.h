@@ -12,7 +12,7 @@
 #include "filesystem/ResourcePath.h"
 
 /// Parser for any text files from H3
-class DLL_LINKAGE CLegacyConfigParser
+class CLegacyConfigParser
 {
 	std::string fileEncoding;
 

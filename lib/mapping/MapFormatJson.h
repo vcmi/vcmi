@@ -132,7 +132,7 @@ protected:
 	void writeOptions(JsonSerializer & handler);
 };
 
-class DLL_LINKAGE CMapPatcher : public CMapFormatJson, public IMapPatcher
+class CMapPatcher : public CMapFormatJson, public IMapPatcher
 {
 public:
 	/**
@@ -158,7 +158,7 @@ private:
 	JsonNode input;
 };
 
-class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader
+class CMapLoaderJson : public CMapFormatJson, public IMapLoader
 {
 public:
 	/**

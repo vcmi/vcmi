@@ -12,7 +12,7 @@
 
 #include "AdventureSpellEffect.h"
 
-class DLL_LINKAGE DimensionDoorEffect final : public AdventureSpellRangedEffect
+class DimensionDoorEffect final : public AdventureSpellRangedEffect
 {
 	std::string cursor;
 	std::string cursorGuarded;

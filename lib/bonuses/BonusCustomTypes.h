@@ -14,7 +14,7 @@
 #include "../constants/VariantIdentifier.h"
 #include "BonusEnum.h"
 
-class DLL_LINKAGE BonusCustomSource : public StaticIdentifier<BonusCustomSource>
+class BonusCustomSource : public StaticIdentifier<BonusCustomSource>
 {
 public:
 	using StaticIdentifier<BonusCustomSource>::StaticIdentifier;
@@ -65,7 +65,7 @@ public:
 	static BonusCustomSubtype alignment(EAlignment alignment);
 };
 
-class DLL_LINKAGE BonusTypeID : public EntityIdentifier<BonusTypeID>
+class BonusTypeID : public EntityIdentifier<BonusTypeID>
 {
 public:
 	using EntityIdentifier<BonusTypeID>::EntityIdentifier;
@@ -107,10 +107,10 @@ enum class EntityTypeEnum
 };
 
 /// What the subtype of a bonus of this type names.
-DLL_LINKAGE EntityTypeEnum bonusSubtypeEntityType(BonusType type);
+EntityTypeEnum bonusSubtypeEntityType(BonusType type);
 /// Name this entity type is known by, which is what identifiers of it are resolved under. Empty for NONE.
-DLL_LINKAGE std::string entityTypeName(EntityTypeEnum entityType);
+std::string entityTypeName(EntityTypeEnum entityType);
 /// Subtype holding the given index, as an identifier of this entity type.
-DLL_LINKAGE BonusSubtypeID bonusSubtypeOf(EntityTypeEnum entityType, int32_t index);
+BonusSubtypeID bonusSubtypeOf(EntityTypeEnum entityType, int32_t index);
 /// Subtype named by this identifier for this bonus type. Throws when the identifier names nothing.
-DLL_LINKAGE BonusSubtypeID decodeBonusSubtype(BonusType type, const std::string & identifier);
+BonusSubtypeID decodeBonusSubtype(BonusType type, const std::string & identifier);

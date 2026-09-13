@@ -15,7 +15,7 @@
 namespace events
 {
 
-class DLL_LINKAGE CTurnStarted : public TurnStarted
+class CTurnStarted : public TurnStarted
 {
 public:
 	CTurnStarted();

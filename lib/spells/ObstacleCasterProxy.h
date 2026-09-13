@@ -30,7 +30,7 @@ public:
 	int32_t manaLimit() const override;
 };
 
-class DLL_LINKAGE ObstacleCasterProxy : public SilentCaster
+class ObstacleCasterProxy : public SilentCaster
 {
 public:
 	ObstacleCasterProxy(PlayerColor owner_, const Caster * hero_, const SpellCreatedObstacle & obs_);

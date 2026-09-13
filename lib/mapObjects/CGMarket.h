@@ -14,7 +14,7 @@
 
 class MarketInstanceConstructor;
 
-class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
+class CGMarket : public CGObjectInstance, public IMarket
 {
 protected:
 	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;

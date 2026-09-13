@@ -66,7 +66,7 @@ enum class ELossConditionType : int8_t
 	TIMEEXPIRES = 2
 };
 
-class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
+class CMapLoaderH3M : public IMapLoader
 {
 public:
 	/**

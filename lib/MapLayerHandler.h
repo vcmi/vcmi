@@ -16,7 +16,7 @@
 #include "IHandlerBase.h"
 #include "filesystem/ResourcePath.h"
 
-class DLL_LINKAGE MapLayerType : public EntityT<MapLayerId>
+class MapLayerType : public EntityT<MapLayerId>
 {
 	friend class MapLayerTypeHandler;
 	std::string identifier;
@@ -43,11 +43,11 @@ private:
 	std::string icon;
 };
 
-class DLL_LINKAGE MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>
+class MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>
 {
 };
 
-class DLL_LINKAGE MapLayerTypeHandler : public CHandlerBase<MapLayerId, MapLayerType, MapLayerType, MapLayerTypeService>
+class MapLayerTypeHandler : public CHandlerBase<MapLayerId, MapLayerType, MapLayerType, MapLayerTypeService>
 {
 public:
 	std::shared_ptr<MapLayerType> loadFromJson(

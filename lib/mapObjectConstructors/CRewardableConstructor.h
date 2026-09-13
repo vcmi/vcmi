@@ -14,7 +14,7 @@
 
 struct Bonus;
 
-class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
+class CRewardableConstructor : public AObjectTypeHandler
 {
 	Rewardable::Info objectInfo;
 

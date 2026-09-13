@@ -55,7 +55,7 @@ protected:
 	friend class JsonArraySerializer;
 };
 
-class DLL_LINKAGE JsonArraySerializer: public JsonSerializeHelper
+class JsonArraySerializer: public JsonSerializeHelper
 {
 public:
 	JsonArraySerializer(JsonArraySerializer && other) noexcept;
