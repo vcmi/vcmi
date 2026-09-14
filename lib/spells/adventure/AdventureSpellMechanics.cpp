@@ -74,7 +74,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s)
 		for(const auto & elem : config["bonuses"].Struct())
 		{
 			auto b = JsonUtils::parseBonus(elem.second);
-			b->sid = BonusSourceID(s->id);
+			b->sid = BonusSourceID(SpellWithMasteryID(SpellMastery(level), s->id));
 			b->source = BonusSource::SPELL_EFFECT;
 			levelOptions[level].bonuses.push_back(b);
 		}

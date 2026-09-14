@@ -98,9 +98,10 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), 78, 0, firstPos.x + offset.x * i, firstPos.y + offset.y * i));
 
 	int printed=0; //how many effect pics have been printed
-	std::vector<SpellID> spells = stack->activeSpells();
-	for(SpellID effect : spells)
+	std::vector<SpellWithMasteryID> spells = stack->activeSpells();
+	for(SpellWithMasteryID spellWithMastery : spells)
 	{
+		SpellID effect = spellWithMastery.getSpellID();
 		//not all effects have graphics (for eg. Acid Breath)
 		//for modded spells iconEffect is added to SpellInt.def
 		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST);
@@ -108,7 +109,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 		if (hasGraphics)
 		{
 			//FIXME: support permanent duration
-			auto spellBonuses = stack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)));
+			auto spellBonuses = stack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellWithMastery)));
 
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());

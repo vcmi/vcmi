@@ -478,7 +478,7 @@ void Stack::processBonuses()
 
 		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
-			switch(bonus->sid.as<SpellID>())
+			switch(bonus->sid.as<SpellWithMasteryID>().getSpellID())
 			{
 				case SpellID::AGE:
 					setflag(F2::AGE);

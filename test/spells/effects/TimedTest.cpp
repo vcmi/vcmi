@@ -33,7 +33,7 @@ public:
 	bool cumulative = false;
 
 	// Use a real game spell so SpellID::encode() round-trips correctly.
-	const SpellID testSpellId = SpellID::CURSE;
+	const SpellWithMasteryID testSpellId = SpellWithMasteryID(SpellMastery::BASIC, SpellID::CURSE);
 	const int32_t duration = 57;
 
 	TimedApplyTest()
@@ -45,7 +45,8 @@ public:
 	{
 		unitsFake.setDefaultBonusExpectations();
 		EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
-		EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getNum())));
+		EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(SpellMastery::BASIC.getNum()));
+		EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getSpellID().getNum())));
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(duration));
 		EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 	}
@@ -158,6 +159,7 @@ TEST_F(TimedTest, ApplySkipsDeadUnit)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
@@ -198,6 +200,7 @@ TEST_F(TimedTest, ApplyMultipleTargets)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -232,6 +235,7 @@ TEST_F(TimedTest, ConvertBonusUsesSpellDurationWhenTurnsRemainIsZero)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(spellDuration));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -266,6 +270,7 @@ TEST_F(TimedTest, ConvertBonusKeepsExplicitTurnsRemain)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(testSpellId.getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(57)); // different from customDuration
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -298,6 +303,7 @@ TEST_F(TimedTest, ConvertBonusInvertsShieldDamageReduction)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(SpellID(SpellID::SHIELD).getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -337,6 +343,7 @@ TEST_F(TimedTest, ConvertBonusBindSetsCasterUnitId)
 	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
 	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(SpellID(SpellID::BIND).getNum())));
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -418,6 +425,7 @@ protected:
 		unitsFake.setDefaultBonusExpectations();
 
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+		EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 		EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 		Target target;
@@ -480,6 +488,7 @@ TEST_F(TimedHeroSpecialtyTest, AddValueEnchantAddsToBonus)
 	unitsFake.setDefaultBonusExpectations();
 
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -507,6 +516,7 @@ TEST_F(TimedHeroSpecialtyTest, FixedValueEnchantOverridesBonus)
 	unitsFake.setDefaultBonusExpectations();
 
 	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	Target target;
