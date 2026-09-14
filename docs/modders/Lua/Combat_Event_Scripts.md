@@ -98,7 +98,7 @@ Parameters:
 
   For `onSpellHit` every entry also holds `unitBefore` - the target as it stood before the spell reached it. Comparing it against the unit as it is now is what says what the spell did rather than what the unit already was; every other event leaves it nil.
 
-  A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`.
+  A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`. `target.unit` is nil for a unit the event removed from the battlefield, so a handler that walks the list has to check it before using it.
 
 Handlers:
 
