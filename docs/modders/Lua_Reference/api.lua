@@ -1772,7 +1772,7 @@ function Unit:ableToRetaliate() end
 function Unit:isTurret() end
 
 ---Which of the three towers of a besieged town this stack is.
----@return string? #  'keep', 'upper' or 'lower'; nil when the stack is no tower.
+---@return string? # 'keep', 'upper' or 'lower'; nil when the stack is no tower.
 function Unit:getTurretPart() end
 
 ---Returns the maximum hit points of a single creature in the stack.
