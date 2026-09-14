@@ -666,7 +666,7 @@ local Building = {}
 function Building:getJsonKey() end
 
 ---Returns which of the buildings known to the game this one is. Unlike the json key this is the same in every town, so it is what to test against when a rule speaks of a fort or a town hall rather than of one particular mod's version of it.
----@return string? # "fort", "villageHall", ...; nil for a building the game has no name of its own for.
+---@return string? # 'fort', 'villageHall', ...; nil for a building the game has no name of its own for.
 function Building:getBuildingType() end
 
 ---Whether this building is an upgrade of another, as a citadel is of a fort.
@@ -1771,7 +1771,7 @@ function Unit:ableToRetaliate() end
 function Unit:isTurret() end
 
 ---Which of the three towers of a besieged town this stack is.
----@return string? # "keep", "upper" or "lower"; nil when the stack is no tower.
+---@return string? # 'keep', 'upper' or 'lower'; nil when the stack is no tower.
 function Unit:getTurretPart() end
 
 ---Returns the maximum hit points of a single creature in the stack.

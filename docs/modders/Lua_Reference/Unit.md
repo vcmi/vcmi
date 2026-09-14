@@ -204,7 +204,7 @@ True if the stack is one of the towers of a besieged town.
 
 Which of the three towers of a besieged town this stack is.
 
-- returns `string?` — "keep", "upper" or "lower"; nil when the stack is no tower.
+- returns `string?` — 'keep', 'upper' or 'lower'; nil when the stack is no tower.
 
 ### getMaxHealth
 
