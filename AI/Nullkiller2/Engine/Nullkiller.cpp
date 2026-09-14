@@ -11,7 +11,11 @@
 #include "Nullkiller.h"
 
 #include "../../../lib/CPlayerState.h"
+#include "../../../lib/ResourceSet.h"
 #include "../../../lib/StartInfo.h"
+#include "../../../lib/constants/NumericConstants.h"
+#include "../../../lib/constants/StringConstants.h"
+#include "../../../lib/json/JsonNode.h"
 #include "../../../lib/pathfinder/PathfinderCache.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../AIGateway.h"
@@ -28,6 +32,7 @@
 #include "../Behaviors/StayAtTownBehavior.h"
 #include "../Goals/Invalid.h"
 #include "Goals/RecruitHero.h"
+#include "DecisionPolicy.h"
 #include "ResourceTrader.h"
 
 namespace NK2AI
@@ -53,6 +58,144 @@ const char * heroLockReasonName(HeroLockedReason reason)
 
 	return "unknown reason";
 }
+
+const char * goalTypeName(Goals::EGoals goalType)
+{
+	static constexpr std::array<const char *, Goals::EXPLORE_NEIGHBOUR_TILE + 2> names = {
+		"invalid",
+		"win",
+		"conquer",
+		"build",
+		"explore",
+		"gatherArmy",
+		"boostHero",
+		"recruitHero",
+		"recruitHeroBehavior",
+		"buildStructure",
+		"collectResource",
+		"gatherTroops",
+		"captureObjects",
+		"getArtifactType",
+		"defence",
+		"startup",
+		"digAtTile",
+		"buyArmy",
+		"trade",
+		"buildBoat",
+		"completeQuest",
+		"adventureSpellCast",
+		"executeHeroChain",
+		"exchangeSwapTownHeroes",
+		"dismissHero",
+		"composition",
+		"clusterBehavior",
+		"unlockCluster",
+		"heroExchange",
+		"armyUpgrade",
+		"defendTown",
+		"captureObject",
+		"saveResources",
+		"stayAtTownBehavior",
+		"stayAtTown",
+		"explorationBehavior",
+		"escapeBehavior",
+		"explorationPoint",
+		"exploreNeighbourTile"};
+	const int index = goalType + 1;
+	return index >= 0 && static_cast<size_t>(index) < names.size()
+		? names[static_cast<size_t>(index)]
+		: "unknown";
+}
+
+const char * priorityTierName(int priorityTier)
+{
+	switch(priorityTier)
+	{
+	case PriorityEvaluator::PriorityTier::BUILDINGS: return "buildings";
+	case PriorityEvaluator::PriorityTier::INSTAKILL: return "instakill";
+	case PriorityEvaluator::PriorityTier::INSTADEFEND: return "instaDefend";
+	case PriorityEvaluator::PriorityTier::KILL: return "kill";
+	case PriorityEvaluator::PriorityTier::ESCAPE: return "escape";
+	case PriorityEvaluator::PriorityTier::EXPLORE_AND_GATHER: return "exploreAndGather";
+	case PriorityEvaluator::PriorityTier::DEFEND: return "defend";
+	}
+	return "unknown";
+}
+
+int64_t boundedInteger(uint64_t value)
+{
+	return static_cast<int64_t>(std::min<uint64_t>(value, std::numeric_limits<int64_t>::max()));
+}
+
+JsonNode resourcesToJson(const TResources & resources)
+{
+	JsonNode result;
+	for(int index = 0; index < GameConstants::RESOURCE_QUANTITY; ++index)
+		result[GameConstants::RESOURCE_NAMES[index]].Integer() = resources[static_cast<size_t>(index)];
+	return result;
+}
+
+JsonNode buildPolicyCandidate(
+	const Goals::TSubgoal & task,
+	const size_t index,
+	const float initialPriority,
+	const float compiledPriority,
+	const PriorityEvaluationInput & rankingInput,
+	const EvaluationContext & evaluationContext)
+{
+	JsonNode candidate;
+	candidate["id"].Integer() = index;
+	candidate["goalType"].String() = goalTypeName(task->goalType);
+	candidate["goalTypeId"].Integer() = task->goalType;
+	candidate["description"].String() = task->toString();
+	candidate["initialPriority"].Float() = initialPriority;
+	candidate["baselinePriority"].Float() = compiledPriority;
+	candidate["baselineAccepted"].Bool() = compiledPriority > 0;
+	if(task->hero)
+		candidate["heroId"].Integer() = task->hero->id.getNum();
+	if(task->town)
+		candidate["townId"].Integer() = task->town->id.getNum();
+	if(task->objid >= 0)
+		candidate["objectId"].Integer() = task->objid;
+	candidate["target"]["x"].Integer() = task->tile.x;
+	candidate["target"]["y"].Integer() = task->tile.y;
+	candidate["target"]["z"].Integer() = task->tile.z;
+	candidate["rankingInput"] = priorityEvaluationInputToJson(rankingInput);
+	candidate["evaluation"] = candidate["rankingInput"]["evaluation"];
+	candidate["evaluation"]["movementCostByRole"]["scout"].Float() = evaluationContext.getMovementCost(HeroRole::SCOUT);
+	candidate["evaluation"]["movementCostByRole"]["main"].Float() = evaluationContext.getMovementCost(HeroRole::MAIN);
+	candidate["evaluation"]["manaCost"].Integer() = evaluationContext.manaCost;
+	candidate["evaluation"]["defenseValue"].Integer() = evaluationContext.defenseValue;
+	candidate["evaluation"]["involvesSailing"].Bool() = evaluationContext.involvesSailing;
+	return candidate;
+}
+
+struct PolicyMismatch
+{
+	size_t count = 0;
+	size_t first = 0;
+};
+
+PolicyMismatch findPolicyMismatches(
+	const std::vector<float> & compiledPriorities,
+	const std::map<size_t, float> & policyScores)
+{
+	PolicyMismatch result;
+	for(size_t index = 0; index < compiledPriorities.size(); ++index)
+	{
+		const float compiledScore = compiledPriorities[index];
+		const float policyScore = policyScores.at(index);
+		const float tolerance = std::max(1.0f, std::abs(compiledScore)) * 0.0001f;
+		if((compiledScore > 0) != (policyScore > 0) || std::abs(compiledScore - policyScore) > tolerance)
+		{
+			if(result.count == 0)
+				result.first = index;
+			++result.count;
+		}
+	}
+	return result;
+}
+
 }
 
 // while we play vcmieagles graph can be shared
@@ -104,6 +247,9 @@ void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * ai
 	playerID = aiGwInput->playerID;
 
 	settings = std::make_unique<Settings>(cc->getStartInfo()->difficulty);
+	decisionPolicy = createDecisionPolicy(playerID, aiGwInput->env.get());
+	if(decisionPolicy)
+		logAi->info("Using NK2 decision policy '%s' version %s for player %s", decisionPolicy->getName(), decisionPolicy->getVersion(), playerID.toString());
 
 	PathfinderOptions pathfinderOptions(*cc);
 	pathfinderOptions.useTeleportTwoWay = true;
@@ -214,11 +360,36 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 		return taskptr(Invalid());
 	}
 
+	if(!decisionPolicy)
+	{
+		for(const TSubgoal & task : tasks)
+		{
+			if(task->asTask()->priority <= 0)
+				task->asTask()->priority = priorityEvaluator->evaluate(task);
+		}
+
+		auto bestTask = *vstd::maxElementByFun(tasks, [](const Goals::TSubgoal& task) -> float
+			{
+				return task->asTask()->priority;
+			});
+		return taskptr(*bestTask);
+	}
+
+	std::vector<float> initialPriorities;
+	initialPriorities.reserve(tasks.size());
+	for(const TSubgoal & task : tasks)
+		initialPriorities.push_back(task->asTask()->priority);
+
+	const auto evaluationContexts = buildEvaluationContexts(tasks);
 	for(const TSubgoal & task : tasks)
 	{
 		if(task->asTask()->priority <= 0)
-			task->asTask()->priority = priorityEvaluator->evaluate(task);
+			task->asTask()->priority = priorityEvaluator->evaluate(
+				task,
+				PriorityEvaluator::PriorityTier::BUILDINGS,
+				evaluationContexts.at(task.get()));
 	}
+	applyDecisionPolicy(tasks, evaluationContexts, PriorityEvaluator::PriorityTier::BUILDINGS, initialPriorities);
 
 	auto bestTask = *vstd::maxElementByFun(tasks, [](const Goals::TSubgoal& task) -> float
 		{
@@ -249,12 +420,170 @@ Nullkiller::EvaluationContextMap Nullkiller::buildEvaluationContexts(const TGoal
 	return result;
 }
 
+JsonNode Nullkiller::buildPolicyState() const
+{
+	JsonNode state;
+	state["resources"] = resourcesToJson(getFreeResources());
+	state["resourceMarketValue"].Integer() = getFreeResources().marketValue();
+	state["dailyIncome"] = resourcesToJson(buildAnalyzer->getDailyIncome());
+	state["lockedResources"] = resourcesToJson(getLockedResources());
+	state["lockedResourceMarketValue"].Integer() = getLockedResources().marketValue();
+	state["goldPressureOverMax"].Bool() = buildAnalyzer->isGoldPressureOverMax();
+	state["maximumArmyLossTarget"].Float() = settings->getMaxArmyLossTarget();
+	state["daysWithoutCastle"].Bool() = cc->getPlayerState(playerID)->daysWithoutCastle.has_value();
+	state["dayOfWeek"].Integer() = cc->getCalendar().getDayOfWeek();
+	state["daysInWeek"].Integer() = cc->getCalendar().getDaysInWeek();
+	state["heroCount"].Integer() = cc->getHeroesInfo().size();
+	state["townCount"].Integer() = cc->getTownsInfo().size();
+	state["ownedObjectCount"].Integer() = cc->getMyObjects().size();
+	state["knownObjectCount"].Integer() = memory->visitableObjs.size();
+	const TeamState * team = cc->getPlayerTeam(playerID);
+	state["revealedTileCount"].Integer() = std::ranges::count(team->fogOfWarMap, uint8_t{1});
+
+	uint64_t totalHeroArmyStrength = 0;
+	uint64_t totalHeroStrength = 0;
+	uint64_t totalHeroExperience = 0;
+	uint64_t totalHeroLevels = 0;
+	for(const CGHeroInstance * hero : cc->getHeroesInfo())
+	{
+		JsonNode value;
+		value["id"].Integer() = hero->id.getNum();
+		value["level"].Integer() = hero->level;
+		value["experience"].Integer() = boundedInteger(hero->exp);
+		value["armyStrength"].Integer() = boundedInteger(hero->getArmyStrength());
+		value["totalStrength"].Integer() = boundedInteger(hero->getTotalStrength());
+		value["movement"].Integer() = hero->movementPointsRemaining();
+		value["mana"].Integer() = hero->mana;
+		state["heroes"].Vector().push_back(std::move(value));
+
+		totalHeroArmyStrength += hero->getArmyStrength();
+		totalHeroStrength += hero->getTotalStrength();
+		totalHeroExperience += hero->exp;
+		totalHeroLevels += hero->level;
+	}
+	state["totalHeroArmyStrength"].Integer() = boundedInteger(totalHeroArmyStrength);
+	state["totalHeroStrength"].Integer() = boundedInteger(totalHeroStrength);
+	state["totalHeroExperience"].Integer() = boundedInteger(totalHeroExperience);
+	state["totalHeroLevels"].Integer() = boundedInteger(totalHeroLevels);
+
+	uint64_t totalTownArmyStrength = 0;
+	uint64_t totalBuildings = 0;
+	uint64_t totalFortLevel = 0;
+	bool hasTownWithoutMarketplace = false;
+	for(const CGTownInstance * town : cc->getTownsInfo())
+	{
+		JsonNode value;
+		value["id"].Integer() = town->id.getNum();
+		value["buildingCount"].Integer() = town->getBuildings().size();
+		value["fortLevel"].Integer() = town->fortLevel();
+		value["hallLevel"].Integer() = town->hallLevel();
+		value["mageGuildLevel"].Integer() = town->mageGuildLevel();
+		value["armyStrength"].Integer() = boundedInteger(town->getArmyStrength(town->fortLevel()));
+		value["dailyIncome"] = resourcesToJson(town->dailyIncome());
+		value["hasResourceMarketplace"].Bool() = town->hasBuiltResourceMarketplace();
+		state["towns"].Vector().push_back(std::move(value));
+
+		totalTownArmyStrength += town->getArmyStrength(town->fortLevel());
+		totalBuildings += town->getBuildings().size();
+		totalFortLevel += town->fortLevel();
+		hasTownWithoutMarketplace |= !town->hasBuiltResourceMarketplace();
+	}
+	state["hasTownWithoutMarketplace"].Bool() = hasTownWithoutMarketplace;
+	state["totalTownArmyStrength"].Integer() = boundedInteger(totalTownArmyStrength);
+	state["totalArmyStrength"].Integer() = boundedInteger(totalHeroArmyStrength + totalTownArmyStrength);
+	state["totalBuildings"].Integer() = boundedInteger(totalBuildings);
+	state["totalFortLevel"].Integer() = boundedInteger(totalFortLevel);
+	return state;
+}
+
+void Nullkiller::applyDecisionPolicy(
+	TGoalVec & tasks,
+	const EvaluationContextMap & evaluationContexts,
+	int priorityTier,
+	const std::vector<float> & initialPriorities) const
+{
+	if(!decisionPolicy)
+		return;
+	assert(tasks.size() == initialPriorities.size());
+
+	JsonNode request;
+	request["schemaVersion"].Integer() = 1;
+	request["player"].String() = GameConstants::PLAYER_COLOR_NAMES[playerID.getNum()];
+	request["playerId"].Integer() = playerID.getNum();
+	request["day"].Integer() = cc->getCalendar().getCurrentDay();
+	request["priorityTier"].String() = priorityTierName(priorityTier);
+	request["priorityTierId"].Integer() = priorityTier;
+	request["state"] = buildPolicyState();
+	std::vector<float> compiledPriorities;
+	compiledPriorities.reserve(tasks.size());
+
+	for(size_t index = 0; index < tasks.size(); ++index)
+	{
+		const auto & task = tasks[index];
+		const PriorityEvaluationInput rankingInput = priorityEvaluator->buildEvaluationInput(
+			task,
+			priorityTier,
+			evaluationContexts.at(task.get()));
+		const float compiledPriority = priorityTier == PriorityEvaluator::BUILDINGS && initialPriorities[index] > 0
+			? initialPriorities[index]
+			: evaluatePriority(rankingInput);
+		compiledPriorities.push_back(compiledPriority);
+		const EvaluationContext & evaluationContext = evaluationContexts.at(task.get());
+		request["candidates"].Vector().push_back(buildPolicyCandidate(
+			task,
+			index,
+			initialPriorities[index],
+			compiledPriority,
+			rankingInput,
+			evaluationContext));
+	}
+
+	const DecisionPolicyResult result = decisionPolicy->rank(request);
+	if(!result.applied)
+	{
+		if(!result.error.empty())
+			logAi->warn("NK2 decision policy '%s' rejected a ranking: %s. Using compiled ranking.", decisionPolicy->getName(), result.error);
+		return;
+	}
+	std::map<size_t, float> scores;
+	for(const DecisionPolicyScore & score : result.scores)
+		scores[score.id] = score.score;
+
+	if(decisionPolicy->isShadow())
+	{
+		const PolicyMismatch mismatch = findPolicyMismatches(compiledPriorities, scores);
+		if(mismatch.count > 0)
+		{
+			logAi->warn(
+				"NK2 shadow policy '%s' differs for %zu of %zu candidates at tier %d. First: %s, compiled %f, Lua %f",
+				decisionPolicy->getName(),
+				mismatch.count,
+				tasks.size(),
+				priorityTier,
+				tasks[mismatch.first]->toString(),
+				compiledPriorities[mismatch.first],
+				scores.at(mismatch.first));
+		}
+		return;
+	}
+
+	for(size_t index = 0; index < tasks.size(); ++index)
+		tasks[index]->asTask()->priority = scores.at(index);
+}
+
 Goals::TTaskVec Nullkiller::buildPlanAndFilter(
 	TGoalVec & tasks,
 	const EvaluationContextMap & evaluationContexts,
 	int priorityTier) const
 {
 	TaskPlan taskPlan;
+	std::vector<float> initialPriorities;
+	if(decisionPolicy)
+	{
+		initialPriorities.reserve(tasks.size());
+		for(const TSubgoal & task : tasks)
+			initialPriorities.push_back(task->asTask()->priority);
+	}
 
 	tbb::parallel_for(
 		tbb::blocked_range<size_t>(0, tasks.size(), 128),
@@ -272,6 +601,9 @@ Goals::TTaskVec Nullkiller::buildPlanAndFilter(
 			}
 		}
 	);
+
+	if(decisionPolicy)
+		applyDecisionPolicy(tasks, evaluationContexts, priorityTier, initialPriorities);
 
 	std::ranges::sort(
 		tasks,
