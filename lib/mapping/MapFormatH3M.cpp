@@ -1255,7 +1255,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		// 100 = default, percent of monsters that will join on successful aggression check
 		object->joiningPercentage = reader->readInt32();
 		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
-		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(reader->readInt32());
+		int32_t upgradedPresence = reader->readInt32();
+		if(upgradedPresence < -1 || upgradedPresence > 1)
+		{
+			logGlobal->warn("Map '%s': Wandering monster at %s has out of range upgraded stack presence %d! Using random.", mapName, mapPosition.toString(), upgradedPresence);
+			upgradedPresence = static_cast<int32_t>(CGCreature::UpgradedStackPresence::RANDOM);
+		}
+		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(upgradedPresence);
 		// How many creature stacks will be present on battlefield, -1 = default
 		object->stacksCount = reader->readInt32();
 	}

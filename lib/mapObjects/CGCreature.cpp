@@ -731,6 +731,13 @@ static const std::vector<std::string> CHARACTER_JSON  =
 	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
 };
 
+//UpgradedStackPresence starts at RANDOM = -1, while serializeEnum indexes from zero
+static const std::vector<std::string> UPGRADED_STACK_PRESENCE_JSON =
+{
+	"random", "never", "always"
+};
+static constexpr int32_t UPGRADED_STACK_PRESENCE_OFFSET = static_cast<int32_t>(CGCreature::UpgradedStackPresence::RANDOM);
+
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	handler.serializeEnum("character", initialCharacter, CHARACTER_JSON);
@@ -760,4 +767,21 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool("noGrowing", notGrowingTeam);
 	handler.serializeBool("neverFlees", neverFlees);
 	handler.serializeStruct("rewardMessage", message);
+
+	//Per-object settings introduced by the HotA map format - without these a HotA map
+	//loses them as soon as it is saved in VCMI format. Aggression is only read by
+	//initObj() for Character::CUSTOM, so storing it for any other character would be
+	//dead data.
+	if(!handler.saving || initialCharacter == Character::CUSTOM)
+		handler.serializeInt("aggression", agression, static_cast<int8_t>(0));
+
+	handler.serializeBool("joinOnlyForMoney", joinOnlyForMoney, false);
+	handler.serializeInt("joiningPercentage", joiningPercentage, static_cast<int8_t>(-1));
+	handler.serializeInt("stacksCount", stacksCount, static_cast<int64_t>(-1));
+
+	//written as a string like every other enum here, so shift RANDOM = -1 into range
+	auto upgradedPresence = static_cast<int32_t>(upgradedStackPresence) - UPGRADED_STACK_PRESENCE_OFFSET;
+	handler.serializeEnum("upgradedStackPresence", upgradedPresence, static_cast<int32_t>(UpgradedStackPresence::RANDOM) - UPGRADED_STACK_PRESENCE_OFFSET, UPGRADED_STACK_PRESENCE_JSON);
+	if(!handler.saving)
+		upgradedStackPresence = static_cast<UpgradedStackPresence>(upgradedPresence + UPGRADED_STACK_PRESENCE_OFFSET);
 }
