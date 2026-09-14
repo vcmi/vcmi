@@ -768,3 +768,30 @@ TEST_F(ScriptApiTest, AKilledUnitIsStillToldTheActionEnded)
 
 	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
 }
+
+/// The step a unit with RETURN_AFTER_STRIKE takes back is a move of its own, and is announced as
+/// one - so an ability that feeds on movement is fed by the way out as well as by the way in.
+TEST_F(ScriptApiTest, TheStepBackAfterStrikingIsAnnouncedAsAMove)
+{
+	constexpr int attackFromHex = leftHex + 3;
+	constexpr int targetHex = leftHex + 4;
+
+	startGame();
+	startBattle();
+
+	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), bigStack);
+	ASSERT_NE(target, nullptr);
+
+	grant(probe, BonusType::RETURN_AFTER_STRIKE, 0);
+
+	// the probe has to survive the blow it provokes in order to take the step back
+	blockRetaliation(probe);
+
+	beginCombat();
+
+	ASSERT_TRUE(attackFrom(probe, BattleHex(targetHex), BattleHex(attackFromHex)));
+	ASSERT_EQ(probe->getPosition(), BattleHex(leftHex)) << "the scenario is about the step back";
+
+	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 2) << "the walk in and the step back are both moves";
+}

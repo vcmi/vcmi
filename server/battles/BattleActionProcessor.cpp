@@ -381,8 +381,14 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		int afterAttackSpeed = stack->getMovementRange(0);
 		std::pair<BattleHexArray, int> path = battle.getPath(stack->getPosition(), startingPos, stack);
 		size_t maxReachbleIndex = std::max(0, beforeAttackSpeed - afterAttackSpeed);
+		// the step back is a move like the walk that opened the action, so it is announced like one.
+		// The path never starts on the hex the unit already stands on, so this is always a real move
 		if(maxReachbleIndex < path.first.size())
+		{
+			processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, stack, nullptr);
 			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
+			processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, stack, nullptr);
+		}
 	}
 
 	// attacking without moving still triggers the obstacle the unit stands on (e.g. moat damage);
