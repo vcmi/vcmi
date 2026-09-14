@@ -27,6 +27,7 @@ public:
 	void writeEntry(JsonMap::const_iterator entry);
 	void writeEntry(JsonVector::const_iterator entry);
 	void writeString(const std::string & string);
+	void writeFloat(double value);
 	void writeNode(const JsonNode & node);
 	JsonWriter(std::ostream & output, bool compact);
 };
