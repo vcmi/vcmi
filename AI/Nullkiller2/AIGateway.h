@@ -34,7 +34,7 @@ class AIStatus
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
 	std::map<int, QueryID> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
-	std::vector<const CGObjectInstance *> objectsBeingVisited;
+	std::vector<ObjectInstanceID> objectsBeingVisited;
 	bool ongoingHeroMovement;
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
@@ -58,6 +58,7 @@ public:
 	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
+	ObjectInstanceID getCurrentVisitedObject();
 };
 
 // The gateway is responsible for AI events handling. Copied from VCAI.h and refined a bit

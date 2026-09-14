@@ -578,7 +578,9 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 	if(!selection && cancel)
 	{
-		executeActionAsync("showBlockingDialog", [this, heroPtr, target, askID]()
+		// Capture the visit that opened this dialog before handing it to the async task.
+		auto visitedObjectID = status.getCurrentVisitedObject();
+		executeActionAsync("showBlockingDialog", [this, heroPtr, target, askID, visitedObjectID]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
@@ -600,7 +602,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					answer = false;
 				}
 
-				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectNameTextID(), heroPtr.nameOrDefault(), ratio);
+				const auto * visitedObject = cc->getObj(visitedObjectID, false);
+				logAi->trace("Query hook: visiting %s by %s; target %s danger ratio %f",
+					visitedObject ? visitedObject->getObjectNameTextID() : "unknown",
+					heroPtr.nameOrDefault(), target.toString(), ratio);
 
 				if(cc->getObj(goalObjectID, false))
 				{
@@ -1549,7 +1554,7 @@ void AIStatus::heroVisit(const CGObjectInstance * obj, bool started)
 	std::unique_lock<std::mutex> lock(mx);
 	if(started)
 	{
-		objectsBeingVisited.push_back(obj);
+		objectsBeingVisited.push_back(obj ? obj->id : ObjectInstanceID::NONE);
 	}
 	else
 	{
@@ -1560,6 +1565,12 @@ void AIStatus::heroVisit(const CGObjectInstance * obj, bool started)
 		objectsBeingVisited.pop_back();
 	}
 	cv.notify_all();
+}
+
+ObjectInstanceID AIStatus::getCurrentVisitedObject()
+{
+	std::unique_lock<std::mutex> lock(mx);
+	return objectsBeingVisited.empty() ? ObjectInstanceID::NONE : objectsBeingVisited.back();
 }
 
 void AIStatus::setMove(bool ongoing)
