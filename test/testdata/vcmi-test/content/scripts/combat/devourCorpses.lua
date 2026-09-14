@@ -4,6 +4,8 @@ Script.__index = Script
 
 --- Strikes devoured corpses banked, kept as the value of one bonus rather than as one bonus per
 --- strike: bonuses that match each other in every field cannot be removed one at a time.
+--- A creature ability of the bearer's own creature is stored the same way, so a devourer that also
+--- had a natural double attack would have it counted here - no such creature exists.
 local function bankedStrikes(unit)
 	local creatureKey = unit:getCreature():getJsonKey()
 
