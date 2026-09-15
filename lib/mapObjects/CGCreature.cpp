@@ -217,9 +217,17 @@ const CCreature * CGCreature::getCreature() const
 	return getCreatureID().toCreature();
 }
 
+int CGCreature::getEffectiveJoiningPercentage() const
+{
+	if(joiningPercentage >= 0)
+		return joiningPercentage;
+
+	return cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE);
+}
+
 TQuantity CGCreature::getJoiningAmount() const
 {
-	return std::max(static_cast<int64_t>(1), getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
+	return std::max(static_cast<int64_t>(1), static_cast<int64_t>(getStackCount(SlotID(0))) * getEffectiveJoiningPercentage() / 100);
 }
 
 void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
@@ -388,7 +396,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(charisma < agression)
 		return FIGHT;
 
-	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
+	if (allowJoin && getEffectiveJoiningPercentage() > 0)
 	{
 		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || initialCharacter == Character::COMPLIANT) && diplomacy + sympathy + 1 >= agression && !joinOnlyForMoney)
 			return JOIN_FOR_FREE;
