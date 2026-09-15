@@ -1088,7 +1088,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'P':
 				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
-				b.type = BonusType::REBIRTH; //on/off? makes sense?
+				b.type = BonusType::UNUSED_REBIRTH;
 				b.subtype = BonusCustomSubtype::rebirthRegular;
 				b.val = 20; //arbitrary value
 				break;
@@ -1269,7 +1269,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
-		if (b.type != BonusType::REBIRTH)
+		if (b.type != BonusType::UNUSED_REBIRTH)
 			b.val = 0; //on-off ability, no value specified
 		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)

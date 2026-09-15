@@ -161,7 +161,6 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::REBIRTH:
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL:
 		case BonusType::CREATURE_GROWTH:

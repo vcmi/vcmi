@@ -850,7 +850,8 @@
 			},
 			"rebirth" :
 			{
-				"type" : "REBIRTH",
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "rebirth",
 				"val" : 20
 			},
 			"immuneToFire" :

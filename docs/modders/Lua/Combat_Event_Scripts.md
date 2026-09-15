@@ -158,6 +158,17 @@ Parameters:
 - `towerBase` - damage of the two lesser towers in a town with nothing built
 - `perBuilding` - damage each building adds to the keep; the lesser towers get half of it
 
+### rebirth
+
+Brings its bearer back once per battle, with a share of the size the stack started as rather than of what was left of it. The share rarely divides evenly, so the remainder is rolled for - one chance per creature it fell short of. A clone leaves nothing to bring back, and a stack that came back does not answer anything until its next turn.
+
+Priority 0, so the stack is back on its feet before anything that answers a death can act on it.
+
+Parameters:
+
+- `val` - share of the starting size of the stack that comes back, in percent
+- `guaranteed` - whether at least one creature always comes back, however small the share works out to be
+
 ### lifeDrain
 
 Restores part of the damage its bearer dealt back to it as health, resurrecting fallen creatures of the stack. Only damage dealt to living targets counts.
