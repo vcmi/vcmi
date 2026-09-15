@@ -45,7 +45,7 @@ function Script:getExplosionDamage(unit, killed)
 	return baseDamage > 0 and baseDamage or 1
 end
 
---- The entry of the payload describing the hit this unit took.
+--- The entry of the payload describing the death of this unit.
 function Script:ownEntry(unit, payload)
 	for _, target in ipairs(payload.targets or {}) do
 		if target.unit and target.unit:unitID() == unit:unitID() then
@@ -56,11 +56,9 @@ function Script:ownEntry(unit, payload)
 	return nil
 end
 
---- Plays the detonation death animation of 'unit' and damages all surrounding targets
-function Script:processTriggerEvent(server, battle, unit, payload)
-	if unit:isAlive() then return end
-	--- a clone leaves nothing behind to detonate, neither when killed nor when it expires
-	if unit:isClone() then return end
+--- Plays the detonation death animation of 'unit' and damages all surrounding targets.
+--- A clone detonates like anything else - what it leaves behind is not what set off the charge.
+function Script:onDeath(server, battle, unit, other, payload)
 	local entry = self:ownEntry(unit, payload)
 
 	if entry and entry.killed > 0 then
@@ -88,16 +86,6 @@ function Script:processTriggerEvent(server, battle, unit, payload)
 		local spell = LIBRARY:getSpellByName("abilityDetonation")
 		BattleLog.spellDamage(server, battle, spell, victim, totalDamage, totalKilled)
 	end
-end
-
---- Called after `unit` was attacked by `other`
-function Script:onAfterAttacked(server, battle, unit, other, payload)
-	self:processTriggerEvent(server, battle, unit, payload)
-end
-
---- Called after a spell reached `unit`, which is the other way it can be killed.
-function Script:onSpellHit(server, battle, unit, other, payload)
-	self:processTriggerEvent(server, battle, unit, payload)
 end
 
 return Script

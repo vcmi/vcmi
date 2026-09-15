@@ -121,8 +121,8 @@ TEST_F(HotaAbilitiesTest, DetonationCapAppliesToTheCappedTargetAlone)
 	EXPECT_EQ(uncappedBefore - healthOf(uncapped), detonationDamage);
 }
 
-/// A clone leaves nothing behind that could explode.
-TEST_F(HotaAbilitiesTest, DetonationIsNotInheritedByAClone)
+/// What a clone leaves behind is not what set off the charge, so it detonates like anything else.
+TEST_F(HotaAbilitiesTest, DetonationAnswersTheDeathOfAClone)
 {
 	startGame();
 	startBattle();
@@ -144,7 +144,39 @@ TEST_F(HotaAbilitiesTest, DetonationIsNotInheritedByAClone)
 	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
 	ASSERT_FALSE(automaton->alive());
 
-	EXPECT_EQ(healthBefore - healthOf(victim), 0);
+	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
+}
+
+/// One blast kills the automaton beside it, which detonates in its turn - the deaths of a batch
+/// are announced, and the deaths they cause are announced after them.
+TEST_F(HotaAbilitiesTest, DetonationSetsOffTheAutomatonNextToIt)
+{
+	startGame();
+	startBattle();
+
+	// three of them, so that the 90 + 5 * N of the first blast is past the health of the second
+	CStack * first = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 3);
+	CStack * second = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex + 1), 1);
+	CStack * bystander = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), bigStack);
+	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	ASSERT_NE(second, nullptr);
+	ASSERT_NE(bystander, nullptr);
+	ASSERT_NE(killer, nullptr);
+
+	beginCombat();
+
+	ASSERT_TRUE(castAsUnit(first, spellByName("abilityDetonation")));
+	ASSERT_TRUE(castAsUnit(second, spellByName("abilityDetonation")));
+
+	const int64_t healthBefore = healthOf(bystander);
+
+	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
+
+	ASSERT_FALSE(first->alive());
+	ASSERT_FALSE(second->alive()) << "the first blast has to kill the second automaton";
+
+	// the bystander only touches the second automaton, so anything it lost came from the chain
+	EXPECT_EQ(healthBefore - healthOf(bystander), detonationDamage);
 }
 
 /// A spell can kill the automaton just as an attack can, and it detonates either way.
@@ -170,7 +202,7 @@ TEST_F(HotaAbilitiesTest, DetonationAnswersADeathBySpell)
 
 	const int64_t healthBefore = healthOf(victim);
 
-	ASSERT_TRUE(castOn(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), automaton));
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), automaton));
 	ASSERT_FALSE(automaton->alive()) << "the spell has to kill it for it to detonate";
 
 	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
