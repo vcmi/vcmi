@@ -746,13 +746,15 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 		}
 	}
 
-	bool killed = (-healthDelta) >= changedStack->getAvailableHealth();//todo: check using alive state once rebirth will be handled separately
-
-	bool resurrected = !changedStack->alive() && healthDelta > 0;
+	const bool wasAlive = changedStack->alive();
 
 	//applying changes
 	changedStack->load(data);
 
+	// read from the unit rather than worked out from the health the pack carries, so that a pack
+	// that reports no change on a stack that was already dead is not taken for a death
+	const bool killed = wasAlive && !changedStack->alive();
+	const bool resurrected = !wasAlive && changedStack->alive();
 
 	if(healthDelta < 0)
 	{
@@ -763,8 +765,6 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 	{
 		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
 	}
-
-	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)
 	{
