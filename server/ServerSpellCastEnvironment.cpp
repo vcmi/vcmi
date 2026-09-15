@@ -80,6 +80,9 @@ void ServerSpellCastEnvironment::apply(SetStackEffect & pack)
 void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
 	gh->sendAndApply(pack);
+
+	// every damage that no attack dealt - a spell, a moat, an obstacle, a script - arrives here
+	gh->battles->unitsInjured(pack.stacks);
 }
 
 void ServerSpellCastEnvironment::apply(BattleObstaclesChanged & pack)

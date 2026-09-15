@@ -43,6 +43,7 @@ const char * methodName(CombatEventType event)
 		case CombatEventType::UNIT_SPELLCAST:  return "onUnitSpellcast";
 		case CombatEventType::SPELL_HIT:       return "onSpellHit";
 		case CombatEventType::ACTION_FINISHED: return "onActionFinished";
+		case CombatEventType::UNIT_DEATH:      return "onDeath";
 		case CombatEventType::BATTLE_SETUP:    return "onBattleSetup";
 		case CombatEventType::BATTLE_START:    return "onBattleStart";
 		case CombatEventType::ROUND_START:     return "onRoundStart";

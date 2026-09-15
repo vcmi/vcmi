@@ -801,6 +801,10 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
 
+	// before the action is announced as over, so that a unit the reactions to a death bring back
+	// or strike down is in its final state by then
+	flushPendingDeaths(battle);
+
 	// last of all, so that a unit the action killed on its way out - walking into a moat, stepping
 	// back onto a mine - is already dead by the time it is told that the action is over
 	processActionFinishedTriggers(battle, stack);
@@ -1271,6 +1275,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
 
 	gameHandler->sendAndApply(bat);
+	noteDeaths(bat.bsa);
 
 	{
 		const bool multipleTargets = bat.bsa.size() > 1;
@@ -1709,6 +1714,55 @@ void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallb
 	}
 
 	runEventTriggers(battle, pending, CombatEventPayload());
+}
+
+void BattleActionProcessor::noteDeaths(const std::vector<BattleStackAttacked> & casualties)
+{
+	for(const BattleStackAttacked & casualty : casualties)
+	{
+		// a hit that took nobody killed nobody, which is also what keeps a second hit on a corpse
+		// from reporting the same death twice
+		if(!casualty.killed() || casualty.killedAmount == 0)
+			continue;
+
+		pendingDeaths.push_back({casualty.stackAttacked, casualty.attackerID, casualty.killedAmount, casualty.damageAmount});
+	}
+}
+
+void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)
+{
+	while(!pendingDeaths.empty())
+	{
+		// taken rather than read, so that the deaths these reactions cause form the next batch
+		// instead of growing the one being announced
+		const std::vector<PendingDeath> batch = std::move(pendingDeaths);
+		pendingDeaths.clear();
+
+		CombatEventPayload payload;
+		std::vector<PendingTrigger> pending;
+
+		for(const PendingDeath & death : batch)
+		{
+			const battle::Unit * unit = battle.battleGetUnitByID(death.unit);
+
+			// a script of an earlier death may have removed the body from the field
+			if(!unit)
+				continue;
+
+			AttackedTarget target;
+			target.unit = unit;
+			target.damage = death.damage;
+			target.killed = death.killed;
+			payload.targets.push_back(target);
+
+			collectEventTriggers(battle, pending, CombatEventType::UNIT_DEATH, unit, battle.battleGetUnitByID(death.killer));
+		}
+
+		// one dispatch for the whole batch, so that priority orders the reactions of different
+		// units against each other - which is what decides whether a death is undone before
+		// something else answers it
+		runEventTriggers(battle, pending, payload);
+	}
 }
 
 void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
