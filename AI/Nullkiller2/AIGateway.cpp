@@ -531,6 +531,9 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterruption.reset();
 
+	turnPlanningRuns = 0;
+	turnExecutionTime = 0;
+
 	schedulePlanningResume(true);
 }
 
@@ -778,13 +781,22 @@ void AIGateway::makeTurn(bool newTurn)
 		memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 		memorizeRevisitableObjs(nullkiller->memory, playerID, cc);
 
-		const auto start = std::chrono::high_resolution_clock::now();
-		nullkiller->makeTurn(newTurn);
-		const auto timeElapsedMs = timeElapsed(start);
-		if(timeElapsedMs > 5000)
-			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
+		{
+			const auto planningStart = std::chrono::high_resolution_clock::now();
+			auto recordPlanningTime = vstd::makeScopeGuard([this, planningStart]()
+			{
+				turnExecutionTime += timeElapsed(planningStart);
+				turnPlanningRuns++;
+			});
+			nullkiller->makeTurn(newTurn);
+		}
+
+		const auto message = boost::str(boost::format("PERFORMANCE: NK2 makeTurn took %1% ms (planning runs count: %2%)")
+																	%turnExecutionTime %turnPlanningRuns);
+		if(turnExecutionTime > 5000)
+			logAi->warn(message);
 		else
-			logAi->info("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
+			logAi->info(message);
 
 		for (const auto *h : cc->getHeroesInfo())
 		{

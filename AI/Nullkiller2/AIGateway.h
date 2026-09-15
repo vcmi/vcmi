@@ -219,6 +219,8 @@ private:
 	std::mutex asyncTasksMutex;
 	std::atomic_bool shuttingDown = false;
 	bool tryRunAsyncTask(std::function<void()> task);
+	uint64_t turnExecutionTime = 0; // ms
+	uint32_t turnPlanningRuns = 0;
 };
 
 }
