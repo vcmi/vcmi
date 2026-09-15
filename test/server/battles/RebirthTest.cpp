@@ -11,7 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/bonuses/BonusCustomTypes.h"
 
 namespace
 {
@@ -81,9 +80,8 @@ TEST_F(RebirthTest, ComesBackOnlyOnce)
 }
 
 /// The blow that killed it ends the attack it belonged to - the dragons do not get to strike the
-/// reborn stack with the rest of their blows. Disabled: the stack currently comes back while the
-/// attack is still running, so the blows after the lethal one land on it.
-TEST_F(RebirthTest, DISABLED_TheKillingBlowIsTheLastOfItsAttack)
+/// reborn stack with the rest of their blows.
+TEST_F(RebirthTest, TheKillingBlowIsTheLastOfItsAttack)
 {
 	setUpBattle();
 
@@ -157,17 +155,21 @@ TEST_F(RebirthTest, ComesBackFromADeathBySpell)
 }
 
 /// A stack too small for a fifth of it to be one creature still comes back, when the rebirth is
-/// the kind that guarantees one.
+/// the kind that guarantees one. The fixture creature declares the ability the way content did
+/// before it became a script, so the conversion of old content is covered here too.
 TEST_F(RebirthTest, TheGuaranteedKindAlwaysBringsBackOne)
 {
-	setUpBattle(1);
+	startGame();
+	startBattle();
 
-	phoenix->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::REBIRTH, BonusSource::OTHER, 20, BonusSourceID(), BonusCustomSubtype::rebirthSpecial));
+	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSacredPhoenix"), BattleHex(rightHex), 1);
+	slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
+	ASSERT_NE(bearer, nullptr);
 
 	beginCombat();
 
 	slay();
 
-	EXPECT_TRUE(phoenix->alive());
-	EXPECT_EQ(phoenix->getCount(), 1);
+	EXPECT_TRUE(bearer->alive()) << "a fifth of a single creature is none, and the guarantee is what brings it back";
+	EXPECT_EQ(bearer->getCount(), 1);
 }

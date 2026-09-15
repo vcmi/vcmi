@@ -3,6 +3,40 @@
 // abilities beyond the tested one - so that what a scenario measures is the script and not a
 // damage roll. Graphics and sounds are borrowed from the pikeman; nothing here is ever rendered.
 {
+	// declares the ability the way content did before rebirth became a script, so that the
+	// conversion of old content is exercised along with the guaranteed kind of rebirth
+	"testSacredPhoenix" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Sacred Phoenix", "plural" : "Test Sacred Phoenixes" },
+		"attack" : 10,
+		"defense" : 10,
+		"hitPoints" : 100,
+		"speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100,
+		"aiValue" : 100,
+		"graphics" :
+		{
+			"animation" : "CPKMAN.DEF",
+			"animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 },
+			"timeBetweenFidgets" : 1
+		},
+		"sound" : {},
+		"abilities" :
+		{
+			"rebirth" :
+			{
+				"type" : "REBIRTH",
+				"subtype" : "rebirthSpecial",
+				"val" : 20
+			}
+		}
+	},
+
 	"testTransmuterCount" :
 	{
 		"faction" : "neutral",
