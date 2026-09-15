@@ -70,7 +70,7 @@ VCMI guarantees the following:
 - the parameters stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
 - an action reaches `onActionFinished` exactly once, however many blows, counterattacks or targets it was made of
 - no event is withheld from a script because the engine judged it pointless. Whether a counterattack, a repeated attack or the death of the bearer is a reason to do nothing is the script's own decision
-- a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by actions someone took. A spell a script casts itself is applied rather than cast, so it reaches no `onSpellHit` either
+- a script never starts while another one is running. Reactions run one after another to completion, whichever event they answer
 
 ## Event handlers
 
@@ -112,6 +112,7 @@ Handlers:
 - `onAfterMove` - called after `unit` ends movement. For a walk-and-attack this is still before the blows of that attack are counted, so an extra attack granted here is thrown by that same attack. The step back a unit with `RETURN_AFTER_STRIKE` takes is a move of its own and fires both move events again, so such an attack reports two moves rather than one
 - `onUnitSpellcast` - called after `unit` casts a spell
 - `onSpellHit` - called on every unit a spell reached, once the cast is over. Only a spell someone chose to cast is reported - a hero spell, a unit spellcaster, an enchanter. A moat, a spell-like attack, a spell an obstacle triggered and a spell a script applied itself are not something a unit was hit by, and reach nobody. `other` is the casting unit, nil when a hero cast it
+- `onDeath` - called on a unit that died, once the action that killed it is over rather than at the moment it fell. Every death of that action is announced together, and the reactions may kill further units, which are announced in their turn until none are left - so one death can set off the next. A clone is announced like any other unit. `other` is whatever killed it, nil when a spell, a moat or a script did. `payload.targets` holds one entry per death of the batch, whose `killed` is how many creatures the lethal hit took - the size of the stack as it died
 - `onActionFinished` - called once the battle action is wholly over, on every unit it reached along the way - the unit that acted, everything it struck, everything a spell of that action touched. An attack action is over only once its counterattack and its repeated blows are, so this is where a script hands out what it banked over the whole of it rather than blow by blow. `other` is the unit whose action it was, so a unit compares it against itself to tell its own action from someone else's, and it is nil when a hero cast a spell
 - `onBattleSetup` - called once for every unit as the battle is laid out, before tactics and before anything else happens to it. `other` is nil
 - `onBattleStart` - called once for every unit present when the battle starts, after tactics are over and before any opening spell is cast. `other` is nil
@@ -136,6 +137,8 @@ None of them is withheld: a counterattack, the second hit of a double attack and
 ## Built-in scripts
 
 Every combat event script declares a `priority` in its `scripts` entry. Scripts reacting to the same event run from lowest priority to highest, and `0` is the usual answer. It is required rather than defaulted because bonus order is otherwise alphabetical by ability name, which would let a mod decide what runs first by renaming an ability.
+
+Priority also decides what answers a death first. A script that undoes a death - bringing the stack back - declares a priority below 100, so that it runs before anything reacting to a death that stands; one that reacts to a death declares 100 or above.
 
 Four of the scripts below exist only so that content declaring the bonus they replaced keeps working. They reproduce the H3 and WoG behaviour they were converted from, quirks included, and will not grow options beyond what that behaviour needs. A mod that wants an ability of that kind should ship its own script rather than try to configure these.
 

@@ -14,6 +14,7 @@
 
 struct BattleLogMessage;
 struct BattleAttack;
+struct BattleStackAttacked;
 class BattleAction;
 class CBattleInfoCallback;
 class BattleHex;
@@ -57,6 +58,21 @@ class BattleActionProcessor : boost::noncopyable
 	/// decided while the action runs - a target that dies ends an attack, and ferocity extends one.
 	std::vector<uint32_t> actionParticipants;
 
+	/// One death waiting to be announced. Everything it holds comes from the pack that reported the
+	/// death, so nothing about the unit has to be captured before it dies - `killed` is how many of
+	/// its creatures the lethal hit took, which for a death is the whole stack.
+	struct PendingDeath
+	{
+		uint32_t unit;
+		uint32_t killer;
+		uint32_t killed;
+		int64_t damage;
+	};
+
+	/// Deaths that happened since the last drain. Announced at the end of the action rather than
+	/// where they happened, so that no script ever starts while another is running.
+	std::vector<PendingDeath> pendingDeaths;
+
 	/// One reaction to a combat event that is about to run. Which script it is and how it is ordered
 	/// are decided when it is collected, so that running it is nothing but a dispatch. Units are kept
 	/// by id rather than by pointer because a reaction running before it may remove either from the battle.
@@ -80,6 +96,7 @@ class BattleActionProcessor : boost::noncopyable
 	/// Tells every unit the running action reached that it is over. What "reached" means is simply
 	/// which units the action fired an event at, so nothing has to predict which of its parts is last.
 	void processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor);
+
 	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
 	/// Predefined reaction of the ON_COMBAT_EVENT bonus - grant a bonus, or cast a spell
 	void runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other);
@@ -165,6 +182,15 @@ public:
 	/// Hands the spell hit event to every unit a deliberately cast spell reached. `unitsBefore` is
 	/// what each of them was before the spell landed, which is also what says who was reached.
 	void processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
+
+	/// Notes every death the given casualties report, to be announced once the action is over.
+	/// Clones are included - a clone leaves no body behind, but it still died.
+	void noteDeaths(const std::vector<BattleStackAttacked> & casualties);
+
+	/// Announces every death collected since the last drain, and keeps going while the reactions
+	/// produce further ones - which is what lets one death set off the next. Reactions to one batch
+	/// all run before any of the next, so a script never starts in the middle of another.
+	void flushPendingDeaths(const CBattleInfoCallback & battle);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);
