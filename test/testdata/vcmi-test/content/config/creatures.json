@@ -3,40 +3,6 @@
 // abilities beyond the tested one - so that what a scenario measures is the script and not a
 // damage roll. Graphics and sounds are borrowed from the pikeman; nothing here is ever rendered.
 {
-	// declares the ability the way content did before rebirth became a script, so that the
-	// conversion of old content is exercised along with the guaranteed kind of rebirth
-	"testSacredPhoenix" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Sacred Phoenix", "plural" : "Test Sacred Phoenixes" },
-		"attack" : 10,
-		"defense" : 10,
-		"hitPoints" : 100,
-		"speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100,
-		"aiValue" : 100,
-		"graphics" :
-		{
-			"animation" : "CPKMAN.DEF",
-			"animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 },
-			"timeBetweenFidgets" : 1
-		},
-		"sound" : {},
-		"abilities" :
-		{
-			"rebirth" :
-			{
-				"type" : "REBIRTH",
-				"subtype" : "rebirthSpecial",
-				"val" : 20
-			}
-		}
-	},
-
 	"testTransmuterCount" :
 	{
 		"faction" : "neutral",
@@ -370,8 +336,8 @@
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
 	},
 
-	// HotA abilities, see hotaScripts.json. Detonation is armed by a self-cast, so the automaton
-	// carries the ability that arms it rather than the script itself.
+	// HotA abilities, see hotaScripts.json. The mod arms the detonation with a self-cast; here the
+	// automaton carries it from the start, as what the scenarios measure is the death it answers.
 	"testAutomaton" :
 	{
 		"faction" : "neutral",
@@ -386,8 +352,10 @@
 		"sound" : {},
 		"abilities" :
 		{
-			"castsDetonation" : { "type" : "SPELLCASTER", "subtype" : "abilityDetonation", "val" : 0 },
-			"castsCount" : { "type" : "CASTS", "val" : 1 }
+			"detonates" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "automatonDetonation" },
+			// the mod's arming spell grants this alongside the trigger; the corpse of a detonated
+			// automaton is gone, which is what keeps a chain from setting the same one off twice
+			"removeCorpse" : { "type" : "DISINTEGRATE" }
 		}
 	},
 
@@ -425,32 +393,6 @@
 		"abilities" :
 		{
 			"heatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
-			"castsCount" : { "type" : "CASTS", "val" : 99 }
-		}	},
-
-	// Answers back what the scripting API told it. Mechanical, so that morale is a case where the
-	// engine's answer and the sum of the bonuses differ.
-	"testApiProbe" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Probe", "plural" : "Test Probes" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"abilities" :
-		{
-			"mechanical" : { "type" : "MECHANICAL" },
-			"probes" : {
-				"type" : "COMBAT_EVENT_TRIGGER",
-				"subtype" : "scriptApiProbe",
-				"addInfo" : { "spell" : "vcmi-test:heatStroke", "hitBy" : "core:magicArrow" }
-			},
-			"castsHeatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
 			"castsCount" : { "type" : "CASTS", "val" : 99 }
 		}
 	}

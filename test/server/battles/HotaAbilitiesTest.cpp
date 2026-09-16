@@ -11,32 +11,13 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/bonuses/BonusCustomTypes.h"
-#include "../../../lib/modding/IdentifierStorage.h"
-#include "../../../lib/modding/ModScope.h"
 
 namespace
 {
 
 /// Damage one detonation of a single automaton deals, from the 90 + 5 * N of the ability.
 constexpr int64_t detonationDamage = 95;
-
-SpellID spellByName(const std::string & name)
-{
-	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", name);
-	EXPECT_TRUE(identifier.has_value()) << "unknown spell " << name;
-
-	return identifier ? SpellID(*identifier) : SpellID::NONE;
-}
-
-SecondarySkill skillByName(const std::string & name)
-{
-	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", name);
-	EXPECT_TRUE(identifier.has_value()) << "unknown skill " << name;
-
-	return identifier ? SecondarySkill(*identifier) : SecondarySkill::NONE;
-}
 
 }
 
@@ -48,8 +29,6 @@ class HotaAbilitiesTest : public BattleTestFixture
 public:
 	static constexpr int32_t bigStack = 1000;
 
-	int64_t healthOf(const CStack * unit) const { return unit->getAvailableHealth(); }
-
 	/// The runes of an expert hero, which every stack of its army inherits.
 	CStack * addRuneBearer()
 	{
@@ -59,7 +38,7 @@ public:
 
 	int runeLevelOf(const CStack * unit) const
 	{
-		return unit->valOfBonuses(Selector::type()(static_cast<BonusType>(BonusTypeID::decode("RUNE_LEVEL_COUNTER"))));
+		return unit->valOfBonuses(static_cast<BonusType>(BonusTypeID::decode("RUNE_LEVEL_COUNTER")));
 	}
 };
 
@@ -67,145 +46,114 @@ public:
 // Detonation
 //----------------------------------------------------------------------------------------------
 
-/// The automaton has to be told to detonate before it dies; arming it is a spell cast at itself.
-TEST_F(HotaAbilitiesTest, DetonationDamagesEveryAdjacentUnit)
+/// An automaton damages everything around it when it dies. The fixture creature carries the
+/// ability from the start, where the mod arms it with a self-cast first.
+class DetonationTest : public HotaAbilitiesTest
 {
-	startGame();
-	startBattle();
+public:
+	/// An automaton the scenario is about, and the stack that will kill it.
+	void setUpDetonation(int32_t automatonCount = 1)
+	{
+		startGame();
+		startBattle();
 
-	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
-	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), bigStack);
-	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(automaton, nullptr);
-	ASSERT_NE(victim, nullptr);
-	ASSERT_NE(killer, nullptr);
+		automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), automatonCount);
+		killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
+	}
 
-	beginCombat();
+	/// Kills the automaton, which is the only way to set it off.
+	void detonate()
+	{
+		ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
+		ASSERT_FALSE(automaton->alive()) << "the automaton has to die for it to detonate";
+	}
 
-	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
+	CStack * automaton = nullptr;
+	CStack * killer = nullptr;
+};
 
-	const int64_t healthBefore = healthOf(victim);
-
-	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
-	ASSERT_FALSE(automaton->alive()) << "the automaton has to die for it to detonate";
-
-	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
-}
-
-/// Regression guard: a target whose incoming damage is capped used to lower the blast for every
-/// target the loop reached after it.
-TEST_F(HotaAbilitiesTest, DetonationCapAppliesToTheCappedTargetAlone)
+/// Every adjacent unit is damaged, and a target whose incoming damage is capped keeps that cap to
+/// itself - it used to lower the blast for every target the loop reached after it.
+TEST_F(DetonationTest, DamagesEveryAdjacentUnitAndCapsOnlyTheCappedOne)
 {
-	startGame();
-	startBattle();
+	setUpDetonation();
 
-	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
 	CStack * capped = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex + 1), bigStack);
 	CStack * uncapped = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex - GameConstants::BFIELD_WIDTH), bigStack);
-	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(capped, nullptr);
-	ASSERT_NE(uncapped, nullptr);
 
 	beginCombat();
 
-	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
+	const int64_t cappedBefore = capped->getAvailableHealth();
+	const int64_t uncappedBefore = uncapped->getAvailableHealth();
 
-	const int64_t cappedBefore = healthOf(capped);
-	const int64_t uncappedBefore = healthOf(uncapped);
-
-	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
-	ASSERT_FALSE(automaton->alive());
+	detonate();
 
 	// the cap is 10% of a creature with 100 health
-	EXPECT_EQ(cappedBefore - healthOf(capped), 10);
-	EXPECT_EQ(uncappedBefore - healthOf(uncapped), detonationDamage);
+	EXPECT_EQ(cappedBefore - capped->getAvailableHealth(), 10);
+	EXPECT_EQ(uncappedBefore - uncapped->getAvailableHealth(), detonationDamage);
 }
 
 /// What a clone leaves behind is not what set off the charge, so it detonates like anything else.
-TEST_F(HotaAbilitiesTest, DetonationAnswersTheDeathOfAClone)
+/// This is also the only scenario pinning that the death of a clone is announced at all - the
+/// rebirth of a clone is refused by the script rather than by the engine.
+TEST_F(DetonationTest, AnswersTheDeathOfAClone)
 {
-	startGame();
-	startBattle();
+	setUpDetonation();
 
-	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
 	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), bigStack);
-	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
 
 	beginCombat();
 
-	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
-
-	// the automaton itself is what the scenario kills; marking it a clone is the shortest way to
-	// the state a cloned one would be in
+	// marking the automaton a clone is the shortest way to the state a cloned one would be in
 	makeClone(automaton);
 
-	const int64_t healthBefore = healthOf(victim);
+	const int64_t healthBefore = victim->getAvailableHealth();
 
-	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
-	ASSERT_FALSE(automaton->alive());
+	detonate();
 
-	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
+	EXPECT_EQ(healthBefore - victim->getAvailableHealth(), detonationDamage);
 }
 
 /// One blast kills the automaton beside it, which detonates in its turn - the deaths of a batch
 /// are announced, and the deaths they cause are announced after them.
-TEST_F(HotaAbilitiesTest, DetonationSetsOffTheAutomatonNextToIt)
+TEST_F(DetonationTest, SetsOffTheAutomatonNextToIt)
 {
-	startGame();
-	startBattle();
-
 	// three of them, so that the 90 + 5 * N of the first blast is past the health of the second
-	CStack * first = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 3);
+	setUpDetonation(3);
+
 	CStack * second = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex + 1), 1);
 	CStack * bystander = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), bigStack);
-	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(second, nullptr);
-	ASSERT_NE(bystander, nullptr);
-	ASSERT_NE(killer, nullptr);
 
 	beginCombat();
 
-	ASSERT_TRUE(castAsUnit(first, spellByName("abilityDetonation")));
-	ASSERT_TRUE(castAsUnit(second, spellByName("abilityDetonation")));
+	const int64_t healthBefore = bystander->getAvailableHealth();
 
-	const int64_t healthBefore = healthOf(bystander);
-
-	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
-
-	ASSERT_FALSE(first->alive());
+	detonate();
 	ASSERT_FALSE(second->alive()) << "the first blast has to kill the second automaton";
 
 	// the bystander only touches the second automaton, so anything it lost came from the chain
-	EXPECT_EQ(healthBefore - healthOf(bystander), detonationDamage);
+	EXPECT_EQ(healthBefore - bystander->getAvailableHealth(), detonationDamage);
 }
 
-/// A spell can kill the automaton just as an attack can, and it detonates either way.
-TEST_F(HotaAbilitiesTest, DetonationAnswersADeathBySpell)
+/// Deaths of one blow are answered as a batch ordered by priority, so a stack that comes back from
+/// its own death is already standing when anything else reacting to that batch runs.
+TEST_F(DetonationTest, RunsAfterARebirthOfTheSameBatch)
 {
 	startGame();
-
-	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
-	attackerSideHero->setPrimarySkill(PrimarySkill::SPELL_POWER, 50, ChangeValueMode::ABSOLUTE);
-	attackerSideHero->mana = 9999;
-
 	startBattle();
 
-	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
-	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), bigStack);
-	ASSERT_NE(automaton, nullptr);
-	ASSERT_NE(victim, nullptr);
+	automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
+	CStack * phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex + 1), 10);
+	// breath reaches the hex behind the one it strikes, so one blow kills both
+	killer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
 
 	beginCombat();
 
-	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
+	detonate();
 
-	const int64_t healthBefore = healthOf(victim);
-
-	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), automaton));
-	ASSERT_FALSE(automaton->alive()) << "the spell has to kill it for it to detonate";
-
-	EXPECT_EQ(healthBefore - healthOf(victim), detonationDamage);
+	ASSERT_TRUE(phoenix->alive()) << "the phoenix has to come back for the ordering to show";
+	EXPECT_LT(phoenix->getAvailableHealth(), phoenix->getCount() * phoenix->getMaxHealth())
+		<< "the blast found the phoenix standing, so the rebirth of the batch ran before it";
 }
 
 //----------------------------------------------------------------------------------------------
@@ -220,8 +168,6 @@ TEST_F(HotaAbilitiesTest, DevouredCorpseGrantsOneExtraStrike)
 
 	CStack * devourer = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testDevourer"), BattleHex(leftHex), bigStack);
 	CStack * prey = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
-	ASSERT_NE(devourer, nullptr);
-	ASSERT_NE(prey, nullptr);
 
 	beginCombat();
 
@@ -229,7 +175,7 @@ TEST_F(HotaAbilitiesTest, DevouredCorpseGrantsOneExtraStrike)
 
 	ASSERT_TRUE(attack(devourer, BattleHex(rightHex)));
 	ASSERT_FALSE(prey->alive()) << "a corpse is what the scenario is about";
-	ASSERT_EQ(devourer->getTotalAttacks(false), 1);
+	ASSERT_EQ(devourer->getTotalAttacks(false), 1) << "an attack that walked nowhere ate nothing";
 
 	ASSERT_TRUE(move(devourer, BattleHex(rightHex)));
 
@@ -249,7 +195,6 @@ TEST_F(HotaAbilitiesTest, StrikeIsSpentOnlyOnAnExtraBlow)
 	CStack * devourer = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testDevourer"), BattleHex(leftHex), bigStack);
 	addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
 	CStack * next = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex + 1), bigStack);
-	ASSERT_NE(next, nullptr);
 
 	beginCombat();
 
@@ -274,8 +219,6 @@ TEST_F(HotaAbilitiesTest, CorpseDevouredOnTheWayInFeedsTheAttackItWalkedInto)
 	CStack * devourer = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testDevourer"), BattleHex(leftHex), bigStack);
 	CStack * prey = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
 	CStack * next = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex + 1), bigStack);
-	ASSERT_NE(devourer, nullptr);
-	ASSERT_NE(next, nullptr);
 
 	beginCombat();
 
@@ -307,7 +250,6 @@ TEST_F(HotaAbilitiesTest, DefendingGrantsThreeRuneLevels)
 	startBattle();
 
 	CStack * bearer = addRuneBearer();
-	ASSERT_NE(bearer, nullptr);
 
 	beginCombat();
 
@@ -327,8 +269,7 @@ TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
 	startBattle();
 
 	CStack * bearer = addRuneBearer();
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
-	ASSERT_NE(target, nullptr);
+	addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
 	blockRetaliation(bearer);
 
 	beginCombat();
@@ -338,15 +279,15 @@ TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
 	EXPECT_EQ(runeLevelOf(bearer), 1);
 }
 
-/// A unit that strikes and is struck in return is credited for the blow it took, not for both.
+/// A unit that strikes and is struck in return is credited for the blow it took, not for both -
+/// which also pins that the whole action is granted once rather than blow by blow.
 TEST_F(HotaAbilitiesTest, AnsweredAttackGrantsTwoRuneLevels)
 {
 	startGame();
 	startBattle();
 
 	CStack * bearer = addRuneBearer();
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
-	ASSERT_NE(target, nullptr);
+	addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
 
 	beginCombat();
 
@@ -355,7 +296,8 @@ TEST_F(HotaAbilitiesTest, AnsweredAttackGrantsTwoRuneLevels)
 	EXPECT_EQ(runeLevelOf(bearer), 2) << "the retaliation is part of the same action, and is worth more than the blow given";
 }
 
-/// A hero spell that damaged a unit is worth as much to it as a blow taken.
+/// A hero spell that damaged a unit is worth as much to it as a blow taken, and reaches it even
+/// though the action is the other side's.
 TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 {
 	startGame();
@@ -371,7 +313,6 @@ TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 	defenderSideHero->setSecSkillLevel(skillByName("vcmi-test:runes"), 3, ChangeValueMode::ABSOLUTE);
 	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
 	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(bearer, nullptr);
 
 	beginCombat();
 
@@ -380,9 +321,43 @@ TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 	EXPECT_EQ(runeLevelOf(bearer), 2);
 }
 
+/// Only a hero's spell is worth anything, so the spell hit has to name the unit that cast it.
+TEST_F(HotaAbilitiesTest, SpellCastByAUnitGrantsNoRuneLevel)
+{
+	startGame();
+	startBattle();
+
+	CStack * bearer = addRuneBearer();
+	CStack * caster = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testJuggernaut"), BattleHex(rightHex), bigStack);
+
+	beginCombat();
+
+	const int64_t healthBefore = bearer->getAvailableHealth();
+
+	ASSERT_TRUE(castAsUnit(caster, spellByName("vcmi-test:heatStroke"), BattleHex(leftHex)));
+	ASSERT_LT(bearer->getAvailableHealth(), healthBefore) << "the stroke has to reach the bearer";
+
+	EXPECT_EQ(runeLevelOf(bearer), 0) << "the hit names a casting unit, and only a hero's spell counts";
+}
+
 //----------------------------------------------------------------------------------------------
 // Heat stroke
 //----------------------------------------------------------------------------------------------
+
+namespace
+{
+
+/// One cone: the side the Juggernaut fights on, where it aims, and which hex is checked for burns.
+struct HeatStrokeCase
+{
+	const char * name;
+	BattleSide side;
+	BattleHex aim;
+	BattleHex victim;
+	bool burns;
+};
+
+}
 
 /// The stroke is a 120 degree cone two hexes deep: the aimed hex, the two hexes touching both the
 /// Juggernaut and it, and the five - four, when it strikes straight up or down - one step further
@@ -391,413 +366,103 @@ TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 class HeatStrokeTest : public HotaAbilitiesTest
 {
 public:
+	/// The Juggernaut always stands here, and every hex of a scenario is given relative to it.
+	static const BattleHex origin;
+
 	/// Aims a stroke of a Juggernaut of the given side at `aimHex` and answers what the unit
 	/// standing on `victimHex` lost to it.
-	int64_t damageAt(BattleSide side, const BattleHex & juggernautHex, const BattleHex & aimHex, const BattleHex & victimHex)
+	int64_t damageAt(BattleSide side, const BattleHex & aimHex, const BattleHex & victimHex)
 	{
 		startGame();
 		startBattle();
 
 		const BattleSide otherSide = side == BattleSide::ATTACKER ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 
-		CStack * juggernaut = addStack(side, creatureByName("vcmi-test:testJuggernaut"), juggernautHex, bigStack);
+		juggernaut = addStack(side, creatureByName("vcmi-test:testJuggernaut"), origin, bigStack);
 		CStack * victim = addStack(otherSide, creatureByName("vcmi-test:testDamageCapped"), victimHex, bigStack);
-		EXPECT_NE(juggernaut, nullptr);
-		EXPECT_NE(victim, nullptr);
 
 		beginCombat();
 
 		const int64_t healthBefore = victim->getAvailableHealth();
 
-		EXPECT_TRUE(castAsUnit(juggernaut, spellByName("heatStroke"), aimHex));
+		EXPECT_TRUE(castAsUnit(juggernaut, spellByName("vcmi-test:heatStroke"), aimHex));
 
 		return healthBefore - victim->getAvailableHealth();
 	}
+
+	CStack * juggernaut = nullptr;
 };
 
-TEST_F(HeatStrokeTest, ReachesTheAimedHexFromTheAttackerSide)
+const BattleHex HeatStrokeTest::origin(leftHex);
+
+class HeatStrokeConeTest : public HeatStrokeTest, public ::testing::WithParamInterface<HeatStrokeCase>
 {
-	const BattleHex juggernaut(leftHex);
-
-	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, juggernaut.copyToEast(), juggernaut.copyToEast()), 0);
-}
-
-/// Regression guard: a cone is measured from the half of the Juggernaut that faces the aim point,
-/// not from the hex it stands on, which used to be reached with one step too many.
-TEST_F(HeatStrokeTest, ReachesWestFromTheRearHalfOnTheAttackerSide)
-{
-	// the attacker-side unit stands on `leftHex` and covers the hex west of it as well
-	const BattleHex juggernaut(leftHex);
-	const BattleHex aim = juggernaut.copyToWest().copyToWest();
-
-	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, aim, aim), 0);
-}
-
-/// A defender-side Juggernaut carries its second hex to the east instead of the west, so the same
-/// measurement runs the other way.
-TEST_F(HeatStrokeTest, ReachesEastFromTheRearHalfOnTheDefenderSide)
-{
-	const BattleHex juggernaut(leftHex);
-	const BattleHex aim = juggernaut.copyToEast().copyToEast();
-
-	EXPECT_GT(damageAt(BattleSide::DEFENDER, juggernaut, aim, aim), 0);
-}
-
-/// A hex touching the cone but outside its 120 degrees stays cold.
-TEST_F(HeatStrokeTest, SparesWhatIsOutsideTheCone)
-{
-	const BattleHex juggernaut(leftHex);
-	const BattleHex outside = juggernaut.copyToNorthEast().copyToNorthWest();
-
-	EXPECT_EQ(damageAt(BattleSide::ATTACKER, juggernaut, juggernaut.copyToEast(), outside), 0);
-}
-
-//----------------------------------------------------------------------------------------------
-// Scripting API added for these abilities
-//----------------------------------------------------------------------------------------------
-
-/// What a script can ask about a unit, answered from inside a real battle. The probe creature
-/// writes every answer into a bonus of its own, which is what these scenarios read back.
-class ScriptApiTest : public HotaAbilitiesTest
-{
-public:
-	static constexpr int flagCanRetaliate = 1;
-	static constexpr int flagSpellIdentified = 2;
-	static constexpr int flagSpellOnAttack = 4;
-
-	CStack * addProbe(BattleSide side, const BattleHex & hex, int32_t count = bigStack)
-	{
-		return addStack(side, creatureByName("vcmi-test:testApiProbe"), hex, count);
-	}
-
-	static void grant(CStack * unit, BonusType type, int value)
-	{
-		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::OTHER, value, BonusSourceID()));
-	}
-
-	static int probed(const CStack * unit, const std::string & bonusType)
-	{
-		return unit->valOfBonuses(Selector::type()(static_cast<BonusType>(BonusTypeID::decode(bonusType))));
-	}
 };
 
-/// Luck is capped by the game rather than summed, which is the whole reason a script should ask
-/// for it rather than add up the bonuses granting it.
-TEST_F(ScriptApiTest, LuckIsCappedTheWayTheGameCapsIt)
+TEST_P(HeatStrokeConeTest, BurnsWhatIsInsideTheCone)
 {
-	startGame();
-	startBattle();
+	const int64_t damage = damageAt(GetParam().side, GetParam().aim, GetParam().victim);
 
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	ASSERT_NE(probe, nullptr);
-
-	grant(probe, BonusType::LUCK, 10);
-
-	beginCombat();
-
-	EXPECT_EQ(probed(probe, "PROBE_LUCK"), probe->luckVal());
-	EXPECT_LT(probed(probe, "PROBE_LUCK"), 10) << "the raw sum of the bonuses would be 10";
-	EXPECT_GT(probed(probe, "PROBE_LUCK"), 0);
+	if(GetParam().burns)
+		EXPECT_GT(damage, 0);
+	else
+		EXPECT_EQ(damage, 0);
 }
 
-/// Morale is not merely capped - a mechanical unit has none at all, however much of it is granted.
-TEST_F(ScriptApiTest, MoraleIsZeroForAUnitThatHasNone)
+INSTANTIATE_TEST_SUITE_P(Cones, HeatStrokeConeTest, ::testing::Values(
+	// the hex the stroke is aimed at is always in its own cone
+	HeatStrokeCase{"aimedHexOnTheAttackerSide", BattleSide::ATTACKER,
+		HeatStrokeTest::origin.copyToEast(), HeatStrokeTest::origin.copyToEast(), true},
+
+	// regression guard: the cone is measured from the half of the Juggernaut that faces the aim
+	// point, not from the hex it stands on, which used to be reached with one step too many. An
+	// attacker-side unit stands on the origin and covers the hex west of it as well
+	HeatStrokeCase{"twoHexesWestOfTheRearHalfOnTheAttackerSide", BattleSide::ATTACKER,
+		HeatStrokeTest::origin.copyToWest().copyToWest(), HeatStrokeTest::origin.copyToWest().copyToWest(), true},
+
+	// a defender-side Juggernaut carries its second hex to the east instead, so the same
+	// measurement runs the other way
+	HeatStrokeCase{"twoHexesEastOfTheRearHalfOnTheDefenderSide", BattleSide::DEFENDER,
+		HeatStrokeTest::origin.copyToEast().copyToEast(), HeatStrokeTest::origin.copyToEast().copyToEast(), true},
+
+	// a hex touching the cone but outside its 120 degrees stays cold
+	HeatStrokeCase{"hexOutsideTheCone", BattleSide::ATTACKER,
+		HeatStrokeTest::origin.copyToEast(), HeatStrokeTest::origin.copyToNorthEast().copyToNorthWest(), false}
+),
+	[](const ::testing::TestParamInfo<HeatStrokeCase> & info) { return info.param.name; });
+
+/// The stroke rolls for a lucky strike on the luck the engine answers with, which is capped, rather
+/// than on the sum of the bonuses granting it - a sum this large would double every single strike.
+TEST_F(HeatStrokeTest, LuckIsTakenCappedRatherThanAsTheSumOfItsBonuses)
 {
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	grant(probe, BonusType::MORALE, 5);
-
-	beginCombat();
-
-	EXPECT_EQ(probed(probe, "PROBE_MORALE"), 0) << "the probe is mechanical, and the raw sum would be 5";
-}
-
-/// A unit that has its retaliation left says so, and an attack names no spell.
-TEST_F(ScriptApiTest, RetaliationIsVisibleBeforeTheBlowLands)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
-	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(attacker, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagCanRetaliate, flagCanRetaliate);
-	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagSpellOnAttack, 0) << "an attack is no spellcast";
-}
-
-/// A unit that cannot answer says that too.
-TEST_F(ScriptApiTest, AUnitThatCannotRetaliateSaysSo)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
-	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-
-	grant(probe, BonusType::NO_RETALIATION, 0);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagCanRetaliate, 0);
-}
-
-/// The spellcast event names the spell that was cast.
-TEST_F(ScriptApiTest, SpellcastNamesItsSpell)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
-	ASSERT_NE(victim, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(castAsUnit(probe, spellByName("heatStroke"), BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_FLAGS") & flagSpellIdentified, flagSpellIdentified);
-}
-
-/// A walk-and-attack walks, and says so. That the walk is announced before the number of blows is
-/// settled is what lets an ability that reacts to it add one to the very attack it walked into.
-TEST_F(ScriptApiTest, WalkAndAttackAnnouncesItsWalk)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex + 2), bigStack);
-	ASSERT_NE(target, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attackFrom(probe, BattleHex(rightHex + 2), BattleHex(rightHex + 1)));
-
-	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 1);
-}
-
-/// An attack that reaches its target from where it already stands walks nowhere, and says nothing.
-TEST_F(ScriptApiTest, AnAttackWithoutAWalkAnnouncesNoWalk)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex), bigStack);
-	ASSERT_NE(target, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(probe, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 0);
-}
-
-/// A hero spell reaching a unit is reported to it, names itself, and names no casting unit.
-TEST_F(ScriptApiTest, HeroSpellIsReportedToWhatItHits)
-{
-	startGame();
-
-	giveArtifact(defenderSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
-	defenderSideHero->mana = 9999;
-
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	ASSERT_NE(probe, nullptr);
-
-	beginCombat();
-
-	const int64_t healthBefore = probe->getAvailableHealth();
-
-	ASSERT_TRUE(castOn(defenderSideHero, SpellID(SpellID::MAGIC_ARROW), probe));
-
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_HERO_CASTS"), 1) << "a hero cast it, so no unit is named";
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_NAMED"), 1) << "and the spell that hit is named";
-	EXPECT_EQ(probed(probe, "PROBE_HEALTH_BEFORE"), healthBefore) << "the captured state is the one from before the spell";
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_DAMAGE"), healthBefore - probe->getAvailableHealth());
-	EXPECT_GT(probed(probe, "PROBE_SPELL_DAMAGE"), 0);
-}
-
-/// A spell a unit cast names that unit, so that the two kinds of cast are told apart.
-TEST_F(ScriptApiTest, UnitSpellNamesItsCaster)
-{
-	startGame();
-	startBattle();
-
-	CStack * caster = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testJuggernaut"), BattleHex(rightHex), bigStack);
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(rightHex - 1));
-	ASSERT_NE(caster, nullptr);
-	ASSERT_NE(probe, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(castAsUnit(caster, spellByName("heatStroke"), BattleHex(rightHex - 1)));
-
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_HERO_CASTS"), 0) << "a unit cast it, and is named";
-}
-
-/// Only a cast someone chose to make is a spell hit. What a script applies on its own is not, which
-/// is also what keeps a script that casts from re-entering itself.
-TEST_F(ScriptApiTest, AScriptedCastIsNoSpellHit)
-{
-	startGame();
-	startBattle();
-
-	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex + 1));
-	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(automaton, nullptr);
-	ASSERT_NE(killer, nullptr);
-
-	beginCombat();
-
-	const int64_t healthBefore = probe->getAvailableHealth();
-
-	// the detonation script damages the probe and writes its own spell into the combat log
-	ASSERT_TRUE(castAsUnit(automaton, spellByName("abilityDetonation")));
-	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
-	ASSERT_FALSE(automaton->alive());
-	ASSERT_LT(probe->getAvailableHealth(), healthBefore) << "the detonation has to reach the probe";
-
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 0);
-}
-
-/// An action is reported as finished once it is wholly over, to every unit it reached - which is
-/// what lets a script bank something over an action and hand it out when the action ends.
-TEST_F(ScriptApiTest, AnActionIsReportedToTheUnitThatTookIt)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex), bigStack);
-	ASSERT_NE(target, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(probe, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 1) << "the probe is the one that acted";
-}
-
-/// And to a unit that only stood in the way of one.
-TEST_F(ScriptApiTest, AnActionIsReportedToWhatItReached)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
-	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(attacker, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 0) << "somebody else acted";
-}
-
-/// One report per action, however many blows the action was made of. This is what a flag on the
-/// last blow would have to work out in advance, and what the end of the action simply knows.
-TEST_F(ScriptApiTest, AnActionOfSeveralBlowsIsReportedOnce)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
-	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
-
-	grant(attacker, BonusType::ADDITIONAL_ATTACK, 1);
-	ASSERT_EQ(attacker->getTotalAttacks(false), 2);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
-
-	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1) << "two blows, one action";
-}
-
-/// A hero spell is an action of its own, and finishes as one.
-TEST_F(ScriptApiTest, AHeroSpellFinishesAsItsOwnAction)
-{
-	startGame();
-
-	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
-	attackerSideHero->mana = 9999;
-
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex));
-	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(probe, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), probe));
-
-	EXPECT_EQ(probed(probe, "PROBE_SPELL_HITS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
-	EXPECT_EQ(probed(probe, "PROBE_OWN_ACTIONS"), 0) << "a hero acted, so no unit did";
-}
-
-/// A unit the action killed is still told that the action is over - which is what lets an ability
-/// answer a death that no attack and no cast caused, such as one to a moat.
-TEST_F(ScriptApiTest, AKilledUnitIsStillToldTheActionEnded)
-{
-	startGame();
-	startBattle();
-
-	CStack * probe = addProbe(BattleSide::DEFENDER, BattleHex(rightHex), 1);
-	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
-	ASSERT_NE(attacker, nullptr);
-
-	beginCombat();
-
-	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
-	ASSERT_FALSE(probe->alive()) << "the probe has to die for the scenario to say anything";
-
-	EXPECT_EQ(probed(probe, "PROBE_ACTIONS"), 1);
-}
-
-/// The step a unit with RETURN_AFTER_STRIKE takes back is a move of its own, and is announced as
-/// one - so an ability that feeds on movement is fed by the way out as well as by the way in.
-TEST_F(ScriptApiTest, TheStepBackAfterStrikingIsAnnouncedAsAMove)
-{
-	constexpr int attackFromHex = leftHex + 3;
-	constexpr int targetHex = leftHex + 4;
+	const BattleHex aim = origin.copyToEast();
 
 	startGame();
 	startBattle();
 
-	CStack * probe = addProbe(BattleSide::ATTACKER, BattleHex(leftHex));
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), bigStack);
-	ASSERT_NE(target, nullptr);
+	juggernaut = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testJuggernaut"), origin, bigStack);
+	// far more health than either reading of the luck could take away, so that the stack does not
+	// die to both of them and hide the difference
+	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), aim, 100 * bigStack);
 
-	grant(probe, BonusType::RETURN_AFTER_STRIKE, 0);
+	// levelled up to the attack of the caster, so that the attack-against-defense factor is 1 and
+	// the damage left is the flat damage of the stack itself
+	const int defenceGap = juggernaut->getAttack(false) - victim->getDefense(false);
+	victim->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, defenceGap, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE)));
 
-	// the probe has to survive the blow it provokes in order to take the step back
-	blockRetaliation(probe);
+	// past the cap by far, and exactly the number of dice the roll uses
+	juggernaut->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LUCK, BonusSource::OTHER, 24, BonusSourceID()));
+	ASSERT_LT(juggernaut->luckVal(), 24) << "the cap is what makes the two readings differ";
 
 	beginCombat();
 
-	ASSERT_TRUE(attackFrom(probe, BattleHex(targetHex), BattleHex(attackFromHex)));
-	ASSERT_EQ(probe->getPosition(), BattleHex(leftHex)) << "the scenario is about the step back";
+	const int64_t healthBefore = victim->getAvailableHealth();
 
-	EXPECT_EQ(probed(probe, "PROBE_MOVES"), 2) << "the walk in and the step back are both moves";
+	ASSERT_TRUE(castAsUnit(juggernaut, spellByName("vcmi-test:heatStroke"), aim));
+
+	const int64_t plainStrike = bigStack * juggernaut->getMinDamage(false);
+	ASSERT_EQ(juggernaut->getMinDamage(false), juggernaut->getMaxDamage(false)) << "a flat range leaves nothing to roll";
+
+	EXPECT_EQ(healthBefore - victim->getAvailableHealth(), plainStrike)
+		<< "the raw sum would roll 24 dice out of 24 and double every strike";
 }

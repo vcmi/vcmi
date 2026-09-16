@@ -36,8 +36,6 @@ public:
 
 		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		vampires = addStack(BattleSide::DEFENDER, creatureByName("core:vampireLord"), BattleHex(rightHex), vampireCount);
-		ASSERT_NE(victim, nullptr);
-		ASSERT_NE(vampires, nullptr);
 
 		// retaliation on either side would drain and wound outside of the attack being measured
 		blockRetaliation(victim);

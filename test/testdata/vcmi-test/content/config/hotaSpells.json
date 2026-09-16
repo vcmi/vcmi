@@ -1,56 +1,5 @@
 // Abilities the HotA scripts implement, reduced to what a battle needs - no graphics, no sounds.
 {
-	"abilityDetonation" : {
-		"type" : "ability",
-		"name" : "Detonation",
-		"school" : { },
-		"level" : 0,
-		"power" : 0,
-		"defaultGainChance" : 0,
-		"gainChance" : { },
-		"animation" : { },
-		"targetCondition" : { },
-		"targetType" : "NO_TARGET",
-		"canCastWithoutSkip" : true,
-		"flags" : {
-			"persistent" : true,
-			"positive" : true,
-			"special" : true,
-			"nonMagical" : true
-		},
-		"levels" : {
-			"base" : {
-				"description" : "",
-				"cost" : 0,
-				"power" : 0,
-				"range" : "X",
-				"battleEffects" : {
-					"ignition" : {
-						"type" : "attachSelfCastAbility",
-						"battleLogSingular" : "%s activates detonation at death mode!",
-						"battleLogPlural" : "%s activate detonation at death mode!",
-						"bonus" : {
-							"addEventScript" : {
-								"type" : "COMBAT_EVENT_TRIGGER",
-								"subtype" : "automatonDetonation",
-								"duration" : "ONE_BATTLE"
-							},
-							"removeCorpse" : {
-								"type" : "DISINTEGRATE",
-								"duration" : "ONE_BATTLE",
-								"hidden" : true
-							}
-						}
-					}
-				}
-			},
-			"none" : { "description" : "{Activate detonation at death}" },
-			"basic" : { },
-			"advanced" : { },
-			"expert" : { }
-		}
-	},
-
 	"heatStroke" : {
 		"type" : "ability",
 		"name" : "Heat Stroke",

@@ -11,8 +11,21 @@
 
 #include "BattleTestFixture.h"
 
+namespace
+{
+
+/// One walk-and-attack: who walks, and where the attacker is left standing afterwards.
+struct AttackSequenceCase
+{
+	const char * name;
+	const char * creature;
+	bool returns;
+};
+
+}
+
 /// Walk-and-attack, and the step that only a unit with RETURN_AFTER_STRIKE takes afterwards.
-class AttackSequenceTest : public BattleTestFixture
+class AttackSequenceTest : public BattleTestFixture, public ::testing::WithParamInterface<AttackSequenceCase>
 {
 public:
 	static constexpr int32_t attackerCount = 100;
@@ -22,41 +35,33 @@ public:
 	static constexpr int originHex = leftHex;
 	static constexpr int attackFromHex = leftHex + 3;
 	static constexpr int targetHex = leftHex + 4;
-
-	/// Walks `creature` from `originHex` to `attackFromHex`, strikes the unit on `targetHex`, and
-	/// answers where it ended up.
-	BattleHex walkAndAttack(const CreatureID & creature)
-	{
-		startGame();
-		startBattle();
-
-		CStack * attacker = addStack(BattleSide::ATTACKER, creature, BattleHex(originHex), attackerCount);
-		CStack * defender = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), defenderCount);
-		EXPECT_NE(attacker, nullptr);
-		EXPECT_NE(defender, nullptr);
-
-		// the bonus stops the target retaliating, so the attacker survives to take the return step
-		blockRetaliation(attacker);
-
-		// the return step paths with the unit's remaining movement, which only exists once the
-		// battle has actually started
-		beginCombat();
-
-		const int64_t healthBefore = defender->getAvailableHealth();
-
-		EXPECT_TRUE(attackFrom(attacker, BattleHex(targetHex), BattleHex(attackFromHex)));
-		EXPECT_LT(defender->getAvailableHealth(), healthBefore) << "attack dealt no damage";
-
-		return attacker->getPosition();
-	}
 };
 
-TEST_F(AttackSequenceTest, harpyReturnsToStartingHex)
+TEST_P(AttackSequenceTest, EndsWhereTheCreatureIsSupposedTo)
 {
-	EXPECT_EQ(walkAndAttack(creatureByName("core:harpy")), BattleHex(originHex));
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName(GetParam().creature), BattleHex(originHex), attackerCount);
+	CStack * defender = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), defenderCount);
+
+	// the bonus stops the target retaliating, so the attacker survives to take the return step
+	blockRetaliation(attacker);
+
+	// the return step paths with the unit's remaining movement, which only exists once the
+	// battle has actually started
+	beginCombat();
+
+	const int64_t healthBefore = defender->getAvailableHealth();
+
+	ASSERT_TRUE(attackFrom(attacker, BattleHex(targetHex), BattleHex(attackFromHex)));
+	ASSERT_LT(defender->getAvailableHealth(), healthBefore) << "attack dealt no damage";
+
+	EXPECT_EQ(attacker->getPosition(), BattleHex(GetParam().returns ? originHex : attackFromHex));
 }
 
-TEST_F(AttackSequenceTest, ordinaryAttackerStaysWhereItStruck)
-{
-	EXPECT_EQ(walkAndAttack(creatureByName("core:griffin")), BattleHex(attackFromHex));
-}
+INSTANTIATE_TEST_SUITE_P(Creatures, AttackSequenceTest, ::testing::Values(
+	AttackSequenceCase{"harpyReturnsToStartingHex", "core:harpy", true},
+	AttackSequenceCase{"griffinStaysWhereItStruck", "core:griffin", false}
+),
+	[](const ::testing::TestParamInfo<AttackSequenceCase> & info) { return info.param.name; });

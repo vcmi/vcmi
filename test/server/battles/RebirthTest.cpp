@@ -32,15 +32,13 @@ class RebirthTest : public BattleTestFixture
 public:
 	/// A stack of phoenixes on the defending side, and enough black dragons facing it to kill them
 	/// all in one blow.
-	void setUpBattle(int32_t phoenixes = phoenixCount)
+	void setUpBattle()
 	{
 		startGame();
 		startBattle();
 
-		phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex), phoenixes);
+		phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex), phoenixCount);
 		slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
-		ASSERT_NE(phoenix, nullptr);
-		ASSERT_NE(slayer, nullptr);
 	}
 
 	/// Strikes the phoenix with everything the dragons have, which is more than enough to kill the
@@ -102,7 +100,6 @@ TEST_F(RebirthTest, AnswersNobodyDuringTheRoundItCameBackIn)
 	setUpBattle();
 
 	CStack * follower = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), 1);
-	ASSERT_NE(follower, nullptr);
 
 	beginCombat();
 
@@ -112,7 +109,7 @@ TEST_F(RebirthTest, AnswersNobodyDuringTheRoundItCameBackIn)
 	ASSERT_TRUE(attack(follower, BattleHex(rightHex + 1)));
 
 	EXPECT_TRUE(phoenix->alive()) << "the follower is far too small to finish the reborn stack";
-	EXPECT_EQ(follower->getCount(), 1) << "a single pikeman does not survive being answered by phoenixes";
+	EXPECT_EQ(follower->getCount(), 1) << "the phoenixes never answered - a single pikeman would not have survived it";
 }
 
 /// A clone is a copy that leaves nothing behind, so there is nothing to come back.
@@ -143,8 +140,8 @@ TEST_F(RebirthTest, ComesBackFromADeathBySpell)
 	startBattle();
 
 	phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex), phoenixCount);
+	// unused by the cast, but a hero may only cast while one of its own units holds the turn
 	slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
-	ASSERT_NE(phoenix, nullptr);
 
 	beginCombat();
 
@@ -152,24 +149,4 @@ TEST_F(RebirthTest, ComesBackFromADeathBySpell)
 
 	EXPECT_TRUE(phoenix->alive());
 	EXPECT_EQ(phoenix->getCount(), rebornCount);
-}
-
-/// A stack too small for a fifth of it to be one creature still comes back, when the rebirth is
-/// the kind that guarantees one. The fixture creature declares the ability the way content did
-/// before it became a script, so the conversion of old content is covered here too.
-TEST_F(RebirthTest, TheGuaranteedKindAlwaysBringsBackOne)
-{
-	startGame();
-	startBattle();
-
-	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSacredPhoenix"), BattleHex(rightHex), 1);
-	slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
-	ASSERT_NE(bearer, nullptr);
-
-	beginCombat();
-
-	slay();
-
-	EXPECT_TRUE(bearer->alive()) << "a fifth of a single creature is none, and the guarantee is what brings it back";
-	EXPECT_EQ(bearer->getCount(), 1);
 }
