@@ -169,7 +169,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	}
 	else if(script == "rebirth")
 	{
-		// the sacred phoenix always brings back a creature, however small the share works out to be
+		// sacred phoenix always resurrects at least one creature, whatever the percentage
 		parameters["guaranteed"].Bool() = withoutScope(ability["subtype"].String()) == "rebirthSpecial";
 	}
 	else if(script == "deathStare")

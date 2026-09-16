@@ -2,9 +2,9 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Arrow towers shoot for what their town is worth rather than for what their creature says.
---- The damage is settled once, when the battle is set up, and handed to the tower as a bonus -
---- nothing can change a town's buildings while it is under siege.
+--- Arrow tower damage comes from the buildings of the town it defends instead of from its
+--- creature. Calculated once, when the battle is set up, and granted to the tower as a bonus -
+--- a town's buildings cannot change while it is under siege.
 ---
 --- Parameters:
 ---  keepBase    - damage of the keep in a town with nothing built
@@ -16,8 +16,8 @@ local DEFAULTS = { keepBase = 10, towerBase = 6, perBuilding = 2 }
 --- Buildings that count towards the damage of the towers. Heroes 3 counts the town hall but not
 --- the village hall it replaces, ignores the fort line, and counts a building only once however
 --- often it has been upgraded.
---- Asked by building type rather than by json key, so that a mod town's fort counts for as much as
---- the fort of a core town.
+--- Matched by building type instead of by json key, so that a fort of a mod town counts as much
+--- as a fort of a core town.
 local function countsTowardsDamage(building)
 	local buildingType = building:getBuildingType()
 
@@ -37,8 +37,8 @@ function Script:getTownLevel(town)
 	return level
 end
 
---- Lowest and highest damage of one shot of this tower. The highest is twice the lowest, as it is
---- for every creature whose damage Heroes 3 gives as a single number.
+--- Lowest and highest damage of one shot of this tower. The highest is twice the lowest, as for
+--- every creature whose damage Heroes 3 gives as a single number.
 function Script:getDamageRange(town, turretPart)
 	local level = self:getTownLevel(town)
 	local perBuilding = self.perBuilding or DEFAULTS.perBuilding
@@ -61,7 +61,7 @@ function Script:onBattleSetup(server, battle, unit, other)
 
 	local town = battle:getDefendedTown()
 
-	-- a tower outside a siege has no town to read; its creature's own damage will do
+	-- outside a siege there is no town to read, so the creature's own damage is kept
 	if town == nil then return end
 
 	local minDamage, maxDamage = self:getDamageRange(town, turretPart)

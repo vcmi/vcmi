@@ -275,11 +275,10 @@ function Script:apply(mechanics, server, target)
 	local baseMaxDam = caster:getMaxDamage(false) * count
 	local attack = caster:getAttack(false)
 	local totalDamage, totalKilled = 0, 0
-	--- asked of the engine rather than summed, so that the cap and the units luck does not reach
-	--- are answered for us
+	--- asked of the engine rather than summed, so that the cap and the exceptions apply
 	local luck = caster:getLuck()
 	local isUnluck = luck < 0
-	--- bad luck is rolled on twice the dice good luck is
+	--- bad luck is rolled on twice as many dice as good luck
 	local luckDice = isUnluck and -luck * 2 or luck
 
 	--- TODO: actual damage calculation (probably needs engine support for accuracy)

@@ -2,21 +2,24 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- A stack that dies comes back with a share of the size it started the battle as, once. The share
---- is a percentage of the starting size rather than of what was left, so a stack worn down over
---- several rounds comes back just as strong as one killed outright.
+--- Brings its bearer back once per battle, with a share of the size the stack started as rather
+--- than of what was left of it. Scripted equivalent of the REBIRTH bonus.
+---
+--- Parameters:
+---  val        - share of the starting size of the stack that comes back, in percent
+---  guaranteed - whether at least one creature always comes back, however small the share is
 
---- Effect of the resurrection spell, which is what this is meant to look like.
+-- effect of the resurrection spell, which the ability has always borrowed its visual from
 local ANIMATION = "C01SPE0"
 local SOUND     = "RESURECT"
 
---- Marks the rebirth as used up. Its own bonus rather than the CASTS the ability used to spend,
---- so that a creature that both rebirths and casts spells does not pay for one out of the other.
+-- own bonus rather than the CASTS the ability used to spend, so that a creature that both
+-- rebirths and casts spells does not pay for one out of the other
 local SPENT = "REBIRTH_SPENT"
 
---- Creatures to bring back. The share rarely divides evenly, so the remainder is rolled for -
---- one chance per creature the share fell short of, which is what makes a small stack come back
---- some of the time rather than never.
+--- Creatures to bring back. The share rarely divides evenly, so the remainder is rolled for:
+--- one chance per creature it fell short of, so a small stack comes back some of the time
+--- instead of never.
 function Script:getRebornCount(server, unit, percentage)
 	local baseAmount = unit:getBaseAmount()
 	local exact      = baseAmount * percentage / 100
@@ -32,8 +35,7 @@ function Script:getRebornCount(server, unit, percentage)
 	return count
 end
 
---- A stack that is brought back does not get to answer the attack it died to, nor anything else
---- until its own turn comes round again.
+--- A resurrected stack cannot retaliate until its next turn.
 function Script:spendAnswer(server, battle, unit)
 	server:addUnitBonus(battle, unit, {
 		type       = "NO_RETALIATION",

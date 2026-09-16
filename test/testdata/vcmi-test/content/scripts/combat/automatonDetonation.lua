@@ -61,7 +61,7 @@ function Script:onDeath(server, battle, unit, other, payload)
 	local totalDamage, totalKilled = 0, 0
 
 	for _, target in ipairs(targets) do
-		--- per-target, since a cap on one of them must not follow the blast to the next
+		-- per-target, since a cap on one of them must not follow the blast to the next
 		local damage = explosionDamage
 		local cap = target:getBonusesValue({ type = "DAMAGE_RECEIVED_CAP" })
 		if cap > 0 then

@@ -31,7 +31,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 	int32_t killed = 0;
 	int64_t damageBeforeDefense = 0;
 	int64_t healthBeforeAttack = 0;
-	/// Only the spell hit event fills this in, and the snapshots it points into outlive the payload.
+	/// Snapshot owned by the caster, so it outlives the payload
 	const battle::Unit * unitBefore = nullptr;
 
 	template<typename Serializer>
@@ -42,7 +42,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 		s("killed", killed, "How many of its creatures died.");
 		s("damageBeforeDefense", damageBeforeDefense, "Damage this same blow would have dealt with the defences of the target ignored.");
 		s("healthBeforeAttack", healthBeforeAttack, "Health the unit had left before the attack landed.");
-		s("unitBefore", unitBefore, "The unit as it stood before the spell reached it, which is what tells apart what the spell did from what the unit already was. Only the spell hit event captures one; every other event leaves it nil.");
+		s("unitBefore", unitBefore, "The unit as it stood before the spell reached it, to tell what the spell did from what the unit already was. Only the spell hit event fills it in.");
 	}
 };
 

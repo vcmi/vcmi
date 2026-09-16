@@ -193,7 +193,7 @@ struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient, public scripting:
 struct BattleStackAttacked
 {
 	ui32 stackAttacked = 0;
-	ui32 attackerID = -1; //!< no unit; 0 is a valid unit id, so it cannot stand for "nobody"
+	ui32 attackerID = -1; ///< no unit; 0 is a valid unit id, so it cannot stand for "nobody"
 	ui32 killedAmount = 0;
 	int64_t damageAmount = 0;
 	UnitChanges newState;

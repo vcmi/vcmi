@@ -60,13 +60,13 @@ Returns the creature's defense stat.
 
 ### getLuck
 
-Returns the luck the unit fights with, already clamped to the range the game allows and already answering 0 for a unit luck does not reach, such as an undead one. Prefer this over adding up LUCK bonuses, which sees neither the cap nor the exceptions.
+Returns the luck the unit fights with, capped and with exceptions applied - 0 for a unit luck does not reach, such as an undead one. Prefer this over adding up LUCK bonuses.
 
 - returns `integer`
 
 ### getMorale
 
-Returns the morale the unit fights with, clamped and with the exceptions applied the same way as luck.
+Returns the morale the unit fights with, capped and with exceptions applied the same way as luck.
 
 - returns `integer`
 
@@ -190,7 +190,7 @@ True if the stack can shoot in general, even if out of ammo. See canShoot to che
 
 ### ableToRetaliate
 
-True if the unit would answer a melee attack landing on it right now - it is alive and has a retaliation of this round left. Whether the attacker blocks retaliation is not part of the answer, since that belongs to the attacker rather than to this unit.
+True if the unit is alive and has a retaliation of this round left. Does not account for the attacker blocking retaliation, which belongs to the attacker rather than to this unit.
 
 - returns `boolean`
 

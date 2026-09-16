@@ -80,7 +80,7 @@ void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
 	gh->sendAndApply(pack);
 
-	// every damage that no attack dealt - a spell, a moat, an obstacle, a script - arrives here
+	// damage not dealt by an attack - spell, moat, obstacle or script - goes through this pack
 	gh->battles->noteDeaths(pack.battleID, pack.stacks);
 }
 
