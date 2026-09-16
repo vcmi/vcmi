@@ -2,8 +2,9 @@
 
 #include <gtest/gtest.h>
 
-#include "../../../server/queries/CQuery.h"
 #include "../../../server/battles/BattleProcessor.h"
+#include "../../../server/queries/CQuery.h"
+#include "../../../server/queries/MapQueries.h"
 #include "../../../server/queries/QueriesProcessor.h"
 #include "CGameHandler.h"
 
@@ -11,6 +12,7 @@
 #include "mock/TinyH3MBuilder.h"
 #include "mock/TinyMapGameTest.h"
 
+#include "lib/CPlayerState.h"
 #include "lib/battle/BattleInfo.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGDwelling.h"
@@ -129,6 +131,10 @@ protected:
 	}
 };
 
+class DeferredVictoryLossTest : public TinyMapGameTest
+{
+};
+
 }
 
 TEST_F(QueriesProcessorTest, topQuery_returnsNullWhenPlayerHasNoQueries)
@@ -161,6 +167,37 @@ TEST_F(NeutralDwellingBattleQueryTest, ownedDwellingUsesNeutralBattleSideWithout
 	ASSERT_EQ(attackerQuery->players.size(), 1);
 	EXPECT_EQ(attackerQuery->players.front(), PlayerColor(0));
 	EXPECT_EQ(gh.queries->topQuery(PlayerColor(1)), nullptr);
+}
+
+TEST_F(DeferredVictoryLossTest, heroLevelUpDefersAnotherPlayersLossUntilQueryIsAnswered)
+{
+	const PlayerColor defeatedPlayer(0);
+	const PlayerColor levelUpPlayer(1);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false);
+	builder.playerActive(defeatedPlayer);
+	builder.playerActive(levelUpPlayer);
+	builder.hero(int3(5, 5, 0), HeroTypeID(0), levelUpPlayer);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(levelUpPlayer);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState(), levelUpPlayer);
+	CGameHandler gameHandler(server, gameState());
+
+	HeroLevelUp levelUpDialog;
+	levelUpDialog.player = levelUpPlayer;
+	levelUpDialog.heroId = hero->id;
+	auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(&gameHandler, levelUpDialog, hero);
+	levelUpQuery->setReply(0);
+	gameHandler.queries->addQuery(levelUpQuery);
+
+	gameHandler.checkVictoryLossConditionsForPlayer(defeatedPlayer);
+	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::INGAME);
+
+	gameHandler.queries->popIfTop(levelUpQuery);
+	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::LOSER);
 }
 
 TEST_F(QueriesProcessorTest, popIfTop_removesTopQuery)
