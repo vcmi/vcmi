@@ -10,8 +10,8 @@ Script.__index = Script
 ---  situation - when the ability applies: "melee", "ranged", "rangedDistancePenalty",
 ---              "rangedWallPenalty" or "rangedDistanceAndWallPenalty". A situation this script
 ---              does not know is left to whatever patches are stacked over it
----  spell     - spell cast to kill them. Defaults to death stare, and is what decides the
----              animation, the immunities and the wording of the combat log
+---  spell     - spell cast to kill them. Defaults to death stare, and decides the animation,
+---              the immunities and the wording of the combat log
 
 local SPELL = "core:deathStare"
 
@@ -44,7 +44,7 @@ function Script:rolledKills(server, unit)
 end
 
 --- Creatures the gaze kills in the attack that just happened, or nil when it does not apply to
---- that attack at all. This is the seam a patch overrides to add a situation of its own.
+--- that attack at all. A patch overrides this to add a situation of its own.
 function Script:killsIn(server, battle, unit, other, payload)
 	if (self.situation or "melee") ~= situationOf(battle, unit, other, payload) then return nil end
 
@@ -60,7 +60,7 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 
 	if not killed or killed <= 0 then return end
 
-	-- the spell is what filters out targets immune to the gaze, and what the client animates
+	-- the spell filters out targets immune to the gaze and decides what the client animates
 	local spell = LIBRARY:getSpellByName(self.spell or SPELL)
 
 	server:castSpell(battle, unit, spell, { other }, killed)

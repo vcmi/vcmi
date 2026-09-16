@@ -112,8 +112,8 @@ function Script:hasBonusOfType(present, type)
 	return hasBonusOfType(present, type)
 end
 
---- Value of every bonus of this type the unit carries. Answers 0 without asking the engine when the
---- unit has none, which is the usual case.
+--- Total value of the bonuses of this type the unit carries. Returns 0 without asking the engine
+--- when the unit has none, which is the usual case.
 function Script:getBonusValueOfType(unit, present, type)
 	return getBonusValueOfType(unit, present, type)
 end
@@ -395,8 +395,8 @@ function Script:getCasualties(info, lowDamage, highDamage)
 end
 
 function Script:calculate(battle, info)
-	-- the battle answers the queries that depend on where the attack happens; it rides along with the
-	-- rest of the attack rather than in a global, which a script shared between threads must not have
+	-- battle serves the queries that depend on where the blow happens. Passed along with the rest
+	-- of the attack instead of kept in a global, which a script shared between threads must not use
 	info.battle = battle
 
 	local baseMin, baseMax = self:getBaseDamage(info)
@@ -429,8 +429,8 @@ function Script:calculate(battle, info)
 	return {
 		damage = { min = damageMin, max = damageMax },
 		kills = { min = killsMin, max = killsMax },
-		-- what the hit would have dealt had the target no defences at all, which is what an
-		-- ability reflecting a strike works from
+		-- damage the blow would deal if the target had no defences at all, used by abilities that
+		-- reflect a strike
 		damageBeforeDefense = { min = apply(baseMin, raising), max = apply(baseMax, raising) }
 	}
 end

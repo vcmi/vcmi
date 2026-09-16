@@ -20,12 +20,12 @@ Script.type = "combatScript"
 ---
 --- No event is withheld: the attack handlers fire for a counterattack, for every hit of a
 --- multiple attack, and even when the bearer died while the attack was resolving. Whether that is
---- a reason to do nothing is the script's own call - a reflecting ability answers a lethal hit
---- while dying, while an ability that strikes back must first check `unit:isAlive()`.
+--- a reason to do nothing is the script's own decision - a reflecting ability reacts to a lethal
+--- blow while dying, while an ability that strikes back must first check `unit:isAlive()`.
 
---- The entry of `payload.targets` describing what happened to `unit` itself. A handler is given
---- the whole list so that it can see the full attack or cast; this is how it finds its own share
---- of it. Nil when the event carries no targets at all.
+--- The entry of `payload.targets` describing what happened to `unit` itself. Handlers receive the
+--- whole list so that they can see the full attack or cast; this picks out their own entry.
+--- Nil when the event carries no targets.
 function Script:ownEntry(unit, payload)
 	for _, target in ipairs(payload.targets or {}) do
 		if target.unit and target.unit:unitID() == unit:unitID() then

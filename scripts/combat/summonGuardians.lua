@@ -23,7 +23,7 @@ end
 --- Hexes for guarding a unit with double-wide guardians. Covers all hexes surrounding the guarded
 --- unit with as few stacks as possible: front, back and one per side for a single-hex target; a
 --- wider target needs two per side plus an extra hex in front. Guardians that would land outside
---- the battlefield are dropped, which is what the position checks are for.
+--- the battlefield are dropped by the position checks below.
 function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 	local hexes = {}
 	local x = position:getX()

@@ -403,8 +403,7 @@ void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattl
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
 
-	// a battle that is over announces nothing more, so whatever it noted is dropped rather than left
-	// waiting for a drain that will not come
+	// nothing will announce them once the battle is over
 	actionsProcessor->forgetPendingDeaths(battle.getBattle()->getBattleID());
 }
 

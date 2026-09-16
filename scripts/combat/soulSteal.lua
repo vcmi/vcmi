@@ -34,7 +34,7 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 	if gained <= 0 then return end
 
 	local power = self.permanent and ENUM.HealPower.permanent or ENUM.HealPower.oneBattle
-	-- the log names the stack as it was before it grew
+	-- the log names the stack size from before it grew
 	local stealerCount = unit:getCount()
 	local healed, resurrected = server:healUnit(battle, unit, gained * unit:getMaxHealth(),
 		ENUM.HealLevel.overheal, power)

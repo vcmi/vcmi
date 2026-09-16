@@ -80,7 +80,7 @@ end
 
 --- Updates the current rune level bonuses from oldLevel to targetLevel
 function Script:updateRuneBonuses(server, battle, unit, targetLevel, oldLevel, runeType)
-	--- remove and re-add the counter to keep the icon up-to-date
+	-- remove and re-add the counter to keep the icon up-to-date
 	local runeLevelBonuses = unit:getBonuses({ type = runeType.counterType })
 	server:removeUnitBonuses(battle, unit, runeLevelBonuses)
 	server:addUnitBonus(battle, unit, {

@@ -104,10 +104,10 @@ public:
 	bool move(const CStack * stack, const BattleHex & destination);
 	/// Puts the given stack into a defensive stance.
 	bool defend(const CStack * stack);
-	/// Marks the stack a clone, which is what abilities that must not outlive one look at.
+	/// Marks the stack a clone, as abilities that treat clones differently check for.
 	void makeClone(CStack * stack);
 	/// Casts one of the stack's own abilities the way a creature spellcaster does. An invalid hex
-	/// casts at nothing, which is what an ability aimed at its own bearer wants.
+	/// casts at nothing, as an ability aimed at its own bearer needs.
 	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
 	/// Waits out the current round with every unit defending, leaving the battle in the next one.
 	void endRound();

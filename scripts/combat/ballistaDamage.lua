@@ -2,20 +2,20 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- A war machine shoots for what the hero owning it is worth rather than for what its creature
---- says. The damage is settled once, when the battle is set up, and handed to the machine as a
---- bonus - nothing that feeds it can change while a battle runs, and a bonus is what every window,
---- tooltip and damage roll reads already.
+--- War machine damage is scaled by the attack of the hero owning it instead of by its creature
+--- stats. Calculated once, when the battle is set up, and granted to the machine as a bonus -
+--- nothing it depends on can change during a battle, and every window, tooltip and damage roll
+--- already reads bonuses.
 
---- Points of hero attack the machine profits from. Only what the hero is worth on its own and what
---- it wears counts; what an army, a spell or a terrain adds does not reach the machine.
+--- Hero attack the machine profits from: only the hero's own skill and its equipped artifacts.
+--- Attack granted by an army, a spell or the terrain does not count.
 function Script:getHeroAttack(unit)
 	return unit:getBonusesValue({ type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.artifact })
 		+ unit:getBonusesValue({ type = "PRIMARY_SKILL", subtype = "attack", sourceType = ENUM.BonusSource.heroBaseSkill })
 end
 
---- Lowest and highest damage one creature of the machine deals, from what it deals on its own.
---- Overriding this is how a mod changes the formula; what is granted below is only the difference.
+--- Lowest and highest damage of one creature of the machine, from its own damage. A mod changes
+--- the formula by overriding this; only the difference is granted as a bonus below.
 function Script:getDamageRange(unit, minDamage, maxDamage)
 	local heroAttack = self:getHeroAttack(unit)
 

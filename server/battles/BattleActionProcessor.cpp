@@ -748,8 +748,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	logGlobal->trace("Making action: %s", ba.toString());
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
 
-	// whatever was reached outside an action - the start of a round, the setup of the battle - is
-	// not part of this one
+	// units notified outside an action, e.g. on round start or battle setup, are not part of it
 	actionParticipants.clear();
 
 	// for these events client does not expects StartAction/EndAction wrapper
@@ -765,16 +764,16 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
 
-	// before the action is announced as over, so that a unit the reactions to a death bring back
-	// or strike down is in its final state by then
+	// before ACTION_FINISHED, so that units resurrected or killed by death reactions are in their
+	// final state by then
 	flushPendingDeaths(battle);
 
-	// last of all, so that a unit the action killed on its way out - walking into a moat, stepping
-	// back onto a mine - is already dead by the time it is told that the action is over
+	// after the obstacle triggers above, so that a unit killed on its way out - moat, or a mine on
+	// the return step - is already dead here
 	processActionFinishedTriggers(battle, stack);
 
-	// the end of the action is sent once everything the action caused is - the client batches the
-	// animations of an action between its start and its end, and waits for them there
+	// sent after everything the action caused: client batches animations between StartAction and
+	// EndAction and waits for them there
 	if (!ba.isBattleEndAction())
 	{
 		EndAction endAction;
@@ -801,20 +800,19 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	if (start == dest)
 		return { 0, false, false };
 
-	// announced here rather than at every caller, so that every move the unit really makes is
-	// announced. Before the path is measured, so that a reaction granting speed still widens the
-	// move it is answering
+	// fired here instead of at every caller, so that every actual move is covered. Before the path
+	// is measured, so that a reaction granting speed still extends this move
 	processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, currentUnit, nullptr);
 
-	// a reaction may have killed the unit, replaced it or displaced it, and may have freed or taken
-	// hexes, so nothing read before it is reused
+	// a reaction may have killed, replaced or displaced the unit and changed hex occupation,
+	// so nothing read before it is reused
 	currentUnit = battle.battleGetStackByID(stack);
 
-	// a unit the reaction removed has nothing left to move and nobody left to tell that it is over
+	// unit removed by a reaction has nothing to move and nothing to notify
 	if(!currentUnit)
 		return { 0, false, false };
 
-	// closes the pair the trigger above opened - every path out from here goes through it
+	// pairs with the trigger above - every exit from here goes through it
 	auto moveEnded = [&](const MovementResult & result)
 	{
 		processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, currentUnit, nullptr);
@@ -1596,8 +1594,8 @@ void BattleActionProcessor::runPredefinedReaction(const CBattleInfoCallback & ba
 
 void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other)
 {
-	// noted for every unit the event is offered to rather than only for those that react to it -
-	// a script may implement the end of the action and nothing else, and still has to be told
+	// recorded for every unit the event is offered to, not only for those that react to it -
+	// a script may handle ACTION_FINISHED alone and still has to be notified
 	if(event != CombatEventType::ACTION_FINISHED && !vstd::contains(actionParticipants, self->unitId()))
 		actionParticipants.push_back(self->unitId());
 
@@ -1695,7 +1693,7 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 
 void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor)
 {
-	// taken rather than read, so that collecting the reactions below does not grow the list it walks
+	// taken, so that collecting the reactions below does not grow the list it walks
 	const std::vector<uint32_t> participants = std::exchange(actionParticipants, {});
 
 	std::vector<PendingTrigger> pending;
@@ -1704,15 +1702,14 @@ void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallb
 	{
 		const battle::Unit * unit = battle.battleGetUnitByID(participant);
 
-		// a unit the action removed from the field is past caring that it is over
+		// unit removed from the battlefield during the action is not notified
 		if(unit)
 			collectEventTriggers(battle, pending, CombatEventType::ACTION_FINISHED, unit, actor);
 	}
 
 	runEventTriggers(battle, pending, CombatEventPayload());
 
-	// a reaction to the end of the action may have killed something of its own, which still belongs
-	// to the action it answered
+	// reactions to the end of the action may kill units, which still belong to this action
 	flushPendingDeaths(battle);
 }
 
@@ -1720,7 +1717,7 @@ void BattleActionProcessor::noteDeaths(const BattleID & battleID, const std::vec
 {
 	for(const BattleStackAttacked & casualty : casualties)
 	{
-		// a hit that took nobody killed nobody, which is also what keeps a second hit on a corpse
+		// a hit that killed no creatures is not a death - this also keeps a second hit on a corpse
 		// from reporting the same death twice
 		if(!casualty.killed() || casualty.killedAmount == 0)
 			continue;
@@ -1735,9 +1732,8 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 
 	while(true)
 	{
-		// taken rather than read, so that the deaths these reactions cause form the next batch
-		// instead of growing the one being announced. Deaths of another battle stay where they are
-		// for that battle to announce
+		// deaths caused by these reactions form the next batch instead of growing this one;
+		// deaths of another battle are left for that battle to announce
 		std::vector<PendingDeath> batch;
 		std::ranges::copy_if(pendingDeaths, std::back_inserter(batch), [battleID](const PendingDeath & death){ return death.battle == battleID; });
 
@@ -1766,9 +1762,8 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 			collectEventTriggers(battle, pending, CombatEventType::UNIT_DEATH, unit, battle.battleGetUnitByID(death.killer));
 		}
 
-		// one dispatch for the whole batch, so that priority orders the reactions of different
-		// units against each other - which is what decides whether a death is undone before
-		// something else answers it
+		// one dispatch for the whole batch, so that priority orders reactions of different units
+		// against each other, e.g. rebirth before anything reacting to a death that stands
 		runEventTriggers(battle, pending, payload);
 	}
 }
@@ -1793,8 +1788,8 @@ void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & 
 		target.unit = battle.battleGetUnitByID(before->unitId());
 		target.healthBeforeAttack = before->getAvailableHealth();
 
-		// a spell that healed or raised its target reports no damage rather than a negative amount;
-		// what it did is read from the state the target was in before instead
+		// healing or resurrection reports no damage instead of a negative amount; the effect is
+		// read from the snapshot instead
 		if(target.unit)
 		{
 			target.damage = std::max<int64_t>(0, target.healthBeforeAttack - target.unit->getAvailableHealth());
