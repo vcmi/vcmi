@@ -20,11 +20,19 @@ namespace NK2AI
 
 class Nullkiller;
 
-struct SlotInfo
+struct DLL_LINKAGE SlotInfo
 {
 	const CCreature * creature;
 	int count;
 	uint64_t power;
+};
+
+/// Result of selecting an army. strengthGain accounts for morale; sourceStrength is raw AI value retained from source.
+struct DLL_LINKAGE BestArmyInfo
+{
+	std::vector<SlotInfo> army;
+	uint64_t strengthGain = 0;
+	uint64_t sourceStrength = 0;
 };
 
 struct ArmyUpgradeInfo
@@ -34,7 +42,6 @@ struct ArmyUpgradeInfo
 	TResources upgradeCost;
 
 	void addArmyToBuy(std::vector<SlotInfo> army);
-	void addArmyToGet(std::vector<SlotInfo> army);
 };
 
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
@@ -49,14 +56,13 @@ public:
 		const TResources & availableResources,
 		uint8_t turn = 0) const = 0;
 
-	virtual ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const = 0;
-	virtual ui64 howManyReinforcementsCanGet(
+	virtual BestArmyInfo getBestArmyInfo(
 		const IBonusBearer * armyCarrier,
 		const CCreatureSet * target,
 		const CCreatureSet * source,
 		const TerrainId & armyTerrain) const = 0;
-
-	virtual std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const = 0;
+	/// Returns expected army strength including morale effects.
+	virtual uint64_t evaluateArmyStrength(const IBonusBearer * armyCarrier, const CCreatureSet * army) const = 0;
 	virtual std::vector<SlotInfo>::iterator getBestUnitForScout(std::vector<SlotInfo> & army, const TerrainId & armyTerrain) const = 0;
 	virtual std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const = 0;
 	virtual std::vector<SlotInfo> toSlotInfo(std::vector<creInfo> creatures) const = 0;
@@ -97,9 +103,12 @@ public:
 		const TResources & availableResources,
 		uint8_t turn = 0) const override;
 
-	ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const override;
-	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const override;
-	std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const override;
+	BestArmyInfo getBestArmyInfo(
+		const IBonusBearer * armyCarrier,
+		const CCreatureSet * target,
+		const CCreatureSet * source,
+		const TerrainId & armyTerrain) const override;
+	uint64_t evaluateArmyStrength(const IBonusBearer * armyCarrier, const CCreatureSet * army) const override;
 	std::vector<SlotInfo>::iterator getBestUnitForScout(std::vector<SlotInfo> & army, const TerrainId & armyTerrain) const override;
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<SlotInfo> toSlotInfo(std::vector<creInfo> creatures) const override;
@@ -120,6 +129,7 @@ public:
 		const TResources & availableResources) const override;
 
 private:
+	uint64_t evaluateArmyStrength(const IBonusBearer * armyCarrier, const std::vector<SlotInfo> & army) const;
 	std::vector<SlotInfo> convertToSlots(const CCreatureSet * army) const;
 	std::vector<StackUpgradeInfo> getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const;
 	std::vector<StackUpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;

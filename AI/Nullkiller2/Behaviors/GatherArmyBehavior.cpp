@@ -14,7 +14,6 @@
 #include "../Goals/Composition.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../Goals/RecruitHero.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/HeroExchange.h"
 #include "CaptureObjectsBehavior.h"
@@ -285,28 +284,14 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		if(!upgrader->getGarrisonHero() && (hasMainAround || aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero) == HeroRole::MAIN))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
-			armyToGetOrBuy.addArmyToGet(aiNk->armyManager->getBestArmy(path.targetHero, path.heroArmy, upgrader->getUpperArmy(), TerrainId::NONE));
-			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
+			const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(
+				path.targetHero, path.heroArmy, upgrader->getUpperArmy(), TerrainId::NONE);
+			armyToGetOrBuy.resultingArmy = bestArmyInfo.army;
+			armyToGetOrBuy.upgradeValue = static_cast<int64_t>(bestArmyInfo.strengthGain);
 
 			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
 			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;
 			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
-
-			if(!upgrade.upgradeValue && armyToGetOrBuy.upgradeValue > 20000 // TODO: Mircea: Move to constant
-			   && aiNk->heroManager->canRecruitHero(upgrader)
-			   && path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
-			{
-				for(const auto * const hero : aiNk->cc->getAvailableHeroes(upgrader))
-				{
-					auto scoutReinforcement = aiNk->armyManager->howManyReinforcementsCanGet(hero, upgrader);
-					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue && aiNk->getFreeGold() > 20000 // TODO: Mircea: Move to constant
-					   && !aiNk->buildAnalyzer->isGoldPressureOverMax())
-					{
-						Composition recruitHero;
-						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(upgrader, hero));
-					}
-				}
-			}
 		}
 
 		auto armyValue = static_cast<float>(upgrade.upgradeValue) / path.getHeroStrength();
