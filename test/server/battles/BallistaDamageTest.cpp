@@ -19,6 +19,17 @@ namespace
 
 constexpr int32_t targetCount = 100;
 
+/// One scenario: the attack of the hero owning the ballista, attack granted to that hero by
+/// anything that is neither itself nor an artifact, and what the machine's own damage is multiplied
+/// by as a result.
+struct BallistaCase
+{
+	const char * name;
+	int heroAttack;
+	int attackFromElsewhere;
+	int multiplier;
+};
+
 }
 
 /// A ballista shoots for what the hero owning it is worth, and what it is worth is a bonus it is
@@ -62,28 +73,31 @@ public:
 	}
 };
 
-/// Every point of the hero's attack is worth another ballista's worth of damage.
-TEST_F(BallistaDamageTest, DamageScalesWithTheAttackOfItsHero)
+/// Every point of the attack the hero is worth on its own or wears is another ballista's worth of
+/// damage. Attack from anywhere else - an army-wide bonus, a spell, the terrain - does not reach
+/// the machine, and a hero with no attack at all leaves it at what it deals on its own.
+class BallistaDamageScalingTest : public BallistaDamageTest, public ::testing::WithParamInterface<BallistaCase>
 {
-	constexpr int heroAttack = 7;
+};
 
-	const CStack * ballista = setUpBallista(heroAttack);
+TEST_P(BallistaDamageScalingTest, ScalesByTheAttackOfItsHeroAlone)
+{
+	const CStack * ballista = setUpBallista(GetParam().heroAttack, GetParam().attackFromElsewhere);
 	ASSERT_NE(ballista, nullptr);
 
-	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false) * (heroAttack + 1));
-	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true) * (heroAttack + 1));
+	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false) * GetParam().multiplier);
+	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true) * GetParam().multiplier);
 }
 
-/// A hero with no attack at all leaves the machine at what it deals on its own - and, since the
-/// scaling is a bonus now rather than a step of the calculation, does not double it either.
-TEST_F(BallistaDamageTest, AHeroWithoutAttackChangesNothing)
-{
-	const CStack * ballista = setUpBallista(0);
-	ASSERT_NE(ballista, nullptr);
-
-	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false));
-	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true));
-}
+INSTANTIATE_TEST_SUITE_P(Scenarios, BallistaDamageScalingTest, ::testing::Values(
+	BallistaCase{"everyAttackPointOfTheHeroCounts", 7, 0, 8},
+	// since the scaling is a bonus now rather than a step of the calculation, a hero without
+	// attack must leave the damage alone rather than double or erase it
+	BallistaCase{"noAttackLeavesTheMachineAlone", 0, 0, 1},
+	// granted before the battle is laid out, which is when the machine settles what it is worth
+	BallistaCase{"attackFromElsewhereIsIgnored", 0, 10, 1}
+),
+	[](const ::testing::TestParamInfo<BallistaCase> & info) { return info.param.name; });
 
 /// Regression guard for the reason this was moved out of the client: what the windows show and what
 /// the shot deals are now the same number, whatever the formula behind it is.
@@ -95,7 +109,6 @@ TEST_F(BallistaDamageTest, TheShownDamageIsTheDamageItDeals)
 	ASSERT_NE(ballista, nullptr);
 
 	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:hornedDemon"), BattleHex(rightHex), targetCount);
-	ASSERT_NE(target, nullptr);
 
 	// levelled up to the attack of the ballista, so that the attack-against-defense factor is 1 and
 	// what is left of the estimate is the damage itself
@@ -106,16 +119,4 @@ TEST_F(BallistaDamageTest, TheShownDamageIsTheDamageItDeals)
 
 	EXPECT_EQ(estimate.damage.min, ballista->getMinDamage(true));
 	EXPECT_EQ(estimate.damage.max, ballista->getMaxDamage(true));
-}
-
-/// Only what the hero is worth on its own and what it wears counts. Attack from anywhere else -
-/// an army-wide bonus, a spell, the terrain - does not reach the machine. The bonus is granted
-/// before the battle is laid out, which is when the machine settles what it is worth.
-TEST_F(BallistaDamageTest, OnlyTheAttackOfTheHeroItselfCounts)
-{
-	const CStack * ballista = setUpBallista(0, 10);
-	ASSERT_NE(ballista, nullptr);
-
-	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false)) << "the bonus comes from neither the hero itself nor an artifact";
-	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true)) << "the bonus comes from neither the hero itself nor an artifact";
 }

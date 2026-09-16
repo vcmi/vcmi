@@ -221,7 +221,10 @@ CStack * BattleTestFixture::addStack(BattleSide side, const CreatureID & creatur
 	info.save(pack.changedStacks.back().data);
 	gameHandler->sendAndApply(pack);
 
-	return battle()->getStack(info.id);
+	CStack * stack = battle()->getStack(info.id);
+	EXPECT_NE(stack, nullptr) << "the unit did not reach the battlefield";
+
+	return stack;
 }
 
 void BattleTestFixture::giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position)
@@ -352,10 +355,38 @@ void BattleTestFixture::forceMaximumDamage(CStack * stack)
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ALWAYS_MAXIMUM_DAMAGE, BonusSource::OTHER, 0, BonusSourceID()));
 }
 
+static std::optional<si32> identifierByName(const std::string & category, const std::string & name)
+{
+	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), category, name);
+	EXPECT_TRUE(identifier.has_value()) << "unknown " << category << " " << name;
+
+	return identifier;
+}
+
 CreatureID BattleTestFixture::creatureByName(const std::string & name)
 {
-	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", name);
-	EXPECT_TRUE(identifier.has_value()) << "unknown creature " << name;
+	auto identifier = identifierByName("creature", name);
 
 	return identifier ? CreatureID(*identifier) : CreatureID::NONE;
+}
+
+SpellID BattleTestFixture::spellByName(const std::string & name)
+{
+	auto identifier = identifierByName("spell", name);
+
+	return identifier ? SpellID(*identifier) : SpellID::NONE;
+}
+
+SecondarySkill BattleTestFixture::skillByName(const std::string & name)
+{
+	auto identifier = identifierByName("secondarySkill", name);
+
+	return identifier ? SecondarySkill(*identifier) : SecondarySkill::NONE;
+}
+
+ScriptID BattleTestFixture::scriptByName(const std::string & name)
+{
+	auto identifier = identifierByName("script", name);
+
+	return identifier ? ScriptID(*identifier) : ScriptID();
 }

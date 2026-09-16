@@ -84,6 +84,7 @@ public:
 
 	BattleInfo * battle() const;
 
+	/// Places a stack on the battlefield, failing the test if it could not be placed.
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
 	void giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
 
@@ -118,8 +119,11 @@ public:
 	/// rather than cast, because some of the creatures that need it are undead and refuse the spell.
 	static void forceMaximumDamage(CStack * stack);
 
-	/// Creature declared by a mod, by its full identifier - "vcmi-test:testSoulStealer".
+	/// Entity declared by a mod, by its full identifier - "vcmi-test:testSoulStealer".
 	static CreatureID creatureByName(const std::string & name);
+	static SpellID spellByName(const std::string & name);
+	static SecondarySkill skillByName(const std::string & name);
+	static ScriptID scriptByName(const std::string & name);
 
 	/// Shared rather than unique so that tests need not see the definition of the game handler
 	/// only in order to destroy one.

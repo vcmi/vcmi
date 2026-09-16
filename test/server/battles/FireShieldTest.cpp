@@ -69,8 +69,6 @@ TEST_P(FireShieldTest, reflectsExpectedDamage)
 
 	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(scenario.shieldedCreature), BattleHex(leftHex), shieldedCount);
 	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(scenario.attackingCreature), BattleHex(rightHex), attackingCount);
-	ASSERT_NE(shielded, nullptr);
-	ASSERT_NE(attacking, nullptr);
 
 	// retaliation would injure the attacker as well, hiding the reflected damage
 	blockRetaliation(attacking);
@@ -181,8 +179,6 @@ TEST_F(FireShieldRollTest, reflectsTheBlowThatLandedRatherThanTheBestPossibleRol
 	// affects the damage, so the blow deals exactly its undefended damage
 	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(hornedDemon), BattleHex(leftHex), 5000);
 	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(hornedDemon), BattleHex(rightHex), 1000);
-	ASSERT_NE(shielded, nullptr);
-	ASSERT_NE(attacking, nullptr);
 
 	blockRetaliation(attacking);
 	ASSERT_TRUE(castOn(attackerSideHero, SpellID::FIRE_SHIELD, shielded));
