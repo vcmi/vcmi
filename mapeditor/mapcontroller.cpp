@@ -19,6 +19,7 @@
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapObjects/Quest.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
@@ -467,6 +468,15 @@ bool MapController::discardObject(int level) const
 
 void MapController::createObject(int level, std::shared_ptr<CGObjectInstance> obj) const
 {
+	//A freshly created quest source owns no quest yet - map loaders add one while reading
+	//the object. The inspector edits the active quest in place, so give a newly placed
+	//seer hut or quest guard a quest to edit instead of letting getQuest() throw.
+	if(auto * questSource = dynamic_cast<QuestSource *>(obj.get()))
+	{
+		if(questSource->allQuests().empty())
+			questSource->addQuest();
+	}
+
 	_scenes[level]->selectionObjectsView.newObject = obj;
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 	_scenes[level]->selectionObjectsView.redraw();
