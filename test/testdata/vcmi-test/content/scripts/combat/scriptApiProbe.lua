@@ -12,17 +12,6 @@ local function record(server, battle, unit, bonusType, value)
 	}, true)
 end
 
---- The entry of the payload target list describing what happened to this unit.
-local function ownEntry(unit, payload)
-	for _, target in ipairs(payload.targets or {}) do
-		if target.unit and target.unit:unitID() == unit:unitID() then
-			return target
-		end
-	end
-
-	return nil
-end
-
 --- Luck and morale as the engine answers them, which is not the sum of the bonuses granting them.
 function Script:onBattleStart(server, battle, unit, other)
 	record(server, battle, unit, "PROBE_LUCK", unit:getLuck())
@@ -57,7 +46,7 @@ end
 function Script:onSpellHit(server, battle, unit, other, payload)
 	record(server, battle, unit, "PROBE_SPELL_HITS", 1)
 
-	if not payload.caster then
+	if not other then
 		record(server, battle, unit, "PROBE_HERO_CASTS", 1)
 	end
 
@@ -65,7 +54,7 @@ function Script:onSpellHit(server, battle, unit, other, payload)
 		record(server, battle, unit, "PROBE_SPELL_NAMED", 1)
 	end
 
-	local entry = ownEntry(unit, payload)
+	local entry = self:ownEntry(unit, payload)
 	if entry and entry.unitBefore then
 		record(server, battle, unit, "PROBE_HEALTH_BEFORE", entry.unitBefore:getAvailableHealth())
 		record(server, battle, unit, "PROBE_SPELL_DAMAGE", entry.damage)

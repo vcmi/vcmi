@@ -60,9 +60,12 @@ class BattleActionProcessor : boost::noncopyable
 
 	/// One death waiting to be announced. Everything it holds comes from the pack that reported the
 	/// death, so nothing about the unit has to be captured before it dies - `killed` is how many of
-	/// its creatures the lethal hit took, which for a death is the whole stack.
+	/// its creatures the lethal hit took, which is whatever was still standing when it landed.
+	/// The battle is part of it because unit ids only mean anything within one, and two battles
+	/// can be in progress at once.
 	struct PendingDeath
 	{
+		BattleID battle;
 		uint32_t unit;
 		uint32_t killer;
 		uint32_t killed;
@@ -73,14 +76,17 @@ class BattleActionProcessor : boost::noncopyable
 	/// where they happened, so that no script ever starts while another is running.
 	std::vector<PendingDeath> pendingDeaths;
 
+	/// Stands in for a unit id where there is no unit, the way the attack packs spell it
+	static constexpr uint32_t noUnit = -1;
+
 	/// One reaction to a combat event that is about to run. Which script it is and how it is ordered
 	/// are decided when it is collected, so that running it is nothing but a dispatch. Units are kept
 	/// by id rather than by pointer because a reaction running before it may remove either from the battle.
 	struct PendingTrigger
 	{
 		CombatEventType event;
-		int32_t self;
-		int32_t other; ///< -1 when the event has no unit on the other side
+		uint32_t self;
+		uint32_t other; ///< `noUnit` when the event has no unit on the other side
 		/// Order in which reactions to the same event run. Bonus order is alphabetical by ability
 		/// name, which would let a mod decide what runs first by renaming an ability, so scripts that
 		/// care declare a priority instead. It orders the attacker's reactions against its victims'.
@@ -128,7 +134,7 @@ class BattleActionProcessor : boost::noncopyable
 
 	/// Runs one melee attack to its end: first strike, every blow the attacker is entitled to, the
 	/// retaliation, and the expiry of bonuses that last for the sequence.
-	void performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance);
+	void performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance, bool longWeaponAttack);
 
 	/// Rolls what is decided before any damage: luck, and the abilities that double it by chance.
 	void rollAttackFlags(const CBattleInfoCallback & battle, const CStack * attacker, BattleAttack & bat) const;
@@ -185,12 +191,15 @@ public:
 
 	/// Notes every death the given casualties report, to be announced once the action is over.
 	/// Clones are included - a clone leaves no body behind, but it still died.
-	void noteDeaths(const std::vector<BattleStackAttacked> & casualties);
+	void noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties);
 
 	/// Announces every death collected since the last drain, and keeps going while the reactions
 	/// produce further ones - which is what lets one death set off the next. Reactions to one batch
 	/// all run before any of the next, so a script never starts in the middle of another.
 	void flushPendingDeaths(const CBattleInfoCallback & battle);
+
+	/// Drops the deaths of a battle that is over, which nothing is going to announce any more.
+	void forgetPendingDeaths(const BattleID & battleID);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);

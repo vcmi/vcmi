@@ -557,14 +557,6 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 	for (auto & attackedInfo : attackedInfos)
 	{
-		if (attackedInfo.rebirth)
-		{
-			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
-				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, AudioPath::builtin("RESURECT"), attackedInfo.defender->getPosition());
-				addNewAnim(new ResurrectionAnimation(owner, attackedInfo.defender));
-			});
-		}
-
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){

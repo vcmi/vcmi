@@ -1196,12 +1196,18 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### REBIRTH
 
-Affected stack will resurrect after death
+DEPRECATED. Configs and saves declaring it are converted to the [rebirth](../Lua/Combat_Event_Scripts.md#rebirth) combat script on load, so existing content keeps working, but new content should declare the script directly:
 
-- val - percent of total stack HP restored, not rounded. For instance, when 4 Phoenixes with Rebirth chance of 20% die, there is 80% chance than one Phoenix will rise.
-- subtype:
-  - rebirthRegular: Phoenix, as described above.
-  - rebirthSpecial: At least one unit will always rise (Sacred Phoenix)
+```json
+{
+	"type" : "COMBAT_EVENT_TRIGGER",
+	"subtype" : "rebirth",
+	"val" : 20,
+	"addInfo" : { "guaranteed" : true }
+}
+```
+
+`guaranteed` replaces the old subtype: `rebirthSpecial` becomes true, `rebirthRegular` false.
 
 ### ENCHANTED
 

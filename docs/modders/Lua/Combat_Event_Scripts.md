@@ -94,11 +94,10 @@ Parameters:
   - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first hit and `1` for the second of a double attack. A counterattack is its own side's attack `0`
   - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` this same hit would have dealt with the target's defences ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
   - `spell` - the spell that caused this event, for `onUnitSpellcast` and `onSpellHit`. Nil for every other event, so an ability that reacts to one particular spell tests it rather than assuming which one fired
-  - `caster` - for `onSpellHit`, the unit that cast the spell. Nil when a hero cast it, which is how the two are told apart
 
   For `onSpellHit` every entry also holds `unitBefore` - the target as it stood before the spell reached it. Comparing it against the unit as it is now is what says what the spell did rather than what the unit already was; every other event leaves it nil.
 
-  A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`. `target.unit` is nil for a unit the event removed from the battlefield, so a handler that walks the list has to check it before using it.
+  A handler receives the whole target list rather than only its own entry, so it can see the full attack; `self:ownEntry(unit, payload)` answers its own entry of it. `target.unit` is nil for a unit the event removed from the battlefield, so a handler that walks the list itself has to check it before using it.
 
 Handlers:
 
@@ -109,7 +108,7 @@ Handlers:
 - `onWait` - called when `unit` waits
 - `onDefend` - called when `unit` defends
 - `onBeforeMove` - called before `unit` starts movement, whether that movement is the whole action, the walk of a walk-and-attack or of an adjacent spellcaster, or the step back afterwards. An action that reaches its target from where the unit already stands moves nowhere and fires neither move event
-- `onAfterMove` - called after `unit` ends movement. For a walk-and-attack this is still before the blows of that attack are counted, so an extra attack granted here is thrown by that same attack. The step back a unit with `RETURN_AFTER_STRIKE` takes is a move of its own and fires both move events again, so such an attack reports two moves rather than one
+- `onAfterMove` - called after `unit` ends movement, and once for every `onBeforeMove` - a move the game then refuses, because the reaction to it left the destination out of reach, is still a move that ended. For a walk-and-attack this is still before the blows of that attack are counted, so an extra attack granted here is thrown by that same attack. The step back a unit with `RETURN_AFTER_STRIKE` takes is a move of its own and fires both move events again, so such an attack reports two moves rather than one
 - `onUnitSpellcast` - called after `unit` casts a spell
 - `onSpellHit` - called on every unit a spell reached, once the cast is over. Only a spell someone chose to cast is reported - a hero spell, a unit spellcaster, an enchanter. A moat, a spell-like attack, a spell an obstacle triggered and a spell a script applied itself are not something a unit was hit by, and reach nobody. `other` is the casting unit, nil when a hero cast it
 - `onDeath` - called on a unit that died, once the action that killed it is over rather than at the moment it fell. Every death of that action is announced together, and the reactions may kill further units, which are announced in their turn until none are left - so one death can set off the next. A clone is announced like any other unit. `other` is whatever killed it, nil when a spell, a moat or a script did. `payload.targets` holds one entry per death of the batch, whose `killed` is how many creatures the lethal hit took - the size of the stack as it died
@@ -140,8 +139,6 @@ Every combat event script declares a `priority` in its `scripts` entry. Scripts 
 
 Priority also decides what answers a death first. A script that undoes a death - bringing the stack back - declares a priority below 100, so that it runs before anything reacting to a death that stands; one that reacts to a death declares 100 or above.
 
-Four of the scripts below exist only so that content declaring the bonus they replaced keeps working. They reproduce the H3 and WoG behaviour they were converted from, quirks included, and will not grow options beyond what that behaviour needs. A mod that wants an ability of that kind should ship its own script rather than try to configure these.
-
 ### ballistaDamage
 
 Scales what a war machine deals by the attack of the hero owning it - only what that hero is worth on its own and what it wears, not what an army or a spell adds. The scaling is settled once, when the battle is laid out, and granted as a `CREATURE_DAMAGE` bonus, so that every window, tooltip and damage roll reads one number rather than each working it out again.
@@ -157,6 +154,8 @@ Parameters:
 - `keepBase` - damage of the keep in a town with nothing built
 - `towerBase` - damage of the two lesser towers in a town with nothing built
 - `perBuilding` - damage each building adds to the keep; the lesser towers get half of it
+
+The scripts below exist only so that content declaring the bonus they replaced keeps working. They reproduce the H3 and WoG behaviour they were converted from, quirks included, and will not grow options beyond what that behaviour needs. A mod that wants an ability of that kind should ship its own script rather than try to configure these.
 
 ### rebirth
 

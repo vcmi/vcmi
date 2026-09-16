@@ -759,10 +759,6 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 	if(healthDelta < 0)
 	{
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
-	}
-
-	if(healthDelta < 0)
-	{
 		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
 	}
 

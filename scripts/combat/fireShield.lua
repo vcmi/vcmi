@@ -29,17 +29,6 @@ function Script:isImmune(attacker)
 		or immuneBy("SPELL_DAMAGE_REDUCTION", function(bonus) return bonus:getVal() >= 100 end)
 end
 
---- The entry of the payload describing the hit this unit took.
-function Script:ownEntry(unit, payload)
-	for _, target in ipairs(payload.targets or {}) do
-		if target.unit and target.unit:unitID() == unit:unitID() then
-			return target
-		end
-	end
-
-	return nil
-end
-
 function Script:onAfterAttacked(server, battle, unit, other, payload)
 	if payload.ranged then return end
 	if not other or not other:isAlive() then return end

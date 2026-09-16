@@ -402,6 +402,10 @@ void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattl
 {
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
+
+	// a battle that is over announces nothing more, so whatever it noted is dropped rather than left
+	// waiting for a drain that will not come
+	actionsProcessor->forgetPendingDeaths(battle.getBattle()->getBattleID());
 }
 
 bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
@@ -422,9 +426,9 @@ void BattleProcessor::spellHasHit(const CBattleInfoCallback & battle, const spel
 	actionsProcessor->processSpellHitTriggers(battle, spell, casterUnit, unitsBefore);
 }
 
-void BattleProcessor::unitsInjured(const std::vector<BattleStackAttacked> & casualties)
+void BattleProcessor::noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties)
 {
-	actionsProcessor->noteDeaths(casualties);
+	actionsProcessor->noteDeaths(battleID, casualties);
 }
 
 void BattleProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)

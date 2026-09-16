@@ -21,7 +21,8 @@
 		"implements" : "combatEvent",
 		"script" : "combat/automatonDetonation",
 		"patches" : [ ],
-		"priority" : 0,
+		// answers a death rather than undoing one, so it runs after anything that brings a stack back
+		"priority" : 100,
 		"schema" : {
 			"properties" : { },
 			"additionalProperties" : false

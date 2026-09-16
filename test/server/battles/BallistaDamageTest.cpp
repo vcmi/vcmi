@@ -17,7 +17,6 @@
 namespace
 {
 
-constexpr int32_t ballistaCount = 1;
 constexpr int32_t targetCount = 100;
 
 }
@@ -36,12 +35,17 @@ public:
 	}
 
 	/// Sets up a battle in which the attacking hero owns a ballista, and answers that ballista.
-	CStack * setUpBallista(int heroAttack)
+	/// `attackFromElsewhere` is attack granted to the hero by something that is neither itself nor
+	/// an artifact, which the machine is not supposed to profit from.
+	CStack * setUpBallista(int heroAttack, int attackFromElsewhere = 0)
 	{
 		startGame();
 
 		attackerSideHero->setPrimarySkill(PrimarySkill::ATTACK, heroAttack, ChangeValueMode::ABSOLUTE);
 		giveArtifact(attackerSideHero, ArtifactID(ArtifactID::BALLISTA), ArtifactPosition::MACH1);
+
+		if(attackFromElsewhere != 0)
+			attackerSideHero->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, attackFromElsewhere, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK)));
 
 		startBattle();
 
@@ -100,18 +104,18 @@ TEST_F(BallistaDamageTest, TheShownDamageIsTheDamageItDeals)
 
 	const auto estimate = battle()->calculateDmgRange(BattleAttackInfo(ballista, target, 0, true));
 
-	EXPECT_EQ(estimate.damage.min, ballista->getMinDamage(true) * ballistaCount);
-	EXPECT_EQ(estimate.damage.max, ballista->getMaxDamage(true) * ballistaCount);
+	EXPECT_EQ(estimate.damage.min, ballista->getMinDamage(true));
+	EXPECT_EQ(estimate.damage.max, ballista->getMaxDamage(true));
 }
 
 /// Only what the hero is worth on its own and what it wears counts. Attack from anywhere else -
-/// an army-wide bonus, a spell, the terrain - does not reach the machine.
+/// an army-wide bonus, a spell, the terrain - does not reach the machine. The bonus is granted
+/// before the battle is laid out, which is when the machine settles what it is worth.
 TEST_F(BallistaDamageTest, OnlyTheAttackOfTheHeroItselfCounts)
 {
-	const CStack * ballista = setUpBallista(0);
+	const CStack * ballista = setUpBallista(0, 10);
 	ASSERT_NE(ballista, nullptr);
 
-	attackerSideHero->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 10, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK)));
-
 	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false)) << "the bonus comes from neither the hero itself nor an artifact";
+	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true)) << "the bonus comes from neither the hero itself nor an artifact";
 }

@@ -423,6 +423,17 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		break;
 	}
 
+	// captured before anything of the cast lands - the effects below, and the countering effects
+	// stripped right after - so that whatever reacts to the spell can tell what the spell did to a
+	// unit from what that unit already was
+	std::vector<std::shared_ptr<const battle::CUnitState>> unitsBeforeCast;
+	if(sc.activeCast)
+	{
+		unitsBeforeCast.reserve(affectedUnits.size());
+		for(const auto * unit : affectedUnits)
+			unitsBeforeCast.push_back(unit->acquireState());
+	}
+
 	doRemoveEffects(server, affectedUnits, std::bind(&BattleSpellMechanics::counteringSelector, this, _1));
 
 	for(auto & unit : affectedUnits)
@@ -432,16 +443,6 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		server->apply(castDescription);
 
 	server->apply(sc);
-
-	// captured before the effects land, so that whatever reacts to the spell can tell what the
-	// spell did to a unit from what that unit already was
-	std::vector<std::shared_ptr<const battle::CUnitState>> unitsBeforeCast;
-	if(sc.activeCast)
-	{
-		unitsBeforeCast.reserve(affectedUnits.size());
-		for(const auto * unit : affectedUnits)
-			unitsBeforeCast.push_back(unit->acquireState());
-	}
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
@@ -467,7 +468,13 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	// one. Only a cast someone chose to make is reported - a moat, a spell-like attack or a script
 	// applying a spell of its own is not something a unit was hit by
 	if(sc.activeCast)
-		server->spellHasHit(*battle(), *owner, dynamic_cast<const battle::Unit *>(caster), unitsBeforeCast);
+	{
+		// the pack already carries who cast it, told apart from a hero by the same field the client
+		// reads - a hero answers an id of its own kind, which would collide with a unit id
+		const auto * casterUnit = sc.castByHero ? nullptr : battle()->battleGetUnitByID(sc.casterStack);
+
+		server->spellHasHit(*battle(), *owner, casterUnit, unitsBeforeCast);
+	}
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)

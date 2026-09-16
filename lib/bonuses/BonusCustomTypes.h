@@ -44,9 +44,6 @@ public:
 	static const BonusCustomSubtype heroMovementLand; // 1
 	static const BonusCustomSubtype heroMovementSea; // 0
 
-	static const BonusCustomSubtype rebirthRegular; // 0
-	static const BonusCustomSubtype rebirthSpecial; // 1
-
 	static const BonusCustomSubtype visionsMonsters; // 0
 	static const BonusCustomSubtype visionsHeroes; // 1
 	static const BonusCustomSubtype visionsTowns; // 2

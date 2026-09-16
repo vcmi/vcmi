@@ -15,7 +15,6 @@
 #include "queries/QueriesProcessor.h"
 #include "queries/CQuery.h"
 
-#include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/IBattleInfoCallback.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/Unit.h"
@@ -82,7 +81,7 @@ void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 	gh->sendAndApply(pack);
 
 	// every damage that no attack dealt - a spell, a moat, an obstacle, a script - arrives here
-	gh->battles->unitsInjured(pack.stacks);
+	gh->battles->noteDeaths(pack.battleID, pack.stacks);
 }
 
 void ServerSpellCastEnvironment::apply(BattleObstaclesChanged & pack)
@@ -100,13 +99,9 @@ const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 	return &gh->gameInfo();
 }
 
-void ServerSpellCastEnvironment::spellHasHit(const IBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+void ServerSpellCastEnvironment::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
 {
-	// only a battle can produce a spell hit, and every battle cast arrives through this environment
-	const auto * battleCallback = dynamic_cast<const CBattleInfoCallback *>(&battle);
-
-	if(battleCallback)
-		gh->battles->spellHasHit(*battleCallback, spell, casterUnit, unitsBefore);
+	gh->battles->spellHasHit(battle, spell, casterUnit, unitsBefore);
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const

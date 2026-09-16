@@ -23,4 +23,17 @@ Script.type = "combatScript"
 --- a reason to do nothing is the script's own call - a reflecting ability answers a lethal hit
 --- while dying, while an ability that strikes back must first check `unit:isAlive()`.
 
+--- The entry of `payload.targets` describing what happened to `unit` itself. A handler is given
+--- the whole list so that it can see the full attack or cast; this is how it finds its own share
+--- of it. Nil when the event carries no targets at all.
+function Script:ownEntry(unit, payload)
+	for _, target in ipairs(payload.targets or {}) do
+		if target.unit and target.unit:unitID() == unit:unitID() then
+			return target
+		end
+	end
+
+	return nil
+end
+
 return Script

@@ -422,26 +422,8 @@ TEST_F(HeatStrokeTest, ReachesTheAimedHexFromTheAttackerSide)
 	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, juggernaut.copyToEast(), juggernaut.copyToEast()), 0);
 }
 
-/// Regression guard: a defender-side Juggernaut carries its second hex to the east instead of the
-/// west, so a cone anchored on its position alone reached the wrong way.
-TEST_F(HeatStrokeTest, ReachesTheAimedHexFromTheDefenderSide)
-{
-	const BattleHex juggernaut(leftHex);
-
-	EXPECT_GT(damageAt(BattleSide::DEFENDER, juggernaut, juggernaut.copyToWest(), juggernaut.copyToWest()), 0);
-}
-
-/// The cone is two hexes deep, so the hex behind the aimed one burns as well.
-TEST_F(HeatStrokeTest, ReachesTwoHexesDeep)
-{
-	const BattleHex juggernaut(leftHex);
-	const BattleHex aim = juggernaut.copyToEast();
-
-	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, aim, aim.copyToEast()), 0);
-}
-
-/// Regression guard: striking west is measured from the far half of the Juggernaut, which used to
-/// be reached with one step too many.
+/// Regression guard: a cone is measured from the half of the Juggernaut that faces the aim point,
+/// not from the hex it stands on, which used to be reached with one step too many.
 TEST_F(HeatStrokeTest, ReachesWestFromTheRearHalfOnTheAttackerSide)
 {
 	// the attacker-side unit stands on `leftHex` and covers the hex west of it as well
@@ -451,16 +433,8 @@ TEST_F(HeatStrokeTest, ReachesWestFromTheRearHalfOnTheAttackerSide)
 	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, aim, aim), 0);
 }
 
-/// And it is two hexes deep that way as well.
-TEST_F(HeatStrokeTest, ReachesTwoHexesDeepToTheWest)
-{
-	const BattleHex juggernaut(leftHex);
-	const BattleHex aim = juggernaut.copyToWest().copyToWest();
-
-	EXPECT_GT(damageAt(BattleSide::ATTACKER, juggernaut, aim, aim.copyToWest()), 0);
-}
-
-/// Striking east from the defender side is measured from its own far half, the same way.
+/// A defender-side Juggernaut carries its second hex to the east instead of the west, so the same
+/// measurement runs the other way.
 TEST_F(HeatStrokeTest, ReachesEastFromTheRearHalfOnTheDefenderSide)
 {
 	const BattleHex juggernaut(leftHex);

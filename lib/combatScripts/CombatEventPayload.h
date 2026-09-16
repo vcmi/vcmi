@@ -15,7 +15,6 @@
 namespace battle
 {
 class Unit;
-class CUnitState;
 }
 
 namespace spells
@@ -32,8 +31,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 	int32_t killed = 0;
 	int64_t damageBeforeDefense = 0;
 	int64_t healthBeforeAttack = 0;
-	/// Owns whatever `unitBefore` points at, and is not handed to scripts itself.
-	std::shared_ptr<const battle::CUnitState> snapshot;
+	/// Only the spell hit event fills this in, and the snapshots it points into outlive the payload.
 	const battle::Unit * unitBefore = nullptr;
 
 	template<typename Serializer>
@@ -54,7 +52,6 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 {
 	std::vector<AttackedTarget> targets;
 	const spells::Spell * spell = nullptr;
-	const battle::Unit * caster = nullptr;
 	bool ranged = false;
 	bool isCounter = false;
 	int32_t attackIndex = 0;
@@ -64,7 +61,6 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 	{
 		s("targets",     targets,     "Units hit by the attack or spell that caused this event. Before the attack, only their identity and remaining health are known.");
 		s("spell",       spell,       "Spell that caused this event, for the spellcast and spell hit events. Nil for every other event.");
-		s("caster",      caster,      "Unit that cast the spell of a spell hit event. Nil when a hero cast it, which is how the two are told apart.");
 		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
 		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
 		s("attackIndex", attackIndex, "Zero-based index of this attack among those its own side makes in this action, so the second hit of a double attack is 1. A counterattack is its side's attack 0.");

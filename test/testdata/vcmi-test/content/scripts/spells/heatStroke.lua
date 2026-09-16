@@ -114,7 +114,11 @@ local function getPatternFromDirection(casterPos, direction)
 	return hexes
 end
 
---- Thank you, ChatGPT! I left all its comments in as a tribute to its service.
+--- LuaJIT is Lua 5.1, where the two-argument arctangent is `math.atan2`; 5.3 dropped it in favour
+--- of a two-argument `math.atan`. Either build has to work.
+local atan2 = math.atan2 or math.atan
+
+--- Which of the eight directions the aim point lies in, as seen from the caster.
 local function getHexDirection(castX, castY, destX, destY)
 	local dx = destX - castX
 	local dy = destY - castY
@@ -128,7 +132,7 @@ local function getHexDirection(castX, castY, destX, destY)
 		dx = dx + 0.5
 	end
 
-	local angle = math.deg(math.atan2(dy, dx))
+	local angle = math.deg(atan2(dy, dx))
 	if angle < 0 then
 		angle = angle + 360
 	end
