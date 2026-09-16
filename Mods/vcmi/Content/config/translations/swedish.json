@@ -274,7 +274,7 @@
 	"spellSchool.core.water.name": "Vatten",
 	"vcmi.adventureMap.confirmQuickLoadGame": "Är ni säkra på att ni vill ladda snabbsparad speldata?",
 	"vcmi.adventureMap.confirmRestartGame": "Är ni säker på att ni vill starta om spelet?",
-	"vcmi.adventureMap.dateFormat": "%MÅNAD: %MÅNADSNUMMER, %VECKA: %VECKONUMMER, %DAG: %DAGSNUMMER",
+	"vcmi.adventureMap.dateFormat": "%MONTH: %MONTHNUMBER, %WEEK: %WEEKNUMBER, %DAY: %DAYNUMBER",
 	"vcmi.adventureMap.disambark.hover": "Stig av luftskeppet",
 	"vcmi.adventureMap.disembark.help": "{Kliv av luftskepp}\n\nHjälten kliver av luftskeppet och landar på nästa ruta.",
 	"vcmi.adventureMap.disembark.hover": "Kliv av luftskepp",
