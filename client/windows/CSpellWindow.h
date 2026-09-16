@@ -79,7 +79,7 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<CAnimImage> schoolPicture;
 	std::shared_ptr<CPicture> schoolPictureCustom;
 
-	std::array<std::shared_ptr<SpellArea>, 24> spellAreas;
+	std::array<std::shared_ptr<SpellArea>, 40> spellAreas;
 	std::shared_ptr<CLabel> mana;
 	std::shared_ptr<CGStatusBar> statusBar;
 
@@ -95,6 +95,8 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<VideoWidgetOnce> video;
 
 	bool isBigSpellbook;
+	int spellbookColumnsPerPageHalf;
+	int spellbookRowsPerPage;
 	int spellsPerPage;
 	int offL;
 	int offR;
