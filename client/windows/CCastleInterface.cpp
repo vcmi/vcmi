@@ -118,6 +118,17 @@ static UpgradableSlotsResult getUpgradableSlots(const CArmedInstance *obj)
 	return UpgradableSlotsResult { hasCreaturesToUpgrade, !upgradeInfos.empty(), slotInfosToDelete.empty(), costs, upgradeInfos };
 }
 
+static std::string getUpgradeAllConfirmationTextID(const UpgradableSlotsResult & upgradableSlots)
+{
+	if(!upgradableSlots.canAffordAll)
+		return "vcmi.townWindow.upgradeAll.notAllUpgradable";
+
+	if(upgradableSlots.totalCosts.empty())
+		return "vcmi.upgrade.freeConfirm";
+
+	return "core.genrltxt.207";
+}
+
 static void upgradeAllCreatures(const CArmedInstance *obj, const UpgradableSlotsResult & upgradableSlots)
 {
 	if(!upgradableSlots.canAffordAny)
@@ -129,13 +140,13 @@ static void upgradeAllCreatures(const CArmedInstance *obj, const UpgradableSlots
 	std::vector<std::shared_ptr<CComponent>> resComps;
 	for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
-	if(resComps.empty())
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, static_cast<GameResID>(GameResID::GOLD), 0)); // add at least gold, when there are no costs
-	resComps.back()->newLine = true;
+	// Free upgrades have no resource components, so only add a separator when costs are present.
+	if(!resComps.empty())
+		resComps.back()->newLine = true;
 	for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->getCount()));
 
-	std::string textID = upgradableSlots.canAffordAll ? "core.genrltxt.207" : "vcmi.townWindow.upgradeAll.notAllUpgradable";
+	const std::string textID = getUpgradeAllConfirmationTextID(upgradableSlots);
 
 	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate(textID), [upgradableSlots, obj](){
 		for(auto & upgradeInfo : upgradableSlots.upgradeInfos)

@@ -402,7 +402,10 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{
-					GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
+					const std::string textID = totalCost.empty()
+						? "vcmi.upgrade.freeConfirm"
+						: "core.genrltxt.207";
+					GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate(textID), onUpgrade, nullptr, resComps);
 				}
 				else
 				{
