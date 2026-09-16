@@ -14,17 +14,13 @@ function Script:getAffectedUnits(battle, unit)
 	local hexes = unit:getSurroundingHexes()
 
 	for i = 1, hexes:size() do
-		local hex = hexes:at(i)
-		local targetUnit = battle:getUnitByPos(hex, true)
-		if targetUnit then
-			local id = targetUnit:unitID()
+		local targetUnit = battle:getUnitByPos(hexes:at(i), true)
 
-			if not seenUnits[id] then
-				seenUnits[id] = true
+		if targetUnit and not seenUnits[targetUnit:unitID()] then
+			seenUnits[targetUnit:unitID()] = true
 
-				if self:isEligible(unit, targetUnit) then
-					table.insert(affectedUnits, targetUnit)
-				end
+			if self:isEligible(unit, targetUnit) then
+				table.insert(affectedUnits, targetUnit)
 			end
 		end
 	end
@@ -37,8 +33,7 @@ function Script:getExplosionDamage(unit, killed)
 	local baseDamage = 90 + 5 * killed
 	local specialtyPercent = unit:getBonusesValue({ type = "AUTOMATON_EXPLOSION_DAMAGE" })
 
-	baseDamage = math.ceil((baseDamage * (100 + specialtyPercent)) / 100)
-	return baseDamage > 0 and baseDamage or 1
+	return math.max(math.ceil((baseDamage * (100 + specialtyPercent)) / 100), 1)
 end
 
 --- Plays the detonation death animation of 'unit' and damages all surrounding targets.

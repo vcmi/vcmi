@@ -15,11 +15,7 @@ local function bankedStrikes(unit)
 end
 
 function Script:setStrikes(server, battle, unit, count)
-	local banked = bankedStrikes(unit)
-
-	if banked:size() > 0 then
-		server:removeUnitBonuses(battle, unit, banked)
-	end
+	server:removeUnitBonuses(battle, unit, bankedStrikes(unit))
 
 	if count > 0 then
 		server:addUnitBonus(battle, unit, {
@@ -32,8 +28,11 @@ function Script:setStrikes(server, battle, unit, count)
 	end
 end
 
---- Consumes every corpse under the head hex of `unit`, each one worth one extra strike.
-function Script:devourCorpses(server, battle, unit)
+--- Only a move of the unit's own feeds it. A walk-and-attack announces its walk like any other,
+--- and does so before the number of blows is settled, so a corpse eaten on the way in is already
+--- worth a strike of the attack it walked into. Every corpse under the head hex is consumed, each
+--- one worth one extra strike.
+function Script:onAfterMove(server, battle, unit, other, payload)
 	local headHex = unit:getPosition()
 	local corpses = battle:getUnitsIf(function(target)
 		return target:isDead() and not target:isGhost() and target:coversPos(headHex)
@@ -49,13 +48,6 @@ function Script:devourCorpses(server, battle, unit)
 
 	self:setStrikes(server, battle, unit, bankedStrikes(unit):totalValue() + #corpses)
 	server:refreshBattleUnits(battle)
-end
-
---- Only a move of the unit's own feeds it. A walk-and-attack announces its walk like any other,
---- and does so before the number of blows is settled, so a corpse eaten on the way in is already
---- worth a strike of the attack it walked into.
-function Script:onAfterMove(server, battle, unit, other, payload)
-	self:devourCorpses(server, battle, unit)
 end
 
 --- One banked strike pays for one extra blow. A blow never thrown, because the target died first,
