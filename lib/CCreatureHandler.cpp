@@ -1088,7 +1088,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
 				b.type = BonusType::UNUSED_REBIRTH;
-				b.subtype = BonusCustomSubtype::rebirthRegular;
 				b.val = 20; //arbitrary value
 				break;
 			case 'R':

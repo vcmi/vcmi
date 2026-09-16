@@ -943,7 +943,6 @@ void CPlayerInterface::battleStacksAttacked(const BattleID & battleID, const std
 		info.spellEffect    = SpellID::NONE;
 		info.indirectAttack = ranged;
 		info.killed         = elem.killed();
-		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
 
 		if (elem.isSpell())

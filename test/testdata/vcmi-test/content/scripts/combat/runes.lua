@@ -74,19 +74,8 @@ local PENDING = "RUNE_LEVEL_PENDING"
 
 --- Returns both hero-granted and Yeti-ability granted current rune levels
 function Script:getCurrentRuneLevels(unit)
-	local runeLevelBonuses = unit:getBonuses({}):filter(function(b)
-		local bType = b:getType()
-		return bType == "RUNE_LEVEL_COUNTER" or bType == "YETI_RUNE_LEVEL_COUNTER"
-	end)
-
-	local heroRuneLevel = 	runeLevelBonuses:filter(function(b)
-								return b:getType() == "RUNE_LEVEL_COUNTER"
-							end):totalValue()
-	local yetiRuneLevel = 	runeLevelBonuses:filter(function(b)
-								return b:getType() == "YETI_RUNE_LEVEL_COUNTER"
-							end):totalValue()
-
-	return heroRuneLevel, yetiRuneLevel
+	return unit:getBonusesValue({ type = RUNE_TYPES.hero.counterType }),
+	       unit:getBonusesValue({ type = RUNE_TYPES.yeti.counterType })
 end
 
 --- Updates the current rune level bonuses from oldLevel to targetLevel
@@ -292,11 +281,10 @@ end
 function Script:onSpellHit(server, battle, unit, other, payload)
 	if other then return end
 
-	for _, target in ipairs(payload.targets or {}) do
-		if target.unit and target.unit:unitID() == unit:unitID() and target.damage > 0 then
-			self:record(server, battle, unit, GAIN_HIT)
-			return
-		end
+	local entry = self:ownEntry(unit, payload)
+
+	if entry and entry.damage > 0 then
+		self:record(server, battle, unit, GAIN_HIT)
 	end
 end
 
@@ -316,18 +304,9 @@ function Script:onBattleStart(server, battle, unit, other)
 	local cap = self.isYeti and 9 or unit:getBonusesValue({ type = "RUNE_LEVEL_CAP" })
 	if cap == 0 then return end
 
-	local targetCounterType = self.isYeti and "YETI_RUNE_LEVEL_COUNTER" or "RUNE_LEVEL_COUNTER"
-	local bonusList = unit:getBonuses({}):filter(function(b)
-		local bType = b:getType()
-		return bType == "STARTING_RUNE_LEVEL" or bType == targetCounterType
-	end)
-
-	local startLevel 	=	bonusList:filter(function(b)
-								return b:getType() == "STARTING_RUNE_LEVEL"
-							end):totalValue()
-	local currentLevel	=	bonusList:filter(function(b)
-								return b:getType() == targetCounterType
-							end):totalValue()
+	local targetCounterType = self.isYeti and RUNE_TYPES.yeti.counterType or RUNE_TYPES.hero.counterType
+	local startLevel = unit:getBonusesValue({ type = "STARTING_RUNE_LEVEL" })
+	local currentLevel = unit:getBonusesValue({ type = targetCounterType })
 
 	if math.min(startLevel, cap) > currentLevel then
 		self:processAltar(server, battle, unit, startLevel)
@@ -348,6 +327,8 @@ function Script:describe(server, battle, unit, newLevel)
 			})
 		end
 	else
+		-- the two counter bonuses double as the singular and plural wording of this line - which
+		-- of the two rune levels was gained does not change what the log says
 		local count = unit:getCount()
 		server:appendLog(battle, {
 			append         = { count == 1 and "core.bonus.RUNE_LEVEL_COUNTER.description" or "core.bonus.YETI_RUNE_LEVEL_COUNTER.description" },
