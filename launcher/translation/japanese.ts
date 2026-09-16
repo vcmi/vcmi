@@ -623,7 +623,7 @@ Process successfully downloaded files?</source>
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="125"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>Off</source>
         <translation>オフ</translation>
     </message>
@@ -633,22 +633,22 @@ Process successfully downloaded files?</source>
         <translation>人工知能</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="589"/>
         <source>Interface Scaling</source>
         <translation>インターフェーススケーリング</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1298"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
         <source>Neutral AI in battles</source>
         <translation>戦闘における中立的なAI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="874"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
         <source>Enemy AI in battles</source>
         <translation>戦闘における敵AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="948"/>
         <source>Additional repository</source>
         <translation>追加リポジトリ</translation>
     </message>
@@ -663,7 +663,7 @@ Process successfully downloaded files?</source>
         <translation>オンラインロビーのポート</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
         <source>Autocombat AI in battles</source>
         <translation>戦闘におけるオートバトルAI</translation>
     </message>
@@ -673,24 +673,24 @@ Process successfully downloaded files?</source>
         <translation>スティックの感度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1210"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1247"/>
         <source>Automatic (Linear)</source>
         <translation>自動（リニア）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="717"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="754"/>
         <source>Haptic Feedback</source>
         <translation>ハプティックフィードバック</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="845"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
         <source>Software Cursor</source>
         <translation>ソフトウェアカーソル</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="858"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="675"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="895"/>
         <source>Automatic</source>
         <translation>自動</translation>
     </message>
@@ -700,7 +700,7 @@ Process successfully downloaded files?</source>
         <translation>モッドの検証</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1348"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1385"/>
         <source>Config editor</source>
         <translation>設定エディタ</translation>
     </message>
@@ -710,22 +710,22 @@ Process successfully downloaded files?</source>
         <translation>エディタを開く</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="503"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="508"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
         <source>xBRZ x2</source>
         <translation>xBRZ x2</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="513"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>xBRZ x3</source>
         <translation>xBRZ x3</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="518"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
         <source>xBRZ x4</source>
         <translation>xBRZ x4</translation>
     </message>
@@ -735,22 +735,22 @@ Process successfully downloaded files?</source>
         <translation>フル</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="881"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="918"/>
         <source>Allow portrait mode</source>
         <translation>ポートレートモードを許可</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1002"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1039"/>
         <source>Use scalable fonts</source>
         <translation>スケーラブルフォントを使用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1305"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Online Lobby address</source>
         <translation>オンラインロビーのアドレス</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
         <source>Handle back as right mouse button</source>
         <translation>戻るを右クリックとして扱う</translation>
     </message>
@@ -760,17 +760,17 @@ Process successfully downloaded files?</source>
         <translation>カーソルのスケーリング</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="924"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="961"/>
         <source>Scalable</source>
         <translation>スケーラブル</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="583"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="620"/>
         <source>Miscellaneous</source>
         <translation>その他</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1406"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -792,12 +792,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>フォントスケーリング（実験的）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="983"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
         <source>Original</source>
         <translation>オリジナル</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="707"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="744"/>
         <source>Upscaling Filter</source>
         <translation>アップスケーリングフィルター</translation>
     </message>
@@ -817,42 +817,62 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>完全なモッド抽出</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
+        <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
+        <source>xBRZ x2 + Sharpen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
+        <source>xBRZ x3 + Sharpen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
+        <source>xBRZ x4 + Sharpen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
         <source>Show Status in Discord</source>
         <translation>ディスコードでステータスを表示する</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="669"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="706"/>
         <source>Use Relative Pointer Mode</source>
         <translation>相対ポインタモードを使用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1185"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
         <source>Nearest</source>
         <translation>最寄り</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
         <source>Linear</source>
         <translation>線形</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1245"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
         <source>Input - Touchscreen</source>
         <translation>入力 - タッチスクリーン</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1513"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1550"/>
         <source>Save Before Visit</source>
         <translation>訪問前に保存</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="792"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="829"/>
         <source>Adventure Map Enemies</source>
         <translation>アドベンチャーマップの敵</translation>
     </message>
@@ -872,27 +892,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>ネットワーク</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="952"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
         <source>Audio</source>
         <translation>オーディオ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Relative Pointer Speed</source>
         <translation>相対ポインタースピード</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="904"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
         <source>Music Volume</source>
         <translation>音楽の音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1315"/>
         <source>Ignore SSL errors</source>
         <translation>SSLエラーを無視する</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1230"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1267"/>
         <source>Input - Mouse</source>
         <translation>入力 - マウス</translation>
     </message>
@@ -902,37 +922,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>長押しの期間</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1341"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
         <source>Controller Click Tolerance</source>
         <translation>コントローラーのクリック許容値</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="648"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
         <source>Touch Tap Tolerance</source>
         <translation>タッチタップの許容範囲</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1175"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1212"/>
         <source>Input - Controller</source>
         <translation>入力 - コントローラー</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1271"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1308"/>
         <source>Sound Volume</source>
         <translation>音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1419"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1456"/>
         <source>Windowed</source>
         <translation>ウィンドウ表示</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1424"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1461"/>
         <source>Borderless fullscreen</source>
         <translation>ボーダーレスフルスクリーン</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
         <source>Exclusive fullscreen</source>
         <translation>排他的全画面</translation>
     </message>
@@ -941,7 +961,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">自動保存の制限 (0 = オフ)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="655"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="692"/>
         <source>Downscaling Filter</source>
         <translation>ダウンサンプリングフィルター</translation>
     </message>
@@ -955,12 +975,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">自動保存の接頭辞</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="724"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="761"/>
         <source>Mouse Click Tolerance</source>
         <translation>マウスクリックの許容範囲</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1099"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1136"/>
         <source>Sticks Acceleration</source>
         <translation>スティックの加速度</translation>
     </message>
@@ -979,17 +999,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>デフォルトリポジトリ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1192"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1229"/>
         <source>Renderer</source>
         <translation>レンダラー</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="126"/>
         <source>On</source>
         <translation>オン</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1218"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
         <source>Reserved screen area</source>
         <translation>予約された画面領域</translation>
     </message>
@@ -1004,7 +1024,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>起動時にチェック</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1156"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
         <source>Fullscreen</source>
         <translation>全画面表示</translation>
     </message>
@@ -1019,7 +1039,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>VCMI 言語</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="815"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
         <source>Resolution</source>
         <translation>解像度</translation>
     </message>
@@ -1034,7 +1054,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>垂直同期</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
         <source>Display index</source>
         <translation>表示インデックス</translation>
     </message>
@@ -1044,27 +1064,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>ネットワークポート</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="967"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Video</source>
         <translation>ビデオ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="940"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="977"/>
         <source>Show intro</source>
         <translation>イントロを表示</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="134"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="137"/>
         <source>StupidAI (deprecated)</source>
         <translation type="unfinished">StupidAI（非推奨）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="141"/>
         <source>BattleAI (default, recommended)</source>
         <translation type="unfinished">BattleAI（既定、推奨）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
         <source>MMAI (experimental)</source>
         <translation type="unfinished">MMAI（実験的）</translation>
     </message>
@@ -1073,37 +1093,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="obsolete">Nullkiller（Nullkiller2 に置き換え）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="158"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation type="unfinished">Nullkiller2（既定、推奨）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="165"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="168"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation type="unfinished">EmptyAI - 有効なAIライブラリが見つかりません！</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="757"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
         <source>Active</source>
         <translation>アクティブ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="762"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
         <source>Disabled</source>
         <translation>無効</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
         <source>Enable</source>
         <translation>有効にする</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="774"/>
         <source>Not Installed</source>
         <translation>インストールされていません</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="775"/>
         <source>Install</source>
         <translation>インストール</translation>
     </message>
@@ -1266,7 +1286,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">VCMIチームによって移植されたファン制作の『Heroes III』拡張パック「Horn of the Abyss」の互換バージョンをインストールしてください</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="798"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>VCMI Extras</source>
         <translation type="unfinished">VCMI Extras</translation>
     </message>
@@ -1275,12 +1295,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">ファンメイドのHeroes III拡張「In The Wake of Gods」の互換性のあるバージョンをインストール</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="815"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
         <translation>9つの標準都市それぞれに1つの代替ユニットが追加され、さらに新しい中立クリーチャー、クリーチャーバンク、スキル、呪文が追加されるなど、ゲームプレイを拡張する機能満載の拡張パック</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="820"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
         <translation>地下世界へと降り立ち、VCMIのために作られた、キノコ、石、ルーン魔法が闇の中で繁栄する新勢力「ケースメイト」を発見しよう</translation>
     </message>
@@ -1293,12 +1313,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">ランダムマップのためのより良いインターフェイスや戦闘での選択可能なアクションなど、さまざまなインターフェイス改善を提供するモッドをインストールします</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="818"/>
         <source>Tides of War</source>
         <translation type="unfinished">Tides of War</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="823"/>
         <source>Fallen of the Depth</source>
         <translation type="unfinished">Fallen of the Depth</translation>
     </message>
@@ -1377,7 +1397,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation>戻る</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="804"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="808"/>
         <source>Horn of the Abyss</source>
         <translation>奈落の角笛</translation>
     </message>
@@ -1387,7 +1407,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation>ヒーローズIII 翻訳</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="813"/>
         <source>In The Wake of Gods</source>
         <translation>神々の目覚めに</translation>
     </message>
@@ -1402,38 +1422,38 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation>VCMIフォルダーにデータをコピーしますか？</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="456"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="460"/>
         <source>GOG file (*.*)</source>
         <translation>GOGファイル（*.*）</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="457"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="461"/>
         <source>File selection</source>
         <translation>ファイル選択</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="468"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="677"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="472"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>GOG installer</source>
         <translation>GOG インストーラー</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="561"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">Heroes III: HDエディションのファイルはVCMIではサポートされていません。
 Heroes III: 完全版またはHeroes III: 死の影のディレクトリを選択してください。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="563"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">不明またはサポートされていないHeroes IIIバージョンが検出されました。
 Heroes III: Complete Edition または Heroes III: Shadow of Death がインストールされているディレクトリを選択してください。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="484"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="690"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="694"/>
         <source>GOG data</source>
         <translation>GOGデータ</translation>
     </message>
@@ -1443,128 +1463,128 @@ Heroes III: Complete Edition または Heroes III: Shadow of Death がインス�
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="400"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="404"/>
         <source>Failed to open file: %1</source>
         <translation>ファイルを開くことに失敗しました: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="420"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="446"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="424"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation>%1 ファイルを選択する必要があります！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="428"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>不明なインストーラーが選択されました。
 オフライン版GOGインストーラーを選択してください。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="440"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="444"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation>GOG Galaxyインストーラーを選択しました。このファイルにはゲーム本体は含まれていません。代わりにオフラインバックアップゲームインストーラーをダウンロードしてください。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation>オフラインGOGインストーラー（.exe）を選択してください</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="478"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="680"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">無効なファイルが選択されました</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="489"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation>オフラインGOGインストーラーデータファイルを選択してください：%1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="505"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="693"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="697"/>
         <source>Invalid data file</source>
         <translation>無効なデータファイル</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="600"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="755"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="604"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="759"/>
         <source>Importing Heroes III data...</source>
         <translation>Heroes IIIのデータをインポートしています...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="639"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="643"/>
         <source>Preparing installer...</source>
         <translation>インストーラーを準備しています...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="702"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="706"/>
         <source>Extracting installer...</source>
         <translation>インストーラーを解凍しています...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="739"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
         <source>Extracting error!</source>
         <translation>抽出エラー！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>Hash error!</source>
         <translation>ハッシュエラー！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="751"/>
         <source>No Heroes III data!</source>
         <translation>ヒーローズIIIのデータがありません!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="751"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>選択したファイルにはHeroes IIIのデータが含まれていません!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="772"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>Scanning selected folder...</source>
         <translation>選択したフォルダーをスキャンしています...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="799"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="805"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="810"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
         <source>Tears of Ashan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="825"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="558"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>選択したディレクトリに有効なHeroes IIIデータが検出されませんでした。インストールされたHeroes IIIデータのディレクトリを選択してください。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="525"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="569"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="573"/>
         <source>Heroes III data not found!</source>
         <translation>Heroes IIIのデータが見つかりません！</translation>
     </message>
@@ -1572,27 +1592,37 @@ Please select the directory with installed Heroes III data.</source>
 <context>
     <name>HdExtractor</name>
     <message>
-        <location filename="../modManager/hdextractor.cpp" line="38"/>
+        <location filename="../modManager/hdextractor.cpp" line="42"/>
+        <source>HD Edition installation found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/hdextractor.cpp" line="42"/>
+        <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/hdextractor.cpp" line="49"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
         <translation type="unfinished">HD Edition のディレクトリを選択（Steam フォルダー）</translation>
     </message>
     <message>
-        <location filename="../modManager/hdextractor.cpp" line="46"/>
+        <location filename="../modManager/hdextractor.cpp" line="58"/>
         <source>Invalid folder</source>
         <translation type="unfinished">無効なフォルダー</translation>
     </message>
     <message>
-        <location filename="../modManager/hdextractor.cpp" line="46"/>
+        <location filename="../modManager/hdextractor.cpp" line="58"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
         <translation type="unfinished">選択したフォルダーに HOMM3 2.0.exe がありません！HD Edition のインストールフォルダーを選択してください。</translation>
     </message>
     <message>
-        <location filename="../modManager/hdextractor.cpp" line="98"/>
+        <location filename="../modManager/hdextractor.cpp" line="110"/>
         <source>Extraction error</source>
         <translation type="unfinished">展開エラー</translation>
     </message>
     <message>
-        <location filename="../modManager/hdextractor.cpp" line="98"/>
+        <location filename="../modManager/hdextractor.cpp" line="110"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
         <translation type="unfinished">MOD を削除して再試行してください！ファイル %1 を %2 にコピーできませんでした</translation>
     </message>

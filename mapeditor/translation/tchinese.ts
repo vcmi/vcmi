@@ -409,7 +409,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="529"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI地圖編輯器</translation>
     </message>
@@ -715,7 +715,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1591"/>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Select map layer type</source>
         <translation>選擇地圖層級類型</translation>
     </message>
@@ -727,16 +727,16 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1531"/>
-        <location filename="../mainwindow.cpp" line="1546"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
+        <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1440"/>
-        <location filename="../mainwindow.cpp" line="1444"/>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Update appearance</source>
         <translation>更新外觀</translation>
     </message>
@@ -933,12 +933,12 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="476"/>
         <source>Mapeditor</source>
         <translation>地圖編輯器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="476"/>
+        <location filename="../mainwindow.cpp" line="477"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
@@ -947,308 +947,308 @@ For the best experience, we recommend using the map editor on a tablet (or with 
 為獲得最佳體驗，建議在平板裝置上使用地圖編輯器（或搭配滑鼠/手寫筆）。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Confirmation</source>
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>未儲存的變更將會遺失，您確定要這麼做嗎？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1519"/>
-        <location filename="../mainwindow.cpp" line="1608"/>
+        <location filename="../mainwindow.cpp" line="1520"/>
+        <location filename="../mainwindow.cpp" line="1609"/>
         <source>Level %1: %2</source>
         <translation>層級%1：%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="588"/>
+        <location filename="../mainwindow.cpp" line="589"/>
         <source>Mods are required</source>
         <translation>需要模組</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="596"/>
-        <location filename="../mainwindow.cpp" line="602"/>
+        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="603"/>
         <source>Failed to open map</source>
         <translation>開啟地圖失敗</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="633"/>
+        <location filename="../mainwindow.cpp" line="634"/>
         <source>Open map</source>
         <translation>開啟地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="635"/>
+        <location filename="../mainwindow.cpp" line="636"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>所有支援的地圖類型(*.vmap *.h3m);;VCMI地圖(*.vmap);;英雄無敵3地圖(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="690"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Recently Opened Files</source>
         <translation>最近開啟檔案</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="743"/>
+        <location filename="../mainwindow.cpp" line="744"/>
         <source>Map validation</source>
         <translation>地圖驗證</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="745"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>地圖有致命問題，很可能無法遊玩。開啟地圖選單的驗證功能以定位問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="747"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>地圖有一些錯誤，開啟地圖選單的驗證功能以定位問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Failed to save map</source>
         <translation>儲存地圖失敗</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="787"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Save map</source>
         <translation>儲存地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="788"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI地圖(*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1003"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>Type</source>
         <translation>類型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1016"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Towns</source>
         <translation>城鎮</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Objects</source>
         <translation>物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Heroes</source>
         <translation>英雄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1019"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Artifacts</source>
         <translation>寶物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1020"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Resources</source>
         <translation>資源</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Banks</source>
         <translation>寶屋</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1022"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Dwellings</source>
         <translation>巢穴</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1023"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Grounds</source>
         <translation>地面</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1024"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Teleports</source>
         <translation>傳送門</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Mines</source>
         <translation>礦井</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Triggers</source>
         <translation>觸發器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Monsters</source>
         <translation>怪物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Quests</source>
         <translation>任務</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
         <translation>Wog物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Obstacles</source>
         <translation>障礙物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Other</source>
         <translation>其他</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Mods loading problem</source>
         <translation>模組載入遇到問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>載入模組時遇到致命錯誤，請停用無效模組後重新啟動。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1174"/>
+        <location filename="../mainwindow.cpp" line="1175"/>
         <source>Undo clicked</source>
         <translation>已復原</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1185"/>
+        <location filename="../mainwindow.cpp" line="1186"/>
         <source>Redo clicked</source>
         <translation>已重做</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1196"/>
+        <location filename="../mainwindow.cpp" line="1197"/>
         <source>Passability clicked</source>
         <translation>開關通行性</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1209"/>
+        <location filename="../mainwindow.cpp" line="1210"/>
         <source>Grid clicked</source>
         <translation>觸發網格</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1290"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Fill clicked</source>
         <translation>觸發填充</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>No objects selected</source>
         <translation>未選擇任何物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1444"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>此操作無法被復原，您確定要繼續嗎？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>發生錯誤！%1 個物體未完成更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1531"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1547"/>
+        <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1592"/>
+        <location filename="../mainwindow.cpp" line="1593"/>
         <source>Type:</source>
         <translation>類型：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1653"/>
+        <location filename="../mainwindow.cpp" line="1654"/>
         <source>Image format</source>
         <translation>圖像格式</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1654"/>
+        <location filename="../mainwindow.cpp" line="1655"/>
         <source>Select image format:</source>
         <translation>選擇圖像格式：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1668"/>
-        <location filename="../mainwindow.cpp" line="1672"/>
+        <location filename="../mainwindow.cpp" line="1669"/>
+        <location filename="../mainwindow.cpp" line="1673"/>
         <source>Save to image</source>
         <translation>儲存為圖片</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1714"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Failed to save image</source>
         <translation>未能儲存圖像</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1714"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
         <translation>無法儲存圖像至%1。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1734"/>
+        <location filename="../mainwindow.cpp" line="1735"/>
         <source>Select maps to convert</source>
         <translation>選擇待轉換的地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1736"/>
+        <location filename="../mainwindow.cpp" line="1737"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>英雄無敵3地圖檔案(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1742"/>
-        <location filename="../mainwindow.cpp" line="1749"/>
+        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1750"/>
         <source>Choose directory to save converted maps</source>
         <translation>選擇儲存轉換地圖的目錄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1744"/>
+        <location filename="../mainwindow.cpp" line="1745"/>
         <source>Directory</source>
         <translation>目錄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1765"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Operation completed</source>
         <translation>操作完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1765"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Successfully converted %1 maps</source>
         <translation>成功轉換 %1 張地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1769"/>
+        <location filename="../mainwindow.cpp" line="1770"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>轉換地圖失敗，操作終止</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1777"/>
+        <location filename="../mainwindow.cpp" line="1778"/>
         <source>Select campaign to convert</source>
         <translation>選擇待轉換的戰役</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1778"/>
+        <location filename="../mainwindow.cpp" line="1779"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>英雄無敵3戰役檔案(*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1784"/>
+        <location filename="../mainwindow.cpp" line="1785"/>
         <source>Select destination file</source>
         <translation>選擇目標檔案</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1785"/>
+        <location filename="../mainwindow.cpp" line="1786"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>VCMI戰役檔案(*.vcmp)</translation>
     </message>
@@ -1285,7 +1285,7 @@ Warning: levels cannot be removed once added.</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="151"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="153"/>
         <source>New event</source>
         <translation>新事件</translation>
     </message>
@@ -5121,7 +5121,12 @@ Guard: %3</source>
         <translation>擊殺怪物</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="437"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
+        <source>Capture all mines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
         <source>Any town</source>
         <translation>任一城鎮</translation>
     </message>
@@ -5357,27 +5362,27 @@ Guard: %3</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="185"/>
+        <location filename="../mainwindow.cpp" line="186"/>
         <source>Filepath of the map to open.</source>
         <translation>要開啟的地圖所在的檔案路徑。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="188"/>
+        <location filename="../mainwindow.cpp" line="189"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>將原始H3檔案解壓縮到特定目錄。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="189"/>
+        <location filename="../mainwindow.cpp" line="190"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>資料檔案解壓縮後，將TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32和Un44切分為獨立的PNG檔案。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="190"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>資料檔案解壓縮後，將每一張圖片（Images目錄）從pcx格式轉換為png格式。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="191"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>當切分/轉換完成後，原始檔案將被刪除。</translation>
     </message>

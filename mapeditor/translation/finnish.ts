@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="529"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI-karttaeditori</translation>
     </message>
@@ -719,22 +719,22 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1591"/>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1531"/>
-        <location filename="../mainwindow.cpp" line="1546"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
+        <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1440"/>
-        <location filename="../mainwindow.cpp" line="1444"/>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Update appearance</source>
         <translation type="unfinished">Päivitä ulkoasu</translation>
     </message>
@@ -937,320 +937,320 @@
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="475"/>
+        <location filename="../mainwindow.cpp" line="476"/>
         <source>Mapeditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="476"/>
+        <location filename="../mainwindow.cpp" line="477"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Confirmation</source>
         <translation type="unfinished">Vahvistus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Tallentamattomat muutokset menetetään,oletko varma?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1519"/>
-        <location filename="../mainwindow.cpp" line="1608"/>
+        <location filename="../mainwindow.cpp" line="1520"/>
+        <location filename="../mainwindow.cpp" line="1609"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="588"/>
+        <location filename="../mainwindow.cpp" line="589"/>
         <source>Mods are required</source>
         <translation type="unfinished">Modit vaaditaan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="596"/>
-        <location filename="../mainwindow.cpp" line="602"/>
+        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="603"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Karttaa ei voitu avata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="633"/>
+        <location filename="../mainwindow.cpp" line="634"/>
         <source>Open map</source>
         <translation type="unfinished">Avaa kartta</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="635"/>
+        <location filename="../mainwindow.cpp" line="636"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Kaikki tuetut kartat (*.vmap *.h3m);;VCMI-kartat(*.vmap);;HoMM3-kartat(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="690"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Viimeksi avatut tiedostot</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="743"/>
+        <location filename="../mainwindow.cpp" line="744"/>
         <source>Map validation</source>
         <translation type="unfinished">Kartan tarkistus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="745"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartassa on kriittisiä ongelmia,eikä se todennäköisesti ole pelattavissa. Avaa tarkistus Kartta-valikosta nähdäksesi löydetyt virheet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="747"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartassa on joitakin virheitä. Avaa tarkistus Kartta-valikosta nähdäksesi löydetyt virheet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Karttaa ei voitu tallentaa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="787"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Save map</source>
         <translation type="unfinished">Tallenna kartta</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="788"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">VCMI-kartat (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1003"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>Type</source>
         <translation type="unfinished">Tyyppi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1016"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Towns</source>
         <translation type="unfinished">Kaupungit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Objects</source>
         <translation type="unfinished">Objektit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Heroes</source>
         <translation type="unfinished">Sankarit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1019"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Artifacts</source>
         <translation type="unfinished">Artefaktit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1020"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Resources</source>
         <translation type="unfinished">Resurssit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Banks</source>
         <translation type="unfinished">Pankit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1022"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Dwellings</source>
         <translation type="unfinished">Asuinpaikat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1023"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Grounds</source>
         <translation type="unfinished">Maastot</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1024"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Teleports</source>
         <translation type="unfinished">Teleportit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Mines</source>
         <translation type="unfinished">Kaivokset</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Triggers</source>
         <translation type="unfinished">Laukaisimet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Monsters</source>
         <translation type="unfinished">Hirviöt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Quests</source>
         <translation type="unfinished">Tehtävät</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
         <translation type="unfinished">WoG-objektit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Obstacles</source>
         <translation type="unfinished">Esteet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Other</source>
         <translation type="unfinished">Muut</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Modien latausongelma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Kriittinen virhe modien latauksessa. Poista virheelliset modit käytöstä ja käynnistä uudelleen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1174"/>
+        <location filename="../mainwindow.cpp" line="1175"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Kumoa napsautettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1185"/>
+        <location filename="../mainwindow.cpp" line="1186"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Tee uudelleen napsautettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1196"/>
+        <location filename="../mainwindow.cpp" line="1197"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Kuljettavuus napsautettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1209"/>
+        <location filename="../mainwindow.cpp" line="1210"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Ruudukko napsautettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1290"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Täyttö napsautettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>No objects selected</source>
         <translation type="unfinished">Ei valittuja objekteja</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1444"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Tätä toimintoa ei voi perua. Haluatko jatkaa?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1502"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">Tapahtui virheitä. %1 objektia ei päivitetty</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1531"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1547"/>
+        <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1592"/>
+        <location filename="../mainwindow.cpp" line="1593"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1653"/>
+        <location filename="../mainwindow.cpp" line="1654"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1654"/>
+        <location filename="../mainwindow.cpp" line="1655"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1668"/>
-        <location filename="../mainwindow.cpp" line="1672"/>
+        <location filename="../mainwindow.cpp" line="1669"/>
+        <location filename="../mainwindow.cpp" line="1673"/>
         <source>Save to image</source>
         <translation type="unfinished">Tallenna kuvana</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1714"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1714"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1734"/>
+        <location filename="../mainwindow.cpp" line="1735"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Valitse kartat muunnettavaksi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1736"/>
+        <location filename="../mainwindow.cpp" line="1737"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">HoMM3-kartat (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1742"/>
-        <location filename="../mainwindow.cpp" line="1749"/>
+        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1750"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Valitse hakemisto muunnettujen karttojen tallennukseen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1744"/>
+        <location filename="../mainwindow.cpp" line="1745"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1765"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Operation completed</source>
         <translation type="unfinished">Toiminto suoritettu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1765"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">%1 karttaa muunnettiin onnistuneesti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1769"/>
+        <location filename="../mainwindow.cpp" line="1770"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Kartan muuntaminen epäonnistui. Keskeytetään</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1777"/>
+        <location filename="../mainwindow.cpp" line="1778"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Valitse muunnettava kampanja</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1778"/>
+        <location filename="../mainwindow.cpp" line="1779"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">HoMM3-kampanjat (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1784"/>
+        <location filename="../mainwindow.cpp" line="1785"/>
         <source>Select destination file</source>
         <translation type="unfinished">Valitse kohdetiedosto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1785"/>
+        <location filename="../mainwindow.cpp" line="1786"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">VCMI-kampanjat (*.vcmp)</translation>
     </message>
@@ -1287,7 +1287,7 @@ Warning: levels cannot be removed once added.</source>
         <translation type="unfinished">Poista</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="151"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="153"/>
         <source>New event</source>
         <translation type="unfinished">Uusi tapahtuma</translation>
     </message>
@@ -5135,7 +5135,12 @@ Vartio: %3</translation>
         <translation type="unfinished">Tapa hirviö</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="437"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
+        <source>Capture all mines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
         <source>Any town</source>
         <translation type="unfinished">Mikä tahansa kaupunki</translation>
     </message>
@@ -5371,27 +5376,27 @@ Vartio: %3</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="185"/>
+        <location filename="../mainwindow.cpp" line="186"/>
         <source>Filepath of the map to open.</source>
         <translation type="unfinished">Avattavan kartan tiedostopolku.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="188"/>
+        <location filename="../mainwindow.cpp" line="189"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation type="unfinished">Pura alkuperäiset H3-arkistot erilliseen kansioon.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="189"/>
+        <location filename="../mainwindow.cpp" line="190"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation type="unfinished">Puretusta arkistosta jakaa TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 ja Un44 yksittäisiin PNG-kuviin.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="190"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation type="unfinished">Puretusta arkistosta muuntaa yksittäiset kuvat (.pcx) PNG-muotoon (löytyvät Images-kansiosta).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="191"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation type="unfinished">Poista alkuperäiset tiedostot niiltä osin, mitkä jaettiin / muunnettiin.</translation>
     </message>
