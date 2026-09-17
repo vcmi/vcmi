@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
+#include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
@@ -41,6 +42,36 @@ static int spellLevelOf(const BonusSubtypeID & subtype)
 	const int level = spell.toSpell()->getLevel();
 
 	return level > 0 ? level : schoollessSpellLevel;
+}
+
+/// What one point of a combat script's magnitude adds to the value of its bearer, or zero for a
+/// script whose effect the magnitude does not describe.
+static double combatScriptWeight(const BonusSubtypeID & subtype)
+{
+	static constexpr std::array<std::pair<std::string_view, double>, 3> weights = {{
+		{ "deathStare", 0.02 },
+		{ "lifeDrain", 0.003 },
+		{ "fireShield", 0.003 },
+	}};
+
+	static const std::map<si32, double> priced = []
+	{
+		std::map<si32, double> result;
+
+		for(const auto & [name, weight] : weights)
+		{
+			auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
+
+			if(index.has_value())
+				result[*index] = weight;
+		}
+
+		return result;
+	}();
+
+	auto entry = priced.find(subtype.getNum());
+
+	return entry == priced.end() ? 0.0 : entry->second;
 }
 
 double CombatValue::offenseAt(int attack) const
@@ -349,9 +380,16 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	if(unit->hasBonusOfType(BonusType::HEALER))
 		result *= 1.10;
 
-	// effect of these is configured per creature and can not be read from the bonus, so it is guessed
-	if(unit->hasBonusOfType(BonusType::COMBAT_EVENT_TRIGGER))
-		result *= 1.10;
+	// a script whose magnitude does not describe its effect can only be guessed at
+	static constexpr double unpricedScriptValue = 0.10;
+
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	{
+		const double weight = combatScriptWeight(bonus->subtype);
+
+		result *= 1.0 + (weight > 0 ? weight * bonus->val : unpricedScriptValue);
+	}
+
 	if(unit->hasBonusOfType(BonusType::POISON))
 		result *= 1.08;
 
@@ -372,8 +410,6 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	// what the source of fear gains is not priced - a propagated bonus can not be told apart from
 	// the bonus of its propagator
 	result *= 1.0 - unit->valOfBonuses(BonusType::FEARFUL) / 100.0;
-	if(unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
-		result *= 0.9;
 
 	return result;
 }
