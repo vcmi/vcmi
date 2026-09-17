@@ -80,7 +80,7 @@ namespace Goals
 			if(threat.danger == 0 || threat.turn > 1)
 				return false;
 
-			const auto currentDefence = town.getUpperArmy()->getArmyStrength();
+			const auto currentDefence = town.getUpperArmy()->estimateCombatValue();
 			const auto recruitedDefence = hero.getTotalStrength();
 
 			if(threat.turn == 0)

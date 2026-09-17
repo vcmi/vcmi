@@ -319,7 +319,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	for(auto existingHero : myHeroes)
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
-			|| existingHero->getArmyStrength() >armyLimit
+			|| existingHero->estimateCombatValue() >armyLimit
 			|| getHeroRoleOrDefaultInefficient(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)

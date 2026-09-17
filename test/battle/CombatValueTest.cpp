@@ -38,17 +38,18 @@ TEST(CombatValueTest, stackIsWorthAsMuchAsTheCreaturesInIt)
 	EXPECT_EQ(many->estimateCombatValue(), single->estimateCombatValue() * 50);
 }
 
-TEST(CombatValueTest, cachedWorthMatchesWhatTheModelAnswers)
+TEST(CombatValueTest, stackWorthMatchesWhatTheModelAnswersForItsCreature)
 {
 	auto stack = makeStack(CreatureID::AZURE_DRAGON, 7);
-	const auto expected = LIBRARY->combatValues->getAIValue(*stack, stack->getType()) * 7;
+	const auto expected = LIBRARY->combatValues->getAIValue(stack->getType()) * 7;
 
-	// asked twice, so that the cached answer is checked as well as the computed one
-	EXPECT_EQ(stack->estimateCombatValue(), static_cast<ui64>(expected));
 	EXPECT_EQ(stack->estimateCombatValue(), static_cast<ui64>(expected));
 }
 
-TEST(CombatValueTest, cachedWorthFollowsBonusChanges)
+/// An army on the map is valued by its creature type, so that armies which exist and armies which
+/// are only proposed - creatures about to be bought - stay comparable. Bonuses reaching one stack
+/// and not another are only accounted for in battle, where every unit has a bearer to read.
+TEST(CombatValueTest, mapWorthIgnoresBonusesOnTheStack)
 {
 	auto stack = makeStack(CreatureID::ARCHER, 10);
 	const auto before = stack->estimateCombatValue();
@@ -56,7 +57,7 @@ TEST(CombatValueTest, cachedWorthFollowsBonusChanges)
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH,
 		BonusSource::OTHER, 100, BonusSourceID()));
 
-	EXPECT_GT(stack->estimateCombatValue(), before);
+	EXPECT_EQ(stack->estimateCombatValue(), before);
 }
 
 namespace test

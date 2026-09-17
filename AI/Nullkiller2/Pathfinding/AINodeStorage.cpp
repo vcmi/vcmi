@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "AINodeStorage.h"
 
+#include "../../../lib/battle/CombatValue.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
@@ -344,7 +345,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
-						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
+						return pair.second->getCount() * LIBRARY->combatValues->getAIValue(pair.second->getCreatureID().toCreature());
 					});
 
 				if(weakest == dstNode->actor->creatureSet->Slots().end())
@@ -356,9 +357,9 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 				}
 
 				if(dstNode->actor->creatureSet->getFreeSlots().size())
-					dstNode->armyLoss += weakest->second->getCreatureID().toCreature()->getAIValue();
+					dstNode->armyLoss += LIBRARY->combatValues->getAIValue(weakest->second->getCreatureID().toCreature());
 				else
-					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * weakest->second->getCreatureID().toCreature()->getAIValue();
+					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * LIBRARY->combatValues->getAIValue(weakest->second->getCreatureID().toCreature());
 
 				dstNode->specialAction = AIPathfinding::WhirlpoolAction::instance;
 			}
@@ -1074,7 +1075,7 @@ void AINodeStorage::setTownsAndDwellings(
 			uint64_t mask = 1 << actors.size();
 			auto dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, false, dayOfWeek);
 
-			if(dwellingActor->creatureSet->getArmyStrength())
+			if(dwellingActor->creatureSet->estimateCombatValue())
 			{
 				actors.push_back(dwellingActor);
 			}
@@ -1084,7 +1085,7 @@ void AINodeStorage::setTownsAndDwellings(
 				mask = 1 << actors.size();
 				dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, waitForGrowth, dayOfWeek);
 
-				if(dwellingActor->creatureSet->getArmyStrength())
+				if(dwellingActor->creatureSet->estimateCombatValue())
 				{
 					actors.push_back(dwellingActor);
 				}

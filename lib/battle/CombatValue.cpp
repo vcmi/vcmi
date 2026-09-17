@@ -104,6 +104,15 @@ CombatValue::CombatValue()
 
 	buildCurves(builtinCreatures);
 	pinScale(builtinCreatures);
+	tabulateCreatures();
+}
+
+void CombatValue::tabulateCreatures()
+{
+	creatureValues.resize(LIBRARY->creh->objects.size());
+
+	for(const auto & creature : LIBRARY->creh->objects)
+		creatureValues[creature->getIndex()] = getAIValue(*creature, creature.get());
 }
 
 void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCreatures)
@@ -491,12 +500,16 @@ int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type)
 	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type)) * scale);
 }
 
-int64_t CombatValue::getAIValue(const CCreature * creature) const
+int64_t CombatValue::getAIValue(const Creature * creature) const
 {
+	// the table is only filled once the model is ready, so early callers are answered directly
+	if(creature->getIndex() < creatureValues.size())
+		return creatureValues[creature->getIndex()];
+
 	return getAIValue(*creature, creature);
 }
 
-int64_t CombatValue::getFightValue(const CCreature * creature) const
+int64_t CombatValue::getFightValue(const Creature * creature) const
 {
 	const double uptime = uptimeOf(*creature);
 

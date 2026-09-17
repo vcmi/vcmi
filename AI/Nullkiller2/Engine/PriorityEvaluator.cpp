@@ -11,6 +11,7 @@
 #include <limits>
 
 #include "Nullkiller.h"
+#include "../../../lib/battle/CombatValue.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
@@ -183,7 +184,7 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
 				continue;
 
-			score += creature->getAIValue() * creLevel.first;
+			score += LIBRARY->combatValues->getAIValue(creature) * creLevel.first;
 		}
 	}
 
@@ -203,7 +204,7 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 		if(creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			score += creature->getAIValue() * creature->getGrowth();
+			score += LIBRARY->combatValues->getAIValue(creature) * creature->getGrowth();
 
 			// Increase priority towards the end of the week if units are lost afterwards
 			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
@@ -275,7 +276,7 @@ uint64_t RewardEvaluator::getArmyReward(
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
 	case Obj::HERO:
 		return  relations == PlayerRelations::ENEMIES
-			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
+			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->estimateCombatValue()
 			: 0;
 	case Obj::PANDORAS_BOX:
 		return 5000;
@@ -303,7 +304,7 @@ uint64_t RewardEvaluator::getArmyReward(
 				rewardValue += evaluateSpellScrollArmyValue(scroll);
 
 			for(const auto & stackInfo : info.reward.creatures)
-				rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
+				rewardValue += LIBRARY->combatValues->getAIValue(stackInfo.getType()) * stackInfo.getCount();
 
 			const auto combined_size = std::min(static_cast<size_t>(1),
 			                                    info.reward.grantedArtifacts.size() + info.reward.creatures.size() +
@@ -445,7 +446,7 @@ uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
 			continue;
 
 		auto creature = creatureInfo.second.back().toCreature();
-		result += creature->getAIValue() * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
+		result += LIBRARY->combatValues->getAIValue(creature) * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
 	}
 
 	return result;
@@ -815,7 +816,7 @@ public:
 		// TODO: Mircea: See how we can get some kind of balance between MAINs in terms of army delivery
 		// See: GatherArmyBehavior::deliverArmyToHero
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
-		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->getArmyStrength();
+		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->estimateCombatValue();
 
 		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
 		evaluationContext.armyGrowth = additionalArmyStrength;
@@ -1072,7 +1073,7 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->getPower()
+		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->estimateCombatValue()
 		float heroPower = 0;
 		float totalPower = 0;
 
@@ -1083,7 +1084,7 @@ public:
 		for (const auto & slot : hero->Slots())
 		{
 			CreatureID creatureID = slot.second->getCreatureID();
-			float slotPower = slot.second->getPower();
+			float slotPower = slot.second->estimateCombatValue();
 
 			// Add the power of this slot to the heroPower
 			heroPower += slotPower;
@@ -1124,11 +1125,11 @@ public:
 				evaluationContext.defenseValue = dynamic_cast<const CGTownInstance*>(target)->fortLevel();
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			if(evaluationContext.danger > 0)
-				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->getArmyStrength();
+				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->estimateCombatValue();
 		}
 		evaluationContext.armyInvolvement += army->getArmyCost();
 
-		vstd::amax(evaluationContext.armyLossRatio, (float)path.getTotalArmyLoss() / (float)army->getArmyStrength());
+		vstd::amax(evaluationContext.armyLossRatio, (float)path.getTotalArmyLoss() / (float)army->estimateCombatValue());
 		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
@@ -1215,7 +1216,7 @@ public:
 			evaluationContext.movementCostByRole.at(static_cast<size_t>(defenderRole)) += mpLeft;
 			evaluationContext.heroRole = defenderRole;
 			evaluationContext.isDefend = true;
-			evaluationContext.armyInvolvement = garrisonHero->getArmyStrength();
+			evaluationContext.armyInvolvement = garrisonHero->estimateCombatValue();
 			logAi->debug("evaluationContext.isDefend: %d", evaluationContext.isDefend);
 		}
 	}
@@ -1518,7 +1519,7 @@ float PriorityEvaluator::evaluate(
 				if(evaluationContext.movementCost >= 1)
 					return 0;
 
-				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::getArmyStrength
+				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::estimateCombatValue
 				// TODO: Mircea: make it dynamic, allow higher risk for killing a higher risk hero if it leads to killing an entire player. See conquestValue
 				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
@@ -1566,7 +1567,7 @@ float PriorityEvaluator::evaluate(
 			{
 				if(evaluationContext.isDefend)
 					return 0;
-				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::getArmyStrength
+				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::estimateCombatValue
 				// if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio)
 					// return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)

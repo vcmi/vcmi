@@ -135,7 +135,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
-	const ui64 heroStrength = getNormalizedHeroStrength(h) * heroArmy->getArmyStrength();
+	const ui64 heroStrength = getNormalizedHeroStrength(h) * heroArmy->estimateCombatValue();
 
 	if(dangerStrength)
 	{
@@ -242,7 +242,7 @@ bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2)
 
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 {
-	return a1->getArmyStrength() < a2->getArmyStrength();
+	return a1->estimateCombatValue() < a2->estimateCombatValue();
 }
 
 double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_ptr<Bonus> & bonus)
@@ -269,7 +269,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 			const auto allBonuses = slot.second->getAllBonuses(Selector::all);
 			BonusLimitationContext context = {*bonus, *slot.second, *allBonuses, stillUndecided};
 
-			uint64_t unitStrength = slot.second->getPower();
+			uint64_t unitStrength = slot.second->estimateCombatValue();
 
 			if (bonus->limiter->limit(context) == ILimiter::EDecision::ACCEPT)
 				affectedStrength += unitStrength;
@@ -289,7 +289,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 
 		for (const auto & slot : hero->Slots())
 		{
-			uint64_t unitStrength = slot.second->getPower();
+			uint64_t unitStrength = slot.second->estimateCombatValue();
 			if (slot.second->hasBonusOfType(type))
 				affectedStrength += unitStrength;
 			totalStrength += unitStrength;
@@ -767,7 +767,7 @@ bool townHasFreeTavern(const CGTownInstance * town)
 
 uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy, int fortLevel)
 {
-	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
+	auto armyStrength = heroArmy->estimateCombatValue(fortLevel);
 
 	if(hero && hero->getCommander() && hero->getCommander()->alive)
 	{

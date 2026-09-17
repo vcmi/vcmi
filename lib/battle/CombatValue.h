@@ -34,8 +34,8 @@ public:
 	/// Same, but takes distance to enemy units in account
 	int64_t getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const;
 
-	int64_t getAIValue(const CCreature * creature) const;
-	int64_t getFightValue(const CCreature * creature) const;
+	int64_t getAIValue(const Creature * creature) const;
+	int64_t getFightValue(const Creature * creature) const;
 
 	/// Number of attacks per round, with repeated attacks counted at a discount
 	static double attacksPerRound(const ACreature & creature);
@@ -74,6 +74,11 @@ private:
 
 	void buildCurves(const std::vector<const CCreature *> & builtinCreatures);
 	void pinScale(const std::vector<const CCreature *> & builtinCreatures);
+	void tabulateCreatures();
+
+	/// Value of every creature by index. Creature bonuses never change, so asking for one costs
+	/// nothing - which matters, since the AI asks constantly while it searches.
+	std::vector<int64_t> creatureValues;
 
 	std::vector<double> offenseCurve;
 	std::vector<double> defenseCurve;

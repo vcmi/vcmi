@@ -86,7 +86,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, towerDefenceNeedsCommittedDefender)
 	town.withBuilding(BuildingID::CASTLE);
 	ASSERT_TRUE(town.get()->setCreature(SlotID(0), CreatureID::ARCHER, 1));
 
-	const auto townArmyDefence = town.get()->getArmyStrength();
+	const auto townArmyDefence = town.get()->estimateCombatValue();
 	EXPECT_EQ(NK2AI::Goals::estimateTownDefence(*town.get(), nullptr), townArmyDefence) << "uncommitted town defence should not rely on tower value";
 }
 

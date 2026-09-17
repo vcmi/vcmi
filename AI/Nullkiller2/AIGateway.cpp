@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/battle/CombatValue.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
@@ -744,11 +745,11 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 					// creature at given slot might have alternative upgrades, pick best one
 					CreatureID upgID = *vstd::maxElementByFun(upgradeInfo.getAvailableUpgrades(), [](const CreatureID & id)
 						{
-							return id.toCreature()->getAIValue();
+							return LIBRARY->combatValues->getAIValue(id.toCreature());
 						});
 
-					int oldValue = s->getCreature()->getAIValue();
-					int newValue = upgID.toCreature()->getAIValue();
+					int oldValue = LIBRARY->combatValues->getAIValue(s->getCreature());
+					int newValue = LIBRARY->combatValues->getAIValue(upgID.toCreature());
 
 					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
@@ -880,7 +881,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 					// remove unwanted creatures
 					cc->mergeOrSwapStacks(destinationArmy, source, i, targetSlot);
 				}
-				else if(destinationArmy->getStack(i).getPower() < destinationArmy->getArmyStrength() / 100)
+				else if(destinationArmy->getStack(i).estimateCombatValue() < destinationArmy->estimateCombatValue() / 100)
 				{
 					// dismiss creatures if the amount is small
 					cc->dismissCreature(destinationArmy, i);
@@ -1607,7 +1608,7 @@ std::string AIGateway::heroRoleDebugText(const CGHeroInstance * hero) const
 		return {};
 
 	const auto role = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero);
-	const auto armyStrength = hero->getArmyStrength();
+	const auto armyStrength = hero->estimateCombatValue();
 	uint64_t mainArmyStrength = armyStrength;
 	bool isMainArmy = true;
 	for(const auto * otherHero : cc->getHeroesInfo())
@@ -1615,7 +1616,7 @@ std::string AIGateway::heroRoleDebugText(const CGHeroInstance * hero) const
 		if(otherHero == hero)
 			continue;
 
-		const auto otherArmyStrength = otherHero->getArmyStrength();
+		const auto otherArmyStrength = otherHero->estimateCombatValue();
 		mainArmyStrength = std::max(mainArmyStrength, otherArmyStrength);
 		if(otherArmyStrength > armyStrength
 			|| (otherArmyStrength == armyStrength && otherHero->id.getNum() < hero->id.getNum()))
