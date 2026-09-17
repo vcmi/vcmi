@@ -15,6 +15,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
+#include "../../lib/battle/CombatValue.h"
 
 #include "../../lib/GameLibrary.h"
 
@@ -194,6 +195,20 @@ float AttackPossibility::attackValue() const
 	return damageDiff();
 }
 
+/// Whether a unit is worth what the combat model says, or what it deals in damage. Both paths stay
+/// compiled, so that the same battle can be played out either way.
+static constexpr bool valueUnitsByCombatModel = false;
+
+/// What losing a single creature of this unit costs its owner
+static float creatureWorth(const battle::Unit * unit, const battle::Unit * against,
+	DamageCache & damageCache, std::shared_ptr<CBattleInfoCallback> state)
+{
+	if(valueUnitsByCombatModel)
+		return LIBRARY->combatValues->getAIValue(unit);
+
+	return damageCache.getOriginalDamage(unit, against, state) / static_cast<double>(unit->getCount());
+}
+
 float hpFunction(uint64_t unitHealthStart, uint64_t unitHealthEnd, uint64_t maxHealth)
 {
 	float ratioStart = static_cast<float>(unitHealthStart) / maxHealth;
@@ -252,9 +267,8 @@ float AttackPossibility::calculateDamageReduce(
 
 	vstd::amin(damageDealt, availableHealth);
 
-	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
 	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
-	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
+	auto damagePerEnemy = creatureWorth(defender, attackerUnitForMeasurement, damageCache, state);
 	auto exceedingDamage = (damageDealt % maxHealth);
 	float hpValue = (damageDealt / maxHealth);
 	
@@ -307,10 +321,13 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
-		auto cachedDmg = damageCache.getOriginalDamage(st, attacker, state);
+		// share of what the shooter is worth that blocking it denies, weighed as a kill would be
+		const auto shooterWorth = valueUnitsByCombatModel
+			? static_cast<int64_t>(st->estimateCombatValue())
+			: damageCache.getOriginalDamage(st, attacker, state);
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
-		res += gain * cachedDmg / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
+		res += gain * shooterWorth / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
 	}
 
 	return res;
