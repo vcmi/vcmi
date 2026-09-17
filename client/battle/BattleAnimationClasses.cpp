@@ -1005,6 +1005,7 @@ bool EffectAnimation::init()
 	{
 		// nothing to display - e.g. effect was created for stack without valid battlefield position.
 		// Without any entry in battleEffects this animation can never finish, so finish it immediately
+		logGlobal->error("EffectAnimation::init: animation %d has no tiles and no positions to display, finishing immediately", static_cast<int>(ID));
 		effectFinished = true;
 		return true;
 	}
