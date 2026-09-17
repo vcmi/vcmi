@@ -127,7 +127,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			
 			auto * widget = new QComboBox;
 			for(auto & s : NSecondarySkill::levels)
-				widget->addItem(QString::fromStdString(s));
+				widget->addItem(QString::fromUtf8(s));
 			
 			if(map.allowedAbilities.count(i) == 0)
 			{
@@ -184,7 +184,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	
 	//fill spell cast
 	for(auto & s : NSecondarySkill::levels)
-		ui->castLevel->addItem(QString::fromStdString(s));
+		ui->castLevel->addItem(QString::fromUtf8(s));
 	on_castSpellCheck_toggled(false);
 	
 	//fill bonuses

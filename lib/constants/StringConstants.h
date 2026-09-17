@@ -14,40 +14,72 @@
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded
 ///
-/// Defined in StringConstants.cpp - keeping the definitions out of the header avoids
-/// every including translation unit building its own copy at startup.
+/// Stored as raw pointers so that the tables end up in read-only data instead of
+/// being constructed at startup by every translation unit that includes this header.
 ///
 namespace GameConstants
 {
-	extern DLL_LINKAGE const std::string RESOURCE_NAMES [RESOURCE_QUANTITY];
+	inline constexpr std::array<const char *, RESOURCE_QUANTITY> RESOURCE_NAMES = {
+		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold"
+	};
 
-	extern DLL_LINKAGE const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I];
+	inline constexpr std::array<const char *, PlayerColor::PLAYER_LIMIT_I> PLAYER_COLOR_NAMES = {
+		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
+	};
 
-	extern DLL_LINKAGE const std::string ALIGNMENT_NAMES [4];
+	inline constexpr std::array<const char *, 4> ALIGNMENT_NAMES = {"good", "evil", "neutral", "none"};
 
-	extern DLL_LINKAGE const std::string DIFFICULTY_NAMES [5];
+	inline constexpr std::array<const char *, 5> DIFFICULTY_NAMES = {"pawn", "knight", "rook", "queen", "king"};
 }
 
 namespace NPrimarySkill
 {
-	extern DLL_LINKAGE const std::string names [GameConstants::PRIMARY_SKILLS];
+	inline constexpr std::array<const char *, GameConstants::PRIMARY_SKILLS> names = { "attack", "defence", "spellpower", "knowledge" };
 }
 
 namespace NSecondarySkill
 {
-	extern DLL_LINKAGE const std::string names [GameConstants::SKILL_QUANTITY];
+	inline constexpr std::array<const char *, GameConstants::SKILL_QUANTITY> names =
+	{
+		"pathfinding",  "archery",      "logistics",    "scouting",     "diplomacy",    //  5
+		"navigation",   "leadership",   "wisdom",       "mysticism",    "luck",         // 10
+		"ballistics",   "eagleEye",     "necromancy",   "estates",      "fireMagic",    // 15
+		"airMagic",     "waterMagic",   "earthMagic",   "scholar",      "tactics",      // 20
+		"artillery",    "learning",     "offence",      "armorer",      "intelligence", // 25
+		"sorcery",      "resistance",   "firstAid"
+	};
 
-	extern DLL_LINKAGE const std::vector<std::string> levels;
+	inline constexpr std::array<const char *, 4> levels =
+	{
+		"none", "basic", "advanced", "expert"
+	};
 }
 
 namespace EBuildingType
 {
-	extern DLL_LINKAGE const std::string names [46];
+	inline constexpr std::array<const char *, 46> names =
+	{
+		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",       //  5
+		"tavern",           "shipyard",         "fort",             "citadel",          "castle",           // 10
+		"villageHall",      "townHall",         "cityHall",         "capitol",          "marketplace",      // 15
+		"resourceSilo",     "blacksmith",       "special1",         "horde1",           "horde1Upgr",       // 20
+		"ship",             "special2",         "special3",         "special4",         "horde2",           // 25
+		"horde2Upgr",       "grail",            "extraTownHall",    "extraCityHall",    "extraCapitol",     // 30
+		"dwellingLvl1",     "dwellingLvl2",     "dwellingLvl3",     "dwellingLvl4",     "dwellingLvl5",     // 35
+		"dwellingLvl6",     "dwellingLvl7",     "dwellingUpLvl1",   "dwellingUpLvl2",   "dwellingUpLvl3",   // 40
+		"dwellingUpLvl4",   "dwellingUpLvl5",   "dwellingUpLvl6",   "dwellingUpLvl7",   "dwellingLvl8",
+		"dwellingUpLvl8"
+	};
 }
 
 namespace NFaction
 {
-	extern DLL_LINKAGE const std::string names [GameConstants::F_NUMBER];
+	inline constexpr std::array<const char *, GameConstants::F_NUMBER> names =
+	{
+		"castle",       "rampart",      "tower",
+		"inferno",      "necropolis",   "dungeon",
+		"stronghold",   "fortress",     "conflux"
+	};
 }
 
 namespace NArtifactPosition
@@ -71,13 +103,15 @@ namespace NArtifactPosition
 		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6", "commander7", "commander8", "commander9"
 	};
 
-
-	extern DLL_LINKAGE const std::string backpack;
+	inline constexpr const char * backpack = "backpack";
 }
 
 namespace NPathfindingLayer
 {
-	extern DLL_LINKAGE const std::string names[EPathfindingLayer::NUM_LAYERS];
+	inline constexpr std::array<const char *, EPathfindingLayer::NUM_LAYERS> names =
+	{
+		"land", "sail", "water", "aviate", "air"
+	};
 }
 
 namespace MappedKeys
