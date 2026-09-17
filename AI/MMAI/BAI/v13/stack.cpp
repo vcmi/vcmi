@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 #include "GameLibrary.h"
+#include "battle/CombatValue.h"
 #include "battle/IBattleInfoCallback.h"
 #include "bonuses/BonusEnum.h"
 #include "common.h"
@@ -29,7 +30,6 @@ using SA = Schema::V13::StackAttribute;
 using F1 = Schema::V13::StackFlag1;
 using F2 = Schema::V13::StackFlag2;
 using GA = Schema::V13::GlobalAttribute;
-using CreatureValues = std::map<CreatureID, int>;
 
 namespace
 {
@@ -72,133 +72,6 @@ namespace
 				return static_cast<char>('0' + slot);
 		}
 	}
-
-	int calculateValue(const CCreature * cr)
-	{
-		/*
-		 * Formula:
-		 * 10 * (A + B) * C * D1 * D2 * ... * Dn
-		 *
-		 * A = <offensive factor>
-		 * B = <defensive factor>
-		 * C = <speed factor>
-		 * D* = <bonus factor>
-		 */
-
-		auto att = cr->getBaseAttack();
-		auto def = cr->getBaseDefense();
-		auto dmg = (cr->getBaseDamageMax() + cr->getBaseDamageMin()) / 2.0;
-		auto hp = cr->getBaseHitPoints();
-		auto spd = cr->getBaseSpeed();
-		auto shooter = cr->hasBonusOfType(BonusType::SHOOTER);
-		auto bonuses = cr->getAllBonuses(Selector::all);
-
-		auto a = 3 * dmg * (1 + std::min(4.0, 0.05 * att));
-		auto b = hp / (1 - std::min(0.7, 0.025 * def));
-		auto c = spd ? std::log(spd * 2) : 0.5;
-		auto d = shooter ? 1.5 : 1.0;
-
-		for(const auto & bonus : *bonuses)
-		{
-			switch(bonus->type)
-			{
-				case BonusType::ADDITIONAL_ATTACK:
-					d += (shooter ? 0.5 : 0.3);
-					break;
-				case BonusType::ADDITIONAL_RETALIATION:
-					d += (bonus->val * 0.1);
-					break;
-				case BonusType::ATTACKS_ALL_ADJACENT:
-					d += 0.2;
-					break;
-				case BonusType::BLOCKS_RETALIATION:
-					d += 0.3;
-					break;
-				case BonusType::DOUBLE_DAMAGE_CHANCE:
-					d += (bonus->val * 0.005); // 20% = 0.1
-					break;
-				case BonusType::ENEMY_DEFENCE_REDUCTION:
-					d += (bonus->val * 0.0025); // 40% = 0.1
-					break;
-				case BonusType::COMBAT_EVENT_TRIGGER:
-					if(runsCombatScript(*bonus, "deathStare"))
-						d += (bonus->val * 0.02); // 10% = 0.2
-					else if(runsCombatScript(*bonus, "fireShield"))
-						d += (bonus->val * 0.003); // 20% = 0.1
-					else if(runsCombatScript(*bonus, "lifeDrain"))
-						d += (bonus->val * 0.003); // 100% = 0.3
-					break;
-				case BonusType::FLYING:
-					d += 0.1;
-					break;
-				case BonusType::NO_DISTANCE_PENALTY:
-					d += 0.5;
-					break;
-				case BonusType::NO_MELEE_PENALTY:
-					d += 0.1;
-					break;
-				case BonusType::THREE_HEADED_ATTACK:
-					d += 0.05;
-					break;
-				case BonusType::TWO_HEX_ATTACK_BREATH:
-					d += 0.1;
-					break;
-				case BonusType::UNLIMITED_RETALIATIONS:
-					d += 0.2;
-					break;
-				case BonusType::SPELL_LIKE_ATTACK:
-					switch(bonus->subtype.as<SpellID>())
-					{
-						case SpellID::DEATH_CLOUD:
-							d += 0.2;
-					}
-					break;
-				case BonusType::SPELL_AFTER_ATTACK:
-					switch(bonus->subtype.as<SpellID>())
-					{
-						case SpellID::BLIND:
-						case SpellID::STONE_GAZE:
-						case SpellID::PARALYZE:
-							d += (bonus->val * 0.01); // 20% = 0.2
-							break;
-						case SpellID::BIND:
-							d += (bonus->val * 0.001); // 100% = 0.1
-							break;
-						case SpellID::WEAKNESS:
-							d += (bonus->val * 0.001); // 100% = 0.1
-							break;
-						case SpellID::AGE:
-							d += (bonus->val * 0.005); // 20% = 0.1
-							break;
-						case SpellID::CURSE:
-							d += (bonus->val * 0.0025); // 20% = 0.05
-					}
-			}
-		}
-
-		// Multiply by 10 to reduce the integer rounding for weak units
-		// (e.g. peasant 7.48 => 7 is a lot, 74.8 => 75 is OK)
-		auto res = static_cast<int>(std::round(10 * (a + b) * c * d));
-
-		if(isMMAIVerbose())
-		{
-			std::cout << "MMAI_VERBOSE: " << res << " " << cr->getId().toEntity(LIBRARY)->getJsonKey() << " (a=" << a << ", b=" << b << ", c=" << c
-					  << ", d=" << d << ")\n";
-		}
-
-		return res;
-	}
-
-	CreatureValues InitCreatureValues()
-	{
-		CreatureValues values;
-
-		for(const auto & creature : LIBRARY->creh->objects)
-			if(creature)
-				values.try_emplace(creature->getId(), calculateValue(creature.get()));
-
-		return values;
-	}
 }
 
 bool runsCombatScript(const Bonus & bonus, const std::string & script)
@@ -224,17 +97,14 @@ bool hasCombatScript(const CStack * cstack, const std::string & script)
 // static
 int Stack::GetValue(const CCreature * creature)
 {
-	static const CreatureValues CREATURE_VALUES = InitCreatureValues();
+	// the value ranges this schema encodes, and the models trained against them, are calibrated to
+	// the scale of the formula MMAI used to carry, so the shared model is brought onto that scale
+	static constexpr double combatValueScale = 4.49;
 
 	if(!creature)
 		throw std::runtime_error("GetValue: nullptr given");
 
-	const auto & it = CREATURE_VALUES.find(creature->getId());
-
-	if(it == CREATURE_VALUES.end())
-		throw std::runtime_error("GetValue: no value for creature with ID=" + std::to_string(creature->getId()));
-
-	return it->second;
+	return static_cast<int>(std::lround(LIBRARY->combatValues->getAIValue(creature) * combatValueScale));
 }
 
 // static
