@@ -310,20 +310,33 @@ bool CCreatureSet::needsLastStack() const
 	return false;
 }
 
+/// Share of its worth that a stack keeps when it has to get past walls of given level
+static ui64 valueBehindWalls(const CStackInstance & stack, ui64 value, int fortLevel)
+{
+	if(fortLevel <= 0 || stack.hasBonusOfType(BonusType::FLYING))
+		return value;
+
+	value /= fortLevel;
+
+	if(!stack.hasBonusOfType(BonusType::SHOOTER))
+		value /= fortLevel;
+
+	return value;
+}
+
 ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 {
 	ui64 ret = 0;
 	for(const auto & elem : stacks)
-	{
-		ui64 powerToAdd = elem.second->getPower();
-		if(fortLevel > 0 && !elem.second->hasBonusOfType(BonusType::FLYING))
-		{
-			powerToAdd /= fortLevel;
-			if(!elem.second->hasBonusOfType(BonusType::SHOOTER))
-				powerToAdd /= fortLevel;
-		}
-		ret += powerToAdd;
-	}
+		ret += valueBehindWalls(*elem.second, elem.second->getPower(), fortLevel);
+	return ret;
+}
+
+ui64 CCreatureSet::estimateCombatValue(int fortLevel) const
+{
+	ui64 ret = 0;
+	for(const auto & elem : stacks)
+		ret += valueBehindWalls(*elem.second, elem.second->estimateCombatValue(), fortLevel);
 	return ret;
 }
 

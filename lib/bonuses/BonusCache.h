@@ -61,6 +61,32 @@ public:
 	bool hasBonus() const;
 };
 
+/// Cache of a value that is costly to compute and only changes when the bonuses of its target do
+class BonusDerivedValueCache : public BonusCacheBase
+{
+	mutable BonusCacheEntry entry;
+
+public:
+	explicit BonusDerivedValueCache(const IBonusBearer * target)
+		: BonusCacheBase(target)
+	{}
+
+	/// Result of 'compute', recomputed whenever the bonuses of the target change
+	template<typename Compute>
+	int getValue(const Compute & compute) const
+	{
+		auto version = target->getTreeVersion();
+
+		if(entry.version != version)
+		{
+			entry.value = compute();
+			entry.version = version;
+		}
+
+		return entry.value;
+	}
+};
+
 /// Cache that can track a list of queries to bonus system
 template<size_t SIZE>
 class BonusValuesArrayCache : public BonusCacheBase

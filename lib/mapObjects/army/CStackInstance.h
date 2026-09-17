@@ -31,6 +31,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 {
 	BonusValueCache nativeTerrain;
 	BonusValueCache initiative;
+	BonusDerivedValueCache combatValue;
 
 	CArmedInstance * armyInstance = nullptr;
 
@@ -82,6 +83,8 @@ public:
 	FactionID getFactionID() const override;
 
 	virtual ui64 getPower() const;
+	/// Worth of this stack in combat, estimated from the stats and bonuses of its creatures
+	virtual ui64 estimateCombatValue() const;
 	/// Returns total market value of resources needed to recruit this unit
 	virtual ui64 getMarketValue() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

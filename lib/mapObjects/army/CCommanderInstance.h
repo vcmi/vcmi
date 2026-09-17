@@ -34,6 +34,11 @@ public:
 	{
 		return 0;
 	};
+	/// A commander is not part of the army that can be traded away, so it counts for nothing
+	ui64 estimateCombatValue() const override
+	{
+		return 0;
+	};
 	int getExpRank() const override;
 	int getLevel() const override;
 	ArtBearer bearerType() const override; //from CArtifactSet

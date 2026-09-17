@@ -460,7 +460,7 @@ double CombatValue::regeneratedHitPoints(const ACreature & creature, int count)
 	return static_cast<double>(healed) / count;
 }
 
-int CombatValue::referenceCount(const CCreature * creature)
+int CombatValue::referenceCount(const Creature * creature)
 {
 	static constexpr int referenceWeeks = 6;
 
@@ -486,9 +486,14 @@ int CombatValue::startingDistance()
 	return approachDistance;
 }
 
+int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type) const
+{
+	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type)) * scale);
+}
+
 int64_t CombatValue::getAIValue(const CCreature * creature) const
 {
-	return std::llround(valueOf(*creature, uptimeOf(*creature), referenceCount(creature)) * scale);
+	return getAIValue(*creature, creature);
 }
 
 int64_t CombatValue::getFightValue(const CCreature * creature) const
@@ -500,7 +505,7 @@ int64_t CombatValue::getFightValue(const CCreature * creature) const
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const
 {
-	return std::llround(valueOf(*unit, uptimeOf(*unit), referenceCount(unit->unitType())) * scale);
+	return getAIValue(*unit, unit->unitType());
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const

@@ -26,6 +26,9 @@ class DLL_LINKAGE CombatValue
 public:
 	CombatValue();
 
+	/// Value of a single creature of given type, as modified by the bonuses that its bearer carries
+	int64_t getAIValue(const ACreature & bearer, const Creature * type) const;
+
 	int64_t getAIValue(const battle::Unit * unit) const;
 
 	/// Same, but takes distance to enemy units in account
@@ -47,7 +50,7 @@ public:
 	static double regeneratedHitPoints(const ACreature & creature, int count);
 	/// Stack size a creature is valued at. Always this rather than the size of an actual stack, so
 	/// that value reads only the bonuses a unit carries and stays proportional to its size.
-	static int referenceCount(const CCreature * creature);
+	static int referenceCount(const Creature * creature);
 	/// Share of a battle that creature spends attacking rather than approaching enemy
 	static double uptimeOf(const ACreature & creature);
 	static double uptimeOf(const ACreature & creature, int hexesToEnemy);

@@ -127,6 +127,9 @@ public:
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
+	/// Worth of this army in combat, estimated from creature stats and bonuses rather than read
+	/// from the AI value that creature configuration declares
+	ui64 estimateCombatValue(int fortLevel = 0) const;
 	ui64 getArmyCost() const; //sum of cost of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
 	MetaString getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack

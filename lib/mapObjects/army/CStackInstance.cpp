@@ -14,6 +14,7 @@
 
 #include "../../CConfigHandler.h"
 #include "../../GameLibrary.h"
+#include "../../battle/CombatValue.h"
 #include "../../IGameSettings.h"
 #include "../../callback/IGameInfoCallback.h"
 #include "../../entities/faction/CFaction.h"
@@ -33,6 +34,7 @@ CStackInstance::CStackInstance(IGameInfoCallback * cb, BonusNodeType nodeType, b
 	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
 	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+	, combatValue(this)
 	, totalExperience(0)
 {
 }
@@ -280,6 +282,17 @@ ui64 CStackInstance::getPower() const
 {
 	assert(getType());
 	return static_cast<ui64>(getType()->getAIValue()) * getCount();
+}
+
+ui64 CStackInstance::estimateCombatValue() const
+{
+	assert(getType());
+
+	// worth of a single creature reads only the bonuses of this stack, so the cache follows them
+	const auto perCreature = combatValue.getValue(
+		[this] { return static_cast<int>(LIBRARY->combatValues->getAIValue(*this, getType())); });
+
+	return static_cast<ui64>(perCreature) * getCount();
 }
 
 ui64 CStackInstance::getMarketValue() const
