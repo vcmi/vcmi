@@ -13,7 +13,10 @@
 
 #include <vcmi/spells/Spell.h>
 
+#include "CombatValue.h"
+
 #include "../CCreatureHandler.h"
+#include "../GameLibrary.h"
 
 #include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
@@ -334,6 +337,7 @@ CUnitState::CUnitState():
 	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
 	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this),
+	combatValue(this),
 	cloneID(-1)
 {
 
@@ -572,6 +576,23 @@ int64_t CUnitState::getAvailableHealth() const
 int64_t CUnitState::getTotalHealth() const
 {
 	return health.total();
+}
+
+uint64_t CUnitState::estimateCombatValue() const
+{
+	const auto perCreature = combatValue.getValue(
+		[this] { return static_cast<int>(LIBRARY->combatValues->getAIValue(*this, unitType())); });
+
+	const auto count = getCount();
+
+	if(perCreature <= 0 || count <= 0)
+		return 0;
+
+	// wounds cost a stack its survivability but not the damage its remaining creatures deal, so the
+	// two halves of its worth are weighted separately
+	const double survivors = static_cast<double>(getAvailableHealth()) / getMaxHealth();
+
+	return std::llround(perCreature * std::sqrt(count * survivors));
 }
 
 uint32_t CUnitState::getMaxHealth() const

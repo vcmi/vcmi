@@ -125,6 +125,9 @@ public:
 	/// returns total health that unit had initially
 	virtual int64_t getTotalHealth() const = 0;
 
+	/// Worth of this unit in combat, estimated from its stats and the bonuses it currently carries
+	virtual uint64_t estimateCombatValue() const = 0;
+
 	virtual int getTotalAttacks(bool ranged) const = 0;
 
 	virtual BattleHex getPosition() const = 0;
