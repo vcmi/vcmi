@@ -30,7 +30,7 @@ namespace
 
 	int CalcStackValue(const CStack * stack)
 	{
-		return stack->getCount() * stack->unitType()->getAIValue();
+		return static_cast<int>(stack->estimateCombatValue());
 	}
 
 	BattleHex CloneHex(const BattleHex & bh, const std::initializer_list<BattleHex::EDir> & dirs)

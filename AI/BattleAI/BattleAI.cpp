@@ -111,15 +111,10 @@ static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSid
 
 	for(auto stack : stacks)
 	{
-		auto creature = stack->creatureId().toCreature();
-
-		if(!creature)
-			continue;
-
 		if(stack->unitSide() == side)
-			our += stack->getCount() * creature->getAIValue();
+			our += stack->estimateCombatValue();
 		else
-			enemy += stack->getCount() * creature->getAIValue();
+			enemy += stack->estimateCombatValue();
 	}
 
 	return enemy == 0 ? 1.0f : static_cast<float>(our) / enemy;

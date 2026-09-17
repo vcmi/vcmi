@@ -30,12 +30,14 @@ uint64_t getFightingStrength(const battle::Units & stacks, const CGHeroInstance 
 
 	for(const battle::Unit * stack : stacks)
 	{
-		result += stack->creatureId().toCreature()->getAIValue() * stack->getCount();
+		result += stack->estimateCombatValue();
 	}
 
+	// a unit in battle already carries the attack and defense of its hero, so only what the hero
+	// does on its own is left to account for
 	if(hero)
 	{
-		result = static_cast<uint64_t>(result * hero->getFightingStrength());
+		result = static_cast<uint64_t>(result * hero->getMagicStrength());
 	}
 
 	return result;
