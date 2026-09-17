@@ -500,7 +500,7 @@ int64_t CombatValue::getFightValue(const CCreature * creature) const
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const
 {
-	return std::llround(valueOf(*unit, uptimeOf(*unit), unit->getCount()) * scale);
+	return std::llround(valueOf(*unit, uptimeOf(*unit), referenceCount(unit->unitType())) * scale);
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const
@@ -516,5 +516,5 @@ int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCall
 		}
 	}
 
-	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), unit->getCount()) * scale);
+	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), referenceCount(unit->unitType())) * scale);
 }

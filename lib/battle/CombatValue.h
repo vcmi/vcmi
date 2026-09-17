@@ -45,7 +45,8 @@ public:
 	static double survivalMultiplier(const ACreature & creature);
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);
-	/// Stack size at which a creature is valued when there is no actual stack to look at
+	/// Stack size a creature is valued at. Always this rather than the size of an actual stack, so
+	/// that value reads only the bonuses a unit carries and stays proportional to its size.
 	static int referenceCount(const CCreature * creature);
 	/// Share of a battle that creature spends attacking rather than approaching enemy
 	static double uptimeOf(const ACreature & creature);

@@ -426,20 +426,15 @@ void CreatureValueEstimator::checkModelPaths()
 		if(fromConfiguration > 0)
 			ratios.push_back(static_cast<double>(asUnit) / fromConfiguration);
 
-		// regeneration restores a fixed amount per round, so it is worth more in a small stack
+		// regeneration is the one effect whose worth per creature could depend on how many there are
 		if(entry.creature->hasBonusOfType(BonusType::HP_REGENERATION))
 		{
 			const CStack * few = placeStack(BattleSide::ATTACKER, entry.creature, BattleHex(attackerHex + 1), 5);
 			const CStack * many = placeStack(BattleSide::ATTACKER, entry.creature, BattleHex(attackerHex + 2), 200);
 
-			const int64_t fewValue = values.getAIValue(few);
-			const int64_t manyValue = values.getAIValue(many);
-
-			logGlobal->info("%s is worth %d each in a stack of five and %d each in a stack of two hundred",
-				entry.creature->getJsonKey(), fewValue, manyValue);
-
-			if(fewValue <= manyValue)
-				logGlobal->error("%s does not gain from healing in a small stack", entry.creature->getJsonKey());
+			if(values.getAIValue(few) != values.getAIValue(many))
+				logGlobal->error("%s is worth a different amount per creature in a small stack than in a large one",
+					entry.creature->getJsonKey());
 
 			removeStack(few);
 			removeStack(many);

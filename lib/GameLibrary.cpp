@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "MapLayerHandler.h"
+#include "battle/CombatValue.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
 #include "../luascript/LuaModule.h"
@@ -249,6 +250,9 @@ void GameLibrary::initializeLibrary()
 	modh->afterLoad();
 
 	createHandler(mapFormat);
+
+	// reads creature stats and resolves script identifiers, so it can only be built once mods are loaded
+	combatValues = std::make_unique<CombatValue>();
 }
 
 GameLibrary::GameLibrary() = default;
