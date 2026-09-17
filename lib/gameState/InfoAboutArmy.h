@@ -20,10 +20,10 @@ class CTown;
 struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 {
 	bool isDetailed;
-	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
-	DLL_LINKAGE ArmyDescriptor();
+	ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	ArmyDescriptor();
 
-	DLL_LINKAGE int getStrength() const;
+	int getStrength() const;
 
 	bool operator==(const ArmyDescriptor & other) const = default;
 };

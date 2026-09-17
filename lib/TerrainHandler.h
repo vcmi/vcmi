@@ -32,7 +32,7 @@ struct DLL_LINKAGE TerrainPaletteAnimation
 };
 
 
-class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
+class TerrainType : public EntityT<TerrainId>
 {
 	friend class TerrainTypeHandler;
 	std::string identifier;
@@ -92,12 +92,12 @@ public:
 	bool isTransitionRequired() const;
 };
 
-class DLL_LINKAGE TerrainTypeService : public EntityServiceT<TerrainId, TerrainType>
+class TerrainTypeService : public EntityServiceT<TerrainId, TerrainType>
 {
 public:
 };
 
-class DLL_LINKAGE TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
+class TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
 {
 public:
 	std::shared_ptr<TerrainType> loadFromJson(

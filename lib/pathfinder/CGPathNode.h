@@ -241,7 +241,7 @@ public:
 	}
 };
 
-struct DLL_LINKAGE PathNodeInfo
+struct PathNodeInfo
 {
 	CGPathNode * node;
 	const CGObjectInstance * nodeObject;
@@ -262,7 +262,7 @@ struct DLL_LINKAGE PathNodeInfo
 	bool isNodeObjectVisitable() const;
 };
 
-struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
+struct CDestinationNodeInfo : public PathNodeInfo
 {
 	EPathNodeAction action;
 	int turn;

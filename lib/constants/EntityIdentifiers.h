@@ -987,7 +987,7 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class DLL_LINKAGE BoatId : public EntityIdentifier<BoatId>
+class BoatId : public EntityIdentifier<BoatId>
 {
 public:
 	using EntityIdentifier<BoatId>::EntityIdentifier;
@@ -1062,7 +1062,7 @@ public:
 };
 
 /// Identifies a script of any kind - spell effect, combat event handler
-class DLL_LINKAGE ScriptID : public EntityIdentifier<ScriptID>
+class ScriptID : public EntityIdentifier<ScriptID>
 {
 public:
 	using EntityIdentifier<ScriptID>::EntityIdentifier;

@@ -148,7 +148,7 @@ public:
 		std::set<ObjectInstanceID> everControlledObjects;
 };
 
-struct DLL_LINKAGE TeamState : public CBonusSystemNode
+struct TeamState : public CBonusSystemNode
 {
 public:
 	TeamID id; //position in gameState::teams

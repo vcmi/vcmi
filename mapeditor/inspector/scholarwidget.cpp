@@ -43,7 +43,7 @@ void ScholarWidget::loadData()
 	for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
 	{
 		ui->pSkills->insertItem(i, QString::fromStdString(Translator::instance().translate("core.priskill", i)));
-		ui->pSkills->setItemData(i, QString::fromStdString(NPrimarySkill::names[i]));
+		ui->pSkills->setItemData(i, QString::fromUtf8(NPrimarySkill::names[i]));
 	}
 	int ssi = 0;
 	for(const auto & skill : LIBRARY->skillh->objects)

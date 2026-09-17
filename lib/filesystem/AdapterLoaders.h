@@ -24,7 +24,7 @@ class JsonNode;
  * fileA - file which will be replaced
  * fileB - file which will be used as replacement
  */
-class DLL_LINKAGE CMappedFileLoader : public ISimpleResourceLoader
+class CMappedFileLoader : public ISimpleResourceLoader
 {
 public:
 	/**
@@ -53,7 +53,7 @@ private:
 	std::unordered_map<ResourcePath, ResourcePath> fileList;
 };
 
-class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
+class CFilesystemList : public ISimpleResourceLoader
 {
 	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
 

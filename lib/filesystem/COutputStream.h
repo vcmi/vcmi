@@ -14,7 +14,7 @@
 /**
  * Abstract class which provides method definitions for writing into a stream.
  */
-class DLL_LINKAGE COutputStream : public virtual CStream
+class COutputStream : public virtual CStream
 {
 public:
 	/**

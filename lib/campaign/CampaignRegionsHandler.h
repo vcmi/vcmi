@@ -15,7 +15,7 @@
 
 /// Managed campaign region sets - "map" of campaign locations, with selectable scenarios
 /// Used only for .h3c campaigns. .vmap's embed campaign regions layout in its format
-class DLL_LINKAGE CampaignRegionsHandler : public IHandlerBase
+class CampaignRegionsHandler : public IHandlerBase
 {
 public:
 	std::vector<JsonNode> loadLegacyData() override;

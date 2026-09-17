@@ -15,7 +15,7 @@
 #include "../campaign/CampaignConstants.h"
 #include "../json/JsonNode.h"
 
-class DLL_LINKAGE MapFormatSettings : boost::noncopyable
+class MapFormatSettings : boost::noncopyable
 {
 	static MapIdentifiersH3M generateMapping(EMapFormat format);
 	static std::map<EMapFormat, MapIdentifiersH3M> generateMappings();

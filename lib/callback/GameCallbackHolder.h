@@ -11,7 +11,7 @@
 
 class IGameInfoCallback;
 
-class DLL_LINKAGE GameCallbackHolder
+class GameCallbackHolder
 {
 public:
 	IGameInfoCallback * cb;

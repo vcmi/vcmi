@@ -34,7 +34,7 @@ struct DLL_LINKAGE ScriptVariableDefinition
 /// Persistent key/value store for script-authored variables. Values are JsonNode so any Lua
 /// value round-trips and serializes natively. Keys are namespaced by mod scope so scripts from
 /// different mods cannot clash on a variable name.
-class DLL_LINKAGE ScriptVariablesStorage
+class ScriptVariablesStorage
 {
 	JsonNode variables; // scope -> name -> value
 

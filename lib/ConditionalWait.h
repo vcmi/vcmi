@@ -23,7 +23,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE InterruptionRequestedException : public std::exception
+class InterruptionRequestedException : public std::exception
 {
 public:
 	using exception::exception;

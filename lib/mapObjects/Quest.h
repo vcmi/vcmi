@@ -334,7 +334,7 @@ void loadLegacyBorderGuard(Handler & h, QuestSource & object)
 
 /// Key/toll gate: stays in place, passable for a player once its limiter is met
 /// (border gates require the matching keymaster key).
-class DLL_LINKAGE QuestGate : public QuestSource
+class QuestGate : public QuestSource
 {
 public:
 	using QuestSource::QuestSource;
@@ -355,7 +355,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE KeymasterTent : public CGObjectInstance
+class KeymasterTent : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;

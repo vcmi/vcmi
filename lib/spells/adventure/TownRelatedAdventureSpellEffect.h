@@ -21,7 +21,7 @@ namespace spells
 {
 namespace adventure
 {	
-class DLL_LINKAGE TownRelatedAdventureSpellEffect : public IAdventureSpellEffect
+class TownRelatedAdventureSpellEffect : public IAdventureSpellEffect
 {
 protected:
 	const CSpell * owner;

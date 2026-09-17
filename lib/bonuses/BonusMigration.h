@@ -21,12 +21,12 @@ namespace BonusMigration
 {
 /// Rewrites a bonus config declaring a retired bonus into its replacement. Returns false and
 /// leaves 'migrated' untouched when the config needs no conversion.
-DLL_LINKAGE bool migrateBonus(const JsonNode & ability, JsonNode & migrated);
+bool migrateBonus(const JsonNode & ability, JsonNode & migrated);
 
 /// Same conversion, for a bonus restored from a save predating the ability becoming a script.
-DLL_LINKAGE bool migrateCombatAbility(Bonus & bonus);
+bool migrateCombatAbility(Bonus & bonus);
 
 /// Logs a warning for abilities that were retired without a conversion, so that content still
 /// declaring them fails loudly rather than by quietly doing nothing.
-DLL_LINKAGE void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID);
+void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID);
 }

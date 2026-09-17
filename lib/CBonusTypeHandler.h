@@ -17,7 +17,7 @@
 
 class JsonNode;
 
-class DLL_LINKAGE CBonusType : boost::noncopyable
+class CBonusType : boost::noncopyable
 {
 public:
 	CBonusType() = default;

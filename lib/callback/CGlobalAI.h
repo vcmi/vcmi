@@ -11,7 +11,7 @@
 
 #include "CGameInterface.h"
 
-class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
+class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	std::shared_ptr<Environment> env;

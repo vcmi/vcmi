@@ -16,7 +16,7 @@
 #include "../json/JsonNode.h"
 #include "ObjectTemplate.h"
 
-class DLL_LINKAGE ObstacleSet
+class ObstacleSet
 {
 public:
 
@@ -75,7 +75,7 @@ private:
 
 using TObstacleTypes = std::vector<std::shared_ptr<ObstacleSet>>;
 
-class DLL_LINKAGE ObstacleSetFilter
+class ObstacleSetFilter
 {
 public:
 	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, EMapLevel level, FactionID faction, EAlignment alignment);
@@ -100,7 +100,7 @@ private:
 };
 
 // TODO: Instantiate ObstacleSetHandler
-class DLL_LINKAGE ObstacleSetHandler : public IHandlerBase
+class ObstacleSetHandler : public IHandlerBase
 {
 public:
 

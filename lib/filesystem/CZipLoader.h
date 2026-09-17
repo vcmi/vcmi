@@ -16,7 +16,7 @@
 
 #include "MinizipExtensions.h"
 
-class DLL_LINKAGE CZipStream : public CBufferedStream
+class CZipStream : public CBufferedStream
 {
 	unzFile file;
 
@@ -37,7 +37,7 @@ protected:
 	si64 readMore(ui8 * data, si64 size) override;
 };
 
-class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
+class CZipLoader : public ISimpleResourceLoader
 {
 	std::shared_ptr<CIOApi> ioApi;
 	zlib_filefunc64_def zlibApi;

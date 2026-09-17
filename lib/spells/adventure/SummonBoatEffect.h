@@ -12,7 +12,7 @@
 
 #include "AdventureSpellEffect.h"
 
-class DLL_LINKAGE SummonBoatEffect final : public IAdventureSpellEffect
+class SummonBoatEffect final : public IAdventureSpellEffect
 {
 	const CSpell * owner;
 	BoatId createdBoat = BoatId::NONE;
