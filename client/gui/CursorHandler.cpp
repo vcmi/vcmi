@@ -257,6 +257,9 @@ void CursorHandler::updateAnimatedCursor()
 		newFrame++;
 	}
 
+	if (animation->size() == 0)
+		return; //nothing to display, would loop forever in loop below
+
 	while (newFrame >= animation->size())
 		newFrame -= animation->size();
 

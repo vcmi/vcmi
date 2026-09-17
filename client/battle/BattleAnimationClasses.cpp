@@ -1001,6 +1001,14 @@ bool EffectAnimation::init()
 	be.transparencyFactor = transparencyFactor;
 	be.type = reversed ? BattleEffect::AnimType::REVERSE : BattleEffect::AnimType::DEFAULT;
 
+	if (battlehexes.empty() && positions.empty())
+	{
+		// nothing to display - e.g. effect was created for stack without valid battlefield position.
+		// Without any entry in battleEffects this animation can never finish, so finish it immediately
+		effectFinished = true;
+		return true;
+	}
+
 	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)
 	{
 		bool hasTile = i < battlehexes.size();
