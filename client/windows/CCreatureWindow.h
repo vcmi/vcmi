@@ -102,7 +102,7 @@ class CStackWindow : public CWindowObject
 	class ButtonsSection : public CWindowSection
 	{
 		std::shared_ptr<CButton> dismiss;
-		std::array<std::shared_ptr<CButton>, 3> upgrade;// no more than 3 buttons - space limit
+		std::array<std::shared_ptr<CButton>, 4> upgrade;// no more than 4 buttons - space limit
 		std::shared_ptr<CButton> exit;
 	public:
 		ButtonsSection(CStackWindow * owner, int yOffset);
