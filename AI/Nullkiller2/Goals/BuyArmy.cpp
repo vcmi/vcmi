@@ -99,7 +99,11 @@ void BuyArmy::accept(AIGateway * aiGw)
 
 	if(town->getVisitingHero() && !town->getGarrisonHero())
 	{
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
+		if(aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()))
+			!= HeroMovementResult::COMPLETE)
+		{
+			throw cannotFulfillGoalException("Unable to revisit town after buying army.");
+		}
 	}
 }
 
