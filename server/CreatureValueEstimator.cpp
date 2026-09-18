@@ -601,13 +601,16 @@ void CreatureValueEstimator::measureSpells()
 
 	LocalSpellEnvironment environment(gameState.get());
 	std::vector<std::string> unseen;
+	std::vector<std::string> unreached;
 	int measured = 0;
 
 	logGlobal->info("spell,mastery,creature,before,after,ratio,bonusesAdded");
 
 	for(const auto & spell : LIBRARY->spellh->objects)
 	{
-		if(!spell->isCombat() || spell->isOffensive())
+		// only spells that alter a unit can be judged by what they do to its worth; damage is already
+		// what the model is built on, and the special ones belong to obstacles and town moats
+		if(!spell->isCombat() || spell->isOffensive() || spell->isDamage() || spell->isSpecial())
 			continue;
 
 		bool everSeen = false;
@@ -618,16 +621,34 @@ void CreatureValueEstimator::measureSpells()
 			for(auto skill : schools)
 				attackerSideHero->setSecSkillLevel(skill, mastery, ChangeValueMode::ABSOLUTE);
 
+			spells::BattleCast probe(battle(), attackerSideHero, spells::Mode::HERO, spell.get());
+			const auto probeMechanics = spell->battleMechanics(&probe);
+
+			// the target built below names one point, so a spell wanting a second one - a hex to
+			// teleport to, a unit to sacrifice - can not be cast here
+			const auto aimTypes = probeMechanics->getTargetTypes();
+			if(aimTypes.size() != 1)
+				continue;
+
+			// a hostile spell only reaches the other side of the battle
+			const bool hostile = probeMechanics->isNegativeSpell();
+			const BattleSide side = hostile ? BattleSide::DEFENDER : BattleSide::ATTACKER;
+			const BattleHex hex(hostile ? defenderHex : attackerHex);
+
 			for(const auto * creature : archetypes())
 			{
-				CStack * unit = placeStack(BattleSide::ATTACKER, creature, BattleHex(attackerHex), CombatValue::referenceCount(creature));
+				CStack * unit = placeStack(side, creature, hex, CombatValue::referenceCount(creature));
 
 				const int64_t before = values.getAIValue(unit);
 				const auto bonusesBefore = unit->getAllBonuses(Selector::all)->size();
 
 				spells::BattleCast cast(battle(), attackerSideHero, spells::Mode::HERO, spell.get());
-				spells::Target target;
-				target.emplace_back(unit);
+
+				// a spell reaches its target through the aim point it asks for, and ignores any other
+				spells::Target target(1, aimTypes.front() == spells::AimType::LOCATION
+					? spells::Destination(unit->getPosition())
+					: spells::Destination(unit));
+
 				cast.castEval(&environment, target);
 
 				const int64_t after = values.getAIValue(unit);
@@ -645,16 +666,27 @@ void CreatureValueEstimator::measureSpells()
 				}
 
 				removeStack(unit);
+
+				// summoning and cloning leave stacks behind that would take part in the next cast
+				for(const auto * leftover : battle()->battleGetAllStacks(true))
+					removeStack(leftover);
 			}
 		}
 
 		// a spell that changes a unit without changing what it is worth is one the AI can not see
 		if(everApplied && !everSeen)
 			unseen.push_back(spell->getJsonKey());
+
+		if(!everApplied)
+			unreached.push_back(spell->getJsonKey());
 	}
 
 	for(auto skill : schools)
 		attackerSideHero->setSecSkillLevel(skill, 0, ChangeValueMode::ABSOLUTE);
+
+	if(!unreached.empty())
+		logGlobal->info("%d spells never reached a single unit and are not measured here: %s",
+			static_cast<int>(unreached.size()), boost::algorithm::join(unreached, ", "));
 
 	if(measured == 0)
 		logGlobal->error("No spell reached a unit at all - nothing was measured");
