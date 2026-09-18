@@ -1231,6 +1231,7 @@
 	"vcmi.tutorialWindow.decription.RadialWheel": "A pöccintés megnyitja a körkörös menüt a különböző műveletekhez, például a lények/hősök kezeléséhez és a városi rendelésekhez.",
 	"vcmi.tutorialWindow.decription.RightClick": "Érintsd meg és tartsd lenyomva azt az elemet, amelyre jobb gombbal szeretnél kattintani. Érintsd meg a szabad területet a bezáráshoz.",
 	"vcmi.tutorialWindow.title": "Érintőképernyő bemutatása",
+	"vcmi.upgrade.freeConfirm": "Biztosan továbbképzed ezeket a lényeket?",
 	"vcmi.wiki.alignment.evil": "Gonosz",
 	"vcmi.wiki.alignment.good": "Jó",
 	"vcmi.wiki.alignment.neutral": "Semleges",
