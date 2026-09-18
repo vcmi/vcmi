@@ -12,7 +12,7 @@
 #include "CGlobalAI.h"
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
-class DLL_LINKAGE CAdventureAI : public CGlobalAI
+class CAdventureAI : public CGlobalAI
 {
 public:
 	CAdventureAI() = default;

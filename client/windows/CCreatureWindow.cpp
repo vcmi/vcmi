@@ -402,14 +402,20 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{
-					GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
+					const std::string textID = totalCost.empty()
+						? "vcmi.upgrade.freeConfirm"
+						: "core.genrltxt.207";
+					GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate(textID), onUpgrade, nullptr, resComps);
 				}
 				else
 				{
 					GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[314], resComps);
 				}
 			};
-			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), LIBRARY->generaltexth->zelp[446], onClick);
+			// Center upgrade buttons between Dismiss and Exit, leaving unused space for touch snapping.
+			const int upgradeButtonX = 202 - (static_cast<int>(buttonsToCreate) - 1) * 28 + static_cast<int>(buttonIndex) * 56;
+
+			auto upgradeBtn = std::make_shared<CButton>(Point(upgradeButtonX, 5), AnimationPath::builtin("stackWindow/upgradeButton"), LIBRARY->generaltexth->zelp[446], onClick);
 
 			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), LIBRARY->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 

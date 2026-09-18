@@ -3,4 +3,16 @@
     <string name="server_name">VCMI сервер</string>
     <string name="shortcut_play">Грати у VCMI</string>
     <string name="shortcut_editor">Відкрити Редактор VCMI</string>
+    <string name="notification_channel_running">Робота у фоновому режимі</string>
+    <string name="notification_channel_game">Ігрові події</string>
+    <string name="notification_running_title">VCMI запущено</string>
+    <string name="notification_running_text">Гра залишається активною у фоновому режимі</string>
+    <string name="notification_game_title">VCMI</string>
+    <string name="notification_quit">Вихід</string>
+    <string name="quit_title">Вийти з VCMI</string>
+    <string name="notification_permission_title">Сповіщення вимкнено</string>
+    <string name="notification_permission_denied">VCMI потрібен доступ до сповіщень, щоб повідомляти вас про початок вашого ходу або отримання повідомлення в чаті, коли гра працює у фоновому режимі. Без цього гра все одно працюватиме, але ви не отримуватимете сповіщень.</string>
+    <string name="notification_permission_settings">Налаштування</string>
+    <string name="quit_message">Ви дійсно хочете завершити поточну гру? Незаписаний прогрес буде втрачено.</string>
+    <string name="data_folder_name">Дані VCMI</string>
 </resources>

@@ -17,7 +17,7 @@
 namespace events
 {
 
-class DLL_LINKAGE CObjectVisitStarted : public ObjectVisitStarted
+class CObjectVisitStarted : public ObjectVisitStarted
 {
 public:
 	CObjectVisitStarted(const PlayerColor & player_, const ObjectInstanceID & heroId_, const ObjectInstanceID & objId_);

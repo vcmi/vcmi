@@ -23,7 +23,7 @@ class SpellSchoolHandler;
 namespace spells
 {
 
-class DLL_LINKAGE SpellSchoolType : public EntityT<SpellSchool>, public scripting::ApiRawPointer<SpellSchoolType>
+class SpellSchoolType : public EntityT<SpellSchool>, public scripting::ApiRawPointer<SpellSchoolType>
 {
 	friend class ::SpellSchoolHandler;
 
@@ -63,7 +63,7 @@ public:
 
 }
 
-class DLL_LINKAGE SpellSchoolHandler : public CHandlerBase<SpellSchool, spells::SpellSchoolType, spells::SpellSchoolType, spells::SchoolService>
+class SpellSchoolHandler : public CHandlerBase<SpellSchool, spells::SpellSchoolType, spells::SpellSchoolType, spells::SchoolService>
 {
 public:
 	std::vector<JsonNode> loadLegacyData() override;

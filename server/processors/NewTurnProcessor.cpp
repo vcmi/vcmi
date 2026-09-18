@@ -284,7 +284,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	{
 		// Initialize bonuses for different resources
 		int difficultyIndex = gameHandler->gameState().getStartInfo()->difficulty;
-		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyIndex];
+		const char * difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyIndex];
 		const JsonNode & weeklyBonusesConfig = gameHandler->gameState().getSettings().getValue(EGameSettings::RESOURCES_WEEKLY_BONUSES_AI);
 		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
 

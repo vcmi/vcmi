@@ -89,7 +89,7 @@ struct DLL_LINKAGE PathfinderOptions
 	PathfinderOptions(const IGameInfoCallback & callback);
 };
 
-class DLL_LINKAGE PathfinderConfig
+class PathfinderConfig
 {
 public:
 	std::shared_ptr<INodeStorage> nodeStorage;

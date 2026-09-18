@@ -63,13 +63,13 @@ private:
 	BonusValueCache shooter;
 };
 
-class DLL_LINKAGE CCasts : public CAmmo
+class CCasts : public CAmmo
 {
 public:
 	explicit CCasts(const battle::Unit * Owner);
 };
 
-class DLL_LINKAGE CRetaliations : public CAmmo
+class CRetaliations : public CAmmo
 {
 public:
 	explicit CRetaliations(const battle::Unit * Owner);
@@ -269,7 +269,7 @@ private:
 	void reset();
 };
 
-class DLL_LINKAGE CUnitStateDetached final : public CUnitState
+class CUnitStateDetached final : public CUnitState
 {
 public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);

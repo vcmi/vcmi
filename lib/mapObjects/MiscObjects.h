@@ -23,7 +23,7 @@ class MineInstanceConstructor;
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 /// Legacy class, use CRewardableObject instead
-class DLL_LINKAGE CTeamVisited: public CGObjectInstance
+class CTeamVisited: public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -184,7 +184,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-struct DLL_LINKAGE TeleportChannel : public Serializeable
+struct TeleportChannel : public Serializeable
 {
 	enum EPassability {UNKNOWN, IMPASSABLE, PASSABLE};
 
@@ -240,7 +240,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGMonolith : public CGTeleport
+class CGMonolith : public CGTeleport
 {
 	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const;
 
@@ -261,7 +261,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
+class CGSubterraneanGate : public CGMonolith
 {
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;
@@ -280,7 +280,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGWhirlpool : public CGMonolith
+class CGWhirlpool : public CGMonolith
 {
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void teleportDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const override;
@@ -295,7 +295,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGSirens : public CGObjectInstance
+class CGSirens : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -379,7 +379,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGMagi : public CGObjectInstance
+class CGMagi : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -393,7 +393,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
+class CGDenOfthieves : public CGObjectInstance
 {
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 public:
@@ -418,7 +418,7 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
-class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
+class CGTerrainPatch : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;

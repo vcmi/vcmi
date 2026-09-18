@@ -14,29 +14,32 @@
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded
 ///
+/// Stored as raw pointers so that the tables end up in read-only data instead of
+/// being constructed at startup by every translation unit that includes this header.
+///
 namespace GameConstants
 {
-	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
+	inline constexpr std::array<const char *, RESOURCE_QUANTITY> RESOURCE_NAMES = {
 		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold"
 	};
 
-	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
+	inline constexpr std::array<const char *, PlayerColor::PLAYER_LIMIT_I> PLAYER_COLOR_NAMES = {
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
 
-	const std::string ALIGNMENT_NAMES [4] = {"good", "evil", "neutral", "none"};
+	inline constexpr std::array<const char *, 4> ALIGNMENT_NAMES = {"good", "evil", "neutral", "none"};
 
-	const std::string DIFFICULTY_NAMES [5] = {"pawn", "knight", "rook", "queen", "king"};
+	inline constexpr std::array<const char *, 5> DIFFICULTY_NAMES = {"pawn", "knight", "rook", "queen", "king"};
 }
 
 namespace NPrimarySkill
 {
-	const std::string names [GameConstants::PRIMARY_SKILLS] = { "attack", "defence", "spellpower", "knowledge" };
+	inline constexpr std::array<const char *, GameConstants::PRIMARY_SKILLS> names = { "attack", "defence", "spellpower", "knowledge" };
 }
 
 namespace NSecondarySkill
 {
-	const std::string names [GameConstants::SKILL_QUANTITY] =
+	inline constexpr std::array<const char *, GameConstants::SKILL_QUANTITY> names =
 	{
 		"pathfinding",  "archery",      "logistics",    "scouting",     "diplomacy",    //  5
 		"navigation",   "leadership",   "wisdom",       "mysticism",    "luck",         // 10
@@ -46,7 +49,7 @@ namespace NSecondarySkill
 		"sorcery",      "resistance",   "firstAid"
 	};
 
-	const std::vector<std::string> levels =
+	inline constexpr std::array<const char *, 4> levels =
 	{
 		"none", "basic", "advanced", "expert"
 	};
@@ -54,7 +57,7 @@ namespace NSecondarySkill
 
 namespace EBuildingType
 {
-	const std::string names [46] =
+	inline constexpr std::array<const char *, 46> names =
 	{
 		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",       //  5
 		"tavern",           "shipyard",         "fort",             "citadel",          "castle",           // 10
@@ -71,7 +74,7 @@ namespace EBuildingType
 
 namespace NFaction
 {
-	const std::string names [GameConstants::F_NUMBER] =
+	inline constexpr std::array<const char *, GameConstants::F_NUMBER> names =
 	{
 		"castle",       "rampart",      "tower",
 		"inferno",      "necropolis",   "dungeon",
@@ -100,13 +103,12 @@ namespace NArtifactPosition
 		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6", "commander7", "commander8", "commander9"
 	};
 
-
-	const std::string backpack = "backpack";
+	inline constexpr const char * backpack = "backpack";
 }
 
 namespace NPathfindingLayer
 {
-	const std::string names[EPathfindingLayer::NUM_LAYERS] =
+	inline constexpr std::array<const char *, EPathfindingLayer::NUM_LAYERS> names =
 	{
 		"land", "sail", "water", "aviate", "air"
 	};
@@ -114,27 +116,7 @@ namespace NPathfindingLayer
 
 namespace MappedKeys
 {
-	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
-	{
-		{ "mysticPond", BuildingSubID::MYSTIC_POND },
-		{ "castleGate", BuildingSubID::CASTLE_GATE },
-		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
-		{ "library", BuildingSubID::LIBRARY },
-		{ "treasury", BuildingSubID::TREASURY },
-		{ "bank", BuildingSubID::BANK },
-		{ "auroraBorealis", BuildingSubID::AURORA_BOREALIS }
-	};
+	extern DLL_LINKAGE const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS;
 
-	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =
-	{
-		{ "resource-resource", EMarketMode::RESOURCE_RESOURCE },
-		{ "resource-player", EMarketMode::RESOURCE_PLAYER },
-		{ "creature-resource", EMarketMode::CREATURE_RESOURCE },
-		{ "resource-artifact", EMarketMode::RESOURCE_ARTIFACT },
-		{ "artifact-resource", EMarketMode::ARTIFACT_RESOURCE },
-		{ "artifact-experience", EMarketMode::ARTIFACT_EXP },
-		{ "creature-experience", EMarketMode::CREATURE_EXP },
-		{ "creature-undead", EMarketMode::CREATURE_UNDEAD },
-		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
-	};
+	extern DLL_LINKAGE const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES;
 }

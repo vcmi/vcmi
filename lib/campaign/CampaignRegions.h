@@ -36,7 +36,7 @@ class DLL_LINKAGE CampaignRegions
 	/// Lookup scheme for colored campaign images location
 	int colorSuffixLength = 0;
 
-	struct DLL_LINKAGE RegionDescription
+	struct RegionDescription
 	{
 		std::string infix;
 		Point pos;

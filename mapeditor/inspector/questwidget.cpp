@@ -91,7 +91,7 @@ QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *pare
 		
 		auto * widget = new QComboBox;
 		for(const auto & s : NSecondarySkill::levels)
-			widget->addItem(QString::fromStdString(s));
+			widget->addItem(QString::fromUtf8(s));
 		
 		if(controller.map()->allowedAbilities.count(skillIndex) == 0)
 		{

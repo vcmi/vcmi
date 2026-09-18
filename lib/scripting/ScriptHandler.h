@@ -17,7 +17,7 @@
 /// Registry of every script the game knows, of every kind. Scripts differ only in which engine
 /// interface they implement, declared as `implements`, so they share one entity, one identifier
 /// namespace and one set of features - patches, parameter schema, translatable strings.
-class DLL_LINKAGE ScriptHandler final : public IHandlerBase, public ScriptService
+class ScriptHandler final : public IHandlerBase, public ScriptService
 {
 public:
 	const ScriptTypeDescription & getById(ScriptID scriptID) const override;

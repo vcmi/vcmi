@@ -120,7 +120,7 @@ public:
 	void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
 };
 
-class DLL_LINKAGE BattleStatePackVisitor final : public ICPackVisitor
+class BattleStatePackVisitor final : public ICPackVisitor
 {
 	IBattleState & battleState;
 public:

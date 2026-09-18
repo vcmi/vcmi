@@ -59,6 +59,7 @@ set(lib_MAIN_SRCS
 	battle/CBattleInfoCallback.cpp
 	battle/CBattleInfoEssentials.cpp
 	battle/CObstacleInstance.cpp
+	battle/CombatValue.cpp
 	battle/CPlayerBattleCallback.cpp
 	battle/CUnitState.cpp
 	battle/Destination.cpp
@@ -102,6 +103,7 @@ set(lib_MAIN_SRCS
 	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
+	constants/StringConstants.cpp
 	constants/IdentifierBase.cpp
 
 	entities/artifact/ArtifactUtils.cpp
@@ -463,6 +465,7 @@ set(lib_MAIN_HEADERS
 	battle/CBattleInfoCallback.h
 	battle/CBattleInfoEssentials.h
 	battle/CObstacleInstance.h
+	battle/CombatValue.h
 	battle/CPlayerBattleCallback.h
 	battle/CUnitState.h
 	battle/Destination.h

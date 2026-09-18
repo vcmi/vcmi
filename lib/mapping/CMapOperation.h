@@ -22,7 +22,7 @@ class RNG;
 }
 
 /// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
-class DLL_LINKAGE CMapOperation : public boost::noncopyable
+class CMapOperation : public boost::noncopyable
 {
 public:
 	explicit CMapOperation(CMap * map);
@@ -45,7 +45,7 @@ protected:
 };
 
 /// The CComposedOperation is an operation which consists of several operations.
-class DLL_LINKAGE CComposedOperation : public CMapOperation
+class CComposedOperation : public CMapOperation
 {
 public:
 	CComposedOperation(CMap * map);

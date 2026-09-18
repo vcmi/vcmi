@@ -17,7 +17,7 @@
 #include "battle/BattleHexArray.h"
 #include "filesystem/ResourcePath.h"
 
-class DLL_LINKAGE BattleFieldInfo : public EntityT<BattleField>
+class BattleFieldInfo : public EntityT<BattleField>
 {
 public:
 	BattleField battlefield;
@@ -58,7 +58,7 @@ public:
 	BattleField getId() const override;
 };
 
-class DLL_LINKAGE BattleFieldService : public EntityServiceT<BattleField, BattleFieldInfo>
+class BattleFieldService : public EntityServiceT<BattleField, BattleFieldInfo>
 {
 public:
 };

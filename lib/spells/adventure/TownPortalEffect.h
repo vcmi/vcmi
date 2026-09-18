@@ -14,7 +14,7 @@
 
 class CGTownInstance;
 
-class DLL_LINKAGE TownPortalEffect final : public spells::adventure::TownRelatedAdventureSpellEffect
+class TownPortalEffect final : public spells::adventure::TownRelatedAdventureSpellEffect
 {
 	int movementPointsRequired;
 	int movementPointsTaken;

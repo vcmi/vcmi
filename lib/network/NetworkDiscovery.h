@@ -29,7 +29,7 @@ private:
 	std::set<std::pair<std::string, uint16_t>> discoveredServers;
 };
 
-class DLL_LINKAGE ServerDiscoveryListener : public IServerDiscoveryListener, public std::enable_shared_from_this<ServerDiscoveryListener>
+class ServerDiscoveryListener : public IServerDiscoveryListener, public std::enable_shared_from_this<ServerDiscoveryListener>
 {
 public:
 	ServerDiscoveryListener(NetworkContext & context, IServerDiscoveryAnnouncer & announcer, uint16_t port = 3030);

@@ -21,7 +21,7 @@ struct InfoWindow;
 namespace Rewardable
 {
 
-class DLL_LINKAGE Interface
+class Interface
 {
 private:
 	

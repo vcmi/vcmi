@@ -15,7 +15,7 @@ class IHandlerBase;
 class ModDescription;
 
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
-class DLL_LINKAGE ContentTypeHandler
+class ContentTypeHandler
 {
 	JsonNode conflictList;
 

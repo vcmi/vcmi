@@ -41,7 +41,7 @@ public:
 	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(const std::string & scriptId) const = 0;
 };
 
-class DLL_LINKAGE ScriptService : boost::noncopyable
+class ScriptService : boost::noncopyable
 {
 public:
 	virtual ~ScriptService() = default;

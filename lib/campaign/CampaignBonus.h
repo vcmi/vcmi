@@ -170,8 +170,8 @@ public:
 		:data(value)
 	{}
 
-	DLL_LINKAGE CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & remapper, CampaignStartOptions mode);
-	DLL_LINKAGE CampaignBonus(const JsonNode & json, CampaignStartOptions mode);
+	CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & remapper, CampaignStartOptions mode);
+	CampaignBonus(const JsonNode & json, CampaignStartOptions mode);
 
 	template<typename T>
 	const T & getValue() const
@@ -211,7 +211,7 @@ public:
 		return static_cast<CampaignBonusType>(data.index());
 	}
 
-	DLL_LINKAGE JsonNode toJson() const;
+	JsonNode toJson() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
