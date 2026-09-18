@@ -35,6 +35,8 @@ public:
 	double magicPower = 1;
 	/// Share of the enemy that a slayer of each mastery reaches, indexed by that mastery
 	std::array<double, 4> kingShare = {};
+	/// Chance that an allied stack other than the one struck at stands within reach of a blow
+	double allyCrowding = 0;
 
 	/// What the other side of a battle presents to the given one
 	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);
@@ -75,7 +77,7 @@ public:
 
 	/// Same two, for bonuses that are only worth something against a particular enemy - magic
 	/// defenses against a spellcasting hero, a shield against the kind of blow it turns aside
-	static double situationalOffense(const ACreature & creature);
+	static double situationalOffense(const ACreature & creature, const CombatValueContext & context);
 	static double situationalSurvival(const ACreature & creature, const CombatValueContext & context);
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);

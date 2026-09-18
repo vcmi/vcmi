@@ -327,7 +327,7 @@ void CreatureValueEstimator::deriveValues()
 		Entry & entry = entries[subject];
 		entry.creature = subjects[subject];
 		entry.baseline = subject < baselineCount;
-		entry.output = rawOutput[subject] * CombatValue::offenseMultiplier(*unit) * CombatValue::situationalOffense(*unit);
+		entry.output = rawOutput[subject] * CombatValue::offenseMultiplier(*unit) * CombatValue::situationalOffense(*unit, values.averageBattle());
 		entry.uptime = CombatValue::uptimeOf(*unit);
 
 		removeStack(unit);

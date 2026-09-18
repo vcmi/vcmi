@@ -307,6 +307,9 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
 		defaultContext.kingShare[mastery] = static_cast<double>(kings[mastery]) / builtinCreatures.size();
 
+	// an army of equally strong stacks filling every slot, which is what a battle is assumed to be
+	defaultContext.allyCrowding = 1.0 - 1.0 / GameConstants::ARMY_SIZE;
+
 	offenseCurve.assign(skillCap + 1, 0.0);
 	for(int attack = 0; attack <= skillCap; ++attack)
 	{
@@ -407,7 +410,7 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	if(ranged && !retaliatesAtRange && !bonuses->hasBonusOfType(BonusType::NO_MELEE_PENALTY))
 		retaliationBlow *= meleePenalty;
 
-	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature) * situationalOffense(creature);
+	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature) * situationalOffense(creature, context);
 	const double defense = defenseAt(effectiveDefense(creature)) * (1.0 + retaliationSuffered(creature));
 	const double hitPoints = creature.getMaxHealth() + regeneratedHitPoints(creature, count);
 	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature, context);
@@ -683,13 +686,20 @@ double CombatValue::situationalSurvival(const ACreature & creature, const Combat
 	return result;
 }
 
-double CombatValue::situationalOffense(const ACreature & creature)
+double CombatValue::situationalOffense(const ACreature & creature, const CombatValueContext & context)
 {
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
 	// being unable to act is crippling, but often ends the moment the unit is struck
 	result *= 1.0 - 0.5 * lastingPresence(unit, BonusType::NOT_ACTIVE);
+
+	// a unit that turns on its own side costs its army twice over - the blow it does not land on the
+	// enemy, and the one an ally takes instead - and costs it nothing where it stands alone
+	static constexpr double friendlyFireCost = 2.0;
+
+	result *= 1.0 - friendlyFireCost * context.allyCrowding
+		* lastingPresence(unit, BonusType::ATTACKS_NEAREST_CREATURE);
 
 	return result;
 }
