@@ -18,12 +18,64 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
+#include "../mapObjects/army/CCreatureSet.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
 /// Estimated length of an average battle, in rounds
 static constexpr int battleRounds = 8;
+
+CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
+{
+	double total = 0;
+	double melee = 0;
+
+	for(const auto * unit : battle.battleGetUnitsIf([side](const battle::Unit * candidate)
+		{ return candidate->alive() && candidate->unitSide() != side; }))
+	{
+		const double worth = unit->estimateCombatValue();
+
+		total += worth;
+
+		// a shooter that is blocked or out of ammunition closes in like any other creature
+		if(!battle.battleCanShoot(unit))
+			melee += worth;
+	}
+
+	// an enemy that is not there says nothing about what the units facing it are worth
+	if(total <= 0)
+		return LIBRARY->combatValues->averageBattle();
+
+	CombatValueContext result;
+	result.meleeShare = melee / total;
+
+	return result;
+}
+
+CombatValueContext CombatValueContext::against(const CCreatureSet & army)
+{
+	double total = 0;
+	double melee = 0;
+
+	for(const auto & slot : army.Slots())
+	{
+		const double worth = slot.second->estimateCombatValue();
+
+		total += worth;
+
+		if(!slot.second->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER))
+			melee += worth;
+	}
+
+	if(total <= 0)
+		return LIBRARY->combatValues->averageBattle();
+
+	CombatValueContext result;
+	result.meleeShare = melee / total;
+
+	return result;
+}
 
 /// Highest attack or defense that the curves are built for
 static constexpr int skillCap = 120;

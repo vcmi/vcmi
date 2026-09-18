@@ -11,7 +11,10 @@
 
 #include <vcmi/Creature.h>
 
+#include "BattleSide.h"
+
 class CCreature;
+class CCreatureSet;
 class CBattleInfoCallback;
 
 namespace battle
@@ -27,6 +30,11 @@ class DLL_LINKAGE CombatValueContext
 public:
 	/// Share of the enemy that closes in to strike rather than shooting
 	double meleeShare = 1;
+
+	/// What the other side of a battle presents to the given one
+	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);
+	/// Same, for an army known only by the creatures standing in it
+	static CombatValueContext against(const CCreatureSet & army);
 };
 
 /// Computes AI value or fight value of provided unit or creature. All computation is done in
