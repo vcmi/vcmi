@@ -19,6 +19,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/constants/IdentifierBase.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/ResourceTypeHandler.h"
@@ -144,7 +145,26 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 	if (c == nullptr)
 		throw std::out_of_range("Unknown connection received in CVCMIServer::findConnection");
 
-	auto pack = c->retrievePack(message);
+	// A malformed or unknown entity identifier inside a pack (e.g. a bogus
+	// CreatureID string from an external/legacy client) makes retrievePack
+	// throw IdentifierResolutionException. Do not let a single bad pack
+	// crash the whole server: drop it and keep the connection alive.
+	std::unique_ptr<CPack> pack;
+	try
+	{
+		pack = c->retrievePack(message);
+	}
+	catch (const IdentifierResolutionException & e)
+	{
+		logGlobal->error("Dropped malformed pack from connection: failed to resolve identifier '%s'", e.identifierName);
+		return;
+	}
+	catch (const std::exception & e)
+	{
+		logGlobal->error("Dropped malformed pack from connection: %s", e.what());
+		return;
+	}
+
 	CVCMIServerPackVisitor visitor(*this, this->gh, c);
 	pack->visit(visitor);
 }
