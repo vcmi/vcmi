@@ -33,6 +33,8 @@ public:
 	double meleeShare = 1;
 	/// Hostile magic the enemy can bring, with 1 standing for a hero carrying a spellbook
 	double magicPower = 1;
+	/// Share of the enemy that a slayer of each mastery reaches, indexed by that mastery
+	std::array<double, 4> kingShare = {};
 
 	/// What the other side of a battle presents to the given one
 	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);

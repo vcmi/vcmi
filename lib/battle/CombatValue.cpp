@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusParameters.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/army/CCreatureSet.h"
 #include "../modding/IdentifierStorage.h"
@@ -287,16 +288,24 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	};
 
 	int shooters = 0;
+	std::array<int, 4> kings = {};
 
 	for(const auto * creature : builtinCreatures)
 	{
 		averageDefense += creature->getBaseDefense();
 		if(creature->hasBonusOfType(BonusType::SHOOTER))
 			++shooters;
+
+		if(creature->hasBonusOfType(BonusType::KING))
+			for(size_t mastery = std::clamp(creature->valOfBonuses(BonusType::KING), 0, 3); mastery < kings.size(); ++mastery)
+				++kings[mastery];
 	}
 
 	averageDefense /= builtinCreatures.size();
 	defaultContext.meleeShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
+
+	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
+		defaultContext.kingShare[mastery] = static_cast<double>(kings[mastery]) / builtinCreatures.size();
 
 	offenseCurve.assign(skillCap + 1, 0.0);
 	for(int attack = 0; attack <= skillCap; ++attack)
@@ -358,6 +367,14 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 
 	// frenzy buys attack with the defense of its bearer, which it gives up entirely
 	attackBonus += lastingValue(bonuses, BonusType::IN_FRENZY) / 100.0 * creature.getDefense(false);
+
+	// slayer strikes harder only at kings, and only those its mastery is strong enough to reach
+	for(const auto & bonus : *bonuses->getBonusesOfType(BonusType::SLAYER))
+	{
+		const int mastery = bonus->parameters ? std::clamp(bonus->parameters->toNumber(), 0, 3) : 0;
+
+		attackBonus += bonus->val * durationWeight(*bonus) * context.kingShare[mastery];
+	}
 
 	// bless and curse do not scale damage, they collapse its range onto one of its ends
 	const double damageShift = lastingValue(bonuses, BonusType::ALWAYS_MAXIMUM_DAMAGE)
