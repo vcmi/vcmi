@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../../lib/battle/CUnitState.h"
+#include "../../lib/battle/CombatValue.h"
 #include "StackWithBonuses.h"
 
 #define BATTLE_TRACE_LEVEL 0
@@ -23,6 +24,10 @@ private:
 	void buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 
 public:
+	/// What each side of the battle is up against, worked out once for the turn so that a unit is
+	/// weighed the same way wherever it is considered
+	BattleSideArray<CombatValueContext> facing;
+
 	DamageCache() : parent(nullptr) {}
 	DamageCache(DamageCache * parent) : parent(parent) {}
 

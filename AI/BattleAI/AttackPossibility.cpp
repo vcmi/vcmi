@@ -93,6 +93,9 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleS
 		buildObstacleDamageCache(hb, side);
 	}
 
+	for(auto known : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+		facing.at(known) = CombatValueContext::against(*hb, known);
+
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
 			return u->isValidTarget();
@@ -204,7 +207,7 @@ static float creatureWorth(const battle::Unit * unit, const battle::Unit * again
 	DamageCache & damageCache, std::shared_ptr<CBattleInfoCallback> state)
 {
 	if(valueUnitsByCombatModel)
-		return LIBRARY->combatValues->getAIValue(unit);
+		return LIBRARY->combatValues->getAIValue(*unit, unit->unitType(), damageCache.facing.at(unit->unitSide()));
 
 	return damageCache.getOriginalDamage(unit, against, state) / static_cast<double>(unit->getCount());
 }
@@ -323,7 +326,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 		// share of what the shooter is worth that blocking it denies, weighed as a kill would be
 		const auto shooterWorth = valueUnitsByCombatModel
-			? static_cast<int64_t>(st->estimateCombatValue())
+			? static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())))
 			: damageCache.getOriginalDamage(st, attacker, state);
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;

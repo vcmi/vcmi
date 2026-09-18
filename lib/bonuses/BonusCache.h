@@ -65,22 +65,25 @@ public:
 class BonusDerivedValueCache : public BonusCacheBase
 {
 	mutable BonusCacheEntry entry;
+	mutable std::atomic<int32_t> variant = 0;
 
 public:
 	explicit BonusDerivedValueCache(const IBonusBearer * target)
 		: BonusCacheBase(target)
 	{}
 
-	/// Result of 'compute', recomputed whenever the bonuses of the target change
+	/// Result of 'compute', recomputed whenever the bonuses of the target change. A value that also
+	/// depends on something else is told apart by 'of', and recomputed whenever that changes too.
 	template<typename Compute>
-	int getValue(const Compute & compute) const
+	int getValue(const Compute & compute, int32_t of = 0) const
 	{
 		auto version = target->getTreeVersion();
 
-		if(entry.version != version)
+		if(entry.version != version || variant != of)
 		{
 			entry.value = compute();
 			entry.version = version;
+			variant = of;
 		}
 
 		return entry.value;

@@ -64,6 +64,18 @@ static double magicOf(const CGHeroInstance * hero)
 	return std::max(0.0, hero->getMagicStrength() - 1.0) / (referenceMagicStrength - 1.0);
 }
 
+CombatValueContext::CombatValueContext()
+{
+	static std::atomic<int32_t> counter = 0;
+
+	identity = ++counter;
+}
+
+int32_t CombatValueContext::id() const
+{
+	return identity;
+}
+
 CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
 {
 	double total = 0;
@@ -757,7 +769,12 @@ int CombatValue::startingDistance()
 
 int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type) const
 {
-	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type), defaultContext) * scale);
+	return getAIValue(bearer, type, defaultContext);
+}
+
+int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type, const CombatValueContext & context) const
+{
+	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type), context) * scale);
 }
 
 const CombatValueContext & CombatValue::averageBattle() const

@@ -209,6 +209,7 @@ public:
 	int64_t getAvailableHealth() const override;
 	int64_t getTotalHealth() const override;
 	uint64_t estimateCombatValue() const override;
+	uint64_t estimateCombatValue(const CombatValueContext & context) const override;
 	uint32_t getMaxHealth() const override;
 
 	BattleHex getPosition() const override;

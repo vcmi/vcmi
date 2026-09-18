@@ -29,6 +29,12 @@ class Unit;
 class DLL_LINKAGE CombatValueContext
 {
 public:
+	CombatValueContext();
+
+	/// Tells one context from another, so that what was weighed against it can be remembered.
+	/// Building a context is therefore something to do once per turn, not once per move considered.
+	int32_t id() const;
+
 	/// Share of the enemy that closes in to strike rather than shooting
 	double meleeShare = 1;
 	/// Hostile magic the enemy can bring, with 1 standing for a hero carrying a spellbook
@@ -42,6 +48,9 @@ public:
 	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);
 	/// Same, for an army known only by the creatures standing in it
 	static CombatValueContext against(const CCreatureSet & army, const CGHeroInstance * hero = nullptr);
+
+private:
+	int32_t identity;
 };
 
 /// Computes AI value or fight value of provided unit or creature. All computation is done in
@@ -53,6 +62,7 @@ public:
 
 	/// Value of a single creature of given type, as modified by the bonuses that its bearer carries
 	int64_t getAIValue(const ACreature & bearer, const Creature * type) const;
+	int64_t getAIValue(const ACreature & bearer, const Creature * type, const CombatValueContext & context) const;
 
 	int64_t getAIValue(const battle::Unit * unit) const;
 

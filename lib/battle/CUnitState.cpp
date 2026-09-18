@@ -580,8 +580,14 @@ int64_t CUnitState::getTotalHealth() const
 
 uint64_t CUnitState::estimateCombatValue() const
 {
+	return estimateCombatValue(LIBRARY->combatValues->averageBattle());
+}
+
+uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) const
+{
 	const auto perCreature = combatValue.getValue(
-		[this] { return static_cast<int>(LIBRARY->combatValues->getAIValue(*this, unitType())); });
+		[this, &context] { return static_cast<int>(LIBRARY->combatValues->getAIValue(*this, unitType(), context)); },
+		context.id());
 
 	const auto count = getCount();
 

@@ -26,6 +26,7 @@ class JsonNode;
 class JsonSerializeFormat;
 
 class ITranslator;
+class CombatValueContext;
 
 namespace battle
 {
@@ -127,6 +128,9 @@ public:
 
 	/// Worth of this unit in combat, estimated from its stats and the bonuses it currently carries
 	virtual uint64_t estimateCombatValue() const = 0;
+
+	/// Same, weighed against the enemy the unit is up against rather than against an average one
+	virtual uint64_t estimateCombatValue(const CombatValueContext & context) const = 0;
 
 	virtual int getTotalAttacks(bool ranged) const = 0;
 

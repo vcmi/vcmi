@@ -109,12 +109,17 @@ static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSid
 	auto our = 0;
 	auto enemy = 0;
 
+	// each side is weighed against what it actually faces, so that what only helps against this
+	// enemy - resisting its magic, turning aside the blows it strikes - counts for what it is here
+	const auto ourEnemy = CombatValueContext::against(*cb, side);
+	const auto theirEnemy = CombatValueContext::against(*cb, CBattleInfoEssentials::otherSide(side));
+
 	for(auto stack : stacks)
 	{
 		if(stack->unitSide() == side)
-			our += stack->estimateCombatValue();
+			our += stack->estimateCombatValue(ourEnemy);
 		else
-			enemy += stack->estimateCombatValue();
+			enemy += stack->estimateCombatValue(theirEnemy);
 	}
 
 	return enemy == 0 ? 1.0f : static_cast<float>(our) / enemy;
