@@ -15,6 +15,7 @@
 
 class CCreature;
 class CCreatureSet;
+class CGHeroInstance;
 class CBattleInfoCallback;
 
 namespace battle
@@ -30,11 +31,13 @@ class DLL_LINKAGE CombatValueContext
 public:
 	/// Share of the enemy that closes in to strike rather than shooting
 	double meleeShare = 1;
+	/// Hostile magic the enemy can bring, with 1 standing for a hero carrying a spellbook
+	double magicPower = 1;
 
 	/// What the other side of a battle presents to the given one
 	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);
 	/// Same, for an army known only by the creatures standing in it
-	static CombatValueContext against(const CCreatureSet & army);
+	static CombatValueContext against(const CCreatureSet & army, const CGHeroInstance * hero = nullptr);
 };
 
 /// Computes AI value or fight value of provided unit or creature. All computation is done in

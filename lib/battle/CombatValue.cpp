@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/army/CCreatureSet.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -26,10 +27,47 @@
 /// Estimated length of an average battle, in rounds
 static constexpr int battleRounds = 8;
 
+/// Magic of a hero that a full spellbook and a few points of knowledge and spell power amount to
+static constexpr double referenceMagicStrength = 1.25;
+
+/// Magic that an army of nothing but hostile casters is worth, measured against such a hero
+static constexpr double creatureMagicWeight = 0.5;
+
+/// Whether the magic this creature knows is ever aimed at the other side of a battle
+static bool castsAtEnemies(const IBonusBearer * unit)
+{
+	// a blow that carries a spell always lands on an enemy
+	if(unit->hasBonusOfType(BonusType::SPELL_AFTER_ATTACK)
+		|| unit->hasBonusOfType(BonusType::SPELL_BEFORE_ATTACK)
+		|| unit->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
+		return true;
+
+	// creature casters mostly help their own side - a Conflux army casts all battle long and never
+	// gives the enemy anything to resist
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::SPELLCASTER))
+	{
+		const auto spell = bonus->subtype.as<SpellID>();
+
+		if(spell.hasValue() && spell.toSpell()->isNegative())
+			return true;
+	}
+
+	return false;
+}
+
+static double magicOf(const CGHeroInstance * hero)
+{
+	if(!hero)
+		return 0;
+
+	return std::max(0.0, hero->getMagicStrength() - 1.0) / (referenceMagicStrength - 1.0);
+}
+
 CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
 {
 	double total = 0;
 	double melee = 0;
+	double casters = 0;
 
 	for(const auto * unit : battle.battleGetUnitsIf([side](const battle::Unit * candidate)
 		{ return candidate->alive() && candidate->unitSide() != side; }))
@@ -41,6 +79,9 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 		// a shooter that is blocked or out of ammunition closes in like any other creature
 		if(!battle.battleCanShoot(unit))
 			melee += worth;
+
+		if(castsAtEnemies(unit->getBonusBearer()))
+			casters += worth;
 	}
 
 	// an enemy that is not there says nothing about what the units facing it are worth
@@ -49,23 +90,30 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 
 	CombatValueContext result;
 	result.meleeShare = melee / total;
+	result.magicPower = magicOf(battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(side)))
+		+ creatureMagicWeight * casters / total;
 
 	return result;
 }
 
-CombatValueContext CombatValueContext::against(const CCreatureSet & army)
+CombatValueContext CombatValueContext::against(const CCreatureSet & army, const CGHeroInstance * hero)
 {
 	double total = 0;
 	double melee = 0;
+	double casters = 0;
 
 	for(const auto & slot : army.Slots())
 	{
 		const double worth = slot.second->estimateCombatValue();
+		const auto * bearer = slot.second->getBonusBearer();
 
 		total += worth;
 
-		if(!slot.second->getBonusBearer()->hasBonusOfType(BonusType::SHOOTER))
+		if(!bearer->hasBonusOfType(BonusType::SHOOTER))
 			melee += worth;
+
+		if(castsAtEnemies(bearer))
+			casters += worth;
 	}
 
 	if(total <= 0)
@@ -73,6 +121,7 @@ CombatValueContext CombatValueContext::against(const CCreatureSet & army)
 
 	CombatValueContext result;
 	result.meleeShare = melee / total;
+	result.magicPower = magicOf(hero) + creatureMagicWeight * casters / total;
 
 	return result;
 }
@@ -582,18 +631,24 @@ double CombatValue::situationalSurvival(const ACreature & creature, const Combat
 		return static_cast<int>(unit->getBonusesOfType(type)->size());
 	};
 
-	result *= std::pow(1.015, bonusCount(BonusType::SPELL_IMMUNITY));
-	result *= std::pow(0.97, bonusCount(BonusType::MORE_DAMAGE_FROM_SPELL));
-	result *= 1.0 + unit->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) * 0.02;
+	double magic = 1.0;
+
+	magic *= std::pow(1.015, bonusCount(BonusType::SPELL_IMMUNITY));
+	magic *= std::pow(0.97, bonusCount(BonusType::MORE_DAMAGE_FROM_SPELL));
+	magic *= 1.0 + unit->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) * 0.02;
 
 	if(unit->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY))
-		result *= 1.04;
+		magic *= 1.04;
 
-	result *= 1.0 + unit->valOfBonuses(BonusType::MAGIC_RESISTANCE) / 100.0 * 0.5;
-	result *= 1.0 + unit->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION) / 100.0 * 0.2;
+	magic *= 1.0 + unit->valOfBonuses(BonusType::MAGIC_RESISTANCE) / 100.0 * 0.5;
+	magic *= 1.0 + unit->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION) / 100.0 * 0.2;
 
 	if(unit->hasBonusOfType(BonusType::MAGIC_MIRROR))
-		result *= 1.06;
+		magic *= 1.06;
+
+	// resisting magic is worth nothing where none is cast, and worth more than this where the enemy
+	// can bring a full spellbook against it
+	result *= 1.0 + (magic - 1.0) * context.magicPower;
 
 	// shield and air shield each turn aside one kind of blow, so what they are worth depends on how
 	// the enemy fights - known here only as the share of creatures that close in rather than shoot
