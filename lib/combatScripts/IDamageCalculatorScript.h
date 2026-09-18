@@ -38,6 +38,8 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 	bool unluckyStrike = false;
 	bool deathBlow = false;
 	bool doubleDamage = false;
+	int64_t baseDamageOverride = -1;
+	double offenseArcheryFactorOverride = -1.0;
 
 	/// Which of the bonus types the script declared an interest in each of the two carries
 	std::unordered_map<std::string, bool> attackerBonuses;
@@ -65,6 +67,9 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 		s("unluckyStrike", unluckyStrike, "Whether bad luck struck.");
 		s("deathBlow", deathBlow, "Whether a death blow was rolled.");
 		s("doubleDamage", doubleDamage, "Whether the attack is a doubled one, as a ballista may roll.");
+		s("baseDamageOverride", baseDamageOverride, "Whole-stack base damage, or -1 to use the unit's range.");
+		s("offenseArcheryFactorOverride", offenseArcheryFactorOverride,
+			"Exact Offense/Archery factor, or a negative value to derive it from bonuses.");
 		s("attackFactorPerPoint", attackFactorPerPoint, "Damage added per point of attack over the target's defense.");
 		s("attackFactorCap", attackFactorCap, "Most that attack points alone may add.");
 		s("defenseFactorPerPoint", defenseFactorPerPoint, "Damage removed per point of defense over the attacker's attack.");

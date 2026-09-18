@@ -9,6 +9,16 @@ set(battleAI_SRCS
 		TacticsHandler.cpp
 		ThreatMap.cpp
 		BattleExchangeVariant.cpp
+		Classic/ClassicBattleController.cpp
+		Classic/ClassicBattleRng.cpp
+		Classic/ClassicBattleStateView.cpp
+		Classic/ClassicAttackEvaluator.cpp
+		Classic/ClassicCombatValue.cpp
+		Classic/ClassicDecisionTrace.cpp
+		Classic/ClassicBattleDecision.cpp
+		Classic/ClassicRetreatEvaluator.cpp
+		Classic/ClassicRulesAdapter.cpp
+		Classic/ClassicSpellEvaluator.cpp
 )
 
 set(battleAI_HEADERS
@@ -24,6 +34,16 @@ set(battleAI_HEADERS
 		TacticsHandler.h
 		ThreatMap.h
 		BattleExchangeVariant.h
+		Classic/ClassicBattleController.h
+		Classic/ClassicBattleRng.h
+		Classic/ClassicBattleStateView.h
+		Classic/ClassicAttackEvaluator.h
+		Classic/ClassicCombatValue.h
+		Classic/ClassicDecisionTrace.h
+		Classic/ClassicBattleDecision.h
+		Classic/ClassicRetreatEvaluator.h
+		Classic/ClassicRulesAdapter.h
+		Classic/ClassicSpellEvaluator.h
 )
 
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})

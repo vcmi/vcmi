@@ -288,22 +288,30 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 
 battle::Units HypotheticBattle::getUnitsIf(const battle::UnitFilter & predicate) const
 {
-	battle::Units proxyed = BattleProxy::getUnitsIf(predicate);
+	battle::Units proxyed = BattleProxy::getUnitsIf([](const battle::Unit *)
+	{
+		return true;
+	});
 
 	battle::Units ret;
 	ret.reserve(proxyed.size());
 
-	for(auto unit : proxyed)
+	for(const auto * unit : proxyed)
 	{
-		//unit was not changed, trust proxyed data
-		if(stackStates.find(unit->unitId()) == stackStates.end())
-			ret.push_back(unit);
+		const auto changed = stackStates.find(unit->unitId());
+		const battle::Unit * current = changed == stackStates.end() ? unit : changed->second.get();
+		if(predicate(current))
+			ret.push_back(current);
 	}
 
-	for(auto id_unit : stackStates)
+	for(const auto & [id, unit] : stackStates)
 	{
-		if(predicate(id_unit.second.get()))
-			ret.push_back(id_unit.second.get());
+		const auto original = std::ranges::find_if(proxyed, [id](const battle::Unit * candidate)
+		{
+			return candidate->unitId() == id;
+		});
+		if(original == proxyed.end() && predicate(unit.get()))
+			ret.push_back(unit.get());
 	}
 
 	return ret;

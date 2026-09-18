@@ -630,7 +630,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "adventureAlliedAI", "adventureEnemyAI", "combatEnemyAI", "combatAlliedAI", "combatNeutralAI" ],
+			"required" : [ "adventureAlliedAI", "adventureEnemyAI", "combatEnemyAI", "combatAlliedAI", "combatNeutralAI", "battleAIClassicMode" ],
 			"properties" : {
 				"adventureAlliedAI" : {
 					"type" : "string",
@@ -656,6 +656,11 @@
 					"type" : "string",
 					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
+				},
+				"battleAIClassicMode" : {
+					"type" : "boolean",
+					"default" : false,
+					"description" : "Use the original Heroes III tactical decision algorithm in BattleAI"
 				}
 			}
 		},

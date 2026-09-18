@@ -11,6 +11,8 @@
 #include "BattleAI.h"
 #include "BattleEvaluator.h"
 #include "BattleExchangeVariant.h"
+#include "Classic/ClassicBattleController.h"
+#include "Classic/ClassicBattleDecision.h"
 
 #include "StackWithBonuses.h"
 #include "tbb/parallel_for.h"
@@ -33,9 +35,10 @@
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
-CBattleAI::CBattleAI()
+CBattleAI::CBattleAI(BattleAISettings settings)
 	: side(BattleSide::NONE),
-	wasWaitingForRealize(false)
+	wasWaitingForRealize(false),
+	battleAISettings(settings)
 {
 }
 
@@ -67,6 +70,13 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	wasWaitingForRealize = CB->waitTillRealize;
 	CB->waitTillRealize = false;
 	movesSkippedByDefense = 0;
+	if(battleAISettings.mode == BattleAIMode::CLASSIC)
+		classicController = std::make_unique<ClassicBattleController>(
+			env,
+			cb,
+			playerID,
+			battleAISettings.randomGenerator,
+			battleAISettings.decisionTrace);
 
 	logHexNumbers();
 }
@@ -95,12 +105,49 @@ BattleAction CBattleAI::useHealingTent(const BattleID & battleID, const CStack *
 
 void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
+	updateBattleMode(battleID);
+	if(isClassicMode())
+	{
+		classicController->yourTacticPhase(battleID, distance, autobattlePreferences);
+		return;
+	}
 	tacticsHandler->onTacticsStarted();
 }
 
 void CBattleAI::actionFinished(const BattleID & battleID, const BattleAction & action)
 {
+	const bool wasClassicMode = isClassicMode();
+	updateBattleMode(battleID);
+	if(wasClassicMode && !isClassicMode())
+	{
+		const auto battle = cb->getBattle(battleID);
+		if(battle->battleTacticDist() > 0 && battle->battleGetTacticsSide() == side)
+			tacticsHandler->onTacticsStarted();
+		return;
+	}
+	if(isClassicMode())
+	{
+		classicController->actionFinished(battleID, action);
+		return;
+	}
 	tacticsHandler->onActionFinished(action);
+}
+
+bool CBattleAI::isClassicMode() const
+{
+	return battleAISettings.mode == BattleAIMode::CLASSIC && classicBattleSupported;
+}
+
+void CBattleAI::updateBattleMode(const BattleID & battleID)
+{
+	if(!isClassicMode() || ClassicBattleDecision::supportsBattle(*cb->getBattle(battleID)))
+		return;
+
+	// A mod may introduce an unsupported creature after combat has started,
+	// for example through summoning. Keep the fallback for the rest of this battle.
+	classicBattleSupported = false;
+	logAi->warn("Classic BattleAI encountered a creature outside the original Heroes III roster; "
+		"using modern BattleAI for the remainder of this battle");
 }
 
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
@@ -131,6 +178,18 @@ int getSimulationTurnsCount(const StartInfo * startInfo)
 }
 
 void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
+{
+	updateBattleMode(battleID);
+	if(isClassicMode())
+	{
+		classicController->activeStack(battleID, stack, autobattlePreferences);
+		return;
+	}
+
+	activeStackModern(battleID, stack);
+}
+
+void CBattleAI::activeStackModern(const BattleID & battleID, const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
@@ -249,8 +308,19 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 {
 	LOG_TRACE(logAi);
 	side = Side;
+	classicBattleSupported = true;
+	movesSkippedByDefense = 0;
 	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
 	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
+	updateBattleMode(battleID);
+	if(isClassicMode())
+		classicController->battleStart(battleID, Side);
+}
+
+void CBattleAI::battleEnd(const BattleID & battleID, const BattleResult * result, QueryID queryID)
+{
+	if(classicController)
+		classicController->battleEnd(battleID);
 }
 
 void CBattleAI::print(const std::string &text) const
@@ -298,6 +368,3 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering(const Battl
 
 	return result;
 }
-
-
-

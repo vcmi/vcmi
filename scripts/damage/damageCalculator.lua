@@ -173,6 +173,10 @@ end
 
 --- What the whole stack deals, before any factor applies.
 function Script:getBaseDamage(info)
+	if info.baseDamageOverride >= 0 then
+		return info.baseDamageOverride, info.baseDamageOverride
+	end
+
 	local minDamage, maxDamage = self:getBaseDamageBlessCurse(info)
 	local count = info.attacker:getCount()
 
@@ -258,6 +262,10 @@ end
 
 --- Offense and archery, whichever of the two this blow is.
 function Script:getOffenseArcheryFactor(info)
+	if info.offenseArcheryFactorOverride >= 0 then
+		return info.offenseArcheryFactorOverride
+	end
+
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
 	return getBonusValueOfSubtype(info.attacker, info.attackerBonuses, "PERCENTAGE_DAMAGE_BOOST", subtype) / 100

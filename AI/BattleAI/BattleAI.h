@@ -15,6 +15,22 @@
 #include "TacticsHandler.h"
 
 class CSpell;
+class ClassicBattleController;
+class IClassicBattleAIRng;
+class ClassicDecisionTrace;
+
+enum class BattleAIMode
+{
+	MODERN,
+	CLASSIC
+};
+
+struct BattleAISettings
+{
+	BattleAIMode mode = BattleAIMode::MODERN;
+	std::shared_ptr<IClassicBattleAIRng> randomGenerator;
+	std::shared_ptr<ClassicDecisionTrace> decisionTrace;
+};
 
 /*
 struct CurrentOffensivePotential
@@ -58,10 +74,17 @@ class CBattleAI : public CBattleGameInterface
 	int movesSkippedByDefense;
 
 	std::unique_ptr<TacticsHandler> tacticsHandler;
+	std::unique_ptr<ClassicBattleController> classicController;
+	BattleAISettings battleAISettings;
+	bool classicBattleSupported = true;
+
+	void updateBattleMode(const BattleID & battleID);
+	void activeStackModern(const BattleID & battleID, const CStack * stack);
 
 public:
-	CBattleAI();
+	explicit CBattleAI(BattleAISettings settings = {});
 	~CBattleAI();
+	bool isClassicMode() const;
 
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences) override;
@@ -76,6 +99,7 @@ public:
 	BattleAction useHealingTent(const BattleID & battleID, const CStack *stack);
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
+	void battleEnd(const BattleID & battleID, const BattleResult * result, QueryID queryID) override;
 	void actionFinished(const BattleID & battleID, const BattleAction & action) override;
 	//void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
 	//void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
