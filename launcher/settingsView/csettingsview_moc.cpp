@@ -184,6 +184,16 @@ void CSettingsView::fillValidAILibraries()
 	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(aiSettings["combatEnemyAI"].String()));
 	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(aiSettings["combatAlliedAI"].String()));
 	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(aiSettings["combatNeutralAI"].String()));
+	updateBattleAIClassicModeAvailability();
+}
+
+void CSettingsView::updateBattleAIClassicModeAvailability()
+{
+	const bool battleAISelected = ui->comboBoxEnemyAI->currentData().toString() == "BattleAI"
+		|| ui->comboBoxFriendlyAI->currentData().toString() == "BattleAI"
+		|| ui->comboBoxNeutralAI->currentData().toString() == "BattleAI";
+	ui->labelBattleAIClassicMode->setEnabled(battleAISelected);
+	ui->buttonBattleAIClassicMode->setEnabled(battleAISelected);
 }
 
 void CSettingsView::loadSettings()
@@ -297,6 +307,7 @@ void CSettingsView::loadSettings()
 
 void CSettingsView::loadToggleButtonSettings()
 {
+	setCheckbuttonState(ui->buttonBattleAIClassicMode, settings["ai"]["battleAIClassicMode"].Bool());
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
 	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
@@ -634,6 +645,7 @@ void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 
 	if (node->String() == "MMAI")
 		enableMod("mmai");
+	updateBattleAIClassicModeAvailability();
 }
 
 void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
@@ -644,6 +656,7 @@ void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 
 	if (node->String() == "MMAI")
 		enableMod("mmai");
+	updateBattleAIClassicModeAvailability();
 }
 
 void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
@@ -654,6 +667,14 @@ void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 
 	if (node->String() == "MMAI")
 		enableMod("mmai");
+	updateBattleAIClassicModeAvailability();
+}
+
+void CSettingsView::on_buttonBattleAIClassicMode_toggled(bool value)
+{
+	Settings node = settings.write["ai"]["battleAIClassicMode"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonBattleAIClassicMode);
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
