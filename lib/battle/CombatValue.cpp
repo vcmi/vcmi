@@ -178,11 +178,20 @@ static double combatScriptWeight(const BonusSubtypeID & subtype)
 
 /// Share of a battle that a bonus is expected to last. What a creature carries permanently lasts all
 /// of it; a spell is worth only for as long as its effect stays on.
+/// An effect that ends on the next blow struck or taken is worth about one round
+static constexpr double oneAction = 1.0 / battleRounds;
+
+/// Share of a battle that a bonus lasts by its declared turn count alone
+static double turnsWeight(const Bonus & bonus)
+{
+	if(bonus.duration & BonusDuration::N_TURNS)
+		return std::clamp(bonus.turnsRemain / static_cast<double>(battleRounds), oneAction, 1.0);
+
+	return 1.0;
+}
+
 static double durationWeight(const Bonus & bonus)
 {
-	// an effect that ends on the next blow struck or taken is worth about one round
-	static constexpr double oneAction = 1.0 / battleRounds;
-
 	static constexpr BonusDuration::Type endsOnAction =
 		BonusDuration::UNTIL_ATTACK | BonusDuration::UNTIL_OWN_ATTACK
 		| BonusDuration::UNTIL_BEING_ATTACKED | BonusDuration::UNTIL_AFTER_ATTACK_SEQUENCE
@@ -192,10 +201,7 @@ static double durationWeight(const Bonus & bonus)
 	if(bonus.duration & endsOnAction)
 		return oneAction;
 
-	if(bonus.duration & BonusDuration::N_TURNS)
-		return std::clamp(bonus.turnsRemain / static_cast<double>(battleRounds), oneAction, 1.0);
-
-	return 1.0;
+	return turnsWeight(bonus);
 }
 
 /// Total magnitude of the bonuses of given type, each counted only for as long as it lasts
@@ -691,8 +697,13 @@ double CombatValue::situationalOffense(const ACreature & creature, const CombatV
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
-	// being unable to act is crippling, but often ends the moment the unit is struck
-	result *= 1.0 - 0.5 * lastingPresence(unit, BonusType::NOT_ACTIVE);
+	// being unable to act ends the moment the unit is struck, but whoever disabled it decides
+	// whether to strike - so it holds for as long as it was cast for
+	double disabled = 0;
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::NOT_ACTIVE))
+		disabled = std::max(disabled, turnsWeight(*bonus));
+
+	result *= 1.0 - 0.5 * disabled;
 
 	// a unit that turns on its own side costs its army twice over - the blow it does not land on the
 	// enemy, and the one an ally takes instead - and costs it nothing where it stands alone
