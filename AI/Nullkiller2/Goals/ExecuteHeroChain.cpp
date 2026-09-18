@@ -105,7 +105,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 
 bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 {
-	return tile == other.tile 
+	return tile == other.tile
 		&& chainPath.targetHero == other.chainPath.targetHero
 		&& chainPath.nodes.size() == other.chainPath.nodes.size()
 		&& chainPath.chainMask == other.chainPath.chainMask;
@@ -145,6 +145,11 @@ bool ExecuteHeroChain::isObjectAffected(ObjectInstanceID id) const
 
 void ExecuteHeroChain::accept(AIGateway * aiGw)
 {
+	execute(aiGw, chainPath.nodes.size() - 1, {});
+}
+
+void ExecuteHeroChain::execute(AIGateway * aiGw, int firstNodeIndex, std::set<int> blockedIndexes)
+{
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
 
 	aiGw->nullkiller->setActive(chainPath.targetHero, tile);
@@ -165,9 +170,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		}
 	}
 
-	std::set<int> blockedIndexes;
-
-	for(int i = chainPath.nodes.size() - 1; i >= 0; i--)
+	for(int i = firstNodeIndex; i >= 0; i--)
 	{
 		auto  * node = &chainPath.nodes[i];
 
@@ -261,7 +264,8 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTextID(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException(
+			"Expected hero to arrive in 0 turns but current path info says it is impossible");
 					}
 
 					if(targetNode->turns != 0)
@@ -306,6 +310,32 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							continue;
 						}
 					}
+					catch(const deferExecutionException & e)
+					{
+						aiGw->deferUntilReadyToContinue(
+							[aiGw, goal = *this, heroID = hero->id, nodeIndex = i, blockedIndexes, completed = e.operationCompleted()]() mutable
+							{
+								const auto * resumedHero = aiGw->cc->getHero(heroID);
+								if(!resumedHero)
+									return;
+								logAi->trace("DeferExecution: resuming hero chain hero=%s node=%d currentPos=%s expectedPos=%s completed=%s",
+									resumedHero->getNameTextID(), nodeIndex, resumedHero->visitablePos().toString(),
+									goal.chainPath.nodes[nodeIndex].coord.toString(), completed ? "yes" : "no");
+								if(completed || resumedHero->visitablePos() == goal.chainPath.nodes[nodeIndex].coord)
+									nodeIndex--;
+								try
+								{
+									goal.execute(aiGw, nodeIndex, std::move(blockedIndexes));
+								}
+								catch(const cannotFulfillGoalException &)
+								{
+									aiGw->nullkiller->lockTaskHeroes(Goals::taskptr(goal), HeroLockedReason::HERO_CHAIN);
+									throw;
+								}
+							}
+						);
+						throw;
+					}
 					catch(const cannotFulfillGoalException &)
 					{
 						if(!heroPtr.isVerified())
@@ -345,9 +375,10 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException(
+	"Expected hero to arrive in 0 turns but current path info says it is impossible");
 			}
-			
+
 			// no exception means we were not able to reach the tile
 			aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);

@@ -66,14 +66,21 @@ void RecruitHero::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
 	aiGw->cc->recruitHero(t, heroToHire);
-	aiGw->waitTillFree(); // Hiring in a town may trigger level-up queries from reward buildings.
-
+	auto updateState = [aiGw]()
 	{
 		// TODO: Mircea: Consider same behavior when a hero is lost? Relevant?
 		std::unique_lock lockGuard(aiGw->nullkiller->aiStateMutex);
 		aiGw->nullkiller->heroManager->update();
 		aiGw->nullkiller->objectClusterizer->reset();
+	};
+
+	if(!aiGw->status.isReadyToContinue())
+	{
+		aiGw->deferUntilReadyToContinue(updateState);
+		throw deferExecutionException();
 	}
+
+	updateState();
 }
 
 }

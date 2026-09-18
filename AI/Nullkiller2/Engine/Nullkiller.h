@@ -78,6 +78,13 @@ enum class TaskFailureAction
 
 TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
 
+enum class TaskStatus : uint8_t
+{
+	Done,
+	Failed,
+	Deferred
+};
+
 class Nullkiller
 {
 private:
@@ -132,6 +139,7 @@ public:
 	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
 	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
+	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
 	void unlockHero(const CGHeroInstance * hero);
 	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
 	bool arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender = nullptr) const;
@@ -160,11 +168,10 @@ private:
 		Goals::TGoalVec & tasks,
 		const EvaluationContextMap & evaluationContexts,
 		int priorityTier) const;
-	bool executeTask(const Goals::TTask & task);
+	TaskStatus executeTask(const Goals::TTask & task);
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
-	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
 	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };
