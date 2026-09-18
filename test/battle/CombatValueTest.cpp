@@ -163,9 +163,27 @@ struct MeasuredUnit
 
 	int64_t value() const
 	{
-		return LIBRARY->combatValues->getAIValue(unit, unit.unitType());
+		return value(LIBRARY->combatValues->averageBattle());
+	}
+
+	int64_t value(const CombatValueContext & context) const
+	{
+		return LIBRARY->combatValues->getAIValue(unit, unit.unitType(), context);
 	}
 };
+
+/// An enemy that brings none of what the bonuses below are answers to
+static CombatValueContext harmlessEnemy()
+{
+	CombatValueContext context;
+
+	context.meleeShare = 0;
+	context.magicPower = 0;
+	context.kingShare = {};
+	context.allyCrowding = 0;
+
+	return context;
+}
 
 /// Bless collapses the damage range onto its top end, so it is worth whatever that range is wide -
 /// the pair of these two pins the whole effect to creature stats rather than to a fixed multiplier
@@ -247,6 +265,70 @@ TEST(CombatValueEffectTest, anEffectThatEndsSoonIsWorthLessThanOneThatStays)
 
 	EXPECT_LT(lasting.value(), fleeting.value());
 	EXPECT_LT(fleeting.value(), lasting.value() * 2);
+}
+
+
+/// Shield turns aside a blow struck in melee, so it is worth what the enemy strikes in melee
+TEST(CombatValueContextTest, aShieldIsWorthWhatTheEnemyBringsAgainstIt)
+{
+	MeasuredUnit subject(10, 30);
+	subject.give(BonusType::GENERAL_DAMAGE_REDUCTION, 50, BonusCustomSubtype::damageTypeMelee);
+
+	CombatValueContext closingIn;
+	closingIn.meleeShare = 1.0;
+
+	CombatValueContext shootingFromAfar;
+	shootingFromAfar.meleeShare = 0.0;
+
+	EXPECT_GT(subject.value(closingIn), subject.value(shootingFromAfar));
+}
+
+TEST(CombatValueContextTest, resistingMagicIsWorthNothingWhereNoneIsCast)
+{
+	MeasuredUnit subject(10, 30);
+	const auto silent = harmlessEnemy();
+	const auto before = subject.value(silent);
+
+	subject.give(BonusType::MAGIC_RESISTANCE, 50);
+
+	EXPECT_EQ(subject.value(silent), before);
+
+	CombatValueContext caster = silent;
+	caster.magicPower = 1.0;
+
+	EXPECT_GT(subject.value(caster), before);
+}
+
+TEST(CombatValueContextTest, slayerIsWorthNothingWhereTheEnemyFieldsNoKings)
+{
+	MeasuredUnit subject(10, 30);
+	auto commoners = harmlessEnemy();
+	const auto before = subject.value(commoners);
+
+	subject.give(BonusType::SLAYER, 8, {}, BonusDuration::N_TURNS, 3);
+
+	EXPECT_EQ(subject.value(commoners), before);
+
+	CombatValueContext kings = commoners;
+	kings.kingShare.fill(1.0);
+
+	EXPECT_GT(subject.value(kings), before);
+}
+
+TEST(CombatValueContextTest, berserkCostsNothingWhereTheUnitStandsAlone)
+{
+	MeasuredUnit subject(10, 30);
+	auto alone = harmlessEnemy();
+	const auto before = subject.value(alone);
+
+	subject.give(BonusType::ATTACKS_NEAREST_CREATURE, 0, {}, BonusDuration::UNTIL_OWN_ATTACK);
+
+	EXPECT_EQ(subject.value(alone), before);
+
+	CombatValueContext amongAllies = alone;
+	amongAllies.allyCrowding = 0.85;
+
+	EXPECT_LT(subject.value(amongAllies), before);
 }
 
 }
