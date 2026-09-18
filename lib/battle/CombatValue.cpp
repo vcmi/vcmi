@@ -220,10 +220,10 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	if(ranged && !retaliatesAtRange && !bonuses->hasBonusOfType(BonusType::NO_MELEE_PENALTY))
 		retaliationBlow *= meleePenalty;
 
-	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature);
+	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature) * situationalOffense(creature);
 	const double defense = defenseAt(effectiveDefense(creature)) * (1.0 + retaliationSuffered(creature));
 	const double hitPoints = creature.getMaxHealth() + regeneratedHitPoints(creature, count);
-	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature);
+	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature);
 
 	return combine(output, effectiveHitPoints, uptime);
 }
@@ -413,7 +413,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 			result *= (shots + (battleRounds - shots) * 0.4) / battleRounds;
 	}
 
-	if(unit->hasBonusOfType(BonusType::HYPNOTIZED) || unit->hasBonusOfType(BonusType::NOT_ACTIVE))
+	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
 		result *= 0.5;
 
 	// what the source of fear gains is not priced - a propagated bonus can not be told apart from
@@ -424,6 +424,19 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 }
 
 double CombatValue::survivalMultiplier(const ACreature & creature)
+{
+	const auto * unit = creature.getBonusBearer();
+	double result = 1.0;
+
+	result *= 1.0 + unit->valOfBonuses(BonusType::REBIRTH) / 100.0;
+
+	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
+		result *= 1.10;
+
+	return result;
+}
+
+double CombatValue::situationalSurvival(const ACreature & creature)
 {
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
@@ -444,13 +457,19 @@ double CombatValue::survivalMultiplier(const ACreature & creature)
 	result *= 1.0 + unit->valOfBonuses(BonusType::MAGIC_RESISTANCE) / 100.0 * 0.5;
 	result *= 1.0 + unit->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION) / 100.0 * 0.2;
 
-	result *= 1.0 + unit->valOfBonuses(BonusType::REBIRTH) / 100.0;
-
-	// only worth something when enemy hero casts at this creature
 	if(unit->hasBonusOfType(BonusType::MAGIC_MIRROR))
 		result *= 1.06;
-	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		result *= 1.10;
+
+	return result;
+}
+
+double CombatValue::situationalOffense(const ACreature & creature)
+{
+	const auto * unit = creature.getBonusBearer();
+	double result = 1.0;
+
+	if(unit->hasBonusOfType(BonusType::NOT_ACTIVE))
+		result *= 0.5;
 
 	return result;
 }

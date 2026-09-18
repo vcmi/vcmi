@@ -42,10 +42,17 @@ public:
 	static double targetsPerAttack(const ACreature & creature);
 	/// Number of retaliations that creature manages to use per round
 	static double retaliationsPerRound(const ACreature & creature);
-	/// Damage multiplier from all bonuses that improve damage output
+	/// Damage multiplier from bonuses that improve damage output whatever the unit is up against
 	static double offenseMultiplier(const ACreature & creature);
-	/// Effective hit points multiplier from all bonuses that improve survivability
+	/// Effective hit points multiplier from bonuses that help whatever the unit is up against
 	static double survivalMultiplier(const ACreature & creature);
+
+	/// Same two, for bonuses that are only worth something against a particular enemy - magic
+	/// defenses against a spellcasting hero, a shield against the kind of blow it turns aside.
+	/// Valued here at what an average battle gives them, since a unit carrying one is better than a
+	/// unit without it even before it is known what the unit will face.
+	static double situationalOffense(const ACreature & creature);
+	static double situationalSurvival(const ACreature & creature);
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);
 	/// Stack size a creature is valued at. Always this rather than the size of an actual stack, so
