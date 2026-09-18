@@ -171,8 +171,14 @@ if(ENABLE_BATTLE_AI)
 	list(APPEND test_SRCS
 		${BATTLE_AI_TEST_SRCS}
 		battleAI/BattleEvaluatorTest.cpp
+		battleAI/ClassicBattleAITest.cpp
+		battleAI/ClassicBattleControllerTest.cpp
+		battleAI/ClassicJoustingTest.cpp
+		battleAI/ClassicModeFallbackTest.cpp
 		battleAI/SpellTargetsEvaluatorTest.cpp
+		mock/ReplayClassicBattleAIRng.cpp
 	)
+	list(APPEND test_HEADERS mock/ReplayClassicBattleAIRng.h)
 endif()
 
 if(ENABLE_NULLKILLER2_AI)

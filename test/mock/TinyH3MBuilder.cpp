@@ -211,6 +211,16 @@ TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, Playe
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::townFortification(uint8_t level)
+{
+	auto & spec = lastObject();
+	assert((spec.id == Obj::TOWN || spec.id == Obj::RANDOM_TOWN)
+		&& "townFortification() must follow town() or randomTown()");
+	assert(level <= 3 && "town fortification level must be in [0, 3]");
+	spec.townFortLevel = std::min<uint8_t>(level, 3);
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
 {
 	ObjectSpec spec;
@@ -960,15 +970,33 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 		{
 			case Obj::RANDOM_TOWN:
 			case Obj::TOWN:
-				// No garrison, standard fort, no events, no custom buildings, neutral alignment.
+				// No events or custom name; fortification is fixture-controlled.
 				if(features.levelAB)
 					w.writeUInt32(obj.wireIdentifier);                 // identifier
 				w.writePlayer(obj.owner);                              // owner
 				w.writeBool(false);                                    // hasName
 				w.writeBool(false);                                    // hasGarrison
 				w.writeInt8(0);                                        // formation = LOOSE
-				w.writeBool(false);                                    // hasCustomBuildings
-				w.writeBool(true);                                     // hasFort
+				if(obj.townFortLevel <= 1)
+				{
+					w.writeBool(false);                                // use standard buildings
+					w.writeBool(obj.townFortLevel == 1);                // hasFort
+				}
+				else
+				{
+					w.writeBool(true);                                 // explicit building masks
+					std::array<uint8_t, 6> buildings{};
+					// The H3M wire ids are 3=Fort, 4=Citadel, 5=Castle;
+					// they are remapped to VCMI BuildingID values while loading.
+					for(uint8_t level = 0; level < obj.townFortLevel; ++level)
+					{
+						const uint8_t building = static_cast<uint8_t>(3 + level);
+						buildings[building / 8] |= static_cast<uint8_t>(1U << (building % 8));
+					}
+					for(const uint8_t byte : buildings)
+						w.writeUInt8(byte);                         // built buildings
+					w.skipZero(features.buildingsBytes);              // forbidden buildings
+				}
 				if(features.levelAB)
 					w.skipZero(features.spellsBytes);                  // obligatorySpells bitmask
 				w.skipZero(features.spellsBytes);                      // possibleSpells bitmask

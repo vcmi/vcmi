@@ -16,6 +16,7 @@
 #include "../../lib/entities/artifact/CArtifactInstance.h"
 #include "../../lib/filesystem/CMemoryBuffer.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
@@ -103,6 +104,26 @@ TEST(TinyH3MBuilderTest, EmptySODFullLoad)
 	EXPECT_EQ(loaded.map->height, 36);
 	EXPECT_EQ(loaded.map->levels(), 1);
 	EXPECT_TRUE(loaded.map->getHeroesOnMap().empty());
+}
+
+TEST(TinyH3MBuilderTest, TownCastleRoundTrips)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::SOD)
+		.size(36, /*twoLevel*/ false)
+		.name("TownCastle")
+		.playerActive(PlayerColor(0))
+		.town({6, 5, 0}, FactionID::CASTLE, PlayerColor(0))
+		.townFortification(3)
+		.buildAndDump("TownCastleRoundTrips");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+	const CGTownInstance * town = nullptr;
+	for(const auto & object : loaded.map->objects)
+		if(const auto * candidate = dynamic_cast<const CGTownInstance *>(object.get()))
+			town = candidate;
+	ASSERT_NE(town, nullptr);
+	EXPECT_EQ(town->fortLevel(), CGTownInstance::EFortLevel::CASTLE);
 }
 
 TEST(TinyH3MBuilderTest, AllSupportedObjectsLoad)

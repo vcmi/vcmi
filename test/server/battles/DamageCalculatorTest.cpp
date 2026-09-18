@@ -162,6 +162,27 @@ TEST_F(DamageCalculatorTest, DamageRangeFollowsCreatureDamageRange)
 	EXPECT_EQ(result.kills.max, 20);
 }
 
+TEST_F(DamageCalculatorTest, PlannerCanSupplyWholeStackBaseDamage)
+{
+	BattleAttackInfo info(attacker(angel), defender(angel), 0, false);
+	info.baseDamageOverride = 501;
+
+	auto result = battle()->calculateDmgRange(info);
+	EXPECT_EQ(result.damage.min, 501);
+	EXPECT_EQ(result.damage.max, 501);
+}
+
+TEST_F(DamageCalculatorTest, PlannerCanPreserveFractionalArcherySpecialtyFactor)
+{
+	BattleAttackInfo info(attacker(titan), defender(titan), 0, true);
+	info.baseDamageOverride = 1200;
+	info.offenseArcheryFactorOverride = 0.105;
+
+	auto result = battle()->calculateDmgRange(info);
+	EXPECT_EQ(result.damage.min, 1326);
+	EXPECT_EQ(result.damage.max, 1326);
+}
+
 // ---- attack and defense ------------------------------------------------------------------------
 
 TEST_F(DamageCalculatorTest, AttackAdvantageAddsFivePercentPerPoint)
