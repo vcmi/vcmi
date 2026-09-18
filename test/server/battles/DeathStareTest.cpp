@@ -11,11 +11,8 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/bonuses/BonusParameters.h"
 #include "../../../lib/json/JsonNode.h"
-#include "../../../lib/modding/IdentifierStorage.h"
-#include "../../../lib/modding/ModScope.h"
 
 namespace
 {
@@ -61,8 +58,6 @@ TEST_P(DeathStareTest, killsExpectedCreatures)
 
 	CStack * target = addStack(BattleSide::ATTACKER, CreatureID(scenario.defendingCreature), BattleHex(targetHex), targetCount);
 	CStack * gorgon = addStack(BattleSide::DEFENDER, creatureByName("core:mightyGorgon"), BattleHex(gorgonHex), gorgonCount);
-	ASSERT_NE(target, nullptr);
-	ASSERT_NE(gorgon, nullptr);
 
 	// retaliation would shrink the staring stack, and every gorgon in it rolls its own chance
 	blockRetaliation(gorgon);
@@ -143,14 +138,10 @@ public:
 
 	static void giveCommanderStare(CStack * unit, int value)
 	{
-		const std::string scriptName = "deathStare";
-		auto script = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", scriptName);
-		ASSERT_TRUE(script.has_value());
-
 		JsonNode parameters;
 		parameters["situation"].String() = "commander";
 
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::OTHER, value, BonusSourceID(), BonusSubtypeID(ScriptID(*script)));
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::COMBAT_EVENT_TRIGGER, BonusSource::OTHER, value, BonusSourceID(), BonusSubtypeID(scriptByName("deathStare")));
 		bonus->parameters = std::make_shared<BonusParameters>(parameters);
 
 		unit->addNewBonus(bonus);
@@ -164,8 +155,6 @@ TEST_F(DeathStareCommanderTest, KillsScaleWithTheLevelRatio)
 
 	CStack * victim = addStack(BattleSide::ATTACKER, creatureByName("core:titan"), BattleHex(leftHex), victimCount);
 	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), bearerCount);
-	ASSERT_NE(victim, nullptr);
-	ASSERT_NE(bearer, nullptr);
 
 	// a retaliating titan would wipe out the stack whose level the kills are scaled by
 	blockRetaliation(bearer);

@@ -126,9 +126,7 @@ public:
 
 	static void setSkill(CGHeroInstance * hero, const std::string & skill, int level)
 	{
-		auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", skill);
-		ASSERT_TRUE(identifier.has_value()) << "unknown secondary skill " << skill;
-		hero->setSecSkillLevel(SecondarySkill(*identifier), level, ChangeValueMode::ABSOLUTE);
+		hero->setSecSkillLevel(skillByName(skill), level, ChangeValueMode::ABSOLUTE);
 	}
 };
 

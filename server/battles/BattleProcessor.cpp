@@ -402,6 +402,9 @@ void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattl
 {
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
+
+	// nothing will announce them once the battle is over
+	actionsProcessor->forgetPendingDeaths(battle.getBattle()->getBattleID());
 }
 
 bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
@@ -412,6 +415,24 @@ bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & batt
 void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary)
 {
 	actionsProcessor->processBattleEventTriggers(battle, event, target, secondary);
+
+	// this entry point is only used outside a battle action, so there is no action end to wait for
+	actionsProcessor->flushPendingDeaths(battle);
+}
+
+void BattleProcessor::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+{
+	actionsProcessor->processSpellHitTriggers(battle, spell, casterUnit, unitsBefore);
+}
+
+void BattleProcessor::noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties)
+{
+	actionsProcessor->noteDeaths(battleID, casualties);
+}
+
+void BattleProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)
+{
+	actionsProcessor->flushPendingDeaths(battle);
 }
 
 void BattleProcessor::endBattleConfirm(const BattleID & battleID)

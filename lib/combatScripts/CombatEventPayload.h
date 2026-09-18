@@ -17,7 +17,12 @@ namespace battle
 class Unit;
 }
 
-/// One unit hit by an attack, as reported to combat scripts.
+namespace spells
+{
+class Spell;
+}
+
+/// One unit hit by an attack or by a spell, as reported to combat scripts.
 /// Before the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet.
 struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<AttackedTarget>
 {
@@ -26,6 +31,8 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 	int32_t killed = 0;
 	int64_t damageBeforeDefense = 0;
 	int64_t healthBeforeAttack = 0;
+	/// Snapshot owned by the caster, so it outlives the payload
+	const battle::Unit * unitBefore = nullptr;
 
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
@@ -35,6 +42,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 		s("killed", killed, "How many of its creatures died.");
 		s("damageBeforeDefense", damageBeforeDefense, "Damage this same blow would have dealt with the defences of the target ignored.");
 		s("healthBeforeAttack", healthBeforeAttack, "Health the unit had left before the attack landed.");
+		s("unitBefore", unitBefore, "The unit as it stood before the spell reached it, to tell what the spell did from what the unit already was. Only the spell hit event fills it in.");
 	}
 };
 
@@ -43,6 +51,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<CombatEventPayload>
 {
 	std::vector<AttackedTarget> targets;
+	const spells::Spell * spell = nullptr;
 	bool ranged = false;
 	bool isCounter = false;
 	int32_t attackIndex = 0;
@@ -50,7 +59,8 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("targets",     targets,     "Units hit by the attack that caused this event. Before the attack, only their identity and remaining health are known.");
+		s("targets",     targets,     "Units hit by the attack or spell that caused this event. Before the attack, only their identity and remaining health are known.");
+		s("spell",       spell,       "Spell that caused this event, for the spellcast and spell hit events. Nil for every other event.");
 		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
 		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
 		s("attackIndex", attackIndex, "Zero-based index of this attack among those its own side makes in this action, so a second blow of a double attack is 1. A counterattack is its side's attack 0.");

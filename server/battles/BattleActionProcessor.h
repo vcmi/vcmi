@@ -14,6 +14,7 @@
 
 struct BattleLogMessage;
 struct BattleAttack;
+struct BattleStackAttacked;
 class BattleAction;
 class CBattleInfoCallback;
 class BattleHex;
@@ -31,6 +32,11 @@ class CGameHandler;
 class BattleProcessor;
 class ICombatEventScript;
 
+namespace spells
+{
+class Spell;
+}
+
 /// Processes incoming battle action queries and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
@@ -47,14 +53,37 @@ class BattleActionProcessor : boost::noncopyable
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
+	/// Units the running action fired an event at, in the order they were reached. Collected as the
+	/// action runs, since its last part is not known in advance - a target that dies ends an attack,
+	/// ferocity extends one.
+	std::vector<uint32_t> actionParticipants;
+
+	/// One death waiting to be announced. Battle is stored because a unit id is only unique within
+	/// a battle, and two battles can run at once.
+	struct PendingDeath
+	{
+		BattleID battle;
+		uint32_t unit;
+		uint32_t killer;
+		uint32_t killed; ///< creatures the lethal hit took, so whatever was still standing when it landed
+		int64_t damage;
+	};
+
+	/// Deaths not announced yet. Announced at the end of the action instead of where they happened,
+	/// so that no script starts while another one is running.
+	std::vector<PendingDeath> pendingDeaths;
+
+	/// No unit, matching the sentinel of BattleStackAttacked::attackerID
+	static constexpr uint32_t noUnit = -1;
+
 	/// One reaction to a combat event that is about to run. Which script it is and how it is ordered
 	/// are decided when it is collected, so that running it is nothing but a dispatch. Units are kept
 	/// by id rather than by pointer because a reaction running before it may remove either from the battle.
 	struct PendingTrigger
 	{
 		CombatEventType event;
-		int32_t self;
-		int32_t other; ///< -1 when the event has no unit on the other side
+		uint32_t self;
+		uint32_t other; ///< `noUnit` when the event has no unit on the other side
 		/// Order in which reactions to the same event run. Bonus order is alphabetical by ability
 		/// name, which would let a mod decide what runs first by renaming an ability, so scripts that
 		/// care declare a priority instead. It orders the attacker's reactions against its victims'.
@@ -65,7 +94,11 @@ class BattleActionProcessor : boost::noncopyable
 
 	/// Gathers everything one unit reacts to one event with, without running any of it yet, so that
 	/// several units reacting to the same attack can be ordered against each other.
-	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other) const;
+	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other);
+
+	/// Fires ACTION_FINISHED on every unit the running action fired an event at
+	void processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor);
+
 	void runEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, const CombatEventPayload & payload);
 	/// Predefined reaction of the ON_COMBAT_EVENT bonus - grant a bonus, or cast a spell
 	void runPredefinedReaction(const CBattleInfoCallback & battle, const Bonus & bonus, const battle::Unit * self, const battle::Unit * other);
@@ -94,6 +127,10 @@ class BattleActionProcessor : boost::noncopyable
 
 	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const AttackDescriptor & attack);
+
+	/// Runs one melee attack to its end: first strike, every blow of the attacker, the retaliation,
+	/// and expiry of bonuses that last for the sequence.
+	void performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance, bool longWeaponAttack);
 
 	/// Rolls what is decided before any damage: luck, and the abilities that double it by chance.
 	void rollAttackFlags(const CBattleInfoCallback & battle, const CStack * attacker, BattleAttack & bat) const;
@@ -143,6 +180,21 @@ public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
 	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary, const CombatEventPayload & payload = CombatEventPayload());
+
+	/// Fires SPELL_HIT on every unit a deliberately cast spell reached. `unitsBefore` holds their
+	/// state from before the cast and defines that set of units.
+	void processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
+
+	/// Records every death the given casualties report, to be announced once the action is over.
+	/// Clones are included, even though a clone leaves no body behind.
+	void noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties);
+
+	/// Announces every recorded death, and repeats while the reactions produce further ones, so
+	/// that one death can set off the next. Reactions to one batch all run before any of the next.
+	void flushPendingDeaths(const CBattleInfoCallback & battle);
+
+	/// Drops pending deaths of a battle that is already over
+	void forgetPendingDeaths(const BattleID & battleID);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);

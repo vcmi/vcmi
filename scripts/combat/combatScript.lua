@@ -8,7 +8,8 @@ Script.type = "combatScript"
 ---
 --- The handlers, all of them `function Script:on<Event>(server, battle, unit, other, payload)`:
 --- onBeforeAttack, onAfterAttack, onBeforeAttacked, onAfterAttacked, onWait, onDefend,
---- onBeforeMove, onAfterMove, onUnitSpellcast, onBattleSetup, onBattleStart, onRoundStart.
+--- onBeforeMove, onAfterMove, onUnitSpellcast, onSpellHit, onDeath, onActionFinished,
+--- onBattleSetup, onBattleStart, onRoundStart.
 --- See docs/modders/Lua/Combat_Event_Scripts.md for what each of them means.
 ---
 --- In every handler `unit` is the bearer of the bonus and `other` is the unit on the opposite
@@ -19,7 +20,20 @@ Script.type = "combatScript"
 ---
 --- No event is withheld: the attack handlers fire for a counterattack, for every blow of a
 --- multiple attack, and even when the bearer died while the attack was resolving. Whether that is
---- a reason to do nothing is the script's own call - a reflecting ability answers a lethal blow
---- while dying, while an ability that strikes back must first check `unit:isAlive()`.
+--- a reason to do nothing is the script's own decision - a reflecting ability reacts to a lethal
+--- blow while dying, while an ability that strikes back must first check `unit:isAlive()`.
+
+--- The entry of `payload.targets` describing what happened to `unit` itself. Handlers receive the
+--- whole list so that they can see the full attack or cast; this picks out their own entry.
+--- Nil when the event carries no targets.
+function Script:ownEntry(unit, payload)
+	for _, target in ipairs(payload.targets or {}) do
+		if target.unit and target.unit:unitID() == unit:unitID() then
+			return target
+		end
+	end
+
+	return nil
+end
 
 return Script

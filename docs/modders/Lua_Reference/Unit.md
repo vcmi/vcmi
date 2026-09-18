@@ -58,6 +58,18 @@ Returns the creature's defense stat.
 
 - returns `integer`
 
+### getLuck
+
+Returns the luck the unit fights with, capped and with exceptions applied - 0 for a unit luck does not reach, such as an undead one. Prefer this over adding up LUCK bonuses.
+
+- returns `integer`
+
+### getMorale
+
+Returns the morale the unit fights with, capped and with exceptions applied the same way as luck.
+
+- returns `integer`
+
 ### isAlive
 
 True if the stack has at least one alive creature.
@@ -176,6 +188,12 @@ True if the stack can shoot in general, even if out of ammo. See canShoot to che
 
 - returns `boolean`
 
+### ableToRetaliate
+
+True if the unit is alive and has a retaliation of this round left. Does not account for the attacker blocking retaliation, which belongs to the attacker rather than to this unit.
+
+- returns `boolean`
+
 ### isTurret
 
 True if the stack is one of the towers of a besieged town.
@@ -186,7 +204,7 @@ True if the stack is one of the towers of a besieged town.
 
 Which of the three towers of a besieged town this stack is.
 
-- returns `string?` — "keep", "upper" or "lower"; nil when the stack is no tower.
+- returns `string?` — 'keep', 'upper' or 'lower'; nil when the stack is no tower.
 
 ### getMaxHealth
 

@@ -20,6 +20,8 @@
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/Unit.h"
 
+#include <vcmi/spells/Spell.h>
+
 namespace scripting
 {
 
@@ -39,6 +41,9 @@ const char * methodName(CombatEventType event)
 		case CombatEventType::BEFORE_MOVE:     return "onBeforeMove";
 		case CombatEventType::AFTER_MOVE:      return "onAfterMove";
 		case CombatEventType::UNIT_SPELLCAST:  return "onUnitSpellcast";
+		case CombatEventType::SPELL_HIT:       return "onSpellHit";
+		case CombatEventType::ACTION_FINISHED: return "onActionFinished";
+		case CombatEventType::UNIT_DEATH:      return "onDeath";
 		case CombatEventType::BATTLE_SETUP:    return "onBattleSetup";
 		case CombatEventType::BATTLE_START:    return "onBattleStart";
 		case CombatEventType::ROUND_START:     return "onRoundStart";

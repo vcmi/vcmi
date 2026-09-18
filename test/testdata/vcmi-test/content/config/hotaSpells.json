@@ -1,0 +1,37 @@
+// Abilities the HotA scripts implement, reduced to what a battle needs - no graphics, no sounds.
+{
+	"heatStroke" : {
+		"type" : "ability",
+		"name" : "Heat Stroke",
+		"school" : { },
+		"level" : 0,
+		"power" : 0,
+		"defaultGainChance" : 0,
+		"gainChance" : { },
+		"targetType" : "LOCATION",
+		"targetCondition" : { },
+		"animation" : { },
+		"sounds" : { },
+		"flags" : {
+			"damage" : true,
+			"negative" : true,
+			"nonMagical" : true,
+			"special" : true
+		},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "0",
+				"battleEffects" : {
+					"heatStroke" : { "type" : "heatStroke" }
+				}
+			},
+			"none" : { "description" : "{Attack with a Heat Stroke}" },
+			"basic" : { },
+			"advanced" : { },
+			"expert" : { }
+		}
+	}
+}

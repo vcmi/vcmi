@@ -423,6 +423,16 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		break;
 	}
 
+	// snapshot taken before any effect is applied, so that scripts reacting to the spell can
+	// compare each unit against what it was before the cast
+	std::vector<std::shared_ptr<const battle::CUnitState>> unitsBeforeCast;
+	if(sc.activeCast)
+	{
+		unitsBeforeCast.reserve(affectedUnits.size());
+		for(const auto * unit : affectedUnits)
+			unitsBeforeCast.push_back(unit->acquireState());
+	}
+
 	doRemoveEffects(server, affectedUnits, std::bind(&BattleSpellMechanics::counteringSelector, this, _1));
 
 	for(auto & unit : affectedUnits)
@@ -452,6 +462,16 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	StacksInjured fakeEvent;
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
 	server->apply(fakeEvent);
+
+	// notified last, so that scripts see a fully applied cast. Only deliberate casts are reported -
+	// a moat, a spell-like attack or a spell applied by a script is not a cast
+	if(sc.activeCast)
+	{
+		// a hero id would collide with a unit id, so a cast by a hero reports no caster unit
+		const auto * casterUnit = sc.castByHero ? nullptr : battle()->battleGetUnitByID(sc.casterStack);
+
+		server->spellHasHit(*battle(), *owner, casterUnit, unitsBeforeCast);
+	}
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)

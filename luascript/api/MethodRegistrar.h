@@ -18,6 +18,9 @@
 namespace scripting::api
 {
 
+// Descriptions passed to these registrars quote literal values with single quotes - 'keep', 'fort'.
+// They are emitted verbatim into the LuaLS stub, where a double quote would end the annotation.
+
 /// Host-supplied per-parameter metadata for `method<>` / `function<>`. The type is auto-derived
 /// from the C++ method pointer; only the name is required, the description is optional.
 struct LuaParam

@@ -35,7 +35,6 @@ TEST_F(EnchantedTest, EnchantsItsBearerWhenTheBattleStarts)
 	startBattle();
 
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
 	ASSERT_EQ(enchanter->getAttack(false), baseAttack);
 
 	beginCombat();
@@ -50,8 +49,6 @@ TEST_F(EnchantedTest, KeepsTheEnchantmentAsRoundsPass)
 
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
 	CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
-	ASSERT_NE(opponent, nullptr);
 
 	beginCombat();
 
@@ -71,9 +68,6 @@ TEST_F(EnchantedTest, MassiveEnchantmentReachesEveryAllyAndNoEnemy)
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testMassEnchanter"), BattleHex(leftHex), stackCount);
 	CStack * ally = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex - 1), stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
-	ASSERT_NE(ally, nullptr);
-	ASSERT_NE(enemy, nullptr);
 
 	beginCombat();
 

@@ -21,15 +21,23 @@ class int3;
 class CBattleInfoCallback;
 struct BattleResult;
 struct BattleLayout;
+struct BattleStackAttacked;
 class BattleID;
 
 namespace battle
 {
 class Unit;
+class CUnitState;
 }
 
 class CGameHandler;
 class CBattleQuery;
+
+namespace spells
+{
+class Spell;
+}
+
 class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
@@ -54,7 +62,6 @@ class BattleProcessor : boost::noncopyable
 	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
 
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
@@ -72,6 +79,14 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
+	/// Fires one combat event on the given unit
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
+	/// Fires the spell hit event on every unit a deliberately cast spell reached
+	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
+	/// Records every death these casualties report, to be announced once the running action is over
+	void noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties);
+	/// Announces recorded deaths, for damage dealt outside any battle action
+	void flushPendingDeaths(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);
 

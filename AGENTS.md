@@ -15,6 +15,19 @@ class DLL_LINKAGE CAddInfo {};
 struct DLL_LINKAGE Bonus {};
 ```
 
+### Comments and documentation wording
+
+Both in-code comments and `.md` documentation use plain, technical English. State the mechanism directly; do not narrate it.
+
+- write what the code or the rule does, using the names the code uses - packs, bonuses, events, hexes, stacks. Do not paraphrase an event or a pack as an action someone takes
+- do not personify code or game entities. A unit is not "told", a battle does not "announce", a function does not "answer" - it returns
+- avoid the rhetorical constructions `which is what ...`, `X is what decides ...`, `what X is worth`, `A rather than B` where plain `A instead of B` or a direct statement will do
+- a comment explains **why** the code is needed - the edge case, the ordering constraint, the H3 quirk. Do not restate what the code does, except for genuinely opaque constructs
+- keep the size the codebase uses: one line per method or field, a few lines per class or per script. If an explanation needs a paragraph, it belongs in `docs/modders/`, not above a declaration
+- `///` documents the declaration that follows, `///<` the member on the same line. Never leave a `///` block attached to nothing; use `//` for a standalone note
+- `.md` documentation follows [`docs/modders/Bonus/Bonus_Types.md`](docs/modders/Bonus/Bonus_Types.md) and [`docs/modders/Entities_Format/`](docs/modders/Entities_Format/): a short description, then a `-` list of fields, then a json example. Descriptions are one sentence where one sentence is enough
+- generated pages under `docs/modders/Lua_Reference/` are produced from the binding descriptions in `luascript/api/`. Edit the C++ string and regenerate with `vcmiserver --export-lua-docs <dir>`; never edit the generated file
+
 ### Constants and identifiers
 
 Prefer existing constants over magic numbers or hard-coded strings:

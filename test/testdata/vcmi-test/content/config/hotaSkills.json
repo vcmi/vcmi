@@ -1,0 +1,24 @@
+// The Runes skill of Horn of the Abyss, reduced to the bonuses its script reads. It is declared
+// because the script attributes the rune counter it grants to this skill, and a bonus can only
+// name a source that exists.
+{
+	"runes" : {
+		"name" : "Runes",
+		"gainChance" : { "might" : 0, "magic" : 0 },
+		"specialty" : [ ],
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"runesCap" : { "type" : "RUNE_LEVEL_CAP", "hidden" : true },
+				"runesEffect" : {
+					"type" : "COMBAT_EVENT_TRIGGER",
+					"subtype" : "runes",
+					"addInfo" : { "isYeti" : false }
+				}
+			}
+		},
+		"basic" : { "description" : "{Basic Runes}", "effects" : { "runesCap" : { "val" : 3 } } },
+		"advanced" : { "description" : "{Advanced Runes}", "effects" : { "runesCap" : { "val" : 6 } } },
+		"expert" : { "description" : "{Expert Runes}", "effects" : { "runesCap" : { "val" : 9 } } }
+	}
+}

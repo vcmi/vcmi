@@ -52,8 +52,9 @@ std::string_view lookup(std::span<const NameMapping> table, std::string_view nam
 }
 
 /// Name of the script each retired bonus type is now implemented by.
-constexpr std::array<NameMapping, 8> retiredAbilities = {{
+constexpr std::array<NameMapping, 9> retiredAbilities = {{
 	{ "LIFE_DRAIN",       "lifeDrain" },
+	{ "REBIRTH",          "rebirth" },
 	{ "SOUL_STEAL",       "soulSteal" },
 	{ "TRANSMUTATION",    "transmutation" },
 	{ "SUMMON_GUARDIANS", "summonGuardians" },
@@ -166,6 +167,11 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		const JsonNode & amount = ability["addInfo"].isVector() ? ability["addInfo"][0] : ability["addInfo"];
 		parameters["amount"].Integer() = amount.Integer();
 	}
+	else if(script == "rebirth")
+	{
+		// sacred phoenix always resurrects at least one creature, whatever the percentage
+		parameters["guaranteed"].Bool() = withoutScope(ability["subtype"].String()) == "rebirthSpecial";
+	}
 	else if(script == "deathStare")
 	{
 		parameters["situation"].String() = deathStareSituation(withoutScope(ability["subtype"].String()));
@@ -234,6 +240,11 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 
 		case BonusType::UNUSED_FIRE_SHIELD:
 			scriptName = "fireShield";
+			break;
+
+		case BonusType::UNUSED_REBIRTH:
+			scriptName = "rebirth";
+			parameters["guaranteed"].Bool() = bonus.subtype.getNum() == 1; // 1 was rebirthSpecial
 			break;
 
 		case BonusType::UNUSED_DESTRUCTION:

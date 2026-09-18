@@ -8,6 +8,10 @@
 	"keepDisabled" : true,
 	"heroes" : [ "config/heroes.json" ],
 	"creatures" : [ "config/creatures.json" ],
+	"scripts" : [ "config/hotaScripts.json" ],
+	"skills" : [ "config/hotaSkills.json" ],
+	"spells" : [ "config/hotaSpells.json" ],
+	"bonuses" : [ "config/hotaBonuses.json" ],
 	"objects" : {
 		"questGate" : {
 			"name" : "Quest Gate",
