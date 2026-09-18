@@ -65,6 +65,9 @@ public:
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
 	TQuantity getJoiningAmount() const;
+	/// Percentage of the stack that joins the hero. HotA maps store this per object;
+	/// -1 means the map did not set it, in which case the global setting applies.
+	int getEffectiveJoiningPercentage() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;
