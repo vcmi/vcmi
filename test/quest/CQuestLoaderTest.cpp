@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/army/CStackBasicDescriptor.h"
 #include "../../lib/mapping/MapDifficulty.h"
+#include "../../lib/rewardable/Configuration.h"
 #include "../../lib/rewardable/Limiter.h"
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -247,4 +248,49 @@ TEST(QuestLimiterJsonTest, AllowedDifficultiesDefaultOmitted)
 	src.serializeJson(ser);
 
 	EXPECT_TRUE(node["allowedDifficulties"].isNull());
+}
+
+// VCMI-format (.vmap) maps keep a seer hut's reward in the rewardable configuration, which is
+// what the map editor edits. The quest's own reward - the one initObj rebuilds the configuration
+// from at game start - is only ever set by the H3M loader. So a JSON round trip must hand the
+// configuration reward over to the quest, and a quest-only reward (H3M map re-saved as .vmap)
+// must be written out to the configuration. Without this every editor-made seer hut is rewardless.
+
+class QuestJsonRewardTest : public QuestTest {};
+
+TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
+{
+	// serializeJsonOptions is protected; expose it exactly as the map saver/loader reach it.
+	struct SeerProbe : public SeerHut
+	{
+		using SeerHut::SeerHut;
+		using SeerHut::serializeJsonOptions;
+	};
+
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	// a hut as the H3M loader leaves it: reward on the quest, configuration empty
+	SeerProbe source(gameState().get());
+	source.addQuest();
+	source.getQuest().mission.heroLevel = 3;
+	Rewardable::VisitInfo vinfo;
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	vinfo.reward.heroExperience = 100;
+	source.getQuest().reward = vinfo;
+
+	JsonNode written;
+	JsonSerializer saver(nullptr, written);
+	source.serializeJsonOptions(saver);
+	ASSERT_EQ(written["rewardable"]["info"].Vector().size(), 1u)
+		<< "the quest reward must be written into the map's rewardable configuration";
+
+	// a hut as the JSON loader builds it from that map
+	SeerProbe loaded(gameState().get());
+	JsonDeserializer loader(nullptr, written);
+	loaded.serializeJsonOptions(loader);
+	ASSERT_EQ(loaded.configuration.info.size(), 1u);
+	ASSERT_TRUE(loaded.getQuest().reward.has_value())
+		<< "the configuration reward must be handed to the quest, initObj rebuilds the configuration from it";
+	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 100);
 }
