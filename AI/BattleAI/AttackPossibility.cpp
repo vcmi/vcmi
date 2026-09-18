@@ -198,7 +198,7 @@ float AttackPossibility::attackValue() const
 	return damageDiff();
 }
 
-/// What losing a single creature of this unit costs its owner
+/// Combat value of a single creature of this unit
 static float creatureWorth(const battle::Unit * unit, const DamageCache & damageCache)
 {
 	return LIBRARY->combatValues->getAIValue(*unit, unit->unitType(), damageCache.facing.at(unit->unitSide()));
@@ -293,7 +293,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
-		// share of what the shooter is worth that blocking it denies, weighed as a kill would be
+		// blocking a shooter denies a fraction of its combat value, scored on the same scale as a kill
 		const auto shooterWorth = static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())));
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;

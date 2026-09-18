@@ -427,7 +427,7 @@ void CreatureValueEstimator::checkModelPaths()
 		if(fromConfiguration > 0)
 			ratios.push_back(static_cast<double>(asUnit) / fromConfiguration);
 
-		// regeneration is the one effect whose worth per creature could depend on how many there are
+		// regeneration is the only effect whose per-creature value could depend on stack size
 		if(entry.creature->hasBonusOfType(BonusType::HP_REGENERATION))
 		{
 			const CStack * few = placeStack(BattleSide::ATTACKER, entry.creature, BattleHex(attackerHex + 1), 5);

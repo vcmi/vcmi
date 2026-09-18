@@ -34,7 +34,7 @@ public:
 	{
 		return 0;
 	};
-	/// A commander is not part of the army that can be traded away, so it counts for nothing
+	/// Commander can not be traded away as part of an army, so it has no value here
 	ui64 estimateCombatValue() const override
 	{
 		return 0;

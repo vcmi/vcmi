@@ -72,8 +72,7 @@ public:
 		: BonusCacheBase(target)
 	{}
 
-	/// Result of 'compute', recomputed whenever the bonuses of the target change. A value that also
-	/// depends on something else is told apart by 'of', and recomputed whenever that changes too.
+	/// Result of 'compute', recomputed whenever bonuses of the target change or 'of' differs from last call
 	template<typename Compute>
 	int getValue(const Compute & compute, int32_t of) const
 	{

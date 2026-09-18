@@ -326,7 +326,7 @@ ui64 CCreatureSet::estimateCombatValue(int fortLevel) const
 	{
 		ui64 value = elem.second->estimateCombatValue();
 
-		// walls hold an army off, and hold it off longer when it can neither fly over them nor shoot
+		// town walls delay attackers, and delay them longer when they can neither fly nor shoot
 		if(fortLevel > 0 && !elem.second->hasBonusOfType(BonusType::FLYING))
 		{
 			value /= fortLevel;

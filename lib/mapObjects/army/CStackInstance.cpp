@@ -287,11 +287,8 @@ ui64 CStackInstance::estimateCombatValue() const
 {
 	assert(getType());
 
-	// TODO: value the creatures of this stack rather than its creature type, so that the hero, its
-	// artifacts and bonuses reaching only some units are accounted for. Doing so needs the armies
-	// that only exist as a proposal - creatures about to be bought or upgraded - to be valued the
-	// same way, and those have no bonus bearer to read. Until both can be, valuing every army by
-	// creature type is what keeps them comparable.
+	// TODO: account for hero and artifact bonuses by valuing the stack instead of its creature type.
+	// Blocked on proposed armies - creatures about to be bought or upgraded - having no bonus bearer
 	return static_cast<ui64>(LIBRARY->combatValues->getAIValue(getType())) * getCount();
 }
 

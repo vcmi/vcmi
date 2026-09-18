@@ -97,8 +97,7 @@ bool hasCombatScript(const CStack * cstack, const std::string & script)
 // static
 int Stack::GetValue(const CCreature * creature)
 {
-	// the value ranges this schema encodes, and the models trained against them, are calibrated to
-	// the scale of the formula MMAI used to carry, so the shared model is brought onto that scale
+	// this schema and the models trained on it are calibrated to the scale of the formula MMAI used previously
 	static constexpr double combatValueScale = 4.49;
 
 	if(!creature)

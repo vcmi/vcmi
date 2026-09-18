@@ -108,7 +108,7 @@ public:
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
 	std::unique_ptr<scripting::Service> scriptHandler;
-	/// Estimates how much a creature or a battle unit is worth in combat
+	/// Estimates combat value of a creature or a battle unit
 	std::unique_ptr<CombatValue> combatValues;
 
 	GameLibrary();

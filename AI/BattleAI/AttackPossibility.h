@@ -24,8 +24,7 @@ private:
 	void buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 
 public:
-	/// What each side of the battle is up against, worked out once per cache build so that a unit
-	/// is weighed the same way wherever it is considered within one
+	/// Data of units opposing each side, computed once per cache so that all units use the same data
 	BattleSideArray<CombatValueContext> facing;
 
 	DamageCache() : parent(nullptr) {}

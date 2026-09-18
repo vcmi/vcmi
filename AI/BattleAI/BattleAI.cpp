@@ -109,8 +109,7 @@ static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSid
 	uint64_t our = 0;
 	uint64_t enemy = 0;
 
-	// each side is weighed against what it actually faces, so that what only helps against this
-	// enemy - resisting its magic, turning aside the blows it strikes - counts for what it is here
+	// evaluate each side against its actual opponent, to account for bonuses useful only against that opponent
 	const auto ourEnemy = CombatValueContext::against(*cb, side);
 	const auto theirEnemy = CombatValueContext::against(*cb, CBattleInfoEssentials::otherSide(side));
 

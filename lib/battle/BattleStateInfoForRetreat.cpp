@@ -33,8 +33,7 @@ uint64_t getFightingStrength(const battle::Units & stacks, const CGHeroInstance 
 		result += stack->estimateCombatValue();
 	}
 
-	// a unit in battle already carries the attack and defense of its hero, so only what the hero
-	// does on its own is left to account for
+	// unit values already include attack and defense of their hero, so only its magic is left to account for
 	if(hero)
 	{
 		result = static_cast<uint64_t>(result * hero->getMagicStrength());

@@ -126,10 +126,10 @@ public:
 	/// returns total health that unit had initially
 	virtual int64_t getTotalHealth() const = 0;
 
-	/// Worth of this unit in combat, estimated from its stats and the bonuses it currently carries
+	/// Combat value of this unit, estimated from its stats and its current bonuses
 	virtual uint64_t estimateCombatValue() const = 0;
 
-	/// Same, weighed against the enemy the unit is up against rather than against an average one
+	/// Same, evaluated against the actual opposing units instead of an average battle
 	virtual uint64_t estimateCombatValue(const CombatValueContext & context) const = 0;
 
 	virtual int getTotalAttacks(bool ranged) const = 0;

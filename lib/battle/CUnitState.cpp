@@ -594,8 +594,7 @@ uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) con
 	if(perCreature <= 0 || count <= 0)
 		return 0;
 
-	// wounds cost a stack its survivability but not the damage its remaining creatures deal, so the
-	// worth of a wounded top creature lands between the two - it fights whole and dies early
+	// wounds reduce survivability of a stack but not its damage, so value scales between the two counts
 	const double effectiveCount = static_cast<double>(getAvailableHealth()) / getMaxHealth();
 
 	return std::llround(perCreature * std::sqrt(count * effectiveCount));
