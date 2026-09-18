@@ -19,6 +19,16 @@ namespace battle
 class Unit;
 }
 
+/// What a unit is up against. Bonuses that only pay off against a particular enemy are weighted by
+/// this, so the same unit can be worth more in one battle than in another. Its defaults describe the
+/// average battle, and are what a unit is worth before it is known what it will meet.
+class DLL_LINKAGE CombatValueContext
+{
+public:
+	/// Share of the enemy that closes in to strike rather than shooting
+	double meleeShare = 1;
+};
+
 /// Computes AI value or fight value of provided unit or creature. All computation is done in
 /// runtime and accounts for any bonuses affecting the unit
 class DLL_LINKAGE CombatValue
@@ -37,6 +47,9 @@ public:
 	int64_t getAIValue(const Creature * creature) const;
 	int64_t getFightValue(const Creature * creature) const;
 
+	/// The enemy that creature values are measured against when no actual one is known
+	const CombatValueContext & averageBattle() const;
+
 	/// Number of attacks per round, with repeated attacks counted at a discount
 	static double attacksPerRound(const ACreature & creature);
 	static double targetsPerAttack(const ACreature & creature);
@@ -48,11 +61,9 @@ public:
 	static double survivalMultiplier(const ACreature & creature);
 
 	/// Same two, for bonuses that are only worth something against a particular enemy - magic
-	/// defenses against a spellcasting hero, a shield against the kind of blow it turns aside.
-	/// Valued here at what an average battle gives them, since a unit carrying one is better than a
-	/// unit without it even before it is known what the unit will face.
+	/// defenses against a spellcasting hero, a shield against the kind of blow it turns aside
 	static double situationalOffense(const ACreature & creature);
-	double situationalSurvival(const ACreature & creature) const;
+	static double situationalSurvival(const ACreature & creature, const CombatValueContext & context);
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);
 	/// Stack size a creature is valued at. Always this rather than the size of an actual stack, so
@@ -77,7 +88,7 @@ private:
 	/// Share of an average attack that given defense skill lets through
 	double defenseAt(int defense) const;
 
-	double valueOf(const ACreature & creature, double uptime, int count) const;
+	double valueOf(const ACreature & creature, double uptime, int count, const CombatValueContext & context) const;
 
 	void buildCurves(const std::vector<const CCreature *> & builtinCreatures);
 	void pinScale(const std::vector<const CCreature *> & builtinCreatures);
@@ -91,8 +102,8 @@ private:
 	std::vector<double> defenseCurve;
 
 	double averageDefense = 0;
-	/// Share of creatures that approach instead of shooting, i.e. how often retaliation is possible
-	double meleeAttackerShare = 1;
+	/// The average battle, measured off the creatures the game ships with
+	CombatValueContext defaultContext;
 	/// Factors that map computed values onto H3 aiValue and fightValue ranges
 	double scale = 1;
 	double fightScale = 1;

@@ -195,7 +195,7 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	}
 
 	averageDefense /= builtinCreatures.size();
-	meleeAttackerShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
+	defaultContext.meleeShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
 
 	offenseCurve.assign(skillCap + 1, 0.0);
 	for(int attack = 0; attack <= skillCap; ++attack)
@@ -227,7 +227,7 @@ void CombatValue::pinScale(const std::vector<const CCreature *> & builtinCreatur
 	for(const auto * creature : builtinCreatures)
 	{
 		const double uptime = uptimeOf(*creature);
-		const double value = valueOf(*creature, uptime, referenceCount(creature));
+		const double value = valueOf(*creature, uptime, referenceCount(creature), defaultContext);
 
 		if(value <= 0)
 			continue;
@@ -245,7 +245,7 @@ void CombatValue::pinScale(const std::vector<const CCreature *> & builtinCreatur
 	fightScale = median(fightScales);
 }
 
-double CombatValue::valueOf(const ACreature & creature, double uptime, int count) const
+double CombatValue::valueOf(const ACreature & creature, double uptime, int count, const CombatValueContext & context) const
 {
 	static constexpr double meleePenalty = 0.5;
 
@@ -283,7 +283,7 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	ownBlow *= 1.0 + bonuses->valOfBonuses(BonusType::JOUSTING) / 100.0 * charge;
 
 	const bool retaliatesAtRange = ranged && bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION);
-	const double retaliatedAgainst = bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION) ? 1.0 : meleeAttackerShare;
+	const double retaliatedAgainst = bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION) ? 1.0 : context.meleeShare;
 
 	double retaliationBlow = blow(retaliatesAtRange) * retaliationsPerRound(creature) * retaliatedAgainst;
 	if(ranged && !retaliatesAtRange && !bonuses->hasBonusOfType(BonusType::NO_MELEE_PENALTY))
@@ -292,7 +292,7 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature) * situationalOffense(creature);
 	const double defense = defenseAt(effectiveDefense(creature)) * (1.0 + retaliationSuffered(creature));
 	const double hitPoints = creature.getMaxHealth() + regeneratedHitPoints(creature, count);
-	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature);
+	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature, context);
 
 	return combine(output, effectiveHitPoints, uptime);
 }
@@ -519,7 +519,7 @@ double CombatValue::survivalMultiplier(const ACreature & creature)
 	return result;
 }
 
-double CombatValue::situationalSurvival(const ACreature & creature) const
+double CombatValue::situationalSurvival(const ACreature & creature, const CombatValueContext & context)
 {
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
@@ -551,8 +551,8 @@ double CombatValue::situationalSurvival(const ACreature & creature) const
 	};
 
 	const double reduced = reductionOf(BonusCustomSubtype::damageTypeAll)
-		+ reductionOf(BonusCustomSubtype::damageTypeMelee) * meleeAttackerShare
-		+ reductionOf(BonusCustomSubtype::damageTypeRanged) * (1.0 - meleeAttackerShare);
+		+ reductionOf(BonusCustomSubtype::damageTypeMelee) * context.meleeShare
+		+ reductionOf(BonusCustomSubtype::damageTypeRanged) * (1.0 - context.meleeShare);
 
 	result /= std::max(0.1, 1.0 - reduced / 100.0);
 
@@ -612,7 +612,12 @@ int CombatValue::startingDistance()
 
 int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type) const
 {
-	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type)) * scale);
+	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type), defaultContext) * scale);
+}
+
+const CombatValueContext & CombatValue::averageBattle() const
+{
+	return defaultContext;
 }
 
 int64_t CombatValue::getAIValue(const Creature * creature) const
@@ -628,7 +633,7 @@ int64_t CombatValue::getFightValue(const Creature * creature) const
 {
 	const double uptime = uptimeOf(*creature);
 
-	return std::llround(valueOf(*creature, uptime, referenceCount(creature)) / uptime * fightScale);
+	return std::llround(valueOf(*creature, uptime, referenceCount(creature), defaultContext) / uptime * fightScale);
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const
@@ -649,5 +654,5 @@ int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCall
 		}
 	}
 
-	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), referenceCount(unit->unitType())) * scale);
+	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), referenceCount(unit->unitType()), defaultContext) * scale);
 }
