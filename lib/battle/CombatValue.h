@@ -52,7 +52,7 @@ public:
 	/// Valued here at what an average battle gives them, since a unit carrying one is better than a
 	/// unit without it even before it is known what the unit will face.
 	static double situationalOffense(const ACreature & creature);
-	static double situationalSurvival(const ACreature & creature);
+	double situationalSurvival(const ACreature & creature) const;
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);
 	/// Stack size a creature is valued at. Always this rather than the size of an actual stack, so
