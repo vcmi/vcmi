@@ -121,4 +121,132 @@ TEST_F(CombatValueUnitTest, woundedUnitIsWorthLessThanAWholeOne)
 	EXPECT_LT(subject.estimateCombatValue(), whole);
 }
 
+/// A unit whose stats the test chooses, so that a spell effect can be judged by what it does to the
+/// value rather than by a number written down here
+struct MeasuredUnit
+{
+	UnitInfoMock info;
+	UnitEnvironmentMock environment;
+	BonusBearerMock bonuses;
+	battle::CUnitStateDetached unit;
+
+	MeasuredUnit(int damageMin, int damageMax, bool shooter = false)
+		: unit(&info, &bonuses)
+	{
+		give(BonusType::STACK_HEALTH, 30);
+		give(BonusType::STACKS_SPEED, 6);
+		give(BonusType::PRIMARY_SKILL, 10, BonusSubtypeID(PrimarySkill::ATTACK));
+		give(BonusType::PRIMARY_SKILL, 10, BonusSubtypeID(PrimarySkill::DEFENSE));
+		give(BonusType::CREATURE_DAMAGE, damageMin, BonusCustomSubtype::creatureDamageMin);
+		give(BonusType::CREATURE_DAMAGE, damageMax, BonusCustomSubtype::creatureDamageMax);
+
+		if(shooter)
+		{
+			give(BonusType::SHOOTER, 1);
+			give(BonusType::SHOTS, 16);
+		}
+
+		EXPECT_CALL(info, unitBaseAmount()).WillRepeatedly(Return(20));
+		EXPECT_CALL(info, unitType()).WillRepeatedly(Return(CreatureID(CreatureID::ARCHER).toCreature()));
+		EXPECT_CALL(environment, unitHasAmmoCart(_)).WillRepeatedly(Return(false));
+
+		unit.localInit(&environment);
+	}
+
+	void give(BonusType type, int val, const BonusSubtypeID & subtype = {},
+		BonusDuration::Type duration = BonusDuration::PERMANENT, int turns = 0)
+	{
+		auto bonus = std::make_shared<Bonus>(duration, type, BonusSource::SPELL_EFFECT, val, BonusSourceID(), subtype);
+		bonus->turnsRemain = turns;
+		bonuses.addNewBonus(bonus);
+	}
+
+	int64_t value() const
+	{
+		return LIBRARY->combatValues->getAIValue(unit, unit.unitType());
+	}
+};
+
+/// Bless collapses the damage range onto its top end, so it is worth whatever that range is wide -
+/// the pair of these two pins the whole effect to creature stats rather than to a fixed multiplier
+TEST(CombatValueEffectTest, blessIsWorthNothingWhenDamageDoesNotVary)
+{
+	MeasuredUnit subject(20, 20);
+	const auto before = subject.value();
+
+	subject.give(BonusType::ALWAYS_MAXIMUM_DAMAGE, 0);
+
+	EXPECT_EQ(subject.value(), before);
+}
+
+TEST(CombatValueEffectTest, blessIsWorthMuchWhenDamageVariesWidely)
+{
+	MeasuredUnit subject(10, 30);
+	const auto before = subject.value();
+
+	subject.give(BonusType::ALWAYS_MAXIMUM_DAMAGE, 0);
+
+	EXPECT_GT(subject.value(), before);
+}
+
+TEST(CombatValueEffectTest, curseIsWorthWhatBlessIsWorthTheOtherWayRound)
+{
+	MeasuredUnit subject(10, 30);
+	const auto before = subject.value();
+
+	subject.give(BonusType::ALWAYS_MINIMUM_DAMAGE, 0);
+
+	EXPECT_LT(subject.value(), before);
+}
+
+TEST(CombatValueEffectTest, blindnessLeavesItsBearerStrikingFeebly)
+{
+	MeasuredUnit subject(10, 30);
+	const auto before = subject.value();
+
+	subject.give(BonusType::GENERAL_ATTACK_REDUCTION, 75);
+
+	EXPECT_LT(subject.value(), before);
+}
+
+TEST(CombatValueEffectTest, forgetfulnessSpoilsShootingAlone)
+{
+	MeasuredUnit shooter(10, 30, true);
+	MeasuredUnit fighter(10, 30, false);
+
+	const auto shooterBefore = shooter.value();
+	const auto fighterBefore = fighter.value();
+
+	shooter.give(BonusType::FORGETFULL, 50);
+	fighter.give(BonusType::FORGETFULL, 50);
+
+	EXPECT_LT(shooter.value(), shooterBefore);
+	EXPECT_EQ(fighter.value(), fighterBefore);
+}
+
+TEST(CombatValueEffectTest, turningBlowsAsideMakesAUnitHarderToKill)
+{
+	MeasuredUnit subject(10, 30);
+	const auto before = subject.value();
+
+	subject.give(BonusType::GENERAL_DAMAGE_REDUCTION, 50, BonusCustomSubtype::damageTypeAll);
+
+	EXPECT_GT(subject.value(), before);
+}
+
+/// The same effect, once lasting a whole battle and once ending on the next blow
+TEST(CombatValueEffectTest, anEffectThatEndsSoonIsWorthLessThanOneThatStays)
+{
+	MeasuredUnit lasting(10, 30);
+	MeasuredUnit fleeting(10, 30);
+
+	ASSERT_EQ(lasting.value(), fleeting.value());
+
+	lasting.give(BonusType::GENERAL_ATTACK_REDUCTION, 75);
+	fleeting.give(BonusType::GENERAL_ATTACK_REDUCTION, 75, {}, BonusDuration::UNTIL_ATTACK);
+
+	EXPECT_LT(lasting.value(), fleeting.value());
+	EXPECT_LT(fleeting.value(), lasting.value() * 2);
+}
+
 }
