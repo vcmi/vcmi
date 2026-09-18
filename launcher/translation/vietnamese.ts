@@ -828,7 +828,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Tăng cường độ sắc nét cho bộ lọc xBRZ + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
@@ -1597,12 +1597,12 @@ Hãy chọn đúng thư mục chứa dữ liệu Heroes III đã cài đặt.</t
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã tìm thấy bản cài đặt HD Edition!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã tìm thấy bản cài đặt Heroes III HD Edition. Bạn có muốn cài đặt bản mod đồ họa HD này không?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
@@ -1748,12 +1748,12 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiếng Trung (giản thể)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiếng Trung (phồn thể)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -2283,7 +2283,7 @@ Có thể do lỗi: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Cài đặt trò chơi</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2324,17 +2324,17 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn các tệp (cấu hình, mod, file lưu, bản đồ, chiến dịch, file gog) để cài đặt...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Cài đặt Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bạn có muốn xóa toàn bộ dữ liệu trò chơi demo (bao gồm các thư mục Data, Maps, Mp3, Video) và khởi động lại chương trình cài đặt không?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="276"/>
@@ -2354,7 +2354,7 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Lưu</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="280"/>
@@ -2401,12 +2401,12 @@ cài đặt %n/%1</numerusform>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
         <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang chuẩn bị nhập các tệp đã chọn...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang nhập các tệp đã chọn... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
@@ -2416,7 +2416,7 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể nhập các tệp: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="427"/>
@@ -2430,7 +2430,16 @@ cài đặt %n/%1</numerusform>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Tùy chọn này cho phép bạn nhập thêm các tệp dữ liệu vào VCMI. Hiện tại, các tùy chọn sau được hỗ trợ:
+
+- Bản đồ Heroes III (.h3m hoặc .vmap). 
+- Chiến dịch Heroes III (.h3c hoặc .vcmp). 
+- Heroes III Chronicles cài đặt sao lưu ngoại tuyến từ GOG.com (.exe). 
+- Các bản mod VCMI ở định dạng (.zip)
+- Các bản lưu VCMI ở định dạng (.zip)
+- Tệp lưu VCMI (.vsgm1)
+- Tệp cấu hình VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="444"/>
