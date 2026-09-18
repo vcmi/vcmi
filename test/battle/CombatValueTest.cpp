@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 
+#include "mock/BattleFake.h"
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_UnitInfo.h"
 #include "mock/mock_UnitEnvironment.h"
@@ -64,71 +65,16 @@ namespace test
 {
 using namespace ::testing;
 
-/// A battle unit of a real creature, so that the model has actual stats to read
-class CombatValueUnitTest : public Test
-{
-public:
-	UnitInfoMock infoMock;
-	UnitEnvironmentMock envMock;
-	BonusBearerMock bonusMock;
-	battle::CUnitStateDetached subject;
-
-	static constexpr int32_t count = 20;
-
-	CombatValueUnitTest()
-		: subject(&infoMock, &bonusMock)
-	{
-		const auto * archer = CreatureID(CreatureID::ARCHER).toCreature();
-
-		// a detached unit carries no creature node, so the stats the model reads are supplied here
-		const auto giveBonus = [this](BonusType type, int value, const BonusSubtypeID & subtype = {})
-		{
-			bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, type,
-				BonusSource::CREATURE_ABILITY, value, BonusSourceID(), subtype));
-		};
-
-		giveBonus(BonusType::STACK_HEALTH, archer->getBaseHitPoints());
-		giveBonus(BonusType::STACKS_SPEED, archer->getBaseSpeed());
-		giveBonus(BonusType::PRIMARY_SKILL, archer->getBaseAttack(), BonusSubtypeID(PrimarySkill::ATTACK));
-		giveBonus(BonusType::PRIMARY_SKILL, archer->getBaseDefense(), BonusSubtypeID(PrimarySkill::DEFENSE));
-		giveBonus(BonusType::CREATURE_DAMAGE, archer->getBaseDamageMin(), BonusCustomSubtype::creatureDamageMin);
-		giveBonus(BonusType::CREATURE_DAMAGE, archer->getBaseDamageMax(), BonusCustomSubtype::creatureDamageMax);
-
-		EXPECT_CALL(infoMock, unitBaseAmount()).WillRepeatedly(Return(count));
-		EXPECT_CALL(infoMock, unitType()).WillRepeatedly(Return(archer));
-		EXPECT_CALL(envMock, unitHasAmmoCart(_)).WillRepeatedly(Return(false));
-
-		subject.localInit(&envMock);
-	}
-};
-
-TEST_F(CombatValueUnitTest, undamagedUnitIsWorthItsCreaturesTogether)
-{
-	const auto perCreature = LIBRARY->combatValues->getAIValue(subject, subject.unitType());
-
-	EXPECT_GT(perCreature, 0);
-	EXPECT_EQ(subject.estimateCombatValue(), static_cast<uint64_t>(perCreature * count));
-}
-
-TEST_F(CombatValueUnitTest, woundedUnitIsWorthLessThanAWholeOne)
-{
-	const auto whole = subject.estimateCombatValue();
-
-	int64_t damage = subject.getMaxHealth() * 5;
-	subject.damage(damage);
-
-	ASSERT_EQ(subject.getCount(), count - 5);
-	EXPECT_LT(subject.estimateCombatValue(), whole);
-}
-
-/// A unit whose stats the test chooses, so that a spell effect can be judged by what it does to the
+/// A unit whose stats the test chooses, so that an effect can be judged by what it does to the
 /// value rather than by a number written down here
 struct MeasuredUnit
 {
+	static constexpr int32_t count = 20;
+
 	UnitInfoMock info;
 	UnitEnvironmentMock environment;
 	BonusBearerMock bonuses;
-	battle::CUnitStateDetached unit;
+	::battle::CUnitStateDetached unit;
 
 	MeasuredUnit(int damageMin, int damageMax, bool shooter = false)
 		: unit(&info, &bonuses)
@@ -146,7 +92,7 @@ struct MeasuredUnit
 			give(BonusType::SHOTS, 16);
 		}
 
-		EXPECT_CALL(info, unitBaseAmount()).WillRepeatedly(Return(20));
+		EXPECT_CALL(info, unitBaseAmount()).WillRepeatedly(Return(count));
 		EXPECT_CALL(info, unitType()).WillRepeatedly(Return(CreatureID(CreatureID::ARCHER).toCreature()));
 		EXPECT_CALL(environment, unitHasAmmoCart(_)).WillRepeatedly(Return(false));
 
@@ -171,6 +117,28 @@ struct MeasuredUnit
 		return LIBRARY->combatValues->getAIValue(unit, unit.unitType(), context);
 	}
 };
+
+TEST(CombatValueUnitTest, undamagedUnitIsWorthItsCreaturesTogether)
+{
+	MeasuredUnit subject(10, 30);
+	const auto perCreature = LIBRARY->combatValues->getAIValue(subject.unit, subject.unit.unitType());
+
+	EXPECT_GT(perCreature, 0);
+	EXPECT_EQ(subject.unit.estimateCombatValue(), static_cast<uint64_t>(perCreature * MeasuredUnit::count));
+}
+
+TEST(CombatValueUnitTest, woundedUnitIsWorthLessThanAWholeOne)
+{
+	MeasuredUnit subject(10, 30);
+	const auto whole = subject.unit.estimateCombatValue();
+
+	// damage() reports back how much it actually took, so it needs a variable to write into
+	int64_t damage = subject.unit.getMaxHealth() * 5;
+	subject.unit.damage(damage);
+
+	ASSERT_EQ(subject.unit.getCount(), MeasuredUnit::count - 5);
+	EXPECT_LT(subject.unit.estimateCombatValue(), whole);
+}
 
 /// An enemy that brings none of what the bonuses below are answers to
 static CombatValueContext harmlessEnemy()
@@ -242,6 +210,20 @@ TEST(CombatValueEffectTest, forgetfulnessSpoilsShootingAlone)
 	EXPECT_EQ(fighter.value(), fighterBefore);
 }
 
+/// A shooter spoiled past the point of shooting walks up and strikes instead, so however much
+/// worse the spoiling gets beyond that, what is left of the unit stays the same
+TEST(CombatValueEffectTest, aShooterSpoiledPastShootingIsWorthWhatMeleeIsWorth)
+{
+	MeasuredUnit spoiled(10, 30, true);
+	MeasuredUnit forbidden(10, 30, true);
+
+	spoiled.give(BonusType::FORGETFULL, 90);
+	forbidden.give(BonusType::FORGETFULL, 100);
+
+	EXPECT_GT(forbidden.value(), 0);
+	EXPECT_EQ(spoiled.value(), forbidden.value());
+}
+
 TEST(CombatValueEffectTest, turningBlowsAsideMakesAUnitHarderToKill)
 {
 	MeasuredUnit subject(10, 30);
@@ -252,19 +234,20 @@ TEST(CombatValueEffectTest, turningBlowsAsideMakesAUnitHarderToKill)
 	EXPECT_GT(subject.value(), before);
 }
 
-/// The same effect, once lasting a whole battle and once ending on the next blow
-TEST(CombatValueEffectTest, anEffectThatEndsSoonIsWorthLessThanOneThatStays)
+/// The same blindness, once lasting a whole battle and once ending on the next blow
+TEST(CombatValueEffectTest, aDebuffThatEndsSoonCostsLessThanOneThatStays)
 {
 	MeasuredUnit lasting(10, 30);
 	MeasuredUnit fleeting(10, 30);
 
-	ASSERT_EQ(lasting.value(), fleeting.value());
+	const auto whole = lasting.value();
+	ASSERT_EQ(whole, fleeting.value());
 
 	lasting.give(BonusType::GENERAL_ATTACK_REDUCTION, 75);
 	fleeting.give(BonusType::GENERAL_ATTACK_REDUCTION, 75, {}, BonusDuration::UNTIL_ATTACK);
 
 	EXPECT_LT(lasting.value(), fleeting.value());
-	EXPECT_LT(fleeting.value(), lasting.value() * 2);
+	EXPECT_LT(fleeting.value(), whole);
 }
 
 
@@ -329,6 +312,111 @@ TEST(CombatValueContextTest, berserkCostsNothingWhereTheUnitStandsAlone)
 	amongAllies.allyCrowding = 0.85;
 
 	EXPECT_LT(subject.value(amongAllies), before);
+}
+
+/// A context is remembered by its id, so two of them describing the same enemy must answer the
+/// same however each was built, and no two describing different ones may
+TEST(CombatValueContextTest, contextIdentityFollowsWhatTheContextDescribes)
+{
+	const auto plain = harmlessEnemy();
+	auto rebuilt = harmlessEnemy();
+
+	EXPECT_EQ(plain.id(), rebuilt.id());
+
+	rebuilt.magicPower = 1.0;
+	EXPECT_NE(plain.id(), rebuilt.id());
+
+	auto copied = rebuilt;
+	EXPECT_EQ(copied.id(), rebuilt.id());
+
+	copied.kingShare[2] = 0.5;
+	EXPECT_NE(copied.id(), rebuilt.id());
+}
+
+/// A battle of hand-made units, so that what a context reads off one can be dictated outright
+class ContextBattle
+{
+public:
+	::test::battle::BattleFake battle;
+	::test::battle::UnitsFake units;
+
+	ContextBattle()
+	{
+		EXPECT_CALL(battle, getUnitsIf(_)).Times(AnyNumber())
+			.WillRepeatedly(Invoke(&units, &::test::battle::UnitsFake::getUnitsIf));
+		EXPECT_CALL(battle, getTacticDist()).Times(AnyNumber()).WillRepeatedly(Return(0));
+		EXPECT_CALL(battle, getSideHero(_)).Times(AnyNumber()).WillRepeatedly(Return(nullptr));
+	}
+
+	/// A melee unit of the given worth, optionally a king of the given slayer mastery
+	void add(BattleSide side, uint64_t worth, int kingMastery = -1)
+	{
+		auto & unit = units.add(side);
+
+		unit.makeAlive();
+		unit.expectAnyBonusSystemCall();
+		EXPECT_CALL(unit, unitSide()).Times(AnyNumber()).WillRepeatedly(Return(side));
+		EXPECT_CALL(unit, estimateCombatValue()).Times(AnyNumber()).WillRepeatedly(Return(worth));
+		// battleCanShoot reads the creature behind the unit before anything else
+		EXPECT_CALL(unit, unitType()).Times(AnyNumber())
+			.WillRepeatedly(Return(CreatureID(CreatureID::ARCHER).toCreature()));
+		EXPECT_CALL(unit, canShoot()).Times(AnyNumber()).WillRepeatedly(Return(false));
+
+		if(kingMastery >= 0)
+			unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::KING,
+				BonusSource::CREATURE_ABILITY, kingMastery, BonusSourceID()));
+	}
+};
+
+TEST(CombatValueContextTest, kingsAreCountedTowardsEveryMasteryThatReachesThem)
+{
+	ContextBattle fight;
+
+	fight.add(BattleSide::ATTACKER, 100);
+	fight.add(BattleSide::DEFENDER, 100);
+	fight.add(BattleSide::DEFENDER, 300, 2);
+
+	const auto facingKings = CombatValueContext::against(fight.battle, BattleSide::ATTACKER);
+
+	// a slayer needs advanced mastery to reach this king, and three of the four hundred it faces are it
+	EXPECT_DOUBLE_EQ(facingKings.kingShare[0], 0.0);
+	EXPECT_DOUBLE_EQ(facingKings.kingShare[1], 0.0);
+	EXPECT_DOUBLE_EQ(facingKings.kingShare[2], 0.75);
+	EXPECT_DOUBLE_EQ(facingKings.kingShare[3], 0.75);
+
+	// the side those kings stand on faces none of its own
+	const auto facingCommoners = CombatValueContext::against(fight.battle, BattleSide::DEFENDER);
+
+	EXPECT_DOUBLE_EQ(facingCommoners.kingShare[3], 0.0);
+}
+
+TEST(CombatValueContextTest, crowdingCountsTheAlliesOfTheSideBeingDescribed)
+{
+	ContextBattle alone;
+
+	alone.add(BattleSide::ATTACKER, 100);
+	alone.add(BattleSide::DEFENDER, 100);
+
+	EXPECT_DOUBLE_EQ(CombatValueContext::against(alone.battle, BattleSide::ATTACKER).allyCrowding, 0.0);
+
+	ContextBattle crowd;
+
+	for(int stack = 0; stack < 4; ++stack)
+		crowd.add(BattleSide::ATTACKER, 100);
+	crowd.add(BattleSide::DEFENDER, 100);
+
+	EXPECT_DOUBLE_EQ(CombatValueContext::against(crowd.battle, BattleSide::ATTACKER).allyCrowding, 0.75);
+}
+
+/// The built-in creatures include kings, so the average battle must price a slayer at all
+TEST(CombatValueContextTest, theAverageBattleFieldsMoreKingsTheHigherTheMastery)
+{
+	const auto & average = LIBRARY->combatValues->averageBattle();
+
+	EXPECT_GT(average.kingShare[3], 0.0);
+
+	for(size_t mastery = 1; mastery < average.kingShare.size(); ++mastery)
+		EXPECT_GE(average.kingShare[mastery], average.kingShare[mastery - 1]);
 }
 
 }

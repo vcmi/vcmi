@@ -14,7 +14,6 @@
 #include "BattleSide.h"
 
 class CCreature;
-class CCreatureSet;
 class CGHeroInstance;
 class CBattleInfoCallback;
 
@@ -24,37 +23,36 @@ class Unit;
 }
 
 /// What a unit is up against. Bonuses that only pay off against a particular enemy are weighted by
-/// this, so the same unit can be worth more in one battle than in another. Its defaults describe the
-/// average battle, and are what a unit is worth before it is known what it will meet.
+/// this, so the same unit can be worth more in one battle than in another. The average battle is
+/// held by CombatValue::averageBattle, and is what a unit is worth before its enemy is known - the
+/// member defaults here are only a starting point for building one.
 class DLL_LINKAGE CombatValueContext
 {
 public:
-	CombatValueContext();
+	/// Slayer masteries a bonus can name, from none through expert
+	using MasteryShares = std::array<double, 4>;
 
 	/// Tells one context from another, so that what was weighed against it can be remembered.
-	/// Building a context is therefore something to do once per turn, not once per move considered.
+	/// Contexts that describe the same enemy answer the same, however each of them was built.
 	int32_t id() const;
 
 	/// Share of the enemy that closes in to strike rather than shooting
 	double meleeShare = 1;
-	/// Hostile magic the enemy can bring, with 1 standing for a hero carrying a spellbook
+	/// Hostile magic the enemy can bring, with 1 standing for a hero of about five knowledge and
+	/// five spell power at full mana. A spellbook alone brings none of it and counts as zero.
 	double magicPower = 1;
 	/// Share of the enemy that a slayer of each mastery reaches, indexed by that mastery
-	std::array<double, 4> kingShare = {};
-	/// Chance that an allied stack other than the one struck at stands within reach of a blow
+	MasteryShares kingShare = {};
+	/// Chance that a blow aimed at an allied stack reaches yet another one, which is what a unit
+	/// turned against its own side costs the army it stands in
 	double allyCrowding = 0;
 
 	/// What the other side of a battle presents to the given one
 	static CombatValueContext against(const CBattleInfoCallback & battle, BattleSide side);
-	/// Same, for an army known only by the creatures standing in it
-	static CombatValueContext against(const CCreatureSet & army, const CGHeroInstance * hero = nullptr);
-
-private:
-	int32_t identity;
 };
 
-/// Computes AI value or fight value of provided unit or creature. All computation is done in
-/// runtime and accounts for any bonuses affecting the unit
+/// Computes AI value of provided unit or creature. All computation is done in runtime and accounts
+/// for any bonuses affecting the unit
 class DLL_LINKAGE CombatValue
 {
 public:
@@ -70,7 +68,6 @@ public:
 	int64_t getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const;
 
 	int64_t getAIValue(const Creature * creature) const;
-	int64_t getFightValue(const Creature * creature) const;
 
 	/// The enemy that creature values are measured against when no actual one is known
 	const CombatValueContext & averageBattle() const;
@@ -129,7 +126,6 @@ private:
 	double averageDefense = 0;
 	/// The average battle, measured off the creatures the game ships with
 	CombatValueContext defaultContext;
-	/// Factors that map computed values onto H3 aiValue and fightValue ranges
+	/// Factor that maps computed values onto the H3 aiValue range
 	double scale = 1;
-	double fightScale = 1;
 };

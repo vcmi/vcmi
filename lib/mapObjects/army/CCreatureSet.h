@@ -126,7 +126,7 @@ public:
 	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
-	ui64 getArmyStrength(int fortLevel = 0) const; //sum of AI values of creatures
+	ui64 getArmyStrength() const; //sum of AI values of creatures
 	/// Worth of this army in combat, estimated from creature stats and abilities rather than
 	/// read from the AI value that creature configuration declares
 	ui64 estimateCombatValue(int fortLevel = 0) const;

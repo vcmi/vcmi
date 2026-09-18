@@ -105,7 +105,7 @@ private:
 	class LocalSpellEnvironment;
 
 	/// Creatures a spell is measured on: one that closes in, one that shoots, one that flies
-	std::vector<const CCreature *> archetypes();
+	static std::vector<const CCreature *> archetypes();
 	void measureSpells();
 
 	BattleInfo * battle() const;

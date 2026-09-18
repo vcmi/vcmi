@@ -73,7 +73,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, castleDefenceCountsCommittedDefender
 	const auto committedDefence = NK2AI::Goals::estimateTownDefence(*town.get(), &defender);
 
 	ASSERT_EQ(townOnlyDefence, 0);
-	ASSERT_GT(committedDefence, defender.getTotalStrength());
+	ASSERT_GT(committedDefence, defender.estimateHeroCombatValue());
 
 	const auto threat = nextTurnThreat(committedDefence - 1);
 	EXPECT_TRUE(NK2AI::Goals::shouldLockTownDefender(*town.get(), defender, threat, 1.0f))
@@ -226,7 +226,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptur
 	CGHeroInstance defender(nullptr);
 	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
 
-	const auto remainingReinforcement = defender.getTotalStrength() / 20;
+	const auto remainingReinforcement = defender.estimateHeroCombatValue() / 20;
 	EXPECT_TRUE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
 		defender,
 		*targetTown.get(),
@@ -245,7 +245,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptur
 	CGHeroInstance defender(nullptr);
 	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
 
-	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20) + 1;
+	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.estimateHeroCombatValue() / 20) + 1;
 	EXPECT_TRUE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
 		defender,
 		*targetTown.get(),
@@ -282,7 +282,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsMeaningfulUnbo
 	CGHeroInstance defender(nullptr);
 	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
 
-	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20) + 1;
+	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.estimateHeroCombatValue() / 20) + 1;
 	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
 		defender,
 		*targetTown.get(),

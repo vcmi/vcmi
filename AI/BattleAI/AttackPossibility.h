@@ -24,8 +24,8 @@ private:
 	void buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 
 public:
-	/// What each side of the battle is up against, worked out once for the turn so that a unit is
-	/// weighed the same way wherever it is considered
+	/// What each side of the battle is up against, worked out once per cache build so that a unit
+	/// is weighed the same way wherever it is considered within one
 	BattleSideArray<CombatValueContext> facing;
 
 	DamageCache() : parent(nullptr) {}
@@ -72,11 +72,9 @@ public:
 		std::shared_ptr<CBattleInfoCallback> state);
 
 	static float calculateDamageReduce(
-		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		uint64_t damageDealt,
-		DamageCache & damageCache,
-		std::shared_ptr<CBattleInfoCallback> cb);
+		const DamageCache & damageCache);
 
 private:
 	static int64_t evaluateBlockedShootersDmg(

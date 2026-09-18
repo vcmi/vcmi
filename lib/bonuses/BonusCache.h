@@ -75,7 +75,7 @@ public:
 	/// Result of 'compute', recomputed whenever the bonuses of the target change. A value that also
 	/// depends on something else is told apart by 'of', and recomputed whenever that changes too.
 	template<typename Compute>
-	int getValue(const Compute & compute, int32_t of = 0) const
+	int getValue(const Compute & compute, int32_t of) const
 	{
 		auto version = target->getTreeVersion();
 

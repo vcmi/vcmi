@@ -862,11 +862,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 						auto originalDefender = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
 
 						auto dpsReduce = AttackPossibility::calculateDamageReduce(
-							nullptr,
 							originalDefender && originalDefender->alive() ? originalDefender : unit,
 							damage,
-							innerCache,
-							state);
+							innerCache);
 
 						auto ourUnit = unit->unitSide() == side ? 1 : -1;
 						auto goodEffect = newHealth > oldHealth ? 1 : -1;

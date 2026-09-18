@@ -237,7 +237,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 
 bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2)
 {
-	return h1->getTotalStrength() < h2->getTotalStrength();
+	return h1->estimateHeroCombatValue() < h2->estimateHeroCombatValue();
 }
 
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)

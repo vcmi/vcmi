@@ -198,18 +198,10 @@ float AttackPossibility::attackValue() const
 	return damageDiff();
 }
 
-/// Whether a unit is worth what the combat model says, or what it deals in damage. Both paths stay
-/// compiled, so that the same battle can be played out either way.
-static constexpr bool valueUnitsByCombatModel = false;
-
 /// What losing a single creature of this unit costs its owner
-static float creatureWorth(const battle::Unit * unit, const battle::Unit * against,
-	DamageCache & damageCache, std::shared_ptr<CBattleInfoCallback> state)
+static float creatureWorth(const battle::Unit * unit, const DamageCache & damageCache)
 {
-	if(valueUnitsByCombatModel)
-		return LIBRARY->combatValues->getAIValue(*unit, unit->unitType(), damageCache.facing.at(unit->unitSide()));
-
-	return damageCache.getOriginalDamage(unit, against, state) / static_cast<double>(unit->getCount());
+	return LIBRARY->combatValues->getAIValue(*unit, unit->unitType(), damageCache.facing.at(unit->unitSide()));
 }
 
 float hpFunction(uint64_t unitHealthStart, uint64_t unitHealthEnd, uint64_t maxHealth)
@@ -235,35 +227,12 @@ float hpFunction(uint64_t unitHealthStart, uint64_t unitHealthEnd, uint64_t maxH
 /// Bounty - the killed creature average damage calculated against attacker
 /// </summary>
 float AttackPossibility::calculateDamageReduce(
-	const battle::Unit * attacker,
 	const battle::Unit * defender,
 	uint64_t damageDealt,
-	DamageCache & damageCache,
-	std::shared_ptr<CBattleInfoCallback> state)
+	const DamageCache & damageCache)
 {
 	const float HEALTH_BOUNTY = 0.5;
 	const float KILL_BOUNTY = 0.5;
-
-	// FIXME: provide distance info for Jousting bonus
-	auto attackerUnitForMeasurement = attacker;
-
-	if(!attackerUnitForMeasurement || attackerUnitForMeasurement->isTurret())
-	{
-		auto ourUnits = state->battleGetUnitsIf([&](const battle::Unit * u) -> bool
-			{
-				return u->unitSide() != defender->unitSide()
-					&& !u->isTurret()
-					&& !u->isCatapult()
-					&& !u->isBallista()
-					&& !u->isFirstAidTent()
-					&& u->getCount();
-			});
-
-		if(ourUnits.empty())
-			attackerUnitForMeasurement = defender;
-		else
-			attackerUnitForMeasurement = ourUnits.front();
-	}
 
 	auto maxHealth = defender->getMaxHealth();
 	auto availableHealth = defender->getFirstHPleft() + ((defender->getCount() - 1) * maxHealth);
@@ -271,7 +240,7 @@ float AttackPossibility::calculateDamageReduce(
 	vstd::amin(damageDealt, availableHealth);
 
 	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
-	auto damagePerEnemy = creatureWorth(defender, attackerUnitForMeasurement, damageCache, state);
+	auto damagePerEnemy = creatureWorth(defender, damageCache);
 	auto exceedingDamage = (damageDealt % maxHealth);
 	float hpValue = (damageDealt / maxHealth);
 	
@@ -325,9 +294,7 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 		// share of what the shooter is worth that blocking it denies, weighed as a kill would be
-		const auto shooterWorth = valueUnitsByCombatModel
-			? static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())))
-			: damageCache.getOriginalDamage(st, attacker, state);
+		const auto shooterWorth = static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())));
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
 		res += gain * shooterWorth / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
@@ -394,7 +361,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 			if(obstacleDamage > 0)
 			{
-				ap.attackerDamageReduce += calculateDamageReduce(nullptr, attacker, obstacleDamage, damageCache, state);
+				ap.attackerDamageReduce += calculateDamageReduce(attacker, obstacleDamage, damageCache);
 
 				ap.attackerState->damage(obstacleDamage);
 			}
@@ -445,7 +412,7 @@ AttackPossibility AttackPossibility::evaluate(
 				damageDealt = averageDmg(attackDmg.damage);
 				vstd::amin(damageDealt, defenderState->getAvailableHealth());
 
-				defenderDamageReduce = calculateDamageReduce(attacker, u, damageDealt, damageCache, state);
+				defenderDamageReduce = calculateDamageReduce(u, damageDealt, damageCache);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
@@ -461,7 +428,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 							vstd::amin(damageReceived, ap.attackerState->getAvailableHealth());
 
-							attackerDamageReduce = calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+							attackerDamageReduce = calculateDamageReduce(retaliated, damageReceived, damageCache);
 							ap.attackerState->damage(damageReceived);
 						}
 						else
@@ -472,9 +439,9 @@ AttackPossibility AttackPossibility::evaluate(
 							vstd::amin(damageReceived, retaliated->getAvailableHealth());
 
 							if(defender->unitSide() == retaliated->unitSide())
-								defenderDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+								defenderDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
 							else
-								ap.collateralDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+								ap.collateralDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
 
 							defenderStates.at(retaliated->unitId())->damage(damageReceived);
 						}

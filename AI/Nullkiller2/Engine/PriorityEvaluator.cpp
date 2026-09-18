@@ -816,7 +816,9 @@ public:
 		// TODO: Mircea: See how we can get some kind of balance between MAINs in terms of army delivery
 		// See: GatherArmyBehavior::deliverArmyToHero
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
-		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->estimateCombatValue();
+		// a hero with nothing to reinforce would divide by zero, and any army at all is a lot to it
+		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength)
+			/ std::max<uint64_t>(1, heroExchange.hero->estimateCombatValue());
 
 		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
 		evaluationContext.armyGrowth = additionalArmyStrength;
@@ -1611,7 +1613,7 @@ float PriorityEvaluator::evaluate(
 				if(priorityTier == ESCAPE && task->hero)
 				{
 					const auto currentTileThreat = aiNk->dangerHitMap->getTileThreat(task->hero->visitablePos());
-					if(currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->getTotalStrength())
+					if(currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->estimateHeroCombatValue())
 					{
 						// Encourage routes which go away of the threat
 						const auto currentTileThreatVal = currentTileThreat.fastestDanger.threat;

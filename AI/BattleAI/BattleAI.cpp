@@ -106,8 +106,8 @@ void CBattleAI::actionFinished(const BattleID & battleID, const BattleAction & a
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
 {
 	auto stacks = cb->battleGetAllStacks();
-	auto our = 0;
-	auto enemy = 0;
+	uint64_t our = 0;
+	uint64_t enemy = 0;
 
 	// each side is weighed against what it actually faces, so that what only helps against this
 	// enemy - resisting its magic, turning aside the blows it strikes - counts for what it is here

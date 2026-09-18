@@ -20,7 +20,6 @@
 #include "../bonuses/Bonus.h"
 #include "../bonuses/BonusParameters.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/army/CCreatureSet.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
@@ -30,6 +29,9 @@ static constexpr int battleRounds = 8;
 
 /// Magic of a hero that a full spellbook and a few points of knowledge and spell power amount to
 static constexpr double referenceMagicStrength = 1.25;
+
+/// Most that a hero can be worth as a caster, however much magic it piles up beyond the reference
+static constexpr double magicCap = 2.0;
 
 /// Magic that an army of nothing but hostile casters is worth, measured against such a hero
 static constexpr double creatureMagicWeight = 0.5;
@@ -61,19 +63,38 @@ static double magicOf(const CGHeroInstance * hero)
 	if(!hero)
 		return 0;
 
-	return std::max(0.0, hero->getMagicStrength() - 1.0) / (referenceMagicStrength - 1.0);
-}
+	// a second hero's worth of knowledge and spell power adds far less than the first did, so the
+	// curve saturates - halving what is left to reach for every reference hero piled on. The cap
+	// of two is what puts the reference hero itself at one.
+	const double strength = std::max(0.0, hero->getMagicStrength() - 1.0);
 
-CombatValueContext::CombatValueContext()
-{
-	static std::atomic<int32_t> counter = 0;
-
-	identity = ++counter;
+	return magicCap * (1.0 - std::exp2(-strength / (referenceMagicStrength - 1.0)));
 }
 
 int32_t CombatValueContext::id() const
 {
-	return identity;
+	size_t hash = 0;
+
+	vstd::hash_combine(hash, meleeShare);
+	vstd::hash_combine(hash, magicPower);
+	vstd::hash_combine(hash, allyCrowding);
+
+	for(double share : kingShare)
+		vstd::hash_combine(hash, share);
+
+	return static_cast<int32_t>(hash);
+}
+
+/// Adds what a creature is worth to every slayer mastery strong enough to reach it
+static void countKing(const IBonusBearer * creature, double worth, CombatValueContext::MasteryShares & kings)
+{
+	if(!creature->hasBonusOfType(BonusType::KING))
+		return;
+
+	const auto reachedBy = std::clamp<size_t>(creature->valOfBonuses(BonusType::KING), 0, kings.size() - 1);
+
+	for(size_t mastery = reachedBy; mastery < kings.size(); ++mastery)
+		kings[mastery] += worth;
 }
 
 CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
@@ -81,11 +102,21 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 	double total = 0;
 	double melee = 0;
 	double casters = 0;
+	size_t allies = 0;
+	MasteryShares kings = {};
 
-	for(const auto * unit : battle.battleGetUnitsIf([side](const battle::Unit * candidate)
-		{ return candidate->alive() && candidate->unitSide() != side; }))
+	for(const auto * unit : battle.battleGetUnitsIf([](const battle::Unit * candidate)
+		{ return candidate->alive(); }))
 	{
+		// berserk is priced against the army the unit stands in, which is the one being described to
+		if(unit->unitSide() == side)
+		{
+			++allies;
+			continue;
+		}
+
 		const double worth = unit->estimateCombatValue();
+		const auto * bearer = unit->getBonusBearer();
 
 		total += worth;
 
@@ -93,48 +124,34 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 		if(!battle.battleCanShoot(unit))
 			melee += worth;
 
-		if(castsAtEnemies(unit->getBonusBearer()))
+		if(castsAtEnemies(bearer))
 			casters += worth;
+
+		countKing(bearer, worth, kings);
 	}
 
-	// an enemy that is not there says nothing about what the units facing it are worth
+	const double crowding = allies > 0 ? 1.0 - 1.0 / allies : 0.0;
+
+	// an enemy that is not there says nothing about what the units facing it are worth, but the
+	// army they stand in is still theirs to hurt
 	if(total <= 0)
-		return LIBRARY->combatValues->averageBattle();
+	{
+		CombatValueContext result = LIBRARY->combatValues->averageBattle();
+
+		result.allyCrowding = crowding;
+
+		return result;
+	}
 
 	CombatValueContext result;
 	result.meleeShare = melee / total;
 	result.magicPower = magicOf(battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(side)))
 		+ creatureMagicWeight * casters / total;
 
-	return result;
-}
+	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
+		result.kingShare[mastery] = kings[mastery] / total;
 
-CombatValueContext CombatValueContext::against(const CCreatureSet & army, const CGHeroInstance * hero)
-{
-	double total = 0;
-	double melee = 0;
-	double casters = 0;
-
-	for(const auto & slot : army.Slots())
-	{
-		const double worth = slot.second->estimateCombatValue();
-		const auto * bearer = slot.second->getBonusBearer();
-
-		total += worth;
-
-		if(!bearer->hasBonusOfType(BonusType::SHOOTER))
-			melee += worth;
-
-		if(castsAtEnemies(bearer))
-			casters += worth;
-	}
-
-	if(total <= 0)
-		return LIBRARY->combatValues->averageBattle();
-
-	CombatValueContext result;
-	result.meleeShare = melee / total;
-	result.magicPower = magicOf(hero) + creatureMagicWeight * casters / total;
+	result.allyCrowding = crowding;
 
 	return result;
 }
@@ -286,7 +303,7 @@ void CombatValue::tabulateCreatures()
 	creatureValues.resize(LIBRARY->creh->objects.size());
 
 	for(const auto & creature : LIBRARY->creh->objects)
-		creatureValues[creature->getIndex()] = getAIValue(*creature, creature.get());
+		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
 }
 
 void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCreatures)
@@ -306,7 +323,7 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	};
 
 	int shooters = 0;
-	std::array<int, 4> kings = {};
+	CombatValueContext::MasteryShares kings = {};
 
 	for(const auto * creature : builtinCreatures)
 	{
@@ -314,16 +331,14 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 		if(creature->hasBonusOfType(BonusType::SHOOTER))
 			++shooters;
 
-		if(creature->hasBonusOfType(BonusType::KING))
-			for(size_t mastery = std::clamp(creature->valOfBonuses(BonusType::KING), 0, 3); mastery < kings.size(); ++mastery)
-				++kings[mastery];
+		countKing(creature, 1.0, kings);
 	}
 
 	averageDefense /= builtinCreatures.size();
 	defaultContext.meleeShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
 
 	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
-		defaultContext.kingShare[mastery] = static_cast<double>(kings[mastery]) / builtinCreatures.size();
+		defaultContext.kingShare[mastery] = kings[mastery] / builtinCreatures.size();
 
 	// an army of equally strong stacks filling every slot, which is what a battle is assumed to be
 	defaultContext.allyCrowding = 1.0 - 1.0 / GameConstants::ARMY_SIZE;
@@ -353,27 +368,17 @@ void CombatValue::pinScale(const std::vector<const CCreature *> & builtinCreatur
 {
 	// the model has a scale of its own, so it is pinned to H3 values
 	std::vector<double> scales;
-	std::vector<double> fightScales;
 
 	for(const auto * creature : builtinCreatures)
 	{
-		const double uptime = uptimeOf(*creature);
-		const double value = valueOf(*creature, uptime, referenceCount(creature), defaultContext);
+		const double value = valueOf(*creature, uptimeOf(*creature), referenceCount(creature), defaultContext);
 
-		if(value <= 0)
-			continue;
-
-		if(creature->getAIValue() > 0)
+		if(value > 0 && creature->getAIValue() > 0)
 			scales.push_back(creature->getAIValue() / value);
-		if(creature->getFightValue() > 0)
-			fightScales.push_back(creature->getFightValue() / (value / uptime));
 	}
 
-	if(scales.empty() || fightScales.empty())
-		return;
-
-	scale = median(scales);
-	fightScale = median(fightScales);
+	if(!scales.empty())
+		scale = median(scales);
 }
 
 double CombatValue::valueOf(const ACreature & creature, double uptime, int count, const CombatValueContext & context) const
@@ -392,7 +397,9 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	// slayer strikes harder only at kings, and only those its mastery is strong enough to reach
 	for(const auto & bonus : *bonuses->getBonusesOfType(BonusType::SLAYER))
 	{
-		const int mastery = bonus->parameters ? std::clamp(bonus->parameters->toNumber(), 0, 3) : 0;
+		const size_t mastery = bonus->parameters
+			? std::clamp<size_t>(bonus->parameters->toNumber(), 0, context.kingShare.size() - 1)
+			: 0;
 
 		attackBonus += bonus->val * durationWeight(*bonus) * context.kingShare[mastery];
 	}
@@ -622,17 +629,21 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 		// a shooter that can not shoot finishes the battle in melee, at this share of its value
 		static constexpr double meleeFallback = 0.4;
 
+		double shooting = 1.0;
+
 		if(!unit->hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
-			result *= shootingRangeFactor;
+			shooting *= shootingRangeFactor;
 
 		// a shooter out of ammunition is reduced to melee for the rest of the battle
 		const int shots = unit->valOfBonuses(BonusType::SHOTS);
 		if(shots > 0 && shots < battleRounds)
-			result *= (shots + (battleRounds - shots) * meleeFallback) / battleRounds;
+			shooting *= (shots + (battleRounds - shots) * meleeFallback) / battleRounds;
 
 		// forgetfulness spoils shooting alone, and at full strength forbids it outright
-		const double forgetful = std::min(100.0, lastingValue(unit, BonusType::FORGETFULL));
-		result *= forgetful < 100 ? 1.0 - forgetful / 100.0 : meleeFallback;
+		shooting *= 1.0 - std::min(100.0, lastingValue(unit, BonusType::FORGETFULL)) / 100.0;
+
+		// whatever leaves a shooter worse off than walking up and striking leaves it doing that
+		result *= std::max(meleeFallback, shooting);
 	}
 
 	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
@@ -718,11 +729,12 @@ double CombatValue::situationalOffense(const ACreature & creature, const CombatV
 	result *= 1.0 - 0.5 * disabled;
 
 	// a unit that turns on its own side costs its army twice over - the blow it does not land on the
-	// enemy, and the one an ally takes instead - and costs it nothing where it stands alone
+	// enemy, and the one an ally takes instead - down to being worth nothing at all, and costs it
+	// nothing where it stands alone
 	static constexpr double friendlyFireCost = 2.0;
 
-	result *= 1.0 - friendlyFireCost * context.allyCrowding
-		* lastingPresence(unit, BonusType::ATTACKS_NEAREST_CREATURE);
+	result *= std::max(0.0, 1.0 - friendlyFireCost * context.allyCrowding
+		* lastingPresence(unit, BonusType::ATTACKS_NEAREST_CREATURE));
 
 	return result;
 }
@@ -784,18 +796,7 @@ const CombatValueContext & CombatValue::averageBattle() const
 
 int64_t CombatValue::getAIValue(const Creature * creature) const
 {
-	// the table is only filled once the model is ready, so early callers are answered directly
-	if(creature->getIndex() < creatureValues.size())
-		return creatureValues[creature->getIndex()];
-
-	return getAIValue(*creature, creature);
-}
-
-int64_t CombatValue::getFightValue(const Creature * creature) const
-{
-	const double uptime = uptimeOf(*creature);
-
-	return std::llround(valueOf(*creature, uptime, referenceCount(creature), defaultContext) / uptime * fightScale);
+	return creatureValues.at(creature->getIndex());
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const

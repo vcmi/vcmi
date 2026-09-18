@@ -225,7 +225,8 @@ public:
 	/// Army strength as seen by neutral creatures and Thieves Guild - may be scaled by artifacts such as Diplomat's Cloak
 	uint64_t getArmyStrengthPerceivedByOthers() const;
 
-	ui64 getTotalStrength() const; // includes fighting strength and army strength
+	/// Worth of this hero in combat: what its army is worth, scaled by what the hero adds to it
+	ui64 estimateHeroCombatValue() const;
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
 

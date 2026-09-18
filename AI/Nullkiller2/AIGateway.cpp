@@ -593,7 +593,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
-				auto ratio = static_cast<float>(danger) / heroPtr->getTotalStrength();
+				auto ratio = static_cast<float>(danger) / heroPtr->estimateHeroCombatValue();
 
 				answer = true;
 

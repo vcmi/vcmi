@@ -53,7 +53,7 @@ namespace Goals
 		uint64_t result = town.estimateCombatValue();
 
 		if(committedDefender)
-			result = std::max(result, committedDefender->getTotalStrength());
+			result = std::max(result, committedDefender->estimateHeroCombatValue());
 
 		return result + estimateTownFortificationDefence(town, committedDefender && result > 0);
 	}
@@ -140,7 +140,7 @@ namespace Goals
 		if(!defenderMakesHomeStable)
 			return dayOfWeek != daysInWeek || remainingTownReinforcement == 0;
 
-		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20);
+		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.estimateHeroCombatValue() / 20);
 		if(remainingTownReinforcement > ignoredReinforcement)
 			return false;
 
@@ -188,10 +188,10 @@ namespace
 		uint64_t result = town->estimateCombatValue();
 
 		if(const auto * visitingHero = town->getVisitingHero())
-			result = std::max(result, visitingHero->getTotalStrength());
+			result = std::max(result, visitingHero->estimateHeroCombatValue());
 
 		if(const auto * garrisonHero = town->getGarrisonHero())
-			result = std::max(result, garrisonHero->getTotalStrength());
+			result = std::max(result, garrisonHero->estimateHeroCombatValue());
 
 		return result;
 	}
@@ -543,7 +543,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			// main without army and visiting scout with army, very specific case
 			if(town->getVisitingHero() && town->getUpperArmy()->stacksCount() == 0 && path.targetHero != town->getVisitingHero() && path.exchangeCount == 1
 			   && path.turn() == 0 && aiNk->heroManager->evaluateHero(path.targetHero) > aiNk->heroManager->evaluateHero(town->getVisitingHero())
-			   && 10 * path.targetHero->getTotalStrength() < town->getVisitingHero()->getTotalStrength())
+			   && 10 * path.targetHero->estimateHeroCombatValue() < town->getVisitingHero()->estimateHeroCombatValue())
 			{
 				path.heroArmy = town->getVisitingHero();
 

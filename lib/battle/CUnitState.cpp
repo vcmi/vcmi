@@ -595,10 +595,10 @@ uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) con
 		return 0;
 
 	// wounds cost a stack its survivability but not the damage its remaining creatures deal, so the
-	// two halves of its worth are weighted separately
-	const double survivors = static_cast<double>(getAvailableHealth()) / getMaxHealth();
+	// worth of a wounded top creature lands between the two - it fights whole and dies early
+	const double effectiveCount = static_cast<double>(getAvailableHealth()) / getMaxHealth();
 
-	return std::llround(perCreature * std::sqrt(count * survivors));
+	return std::llround(perCreature * std::sqrt(count * effectiveCount));
 }
 
 uint32_t CUnitState::getMaxHealth() const

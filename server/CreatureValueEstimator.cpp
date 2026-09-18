@@ -604,6 +604,8 @@ void CreatureValueEstimator::measureSpells()
 	std::vector<std::string> unreached;
 	int measured = 0;
 
+	const auto subjects = archetypes();
+
 	logGlobal->info("spell,mastery,creature,before,after,ratio,bonusesAdded");
 
 	for(const auto & spell : LIBRARY->spellh->objects)
@@ -635,7 +637,7 @@ void CreatureValueEstimator::measureSpells()
 			const BattleSide side = hostile ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 			const BattleHex hex(hostile ? defenderHex : attackerHex);
 
-			for(const auto * creature : archetypes())
+			for(const auto * creature : subjects)
 			{
 				CStack * unit = placeStack(side, creature, hex, CombatValue::referenceCount(creature));
 
@@ -665,9 +667,8 @@ void CreatureValueEstimator::measureSpells()
 						creature->getJsonKey(), before, after, static_cast<double>(after) / std::max<int64_t>(1, before), added);
 				}
 
-				removeStack(unit);
-
-				// summoning and cloning leave stacks behind that would take part in the next cast
+				// summoning and cloning leave stacks behind that would take part in the next cast,
+				// so the subject is cleared away together with whatever the spell brought along
 				for(const auto * leftover : battle()->battleGetAllStacks(true))
 					removeStack(leftover);
 			}
