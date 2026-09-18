@@ -434,7 +434,7 @@ void CreatureValueEstimator::checkModelPaths()
 			const CStack * many = placeStack(BattleSide::ATTACKER, entry.creature, BattleHex(attackerHex + 2), 200);
 
 			if(values.getAIValue(few) != values.getAIValue(many))
-				logGlobal->error("%s is worth a different amount per creature in a small stack than in a large one",
+				logGlobal->error("%s has a different value per creature in a small stack than in a large one",
 					entry.creature->getJsonKey());
 
 			removeStack(few);
@@ -455,7 +455,7 @@ void CreatureValueEstimator::checkModelPaths()
 
 	const auto range = std::ranges::minmax(ratios);
 
-	logGlobal->info("Model paths: a creature answered for as a unit is worth %f of what it is worth answered for out of its configuration (%f to %f); %d of %d are worth more once the enemy is in reach",
+	logGlobal->info("Model paths: a creature answered for as a unit reaches %f of the value it has answered for out of its configuration (%f to %f); %d of %d gain once the enemy is in reach",
 		CombatValue::median(ratios), range.min, range.max, closer, static_cast<int>(ratios.size()));
 
 	// only creatures that cross the field in one turn are unaffected, and there are few of those

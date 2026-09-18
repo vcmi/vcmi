@@ -17,7 +17,7 @@ function Script:killsIn(server, battle, unit, other, payload)
 		return Base.killsIn(self, server, battle, unit, other, payload)
 	end
 
-	-- worth less against bigger creatures, and nothing at all against those without a level
+	-- counts for less against bigger creatures, and nothing at all against those without a level
 	local defenderLevel = other:getLevel()
 
 	if defenderLevel <= 0 then return 0 end

@@ -32,7 +32,7 @@ struct BonusFilter final : public scripting::ApiSerializable<BonusFilter>
 	/// names. Meaningless without a type, since the type is what decides what a subtype is.
 	std::optional<std::string> subtype;
 	std::optional<BonusSource> sourceType;
-	/// Kind of blow the bonus has to count for, rather than the effect range it carries: a bonus
+	/// Kind of attack the bonus has to count for, rather than the effect range it carries: a bonus
 	/// limited to the other kind is left out, one limited to neither always counts. Asked this way
 	/// because "counts in melee" is two effect ranges at once, and splitting it into two queries
 	/// would add their values up instead of combining them as the engine does.
@@ -44,7 +44,7 @@ struct BonusFilter final : public scripting::ApiSerializable<BonusFilter>
 		s("type", type, "Bonus type to look for, by its json key.");
 		s("subtype", subtype, "Subtype to look for, by its json key. Requires a type.");
 		s("sourceType", sourceType, "Where the bonus has to come from - an artifact, a spell effect, ...");
-		s("shooting", shooting, "Kind of blow the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.");
+		s("shooting", shooting, "Kind of attack the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.");
 	}
 
 	/// Selector matching what this filter describes, and the string the bonus system caches its

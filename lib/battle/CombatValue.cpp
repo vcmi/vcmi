@@ -83,7 +83,7 @@ int32_t CombatValueContext::id() const
 }
 
 /// Adds value of a creature to every slayer mastery level that can target it
-static void countKing(const IBonusBearer * creature, double worth, CombatValueContext::MasteryShares & kings)
+static void countKing(const IBonusBearer * creature, double value, CombatValueContext::MasteryShares & kings)
 {
 	if(!creature->hasBonusOfType(BonusType::KING))
 		return;
@@ -91,7 +91,7 @@ static void countKing(const IBonusBearer * creature, double worth, CombatValueCo
 	const auto reachedBy = std::clamp<size_t>(creature->valOfBonuses(BonusType::KING), 0, kings.size() - 1);
 
 	for(size_t mastery = reachedBy; mastery < kings.size(); ++mastery)
-		kings[mastery] += worth;
+		kings[mastery] += value;
 }
 
 CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
@@ -112,19 +112,19 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 			continue;
 		}
 
-		const double worth = unit->estimateCombatValue();
+		const double value = unit->estimateCombatValue();
 		const auto * bearer = unit->getBonusBearer();
 
-		total += worth;
+		total += value;
 
 		// blocked shooter, or one without ammo, attacks in melee like any other creature
 		if(!battle.battleCanShoot(unit))
-			melee += worth;
+			melee += value;
 
 		if(castsAtEnemies(bearer))
-			casters += worth;
+			casters += value;
 
-		countKing(bearer, worth, kings);
+		countKing(bearer, value, kings);
 	}
 
 	const double crowding = allies > 0 ? 1.0 - 1.0 / allies : 0.0;
@@ -404,7 +404,7 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 	const double blessed = lastingPresence(bonuses, BonusType::ALWAYS_MAXIMUM_DAMAGE);
 	const double cursed = lastingPresence(bonuses, BonusType::ALWAYS_MINIMUM_DAMAGE);
 
-	const auto blow = [&](bool shooting)
+	const auto strike = [&](bool shooting)
 	{
 		const double low = std::max(1.0, creature.getMinDamage(shooting) + damageShift);
 		const double high = std::max(1.0, creature.getMaxDamage(shooting) + damageShift);
@@ -416,20 +416,20 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 		return damage * offenseAt(static_cast<int>(std::lround(creature.getAttack(shooting) + attackBonus)));
 	};
 
-	double ownBlow = blow(ranged) * attacksPerRound(creature) * targetsPerAttack(creature);
+	double ownOutput = strike(ranged) * attacksPerRound(creature) * targetsPerAttack(creature);
 
 	// jousting scales with distance covered, which is at most one turn of movement
 	const int charge = std::min<int>(startingDistance(), creature.getMovementRange());
-	ownBlow *= 1.0 + bonuses->valOfBonuses(BonusType::JOUSTING) / 100.0 * charge;
+	ownOutput *= 1.0 + bonuses->valOfBonuses(BonusType::JOUSTING) / 100.0 * charge;
 
 	const bool retaliatesAtRange = ranged && bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION);
 	const double retaliatedAgainst = bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION) ? 1.0 : context.meleeShare;
 
-	double retaliationBlow = blow(retaliatesAtRange) * retaliationsPerRound(creature) * retaliatedAgainst;
+	double retaliationOutput = strike(retaliatesAtRange) * retaliationsPerRound(creature) * retaliatedAgainst;
 	if(ranged && !retaliatesAtRange && !bonuses->hasBonusOfType(BonusType::NO_MELEE_PENALTY))
-		retaliationBlow *= meleePenalty;
+		retaliationOutput *= meleePenalty;
 
-	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature) * situationalOffense(creature, context);
+	const double output = (ownOutput + retaliationOutput) * offenseMultiplier(creature) * situationalOffense(creature, context);
 	const double defense = defenseAt(effectiveDefense(creature)) * (1.0 + retaliationSuffered(creature));
 	const double hitPoints = creature.getMaxHealth() + regeneratedHitPoints(creature, count);
 	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature, context);
@@ -439,7 +439,7 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 
 double CombatValue::attacksPerRound(const ACreature & creature)
 {
-	// additional attacks are worth less than the first, which may have already killed the target
+	// additional attacks count for less than the first, which may have already killed the target
 	static constexpr double extraAttackWeight = 0.87;
 
 	const auto * bonuses = creature.getBonusBearer();

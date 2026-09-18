@@ -33,7 +33,7 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 		s("unit",   unit,   "Unit that was hit.");
 		s("damage", damage, "Damage dealt to it.");
 		s("killed", killed, "How many of its creatures died.");
-		s("damageBeforeDefense", damageBeforeDefense, "Damage this same blow would have dealt with the defences of the target ignored.");
+		s("damageBeforeDefense", damageBeforeDefense, "Damage this same hit would have dealt with the defences of the target ignored.");
 		s("healthBeforeAttack", healthBeforeAttack, "Health the unit had left before the attack landed.");
 	}
 };
@@ -53,6 +53,6 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 		s("targets",     targets,     "Units hit by the attack that caused this event. Before the attack, only their identity and remaining health are known.");
 		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
 		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
-		s("attackIndex", attackIndex, "Zero-based index of this attack among those its own side makes in this action, so a second blow of a double attack is 1. A counterattack is its side's attack 0.");
+		s("attackIndex", attackIndex, "Zero-based index of this attack among those its own side makes in this action, so the second hit of a double attack is 1. A counterattack is its side's attack 0.");
 	}
 };

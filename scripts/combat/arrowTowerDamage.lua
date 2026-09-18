@@ -2,7 +2,7 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Arrow towers shoot for what their town is worth rather than for what their creature says.
+--- Arrow towers shoot for the state of their town rather than for what their creature says.
 --- The damage is settled once, when the battle is set up, and handed to the tower as a bonus -
 --- nothing can change a town's buildings while it is under siege.
 ---

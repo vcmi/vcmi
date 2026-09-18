@@ -199,7 +199,7 @@ float AttackPossibility::attackValue() const
 }
 
 /// Combat value of a single creature of this unit
-static float creatureWorth(const battle::Unit * unit, const DamageCache & damageCache)
+static float creatureValue(const battle::Unit * unit, const DamageCache & damageCache)
 {
 	return LIBRARY->combatValues->getAIValue(*unit, unit->unitType(), damageCache.facing.at(unit->unitSide()));
 }
@@ -240,7 +240,7 @@ float AttackPossibility::calculateDamageReduce(
 	vstd::amin(damageDealt, availableHealth);
 
 	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
-	auto damagePerEnemy = creatureWorth(defender, damageCache);
+	auto damagePerEnemy = creatureValue(defender, damageCache);
 	auto exceedingDamage = (damageDealt % maxHealth);
 	float hpValue = (damageDealt / maxHealth);
 	
@@ -294,10 +294,10 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 		// blocking a shooter denies a fraction of its combat value, scored on the same scale as a kill
-		const auto shooterWorth = static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())));
+		const auto shooterValue = static_cast<int64_t>(st->estimateCombatValue(damageCache.facing.at(st->unitSide())));
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
-		res += gain * shooterWorth / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
+		res += gain * shooterValue / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
 	}
 
 	return res;
