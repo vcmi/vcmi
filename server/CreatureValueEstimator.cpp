@@ -21,6 +21,9 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleLayout.h"
 #include "../lib/battle/CUnitState.h"
+#include "../lib/battle/CombatValue.h"
+#include "../lib/spells/CSpellHandler.h"
+#include "../lib/spells/ISpellMechanics.h"
 #include "../lib/bonuses/Bonus.h"
 #include "../lib/callback/GameRandomizer.h"
 #include "../lib/entities/hero/CHero.h"
@@ -31,6 +34,7 @@
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/ModScope.h"
 #include "../lib/networkPacks/PacksForClientBattle.h"
+#include "../lib/networkPacks/SetStackEffect.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -524,4 +528,148 @@ void CreatureValueEstimator::report() const
 
 	logGlobal->info("%d creatures within a tenth of their declared value, %d further off, %d beyond half or double it, %d declaring no value to judge them by",
 		agreed, differed, disagreed, unjudged);
+}
+
+/// Nothing watches this battle, so a cast only has to reach the game state
+class CreatureValueEstimator::LocalSpellEnvironment final : public ServerCallback
+{
+public:
+	explicit LocalSpellEnvironment(CGameState * gameState)
+		: gameState(gameState)
+	{}
+
+	void complain(const std::string & problem) override { logGlobal->warn("Spell cast complained: %s", problem); }
+	bool describeChanges() const override { return false; }
+	vstd::RNG * getRNG() override { return &CRandomGenerator::getDefault(); }
+
+	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int percentageChance) override
+	{
+		return percentageChance >= 100;
+	}
+
+	void apply(CPackForClient & pack) override { gameState->apply(pack); }
+	void apply(BattleLogMessage & pack) override { gameState->apply(pack); }
+	void apply(BattleStackMoved & pack) override { gameState->apply(pack); }
+	void apply(BattleUnitsChanged & pack) override { gameState->apply(pack); }
+	void apply(SetStackEffect & pack) override { gameState->apply(pack); }
+	void apply(StacksInjured & pack) override { gameState->apply(pack); }
+	void apply(BattleObstaclesChanged & pack) override { gameState->apply(pack); }
+	void apply(CatapultAttack & pack) override { gameState->apply(pack); }
+
+private:
+	CGameState * gameState;
+};
+
+std::vector<const CCreature *> CreatureValueEstimator::archetypes()
+{
+	const CCreature * walker = nullptr;
+	const CCreature * shooter = nullptr;
+	const CCreature * flyer = nullptr;
+
+	for(const auto & creature : LIBRARY->creh->objects)
+	{
+		if(creature->special || creature->getModScope() != ModScope::scopeBuiltin())
+			continue;
+
+		if(creature->hasBonusOfType(BonusType::SHOOTER))
+			shooter = shooter ? shooter : creature.get();
+		else if(creature->hasBonusOfType(BonusType::FLYING))
+			flyer = flyer ? flyer : creature.get();
+		else
+			walker = walker ? walker : creature.get();
+	}
+
+	std::vector<const CCreature *> chosen;
+	for(const auto * creature : {walker, shooter, flyer})
+		if(creature)
+			chosen.push_back(creature);
+
+	return chosen;
+}
+
+void CreatureValueEstimator::measureSpells()
+{
+	static constexpr std::array<const char *, 4> masteryNames = {"none", "basic", "advanced", "expert"};
+
+	std::vector<SecondarySkill> schools;
+	for(auto skill : {SecondarySkill::AIR_MAGIC, SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
+		schools.emplace_back(skill);
+
+	// the hero was stripped bare to keep it out of the damage measurements, but a spell needs some
+	// power behind it to have any effect worth reading
+	attackerSideHero->setPrimarySkill(PrimarySkill::SPELL_POWER, spellPower, ChangeValueMode::ABSOLUTE);
+
+	LocalSpellEnvironment environment(gameState.get());
+	std::vector<std::string> unseen;
+	int measured = 0;
+
+	logGlobal->info("spell,mastery,creature,before,after,ratio,bonusesAdded");
+
+	for(const auto & spell : LIBRARY->spellh->objects)
+	{
+		if(!spell->isCombat() || spell->isOffensive())
+			continue;
+
+		bool everSeen = false;
+		bool everApplied = false;
+
+		for(int mastery = 0; mastery < static_cast<int>(masteryNames.size()); ++mastery)
+		{
+			for(auto skill : schools)
+				attackerSideHero->setSecSkillLevel(skill, mastery, ChangeValueMode::ABSOLUTE);
+
+			for(const auto * creature : archetypes())
+			{
+				CStack * unit = placeStack(BattleSide::ATTACKER, creature, BattleHex(attackerHex), CombatValue::referenceCount(creature));
+
+				const int64_t before = values.getAIValue(unit);
+				const auto bonusesBefore = unit->getAllBonuses(Selector::all)->size();
+
+				spells::BattleCast cast(battle(), attackerSideHero, spells::Mode::HERO, spell.get());
+				spells::Target target;
+				target.emplace_back(unit);
+				cast.castEval(&environment, target);
+
+				const int64_t after = values.getAIValue(unit);
+				const auto added = unit->getAllBonuses(Selector::all)->size() - bonusesBefore;
+
+				if(added > 0)
+				{
+					everApplied = true;
+					++measured;
+					if(after != before)
+						everSeen = true;
+
+					logGlobal->info("%s,%s,%s,%d,%d,%f,%d", spell->getJsonKey(), masteryNames[mastery],
+						creature->getJsonKey(), before, after, static_cast<double>(after) / std::max<int64_t>(1, before), added);
+				}
+
+				removeStack(unit);
+			}
+		}
+
+		// a spell that changes a unit without changing what it is worth is one the AI can not see
+		if(everApplied && !everSeen)
+			unseen.push_back(spell->getJsonKey());
+	}
+
+	for(auto skill : schools)
+		attackerSideHero->setSecSkillLevel(skill, 0, ChangeValueMode::ABSOLUTE);
+
+	if(measured == 0)
+		logGlobal->error("No spell reached a unit at all - nothing was measured");
+	else if(unseen.empty())
+		logGlobal->info("Each of the %d spell effects applied also changed what its bearer is worth", measured);
+	else
+		logGlobal->error("%d spells change a unit without changing what it is worth: %s",
+			static_cast<int>(unseen.size()), boost::algorithm::join(unseen, ", "));
+}
+
+void CreatureValueEstimator::runSpells()
+{
+	CreatureValueEstimator estimator;
+
+	estimator.startGame();
+	estimator.startBattle();
+	estimator.measureSpells();
 }

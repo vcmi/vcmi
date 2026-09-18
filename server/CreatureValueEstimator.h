@@ -29,6 +29,9 @@ public:
 	/// Measures every loaded creature and logs derived values next to configured ones
 	static void run();
 
+	/// Casts every combat spell on a few creatures and logs what it does to what they are worth
+	static void runSpells();
+
 private:
 	/// Initial positions of creatures to be tested
 	static constexpr int attackerHex = 8 * GameConstants::BFIELD_WIDTH + 3;
@@ -36,6 +39,9 @@ private:
 
 	/// Total hit points of each measured stack, so that every pair is an even exchange
 	static constexpr int stackHitPoints = 2000;
+
+	/// Spell power the measuring hero casts with, midway through what a hero reaches in a game
+	static constexpr int spellPower = 15;
 
 	/// How far a derived value may sit from the configured one, as a factor either way round
 	static constexpr double agreementTolerance = 1.1;
@@ -93,6 +99,14 @@ private:
 	/// Checks the different ways of querying CombatValue against one another
 	void checkModelPaths();
 	void report() const;
+
+	/// Applies spell packs straight to the game state, which is all a cast needs when no player is
+	/// watching the battle
+	class LocalSpellEnvironment;
+
+	/// Creatures a spell is measured on: one that closes in, one that shoots, one that flies
+	std::vector<const CCreature *> archetypes();
+	void measureSpells();
 
 	BattleInfo * battle() const;
 	CStack * placeStack(BattleSide side, const CCreature * creature, const BattleHex & hex);

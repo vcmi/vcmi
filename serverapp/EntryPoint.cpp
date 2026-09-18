@@ -236,6 +236,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("run-by-client", "indicate that server launched by client on same machine")
 	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("creature-values", "Compute AI values and fight values of all creatures and compare them against configured values")
+	("spell-values", "Cast every combat spell on a few creatures and report what it does to what they are worth")
 	("translate-mod", boost::program_options::value<std::string>(), "Export translations for specified mod")
 	("export-lua-docs", boost::program_options::value<std::string>(), "Export Lua scripting API documentation to specified directory")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
@@ -310,6 +311,10 @@ int main(int argc, const char * argv[])
 	if(opts.count("creature-values"))
 	{
 		CreatureValueEstimator::run();
+	}
+	else if(opts.count("spell-values"))
+	{
+		CreatureValueEstimator::runSpells();
 	}
 	else if(!opts.count("dummy-run"))
 	{
