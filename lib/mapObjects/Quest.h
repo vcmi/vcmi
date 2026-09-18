@@ -298,6 +298,8 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	/// Reads the pre-rewardable single "reward" struct of old VCMI maps into configuration.info
+	void readLegacyReward(JsonSerializeFormat & handler);
 };
 
 class DLL_LINKAGE QuestGuard : public SeerHut
