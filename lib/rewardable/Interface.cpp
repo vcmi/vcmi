@@ -126,7 +126,8 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	if (info.reward.heroExperience > 0)
 		expToGive += hero->calculateXp(info.reward.heroExperience);
 
-	if(expToGive)
+	// hero may also have pending experience from gaining a skill that grants a level-up
+	if(expToGive || hero->gainsLevel())
 		gameEvents.giveExperience(hero, expToGive);
 }
 

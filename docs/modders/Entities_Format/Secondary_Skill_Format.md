@@ -51,7 +51,10 @@
 			"wisdom" : false,
 			// This skill is guaranteed to be offered once per specific number of levels
 			// according to H3 logic for Spell Schools
-			"spellSchool" : true
+			"spellSchool" : true,
+			// Hero immediately gains a level each time this skill is learned or upgraded (HotA Learning).
+			// On that level-up the skill is not offered for upgrade again, as long as the hero has any other skill to upgrade
+			"grantsLevelUp" : false
 		}
 	}
 }

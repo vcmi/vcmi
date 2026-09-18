@@ -156,6 +156,11 @@ bool CSkill::isOnlyOnWaterMap() const
 	return hasTag("onlyOnWaterMap");
 }
 
+bool CSkill::grantsLevelUp() const
+{
+	return hasTag("grantsLevelUp");
+}
+
 bool CSkill::hasTag(const std::string & tag) const
 {
 	return vstd::contains(tags, tag);

@@ -28,6 +28,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"
 #include "../lib/IGameSettings.h"
@@ -344,13 +345,18 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	expGiven(hero);
 }
 
+TExpType CGameHandler::getHeroExperienceLimit() const
+{
+	if (gameState().getMap().levelLimit != 0)
+		return LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
+
+	return LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+}
+
 void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+	TExpType maxExp = getHeroExperienceLimit();
 	TExpType currHeroExp = hero->exp;
-
-	if (gameState().getMap().levelLimit != 0)
-		maxExp = LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
 
 	TExpType canGainHeroExp = 0;
 	if (maxExp > currHeroExp)
@@ -414,12 +420,23 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 		logGlobal->error("changeSecSkill provided no hero");
 		return;
 	}
+	const int masteryBefore = hero->getSecSkillLevel(which);
+
 	SetSecSkill sss;
 	sss.id = hero->id;
 	sss.which = which;
 	sss.val = val;
 	sss.mode = mode;
 	sendAndApply(sss);
+
+	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
+	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
+	{
+		// Skill grants one hero level per mastery level gained. Only the experience is granted here;
+		// the level-up itself is triggered by the caller via expGiven, like for any other experience gain.
+		// Heroes at the level cap silently get nothing.
+		giveExperienceWithoutLevelUp(hero, hero->experienceToGainLevels(masteryGained));
+	}
 
 	if (hero->getVisitedTown())
 		giveSpells(hero->getVisitedTown(), hero);
@@ -3407,6 +3424,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	giveResource(h->tempOwner, EGameResID::GOLD, -goldCost);
 
 	changeSecSkill(h, skill, 1, ChangeValueMode::ABSOLUTE);
+	expGiven(h);
 	return true;
 }
 

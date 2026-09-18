@@ -150,6 +150,9 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 		}
 	}
 
+	if(newLevelClamped > currentLevel && which.hasValue() && which.toSkill()->grantsLevelUp())
+		levelUpSkillsGainedAt[which] = level;
+
 	updateSkillBonus(which, newLevelClamped);
 }
 
@@ -441,6 +444,11 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	{
 		levelUpAutomatically(gameRandomizer);
 	}
+
+	// skills the hero starts with count as gained at the starting level
+	for(const auto & skill : secSkills)
+		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->grantsLevelUp() && !levelUpSkillsGainedAt.count(skill.first))
+			levelUpSkillsGainedAt[skill.first] = level;
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 
@@ -1450,6 +1458,15 @@ bool CGHeroInstance::gainsLevel() const
 	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
+TExpType CGHeroInstance::experienceToGainLevels(ui32 levels) const
+{
+	const ui32 targetLevel = std::min(level + levels, LIBRARY->heroh->maxSupportedLevel());
+	if(targetLevel <= level)
+		return 0;
+
+	return LIBRARY->heroh->reqExp(targetLevel) - LIBRARY->heroh->reqExp(level);
+}
+
 void CGHeroInstance::levelUp()
 {
 	++level;
@@ -1470,11 +1487,16 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
 		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
+		// same order as on server: level is already raised when the skill is picked
+		levelUp();
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())
-			setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
-
-		levelUp();
+		{
+			const auto & chosenSkill = proposedSecondarySkills.front();
+			setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
+			if(chosenSkill.toSkill()->grantsLevelUp())
+				exp += experienceToGainLevels(1);
+		}
 	}
 }
 

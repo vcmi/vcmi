@@ -10,6 +10,7 @@
 
 #include "../StdInc.h"
 
+#include "../../../lib/CSkillHandler.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/spells/ISpellMechanics.h"
@@ -56,7 +57,8 @@ const SecondarySkillEvaluator HeroManager::mainSkillsEvaluator = SecondarySkillE
 			}),
 		std::make_shared<ExistingSkillRule>(),
 		std::make_shared<WisdomRule>(),
-		std::make_shared<AtLeastOneMagicRule>()
+		std::make_shared<AtLeastOneMagicRule>(),
+		std::make_shared<LevelUpGrantingSkillRule>()
 	});
 
 const SecondarySkillEvaluator HeroManager::scoutSkillsEvaluator = SecondarySkillEvaluator(
@@ -69,7 +71,8 @@ const SecondarySkillEvaluator HeroManager::scoutSkillsEvaluator = SecondarySkill
 				{SecondarySkill::PATHFINDING, 1},
 				{SecondarySkill::SCHOLAR, 1}
 			}),
-		std::make_shared<ExistingSkillRule>()
+		std::make_shared<ExistingSkillRule>(),
+		std::make_shared<LevelUpGrantingSkillRule>()
 	});
 
 float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
@@ -397,6 +400,12 @@ void AtLeastOneMagicRule::evaluateScore(const CGHeroInstance * hero, SecondarySk
 	});
 
 	if(!heroHasAnyMagic)
+		score += 1;
+}
+
+void LevelUpGrantingSkillRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const
+{
+	if(skill.hasValue() && skill.toSkill()->grantsLevelUp())
 		score += 1;
 }
 
