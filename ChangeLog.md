@@ -223,7 +223,8 @@
 
 * Added support for defining custom tags for secondary skills. Migrated all existing boolean flags to use tags
 * Added secondary skill tags to exclude a skill from Scholar, University, or Witch Hut
-* Added `grantsLevelUp` secondary skill tag: hero gains a level each time such a skill is learned or upgraded, and the skill is not offered again on that level-up (HotA Learning)
+* Added `grantsLevelUp` secondary skill tag: hero gains a level each time such a skill is learned or upgraded (HotA Learning)
+* Added `offerCooldown` secondary skill property: after the skill is gained or upgraded, it is not offered for upgrade on the following level-ups if the hero has other skills to upgrade (HotA Learning)
 * Added support for defining additional mines with custom resource amounts for new or existing resource types
 * Added support for defining default guards in mines
 * Added support for multiple native terrains in factions

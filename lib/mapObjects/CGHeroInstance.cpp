@@ -150,8 +150,8 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 		}
 	}
 
-	if(newLevelClamped > currentLevel && which.hasValue() && which.toSkill()->grantsLevelUp())
-		levelUpSkillsGainedAt[which] = level;
+	if(newLevelClamped > currentLevel && which.hasValue() && which.toSkill()->offerCooldown > 0)
+		secSkillsGainedAtLevel[which] = level;
 
 	updateSkillBonus(which, newLevelClamped);
 }
@@ -447,8 +447,8 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 
 	// skills the hero starts with count as gained at the starting level
 	for(const auto & skill : secSkills)
-		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->grantsLevelUp() && !levelUpSkillsGainedAt.count(skill.first))
-			levelUpSkillsGainedAt[skill.first] = level;
+		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0 && !secSkillsGainedAtLevel.count(skill.first))
+			secSkillsGainedAtLevel[skill.first] = level;
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 

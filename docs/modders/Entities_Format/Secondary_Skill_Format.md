@@ -36,6 +36,11 @@
 			...
 			"modName:heroClassName" : 5
 		},
+
+		// Optional. After the skill is gained or upgraded, it is not offered for upgrade on this many
+		// following level-ups, unless the hero has no other skill to upgrade.
+		// Skills the hero starts with count as gained at the starting level
+		"offerCooldown" : 0,
 		
         // List of tags that describe this skill
 		// Tags are only active if set to 'true'
@@ -52,8 +57,7 @@
 			// This skill is guaranteed to be offered once per specific number of levels
 			// according to H3 logic for Spell Schools
 			"spellSchool" : true,
-			// Hero immediately gains a level each time this skill is learned or upgraded (HotA Learning).
-			// On that level-up the skill is not offered for upgrade again, as long as the hero has any other skill to upgrade
+			// Hero immediately gains a level each time this skill is learned or upgraded (HotA Learning)
 			"grantsLevelUp" : false
 		}
 	}

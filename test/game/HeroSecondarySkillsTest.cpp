@@ -12,6 +12,7 @@
 #include "GameStateTest.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -22,6 +23,23 @@
 class HeroSecondarySkillsTest : public GameStateTest
 {
 protected:
+	void SetUp() override
+	{
+		GameStateTest::SetUp();
+		learningSkill().offerCooldown = 1; // the library is shared between tests, restored in TearDown
+	}
+
+	void TearDown() override
+	{
+		learningSkill().offerCooldown = 0;
+		GameStateTest::TearDown();
+	}
+
+	static CSkill & learningSkill()
+	{
+		return *LIBRARY->skillh->objects.at(SecondarySkill::LEARNING);
+	}
+
 	/// First hero of the first player, with exactly the given secondary skills at basic level
 	CGHeroInstance * prepareHeroWithSkills(const std::vector<SecondarySkill> & skills)
 	{
@@ -44,10 +62,9 @@ protected:
 	}
 };
 
-// A skill that grants a level-up on gain (CSkill::grantsLevelUp) must not be offered for upgrade
-// on the level-up that immediately follows its gain, as long as the hero has another skill to upgrade.
-// Only the "gained at this level" record matters here, so the test does not need a tagged skill.
-TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsWithheldOnFollowingLevelUp)
+// A skill with an offer cooldown (CSkill::offerCooldown) must not be offered for upgrade on the
+// level-ups that follow its gain, as long as the hero has another skill to upgrade.
+TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsWithheldOnFollowingLevelUp)
 {
 	startTestGame();
 
@@ -56,7 +73,7 @@ TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsWithheldOnFollowingLevelUp
 
 	auto * hero = prepareHeroWithSkills({learning, wisdom});
 	ASSERT_NE(hero, nullptr);
-	hero->levelUpSkillsGainedAt[learning] = hero->level; // gained on the previous level-up
+	hero->secSkillsGainedAtLevel[learning] = hero->level; // gained on the previous level-up
 
 	GameRandomizer randomizer(*gameState);
 	for(int i = 0; i < 30; ++i)
@@ -67,7 +84,7 @@ TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsWithheldOnFollowingLevelUp
 	}
 }
 
-TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsOfferedAgainOnLaterLevelUps)
+TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedAgainOnceCooldownPassed)
 {
 	startTestGame();
 
@@ -76,17 +93,61 @@ TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsOfferedAgainOnLaterLevelUp
 
 	auto * hero = prepareHeroWithSkills({learning, wisdom});
 	ASSERT_NE(hero, nullptr);
-	hero->levelUpSkillsGainedAt[learning] = hero->level - 1; // gained two level-ups ago
+	hero->secSkillsGainedAtLevel[learning] = hero->level - 1; // gained two level-ups ago, cooldown is 1
 
 	GameRandomizer randomizer(*gameState);
 	int learningOffers = 0;
 	for(int i = 0; i < 40; ++i)
 		learningOffers += vstd::contains(rollLevelUpOffers(randomizer, hero), learning) ? 1 : 0;
 
-	EXPECT_GT(learningOffers, 0) << "skill must be back in the upgrade pool once the following level-up has passed";
+	EXPECT_GT(learningOffers, 0) << "skill must be back in the upgrade pool once the cooldown has passed";
 }
 
-TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsOfferedIfNothingElseCanBeUpgraded)
+TEST_F(HeroSecondarySkillsTest, longerOfferCooldownWithholdsSkillForMoreLevelUps)
+{
+	startTestGame();
+
+	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill wisdom(SecondarySkill::WISDOM);
+
+	auto * hero = prepareHeroWithSkills({learning, wisdom});
+	ASSERT_NE(hero, nullptr);
+	learningSkill().offerCooldown = 2;
+	hero->secSkillsGainedAtLevel[learning] = hero->level - 1; // gained two level-ups ago, cooldown is 2
+
+	GameRandomizer randomizer(*gameState);
+	for(int i = 0; i < 30; ++i)
+		EXPECT_FALSE(vstd::contains(rollLevelUpOffers(randomizer, hero), learning)) << "roll " << i;
+}
+
+// The "gained at level" record is kept by the hero itself whenever a skill with a cooldown is gained or upgraded
+TEST_F(HeroSecondarySkillsTest, gainingSkillWithOfferCooldownRecordsHeroLevel)
+{
+	startTestGame();
+
+	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill wisdom(SecondarySkill::WISDOM);
+
+	auto * hero = prepareHeroWithSkills({});
+	ASSERT_NE(hero, nullptr);
+	hero->level = 5;
+
+	hero->setSecSkillLevel(learning, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
+	hero->setSecSkillLevel(wisdom, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
+	ASSERT_EQ(hero->secSkillsGainedAtLevel.count(learning), 1u);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 5u);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.count(wisdom), 0u) << "skills without a cooldown are not tracked";
+
+	hero->level = 7;
+	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "upgrading refreshes the record";
+
+	hero->level = 9;
+	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "setting the same mastery again is not a gain";
+}
+
+TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedIfNothingElseCanBeUpgraded)
 {
 	startTestGame();
 
@@ -94,7 +155,7 @@ TEST_F(HeroSecondarySkillsTest, levelUpGrantingSkillIsOfferedIfNothingElseCanBeU
 
 	auto * hero = prepareHeroWithSkills({learning});
 	ASSERT_NE(hero, nullptr);
-	hero->levelUpSkillsGainedAt[learning] = hero->level;
+	hero->secSkillsGainedAtLevel[learning] = hero->level;
 
 	GameRandomizer randomizer(*gameState);
 	for(int i = 0; i < 10; ++i)

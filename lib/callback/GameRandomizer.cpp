@@ -357,14 +357,14 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	int newSkillsAvailable = none.size();
 	int upgradedSkillsToSelect = std::max(maxUpgradedSkills, maxTotalSkills - newSkillsAvailable);
 
-	// A skill that granted a level-up when gained is not offered for upgrade on the level-up that immediately follows,
+	// A skill with an offer cooldown is not offered for upgrade on the level-ups that follow its gain,
 	// as long as the hero has any other skill to upgrade. Hero level is not raised yet at this point,
 	// so a skill recorded at the current level was gained on the previous level-up.
 	std::set<SecondarySkill> withheld;
 	for(const auto & skill : basicAndAdv)
 	{
-		auto gainedAt = hero->levelUpSkillsGainedAt.find(skill);
-		if(gainedAt != hero->levelUpSkillsGainedAt.end() && gainedAt->second == hero->level)
+		auto gainedAt = hero->secSkillsGainedAtLevel.find(skill);
+		if(gainedAt != hero->secSkillsGainedAtLevel.end() && hero->level < gainedAt->second + static_cast<ui32>(skill.toSkill()->offerCooldown))
 			withheld.insert(skill);
 	}
 

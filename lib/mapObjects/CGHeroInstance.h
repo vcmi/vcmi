@@ -96,9 +96,9 @@ public:
 	HeroTypeID customPortraitSource;
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	/// Level at which the hero last gained or upgraded each secondary skill that grants a level-up on gain (see CSkill::grantsLevelUp).
-	/// Such a skill is not offered for upgrade again on the level-up that immediately follows, if the hero has any other skill to upgrade.
-	std::map<SecondarySkill, ui32> levelUpSkillsGainedAt;
+	/// Level at which the hero last gained or upgraded each secondary skill that has an offer cooldown (see CSkill::offerCooldown).
+	/// Such a skill is not offered for upgrade again on the following level-ups, if the hero has any other skill to upgrade.
+	std::map<SecondarySkill, ui32> secSkillsGainedAtLevel;
 	EHeroGender gender;
 
 	std::string nameCustomTextId;
@@ -360,8 +360,8 @@ public:
 		h & customPortraitSource;
 		h & mana;
 		h & secSkills;
-		if (h.hasFeature(Handler::Version::SKILL_GRANTS_LEVEL_UP))
-			h & levelUpSkillsGainedAt;
+		if (h.hasFeature(Handler::Version::SECONDARY_SKILL_OFFER_COOLDOWN))
+			h & secSkillsGainedAtLevel;
 		h & movement;
 		h & gender;
 		h & inTownGarrison;
