@@ -432,8 +432,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 
 	// only one spell is cast per turn, however many the creature knows
 	int bestSpellLevel = 0;
-	const auto castings = unit->getBonuses(Selector::type()(BonusType::SPELLCASTER));
-	for(const auto & bonus : *castings)
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::SPELLCASTER))
 		bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
 
 	result *= 1.0 + castWeight * bestSpellLevel;
@@ -445,14 +444,15 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	// a spell outlasts the blow that applied it, so its value grows slower than its chance to land
 	double best = 0;
 	double rest = 0;
-	const auto attackSpells = unit->getBonuses(Selector::type()(BonusType::SPELL_AFTER_ATTACK)
-		.Or(Selector::type()(BonusType::SPELL_BEFORE_ATTACK)));
-	for(const auto & bonus : *attackSpells)
+	for(auto type : {BonusType::SPELL_AFTER_ATTACK, BonusType::SPELL_BEFORE_ATTACK})
 	{
-		const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
+		for(const auto & bonus : *unit->getBonusesOfType(type))
+		{
+			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
 
-		rest += std::min(best, landed);
-		best = std::max(best, landed);
+			rest += std::min(best, landed);
+			best = std::max(best, landed);
+		}
 	}
 
 	result *= 1.0 + spellAfterAttackWeight * (best + secondSpellWeight * rest);
@@ -527,7 +527,7 @@ double CombatValue::situationalSurvival(const ACreature & creature) const
 	// immunity and vulnerability are granted one spell at a time, so bonus count is what matters
 	const auto bonusCount = [unit](BonusType type)
 	{
-		return static_cast<int>(unit->getBonuses(Selector::type()(type))->size());
+		return static_cast<int>(unit->getBonusesOfType(type)->size());
 	};
 
 	result *= std::pow(1.015, bonusCount(BonusType::SPELL_IMMUNITY));
