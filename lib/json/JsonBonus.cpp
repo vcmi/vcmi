@@ -117,6 +117,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
 		case BonusType::LIMITED_SHOOTING_RANGE:
+		case BonusType::SHOOTER:
 		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:

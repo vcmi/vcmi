@@ -194,7 +194,8 @@ void CursorHandler::set(Cursor::Combat index)
 		"combatShootCatapult",
 		"combatHeal",
 		"combatSacrifice",
-		"combatTeleport"
+		"combatTeleport",
+		"combatMoveAndShoot"
 	};
 
 	set(combatCursorNames.at(static_cast<int>(index)));

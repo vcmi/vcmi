@@ -27,6 +27,7 @@ struct DLL_LINKAGE BattleAttackInfo
 
 	int chargeDistance = 0;
 	bool shooting      = false;
+	bool mobileShooting = false;
 	bool luckyStrike   = false;
 	bool unluckyStrike = false;
 	bool deathBlow     = false;

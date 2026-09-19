@@ -40,19 +40,24 @@ PotentialTargets::PotentialTargets(
 
 		auto GenerateAttackInfo = [&](bool shooting, const BattleHex & hex) -> AttackPossibility
 		{
-			int distance = hex.isValid() ? reachability.distances[hex.toInt()] : 0;
+			int distance = !shooting && hex.isValid() ? reachability.distances[hex.toInt()] : 0;
 			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
+			bai.mobileShooting = shooting && hex.isValid();
 
 			return AttackPossibility::evaluate(bai, hex, damageCache, state);
 		};
 
 		if(isBerserk)
 		{
-			bool isActionAttack = forcedAction.type == EActionType::WALK_AND_ATTACK || forcedAction.type == EActionType::SHOOT;
+			bool isActionAttack = forcedAction.type == EActionType::WALK_AND_ATTACK
+				|| forcedAction.type == EActionType::SHOOT
+				|| forcedAction.type == EActionType::WALK_AND_SHOOT;
 			if (isActionAttack && defender->unitId() == forcedAction.target->unitId())
 			{
-				bool rangeAttack = forcedAction.type == EActionType::SHOOT;
+				bool rangeAttack = forcedAction.type == EActionType::SHOOT || forcedAction.type == EActionType::WALK_AND_SHOOT;
 				BattleHex hex = forcedAction.type == EActionType::WALK_AND_ATTACK ? forcedAction.position : BattleHex::INVALID;
+				if(forcedAction.type == EActionType::WALK_AND_SHOOT)
+					hex = forcedAction.position;
 				possibleAttacks.push_back(GenerateAttackInfo(rangeAttack, hex));
 			}
 			else
@@ -60,23 +65,36 @@ PotentialTargets::PotentialTargets(
 				unreachableEnemies.push_back(defender);
 			}
 		}
-		else if(state->battleCanShoot(attackerInfo, defender->getPosition()))
-		{
-			possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
-		}
 		else
 		{
-			for(const BattleHex & hex : avHexes)
-			{
-				if(!state->isMeleeAttackPossible(attackerInfo, defender, hex))
-					continue;
+			const size_t attacksBefore = possibleAttacks.size();
+			if(state->battleCanShoot(attackerInfo, defender->getPosition()))
+				possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
 
-				auto bai = GenerateAttackInfo(false, hex);
-				if(!bai.affectedUnits.empty())
-					possibleAttacks.push_back(bai);
+			if(state->battleGetMobileShooterRange(attackerInfo) > 0)
+			{
+				for(const BattleHex & hex : avHexes)
+				{
+					if(state->battleCanMoveAndShoot(attackerInfo, hex, defender->getPosition()))
+						possibleAttacks.push_back(GenerateAttackInfo(true, hex));
+				}
 			}
 
-			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility & pa) { return pa.attack.defender->unitId() == defender->unitId(); }))
+			const bool hasRangedAttack = possibleAttacks.size() > attacksBefore;
+			if(!hasRangedAttack)
+			{
+				for(const BattleHex & hex : avHexes)
+				{
+					if(!state->isMeleeAttackPossible(attackerInfo, defender, hex))
+						continue;
+
+					auto bai = GenerateAttackInfo(false, hex);
+					if(!bai.affectedUnits.empty())
+						possibleAttacks.push_back(bai);
+				}
+			}
+
+			if(possibleAttacks.size() == attacksBefore)
 				unreachableEnemies.push_back(defender);
 		}
 	}

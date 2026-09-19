@@ -66,6 +66,7 @@ public:
 	int adi;
 	int adr;
 	BattleHexArray attackFrom; //for melee fight
+	BattleHex mobileShootFrom = BattleHex::INVALID;
 	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
 	void calcDmg(std::shared_ptr<CBattleCallback> cb, const BattleID & battleID, const CStack * ourStack)
@@ -123,6 +124,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable;
+	std::vector<EnemyInfo> enemiesMobileShootable;
 	std::vector<EnemyInfo> enemiesReachable;
 	std::vector<EnemyInfo> enemiesUnreachable;
 	std::vector<EnemyInfo> enemiesInvincible;
@@ -159,6 +161,20 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 		else
 		{
 			BattleHexArray avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
+			BattleHex mobileShootFrom = BattleHex::INVALID;
+			for(const BattleHex & hex : avHexes)
+			{
+				if(!cb->getBattle(battleID)->battleCanMoveAndShoot(stack, hex, s->getPosition()))
+					continue;
+				if(!mobileShootFrom.isValid() || dists.distances[hex.toInt()] < dists.distances[mobileShootFrom.toInt()] ||
+					(dists.distances[hex.toInt()] == dists.distances[mobileShootFrom.toInt()] && hex < mobileShootFrom))
+					mobileShootFrom = hex;
+			}
+			if(mobileShootFrom.isValid())
+			{
+				enemiesMobileShootable.emplace_back(s);
+				enemiesMobileShootable.back().mobileShootFrom = mobileShootFrom;
+			}
 
 			for (const BattleHex & hex : avHexes)
 			{
@@ -185,11 +201,21 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 	for ( auto & enemy : enemiesShootable )
 		enemy.calcDmg(cb, battleID, stack);
+	for(auto & enemy : enemiesMobileShootable)
+		enemy.calcDmg(cb, battleID, stack);
 
 	if(enemiesShootable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
 		cb->battleMakeUnitAction(battleID, BattleAction::makeShotAttack(stack, ei.s));
+		return;
+	}
+	else if(enemiesMobileShootable.size())
+	{
+		const EnemyInfo & ei = *std::max_element(
+			enemiesMobileShootable.begin(), enemiesMobileShootable.end(), isMoreProfitable);
+		cb->battleMakeUnitAction(battleID,
+			BattleAction::makeWalkAndShoot(stack, ei.mobileShootFrom, battle::Destination(ei.s)));
 		return;
 	}
 	else if(enemiesReachable.size())

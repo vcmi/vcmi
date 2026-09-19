@@ -50,6 +50,7 @@ namespace Cursor
 		HEAL           = 17,
 		SACRIFICE      = 18,
 		TELEPORT       = 19,
+		MOVE_AND_SHOOT = 20,
 
 		COUNT
 	};
