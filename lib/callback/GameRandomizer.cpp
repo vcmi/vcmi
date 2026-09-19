@@ -357,11 +357,32 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	int newSkillsAvailable = none.size();
 	int upgradedSkillsToSelect = std::max(maxUpgradedSkills, maxTotalSkills - newSkillsAvailable);
 
+	// A skill with an offer cooldown is not offered for upgrade on the level-ups that follow its gain,
+	// as long as the hero has any other skill to upgrade. Hero level is not raised yet at this point,
+	// so a skill recorded at the current level was gained on the previous level-up.
+	std::set<SecondarySkill> withheld;
+	for(const auto & skill : basicAndAdv)
+	{
+		auto gainedAt = hero->secSkillsGainedAtLevel.find(skill);
+		if(gainedAt != hero->secSkillsGainedAtLevel.end() && hero->level < gainedAt->second + static_cast<ui32>(skill.toSkill()->offerCooldown))
+			withheld.insert(skill);
+	}
+
 	while (skills.size() < upgradedSkillsToSelect && !basicAndAdv.empty())
 	{
-		skills.push_back(rollSecondarySkillForLevelup(hero, basicAndAdv));
+		std::set<SecondarySkill> candidates;
+		for(const auto & skill : basicAndAdv)
+			if(!withheld.count(skill))
+				candidates.insert(skill);
+
+		if(candidates.empty())
+			candidates = basicAndAdv;
+
+		skills.push_back(rollSecondarySkillForLevelup(hero, candidates));
 		basicAndAdv.erase(skills.back());
 	}
+
+	logGlobal->trace("Level-up offers for %s at level %d: %d upgradeable, %d withheld, %d learnable, %d upgrade slots", hero->getNameTextID(), hero->level, static_cast<int>(basicAndAdv.size() + skills.size()), static_cast<int>(withheld.size()), newSkillsAvailable, upgradedSkillsToSelect);
 
 	while (skills.size() < maxTotalSkills && !none.empty())
 	{

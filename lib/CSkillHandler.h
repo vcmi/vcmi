@@ -70,9 +70,13 @@ public:
 	bool isSpellSchool() const;
 	bool isSpecial() const;
 	bool isOnlyOnWaterMap() const;
+	/// Hero immediately gains a level each time this skill is learned or upgraded
+	bool grantsLevelUp() const;
 	bool hasTag(const std::string & tag) const;
 
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
+	/// After the skill is gained or upgraded, it is not offered for upgrade on this many following level-ups (unless nothing else can be upgraded)
+	int offerCooldown = 0;
 
 	/// Bonuses that should be given to hero that specializes in this skill
 	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;

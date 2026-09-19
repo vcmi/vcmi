@@ -121,6 +121,8 @@ public:
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);
+	/// Experience at which heroes stop gaining levels on this map
+	TExpType getHeroExperienceLimit() const;
 	void giveStackExperience(const CArmedInstance * army, TExpType val);
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;

@@ -156,6 +156,11 @@ bool CSkill::isOnlyOnWaterMap() const
 	return hasTag("onlyOnWaterMap");
 }
 
+bool CSkill::grantsLevelUp() const
+{
+	return hasTag("grantsLevelUp");
+}
+
 bool CSkill::hasTag(const std::string & tag) const
 {
 	return vstd::contains(tags, tag);
@@ -239,6 +244,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		skill->tags.emplace_back("spellSchool");
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+	skill->offerCooldown = static_cast<int>(json["offerCooldown"].Integer());
 
 	for(auto skillPair : json["gainChance"].Struct())
 	{

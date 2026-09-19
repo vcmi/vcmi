@@ -739,6 +739,7 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 	{
 		for(const auto & skill : LIBRARY->skillh->objects)
 			gameHandler->changeSecSkill(hero, SecondarySkill(skill->getId()), mastery, ChangeValueMode::ABSOLUTE);
+		gameHandler->expGiven(hero);
 		return;
 	}
 
@@ -748,6 +749,7 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 	
 	auto skill = SecondarySkill(skillId.value());
 	gameHandler->changeSecSkill(hero, skill, mastery, ChangeValueMode::ABSOLUTE);
+	gameHandler->expGiven(hero);
 }
 
 void PlayerMessageProcessor::cheatTeleport(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
