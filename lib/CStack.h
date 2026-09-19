@@ -58,7 +58,7 @@ public:
 
 	int32_t unitLevel() const override;
 	si32 magicResistance() const override; //include aura of resistance
-	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
+	std::vector<SpellWithMasteryID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
