@@ -450,6 +450,10 @@ Allows creature being upgraded to another creature (Gelu, Dracon)
 - addInfo: identifier of creature to which perform an upgrade
 - val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost.
 
+If the affected creature is already a native direct or indirect upgrade of `subtype`, the `SPECIAL_UPGRADE` can continue along that native upgrade chain while `addInfo` remains a native direct or indirect upgrade of the current creature.
+
+Native intermediate upgrades on paths leading to `addInfo` are also offered, while the configured `addInfo` target remains available as a direct upgrade. Native branches that do not lead to `addInfo` are ignored. The `val` cost modifier applies to all upgrade options added by this bonus.
+
 ## Artifact bonuses
 
 ### SPELL_DURATION
