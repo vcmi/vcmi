@@ -94,7 +94,6 @@ function Script:apply(mechanics, server, target)
 				self.permanent and ENUM.HealPower.permanent or ENUM.HealPower.oneBattle
 			)
 		else
-			print("SpellEffectSummon. Hex: ", dest.hex)
 			assert(dest.hex ~= nil)
 			server:addUnit(
 				battle,

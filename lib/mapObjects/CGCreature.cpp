@@ -121,8 +121,8 @@ MetaString CGCreature::getPopupText(const CGHeroInstance * hero) const
 		hoverName.appendTextID("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
-		uint64_t armyStrength = getArmyStrength();
-		uint64_t heroStrength = hero->getTotalStrength();
+		uint64_t armyStrength = estimateCombatValue();
+		uint64_t heroStrength = hero->estimateHeroCombatValue();
 		double ratio = static_cast<double>(armyStrength) / heroStrength;
 		if (ratio < 0.1)  choice = 0;
 		else if (ratio < 0.25) choice = 1;

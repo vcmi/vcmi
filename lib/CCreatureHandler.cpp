@@ -22,6 +22,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
+#include "battle/CombatValue.h"
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "serializer/JsonDeserializer.h"
@@ -1325,6 +1326,17 @@ CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & p : skillRequirements)
 		p.first.clear();
+}
+
+void CCreatureHandler::buildCombatValues()
+{
+	combatValues = std::make_unique<CombatValue>();
+}
+
+const CombatValue & CCreatureHandler::getCombatValue() const
+{
+	assert(combatValues);
+	return *combatValues;
 }
 
 const ResourceSet & CCreatureHandler::getCommanderResurrectionPrice(const CCreature * commander) const

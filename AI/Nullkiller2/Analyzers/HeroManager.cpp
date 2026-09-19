@@ -124,11 +124,11 @@ void HeroManager::update()
 	uint64_t strongestHeroTotalStrength = 0;
 
 	for(auto & hero : myHeroes)
-		vstd::amax(strongestHeroTotalStrength, hero->getTotalStrength());
+		vstd::amax(strongestHeroTotalStrength, hero->estimateHeroCombatValue());
 
 	for(auto & hero : myHeroes)
 	{
-		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->getTotalStrength(), strongestHeroTotalStrength);
+		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->estimateHeroCombatValue(), strongestHeroTotalStrength);
 		knownFightingStrength[hero->id] = normalizeHeroStrength(hero->getHeroStrength());
 	}
 
@@ -319,7 +319,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	for(auto existingHero : myHeroes)
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
-			|| existingHero->getArmyStrength() >armyLimit
+			|| existingHero->estimateCombatValue() >armyLimit
 			|| getHeroRoleOrDefaultInefficient(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)

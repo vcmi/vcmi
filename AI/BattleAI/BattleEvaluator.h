@@ -53,7 +53,10 @@ public:
 		const BattleHexArray & finalDestinationHexes);
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 	bool hasWorkingTowers() const;
-	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
+	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps);
+	/// Value that bonuses of a simulated cast add to our army and take away from the enemy. Health that
+	/// the same cast changed is scored separately, so only what the bonuses are worth is counted here
+	float scoreBonusEffects(const battle::Units & units, const DamageCache & damageCache) const;
 	void print(const std::string & text) const;
 	BattleAction moveOrAttack(
 		const CStack * stack,
