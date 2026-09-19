@@ -904,6 +904,8 @@ void BattleFieldController::show(Canvas & to)
 		assert(ENGINE->amIGuiThread());
 
 		Canvas layer = ENGINE->screenHandler().getLayerCanvas(GpuRenderLayer::BATTLE);
+		CanvasClipRectGuard guard(layer, pos);
+
 		renderBattlefield(layer);
 
 		if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
