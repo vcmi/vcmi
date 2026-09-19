@@ -1774,12 +1774,14 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 
 	for(const auto & it : *upgrades)
 	{
-		if (it->parameters)
-		{
+		if(!it->parameters)
+			continue;
+
 			auto nid = it->parameters->toCreature();
-			if(nid != stack.getId()) //in very specific case the upgrade is available by default (?)
-			{
-				const CCreature * targetCreature = nid.toCreature();
+			if(nid == stack.getId()) //in very specific case the upgrade is available by default (?)
+			continue;
+
+			const CCreature * targetCreature = nid.toCreature();
 
 				if(directUpgrades->empty())
 				{
@@ -1813,7 +1815,7 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 						CreatureID upgradeID = upgradesToVisit.back();
 						upgradesToVisit.pop_back();
 
-						if(visitedUpgrades.count(upgradeID))
+						if(visitedUpgrades.contains(upgradeID))
 							continue;
 
 						visitedUpgrades.insert(upgradeID);
@@ -1836,8 +1838,6 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 
 				// Keep the configured SPECIAL_UPGRADE target available as a direct upgrade.
 				info.addUpgrade(nid, stack.getType(), costModifier);
-			}
-		}
 	}
 }
 
