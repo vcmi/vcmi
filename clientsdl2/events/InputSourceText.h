@@ -24,6 +24,6 @@ public:
 	void handleEventTextInput(const SDL_TextInputEvent & current);
 	void handleEventTextEditing(const SDL_TextEditingEvent & current);
 
-	void startTextInput(const Rect & where);
+	void startTextInput(const Rect & where, bool numbersOnly = false);
 	void stopTextInput();
 };

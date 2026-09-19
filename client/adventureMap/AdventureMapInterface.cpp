@@ -391,6 +391,16 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(playerID);
 	setState(isHuman ? EAdventureState::MAKING_TURN : EAdventureState::AI_PLAYER_TURN);
+
+	int totalOtherPlayers = static_cast<int>(GAME->interface()->cb->getStartInfo()->playerInfos.size()) - 1;
+	if (totalOtherPlayers > 1)
+	{
+		float progress = static_cast<float>(enemyTurnsCompletedThisRound) / totalOtherPlayers;
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::NORMAL, progress);
+	}
+	else
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::INDETERMINATE, 0.f);
+	enemyTurnsCompletedThisRound++;
 }
 
 EAdventureState AdventureMapInterface::getState() const
@@ -434,6 +444,9 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		widget->getMinimap()->setAIRadar(false);
 		widget->getInfoBar()->showSelection();
+
+		enemyTurnsCompletedThisRound = 0;
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::HIDDEN, 0.f);
 	}
 
 	widget->getHeroList()->updateWidget();

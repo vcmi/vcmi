@@ -94,12 +94,12 @@ class MapViewCache
 	Canvas getTile(const int3 & coordinates);
 	void updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 
-	/// Copies the entire cached tile window onto the target in as few blits as possible. Used
-	/// when every tile has to be repainted anyway, above all while the view is scrolling.
 	/// Walks the visible window of the cache. Because tiles are stored wrapped around on both
 	/// axes it falls into at most four bands, each contiguous in the cache and on screen.
 	void forEachCachedBand(const std::function<void(const Rect & cacheArea, const Point & targetPosition, const Point & targetSize)> & visit) const;
 
+	/// Copies the entire cached tile window onto the target in as few blits as possible. Used
+	/// when every tile has to be repainted anyway, above all while the view is scrolling.
 	void renderCachedTiles(Canvas & target);
 
 	std::shared_ptr<IImage> getOverlayImageForTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
