@@ -718,16 +718,18 @@ std::shared_ptr<CGObjectInstance> CMap::replaceObject(ObjectInstanceID oldObject
 {
 	auto oldObject = objects.at(oldObjectID.getNum());
 
+	if(oldObject)
+	{
+		hideObject(oldObject.get());
+		instanceNames.erase(oldObject->instanceName);
+		oldObject->afterRemoveFromMap(this);
+	}
+
 	newObject->id = oldObjectID;
-
-	hideObject(oldObject.get());
-	instanceNames.erase(oldObject->instanceName);
-
 	objects.at(oldObjectID.getNum()) = newObject;
 	showObject(newObject.get());
 	instanceNames[newObject->instanceName] = newObject;
 
-	oldObject->afterRemoveFromMap(this);
 	newObject->afterAddToMap(this);
 
 	return oldObject;
@@ -893,6 +895,8 @@ void CMap::reindexObjects()
 	// Only reindex at editor / RMG operations
 
 	auto oldIndex = objects;
+
+	objects.erase(std::remove(objects.begin(), objects.end(), nullptr), objects.end());
 
 	std::sort(objects.begin(), objects.end(), [](const auto & lhs, const auto & rhs)
 	{
