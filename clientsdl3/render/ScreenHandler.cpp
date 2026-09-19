@@ -288,11 +288,12 @@ static void setApplicationMetadata()
 	auto time = std::time(nullptr);
 	std::tm tm = vstd::safeLocalTime(time);
 	std::string copyright = "Copyright (C) 2007-" + std::to_string(tm.tm_year + 1900) + " VCMI dev team";
+	std::string version = std::string("VCMI ") + GameConstants::VCMI_VERSION;
 
 	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, GameConstants::VCMI_PROJECT_NAME);
-	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, version.c_str());
 	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, appIdentifier);
-	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "VCMI dev team");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "VCMI Team");
 	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, copyright.c_str());
 	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://vcmi.eu");
 	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
@@ -1103,6 +1104,13 @@ bool ScreenHandler::hasFocus()
 
 void ScreenHandler::flashWindowIfUnfocused()
 {
+	// SDL window functions are main thread only, but notifications arrive on the network thread
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([](){ ENGINE->screenHandler().flashWindowIfUnfocused(); });
+		return;
+	}
+
 	if(hasFocus())
 		return;
 
@@ -1126,6 +1134,13 @@ void ScreenHandler::setColorScheme(ColorScheme scheme)
 
 void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
 {
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([state, value](){ ENGINE->screenHandler().setTaskbarProgress(state, value); });
+		return;
+	}
+
+#if SDL_VERSION_ATLEAST(3, 4, 0)
 	switch (state)
 	{
 		case TaskbarProgress::HIDDEN:
@@ -1139,6 +1154,7 @@ void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
 			SDL_SetWindowProgressValue(mainWindow, std::clamp(value, 0.f, 1.f));
 			break;
 	}
+#endif
 }
 
 void ScreenHandler::screenShot() const
