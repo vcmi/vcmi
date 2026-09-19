@@ -11,6 +11,8 @@
 
 class IShowActivatable;
 class CIntObject;
+enum class EShortcut;
+enum class InputMode;
 
 class WindowHandler
 {
@@ -20,6 +22,8 @@ class WindowHandler
 
 	/// Temporary list of recently popped windows
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
+	std::vector<std::shared_ptr<IShowActivatable>> pendingClose;
+	void activateTopWindow();
 
 	/// Widget drawn on top of every window and outside of the stack, e.g. the replay abort button
 	std::shared_ptr<IShowActivatable> overlay;
@@ -77,6 +81,9 @@ public:
 	/// removes given windows from the top and activates next
 	void popWindow(std::shared_ptr<IShowActivatable> top);
 
+	/// Deactivates a canceled transient immediately; removes it at a safe stack boundary.
+	void requestCloseWindow(IShowActivatable * window);
+
 	/// returns true if selected interface is on top
 	bool isTopWindow(std::shared_ptr<IShowActivatable> window) const;
 	bool isTopWindow(IShowActivatable * window) const;
@@ -106,6 +113,13 @@ public:
 	/// returns all existing windows of selected type
 	template <typename T>
 	std::vector<std::shared_ptr<T>> findWindows() const;
+
+	/// Routes semantic controller axes to the top native owner, or blocks them while that owner is covered by a modal.
+	bool dispatchControllerAxis(int instanceId, const std::vector<EShortcut> & actions, double value);
+	void resetControllerInput();
+	/// Notifies presentation owners of actual pointer/controller input, excluding keyboard and synthetic refreshes.
+	void notifyPointerInput(InputMode inputMode);
+	bool hasNativeControllerAxisContext() const;
 };
 
 template <typename T, typename ... Args>

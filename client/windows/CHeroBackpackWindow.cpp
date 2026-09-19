@@ -11,7 +11,9 @@
 #include "CHeroBackpackWindow.h"
 
 #include "../GameInstance.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -108,6 +110,11 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	addUsedEvents(LCLICK);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + windowMargin;
+}
+
+void CHeroQuickBackpackWindow::gestureCanceled()
+{
+	ENGINE->windows().requestCloseWindow(this);
 }
 
 void CHeroQuickBackpackWindow::gesture(bool on, const Point & initialPosition, const Point & finalPosition)

@@ -12,6 +12,7 @@
 
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
+#include "../ControllerPromptFamily.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
@@ -24,7 +25,22 @@ ShortcutHandler::ShortcutHandler()
 void ShortcutHandler::reloadShortcuts()
 {
 	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickShortcuts.clear();
+	mappedJoystickShortcuts[ControllerPrompt::Family::UNKNOWN] = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	const std::pair<ControllerPrompt::Family, std::string> profiles[] = {
+		{ControllerPrompt::Family::GENERIC, "joystickButtonsGeneric"},
+		{ControllerPrompt::Family::NINTENDO, "joystickButtonsNintendo"},
+		{ControllerPrompt::Family::PLAYSTATION, "joystickButtonsPlayStation"},
+		{ControllerPrompt::Family::XBOX, "joystickButtonsXbox"}
+	};
+	for(const auto & [family, name] : profiles)
+	{
+		JsonNode bindings = keyBindingsConfig["joystickButtons"];
+		const auto & overrides = keyBindingsConfig[name];
+		if(overrides.isStruct())
+			JsonUtils::mergeCopy(bindings, overrides);
+		mappedJoystickShortcuts[family] = loadShortcuts(bindings);
+	}
 	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
@@ -98,9 +114,9 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key
 	return translateShortcut(mappedKeyboardShortcuts, key);
 }
 
-std::vector<EShortcut> ShortcutHandler::translateJoystickButton(const std::string & key) const
+std::vector<EShortcut> ShortcutHandler::translateJoystickButton(const std::string & key, ControllerPrompt::Family family) const
 {
-	return translateShortcut(mappedJoystickShortcuts, key);
+	return translateShortcut(mappedJoystickShortcuts.at(family), key);
 }
 
 std::vector<EShortcut> ShortcutHandler::translateJoystickAxis(const std::string & key) const
@@ -108,10 +124,10 @@ std::vector<EShortcut> ShortcutHandler::translateJoystickAxis(const std::string 
 	return translateShortcut(mappedJoystickAxes, key);
 }
 
-std::vector<std::string> ShortcutHandler::getJoystickButtonBindings(EShortcut shortcut) const
+std::vector<std::string> ShortcutHandler::getJoystickButtonBindings(EShortcut shortcut, ControllerPrompt::Family family) const
 {
 	std::vector<std::string> result;
-	for(const auto & binding : mappedJoystickShortcuts)
+	for(const auto & binding : mappedJoystickShortcuts.at(family))
 	{
 		if(binding.second == shortcut)
 			result.push_back(binding.first);
@@ -131,6 +147,10 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"mouseCursorY",             EShortcut::MOUSE_CURSOR_Y,           },
 		{"mouseSwipeX",              EShortcut::MOUSE_SWIPE_X,            },
 		{"mouseSwipeY",              EShortcut::MOUSE_SWIPE_Y,            },
+		{"controllerNavigateX",      EShortcut::CONTROLLER_NAVIGATE_X     },
+		{"controllerNavigateY",      EShortcut::CONTROLLER_NAVIGATE_Y     },
+		{"controllerBrowseX",        EShortcut::CONTROLLER_BROWSE_X       },
+		{"controllerBrowseY",        EShortcut::CONTROLLER_BROWSE_Y       },
 		{"globalAccept",             EShortcut::GLOBAL_ACCEPT             },
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
@@ -259,6 +279,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleToggleMouseShadow",  EShortcut::BATTLE_TOGGLE_MOUSE_SHADOW  },
 		{"battleToggleMovementShadow", EShortcut::BATTLE_TOGGLE_MOVEMENT_SHADOW },
 		{"battleToggleStackInfo",    EShortcut::BATTLE_TOGGLE_STACK_INFO   },
+		{"battleToggleCursorMode",   EShortcut::BATTLE_TOGGLE_CURSOR_MODE  },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },
 		{"battleSpellShortcut2",     EShortcut::BATTLE_SPELL_SHORTCUT_2   },

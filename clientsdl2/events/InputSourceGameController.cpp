@@ -17,6 +17,7 @@
 #include "gui/CursorHandler.h"
 #include "gui/EventDispatcher.h"
 #include "gui/ShortcutHandler.h"
+#include "gui/WindowHandler.h"
 #include "../render/IScreenHandler.h"
 
 #include "lib/CConfigHandler.h"
@@ -40,12 +41,16 @@ ControllerPrompt::Family controllerPromptFamily(SDL_GameController * controller)
 	case SDL_CONTROLLER_TYPE_XBOX360:
 	case SDL_CONTROLLER_TYPE_XBOXONE:
 		return ControllerPrompt::Family::XBOX;
+#if SDL_VERSION_ATLEAST(2,0,16)
+	case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+		return ControllerPrompt::Family::NINTENDO;
+#endif
 	default:
-		return ControllerPrompt::Family::UNKNOWN;
+		return ControllerPrompt::Family::GENERIC;
 	}
 #else
 	static_cast<void>(controller);
-	return ControllerPrompt::Family::UNKNOWN;
+	return ControllerPrompt::Family::GENERIC;
 #endif
 }
 
@@ -150,7 +155,19 @@ void InputSourceGameController::handleEventDeviceRemoved(const SDL_ControllerDev
 		return;
 	}
 	if(activeController == device.which)
+	{
 		activeController = -1;
+		resetControllerInput();
+		ENGINE->windows().resetControllerInput();
+	}
+	std::erase_if(suppressedAxisReleases, [&device](const auto & entry)
+	{
+		return entry.first == device.which;
+	});
+	std::erase_if(suppressedButtonReleases, [&device](const auto & entry)
+	{
+		return entry.first == device.which;
+	});
 	gameControllerMap.erase(device.which);
 }
 
@@ -163,10 +180,20 @@ void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDe
 	}
 
 	// SDL updates the existing controller handle before reporting the remap.
+	if(activeController == device.which)
+	{
+		resetControllerInput();
+		ENGINE->windows().resetControllerInput();
+	}
 }
 
 void InputSourceGameController::setActiveController(int instanceID)
 {
+	if(activeController != -1 && activeController != instanceID)
+	{
+		resetControllerInput();
+		ENGINE->windows().resetControllerInput();
+	}
 	activeController = instanceID;
 }
 
@@ -177,49 +204,77 @@ bool InputSourceGameController::isAxisMotionActive(const SDL_ControllerAxisEvent
 
 double InputSourceGameController::getRealAxisValue(int value) const
 {
-	double ratio = static_cast<double>(value) / SDL_JOYSTICK_AXIS_MAX;
-	double greenZone = configAxisFullZone - configAxisDeadZone;
+	if(configAxisDeadZone < 0.0 || configAxisFullZone > 1.0 || configAxisFullZone <= configAxisDeadZone)
+		return 0.0;
 
-	if (std::abs(ratio) < configAxisDeadZone)
-		return 0;
+	const double ratio = std::clamp(
+		static_cast<double>(value) / SDL_JOYSTICK_AXIS_MAX, -1.0, 1.0);
+	const double magnitude = std::abs(ratio);
+	if(magnitude <= configAxisDeadZone)
+		return 0.0;
 
-	double scaledValue = (ratio - configAxisDeadZone) / greenZone;
-	double clampedValue = std::clamp(scaledValue, -1.0, +1.0);
-	return clampedValue;
+	const double normalized = std::clamp(
+		(magnitude - configAxisDeadZone) / (configAxisFullZone - configAxisDeadZone), 0.0, 1.0);
+	return std::copysign(normalized, ratio);
 }
 
-void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue, std::string axisName)
+void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, int instanceId,
+	SDL_GameControllerAxis axisID, int axisValue, const std::string & axisName)
 {
-	if(getRealAxisValue(axisValue) > configTriggerThreshold)
+	const bool pressedNow = getRealAxisValue(axisValue) > configTriggerThreshold;
+	const auto suppressed = suppressedAxisReleases.find({instanceId, axisID});
+	if(suppressed != suppressedAxisReleases.end())
 	{
-		if(!pressedAxes.count(axisID))
+		if(!pressedNow)
+			suppressedAxisReleases.erase(suppressed);
+		return;
+	}
+
+	if(pressedNow)
+	{
+		if(!pressedAxes.count(axisID) && instanceId == activeController)
 		{
 			ENGINE->events().dispatchKeyPressed(axisName);
 			ENGINE->events().dispatchShortcutPressed(shortcutsVector);
-			pressedAxes.insert(axisID);
+			pressedAxes.emplace(axisID, PressedAxis{instanceId, shortcutsVector});
 		}
 	}
 	else
 	{
-		if(pressedAxes.count(axisID))
+		const auto pressed = pressedAxes.find(axisID);
+		if(pressed != pressedAxes.end()
+			&& pressed->second.instanceId == instanceId
+			&& instanceId == activeController)
 		{
 			ENGINE->events().dispatchKeyReleased(axisName);
-			ENGINE->events().dispatchShortcutReleased(shortcutsVector);
-			pressedAxes.erase(axisID);
+			ENGINE->events().dispatchShortcutReleased(pressed->second.actions);
+			pressedAxes.erase(pressed);
 		}
 	}
 }
 
 void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEvent & axis)
 {
-	if(isAxisMotionActive(axis))
-		tryToConvertCursor();
-
 	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
 	std::string axisName = SDL_GameControllerGetStringForAxis(axisID);
 
 	auto axisActions = ENGINE->shortcuts().translateJoystickAxis(axisName);
-	auto buttonActions = ENGINE->shortcuts().translateJoystickButton(axisName);
+	auto buttonActions = ENGINE->shortcuts().translateJoystickButton(axisName, getActiveControllerPromptFamily());
+	const double normalizedAxisValue = getRealAxisValue(axis.value);
+	if(axis.which != activeController)
+	{
+		dispatchAxisShortcuts(buttonActions, axis.which, axisID, axis.value, axisName);
+		return;
+	}
+
+	if(ENGINE->windows().dispatchControllerAxis(axis.which, axisActions, normalizedAxisValue))
+	{
+		clearAxisMotion();
+		return;
+	}
+
+	if(isAxisMotionActive(axis))
+		tryToConvertCursor();
 
 	for(const auto & action : axisActions)
 	{
@@ -240,7 +295,45 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 		}
 	}
 
-	dispatchAxisShortcuts(buttonActions, axisID, axis.value, axisName);
+	dispatchAxisShortcuts(buttonActions, axis.which, axisID, axis.value, axisName);
+}
+
+void InputSourceGameController::clearAxisMotion()
+{
+	cursorAxisValueX = cursorAxisValueY = 0;
+	cursorPlanDisX = cursorPlanDisY = 0;
+	scrollAxisValueX = scrollAxisValueY = 0;
+	scrollPlanDisX = scrollPlanDisY = 0;
+	if(scrollAxisMoved)
+	{
+		scrollAxisMoved = false;
+		ENGINE->events().dispatchGesturePanningCanceled();
+	}
+}
+
+void InputSourceGameController::resetControllerInput()
+{
+	clearAxisMotion();
+	cancelControllerPresses();
+}
+
+void InputSourceGameController::cancelControllerPresses()
+{
+	const auto axesToRelease = std::move(pressedAxes);
+	pressedAxes.clear();
+	for(const auto & entry : axesToRelease)
+	{
+		suppressedAxisReleases.emplace(entry.second.instanceId, entry.first);
+		ENGINE->events().cancelShortcutPress(entry.second.actions);
+	}
+
+	const auto buttonsToRelease = std::move(pressedButtons);
+	pressedButtons.clear();
+	for(const auto & [button, pressed] : buttonsToRelease)
+	{
+		suppressedButtonReleases.emplace(pressed.instanceId, button);
+		ENGINE->events().cancelShortcutPress(pressed.actions);
+	}
 }
 
 void InputSourceGameController::tryToConvertCursor()
@@ -257,8 +350,12 @@ void InputSourceGameController::tryToConvertCursor()
 
 void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButtonEvent & button)
 {
-	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
-	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	const auto buttonID = static_cast<SDL_GameControllerButton>(button.button);
+	std::string buttonName = SDL_GameControllerGetStringForButton(buttonID);
+	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName, getActiveControllerPromptFamily());
+	if(suppressedButtonReleases.contains({button.which, buttonID})
+		|| !pressedButtons.emplace(buttonID, PressedButton{button.which, shortcutsVector}).second)
+		return;
 	
 	ENGINE->events().dispatchKeyPressed(buttonName);
 	ENGINE->events().dispatchShortcutPressed(shortcutsVector);
@@ -266,8 +363,17 @@ void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButton
 
 void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEvent & button)
 {
-	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
-	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	const auto buttonID = static_cast<SDL_GameControllerButton>(button.button);
+	if(suppressedButtonReleases.erase({button.which, buttonID}) != 0)
+		return;
+	const auto pressed = pressedButtons.find(buttonID);
+	if(pressed == pressedButtons.end()
+		|| pressed->second.instanceId != button.which
+		|| button.which != activeController)
+		return;
+	const auto shortcutsVector = pressed->second.actions;
+	pressedButtons.erase(pressed);
+	std::string buttonName = SDL_GameControllerGetStringForButton(buttonID);
 	ENGINE->events().dispatchKeyReleased(buttonName);
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }
@@ -353,9 +459,9 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 	}
 	else if(scrollAxisMoved && isScrollAxisReleased())
 	{
-		ENGINE->events().dispatchGesturePanningEnded(scrollStart, scrollCurrent);
 		scrollAxisMoved = false;
 		scrollPlanDisX = scrollPlanDisY = 0;
+		ENGINE->events().dispatchGesturePanningEnded(scrollStart, scrollCurrent);
 		return;
 	}
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
