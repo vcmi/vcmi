@@ -786,6 +786,10 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
+	// Explicit levels above the experience table are fixed and cannot advance further.
+	if(level > LIBRARY->heroh->maxSupportedLevel())
+		return 0;
+
 	return static_cast<TExpType>(exp * (valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT)) / 100.0);
 }
 
@@ -1435,6 +1439,10 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, Chan
 
 void CGHeroInstance::setExperience(si64 value, ChangeValueMode mode)
 {
+	// Explicit levels above the experience table are fixed and cannot advance further.
+	if(level > LIBRARY->heroh->maxSupportedLevel() && mode == ChangeValueMode::RELATIVE && value > 0)
+		return;
+
 	if(mode == ChangeValueMode::ABSOLUTE)
 	{
 		exp = value;

@@ -14,6 +14,8 @@
 
 #include "../../lib/callback/EditorCallback.h"
 #include "../../lib/entities/artifact/CArtifactInstance.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/filesystem/CMemoryBuffer.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
@@ -195,6 +197,60 @@ TEST(TinyH3MBuilderTest, HeroesPlacement)
 	EXPECT_EQ(fixed->anchorPos(), int3(5, 5, 0));
 	EXPECT_EQ(random->anchorPos(), int3(6, 6, 0));
 	EXPECT_EQ(loaded.map->getObjectiveObjectFrom(fixed->anchorPos(), Obj::HERO), fixed);
+}
+
+TEST(TinyH3MBuilderTest, HotA5ExplicitHighHeroLevelLoads)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
+		.hotaVersion(5)
+		.size(36, /*twoLevel*/ false)
+		.name("HotA5HighHeroLevel")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.heroHotaLevel(30000)
+		.buildAndDump("HotA5ExplicitHighHeroLevelLoads");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
+	ASSERT_NE(hero, nullptr);
+	EXPECT_EQ(hero->level, 30000u);
+}
+
+TEST(TinyH3MBuilderTest, ExperienceIsFrozenAboveSupportedHeroLevel)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::SOD)
+		.size(36, /*twoLevel*/ false)
+		.name("HeroExperienceLimit")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.build();
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	CGHeroInstance * hero = nullptr;
+	for(auto & object : loaded.map->objects)
+	{
+		hero = dynamic_cast<CGHeroInstance *>(object.get());
+		if(hero)
+			break;
+	}
+	ASSERT_NE(hero, nullptr);
+
+	const auto maxLevel = LIBRARY->heroh->maxSupportedLevel();
+
+	hero->level = maxLevel;
+	hero->exp = 0;
+	hero->setExperience(10000, ChangeValueMode::RELATIVE);
+	EXPECT_EQ(hero->exp, 10000);
+
+	hero->level = maxLevel + 1;
+	hero->exp = 0;
+	hero->setExperience(10000, ChangeValueMode::RELATIVE);
+	EXPECT_EQ(hero->exp, 0);
+	EXPECT_EQ(hero->calculateXp(10000), 0);
 }
 
 TEST(TinyH3MBuilderTest, SpellScrollLoads)
