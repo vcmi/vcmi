@@ -303,6 +303,7 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 			BattleAction movement;
 			movement.actionType = EActionType::WALK;
 			movement.stackNumber = next->unitId();
+			movement.side = next->unitSide();
 			movement.aimToHex(forcedAction.position);
 			makeAutomaticAction(battle, next, movement);
 		}
