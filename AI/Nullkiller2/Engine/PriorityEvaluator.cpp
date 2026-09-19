@@ -184,7 +184,7 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
 				continue;
 
-			score += LIBRARY->combatValues->getAIValue(creature) * creLevel.first;
+			score += LIBRARY->creh->getCombatValue().getAIValue(creature) * creLevel.first;
 		}
 	}
 
@@ -204,7 +204,7 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 		if(creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			score += LIBRARY->combatValues->getAIValue(creature) * creature->getGrowth();
+			score += LIBRARY->creh->getCombatValue().getAIValue(creature) * creature->getGrowth();
 
 			// Increase priority towards the end of the week if units are lost afterwards
 			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
@@ -304,7 +304,7 @@ uint64_t RewardEvaluator::getArmyReward(
 				rewardValue += evaluateSpellScrollArmyValue(scroll);
 
 			for(const auto & stackInfo : info.reward.creatures)
-				rewardValue += LIBRARY->combatValues->getAIValue(stackInfo.getType()) * stackInfo.getCount();
+				rewardValue += LIBRARY->creh->getCombatValue().getAIValue(stackInfo.getType()) * stackInfo.getCount();
 
 			const auto combined_size = std::min(static_cast<size_t>(1),
 			                                    info.reward.grantedArtifacts.size() + info.reward.creatures.size() +
@@ -446,7 +446,7 @@ uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
 			continue;
 
 		auto creature = creatureInfo.second.back().toCreature();
-		result += LIBRARY->combatValues->getAIValue(creature) * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
+		result += LIBRARY->creh->getCombatValue().getAIValue(creature) * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
 	}
 
 	return result;

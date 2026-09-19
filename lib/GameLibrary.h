@@ -40,7 +40,6 @@ class IHandlerBase;
 class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
-class CombatValue;
 class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
@@ -108,8 +107,6 @@ public:
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
 	std::unique_ptr<scripting::Service> scriptHandler;
-	/// Estimates combat value of a creature or a battle unit
-	std::unique_ptr<CombatValue> combatValues;
 
 	GameLibrary();
 	~GameLibrary();

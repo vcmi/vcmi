@@ -59,6 +59,7 @@ public:
 	int64_t getAIValue(const ACreature & bearer, const Creature * type, const CombatValueContext & context) const;
 
 	int64_t getAIValue(const battle::Unit * unit) const;
+	int64_t getAIValue(const battle::Unit * unit, const CombatValueContext & context) const;
 
 	/// Same, but takes distance to enemy units into account
 	int64_t getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const;
@@ -83,6 +84,8 @@ public:
 	static double situationalSurvival(const ACreature & creature, const CombatValueContext & context);
 	/// Hit points that regeneration restores over a battle, per single creature in a stack
 	static double regeneratedHitPoints(const ACreature & creature, int count);
+	/// Stack size that value of a whole stack scales with, discounted for wounds
+	static double stackScale(const battle::Unit & unit);
 	/// Stack size that a creature is valued at, so that value depends only on bonuses of the unit
 	static int referenceCount(const Creature * creature);
 	/// Fraction of a battle that a creature spends attacking rather than approaching the enemy

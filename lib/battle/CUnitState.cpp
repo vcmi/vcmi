@@ -580,24 +580,19 @@ int64_t CUnitState::getTotalHealth() const
 
 uint64_t CUnitState::estimateCombatValue() const
 {
-	return estimateCombatValue(LIBRARY->combatValues->averageBattle());
+	return estimateCombatValue(LIBRARY->creh->getCombatValue().averageBattle());
 }
 
 uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) const
 {
 	const auto perCreature = combatValue.getValue(
-		[this, &context] { return static_cast<int>(LIBRARY->combatValues->getAIValue(*this, unitType(), context)); },
+		[this, &context] { return static_cast<int>(LIBRARY->creh->getCombatValue().getAIValue(*this, unitType(), context)); },
 		context.id());
 
-	const auto count = getCount();
-
-	if(perCreature <= 0 || count <= 0)
+	if(perCreature <= 0)
 		return 0;
 
-	// wounds reduce survivability of a stack but not its damage, so value scales between the two counts
-	const double effectiveCount = static_cast<double>(getAvailableHealth()) / getMaxHealth();
-
-	return std::llround(perCreature * std::sqrt(count * effectiveCount));
+	return std::llround(perCreature * CombatValue::stackScale(*this));
 }
 
 uint32_t CUnitState::getMaxHealth() const

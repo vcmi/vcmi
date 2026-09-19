@@ -130,6 +130,33 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
+float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const DamageCache & damageCache) const
+{
+	float result = 0;
+
+	for(const auto * unit : units)
+	{
+		const auto * before = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
+
+		// a unit the spell summoned or destroyed is worth what its health is worth, counted elsewhere
+		if(!before || !before->alive() || !unit->alive())
+			continue;
+
+		const auto & context = damageCache.facing.at(unit->unitSide());
+		const auto gainedPerCreature = LIBRARY->creh->getCombatValue().getAIValue(unit, context) - damageCache.getOriginalValue(unit);
+
+		// stack size is taken from before the cast, so that health the spell changed is not counted twice
+		const float gained = gainedPerCreature * CombatValue::stackScale(*before);
+		const float forUs = unit->unitSide() == side ? gained : -gained;
+
+		result += forUs * (forUs > 0
+			? scoreEvaluator.getPositiveEffectMultiplier()
+			: scoreEvaluator.getNegativeEffectMultiplier());
+	}
+
+	return result;
+}
+
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
 	if(!stack->canCast())
@@ -807,6 +834,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				float stackActionScore = 0;
 				float damageToHostilesScore = 0;
 				float damageToFriendliesScore = 0;
+				float bonusEffectsScore = scoreBonusEffects(allUnits, innerCache);
 
 				if(needFullEval || !cachedAttack.ap)
 				{
@@ -875,7 +903,8 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 								|| unit->isClone()
 								|| unit->isGhost();
 
-							if(ourUnit && goodEffect && isMagical)
+							// healing a conjured unit of ours buys nothing, it leaves when the battle ends
+							if(ourUnit == 1 && isMagical)
 								continue;
 
 							damageToHostilesScore += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
@@ -916,15 +945,15 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				if (vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
 				{
-					ps.value = damageToFriendliesScore + damageToHostilesScore;
+					ps.value = damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
 				}
 				else
 				{
-					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
+					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
 				}
 
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore);
+				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f, bonuses: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore, bonusEffectsScore);
 #endif
 			}
 #if BATTLE_TRACE_LEVEL == 0
@@ -958,64 +987,32 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	return false;
 }
 
-//Below method works only for offensive spells
 void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
 {
-	using ValueMap = PossibleSpellcast::ValueMap;
-
-	RNGStub rngStub;
 	HypotheticBattle state(env.get(), cb->getBattle(battleID));
-	TStacks all = cb->getBattle(battleID)->battleGetAllStacks(false);
-
-	ValueMap healthOfStack;
-	ValueMap newHealthOfStack;
-
-	for(auto unit : all)
-	{
-		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
-	}
-
 
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
-	for(auto unit : all)
+	float totalGain = 0;
+
+	for(const auto * after : state.battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); }))
 	{
-		auto unitId = unit->unitId();
-		auto localUnit = state.battleGetUnitByID(unitId);
-		newHealthOfStack[unitId] = localUnit->getAvailableHealth();
-	}
+		const auto & context = damageCache.facing.at(after->unitSide());
+		const auto * before = cb->getBattle(battleID)->battleGetUnitByID(after->unitId());
 
-	int64_t totalGain = 0;
+		// a unit that the spell summoned had no value before it, and is worth everything it brings
+		const auto valueBefore = before ? before->estimateCombatValue(context) : 0;
+		const float gained = static_cast<float>(after->estimateCombatValue(context)) - valueBefore;
+		const float forUs = after->unitSide() == side ? gained : -gained;
 
-	for(auto unit : all)
-	{
-		auto unitId = unit->unitId();
-		auto localUnit = state.battleGetUnitByID(unitId);
-
-		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
-
-		if(localUnit->unitOwner() != cb->getBattle(battleID)->getPlayerID())
-			healthDiff = -healthDiff;
-
-		if(healthDiff < 0)
+		if(forUs < 0)
 		{
 			ps.value = -1;
-			return; //do not damage own units at all
+			return; //do not harm own units at all
 		}
 
-		totalGain += healthDiff;
-	}
-
-	// consider the case in which spell summons units
-	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
-		{
-			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
-		});
-
-	for(auto unit : newUnits)
-	{
-		totalGain += unit->getAvailableHealth();
+		totalGain += forUs;
 	}
 
 	ps.value = totalGain;

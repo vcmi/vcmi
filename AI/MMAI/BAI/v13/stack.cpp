@@ -103,7 +103,7 @@ int Stack::GetValue(const CCreature * creature)
 	if(!creature)
 		throw std::runtime_error("GetValue: nullptr given");
 
-	return static_cast<int>(std::lround(LIBRARY->combatValues->getAIValue(creature) * combatValueScale));
+	return static_cast<int>(std::lround(LIBRARY->creh->getCombatValue().getAIValue(creature) * combatValueScale));
 }
 
 // static

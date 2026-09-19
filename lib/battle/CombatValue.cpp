@@ -27,8 +27,9 @@
 /// Estimated length of an average battle, in rounds
 static constexpr int battleRounds = 8;
 
-/// Magic strength of a hero with a full spellbook and a few points of knowledge and spell power
-static constexpr double referenceMagicStrength = 1.25;
+/// Spell power and mana of a hero worth half of what a caster can be worth at most
+static constexpr double referenceSpellPower = 10;
+static constexpr double referenceMana = 100;
 
 /// Upper limit on the value of a hero as a caster, however high its magic strength is
 static constexpr double magicCap = 2.0;
@@ -57,15 +58,26 @@ static bool castsAtEnemies(const IBonusBearer * unit)
 	return false;
 }
 
+/// Magic that a hero brings to a battle, from the spell power of its casts and the mana paying for them
 static double magicOf(const CGHeroInstance * hero)
 {
-	if(!hero)
+	if(!hero || !hero->hasSpellbook())
 		return 0;
 
-	// saturating curve: each reference hero of magic strength halves the remaining headroom, giving 1.0 for the first
-	const double strength = std::max(0.0, hero->getMagicStrength() - 1.0);
+	const bool knowsCombatSpell = std::ranges::any_of(hero->getSpellsInSpellbook(),
+		[](const SpellID & spell) { return spell.toSpell()->isCombat(); });
 
-	return magicCap * (1.0 - std::exp2(-strength / (referenceMagicStrength - 1.0)));
+	if(!knowsCombatSpell)
+		return 0;
+
+	const double spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	const double mana = std::max(0, hero->mana);
+
+	// mana pays for the casts and spell power decides what each one does, so neither is worth anything alone
+	const double strength = spellPower * mana / (referenceSpellPower * referenceMana);
+
+	// saturating curve: each reference hero of magic halves the remaining headroom, giving half the cap for the first
+	return magicCap * (1.0 - std::exp2(-strength));
 }
 
 int32_t CombatValueContext::id() const
@@ -132,7 +144,7 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 	// no enemies left to describe, but the number of allies is still valid
 	if(total <= 0)
 	{
-		CombatValueContext result = LIBRARY->combatValues->averageBattle();
+		CombatValueContext result = LIBRARY->creh->getCombatValue().averageBattle();
 
 		result.allyCrowding = crowding;
 
@@ -244,6 +256,18 @@ static double lastingValue(const IBonusBearer * unit, BonusType type, const Bonu
 
 	for(const auto & bonus : *unit->getBonusesOfType(type, subtype))
 		total += bonus->val * durationWeight(*bonus);
+
+	return total;
+}
+
+/// Part of a primary skill that comes from bonuses due to expire, discounted by how soon they do.
+/// Skills are read as a single total, so what a spell added has to be subtracted back out of it
+static double expiringSkill(const IBonusBearer * unit, PrimarySkill skill)
+{
+	double total = 0;
+
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill)))
+		total += bonus->val * (1.0 - durationWeight(*bonus));
 
 	return total;
 }
@@ -413,7 +437,9 @@ double CombatValue::valueOf(const ACreature & creature, double uptime, int count
 		// damage is only fixed while the spell lasts, and opposed spells cancel out
 		const double damage = mean + (high - mean) * blessed - (mean - low) * cursed;
 
-		return damage * offenseAt(static_cast<int>(std::lround(creature.getAttack(shooting) + attackBonus)));
+		const double attack = creature.getAttack(shooting) - expiringSkill(bonuses, PrimarySkill::ATTACK) + attackBonus;
+
+		return damage * offenseAt(static_cast<int>(std::lround(attack)));
 	};
 
 	double ownOutput = strike(ranged) * attacksPerRound(creature) * targetsPerAttack(creature);
@@ -507,8 +533,9 @@ int CombatValue::effectiveDefense(const ACreature & creature)
 
 	// frenzy removes defense of its bearer for as long as it lasts
 	const double frenzied = lastingPresence(bonuses, BonusType::IN_FRENZY);
+	const double defense = creature.getDefense(false) - expiringSkill(bonuses, PrimarySkill::DEFENSE);
 
-	return static_cast<int>(std::lround((creature.getDefense(false) + stance) * (1.0 - frenzied)));
+	return static_cast<int>(std::lround((defense + stance) * (1.0 - frenzied)));
 }
 
 double CombatValue::retaliationSuffered(const ACreature & creature)
@@ -520,6 +547,20 @@ double CombatValue::retaliationSuffered(const ACreature & creature)
 	const bool safe = bonuses->hasBonusOfType(BonusType::SHOOTER) || bonuses->hasBonusOfType(BonusType::BLOCKS_RETALIATION);
 
 	return safe ? 0.0 : retaliationShare;
+}
+
+/// Turns a creature spends approaching before its first attack, averaged over the gaps it starts at
+static double approachTurns(int hexes, int speed)
+{
+	// the gap to the enemy varies by a few hexes with formation and with which target is chased
+	static constexpr int spread = 3;
+
+	double total = 0;
+
+	for(int gap = hexes - spread; gap <= hexes + spread; ++gap)
+		total += (std::max(1, gap) + speed - 1) / speed - 1;
+
+	return total / (2 * spread + 1);
 }
 
 double CombatValue::uptimeOf(const ACreature & creature)
@@ -536,8 +577,8 @@ double CombatValue::uptimeOf(const ACreature & creature, int hexesToEnemy)
 	const auto * bonuses = creature.getBonusBearer();
 	const int speed = std::max(1, static_cast<int>(creature.getMovementRange()));
 	const int hexes = std::max(0, hexesToEnemy);
-	const int turnsApproaching = (hexes + speed - 1) / speed - 1;
-	const double uptime = std::max(0.1, static_cast<double>(battleRounds - turnsApproaching) / battleRounds);
+	const double turnsApproaching = approachTurns(hexes, speed);
+	const double uptime = std::max(0.1, (battleRounds - turnsApproaching) / battleRounds);
 
 	if(bonuses->hasBonusOfType(BonusType::SHOOTER))
 		return uptime * shootingUptimeBonus;
@@ -561,8 +602,8 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	double result = 1.0;
 
 	// morale and luck grant extra turns and extra damage - about 2% per point
-	result *= 1.0 + unit->valOfBonuses(BonusType::MORALE) * 0.02;
-	result *= 1.0 + unit->valOfBonuses(BonusType::LUCK) * 0.02;
+	result *= 1.0 + lastingValue(unit, BonusType::MORALE) * 0.02;
+	result *= 1.0 + lastingValue(unit, BonusType::LUCK) * 0.02;
 
 	// loses the extra turns that an average creature gets from morale
 	if(unit->hasBonusOfType(BonusType::NO_MORALE))
@@ -570,10 +611,12 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 
 	result *= 1.0 + unit->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE) / 100.0;
 
-	// only one spell is cast per turn, however many the creature knows
+	// only one spell is cast per turn, however many the creature knows. A random spellcaster names no
+	// spell, so it is priced at the same level as an ability that belongs to no school
 	int bestSpellLevel = 0;
-	for(const auto & bonus : *unit->getBonusesOfType(BonusType::SPELLCASTER))
-		bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
+	for(auto type : {BonusType::SPELLCASTER, BonusType::RANDOM_SPELLCASTER})
+		for(const auto & bonus : *unit->getBonusesOfType(type))
+			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
 
 	result *= 1.0 + castWeight * bestSpellLevel;
 
@@ -741,6 +784,19 @@ double CombatValue::regeneratedHitPoints(const ACreature & creature, int count)
 	return static_cast<double>(healed) / count;
 }
 
+double CombatValue::stackScale(const battle::Unit & unit)
+{
+	const auto count = unit.getCount();
+
+	if(count <= 0)
+		return 0;
+
+	// wounds reduce survivability of a stack but not its damage, so value scales between the two counts
+	const double effectiveCount = static_cast<double>(unit.getAvailableHealth()) / unit.getMaxHealth();
+
+	return std::sqrt(count * effectiveCount);
+}
+
 int CombatValue::referenceCount(const Creature * creature)
 {
 	static constexpr int referenceWeeks = 6;
@@ -790,6 +846,11 @@ int64_t CombatValue::getAIValue(const Creature * creature) const
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const
 {
 	return getAIValue(*unit, unit->unitType());
+}
+
+int64_t CombatValue::getAIValue(const battle::Unit * unit, const CombatValueContext & context) const
+{
+	return getAIValue(*unit, unit->unitType(), context);
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const

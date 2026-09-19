@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/battle/CombatValue.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
@@ -745,11 +746,11 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 					// creature at given slot might have alternative upgrades, pick best one
 					CreatureID upgID = *vstd::maxElementByFun(upgradeInfo.getAvailableUpgrades(), [](const CreatureID & id)
 						{
-							return LIBRARY->combatValues->getAIValue(id.toCreature());
+							return LIBRARY->creh->getCombatValue().getAIValue(id.toCreature());
 						});
 
-					int oldValue = LIBRARY->combatValues->getAIValue(s->getCreature());
-					int newValue = LIBRARY->combatValues->getAIValue(upgID.toCreature());
+					auto oldValue = LIBRARY->creh->getCombatValue().getAIValue(s->getCreature());
+					auto newValue = LIBRARY->creh->getCombatValue().getAIValue(upgID.toCreature());
 
 					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{

@@ -11,6 +11,7 @@
 #include "AINodeStorage.h"
 
 #include "../../../lib/battle/CombatValue.h"
+#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
@@ -345,7 +346,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
-						return pair.second->getCount() * LIBRARY->combatValues->getAIValue(pair.second->getCreatureID().toCreature());
+						return pair.second->getCount() * LIBRARY->creh->getCombatValue().getAIValue(pair.second->getCreatureID().toCreature());
 					});
 
 				if(weakest == dstNode->actor->creatureSet->Slots().end())
@@ -357,9 +358,9 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 				}
 
 				if(dstNode->actor->creatureSet->getFreeSlots().size())
-					dstNode->armyLoss += LIBRARY->combatValues->getAIValue(weakest->second->getCreatureID().toCreature());
+					dstNode->armyLoss += LIBRARY->creh->getCombatValue().getAIValue(weakest->second->getCreatureID().toCreature());
 				else
-					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * LIBRARY->combatValues->getAIValue(weakest->second->getCreatureID().toCreature());
+					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * LIBRARY->creh->getCombatValue().getAIValue(weakest->second->getCreatureID().toCreature());
 
 				dstNode->specialAction = AIPathfinding::WhirlpoolAction::instance;
 			}
