@@ -139,6 +139,9 @@ void GameEngine::updateFrame()
 {
 	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
+	// under the lock: netpacks load and re-cache the same assets from the network thread
+	renderHandler().reclaimEvictedAssets();
+
 	engineUser->onUpdate();
 
 	handleEvents();
