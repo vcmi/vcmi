@@ -82,6 +82,9 @@ public:
 	bool isContactAllowed(PlayerColor left, PlayerColor right) const;
 	bool isPlayerMakingTurn(PlayerColor which) const;
 
+	/// Returns true if simultaneous turns may still be played on the current day
+	bool isSimturnsActive() const;
+
 	/// Add new player to handle (e.g. on game start)
 	void addPlayer(PlayerColor which);
 

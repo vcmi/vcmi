@@ -179,6 +179,19 @@ public:
 	/// Unlike initPlayerInterfaces() this never creates any AI and never talks to the server.
 	void installObserverInterface(PlayerColor color);
 
+	/// Adds a human interface that only watches the game, without owning any player.
+	/// Requires session/spectate to be set, see CClient::battleStarted().
+	void installSpectatorInterface();
+	void removeSpectatorInterface();
+
+	/// Starts a turn on this client only, without asking the server for one.
+	void giveTurnLocally(PlayerColor color);
+
+	/// The gosolo cheat: hands every human player on this client to an AI, showing as much of the
+	/// game as the mode asks for, or gives control back. Expects the interface mutex to be held, and
+	/// must not be called from a netpack visitor - it replaces the very interfaces those iterate over.
+	void toggleAiSolo(EAiSoloMode mode);
+
 	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override; //returns ID given to that request
 	std::optional<BattleAction> makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
