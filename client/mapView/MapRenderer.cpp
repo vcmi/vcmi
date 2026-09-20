@@ -12,6 +12,7 @@
 #include "MapRenderer.h"
 
 #include "IMapRendererContext.h"
+#include "MapRendererContextState.h"
 #include "mapHandler.h"
 
 #include "../CPlayerInterface.h"
@@ -570,10 +571,28 @@ void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & ta
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
+	const auto & objects = context.getObjects(coordinates);
+
 	const CGObjectInstance * activeHero = nullptr;
 	bool activeHeroCovered = false;
 
-	for(const auto & objectID : context.getObjects(coordinates))
+	const auto draw = [&](const CGObjectInstance * object)
+	{
+		if(context.isActiveHero(object))
+			activeHero = object;
+		else if(activeHero)
+			activeHeroCovered = true;
+
+		renderObject(context, target, coordinates, object);
+	};
+
+	// Like in H3 heroes and boats are not ordered with other objects but drawn between fixed layers of the tile.
+	// Each is kept with its horizontal offset, which orders neighbours from left to right
+	using SlotObjects = boost::container::small_vector<std::pair<int, const CGObjectInstance *>, 4>;
+	SlotObjects bodyRow; // tile is in the row on which the hero stands
+	SlotObjects headRow; // tile is above that row, only the top of the hero reaches it
+
+	for(const auto & objectID : objects)
 	{
 		const auto * objectInstance = context.getObject(objectID);
 
@@ -584,12 +603,51 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 			continue;
 		}
 
-		if(context.isActiveHero(objectInstance))
-			activeHero = objectInstance;
-		else if(activeHero)
-			activeHeroCovered = true;
+		if(!MapRendererContextState::usesFixedDrawSlot(objectInstance))
+			continue;
 
-		renderObject(context, target, coordinates, objectInstance);
+		const Point offset = context.objectImageOffset(objectID, coordinates);
+		auto & slot = offset.y < 16 ? bodyRow : headRow;
+		slot.emplace_back(offset.x, objectInstance);
+	}
+
+	if(bodyRow.empty() && headRow.empty())
+	{
+		for(const auto & objectID : objects)
+			if(const auto * objectInstance = context.getObject(objectID))
+				draw(objectInstance);
+	}
+	else
+	{
+		const auto drawLayers = [&](ui8 lowest, ui8 highest)
+		{
+			for(const auto & objectID : objects)
+			{
+				const auto * objectInstance = context.getObject(objectID);
+
+				if(!objectInstance || MapRendererContextState::usesFixedDrawSlot(objectInstance))
+					continue;
+
+				const ui8 layer = objectInstance->drawLayerAt(coordinates);
+
+				if(layer >= lowest && layer <= highest)
+					draw(objectInstance);
+			}
+		};
+
+		const auto drawSlot = [&](SlotObjects & slot)
+		{
+			std::stable_sort(slot.begin(), slot.end(), [](const auto & left, const auto & right) { return left.first < right.first; });
+
+			for(const auto & entry : slot)
+				draw(entry.second);
+		};
+
+		drawLayers(0, 1);
+		drawSlot(bodyRow);
+		drawLayers(2, 2);
+		drawSlot(headRow);
+		drawLayers(3, 255);
 	}
 
 	// Like H3, draw the active hero a second time on top of the objects that cover him,
