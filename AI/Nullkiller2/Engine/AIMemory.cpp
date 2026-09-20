@@ -60,10 +60,14 @@ void AIMemory::addVisitableObject(const CGObjectInstance * obj)
 	}
 }
 
-void AIMemory::markObjectVisited(const CGObjectInstance * obj)
+void AIMemory::markObjectVisited(const CGObjectInstance * obj, const CCallback & cc)
 {
 	if(!obj)
 		return;
+
+	RewardableObjectInfo rewardableInfo;
+	const bool rewardable = cc.getRewardableObjectInfo(obj, rewardableInfo);
+	if(rewardable && (!rewardableInfo.scouted || !rewardableInfo.rewardAvailable || rewardableInfo.guardStrength > 0)) return;
 
 	// TODO: maybe this logic belongs to CaptureObjects::shouldVisit
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))

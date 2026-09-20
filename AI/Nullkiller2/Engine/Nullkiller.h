@@ -35,8 +35,6 @@ enum class HeroLockedReason
 {
 	NOT_LOCKED = 0,
 
-	STARTUP = 1,
-
 	DEFENCE = 2,
 
 	HERO_CHAIN = 3

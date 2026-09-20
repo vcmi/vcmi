@@ -37,8 +37,6 @@ namespace Goals
 			bid = buildingInfo.id.getNum();
 			town = townInfo.town;
 		}
-		BuildThis(BuildingID Bid, const CGTownInstance * tid);
-
 		bool operator==(const BuildThis & other) const override;
 		std::string toString() const override;
 		void accept(AIGateway * aiGw) override;

@@ -16,6 +16,7 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../spells/CSpell.h"
@@ -123,6 +124,60 @@ const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId,
 	}
 
 	return ret;
+}
+
+bool CGameInfoCallback::getRewardableObjectInfo(const CGObjectInstance * object, RewardableObjectInfo & out, const CGHeroInstance * hero) const
+{
+	out = {};
+
+	const auto * rewardable = dynamic_cast<const CRewardableObject *>(object);
+	if(!rewardable)
+		return false;
+
+	auto player = getPlayerID();
+	const bool visited = hero ? rewardable->wasVisited(hero) : player.has_value() && rewardable->wasVisited(*player);
+	out.scouted = !player.has_value() || rewardable->wasScouted(*player);
+
+	if(out.scouted)
+	{
+		std::vector<ui32> rewardIndices;
+		if(!visited)
+			rewardIndices = rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		const bool guardedReward = std::any_of(
+			rewardable->configuration.info.begin(),
+			rewardable->configuration.info.end(),
+			[](const Rewardable::VisitInfo & info)
+			{
+				return info.visitType == Rewardable::EEventType::EVENT_FIRST_VISIT && !info.reward.guards.empty();
+			});
+		const bool showRewardPreview = !guardedReward && rewardable->configuration.showScoutedPreview;
+		out.rewardAvailable = !rewardIndices.empty();
+		out.rewardValueKnown = showRewardPreview;
+
+		if(guardedReward || showRewardPreview)
+		{
+			for(auto index : rewardIndices)
+			{
+				const auto & reward = rewardable->configuration.info[index].reward;
+				if(showRewardPreview)
+				{
+					out.rewards.push_back(reward);
+				}
+				else
+				{
+					Rewardable::Reward visibleReward;
+					visibleReward.resources = reward.resources;
+					visibleReward.creatures = reward.creatures;
+					out.rewards.push_back(std::move(visibleReward));
+				}
+			}
+		}
+
+		if(const auto * armed = dynamic_cast<const CArmedInstance *>(object))
+			out.guardStrength = armed->getArmyStrength();
+	}
+
+	return true;
 }
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const
