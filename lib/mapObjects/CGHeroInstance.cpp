@@ -938,7 +938,25 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
 		}
-		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
+
+		if(hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId())))
+			return true;
+
+		bool hasMatchingSchoolLevelBonus = false;
+		spell->forEachSchool([this, spell, &hasMatchingSchoolLevelBonus](const SpellSchool & cnf, bool & stop)
+		{
+			for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL_LEVEL, cnf))
+			{
+				if(bonus->val == spell->getLevel())
+				{
+					hasMatchingSchoolLevelBonus = true;
+					stop = true;
+					return;
+				}
+			}
+		});
+
+		return hasMatchingSchoolLevelBonus;
 	}
 	else if(!cb->isAllowed(spell->getId()))
 	{
@@ -1281,16 +1299,36 @@ std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & sp
 	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
 		sources.emplace_back(bonus->sid);
 
+	const auto spell = spellId.toSpell();
+	const auto addSchoolLevelSources = [this, &sources, spell]()
+	{
+		spell->forEachSchool([this, &sources, spell](const SpellSchool & cnf, bool & stop)
+		{
+			for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL_LEVEL, cnf))
+			{
+				if(bonus->val == spell->getLevel())
+					sources.emplace_back(bonus->sid);
+			}
+		});
+	};
+
+	if(spell->isSpecial())
+	{
+		addSchoolLevelSources();
+		return sources;
+	}
+
 	bool tomesGrantBannedSpells = cb->getSettings().getBoolean(EGameSettings::SPELLS_TOMES_GRANT_BANNED_SPELLS);
 
 	if (tomesGrantBannedSpells || cb->isAllowed(spellId))
 	{
-		const auto spell = spellId.toSpell();
 		spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
 		{
 			for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
 				sources.emplace_back(bonus->sid);
 		});
+
+		addSchoolLevelSources();
 
 		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
 			sources.emplace_back(bonus->sid);

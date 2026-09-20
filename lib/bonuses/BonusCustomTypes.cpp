@@ -94,6 +94,7 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 		case BonusType::MAGIC_SCHOOL_SKILL:
 		case BonusType::SPELL_DAMAGE:
 		case BonusType::SPELLS_OF_SCHOOL:
+		case BonusType::SPELLS_OF_SCHOOL_LEVEL:
 		case BonusType::SPELL_DAMAGE_REDUCTION:
 		case BonusType::SPELL_SCHOOL_IMMUNITY:
 		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:

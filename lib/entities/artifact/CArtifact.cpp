@@ -15,6 +15,7 @@
 #include "CArtifactFittingSet.h"
 
 #include "../../bonuses/Limiters.h"
+#include "../../spells/CSpellHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
@@ -294,12 +295,33 @@ bool CChargedArtifact::getRemoveOnDepletion() const
 std::optional<uint16_t> CChargedArtifact::getChargeCost(const SpellID & id) const
 {
 	auto art = static_cast<const CArtifact*>(this);
+	const auto spell = id.toSpell();
 
 	for(const auto & bonus : art->instanceBonuses)
 	{
+		const auto chargesLimiter = std::dynamic_pointer_cast<const HasChargesLimiter>(bonus->limiter);
+		if(!chargesLimiter)
+			continue;
+
 		if(bonus->type == BonusType::SPELL && bonus->subtype.as<SpellID>() == id)
+			return chargesLimiter->chargeCost;
+
+		if(bonus->type == BonusType::SPELLS_OF_LEVEL && bonus->subtype == BonusCustomSubtype::spellLevel(spell->getLevel()))
+			return chargesLimiter->chargeCost;
+
+		if(bonus->type == BonusType::SPELLS_OF_SCHOOL || bonus->type == BonusType::SPELLS_OF_SCHOOL_LEVEL)
 		{
-			if(const auto chargesLimiter = std::static_pointer_cast<const HasChargesLimiter>(bonus->limiter))
+			if(bonus->type == BonusType::SPELLS_OF_SCHOOL_LEVEL && bonus->val != spell->getLevel())
+				continue;
+
+			bool matchingSchool = false;
+			spell->forEachSchool([bonus, &matchingSchool](const SpellSchool & school, bool & stop)
+			{
+				matchingSchool = bonus->subtype == school;
+				stop = matchingSchool;
+			});
+
+			if(matchingSchool)
 				return chargesLimiter->chargeCost;
 		}
 	}

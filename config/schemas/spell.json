@@ -436,7 +436,7 @@
 				},
 				"special" : {
 						"type" : "boolean",
-						"description" : "Special spell. Can be given only by BonusType::SPELL"
+						"description" : "Special spell. Can be given by BonusType::SPELL or BonusType::SPELLS_OF_SCHOOL_LEVEL"
 				},
 				"nonMagical" : {
 					"type" : "boolean",
