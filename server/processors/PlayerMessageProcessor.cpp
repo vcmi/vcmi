@@ -524,18 +524,19 @@ void PlayerMessageProcessor::cheatAiSolo(PlayerColor player, const std::vector<s
 	// the toggle itself is client side - the server only relays who asked for it, and in which mode
 	static const std::map<std::string, EAiSoloMode> modes = {
 		{"infinite",               EAiSoloMode::CONTINUOUS},
-		{"spectate",               EAiSoloMode::SPECTATE_ALL},
-		{"spectatewithoutbattles", EAiSoloMode::SPECTATE_NO_BATTLES},
+		{"skipbattles",            EAiSoloMode::SKIP_BATTLES},
 		{"hidden",                 EAiSoloMode::HIDDEN},
 	};
 
-	EAiSoloMode mode = EAiSoloMode::SINGLE_TURN;
+	EAiSoloMode mode = EAiSoloMode::ASK_EACH_TURN;
 	if(!words.empty())
 	{
 		auto requested = modes.find(boost::to_lower_copy(words.front()));
 		if(requested == modes.end())
 		{
-			broadcastSystemMessage("Unknown gosolo mode " + words.front() + ", expected one of: infinite, spectate, spectatewithoutbattles, hidden");
+			MetaString msg = MetaString::createFromTextID("vcmi.broadcast.aiSolo.unknownMode");
+			msg.replaceRawString(words.front());
+			broadcastSystemMessage(msg);
 			return;
 		}
 		mode = requested->second;
@@ -550,17 +551,17 @@ void PlayerMessageProcessor::cheatAiSolo(PlayerColor player, const std::vector<s
 	// is acceptable while somebody else is playing next to him
 	const bool sharedGame = humanPlayers > 1 || gameHandler->turnOrder->isSimturnsActive();
 
-	if(sharedGame && mode != EAiSoloMode::SINGLE_TURN && mode != EAiSoloMode::CONTINUOUS)
+	if(sharedGame && mode != EAiSoloMode::ASK_EACH_TURN && mode != EAiSoloMode::CONTINUOUS)
 	{
-		broadcastSystemMessage("Only gosolo and gosolo infinite are available in multiplayer and while simultaneous turns last");
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.aiSolo.sharedGame"));
 		return;
 	}
 
 	PlayerCheated pc;
 	pc.player = player;
 	pc.aiSolo = mode;
-	// watching the enemies means seeing what the player could not, everything else only delegates his own turn
-	pc.localOnlyCheat = mode != EAiSoloMode::SPECTATE_ALL && mode != EAiSoloMode::SPECTATE_NO_BATTLES;
+	// alone, watching the enemies counts as cheating
+	pc.localOnlyCheat = sharedGame || mode == EAiSoloMode::HIDDEN;
 	gameHandler->sendAndApply(pc);
 }
 

@@ -437,6 +437,8 @@
 	"vcmi.bonusSource.hero": "Hero",
 	"vcmi.bonusSource.other": "Other",
 	"vcmi.bonusSource.spell": "Spell",
+	"vcmi.broadcast.aiSolo.sharedGame": "Only gosolo and gosolo infinite are available in multiplayer and while simultaneous turns last",
+	"vcmi.broadcast.aiSolo.unknownMode": "Unknown gosolo mode %s, expected one of: infinite, skipbattles, hidden",
 	"vcmi.broadcast.command": "Use '!help' to list available commands",
 	"vcmi.broadcast.failedLoadGame": "Failed to load game",
 	"vcmi.broadcast.gameSavedAs": "game saved as",

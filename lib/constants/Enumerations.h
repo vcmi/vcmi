@@ -242,10 +242,9 @@ enum class ColorScheme : int8_t
 enum class EAiSoloMode : int8_t
 {
 	NONE,         // no AI is playing for the player
-	SINGLE_TURN,  // asks after every turn whether the AI shall keep playing
-	CONTINUOUS,   // plays on, watched with the player's own vision
-	SPECTATE_ALL, // plays on, enemy turns and the whole map are shown as well
-	SPECTATE_NO_BATTLES, // as SPECTATE_ALL, but combats are not shown
+	ASK_EACH_TURN, // asks after every turn whether the AI shall keep playing, carries on if unanswered
+	CONTINUOUS,   // plays on without asking
+	SKIP_BATTLES, // as CONTINUOUS, but combats are not shown
 	HIDDEN        // plays on, without any interface at all
 };
 

@@ -47,7 +47,6 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/CThreadHelper.h"
 
 // TODO: as Tow suggested these template should all be part of CClient
 // This will require rework spectator interface properly though
@@ -117,18 +116,17 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 	}
 }
 
-/// gosolo replaces the very interfaces a netpack visitor iterates over, so it gets a thread of its own
-static void requestAiSoloToggle(EAiSoloMode mode)
-{
-	std::thread toggleThread([mode]()
-	{
-		setThreadName("aiSolo");
-		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+/// as in H3, the AI keeps playing if the prompt after its turn is left unanswered
+static constexpr uint32_t aiSoloPromptTimeoutMs = 2000;
 
+/// gosolo replaces the very interfaces a netpack visitor iterates over, so it runs after the visitor
+static void requestAiSoloToggle(EAiSoloMode mode, bool ownVision = false)
+{
+	ENGINE->dispatchMainThread([mode, ownVision]()
+	{
 		if(GAME->server().client)
-			GAME->server().client->toggleAiSolo(mode);
+			GAME->server().client->toggleAiSolo(mode, ownVision);
 	});
-	toggleThread.detach();
 }
 
 /// Gives control back, but never in the middle of a turn the AI is still playing
@@ -1016,13 +1014,15 @@ void ApplyClientNetPackVisitor::visitPlayerEndsTurn(PlayerEndsTurn & pack)
 		return;
 	}
 
-	// gosolo without a mode hands over a single turn, ask whether the AI shall keep playing
+	// gosolo without a mode asks after every turn whether the AI shall keep playing
 	if(settings["session"]["aiSoloAskEachTurn"].Bool())
 	{
 		GAME->interface()->showYesNoDialog(
 			LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmAiSoloContinue"),
 			nullptr,
-			requestAiSoloStop);
+			requestAiSoloStop,
+			{},
+			aiSoloPromptTimeoutMs);
 	}
 }
 
@@ -1184,7 +1184,7 @@ void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
 		if(settings["session"]["aiSolo"].Bool())
 			requestAiSoloStop();
 		else
-			requestAiSoloToggle(pack.aiSolo);
+			requestAiSoloToggle(pack.aiSolo, pack.localOnlyCheat); // only a counted cheat may reveal the enemies
 	}
 }
 

@@ -190,7 +190,7 @@ public:
 	/// The gosolo cheat: hands every human player on this client to an AI, showing as much of the
 	/// game as the mode asks for, or gives control back. Expects the interface mutex to be held, and
 	/// must not be called from a netpack visitor - it replaces the very interfaces those iterate over.
-	void toggleAiSolo(EAiSoloMode mode);
+	void toggleAiSolo(EAiSoloMode mode, bool ownVision = false);
 
 	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override; //returns ID given to that request
 	std::optional<BattleAction> makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;

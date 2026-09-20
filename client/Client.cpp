@@ -407,7 +407,7 @@ void CClient::giveTurnLocally(PlayerColor color)
 	yt.visit(visitor);
 }
 
-void CClient::toggleAiSolo(EAiSoloMode mode)
+void CClient::toggleAiSolo(EAiSoloMode mode, bool ownVision)
 {
 	Settings session = settings.write["session"];
 
@@ -478,10 +478,10 @@ void CClient::toggleAiSolo(EAiSoloMode mode)
 
 	// set before the AI starts acting - the map renderer and battleStarted() read these right away
 	session["aiSolo"].Bool() = true;
-	session["aiSoloAskEachTurn"].Bool() = mode == EAiSoloMode::SINGLE_TURN;
+	session["aiSoloAskEachTurn"].Bool() = mode == EAiSoloMode::ASK_EACH_TURN;
 	session["aiSoloStopRequested"].Bool() = false;
-	session["spectate-own-vision"].Bool() = mode == EAiSoloMode::SINGLE_TURN || mode == EAiSoloMode::CONTINUOUS;
-	session["spectate-skip-battle"].Bool() = mode == EAiSoloMode::SPECTATE_NO_BATTLES;
+	session["spectate-own-vision"].Bool() = ownVision;
+	session["spectate-skip-battle"].Bool() = mode == EAiSoloMode::SKIP_BATTLES;
 	// the AI answers the battle end query, so a result window would only be in the way
 	session["spectate-skip-battle-result"].Bool() = true;
 
