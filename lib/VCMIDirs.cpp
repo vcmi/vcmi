@@ -590,4 +590,24 @@ namespace VCMIDirs
 		std::call_once(flag, [] { singleton.init(); });
 		return singleton;
 	}
+
+	const std::string & appIdentifier()
+	{
+		static const std::string identifier = []() -> std::string
+		{
+#ifdef VCMI_ANDROID
+			// package name differs between release, daily and debug builds
+			CAndroidVMHelper envHelper;
+			return envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "applicationId");
+#elif defined(VCMI_FLATPAK)
+			return "eu.vcmi.VCMI";
+#elif defined(VCMI_XDG)
+			// matches vcmiclient.desktop, which is needed for window icon lookup
+			return "vcmiclient";
+#else
+			return "eu.vcmi.VCMI";
+#endif
+		}();
+		return identifier;
+	}
 }

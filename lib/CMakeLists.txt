@@ -892,3 +892,7 @@ endif()
 if(VCMI_PORTMASTER)
 	target_compile_definitions(vcmiMain PRIVATE VCMI_PORTMASTER)
 endif()
+
+if(VCMI_FLATPAK)
+	target_compile_definitions(vcmiMain PRIVATE VCMI_FLATPAK)
+endif()

@@ -273,16 +273,12 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 #endif
 }
 
-#ifdef VCMI_ANDROID
-static constexpr auto appIdentifier = "is.xyz.vcmi";
-#else
-static constexpr auto appIdentifier = "eu.vcmi.VCMI";
-#endif
-
 /// Fills in the metadata SDL3 uses for OS integration (About dialogs, window manager
 /// tooltips, crash reporters, etc). Must run before SDL_Init to take effect everywhere.
 static void setApplicationMetadata()
 {
+	const char * appIdentifier = VCMIDirs::appIdentifier().c_str();
+
 	SDL_SetAppMetadata(GameConstants::VCMI_PROJECT_NAME, GameConstants::VCMI_VERSION, appIdentifier);
 
 	auto time = std::time(nullptr);
