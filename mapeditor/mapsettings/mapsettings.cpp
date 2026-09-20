@@ -90,7 +90,7 @@ void MapSettings::on_pushButton_clicked()
 		{
 			auto * item = widget->item(i);
 			if (item->checkState() == Qt::Checked)
-				arr.emplace(i);
+				arr.emplace(item->data(Qt::UserRole).toInt());
 		}
 	};
 	

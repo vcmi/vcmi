@@ -34,10 +34,10 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	ui->setupUi(this);
 	Helper::decorateDialog(this);
 
-	ui->labelAttack->setText(QString::fromStdString(NPrimarySkill::names[0]));
-	ui->labelDefence->setText(QString::fromStdString(NPrimarySkill::names[1]));
-	ui->labelPower->setText(QString::fromStdString(NPrimarySkill::names[2]));
-	ui->labelKnowledge->setText(QString::fromStdString(NPrimarySkill::names[3]));
+	ui->labelAttack->setText(QString::fromUtf8(NPrimarySkill::names[0]));
+	ui->labelDefence->setText(QString::fromUtf8(NPrimarySkill::names[1]));
+	ui->labelPower->setText(QString::fromUtf8(NPrimarySkill::names[2]));
+	ui->labelKnowledge->setText(QString::fromUtf8(NPrimarySkill::names[3]));
 	
 	auto * delegate = new InspectorDelegate;
 	for(auto const & s : LIBRARY->skillh->objects)

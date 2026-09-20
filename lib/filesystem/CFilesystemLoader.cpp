@@ -24,7 +24,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 		fileList = listFiles(mountPoint, depth, initial);
 	}
 	catch (const boost::filesystem::filesystem_error & e) {
-		throw DataLoadingException("Failed to load content of '" + baseDirectory.string() + "'. Reason: " + e.what());
+		throw DataLoadingException("Failed to load content of '" + TextOperations::filesystemPathToUtf8(baseDirectory) + "'. Reason: " + e.what());
 	}
 
 	logGlobal->trace("File system loaded, %d files found", fileList.size());
@@ -36,7 +36,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resou
 
 	assert(fileList.contains(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
-	logGlobal->trace("loading %s", file.string());
+	logGlobal->trace("loading %s", TextOperations::filesystemPathToUtf8(file));
 	return std::make_unique<CFileInputStream>(file);
 }
 
@@ -184,7 +184,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 			type = EResType::DIRECTORY;
 		}
 		else
-			type = EResTypeHelper::getTypeFromExtension(it->path().extension().string());
+			type = EResTypeHelper::getTypeFromExtension(TextOperations::filesystemPathToUtf8(it->path().extension()));
 
 		if (!initial || vstd::contains(initialTypes, type))
 		{

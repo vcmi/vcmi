@@ -36,6 +36,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/modding/IdentifierStorage.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -252,7 +253,7 @@ int main(int argc, char * argv[])
 	logConfigurator.configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
-	logGlobal->info("The log file will be saved to %s", logPath);
+	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
 
 	// Init filesystem and settings
 	try
@@ -321,7 +322,7 @@ int main(int argc, char * argv[])
 
 		testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
 		testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted!\nBuilt-in mod was not found!");
-		testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + VCMIDirs::get().userDataPath().string() + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
+		testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + TextOperations::filesystemPathToUtf8(VCMIDirs::get().userDataPath()) + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
 		testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
 		testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
 

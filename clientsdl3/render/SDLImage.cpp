@@ -25,6 +25,7 @@
 
 #include "lib/AsyncRunner.h"
 #include "lib/CConfigHandler.h"
+#include "lib/texts/TextOperations.h"
 
 #include <tbb/parallel_for.h>
 
@@ -57,11 +58,12 @@ SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group
 	savePalette();
 }
 
-SDLImageShared::SDLImageShared(SDL_Surface * from)
+SDLImageShared::SDLImageShared(SDL_Surface * from, bool premultipliedAlpha)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
-	originalPalette(nullptr)
+	originalPalette(nullptr),
+	premultipliedAlpha(premultipliedAlpha)
 {
 	surf = from;
 	if (surf == nullptr)
@@ -268,7 +270,7 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 	// Unlike the surface path this cannot test the alpha mask: SDL_CreateTextureFromSurface turns
 	// a paletted surface's color key into real alpha, so only a truly opaque image may skip blending
 	if(alpha != SDL_ALPHA_OPAQUE || mode != EImageBlitMode::OPAQUE)
-		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_BLEND);
+		SDL_SetTextureBlendMode(source, premultipliedAlpha ? SDL_BLENDMODE_BLEND_PREMULTIPLIED : SDL_BLENDMODE_BLEND);
 	else
 		SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
 
@@ -401,6 +403,10 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 	const auto & scalingTask = [self, algorithm, scaler]()
 	{
 		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
+
+		if (ENGINE->screenHandler().isSharpeningEnabled())
+			scaler->sharpenResult(ENGINE->screenHandler().getSharpeningStrength());
+
 		self->surf = scaler->acquireResultSurface();
 		self->fullSize = scaler->getResultDimensions().dimensions();
 		self->margins = scaler->getResultDimensions().topLeft();
@@ -501,7 +507,7 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, palette);
-	IMG_SavePNG(surf, path.string().c_str());
+	IMG_SavePNG(surf, TextOperations::filesystemPathToUtf8(path).c_str());
 	if (palette && CSDL_Ext::getPalette(surf))
 		SDL_SetSurfacePalette(surf, originalPalette);
 }

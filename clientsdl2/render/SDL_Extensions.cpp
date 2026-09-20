@@ -18,7 +18,7 @@
 #include "IScreenHandler.h"
 #include "render/Colors.h"
 #include "CMT.h"
-#include "xBRZ/xbrz.h"
+#include "filters/xBRZ/xbrz.h"
 
 #include "lib/GameConstants.h"
 

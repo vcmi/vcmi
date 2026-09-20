@@ -61,8 +61,11 @@ std::shared_ptr<SDLImageShared> TextTextureCache::getImage(EFonts font, const st
 	// rendered white so the same texture can be tinted to any color with SDL_SetTextureColorMod
 	fontPtr->renderText(surface, text, Colors::WHITE_TRUE, Point(0, 0));
 
+	// Blending onto a transparent surface leaves the color multiplied by its alpha, so the image
+	// is marked as premultiplied - drawing it as straight alpha would apply the glyph coverage a
+	// second time and wash out every antialiased edge.
 	// the image takes its own reference, so the surface created here is released again
-	auto result = std::make_shared<SDLImageShared>(surface);
+	auto result = std::make_shared<SDLImageShared>(surface, true);
 	SDL_DestroySurface(surface);
 
 	order.push_front(Entry{key, result});

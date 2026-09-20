@@ -12,7 +12,7 @@
 #include "CBattleInfoCallback.h"
 #include "IBattleState.h"
 
-class DLL_LINKAGE BattleProxy : public CBattleInfoCallback, public IBattleState
+class BattleProxy : public CBattleInfoCallback, public IBattleState
 {
 public:
 	using Subject = std::shared_ptr<CBattleInfoCallback>;

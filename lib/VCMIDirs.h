@@ -69,4 +69,7 @@ public:
 namespace VCMIDirs
 {
 	extern DLL_LINKAGE IVCMIDirs & get();
+
+	/// Application ID as known to the OS: package name on Android, desktop file name on Linux
+	extern DLL_LINKAGE const std::string & appIdentifier();
 }

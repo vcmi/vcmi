@@ -42,7 +42,7 @@ ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * paren
 			ui->possiblePositions->addItem(QString::fromStdString(NArtifactPosition::namesHero[slot.num]), slot.num);
 		}
 	}
-	ui->possiblePositions->addItem(QString::fromStdString(NArtifactPosition::backpack), ArtifactPosition::BACKPACK_START);
+	ui->possiblePositions->addItem(QString::fromUtf8(NArtifactPosition::backpack), ArtifactPosition::BACKPACK_START);
 	fillArtifacts();
 }
 

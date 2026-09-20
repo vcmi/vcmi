@@ -27,9 +27,11 @@
 #include "render/IRenderHandler.h"
 
 #include "lib/CConfigHandler.h"
+#include "lib/GameConstants.h"
 #include "lib/constants/StringConstants.h"
 #include "lib/VCMIDirs.h"
 #include "lib/texts/MetaString.h"
+#include "lib/texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
 
@@ -42,6 +44,7 @@
 #endif
 
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -171,12 +174,33 @@ int ScreenHandler::getScalingFactor() const
 	switch (upscalingFilter)
 	{
 		case EUpscalingFilter::NONE: return 1;
-		case EUpscalingFilter::XBRZ_2: return 2;
-		case EUpscalingFilter::XBRZ_3: return 3;
-		case EUpscalingFilter::XBRZ_4: return 4;
+		case EUpscalingFilter::XBRZ_2:
+		case EUpscalingFilter::XBRZ_2_RCAS: return 2;
+		case EUpscalingFilter::XBRZ_3:
+		case EUpscalingFilter::XBRZ_3_RCAS: return 3;
+		case EUpscalingFilter::XBRZ_4:
+		case EUpscalingFilter::XBRZ_4_RCAS: return 4;
 	}
 
 	throw std::runtime_error("invalid upscaling filter");
+}
+
+bool ScreenHandler::isSharpeningEnabled() const
+{
+	switch (upscalingFilter)
+	{
+		case EUpscalingFilter::XBRZ_2_RCAS:
+		case EUpscalingFilter::XBRZ_3_RCAS:
+		case EUpscalingFilter::XBRZ_4_RCAS:
+			return true;
+		default:
+			return false;
+	}
+}
+
+float ScreenHandler::getSharpeningStrength() const
+{
+	return settings["video"]["upscalingFilterSharpness"].Float();
 }
 
 Point ScreenHandler::getLogicalResolution() const
@@ -250,8 +274,32 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 #endif
 }
 
+/// Fills in the metadata SDL3 uses for OS integration (About dialogs, window manager
+/// tooltips, crash reporters, etc). Must run before SDL_Init to take effect everywhere.
+static void setApplicationMetadata()
+{
+	const char * appIdentifier = VCMIDirs::appIdentifier().c_str();
+
+	SDL_SetAppMetadata(GameConstants::VCMI_PROJECT_NAME, GameConstants::VCMI_VERSION, appIdentifier);
+
+	auto time = std::time(nullptr);
+	std::tm tm = vstd::safeLocalTime(time);
+	std::string copyright = "Copyright (C) 2007-" + std::to_string(tm.tm_year + 1900) + " VCMI dev team";
+	std::string version = std::string("VCMI ") + GameConstants::VCMI_VERSION;
+
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, GameConstants::VCMI_PROJECT_NAME);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, version.c_str());
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, appIdentifier);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "VCMI Team");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, copyright.c_str());
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://vcmi.eu");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
+}
+
 ScreenHandler::ScreenHandler()
 {
+	setApplicationMetadata();
+
 	// NOTE: SDL3 is always per-monitor DPI aware, so the Windows-specific
 	// SDL_HINT_WINDOWS_DPI_AWARENESS of SDL2 has no equivalent here
 	if(settings["video"]["allowPortrait"].Bool())
@@ -398,8 +446,11 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 		{"auto", EUpscalingFilter::AUTO },
 		{"none", EUpscalingFilter::NONE },
 		{"xbrz2", EUpscalingFilter::XBRZ_2 },
+		{"xbrz2rcas", EUpscalingFilter::XBRZ_2_RCAS },
 		{"xbrz3", EUpscalingFilter::XBRZ_3 },
-		{"xbrz4", EUpscalingFilter::XBRZ_4 }
+		{"xbrz3rcas", EUpscalingFilter::XBRZ_3_RCAS },
+		{"xbrz4", EUpscalingFilter::XBRZ_4 },
+		{"xbrz4rcas", EUpscalingFilter::XBRZ_4_RCAS }
 	};
 
 	auto filterName = settings["video"]["upscalingFilter"].String();
@@ -717,6 +768,9 @@ void ScreenHandler::clearLayer(size_t index)
 
 void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 {
+	// whatever was registered referred to canvases sized for the previous resolution
+	presentedCanvases = {};
+
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// The software driver supports render targets too, but rasterizes them on the CPU -
@@ -773,6 +827,7 @@ void ScreenHandler::destroyWindow()
 {
 	if(nullptr != GpuResources::get().renderer())
 	{
+		presentedCanvases = {};
 		GpuResources::get().destroyRenderer();
 	}
 
@@ -822,6 +877,9 @@ Canvas ScreenHandler::getLayerCanvas(GpuRenderLayer layer)
 
 	layerActive.at(index) = true;
 	layerReleasedMask &= ~(1u << index);
+
+	// this layer is drawn the ordinary way from now on
+	presentedCanvases.at(index) = PresentedCanvas{};
 
 	return Canvas::createFromRenderTarget(layerTextures.at(index), getLogicalResolution(), CanvasScalingPolicy::AUTO);
 }
@@ -928,12 +986,29 @@ void ScreenHandler::flushRenderCommands()
 	SDL_FlushRenderer(GpuResources::get().renderer());
 }
 
+void ScreenHandler::presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions)
+{
+	const size_t index = static_cast<size_t>(layer);
+
+	PresentedCanvas & presented = presentedCanvases.at(index);
+
+	presented.source = source.getRenderTargetTexture();
+	presented.regions = presented.source ? regions : std::vector<PresentedRegion>{};
+
+	// What is registered here is drawn instead of the layer, so the layer has to stop being
+	// composited - otherwise whatever it held last stays on screen on top of it. Only while it is
+	// still active, so that this does not clear an already empty layer every frame.
+	if(layerActive.at(index))
+		releaseLayer(layer);
+}
+
+void ScreenHandler::clearPresentedCanvas(GpuRenderLayer layer)
+{
+	presentedCanvases.at(static_cast<size_t>(layer)) = PresentedCanvas{};
+}
+
 void ScreenHandler::presentScreenTexture()
 {
-	// the memory cache gives assets up on whichever thread loaded one; freeing what they hold has
-	// to wait for this thread, where nothing is drawing from them
-	ENGINE->renderHandler().reclaimEvictedAssets();
-
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// a layer may still be bound from rendering into it
@@ -943,18 +1018,51 @@ void ScreenHandler::presentScreenTexture()
 		GpuResources::get().processPendingTextureDestruction();
 	}
 
+	composeFrame();
+	ENGINE->cursor().render();
+	SDL_RenderPresent(renderer);
+}
+
+void ScreenHandler::composeFrame() const
+{
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// the draw color is left over from whatever was rendered last, and this clear also
 	// covers the letterbox bars around the reserved area
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
 	for(size_t i = 0; i < layerTextures.size(); ++i)
+	{
+		// The canvas registered for this layer comes first, so that whatever the layer itself
+		// holds still lands on top of it. This is the copy that would otherwise have been made
+		// into the layer in the middle of the frame, where reading a render target makes a tiling
+		// GPU resolve it and, on some drivers, stalls every process on the device.
+		const PresentedCanvas & presented = presentedCanvases[i];
+
+		// This draw carries the same downscale the layer would have been composited with, so it
+		// needs that filter too - nearest drops rows of the map, shifting as the view scrolls.
+		SDL_ScaleMode presentedScaleMode = SDL_SCALEMODE_LINEAR;
+		if(!presented.regions.empty())
+			SDL_GetDefaultTextureScaleMode(renderer, &presentedScaleMode);
+
+		for(const PresentedRegion & region : presented.regions)
+		{
+			SDL_SetTextureBlendMode(presented.source, SDL_BLENDMODE_NONE);
+			SDL_SetTextureScaleMode(presented.source, presentedScaleMode);
+
+			SDL_FRect from = CSDL_Ext::toSDLFloat(region.source);
+			SDL_FRect to = CSDL_Ext::toSDLFloat(region.target);
+
+			if(!SDL_RenderTexture(renderer, presented.source, &from, &to))
+				logGlobal->error("Failed to compose a presented canvas region: %s", SDL_GetError());
+		}
+
 		if(layerTextures[i] && layerActive[i])
 			SDL_RenderTexture(renderer, layerTextures[i], nullptr, nullptr);
+	}
 
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
-	ENGINE->cursor().render();
-	SDL_RenderPresent(renderer);
 }
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const
@@ -994,6 +1102,21 @@ bool ScreenHandler::hasFocus()
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
+void ScreenHandler::flashWindowIfUnfocused()
+{
+	// SDL window functions are main thread only, but notifications arrive on the network thread
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([](){ ENGINE->screenHandler().flashWindowIfUnfocused(); });
+		return;
+	}
+
+	if(hasFocus())
+		return;
+
+	SDL_FlashWindow(mainWindow, SDL_FLASH_UNTIL_FOCUSED);
+}
+
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
 	if(colorScheme == scheme)
@@ -1009,16 +1132,60 @@ void ScreenHandler::setColorScheme(ColorScheme scheme)
 	ENGINE->windows().totalRedraw();
 }
 
+void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
+{
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([state, value](){ ENGINE->screenHandler().setTaskbarProgress(state, value); });
+		return;
+	}
+
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+	switch (state)
+	{
+		case TaskbarProgress::HIDDEN:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NONE);
+			break;
+		case TaskbarProgress::INDETERMINATE:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_INDETERMINATE);
+			break;
+		case TaskbarProgress::NORMAL:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NORMAL);
+			SDL_SetWindowProgressValue(mainWindow, std::clamp(value, 0.f, 1.f));
+			break;
+	}
+#endif
+}
+
 void ScreenHandler::screenShot() const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
 	boost::filesystem::create_directories(outPath);
 	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
-	auto img = std::make_shared<SDLImageShared>(screen);
-	img->exportBitmap(filePath, nullptr);
+
+	if(isGpuRenderingEnabled())
+	{
+		// windows draw into screenTarget on this path, so the surface is empty - read back a composed frame
+		SDL_Renderer * renderer = GpuResources::get().renderer();
+		Canvas frame = createOffscreenCanvas(getLogicalResolution());
+
+		SDL_SetRenderTarget(renderer, frame.getRenderTargetTexture());
+		composeFrame();
+		SDL_Surface * pixels = SDL_RenderReadPixels(renderer, nullptr);
+		SDL_SetRenderTarget(renderer, nullptr);
+
+		IMG_SavePNG(pixels, TextOperations::filesystemPathToUtf8(filePath).c_str());
+		SDL_DestroySurface(pixels);
+	}
+	else
+	{
+		auto img = std::make_shared<SDLImageShared>(screen);
+		img->exportBitmap(filePath, nullptr);
+	}
+
 	MetaString txt;
 	txt.appendTextID("vcmi.client.screenShot");
-	txt.replaceRawString(filePath.string());
+	txt.replaceRawString(TextOperations::filesystemPathToUtf8(filePath));
 	if(GAME->interface())
 		GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
 }

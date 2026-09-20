@@ -50,7 +50,7 @@ public:
 	template<typename... Args>
 	void trace(const std::string & format, Args... args) const
 	{
-		log(ELogLevel::DEBUG, format, args...);
+		log(ELogLevel::TRACE, format, args...);
 	}
 	template<typename... Args>
 	void log(ELogLevel::ELogLevel level, const std::string & format, Args... args) const

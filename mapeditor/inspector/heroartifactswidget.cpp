@@ -86,7 +86,7 @@ void HeroArtifactsWidget::addArtifactToTable(int32_t artifactIndex, ArtifactPosi
 	auto * itemSlot = new QTableWidgetItem;
 	auto slotText = ArtifactUtils::isSlotBackpack(slot) ? NArtifactPosition::backpack : NArtifactPosition::namesHero[slot.num];
 	itemSlot->setData(MapEditorRoles::ArtifactSlotRole, QVariant::fromValue(slot.num));
-	itemSlot->setText(QString::fromStdString(slotText));
+	itemSlot->setText(QString::fromUtf8(slotText));
 
 	ui->artifacts->insertRow(ui->artifacts->rowCount());
 	ui->artifacts->setItem(ui->artifacts->rowCount() - 1, Column::ARTIFACT, itemArtifact);
@@ -178,7 +178,7 @@ void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QM
 
 		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.getArt()->getType()->getNameTranslated()));
 	}
-	textList += QString("%1:").arg(QString::fromStdString(NArtifactPosition::backpack));
+	textList += QString("%1:").arg(QString::fromUtf8(NArtifactPosition::backpack));
 	for(const auto & art : hero.artifactsInBackpack)
 	{
 		textList += QString::fromStdString(art.getArt()->getType()->getNameTranslated());

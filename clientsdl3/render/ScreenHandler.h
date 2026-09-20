@@ -36,8 +36,11 @@ enum class EUpscalingFilter
 	//BILINEAR, // TODO?
 	//BICUBIC, // TODO?
 	XBRZ_2,
+	XBRZ_2_RCAS, // xBRZ followed by an FSR RCAS sharpen pass, done in software on the same buffer
 	XBRZ_3,
+	XBRZ_3_RCAS,
 	XBRZ_4,
+	XBRZ_4_RCAS,
 	// NOTE: xbrz also provides x5 and x6 filters, but those would require high-end gaming PC's due to huge memory usage with no visible gain
 };
 
@@ -53,6 +56,16 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Render targets composited under screenTexture, in GpuRenderLayer order
 	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
+
+	/// What presentFromCanvas() registered per layer: regions of an offscreen canvas drawn while
+	/// the frame is composed, in place of that layer's own content. Kept across frames, like the
+	/// layer textures themselves.
+	struct PresentedCanvas
+	{
+		SDL_Texture * source = nullptr;
+		std::vector<PresentedRegion> regions;
+	};
+	std::array<PresentedCanvas, static_cast<size_t>(GpuRenderLayer::COUNT)> presentedCanvases;
 
 	/// Whether a layer currently holds content that should be composited
 	std::array<bool, static_cast<size_t>(GpuRenderLayer::COUNT)> layerActive = {};
@@ -106,6 +119,9 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Clears one layer to its initial state; the bottom layer is opaque, the rest transparent
 	void clearLayer(size_t index);
+
+	/// Draws the layers and the screen target into the current render target, without cursor
+	void composeFrame() const;
 	void destroyScreenBuffers();
 
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
@@ -143,6 +159,10 @@ public:
 
 	int getScalingFactor() const final;
 
+	bool isSharpeningEnabled() const final;
+
+	float getSharpeningStrength() const final;
+
 	int getInterfaceScalingPercentage() const final;
 
 	Canvas getScreenCanvas() const final;
@@ -154,6 +174,8 @@ public:
 	Canvas createOffscreenCanvas(const Point & size) const final;
 	int maxOffscreenCanvasSize() const final;
 	void flushRenderCommands() final;
+	void presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions) final;
+	void clearPresentedCanvas(GpuRenderLayer layer) final;
 	void updateScreenTexture() final;
 	void presentScreenTexture() final;
 
@@ -165,4 +187,8 @@ public:
 	void screenShot() const final;
 
 	void setColorScheme(ColorScheme filter) final;
+
+	void setTaskbarProgress(TaskbarProgress state, float value) final;
+
+	void flashWindowIfUnfocused() final;
 };

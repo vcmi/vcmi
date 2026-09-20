@@ -278,7 +278,7 @@ void CampaignEditor::on_actionOpen_triggered()
 		return;
 
 	auto title = tr("Open campaign");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)");
 
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
@@ -339,7 +339,7 @@ void CampaignEditor::on_actionSave_as_triggered()
 		return;
 
 	auto title = tr("Save campaign");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = tr("VCMI campaigns (*.vcmp)");
 
 	QString contentUri;

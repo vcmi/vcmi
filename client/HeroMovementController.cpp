@@ -207,6 +207,9 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 			{ 7, 6, 5 }
 		};
 
+		assert(posOffset.x >= 0 && posOffset.x < 3 && posOffset.y >= 0 && posOffset.y < 3);
+		if(posOffset.x < 0 || posOffset.x >= 3 || posOffset.y < 0 || posOffset.y >= 3)
+			return;
 		//FIXME: better handling of this case without const_cast
 		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
 	}

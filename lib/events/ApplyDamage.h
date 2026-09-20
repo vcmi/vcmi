@@ -15,7 +15,7 @@
 namespace events
 {
 
-class DLL_LINKAGE CApplyDamage : public ApplyDamage
+class CApplyDamage : public ApplyDamage
 {
 public:
 	CApplyDamage(const Environment * env_, BattleStackAttacked * pack_, std::shared_ptr<battle::Unit> target_);

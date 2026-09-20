@@ -14,7 +14,7 @@
 /**
  * A class which provides method definitions for reading a file from the filesystem.
  */
-class DLL_LINKAGE CFileInputStream : public CInputStream
+class CFileInputStream : public CInputStream
 {
 public:
 	/**

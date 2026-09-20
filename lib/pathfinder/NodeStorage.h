@@ -14,7 +14,7 @@
 
 struct TeamState;
 
-class DLL_LINKAGE NodeStorage : public INodeStorage
+class NodeStorage : public INodeStorage
 {
 private:
 	CPathsInfo & out;

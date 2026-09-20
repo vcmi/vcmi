@@ -11,11 +11,19 @@
 #pragma once
 
 #include "lib/constants/Enumerations.h"
+#include "lib/Rect.h"
 
 class Point;
 class Rect;
 
 class Canvas;
+
+/// One region of an offscreen canvas. Unused here; client code is shared between backends.
+struct PresentedRegion
+{
+	Rect source;
+	Rect target;
+};
 
 /// GPU layers composited under the software screen. This backend has none, but client code
 /// is shared between backends and names them.
@@ -25,6 +33,15 @@ enum class GpuRenderLayer : uint8_t
 	BATTLE,
 
 	COUNT
+};
+
+/// State of the OS taskbar/dock progress indicator. SDL2 has no cross-platform equivalent
+/// of SDL3's window progress API, so this backend never actually shows one.
+enum class TaskbarProgress : uint8_t
+{
+	HIDDEN,
+	INDETERMINATE,
+	NORMAL
 };
 
 class IScreenHandler
@@ -66,6 +83,12 @@ public:
 
 	virtual int getScalingFactor() const = 0;
 
+	/// True when the selected upscaling filter also applies an FSR RCAS sharpen pass
+	virtual bool isSharpeningEnabled() const = 0;
+
+	/// Strength of the FSR RCAS sharpen pass, in AMD's own convention (0 = strongest)
+	virtual float getSharpeningStrength() const = 0;
+
 	virtual void screenShot() const = 0;
 
 	/// Window has focus
@@ -90,4 +113,13 @@ public:
 
 	/// No GPU drawing happens in this backend, so there is nothing queued to hand over
 	void flushRenderCommands() {}
+
+	void setTaskbarProgress(TaskbarProgress state, float value) {}
+
+	/// SDL2 has no cross-platform equivalent of SDL3's window flash API
+	void flashWindowIfUnfocused() {}
+
+	/// This backend composes in software, so there is no separate present to defer a copy to
+	void presentFromCanvas(GpuRenderLayer, const Canvas &, const std::vector<PresentedRegion> &) {}
+	void clearPresentedCanvas(GpuRenderLayer) {}
 };

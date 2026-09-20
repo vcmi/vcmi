@@ -11,6 +11,7 @@
 #pragma once
 
 #include "lib/constants/Enumerations.h"
+#include "lib/Rect.h"
 
 class Point;
 class Rect;
@@ -25,6 +26,24 @@ enum class GpuRenderLayer : uint8_t
 	BATTLE,
 
 	COUNT
+};
+
+/// State of the OS taskbar/dock progress indicator (Windows taskbar, macOS dock, Linux launchers)
+enum class TaskbarProgress : uint8_t
+{
+	/// No progress indicator shown
+	HIDDEN,
+	/// Busy indicator with no known completion fraction
+	INDETERMINATE,
+	/// Indicator filled to a known completion fraction, in range [0, 1]
+	NORMAL
+};
+
+/// One region of an offscreen canvas, drawn onto the screen while the frame is composed
+struct PresentedRegion
+{
+	Rect source; ///< within the canvas
+	Rect target; ///< in screen pixels
 };
 
 class IScreenHandler
@@ -66,6 +85,12 @@ public:
 
 	virtual int getScalingFactor() const = 0;
 
+	/// True when the selected upscaling filter also applies an FSR RCAS sharpen pass
+	virtual bool isSharpeningEnabled() const = 0;
+
+	/// Strength of the FSR RCAS sharpen pass, in AMD's own convention (0 = strongest)
+	virtual float getSharpeningStrength() const = 0;
+
 	virtual void screenShot() const = 0;
 
 	/// Window has focus
@@ -100,4 +125,29 @@ public:
 	/// Hands everything drawn so far to the GPU instead of leaving it queued. Lets drawing
 	/// that a later pass reads back start early, rather than stalling on the first read.
 	virtual void flushRenderCommands() = 0;
+
+	/// Sets the OS taskbar/dock progress indicator, mirroring the adventure map's own
+	/// hourglass while another player (AI or hotseat) is taking their turn. value is only
+	/// used when state is NORMAL, and must be in range [0, 1].
+	virtual void setTaskbarProgress(TaskbarProgress state, float value) = 0;
+
+	/// Flashes the window's taskbar/dock entry if it does not currently have focus, so that
+	/// a notification is not missed while the game is in the background. No-op if focused.
+	virtual void flashWindowIfUnfocused() = 0;
+
+	/// Draws parts of an offscreen canvas onto the screen while the frame is composed, in place of
+	/// the given layer, instead of copying them into that layer during the frame.
+	///
+	/// Reading a render target in the middle of a frame makes a tiling GPU resolve it right then.
+	/// On some Android drivers that reorganises memory and stalls every process on the device for
+	/// a fifth of a second; the same read costs nothing once the frame is being handed over.
+	///
+	/// What is registered here replaces the previous registration and stays until it is replaced,
+	/// or clearPresentedCanvas() is called - a layer keeps its content across frames, and a window
+	/// opening over the map must not blank it. The layer it stands in for stops being composited.
+	virtual void presentFromCanvas(GpuRenderLayer layer, const Canvas & source, const std::vector<PresentedRegion> & regions) = 0;
+
+	/// Forgets what presentFromCanvas() registered. Must be called before the canvas it refers to
+	/// is destroyed, since only the caller knows when that happens.
+	virtual void clearPresentedCanvas(GpuRenderLayer layer) = 0;
 };

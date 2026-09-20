@@ -145,7 +145,7 @@ class DLL_LINKAGE ZoneOptions
 public:
 	static const TRmgTemplateZoneId NO_ZONE;
 
-	class DLL_LINKAGE CTownInfo
+	class CTownInfo
 	{
 #ifdef ENABLE_TEMPLATE_EDITOR
 		friend class ::TemplateEditor;

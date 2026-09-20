@@ -448,6 +448,7 @@ Allows creature being upgraded to another creature (Gelu, Dracon)
 
 - subtype: identifier of creature that can being upgraded
 - addInfo: identifier of creature to which perform an upgrade
+- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost.
 
 ## Artifact bonuses
 

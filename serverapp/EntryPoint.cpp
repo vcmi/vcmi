@@ -12,6 +12,7 @@
 #include <vstd/DateUtils.h>
 
 #include "../server/CVCMIServer.h"
+#include "../server/CreatureValueEstimator.h"
 
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -27,6 +28,7 @@
 #include "mapping/CMapService.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
+#include "texts/TextOperations.h"
 #include "../luascript/LuaModule.h"
 
 #include <boost/program_options.hpp>
@@ -42,7 +44,7 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 	scriptHandler->exportDocs(outPath);
 
 	logGlobal->info("Lua API documentation export complete");
-	logGlobal->info("Generated files can be found in " + outPath.string() + " directory");
+	logGlobal->info("Generated files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory");
 }
 
 static void generateTranslations(const std::string & modID)
@@ -221,7 +223,7 @@ static void generateTranslations(const std::string & modID)
 	mods->deletePreset("translation-export");
 	mods->deletePreset("translation-export-base");
 	logGlobal->info("Translation export complete");
-	logGlobal->info("Extracted files can be found in " + outPath.string() + " directory\n");
+	logGlobal->info("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 
 }
 
@@ -233,6 +235,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
 	("dummy-run", "Shutdown immediately after loading was sucessful")
+	("creature-values", "Compute AI values and fight values of all creatures and compare them against configured values")
 	("translate-mod", boost::program_options::value<std::string>(), "Export translations for specified mod")
 	("export-lua-docs", boost::program_options::value<std::string>(), "Export Lua scripting API documentation to specified directory")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
@@ -304,7 +307,11 @@ int main(int argc, const char * argv[])
 
 	LIBRARY->initializeLibrary();
 
-	if(!opts.count("dummy-run"))
+	if(opts.count("creature-values"))
+	{
+		CreatureValueEstimator::run();
+	}
+	else if(!opts.count("dummy-run"))
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");

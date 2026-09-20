@@ -16,7 +16,7 @@
 /**
  * Abstract class which provides method definitions for reading from a stream.
  */
-class DLL_LINKAGE CInputStream : public virtual CStream
+class CInputStream : public virtual CStream
 {
 public:
 	/**

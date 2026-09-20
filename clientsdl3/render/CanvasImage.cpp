@@ -18,6 +18,8 @@
 #include "SDLImageScaler.h"
 #include "SDLImage.h"
 
+#include "lib/texts/TextOperations.h"
+
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
@@ -90,7 +92,7 @@ void CanvasImage::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 
 void CanvasImage::exportBitmap(const boost::filesystem::path & path) const
 {
-	IMG_SavePNG(surface, path.string().c_str());
+	IMG_SavePNG(surface, TextOperations::filesystemPathToUtf8(path).c_str());
 }
 
 Canvas CanvasImage::getCanvas()

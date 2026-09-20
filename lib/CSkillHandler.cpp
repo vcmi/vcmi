@@ -277,7 +277,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	}
 	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 	{
-		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
+		const char * levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
 		const JsonNode & levelNode = json[levelName];
 		// parse bonus effects
 		for(const auto & b : levelNode["effects"].Struct())

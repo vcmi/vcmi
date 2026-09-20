@@ -58,6 +58,12 @@ enum class TouchState
 	// UP -> transition to TAP_DOWN
 	TAP_DOWN_DOUBLE,
 
+	// single finger is moving after a double tap, zooming instead of panning
+	// DOWN -> transition to TAP_DOWN_DOUBLE
+	// MOTION -> emit pinch event
+	// UP -> transition to IDLE
+	TAP_DOWN_ZOOM,
+
 	// single finger is down for long period of time
 	// DOWN -> ignored
 	// MOTION -> ignored
@@ -91,6 +97,9 @@ struct TouchInputParameters
 	/// gesture will be qualified as pinch if distance between fingers is at least specified here
 	uint32_t pinchSensitivityThreshold = 10;
 
+	/// vertical drag distance that doubles the zoom during one finger zoom, as fraction of screen height
+	double doubleTapZoomScreenFraction = 0.25;
+
 	/// touch event will trigger clicking of elements up to X pixels away from actual touch position
 	uint32_t touchToleranceDistance = 20;
 
@@ -111,6 +120,9 @@ class InputSourceTouch
 	Point lastLeftClickPosition;
 	int numTouchFingers;
 
+	/// set if current touch is the second tap of a double tap, which allows one finger zoom instead of panning
+	bool doubleTapZoomCandidate;
+
 	std::map<SDL_FingerID, float> motionAccumulatedX;
 	std::map<SDL_FingerID, float> motionAccumulatedY;
 
@@ -119,6 +131,7 @@ class InputSourceTouch
 
 	void emitPanningEvent(const SDL_TouchFingerEvent & tfinger);
 	void emitPinchEvent(const SDL_TouchFingerEvent & tfinger);
+	void emitOneFingerZoomEvent(const SDL_TouchFingerEvent & tfinger);
 
 public:
 	InputSourceTouch();

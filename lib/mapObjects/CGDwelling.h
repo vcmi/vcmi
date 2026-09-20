@@ -16,7 +16,7 @@
 
 class CGDwelling;
 
-class DLL_LINKAGE CGDwellingRandomizationInfo
+class CGDwellingRandomizationInfo
 {
 public:
 	std::set<FactionID> allowedFactions;

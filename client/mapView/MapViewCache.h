@@ -94,6 +94,10 @@ class MapViewCache
 	Canvas getTile(const int3 & coordinates);
 	void updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);
 
+	/// Walks the visible window of the cache. Because tiles are stored wrapped around on both
+	/// axes it falls into at most four bands, each contiguous in the cache and on screen.
+	void forEachCachedBand(const std::function<void(const Rect & cacheArea, const Point & targetPosition, const Point & targetSize)> & visit) const;
+
 	/// Copies the entire cached tile window onto the target in as few blits as possible. Used
 	/// when every tile has to be repainted anyway, above all while the view is scrolling.
 	void renderCachedTiles(Canvas & target);
@@ -118,6 +122,14 @@ public:
 
 	/// renders updated terrain cache onto provided canvas
 	void render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw);
+
+	/// Hands the visible window of the cache to the screen handler, to be drawn onto the screen
+	/// while the frame is composed rather than copied into a layer now. Only valid when nothing
+	/// has to be drawn on top of the terrain - see needsOwnLayer(). targetArea is in screen pixels.
+	void present(const Rect & targetArea);
+
+	/// Whether this frame draws anything over the terrain, which needs a layer of its own
+	bool needsOwnLayer(const std::shared_ptr<IMapRendererContext> & context) const;
 
 	/// creates snapshot of current view and stores it into internal canvas
 	/// used for view transition, e.g. Dimension Door spell or teleporters (Subterra gates / Monolith)

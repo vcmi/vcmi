@@ -48,7 +48,7 @@ static uint32_t touchEventTimeMs(const SDL_TouchFingerEvent & tfinger)
 }
 
 InputSourceTouch::InputSourceTouch()
-	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0), numTouchFingers(0)
+	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0), numTouchFingers(0), doubleTapZoomCandidate(false)
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
@@ -118,7 +118,10 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			if ( std::abs(distance.x) > params.panningSensitivityThreshold || std::abs(distance.y) > params.panningSensitivityThreshold)
 			{
 				ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
-				state = state == TouchState::TAP_DOWN_SHORT ? TouchState::TAP_DOWN_PANNING : TouchState::TAP_DOWN_PANNING_POPUP;
+				if (state == TouchState::TAP_DOWN_SHORT)
+					state = doubleTapZoomCandidate ? TouchState::TAP_DOWN_ZOOM : TouchState::TAP_DOWN_PANNING;
+				else
+					state = TouchState::TAP_DOWN_PANNING_POPUP;
 				ENGINE->events().dispatchGesturePanningStarted(lastTapPosition);
 			}
 			break;
@@ -132,6 +135,11 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
 			emitPinchEvent(tfinger);
+			break;
+		}
+		case TouchState::TAP_DOWN_ZOOM:
+		{
+			emitOneFingerZoomEvent(tfinger);
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:
@@ -181,6 +189,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		case TouchState::IDLE:
 		{
 			lastTapPosition = convertTouchToMouse(tfinger);
+			doubleTapZoomCandidate = touchEventTimeMs(tfinger) - lastLeftClickTimeTicks < params.doubleTouchTimeMilliseconds && (lastTapPosition - lastLeftClickPosition).length() < params.doubleTouchToleranceDistance;
 			ENGINE->input().setCursorPosition(lastTapPosition);
 			ENGINE->events().dispatchTouchPress(lastTapPosition, true, params.touchToleranceDistance);
 			state = TouchState::TAP_DOWN_SHORT;
@@ -194,6 +203,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 			break;
 		}
 		case TouchState::TAP_DOWN_PANNING:
+		case TouchState::TAP_DOWN_ZOOM:
 		{
 			ENGINE->input().setCursorPosition(convertTouchToMouse(tfinger));
 			state = TouchState::TAP_DOWN_DOUBLE;
@@ -265,6 +275,15 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			state = state == TouchState::TAP_DOWN_PANNING ? TouchState::IDLE : TouchState::TAP_DOWN_LONG_AWAIT;
 			break;
 		}
+		case TouchState::TAP_DOWN_ZOOM:
+		{
+			ENGINE->events().dispatchGesturePanningEnded(lastTapPosition, convertTouchToMouse(tfinger));
+			ENGINE->events().dispatchTouchPress(lastTapPosition, false, params.touchToleranceDistance);
+			// prevent the tap that ended the zoom from starting another double tap
+			lastLeftClickTimeTicks = 0;
+			state = TouchState::IDLE;
+			break;
+		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
 			if (countTouchFingers(tfinger.touchID) == 1)
@@ -303,7 +322,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 
 void InputSourceTouch::handleUpdate()
 {
-	if ( state == TouchState::TAP_DOWN_SHORT)
+	if ( state == TouchState::TAP_DOWN_SHORT && !doubleTapZoomCandidate)
 	{
 		uint32_t currentTime = static_cast<uint32_t>(SDL_GetTicks());
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
@@ -397,6 +416,16 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 
 	if (distanceOld > params.pinchSensitivityThreshold)
 		ENGINE->events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);
+}
+
+void InputSourceTouch::emitOneFingerZoomEvent(const SDL_TouchFingerEvent & tfinger)
+{
+	// consume accumulated motion, otherwise sub-pixel remainders would be applied more than once
+	float distance = motionAccumulatedY[tfinger.fingerID];
+	motionAccumulatedY[tfinger.fingerID] = 0;
+
+	// dragging down zooms in, dragging up zooms out
+	ENGINE->events().dispatchGesturePinch(lastTapPosition, std::pow(2.0, distance / params.doubleTapZoomScreenFraction));
 }
 
 void InputSourceTouch::hapticFeedback() {

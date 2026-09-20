@@ -1107,6 +1107,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
+	reward.manaOverflowFactor = 100;
 	if(auto val = reader->readInt8Checked(-3, 3))
 		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven)));
 	if(auto val = reader->readInt8Checked(-3, 3))
@@ -1255,7 +1256,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		// 100 = default, percent of monsters that will join on successful aggression check
 		object->joiningPercentage = reader->readInt32();
 		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
-		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(reader->readInt32());
+		int32_t upgradedPresence = reader->readInt32();
+		if(upgradedPresence < -1 || upgradedPresence > 1)
+		{
+			logGlobal->warn("Map '%s': Wandering monster at %s has out of range upgraded stack presence %d! Using random.", mapName, mapPosition.toString(), upgradedPresence);
+			upgradedPresence = static_cast<int32_t>(CGCreature::UpgradedStackPresence::RANDOM);
+		}
+		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(upgradedPresence);
 		// How many creature stacks will be present on battlefield, -1 = default
 		object->stacksCount = reader->readInt32();
 	}

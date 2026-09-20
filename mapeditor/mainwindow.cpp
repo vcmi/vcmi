@@ -22,6 +22,7 @@
 #include <QTimer>
 
 #include "../lib/VCMIDirs.h"
+#include "../lib/texts/TextOperations.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
@@ -167,7 +168,7 @@ void EditorMainWindow::loadUserSettings()
 	}
 	lastSavingDir = s.value(lastDirectorySetting).toString();
 	if(lastSavingDir.isEmpty())
-		lastSavingDir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 }
 
 void EditorMainWindow::saveUserSettings()
@@ -296,7 +297,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 #endif
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
-	logGlobal->info("The log file will be saved to %s", logPath);
+	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
 
 	//init
 	LIBRARY = new GameLibrary();
@@ -631,7 +632,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 		return;
 
 	auto title = tr("Open map");
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	auto filter = tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)");
 
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
@@ -767,7 +768,7 @@ void EditorMainWindow::saveMap(bool force)
 	CMapService mapService;
 	try
 	{
-		mapService.saveMap(controller.getMapUniquePtr(), filename.toStdString());
+		mapService.saveMap(controller.getMapUniquePtr(), qstringToPath(filename));
 	}
 	catch(const std::exception & e)
 	{
@@ -1732,7 +1733,7 @@ void EditorMainWindow::on_actionTranslations_triggered()
 void EditorMainWindow::on_actionh3m_converter_triggered()
 {
 	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to convert"),
-		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		pathToQString(VCMIDirs::get().userDataPath().make_preferred()),
 		tr("HoMM3 maps(*.h3m)"));
 	if(mapFiles.empty())
 		return;
@@ -1740,7 +1741,7 @@ void EditorMainWindow::on_actionh3m_converter_triggered()
 #ifdef VCMI_ANDROID
 	QString contentUri;
 	QString saveDirectory = EditorFileDialog::getSaveFileName(this, tr("Choose directory to save converted maps"),
-		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()) + "/Maps",
+		pathToQString(VCMIDirs::get().userDataPath().make_preferred()) + "/Maps",
 		tr("Directory"), contentUri);
 	if(saveDirectory.isEmpty())
 		return;
@@ -1760,7 +1761,7 @@ void EditorMainWindow::on_actionh3m_converter_triggered()
 			controller.getCallback()->setMap(map.get());
 			controller.repairMap(map.get());
 			QString outVmap = saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap";
-			mapService.saveMap(map, outVmap.toStdString());
+			mapService.saveMap(map, qstringToPath(outVmap));
 		}
 		QMessageBox::information(this, tr("Operation completed"), tr("Successfully converted %1 maps").arg(mapFiles.size()));
 	}
@@ -1772,7 +1773,7 @@ void EditorMainWindow::on_actionh3m_converter_triggered()
 
 void EditorMainWindow::on_actionh3c_converter_triggered()
 {
-	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto dir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 
 	auto openTitle = tr("Select campaign to convert");
 	auto openFilter = tr("HoMM3 campaigns (*.h3c)");

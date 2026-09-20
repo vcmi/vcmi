@@ -170,6 +170,7 @@ if(ENABLE_BATTLE_AI)
 
 	list(APPEND test_SRCS
 		${BATTLE_AI_TEST_SRCS}
+		battleAI/BattleEvaluatorTest.cpp
 		battleAI/SpellTargetsEvaluatorTest.cpp
 	)
 endif()
@@ -242,19 +243,20 @@ endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
+# Tests link the constituent object libraries rather than the facade: that keeps
+# lib globals single-instance and lets classes needed only by tests stay
+# unexported, since static linking ignores visibility.
 if(ENABLE_NULLKILLER2_AI)
-	# Nullkiller tests use internal AI symbols, so embed AI objects in vcmitest
-	# instead of linking the facade and loading a second copy of lib globals.
+	# Nullkiller tests use internal AI symbols, so embed its objects directly.
 	target_sources(vcmitest PRIVATE $<TARGET_OBJECTS:Nullkiller2>)
-	set(vcmitest_LIBS gtest gmock vcmiMain vcmiservercommon TBB::tbb ${SYSTEM_LIBS})
-	foreach(optional_vcmitest_target IN ITEMS vcmiLua EmptyAI StupidAI MMAI)
-		if(TARGET ${optional_vcmitest_target})
-			list(APPEND vcmitest_LIBS ${optional_vcmitest_target})
-		endif()
-	endforeach()
-else()
-	set(vcmitest_LIBS gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
 endif()
+
+set(vcmitest_LIBS gtest gmock vcmiMain vcmiservercommon ${SYSTEM_LIBS})
+foreach(optional_vcmitest_target IN ITEMS vcmiLua EmptyAI StupidAI MMAI TBB::tbb)
+	if(TARGET ${optional_vcmitest_target})
+		list(APPEND vcmitest_LIBS ${optional_vcmitest_target})
+	endif()
+endforeach()
 target_link_libraries(vcmitest PRIVATE ${vcmitest_LIBS})
 
 target_include_directories(vcmitest

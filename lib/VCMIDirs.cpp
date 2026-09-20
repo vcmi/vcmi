@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
+#include "texts/TextOperations.h"
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
@@ -30,19 +31,19 @@ std::string IVCMIDirs::genHelpString() const
 {
 	std::vector<std::string> tempVec;
 	for (const bfs::path & path : dataPaths())
-		tempVec.push_back(path.string());
+		tempVec.push_back(TextOperations::filesystemPathToUtf8(path));
 	const auto gdStringA = boost::algorithm::join(tempVec, ":");
 
 	return
 		"  game data:		" + gdStringA + "\n"
-		"  server:			" + serverPath().string() + "\n"
+		"  server:			" + TextOperations::filesystemPathToUtf8(serverPath()) + "\n"
 		"\n"
-		"  user data:		" + userDataPath().string() + "\n"
-		"  user cache:		" + userCachePath().string() + "\n"
-		"  user config:		" + userConfigPath().string() + "\n"
-		"  user logs:		" + userLogsPath().string() + "\n"
-		"  user saves:		" + userSavePath().string() + "\n"
-		"  user extracted:	" + userExtractedPath().string() + "\n";
+		"  user data:		" + TextOperations::filesystemPathToUtf8(userDataPath()) + "\n"
+		"  user cache:		" + TextOperations::filesystemPathToUtf8(userCachePath()) + "\n"
+		"  user config:		" + TextOperations::filesystemPathToUtf8(userConfigPath()) + "\n"
+		"  user logs:		" + TextOperations::filesystemPathToUtf8(userLogsPath()) + "\n"
+		"  user saves:		" + TextOperations::filesystemPathToUtf8(userSavePath()) + "\n"
+		"  user extracted:	" + TextOperations::filesystemPathToUtf8(userExtractedPath()) + "\n";
 }
 
 void IVCMIDirs::init()
@@ -663,5 +664,25 @@ namespace VCMIDirs
 		static std::once_flag flag;
 		std::call_once(flag, [] { singleton.init(); });
 		return singleton;
+	}
+
+	const std::string & appIdentifier()
+	{
+		static const std::string identifier = []() -> std::string
+		{
+#ifdef VCMI_ANDROID
+			// package name differs between release, daily and debug builds
+			CAndroidVMHelper envHelper;
+			return envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "applicationId");
+#elif defined(VCMI_FLATPAK)
+			return "eu.vcmi.VCMI";
+#elif defined(VCMI_XDG)
+			// matches vcmiclient.desktop, which is needed for window icon lookup
+			return "vcmiclient";
+#else
+			return "eu.vcmi.VCMI";
+#endif
+		}();
+		return identifier;
 	}
 }

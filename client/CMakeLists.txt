@@ -180,7 +180,9 @@ set(vcmiclientcommon_SRCS
 	windows/settings/AdventureOptionsTab.cpp
 	windows/settings/KeyBindingsWindow.cpp
 
-	xBRZ/xbrz.cpp
+	filters/xBRZ/xbrz.cpp
+
+	filters/FSR/fsr_rcas.cpp
 
 	ArtifactsUIController.cpp
 	GameEngine.cpp
@@ -402,8 +404,10 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/AdventureOptionsTab.h
 	windows/settings/KeyBindingsWindow.h
 
-	xBRZ/xbrz.h
-	xBRZ/xbrz_tools.h
+	filters/xBRZ/xbrz.h
+	filters/xBRZ/xbrz_tools.h
+
+	filters/FSR/fsr_rcas.h
 
 	ArtifactsUIController.h
 	CMT.h

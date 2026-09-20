@@ -21,7 +21,7 @@ class CGHeroInstance;
 class CGMine;
 struct TeamState;
 
-struct DLL_LINKAGE StatisticDataSetEntry
+struct StatisticDataSetEntry
 {
 	/// map name lives in a map overlay, so it stays unresolved until it is displayed or exported
 	MetaString map;
@@ -173,7 +173,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE Statistic
+class Statistic
 {
 public:
 	static int getNumberOfArts(const PlayerState * ps);

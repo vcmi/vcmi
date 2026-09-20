@@ -355,6 +355,10 @@ QString FirstLaunchView::getHeroesInstallDir()
 		if(!path.isEmpty())
 			return path;
 	}
+
+	QString steamPath = Helper::findSteamGameInstallDir("4921760", "Heroes of Might and Magic III"); // "Heroes Of Might And Magic III" on Steam (original SoD/Complete re-release, not the HD Edition)
+	if(!steamPath.isEmpty())
+		return steamPath;
 #endif
 	return QString{};
 }

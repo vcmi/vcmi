@@ -207,21 +207,30 @@ int CGHeroInstance::movementPointsLimit() const
 	return getTurnInfo(0)->getMaxMovePoints(layer);
 }
 
+static int getMovementSpeed(const CStackInstance & stack)
+{
+	// artifact speed bonuses (e.g. Ring of the Wayfarer) only apply in battle
+	static const CSelector selector = Selector::type()(BonusType::STACKS_SPEED)
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT).Not())
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not());
+
+	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifacts");
+}
+
 int CGHeroInstance::getLowestCreatureSpeed() const
 {
 	if(stacksCount() != 0)
 	{
 		int minimalSpeed = std::numeric_limits<int>::max();
-		//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 		for(const auto & slot : Slots())
-			minimalSpeed = std::min(minimalSpeed, slot.second->getInitiative());
+			minimalSpeed = std::min(minimalSpeed, getMovementSpeed(*slot.second));
 
 		return minimalSpeed;
 	}
 	else
 	{
 		if(commander && commander->alive)
-			return commander->getInitiative();
+			return getMovementSpeed(*commander);
 	}
 
 	return 10;
@@ -1769,7 +1778,8 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 		{
 			auto nid = it->parameters->toCreature();
 			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
-				info.addUpgrade(nid, stack.getType());
+				// SPECIAL_UPGRADE value adjusts the default 100% cost; clamp the final modifier to 0%.
+				info.addUpgrade(nid, stack.getType(), std::max(0, 100 + it->val));
 		}
 	}
 }

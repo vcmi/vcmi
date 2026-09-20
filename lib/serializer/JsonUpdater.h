@@ -13,7 +13,7 @@
 
 class CBonusSystemNode;
 
-class DLL_LINKAGE JsonUpdater: public JsonTreeSerializer<const JsonNode *>
+class JsonUpdater: public JsonTreeSerializer<const JsonNode *>
 {
 public:
 	JsonUpdater(const IInstanceResolver * instanceResolver_, const JsonNode & root_);

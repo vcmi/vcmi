@@ -35,6 +35,9 @@ class MapViewController : public IMapObjectObserver
 {
 	ConditionalWait animationWait;
 
+	/// Busy while the GUI thread makes a snapshot for the network thread
+	std::shared_ptr<ConditionalWait> snapshotWait = std::make_shared<ConditionalWait>();
+
 	std::shared_ptr<IMapRendererContext> context;
 	std::shared_ptr<MapRendererContextState> state;
 	std::shared_ptr<MapViewModel> model;
@@ -66,6 +69,9 @@ private:
 
 	void removeObject(const CGObjectInstance * obj);
 	void addObject(const CGObjectInstance * obj);
+
+	/// Draws the view for a transition. Runs on the GUI thread, which owns the GL context
+	void createTransitionSnapshot();
 
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;

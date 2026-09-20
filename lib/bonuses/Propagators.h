@@ -27,7 +27,7 @@ public:
 	{}
 };
 
-class DLL_LINKAGE CPropagatorNodeType : public IPropagator
+class CPropagatorNodeType : public IPropagator
 {
 	BonusNodeType nodeType;
 

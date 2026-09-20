@@ -411,6 +411,65 @@ void sendFileToApp(QString path)
 #endif
 }
 
+QString findSteamGameInstallDir(const QString & appId, const QString & fallbackInstallDir)
+{
+#ifdef VCMI_WINDOWS
+	// Steam does not store per-game install paths in the registry - only the Steam client path.
+	// The actual game location has to be resolved via the library folders list and the game's own manifest file.
+	QVector<QPair<QString, QString>> steamRegKeys = {
+		{ "HKEY_CURRENT_USER\\Software\\Valve\\Steam",               "SteamPath"   },
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\Valve\\Steam",              "InstallPath" },
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Valve\\Steam", "InstallPath" },
+	};
+
+	QString steamPath;
+	for(auto & regKey : steamRegKeys)
+	{
+		steamPath = QSettings(regKey.first, QSettings::NativeFormat).value(regKey.second).toString();
+		if(!steamPath.isEmpty())
+			break;
+	}
+
+	if(steamPath.isEmpty())
+		return {};
+
+	// Steam library folders can be spread across multiple drives - collect all of them
+	QVector<QString> libraryPaths = { steamPath };
+	QFile libraryFoldersFile(steamPath + "/steamapps/libraryfolders.vdf");
+	if(libraryFoldersFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		QRegularExpression pathRegex("\"path\"\\s*\"([^\"]+)\"");
+		auto matches = pathRegex.globalMatch(QString::fromUtf8(libraryFoldersFile.readAll()));
+		while(matches.hasNext())
+			libraryPaths.push_back(matches.next().captured(1).replace("\\\\", "/"));
+	}
+
+	for(const QString & libraryPath : libraryPaths)
+	{
+		QFile manifestFile(libraryPath + "/steamapps/appmanifest_" + appId + ".acf");
+		if(!manifestFile.open(QIODevice::ReadOnly | QIODevice::Text))
+			continue;
+
+		QString installDir = fallbackInstallDir;
+		QRegularExpression installDirRegex("\"installdir\"\\s*\"([^\"]+)\"");
+		auto installDirMatch = installDirRegex.match(QString::fromUtf8(manifestFile.readAll()));
+		if(installDirMatch.hasMatch())
+			installDir = installDirMatch.captured(1);
+
+		if(installDir.isEmpty())
+			continue;
+
+		QString candidate = libraryPath + "/steamapps/common/" + installDir;
+		if(QDir(candidate).exists())
+			return candidate;
+	}
+#else
+	Q_UNUSED(appId);
+	Q_UNUSED(fallbackInstallDir);
+#endif
+	return {};
+}
+
 bool isInstalledFromGooglePlay()
 {
 #if defined(VCMI_ANDROID)

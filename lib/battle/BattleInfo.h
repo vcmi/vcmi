@@ -167,7 +167,7 @@ public:
 };
 
 
-class DLL_LINKAGE CMP_stack
+class CMP_stack
 {
 	int phase; //rules of which phase will be used
 	int turn;

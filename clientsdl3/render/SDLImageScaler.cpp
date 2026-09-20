@@ -13,7 +13,8 @@
 #include "SDL_Extensions.h"
 
 #include "GameEngine.h"
-#include "xBRZ/xbrz.h"
+#include "filters/xBRZ/xbrz.h"
+#include "filters/FSR/fsr_rcas.h"
 
 #include <tbb/parallel_for.h>
 #include <SDL3/SDL_surface.h>
@@ -201,6 +202,37 @@ void SDLImageScaler::scaleSurfaceIntegerFactor(int factor, EScalingAlgorithm alg
 		}
 		default:
 			throw std::runtime_error("invalid scaling algorithm!");
+	}
+}
+
+void SDLImageScaler::sharpenResult(float sharpness)
+{
+	if (!ret)
+		return; // may happen on scaling of empty images
+
+	assert(ret->pitch == ret->w * 4);
+
+	// RCAS reads each pixel's neighbors, so the source data must stay intact while writing the result
+	std::vector<uint32_t> original(static_cast<size_t>(ret->w) * ret->h);
+	std::memcpy(original.data(), ret->pixels, original.size() * sizeof(uint32_t));
+
+	const uint32_t * srcPixels = original.data();
+	uint32_t * dstPixels = static_cast<uint32_t *>(ret->pixels);
+	const int width = ret->w;
+	const int height = ret->h;
+
+	if (height < 32)
+	{
+		// for tiny images tbb incurs too high overhead
+		fsr::sharpenRCAS(srcPixels, dstPixels, width, height, sharpness);
+	}
+	else
+	{
+		const int granulation = height > 400 ? 16 : 4;
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, height, granulation), [srcPixels, dstPixels, width, height, sharpness](const tbb::blocked_range<size_t> & r)
+						  {
+							  fsr::sharpenRCAS(srcPixels, dstPixels, width, height, sharpness, static_cast<int>(r.begin()), static_cast<int>(r.end()));
+						  });
 	}
 }
 

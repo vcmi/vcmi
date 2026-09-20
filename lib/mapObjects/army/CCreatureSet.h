@@ -26,7 +26,7 @@ using TSlots = std::map<SlotID, std::unique_ptr<CStackInstance>>;
 using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
 using TMapCreatureSlot = std::map<const CCreature *, SlotID>;
 
-struct DLL_LINKAGE CreatureSlotComparer
+struct CreatureSlotComparer
 {
 	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
 };

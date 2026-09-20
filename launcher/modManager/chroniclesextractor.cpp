@@ -185,7 +185,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 		if(scrDir.entryList({file}).isEmpty())
 			return; // file does not exists (needed for "All in one" installer)
 
-		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);
+		CArchiveLoader archive("", qstringToPath(scrDir.filePath(scrDir.entryList({file}).front())), false);
 		for(auto & entry : archive.getEntries())
 			if(files.empty())
 				archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);

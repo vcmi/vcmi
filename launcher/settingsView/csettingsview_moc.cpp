@@ -72,8 +72,11 @@ static constexpr std::array upscalingFilterTypes =
 	"auto",
 	"none",
 	"xbrz2",
+	"xbrz2rcas",
 	"xbrz3",
-	"xbrz4"
+	"xbrz3rcas",
+	"xbrz4",
+	"xbrz4rcas"
 };
 
 static constexpr std::array downscalingFilterTypes =
@@ -253,6 +256,9 @@ void CSettingsView::loadSettings()
 	std::string upscalingFilter = settings["video"]["upscalingFilter"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
 	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
+
+	ui->spinBoxUpscalingFilterSharpness->setValue(settings["video"]["upscalingFilterSharpness"].Float());
+	ui->spinBoxUpscalingFilterSharpness->setEnabled(upscalingFilter.find("rcas") != std::string::npos);
 
 	std::string downscalingFilter = settings["video"]["downscalingFilter"].String();
 	int downscalingFilterIndex = vstd::find_pos(downscalingFilterTypes, downscalingFilter);
@@ -880,6 +886,14 @@ void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["upscalingFilter"];
 	node->String() = upscalingFilterTypes[index];
+
+	ui->spinBoxUpscalingFilterSharpness->setEnabled(std::string(upscalingFilterTypes[index]).find("rcas") != std::string::npos);
+}
+
+void CSettingsView::on_spinBoxUpscalingFilterSharpness_valueChanged(double value)
+{
+	Settings node = settings.write["video"]["upscalingFilterSharpness"];
+	node->Float() = value;
 }
 
 void CSettingsView::on_comboBoxDownscalingFilter_currentIndexChanged(int index)

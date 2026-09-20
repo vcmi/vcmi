@@ -23,6 +23,7 @@
 
 #include "lib/AsyncRunner.h"
 #include "lib/CConfigHandler.h"
+#include "lib/texts/TextOperations.h"
 
 #include <tbb/parallel_for.h>
 
@@ -266,6 +267,10 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 	const auto & scalingTask = [self, algorithm, scaler]()
 	{
 		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
+
+		if (ENGINE->screenHandler().isSharpeningEnabled())
+			scaler->sharpenResult(ENGINE->screenHandler().getSharpeningStrength());
+
 		self->surf = scaler->acquireResultSurface();
 		self->fullSize = scaler->getResultDimensions().dimensions();
 		self->margins = scaler->getResultDimensions().topLeft();
@@ -343,7 +348,7 @@ void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palet
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
-	IMG_SavePNG(surf, path.string().c_str());
+	IMG_SavePNG(surf, TextOperations::filesystemPathToUtf8(path).c_str());
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
 }

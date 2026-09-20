@@ -97,7 +97,10 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 {
 	ResourcePath resDir(getModDirectory(modName), EResType::DIRECTORY);
-	std::string path = CResourceHandler::get()->getResourceName(resDir)->string();
+	// iterate over the path itself - a detour through std::string would convert it using the
+	// Windows ANSI codepage, replacing any character the codepage lacks with '?'. The directory
+	// would then not exist and recursive_directory_iterator would throw
+	const boost::filesystem::path path = *CResourceHandler::get()->getResourceName(resDir);
 
 	size_t sizeBytes = 0;
 	for(boost::filesystem::recursive_directory_iterator it(path); it != boost::filesystem::recursive_directory_iterator(); ++it)

@@ -559,6 +559,11 @@ int32_t CUnitState::getCount() const
 	return health.getCount();
 }
 
+int32_t CUnitState::getResurrected() const
+{
+	return health.getResurrected();
+}
+
 int32_t CUnitState::getFirstHPleft() const
 {
 	return health.getFirstHPleft();
@@ -599,7 +604,8 @@ ui32 CUnitState::getMovementRange(int turn) const
 	if (immobilizedPerTurn.getValue(0) != 0)
 		return 0;
 
-	return stackSpeedPerTurn.getValue(0);
+	// total speed can become negative if several speed-reducing effects stack past -100%
+	return std::max(0, stackSpeedPerTurn.getValue(0));
 }
 
 ui32 CUnitState::getMovementRange() const

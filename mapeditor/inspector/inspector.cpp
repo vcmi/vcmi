@@ -447,6 +447,17 @@ void Inspector::updateProperties(CGCreature * o)
 	}
 	addProperty(QObject::tr("Never flees"), o->neverFlees, false);
 	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
+	//Settings that originate from the HotA map format. "Aggression" is only used when the
+	//character is set to Custom - every other character derives it on map start.
+	addProperty(QObject::tr("Aggression"), static_cast<int>(o->agression), false);
+	addProperty(QObject::tr("Join only for money"), o->joinOnlyForMoney, false);
+	addProperty(QObject::tr("Joining percentage"), static_cast<int>(o->joiningPercentage), false);
+	{ //Upgraded stack presence
+		auto * delegate = new InspectorDelegate;
+		delegate->options = upgradedStackIdentifiers;
+		addProperty<CGCreature::UpgradedStackPresence>(QObject::tr("Upgraded stack"), o->upgradedStackPresence, delegate, false);
+	}
+	addProperty(QObject::tr("Stacks count"), static_cast<int>(o->stacksCount), false);
 	addProperty(QObject::tr("Artifact reward"), o->gainedArtifact); //TODO: implement in setProperty
 	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), true);
 	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->getCount(), false);
@@ -832,6 +843,17 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 		o->notGrowingTeam = value.toBool();
 	if(key == QObject::tr("Amount"))
 		o->stacks[SlotID(0)]->setCount(value.toString().toInt());
+	if(key == QObject::tr("Aggression"))
+		o->agression = std::clamp(value.toInt(), -1, 10); //h3m stores this in a byte - clamp instead of wrapping
+	if(key == QObject::tr("Join only for money"))
+		o->joinOnlyForMoney = value.toBool();
+	if(key == QObject::tr("Joining percentage"))
+		o->joiningPercentage = std::clamp(value.toInt(), -1, 100); //-1 falls back to the global setting
+	if(key == QObject::tr("Upgraded stack"))
+		o->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(value.toInt());
+	if(key == QObject::tr("Stacks count"))
+		//negative values are HotA's relative codes: -1 default, -2 one less, -3 average, 0 one more
+		o->stacksCount = std::clamp(value.toInt(), -3, GameConstants::ARMY_SIZE);
 }
 
 void Inspector::setProperty(SeerHut * o, const QString & key, const QVariant & value)
@@ -973,6 +995,24 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	return item;
 }
 
+QTableWidgetItem * Inspector::addProperty(CGCreature::UpgradedStackPresence value)
+{
+	auto * item = new QTableWidgetItem;
+	item->setFlags(Qt::NoItemFlags);
+	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
+
+	for(const auto & i : upgradedStackIdentifiers)
+	{
+		if(i.second.toInt() == static_cast<int>(value))
+		{
+			item->setText(i.first);
+			break;
+		}
+	}
+
+	return item;
+}
+
 QTableWidgetItem * Inspector::addProperty(const std::optional<CGDwellingRandomizationInfo> & value)
 {
 	QString text = QObject::tr("Select town");
@@ -1011,6 +1051,14 @@ Inspector::Inspector(MapController & c, CGObjectInstance * o, QTableWidget * t):
 		{ QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE)) },
 		{ QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE)) },
 		{ QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE)) },
+		//only Custom keeps the map's aggression value - the others derive it on map start
+		{ QObject::tr("Custom"), QVariant::fromValue(int(CGCreature::Character::CUSTOM)) },
+	};
+
+	upgradedStackIdentifiers = {
+		{ QObject::tr("Random"), QVariant::fromValue(int(CGCreature::UpgradedStackPresence::RANDOM)) },
+		{ QObject::tr("Never"), QVariant::fromValue(int(CGCreature::UpgradedStackPresence::NEVER)) },
+		{ QObject::tr("Always"), QVariant::fromValue(int(CGCreature::UpgradedStackPresence::ALWAYS)) },
 	};
 }
 

@@ -16,7 +16,7 @@ enum class EGameSettings;
 
 class CGHeroInstance;
 
-class DLL_LINKAGE RandomizationBias
+class RandomizationBias
 {
 	int32_t accumulatedBias = 0;
 
