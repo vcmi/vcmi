@@ -85,7 +85,7 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
 	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->getHeroTypeID()));
-	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
+	auto secondarySkillBonus = Selector::targetSource(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus), "HeroManager::evaluateSpeciality");
 	auto secondarySkillBonuses = hero->getBonusesFrom(BonusSource::SECONDARY_SKILL);
 	float specialityScore = 0.0f;

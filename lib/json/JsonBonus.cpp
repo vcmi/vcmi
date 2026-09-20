@@ -951,7 +951,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	value = &ability["targetSourceType"];
 	std::optional<BonusSource> targetSrc = std::nullopt;
-	std::optional<BonusSourceID> targetId = std::nullopt;
+	BonusSourceID targetId;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -961,15 +961,10 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	value = &ability["targetSourceID"];
 	if(!value->isNull() && targetSrc.has_value())
-	{
-		targetId.emplace();
-		loadBonusSourceInstance(*targetId, *targetSrc, *value);
-	}
+		loadBonusSourceInstance(targetId, *targetSrc, *value);
 
-	if(targetSrc && targetId)
-		ret = ret.And(Selector::targetSource(*targetSrc, *targetId));
-	else if(targetSrc)
-		ret = ret.And(Selector::targetSourceType()(*targetSrc));
+	if(targetSrc)
+		ret = ret.And(Selector::targetSource(*targetSrc, targetId));
 
 	value = &ability["valueType"];
 	if(value->isString())
