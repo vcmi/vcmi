@@ -172,11 +172,14 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 		bte.stackID = stack->unitId();
 		bte.effect = BonusType::HP_REGENERATION;
 
-		const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
-		if(stack->hasBonusOfType(BonusType::HP_REGENERATION))
+		// STACK_HEALTH bonus can be reduced after stack was created - e.g. by battle-wide debuff of creature
+		// summoned after battle start. In this case stack health is higher than its current max health,
+		// so lost health has to be clamped to 0 instead of producing negative regeneration value
+		const int32_t lostHealth = static_cast<int32_t>(stack->getMaxHealth()) - stack->getFirstHPleft();
+		if(stack->hasBonusOfType(BonusType::HP_REGENERATION) && lostHealth > 0)
 			bte.val = std::min(lostHealth, stack->valOfBonuses(BonusType::HP_REGENERATION));
 
-		if(bte.val) // anything to heal
+		if(bte.val > 0) // anything to heal
 			gameHandler->sendAndApply(bte);
 	}
 
