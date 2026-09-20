@@ -119,6 +119,9 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Clears one layer to its initial state; the bottom layer is opaque, the rest transparent
 	void clearLayer(size_t index);
+
+	/// Draws the layers and the screen target into the current render target, without cursor
+	void composeFrame() const;
 	void destroyScreenBuffers();
 
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
