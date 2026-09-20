@@ -11,10 +11,8 @@
 #include "StdInc.h"
 #include "MapObjectDrawOrder.h"
 
-#include "../../lib/int3.h"
-#include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/mapObjects/ObjectTemplate.h"
-#include "../../lib/mapping/CMap.h"
+#include "ObjectTemplate.h"
+#include "../mapping/CMap.h"
 
 /// Whether some tile covered by both objects has a lower layer of the first object than of the second one
 static bool isLowerInAnyTile(const CMap & map, const CGObjectInstance * object, const CGObjectInstance * other)
@@ -53,27 +51,21 @@ static bool isDrawnBelow(const CMap & map, const CGObjectInstance * object, cons
 	return isLowerInAnyTile(map, object, other);
 }
 
-void MapObjectDrawOrder::insert(std::vector<ObjectInstanceID> & container, const CMap & map, const CGObjectInstance * object, const int3 & tile)
+bool MapObjectDrawOrder::usesFixedDrawSlot(const CGObjectInstance * object)
+{
+	return object->ID == Obj::HERO || object->ID == Obj::BOAT;
+}
+
+bool MapObjectDrawOrder::isSpecialGround(const CGObjectInstance * object)
+{
+	// all objects of the "terrain" handler, mods can add their own
+	return object->isTile2Terrain();
+}
+
+bool MapObjectDrawOrder::goesBelow(const CMap & map, const CGObjectInstance * object, const CGObjectInstance * previous, const int3 & tile)
 {
 	const ui8 layer = object->drawLayerAt(tile);
-	auto position = container.end();
+	const ui8 previousLayer = previous->drawLayerAt(tile);
 
-	while(position != container.begin())
-	{
-		const auto * previous = map.getObject(*(position - 1));
-
-		if(!previous)
-			break;
-
-		const ui8 previousLayer = previous->drawLayerAt(tile);
-
-		if(layer > previousLayer)
-			break;
-
-		if(layer == previousLayer && !isDrawnBelow(map, object, previous))
-			break;
-
-		--position;
-	}
-	container.insert(position, object->id);
+	return layer < previousLayer || (layer == previousLayer && isDrawnBelow(map, object, previous));
 }

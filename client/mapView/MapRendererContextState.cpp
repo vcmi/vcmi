@@ -12,7 +12,6 @@
 #include "MapRendererContextState.h"
 
 #include "IMapRendererContext.h"
-#include "MapObjectDrawOrder.h"
 #include "mapHandler.h"
 
 #include "../CPlayerInterface.h"
@@ -21,6 +20,7 @@
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
 
@@ -40,11 +40,6 @@ MapRendererContextState::MapRendererContextState()
 	logGlobal->debug("Done loading map objects");
 }
 
-bool MapRendererContextState::usesFixedDrawSlot(const CGObjectInstance * object)
-{
-	return object->ID == Obj::HERO || object->ID == Obj::BOAT;
-}
-
 void MapRendererContextState::updateVisibleObjects(const int3 & tile)
 {
 	boost::container::small_vector<ObjectInstanceID, 8> visible;
@@ -61,7 +56,7 @@ void MapRendererContextState::updateVisibleObjects(const int3 & tile)
 	{
 		const auto * object = getMapObject(objectID);
 
-		if(object && usesFixedDrawSlot(object))
+		if(object && MapObjectDrawOrder::usesFixedDrawSlot(object))
 			visible.push_back(objectID);
 	}
 
@@ -82,7 +77,7 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 			if(!GAME->interface()->cb->isInTheMap(currTile))
 				continue;
 
-			if(usesFixedDrawSlot(obj))
+			if(MapObjectDrawOrder::usesFixedDrawSlot(obj))
 			{
 				if(obj->coveringAt(currTile))
 				{
@@ -93,7 +88,9 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 			}
 
 			// like in H3 every cell of the object takes part in ordering, even if nothing is drawn there
-			MapObjectDrawOrder::insert(orderedObjects[currTile], *GAME->map().getMap(), obj, currTile);
+			const CMap & map = *GAME->map().getMap();
+			auto & ordered = orderedObjects[currTile];
+			ordered.insert(MapObjectDrawOrder::findInsertPosition(ordered, map, obj, currTile, [&](ObjectInstanceID id) { return map.getObject(id); }), obj->id);
 			usedTiles[obj->id].push_back(currTile);
 
 			if(obj->coveringAt(currTile))

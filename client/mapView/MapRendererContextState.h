@@ -64,9 +64,6 @@ public:
 	MapTilesStorage<MapObjectsList> orderedObjects;
 	std::map<ObjectInstanceID, ObjectTilesList> usedTiles;
 
-	/// Heroes and boats are not ordered with other objects, they are drawn between fixed layers of a tile
-	static bool usesFixedDrawSlot(const CGObjectInstance * object);
-
 	void addObject(const CGObjectInstance * object);
 	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);
 	void removeObject(const CGObjectInstance * object);

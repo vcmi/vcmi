@@ -137,9 +137,7 @@ class MapRendererObjects
 	/// transparency of the second, always-on-top copy of the active hero
 	static constexpr double activeHeroTransparency = 0.5;
 public:
-	/// Cursed ground, magic plains and the like are ground rather than things standing on it. Like in H3 they are
-	/// drawn before the rivers and roads, which show over them, and below all other objects
-	static bool isSpecialGround(const CGObjectInstance * object);
+	/// Special ground objects, which are drawn before the rivers and roads
 	void renderGround(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 
 	/// Must be called once per update pass before any checksum() call

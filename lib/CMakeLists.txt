@@ -170,6 +170,7 @@ set(lib_MAIN_SRCS
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
+	mapObjects/MapObjectDrawOrder.cpp
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
@@ -600,6 +601,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGHeroInstance.h
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
+	mapObjects/MapObjectDrawOrder.h
 	mapObjects/CGPandoraBox.h
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h

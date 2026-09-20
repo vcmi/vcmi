@@ -12,7 +12,6 @@
 #include "MapRenderer.h"
 
 #include "IMapRendererContext.h"
-#include "MapRendererContextState.h"
 #include "mapHandler.h"
 
 #include "../CPlayerInterface.h"
@@ -34,6 +33,7 @@
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
@@ -412,7 +412,7 @@ uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coo
 /// Body and shadow of an object are separate animations, except for heroes and boats
 static bool objectHasSeparateShadow(const CGObjectInstance * obj)
 {
-	return !MapRendererContextState::usesFixedDrawSlot(obj);
+	return !MapObjectDrawOrder::usesFixedDrawSlot(obj);
 }
 
 static bool objectIsFlaggable(const CGObjectInstance * obj)
@@ -614,132 +614,50 @@ void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & ta
 		renderImage(context, target, coordinates, instance, images[layer], transparencyFactor);
 }
 
-bool MapRendererObjects::isSpecialGround(const CGObjectInstance * object)
-{
-	switch(object->ID.toEnum())
-	{
-		case Obj::CURSED_GROUND1:
-		case Obj::CURSED_GROUND2:
-		case Obj::MAGIC_PLAINS1:
-		case Obj::MAGIC_PLAINS2:
-		case Obj::CLOVER_FIELD:
-		case Obj::EVIL_FOG:
-		case Obj::FIERY_FIELDS:
-		case Obj::HOLY_GROUNDS:
-		case Obj::LUCID_POOLS:
-		case Obj::MAGIC_CLOUDS:
-		case Obj::ROCKLANDS:
-			return true;
-		default:
-			return false;
-	}
-}
-
 void MapRendererObjects::renderGround(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
 
-		if(objectInstance && isSpecialGround(objectInstance))
+		if(objectInstance && MapObjectDrawOrder::isSpecialGround(objectInstance))
 			renderObject(context, target, coordinates, objectInstance);
 	}
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
-	const auto & objects = context.getObjects(coordinates);
-
 	const CGObjectInstance * activeHero = nullptr;
 	bool activeHeroCovered = false;
 
-	const auto draw = [&](const CGObjectInstance * object)
-	{
-		if(context.isActiveHero(object))
-			activeHero = object;
-		else if(activeHero)
-			activeHeroCovered = true;
-
-		renderObject(context, target, coordinates, object);
-	};
-
-	// Like in H3 heroes and boats are not ordered with other objects but drawn between fixed layers of the tile.
-	// Each is kept with its horizontal offset, which orders neighbours from left to right
-	using SlotObjects = boost::container::small_vector<std::pair<int, const CGObjectInstance *>, 4>;
-	SlotObjects bodyRow; // tile is in the row on which the hero stands
-	SlotObjects headRow; // tile is above that row, only the top of the hero reaches it
-
-	for(const auto & objectID : objects)
-	{
-		const auto * objectInstance = context.getObject(objectID);
-
-		assert(objectInstance);
-		if(!objectInstance)
-		{
-			logGlobal->error("Stray map object that isn't fading");
-			continue;
-		}
-
-		if(!MapRendererContextState::usesFixedDrawSlot(objectInstance))
-			continue;
-
-		const Point offset = context.objectImageOffset(objectID, coordinates);
-		auto & slot = offset.y < 16 ? bodyRow : headRow;
-		slot.emplace_back(offset.x, objectInstance);
-	}
-
-	const auto drawLayers = [&](ui8 lowest, ui8 highest)
-	{
-		for(const auto & objectID : objects)
+	MapObjectDrawOrder::drawTile(context.getObjects(coordinates), coordinates,
+		[&](ObjectInstanceID objectID)
 		{
 			const auto * objectInstance = context.getObject(objectID);
 
-			if(!objectInstance || MapRendererContextState::usesFixedDrawSlot(objectInstance) || isSpecialGround(objectInstance))
-				continue;
+			assert(objectInstance);
+			if(!objectInstance)
+				logGlobal->error("Stray map object that isn't fading");
 
-			const ui8 layer = objectInstance->drawLayerAt(coordinates);
-
-			if(layer >= lowest && layer <= highest)
-				draw(objectInstance);
-		}
-	};
-
-	const auto drawSlot = [&](SlotObjects & slot)
-	{
-		std::stable_sort(slot.begin(), slot.end(), [](const auto & left, const auto & right) { return left.first < right.first; });
-
-		for(const auto & entry : slot)
-			draw(entry.second);
-	};
-
-	// Like in H3 all shadows of the tile go after the bottom layer and under all the other bodies, so that
-	// a shadow never darkens another object - including the shadows of the bottom layer objects themselves
-	const auto drawShadows = [&]()
-	{
-		for(const auto & objectID : objects)
+			return objectInstance;
+		},
+		[&](const CGObjectInstance * object)
 		{
-			const auto * objectInstance = context.getObject(objectID);
+			return context.objectImageOffset(object->id, coordinates);
+		},
+		[&](const CGObjectInstance * object)
+		{
+			renderShadow(context, target, coordinates, object);
+		},
+		[&](const CGObjectInstance * object)
+		{
+			if(context.isActiveHero(object))
+				activeHero = object;
+			else if(activeHero)
+				activeHeroCovered = true;
 
-			if(objectInstance && !MapRendererContextState::usesFixedDrawSlot(objectInstance) && !isSpecialGround(objectInstance))
-				renderShadow(context, target, coordinates, objectInstance);
-		}
-	};
-
-	drawLayers(0, 0);
-	drawShadows();
-
-	if(bodyRow.empty() && headRow.empty())
-	{
-		drawLayers(1, 255);
-	}
-	else
-	{
-		drawLayers(1, 1);
-		drawSlot(bodyRow);
-		drawLayers(2, 2);
-		drawSlot(headRow);
-		drawLayers(3, 255);
-	}
+			renderObject(context, target, coordinates, object);
+		});
 
 	// Like H3, draw the active hero a second time on top of the objects that cover him,
 	// so he stays visible behind obstacles - e.g. a town, or anything he flies over
