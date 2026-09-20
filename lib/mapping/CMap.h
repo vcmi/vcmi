@@ -166,10 +166,10 @@ public:
 	/// Only for use in map editor / RMG
 	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject);
 
-	/// Replaced map object with specified ID with new object
-	/// Old object must exist and will be removed from map
-	/// Returns pointer to old object, which can be manipulated or dropped
-	std::shared_ptr<CGObjectInstance> replaceObject(ObjectInstanceID oldObject, const std::shared_ptr<CGObjectInstance> & newObject);
+	/// Inserts a new object with the specified id
+	/// If an object with this id already exists, it will be removed
+	/// Returns pointer to old object or nullptr if the object does not exist
+	std::shared_ptr<CGObjectInstance> replaceObject(ObjectInstanceID oldObjectId, const std::shared_ptr<CGObjectInstance> & newObject);
 
 	/// Erases object from map without shifting indices
 	/// Returns pointer to old object, which can be manipulated or dropped
