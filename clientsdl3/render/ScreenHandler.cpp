@@ -983,10 +983,6 @@ void ScreenHandler::clearPresentedCanvas(GpuRenderLayer layer)
 
 void ScreenHandler::presentScreenTexture()
 {
-	// the memory cache gives assets up on whichever thread loaded one; freeing what they hold has
-	// to wait for this thread, where nothing is drawing from them
-	ENGINE->renderHandler().reclaimEvictedAssets();
-
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// a layer may still be bound from rendering into it
