@@ -80,7 +80,7 @@ public:
 
 class MapRendererObjects
 {
-	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
+	std::map<std::pair<AnimationPath, EImageBlitMode>, std::shared_ptr<CAnimation>> animations;
 	mutable std::map<ImagePath, std::shared_ptr<IImage>> images;
 
 	/// Everything the checksum needs to know about one object in one animation group:
@@ -99,30 +99,49 @@ class MapRendererObjects
 	/// Keyed by object and animation group, packed into one integer.
 	std::unordered_map<uint64_t, ObjectChecksumInfo> checksumInfoCache;
 
-	/// The base, flag and overlay images an object contributes this pass, in draw order. Resolving
-	/// them costs four lookups and is asked once per tile it covers. Cleared by prepareFrame().
-	using ObjectImages = std::array<std::shared_ptr<IImage>, 3>;
+	/// The images an object contributes this pass, in draw order. Resolving them costs a lookup
+	/// each and is asked once per tile it covers. Cleared by prepareFrame().
+	/// Like in H3 the shadow is drawn on its own, before the bodies of everything on the tile, so
+	/// it never darkens another object. Heroes and boats keep the shadow in their body image.
+	enum ObjectImageLayer
+	{
+		LAYER_SHADOW,
+		LAYER_BODY,
+		LAYER_COLOR_OVERLAY, // player color of flaggable objects
+		LAYER_FLAG,
+		LAYER_OVERLAY,
+		LAYER_COUNT
+	};
+	using ObjectImages = std::array<std::shared_ptr<IImage>, LAYER_COUNT>;
 	std::unordered_map<int32_t, ObjectImages> renderImageCache;
 
 	const ObjectImages & getObjectImages(IMapRendererContext & context, const CGObjectInstance * object);
 
 	const ObjectChecksumInfo & getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex);
 
-	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
+	std::shared_ptr<CAnimation> getBodyAnimation(const CGObjectInstance * obj);
+	std::shared_ptr<CAnimation> getShadowAnimation(const CGObjectInstance * obj);
+	std::shared_ptr<CAnimation> getColorOverlayAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
-	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, EImageBlitMode mode);
 	std::shared_ptr<IImage> getImage(const ImagePath & filename) const;
 
 	std::shared_ptr<IImage> getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
-	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image, double transparencyFactor = 1.0);
+	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image, double transparencyFactor = 1.0, bool applyOwnerColor = true);
+	void renderShadow(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object);
 	void renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj, double transparencyFactor = 1.0);
 
 	/// transparency of the second, always-on-top copy of the active hero
 	static constexpr double activeHeroTransparency = 0.5;
 public:
+	/// Cursed ground, magic plains and the like are ground rather than things standing on it. Like in H3 they are
+	/// drawn before the rivers and roads, which show over them, and below all other objects
+	static bool isSpecialGround(const CGObjectInstance * object);
+	void renderGround(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+
 	/// Must be called once per update pass before any checksum() call
 	void prepareFrame();
 
