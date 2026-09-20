@@ -193,7 +193,7 @@ public:
 		EXPECT_EQ(marker.duration, BonusDuration::N_TURNS);
 		EXPECT_EQ(marker.turnsRemain, effectDuration);
 		EXPECT_EQ(marker.source, BonusSource::SPELL_EFFECT);
-		EXPECT_EQ(marker.sid, BonusSourceID(SpellID(SpellID::CLONE)));
+		EXPECT_EQ(marker.sid, BonusSourceID(SpellWithMasteryID(SpellMastery::NONE, SpellID::CLONE)));
 	}
 
 	void setDefaultExpectations()
@@ -210,6 +210,7 @@ public:
 		EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return("core:clone"));
 
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillOnce(Return(effectDuration));
+		EXPECT_CALL(mechanicsMock, getEffectLevel()).WillOnce(Return(SpellMastery::NONE.getNum()));
 		EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
 		EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(cloneId));

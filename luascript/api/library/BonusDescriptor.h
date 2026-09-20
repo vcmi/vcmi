@@ -49,6 +49,7 @@ struct BonusDescriptor final : ApiSerializable<BonusDescriptor>
 	JsonNode propagator;
 	JsonNode updater;
 	JsonNode propagationUpdater;
+	JsonNode sourceSecondaryID;
 
 	/// Builds a JsonNode matching the schema JsonUtils::parseBonus expects.
 	JsonNode toJson() const;
@@ -78,6 +79,7 @@ struct BonusDescriptor final : ApiSerializable<BonusDescriptor>
 		s("propagator",         propagator,         "Rule for propagating the bonus upwards for area effect (army-wide, player-wide, …).");
 		s("updater",            updater,            "Rules for recalculation of bonus parameters (e.g. scales with stack count).");
 		s("propagationUpdater", propagationUpdater, "Updater applied to bonuses produced by this one's propagator.");
+		s("sourceSecondaryID",  sourceSecondaryID,  "source secondary id of a bonus (for example mastery level of the spell)");
 	}
 };
 
