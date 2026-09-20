@@ -162,11 +162,13 @@
 		},
 		
 		{
+			"name" : "labelTurnTimerAccumulate",
 			"type" : "labelTitle",
 			"position": {"x": 195, "y": 199},
 			"text" : "vcmi.optionsTab.accumulate"
 		},
 		{
+			"name" : "labelUnitTimerAccumulate",
 			"type" : "labelTitle",
 			"position": {"x": 195, "y": 331},
 			"text" : "vcmi.optionsTab.accumulate"
