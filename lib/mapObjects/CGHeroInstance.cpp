@@ -1777,67 +1777,67 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 		if(!it->parameters)
 			continue;
 
-			auto nid = it->parameters->toCreature();
-			if(nid == stack.getId()) //in very specific case the upgrade is available by default (?)
-			continue;
+		auto nid = it->parameters->toCreature();
+		if(nid == stack.getId()) //in very specific case the upgrade is available by default (?)
+		continue;
 
-			const CCreature * targetCreature = nid.toCreature();
+		const CCreature * targetCreature = nid.toCreature();
 
-				if(directUpgrades->empty())
+			if(directUpgrades->empty())
+			{
+				CreatureID sourceID = it->subtype.as<CreatureID>();
+				const CCreature * sourceCreature = sourceID.toCreature();
+
+				if(!sourceCreature->isMyDirectOrIndirectUpgrade(currentCreature))
+					continue;
+
+				if(vstd::contains(sourceCreature->upgrades, nid))
+					continue;
+
+				if(!currentCreature->isMyDirectOrIndirectUpgrade(targetCreature))
+					continue;
+			}
+
+			const int costModifier = std::max(0, 100 + it->val);
+
+			// Expose native intermediate upgrades that still lead to the configured SPECIAL_UPGRADE target.
+			if (currentCreature->isMyDirectOrIndirectUpgrade(targetCreature)
+				&& !vstd::contains(currentCreature->upgrades, nid))
+			{
+				std::set<CreatureID> visitedUpgrades;
+				std::vector<CreatureID> upgradesToVisit;
+
+				for(const auto & upgradeID : currentCreature->upgrades)
+					upgradesToVisit.push_back(upgradeID);
+
+				while (!upgradesToVisit.empty())
 				{
-					CreatureID sourceID = it->subtype.as<CreatureID>();
-					const CCreature * sourceCreature = sourceID.toCreature();
+					CreatureID upgradeID = upgradesToVisit.back();
+					upgradesToVisit.pop_back();
 
-					if(!sourceCreature->isMyDirectOrIndirectUpgrade(currentCreature))
+					if(visitedUpgrades.contains(upgradeID))
 						continue;
 
-					if(vstd::contains(sourceCreature->upgrades, nid))
+					visitedUpgrades.insert(upgradeID);
+
+					if(upgradeID == stack.getId() || upgradeID == nid)
 						continue;
 
-					if(!currentCreature->isMyDirectOrIndirectUpgrade(targetCreature))
+					const CCreature * upgradeCreature = upgradeID.toCreature();
+
+					if(!upgradeCreature->isMyDirectOrIndirectUpgrade(targetCreature))
 						continue;
+
+					info.addUpgrade(upgradeID, stack.getType(), costModifier);
+
+					for(const auto & nextUpgradeID : upgradeCreature->upgrades)
+						upgradesToVisit.push_back(nextUpgradeID);
+
 				}
+			}
 
-				const int costModifier = std::max(0, 100 + it->val);
-
-				// Expose native intermediate upgrades that still lead to the configured SPECIAL_UPGRADE target.
-				if (currentCreature->isMyDirectOrIndirectUpgrade(targetCreature)
-					&& !vstd::contains(currentCreature->upgrades, nid))
-				{
-					std::set<CreatureID> visitedUpgrades;
-					std::vector<CreatureID> upgradesToVisit;
-
-					for(const auto & upgradeID : currentCreature->upgrades)
-						upgradesToVisit.push_back(upgradeID);
-
-					while (!upgradesToVisit.empty())
-					{
-						CreatureID upgradeID = upgradesToVisit.back();
-						upgradesToVisit.pop_back();
-
-						if(visitedUpgrades.contains(upgradeID))
-							continue;
-
-						visitedUpgrades.insert(upgradeID);
-
-						if(upgradeID == stack.getId() || upgradeID == nid)
-							continue;
-
-						const CCreature * upgradeCreature = upgradeID.toCreature();
-
-						if(!upgradeCreature->isMyDirectOrIndirectUpgrade(targetCreature))
-							continue;
-
-						info.addUpgrade(upgradeID, stack.getType(), costModifier);
-
-						for(const auto & nextUpgradeID : upgradeCreature->upgrades)
-							upgradesToVisit.push_back(nextUpgradeID);
-
-					}
-				}
-
-				// Keep the configured SPECIAL_UPGRADE target available as a direct upgrade.
-				info.addUpgrade(nid, stack.getType(), costModifier);
+			// Keep the configured SPECIAL_UPGRADE target available as a direct upgrade.
+			info.addUpgrade(nid, stack.getType(), costModifier);
 	}
 }
 
