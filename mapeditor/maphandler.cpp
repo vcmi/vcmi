@@ -18,6 +18,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/GameConstants.h"
 
@@ -25,9 +26,10 @@ namespace
 {
 const int tileSize = 32;
 
-bool objectBlitOrderSorter(const ObjectRect & a, const ObjectRect & b)
+/// Palette entries 1-4 and 6-7 of the def format are shadow, 5 is the owner color
+bool isShadowColor(int index, QRgb color)
 {
-	return CMap::compareObjectBlitOrder(a.obj, b.obj);
+	return index > 0 && index < 8 && index != 5 && qAlpha(color) > 0 && qAlpha(color) < 255;
 }
 
 QImage flippedImage(const std::shared_ptr<QImage> & image, ui8 rotationFlags)
@@ -68,6 +70,7 @@ MapHandler::MapHandler()
 void MapHandler::reset(const CMap * Map)
 {
 	map = Map;
+	splitImages.clear();
 	initObjectRects();
 	logGlobal->info("\tMaking object rects");
 }
@@ -209,8 +212,49 @@ std::shared_ptr<QImage> MapHandler::getObjectImage(const CGObjectInstance * obj)
 	return image;
 }
 
+const MapHandler::SplitImage & MapHandler::getSplitImage(const std::shared_ptr<QImage> & image)
+{
+	auto it = splitImages.find(image.get());
+	if(it != splitImages.end())
+		return it->second;
+
+	SplitImage split;
+	split.source = image;
+
+	// only indexed images have shadow in their palette, the others are all body
+	if(image->format() == QImage::Format_Indexed8)
+	{
+		QVector<QRgb> shadowColors(image->colorCount(), qRgba(0, 0, 0, 0));
+		QVector<QRgb> bodyColors = image->colorTable();
+		bool hasShadow = false;
+
+		for(int i = 0; i < bodyColors.size(); ++i)
+		{
+			if(isShadowColor(i, bodyColors[i]))
+			{
+				shadowColors[i] = bodyColors[i];
+				bodyColors[i] = qRgba(0, 0, 0, 0);
+				hasShadow = true;
+			}
+		}
+
+		if(hasShadow)
+		{
+			split.shadow = std::make_shared<QImage>(*image);
+			split.shadow->setColorTable(shadowColors);
+			split.body = std::make_shared<QImage>(*image);
+			split.body->setColorTable(bodyColors);
+		}
+	}
+	return splitImages.emplace(image.get(), std::move(split)).first->second;
+}
+
 std::set<int3> MapHandler::removeObject(const CGObjectInstance *object)
 {
+	for(const auto & tile : stampedTiles[object])
+		vstd::erase(orderedObjects[index(tile)], object);
+	stampedTiles.erase(object);
+
 	std::set<int3> result = tilesCache[object];
 	for(auto & t : result)
 	{
@@ -229,8 +273,82 @@ std::set<int3> MapHandler::removeObject(const CGObjectInstance *object)
 	return result;
 }
 
+std::vector<int3> MapHandler::getStampTiles(const CGObjectInstance * object) const
+{
+	std::vector<int3> result;
+
+	if(!object || MapObjectDrawOrder::usesFixedDrawSlot(object))
+		return result;
+
+	// like in H3 every cell of an object takes part in ordering, even if nothing is drawn there
+	for(int fx = 0; fx < object->getWidth(); ++fx)
+	{
+		for(int fy = 0; fy < object->getHeight(); ++fy)
+		{
+			int3 tile(object->anchorPos().x - fx, object->anchorPos().y - fy, object->anchorPos().z);
+
+			if(map->isInTheMap(tile))
+				result.push_back(tile);
+		}
+	}
+	return result;
+}
+
+void MapHandler::stampObject(const CGObjectInstance * object)
+{
+	for(const auto & tile : getStampTiles(object))
+	{
+		auto & list = orderedObjects[index(tile)];
+		list.insert(MapObjectDrawOrder::findInsertPosition(list, *map, object, tile, [](const CGObjectInstance * other) { return other; }), object);
+		stampedTiles[object].push_back(tile);
+	}
+}
+
+void MapHandler::restampTiles(const std::set<int3> & tiles)
+{
+	if(tiles.empty())
+		return;
+
+	int3 first = *tiles.begin();
+	int3 last = first;
+	for(const auto & tile : tiles)
+	{
+		orderedObjects[index(tile)].clear();
+		first = int3(std::min(first.x, tile.x), std::min(first.y, tile.y), 0);
+		last = int3(std::max(last.x, tile.x), std::max(last.y, tile.y), 0);
+	}
+
+	// stamped again in the order of objects on the map, like when the map is loaded
+	for(const auto & object : map->objects)
+	{
+		if(!object || object->anchorPos().x < first.x || object->anchorPos().y < first.y
+			|| object->anchorPos().x - object->getWidth() >= last.x || object->anchorPos().y - object->getHeight() >= last.y)
+			continue;
+
+		for(const auto & tile : getStampTiles(object.get()))
+		{
+			if(!tiles.count(tile))
+				continue;
+
+			auto & list = orderedObjects[index(tile)];
+			list.insert(MapObjectDrawOrder::findInsertPosition(list, *map, object.get(), tile, [](const CGObjectInstance * other) { return other; }), object.get());
+		}
+	}
+}
+
+void MapHandler::sortTile(const int3 & tile)
+{
+	const auto & ordered = orderedObjects[index(tile)];
+	const auto rank = [&](const CGObjectInstance * object) { return std::find(ordered.begin(), ordered.end(), object) - ordered.begin(); };
+
+	auto & list = tileObjects[index(tile)];
+	std::stable_sort(list.begin(), list.end(), [&](const ObjectRect & a, const ObjectRect & b) { return rank(a.obj) < rank(b.obj); });
+}
+
 std::set<int3> MapHandler::addObject(const CGObjectInstance * object)
 {
+	stampObject(object);
+
 	auto image = getObjectImage(object);
 	if(!image)
 		return std::set<int3>{};
@@ -262,10 +380,13 @@ void MapHandler::initObjectRects()
 {
 	tileObjects.clear();
 	tilesCache.clear();
+	orderedObjects.clear();
+	stampedTiles.clear();
 	if(!map)
 		return;
 
 	tileObjects.resize(map->width * map->height * map->levels());
+	orderedObjects.resize(map->width * map->height * map->levels());
 
 	//initializing objects / rects
 	for(const auto & elem : map->objects)
@@ -273,8 +394,10 @@ void MapHandler::initObjectRects()
 		addObject(elem.get());
 	}
 
-	for(auto & tt : tileObjects)
-		stable_sort(tt.begin(), tt.end(), objectBlitOrderSorter);
+	for(int z = 0; z < map->levels(); ++z)
+		for(int y = 0; y < map->height; ++y)
+			for(int x = 0; x < map->width; ++x)
+				sortTile(int3(x, y, z));
 }
 
 ObjectRect::ObjectRect(const CGObjectInstance * obj_, QRect rect_)
@@ -341,13 +464,72 @@ std::vector<ObjectRect> & MapHandler::getObjects(int x, int y, int z)
 
 
 
+void MapHandler::drawImageSlice(QPainter & painter, const QImage & image, const QPoint & tilesFromAnchor, const QPoint & target, bool locked)
+{
+	// the image is aligned with its anchor tile at bottom right
+	const QRect source(image.width() - (tilesFromAnchor.x() + 1) * tileSize, image.height() - (tilesFromAnchor.y() + 1) * tileSize, tileSize, tileSize);
+	const QRect visible = source.intersected(image.rect());
+
+	if(visible.isEmpty())
+		return;
+
+	const QPoint position = target + visible.topLeft() - source.topLeft();
+
+	if(!locked)
+	{
+		painter.drawImage(position, image, visible);
+		return;
+	}
+
+	QImage dimmed(visible.size(), QImage::Format_ARGB32_Premultiplied);
+	dimmed.fill(Qt::transparent);
+	{
+		QPainter dimmedPainter(&dimmed);
+		dimmedPainter.drawImage(QPoint(0, 0), image, visible);
+		dimmedPainter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+		dimmedPainter.fillRect(dimmed.rect(), Qt::Dense4Pattern);
+	}
+	painter.drawImage(position, dimmed);
+}
+
+void MapHandler::drawObjectTile(QPainter & painter, const CGObjectInstance * obj, const int3 & tile, const QPoint & target, bool shadow, bool locked)
+{
+	const QPoint tilesFromAnchor(obj->anchorPos().x - tile.x, obj->anchorPos().y - tile.y);
+
+	auto objData = findObjectBitmap(obj, 0, obj->ID == Obj::HERO ? 2 : 0);
+
+	if(!objData.objBitmap)
+		return;
+
+	// heroes and boats keep the shadow in their image
+	const SplitImage & split = getSplitImage(objData.objBitmap);
+
+	if(shadow)
+	{
+		if(split.shadow)
+			drawImageSlice(painter, *split.shadow, tilesFromAnchor, target, locked);
+		return;
+	}
+
+	const QImage * body = objData.objBitmap.get();
+	if(split.body && !MapObjectDrawOrder::usesFixedDrawSlot(obj))
+	{
+		body = split.body.get();
+		setPlayerColor(split.body.get(), obj->tempOwner);
+	}
+	drawImageSlice(painter, *body, tilesFromAnchor, target, locked);
+
+	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
+	{
+		if(auto flag = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4))
+			drawImageSlice(painter, *flag, tilesFromAnchor, target, locked);
+	}
+}
+
 void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, std::set<const CGObjectInstance *> & locked)
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-	auto blitOrder = [](const CGObjectInstance * a, const CGObjectInstance * b) { return CMap::compareObjectBlitOrder(a, b);};
-	std::set<const CGObjectInstance *, decltype(blitOrder)> objects;
-
 
 	int left = static_cast<int>(std::round(section.left()))/tileSize;
 	int right = static_cast<int>(std::round(section.right()))/tileSize;
@@ -357,18 +539,32 @@ void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, 
 	{
 		for(int y = top; y < bottom; ++y)
 		{
-			for(auto & object : getObjects(x, y, z))
-			{
-				if (!objects.contains(object.obj))
-					objects.insert(object.obj);
-			}
-		}
-	}
+			const int3 tile(x, y, z);
+			const auto & entries = getObjects(tile);
 
-	for (auto const& object : objects)
-	{
-		int3 pos = object->pos;
-		drawObjectAt(painter, object, pos.x, pos.y, section.topLeft(), locked.count(object));
+			if(entries.empty())
+				continue;
+
+			const QPoint target(x * tileSize - static_cast<int>(section.left()), y * tileSize - static_cast<int>(section.top()));
+
+			// Like in H3 special ground is drawn below the roads and rivers, which are part of the terrain layer
+			// so they are drawn again over it
+			if(std::any_of(entries.begin(), entries.end(), [](const ObjectRect & entry) { return MapObjectDrawOrder::isSpecialGround(entry.obj); }))
+			{
+				drawTerrainTile(painter, x, y, z, section.topLeft());
+				for(const auto & entry : entries)
+					if(MapObjectDrawOrder::isSpecialGround(entry.obj))
+						drawObjectTile(painter, entry.obj, tile, target, false, locked.count(entry.obj));
+				drawRiver(painter, x, y, z, section.topLeft());
+				drawRoad(painter, x, y, z, section.topLeft());
+			}
+
+			MapObjectDrawOrder::drawTile(entries, tile,
+				[](const ObjectRect & entry) { return entry.obj; },
+				[&](const CGObjectInstance * obj) { return Point((obj->anchorPos().x - x) * tileSize, (obj->anchorPos().y - y) * tileSize); },
+				[&](const CGObjectInstance * obj) { drawObjectTile(painter, obj, tile, target, true, locked.count(obj)); },
+				[&](const CGObjectInstance * obj) { drawObjectTile(painter, obj, tile, target, false, locked.count(obj)); });
+		}
 	}
 }
 
@@ -439,12 +635,21 @@ void MapHandler::drawMinimapTile(QPainter & painter, int x, int y, int z)
 
 std::set<int3> MapHandler::invalidate(const CGObjectInstance * obj)
 {
+	std::set<int3> stamped;
+	if(stampedTiles.count(obj))
+		stamped.insert(stampedTiles[obj].begin(), stampedTiles[obj].end());
+
 	auto t1 = removeObject(obj);
 	auto t2 = addObject(obj);
 	t1.insert(t2.begin(), t2.end());
 
+	stamped.insert(stampedTiles[obj].begin(), stampedTiles[obj].end());
+	restampTiles(stamped);
+
+	for(auto & tt : stamped)
+		sortTile(tt);
 	for(auto & tt : t2)
-		stable_sort(tileObjects[index(tt)].begin(), tileObjects[index(tt)].end(), objectBlitOrderSorter);
+		sortTile(tt);
 
 	return t1;
 }
