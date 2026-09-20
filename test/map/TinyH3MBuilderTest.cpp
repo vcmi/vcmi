@@ -197,6 +197,44 @@ TEST(TinyH3MBuilderTest, HeroesPlacement)
 	EXPECT_EQ(loaded.map->getObjectiveObjectFrom(fixed->anchorPos(), Obj::HERO), fixed);
 }
 
+TEST(TinyH3MBuilderTest, HotA5ExplicitHeroLevelLoadsInH3OverflowRange)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
+		.hotaVersion(5)
+		.size(36, /*twoLevel*/ false)
+		.name("HotA5HeroLevel100")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.heroHotaLevel(100)
+		.buildAndDump("HotA5ExplicitHeroLevelLoadsInH3OverflowRange");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
+	ASSERT_NE(hero, nullptr);
+	EXPECT_EQ(hero->level, 100u);
+}
+
+TEST(TinyH3MBuilderTest, HotA5ExplicitVeryHighHeroLevelLoads)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
+		.hotaVersion(5)
+		.size(36, /*twoLevel*/ false)
+		.name("HotA5HeroLevel30000")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.heroHotaLevel(30000)
+		.buildAndDump("HotA5ExplicitVeryHighHeroLevelLoads");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
+	ASSERT_NE(hero, nullptr);
+	EXPECT_EQ(hero->level, 30000u);
+}
+
 TEST(TinyH3MBuilderTest, SpellScrollLoads)
 {
 	// SpellID 15 = Magic Arrow (always available, no expansion required).
