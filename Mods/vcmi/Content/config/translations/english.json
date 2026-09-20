@@ -561,6 +561,7 @@
 	"vcmi.keyBindings.keyBinding.adventureReplayTurn": "Adventure replay turn",
 	"vcmi.keyBindings.keyBinding.adventureRestartGame": "Adventure restart game",
 	"vcmi.keyBindings.keyBinding.adventureSaveGame": "Adventure save game",
+	"vcmi.keyBindings.keyBinding.adventureScreenshotMap": "Adventure whole map screenshot without overlays",
 	"vcmi.keyBindings.keyBinding.adventureSearch": "Adventure search",
 	"vcmi.keyBindings.keyBinding.adventureSearchContinue": "Adventure search continue",
 	"vcmi.keyBindings.keyBinding.adventureOpenWiki": "Adventure open wiki",

@@ -86,6 +86,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_BLOCKED,   optionInMapView(),      [this]() { this->toggleBlocked(); } },
+		{ EShortcut::ADVENTURE_SCREENSHOT_MAP,   optionInMapView(),      [this]() { this->screenshotMap(); } },
 		{ EShortcut::ADVENTURE_TRACK_HERO,       optionInMapView(),      [this]() { this->toggleTrackHero(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
@@ -207,6 +208,11 @@ void AdventureMapShortcuts::toggleBlocked()
 {
 	Settings s = settings.write["session"];
 	s["showBlocked"].Bool() = !settings["session"]["showBlocked"].Bool();
+}
+
+void AdventureMapShortcuts::screenshotMap()
+{
+	owner.hotkeyScreenshotMap();
 }
 
 void AdventureMapShortcuts::toggleSleepWake()

@@ -16,6 +16,7 @@
 #include "MapViewModel.h"
 
 #include "render/CAnimation.h"
+#include "render/CanvasImage.h"
 #include "render/Canvas.h"
 #include "render/IImage.h"
 #include "render/IFont.h"
@@ -472,6 +473,32 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 	cachedPosition = model->getMapViewCenter();
 	overlayWasVisible = overlayVisible;
 	updatedThisFrame = false;
+}
+
+void MapViewCache::exportMapLevel(const std::shared_ptr<IMapRendererContext> & context, int level, const boost::filesystem::path & path)
+{
+	const int3 mapSize = context->getMapSize();
+	const Point tileSize = MapViewModel::getNativeTileSize();
+
+	// ignores the screen scaling, which would multiply the size of an already huge image
+	CanvasImage image(Point(mapSize.x, mapSize.y) * tileSize, CanvasScalingPolicy::IGNORE);
+	Canvas target = image.getCanvas();
+
+	mapRenderer->prepareFrame(*context);
+
+	for(int y = 0; y < mapSize.y; ++y)
+	{
+		for(int x = 0; x < mapSize.x; ++x)
+		{
+			Canvas tile(target, Rect(Point(x, y) * tileSize, tileSize));
+			mapRenderer->renderTile(*context, tile, int3(x, y, level), false);
+		}
+	}
+
+	if(context->filterGrayscale())
+		target.applyGrayscale();
+
+	image.exportBitmap(path);
 }
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)

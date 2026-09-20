@@ -220,5 +220,5 @@ public:
 
 	TileChecksum getTileChecksum(IMapRendererContext & context, const int3 & coordinates);
 
-	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, bool withOverlays = true);
 };

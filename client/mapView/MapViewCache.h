@@ -131,6 +131,9 @@ public:
 	/// Whether this frame draws anything over the terrain, which needs a layer of its own
 	bool needsOwnLayer(const std::shared_ptr<IMapRendererContext> & context) const;
 
+	/// renders an entire map level at native tile size, without the hero path and debug overlays, into a PNG
+	void exportMapLevel(const std::shared_ptr<IMapRendererContext> & context, int level, const boost::filesystem::path & path);
+
 	/// creates snapshot of current view and stores it into internal canvas
 	/// used for view transition, e.g. Dimension Door spell or teleporters (Subterra gates / Monolith)
 	void createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context);

@@ -1006,6 +1006,11 @@ void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 	widget->getMapView()->onMapZoomLevelChanged(delta, useDeadZone);
 }
 
+void AdventureMapInterface::hotkeyScreenshotMap()
+{
+	widget->getMapView()->exportScreenshot();
+}
+
 void AdventureMapInterface::onScreenResize()
 {
 	OBJECT_CONSTRUCTION;

@@ -928,7 +928,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 	return result;
 }
 
-void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, bool withOverlays)
 {
 	if(!context.isInMap(coordinates))
 	{
@@ -957,8 +957,11 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 			rendererRoad.renderTile(context, target, coordinates);
 
 		rendererObjects.renderTile(context, target, coordinates);
-		rendererPath.renderTile(context, target, coordinates);
-		rendererOverlay.renderTile(context, target, coordinates);
+		if(withOverlays)
+		{
+			rendererPath.renderTile(context, target, coordinates);
+			rendererOverlay.renderTile(context, target, coordinates);
+		}
 
 		if(!visible)
 			rendererFow.renderTile(context, target, coordinates, *neighborInfo);
