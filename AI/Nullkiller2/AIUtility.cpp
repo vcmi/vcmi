@@ -10,7 +10,9 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "AIGateway.h"
+#include "Engine/Nullkiller.h"
 #include "Goals/Goals.h"
+#include "Pathfinding/AINodeStorage.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
@@ -30,6 +32,23 @@
 
 namespace NK2AI
 {
+
+const CGObjectInstance * getOneWayPortalEntranceInPath(const AIPath & path, const Nullkiller * aiNk)
+{
+	for(const auto & node : path.nodes)
+	{
+		const auto objects = aiNk->cc->getVisitableObjs(node.coord, false);
+		const auto entrance = std::find_if(objects.begin(), objects.end(), [](const CGObjectInstance * object)
+		{
+			return object->ID == Obj::MONOLITH_ONE_WAY_ENTRANCE;
+		});
+
+		if(entrance != objects.end())
+			return *entrance;
+	}
+
+	return nullptr;
+}
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
