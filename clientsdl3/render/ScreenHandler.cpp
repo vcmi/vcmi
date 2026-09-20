@@ -43,6 +43,7 @@
 #endif
 
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -992,6 +993,15 @@ void ScreenHandler::presentScreenTexture()
 		GpuResources::get().processPendingTextureDestruction();
 	}
 
+	composeFrame();
+	ENGINE->cursor().render();
+	SDL_RenderPresent(renderer);
+}
+
+void ScreenHandler::composeFrame() const
+{
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+
 	// the draw color is left over from whatever was rendered last, and this clear also
 	// covers the letterbox bars around the reserved area
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -1028,8 +1038,6 @@ void ScreenHandler::presentScreenTexture()
 	}
 
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
-	ENGINE->cursor().render();
-	SDL_RenderPresent(renderer);
 }
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const
@@ -1089,8 +1097,27 @@ void ScreenHandler::screenShot() const
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
 	boost::filesystem::create_directories(outPath);
 	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
-	auto img = std::make_shared<SDLImageShared>(screen);
-	img->exportBitmap(filePath, nullptr);
+
+	if(isGpuRenderingEnabled())
+	{
+		// windows draw into screenTarget on this path, so the surface is empty - read back a composed frame
+		SDL_Renderer * renderer = GpuResources::get().renderer();
+		Canvas frame = createOffscreenCanvas(getLogicalResolution());
+
+		SDL_SetRenderTarget(renderer, frame.getRenderTargetTexture());
+		composeFrame();
+		SDL_Surface * pixels = SDL_RenderReadPixels(renderer, nullptr);
+		SDL_SetRenderTarget(renderer, nullptr);
+
+		IMG_SavePNG(pixels, TextOperations::filesystemPathToUtf8(filePath).c_str());
+		SDL_DestroySurface(pixels);
+	}
+	else
+	{
+		auto img = std::make_shared<SDLImageShared>(screen);
+		img->exportBitmap(filePath, nullptr);
+	}
+
 	MetaString txt;
 	txt.appendTextID("vcmi.client.screenShot");
 	txt.replaceRawString(TextOperations::filesystemPathToUtf8(filePath));
