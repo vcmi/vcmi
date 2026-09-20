@@ -100,6 +100,11 @@ bool CGObjectInstance::coveringAt(const int3 & testPos) const
 	return anchorPos().z == testPos.z && appearance->isVisibleAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
+ui8 CGObjectInstance::drawLayerAt(const int3 & testPos) const
+{
+	return appearance->getDrawLayerAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
+}
+
 bool CGObjectInstance::isVisibleFor(PlayerColor player) const
 {
 	// otherwise visible when at least one covered tile is revealed
