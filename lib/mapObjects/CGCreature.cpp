@@ -365,10 +365,11 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	for(const auto & elem : h->Slots())
 	{
+		bool isSameCreature = elem.second->getCreatureID() == getCreatureID();
 		bool isOurUpgrade = vstd::contains(getCreature()->upgrades, elem.second->getCreatureID());
 		bool isOurDowngrade = vstd::contains(elem.second->getCreature()->upgrades, getCreatureID());
 
-		if(isOurUpgrade || isOurDowngrade)
+		if(isSameCreature || isOurUpgrade || isOurDowngrade)
 			count += elem.second->getCount();
 		totalCount += elem.second->getCount();
 	}
