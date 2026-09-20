@@ -119,6 +119,9 @@ public:
 	/// returns total amount of killed in this unit
 	virtual int32_t getKilled() const = 0;
 
+	/// returns amount of currently alive creatures that were resurrected temporarily and will be lost after combat
+	virtual int32_t getResurrected() const = 0;
+
 	/// returns total health that unit still has
 	virtual int64_t getAvailableHealth() const = 0;
 

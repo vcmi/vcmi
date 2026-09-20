@@ -205,6 +205,7 @@ public:
 
 	int32_t getKilled() const override;
 	int32_t getCount() const override;
+	int32_t getResurrected() const override;
 	int32_t getFirstHPleft() const override;
 	int64_t getAvailableHealth() const override;
 	int64_t getTotalHealth() const override;

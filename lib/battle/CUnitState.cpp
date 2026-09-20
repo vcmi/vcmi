@@ -559,6 +559,11 @@ int32_t CUnitState::getCount() const
 	return health.getCount();
 }
 
+int32_t CUnitState::getResurrected() const
+{
+	return health.getResurrected();
+}
+
 int32_t CUnitState::getFirstHPleft() const
 {
 	return health.getFirstHPleft();
