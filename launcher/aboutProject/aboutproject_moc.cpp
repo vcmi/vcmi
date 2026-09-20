@@ -12,6 +12,7 @@
 #include "ui_aboutproject_moc.h"
 
 #include <QCheckBox>
+#include <QStorageInfo>
 #include <QUuid>
 
 #if defined(VCMI_ANDROID)
@@ -33,6 +34,23 @@
 #include "../../lib/filesystem/CZipSaver.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
+
+qint64 AboutProjectView::directorySize(const QString & path) const
+{
+	qint64 result = 0;
+	QDirIterator iterator(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	while(iterator.hasNext())
+	{
+		iterator.next();
+		result += iterator.fileInfo().size();
+	}
+	return result;
+}
+
+QString AboutProjectView::formattedDataSize(qint64 bytes) const
+{
+	return QLocale().formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
+}
 
 bool AboutProjectView::isSameOrChildPath(const QString & path, const QString & parent) const
 {
@@ -324,7 +342,10 @@ void AboutProjectView::changeDirectory(EUserDirectory directory, const QString &
 		return;
 
 	if(isSameOrChildPath(selected, source) && isSameOrChildPath(source, selected))
+	{
+		QMessageBox::information(this, tr("Directory unchanged"), tr("The selected directory is the same as the current directory. Please select a different location."));
 		return;
+	}
 
 	if(isSameOrChildPath(selected, source))
 	{
@@ -360,10 +381,25 @@ void AboutProjectView::changeDirectory(EUserDirectory directory, const QString &
 
 	if(sourceHasData)
 	{
-		QMessageBox copyDialog(QMessageBox::Question, tr("Copy existing data?"), tr("Do you want to copy the existing files?\n\nFrom:\n%1\n\nTo:\n%2").arg(QDir::toNativeSeparators(source), QDir::toNativeSeparators(selected)), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
+		const qint64 sourceSize = directorySize(source);
+		const QStorageInfo targetStorage(selected);
+		const qint64 availableSpace = targetStorage.bytesAvailable();
+		const bool storageSpaceKnown = targetStorage.isValid() && targetStorage.isReady() && availableSpace >= 0;
+		const bool enoughSpace = !storageSpaceKnown || availableSpace >= sourceSize;
+		const QString availableSpaceText = storageSpaceKnown ? formattedDataSize(availableSpace) : tr("Unknown");
+		const QString spaceDetails = tr("Space required: %1\nSpace available: %2").arg(formattedDataSize(sourceSize), availableSpaceText);
+
+		QMessageBox copyDialog(QMessageBox::Question, tr("Copy existing data?"), tr("Do you want to copy the existing files?\n\nFrom:\n%1\n\nTo:\n%2\n\n%3").arg(QDir::toNativeSeparators(source), QDir::toNativeSeparators(selected), spaceDetails), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this);
 		copyDialog.setDefaultButton(QMessageBox::Yes);
+		if(!enoughSpace)
+		{
+			copyDialog.setIcon(QMessageBox::Warning);
+			copyDialog.setInformativeText(tr("There is not enough free space to copy the existing data."));
+			copyDialog.button(QMessageBox::Yes)->setEnabled(false);
+		}
 
 		auto * moveCheckBox = new QCheckBox(tr("Move existing data (remove the original files after a successful reload)"));
+		moveCheckBox->setChecked(true);
 		copyDialog.setCheckBox(moveCheckBox);
 
 		const auto answer = static_cast<QMessageBox::StandardButton>(copyDialog.exec());
@@ -384,6 +420,14 @@ void AboutProjectView::changeDirectory(EUserDirectory directory, const QString &
 					return;
 
 				targetAction = *selectedAction;
+			}
+
+			const qint64 requiredSpace = sourceSize + (targetAction == EExistingTargetAction::MERGE ? directorySize(selected) : 0);
+			const QStorageInfo currentTargetStorage(selected);
+			if(currentTargetStorage.isValid() && currentTargetStorage.isReady() && currentTargetStorage.bytesAvailable() >= 0 && currentTargetStorage.bytesAvailable() < requiredSpace)
+			{
+				QMessageBox::critical(this, tr("Not enough free space"), tr("The selected operation requires %1, but only %2 is available in the target location.").arg(formattedDataSize(requiredSpace), formattedDataSize(currentTargetStorage.bytesAvailable())));
+				return;
 			}
 
 			pauseDownloads();
