@@ -11,6 +11,9 @@
 #include "StdInc.h"
 #include "NotificationHandler.h"
 
+#include "GameEngine.h"
+#include "../render/IScreenHandler.h"
+
 #if defined(VCMI_WINDOWS)
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_properties.h>
@@ -61,6 +64,9 @@ static bool SDLCALL windowsMessageHook(void * userdata, MSG * msg)
 
 void NotificationHandler::notify(std::string msg)
 {
+	// independent of the tray icon below, which only exists while the "notifications" setting is on
+	ENGINE->screenHandler().flashWindowIfUnfocused();
+
 	NOTIFYICONDATA niData;
 	HWND windowHandle = getWindowHandle(state.window);
 
@@ -170,6 +176,7 @@ void NotificationHandler::destroy()
 
 void NotificationHandler::notify(std::string msg)
 {
+	ENGINE->screenHandler().flashWindowIfUnfocused();
 }
 
 void NotificationHandler::init(SDL_Window * window)

@@ -162,6 +162,14 @@ cmake_dependent_option(ENABLE_TEMPLATE_EDITOR "Enable template editor inside map
 
 option(VCMI_PORTMASTER "PortMaster build" OFF)
 
+# flatpak-builder sets FLATPAK_ID for the build environment
+if(DEFINED ENV{FLATPAK_ID})
+	set(VCMI_FLATPAK_DEFAULT ON)
+else()
+	set(VCMI_FLATPAK_DEFAULT OFF)
+endif()
+option(VCMI_FLATPAK "Flatpak build" ${VCMI_FLATPAK_DEFAULT})
+
 ############################################
 #        Miscellaneous options             #
 ############################################
