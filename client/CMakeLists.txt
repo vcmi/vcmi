@@ -67,6 +67,7 @@ set(vcmiclientcommon_SRCS
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
+	mapView/MapObjectDrawOrder.cpp
 	mapView/MapRendererContextState.cpp
 	mapView/MapView.cpp
 	mapView/MapViewActions.cpp
@@ -278,6 +279,7 @@ set(vcmiclientcommon_HEADERS
 	mapView/IMapRendererObserver.h
 	mapView/MapRenderer.h
 	mapView/MapRendererContext.h
+	mapView/MapObjectDrawOrder.h
 	mapView/MapRendererContextState.h
 	mapView/MapView.h
 	mapView/MapViewActions.h
