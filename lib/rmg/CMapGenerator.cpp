@@ -187,7 +187,7 @@ MetaString CMapGenerator::getMapDescription() const
 	result.replaceNumber(map->height());
 	result.replaceNumber(map->levels());
 	result.replaceNumber(mapGenOptions.getHumanOrCpuPlayerCount());
-	result.replaceNumber(mapGenOptions.getCompOnlyPlayerCount());
+	result.replaceNumber(mapGenOptions.getComputerPlayerCount());
 	result.replaceTextID(waterContent.at(mapGenOptions.getWaterContent()).get());
 	result.replaceTextID(monsterStrength.at(monsterStrengthIndex).get());
 
