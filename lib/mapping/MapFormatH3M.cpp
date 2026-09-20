@@ -928,7 +928,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		{
 			bool alwaysAddSkills = reader->readBool(); // prevent heroes from receiving additional random secondary skills at the start of the map if they are not of the first level
 			bool cannotGainXP = reader->readBool();
-			int32_t level = reader->readInt32(); // Needs investigation how this interacts with usual setting of level via experience
+			int32_t level = reader->readInt32();
 			assert(level > 0);
 
 			if (!alwaysAddSkills)
@@ -938,7 +938,27 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				logGlobal->warn("Map '%s': Option to prevent hero %d from receiveing experience is not implemented!", mapName, heroID);
 
 			if (level > 1)
-				logGlobal->warn("Map '%s': Option to set level of hero %d to %d is not implemented!", mapName, heroID, level);
+			{
+				auto * hero = map->tryGetFromHeroPool(HeroTypeID(heroID));
+
+				// HotA stores the explicit level independently from the legacy
+				// 32-bit experience field. Preserve it even in the H3 overflow
+				// range (roughly levels 75-195), where VCMI's 64-bit experience
+				// table can otherwise derive a different level.
+				if(!hero)
+				{
+					auto handler = LIBRARY->objtypeh->getHandlerFor(
+						Obj::HERO,
+						HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+					auto object = handler->create(map->cb, handler->getTemplates().front());
+					auto heroObject = std::dynamic_pointer_cast<CGHeroInstance>(object);
+					heroObject->subID = heroID;
+					map->addToHeroPool(heroObject);
+					hero = heroObject.get();
+				}
+
+				hero->level = static_cast<ui32>(level);
+			}
 		}
 	}
 }
@@ -2503,7 +2523,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 	{
 		bool alwaysAddSkills = reader->readBool(); // prevent heroes from receiving additional random secondary skills at the start of the map if they are not of the first level
 		bool cannotGainXP = reader->readBool();
-		int32_t level = reader->readInt32(); // Needs investigation how this interacts with usual setting of level via experience
+		int32_t level = reader->readInt32();
 		assert(level > 0);
 
 		if (!alwaysAddSkills)
@@ -2513,7 +2533,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			logGlobal->warn("Map '%s': Option to prevent hero %d from receiveing experience is not implemented!", mapName, object->subID.num);
 
 		if (level > 1)
-			logGlobal->warn("Map '%s': Option to set level of hero %d to %d is not implemented!", mapName, object->subID.num, level);
+			object->level = static_cast<ui32>(level);
 	}
 	return object;
 }
