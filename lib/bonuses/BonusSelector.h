@@ -130,6 +130,12 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype);
 	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
+
+	/// Selects bonuses that amplify bonuses of specified source type.
+	/// If sourceID is empty, only source type is checked (same as targetSourceType).
+	/// If sourceID is set, bonus must either declare this exact source ID, or declare no source ID at all
+	CSelector DLL_LINKAGE targetSource(BonusSource source, BonusSourceID sourceID);
+
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);
 	CSelector DLL_LINKAGE typeSubtypeValueType(BonusType Type, BonusSubtypeID Subtype, BonusValueType valType);
 

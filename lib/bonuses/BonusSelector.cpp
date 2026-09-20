@@ -69,6 +69,17 @@ namespace Selector
 		return CSelectFieldEqual<BonusSource>(&Bonus::source)(source);
 	}
 
+	CSelector DLL_LINKAGE targetSource(BonusSource source, BonusSourceID sourceID)
+	{
+		auto bySourceType = CSelectFieldEqual<BonusSource>(&Bonus::targetSourceType)(source);
+
+		if(!sourceID.hasValue())
+			return bySourceType; // no source ID specified - filter by source type only
+
+		CSelectFieldEqual<BonusSourceID> bySourceID(&Bonus::targetSourceID);
+		return bySourceType.And(bySourceID(sourceID).Or(bySourceID(BonusSourceID())));
+	}
+
 	CSelector DLL_LINKAGE valueType(BonusValueType valType)
 	{
 		return CSelectFieldEqual<BonusValueType>(&Bonus::valType)(valType);

@@ -844,6 +844,15 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	if (!value->isNull())
 		b->targetSourceType = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "target type "));
 
+	value = &ability["targetSourceID"];
+	if (!value->isNull())
+	{
+		if (b->targetSourceType == BonusSource::OTHER)
+			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
+		else
+			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value);
+	}
+
 	value = &ability["limiters"];
 	if (!value->isNull())
 		b->limiter = parseLimiter(*value);
@@ -941,12 +950,27 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 
 	value = &ability["targetSourceType"];
+	std::optional<BonusSource> targetSrc = std::nullopt;
+	std::optional<BonusSourceID> targetId = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
 		if(it != bonusSourceMap.end())
-			ret = ret.And(Selector::targetSourceType()(it->second));
+			targetSrc = it->second;
 	}
+
+	value = &ability["targetSourceID"];
+	if(!value->isNull() && targetSrc.has_value())
+	{
+		targetId.emplace();
+		loadBonusSourceInstance(*targetId, *targetSrc, *value);
+	}
+
+	if(targetSrc && targetId)
+		ret = ret.And(Selector::targetSource(*targetSrc, *targetId));
+	else if(targetSrc)
+		ret = ret.And(Selector::targetSourceType()(*targetSrc));
+
 	value = &ability["valueType"];
 	if(value->isString())
 	{

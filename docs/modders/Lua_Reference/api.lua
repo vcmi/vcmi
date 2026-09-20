@@ -620,6 +620,7 @@ function Bonus:getParametersAsVector() end
 ---@field sourceType any # Origin class (artifact, spell effect, secondary skill, …) — drives source-based dispels.
 ---@field sourceID any # Identifier of the specific source within its sourceType.
 ---@field targetSourceType any # Source type the bonus is restricted to act upon (used by hero specialty bonuses).
+---@field targetSourceID any # Optional identifier of the specific source object within `targetSourceType` this bonus is restricted to.
 ---@field addInfo any # Optional auxiliary payload — meaning depends on the bonus type.
 ---@field limiters any # JSON-defined limiter chain that definea whether the bonus applies to a given bearer.
 ---@field propagator any # Rule for propagating the bonus upwards for area effect (army-wide, player-wide, …).
