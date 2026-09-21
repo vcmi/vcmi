@@ -120,6 +120,7 @@ public:
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
+	void setMoveAndShootSelectionMode(bool on);
 
 	/// Refresh queue after turn order changes
 	void updateQueue();

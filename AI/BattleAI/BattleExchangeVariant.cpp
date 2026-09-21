@@ -263,7 +263,9 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	if(result.bestAttack.attack.shooting
 		&& !result.bestAttack.defenderDead
 		&& !activeStack->waited()
-		&& hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
+		&& hb->battleHasShootingPenalty(activeStack,
+			result.bestAttack.attack.mobileShooting ? result.bestAttack.from : activeStack->getPosition(),
+			result.bestAttack.dest, result.bestAttack.attack.mobileShooting))
 	{
 		if(!canBeHitThisTurn(result.bestAttack))
 			return result; // lets wait

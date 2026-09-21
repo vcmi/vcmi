@@ -348,7 +348,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 		const int totalAttacks = ap.attackerState->getTotalAttacks(attackInfo.shooting);
 
-		if (!attackInfo.shooting)
+		if(hex.isValid())
 			ap.attackerState->setPosition(hex);
 
 		battle::Units defenderUnits;
@@ -370,12 +370,14 @@ AttackPossibility AttackPossibility::evaluate(
 				retaliatedUnits.push_back(attacker);
 			}
 
-			auto obstacleDamage = damageCache.getObstacleDamage(hex, attacker);
+		}
 
+		if(hex.isValid() && hex != attacker->getPosition())
+		{
+			auto obstacleDamage = damageCache.getObstacleDamage(hex, attacker);
 			if(obstacleDamage > 0)
 			{
 				ap.attackerDamageReduce += calculateDamageReduce(nullptr, attacker, obstacleDamage, damageCache, state);
-
 				ap.attackerState->damage(obstacleDamage);
 			}
 		}

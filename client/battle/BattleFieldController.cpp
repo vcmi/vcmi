@@ -484,6 +484,13 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	if(!stack)
 		return {};
 
+	if(const auto selectedHex = owner.actionsController->getSelectedMovementHex())
+	{
+		if(stack->doubleWide())
+			return {*selectedHex, stack->occupiedHex(*selectedHex)};
+		return {*selectedHex};
+	}
+
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 
 	bool canReach = owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex);
@@ -629,12 +636,15 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeLimitH
 	return output;
 }
 
-void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, BattleHexArray & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights)
+void BattleFieldController::calculateRangeLimitAndHighlightImages(const BattleHex & sourceHex, uint8_t distance,
+	std::shared_ptr<CAnimation> rangeLimitImages, BattleHexArray & rangeLimitHexes,
+	std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights)
 {
-		BattleHexArray rangeHexes = getRangeHexes(hoveredHex, distance);
-		rangeLimitHexes = getRangeLimitHexes(hoveredHex, rangeHexes, distance);
-		std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
-		rangeLimitHexesHighlights = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
+	BattleHexArray rangeHexes = getRangeHexes(sourceHex, distance);
+	rangeLimitHexes = getRangeLimitHexes(sourceHex, rangeHexes, distance);
+	std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections =
+		getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
+	rangeLimitHexesHighlights = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
@@ -653,19 +663,45 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	BattleHexArray hoveredMouseHex = hoveredHex.isAvailable() ? BattleHexArray({ hoveredHex }) : BattleHexArray();
 
 	const CStack * hoveredStack = getHoveredStack();
-	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
+	const auto firingPosition = owner.actionsController->getSelectedMovementHex();
+	const auto * shooter = owner.stacksController->getActiveStack();
+	BattleHexArray mobileShootingRange;
+	if(firingPosition && shooter)
+	{
+		const int range = owner.getBattle()->battleGetMobileShooterRange(shooter);
+		for(int index = 0; index < GameConstants::BFIELD_SIZE; ++index)
+		{
+			const BattleHex hex(index);
+			if(hex.isAvailable() && hex != *firingPosition &&
+				!(shooter->doubleWide() && hex == shooter->occupiedHex(*firingPosition)) &&
+				owner.getBattle()->isHexWithinSpecifiedRange(*firingPosition, hex, range))
+				mobileShootingRange.insert(hex);
+		}
+
+		const auto fullDamageRange = static_cast<uint8_t>(std::clamp(
+			owner.getBattle()->battleGetMobileShooterFullDamageRange(shooter), 0, 255));
+		calculateRangeLimitAndHighlightImages(*firingPosition, fullDamageRange,
+			rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighlights);
+
+		const auto maximumRange = static_cast<uint8_t>(std::clamp(range, 0, 255));
+		calculateRangeLimitAndHighlightImages(*firingPosition, maximumRange,
+			shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
+	}
+	if(!hoveredStack && hoveredHex == BattleHex::INVALID && !firingPosition)
 		return;
 
 	// skip range limit calculations if unit hovered is not a shooter
-	if(hoveredStack && hoveredStack->isShooter())
+	if(!firingPosition && hoveredStack && hoveredStack->isShooter())
 	{
 		// calculate array with highlight images for ranged full damage limit
 		auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
-		calculateRangeLimitAndHighlightImages(rangedFullDamageDistance, rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighlights);
+		calculateRangeLimitAndHighlightImages(hoveredHex, rangedFullDamageDistance,
+			rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighlights);
 
 		// calculate array with highlight images for shooting range limit
 		auto shootingRangeDistance = hoveredStack->getShootingRangeDistance();
-		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
+		calculateRangeLimitAndHighlightImages(hoveredHex, shootingRangeDistance,
+			shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
 	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID
@@ -692,6 +728,8 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
+		if(mobileShootingRange.contains(hex))
+			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
 		bool stackMovement = hoveredStackMovementRangeHexes.contains(hex);
 		bool mouse = hoveredMouseHexes.contains(hex);
 

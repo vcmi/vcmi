@@ -86,7 +86,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"shooter",    "Unit making the ranged attack."},
 			{"target",     "Unit being shot at."},
 			{"shooterHex", "Hex to shoot from; nil uses where the shooter stands."},
-			{"targetHex",  "Hex to shoot at; nil uses where the target stands."}
+			{"targetHex",  "Hex to shoot at; nil uses where the target stands."},
+			{"mobileShooting", "Pass true when movement and shooting are part of the same action."}
 		}, {},
 		"True if the shooter is too far from the target for a full-strength shot. "
 		"Optionally, perform calculation assuming that units are at specified positions instead of their current ones.");
@@ -180,10 +181,13 @@ bool IBattleInfoCallbackProxy::isMeleeAttackPossible(const IBattleInfoCallback &
 	return cb.isMeleeAttackPossible(&attacker, &defender);
 }
 
-bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex)
+bool IBattleInfoCallbackProxy::hasDistancePenalty(const IBattleInfoCallback & object, const battle::Unit & shooter,
+	const battle::Unit & target, std::optional<BattleHex> shooterHex,
+	std::optional<BattleHex> targetHex, std::optional<bool> mobileShooting)
 {
 	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	return cb.battleHasDistancePenalty(&shooter, shooterHex.value_or(shooter.getPosition()), targetHex.value_or(target.getPosition()));
+	return cb.battleHasDistancePenalty(&shooter, shooterHex.value_or(shooter.getPosition()),
+		targetHex.value_or(target.getPosition()), mobileShooting.value_or(false));
 }
 
 bool IBattleInfoCallbackProxy::hasWallPenalty(const IBattleInfoCallback & object, const battle::Unit & shooter, const battle::Unit & target, std::optional<BattleHex> shooterHex, std::optional<BattleHex> targetHex)

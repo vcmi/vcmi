@@ -34,6 +34,7 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 
 	int chargeDistance = 0;
 	bool shooting = false;
+	bool mobileShooting = false;
 	bool luckyStrike = false;
 	bool unluckyStrike = false;
 	bool deathBlow = false;
@@ -61,6 +62,7 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 		s("defenderBonuses", defenderBonuses, "Bonus types the defender carries.");
 		s("chargeDistance", chargeDistance, "Hexes crossed to reach the target, which is what jousting scales with.");
 		s("shooting", shooting, "Whether the blow is a shot.");
+		s("mobileShooting", mobileShooting, "Whether the shot follows movement in the same action.");
 		s("luckyStrike", luckyStrike, "Whether luck struck.");
 		s("unluckyStrike", unluckyStrike, "Whether bad luck struck.");
 		s("deathBlow", deathBlow, "Whether a death blow was rolled.");
