@@ -108,8 +108,9 @@ public:
 class QueriesProcessorTest : public ::testing::Test
 {
 protected:
-	GameHandlerTestServer server;
-	CGameHandler gh{server};
+	std::shared_ptr<CGameState> gameState = std::make_shared<CGameState>();
+	GameHandlerTestServer server{gameState};
+	CGameHandler gh{server, gameState};
 	QueriesProcessor & queries = *gh.queries;
 };
 
