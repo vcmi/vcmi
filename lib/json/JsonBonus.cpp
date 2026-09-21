@@ -929,7 +929,6 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -940,11 +939,16 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["sourceID"];
 	if(!value->isNull() && src.has_value())
 	{
-		loadBonusSourceInstance(*id, *src, ability);
-	}
+		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
+		// Selector has to look it up on each use, rather than capture it right away
+		auto sourceId = std::make_shared<BonusSourceID>();
+		loadBonusSourceInstance(*sourceId, *src, ability);
 
-	if(src && id)
-		ret = ret.And(Selector::source(*src, *id));
+		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
+		{
+			return bonus->source == source && bonus->sid == *sourceId;
+		}));
+	}
 	else if(src)
 		ret = ret.And(Selector::sourceTypeSel(*src));
 
