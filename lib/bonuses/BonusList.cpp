@@ -83,35 +83,35 @@ int BonusList::totalValue(int baseValue) const
 	int indexMaxCount = 0;
 	int indexMinCount = 0;
 
-	struct PercentContribution
-	{
-		BonusSource source;
-		BonusSourceID sourceID; //empty = applies to the whole source type
-		int value;
-	};
+	std::array<int, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
 
-	// Percentage adjustments applied to bonuses depending on the source they come from
-	std::vector<PercentContribution> percentToSource;
+	// PERCENT_TO_TARGET_TYPE bonuses that name a specific source object - they apply only to it
+	std::vector<const Bonus *> percentToSourceID;
 
 	for(const auto & b : bonuses)
 	{
 		switch(b->valType)
 		{
 		case BonusValueType::PERCENT_TO_SOURCE:
-			percentToSource.push_back({b->source, BonusSourceID(), b->val});
+			percentToSource[vstd::to_underlying(b->source)] += b->val;
 		break;
 		case BonusValueType::PERCENT_TO_TARGET_TYPE:
-			percentToSource.push_back({b->targetSourceType, b->targetSourceID, b->val});
+			if(b->targetSourceID.hasValue())
+				percentToSourceID.push_back(b.get());
+			else
+				percentToSource[vstd::to_underlying(b->targetSourceType)] += b->val;
 			break;
 		}
 	}
 
 	for(const auto & b : bonuses)
 	{
-		int percent = 0;
-		for(const auto & [source, sourceID, value] : percentToSource)
-			if(source == b->source && (sourceID == BonusSourceID() || sourceID == b->sid))
-				percent += value;
+		int sourceIndex = vstd::to_underlying(b->source);
+
+		int percent = percentToSource[sourceIndex];
+		for(const Bonus * restriction : percentToSourceID)
+			if(restriction->targetSourceType == b->source && restriction->targetSourceID == b->sid)
+				percent += restriction->val;
 
 		// Workaround: creature hero specialties in H3 is the only place that uses rounding up in bonuses
 		// TODO: try to find more elegant solution?
