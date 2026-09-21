@@ -67,6 +67,7 @@ class BonusDerivedValueCache : public BonusCacheBase
 	mutable BonusCacheEntry entry;
 	mutable std::atomic<int32_t> variant = 0;
 
+    int getTreeVersion() const;
 public:
 	explicit BonusDerivedValueCache(const IBonusBearer * target)
 		: BonusCacheBase(target)
@@ -76,7 +77,7 @@ public:
 	template<typename Compute>
 	int getValue(const Compute & compute, int32_t of) const
 	{
-		auto version = target->getTreeVersion();
+        auto version = getTreeVersion();
 
 		if(entry.version != version || variant != of)
 		{
