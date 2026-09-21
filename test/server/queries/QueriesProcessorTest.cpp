@@ -169,7 +169,7 @@ TEST_F(NeutralDwellingBattleQueryTest, ownedDwellingUsesNeutralBattleSideWithout
 	EXPECT_EQ(gh.queries->topQuery(PlayerColor(1)), nullptr);
 }
 
-TEST_F(DeferredVictoryLossTest, heroLevelUpDefersAnotherPlayersLossUntilQueryIsAnswered)
+TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilQueryIsAnswered)
 {
 	const PlayerColor defeatedPlayer(0);
 	const PlayerColor levelUpPlayer(1);
@@ -194,10 +194,11 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersAnotherPlayersLossUntilQueryIsA
 	gameHandler.queries->addQuery(levelUpQuery);
 
 	gameHandler.checkVictoryLossConditionsForPlayer(defeatedPlayer);
-	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::INGAME);
+	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::LOSER);
+	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::INGAME);
 
 	gameHandler.queries->popIfTop(levelUpQuery);
-	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::LOSER);
+	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::WINNER);
 }
 
 TEST_F(QueriesProcessorTest, popIfTop_removesTopQuery)

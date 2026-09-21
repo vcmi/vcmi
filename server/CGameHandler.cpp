@@ -549,7 +549,7 @@ CGameHandler::CGameHandler(IGameServer & server)
 	: server(server)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
-	, queries(std::make_unique<QueriesProcessor>())
+	, queries(std::make_unique<QueriesProcessor>(*this))
 	, turnStartVisitScheduler(std::make_unique<TurnStartVisitScheduler>(*this, *queries))
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
@@ -3837,29 +3837,6 @@ void CGameHandler::checkVictoryLossConditionsForAll()
 	checkVictoryLossConditions(playerColors);
 }
 
-bool CGameHandler::hasPendingLevelUpQuery() const
-{
-	const QueriesProcessor & queryProcessor = *queries;
-	for(const auto & query : queryProcessor.allQueries())
-	{
-		const auto type = query->getType();
-		if(type == QueryType::HeroLevelUpDialog || type == QueryType::CommanderLevelUpDialog)
-			return true;
-	}
-
-	return false;
-}
-
-void CGameHandler::resumeDeferredVictoryLossChecks()
-{
-	if(playersWithDeferredVictoryLossChecks.empty() || hasPendingLevelUpQuery())
-		return;
-
-	auto playersToCheck = std::move(playersWithDeferredVictoryLossChecks);
-	playersWithDeferredVictoryLossChecks.clear();
-	checkVictoryLossConditions(playersToCheck);
-}
-
 void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState * p = gameInfo().getPlayerState(player);
@@ -3867,13 +3844,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	if(!p || p->status != EPlayerStatus::INGAME)
 		return;
 
-	if(hasPendingLevelUpQuery())
-	{
-		playersWithDeferredVictoryLossChecks.insert(player);
+	if(queries->topQuery(player))
 		return;
-	}
-
-	playersWithDeferredVictoryLossChecks.erase(player);
 
 	if(gameState().getMap().battleOnly)
 	{

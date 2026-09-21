@@ -243,14 +243,11 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	{
 		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getNameTextID());
 		gh->levelUpHero(hero);
-	}
-	else
-	{
-		logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getNameTextID(), answer.value());
-		gh->levelUpHero(hero, hlu.skills[*answer]);
+		return;
 	}
 
-	gh->resumeDeferredVictoryLossChecks();
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getNameTextID(), answer.value());
+	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
 void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
@@ -315,17 +312,11 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	{
 		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getNameTextID());
 		gh->levelUpCommander(hero->getCommander());
-	}
-	else
-	{
-		constexpr const char * logMessage =
-			"Completing commander level-up query. "
-			"Commander of hero %s gains skill %s";
-		logGlobal->trace(logMessage, hero->getNameTextID(), answer.value());
-		gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
+		return;
 	}
 
-	gh->resumeDeferredVictoryLossChecks();
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getNameTextID(), answer.value());
+	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 
 void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
