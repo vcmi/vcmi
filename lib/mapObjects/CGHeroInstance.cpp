@@ -787,10 +787,9 @@ bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGH
 	return left->getHeroTypeID() > right->getHeroTypeID();
 }
 
-ui64 CGHeroInstance::getTotalStrength() const
+ui64 CGHeroInstance::estimateHeroCombatValue() const
 {
-	double ret = getHeroStrength() * getArmyStrength();
-	return static_cast<ui64>(ret);
+	return static_cast<ui64>(getHeroStrength() * estimateCombatValue());
 }
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const

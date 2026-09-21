@@ -17,9 +17,9 @@ Script.type = "combatScript"
 --- a script that needs to remember something across events must store it itself,
 --- for example in a bonus of its own.
 ---
---- No event is withheld: the attack handlers fire for a counterattack, for every blow of a
+--- No event is withheld: the attack handlers fire for a counterattack, for every hit of a
 --- multiple attack, and even when the bearer died while the attack was resolving. Whether that is
---- a reason to do nothing is the script's own call - a reflecting ability answers a lethal blow
+--- a reason to do nothing is the script's own call - a reflecting ability answers a lethal hit
 --- while dying, while an ability that strikes back must first check `unit:isAlive()`.
 
 return Script

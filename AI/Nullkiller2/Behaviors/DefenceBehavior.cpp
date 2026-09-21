@@ -50,10 +50,10 @@ namespace Goals
 
 	uint64_t estimateTownDefence(const CGTownInstance & town, const CGHeroInstance * committedDefender)
 	{
-		uint64_t result = town.getArmyStrength();
+		uint64_t result = town.estimateCombatValue();
 
 		if(committedDefender)
-			result = std::max(result, committedDefender->getTotalStrength());
+			result = std::max(result, committedDefender->estimateHeroCombatValue());
 
 		return result + estimateTownFortificationDefence(town, committedDefender && result > 0);
 	}
@@ -140,7 +140,7 @@ namespace Goals
 		if(!defenderMakesHomeStable)
 			return dayOfWeek != daysInWeek || remainingTownReinforcement == 0;
 
-		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20);
+		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.estimateHeroCombatValue() / 20);
 		if(remainingTownReinforcement > ignoredReinforcement)
 			return false;
 
@@ -185,13 +185,13 @@ namespace
 
 	uint64_t estimateTownMobileDefence(const CGTownInstance * town)
 	{
-		uint64_t result = town->getArmyStrength();
+		uint64_t result = town->estimateCombatValue();
 
 		if(const auto * visitingHero = town->getVisitingHero())
-			result = std::max(result, visitingHero->getTotalStrength());
+			result = std::max(result, visitingHero->estimateHeroCombatValue());
 
 		if(const auto * garrisonHero = town->getGarrisonHero())
-			result = std::max(result, garrisonHero->getTotalStrength());
+			result = std::max(result, garrisonHero->estimateHeroCombatValue());
 
 		return result;
 	}
@@ -527,7 +527,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 				// dismiss creatures we are not able to pick to be able to hide in garrison
 				if(town->getGarrisonHero() || town->getUpperArmy()->stacksCount() == 0 || path.targetHero->canBeMergedWith(*town)
-				   || (town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL))
+				   || (town->getUpperArmy()->estimateCombatValue() < 500 && town->fortLevel() >= CGTownInstance::CITADEL))
 				{
 					Composition composition;
 					composition.addNext(DefendTown(town, threat, path.targetHero))
@@ -543,7 +543,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			// main without army and visiting scout with army, very specific case
 			if(town->getVisitingHero() && town->getUpperArmy()->stacksCount() == 0 && path.targetHero != town->getVisitingHero() && path.exchangeCount == 1
 			   && path.turn() == 0 && aiNk->heroManager->evaluateHero(path.targetHero) > aiNk->heroManager->evaluateHero(town->getVisitingHero())
-			   && 10 * path.targetHero->getTotalStrength() < town->getVisitingHero()->getTotalStrength())
+			   && 10 * path.targetHero->estimateHeroCombatValue() < town->getVisitingHero()->estimateHeroCombatValue())
 			{
 				path.heroArmy = town->getVisitingHero();
 
@@ -707,14 +707,14 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 					needSwap = true;
 				else
 				{
-					if(town->getVisitingHero()->getArmyStrength() < town->getGarrisonHero()->getArmyStrength())
+					if(town->getVisitingHero()->estimateCombatValue() < town->getGarrisonHero()->estimateCombatValue())
 					{
-						if(town->getVisitingHero()->getArmyStrength() >= hero->getArmyStrength())
+						if(town->getVisitingHero()->estimateCombatValue() >= hero->estimateCombatValue())
 							continue;
 
 						heroToDismiss = town->getVisitingHero();
 					}
-					else if(town->getGarrisonHero()->getArmyStrength() >= hero->getArmyStrength())
+					else if(town->getGarrisonHero()->estimateCombatValue() >= hero->estimateCombatValue())
 						continue;
 					else
 					{
@@ -725,13 +725,13 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 
 				// avoid dismissing one weak hero in order to recruit another.
 				// TODO: Mircea: Move to constant
-				if(heroToDismiss && heroToDismiss->getArmyStrength() + 500 > hero->getArmyStrength())
+				if(heroToDismiss && heroToDismiss->estimateCombatValue() + 500 > hero->estimateCombatValue())
 					continue;
 			}
 			// TODO: Mircea: Check if it immediately dismisses after losing a castle, though that implies losing a hero too if present in the castle
 			else if(aiNk->heroManager->heroCapReached())
 			{
-				heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(hero->getArmyStrength(), town);
+				heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(hero->estimateCombatValue(), town);
 				if(!heroToDismiss)
 					continue;
 			}

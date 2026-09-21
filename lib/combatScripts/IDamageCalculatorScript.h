@@ -53,14 +53,14 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("attacker", attacker, "Unit dealing the blow.");
+		s("attacker", attacker, "Unit dealing the attack.");
 		s("defender", defender, "Unit receiving it.");
-		s("attackerHex", attackerHex, "Hex the blow is dealt from.");
-		s("defenderHex", defenderHex, "Hex the blow lands on.");
+		s("attackerHex", attackerHex, "Hex the attack is dealt from.");
+		s("defenderHex", defenderHex, "Hex the attack lands on.");
 		s("attackerBonuses", attackerBonuses, "Bonus types the attacker carries.");
 		s("defenderBonuses", defenderBonuses, "Bonus types the defender carries.");
 		s("chargeDistance", chargeDistance, "Hexes crossed to reach the target, which is what jousting scales with.");
-		s("shooting", shooting, "Whether the blow is a shot.");
+		s("shooting", shooting, "Whether the attack is a shot.");
 		s("luckyStrike", luckyStrike, "Whether luck struck.");
 		s("unluckyStrike", unluckyStrike, "Whether bad luck struck.");
 		s("deathBlow", deathBlow, "Whether a death blow was rolled.");
@@ -96,13 +96,13 @@ struct DLL_LINKAGE DamageEstimationPayload final : public scripting::ApiSerializ
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("damage", damage, "Damage the blow deals.");
-		s("kills", kills, "Creatures the blow kills.");
-		s("damageBeforeDefense", damageBeforeDefense, "Damage the blow would deal with the defences of the target left out, which is what abilities reflecting a strike work from.");
+		s("damage", damage, "Damage the attack deals.");
+		s("kills", kills, "Creatures the attack kills.");
+		s("damageBeforeDefense", damageBeforeDefense, "Damage the attack would deal with the defences of the target left out, which is what abilities reflecting a strike work from.");
 	}
 };
 
-/// Answers what one attack is worth. Exactly one of these is active at a time - it is the damage
+/// Answers how much damage one attack deals. Exactly one of these is active at a time - it is the damage
 /// calculator of the game, not an ability some unit carries.
 class DLL_LINKAGE IDamageCalculatorScript
 {

@@ -28,9 +28,9 @@ namespace
 		logAi->info("[Tactics] " + msg);
 	}
 
-	int CalcStackValue(const CStack * stack)
+	uint64_t CalcStackValue(const CStack * stack)
 	{
-		return stack->getCount() * stack->unitType()->getAIValue();
+		return stack->estimateCombatValue();
 	}
 
 	BattleHex CloneHex(const BattleHex & bh, const std::initializer_list<BattleHex::EDir> & dirs)
@@ -74,7 +74,7 @@ bool TacticsHandler::canHandle() const
 	auto myStacks = battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 	auto enemyStacks = battle->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY);
 
-	auto myArmyValue = 0;
+	uint64_t myArmyValue = 0;
 	for (const CStack * stack : myStacks)
 		myArmyValue += CalcStackValue(stack);
 
@@ -151,24 +151,24 @@ std::vector<const CStack *> TacticsHandler::findVIPs() const
 	struct VipData
 	{
 		const CStack * stack;
-		int score;
+		uint64_t score;
 	};
 
 	auto vipdatas = std::vector<VipData>{};
-	int armyValue = 0;
+	uint64_t armyValue = 0;
 
 	const auto mystacks = battle->battleGetStacks(CBattleInfoEssentials::EStackOwnership::ONLY_MINE);
 
 	for(const auto & stack : mystacks)
 	{
-		int value = CalcStackValue(stack);
+		uint64_t value = CalcStackValue(stack);
 		armyValue += value;
 		// growth > 0 excludes ballistas, commanders, etc.
 		if(stack->unitType()->getGrowth() > 0 && stack->isShooter())
 		{
 			bool noMelee = stack->hasBonusOfType(BonusType::NO_MELEE_PENALTY);
 			auto mult = noMelee ? 0.7 : 1.0;
-			auto score = static_cast<int>(value * mult);
+			auto score = static_cast<uint64_t>(value * mult);
 			vipdatas.emplace_back(VipData{.stack = stack, .score = score});
 		}
 	}

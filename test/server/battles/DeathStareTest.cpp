@@ -177,6 +177,6 @@ TEST_F(DeathStareCommanderTest, KillsScaleWithTheLevelRatio)
 	const auto casts = server.castsOf(SpellID::DEATH_STARE);
 	ASSERT_EQ(casts.size(), 1u) << "the stare is not rolled for, so it lands on every attack";
 
-	// nothing is rolled here - the patch kills a flat number, worth less against bigger creatures
+	// nothing is rolled here - the patch kills a flat number, which counts for less against bigger creatures
 	EXPECT_EQ(casts.front().killed, static_cast<uint32_t>(killsBeforeRatio * bearer->unitLevel() / victim->unitLevel()));
 }

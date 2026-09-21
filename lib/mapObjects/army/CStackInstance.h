@@ -82,6 +82,8 @@ public:
 	FactionID getFactionID() const override;
 
 	virtual ui64 getPower() const;
+	/// Combat value of this stack, estimated from stats and abilities of its creature
+	virtual ui64 estimateCombatValue() const;
 	/// Returns total market value of resources needed to recruit this unit
 	virtual ui64 getMarketValue() const;
 	CCreature::CreatureQuantityId getQuantityID() const;

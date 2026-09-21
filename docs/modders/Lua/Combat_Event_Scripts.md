@@ -69,7 +69,7 @@ VCMI guarantees the following:
 - every event is delivered to every script attached to the unit it happened to that defines a method for it. An event the script does not define a method for is skipped
 - the parameters stored in the bonus are read-only. A script that needs to remember something between events must store it itself, for example in a bonus of its own
 - a script cannot cause further combat events. Everything it can do only changes battle state, and combat events are fired by unit actions
-- no event is withheld from a script because the engine judged it pointless. Whether a counterattack, a repeated blow or the death of the bearer is a reason to do nothing is the script's own decision
+- no event is withheld from a script because the engine judged it pointless. Whether a counterattack, a repeated attack or the death of the bearer is a reason to do nothing is the script's own decision
 
 ## Event handlers
 
@@ -90,8 +90,8 @@ Parameters:
 - `payload` - data about the attack that caused this event. Every event is handed one, and the fields an event does not fill keep their empty value, so a handler may read the fields it cares about without checking which event fired:
   - `ranged` - whether the attack was a shot
   - `isCounter` - whether the attack is a counterattack, either a first strike or a regular retaliation
-  - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first blow and `1` for the second of a double attack. A counterattack is its own side's attack `0`
-  - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` this same blow would have dealt with the target's defences ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
+  - `attackIndex` - position of this attack among those its own side makes in this action, so `0` for the first hit and `1` for the second of a double attack. A counterattack is its own side's attack `0`
+  - `targets` - one entry per unit the attack reaches. Each holds the `unit` itself, the `damage` dealt to it, how many of its creatures were `killed`, the `damageBeforeDefense` this same hit would have dealt with the target's defences ignored, and the `healthBeforeAttack` the unit had left before the hit landed. **Before** the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet, so the other fields are zero
 
   A handler receives the whole target list rather than only its own entry, so it can see the full attack; it finds itself by comparing `target.unit` against `unit`.
 
@@ -100,7 +100,7 @@ Handlers:
 - `onBeforeAttack` - called on the attacker before every one of its attacks, retaliations included
 - `onBeforeAttacked` - called on every unit the attack is about to reach, not only its primary target, before every attack
 - `onAfterAttack` - called on the attacker once its attack is resolved. The attacker may be dead by then, killed by a reaction to its own attack, so a script that must not act from beyond the grave checks `unit:isAlive()` itself
-- `onAfterAttacked` - called on every unit the attack hit, once that attack is resolved. Fires even when the attack killed `unit`, so that a reflecting ability still answers a lethal blow; a script that should not react from a dead unit has to check for itself
+- `onAfterAttacked` - called on every unit the attack hit, once that attack is resolved. Fires even when the attack killed `unit`, so that a reflecting ability still answers a lethal hit; a script that should not react from a dead unit has to check for itself
 - `onWait` - called when `unit` waits
 - `onDefend` - called when `unit` defends
 - `onBeforeMove` - called before `unit` starts movement
@@ -124,7 +124,7 @@ onAfterAttacked  (each unit that was hit)  /
 
 The attacker and the units it hits react as one ordered group, so `priority` alone decides whether a script runs before or after another - which side of the attack it sits on does not matter. That is what lets life drain (priority 0) heal before a fire shield (priority 50) burns the attacker down.
 
-None of them is withheld: a counterattack, the second blow of a double attack and an attack whose bearer dies mid-resolution all deliver the full sequence. Deciding whether to act is left to the script, because the right answer differs per ability - a fire shield must burn its killer while dying, and a death stare must not petrify anyone once its bearer is gone.
+None of them is withheld: a counterattack, the second hit of a double attack and an attack whose bearer dies mid-resolution all deliver the full sequence. Deciding whether to act is left to the script, because the right answer differs per ability - a fire shield must burn its killer while dying, and a death stare must not petrify anyone once its bearer is gone.
 
 ## Built-in scripts
 

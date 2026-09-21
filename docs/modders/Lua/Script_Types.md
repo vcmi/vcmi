@@ -17,7 +17,7 @@ Every script, whatever it does, is declared the same way - in the `scripts` sect
 
 - [Spell Effect Scripts](Spell_Effect_Scripts.md) - `"implements" : "spellEffect"`, an effect of a spell, such as the built-in `core:damage` or `core:summon`
 - [Combat Event Scripts](Combat_Event_Scripts.md) - `"implements" : "combatEvent"`, a reaction to events happening to a unit in combat, such as Fire Shield or Death Stare
-- [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, what an attack is worth. Unlike the other two there is one of these for the whole game, and a mod changes the rules by patching it rather than by declaring its own
+- [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, how much damage an attack deals. Unlike the other two there is one of these for the whole game, and a mod changes the rules by patching it rather than by declaring its own
 
 ## What a script can reach
 

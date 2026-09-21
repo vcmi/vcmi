@@ -168,7 +168,7 @@ class FireShieldRollTest : public BattleTestFixture
 {
 };
 
-TEST_F(FireShieldRollTest, reflectsTheBlowThatLandedRatherThanTheBestPossibleRoll)
+TEST_F(FireShieldRollTest, reflectsTheHitThatLandedRatherThanTheBestPossibleRoll)
 {
 	startGame();
 
@@ -179,7 +179,7 @@ TEST_F(FireShieldRollTest, reflectsTheBlowThatLandedRatherThanTheBestPossibleRol
 	startBattle();
 
 	// horned demons on both sides: 10 attack against 10 defence, and nothing else either stack
-	// carries touches the damage, so what the blow deals is what it would deal undefended
+	// carries touches the damage, so what the hit deals is what it would deal undefended
 	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(hornedDemon), BattleHex(leftHex), 5000);
 	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(hornedDemon), BattleHex(rightHex), 1000);
 	ASSERT_NE(shielded, nullptr);

@@ -18,19 +18,159 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusParameters.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
 /// Estimated length of an average battle, in rounds
 static constexpr int battleRounds = 8;
 
+/// Spell power and mana of a hero worth half of what a caster can be worth at most
+static constexpr double referenceSpellPower = 10;
+static constexpr double referenceMana = 100;
+
+/// Upper limit on the value of a hero as a caster, however high its magic strength is
+static constexpr double magicCap = 2.0;
+
+/// Value of an army consisting entirely of hostile casters, relative to such a hero
+static constexpr double creatureMagicWeight = 0.5;
+
+/// Whether spells of this creature can target enemy units
+static bool castsAtEnemies(const IBonusBearer * unit)
+{
+	// spells attached to an attack always target an enemy
+	if(unit->hasBonusOfType(BonusType::SPELL_AFTER_ATTACK)
+		|| unit->hasBonusOfType(BonusType::SPELL_BEFORE_ATTACK)
+		|| unit->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
+		return true;
+
+	// most creature casters only buff their own side, so enemy magic defenses do not apply
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::SPELLCASTER))
+	{
+		const auto spell = bonus->subtype.as<SpellID>();
+
+		if(spell.hasValue() && spell.toSpell()->isNegative())
+			return true;
+	}
+
+	return false;
+}
+
+/// Magic that a hero brings to a battle, from the spell power of its casts and the mana paying for them
+static double magicOf(const CGHeroInstance * hero)
+{
+	if(!hero || !hero->hasSpellbook())
+		return 0;
+
+	const bool knowsCombatSpell = std::ranges::any_of(hero->getSpellsInSpellbook(),
+		[](const SpellID & spell) { return spell.toSpell()->isCombat(); });
+
+	if(!knowsCombatSpell)
+		return 0;
+
+	const double spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	const double mana = std::max(0, hero->mana);
+
+	// mana pays for the casts and spell power decides what each one does, so neither is worth anything alone
+	const double strength = spellPower * mana / (referenceSpellPower * referenceMana);
+
+	// saturating curve: each reference hero of magic halves the remaining headroom, giving half the cap for the first
+	return magicCap * (1.0 - std::exp2(-strength));
+}
+
+int32_t CombatValueContext::id() const
+{
+	size_t hash = 0;
+
+	vstd::hash_combine(hash, meleeShare);
+	vstd::hash_combine(hash, magicPower);
+	vstd::hash_combine(hash, allyCrowding);
+
+	for(double share : kingShare)
+		vstd::hash_combine(hash, share);
+
+	return static_cast<int32_t>(hash);
+}
+
+/// Adds value of a creature to every slayer mastery level that can target it
+static void countKing(const IBonusBearer * creature, double value, CombatValueContext::MasteryShares & kings)
+{
+	if(!creature->hasBonusOfType(BonusType::KING))
+		return;
+
+	const auto reachedBy = std::clamp<size_t>(creature->valOfBonuses(BonusType::KING), 0, kings.size() - 1);
+
+	for(size_t mastery = reachedBy; mastery < kings.size(); ++mastery)
+		kings[mastery] += value;
+}
+
+CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battle, BattleSide side)
+{
+	double total = 0;
+	double melee = 0;
+	double casters = 0;
+	size_t allies = 0;
+	MasteryShares kings = {};
+
+	for(const auto * unit : battle.battleGetUnitsIf([](const battle::Unit * candidate)
+		{ return candidate->alive(); }))
+	{
+		// berserk is evaluated against own army, so count allies of the side this context describes
+		if(unit->unitSide() == side)
+		{
+			++allies;
+			continue;
+		}
+
+		const double value = unit->estimateCombatValue();
+		const auto * bearer = unit->getBonusBearer();
+
+		total += value;
+
+		// blocked shooter, or one without ammo, attacks in melee like any other creature
+		if(!battle.battleCanShoot(unit))
+			melee += value;
+
+		if(castsAtEnemies(bearer))
+			casters += value;
+
+		countKing(bearer, value, kings);
+	}
+
+	const double crowding = allies > 0 ? 1.0 - 1.0 / allies : 0.0;
+
+	// no enemies left to describe, but the number of allies is still valid
+	if(total <= 0)
+	{
+		CombatValueContext result = LIBRARY->creh->getCombatValue().averageBattle();
+
+		result.allyCrowding = crowding;
+
+		return result;
+	}
+
+	CombatValueContext result;
+	result.meleeShare = melee / total;
+	result.magicPower = magicOf(battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(side)))
+		+ creatureMagicWeight * casters / total;
+
+	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
+		result.kingShare[mastery] = kings[mastery] / total;
+
+	result.allyCrowding = crowding;
+
+	return result;
+}
+
 /// Highest attack or defense that the curves are built for
 static constexpr int skillCap = 120;
 
-/// Level of the spell that a bonus names, with schoolless abilities read as mid-level
+/// Level of the spell referenced by a bonus, with schoolless abilities treated as mid-level
 static int spellLevelOf(const BonusSubtypeID & subtype)
 {
-	// H3 creature abilities belong to no school, and a missing school does not make them weak
+	// H3 creature abilities belong to no school, which does not make them weak
 	static constexpr int schoollessSpellLevel = 2;
 
 	const auto spell = subtype.as<SpellID>();
@@ -41,6 +181,106 @@ static int spellLevelOf(const BonusSubtypeID & subtype)
 	const int level = spell.toSpell()->getLevel();
 
 	return level > 0 ? level : schoollessSpellLevel;
+}
+
+/// Value added by one point of combat script magnitude, or zero if magnitude does not describe the effect
+static double combatScriptWeight(const BonusSubtypeID & subtype)
+{
+	static constexpr std::array<std::pair<std::string_view, double>, 3> weights = {{
+		{ "deathStare", 0.02 },
+		{ "lifeDrain", 0.003 },
+		{ "fireShield", 0.003 },
+	}};
+
+	static const std::map<si32, double> priced = []
+	{
+		std::map<si32, double> result;
+
+		for(const auto & [name, weight] : weights)
+		{
+			auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
+
+			if(index.has_value())
+				result[*index] = weight;
+		}
+
+		return result;
+	}();
+
+	auto entry = priced.find(subtype.getNum());
+
+	return entry == priced.end() ? 0.0 : entry->second;
+}
+
+/// Effect that ends on the next attack made or received lasts about one round
+static constexpr double oneAction = 1.0 / battleRounds;
+
+/// Fraction of a battle that a bonus lasts, from its remaining turn count alone
+static double turnsWeight(const Bonus & bonus)
+{
+	if(bonus.duration & BonusDuration::N_TURNS)
+		return std::clamp(bonus.turnsRemain / static_cast<double>(battleRounds), oneAction, 1.0);
+
+	return 1.0;
+}
+
+/// Fraction of a battle that a bonus lasts: all of it for permanent bonuses, less for timed ones
+static double durationWeight(const Bonus & bonus)
+{
+	static constexpr BonusDuration::Type endsOnAction =
+		BonusDuration::UNTIL_ATTACK | BonusDuration::UNTIL_OWN_ATTACK
+		| BonusDuration::UNTIL_BEING_ATTACKED | BonusDuration::UNTIL_AFTER_ATTACK_SEQUENCE
+		| BonusDuration::UNTIL_TAKING_INDIRECT_DAMAGE | BonusDuration::STACK_GETS_TURN;
+
+	// duration may combine several end conditions, effect ends on the earliest of them
+	if(bonus.duration & endsOnAction)
+		return oneAction;
+
+	return turnsWeight(bonus);
+}
+
+/// Total magnitude of bonuses of given type, each scaled by the fraction of battle it lasts
+static double lastingValue(const IBonusBearer * unit, BonusType type)
+{
+	double total = 0;
+
+	for(const auto & bonus : *unit->getBonusesOfType(type))
+		total += bonus->val * durationWeight(*bonus);
+
+	return total;
+}
+
+static double lastingValue(const IBonusBearer * unit, BonusType type, const BonusSubtypeID & subtype)
+{
+	double total = 0;
+
+	for(const auto & bonus : *unit->getBonusesOfType(type, subtype))
+		total += bonus->val * durationWeight(*bonus);
+
+	return total;
+}
+
+/// Part of a primary skill that comes from bonuses due to expire, discounted by how soon they do.
+/// Skills are read as a single total, so what a spell added has to be subtracted back out of it
+static double expiringSkill(const IBonusBearer * unit, PrimarySkill skill)
+{
+	double total = 0;
+
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill)))
+		total += bonus->val * (1.0 - durationWeight(*bonus));
+
+	return total;
+}
+
+/// Largest fraction of a battle for which a bonus of given type is active
+static double lastingPresence(const IBonusBearer * unit, BonusType type)
+{
+	double longest = 0;
+
+	for(const auto & bonus : *unit->getBonusesOfType(type))
+		longest = std::max(longest, durationWeight(*bonus));
+
+	return longest;
 }
 
 double CombatValue::offenseAt(int attack) const
@@ -73,6 +313,15 @@ CombatValue::CombatValue()
 
 	buildCurves(builtinCreatures);
 	pinScale(builtinCreatures);
+	tabulateCreatures();
+}
+
+void CombatValue::tabulateCreatures()
+{
+	creatureValues.resize(LIBRARY->creh->objects.size());
+
+	for(const auto & creature : LIBRARY->creh->objects)
+		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
 }
 
 void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCreatures)
@@ -83,7 +332,7 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	const double defensePerPoint = settings->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
 	const double defenseCap = settings->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
 
-	// share of its damage that an attack of given skill deals to a creature of given defense
+	// fraction of its damage that an attack of given skill deals to a creature of given defense
 	const auto damageFactor = [=](int attack, int defense)
 	{
 		if(attack >= defense)
@@ -92,16 +341,25 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 	};
 
 	int shooters = 0;
+	CombatValueContext::MasteryShares kings = {};
 
 	for(const auto * creature : builtinCreatures)
 	{
 		averageDefense += creature->getBaseDefense();
 		if(creature->hasBonusOfType(BonusType::SHOOTER))
 			++shooters;
+
+		countKing(creature, 1.0, kings);
 	}
 
 	averageDefense /= builtinCreatures.size();
-	meleeAttackerShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
+	defaultContext.meleeShare = 1.0 - static_cast<double>(shooters) / builtinCreatures.size();
+
+	for(size_t mastery = 0; mastery < kings.size(); ++mastery)
+		defaultContext.kingShare[mastery] = kings[mastery] / builtinCreatures.size();
+
+	// average battle is assumed to have every slot filled with equally strong stacks
+	defaultContext.allyCrowding = 1.0 - 1.0 / GameConstants::ARMY_SIZE;
 
 	offenseCurve.assign(skillCap + 1, 0.0);
 	for(int attack = 0; attack <= skillCap; ++attack)
@@ -111,7 +369,7 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 		offenseCurve[attack] /= builtinCreatures.size();
 	}
 
-	// measured against each attacker's own average, so the two curves stay independent of each other
+	// normalized by the average of each attacker, so that the two curves stay independent of each other
 	defenseCurve.assign(skillCap + 1, 0.0);
 	for(int defense = 0; defense <= skillCap; ++defense)
 	{
@@ -126,71 +384,88 @@ void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCrea
 
 void CombatValue::pinScale(const std::vector<const CCreature *> & builtinCreatures)
 {
-	// the model has a scale of its own, so it is pinned to H3 values
+	// computed values use an arbitrary scale, so they are normalized to H3 aiValue
 	std::vector<double> scales;
-	std::vector<double> fightScales;
 
 	for(const auto * creature : builtinCreatures)
 	{
-		const double uptime = uptimeOf(*creature);
-		const double value = valueOf(*creature, uptime, referenceCount(creature));
+		const double value = valueOf(*creature, uptimeOf(*creature), referenceCount(creature), defaultContext);
 
-		if(value <= 0)
-			continue;
-
-		if(creature->getAIValue() > 0)
+		if(value > 0 && creature->getAIValue() > 0)
 			scales.push_back(creature->getAIValue() / value);
-		if(creature->getFightValue() > 0)
-			fightScales.push_back(creature->getFightValue() / (value / uptime));
 	}
 
-	if(scales.empty() || fightScales.empty())
-		return;
-
-	scale = median(scales);
-	fightScale = median(fightScales);
+	if(!scales.empty())
+		scale = median(scales);
 }
 
-double CombatValue::valueOf(const ACreature & creature, double uptime, int count) const
+double CombatValue::valueOf(const ACreature & creature, double uptime, int count, const CombatValueContext & context) const
 {
 	static constexpr double meleePenalty = 0.5;
 
 	const auto * bonuses = creature.getBonusBearer();
 	const bool ranged = bonuses->hasBonusOfType(BonusType::SHOOTER);
 
-	// curves are indexed by skill, so defense reduction is priced as extra attack instead of as damage
-	const double attackBonus = bonuses->valOfBonuses(BonusType::ENEMY_DEFENCE_REDUCTION) / 100.0 * averageDefense;
+	// curves are indexed by skill, so defense reduction is applied as extra attack instead of as damage
+	double attackBonus = bonuses->valOfBonuses(BonusType::ENEMY_DEFENCE_REDUCTION) / 100.0 * averageDefense;
 
-	const auto blow = [&](bool shooting)
+	// frenzy converts defense of its bearer into attack, removing its defense entirely
+	attackBonus += lastingValue(bonuses, BonusType::IN_FRENZY) / 100.0 * creature.getDefense(false);
+
+	// slayer adds attack only against KING units that its mastery level can target
+	for(const auto & bonus : *bonuses->getBonusesOfType(BonusType::SLAYER))
 	{
-		const double damage = (creature.getMinDamage(shooting) + creature.getMaxDamage(shooting)) / 2.0;
-		return damage * offenseAt(static_cast<int>(std::lround(creature.getAttack(shooting) + attackBonus)));
+		const size_t mastery = bonus->parameters
+			? std::clamp<size_t>(bonus->parameters->toNumber(), 0, context.kingShare.size() - 1)
+			: 0;
+
+		attackBonus += bonus->val * durationWeight(*bonus) * context.kingShare[mastery];
+	}
+
+	// bless and curse do not scale damage, they fix it at one end of its range
+	const double damageShift = lastingValue(bonuses, BonusType::ALWAYS_MAXIMUM_DAMAGE)
+		- lastingValue(bonuses, BonusType::ALWAYS_MINIMUM_DAMAGE);
+	const double blessed = lastingPresence(bonuses, BonusType::ALWAYS_MAXIMUM_DAMAGE);
+	const double cursed = lastingPresence(bonuses, BonusType::ALWAYS_MINIMUM_DAMAGE);
+
+	const auto strike = [&](bool shooting)
+	{
+		const double low = std::max(1.0, creature.getMinDamage(shooting) + damageShift);
+		const double high = std::max(1.0, creature.getMaxDamage(shooting) + damageShift);
+		const double mean = (low + high) / 2.0;
+
+		// damage is only fixed while the spell lasts, and opposed spells cancel out
+		const double damage = mean + (high - mean) * blessed - (mean - low) * cursed;
+
+		const double attack = creature.getAttack(shooting) - expiringSkill(bonuses, PrimarySkill::ATTACK) + attackBonus;
+
+		return damage * offenseAt(static_cast<int>(std::lround(attack)));
 	};
 
-	double ownBlow = blow(ranged) * attacksPerRound(creature) * targetsPerAttack(creature);
+	double ownOutput = strike(ranged) * attacksPerRound(creature) * targetsPerAttack(creature);
 
 	// jousting scales with distance covered, which is at most one turn of movement
 	const int charge = std::min<int>(startingDistance(), creature.getMovementRange());
-	ownBlow *= 1.0 + bonuses->valOfBonuses(BonusType::JOUSTING) / 100.0 * charge;
+	ownOutput *= 1.0 + bonuses->valOfBonuses(BonusType::JOUSTING) / 100.0 * charge;
 
 	const bool retaliatesAtRange = ranged && bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION);
-	const double retaliatedAgainst = bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION) ? 1.0 : meleeAttackerShare;
+	const double retaliatedAgainst = bonuses->hasBonusOfType(BonusType::RANGED_RETALIATION) ? 1.0 : context.meleeShare;
 
-	double retaliationBlow = blow(retaliatesAtRange) * retaliationsPerRound(creature) * retaliatedAgainst;
+	double retaliationOutput = strike(retaliatesAtRange) * retaliationsPerRound(creature) * retaliatedAgainst;
 	if(ranged && !retaliatesAtRange && !bonuses->hasBonusOfType(BonusType::NO_MELEE_PENALTY))
-		retaliationBlow *= meleePenalty;
+		retaliationOutput *= meleePenalty;
 
-	const double output = (ownBlow + retaliationBlow) * offenseMultiplier(creature);
+	const double output = (ownOutput + retaliationOutput) * offenseMultiplier(creature) * situationalOffense(creature, context);
 	const double defense = defenseAt(effectiveDefense(creature)) * (1.0 + retaliationSuffered(creature));
 	const double hitPoints = creature.getMaxHealth() + regeneratedHitPoints(creature, count);
-	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature);
+	const double effectiveHitPoints = hitPoints / defense * survivalMultiplier(creature) * situationalSurvival(creature, context);
 
 	return combine(output, effectiveHitPoints, uptime);
 }
 
 double CombatValue::attacksPerRound(const ACreature & creature)
 {
-	// a second strike is worth less than the first, which may have already destroyed the target
+	// additional attacks count for less than the first, which may have already killed the target
 	static constexpr double extraAttackWeight = 0.87;
 
 	const auto * bonuses = creature.getBonusBearer();
@@ -204,7 +479,7 @@ double CombatValue::attacksPerRound(const ACreature & creature)
 
 double CombatValue::targetsPerAttack(const ACreature & creature)
 {
-	// extra units a multi-target attack reaches, given how rarely the needed hexes are occupied
+	// extra units hit by a multi-target attack, given how rarely the required hexes are occupied
 	static constexpr double breathExtraTargets = 0.45;
 	static constexpr double threeHeadedExtraTargets = 0.0;
 	static constexpr double allAdjacentExtraTargets = 0.4;
@@ -231,7 +506,7 @@ double CombatValue::retaliationsPerRound(const ACreature & creature)
 	static constexpr double attacksSufferedPerRound = 1.4;
 	static constexpr double unlimitedRetaliationsPerRound = 2.5;
 
-	// share of melee attacks that reach a shooter standing behind its own line
+	// fraction of melee attacks that reach a shooter positioned behind its own units
 	static constexpr double shooterMeleeExposure = 0.35;
 
 	const auto * bonuses = creature.getBonusBearer();
@@ -249,24 +524,43 @@ double CombatValue::retaliationsPerRound(const ACreature & creature)
 
 int CombatValue::effectiveDefense(const ACreature & creature)
 {
-	// defending is never forced, so only a share of turns is spent on it
+	// defending is optional, so only a fraction of turns is spent on it
 	static constexpr double defendingShare = 0.25;
 
 	const auto * bonuses = creature.getBonusBearer();
+
 	const double stance = bonuses->valOfBonuses(BonusType::DEFENSIVE_STANCE) * defendingShare;
 
-	return static_cast<int>(std::lround(creature.getDefense(false) + stance));
+	// frenzy removes defense of its bearer for as long as it lasts
+	const double frenzied = lastingPresence(bonuses, BonusType::IN_FRENZY);
+	const double defense = creature.getDefense(false) - expiringSkill(bonuses, PrimarySkill::DEFENSE);
+
+	return static_cast<int>(std::lround((defense + stance) * (1.0 - frenzied)));
 }
 
 double CombatValue::retaliationSuffered(const ACreature & creature)
 {
-	// damage taken back over a round, as a share of what enemies deal on their own turn
+	// damage received from retaliation over a round, as a fraction of damage enemies deal on their turn
 	static constexpr double retaliationShare = 0.6;
 
 	const auto * bonuses = creature.getBonusBearer();
 	const bool safe = bonuses->hasBonusOfType(BonusType::SHOOTER) || bonuses->hasBonusOfType(BonusType::BLOCKS_RETALIATION);
 
 	return safe ? 0.0 : retaliationShare;
+}
+
+/// Turns a creature spends approaching before its first attack, averaged over the gaps it starts at
+static double approachTurns(int hexes, int speed)
+{
+	// the gap to the enemy varies by a few hexes with formation and with which target is chased
+	static constexpr int spread = 3;
+
+	double total = 0;
+
+	for(int gap = hexes - spread; gap <= hexes + spread; ++gap)
+		total += (std::max(1, gap) + speed - 1) / speed - 1;
+
+	return total / (2 * spread + 1);
 }
 
 double CombatValue::uptimeOf(const ACreature & creature)
@@ -276,15 +570,15 @@ double CombatValue::uptimeOf(const ACreature & creature)
 
 double CombatValue::uptimeOf(const ACreature & creature, int hexesToEnemy)
 {
-	// flying crosses the field unobstructed, and a shooter fights from the first round
+	// flying units cross the battlefield unobstructed, and shooters attack from the first round
 	static constexpr double flyingApproachBonus = 1.09;
 	static constexpr double shootingUptimeBonus = 1.25;
 
 	const auto * bonuses = creature.getBonusBearer();
 	const int speed = std::max(1, static_cast<int>(creature.getMovementRange()));
 	const int hexes = std::max(0, hexesToEnemy);
-	const int turnsApproaching = (hexes + speed - 1) / speed - 1;
-	const double uptime = std::max(0.1, static_cast<double>(battleRounds - turnsApproaching) / battleRounds);
+	const double turnsApproaching = approachTurns(hexes, speed);
+	const double uptime = std::max(0.1, (battleRounds - turnsApproaching) / battleRounds);
 
 	if(bonuses->hasBonusOfType(BonusType::SHOOTER))
 		return uptime * shootingUptimeBonus;
@@ -294,22 +588,22 @@ double CombatValue::uptimeOf(const ACreature & creature, int hexesToEnemy)
 
 double CombatValue::offenseMultiplier(const ACreature & creature)
 {
-	// value of one spell level, cast in place of an attack or for free after a blow that lands
+	// value of one spell level, cast in place of an attack or for free after a successful attack
 	static constexpr double castWeight = 0.045;
 	static constexpr double spellAfterAttackWeight = 0.09;
 
-	// a second spell cast with the same blow lands on an already crippled target
+	// a second spell cast with the same attack hits an already weakened target
 	static constexpr double secondSpellWeight = 0.5;
 
-	// most shots are taken after the enemy has closed in, so the distance penalty rarely applies
+	// most shots are taken after the enemy has approached, so the distance penalty rarely applies
 	static constexpr double shootingRangeFactor = 0.87;
 
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
 	// morale and luck grant extra turns and extra damage - about 2% per point
-	result *= 1.0 + unit->valOfBonuses(BonusType::MORALE) * 0.02;
-	result *= 1.0 + unit->valOfBonuses(BonusType::LUCK) * 0.02;
+	result *= 1.0 + lastingValue(unit, BonusType::MORALE) * 0.02;
+	result *= 1.0 + lastingValue(unit, BonusType::LUCK) * 0.02;
 
 	// loses the extra turns that an average creature gets from morale
 	if(unit->hasBonusOfType(BonusType::NO_MORALE))
@@ -317,29 +611,31 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 
 	result *= 1.0 + unit->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE) / 100.0;
 
-	// only one spell is cast per turn, however many the creature knows
+	// only one spell is cast per turn, however many the creature knows. A random spellcaster names no
+	// spell, so it is priced at the same level as an ability that belongs to no school
 	int bestSpellLevel = 0;
-	const auto castings = unit->getBonuses(Selector::type()(BonusType::SPELLCASTER));
-	for(const auto & bonus : *castings)
-		bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
+	for(auto type : {BonusType::SPELLCASTER, BonusType::RANDOM_SPELLCASTER})
+		for(const auto & bonus : *unit->getBonusesOfType(type))
+			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
 
 	result *= 1.0 + castWeight * bestSpellLevel;
 
-	// enchanters cast on top of their own attack instead of in place of it
+	// enchanters cast in addition to their own attack instead of in place of it
 	if(unit->hasBonusOfType(BonusType::ENCHANTER))
 		result *= 1.18;
 
-	// a spell outlasts the blow that applied it, so its value grows slower than its chance to land
+	// a spell outlasts the attack that applied it, so its value grows slower than its chance to apply
 	double best = 0;
 	double rest = 0;
-	const auto attackSpells = unit->getBonuses(Selector::type()(BonusType::SPELL_AFTER_ATTACK)
-		.Or(Selector::type()(BonusType::SPELL_BEFORE_ATTACK)));
-	for(const auto & bonus : *attackSpells)
+	for(auto type : {BonusType::SPELL_AFTER_ATTACK, BonusType::SPELL_BEFORE_ATTACK})
 	{
-		const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
+		for(const auto & bonus : *unit->getBonusesOfType(type))
+		{
+			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
 
-		rest += std::min(best, landed);
-		best = std::max(best, landed);
+			rest += std::min(best, landed);
+			best = std::max(best, landed);
+		}
 	}
 
 	result *= 1.0 + spellAfterAttackWeight * (best + secondSpellWeight * rest);
@@ -349,31 +645,49 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	if(unit->hasBonusOfType(BonusType::HEALER))
 		result *= 1.10;
 
-	// effect of these is configured per creature and can not be read from the bonus, so it is guessed
-	if(unit->hasBonusOfType(BonusType::COMBAT_EVENT_TRIGGER))
-		result *= 1.10;
+	// fallback value for scripts whose magnitude does not describe their effect
+	static constexpr double unpricedScriptValue = 0.10;
+
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
+	{
+		const double weight = combatScriptWeight(bonus->subtype);
+
+		result *= 1.0 + (weight > 0 ? weight * bonus->val : unpricedScriptValue);
+	}
+
 	if(unit->hasBonusOfType(BonusType::POISON))
 		result *= 1.08;
 
+	// blindness and paralysis reduce attack of their bearer
+	result *= std::max(0.0, 1.0 - lastingValue(unit, BonusType::GENERAL_ATTACK_REDUCTION) / 100.0);
+
 	if(unit->hasBonusOfType(BonusType::SHOOTER))
 	{
-		if(!unit->hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
-			result *= shootingRangeFactor;
+		// fraction of its value that a shooter retains when reduced to melee
+		static constexpr double meleeFallback = 0.4;
 
-		// a shooter out of ammunition finishes the battle in melee, at an estimated 40% of its value
+		double shooting = 1.0;
+
+		if(!unit->hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
+			shooting *= shootingRangeFactor;
+
+		// shooter fights in melee for the rest of the battle once it runs out of ammo
 		const int shots = unit->valOfBonuses(BonusType::SHOTS);
 		if(shots > 0 && shots < battleRounds)
-			result *= (shots + (battleRounds - shots) * 0.4) / battleRounds;
+			shooting *= (shots + (battleRounds - shots) * meleeFallback) / battleRounds;
+
+		// forgetfulness affects only shooting, and blocks it completely at 100%
+		shooting *= 1.0 - std::min(100.0, lastingValue(unit, BonusType::FORGETFULL)) / 100.0;
+
+		// shooter always has the option of attacking in melee instead
+		result *= std::max(meleeFallback, shooting);
 	}
 
-	if(unit->hasBonusOfType(BonusType::HYPNOTIZED) || unit->hasBonusOfType(BonusType::NOT_ACTIVE))
+	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
 		result *= 0.5;
 
-	// what the source of fear gains is not priced - a propagated bonus can not be told apart from
-	// the bonus of its propagator
+	// value gained by the source of fear is not counted - a propagated bonus is indistinguishable from it
 	result *= 1.0 - unit->valOfBonuses(BonusType::FEARFUL) / 100.0;
-	if(unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
-		result *= 0.9;
 
 	return result;
 }
@@ -383,29 +697,75 @@ double CombatValue::survivalMultiplier(const ACreature & creature)
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
+	result *= 1.0 + unit->valOfBonuses(BonusType::REBIRTH) / 100.0;
+
+	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
+		result *= 1.10;
+
+	return result;
+}
+
+double CombatValue::situationalSurvival(const ACreature & creature, const CombatValueContext & context)
+{
+	const auto * unit = creature.getBonusBearer();
+	double result = 1.0;
+
 	// immunity and vulnerability are granted one spell at a time, so bonus count is what matters
 	const auto bonusCount = [unit](BonusType type)
 	{
-		return static_cast<int>(unit->getBonuses(Selector::type()(type))->size());
+		return static_cast<int>(unit->getBonusesOfType(type)->size());
 	};
 
-	result *= std::pow(1.015, bonusCount(BonusType::SPELL_IMMUNITY));
-	result *= std::pow(0.97, bonusCount(BonusType::MORE_DAMAGE_FROM_SPELL));
-	result *= 1.0 + unit->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) * 0.02;
+	double magic = 1.0;
+
+	magic *= std::pow(1.015, bonusCount(BonusType::SPELL_IMMUNITY));
+	magic *= std::pow(0.97, bonusCount(BonusType::MORE_DAMAGE_FROM_SPELL));
+	magic *= 1.0 + unit->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) * 0.02;
 
 	if(unit->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY))
-		result *= 1.04;
+		magic *= 1.04;
 
-	result *= 1.0 + unit->valOfBonuses(BonusType::MAGIC_RESISTANCE) / 100.0 * 0.5;
-	result *= 1.0 + unit->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION) / 100.0 * 0.2;
+	magic *= 1.0 + unit->valOfBonuses(BonusType::MAGIC_RESISTANCE) / 100.0 * 0.5;
+	magic *= 1.0 + unit->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION) / 100.0 * 0.2;
 
-	result *= 1.0 + unit->valOfBonuses(BonusType::REBIRTH) / 100.0;
-
-	// only worth something when enemy hero casts at this creature
 	if(unit->hasBonusOfType(BonusType::MAGIC_MIRROR))
-		result *= 1.06;
-	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		result *= 1.10;
+		magic *= 1.06;
+
+	// magic defenses have no value against an enemy that casts no spells
+	result *= 1.0 + (magic - 1.0) * context.magicPower;
+
+	// shield and air shield each reduce one damage type, so their value depends on enemy composition
+	const auto reductionOf = [unit](const BonusSubtypeID & subtype)
+	{
+		return lastingValue(unit, BonusType::GENERAL_DAMAGE_REDUCTION, subtype);
+	};
+
+	const double reduced = reductionOf(BonusCustomSubtype::damageTypeAll)
+		+ reductionOf(BonusCustomSubtype::damageTypeMelee) * context.meleeShare
+		+ reductionOf(BonusCustomSubtype::damageTypeRanged) * (1.0 - context.meleeShare);
+
+	result /= std::max(0.1, 1.0 - reduced / 100.0);
+
+	return result;
+}
+
+double CombatValue::situationalOffense(const ACreature & creature, const CombatValueContext & context)
+{
+	const auto * unit = creature.getBonusBearer();
+	double result = 1.0;
+
+	// attacker decides whether to break the disable, so assume it lasts its full duration
+	double disabled = 0;
+	for(const auto & bonus : *unit->getBonusesOfType(BonusType::NOT_ACTIVE))
+		disabled = std::max(disabled, turnsWeight(*bonus));
+
+	result *= 1.0 - 0.5 * disabled;
+
+	// attacking own side costs twice: damage not dealt to the enemy, and damage dealt to an ally
+	static constexpr double friendlyFireCost = 2.0;
+
+	result *= std::max(0.0, 1.0 - friendlyFireCost * context.allyCrowding
+		* lastingPresence(unit, BonusType::ATTACKS_NEAREST_CREATURE));
 
 	return result;
 }
@@ -424,7 +784,20 @@ double CombatValue::regeneratedHitPoints(const ACreature & creature, int count)
 	return static_cast<double>(healed) / count;
 }
 
-int CombatValue::referenceCount(const CCreature * creature)
+double CombatValue::stackScale(const battle::Unit & unit)
+{
+	const auto count = unit.getCount();
+
+	if(count <= 0)
+		return 0;
+
+	// wounds reduce survivability of a stack but not its damage, so value scales between the two counts
+	const double effectiveCount = static_cast<double>(unit.getAvailableHealth()) / unit.getMaxHealth();
+
+	return std::sqrt(count * effectiveCount);
+}
+
+int CombatValue::referenceCount(const Creature * creature)
 {
 	static constexpr int referenceWeeks = 6;
 
@@ -450,21 +823,34 @@ int CombatValue::startingDistance()
 	return approachDistance;
 }
 
-int64_t CombatValue::getAIValue(const CCreature * creature) const
+int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type) const
 {
-	return std::llround(valueOf(*creature, uptimeOf(*creature), referenceCount(creature)) * scale);
+	return getAIValue(bearer, type, defaultContext);
 }
 
-int64_t CombatValue::getFightValue(const CCreature * creature) const
+int64_t CombatValue::getAIValue(const ACreature & bearer, const Creature * type, const CombatValueContext & context) const
 {
-	const double uptime = uptimeOf(*creature);
+	return std::llround(valueOf(bearer, uptimeOf(bearer), referenceCount(type), context) * scale);
+}
 
-	return std::llround(valueOf(*creature, uptime, referenceCount(creature)) / uptime * fightScale);
+const CombatValueContext & CombatValue::averageBattle() const
+{
+	return defaultContext;
+}
+
+int64_t CombatValue::getAIValue(const Creature * creature) const
+{
+	return creatureValues.at(creature->getIndex());
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit) const
 {
-	return std::llround(valueOf(*unit, uptimeOf(*unit), unit->getCount()) * scale);
+	return getAIValue(*unit, unit->unitType());
+}
+
+int64_t CombatValue::getAIValue(const battle::Unit * unit, const CombatValueContext & context) const
+{
+	return getAIValue(*unit, unit->unitType(), context);
 }
 
 int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCallback & battle) const
@@ -480,5 +866,5 @@ int64_t CombatValue::getAIValue(const battle::Unit * unit, const CBattleInfoCall
 		}
 	}
 
-	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), unit->getCount()) * scale);
+	return std::llround(valueOf(*unit, uptimeOf(*unit, hexesToEnemy), referenceCount(unit->unitType()), defaultContext) * scale);
 }

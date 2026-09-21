@@ -49,7 +49,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 	{
 		for(auto hero : heroes)
 		{
-			if(!heroToHire || hero->getTotalStrength() > heroToHire->getTotalStrength())
+			if(!heroToHire || hero->estimateHeroCombatValue() > heroToHire->estimateHeroCombatValue())
 				heroToHire = hero;
 		}
 	}

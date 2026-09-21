@@ -18,7 +18,7 @@ namespace scripting
 class LuaContext;
 class LuaScriptInstance;
 
-/// Asks the script what one attack is worth, in a single call per estimate.
+/// Asks the script how much damage one attack deals, in a single call per estimate.
 class LuaDamageCalculatorScript final : public IDamageCalculatorScript
 {
 public:
