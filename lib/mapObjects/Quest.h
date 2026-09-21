@@ -157,7 +157,7 @@ public:
 			defineQuestName();
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::optional<std::string> & fieldName = std::nullopt);
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 /// Narrow, read-only view of a quest-carrying object for outside consumers (AI,

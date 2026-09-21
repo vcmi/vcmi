@@ -264,13 +264,13 @@ void QuestWidget::loadQuestData()
 	questDataLoaded = true;
 
 	ui->firstVisitText->clear();
-	ui->firstVisitText->append(QString::fromStdString(selectedQuest->firstVisitText.toString(LIBRARY->staticTexts())));
+	ui->firstVisitText->append(QString::fromStdString(selectedQuest->firstVisitText.toString(&Translator::instance())));
 
 	ui->nextVisitText->clear();
-	ui->nextVisitText->append(QString::fromStdString(selectedQuest->nextVisitText.toString(LIBRARY->staticTexts())));
+	ui->nextVisitText->append(QString::fromStdString(selectedQuest->nextVisitText.toString(&Translator::instance())));
 
 	ui->completedText->clear();
-	ui->completedText->append(QString::fromStdString(selectedQuest->completedText.toString(LIBRARY->staticTexts())));
+	ui->completedText->append(QString::fromStdString(selectedQuest->completedText.toString(&Translator::instance())));
 
 	ui->repetableCheckbox->setChecked(selectedQuest->repeatedQuest);
 	ui->deadlineCheckbox->setChecked(selectedQuest->lastDay >= 0);
@@ -291,15 +291,17 @@ void QuestWidget::prepareQuestsList(const std::shared_ptr<Quest> & questToSelect
 	auto & allQuests = questSource.allQuestsEditor();
 	ui->questsList->clear();
 
-	std::stable_sort(allQuests.begin(), allQuests.end(), [](auto & a, auto & b)
+	std::ranges::stable_sort(allQuests, [](auto & a, auto & b)
 					 {
 						 return !a->repeatedQuest && b->repeatedQuest;
 					 });
 
+	setTranslationIdentifiers();	//translation identifiers depend on the order
+
 	for(int i = 0; i< allQuests.size(); ++i)
 	{
 		ui->questsList->addItem(tr("%1 quest on position %2")
-									.arg(allQuests[i]->repeatedQuest ? "Repeated" : "One time")
+									.arg(tr(allQuests[i]->repeatedQuest ? "Repeated" : "One time"))
 									.arg(i));
 		if (questToSelect && questSource.allQuests()[i] == questToSelect)
 		{
@@ -309,6 +311,33 @@ void QuestWidget::prepareQuestsList(const std::shared_ptr<Quest> & questToSelect
 	}
 	if (ui->questsList->count() == 0)
 		selectedQuest = nullptr;
+}
+
+void QuestWidget::setTranslationIdentifiers()
+{
+	auto & allQuests = questSource.allQuestsEditor();
+	std::vector<std::string> fv;
+	std::vector<std::string> nv;
+	std::vector<std::string> com;
+	for(int i = 0; i< allQuests.size(); ++i) {
+		fv.push_back(allQuests[i]->firstVisitText.toString(&Translator::instance()));
+		nv.push_back(allQuests[i]->nextVisitText.toString(&Translator::instance()));
+		com.push_back(allQuests[i]->completedText.toString(&Translator::instance()));
+	}
+
+	for(int i = 0; i< allQuests.size(); ++i) {
+		setTranslation(allQuests[i]->firstVisitText, TextIdentifier("quest", questSource.instanceName, i, "firstVisit"), fv[i]);
+		setTranslation(allQuests[i]->nextVisitText, TextIdentifier("quest", questSource.instanceName, i, "nextVisit"), nv[i]);
+		setTranslation(allQuests[i]->completedText, TextIdentifier("quest", questSource.instanceName, i, "completed"), com[i]);
+	}
+}
+
+void QuestWidget::setTranslation(MetaString & metastring, const TextIdentifier & identifier, const std::string & translation)
+{
+	metastring = MetaString::createFromTextID(mapRegisterLocalizedString(
+		"map", *controller.map(), identifier, translation));
+	if(translation.empty())
+		metastring.clear();
 }
 
 void QuestWidget::selectQuest(int index)
@@ -395,9 +424,10 @@ bool QuestWidget::commitChanges()
 			selectedQuest->mission.players.emplace_back(ui->lPlayers->item(i)->data(Qt::UserRole).toInt());
 	}
 
-	selectedQuest->firstVisitText = MetaString::createFromRawString(ui->firstVisitText->toPlainText().toStdString());
-	selectedQuest->nextVisitText = MetaString::createFromRawString(ui->nextVisitText->toPlainText().toStdString());
-	selectedQuest->completedText = MetaString::createFromRawString(ui->completedText->toPlainText().toStdString());
+	auto index = std::find(questSource.allQuests().begin(), questSource.allQuests().end(), selectedQuest) - questSource.allQuests().begin();
+	setTranslation(selectedQuest->firstVisitText, TextIdentifier("quest", questSource.instanceName, index, "firstVisit"), ui->firstVisitText->toPlainText().toStdString());
+	setTranslation(selectedQuest->nextVisitText, TextIdentifier("quest", questSource.instanceName, index, "nextVisit"), ui->nextVisitText->toPlainText().toStdString());
+	setTranslation(selectedQuest->completedText, TextIdentifier("quest", questSource.instanceName, index, "completed"), ui->completedText->toPlainText().toStdString());
 
 	selectedQuest->repeatedQuest = ui->repetableCheckbox->isChecked();
 	selectedQuest->lastDay = ui->deadlineCheckbox->isChecked() ? ui->deadlineSpinbox->value() : -1;

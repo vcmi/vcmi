@@ -19,6 +19,7 @@ class QuestWidget;
 }
 
 class MapController;
+class TextIdentifier;
 
 class QuestWidget : public QDialog
 {
@@ -47,6 +48,8 @@ private slots:
 
 private:
 	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
+	void setTranslationIdentifiers();
+	void setTranslation(MetaString & metastring, const TextIdentifier & identifier, const std::string & translation);
 	void highlightModifiedTabs();
 	
 	QuestSource & questSource;

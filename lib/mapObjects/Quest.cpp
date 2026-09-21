@@ -315,10 +315,8 @@ void Quest::addKillTargetReplacements(MetaString &out) const
 	}
 }
 
-void Quest::serializeJson(JsonSerializeFormat & handler, const std::optional<std::string> & fieldName)
+void Quest::serializeJson(JsonSerializeFormat & handler)
 {
-	if (fieldName.has_value())
-		handler.enterStruct(fieldName.value());
 	handler.serializeStruct("firstVisitText", firstVisitText);
 	handler.serializeStruct("nextVisitText", nextVisitText);
 	handler.serializeStruct("completedText", completedText);
@@ -753,7 +751,10 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	if (oldVersion)
 	{
+		auto s = handler.enterStruct("quest");
 		addQuest().serializeJson(handler);
+		if (!configuration.info.empty())
+			allQuestsEditor()[0]->reward = configuration.info[0];
 	}
 	else
 	{
@@ -857,7 +858,8 @@ void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	//quest only, do not call base class
 	if(!handler.saving && allQuests().empty())
 		addQuest(); // quest guards carry a single quest; create it to read into
-	getQuest().serializeJson(handler, "quest");
+	auto s = handler.enterStruct("quest");
+	getQuest().serializeJson(handler);
 }
 
 MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
