@@ -299,7 +299,6 @@ public:
 	const IGameSettings & getSettings() const;
 
 	void parseUidCounter();
-	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
 private:
 

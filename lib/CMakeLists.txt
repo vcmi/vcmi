@@ -14,6 +14,7 @@ set(lib_SRCS
 	filesystem/FileInfo.cpp
 	filesystem/Filesystem.cpp
 	filesystem/MinizipExtensions.cpp
+	filesystem/PngStripWriter.cpp
 	filesystem/ResourcePath.cpp
 
 	json/JsonFormatException.cpp
@@ -374,6 +375,7 @@ set(lib_HEADERS
 	filesystem/Filesystem.h
 	filesystem/ISimpleResourceLoader.h
 	filesystem/MinizipExtensions.h
+	filesystem/PngStripWriter.h
 	filesystem/ResourcePath.h
 
 	json/JsonFormatException.h

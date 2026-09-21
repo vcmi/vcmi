@@ -48,7 +48,11 @@ static bool isDrawnBelow(const CMap & map, const CGObjectInstance * object, cons
 	if(priority != otherPriority)
 		return priority > otherPriority;
 
-	return isLowerInAnyTile(map, object, other);
+	if(isLowerInAnyTile(map, object, other))
+		return true;
+
+	// objects that are added again, e.g. after a change of owner, keep the place of their load order
+	return !isLowerInAnyTile(map, other, object) && object->id < other->id;
 }
 
 bool MapObjectDrawOrder::usesFixedDrawSlot(const CGObjectInstance * object)
@@ -68,4 +72,19 @@ bool MapObjectDrawOrder::goesBelow(const CMap & map, const CGObjectInstance * ob
 	const ui8 previousLayer = previous->drawLayerAt(tile);
 
 	return layer < previousLayer || (layer == previousLayer && isDrawnBelow(map, object, previous));
+}
+
+const CGObjectInstance * MapObjectDrawOrder::findTopObject(const CMap & map, std::vector<const CGObjectInstance *> objects, const int3 & tile)
+{
+	// objects are stamped onto the map in the order of their ids
+	std::ranges::sort(objects, {}, &CGObjectInstance::id);
+
+	const CGObjectInstance * top = nullptr;
+
+	for(const auto * object : objects)
+	{
+		if(!top || (usesFixedDrawSlot(object) && !usesFixedDrawSlot(top)) || (usesFixedDrawSlot(object) == usesFixedDrawSlot(top) && !goesBelow(map, object, top, tile)))
+			top = object;
+	}
+	return top;
 }

@@ -95,6 +95,12 @@ void CanvasImage::exportBitmap(const boost::filesystem::path & path) const
 	IMG_SavePNG(surface, TextOperations::filesystemPathToUtf8(path).c_str());
 }
 
+void CanvasImage::readPixelsRGBA(std::vector<uint8_t> & buffer) const
+{
+	buffer.resize(static_cast<size_t>(surface->w) * surface->h * 4);
+	SDL_ConvertPixels(surface->w, surface->h, surface->format, surface->pixels, surface->pitch, SDL_PIXELFORMAT_RGBA32, buffer.data(), surface->w * 4);
+}
+
 Canvas CanvasImage::getCanvas()
 {
 	// the caller is about to draw into the surface, so any GPU copy is now stale

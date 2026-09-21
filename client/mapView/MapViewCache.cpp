@@ -27,6 +27,7 @@
 #include "render/IScreenHandler.h"
 #include "../widgets/TextControls.h"
 
+#include "../../lib/filesystem/PngStripWriter.h"
 #include "../../lib/int3.h"
 
 MapViewCache::~MapViewCache()
@@ -189,11 +190,11 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 
 	if(model->getCacheTileSize() == MapViewModel::getNativeTileSize())
 	{
-		mapRenderer->renderTile(*context, target, coordinates);
+		mapRenderer->renderTile(*context, target, coordinates, true);
 	}
 	else
 	{
-		mapRenderer->renderTile(*context, *intermediate, coordinates);
+		mapRenderer->renderTile(*context, *intermediate, coordinates, true);
 		target.drawScaled(*intermediate, Point(0, 0), model->getCacheTileSize());
 	}
 
@@ -480,25 +481,38 @@ void MapViewCache::exportMapLevel(const std::shared_ptr<IMapRendererContext> & c
 	const int3 mapSize = context->getMapSize();
 	const Point tileSize = MapViewModel::getNativeTileSize();
 
-	// ignores the screen scaling, which would multiply the size of an already huge image
-	CanvasImage image(Point(mapSize.x, mapSize.y) * tileSize, CanvasScalingPolicy::IGNORE);
-	Canvas target = image.getCanvas();
+	// rendered and written a few rows of tiles at a time, the whole map is too big for memory
+	constexpr int stripHeight = 8;
+
+	PngStripWriter writer(path, mapSize.x * tileSize.x, mapSize.y * tileSize.y);
+	std::vector<uint8_t> pixels;
 
 	mapRenderer->prepareFrame(*context);
 
-	for(int y = 0; y < mapSize.y; ++y)
+	for(int stripY = 0; stripY < mapSize.y; stripY += stripHeight)
 	{
-		for(int x = 0; x < mapSize.x; ++x)
+		const int rows = std::min(stripHeight, mapSize.y - stripY);
+
+		// ignores the screen scaling, which would multiply the size of an already huge image
+		CanvasImage image(Point(mapSize.x, rows) * tileSize, CanvasScalingPolicy::IGNORE);
+		Canvas target = image.getCanvas();
+
+		for(int y = 0; y < rows; ++y)
 		{
-			Canvas tile(target, Rect(Point(x, y) * tileSize, tileSize));
-			mapRenderer->renderTile(*context, tile, int3(x, y, level), false);
+			for(int x = 0; x < mapSize.x; ++x)
+			{
+				Canvas tile(target, Rect(Point(x, y) * tileSize, tileSize));
+				mapRenderer->renderTile(*context, tile, int3(x, stripY + y, level), false);
+			}
 		}
+
+		if(context->filterGrayscale())
+			target.applyGrayscale();
+
+		image.readPixelsRGBA(pixels);
+		writer.writeRows(pixels.data(), rows * tileSize.y);
 	}
-
-	if(context->filterGrayscale())
-		target.applyGrayscale();
-
-	image.exportBitmap(path);
+	writer.finish();
 }
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)

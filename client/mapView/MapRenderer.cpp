@@ -27,6 +27,7 @@
 #include "render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
@@ -409,8 +410,8 @@ uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coo
 	return retBitmapID;
 }
 
-/// Body and shadow of an object are separate animations, except for heroes and boats
-static bool objectHasSeparateShadow(const CGObjectInstance * obj)
+/// Heroes and boats are drawn as one image, other objects are split into shadow, body and player color layers
+static bool objectIsSplitIntoLayers(const CGObjectInstance * obj)
 {
 	return !MapObjectDrawOrder::usesFixedDrawSlot(obj);
 }
@@ -437,7 +438,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBodyAnimation(const CGObjectI
 	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
 
 	EImageBlitMode mode = EImageBlitMode::WITH_SHADOW;
-	if(objectHasSeparateShadow(obj))
+	if(objectIsSplitIntoLayers(obj))
 		mode = objectIsFlaggable(obj) ? EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR : EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY;
 
 	// Boat appearance files only contain single, unanimated image
@@ -453,7 +454,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getShadowAnimation(const CGObjec
 {
 	const auto & info = obj->appearance;
 
-	if(!objectHasSeparateShadow(obj) || info->id == Obj::EVENT || info->animationFile.empty())
+	if(!objectIsSplitIntoLayers(obj) || info->animationFile.empty())
 		return nullptr;
 
 	return getAnimation(info->animationFile, false, objectIsFlaggable(obj) ? EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR : EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION);
@@ -463,7 +464,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getColorOverlayAnimation(const C
 {
 	const auto & info = obj->appearance;
 
-	if(!objectHasSeparateShadow(obj) || !objectIsFlaggable(obj) || info->id == Obj::EVENT || info->animationFile.empty())
+	if(!objectIsSplitIntoLayers(obj) || !objectIsFlaggable(obj) || info->animationFile.empty())
 		return nullptr;
 
 	return getAnimation(info->animationFile, false, EImageBlitMode::ONLY_FLAG_COLOR);
@@ -1022,13 +1023,20 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 	else
 	{
 		rendererTerrain.renderTile(context, target, coordinates);
-		rendererObjects.renderGround(context, target, coordinates);
+
+		const bool roadsAboveGround = LIBRARY->engineSettings()->getBoolean(EGameSettings::MAP_OBJECTS_ROADS_ABOVE_SPECIAL_GROUND);
+
+		if(roadsAboveGround)
+			rendererObjects.renderGround(context, target, coordinates);
 
 		if (context.showRivers())
 			rendererRiver.renderTile(context, target, coordinates);
 
 		if (context.showRoads())
 			rendererRoad.renderTile(context, target, coordinates);
+
+		if(!roadsAboveGround)
+			rendererObjects.renderGround(context, target, coordinates);
 
 		rendererObjects.renderTile(context, target, coordinates);
 		if(withOverlays)

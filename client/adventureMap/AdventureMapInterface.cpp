@@ -44,6 +44,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -520,10 +521,8 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 {
 	std::vector < const CGObjectInstance * > bobjs = GAME->interface()->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
-	if (bobjs.empty())
-		return nullptr;
-
-	return *std::ranges::max_element(bobjs, &CMap::compareObjectBlitOrder);
+	//FIXME: remove mh access
+	return MapObjectDrawOrder::findTopObject(*GAME->map().getMap(), bobjs, mapPos);
 }
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
@@ -1006,7 +1005,7 @@ void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 	widget->getMapView()->onMapZoomLevelChanged(delta, useDeadZone);
 }
 
-void AdventureMapInterface::hotkeyScreenshotMap()
+void AdventureMapInterface::hotkeyScreenshotWholeMap()
 {
 	widget->getMapView()->exportScreenshot();
 }

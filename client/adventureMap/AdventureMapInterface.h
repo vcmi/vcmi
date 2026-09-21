@@ -131,7 +131,7 @@ public:
 	void hotkeyNextTown();
 	void hotkeySwitchMapLevel();
 	void hotkeyZoom(int delta, bool useDeadZone);
-	void hotkeyScreenshotMap();
+	void hotkeyScreenshotWholeMap();
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);

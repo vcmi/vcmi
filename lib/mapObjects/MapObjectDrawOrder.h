@@ -22,15 +22,20 @@ class CMap;
 /// Order in which adventure map objects are drawn, like in H3. Shared by the client and the map editor
 namespace MapObjectDrawOrder
 {
+	/// Hero or boat image offset (in pixels) from which only its top reaches the tile
+	constexpr int fixedSlotBodyRowLimit = 16;
+
 	/// Heroes and boats are not ordered with other objects, they have their own slot on the tile
 	DLL_LINKAGE bool usesFixedDrawSlot(const CGObjectInstance * object);
 
-	/// Objects that change the terrain under them (cursed ground, magic plains and the like) are ground rather than things standing on it. Like in H3 they are
-	/// drawn before the rivers and roads, which show over them, and below all other objects
+	/// Objects that change the terrain under them (cursed ground, magic plains...), drawn below all other objects
 	DLL_LINKAGE bool isSpecialGround(const CGObjectInstance * object);
 
 	/// Whether the object stamped onto a tile goes below the one that is already there
 	DLL_LINKAGE bool goesBelow(const CMap & map, const CGObjectInstance * object, const CGObjectInstance * previous, const int3 & tile);
+
+	/// The object that is drawn on top of the others on the tile, null if there are none
+	DLL_LINKAGE const CGObjectInstance * findTopObject(const CMap & map, std::vector<const CGObjectInstance *> objects, const int3 & tile);
 
 	/// Position in the list of a tile at which H3 puts the object when it stamps it onto the map
 	template<typename Container, typename GetObject>
@@ -50,11 +55,18 @@ namespace MapObjectDrawOrder
 		return position;
 	}
 
-	/// Calls the functors in the order in which H3 draws one tile. The objects must be ordered by findInsertPosition
-	/// getObject(entry) gives the object of an entry, slotOffset(object) the offset of its image on the tile,
-	/// drawShadow(object) and drawBody(object) draw the image of the object
-	template<typename Entries, typename GetObject, typename SlotOffset, typename DrawShadow, typename DrawBody>
-	void drawTile(const Entries & entries, const int3 & tile, GetObject getObject, SlotOffset slotOffset, DrawShadow drawShadow, DrawBody drawBody)
+	/// One image to draw on a tile: shadow or body of the object
+	struct DrawStep
+	{
+		const CGObjectInstance * object;
+		bool isShadow;
+	};
+
+	using DrawSteps = boost::container::small_vector<DrawStep, 16>;
+
+	/// Images of one tile in H3 draw order. The entries must be ordered by findInsertPosition
+	template<typename Entries, typename GetObject, typename SlotOffset>
+	DrawSteps getDrawSteps(const Entries & entries, const int3 & tile, GetObject getObject, SlotOffset slotOffset)
 	{
 		// Like in H3 heroes and boats are drawn between fixed layers of the tile. Each is kept
 		// with its horizontal offset, which orders neighbours from left to right
@@ -70,53 +82,68 @@ namespace MapObjectDrawOrder
 			if(!object || isSpecialGround(object))
 				continue;
 
-			if(usesFixedDrawSlot(object))
+			if(!usesFixedDrawSlot(object))
 			{
-				const Point offset = slotOffset(object);
-				auto & slot = offset.y < 16 ? bodyRow : headRow;
-				slot.emplace_back(offset.x, object);
-			}
-			else
 				ordered.push_back(object);
+				continue;
+			}
+
+			const Point offset = slotOffset(object);
+			(offset.y < fixedSlotBodyRowLimit ? bodyRow : headRow).emplace_back(offset.x, object);
 		}
 
-		const auto drawLayers = [&](ui8 lowest, ui8 highest)
+		DrawSteps steps;
+
+		const auto addLayers = [&](ui8 lowest, ui8 highest)
 		{
 			for(const auto * object : ordered)
 			{
 				const ui8 layer = object->drawLayerAt(tile);
 
 				if(layer >= lowest && layer <= highest)
-					drawBody(object);
+					steps.push_back({object, false});
 			}
 		};
 
-		const auto drawSlot = [&](SlotObjects & slot)
+		const auto addSlot = [&](SlotObjects & slot)
 		{
-			std::stable_sort(slot.begin(), slot.end(), [](const auto & left, const auto & right) { return left.first < right.first; });
+			std::ranges::stable_sort(slot, {}, &SlotObjects::value_type::first);
 
 			for(const auto & entry : slot)
-				drawBody(entry.second);
+				steps.push_back({entry.second, false});
 		};
 
-		drawLayers(0, 0);
+		addLayers(0, 0);
 
 		// Like in H3 all shadows of the tile go after the bottom layer and under all the other bodies, so that
 		// a shadow never darkens another object - including the shadows of the bottom layer objects themselves
 		for(const auto * object : ordered)
-			drawShadow(object);
+			steps.push_back({object, true});
 
 		if(bodyRow.empty() && headRow.empty())
 		{
-			drawLayers(1, 255);
+			addLayers(1, 255);
+			return steps;
 		}
-		else
+
+		addLayers(1, 1);
+		addSlot(bodyRow);
+		addLayers(2, 2);
+		addSlot(headRow);
+		addLayers(3, 255);
+		return steps;
+	}
+
+	/// Calls drawShadow(object) or drawBody(object) for every image of the tile, see getDrawSteps
+	template<typename Entries, typename GetObject, typename SlotOffset, typename DrawShadow, typename DrawBody>
+	void drawTile(const Entries & entries, const int3 & tile, GetObject getObject, SlotOffset slotOffset, DrawShadow drawShadow, DrawBody drawBody)
+	{
+		for(const auto & step : getDrawSteps(entries, tile, getObject, slotOffset))
 		{
-			drawLayers(1, 1);
-			drawSlot(bodyRow);
-			drawLayers(2, 2);
-			drawSlot(headRow);
-			drawLayers(3, 255);
+			if(step.isShadow)
+				drawShadow(step.object);
+			else
+				drawBody(step.object);
 		}
 	}
 }

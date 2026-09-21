@@ -21,6 +21,7 @@
 #include "../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/GameConstants.h"
+#include "../lib/IGameSettings.h"
 
 namespace
 {
@@ -535,6 +536,8 @@ void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, 
 	int right = static_cast<int>(std::round(section.right()))/tileSize;
 	int top = static_cast<int>(std::round(section.top()))/tileSize;
 	int bottom = static_cast<int>(std::round(section.bottom()))/tileSize;
+	const bool roadsAboveGround = LIBRARY->engineSettings()->getBoolean(EGameSettings::MAP_OBJECTS_ROADS_ABOVE_SPECIAL_GROUND);
+
 	for(int x = left; x < right; ++x)
 	{
 		for(int y = top; y < bottom; ++y)
@@ -547,16 +550,23 @@ void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, 
 
 			const QPoint target(x * tileSize - static_cast<int>(section.left()), y * tileSize - static_cast<int>(section.top()));
 
-			// Like in H3 special ground is drawn below the roads and rivers, which are part of the terrain layer
-			// so they are drawn again over it
-			if(std::any_of(entries.begin(), entries.end(), [](const ObjectRect & entry) { return MapObjectDrawOrder::isSpecialGround(entry.obj); }))
+			// roads and rivers are part of the terrain layer, so they are redrawn to be above the ground
+			const bool hasGround = std::any_of(entries.begin(), entries.end(), [](const ObjectRect & entry) { return MapObjectDrawOrder::isSpecialGround(entry.obj); });
+
+			if(hasGround)
 			{
-				drawTerrainTile(painter, x, y, z, section.topLeft());
+				if(roadsAboveGround)
+					drawTerrainTile(painter, x, y, z, section.topLeft());
+
 				for(const auto & entry : entries)
 					if(MapObjectDrawOrder::isSpecialGround(entry.obj))
 						drawObjectTile(painter, entry.obj, tile, target, false, locked.count(entry.obj));
-				drawRiver(painter, x, y, z, section.topLeft());
-				drawRoad(painter, x, y, z, section.topLeft());
+
+				if(roadsAboveGround)
+				{
+					drawRiver(painter, x, y, z, section.topLeft());
+					drawRoad(painter, x, y, z, section.topLeft());
+				}
 			}
 
 			MapObjectDrawOrder::drawTile(entries, tile,
