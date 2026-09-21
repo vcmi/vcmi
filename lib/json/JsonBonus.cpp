@@ -951,7 +951,6 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	value = &ability["targetSourceType"];
 	std::optional<BonusSource> targetSrc = std::nullopt;
-	BonusSourceID targetId;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -961,10 +960,20 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	value = &ability["targetSourceID"];
 	if(!value->isNull() && targetSrc.has_value())
-		loadBonusSourceInstance(targetId, *targetSrc, *value);
+	{
+		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
+		// Selector has to look it up on each use, rather than capture it right away
+		auto targetId = std::make_shared<BonusSourceID>();
+		loadBonusSourceInstance(*targetId, *targetSrc, *value);
 
-	if(targetSrc)
-		ret = ret.And(Selector::targetSource(*targetSrc, targetId));
+		ret = ret.And(CSelector([targetSource = *targetSrc, targetId](const Bonus * bonus)
+		{
+			return bonus->targetSourceType == targetSource
+				&& (*targetId == BonusSourceID() || bonus->targetSourceID == *targetId);
+		}));
+	}
+	else if(targetSrc)
+		ret = ret.And(Selector::targetSource(*targetSrc));
 
 	value = &ability["valueType"];
 	if(value->isString())
