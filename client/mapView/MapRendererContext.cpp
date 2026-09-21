@@ -152,8 +152,15 @@ int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wa
 		return -1;
 
 	for(const auto & battle : GAME->interface()->cb->getActiveBattles())
-		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
-			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
+	{
+		if(wanderingMonster->pos != battle.second->getBattle()->getLocation())
+			continue;
+
+		// hero is gone once the battle is being torn down, while the map is still drawn
+		const auto * attacker = battle.second->getBattle()->getSideHero(BattleSide::ATTACKER);
+		if(attacker)
+			return attacker->moveDir;
+	}
 
 	return -1;
 }
