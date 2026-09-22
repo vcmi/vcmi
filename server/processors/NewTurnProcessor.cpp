@@ -342,7 +342,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 		}
 
 		// Neutral towns have halved creature growth
-		if (!player.isValidPlayer())
+		if (!player.isValidPlayer() && !firstDay)
 			creatureGrowth /= 2;
 
 		uint32_t resultingCreatures = 0;
