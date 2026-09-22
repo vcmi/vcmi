@@ -498,7 +498,7 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 		RandomGuardsInfo{ 0, 33, 8, 15 },
 		RandomGuardsInfo{ 1, 33, 5,  7 },
 		RandomGuardsInfo{ 2, 20, 3,  5 },
-		RandomGuardsInfo{ 3, 14, 1,  3 },
+		RandomGuardsInfo{ 3, 13, 1,  3 },
 	};
 
 	// Only neutral towns may get initial garrison
