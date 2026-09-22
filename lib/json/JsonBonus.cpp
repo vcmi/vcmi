@@ -942,7 +942,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
 		// Selector has to look it up on each use, rather than capture it right away
 		auto sourceId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*sourceId, *src, ability);
+		loadBonusSourceInstance(*sourceId, *src, *value);
 
 		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
 		{
