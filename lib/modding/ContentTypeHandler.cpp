@@ -273,7 +273,8 @@ bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
 {
 	bool result = true;
 
-	if (!JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
+	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)
