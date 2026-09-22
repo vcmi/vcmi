@@ -510,8 +510,17 @@ void CMap::checkForObjectives()
 				case EventCondition::CONTROL_CURRENT:
 					if(isInTheMap(cond.position))
 					{
-						if(const auto * object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>()))
+						const auto & type = cond.objectType.as<MapObjectID>();
+						if(const auto * object = getObjectiveObjectFrom(cond.position, type))
+						{
 							cond.objectID = object->id;
+						}
+						else if (type == MapObjectID::HERO)	//HotA maps can put event conditions on an imprisoned hero
+						{
+							const CGObjectInstance * prison = getObjectiveObjectFrom(cond.position, MapObjectID::PRISON);
+							if (prison)
+								cond.objectID = prison->id;
+						}
 					}
 
 					if(cond.objectID != ObjectInstanceID::NONE)
