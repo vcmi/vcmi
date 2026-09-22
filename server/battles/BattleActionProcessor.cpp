@@ -376,7 +376,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	return true;
 }
 
-void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, BonusList bonuses)
+void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, const BonusList & bonuses)
 {
 	if (!stack)
 	{

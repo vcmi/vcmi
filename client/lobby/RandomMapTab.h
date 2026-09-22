@@ -93,7 +93,7 @@ class RandomMapTab;
 
 class SetSizeWindow: public CWindowObject
 {
-	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 	std::vector<std::shared_ptr<CLabel>> titles;
 	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;
@@ -110,7 +110,7 @@ class MapLayerSelection : public CWindowObject
 {
 	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;
-	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 	std::vector<std::shared_ptr<CLabel>> titles;
 	std::vector<std::shared_ptr<CLabel>> levelLabels;
 	std::vector<std::shared_ptr<CLabel>> layerLabels;

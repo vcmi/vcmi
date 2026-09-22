@@ -216,7 +216,8 @@ std::vector<BattleHex> TacticsHandler::guardableHexes(const CStack * vip, const 
 
 	BattleHex vipHead = vip->getPosition();
 
-	static auto cache = std::unordered_map<VipInfo, std::vector<BattleHex>, VipInfoHash>{};
+	// AI may play several battles in parallel
+	thread_local auto cache = std::unordered_map<VipInfo, std::vector<BattleHex>, VipInfoHash>{};
 	const auto vi = VipInfo{.vipPos = vip->getPosition(), .vipSide = vip->unitSide(), .vipWide = vip->doubleWide(), .guardWide = guard->doubleWide()};
 
 	auto it = cache.find(vi);

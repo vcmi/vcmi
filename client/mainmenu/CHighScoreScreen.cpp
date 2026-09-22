@@ -210,7 +210,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
-	background = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), Colors::BLACK);
+	backgroundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), Colors::BLACK);
 
 	if(won)
 	{

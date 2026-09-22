@@ -133,9 +133,7 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 
 CGeneralTextHandler::CGeneralTextHandler():
 	allTexts         (*this, "core.genrltxt" ),
-	zelp             (*this, "core.help"     ),
-
-	roeMapping()
+	zelp             (*this, "core.help"     )
 {
 	if(isRoEData())
 		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));

@@ -402,6 +402,9 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 		case GiveBonus::ETarget::OBJECT:
 			node = dynamic_cast<CBonusSystemNode*>(gs.getObjInstance(pack.whoID.as<ObjectInstanceID>()));
 			break;
+		case GiveBonus::ETarget::HERO_COMMANDER:
+			node = gs.getHero(pack.whoID.as<ObjectInstanceID>())->getCommander();
+			break;
 		case GiveBonus::ETarget::PLAYER:
 			node = gs.getPlayerState(pack.whoID.as<PlayerColor>());
 			break;
@@ -410,6 +413,9 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 			node = dynamic_cast<CBonusSystemNode*>(gs.getBattle(pack.whoID.as<BattleID>()));
 			break;
 	}
+
+	if(!node)
+		throw std::runtime_error("RemoveBonus: bonus holder not found!");
 
 	BonusList &bonuses = node->getExportedBonusList();
 	std::shared_ptr<Bonus> removedBonus;

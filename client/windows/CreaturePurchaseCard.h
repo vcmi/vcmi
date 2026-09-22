@@ -22,7 +22,7 @@ class CreaturePurchaseCard : public CIntObject
 public:
 	const CCreature * creatureOnTheCard;
 	std::shared_ptr<CSlider> slider;
-	QuickRecruitmentWindow * parent;
+	QuickRecruitmentWindow * owner;
 	int maxAmount;
 	void sliderMoved(int to);
 

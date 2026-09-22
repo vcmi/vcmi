@@ -576,7 +576,7 @@ SDL_Window * ScreenHandler::createWindow()
 
 		default:
 			return nullptr;
-	};
+	}
 #endif
 
 #ifdef VCMI_IOS

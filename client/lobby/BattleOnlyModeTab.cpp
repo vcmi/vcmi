@@ -273,7 +273,7 @@ std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA col
 }
 
 BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& p, Point position)
-: parent(p)
+: owner(p)
 , id(id)
 {
 	OBJECT_CONSTRUCTION;
@@ -290,12 +290,12 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 		primSkillsBorder.push_back(std::make_shared<GraphicalPrimitiveCanvas>(Rect(78 + i * 36, 26, 32, 32)));
 		primSkillsBorder.back()->addRectangle(Point(0, 0), Point(32, 32), ColorRGBA(44, 108, 255));
 		primSkillsInput.push_back(std::make_shared<CTextInput>(Rect(78 + i * 36, 58, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
-		primSkillsInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
+		primSkillsInput.back()->setColor(id == 1 ? Colors::WHITE : owner.disabledColor);
 		primSkillsInput.back()->setFilterNumber(0, 100);
 		primSkillsInput.back()->setText("0");
 		primSkillsInput.back()->setCallback([this, i, id](const std::string & text){
-			parent.startInfo->primSkillLevel[id][i] = std::stoi(primSkillsInput[i]->getText());
-			parent.onChange();
+			owner.startInfo->primSkillLevel[id][i] = std::stoi(primSkillsInput[i]->getText());
+			owner.onChange();
 		});
 	}
 
@@ -303,14 +303,14 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 	{
 		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
-		selectedArmyInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
+		selectedArmyInput.back()->setColor(id == 1 ? Colors::WHITE : owner.disabledColor);
 		selectedArmyInput.back()->setFilterNumber(0, 10000000, 3);
 		selectedArmyInput.back()->setText("1");
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
-			if(parent.startInfo->selectedArmy[id][i].getId() != CreatureID::NONE)
+			if(owner.startInfo->selectedArmy[id][i].getId() != CreatureID::NONE)
 			{
-				parent.startInfo->selectedArmy[id][i].setCount(TextOperations::parseMetric<int>(text));
-				parent.onChange();
+				owner.startInfo->selectedArmy[id][i].setCount(TextOperations::parseMetric<int>(text));
+				owner.onChange();
 				selectedArmyInput[i]->enable();
 			}
 			else
@@ -325,14 +325,14 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 		Point textPos(261 + (isLeft ? 0 : 36), 41 + line * 54);
 
 		selectedSecSkillInput.push_back(std::make_shared<CTextInput>(Rect(textPos, Point(32, 16)), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
-		selectedSecSkillInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
+		selectedSecSkillInput.back()->setColor(id == 1 ? Colors::WHITE : owner.disabledColor);
 		selectedSecSkillInput.back()->setFilterNumber(0, 3);
 		selectedSecSkillInput.back()->setText("3");
 		selectedSecSkillInput.back()->setCallback([this, i, id](const std::string & text){
-			if(parent.startInfo->secSkillLevel[id][i].second != MasteryLevel::NONE)
+			if(owner.startInfo->secSkillLevel[id][i].second != MasteryLevel::NONE)
 			{
-				parent.startInfo->secSkillLevel[id][i].second = static_cast<MasteryLevel::Type>(std::stoi(text));
-				parent.onChange();
+				owner.startInfo->secSkillLevel[id][i].second = static_cast<MasteryLevel::Type>(std::stoi(text));
+				owner.onChange();
 				selectedSecSkillInput[i]->enable();
 			}
 			else
@@ -349,27 +349,27 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	addIcon.back()->addLClickCallback([this](){ manageSpells(); });
 	addIcon.back()->addRClickCallback([this, id](){
 		std::vector<std::shared_ptr<CComponent>> comps;
-		for(auto & spell : parent.startInfo->spells[id])
+		for(auto & spell : owner.startInfo->spells[id])
 			comps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell, std::nullopt, CComponent::ESize::large));
 		CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("artifact.core.spellBook.name"), comps);
 	});
 
 	spellBook = std::make_shared<CToggleButton>(Point(235, 31), AnimationPath::builtin("lobby/checkboxSmall"), CButton::tooltip(), [this, id](bool enabled){
-		parent.startInfo->spellBook[id] = enabled;
-		parent.onChange();
+		owner.startInfo->spellBook[id] = enabled;
+		owner.onChange();
 		redraw();
 	});
-	spellBook->setSelectedSilent(parent.startInfo->spellBook[id]);
+	spellBook->setSelectedSilent(owner.startInfo->spellBook[id]);
 
 	tmpIcon = ENGINE->renderHandler().loadImage(AnimationPath::builtin("Artifact"), ArtifactID(ArtifactID::BALLISTA).toArtifact()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
 	tmpIcon->scaleTo(Point(16, 16), EScalingAlgorithm::NEAREST);
 	addIcon.push_back(std::make_shared<CPicture>(tmpIcon, Point(220, 56)));
 	warMachines = std::make_shared<CToggleButton>(Point(235, 55), AnimationPath::builtin("lobby/checkboxSmall"), CButton::tooltip(), [this, id](bool enabled){
-		parent.startInfo->warMachines[id] = enabled;
-		parent.onChange();
+		owner.startInfo->warMachines[id] = enabled;
+		owner.onChange();
 		redraw();
 	});
-	warMachines->setSelectedSilent(parent.startInfo->warMachines[id]);
+	warMachines->setSelectedSilent(owner.startInfo->warMachines[id]);
 	warMachines->pos = warMachines->pos.include(addIcon.back()->pos);
 
 	setHeroIcon();
@@ -381,7 +381,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 void BattleOnlyModeHeroSelector::manageSpells()
 {
 	std::vector<std::shared_ptr<CComponent>> resComps;
-	for(auto & spellId : parent.startInfo->spells[id])
+	for(auto & spellId : owner.startInfo->spells[id])
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spellId, std::nullopt, CComponent::ESize::large));
 
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
@@ -412,7 +412,7 @@ void BattleOnlyModeHeroSelector::manageSpells()
 	std::vector<SpellID> toRemove;
 	for (const auto& spell : allSpells)
 	{
-		bool inCurrent = std::find(parent.startInfo->spells[id].begin(), parent.startInfo->spells[id].end(), spell) != parent.startInfo->spells[id].end();
+		bool inCurrent = std::find(owner.startInfo->spells[id].begin(), owner.startInfo->spells[id].end(), spell) != owner.startInfo->spells[id].end();
 		if (inCurrent)
 			toRemove.push_back(spell);
 		else
@@ -433,13 +433,13 @@ void BattleOnlyModeHeroSelector::manageSpells()
 
 		std::string title = LIBRARY->generaltexth->translate(add ? "vcmi.lobby.battleOnlySpellAdd" : "vcmi.lobby.battleOnlySpellRemove");
 		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, title, title, [this, list, add](int index){
-			auto & v = parent.startInfo->spells[id];
+			auto & v = owner.startInfo->spells[id];
 			if(add)	
 				v.push_back(list[index]);
 			else
 				v.erase(std::remove(v.begin(), v.end(), list[index]), v.end());
 
-			parent.onChange();
+			owner.onChange();
 			manageSpells();
 		}, 0, images, true, true);
 		window->setControllerActionPrompts(
@@ -454,14 +454,14 @@ void BattleOnlyModeHeroSelector::manageSpells()
 		ENGINE->windows().pushWindow(window);
 	};
 
-	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(parent.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom);
+	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(owner.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom);
 	temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
 	temp->buttons[0]->addCallback([openList, toAdd](){ openList(toAdd, true); });
 	temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellAdd")); });
 	temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/removeChannel")));
 	temp->buttons[1]->addCallback([openList, toRemove](){ openList(toRemove, false); });
 	temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellRemove")); });
-	temp->buttons[1]->setEnabled(parent.startInfo->spells[id].size());
+	temp->buttons[1]->setEnabled(owner.startInfo->spells[id].size());
 	temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
 	temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.600")); });
 
@@ -482,8 +482,8 @@ void BattleOnlyModeHeroSelector::selectHero()
 		return heroA->getNameTranslated() < heroB->getNameTranslated();
 	});
 
-	int selectedIndex = parent.startInfo->selectedHero[id] == HeroTypeID::NONE ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
-		return heroID == parent.startInfo->selectedHero[id];
+	int selectedIndex = owner.startInfo->selectedHero[id] == HeroTypeID::NONE ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
+		return heroID == owner.startInfo->selectedHero[id];
 	})));
 	
 	std::vector<std::string> texts;
@@ -502,26 +502,26 @@ void BattleOnlyModeHeroSelector::selectHero()
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 		if(index == 0)
 		{
-			parent.startInfo->selectedHero[id] = HeroTypeID::NONE;
-			parent.onChange();
+			owner.startInfo->selectedHero[id] = HeroTypeID::NONE;
+			owner.onChange();
 			return;
 		}
 		index--;
 
-		parent.startInfo->selectedHero[id] = heroes[index];
+		owner.startInfo->selectedHero[id] = heroes[index];
 
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			parent.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->heroClass->primarySkillInitial[i];
+			owner.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->heroClass->primarySkillInitial[i];
 
 		for(size_t i=0; i<8; i++)
 			if(heroes[index].toHeroType()->secSkillsInit.size() > i)
-				parent.startInfo->secSkillLevel[id][i] = std::make_pair(heroes[index].toHeroType()->secSkillsInit[i].first, MasteryLevel::Type(heroes[index].toHeroType()->secSkillsInit[i].second));
+				owner.startInfo->secSkillLevel[id][i] = std::make_pair(heroes[index].toHeroType()->secSkillsInit[i].first, MasteryLevel::Type(heroes[index].toHeroType()->secSkillsInit[i].second));
 			else
-				parent.startInfo->secSkillLevel[id][i] = std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE);
+				owner.startInfo->secSkillLevel[id][i] = std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE);
 		
-		parent.startInfo->spellBook[id] = heroes[index].toHeroType()->haveSpellBook;
+		owner.startInfo->spellBook[id] = heroes[index].toHeroType()->haveSpellBook;
 
-		parent.onChange();
+		owner.onChange();
 	}, selectedIndex, imageLoader, true, true);
 	window->onPopup = [heroes](int index) {
 		if(index == 0)
@@ -537,28 +537,28 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 {
 	OBJECT_CONSTRUCTION;
 
-	if(parent.startInfo->selectedHero[id] == HeroTypeID::NONE)
+	if(owner.startInfo->selectedHero[id] == HeroTypeID::NONE)
 	{
-		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelectHero"), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, LIBRARY->generaltexth->translate("core.genrltxt.507"));
+		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelectHero"), id == 1 ? owner.boxColor : owner.disabledBoxColor), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : owner.disabledColor, LIBRARY->generaltexth->translate("core.genrltxt.507"));
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText("0");
 	}
 	else
 	{
-		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(parent.startInfo->selectedHero[id].toHeroType()->imageIndex), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, parent.startInfo->selectedHero[id].toHeroType()->getNameTranslated());
+		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(owner.startInfo->selectedHero[id].toHeroType()->imageIndex), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : owner.disabledColor, owner.startInfo->selectedHero[id].toHeroType()->getNameTranslated());
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
+			primSkillsInput[i]->setText(std::to_string(owner.startInfo->primSkillLevel[id][i]));
 	}
 
 	heroImage->addLClickCallback([this](){ selectHero(); });
 
 	heroImage->addRClickCallback([this](){
-		if(parent.startInfo->selectedHero[id] == HeroTypeID::NONE)
+		if(owner.startInfo->selectedHero[id] == HeroTypeID::NONE)
 			return;
 		
-		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id].toHeroType()->getId());
+		ENGINE->windows().createAndPushWindow<CHeroOverview>(owner.startInfo->selectedHero[id].toHeroType()->getId());
 	});
 }
 
@@ -580,8 +580,8 @@ void BattleOnlyModeHeroSelector::selectCreature(int slot)
 		return creatureA->getNameSingularTranslated() < creatureB->getNameSingularTranslated();
 	});
 
-	int selectedIndex = parent.startInfo->selectedArmy[id][slot].getId() == CreatureID::NONE ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, slot](auto creatureID) {
-		return creatureID == parent.startInfo->selectedArmy[id][slot].getId();
+	int selectedIndex = owner.startInfo->selectedArmy[id][slot].getId() == CreatureID::NONE ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, slot](auto creatureID) {
+		return creatureID == owner.startInfo->selectedArmy[id][slot].getId();
 	})));
 	
 	std::vector<std::string> texts;
@@ -600,15 +600,15 @@ void BattleOnlyModeHeroSelector::selectCreature(int slot)
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), [this, creatures, slot](int index){
 		if(index == 0)
 		{
-			parent.startInfo->selectedArmy[id][slot] = CStackBasicDescriptor(CreatureID::NONE, 1);
-			parent.onChange();
+			owner.startInfo->selectedArmy[id][slot] = CStackBasicDescriptor(CreatureID::NONE, 1);
+			owner.onChange();
 			return;
 		}
 		index--;
 
 		auto creature = creatures.at(index).toCreature();
-		parent.startInfo->selectedArmy[id][slot] = CStackBasicDescriptor(creature->getId(), 100);
-		parent.onChange();
+		owner.startInfo->selectedArmy[id][slot] = CStackBasicDescriptor(creature->getId(), 100);
+		owner.onChange();
 	}, selectedIndex, images, true, true);
 	window->onPopup = [creatures](int index) {
 		if(index == 0)
@@ -626,17 +626,17 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 
 	for(int i = 0; i < creatureImage.size(); i++)
 	{
-		if(parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
+		if(owner.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectUnit");
 			str.replaceNumber(i + 1);
-			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6 + i * 36, 78));
+			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? owner.boxColor : owner.disabledBoxColor), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->disable();
 		}
 		else
 		{
-			auto unit = parent.startInfo->selectedArmy[id][i];
+			auto unit = owner.startInfo->selectedArmy[id][i];
 			auto creatureID = unit.getId();
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->setText(TextOperations::formatMetric(unit.getCount(), 3));
@@ -646,10 +646,10 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		creatureImage[i]->addLClickCallback([this, i](){ selectCreature(i); });
 
 		creatureImage[i]->addRClickCallback([this, i](){
-			if(parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
+			if(owner.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
 				return;
 			
-			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(parent.startInfo->selectedArmy[id][i].getId()).get(), true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(owner.startInfo->selectedArmy[id][i].getId()).get(), true);
 		});
 	}
 }
@@ -664,9 +664,9 @@ void BattleOnlyModeHeroSelector::selectSecSkill(int slot)
 			skills.end(),
 			[this, slot](auto & skill) {
 				return std::any_of(
-					parent.startInfo->secSkillLevel[id].begin(), parent.startInfo->secSkillLevel[id].end(),
+					owner.startInfo->secSkillLevel[id].begin(), owner.startInfo->secSkillLevel[id].end(),
 					[&skill](auto & s) { return s.first == skill; }
-				) && parent.startInfo->secSkillLevel[id][slot].first != skill;
+				) && owner.startInfo->secSkillLevel[id][slot].first != skill;
 			}
 		),
 		skills.end()
@@ -677,8 +677,8 @@ void BattleOnlyModeHeroSelector::selectSecSkill(int slot)
 		return skillA->getNameTranslated() < skillB->getNameTranslated();
 	});
 
-	int selectedIndex = parent.startInfo->secSkillLevel[id][slot].second == MasteryLevel::NONE ? 0 : (1 + std::distance(skills.begin(), std::find_if(skills.begin(), skills.end(), [this, slot](auto skillID) {
-		return skillID == parent.startInfo->secSkillLevel[id][slot].first;
+	int selectedIndex = owner.startInfo->secSkillLevel[id][slot].second == MasteryLevel::NONE ? 0 : (1 + std::distance(skills.begin(), std::find_if(skills.begin(), skills.end(), [this, slot](auto skillID) {
+		return skillID == owner.startInfo->secSkillLevel[id][slot].first;
 	})));
 	
 	std::vector<std::string> texts;
@@ -697,15 +697,15 @@ void BattleOnlyModeHeroSelector::selectSecSkill(int slot)
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSecSkillSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSecSkillSelect"), [this, skills, slot](int index){
 		if(index == 0)
 		{
-			parent.startInfo->secSkillLevel[id][slot] = std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE);
-			parent.onChange();
+			owner.startInfo->secSkillLevel[id][slot] = std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE);
+			owner.onChange();
 			return;
 		}
 		index--;
 
 		auto skill = skills.at(index).toSkill();
-		parent.startInfo->secSkillLevel[id][slot] = std::make_pair(skill->getId(), MasteryLevel::EXPERT);
-		parent.onChange();
+		owner.startInfo->secSkillLevel[id][slot] = std::make_pair(skill->getId(), MasteryLevel::EXPERT);
+		owner.onChange();
 	}, selectedIndex, images, true, true);
 	window->onPopup = [skills](int index) {
 		if(index == 0)
@@ -728,13 +728,13 @@ void BattleOnlyModeHeroSelector::setSecSkillIcons()
 		bool isLeft = (i % 2 == 0);
 		int line = (i / 2);
 		Point imgPos(261 + (isLeft ? 0 : 36), 7 + line * 54);
-		auto skillInfo = parent.startInfo->secSkillLevel[id][i];
+		auto skillInfo = owner.startInfo->secSkillLevel[id][i];
 		if(skillInfo.second == MasteryLevel::NONE)
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectSkill");
 			str.replaceNumber(i + 1);
-			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
+			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? owner.boxColor : owner.disabledBoxColor), imgPos);
 			selectedSecSkillInput[i]->disable();
 		}
 		else
@@ -747,8 +747,8 @@ void BattleOnlyModeHeroSelector::setSecSkillIcons()
 		secSkillImage[i]->addLClickCallback([this, i](){ selectSecSkill(i); });
 
 		secSkillImage[i]->addRClickCallback([this, i](){
-			auto skillId = parent.startInfo->secSkillLevel[id][i].first;
-			auto skillLevel = parent.startInfo->secSkillLevel[id][i].second;
+			auto skillId = owner.startInfo->secSkillLevel[id][i].first;
+			auto skillLevel = owner.startInfo->secSkillLevel[id][i].second;
 
 			if(skillLevel == MasteryLevel::NONE)
 				return;
@@ -784,8 +784,8 @@ void BattleOnlyModeHeroSelector::selectArtifact(int slot, ArtifactID artifactId)
 				if(possibleSlots.find(ArtBearer::HERO) != possibleSlots.end() && !possibleSlots.at(ArtBearer::HERO).empty())
 					allowedSlots = possibleSlots.at(ArtBearer::HERO);
 				
-				return (std::any_of(parent.startInfo->artifacts[id].begin(), parent.startInfo->artifacts[id].end(), [&artifact](auto & a) {return a.second == artifact;})
-					&& parent.startInfo->artifacts[id][artPos[slot]] != artifact)
+				return (std::any_of(owner.startInfo->artifacts[id].begin(), owner.startInfo->artifacts[id].end(), [&artifact](auto & a) {return a.second == artifact;})
+					&& owner.startInfo->artifacts[id][artPos[slot]] != artifact)
 					|| !std::any_of(allowedSlots.begin(), allowedSlots.end(), [slot, artPos](auto & p){ return p == artPos[slot]; });
 			}
 		),
@@ -817,15 +817,15 @@ void BattleOnlyModeHeroSelector::selectArtifact(int slot, ArtifactID artifactId)
 	auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeArtifactSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeArtifactSelect"), [this, artifacts, slot, artPos](int index){
 		if(index == 0)
 		{
-			parent.startInfo->artifacts[id][artPos[slot]] = ArtifactID::NONE;
-			parent.onChange();
+			owner.startInfo->artifacts[id][artPos[slot]] = ArtifactID::NONE;
+			owner.onChange();
 			return;
 		}
 		index--;
 
 		auto artifact = artifacts.at(index);
-		parent.startInfo->artifacts[id][artPos[slot]] = artifact;
-		parent.onChange();
+		owner.startInfo->artifacts[id][artPos[slot]] = artifact;
+		owner.onChange();
 	}, selectedIndex, images, true, true);
 	window->onPopup = [artifacts](int index) {
 		if(index == 0)
@@ -850,13 +850,13 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 		int xPos = i % 7;
 		int yPos = i / 7;
 		Point imgPos(6 + xPos * 36, 137 + yPos * 36);
-		auto artifactId = parent.startInfo->artifacts[id][artPos[i]];
+		auto artifactId = owner.startInfo->artifacts[id][artPos[i]];
 		if(artifactId == ArtifactID::NONE)
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.battleOnlyModeSelectArtifact");
 			str.replaceTextID("vcmi.lobby.battleOnlyModeSelectArtifact", artPos[i]);
-			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
+			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(&GAME->translator()), id == 1 ? owner.boxColor : owner.disabledBoxColor), imgPos);
 		}
 		else
 		{
@@ -868,7 +868,7 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 		artifactImage[i]->addLClickCallback([this, i, artifactId](){ selectArtifact(i, artifactId); });
 
 		artifactImage[i]->addRClickCallback([this, i, artPos](){
-			auto artId = parent.startInfo->artifacts[id][artPos[i]];
+			auto artId = owner.startInfo->artifacts[id][artPos[i]];
 			if(artId == ArtifactID::NONE)
 				return;
 

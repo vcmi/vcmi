@@ -14,4 +14,4 @@ fi
 
 ONNXRUNTIME_ROOT=/opt/onnxruntime
 sudo mkdir -p "$ONNXRUNTIME_ROOT"
-curl -fsSL "$ONNXRUNTIME_URL" | sudo tar -xzv --strip-components=1 -C "$ONNXRUNTIME_ROOT"
+curl --proto =https -fsSL "$ONNXRUNTIME_URL" | sudo tar -xzv --strip-components=1 -C "$ONNXRUNTIME_ROOT"

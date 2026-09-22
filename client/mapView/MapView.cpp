@@ -58,7 +58,7 @@ std::shared_ptr<MapViewModel> BasicMapView::createModel(const Point & dimensions
 
 BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool useGpuLayer)
 	: model(createModel(dimensions))
-	, tilesCache(new MapViewCache(model, useGpuLayer))
+	, tilesCache(std::make_shared<MapViewCache>(model, useGpuLayer))
 	, controller(new MapViewController(model, tilesCache))
 	, gpuLayerEligible(useGpuLayer)
 	, needFullUpdate(false)

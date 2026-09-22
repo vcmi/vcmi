@@ -238,7 +238,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	for(auto & loader : configList)
 	{
 		auto stream = loader->load(jsonResource);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		auto textData = std::make_unique<ui8[]>(stream->getSize());
 		stream->read(textData.get(), stream->getSize());
 
 		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
@@ -653,7 +653,7 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 	for(auto & loader : configList)
 	{
 		auto stream = loader->load(JsonPath::builtin("config/fonts.json"));
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		auto textData = std::make_unique<ui8[]>(stream->getSize());
 		stream->read(textData.get(), stream->getSize());
 		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), "config/fonts.json");
 		const JsonVector & bmpConf = config["bitmap"].Vector();

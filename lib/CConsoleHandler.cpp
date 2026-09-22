@@ -61,6 +61,11 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 	const auto dumpName = boost::filesystem::path(executablePath.data()).filename().wstring() + L"_crashinfo.dmp";
 	const auto dumpPath = VCMIDirs::get().userLogsPath() / dumpName;
 	HANDLE dfile = CreateFileW(dumpPath.c_str(), GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+	if(dfile == INVALID_HANDLE_VALUE)
+	{
+		logGlobal->error("Failed to create crash dump file %s", TextOperations::filesystemPathToUtf8(dumpPath));
+		return;
+	}
 	logGlobal->error("Crash info will be put in %s", TextOperations::filesystemPathToUtf8(dumpPath));
 	
 	auto dumpType = MiniDumpWithDataSegs;
@@ -76,6 +81,7 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 	}
 
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, nullptr, nullptr);
+	CloseHandle(dfile);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 }
 
