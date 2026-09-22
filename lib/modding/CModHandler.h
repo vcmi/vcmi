@@ -50,8 +50,8 @@ public:
 
 	std::string getModLanguage(const TModID & modId) const;
 
-	std::set<TModID> getModDependencies(const TModID & modId) const;
-	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
+	const std::set<TModID> & getModDependencies(const TModID & modId) const;
+	const std::set<TModID> & getModDependencies(const TModID & modId, bool & isModFound) const;
 	std::set<TModID> getModSoftDependencies(const TModID & modId) const;
 	std::set<TModID> getModEnabledSoftDependencies(const TModID & modId) const;
 

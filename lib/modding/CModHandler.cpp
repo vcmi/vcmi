@@ -195,20 +195,22 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	return getModInfo(modId).getBaseLanguage();
 }
 
-std::set<TModID> CModHandler::getModDependencies(const TModID & modId) const
+const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId) const
 {
 	bool isModFound;
 	return getModDependencies(modId, isModFound);
 }
 
-std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
+const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
 {
+	static const std::set<TModID> noDependencies;
+
 	isModFound = modManager->isModActive(modId);
 	if (isModFound)
 		return modManager->getModDescription(modId).getDependencies();
 
 	logMod->error("Mod not found: '%s'", modId);
-	return {};
+	return noDependencies;
 }
 
 std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const

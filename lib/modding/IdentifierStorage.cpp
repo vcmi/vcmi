@@ -356,6 +356,8 @@ void CIdentifierStorage::registerObject(const std::string & scope, const std::st
 std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request) const
 {
 	std::set<std::string> allowedScopes;
+	// dependencies of requesting mod, which are also allowed scopes. Kept separately to avoid copying dependencies on every request
+	const std::set<TModID> * allowedDependencies = nullptr;
 	bool isValidScope = true;
 
 	// called have not specified destination mod explicitly
@@ -371,7 +373,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
 		else if(request.localScope != ModScope::scopeBuiltin() && !request.localScope.empty())
 		{
-			allowedScopes = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			allowedDependencies = &LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -408,7 +410,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		else
 		{
 			// allow access only if mod is in our dependencies
-			auto myDeps = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			const auto & myDeps = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -430,7 +432,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 
 		for (auto it = entries.first; it != entries.second; it++)
 		{
-			if (vstd::contains(allowedScopes, it->second.scope))
+			if (vstd::contains(allowedScopes, it->second.scope) || (allowedDependencies && vstd::contains(*allowedDependencies, it->second.scope)))
 			{
 				locatedIDs.push_back(it->second);
 			}

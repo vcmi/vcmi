@@ -211,7 +211,8 @@ void ContentTypeHandler::afterLoadFinalization()
 
 			for (auto const & modID : conflictingMods)
 			{
-				resolvedConflicts.merge(LIBRARY->modh->getModDependencies(modID));
+				const auto & dependencies = LIBRARY->modh->getModDependencies(modID);
+				resolvedConflicts.insert(dependencies.begin(), dependencies.end());
 				resolvedConflicts.merge(LIBRARY->modh->getModEnabledSoftDependencies(modID));
 			}
 
