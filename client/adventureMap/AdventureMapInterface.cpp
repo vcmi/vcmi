@@ -157,6 +157,7 @@ void AdventureMapInterface::activate()
 void AdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
+	heldScrollShortcuts.clear();
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 
 	if(GAME->interface())
@@ -205,11 +206,37 @@ void AdventureMapInterface::dim(Canvas & to)
 
 void AdventureMapInterface::tick(uint32_t msPassed)
 {
+	handleKeyboardScrollingUpdate(msPassed);
 	handleMapScrollingUpdate(msPassed);
 
 	// we want animations to be active during enemy turn but map itself to be non-interactive
 	// so call timer update directly on inactive element
 	widget->getMapView()->tick(msPassed);
+}
+
+void AdventureMapInterface::handleKeyboardScrollingUpdate(uint32_t timePassed)
+{
+	Point scrollDirection;
+
+	if (heldScrollShortcuts.contains(EShortcut::ADVENTURE_SCROLL_LEFT))
+		scrollDirection.x -= 1;
+
+	if (heldScrollShortcuts.contains(EShortcut::ADVENTURE_SCROLL_RIGHT))
+		scrollDirection.x += 1;
+
+	if (heldScrollShortcuts.contains(EShortcut::ADVENTURE_SCROLL_UP))
+		scrollDirection.y -= 1;
+
+	if (heldScrollShortcuts.contains(EShortcut::ADVENTURE_SCROLL_DOWN))
+		scrollDirection.y += 1;
+
+	if (scrollDirection == Point(0,0) || !shortcuts->optionMapScrollingActive())
+		return;
+
+	int32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
+	int32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
+
+	widget->getMapView()->onMapScrolled(scrollDirection * scrollDistance);
 }
 
 void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
@@ -308,12 +335,29 @@ int3 AdventureMapInterface::getMapViewCenter() const
 
 void AdventureMapInterface::keyPressed(EShortcut key)
 {
+	switch(key)
+	{
+		case EShortcut::ADVENTURE_SCROLL_LEFT:
+		case EShortcut::ADVENTURE_SCROLL_RIGHT:
+		case EShortcut::ADVENTURE_SCROLL_UP:
+		case EShortcut::ADVENTURE_SCROLL_DOWN:
+			heldScrollShortcuts.insert(key);
+			break;
+		default:
+			break;
+	}
+
 	if (key == EShortcut::GLOBAL_CANCEL && spellBeingCasted)
 		hotkeyAbortCastingMode();
 	if (key == EShortcut::GLOBAL_CANCEL && getState() == EAdventureState::DISEMBARKING)
 		exitDisembarkMode();
 	//fake mouse use to trigger onTileHovered()
 	ENGINE->fakeMouseMove();
+}
+
+void AdventureMapInterface::keyReleased(EShortcut key)
+{
+	heldScrollShortcuts.erase(key);
 }
 
 void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)

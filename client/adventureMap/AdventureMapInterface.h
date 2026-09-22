@@ -57,6 +57,9 @@ private:
 	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
 	bool scrollingWasBlocked;
 
+	/// map scrolling shortcuts that are currently held by player
+	std::set<EShortcut> heldScrollShortcuts;
+
 	/// how much should the background dimmed, when windows are on the top
 	int backgroundDimLevel;
 
@@ -107,6 +110,9 @@ private:
 	/// performs disembark to specified location
 	void performDisembark(const int3 & destTarget);
 
+	/// scrolls map using held scrolling shortcuts
+	void handleKeyboardScrollingUpdate(uint32_t timePassed);
+
 	/// checks if tile is a valid disembark target
 	bool isValidDisembarkTarget(int3 targetPosition) const;
 protected:
@@ -120,6 +126,7 @@ protected:
 	void showAll(Canvas & to) override;
 
 	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 
 	void onScreenResize() override;
 
