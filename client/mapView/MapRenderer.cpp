@@ -622,7 +622,10 @@ void MapRendererObjects::renderGround(IMapRendererContext & context, Canvas & ta
 		const auto * objectInstance = context.getObject(objectID);
 
 		if(objectInstance && MapObjectDrawOrder::isSpecialGround(objectInstance))
+		{
+			renderShadow(context, target, coordinates, objectInstance);
 			renderObject(context, target, coordinates, objectInstance);
+		}
 	}
 }
 
