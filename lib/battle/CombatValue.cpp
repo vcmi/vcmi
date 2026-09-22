@@ -645,14 +645,12 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	if(unit->hasBonusOfType(BonusType::HEALER))
 		result *= 1.10;
 
-	// fallback value for scripts whose magnitude does not describe their effect
-	static constexpr double unpricedScriptValue = 0.10;
-
 	for(const auto & bonus : *unit->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER))
 	{
 		const double weight = combatScriptWeight(bonus->subtype);
 
-		result *= 1.0 + (weight > 0 ? weight * bonus->val : unpricedScriptValue);
+		if(weight > 0)
+			result *= 1.0 + weight * bonus->val;
 	}
 
 	if(unit->hasBonusOfType(BonusType::POISON))
@@ -697,7 +695,8 @@ double CombatValue::survivalMultiplier(const ACreature & creature)
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
-	result *= 1.0 + unit->valOfBonuses(BonusType::REBIRTH) / 100.0;
+	const ScriptID rebirthScript(ScriptID::decode("rebirth"));
+	result *= 1.0 + unit->valOfBonuses(BonusType::COMBAT_EVENT_TRIGGER, rebirthScript) / 100.0;
 
 	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 		result *= 1.10;

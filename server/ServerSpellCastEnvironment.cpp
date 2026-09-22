@@ -78,10 +78,12 @@ void ServerSpellCastEnvironment::apply(SetStackEffect & pack)
 
 void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
-	gh->sendAndApply(pack);
-
 	// damage not dealt by an attack - spell, moat, obstacle or script - goes through this pack
-	gh->battles->noteDeaths(pack.battleID, pack.stacks);
+	const auto * battle = gh->gameState().getBattle(pack.battleID);
+	if(battle)
+		gh->battles->noteDeaths(*battle, pack.stacks);
+
+	gh->sendAndApply(pack);
 }
 
 void ServerSpellCastEnvironment::apply(BattleObstaclesChanged & pack)

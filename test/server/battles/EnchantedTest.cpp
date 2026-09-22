@@ -48,7 +48,7 @@ TEST_F(EnchantedTest, KeepsTheEnchantmentAsRoundsPass)
 	startBattle();
 
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
-	CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
+    [[maybe_unused]] CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
 
 	beginCombat();
 

@@ -400,11 +400,13 @@ void BattleProcessor::cheatBattleVictory(PlayerColor player)
 
 void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide)
 {
+	const BattleID battleID = battle.getBattle()->getBattleID();
+
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
 
 	// nothing will announce them once the battle is over
-	actionsProcessor->forgetPendingDeaths(battle.getBattle()->getBattleID());
+	actionsProcessor->forgetPendingDeaths(battleID);
 }
 
 bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
@@ -425,9 +427,9 @@ void BattleProcessor::spellHasHit(const CBattleInfoCallback & battle, const spel
 	actionsProcessor->processSpellHitTriggers(battle, spell, casterUnit, unitsBefore);
 }
 
-void BattleProcessor::noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties)
+void BattleProcessor::noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties)
 {
-	actionsProcessor->noteDeaths(battleID, casualties);
+	actionsProcessor->noteDeaths(battle, casualties);
 }
 
 void BattleProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)

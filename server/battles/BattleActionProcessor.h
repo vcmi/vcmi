@@ -57,21 +57,7 @@ class BattleActionProcessor : boost::noncopyable
 	/// action runs, since its last part is not known in advance - a target that dies ends an attack,
 	/// ferocity extends one.
 	std::vector<uint32_t> actionParticipants;
-
-	/// One death waiting to be announced. Battle is stored because a unit id is only unique within
-	/// a battle, and two battles can run at once.
-	struct PendingDeath
-	{
-		BattleID battle;
-		uint32_t unit;
-		uint32_t killer;
-		uint32_t killed; ///< creatures the lethal hit took, so whatever was still standing when it landed
-		int64_t damage;
-	};
-
-	/// Deaths not announced yet. Announced at the end of the action instead of where they happened,
-	/// so that no script starts while another one is running.
-	std::vector<PendingDeath> pendingDeaths;
+	bool actionInProgress = false;
 
 	/// No unit, matching the sentinel of BattleStackAttacked::attackerID
 	static constexpr uint32_t noUnit = -1;
@@ -91,6 +77,23 @@ class BattleActionProcessor : boost::noncopyable
 		std::shared_ptr<const Bonus> bonus;
 		const ICombatEventScript * script = nullptr; ///< null for a predefined ON_COMBAT_EVENT reaction
 	};
+
+	/// One death waiting to be announced. Battle is stored because a unit id is only unique within
+	/// a battle, and two battles can run at once. Reactions are captured before the lethal hit removes
+	/// spell effects from the unit.
+	struct PendingDeath
+	{
+		BattleID battle;
+		uint32_t unit;
+		uint32_t killer;
+		uint32_t killed; ///< creatures the lethal hit took, so whatever was still standing when it landed
+		int64_t damage;
+		std::vector<PendingTrigger> triggers;
+	};
+
+	/// Deaths not announced yet. Announced at the end of the action instead of where they happened,
+	/// so that no script starts while another one is running.
+	std::vector<PendingDeath> pendingDeaths;
 
 	/// Gathers everything one unit reacts to one event with, without running any of it yet, so that
 	/// several units reacting to the same attack can be ordered against each other.
@@ -187,7 +190,7 @@ public:
 
 	/// Records every death the given casualties report, to be announced once the action is over.
 	/// Clones are included, even though a clone leaves no body behind.
-	void noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties);
+	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
 
 	/// Announces every recorded death, and repeats while the reactions produce further ones, so
 	/// that one death can set off the next. Reactions to one batch all run before any of the next.

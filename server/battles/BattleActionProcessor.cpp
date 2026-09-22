@@ -17,6 +17,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
@@ -750,6 +751,10 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 
 	// units notified outside an action, e.g. on round start or battle setup, are not part of it
 	actionParticipants.clear();
+	if(stack && ba.isUnitAction())
+		actionParticipants.push_back(stack->unitId());
+	actionInProgress = true;
+	auto finishAction = vstd::makeScopeGuard([this]() { actionInProgress = false; });
 
 	// for these events client does not expects StartAction/EndAction wrapper
 	if (!ba.isBattleEndAction())
@@ -760,6 +765,8 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	}
 
 	bool result = dispatchBattleAction(battle, ba);
+	if(ba.isBattleEndAction())
+		return result;
 
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
@@ -774,12 +781,9 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 
 	// sent after everything the action caused: client batches animations between StartAction and
 	// EndAction and waits for them there
-	if (!ba.isBattleEndAction())
-	{
-		EndAction endAction;
-		endAction.battleID = battle.getBattle()->getBattleID();
-		gameHandler->sendAndApply(endAction);
-	}
+	EndAction endAction;
+	endAction.battleID = battle.getBattle()->getBattleID();
+	gameHandler->sendAndApply(endAction);
 
 	return result;
 }
@@ -1269,8 +1273,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	for(const AttackedTarget & target : payload.targets)
 		collectEventTriggers(battle, reactions, CombatEventType::AFTER_ATTACKED, target.unit, attacker);
 
+	noteDeaths(battle, bat.bsa);
 	gameHandler->sendAndApply(bat);
-	noteDeaths(battle.getBattle()->getBattleID(), bat.bsa);
 
 	{
 		const bool multipleTargets = bat.bsa.size() > 1;
@@ -1713,7 +1717,7 @@ void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallb
 	flushPendingDeaths(battle);
 }
 
-void BattleActionProcessor::noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties)
+void BattleActionProcessor::noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties)
 {
 	for(const BattleStackAttacked & casualty : casualties)
 	{
@@ -1722,7 +1726,20 @@ void BattleActionProcessor::noteDeaths(const BattleID & battleID, const std::vec
 		if(!casualty.killed() || casualty.killedAmount == 0)
 			continue;
 
-		pendingDeaths.push_back({battleID, casualty.stackAttacked, casualty.attackerID, casualty.killedAmount, casualty.damageAmount});
+		const battle::Unit * unit = battle.battleGetUnitByID(casualty.stackAttacked);
+		if(!unit)
+			continue;
+
+		PendingDeath death{
+			battle.getBattle()->getBattleID(),
+			casualty.stackAttacked,
+			casualty.attackerID,
+			casualty.killedAmount,
+			casualty.damageAmount,
+			{}
+		};
+		collectEventTriggers(battle, death.triggers, CombatEventType::UNIT_DEATH, unit, battle.battleGetUnitByID(death.killer));
+		pendingDeaths.push_back(std::move(death));
 	}
 }
 
@@ -1759,7 +1776,7 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 			target.killed = death.killed;
 			payload.targets.push_back(target);
 
-			collectEventTriggers(battle, pending, CombatEventType::UNIT_DEATH, unit, battle.battleGetUnitByID(death.killer));
+			pending.insert(pending.end(), death.triggers.begin(), death.triggers.end());
 		}
 
 		// one dispatch for the whole batch, so that priority orders reactions of different units
@@ -1775,8 +1792,12 @@ void BattleActionProcessor::forgetPendingDeaths(const BattleID & battleID)
 
 void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
 {
-	if(unitsBefore.empty())
-		return;
+	if(!actionInProgress)
+	{
+		actionParticipants.clear();
+		if(casterUnit)
+			actionParticipants.push_back(casterUnit->unitId());
+	}
 
 	CombatEventPayload payload;
 	payload.spell = &spell;
@@ -1806,6 +1827,13 @@ void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & 
 			collectEventTriggers(battle, pending, CombatEventType::SPELL_HIT, target.unit, casterUnit);
 
 	runEventTriggers(battle, pending, payload);
+
+	// Enchanter casts run during stack activation, outside a battle action.
+	if(!actionInProgress)
+	{
+		flushPendingDeaths(battle);
+		processActionFinishedTriggers(battle, casterUnit);
+	}
 }
 
 void BattleActionProcessor::processAttackTriggers(const CBattleInfoCallback & battle, CombatEventType attackerEvent, CombatEventType targetEvent, const CStack * attacker, const CStack * defender, const CombatEventPayload & payload)

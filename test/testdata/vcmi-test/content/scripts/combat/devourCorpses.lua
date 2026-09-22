@@ -33,6 +33,8 @@ end
 --- worth a strike of the attack it walked into. Every corpse under the head hex is consumed, each
 --- one worth one extra strike.
 function Script:onAfterMove(server, battle, unit, other, payload)
+	if not unit:isAlive() then return end
+
 	local headHex = unit:getPosition()
 	local corpses = battle:getUnitsIf(function(target)
 		return target:isDead() and not target:isGhost() and target:coversPos(headHex)

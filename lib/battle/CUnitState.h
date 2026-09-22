@@ -276,7 +276,7 @@ private:
 class CUnitStateDetached final : public CUnitState
 {
 public:
-	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
+	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_, bool snapshotBonuses = false);
 
 	CUnitStateDetached & operator= (const CUnitState & other);
 
@@ -299,6 +299,8 @@ public:
 private:
 	const IUnitInfo * unit;
 	const IBonusBearer * bonus;
+	TConstBonusListPtr bonusSnapshot;
+	int32_t bonusTreeVersion;
 };
 
 }

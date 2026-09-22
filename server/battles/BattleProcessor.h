@@ -84,7 +84,7 @@ public:
 	/// Fires the spell hit event on every unit a deliberately cast spell reached
 	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
 	/// Records every death these casualties report, to be announced once the running action is over
-	void noteDeaths(const BattleID & battleID, const std::vector<BattleStackAttacked> & casualties);
+	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
 	/// Announces recorded deaths, for damage dealt outside any battle action
 	void flushPendingDeaths(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
@@ -100,4 +100,3 @@ public:
 
 	}
 };
-

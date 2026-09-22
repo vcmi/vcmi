@@ -15,11 +15,12 @@ function Script:getHeroAttack(unit)
 end
 
 --- Lowest and highest damage of one creature of the machine, from its own damage. A mod changes
---- the formula by overriding this; only the difference is granted as a bonus below.
+--- the formula by overriding this.
 function Script:getDamageRange(unit, minDamage, maxDamage)
 	local heroAttack = self:getHeroAttack(unit)
 
-	return minDamage * (heroAttack + 1), maxDamage * (heroAttack + 1)
+	local offset = self.val or 1
+	return minDamage * (heroAttack + offset), maxDamage * (heroAttack + offset)
 end
 
 function Script:grantDamage(server, battle, unit, subtype, value)
@@ -29,6 +30,7 @@ function Script:grantDamage(server, battle, unit, subtype, value)
 		type       = "CREATURE_DAMAGE",
 		subtype    = subtype,
 		val        = value,
+		valueType  = ENUM.BonusValueType.independentMax,
 		duration   = ENUM.BonusDuration.oneBattle,
 		sourceType = ENUM.BonusSource.creatureAbility,
 		sourceID   = unit:getCreature():getJsonKey()
@@ -40,8 +42,8 @@ function Script:onBattleSetup(server, battle, unit, other)
 	local maxDamage = unit:getMaxDamage(false)
 	local newMin, newMax = self:getDamageRange(unit, minDamage, maxDamage)
 
-	self:grantDamage(server, battle, unit, "creatureDamageMin", newMin - minDamage)
-	self:grantDamage(server, battle, unit, "creatureDamageMax", newMax - maxDamage)
+	self:grantDamage(server, battle, unit, "creatureDamageMin", newMin)
+	self:grantDamage(server, battle, unit, "creatureDamageMax", newMax)
 end
 
 return Script

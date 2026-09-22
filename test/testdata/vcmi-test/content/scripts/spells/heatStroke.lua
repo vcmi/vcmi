@@ -194,7 +194,7 @@ function Script:apply(mechanics, server, target)
 			end
 			local cap = unit:getBonusesValue({ type = "DAMAGE_RECEIVED_CAP" })
 			if cap > 0 then
-				damage = math.max(math.floor(unit:getMaxHealth() * cap / 100), 1)
+				damage = math.min(damage, math.max(math.floor(unit:getMaxHealth() * cap / 100), 1))
 			end
 			local dealt, killed = server:damageUnit(battle, unit, damage)
 			totalDamage = totalDamage + dealt
