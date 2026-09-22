@@ -103,7 +103,7 @@ void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, std::uniqu
 	{
 		for(const auto & [rightName, rightFilesystem] : modFilesystems)
 		{
-			if (leftName == rightName)
+			if (leftName == rightName || !leftFilesystem || !rightFilesystem)
 				continue;
 
 			if (getModDependencies(leftName).count(rightName) || getModDependencies(rightName).count(leftName))

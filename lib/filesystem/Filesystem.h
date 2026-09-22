@@ -22,7 +22,7 @@ class CFilesystemGenerator : boost::noncopyable
 	using TLoadFunctor = std::function<void(const std::string &, const JsonNode &)>;
 	using TLoadFunctorMap = std::map<std::string, TLoadFunctor>;
 
-	std::unique_ptr<CFilesystemList> filesystem;
+	std::vector<std::unique_ptr<ISimpleResourceLoader>> loaders;
 	std::string prefix;
 
 	template<EResType archiveType>
@@ -42,8 +42,8 @@ public:
 	/// config - configuration to load, using format of "filesystem" entry in config/filesystem.json
 	void loadConfig(const JsonNode & config);
 
-	/// returns generated filesystem
-	std::unique_ptr<CFilesystemList> acquireFilesystem();
+	/// returns generated filesystem: nullptr if none of data sources exist, data source itself if only one exists, or list of all data sources
+	std::unique_ptr<ISimpleResourceLoader> acquireFilesystem();
 
 	/** Specifies if Original H3 archives should be extracted to a separate folder **/
 	bool extractArchives;
@@ -95,7 +95,7 @@ public:
 	/**
 	 * @brief addFilesystem adds filesystem into global resource loader
 	 * @param identifier name of this loader by which it can be retrieved later
-	 * @param loader resource loader to add
+	 * @param loader resource loader to add. If null, identifier will be accessible as empty filesystem
 	 */
 	static void addFilesystem(const std::string & parent, const std::string & identifier, std::unique_ptr<ISimpleResourceLoader> loader);
 	
@@ -111,7 +111,7 @@ public:
 	 * @brief createModFileSystem - creates filesystem out of config file
 	 * @param prefix - prefix for all paths in filesystem config
 	 * @param fsConfig - configuration to load
-	 * @return generated filesystem that contains all config entries
+	 * @return generated filesystem that contains all config entries, or nullptr if none of entries exist
 	 */
 	static std::unique_ptr<ISimpleResourceLoader> createFileSystem(const std::string &prefix, const JsonNode & fsConfig, bool extractArchives = false);
 
@@ -123,4 +123,6 @@ private:
 
 	CResourceHandler() {};
 	std::unique_ptr<ISimpleResourceLoader> rootLoader;
+	/// shared by all filesystems that have no data sources, not attached to any parent
+	std::unique_ptr<ISimpleResourceLoader> emptyLoader;
 };
