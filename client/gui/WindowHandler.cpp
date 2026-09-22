@@ -132,7 +132,10 @@ void WindowHandler::processPendingRedraws()
 	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	for(CIntObject * object : pending)
-		object->showAll(target);
+	{
+		if(object->isActive())
+			object->showAll(target);
+	}
 }
 
 void WindowHandler::totalRedrawImpl()
