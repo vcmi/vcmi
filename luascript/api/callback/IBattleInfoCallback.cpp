@@ -136,7 +136,8 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		"Returns every valid battlefield hex.");
 	R.function<&IBattleInfoCallbackProxy::getWallState>("getWallState",
 		{{"part", "Wall section to query."}}, {},
-		"Returns the current state of the given wall section, or nil if absent.");
+		"Returns the number of hitpoints that the given wall section has left, or nil if the town "
+		"has no such section. Section with no hitpoints left has been destroyed.");
 	R.function<&IBattleInfoCallbackProxy::isWallPartAttackable>("isWallPartAttackable",
 		{{"part", "Wall section to test."}}, {},
 		"True if the given wall section can be targeted by an attack.");
@@ -266,12 +267,12 @@ BattleHexArray IBattleInfoCallbackProxy::getAllPossibleHexes(const IBattleInfoCa
 	return result;
 }
 
-std::optional<EWallState> IBattleInfoCallbackProxy::getWallState(const IBattleInfoCallback & object, EWallPart part)
+std::optional<int> IBattleInfoCallbackProxy::getWallState(const IBattleInfoCallback & object, EWallPart part)
 {
 	EWallState state = object.battleGetWallState(part);
 	if(state == EWallState::NONE)
 		return std::nullopt;
-	return state;
+	return static_cast<int>(state);
 }
 
 bool IBattleInfoCallbackProxy::isWallPartAttackable(const IBattleInfoCallback & object, EWallPart part)

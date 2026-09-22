@@ -198,43 +198,11 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * stack)
 {
-	BattleAction attack;
-	BattleHex targetHex = BattleHex::INVALID;
-
-	if(cb->getBattle(battleID)->battleGetGateState() == EGateState::CLOSED)
-	{
-		targetHex = cb->getBattle(battleID)->wallPartToBattleHex(EWallPart::GATE);
-	}
-	else
-	{
-		std::array wallParts {
-			EWallPart::KEEP,
-			EWallPart::BOTTOM_TOWER,
-			EWallPart::UPPER_TOWER,
-			EWallPart::BELOW_GATE,
-			EWallPart::OVER_GATE,
-			EWallPart::BOTTOM_WALL,
-			EWallPart::UPPER_WALL
-		};
-
-		for(auto wallPart : wallParts)
-		{
-			auto wallState = cb->getBattle(battleID)->battleGetWallState(wallPart);
-
-			if(wallState != EWallState::NONE && wallState != EWallState::DESTROYED)
-			{
-				targetHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
-				break;
-			}
-		}
-	}
-
-	if(!targetHex.isValid())
-	{
+	if(cb->getBattle(battleID)->getAttackableWallParts().empty())
 		return BattleAction::makeDefend(stack);
-	}
 
-	attack.aimToHex(targetHex);
+	// Action has no target - catapult will pick one on its own, according to its targeting rules
+	BattleAction attack;
 	attack.actionType = EActionType::CATAPULT;
 	attack.side = side;
 	attack.stackNumber = stack->unitId();
