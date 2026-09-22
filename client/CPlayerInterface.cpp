@@ -35,6 +35,8 @@
 #include "gui/CursorHandler.h"
 #include "gui/WindowHandler.h"
 
+#include "lobby/SelectionTab.h"
+
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CHighScoreScreen.h"
 #include "mainmenu/CStatisticScreen.h"
@@ -263,9 +265,9 @@ void CPlayerInterface::performAutosave()
 	{
 		const auto calendar = cb->getCalendar();
 		const auto autosaveCountLimit = static_cast<int>(settings["general"]["autosaveCountLimit"].Integer());
-		cb->saveAutosave(
-			SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar),
-			autosaveCountLimit);
+		const auto autosavePath = SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar);
+		SelectionTab::rememberSave(autosavePath);
+		cb->saveAutosave(autosavePath, autosaveCountLimit);
 	}
 }
 
@@ -2047,6 +2049,7 @@ void CPlayerInterface::quickSaveGame()
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
 	txt.replaceRawString(quickSavePath);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
+	SelectionTab::rememberSave(quickSavePath);
 	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)
