@@ -34,7 +34,7 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 
 	if toHeal <= 0 then return end
 
-	-- the log names the stack size from before the drain, since resurrecting may grow it
+	-- Use the pre-drain count because resurrection may increase stack size.
 	local drainerCount = unit:getCount()
 
 	local healed, resurrected = server:healUnit(battle, unit, toHeal,

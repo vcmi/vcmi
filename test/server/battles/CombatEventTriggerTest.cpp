@@ -85,10 +85,7 @@ TEST_F(CombatEventTriggerTest, everyAttackEventReachesItsUnit)
 	EXPECT_EQ(markersOf(defender), markerBeforeAttacked + markerAfterAttacked);
 }
 
-/// An action is reported as finished once it is wholly over, to every unit it reached - which is
-/// what lets a script bank something over an action and hand it out when the action ends. A unit
-/// the action killed hears both its own death and the end of the action, so an ability can answer
-/// a death that no attack and no cast caused, such as one to a moat.
+/// Verifies one ACTION_FINISHED event per participant after UNIT_DEATH
 TEST_F(CombatEventTriggerTest, deathAndTheEndOfAnActionReachEvenTheUnitTheActionKilled)
 {
 	startGame();
@@ -97,7 +94,7 @@ TEST_F(CombatEventTriggerTest, deathAndTheEndOfAnActionReachEvenTheUnitTheAction
 	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
 	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), stackCount);
 
-	// two blows, so that the end of the action is reported once rather than once per blow
+	// Two attacks must produce one ACTION_FINISHED event.
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::OTHER, 1, BonusSourceID()));
 	ASSERT_EQ(attacker->getTotalAttacks(false), 2);
 
@@ -111,11 +108,10 @@ TEST_F(CombatEventTriggerTest, deathAndTheEndOfAnActionReachEvenTheUnitTheAction
 	ASSERT_FALSE(victim->alive()) << "the victim has to die for the scenario to say anything";
 
 	EXPECT_EQ(markersOf(victim), markerDeath + markerActionFinished);
-	EXPECT_EQ(markersOf(attacker), markerActionFinished) << "two blows, one action";
+	EXPECT_EQ(markersOf(attacker), markerActionFinished) << "two attacks, one action";
 }
 
-/// The step a unit with RETURN_AFTER_STRIKE takes back is a move of its own, and is announced as
-/// one - so an ability that feeds on movement is fed by the way out as well as by the way in.
+/// Verifies separate movement events for approach and RETURN_AFTER_STRIKE
 TEST_F(CombatEventTriggerTest, theStepBackAfterStrikingIsAnnouncedAsAMove)
 {
 	constexpr int attackFromHex = leftHex + 3;
@@ -125,11 +121,11 @@ TEST_F(CombatEventTriggerTest, theStepBackAfterStrikingIsAnnouncedAsAMove)
 	startBattle();
 
 	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), stackCount);
+	addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), stackCount);
 
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::RETURN_AFTER_STRIKE, BonusSource::OTHER, 0, BonusSourceID()));
 
-	// the attacker has to survive the blow it provokes in order to take the step back
+	// Keep the attacker alive for the return movement.
 	blockRetaliation(attacker);
 
 	reactWithMarker(attacker, CombatEventType::AFTER_MOVE, markerMove);
@@ -142,9 +138,7 @@ TEST_F(CombatEventTriggerTest, theStepBackAfterStrikingIsAnnouncedAsAMove)
 	EXPECT_EQ(markersOf(attacker), 2 * markerMove) << "the walk in and the step back are both moves";
 }
 
-/// Only a cast someone chose to make is a spell hit. What a script applies on its own is not, which
-/// is also what keeps a script that casts from re-entering itself. A hero cast at the same unit
-/// follows, so that a scenario where the event never fires at all cannot pass.
+/// Verifies that script-applied spells do not generate SPELL_HIT
 TEST_F(CombatEventTriggerTest, aScriptedCastIsNoSpellHit)
 {
 	startGame();
@@ -165,10 +159,10 @@ TEST_F(CombatEventTriggerTest, aScriptedCastIsNoSpellHit)
 
 	const int64_t healthBefore = bystander->getAvailableHealth();
 
-	// the detonation script damages the bystander and writes its own spell into the combat log
+	// The detonation must execute without recursively generating SPELL_HIT.
 	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
 	ASSERT_FALSE(automaton->alive());
-	ASSERT_LT(bystander->getAvailableHealth(), healthBefore) << "the detonation has to reach the bystander";
+	ASSERT_LT(bystander->getAvailableHealth(), healthBefore) << "detonation did not damage the bystander";
 
 	EXPECT_EQ(markersOf(bystander), 0);
 

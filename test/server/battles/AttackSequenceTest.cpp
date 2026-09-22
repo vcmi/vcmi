@@ -14,7 +14,6 @@
 namespace
 {
 
-/// One walk-and-attack: who walks, and where the attacker is left standing afterwards.
 struct AttackSequenceCase
 {
 	const char * name;
@@ -24,14 +23,13 @@ struct AttackSequenceCase
 
 }
 
-/// Walk-and-attack, and the step that only a unit with RETURN_AFTER_STRIKE takes afterwards.
 class AttackSequenceTest : public BattleTestFixture, public ::testing::WithParamInterface<AttackSequenceCase>
 {
 public:
 	static constexpr int32_t attackerCount = 100;
 	static constexpr int32_t defenderCount = 1000;
 
-	/// Hexes far enough apart that the attacker has to walk, and adjacent enough that it can.
+	/// Positions requiring movement before the melee attack
 	static constexpr int originHex = leftHex;
 	static constexpr int attackFromHex = leftHex + 3;
 	static constexpr int targetHex = leftHex + 4;
@@ -45,11 +43,10 @@ TEST_P(AttackSequenceTest, EndsWhereTheCreatureIsSupposedTo)
 	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName(GetParam().creature), BattleHex(originHex), attackerCount);
 	CStack * defender = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), defenderCount);
 
-	// the bonus stops the target retaliating, so the attacker survives to take the return step
+	// Keep the attacker alive for RETURN_AFTER_STRIKE.
 	blockRetaliation(attacker);
 
-	// the return step paths with the unit's remaining movement, which only exists once the
-	// battle has actually started
+	// Return movement requires initialized movement state.
 	beginCombat();
 
 	const int64_t healthBefore = defender->getAvailableHealth();

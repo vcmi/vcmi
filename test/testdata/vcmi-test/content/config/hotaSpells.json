@@ -1,4 +1,4 @@
-// Abilities the HotA scripts implement, reduced to what a battle needs - no graphics, no sounds.
+// Minimal spell definitions required by HotA script tests.
 {
 	"heatStroke" : {
 		"type" : "ability",

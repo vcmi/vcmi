@@ -2,24 +2,20 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Brings its bearer back once per battle, with a share of the size the stack started as rather
---- than of what was left of it. Scripted equivalent of the REBIRTH bonus.
+--- Resurrects a percentage of the initial stack count once per battle.
 ---
 --- Parameters:
----  val        - share of the starting size of the stack that comes back, in percent
----  guaranteed - whether at least one creature always comes back, however small the share is
+---  val        - percentage of the initial stack count to resurrect
+---  guaranteed - whether to resurrect at least one creature
 
--- effect of the resurrection spell, which the ability has always borrowed its visual from
+-- Use the resurrection spell audiovisual effect.
 local ANIMATION = "C01SPE0"
 local SOUND     = "RESURECT"
 
--- own bonus rather than the CASTS the ability used to spend, so that a creature that both
--- rebirths and casts spells does not pay for one out of the other
+-- A separate marker prevents rebirth from consuming creature spell casts.
 local SPENT = "REBIRTH_SPENT"
 
---- Creatures to bring back. The share rarely divides evenly, so the remainder is rolled for:
---- one chance per creature it fell short of, so a small stack comes back some of the time
---- instead of never.
+--- Returns the randomly rounded percentage of the initial stack count.
 function Script:getRebornCount(server, unit, percentage)
 	local baseAmount = unit:getBaseAmount()
 	local exact      = baseAmount * percentage / 100
@@ -27,7 +23,7 @@ function Script:getRebornCount(server, unit, percentage)
 
 	count = count + server:rngBinomial(math.floor(baseAmount - count * 100 / percentage), percentage / 100)
 
-	-- the guaranteed kind never fails to bring back a creature, however small the stack was
+	-- Guaranteed rebirth restores at least one creature.
 	if self.guaranteed then
 		count = math.max(count, 1)
 	end
@@ -35,7 +31,7 @@ function Script:getRebornCount(server, unit, percentage)
 	return count
 end
 
---- A resurrected stack cannot retaliate until its next turn.
+--- Prevents retaliation until the next turn.
 function Script:spendAnswer(server, battle, unit)
 	server:addUnitBonus(battle, unit, {
 		type       = "NO_RETALIATION",
@@ -48,7 +44,7 @@ function Script:spendAnswer(server, battle, unit)
 end
 
 function Script:onDeath(server, battle, unit, other, payload)
-	-- a clone is a copy that leaves nothing behind, so there is nothing to bring back
+	-- Clones have no corpse to resurrect.
 	if unit:isClone() then return end
 	if unit:hasBonuses({ type = SPENT }) then return end
 

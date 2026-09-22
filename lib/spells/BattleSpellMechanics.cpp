@@ -423,8 +423,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		break;
 	}
 
-	// snapshot taken before any effect is applied, so that scripts reacting to the spell can
-	// compare each unit against what it was before the cast
+	// Capture target states before applying effects for the SPELL_HIT payload.
 	std::vector<std::shared_ptr<const battle::CUnitState>> unitsBeforeCast;
 	if(sc.activeCast)
 	{
@@ -463,11 +462,10 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	fakeEvent.battleID = battle()->getBattle()->getBattleID();
 	server->apply(fakeEvent);
 
-	// notified last, so that scripts see a fully applied cast. Only deliberate casts are reported -
-	// a moat, a spell-like attack or a spell applied by a script is not a cast
+	// Notify after applying all effects. Only deliberate casts generate SPELL_HIT.
 	if(sc.activeCast)
 	{
-		// a hero id would collide with a unit id, so a cast by a hero reports no caster unit
+		// Hero and unit IDs share a numeric range, so hero casts have no caster unit.
 		const auto * casterUnit = sc.castByHero ? nullptr : battle()->battleGetUnitByID(sc.casterStack);
 
 		server->spellHasHit(*battle(), *owner, casterUnit, unitsBeforeCast);
@@ -766,4 +764,3 @@ const Spell * BattleSpellMechanics::getSpell() const
 
 
 }
-

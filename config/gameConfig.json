@@ -583,7 +583,7 @@
 
 		"combat":
 		{
-			// defines bias used for percentage-based ability rolls, such Death Blow of Dread Knight
+			// Defines bias for percentage-based ability rolls, such as the Dread Knight's Death Blow chance.
 			// If bias is set to 0, then all rolls will be completely independent - it is possible to get lucky and roll ability with 10% chance
 			// multiple times in a row, or be unlucky and not roll 50% ability multiple times in a row
 			// If bias is non-zero, game will adjust probability based on previous rolls while keeping average chance at desired value

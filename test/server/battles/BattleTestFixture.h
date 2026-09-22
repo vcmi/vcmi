@@ -85,30 +85,26 @@ public:
 
 	BattleInfo * battle() const;
 
-	/// Places a stack on the battlefield, failing the test if it could not be placed.
+	/// Adds a stack and fails the test if placement fails
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
 	void giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
 
-	/// Applies a hero spell to a unit directly, reporting whether the game allowed it at all.
-	/// Skips the battle action around it, so no action starts or finishes - use `castAsHero` for
-	/// a cast that the server should see as the hero's action.
+	/// Applies a hero spell without creating a battle action
 	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const;
-	/// Casts a hero spell as the battle action it really is, during the turn of one of that hero's
-	/// own units, which is when the server allows a hero to cast at all.
+	/// Executes a hero spell battle action during an allied unit turn
 	bool castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target);
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
 	bool attack(const CStack * attacker, const BattleHex & targetHex);
-	/// Walk-and-attack: the stack walks to `fromHex` and strikes whatever stands on `targetHex`.
+	/// Moves the attacker to `fromHex` before attacking `targetHex`
 	bool attackFrom(const CStack * attacker, const BattleHex & targetHex, const BattleHex & fromHex);
-	/// Walks the given stack to the destination hex.
+	/// Moves the stack to `destination`
 	bool move(const CStack * stack, const BattleHex & destination);
-	/// Puts the given stack into a defensive stance.
+	/// Executes a defend action
 	bool defend(const CStack * stack);
-	/// Marks the stack a clone, as abilities that treat clones differently check for.
+	/// Sets the clone state used by clone-specific abilities
 	void makeClone(CStack * stack);
-	/// Casts one of the stack's own abilities the way a creature spellcaster does. An invalid hex
-	/// casts at nothing, as an ability aimed at its own bearer needs.
+	/// Executes a creature spell action; an invalid hex creates an empty target
 	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
 	/// Waits out the current round with every unit defending, leaving the battle in the next one.
 	void endRound();
@@ -120,7 +116,7 @@ public:
 	/// rather than cast, because some of the creatures that need it are undead and refuse the spell.
 	static void forceMaximumDamage(CStack * stack);
 
-	/// Entity declared by a mod, by its full identifier - "vcmi-test:testSoulStealer".
+	/// Resolves a mod entity by its full identifier, for example `vcmi-test:testSoulStealer`
 	static CreatureID creatureByName(const std::string & name);
 	static SpellID spellByName(const std::string & name);
 	static SecondarySkill skillByName(const std::string & name);

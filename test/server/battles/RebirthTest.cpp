@@ -15,8 +15,7 @@
 namespace
 {
 
-/// Phoenixes placed, and how many of them the 20% rebirth brings back. Chosen so that the share is
-/// a whole number of creatures, which is what makes the rebirth deterministic rather than rolled.
+/// Counts divisible by five avoid random rounding
 constexpr int32_t phoenixCount = 10;
 constexpr int32_t rebornCount = 2;
 
@@ -24,14 +23,10 @@ constexpr int32_t slayerCount = 100;
 
 }
 
-/// A phoenix answers the blow that killed it by coming back with a fifth of the stack it started
-/// as, once per battle. What kills it does not matter; what it was does - a clone leaves nothing
-/// to come back.
 class RebirthTest : public BattleTestFixture
 {
 public:
-	/// A stack of phoenixes on the defending side, and enough black dragons facing it to kill them
-	/// all in one blow.
+	/// Adds phoenixes and enough black dragons for a lethal attack
 	void setUpBattle()
 	{
 		startGame();
@@ -41,8 +36,7 @@ public:
 		slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
 	}
 
-	/// Strikes the phoenix with everything the dragons have, which is more than enough to kill the
-	/// whole stack in one blow.
+	/// Executes a lethal dragon attack against the phoenixes
 	void slay()
 	{
 		ASSERT_TRUE(attack(slayer, BattleHex(rightHex)));
@@ -63,7 +57,6 @@ TEST_F(RebirthTest, ComesBackWithAFifthOfTheStackItStartedAs)
 	EXPECT_EQ(phoenix->getCount(), rebornCount);
 }
 
-/// The rebirth is spent the first time it is needed, so a second death is final.
 TEST_F(RebirthTest, ComesBackOnlyOnce)
 {
 	setUpBattle();
@@ -77,9 +70,8 @@ TEST_F(RebirthTest, ComesBackOnlyOnce)
 	EXPECT_FALSE(phoenix->alive());
 }
 
-/// The blow that killed it ends the attack it belonged to - the dragons do not get to strike the
-/// reborn stack with the rest of their blows.
-TEST_F(RebirthTest, TheKillingBlowIsTheLastOfItsAttack)
+/// Verifies that rebirth does not resume the attack sequence
+TEST_F(RebirthTest, TheKillingHitEndsItsAttack)
 {
 	setUpBattle();
 
@@ -90,11 +82,11 @@ TEST_F(RebirthTest, TheKillingBlowIsTheLastOfItsAttack)
 
 	slay();
 
-	EXPECT_TRUE(phoenix->alive()) << "the second blow struck a stack that was dead when it was thrown";
+	EXPECT_TRUE(phoenix->alive()) << "the second attack must not target the resurrected stack";
 	EXPECT_EQ(phoenix->getCount(), rebornCount);
 }
 
-/// Coming back costs the stack its answer for the round, so the next attacker strikes it for free.
+/// Verifies that a resurrected stack cannot retaliate until its next turn
 TEST_F(RebirthTest, AnswersNobodyDuringTheRoundItCameBackIn)
 {
 	setUpBattle();
@@ -109,16 +101,15 @@ TEST_F(RebirthTest, AnswersNobodyDuringTheRoundItCameBackIn)
 	ASSERT_TRUE(attack(follower, BattleHex(rightHex + 1)));
 
 	EXPECT_TRUE(phoenix->alive()) << "the follower is far too small to finish the reborn stack";
-	EXPECT_EQ(follower->getCount(), 1) << "the phoenixes never answered - a single pikeman would not have survived it";
+	EXPECT_EQ(follower->getCount(), 1) << "resurrected phoenixes must not retaliate";
 }
 
-/// A clone is a copy that leaves nothing behind, so there is nothing to come back.
 TEST_F(RebirthTest, ACloneDoesNotComeBack)
 {
 	setUpBattle();
 	beginCombat();
 
-	// marking the stack a clone is the shortest way to the state a cloned one would be in
+	// Set clone state without applying the Clone spell.
 	makeClone(phoenix);
 
 	slay();
@@ -126,8 +117,6 @@ TEST_F(RebirthTest, ACloneDoesNotComeBack)
 	EXPECT_FALSE(phoenix->alive());
 }
 
-/// What killed it is not part of the ability - a spell that wipes the stack is answered the same
-/// way a blow is.
 TEST_F(RebirthTest, ComesBackFromADeathBySpell)
 {
 	startGame();
@@ -140,7 +129,7 @@ TEST_F(RebirthTest, ComesBackFromADeathBySpell)
 	startBattle();
 
 	phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex), phoenixCount);
-	// unused by the cast, but a hero may only cast while one of its own units holds the turn
+	// Hero spell actions require an active allied unit.
 	slayer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), slayerCount);
 
 	beginCombat();

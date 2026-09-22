@@ -751,8 +751,7 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 	//applying changes
 	changedStack->load(data);
 
-	// death is read from unit state instead of healthDelta: a pack that changes no health on an
-	// already dead stack must not count as a death
+	// Use the alive-state transition because a zero-health-change pack may update an existing corpse.
 	const bool killed = wasAlive && !changedStack->alive();
 	const bool resurrected = !wasAlive && changedStack->alive();
 

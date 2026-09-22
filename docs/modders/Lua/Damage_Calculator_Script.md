@@ -1,8 +1,8 @@
 # Damage Calculator Script
 
-Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script calculates the damage of an attack - the damage of the creatures, everything that raises or lowers it, and an estimate of how many creatures die.
+`"implements" : "damageCalculator"` in a mod's [scripts](Script_Types.md) section declares a damage calculator script. It calculates attack damage ranges and casualty estimates.
 
-Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and is not granted by a bonus: the engine calls it for every attack, both when the blow is dealt and when an AI only estimates it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-a-rule) over it instead of declaring one of its own.
+Each game uses one damage calculator. It is not attached to a unit or granted by a bonus. The engine calls it for every resolved or estimated attack. VCMI provides `core:damageCalculator`; mods change its rules with [patches](#changing-a-rule).
 
 ```json
 "damageCalculator" : {
@@ -13,24 +13,24 @@ Unlike the other script types there is exactly **one** damage calculator in a ga
 }
 ```
 
-## How damage is worked out
+## Damage calculation
 
 Every attack goes through the same three steps.
 
-**1. Base damage.** Damage of the creatures themselves, min and max, multiplied by how many of them are alive. Bless and curse collapse that range onto one of its ends.
+**1. Base damage.** Minimum and maximum creature damage multiplied by the alive creature count. Bless and curse select one end of the range.
 
-**2. Factors.** Everything that scales base damage is a *factor* - a signed share of the base damage. **Positive raises it, negative lowers it.** How a factor applies is decided by its sign alone, not by its source:
+**2. Factors.** Each factor is a signed share of base damage. Positive values increase damage and negative values reduce it. The sign determines how the factor is applied:
 
 - factors that raise the damage **add up**: attack over defence (+5% per point), offence (+30%), luck (+100%) give `1 + 0.05×points + 0.3 + 1.0`
 - factors that lower it **multiply**, each taking its share of what is left: armourer (-15%) and a shooting penalty (-50%) give `0.85 × 0.5`
 
-The two totals are multiplied together. This is why a single -50% never halves the damage twice, and why giving a "boost" a negative value turns it into a mitigation instead of cancelling out other boosts.
+The two totals are multiplied together. Each negative factor is applied once. A negative boost becomes a mitigation factor and does not cancel positive factors.
 
-**3. Casualties.** How many creatures the resulting damage kills, given the health left on the first one. This is only used for damage preview in UI, and for AI estimation - engine instead rolls damage within specified range.
+**3. Casualties.** Killed creature count based on the resulting damage and remaining health of the first creature. UI previews and AI evaluation use this estimate; resolved attacks roll within the damage range.
 
 ## Adding a factor
 
-Write a patch, list it in `patches`, write the factor as a method of it, and hand its name to `addDamageFactor`:
+Define the factor in a patch listed in `patches`, then register its method name with `addDamageFactor`:
 
 ```lua
 local Script = setmetatable({}, {__index = Base})
@@ -52,13 +52,13 @@ Script:addDamageFactor("getFromBackFactor")
 return Script
 ```
 
-Two lines register it: `declareBonus` for every bonus type the factor reads - see [declaring what you look at](#declaring-what-you-look-at) - and `addDamageFactor` for the factor itself. The order in which factors are added does not matter; a factor is applied according to its sign, so **return a negative number to lower the damage** and a positive one to raise it.
+Call `declareBonus` for every bonus type read by the factor; see [Declaring bonus dependencies](#declaring-bonus-dependencies). Call `addDamageFactor` with the factor method name. Factor registration order does not affect calculation. Return a negative value to reduce damage and a positive value to increase it.
 
 `addDamageFactor` takes the *name* of the method, not the method itself, so that a patch stacked later can override it.
 
 ## Changing a rule
 
-Every step is a method and can be overridden, the factors of the base script among them - `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor`, `getArmorerFactor`, ...
+Calculation stages and base factors are overridable methods, including `getBaseDamageSingle`, `getBaseDamageBlessCurse`, `getAttack`, `getDefense`, `getDamageCap`, `getCasualties`, `getJoustingFactor` and `getArmorerFactor`.
 
 ```lua
 --- Make Jousting twice stronger, from any source.
@@ -67,21 +67,21 @@ function Script:getJoustingFactor(info)
 end
 ```
 
-Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. Writing `self:method(...)` dispatches back into your own patch and loops forever.
+Call the base implementation with `Base.method(self, ...)`. `self:method(...)` dispatches to the override and causes recursion.
 
-Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` return "nothing" in the base script, because no Heroes 3 rule lowers the attack of whoever strikes a unit or caps the damage of a blow; the rules that do are in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
+Some steps exist only as patch points. `getAttackIgnored` and `getDamageCap` have neutral base implementations because Heroes 3 has no corresponding rules. `damage/enemyAttackReduction` and `damage/damageReceivedCap` are minimal patch examples; `damage/vulnerableFromBack` adds a factor.
 
 Each patch implements a single rule, so that a mod can drop or replace one of them without touching the rest. This is not required, but is recommended for mod patches as well.
 
-## What the script is given
+## Input data
 
 `Script:calculate(battle, info)` receives the battle and one table describing the attack:
 
 - `attacker`, `defender` - the two units. See [Unit](../Lua_Reference/Unit.md)
-- `attackerHex`, `defenderHex` - where the attack happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
-- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of attack this is. Random roll-based abilities are only set when actual calculation is performed by server
+- `attackerHex`, `defenderHex` - positions used for this calculation. Estimated attacks may use positions different from the current unit positions
+- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - attack flags. Random flags are set only for server-side resolved attacks
 - `chargeDistance` - hexes crossed to reach the target, used by jousting
-- `attackerBonuses`, `defenderBonuses` - which of the [declared bonus types](#declaring-what-you-look-at) each unit carries. Read them through `self:hasBonusOfType(info.attackerBonuses, "JOUSTING")`
+- `attackerBonuses`, `defenderBonuses` - presence tables for [declared bonus types](#declaring-bonus-dependencies). Read them through `self:hasBonusOfType(info.attackerBonuses, "JOUSTING")`
 - `attackFactorPerPoint`, `attackFactorCap`, `defenseFactorPerPoint`, `defenseFactorCap` - the tuning constants from `gameConfig.json`, so the script needs no access to settings
 
 It returns a table of three ranges:
@@ -94,34 +94,34 @@ return {
 }
 ```
 
-`damageBeforeDefense` is the damage the blow would deal if the target had no defences at all. Abilities that reflect a strike, such as fire shield, are calculated from it - see `damageBeforeDefense` in [combat event scripts](Combat_Event_Scripts.md).
+`damageBeforeDefense` is the attack damage with target defences ignored. Reflected-damage abilities such as fire shield use it; see `damageBeforeDefense` in [combat event scripts](Combat_Event_Scripts.md).
 
-## Declaring what you look at
+## Declaring bonus dependencies
 
-Reading a bonus means a call into the engine, across the language boundary. To avoid doing this twenty times per attack, the script declares which bonus types it reads, and the engine reports which of them each unit actually carries:
+Bonus queries cross the Lua/C++ boundary. The script declares its bonus dependencies so the engine can provide a presence table for each unit:
 
 ```lua
 Script:declareBonus("VULNERABLE_FROM_BACK")
 ```
 
-A patch **must declare every bonus type its factor reads**, or the check will not find it. Reading a type that was never declared raises an error naming that type, instead of silently reporting it as absent and changing the damage.
+A patch **must declare every bonus type it reads**. Querying an undeclared type raises an error.
 
 ## Writing a factor that does not slow the game down
 
-This script runs on every attack the game resolves **and on every attack an AI considers** - some two hundred thousand times per AI turn in a large battle. A slow factor shows up as a longer AI turn rather than as a dropped frame, so it is worth knowing which lines are cheap and which are not.
+This script runs on every resolved attack and every attack evaluated by AI, potentially hundreds of thousands of times per AI turn. Slow factors increase AI turn duration but do not affect rendering.
 
-**Reading `info` is free. Calling into the engine is not.** Any `:` call on a unit, a bonus or the battle crosses into the engine and back. Reading a field of `info`, or of the two bonus tables, is a plain table lookup.
+**Prefer Lua table reads.** Reading `info` or a bonus-presence table is a Lua table lookup. Calls on units, bonuses or the battle cross the Lua/C++ boundary.
 
-**Check the bonus table before any engine call.** This is the single most useful habit: most units carry none of the bonuses a given factor reads, and the table reports that without leaving the script.
+**Check the bonus table before an engine call.** Most units do not have the bonus required by a specific factor, so the presence table avoids most engine calls.
 
 ```lua
--- good: the query only happens for a unit that actually has the bonus
+-- Query only when the unit has the bonus.
 if not self:hasBonusOfType(info.attackerBonuses, "JOUSTING") then return 0 end
 
 return info.chargeDistance * info.attacker:getBonusesValue({type = "JOUSTING"}) / 100
 ```
 
-`hasBonusOfType` reads the same table you could read yourself - `info.attackerBonuses.JOUSTING` does the same job - but it also raises an error when the type was never declared, instead of silently reporting it as absent.
+`hasBonusOfType` reads the same table as `info.attackerBonuses.JOUSTING` and also validates that the bonus type was declared.
 
 Four helpers combine the check and the query, so a factor rarely needs to write both:
 
@@ -130,14 +130,14 @@ Four helpers combine the check and the query, so a factor rarely needs to write 
 | `self:hasBonusOfType(present, type)` | whether the unit carries it at all |
 | `self:getBonusValueOfType(unit, present, type)` | total value of the bonuses of that type |
 | `self:getBonusValueOfSubtype(unit, present, type, subtype)` | the same, narrowed to one subtype |
-| `self:getBonusValueOfTypeAndRange(unit, present, type, shooting)` | the same, counting only bonuses that apply to this kind of blow |
+| `self:getBonusValueOfTypeAndRange(unit, present, type, shooting)` | the same, counting only bonuses that apply to this attack type |
 
-Each returns 0 without calling the engine when the snapshot reports the type as absent, which is the usual case. `present` is `info.attackerBonuses` or `info.defenderBonuses`, for the unit being queried.
+Each returns 0 without calling the engine when the snapshot reports the type as absent. `present` is `info.attackerBonuses` or `info.defenderBonuses` for the queried unit.
 
-**Put the cheapest test first.** Conditions are evaluated left to right, so order them by what they cost:
+**Put the cheapest test first.** Conditions are evaluated from left to right:
 
 ```lua
--- good: a table read rules out almost every unit before anything is asked
+-- A table read rejects most units before an engine call.
 if not self:hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 end
 if info.attacker:getCreature():getJsonKey() ~= "core:psychicElemental" then return 0 end
 ```
@@ -145,50 +145,50 @@ if info.attacker:getCreature():getJsonKey() ~= "core:psychicElemental" then retu
 **Query a value, not a list.** `getBonusesValue` returns the total value of the matching bonuses, computed by the engine in a single call. Fetching the list and adding up `getVal()` costs one call for the list and one more per bonus in it, and gives a wrong result when bonuses do not simply add up (percentages, independent floors and ceilings).
 
 ```lua
--- good
+-- One engine call.
 local armour = info.defender:getBonusesValue({type = "GENERAL_DAMAGE_REDUCTION"})
 
--- bad: more crossings, and wrong for anything that is not plain addition
+-- Multiple engine calls and incorrect handling of non-additive bonuses.
 local list = info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION"})
 local armour = 0
 for i = 1, list:size() do armour = armour + list:getBonus(i):getVal() end
 ```
 
-**Query whether, not which**, when that is all you need. `hasBonuses` returns true or false without building the list for the script:
+**Use `hasBonuses` for boolean queries.** It returns true or false without building a bonus list:
 
 ```lua
--- good
+-- Boolean query.
 if info.defender:hasBonuses({type = "MIND_IMMUNITY"}) then ... end
 
--- bad: the whole list is handed over just to be counted
+-- Builds a list only to count it.
 if info.defender:getBonuses({type = "MIND_IMMUNITY"}):size() > 0 then ... end
 ```
 
-**Put as much as possible into the filter.** Type, subtype, source and kind of blow are all matched by the engine, and a query the engine can describe is also one it can cache. Only conditions the filter cannot express - "from anything except a spell" - belong in a `filter` afterwards:
+**Put as much as possible into the filter.** The engine matches type, subtype, source and attack type. Declarative queries can also be cached. Use a subsequent `filter` only for conditions the query cannot express, such as "from anything except a spell":
 
 ```lua
--- good: the engine finds them
+-- Fully declarative query.
 info.defender:getBonusesValue({
     type = "GENERAL_DAMAGE_REDUCTION",
     subtype = "damageTypeAll",
     sourceType = ENUM.BonusSource.spellEffect
 })
 
--- only when the filter cannot say it
+-- Lua filter for a condition not supported by the query.
 info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION"}):filter(function(bonus)
     return bonus:getSource() ~= ENUM.BonusSource.spellEffect
 end):totalValue()
 ```
 
-**`shooting` excludes bonuses that do not apply to this blow.** A bonus limited to melee is absent from a shot and the other way round, and a bonus limited to neither always counts. Pass the flag of the attack through instead of reading `getEffectRange` yourself:
+**`shooting` excludes bonuses that do not apply to the attack.** A melee-only bonus is excluded from shots, a ranged-only bonus is excluded from melee attacks, and an unrestricted bonus always applies. Pass the attack flag through instead of reading `getEffectRange` directly:
 
 ```lua
--- good
+-- Attack-type filter.
 info.defender:getBonusesValue({type = "ENEMY_ATTACK_REDUCTION", shooting = info.shooting})
 ```
 
-The filter takes the kind of blow, not an effect range, because "applies in melee" covers two effect ranges at once. Querying them one at a time would add the two results up instead of combining them the way the engine does.
+The filter takes an attack type because "applies in melee" covers two effect ranges. Separate effect-range queries would add their results instead of using the engine's combination rules.
 
 **Do not build tables you do not need.** A factor that returns 0 for most attacks should return it before creating anything.
 
-Everything else - arithmetic, comparisons, local variables - is cheap enough to ignore. Write the calculation plainly; it is the engine calls that add up.
+Arithmetic, comparisons and local variables have negligible cost here. Engine calls dominate factor overhead.

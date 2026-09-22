@@ -63,6 +63,6 @@ public:
 	virtual void apply(BattleObstaclesChanged & pack) = 0;
 	virtual void apply(CatapultAttack & pack) = 0;
 
-	/// Reports that a deliberately cast spell finished affecting these units, with their state from before the cast
+	/// Reports a completed deliberate spell cast and the pre-cast state of affected units
 	virtual void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore) {}
 };

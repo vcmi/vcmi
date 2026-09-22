@@ -1,6 +1,4 @@
-// The Runes skill of Horn of the Abyss, reduced to the bonuses its script reads. It is declared
-// because the script attributes the rune counter it grants to this skill, and a bonus can only
-// name a source that exists.
+// Minimal Runes skill required as the source of script-generated bonuses.
 {
 	"runes" : {
 		"name" : "Runes",

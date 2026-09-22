@@ -169,7 +169,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	}
 	else if(script == "rebirth")
 	{
-		// sacred phoenix always resurrects at least one creature, whatever the percentage
+		// rebirthSpecial guarantees resurrection of at least one creature.
 		const JsonNode & subtype = ability["subtype"];
 		parameters["guaranteed"].Bool() = subtype.isNumber()
 			? subtype.Integer() == 1

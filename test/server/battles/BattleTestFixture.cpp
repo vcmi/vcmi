@@ -184,8 +184,7 @@ void BattleTestFixture::startBattle(TerrainId terrain)
 
 void BattleTestFixture::beginCombat()
 {
-	// units a scenario placed belong to the battle it laid out, so they are told that it was laid
-	// out - the flow processor does this for the units the layout itself placed, before tactics
+	// Test-added units bypass layout processing and require explicit BATTLE_SETUP dispatch.
 	for(const auto & unit : battle()->stacks)
 		gameHandler->battles->processBattleEventTriggers(*battle(), CombatEventType::BATTLE_SETUP, unit.get(), nullptr);
 
@@ -221,7 +220,7 @@ CStack * BattleTestFixture::addStack(BattleSide side, const CreatureID & creatur
 	gameHandler->sendAndApply(pack);
 
 	CStack * stack = battle()->getStack(info.id);
-	EXPECT_NE(stack, nullptr) << "the unit did not reach the battlefield";
+	EXPECT_NE(stack, nullptr) << "stack placement failed";
 
 	return stack;
 }
@@ -256,7 +255,7 @@ bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & 
 {
 	const BattleSide side = hero == attackerSideHero ? BattleSide::ATTACKER : BattleSide::DEFENDER;
 
-	// the server only lets a hero cast while one of its own units holds the turn
+	// Hero spell actions require an active allied unit.
 	for(const auto & unit : battle()->stacks)
 	{
 		if(unit->unitSide() == side && unit->alive())

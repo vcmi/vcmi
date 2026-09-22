@@ -405,7 +405,7 @@ void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattl
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
 
-	// nothing will announce them once the battle is over
+	// No event dispatch is valid after battle removal.
 	actionsProcessor->forgetPendingDeaths(battleID);
 }
 
@@ -418,7 +418,7 @@ void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & bat
 {
 	actionsProcessor->processBattleEventTriggers(battle, event, target, secondary);
 
-	// this entry point is only used outside a battle action, so there is no action end to wait for
+	// This entry point has no action boundary that could flush deaths later.
 	actionsProcessor->flushPendingDeaths(battle);
 }
 

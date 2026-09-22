@@ -18,19 +18,19 @@
   <text x="55" y="203" font-size="13.5" fill="#123a5c" font-weight="600">onRoundStart</text>
   <text x="170" y="203" font-size="12.5" fill="#555555">every living unit; skipped in round 1, which onBattleStart covers</text>
   <rect x="44" y="216" width="1092" height="160" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
-  <text x="58" y="236" font-size="13" fill="#8d5fa0" font-weight="600">the hero may cast a spell - once per round, while one of its units is active</text>
+  <text x="58" y="236" font-size="13" fill="#8d5fa0" font-weight="600">hero spell - once per round while an allied unit is active</text>
   <text x="70" y="260" font-size="12.5" fill="#777777" font-style="italic">the spell is cast</text>
   <rect x="58" y="270" width="99" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="69" y="287" font-size="13.5" fill="#123a5c" font-weight="600">onSpellHit</text>
-  <text x="169" y="287" font-size="12.5" fill="#555555">on every unit the spell reached. It names no casting unit, which is how a script knows a hero cast it</text>
+  <text x="169" y="287" font-size="12.5" fill="#555555">for each affected unit; caster unit is nil for hero casts</text>
   <rect x="58" y="305" width="76" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="69" y="322" font-size="13.5" fill="#123a5c" font-weight="600">onDeath</text>
-  <text x="146" y="322" font-size="12.5" fill="#555555">on every unit the spell killed, before the cast is announced as over</text>
+  <text x="146" y="322" font-size="12.5" fill="#555555">for each unit killed by the spell, after all spell effects</text>
   <rect x="58" y="340" width="145" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="69" y="357" font-size="13.5" fill="#123a5c" font-weight="600">onActionFinished</text>
-  <text x="215" y="357" font-size="12.5" fill="#555555">on those same units - a hero spell is an action of its own</text>
+  <text x="215" y="357" font-size="12.5" fill="#555555">once for each affected unit; a hero spell is a separate action</text>
   <rect x="44" y="386" width="1092" height="1025" rx="10" fill="#fdf9f1" stroke="#a8843c" stroke-width="1.5"/>
-  <text x="58" y="406" font-size="14" fill="#a8843c" font-weight="600">for every unit turn - the unit performs exactly one of these actions</text>
+  <text x="58" y="406" font-size="14" fill="#a8843c" font-weight="600">unit turn - exactly one action</text>
   <rect x="58" y="416" width="348" height="140" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
   <text x="72" y="436" font-size="13" fill="#8d5fa0" font-weight="600">wait</text>
   <rect x="72" y="443" width="68" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
@@ -47,7 +47,7 @@
   <rect x="788" y="498" width="107" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="799" y="515" font-size="13.5" fill="#123a5c" font-weight="600">onAfterMove</text>
   <rect x="58" y="566" width="1064" height="307" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
-  <text x="72" y="586" font-size="14" fill="#8d5fa0" font-weight="600">or a spellcast of its own - both forms fire the same spell events</text>
+  <text x="72" y="586" font-size="14" fill="#8d5fa0" font-weight="600">unit spell cast - both forms generate the same spell events</text>
   <rect x="72" y="596" width="526" height="115" rx="9" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.2" stroke-dasharray="5 3"/>
   <text x="86" y="616" font-size="13" fill="#4f7d8c" font-weight="600">spellcaster</text>
   <text x="98" y="640" font-size="12.5" fill="#777777" font-style="italic">the unit casts from where it stands,</text>
@@ -62,14 +62,13 @@
   <text x="98" y="738" font-size="12.5" fill="#777777" font-style="italic">the spell is cast</text>
   <rect x="86" y="748" width="138" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="765" font-size="13.5" fill="#123a5c" font-weight="600">onUnitSpellcast</text>
-  <text x="236" y="765" font-size="12.5" fill="#555555">on the caster; it names the spell that was cast</text>
+  <text x="236" y="765" font-size="12.5" fill="#555555">on the caster; payload includes the spell</text>
   <rect x="86" y="783" width="99" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="800" font-size="13.5" fill="#123a5c" font-weight="600">onSpellHit</text>
-  <text x="197" y="800" font-size="12.5" fill="#555555">on every unit the spell reached, the caster among them if it aimed at itself</text>
-  <text x="98" y="830" font-size="12.5" fill="#777777" font-style="italic">the spell and the caster are named, and every target is handed what it was</text>
-  <text x="98" y="849" font-size="12.5" fill="#777777" font-style="italic">before the spell landed, so that a script can tell what the spell did to it</text>
+  <text x="197" y="800" font-size="12.5" fill="#555555">for each affected unit, including the caster when self-targeted</text>
+  <text x="98" y="830" font-size="12.5" fill="#777777" font-style="italic">payload includes the spell, caster and pre-cast state</text>
   <rect x="58" y="883" width="1064" height="409" rx="9" fill="#faf5fb" stroke="#8d5fa0" stroke-width="1.2" stroke-dasharray="5 3"/>
-  <text x="72" y="903" font-size="14" fill="#8d5fa0" font-weight="600">or an attack - all three forms fire the same attack events</text>
+  <text x="72" y="903" font-size="14" fill="#8d5fa0" font-weight="600">attack - all three forms generate the same attack events</text>
   <rect x="72" y="913" width="338" height="115" rx="9" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.2" stroke-dasharray="5 3"/>
   <text x="86" y="933" font-size="13" fill="#4f7d8c" font-weight="600">attack without moving</text>
   <text x="98" y="957" font-size="12.5" fill="#777777" font-style="italic">the unit is already next to its target,</text>
@@ -86,28 +85,28 @@
   <text x="794" y="957" font-size="12.5" fill="#777777" font-style="italic">a ranged retaliation takes this</text>
   <text x="794" y="976" font-size="12.5" fill="#777777" font-style="italic">same path</text>
   <rect x="72" y="1038" width="1036" height="211" rx="10" fill="#f4fafb" stroke="#4f7d8c" stroke-width="1.5"/>
-  <text x="86" y="1058" font-size="14" fill="#4f7d8c" font-weight="600">for every attack of the action - first strike, every strike or shot, counterattack</text>
+  <text x="86" y="1058" font-size="14" fill="#4f7d8c" font-weight="600">for each attack - first strike, additional attack, shot or counterattack</text>
   <rect x="86" y="1068" width="130" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="1085" font-size="13.5" fill="#123a5c" font-weight="600">onBeforeAttack</text>
   <text x="228" y="1085" font-size="12.5" fill="#555555">on the attacker</text>
   <rect x="86" y="1098" width="145" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="1115" font-size="13.5" fill="#123a5c" font-weight="600">onBeforeAttacked</text>
-  <text x="243" y="1115" font-size="12.5" fill="#555555">on every unit the attack will reach - one group with the above, ordered by script priority</text>
+  <text x="243" y="1115" font-size="12.5" fill="#555555">for every target; grouped with the attacker and ordered by script priority</text>
   <text x="98" y="1143" font-size="12.5" fill="#777777" font-style="italic">damage is rolled and applied, to the target and to any secondary targets</text>
   <rect x="86" y="1153" width="122" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="1170" font-size="13.5" fill="#123a5c" font-weight="600">onAfterAttack</text>
   <text x="220" y="1170" font-size="12.5" fill="#555555">on the attacker, even if it died meanwhile</text>
   <rect x="86" y="1183" width="138" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="97" y="1200" font-size="13.5" fill="#123a5c" font-weight="600">onAfterAttacked</text>
-  <text x="236" y="1200" font-size="12.5" fill="#555555">on every unit that was hit, even if killed - one group again, ordered by script priority</text>
+  <text x="236" y="1200" font-size="12.5" fill="#555555">for every target, including killed units; ordered with the attacker by script priority</text>
   <text x="86" y="1226" font-size="11.5" fill="#8a6a2a">A reaction to the before-events may kill either side: the damage is then skipped, but the after-events still fire.</text>
-  <text x="72" y="1259" font-size="11.5" fill="#8a6a2a">The walk is announced before the blows of the attack are counted, so an extra attack granted in answer to it is thrown by this very attack.</text>
+  <text x="72" y="1259" font-size="11.5" fill="#8a6a2a">Movement events execute before attack count calculation; ADDITIONAL_ATTACK applies to the current attack.</text>
   <text x="72" y="1280" font-size="11.5" fill="#8a6a2a">A unit with 'strike and return' walks back once the attack is over, which fires the move events a second time.</text>
   <rect x="58" y="1310" width="76" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="69" y="1327" font-size="13.5" fill="#123a5c" font-weight="600">onDeath</text>
-  <text x="146" y="1327" font-size="12.5" fill="#555555">on every unit the action killed - the deaths of a batch together, then any deaths the answers to them caused</text>
+  <text x="146" y="1327" font-size="12.5" fill="#555555">for each killed unit; subsequent batches contain deaths caused by handlers</text>
   <rect x="58" y="1345" width="145" height="25" rx="12.5" fill="#cfe4fb" stroke="#2f6fa8" stroke-width="1.2"/>
   <text x="69" y="1362" font-size="13.5" fill="#123a5c" font-weight="600">onActionFinished</text>
-  <text x="215" y="1362" font-size="12.5" fill="#555555">however the turn was spent - on the unit that acted and on every unit its action reached, once</text>
-  <text x="70" y="1385" font-size="12.5" fill="#777777" font-style="italic">an attack is over only once its counterattack and its repeated blows are, so this is where a script hands out what the whole action was worth</text>
+  <text x="215" y="1362" font-size="12.5" fill="#555555">once for the actor and every affected unit</text>
+  <text x="70" y="1385" font-size="12.5" fill="#777777" font-style="italic">executes after counterattacks and additional attacks; apply effects accumulated across the action here</text>
 </svg>

@@ -7,7 +7,7 @@ function Script:isEligible(unit, target)
 	return unit:unitID() ~= target:unitID() and target:isValidTarget(false) and not target:isInvincible()
 end
 
---- Returns all affected units
+--- Returns valid adjacent targets without duplicates.
 function Script:getAffectedUnits(battle, unit)
 	local affectedUnits = {}
 	local seenUnits = {}
@@ -28,7 +28,7 @@ function Script:getAffectedUnits(battle, unit)
 	return affectedUnits
 end
 
---- Calculate the damage the explosion should do to each adjacent unit
+--- Returns detonation damage per target.
 function Script:getExplosionDamage(unit, killed)
 	local baseDamage = 90 + 5 * killed
 	local specialtyPercent = unit:getBonusesValue({ type = "AUTOMATON_EXPLOSION_DAMAGE" })
@@ -36,13 +36,11 @@ function Script:getExplosionDamage(unit, killed)
 	return math.max(math.ceil((baseDamage * (100 + specialtyPercent)) / 100), 1)
 end
 
---- Plays the detonation death animation of 'unit' and damages all surrounding targets.
---- A clone detonates like anything else - what it leaves behind is not what set off the charge.
+--- Applies detonation animation and damage to adjacent targets.
 function Script:onDeath(server, battle, unit, other, payload)
 	local entry = self:ownEntry(unit, payload)
 
-	-- a death always carries the entry of the unit it is announced to, and one that killed nobody
-	-- is never announced at all
+	-- UNIT_DEATH always includes the killed unit's target entry.
 	if not entry then return end
 
 	local animation = unit:getCreature():getJsonKey() == "hota.factory:sentinelAutomaton" and "hota/factory/spells/detonationSentinel" or "hota/factory/spells/detonationAutomaton"
@@ -56,7 +54,7 @@ function Script:onDeath(server, battle, unit, other, payload)
 	local totalDamage, totalKilled = 0, 0
 
 	for _, target in ipairs(targets) do
-		-- per-target, since a cap on one of them must not follow the blast to the next
+		-- Apply damage caps per target.
 		local damage = explosionDamage
 		local cap = target:getBonusesValue({ type = "DAMAGE_RECEIVED_CAP" })
 		if cap > 0 then

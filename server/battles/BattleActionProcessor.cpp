@@ -241,21 +241,20 @@ void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & ba
 	bool ferocityApplied = false;
 	int32_t defenderInitialQuantity = defender->getCount();
 
-	BonusList attackerBonusesToRemove = *attacker->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
+	// Bonuses added during the sequence, such as Blind, must survive this cleanup.
+	BonusList attackerBonusesToRemove = *attacker->getAllBonuses(Bonus::untilAfterAttackSequence);
 	BonusList defenderBonusesToRemove = *defender->getAllBonuses(Bonus::untilAfterAttackSequence);
 
 	for (int i = 0; i < totalAttacks; ++i)
 	{
-		//first strike
 		if(i == 0 && firstStrike && defender->ableToRetaliate() && !attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !attacker->isInvincible() && !longWeaponAttack)
 		{
 			makeAttack(battle, defender, attacker, {.targetHex = attacker->getPosition(), .first = true, .counter = true});
 		}
 
-		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
+		// Movement, FIRST_STRIKE, or their handlers may kill or disable either unit.
 		if(attacker->alive() && !attacker->hasBonusOfType(BonusType::NOT_ACTIVE) && defender->alive())
 		{
-			//no distance travelled on second attack
 			makeAttack(battle, attacker, defender, {.targetHex = targetHex, .distance = (i ? 0 : distance), .attackIndex = i, .first = i == 0});
 
 			if(!ferocityApplied && attacker->hasBonusOfType(BonusType::FEROCITY))
@@ -271,8 +270,7 @@ void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & ba
 			}
 		}
 
-		//counterattack
-		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
+		// FIRST_STRIKE eligibility is fixed before the attack; newly unblocked retaliation waits for the next sequence.
 		if(attacker->alive()
 			&& !attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
 			&& !attacker->isInvincible()
@@ -442,23 +440,22 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	if (!firstStrike)
 		makeAttack(battle, stack, destinationStack, {.targetHex = destination, .first = true, .ranged = true});
 
-	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
+	// Bonuses added during the sequence, such as Blind, must survive this cleanup.
+	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);
 	BonusList defenderBonusesToRemove;
 	if (destinationStack)
 		defenderBonusesToRemove = *destinationStack->getAllBonuses(Bonus::untilAfterAttackSequence);
 
-	//ranged counterattack
 	if (!emptyTileAreaAttack
 		&& destinationStack->hasBonusOfType(BonusType::RANGED_RETALIATION)
 		&& !stack->hasBonusOfType(BonusType::BLOCKS_RANGED_RETALIATION)
 		&& destinationStack->ableToRetaliate()
 		&& battle.battleCanShoot(destinationStack, stack->getPosition())
-		&& stack->alive()) //attacker may have died (fire shield)
+		// Fire Shield may kill the attacker before retaliation.
+		&& stack->alive())
 	{
 		makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .ranged = true, .counter = true});
 	}
-	//allow more than one additional attack
-
 	int totalRangedAttacks = stack->getTotalAttacks(true);
 
 	//TODO: move to CUnitState
@@ -749,7 +746,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	logGlobal->trace("Making action: %s", ba.toString());
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
 
-	// units notified outside an action, e.g. on round start or battle setup, are not part of it
+	// Events outside an action, such as round start or battle setup, add no action participants.
 	actionParticipants.clear();
 	if(stack && ba.isUnitAction())
 		actionParticipants.push_back(stack->unitId());
@@ -771,16 +768,13 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
 
-	// before ACTION_FINISHED, so that units resurrected or killed by death reactions are in their
-	// final state by then
+	// Resolve deaths first so ACTION_FINISHED observes final alive states.
 	flushPendingDeaths(battle);
 
-	// after the obstacle triggers above, so that a unit killed on its way out - moat, or a mine on
-	// the return step - is already dead here
+	// Obstacle triggers may kill a moving unit before ACTION_FINISHED.
 	processActionFinishedTriggers(battle, stack);
 
-	// sent after everything the action caused: client batches animations between StartAction and
-	// EndAction and waits for them there
+	// EndAction closes the client animation batch, so send it after all action effects.
 	EndAction endAction;
 	endAction.battleID = battle.getBattle()->getBattleID();
 	gameHandler->sendAndApply(endAction);
@@ -804,19 +798,18 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	if (start == dest)
 		return { 0, false, false };
 
-	// fired here instead of at every caller, so that every actual move is covered. Before the path
-	// is measured, so that a reaction granting speed still extends this move
+	// Dispatch here to cover every move call. Handlers run before path calculation and may change
+	// movement range.
 	processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, currentUnit, nullptr);
 
-	// a reaction may have killed, replaced or displaced the unit and changed hex occupation,
-	// so nothing read before it is reused
+	// A handler may kill, replace or displace the unit, so reload all movement state.
 	currentUnit = battle.battleGetStackByID(stack);
 
-	// unit removed by a reaction has nothing to move and nothing to notify
+	// A removed unit has no matching AFTER_MOVE event.
 	if(!currentUnit)
 		return { 0, false, false };
 
-	// pairs with the trigger above - every exit from here goes through it
+	// Every exit after BEFORE_MOVE dispatches the matching AFTER_MOVE.
 	auto moveEnded = [&](const MovementResult & result)
 	{
 		processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, currentUnit, nullptr);
@@ -1598,8 +1591,7 @@ void BattleActionProcessor::runPredefinedReaction(const CBattleInfoCallback & ba
 
 void BattleActionProcessor::collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other)
 {
-	// recorded for every unit the event is offered to, not only for those that react to it -
-	// a script may handle ACTION_FINISHED alone and still has to be notified
+	// Record all event targets because a unit may implement only ACTION_FINISHED.
 	if(event != CombatEventType::ACTION_FINISHED && !vstd::contains(actionParticipants, self->unitId()))
 		actionParticipants.push_back(self->unitId());
 
@@ -1697,7 +1689,7 @@ void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback
 
 void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallback & battle, const battle::Unit * actor)
 {
-	// taken, so that collecting the reactions below does not grow the list it walks
+	// Clear the member before collecting ACTION_FINISHED handlers to avoid extending this iteration.
 	const std::vector<uint32_t> participants = std::exchange(actionParticipants, {});
 
 	std::vector<PendingTrigger> pending;
@@ -1706,14 +1698,14 @@ void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallb
 	{
 		const battle::Unit * unit = battle.battleGetUnitByID(participant);
 
-		// unit removed from the battlefield during the action is not notified
+		// Removed units cannot receive ACTION_FINISHED.
 		if(unit)
 			collectEventTriggers(battle, pending, CombatEventType::ACTION_FINISHED, unit, actor);
 	}
 
 	runEventTriggers(battle, pending, CombatEventPayload());
 
-	// reactions to the end of the action may kill units, which still belong to this action
+	// Deaths caused by ACTION_FINISHED handlers still belong to this action.
 	flushPendingDeaths(battle);
 }
 
@@ -1721,8 +1713,7 @@ void BattleActionProcessor::noteDeaths(const CBattleInfoCallback & battle, const
 {
 	for(const BattleStackAttacked & casualty : casualties)
 	{
-		// a hit that killed no creatures is not a death - this also keeps a second hit on a corpse
-		// from reporting the same death twice
+		// Ignore zero-casualty hits, including subsequent hits on a corpse.
 		if(!casualty.killed() || casualty.killedAmount == 0)
 			continue;
 
@@ -1749,8 +1740,7 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 
 	while(true)
 	{
-		// deaths caused by these reactions form the next batch instead of growing this one;
-		// deaths of another battle are left for that battle to announce
+		// Process newly queued deaths in the next batch and retain deaths from other battles.
 		std::vector<PendingDeath> batch;
 		std::ranges::copy_if(pendingDeaths, std::back_inserter(batch), [battleID](const PendingDeath & death){ return death.battle == battleID; });
 
@@ -1766,7 +1756,7 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 		{
 			const battle::Unit * unit = battle.battleGetUnitByID(death.unit);
 
-			// a script of an earlier death may have removed the body from the field
+			// An earlier death handler may remove the unit.
 			if(!unit)
 				continue;
 
@@ -1779,8 +1769,7 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 			pending.insert(pending.end(), death.triggers.begin(), death.triggers.end());
 		}
 
-		// one dispatch for the whole batch, so that priority orders reactions of different units
-		// against each other, e.g. rebirth before anything reacting to a death that stands
+		// One dispatch preserves priority ordering across units, including rebirth before final-death reactions.
 		runEventTriggers(battle, pending, payload);
 	}
 }
@@ -1809,8 +1798,7 @@ void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & 
 		target.unit = battle.battleGetUnitByID(before->unitId());
 		target.healthBeforeAttack = before->getAvailableHealth();
 
-		// healing or resurrection reports no damage instead of a negative amount; the effect is
-		// read from the snapshot instead
+		// Healing and resurrection report zero damage; compare with the snapshot for their effect.
 		if(target.unit)
 		{
 			target.damage = std::max<int64_t>(0, target.healthBeforeAttack - target.unit->getAvailableHealth());

@@ -666,8 +666,8 @@ local Building = {}
 ---@return string # Identifier of this building, scoped by the mod providing it.
 function Building:getJsonKey() end
 
----Returns which of the buildings known to the game this one is. Unlike the json key this is the same in every town, so it is what to test against when a rule speaks of a fort or a town hall rather than of one particular mod's version of it.
----@return string? # 'fort', 'villageHall', ...; nil for a building the game has no name of its own for.
+---Returns the predefined building type shared across towns.
+---@return string? # 'fort', 'villageHall', ...; nil for buildings without a predefined type.
 function Building:getBuildingType() end
 
 ---Whether this building is an upgrade of another, as a citadel is of a fort.
@@ -1677,11 +1677,11 @@ function Unit:getAttack(ranged) end
 ---@return integer
 function Unit:getDefense(ranged) end
 
----Returns the luck the unit fights with, capped and with exceptions applied - 0 for a unit luck does not reach, such as an undead one. Prefer this over adding up LUCK bonuses.
+---Returns effective luck after caps and unit exclusions. Returns 0 when luck does not apply. Prefer this method to summing LUCK bonuses.
 ---@return integer
 function Unit:getLuck() end
 
----Returns the morale the unit fights with, capped and with exceptions applied the same way as luck.
+---Returns effective morale after caps and unit exclusions.
 ---@return integer
 function Unit:getMorale() end
 
@@ -1763,7 +1763,7 @@ function Unit:getFirstHPleft() end
 ---@return boolean
 function Unit:isShooter() end
 
----True if the unit is alive and has a retaliation of this round left. Does not account for the attacker blocking retaliation, which belongs to the attacker rather than to this unit.
+---True when the unit is alive and has an unused retaliation this round. Attacker-side retaliation blocking is not considered.
 ---@return boolean
 function Unit:ableToRetaliate() end
 
@@ -1771,8 +1771,8 @@ function Unit:ableToRetaliate() end
 ---@return boolean
 function Unit:isTurret() end
 
----Which of the three towers of a besieged town this stack is.
----@return string? # 'keep', 'upper' or 'lower'; nil when the stack is no tower.
+---Returns the tower position of a besieged-town stack.
+---@return string? # 'keep', 'upper' or 'lower'; nil for non-turret units.
 function Unit:getTurretPart() end
 
 ---Returns the maximum hit points of a single creature in the stack.

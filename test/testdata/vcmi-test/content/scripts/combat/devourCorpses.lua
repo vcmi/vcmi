@@ -2,10 +2,8 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Strikes devoured corpses banked, kept as the value of one bonus rather than as one bonus per
---- strike: bonuses that match each other in every field cannot be removed one at a time.
---- A creature ability of the bearer's own creature is stored the same way, so a devourer that also
---- had a natural double attack would have it counted here - no such creature exists.
+--- Returns banked strikes stored in the creature's ADDITIONAL_ATTACK bonus.
+--- Matching bonuses cannot be removed individually.
 local function bankedStrikes(unit)
 	local creatureKey = unit:getCreature():getJsonKey()
 
@@ -28,10 +26,8 @@ function Script:setStrikes(server, battle, unit, count)
 	end
 end
 
---- Only a move of the unit's own feeds it. A walk-and-attack announces its walk like any other,
---- and does so before the number of blows is settled, so a corpse eaten on the way in is already
---- worth a strike of the attack it walked into. Every corpse under the head hex is consumed, each
---- one worth one extra strike.
+--- Consumes corpses under the head hex and grants one strike per corpse.
+--- Movement before an attack executes before attack count calculation.
 function Script:onAfterMove(server, battle, unit, other, payload)
 	if not unit:isAlive() then return end
 
@@ -52,8 +48,7 @@ function Script:onAfterMove(server, battle, unit, other, payload)
 	server:refreshBattleUnits(battle)
 end
 
---- One banked strike pays for one extra blow. A blow never thrown, because the target died first,
---- costs nothing, which is what keeps unspent strikes for the next attack.
+--- Consumes one banked strike for each executed additional attack.
 function Script:onAfterAttack(server, battle, unit, other, payload)
 	if payload.isCounter then return end
 	if payload.attackIndex == 0 then return end

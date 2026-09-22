@@ -336,8 +336,7 @@
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
 	},
 
-	// HotA abilities, see hotaScripts.json. The mod arms the detonation with a self-cast; here the
-	// automaton carries it from the start, as what the scenarios measure is the death it answers.
+	// Test fixture for HotA detonation; skips the mod's arming spell.
 	"testAutomaton" :
 	{
 		"faction" : "neutral",
@@ -353,13 +352,12 @@
 		"abilities" :
 		{
 			"detonates" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "automatonDetonation" },
-			// the mod's arming spell grants this alongside the trigger; the corpse of a detonated
-			// automaton is gone, which is what keeps a chain from setting the same one off twice
+			// Removing the corpse prevents repeated detonation in a chain.
 			"removeCorpse" : { "type" : "DISINTEGRATE" }
 		}
 	},
 
-	// Devours the corpses it walks onto, each worth one extra strike.
+	// Grants one additional attack per consumed corpse.
 	"testDevourer" :
 	{
 		"faction" : "neutral",
@@ -375,8 +373,7 @@
 		"abilities" : { "devours" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "devourCorpses" } }
 	},
 
-	// Double-wide, the way the Juggernaut whose ability this is - the cone is measured from its
-	// footprint rather than from one hex.
+	// Double-wide footprint is required for cone-origin tests.
 	"testJuggernaut" :
 	{
 		"faction" : "neutral",

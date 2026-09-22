@@ -285,7 +285,7 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, SecondarySkillDamageTest, ::testing::Values(
 ),
 	[](const ::testing::TestParamInfo<SkillCase> & info) { return info.param.name; });
 
-// ---- luck, death blow and the rest of the attack flags ------------------------------------------
+// ---- luck, Death Blow and the rest of the attack flags ------------------------------------------
 
 namespace
 {

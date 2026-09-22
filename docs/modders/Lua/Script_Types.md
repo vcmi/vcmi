@@ -1,6 +1,6 @@
 # Script Types
 
-Every script is declared the same way, in the `scripts` section of a mod. The type of the script is set by `implements`, which decides the interface the game calls it through, and therefore which functions the script has to define:
+Every script is declared in the `scripts` section of a mod. `implements` selects the script interface and its required functions:
 
 ```json
 "lifeDrain" : {
@@ -17,9 +17,9 @@ Every script is declared the same way, in the `scripts` section of a mod. The ty
 
 - [Spell Effect Scripts](Spell_Effect_Scripts.md) - `"implements" : "spellEffect"`, an effect of a spell, such as the built-in `core:damage` or `core:summon`
 - [Combat Event Scripts](Combat_Event_Scripts.md) - `"implements" : "combatEvent"`, a reaction to events happening to a unit in combat, such as Fire Shield or Death Stare
-- [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, damage of an attack. Unlike the other two there is one of these for the whole game, and a mod changes the rules by patching it instead of declaring its own
+- [Damage Calculator Script](Damage_Calculator_Script.md) - `"implements" : "damageCalculator"`, attack damage calculation. One instance handles the game, and mods change its rules with patches
 
-## What a script can reach
+## Script globals
 
 Three globals are available to every script:
 
@@ -27,9 +27,9 @@ Three globals are available to every script:
 - `ENUM` - every enumeration the engine exports. See [Enums](../Lua_Reference/Enums.md)
 - `GAME` - the ongoing game session. See [Game](../Lua_Reference/Game.md)
 
-What each type of script receives on top of those - a battle, a unit, a server to apply changes through - is described on its own page above.
+Each script type may also receive a battle, a unit or a server callback, as described on its page.
 
-[**Lua API Reference**](../Lua_Reference/API.md) lists every class and enumeration the engine exposes, one page each. It is generated from the bindings themselves, so it cannot fall behind them. `api.lua` next to it is a [Lua Language Server](https://luals.github.io/) stub - point `Lua.workspace.library` at it for completion and type checks while writing a script.
+[**Lua API Reference**](../Lua_Reference/API.md) lists every exported class and enumeration. It is generated from binding descriptions in `luascript/api/`; regenerate it after changing those descriptions. `api.lua` is a [Lua Language Server](https://luals.github.io/) stub. Add it to `Lua.workspace.library` for completion and type checks.
 
 VCMI also supports a subset of the Lua standard library; see [Lua Standard Library](Standard_Library.md) for what is in it.
 
@@ -37,27 +37,27 @@ VCMI also supports a subset of the Lua standard library; see [Lua Standard Libra
 
 Fields every script declares, whatever its type:
 
-- `implements` - what this script is, see above
+- `implements` - script interface, as listed above
 - `script` - path to the source, relative to the `SCRIPTS/` directory of the mod, without the extension. Sources are kept in a directory per type, so `spells/damage` or `combat/lifeDrain`
-- `patches` - other sources stacked over the base one, in the order given, so that a mod can change a script it does not own instead of replacing it. Declare an empty list when the script has none, so that other mods have a place to append to
-- `schema` - a json schema validating the parameters passed to this script. Errors are reported when the game loads, naming the entity that passed the invalid parameters. Declare an empty, closed schema when the script takes no parameters instead of omitting it
+- `patches` - sources applied over the base script in list order. Declare an empty list to allow other mods to append patches
+- `schema` - json schema for script parameters. Validation errors identify the entity with invalid parameters. Use an empty, closed schema when the script takes no parameters
 
-A `damageCalculator` script declares nothing beyond the shared fields: nothing runs alongside it and it is never shown to the player.
+A `damageCalculator` script has no additional fields and is not shown to the player.
 
 Fields a `combatEvent` script declares on top of those:
 
-- `description` - text shown to the player for an ability that runs this script. `${val}` is replaced with the value of the bonus and `${parameterName}` with a parameter the bonus passed. Every scripted ability shares one bonus type, so this is the only thing that distinguishes them in the creature window. Declare it empty for a script that must stay invisible
-- `priority` - the order in which scripts reacting to the same event run, from lowest to highest. Required and without a default, because which of two abilities acts first is part of their behaviour. `0` is the usual value
+- `description` - text shown for the ability. `${val}` is replaced with the bonus value and `${parameterName}` with a script parameter. This field distinguishes scripted abilities in the creature window. Use an empty string for a hidden script
+- `priority` - handler execution order, from lowest to highest. The field is required because ordering affects behavior. `0` is the usual value
 
 Fields a script may declare:
 
 - `stringRegistrations` - names of parameters that hold text shown to the player. Such a parameter is registered for translation instead of being used as-is. A value starting with `@` is treated as a reference to a string registered by another entity
 
-Scripts of every type share one namespace, so a script is referred to by its name alone, or by `<modName>:<name>` when the reference has to name the mod that provides it.
+All script types share one namespace. Use the local name within the same scope or `<modName>:<name>` for an explicit mod scope.
 
 ## Parameters
 
-Parameters configure a single use of a script and reach it as fields of `self`. Where they are written depends on the type - a spell effect is configured by the spell that uses it, a combat event script by the bonus that runs it - but `schema` and `stringRegistrations` apply to both in the same way:
+Parameters configure one script instance and are available as fields of `self`. Spell parameters are declared by the spell; combat event parameters are declared by the bonus. `schema` and `stringRegistrations` apply to both:
 
 ```json
 "deathStare" : {
@@ -84,7 +84,7 @@ A script that takes no parameters still declares a schema - an empty, closed one
 "schema" : { "properties" : {}, "additionalProperties" : false }
 ```
 
-## Parameters that name something
+## Entity parameters
 
 A parameter holding the identifier of a creature, a spell or any other entity declares it with `entity`, next to its type:
 
@@ -98,4 +98,4 @@ A parameter holding the identifier of a creature, a spell or any other entity de
 }
 ```
 
-This has two effects. The identifier is resolved when the mod loads, whatever kind of entity it names, so a typo is reported by name instead of turning into an ability that does nothing. And `${parameterName}` in the `description` of the script prints the translated name of the entity instead of the raw json key, looked up as the kind of entity the parameter declares - which matters because one key can name both a creature and a spell. A parameter without `entity` is printed as written, so an ordinary string is never mistaken for an identifier.
+`entity` enables load-time identifier validation and translated names in `description`. Resolution uses the declared entity type because one key may identify both a creature and a spell. Parameters without `entity` are displayed as literal strings.

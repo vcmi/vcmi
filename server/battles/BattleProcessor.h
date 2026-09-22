@@ -79,13 +79,13 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
-	/// Fires one combat event on the given unit
+	/// Dispatches one combat event to the given unit
 	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
-	/// Fires the spell hit event on every unit a deliberately cast spell reached
+	/// Dispatches SPELL_HIT to all affected units after a deliberate cast
 	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
-	/// Records every death these casualties report, to be announced once the running action is over
+	/// Queues UNIT_DEATH events from the given casualties
 	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
-	/// Announces recorded deaths, for damage dealt outside any battle action
+	/// Dispatches queued UNIT_DEATH events outside a battle action
 	void flushPendingDeaths(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);

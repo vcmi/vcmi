@@ -45,10 +45,10 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		{{"ranged", "True for defense against ranged attacks, false for defense against melee."}}, {},
 		"Returns the creature's defense stat.");
 	R.method<&AFactionMember::luckVal, Unit>("getLuck", {},
-		"Returns the luck the unit fights with, capped and with exceptions applied - 0 for a unit "
-		"luck does not reach, such as an undead one. Prefer this over adding up LUCK bonuses.");
+		"Returns effective luck after caps and unit exclusions. Returns 0 when luck does not apply. "
+		"Prefer this method to summing LUCK bonuses.");
 	R.method<&AFactionMember::moraleVal, Unit>("getMorale", {},
-		"Returns the morale the unit fights with, capped and with exceptions applied the same way as luck.");
+		"Returns effective morale after caps and unit exclusions.");
 	R.method<&Unit::alive>("isAlive", {},
 		"True if the stack has at least one alive creature.");
 	R.method<&Unit::isClone>("isClone", {},
@@ -90,13 +90,13 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.method<&Unit::isShooter>("isShooter", {},
 		"True if the stack can shoot in general, even if out of ammo. See canShoot to check if unit can shoot right now.");
 	R.method<&Unit::ableToRetaliate>("ableToRetaliate", {},
-		"True if the unit is alive and has a retaliation of this round left. Does not account for "
-		"the attacker blocking retaliation, which belongs to the attacker rather than to this unit.");
+		"True when the unit is alive and has an unused retaliation this round. Attacker-side "
+		"retaliation blocking is not considered.");
 	R.method<&Unit::isTurret>("isTurret", {},
 		"True if the stack is one of the towers of a besieged town.");
 	R.function<&UnitProxy::getTurretPart>("getTurretPart",
-        {"'keep', 'upper' or 'lower'; nil when the stack is no tower."},
-		"Which of the three towers of a besieged town this stack is.");
+		{"'keep', 'upper' or 'lower'; nil for non-turret units."},
+		"Returns the tower position of a besieged-town stack.");
 	R.method<&ACreature::getMaxHealth, Unit>("getMaxHealth", {},
 		"Returns the maximum hit points of a single creature in the stack.");
 	R.method<&Unit::coversPos>("coversPos",

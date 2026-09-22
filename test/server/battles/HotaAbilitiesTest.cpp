@@ -16,20 +16,18 @@
 namespace
 {
 
-/// Damage one detonation of a single automaton deals, from the 90 + 5 * N of the ability.
+/// Damage from one automaton detonation
 constexpr int64_t detonationDamage = 95;
 
 }
 
-/// The abilities Horn of the Abyss implements in Lua, on the engine features they need. The scripts
-/// themselves are the ones that mod ships, copied into the test fixtures so that a change here that
-/// breaks them is noticed before the mod is.
+/// Integration tests for HotA Lua abilities copied into vcmi-test
 class HotaAbilitiesTest : public BattleTestFixture
 {
 public:
 	static constexpr int32_t bigStack = 1000;
 
-	/// The runes of an expert hero, which every stack of its army inherits.
+	/// Adds a stack with an inherited expert Runes skill
 	CStack * addRuneBearer()
 	{
 		attackerSideHero->setSecSkillLevel(skillByName("vcmi-test:runes"), 3, ChangeValueMode::ABSOLUTE);
@@ -46,12 +44,10 @@ public:
 // Detonation
 //----------------------------------------------------------------------------------------------
 
-/// An automaton damages everything around it when it dies. The fixture creature carries the
-/// ability from the start, where the mod arms it with a self-cast first.
 class DetonationTest : public HotaAbilitiesTest
 {
 public:
-	/// An automaton the scenario is about, and the stack that will kill it.
+	/// Adds an automaton and its attacker
 	void setUpDetonation(int32_t automatonCount = 1)
 	{
 		startGame();
@@ -61,7 +57,7 @@ public:
 		killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
 	}
 
-	/// Kills the automaton, which is the only way to set it off.
+	/// Kills the automaton to trigger detonation
 	void detonate()
 	{
 		ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
@@ -72,8 +68,7 @@ public:
 	CStack * killer = nullptr;
 };
 
-/// Every adjacent unit is damaged, and a target whose incoming damage is capped keeps that cap to
-/// itself - it used to lower the blast for every target the loop reached after it.
+/// Verifies per-target damage caps during detonation
 TEST_F(DetonationTest, DamagesEveryAdjacentUnitAndCapsOnlyTheCappedOne)
 {
 	setUpDetonation();
@@ -88,14 +83,12 @@ TEST_F(DetonationTest, DamagesEveryAdjacentUnitAndCapsOnlyTheCappedOne)
 
 	detonate();
 
-	// the cap is 10% of a creature with 100 health
+	// The cap is 10% of one creature with 100 health.
 	EXPECT_EQ(cappedBefore - capped->getAvailableHealth(), 10);
 	EXPECT_EQ(uncappedBefore - uncapped->getAvailableHealth(), detonationDamage);
 }
 
-/// What a clone leaves behind is not what set off the charge, so it detonates like anything else.
-/// This is also the only scenario pinning that the death of a clone is announced at all - the
-/// rebirth of a clone is refused by the script rather than by the engine.
+/// Verifies UNIT_DEATH dispatch for clones
 TEST_F(DetonationTest, AnswersTheDeathOfAClone)
 {
 	setUpDetonation();
@@ -104,7 +97,7 @@ TEST_F(DetonationTest, AnswersTheDeathOfAClone)
 
 	beginCombat();
 
-	// marking the automaton a clone is the shortest way to the state a cloned one would be in
+	// Set clone state without applying the Clone spell.
 	makeClone(automaton);
 
 	const int64_t healthBefore = victim->getAvailableHealth();
@@ -114,11 +107,10 @@ TEST_F(DetonationTest, AnswersTheDeathOfAClone)
 	EXPECT_EQ(healthBefore - victim->getAvailableHealth(), detonationDamage);
 }
 
-/// One blast kills the automaton beside it, which detonates in its turn - the deaths of a batch
-/// are announced, and the deaths they cause are announced after them.
+/// Verifies a subsequent death-event batch from detonation damage
 TEST_F(DetonationTest, SetsOffTheAutomatonNextToIt)
 {
-	// three of them, so that the 90 + 5 * N of the first blast is past the health of the second
+	// Three automatons make the first detonation lethal to the second.
 	setUpDetonation(3);
 
 	CStack * second = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex + 1), 1);
@@ -131,12 +123,11 @@ TEST_F(DetonationTest, SetsOffTheAutomatonNextToIt)
 	detonate();
 	ASSERT_FALSE(second->alive()) << "the first blast has to kill the second automaton";
 
-	// the bystander only touches the second automaton, so anything it lost came from the chain
+	// The bystander is adjacent only to the second automaton.
 	EXPECT_EQ(healthBefore - bystander->getAvailableHealth(), detonationDamage);
 }
 
-/// Deaths of one blow are answered as a batch ordered by priority, so a stack that comes back from
-/// its own death is already standing when anything else reacting to that batch runs.
+/// Verifies rebirth priority before other handlers in the same death batch
 TEST_F(DetonationTest, RunsAfterARebirthOfTheSameBatch)
 {
 	startGame();
@@ -144,7 +135,7 @@ TEST_F(DetonationTest, RunsAfterARebirthOfTheSameBatch)
 
 	automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
 	CStack * phoenix = addStack(BattleSide::DEFENDER, creatureByName("core:phoenix"), BattleHex(rightHex + 1), 10);
-	// breath reaches the hex behind the one it strikes, so one blow kills both
+	// Dragon breath kills both targets in one attack.
 	killer = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), bigStack);
 
 	beginCombat();
@@ -160,7 +151,6 @@ TEST_F(DetonationTest, RunsAfterARebirthOfTheSameBatch)
 // Devour corpses
 //----------------------------------------------------------------------------------------------
 
-/// Every corpse the worm walks onto is one more blow of its next attack.
 TEST_F(HotaAbilitiesTest, DevouredCorpseGrantsOneExtraStrike)
 {
 	startGame();
@@ -174,7 +164,7 @@ TEST_F(HotaAbilitiesTest, DevouredCorpseGrantsOneExtraStrike)
 	const uint32_t preyID = prey->unitId();
 
 	ASSERT_TRUE(attack(devourer, BattleHex(rightHex)));
-	ASSERT_FALSE(prey->alive()) << "a corpse is what the scenario is about";
+	ASSERT_FALSE(prey->alive()) << "the attack did not create a corpse";
 	ASSERT_EQ(devourer->getTotalAttacks(false), 1) << "an attack that walked nowhere ate nothing";
 
 	ASSERT_TRUE(move(devourer, BattleHex(rightHex)));
@@ -182,12 +172,11 @@ TEST_F(HotaAbilitiesTest, DevouredCorpseGrantsOneExtraStrike)
 	EXPECT_EQ(devourer->getTotalAttacks(false), 2);
 	const CStack * corpse = battle()->getStack(preyID, false);
 	ASSERT_NE(corpse, nullptr);
-	EXPECT_TRUE(corpse->isGhost()) << "the corpse was eaten rather than left to be resurrected";
+	EXPECT_TRUE(corpse->isGhost()) << "consumed corpse must be removed";
 }
 
-/// Strikes are spent one per extra blow actually thrown, so a target that dies to the first blow
-/// costs nothing.
-TEST_F(HotaAbilitiesTest, StrikeIsSpentOnlyOnAnExtraBlow)
+/// Verifies that only executed additional attacks consume banked strikes
+TEST_F(HotaAbilitiesTest, StrikeIsSpentOnlyOnAnExtraAttack)
 {
 	startGame();
 	startBattle();
@@ -202,15 +191,14 @@ TEST_F(HotaAbilitiesTest, StrikeIsSpentOnlyOnAnExtraBlow)
 	ASSERT_TRUE(move(devourer, BattleHex(rightHex)));
 	ASSERT_EQ(devourer->getTotalAttacks(false), 2);
 
-	// the dragons survive every blow, so both of them are thrown and the banked one is spent
+	// The dragons survive both attacks, consuming the banked strike.
 	blockRetaliation(next);
 	ASSERT_TRUE(attack(devourer, BattleHex(rightHex + 1)));
 
 	EXPECT_EQ(devourer->getTotalAttacks(false), 1);
 }
 
-/// A corpse eaten on the way into an attack pays for a blow of that same attack, rather than of
-/// the next one - the walk of a walk-and-attack happens before the number of blows is settled.
+/// Verifies that movement handlers run before attack count calculation
 TEST_F(HotaAbilitiesTest, CorpseDevouredOnTheWayInFeedsTheAttackItWalkedInto)
 {
 	startGame();
@@ -225,12 +213,12 @@ TEST_F(HotaAbilitiesTest, CorpseDevouredOnTheWayInFeedsTheAttackItWalkedInto)
 	const uint32_t preyID = prey->unitId();
 
 	ASSERT_TRUE(attack(devourer, BattleHex(rightHex)));
-	ASSERT_FALSE(prey->alive()) << "a corpse to walk onto is what the scenario is about";
+	ASSERT_FALSE(prey->alive()) << "the attack did not create a corpse";
 	ASSERT_EQ(devourer->getTotalAttacks(false), 1);
 
 	blockRetaliation(next);
 
-	// walks onto the corpse and strikes the stack beyond it in one action
+	// Move onto the corpse and attack the next stack in one action.
 	ASSERT_TRUE(attackFrom(devourer, BattleHex(rightHex + 1), BattleHex(rightHex)));
 
 	const CStack * corpse = battle()->getStack(preyID, false);
@@ -243,7 +231,6 @@ TEST_F(HotaAbilitiesTest, CorpseDevouredOnTheWayInFeedsTheAttackItWalkedInto)
 // Runes
 //----------------------------------------------------------------------------------------------
 
-/// Taking a defensive stance is an action that ends where it starts, so its levels are immediate.
 TEST_F(HotaAbilitiesTest, DefendingGrantsThreeRuneLevels)
 {
 	startGame();
@@ -261,9 +248,7 @@ TEST_F(HotaAbilitiesTest, DefendingGrantsThreeRuneLevels)
 	EXPECT_EQ(bearer->getAttack(false) - attackBefore, 2);
 }
 
-/// An attack nobody answers is worth one level, handed out once the action it belongs to is over -
-/// which is the same action, not the next one the unit takes.
-TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
+TEST_F(HotaAbilitiesTest, AttackWithoutRetaliationGrantsOneRuneLevel)
 {
 	startGame();
 	startBattle();
@@ -279,8 +264,7 @@ TEST_F(HotaAbilitiesTest, UnansweredAttackGrantsOneRuneLevel)
 	EXPECT_EQ(runeLevelOf(bearer), 1);
 }
 
-/// A unit that strikes and is struck in return is credited for the blow it took, not for both -
-/// which also pins that the whole action is granted once rather than blow by blow.
+/// Verifies maximum rune gain per action instead of the sum of attack and retaliation gains
 TEST_F(HotaAbilitiesTest, AnsweredAttackGrantsTwoRuneLevels)
 {
 	startGame();
@@ -293,11 +277,9 @@ TEST_F(HotaAbilitiesTest, AnsweredAttackGrantsTwoRuneLevels)
 
 	ASSERT_TRUE(attack(bearer, BattleHex(rightHex)));
 
-	EXPECT_EQ(runeLevelOf(bearer), 2) << "the retaliation is part of the same action, and is worth more than the blow given";
+	EXPECT_EQ(runeLevelOf(bearer), 2) << "retaliation has the larger gain within the same action";
 }
 
-/// A hero spell that damaged a unit is worth as much to it as a blow taken, and reaches it even
-/// though the action is the other side's.
 TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 {
 	startGame();
@@ -309,7 +291,7 @@ TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 
 	startBattle();
 
-	// the runes are the enemy hero's, so that the spell reaching them is an action of the other side
+	// Give Runes to the target side to verify cross-side action participants.
 	defenderSideHero->setSecSkillLevel(skillByName("vcmi-test:runes"), 3, ChangeValueMode::ABSOLUTE);
 	CStack * bearer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testDamageCapped"), BattleHex(rightHex), bigStack);
 	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), bigStack);
@@ -321,7 +303,6 @@ TEST_F(HotaAbilitiesTest, HeroSpellGrantsTwoRuneLevels)
 	EXPECT_EQ(runeLevelOf(bearer), 2);
 }
 
-/// Only a hero's spell is worth anything, so the spell hit has to name the unit that cast it.
 TEST_F(HotaAbilitiesTest, SpellCastByAUnitGrantsNoRuneLevel)
 {
 	startGame();
@@ -335,7 +316,7 @@ TEST_F(HotaAbilitiesTest, SpellCastByAUnitGrantsNoRuneLevel)
 	const int64_t healthBefore = bearer->getAvailableHealth();
 
 	ASSERT_TRUE(castAsUnit(caster, spellByName("vcmi-test:heatStroke"), BattleHex(leftHex)));
-	ASSERT_LT(bearer->getAvailableHealth(), healthBefore) << "the stroke has to reach the bearer";
+	ASSERT_LT(bearer->getAvailableHealth(), healthBefore) << "heat stroke did not damage the target";
 
 	EXPECT_EQ(runeLevelOf(bearer), 0) << "the hit names a casting unit, and only a hero's spell counts";
 }
@@ -347,7 +328,6 @@ TEST_F(HotaAbilitiesTest, SpellCastByAUnitGrantsNoRuneLevel)
 namespace
 {
 
-/// One cone: the side the Juggernaut fights on, where it aims, and which hex is checked for burns.
 struct HeatStrokeCase
 {
 	const char * name;
@@ -359,18 +339,13 @@ struct HeatStrokeCase
 
 }
 
-/// The stroke is a 120 degree cone two hexes deep: the aimed hex, the two hexes touching both the
-/// Juggernaut and it, and the five - four, when it strikes straight up or down - one step further
-/// out. It is measured from the half of the Juggernaut that faces the aim point, which is the hex
-/// the unit stands on only when it fights on the attacker side.
 class HeatStrokeTest : public HotaAbilitiesTest
 {
 public:
-	/// The Juggernaut always stands here, and every hex of a scenario is given relative to it.
+	/// Origin for relative cone coordinates
 	static const BattleHex origin;
 
-	/// Aims a stroke of a Juggernaut of the given side at `aimHex` and answers what the unit
-	/// standing on `victimHex` lost to it.
+	/// Returns damage to `victimHex` from a cast aimed at `aimHex`
 	int64_t damageAt(BattleSide side, const BattleHex & aimHex, const BattleHex & victimHex)
 	{
 		startGame();
@@ -410,29 +385,25 @@ TEST_P(HeatStrokeConeTest, BurnsWhatIsInsideTheCone)
 }
 
 INSTANTIATE_TEST_SUITE_P(Cones, HeatStrokeConeTest, ::testing::Values(
-	// the hex the stroke is aimed at is always in its own cone
+	// The aimed hex is part of the cone.
 	HeatStrokeCase{"aimedHexOnTheAttackerSide", BattleSide::ATTACKER,
 		HeatStrokeTest::origin.copyToEast(), HeatStrokeTest::origin.copyToEast(), true},
 
-	// regression guard: the cone is measured from the half of the Juggernaut that faces the aim
-	// point, not from the hex it stands on, which used to be reached with one step too many. An
-	// attacker-side unit stands on the origin and covers the hex west of it as well
+	// Measure from the footprint half facing the aim point.
 	HeatStrokeCase{"twoHexesWestOfTheRearHalfOnTheAttackerSide", BattleSide::ATTACKER,
 		HeatStrokeTest::origin.copyToWest().copyToWest(), HeatStrokeTest::origin.copyToWest().copyToWest(), true},
 
-	// a defender-side Juggernaut carries its second hex to the east instead, so the same
-	// measurement runs the other way
+	// Defender-side double-wide footprints extend east.
 	HeatStrokeCase{"twoHexesEastOfTheRearHalfOnTheDefenderSide", BattleSide::DEFENDER,
 		HeatStrokeTest::origin.copyToEast().copyToEast(), HeatStrokeTest::origin.copyToEast().copyToEast(), true},
 
-	// a hex touching the cone but outside its 120 degrees stays cold
+	// Adjacent hex outside the 120-degree cone.
 	HeatStrokeCase{"hexOutsideTheCone", BattleSide::ATTACKER,
 		HeatStrokeTest::origin.copyToEast(), HeatStrokeTest::origin.copyToNorthEast().copyToNorthWest(), false}
 ),
 	[](const ::testing::TestParamInfo<HeatStrokeCase> & info) { return info.param.name; });
 
-/// The stroke rolls for a lucky strike on the luck the engine answers with, which is capped, rather
-/// than on the sum of the bonuses granting it - a sum this large would double every single strike.
+/// Verifies use of capped effective luck instead of raw bonus sum
 TEST_F(HeatStrokeTest, LuckIsTakenCappedRatherThanAsTheSumOfItsBonuses)
 {
 	const BattleHex aim = origin.copyToEast();
@@ -441,18 +412,16 @@ TEST_F(HeatStrokeTest, LuckIsTakenCappedRatherThanAsTheSumOfItsBonuses)
 	startBattle();
 
 	juggernaut = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testJuggernaut"), origin, bigStack);
-	// far more health than either reading of the luck could take away, so that the stack does not
-	// die to both of them and hide the difference
+	// Prevent either result from killing the target.
 	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), aim, 100 * bigStack);
 
-	// levelled up to the attack of the caster, so that the attack-against-defense factor is 1 and
-	// the damage left is the flat damage of the stack itself
+	// Equal attack and defence isolate creature damage.
 	const int defenceGap = juggernaut->getAttack(false) - victim->getDefense(false);
 	victim->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, defenceGap, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE)));
 
-	// past the cap by far, and exactly the number of dice the roll uses
+	// The raw value guarantees luck while the capped value does not.
 	juggernaut->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LUCK, BonusSource::OTHER, 24, BonusSourceID()));
-	ASSERT_LT(juggernaut->luckVal(), 24) << "the cap is what makes the two readings differ";
+	ASSERT_LT(juggernaut->luckVal(), 24) << "effective luck must be lower than the raw bonus sum";
 
 	beginCombat();
 

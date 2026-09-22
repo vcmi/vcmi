@@ -2,8 +2,7 @@ local BattleLog = {}
 
 --- Battle log messages that several combat and spell scripts share.
 
---- Name of the creatures of `victim`, in the form matching `count`. A nil victim gives the generic
---- name, used when the log can no longer name the victim.
+--- Returns the creature name matching `count`, or the generic name when `victim` is nil.
 local function creatureName(victim, count)
 	if victim then
 		return victim:getCreature():getNameTextID(count)
@@ -39,7 +38,7 @@ function BattleLog.lifeDrained(server, battle, unit, victim, healed, resurrected
 	})
 end
 
---- "<n> <creatures> perish". Logs nothing when the effect killed no creatures.
+--- Logs "<n> <creatures> perish" when `killed` is positive.
 function BattleLog.creaturesPerish(server, battle, victim, killed)
 	if killed <= 0 then return end
 

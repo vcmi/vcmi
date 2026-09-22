@@ -1,11 +1,10 @@
-// Scripts of HotA abilities, kept here so that the engine features they lean on stay tested.
-// They are copies of the ones the Horn of the Abyss mod ships, and the bindings mirror its own.
+// HotA ability scripts copied into vcmi-test for engine integration coverage.
 {
 	"automatonDetonation" : {
 		"implements" : "combatEvent",
 		"script" : "combat/automatonDetonation",
 		"patches" : [ ],
-		// answers a death rather than undoing one, so it runs after anything that brings a stack back
+		// Execute after resurrection handlers.
 		"priority" : 100,
 		"schema" : {
 			"properties" : { },

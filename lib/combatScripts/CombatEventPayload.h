@@ -22,8 +22,8 @@ namespace spells
 class Spell;
 }
 
-/// One unit hit by an attack or by a spell, as reported to combat scripts.
-/// Before the attack only `unit` and `healthBeforeAttack` are known - no damage has been rolled yet.
+/// Attack or spell target data reported to combat scripts.
+/// BEFORE_ATTACK provides only `unit` and `healthBeforeAttack` because damage is not rolled yet.
 struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<AttackedTarget>
 {
 	const battle::Unit * unit = nullptr;
@@ -31,18 +31,18 @@ struct DLL_LINKAGE AttackedTarget final : public scripting::ApiSerializable<Atta
 	int32_t killed = 0;
 	int64_t damageBeforeDefense = 0;
 	int64_t healthBeforeAttack = 0;
-	/// Snapshot owned by the caster, so it outlives the payload
+	/// Non-owning pointer to pre-cast state retained by the caller during dispatch
 	const battle::Unit * unitBefore = nullptr;
 
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("unit",   unit,   "Unit that was hit.");
-		s("damage", damage, "Damage dealt to it.");
-		s("killed", killed, "How many of its creatures died.");
-		s("damageBeforeDefense", damageBeforeDefense, "Damage this same hit would have dealt with the defences of the target ignored.");
-		s("healthBeforeAttack", healthBeforeAttack, "Health the unit had left before the attack landed.");
-		s("unitBefore", unitBefore, "The unit as it stood before the spell reached it, to tell what the spell did from what the unit already was. Only the spell hit event fills it in.");
+		s("unit",   unit,   "Target unit.");
+		s("damage", damage, "Damage dealt to the target.");
+		s("killed", killed, "Creatures killed in the target stack.");
+		s("damageBeforeDefense", damageBeforeDefense, "Damage before applying target defence modifiers.");
+		s("healthBeforeAttack", healthBeforeAttack, "Target health before the attack.");
+		s("unitBefore", unitBefore, "Target state before spell effects. Set only for the spell hit event.");
 	}
 };
 
@@ -59,7 +59,7 @@ struct DLL_LINKAGE CombatEventPayload final : public scripting::ApiSerializable<
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("targets",     targets,     "Units hit by the attack or spell that caused this event. Before the attack, only their identity and remaining health are known.");
+		s("targets",     targets,     "Attack or spell targets. Before an attack, only identity and remaining health are available.");
 		s("spell",       spell,       "Spell that caused this event, for the spellcast and spell hit events. Nil for every other event.");
 		s("ranged",      ranged,      "Whether the attack that caused this event was a shot.");
 		s("isCounter",   isCounter,   "Whether the attack is a counterattack - either a first strike or a regular retaliation.");
