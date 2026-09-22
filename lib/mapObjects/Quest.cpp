@@ -237,6 +237,22 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	
 	if(lastDay >= 0)
 		text.replaceNumber(lastDay - cb->getCalendar().getCurrentDay());
+
+	if(mission.daysPassed > 0)
+	{
+		// HotA "reach date" quest (e.g. timed quest gate): the text contains a string placeholder
+		// that must be filled with the date on which the object becomes accessible.
+		// Use the same date format as the adventure map date bar
+		const auto calendar = cb->getCalendar(mission.daysPassed);
+
+		text.replaceTextID("vcmi.adventureMap.dateFormat");
+		text.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+		text.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+		text.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+		text.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+		text.replaceTokenTextID("%DAY", "core.genrltxt.64");
+		text.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+	}
 }
 
 void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
