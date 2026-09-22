@@ -549,7 +549,7 @@ CGameHandler::CGameHandler(IGameServer & server)
 	: server(server)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
-	, queries(std::make_unique<QueriesProcessor>())
+	, queries(std::make_unique<QueriesProcessor>(*this))
 	, turnStartVisitScheduler(std::make_unique<TurnStartVisitScheduler>(*this, *queries))
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
@@ -3841,7 +3841,11 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState * p = gameInfo().getPlayerState(player);
 
-	if(!p || p->status != EPlayerStatus::INGAME) return;
+	if(!p || p->status != EPlayerStatus::INGAME)
+		return;
+
+	if(queries->topQuery(player))
+		return;
 
 	if(gameState().getMap().battleOnly)
 	{
