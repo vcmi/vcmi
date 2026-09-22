@@ -21,6 +21,8 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
@@ -500,13 +502,42 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double ourStrength = battleState.getOurStrength();
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
-	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cc->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
+	if(ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee && canRetreatFromBattle(battleID, battleState.ourHero))
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
 
 	return std::nullopt;
+}
+
+bool AIGateway::canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const
+{
+	if(!hero)
+		return false;
+
+	// retreating hero can only be rehired in a tavern. Besieged town will be lost, so it does not count
+	const CGTownInstance * besiegedTown = cc->getBattle(battleID)->battleGetDefendedTown();
+	bool hasTavern = false;
+	for(const auto * town : cc->getTownsInfo())
+		if(town != besiegedTown && town->hasBuilt(BuildingID::TAVERN))
+			hasTavern = true;
+
+	if(!hasTavern)
+		return false;
+
+	// do not retreat if losing this hero may cause victory or defeat of any player, e.g. "defeat hero X" victory condition
+	bool heroIsObjective = false;
+	for(const auto & event : cc->getMapHeader()->triggeredEvents)
+	{
+		event.trigger.morph([hero, &heroIsObjective](const EventCondition & condition) -> EventExpression::Variant
+		{
+			if(condition.objectID == hero->id)
+				heroIsObjective = true;
+			return condition;
+		});
+	}
+
+	return !heroIsObjective;
 }
 
 
