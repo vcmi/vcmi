@@ -320,6 +320,10 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
+	// pending level-up dialog continues the chain once answered
+	if (queries->findQuery<CHeroLevelUpDialogQuery>([hero](const CHeroLevelUpDialogQuery & query) { return query.hero == hero; }))
+		return;
+
 	if (hero->gainsLevel())
 		levelUpHero(hero);
 	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
@@ -429,21 +433,17 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	sss.mode = mode;
 	sendAndApply(sss);
 
-	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
-	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
-	{
-		// Skill grants one hero level per mastery level gained. Only the experience is granted here;
-		// the level-up itself is triggered by the caller via expGiven, like for any other experience gain.
-		// Heroes at the level cap silently get nothing.
-		giveExperienceWithoutLevelUp(hero, hero->experienceToGainLevels(masteryGained));
-	}
-
 	if (hero->getVisitedTown())
 		giveSpells(hero->getVisitedTown(), hero);
 
 	// Our scouting range may have changed - update it
 	if (hero->getOwner().isValidPlayer())
 		changeFogOfWar(hero->getSightCenter(), hero->getSightRadius(), hero->getOwner(), ETileVisibility::REVEALED);
+
+	// one hero level per mastery level gained
+	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
+	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
+		giveExperience(hero, hero->experienceToGainLevels(masteryGained));
 
 }
 
@@ -3424,7 +3424,6 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	giveResource(h->tempOwner, EGameResID::GOLD, -goldCost);
 
 	changeSecSkill(h, skill, 1, ChangeValueMode::ABSOLUTE);
-	expGiven(h);
 	return true;
 }
 

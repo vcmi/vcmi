@@ -96,8 +96,7 @@ public:
 	HeroTypeID customPortraitSource;
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	/// Level at which the hero last gained or upgraded each secondary skill that has an offer cooldown (see CSkill::offerCooldown).
-	/// Such a skill is not offered for upgrade again on the following level-ups, if the hero has any other skill to upgrade.
+	/// Hero level at which each skill with offer cooldown was last gained or upgraded
 	std::map<SecondarySkill, ui32> secSkillsGainedAtLevel;
 	EHeroGender gender;
 
@@ -195,7 +194,7 @@ public:
 
 	/// Returns true if hero has lower level than should upon his experience.
 	bool gainsLevel() const;
-	/// Experience needed to advance the given number of levels, counted from the start of the current level (ignores current experience)
+	/// Experience required to gain given number of levels, counted from start of current level
 	TExpType experienceToGainLevels(ui32 levels) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill

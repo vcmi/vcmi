@@ -26,7 +26,7 @@ protected:
 	void SetUp() override
 	{
 		GameStateTest::SetUp();
-		learningSkill().offerCooldown = 1; // the library is shared between tests, restored in TearDown
+		learningSkill().offerCooldown = 1; // library is shared between tests
 	}
 
 	void TearDown() override
@@ -40,7 +40,7 @@ protected:
 		return *LIBRARY->skillh->objects.at(SecondarySkill::LEARNING);
 	}
 
-	/// First hero of the first player, with exactly the given secondary skills at basic level
+	/// First hero of first player with given skills at basic level
 	CGHeroInstance * prepareHeroWithSkills(const std::vector<SecondarySkill> & skills)
 	{
 		const auto heroes = gameState->getPlayerState(PlayerColor(0))->getHeroes();
@@ -54,7 +54,7 @@ protected:
 		return hero;
 	}
 
-	/// Rolls level-up offers the way CGameHandler::levelUpHero does and returns them
+	/// Rolls level-up offers like CGameHandler::levelUpHero
 	std::vector<SecondarySkill> rollLevelUpOffers(GameRandomizer & randomizer, const CGHeroInstance * hero)
 	{
 		randomizer.rollPrimarySkillForLevelup(hero); // creates per-hero skill seed
@@ -62,8 +62,6 @@ protected:
 	}
 };
 
-// A skill with an offer cooldown (CSkill::offerCooldown) must not be offered for upgrade on the
-// level-ups that follow its gain, as long as the hero has another skill to upgrade.
 TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsWithheldOnFollowingLevelUp)
 {
 	startTestGame();
@@ -79,8 +77,8 @@ TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsWithheldOnFollowingLevel
 	for(int i = 0; i < 30; ++i)
 	{
 		const auto offered = rollLevelUpOffers(randomizer, hero);
-		EXPECT_FALSE(vstd::contains(offered, learning)) << "withheld skill was offered on roll " << i;
-		EXPECT_TRUE(vstd::contains(offered, wisdom)) << "the other upgradeable skill must take the upgrade slot on roll " << i;
+		EXPECT_FALSE(vstd::contains(offered, learning)) << "roll " << i;
+		EXPECT_TRUE(vstd::contains(offered, wisdom)) << "roll " << i;
 	}
 }
 
@@ -100,7 +98,7 @@ TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedAgainOnceCooldown
 	for(int i = 0; i < 40; ++i)
 		learningOffers += vstd::contains(rollLevelUpOffers(randomizer, hero), learning) ? 1 : 0;
 
-	EXPECT_GT(learningOffers, 0) << "skill must be back in the upgrade pool once the cooldown has passed";
+	EXPECT_GT(learningOffers, 0);
 }
 
 TEST_F(HeroSecondarySkillsTest, longerOfferCooldownWithholdsSkillForMoreLevelUps)
@@ -120,7 +118,6 @@ TEST_F(HeroSecondarySkillsTest, longerOfferCooldownWithholdsSkillForMoreLevelUps
 		EXPECT_FALSE(vstd::contains(rollLevelUpOffers(randomizer, hero), learning)) << "roll " << i;
 }
 
-// The "gained at level" record is kept by the hero itself whenever a skill with a cooldown is gained or upgraded
 TEST_F(HeroSecondarySkillsTest, gainingSkillWithOfferCooldownRecordsHeroLevel)
 {
 	startTestGame();
@@ -136,15 +133,15 @@ TEST_F(HeroSecondarySkillsTest, gainingSkillWithOfferCooldownRecordsHeroLevel)
 	hero->setSecSkillLevel(wisdom, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
 	ASSERT_EQ(hero->secSkillsGainedAtLevel.count(learning), 1u);
 	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 5u);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.count(wisdom), 0u) << "skills without a cooldown are not tracked";
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.count(wisdom), 0u) << "no cooldown, not tracked";
 
 	hero->level = 7;
 	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "upgrading refreshes the record";
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "upgrade refreshes record";
 
 	hero->level = 9;
 	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "setting the same mastery again is not a gain";
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "same mastery is not a gain";
 }
 
 TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedIfNothingElseCanBeUpgraded)
@@ -175,7 +172,25 @@ TEST_F(HeroSecondarySkillsTest, experienceToGainLevelsSpansWholeLevels)
 	EXPECT_EQ(hero->experienceToGainLevels(0), 0u);
 
 	hero->level = heroes.maxSupportedLevel();
-	EXPECT_EQ(hero->experienceToGainLevels(1), 0u) << "no experience is granted at the level cap";
+	EXPECT_EQ(hero->experienceToGainLevels(1), 0u);
+}
+
+TEST_F(HeroSecondarySkillsTest, startingSkillsRecordStartingLevel)
+{
+	startTestGame();
+
+	const SecondarySkill learning(SecondarySkill::LEARNING);
+
+	CGHeroInstance hero(gameState.get());
+	hero.secSkills = {{learning, MasteryLevel::EXPERT}}; // expert, so auto level-up can not upgrade it
+	hero.exp = LIBRARY->heroh->reqExp(5);
+
+	GameRandomizer randomizer(*gameState);
+	hero.initHero(randomizer, HeroTypeID(0), true);
+
+	EXPECT_EQ(hero.level, 5u);
+	ASSERT_EQ(hero.secSkillsGainedAtLevel.count(learning), 1u);
+	EXPECT_EQ(hero.secSkillsGainedAtLevel.at(learning), 1u);
 }
 
 // Regression test for GitHub issue #7598.

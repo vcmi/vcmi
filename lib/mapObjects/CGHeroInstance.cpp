@@ -436,6 +436,11 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	if (patrol.patrolling)
 		patrol.initialPos = visitablePos();
 
+	// starting skills count as gained at the starting level
+	for(const auto & skill : secSkills)
+		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0)
+			secSkillsGainedAtLevel[skill.first] = level;
+
 	if(exp == UNINITIALIZED_EXPERIENCE)
 	{
 		initExp(gameRandomizer.getDefault());
@@ -444,11 +449,6 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	{
 		levelUpAutomatically(gameRandomizer);
 	}
-
-	// skills the hero starts with count as gained at the starting level
-	for(const auto & skill : secSkills)
-		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0 && !secSkillsGainedAtLevel.count(skill.first))
-			secSkillsGainedAtLevel[skill.first] = level;
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 
@@ -1487,7 +1487,7 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
 		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
-		// same order as on server: level is already raised when the skill is picked
+		// level is raised before the skill is picked, as on server
 		levelUp();
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())
