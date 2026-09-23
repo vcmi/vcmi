@@ -352,21 +352,25 @@ void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstan
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
-	CQuery(owner, TYPE), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero)
+	CQuery(owner, TYPE), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero->id)
 {
-	players.push_back(hero->tempOwner);
+	players.push_back(Hero->tempOwner);
 }
 
 void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 {
 	assert(players.size() == 1);
 
-	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
+	const auto * movingHero = gh->gameInfo().getHero(hero);
+
+	// A hero that lost the guard battle is no longer on the map, and one that
+	// changed hands is no longer ours - either way there is no visit to finish.
+	if(visitDestAfterVictory && movingHero && movingHero->tempOwner == players[0])
 	{
-		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTextID(), tmh.end.toString());
+		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", movingHero->getNameTextID(), tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
-		gh->visitObjectOnTile(*gh->gameInfo().getTile(hero->convertToVisitablePos(tmh.end)), hero);
+		gh->visitObjectOnTile(*gh->gameInfo().getTile(movingHero->convertToVisitablePos(tmh.end)), movingHero);
 	}
 
 	owner->popIfTop(*this);

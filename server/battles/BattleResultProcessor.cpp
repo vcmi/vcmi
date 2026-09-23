@@ -15,6 +15,7 @@
 #include "../TurnTimerHandler.h"
 #include "../processors/HeroPoolProcessor.h"
 #include "../queries/QueriesProcessor.h"
+#include "BattleProcessor.h"
 #include "../queries/BattleQueries.h"
 
 #include "../../lib/GameLibrary.h"
@@ -250,28 +251,19 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	if(heroDefender)
 		battleResult->exp[BattleSide::DEFENDER] = heroDefender->calculateXp(battleResult->exp[BattleSide::DEFENDER]);
 
-	auto attackerQuery = gameHandler->queries->topQuery(battle.sideToPlayer(BattleSide::ATTACKER));
-
-	QueryPtr battleQuery;
 	const auto * defenderPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
-	if(gameHandler->queries->queryAs<CBattleQuery>(attackerQuery))
-		battleQuery = attackerQuery;
-	else if(isDefenderHuman)
-	{
-		auto defenderQuery = gameHandler->queries->topQuery(battle.sideToPlayer(BattleSide::DEFENDER));
-		if(gameHandler->queries->queryAs<CBattleQuery>(defenderQuery))
-			battleQuery = defenderQuery;
-	}
 
-	if (!battleQuery)
+	auto * typedBattleQuery = gameHandler->battles->findTopBattleQuery(battle, BattleProcessor::DefenderProbe::WhenHuman);
+
+	if (!typedBattleQuery)
 	{
-		logGlobal->error("Cannot find battle query!");
+		logGlobal->error("Cannot find battle query!\nQueries:\n%s", gameHandler->queries->describeStacks());
 		gameHandler->complain("Player " + std::to_string(battle.sideToPlayer(BattleSide::ATTACKER).getNum()) + " has no battle query at the top!");
 		return;
 	}
 
-	auto * typedBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(battleQuery);
+	auto battleQuery = gameHandler->queries->getQuery(typedBattleQuery->queryID);
 	typedBattleQuery->result = std::make_optional(*battleResult);
 
 	//Check how many battle gameHandler->queries were created (number of players blocked by battle)

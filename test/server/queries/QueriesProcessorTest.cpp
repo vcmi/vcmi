@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "../../../server/battles/BattleProcessor.h"
+#include "../../../server/queries/BattleQueries.h"
 #include "../../../server/queries/CQuery.h"
 #include "../../../server/queries/MapQueries.h"
 #include "../../../server/queries/QueriesProcessor.h"
@@ -1290,14 +1291,17 @@ TEST_F(MapObjectVisitTest, visitStaysSuspendedAcrossAChainOfChildQueries)
 	builder.size(36, false)
 		.playerActive(player)
 		.hero(int3(5, 5, 0), HeroTypeID(0), player)
-		.heroGarrison({{CreatureID(0), 50}})
-		.monster(int3(6, 5, 0), CreatureID(0), 1, /*character*/ 3);
+		.heroGarrison({{CreatureID(0), 200}})
+		.pandora(int3(6, 5, 0));
 	startWithMap(std::move(builder));
 
 	auto * hero = findHeroByOwner(player);
-	auto * monster = findFirst<CGCreature>();
+	auto * pandora = findFirst<CGPandoraBox>();
 	ASSERT_NE(hero, nullptr);
-	ASSERT_NE(monster, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// Guards make the visit go dialog -> battle, with no die roll deciding either.
+	ASSERT_TRUE(pandora->setCreature(SlotID(0), CreatureID(0), 1));
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
@@ -1310,29 +1314,23 @@ TEST_F(MapObjectVisitTest, visitStaysSuspendedAcrossAChainOfChildQueries)
 		return false;
 	};
 
-	gameHandler.objectVisited(monster, hero);
+	gameHandler.objectVisited(pandora, hero);
 
-	// The object puts something on top of the visit instead of finishing it.
-	auto child = gameHandler.queries->topQuery(player);
-	ASSERT_NE(child, nullptr);
-	EXPECT_NE(child->getType(), QueryType::MapObjectVisit);
+	auto dialog = gameHandler.queries->topQuery(player);
+	ASSERT_NE(dialog, nullptr);
+	EXPECT_EQ(dialog->getType(), QueryType::BlockingDialog);
 	EXPECT_TRUE(visitIsPending());
-	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+	EXPECT_EQ(gameHandler.getVisitingHero(pandora), hero);
 
-	// Whether the monster parleys first depends on a die roll, so accept either
-	// shape: if it asked, answering starts the battle one level deeper.
-	if(child->getType() == QueryType::BlockingDialog)
-	{
-		ASSERT_EQ(gameHandler.queries->submitReply(child->queryID, player, 1), ReplyOutcome::Accepted);
-		child = gameHandler.queries->topQuery(player);
-		ASSERT_NE(child, nullptr);
-	}
+	// Answering starts a battle one level deeper. The visit must still be waiting
+	// underneath it, so the object can be told the result when the battle ends.
+	ASSERT_EQ(gameHandler.queries->submitReply(dialog->queryID, player, 1), ReplyOutcome::Accepted);
 
-	// Either way the visit is still waiting underneath, so that the object can be
-	// told the battle result when it ends.
-	EXPECT_EQ(child->getType(), QueryType::Battle);
+	auto battle = gameHandler.queries->topQuery(player);
+	ASSERT_NE(battle, nullptr);
+	EXPECT_EQ(battle->getType(), QueryType::Battle);
 	EXPECT_TRUE(visitIsPending());
-	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+	EXPECT_EQ(gameHandler.getVisitingHero(pandora), hero);
 }
 
 TEST_F(MapObjectVisitTest, visitIsRefusedWhileAnotherHeroIsVisitingTheSameObject)
@@ -1342,21 +1340,24 @@ TEST_F(MapObjectVisitTest, visitIsRefusedWhileAnotherHeroIsVisitingTheSameObject
 	builder.size(36, false)
 		.playerActive(player)
 		.hero(int3(5, 5, 0), HeroTypeID(0), player)
-		.heroGarrison({{CreatureID(0), 50}})
-		.monster(int3(6, 5, 0), CreatureID(0), 1, /*character*/ 3);
+		.heroGarrison({{CreatureID(0), 200}})
+		.pandora(int3(6, 5, 0));
 	startWithMap(std::move(builder));
 
 	auto * hero = findHeroByOwner(player);
-	auto * monster = findFirst<CGCreature>();
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
 
-	gameHandler.objectVisited(monster, hero);
-	ASSERT_NE(gameHandler.getVisitingHero(monster), nullptr);
+	gameHandler.objectVisited(pandora, hero);
+	ASSERT_NE(gameHandler.getVisitingHero(pandora), nullptr);
 
 	// The visit query must be findable on the stack for the whole visit - object code
 	// relies on that through removeAfterVisit() and isVisitCoveredByAnotherQuery().
-	EXPECT_THROW(gameHandler.objectVisited(monster, hero), std::runtime_error);
+	EXPECT_THROW(gameHandler.objectVisited(pandora, hero), std::runtime_error);
 }
 
 TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewardAgain)
@@ -1439,4 +1440,109 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	// once more for each one.
 	EXPECT_EQ(rewardsGranted(), 1u);
 	EXPECT_EQ(gameHandler.queries->topQuery(player), nullptr);
+}
+
+// --------------------------------------------------------------------------------
+// Locating the battle query.
+//
+// A battle query is one object on both belligerents' stacks. Most callers look at
+// the attacker first and fall back to the defender, but they disagree on whether an
+// AI defender counts - a difference that used to be spelled out four times over.
+// --------------------------------------------------------------------------------
+
+namespace
+{
+class TwoPlayerBattleTest : public TinyMapGameTest
+{
+protected:
+	/// Colour that is played by the computer rather than a person.
+	static constexpr int AI_PLAYER = 1;
+
+	void configurePlayer(PlayerSettings & settings) const override
+	{
+		if(settings.color == PlayerColor(AI_PLAYER))
+			settings.connectedPlayerIDs.clear(); // a player with no connection is an AI
+	}
+
+	void buildTwoPlayerMap()
+	{
+		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+		builder.size(36, false)
+			.playerActive(PlayerColor(0))
+			.playerActive(PlayerColor(1))
+			.hero(int3(5, 5, 0), HeroTypeID(0), PlayerColor(0))
+			.heroGarrison({{CreatureID(0), 10}})
+			.hero(int3(8, 8, 0), HeroTypeID(1), PlayerColor(1))
+			.heroGarrison({{CreatureID(0), 10}});
+		startWithMap(std::move(builder));
+	}
+};
+}
+
+TEST_F(TwoPlayerBattleTest, findTopBattleQueryFallsBackToTheDefenderOnlyWhenAllowed)
+{
+	buildTwoPlayerMap();
+
+	auto * attacker = findHeroByOwner(PlayerColor(0));
+	auto * defender = findHeroByOwner(PlayerColor(1));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	GameHandlerTestServer server(gameState(), PlayerColor(0));
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.battles->startBattle(attacker, defender);
+	const auto * battle = gameState()->getBattle(PlayerColor(0));
+	ASSERT_NE(battle, nullptr);
+
+	// The battle query sits on both stacks, so either side finds it.
+	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
+	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+
+	// Cover the attacker's copy, so that only the defender still has it on top.
+	auto cover = std::make_shared<TestQuery>(&gameHandler, PlayerColor(0), QueryType::BlockingDialog);
+	gameHandler.queries->addQuery(cover);
+	ASSERT_EQ(gameHandler.queries->topQuery(PlayerColor(0)), cover);
+
+	ASSERT_FALSE(gameState()->getPlayerState(PlayerColor(AI_PLAYER))->isHuman());
+
+	// Falling back to the defender finds it again...
+	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
+
+	// ...but the human-only probe does not, because this defender is an AI. Both
+	// callers that use it decide whether a battle may be replayed, which is only
+	// offered when exactly one side is human.
+	EXPECT_EQ(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+}
+
+TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderTheBattle)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroGarrison({{CreatureID(0), 1}})
+		// Savage is the one disposition with a fixed aggression rather than a rolled
+		// one, and a hero this weak cannot talk its way out, so the monster always
+		// fights and the outcome does not depend on the die.
+		.monster(int3(6, 5, 0), CreatureID(0), 100,
+			static_cast<int8_t>(CGCreature::Character::SAVAGE));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * monster = findFirst<CGCreature>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(monster, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(monster, hero);
+
+	// No parley, so the battle covers the visit straight away.
+	auto top = gameHandler.queries->topQuery(player);
+	ASSERT_NE(top, nullptr);
+	EXPECT_EQ(top->getType(), QueryType::Battle);
+	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
 }
