@@ -390,7 +390,10 @@ std::string HotaScriptConverter::loadVariables()
 		declaration.name = variableID.empty() ? "var" + std::to_string(uniqueID) : variableID;
 		declaration.persistInCampaign = reader.readBool();
 		declaration.importFromPreviousScenario = reader.readBool();
-		declaration.initialValue.Integer() = reader.readInt32();
+
+		// an imported variable starts with whatever the previous scenario left, so no initial value is stored
+		if(!declaration.importFromPreviousScenario)
+			declaration.initialValue.Integer() = reader.readInt32();
 
 		result += "\t[" + std::to_string(uniqueID) + "] = " + luaString(declaration.name) + ",\n";
 	}
