@@ -175,9 +175,17 @@ void CMapLoaderH3M::readHeader()
 
 		if(features.levelHOTA9)
 		{
-			int unknown = reader->readInt32();
-			if(unknown != 0)
-				logGlobal->warn("Map '%s': Unknown value in header was set to %d!", mapName, unknown);
+			// duplicates those script variables that are shared with the campaign, so that they can be read without loading the map
+			uint32_t sharedVariablesCount = reader->readUInt32();
+
+			for(uint32_t i = 0; i < sharedVariablesCount; ++i)
+			{
+				std::string variableName = readBasicString();
+				int32_t variableUnknownA = reader->readInt32(); // unique ID or initial value
+				uint8_t variableUnknownB = reader->readUInt8(); // one of the two campaign flags
+
+				logGlobal->warn("Map '%s': Variable '%s' (%d, %d) shared with campaign is not implemented!", mapName, variableName, variableUnknownA, static_cast<int>(variableUnknownB));
+			}
 		}
 
 		if(features.levelHOTA9)
