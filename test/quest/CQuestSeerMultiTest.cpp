@@ -234,6 +234,40 @@ TEST_F(QuestSeerMultiTest, ActiveQuestIsGlobalAcrossPlayers)
 	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
+// ---- quest giver name -------------------------------------------------------
+
+TEST_F(QuestSeerMultiTest, GiverName_activeQuestOverridesRolledSeerName)
+{
+	const int3 guardPos(9, 9, 0);
+
+	auto b = multiSeer({{trivial(), B::rewardExperience(500)},
+	                    {trivial(), B::rewardResource(GameResID::WOOD, 7)}});
+	b.questGuard(guardPos, trivial());
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(b)));
+
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+	ASSERT_EQ(seer->allQuests().size(), 2u);
+
+	Quest & active = seer->getQuest();
+	Quest & inactive = *(seer->allQuests().front().get() == &active ? seer->allQuests().back() : seer->allQuests().front());
+
+	// without an override the hut falls back to the name rolled on map start
+	EXPECT_FALSE(seer->seerNameTextID.empty());
+	EXPECT_EQ(seer->getQuestGiverName(), seer->seerNameTextID);
+
+	// a name on some other quest of the same hut must not leak into the active one
+	inactive.questGiverNameTextID = "map.test.inactiveSeer";
+	EXPECT_EQ(seer->getQuestGiverName(), seer->seerNameTextID);
+
+	active.questGiverNameTextID = "map.test.activeSeer";
+	EXPECT_EQ(seer->getQuestGiverName(), "map.test.activeSeer");
+
+	// quest guards name no seer, even when their quest carries a name
+	auto * guard = expectAt<QuestGuard>(guardPos);
+	guard->getQuest().questGiverNameTextID = "map.test.guard";
+	EXPECT_TRUE(guard->getQuestGiverName().empty());
+}
+
 // ---- repeatable -------------------------------------------------------------
 
 TEST_F(QuestSeerMultiTest, Repeatable_canBeCompletedRepeatedly)
