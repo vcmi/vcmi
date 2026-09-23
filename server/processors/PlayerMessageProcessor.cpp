@@ -519,6 +519,52 @@ void PlayerMessageProcessor::cheatColorSchemeChange(PlayerColor player, ColorSch
 	gameHandler->sendAndApply(pc);
 }
 
+void PlayerMessageProcessor::cheatAiSolo(PlayerColor player, const std::vector<std::string> & words)
+{
+	// the toggle itself is client side - the server only relays who asked for it, and in which mode
+	static const std::map<std::string, EAiSoloMode> modes = {
+		{"infinite",               EAiSoloMode::CONTINUOUS},
+		{"skipbattles",            EAiSoloMode::SKIP_BATTLES},
+		{"hidden",                 EAiSoloMode::HIDDEN},
+	};
+
+	EAiSoloMode mode = EAiSoloMode::ASK_EACH_TURN;
+	if(!words.empty())
+	{
+		auto requested = modes.find(boost::to_lower_copy(words.front()));
+		if(requested == modes.end())
+		{
+			MetaString msg = MetaString::createFromTextID("vcmi.broadcast.aiSolo.unknownMode");
+			msg.replaceRawString(words.front());
+			broadcastSystemMessage(msg);
+			return;
+		}
+		mode = requested->second;
+	}
+
+	int humanPlayers = 0;
+	for(const auto & playerInfo : gameHandler->gameInfo().getStartInfo()->playerInfos)
+		if(playerInfo.second.isControlledByHuman())
+			humanPlayers++;
+
+	// the other modes either reveal the map or leave the player unable to act, neither of which
+	// is acceptable while somebody else is playing next to him
+	const bool sharedGame = humanPlayers > 1 || gameHandler->turnOrder->isSimturnsActive();
+
+	if(sharedGame && mode != EAiSoloMode::ASK_EACH_TURN && mode != EAiSoloMode::CONTINUOUS)
+	{
+		broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.aiSolo.sharedGame"));
+		return;
+	}
+
+	PlayerCheated pc;
+	pc.player = player;
+	pc.aiSolo = mode;
+	// alone, watching the enemies counts as cheating
+	pc.localOnlyCheat = sharedGame || mode == EAiSoloMode::HIDDEN;
+	gameHandler->sendAndApply(pc);
+}
+
 void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
 {
 	if (!hero)
@@ -908,6 +954,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		cheatFly(player, hero);
 	};
 	const auto & doCheatColorSchemeChange = [&](ColorScheme filter) { cheatColorSchemeChange(player, filter); };
+	const auto & doCheatAiSolo = [&]() { cheatAiSolo(player, words); };
 	const auto & doCheatSkill = [&]() { cheatSkill(player, hero, words); };
 	const auto & doCheatTeleport = [&]() { cheatTeleport(player, hero, words); };
 	const auto & doCheatGiveGrail = [&]() { cheatGiveGrail(player, hero); };
@@ -955,6 +1002,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"giveScrolls",        doCheatGiveScrolls                                          },
 		{"color",              [doCheatColorSchemeChange] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
 		{"gray",               [doCheatColorSchemeChange] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
+		{"aiSolo",             doCheatAiSolo                                               },
 		{"skill",              doCheatSkill                                                },
 		{"teleport",           doCheatTeleport                                             },
 		{"grail",              doCheatGiveGrail                                            },

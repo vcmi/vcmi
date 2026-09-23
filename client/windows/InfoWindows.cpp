@@ -146,6 +146,22 @@ void CInfoWindow::close()
 		GAME->interface()->showingDialog->setFree();
 }
 
+void CInfoWindow::closeAfter(uint32_t ms)
+{
+	closeTimeLeft = ms;
+	addUsedEvents(TIME);
+}
+
+void CInfoWindow::tick(uint32_t msPassed)
+{
+	if(closeTimeLeft == 0)
+		return;
+
+	closeTimeLeft -= std::min(closeTimeLeft, msPassed);
+	if(closeTimeLeft == 0)
+		close();
+}
+
 void CInfoWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
@@ -159,7 +175,7 @@ void CInfoWindow::showInfoDialog(const std::string & text, const TCompsInfo & co
 	ENGINE->windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
-void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player)
+void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player, uint32_t timeoutMs)
 {
 	assert(!GAME->interface() || GAME->interface()->showingDialog->isBusy());
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
@@ -169,6 +185,8 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 
 	temp->buttons[0]->addCallback(onYes);
 	temp->buttons[1]->addCallback(onNo);
+	if(timeoutMs > 0)
+		temp->closeAfter(timeoutMs);
 
 	ENGINE->windows().pushWindow(temp);
 }

@@ -27,6 +27,7 @@
 #include "render/IRenderHandler.h"
 
 #include "lib/CConfigHandler.h"
+#include "lib/GameConstants.h"
 #include "lib/constants/StringConstants.h"
 #include "lib/VCMIDirs.h"
 #include "lib/texts/MetaString.h"
@@ -43,6 +44,7 @@
 #endif
 
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 static constexpr Point heroes3Resolution = Point(800, 600);
 
@@ -272,8 +274,32 @@ EWindowMode ScreenHandler::getPreferredWindowMode() const
 #endif
 }
 
+/// Fills in the metadata SDL3 uses for OS integration (About dialogs, window manager
+/// tooltips, crash reporters, etc). Must run before SDL_Init to take effect everywhere.
+static void setApplicationMetadata()
+{
+	const char * appIdentifier = VCMIDirs::appIdentifier().c_str();
+
+	SDL_SetAppMetadata(GameConstants::VCMI_PROJECT_NAME, GameConstants::VCMI_VERSION, appIdentifier);
+
+	auto time = std::time(nullptr);
+	std::tm tm = vstd::safeLocalTime(time);
+	std::string copyright = "Copyright (C) 2007-" + std::to_string(tm.tm_year + 1900) + " VCMI dev team";
+	std::string version = std::string("VCMI ") + GameConstants::VCMI_VERSION;
+
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, GameConstants::VCMI_PROJECT_NAME);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, version.c_str());
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, appIdentifier);
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "VCMI Team");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, copyright.c_str());
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://vcmi.eu");
+	SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
+}
+
 ScreenHandler::ScreenHandler()
 {
+	setApplicationMetadata();
+
 	// NOTE: SDL3 is always per-monitor DPI aware, so the Windows-specific
 	// SDL_HINT_WINDOWS_DPI_AWARENESS of SDL2 has no equivalent here
 	if(settings["video"]["allowPortrait"].Bool())
@@ -983,10 +1009,6 @@ void ScreenHandler::clearPresentedCanvas(GpuRenderLayer layer)
 
 void ScreenHandler::presentScreenTexture()
 {
-	// the memory cache gives assets up on whichever thread loaded one; freeing what they hold has
-	// to wait for this thread, where nothing is drawing from them
-	ENGINE->renderHandler().reclaimEvictedAssets();
-
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// a layer may still be bound from rendering into it
@@ -995,6 +1017,15 @@ void ScreenHandler::presentScreenTexture()
 	{
 		GpuResources::get().processPendingTextureDestruction();
 	}
+
+	composeFrame();
+	ENGINE->cursor().render();
+	SDL_RenderPresent(renderer);
+}
+
+void ScreenHandler::composeFrame() const
+{
+	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	// the draw color is left over from whatever was rendered last, and this clear also
 	// covers the letterbox bars around the reserved area
@@ -1032,8 +1063,6 @@ void ScreenHandler::presentScreenTexture()
 	}
 
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
-	ENGINE->cursor().render();
-	SDL_RenderPresent(renderer);
 }
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const
@@ -1073,6 +1102,21 @@ bool ScreenHandler::hasFocus()
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
 
+void ScreenHandler::flashWindowIfUnfocused()
+{
+	// SDL window functions are main thread only, but notifications arrive on the network thread
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([](){ ENGINE->screenHandler().flashWindowIfUnfocused(); });
+		return;
+	}
+
+	if(hasFocus())
+		return;
+
+	SDL_FlashWindow(mainWindow, SDL_FLASH_UNTIL_FOCUSED);
+}
+
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
 	if(colorScheme == scheme)
@@ -1088,13 +1132,57 @@ void ScreenHandler::setColorScheme(ColorScheme scheme)
 	ENGINE->windows().totalRedraw();
 }
 
+void ScreenHandler::setTaskbarProgress(TaskbarProgress state, float value)
+{
+	if(!ENGINE->amIGuiThread())
+	{
+		ENGINE->dispatchMainThread([state, value](){ ENGINE->screenHandler().setTaskbarProgress(state, value); });
+		return;
+	}
+
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+	switch (state)
+	{
+		case TaskbarProgress::HIDDEN:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NONE);
+			break;
+		case TaskbarProgress::INDETERMINATE:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_INDETERMINATE);
+			break;
+		case TaskbarProgress::NORMAL:
+			SDL_SetWindowProgressState(mainWindow, SDL_PROGRESS_STATE_NORMAL);
+			SDL_SetWindowProgressValue(mainWindow, std::clamp(value, 0.f, 1.f));
+			break;
+	}
+#endif
+}
+
 void ScreenHandler::screenShot() const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
 	boost::filesystem::create_directories(outPath);
 	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
-	auto img = std::make_shared<SDLImageShared>(screen);
-	img->exportBitmap(filePath, nullptr);
+
+	if(isGpuRenderingEnabled())
+	{
+		// windows draw into screenTarget on this path, so the surface is empty - read back a composed frame
+		SDL_Renderer * renderer = GpuResources::get().renderer();
+		Canvas frame = createOffscreenCanvas(getLogicalResolution());
+
+		SDL_SetRenderTarget(renderer, frame.getRenderTargetTexture());
+		composeFrame();
+		SDL_Surface * pixels = SDL_RenderReadPixels(renderer, nullptr);
+		SDL_SetRenderTarget(renderer, nullptr);
+
+		IMG_SavePNG(pixels, TextOperations::filesystemPathToUtf8(filePath).c_str());
+		SDL_DestroySurface(pixels);
+	}
+	else
+	{
+		auto img = std::make_shared<SDLImageShared>(screen);
+		img->exportBitmap(filePath, nullptr);
+	}
+
 	MetaString txt;
 	txt.appendTextID("vcmi.client.screenShot");
 	txt.replaceRawString(TextOperations::filesystemPathToUtf8(filePath));

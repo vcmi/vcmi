@@ -88,18 +88,21 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
 	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->getHeroTypeID()));
-	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
+	auto secondarySkillBonus = Selector::targetSource(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus), "HeroManager::evaluateSpeciality");
 	auto secondarySkillBonuses = hero->getBonusesFrom(BonusSource::SECONDARY_SKILL);
 	float specialityScore = 0.0f;
 
 	for(auto bonus : *secondarySkillBonuses)
 	{
-		auto hasBonus = !!specialSecondarySkillBonuses->getFirst(Selector::typeSubtype(bonus->type, bonus->subtype));
+		SecondarySkill bonusSkill = bonus->sid.as<SecondarySkill>();
+
+		auto hasBonus = !!specialSecondarySkillBonuses->getFirst(
+			Selector::typeSubtype(bonus->type, bonus->subtype)
+			.And(Selector::targetSource(BonusSource::SECONDARY_SKILL, BonusSourceID(bonusSkill))));
 
 		if(hasBonus)
 		{
-			SecondarySkill bonusSkill = bonus->sid.as<SecondarySkill>();
 			float bonusScore = mainSkillsEvaluator.evaluateSecSkill(hero, bonusSkill);
 
 			if(bonusScore > 0)
@@ -127,11 +130,11 @@ void HeroManager::update()
 	uint64_t strongestHeroTotalStrength = 0;
 
 	for(auto & hero : myHeroes)
-		vstd::amax(strongestHeroTotalStrength, hero->getTotalStrength());
+		vstd::amax(strongestHeroTotalStrength, hero->estimateHeroCombatValue());
 
 	for(auto & hero : myHeroes)
 	{
-		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->getTotalStrength(), strongestHeroTotalStrength);
+		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->estimateHeroCombatValue(), strongestHeroTotalStrength);
 		knownFightingStrength[hero->id] = normalizeHeroStrength(hero->getHeroStrength());
 	}
 
@@ -322,7 +325,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	for(auto existingHero : myHeroes)
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
-			|| existingHero->getArmyStrength() >armyLimit
+			|| existingHero->estimateCombatValue() >armyLimit
 			|| getHeroRoleOrDefaultInefficient(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)

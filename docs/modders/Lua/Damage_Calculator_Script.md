@@ -1,8 +1,8 @@
 # Damage Calculator Script
 
-Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script decides what an attack is worth - the damage of the creatures, everything that raises or lowers it, and estimation on how many creatures die.
+Declared with `"implements" : "damageCalculator"` in the [scripts](Script_Types.md) section of a mod. This script decides how much damage an attack deals - the damage of the creatures, everything that raises or lowers it, and estimation on how many creatures die.
 
-Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and nothing grants it: the engine asks it about every attack, whether the blow is being dealt or an AI is only weighing it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-a-rule) over it rather than by declaring one of its own.
+Unlike the other script types there is exactly **one** damage calculator in a game. It is not attached to a unit and nothing grants it: the engine asks it about every attack, whether it is being dealt or an AI is only weighing it. VCMI ships `core:damageCalculator`, and a mod changes the rules by [stacking a patch](#changing-a-rule) over it rather than by declaring one of its own.
 
 ```json
 "damageCalculator" : {
@@ -36,7 +36,7 @@ Write a patch, list it in `patches`, write the factor as a method of it, and han
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Some creatures take more from a blow they never saw coming
+--- Some creatures take more from a hit they never saw coming
 function Script:getFromBackFactor(info)
 	local value = self:getBonusValueOfType(info.defender, info.defenderBonuses, "VULNERABLE_FROM_BACK")
 
@@ -52,7 +52,7 @@ Script:addDamageFactor("getFromBackFactor")
 return Script
 ```
 
-Two lines register it: `declareBonus` for every bonus type the factor reads - see [declaring what you look at](#declaring-what-you-look-at) - and `addDamageFactor` for the factor itself. The order factors are added in does not matter; what a factor is worth is decided by its sign, so **return a negative number to lower the damage** and a positive one to raise it.
+Two lines register it: `declareBonus` for every bonus type the factor reads - see [declaring what you look at](#declaring-what-you-look-at) - and `addDamageFactor` for the factor itself. The order factors are added in does not matter; the sign of a factor decides which way it goes, so **return a negative number to lower the damage** and a positive one to raise it.
 
 `addDamageFactor` is given the *name* of the method rather than the method itself, so that a patch stacked later can override it and be the one that runs.
 
@@ -69,7 +69,7 @@ end
 
 Call up the chain with `Base.method(self, ...)` - a dot and an explicit `self`. Writing `self:method(...)` dispatches back into your own patch and loops forever.
 
-Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` answer "nothing" in the base script, because nothing in Heroes 3 lowers the attack of whoever strikes it or caps the damage a blow may deal - the rules that do live in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
+Some steps exist only to be patched. `getAttackIgnored` and `getDamageCap` answer "nothing" in the base script, because nothing in Heroes 3 lowers the attack of whoever strikes it or caps the damage a hit may deal - the rules that do live in `damage/enemyAttackReduction` and `damage/damageReceivedCap`. Read those two for the shortest example of a patch, and `damage/vulnerableFromBack` for one that adds a factor.
 
 Each patch keeps to one rule. That is what lets a mod drop or replace a single one of them without touching anything else, and while it is not required, it is worth following in mod patches too.
 
@@ -78,8 +78,8 @@ Each patch keeps to one rule. That is what lets a mod drop or replace a single o
 `Script:calculate(battle, info)` receives the battle and one table describing the attack:
 
 - `attacker`, `defender` - the two units. See [Unit](../Lua_Reference/Unit.md)
-- `attackerHex`, `defenderHex` - where the blow happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
-- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of blow this is. Random roll-based abilities are only set when actual calculation is performed by server
+- `attackerHex`, `defenderHex` - where the attack happens. Note that this position may differ from position reported by units - if this is estimation, and units are still at their old positions.
+- `shooting`, `luckyStrike`, `unluckyStrike`, `deathBlow`, `doubleDamage` - what kind of attack this is. Random roll-based abilities are only set when actual calculation is performed by server
 - `chargeDistance` - hexes crossed to reach the target, which is what jousting scales with
 - `attackerBonuses`, `defenderBonuses` - which of the [declared bonus types](#declaring-what-you-look-at) each unit carries. Read them through `self:hasBonusOfType(info.attackerBonuses, "JOUSTING")`
 - `attackFactorPerPoint`, `attackFactorCap`, `defenseFactorPerPoint`, `defenseFactorCap` - the tuning constants from `gameConfig.json`, so the script needs no access to settings
@@ -94,7 +94,7 @@ return {
 }
 ```
 
-`damageBeforeDefense` is what the blow would have been worth had the target no defences at all. Abilities that reflect a strike, such as fire shield, work from it - see `damageBeforeDefense` in [combat event scripts](Combat_Event_Scripts.md).
+`damageBeforeDefense` is what the hit would have dealt had the target no defences at all. Abilities that reflect a strike, such as fire shield, work from it - see `damageBeforeDefense` in [combat event scripts](Combat_Event_Scripts.md).
 
 ## Declaring what you look at
 
@@ -128,9 +128,9 @@ Four helpers do the check and the query in one step, so a factor rarely needs to
 | function | description |
 | -------- | ----------- |
 | `self:hasBonusOfType(present, type)` | whether the unit carries it at all |
-| `self:getBonusValueOfType(unit, present, type)` | what every bonus of that type is worth together |
+| `self:getBonusValueOfType(unit, present, type)` | combined value of every bonus of that type |
 | `self:getBonusValueOfSubtype(unit, present, type, subtype)` | the same, narrowed to one subtype |
-| `self:getBonusValueOfTypeAndRange(unit, present, type, shooting)` | the same, counting only what applies to this kind of blow |
+| `self:getBonusValueOfTypeAndRange(unit, present, type, shooting)` | the same, counting only what applies to this kind of attack |
 
 Each answers 0 without asking the engine when the snapshot says the type is absent, which is the usual case. `present` is `info.attackerBonuses` or `info.defenderBonuses`, whichever unit is being asked about.
 
@@ -142,7 +142,7 @@ if not self:hasBonusOfType(info.defenderBonuses, "MIND_IMMUNITY") then return 0 
 if info.attacker:getCreature():getJsonKey() ~= "core:psychicElemental" then return 0 end
 ```
 
-**Ask for a value rather than a list.** `getBonusesValue` returns what the matching bonuses are worth together, computed by the engine - one crossing. Fetching the list and adding up `getVal()` yourself crosses once for the list and once more for every bonus in it, and it also gets the answer wrong when bonuses do not simply add up (percentages, independent floors and ceilings).
+**Ask for a value rather than a list.** `getBonusesValue` returns the combined value of the matching bonuses, computed by the engine - one crossing. Fetching the list and adding up `getVal()` yourself crosses once for the list and once more for every bonus in it, and it also gets the answer wrong when bonuses do not simply add up (percentages, independent floors and ceilings).
 
 ```lua
 -- good
@@ -164,7 +164,7 @@ if info.defender:hasBonuses({type = "MIND_IMMUNITY"}) then ... end
 if info.defender:getBonuses({type = "MIND_IMMUNITY"}):size() > 0 then ... end
 ```
 
-**Say as much as you can in the filter.** Type, subtype, source and the kind of blow are all matched by the engine, and a query the engine can describe is also a query it can cache. Only what the filter cannot express - "from anything except a spell" - belongs in a `filter` afterwards:
+**Say as much as you can in the filter.** Type, subtype, source and the kind of attack are all matched by the engine, and a query the engine can describe is also a query it can cache. Only what the filter cannot express - "from anything except a spell" - belongs in a `filter` afterwards:
 
 ```lua
 -- good: the engine finds them
@@ -180,14 +180,14 @@ info.defender:getBonuses({type = "GENERAL_DAMAGE_REDUCTION"}):filter(function(bo
 end):totalValue()
 ```
 
-**`shooting` leaves out what does not count for this blow.** A bonus limited to melee is absent from a shot and the other way round, and one limited to neither always counts. Pass the flag of the attack straight through rather than reading `getEffectRange` yourself:
+**`shooting` leaves out what does not count for this attack.** A bonus limited to melee is absent from a shot and the other way round, and one limited to neither always counts. Pass the flag of the attack straight through rather than reading `getEffectRange` yourself:
 
 ```lua
 -- good
 info.defender:getBonusesValue({type = "ENEMY_ATTACK_REDUCTION", shooting = info.shooting})
 ```
 
-It asks for the kind of blow rather than for an effect range, because "counts in melee" is two effect ranges at once - and asking for them one at a time would add the two answers up instead of combining them the way the engine does.
+It asks for the kind of attack rather than for an effect range, because "counts in melee" is two effect ranges at once - and asking for them one at a time would add the two answers up instead of combining them the way the engine does.
 
 **Do not build tables you do not need.** A factor that returns 0 for most attacks should return it before creating anything.
 

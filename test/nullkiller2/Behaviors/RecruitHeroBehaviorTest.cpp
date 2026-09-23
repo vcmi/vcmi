@@ -41,7 +41,7 @@ TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, defensiveEmergencyRequiresMeanin
 	weakThreat.turn = 1;
 	weakThreat.danger = GameConstants::HERO_GOLD_COST / 2 - 1;
 
-	ASSERT_GT(tavernHero.getTotalStrength(), weakThreat.danger);
+	ASSERT_GT(tavernHero.estimateHeroCombatValue(), weakThreat.danger);
 	EXPECT_FALSE(
 		NK2AI::Goals::RecruitHeroBehavior::isDefensiveRecruitEmergency(threatenedTown, tavernHero, weakThreat, 1.0f)
 	) << "weak next-turn threats should not force hero recruitment";
@@ -57,7 +57,7 @@ TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, defensiveEmergencyAllowsSevereNe
 	threat.turn = 1;
 	threat.danger = GameConstants::HERO_GOLD_COST / 2;
 
-	ASSERT_GT(tavernHero.getTotalStrength(), threat.danger);
+	ASSERT_GT(tavernHero.estimateHeroCombatValue(), threat.danger);
 	EXPECT_TRUE(
 		NK2AI::Goals::RecruitHeroBehavior::isDefensiveRecruitEmergency(threatenedTown, tavernHero, threat, 1.0f)
 	) << "severe next-turn threats should force recruitment when the tavern hero can cover them";

@@ -113,4 +113,128 @@ TEST_F(BattleEvaluatorTest, SkipsUnprofitableTargetWithoutDelayingPrimaryTarget)
 
 	EXPECT_EQ(action.actionType, EActionType::WALK);
 }
+
+/// Drives the whole hero-spell decision of BattleAI and reports what it chose to cast. Spells are
+/// the one part of the AI that is blind to plain damage numbers, so a scenario grants exactly one
+/// spell and asks whether the AI found it worth casting at all.
+class BattleEvaluatorSpellTest : public BattleTestFixture
+{
+public:
+	/// Captures the decision instead of sending it to a server, which tests do not run
+	class DecisionRecorder : public CBattleCallback
+	{
+	public:
+		using CBattleCallback::CBattleCallback;
+
+		std::optional<BattleAction> spellAction;
+
+		void battleMakeSpellAction(const BattleID &, const BattleAction & action) override
+		{
+			spellAction = action;
+		}
+	};
+
+	void SetUp() override
+	{
+		BattleTestFixture::SetUp();
+		startGame();
+		startBattle();
+		battle()->stacks.clear();
+	}
+
+	/// Lets our hero - the one defending - cast the given spell, and nothing else
+	void teachDefender(SpellID spell, int spellPower = 10)
+	{
+		giveArtifact(defenderSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+		defenderSideHero->addSpellToSpellbook(spell);
+		defenderSideHero->setPrimarySkill(PrimarySkill::SPELL_POWER, spellPower, ChangeValueMode::ABSOLUTE);
+		defenderSideHero->setPrimarySkill(PrimarySkill::KNOWLEDGE, spellPower, ChangeValueMode::ABSOLUTE);
+		defenderSideHero->mana = 9999;
+	}
+
+	/// Runs one turn of our stack exactly as BattleAI would: pick the best action first, so that a
+	/// spell is only cast when it beats what the stack could do on its own, then offer the spell
+	std::optional<BattleAction> decideSpell(const CStack * activeStack)
+	{
+		std::shared_ptr<Environment> environment = gameHandler;
+		auto callback = std::make_shared<DecisionRecorder>(defenderSideHero->getOwner(), nullptr);
+		callback->onBattleStarted(battle());
+
+		BattleEvaluator evaluator(environment, callback, activeStack, defenderSideHero->getOwner(),
+			BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+
+		evaluator.selectStackAction(activeStack);
+		evaluator.attemptCastingSpell(activeStack);
+
+		return callback->spellAction;
+	}
+
+	/// The unit a recorded spell action was aimed at
+	const CStack * targetOf(const BattleAction & action) const
+	{
+		if(action.target.empty())
+			return nullptr;
+
+		return battle()->battleGetStackByPos(action.target.front().hexValue, true);
+	}
+};
+
+TEST_F(BattleEvaluatorSpellTest, SlowsTheEnemyItIsAlreadyStandingNextTo)
+{
+	teachDefender(SpellID::SLOW);
+
+	// adjacent, so that attacking is a live option and the spell has to be worth more than it.
+	// A fast enemy has the most to lose from being slowed, and loses no health by it
+	auto * cavalier = addStack(BattleSide::ATTACKER, creatureByName("core:cavalier"), BattleHex(7, 5), 20);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 30);
+
+	auto action = decideSpell(ours);
+
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::SLOW));
+	EXPECT_EQ(targetOf(*action), cavalier);
+}
+
+TEST_F(BattleEvaluatorSpellTest, HastensOwnUnitAlthoughItAddsNoDamage)
+{
+	teachDefender(SpellID::HASTE);
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(1, 5), 30);
+	// slow enough that the walk across the field costs it a real share of the battle
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:zombie"), BattleHex(15, 5), 40);
+
+	auto action = decideSpell(ours);
+
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::HASTE));
+	EXPECT_EQ(targetOf(*action), ours);
+}
+
+TEST_F(BattleEvaluatorSpellTest, SlowsTheEnemyThatIsWorthMore)
+{
+	teachDefender(SpellID::SLOW);
+
+	auto * angels = addStack(BattleSide::ATTACKER, creatureByName("core:angel"), BattleHex(1, 3), 10);
+	addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 7), 10);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(15, 5), 30);
+
+	auto action = decideSpell(ours);
+
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(targetOf(*action), angels);
+}
+
+TEST_F(BattleEvaluatorSpellTest, DeclinesMagicDefenceAgainstAnEnemyWithoutMagic)
+{
+	// the enemy hero was stripped of its magic by the fixture and its army casts nothing, so a ward
+	// against a school of magic guards against something that can not happen
+	teachDefender(SpellID::PROTECTION_FROM_AIR);
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(1, 5), 30);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(15, 5), 30);
+
+	auto action = decideSpell(ours);
+
+	EXPECT_FALSE(action.has_value());
+}
 }

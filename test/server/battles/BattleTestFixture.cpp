@@ -160,7 +160,8 @@ void BattleTestFixture::startBattle()
 	BattleSideArray<const CArmedInstance *> armies = {attackerSideHero, defenderSideHero};
 
 	int3 tile(4, 4, 0);
-	auto terrain = gameState()->getTile(tile)->getTerrainID();
+	// sand is native to no faction, so no unit gets the native terrain bonus and scenarios stay exact
+	const auto terrain = ETerrainId::SAND;
 	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState(), attackerSideHero, defenderSideHero);
 
 	// a battlefield grants bonuses of its own, and the default one is a clover field, whose luck

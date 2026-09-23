@@ -183,7 +183,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 	if(blocker->ID == Obj::GARRISON
 		|| blocker->ID == Obj::GARRISON2)
 	{
-		if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
+		if(dynamic_cast<const CArmedInstance *>(blocker)->estimateCombatValue() == 0)
 			return std::optional< const CGObjectInstance *>();
 		else
 			return blocker;

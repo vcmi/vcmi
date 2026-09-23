@@ -140,7 +140,7 @@ float BattleExchangeVariant::trackAttack(
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
-	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
+	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attackDamage, damageCache);
 	float attackerDamageReduce = 0;
 
 	if(!evaluateOnly)
@@ -170,7 +170,7 @@ float BattleExchangeVariant::trackAttack(
 	if(!evaluateOnly && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
-		attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, damageCache, hb);
+		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
 
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(

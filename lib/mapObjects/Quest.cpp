@@ -237,6 +237,22 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	
 	if(lastDay >= 0)
 		text.replaceNumber(lastDay - cb->getCalendar().getCurrentDay());
+
+	if(mission.daysPassed > 0)
+	{
+		// HotA "reach date" quest (e.g. timed quest gate): the text contains a string placeholder
+		// that must be filled with the date on which the object becomes accessible.
+		// Use the same date format as the adventure map date bar
+		const auto calendar = cb->getCalendar(mission.daysPassed);
+
+		text.replaceTextID("vcmi.adventureMap.dateFormat");
+		text.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+		text.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+		text.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+		text.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+		text.replaceTokenTextID("%DAY", "core.genrltxt.64");
+		text.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+	}
 }
 
 void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
@@ -739,6 +755,10 @@ void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHe
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	// VCMI maps keep the reward in configuration, H3M maps only in the quest
+	if(handler.saving && configuration.info.empty() && !allQuests().empty() && getQuest().reward)
+		configuration.info.push_back(*getQuest().reward);
+
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
 	if(!handler.saving && allQuests().empty())
@@ -747,56 +767,64 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	if(!handler.saving)
 	{
-		//backward compatibility for VCMI maps that use old SeerHut format
-		auto s = handler.enterStruct("reward");
-		const JsonNode & rewardsJson = handler.getCurrent();
+		readLegacyReward(handler);
 
-		if (rewardsJson.Struct().empty())
-			return;
-		
-		std::string fullIdentifier;
-		std::string metaTypeName;
-		std::string scope;
-		std::string identifier;
-
-		auto iter = rewardsJson.Struct().begin();
-		fullIdentifier = iter->first;
-
-		ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
-		if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
-			return;
-
-		int val = 0;
-		handler.serializeInt(fullIdentifier, val);
-		
-		auto rawId = [&]{ return *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false); };
-
-		Rewardable::VisitInfo vinfo;
-		auto & reward = vinfo.reward;
-		if(metaTypeName == "experience")
-			reward.heroExperience = val;
-		if(metaTypeName == "mana")
-			reward.manaDiff = val;
-		if(metaTypeName == "morale")
-			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
-		if(metaTypeName == "luck")
-			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
-		if(metaTypeName == "resource")
-			reward.resources[rawId()] = val;
-		if(metaTypeName == "primarySkill")
-			reward.primary.at(rawId()) = val;
-		if(metaTypeName == "secondarySkill")
-			reward.secondary[rawId()] = val;
-		if(metaTypeName == "artifact")
-			reward.grantedArtifacts.push_back(rawId());
-		if(metaTypeName == "spell")
-			reward.spells.push_back(rawId());
-		if(metaTypeName == "creature")
-			reward.creatures.emplace_back(rawId(), val);
-		
-		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		configuration.info.push_back(vinfo);
+		if(!getQuest().reward && !configuration.info.empty())
+			getQuest().reward = configuration.info.front();
 	}
+}
+
+void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
+{
+	//backward compatibility for VCMI maps that use old SeerHut format
+	auto s = handler.enterStruct("reward");
+	const JsonNode & rewardsJson = handler.getCurrent();
+
+	if (rewardsJson.Struct().empty())
+		return;
+	
+	std::string fullIdentifier;
+	std::string metaTypeName;
+	std::string scope;
+	std::string identifier;
+
+	auto iter = rewardsJson.Struct().begin();
+	fullIdentifier = iter->first;
+
+	ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+	if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
+		return;
+
+	int val = 0;
+	handler.serializeInt(fullIdentifier, val);
+	
+	auto rawId = [&]{ return *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false); };
+
+	Rewardable::VisitInfo vinfo;
+	auto & reward = vinfo.reward;
+	if(metaTypeName == "experience")
+		reward.heroExperience = val;
+	if(metaTypeName == "mana")
+		reward.manaDiff = val;
+	if(metaTypeName == "morale")
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
+	if(metaTypeName == "luck")
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
+	if(metaTypeName == "resource")
+		reward.resources[rawId()] = val;
+	if(metaTypeName == "primarySkill")
+		reward.primary.at(rawId()) = val;
+	if(metaTypeName == "secondarySkill")
+		reward.secondary[rawId()] = val;
+	if(metaTypeName == "artifact")
+		reward.grantedArtifacts.push_back(rawId());
+	if(metaTypeName == "spell")
+		reward.spells.push_back(rawId());
+	if(metaTypeName == "creature")
+		reward.creatures.emplace_back(rawId(), val);
+	
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	configuration.info.push_back(vinfo);
 }
 
 void QuestGuard::init(vstd::RNG & rand)

@@ -620,6 +620,7 @@ function Bonus:getParametersAsVector() end
 ---@field sourceType any # Origin class (artifact, spell effect, secondary skill, …) — drives source-based dispels.
 ---@field sourceID any # Identifier of the specific source within its sourceType.
 ---@field targetSourceType any # Source type the bonus is restricted to act upon (used by hero specialty bonuses).
+---@field targetSourceID any # Optional identifier of the specific source object within `targetSourceType` this bonus is restricted to.
 ---@field addInfo any # Optional auxiliary payload — meaning depends on the bonus type.
 ---@field limiters any # JSON-defined limiter chain that definea whether the bonus applies to a given bearer.
 ---@field propagator any # Rule for propagating the bonus upwards for area effect (army-wide, player-wide, …).
@@ -632,7 +633,7 @@ local BonusDescriptor = {}
 ---@field type string? # Bonus type to look for, by its json key.
 ---@field subtype string? # Subtype to look for, by its json key. Requires a type.
 ---@field sourceType BonusSource? # Where the bonus has to come from - an artifact, a spell effect, ...
----@field shooting boolean? # Kind of blow the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
+---@field shooting boolean? # Kind of attack the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
 local BonusFilter = {}
 
 ---A collection of Bonus values returned by `getBonuses(...)`. Use `size()` and `getBonus(index)` to iterate. A copy of the engine's internal list at the moment of the call — changes to holder afterwards will not affect this snapshot.
@@ -1179,7 +1180,7 @@ local HeroInstance = {}
 ---@return BonusList # Bonuses of the bearer the filter describes.
 function HeroInstance:getBonuses(filter) end
 
----Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---Returns the combined value of the matching bonuses. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
 ---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
 ---@return integer # Value of the matching bonuses taken together.
 function HeroInstance:getBonusesValue(filter) end
@@ -1646,7 +1647,7 @@ local Unit = {}
 ---@return BonusList # Bonuses of the bearer the filter describes.
 function Unit:getBonuses(filter) end
 
----Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---Returns the combined value of the matching bonuses. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
 ---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
 ---@return integer # Value of the matching bonuses taken together.
 function Unit:getBonusesValue(filter) end

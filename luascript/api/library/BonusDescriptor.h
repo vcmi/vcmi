@@ -44,6 +44,7 @@ struct BonusDescriptor final : ApiSerializable<BonusDescriptor>
 	JsonNode sourceType;
 	JsonNode sourceID;
 	JsonNode targetSourceType;
+	JsonNode targetSourceID;
 	JsonNode addInfo;
 	JsonNode limiters;
 	JsonNode propagator;
@@ -73,6 +74,7 @@ struct BonusDescriptor final : ApiSerializable<BonusDescriptor>
 		s("sourceType",         sourceType,         "Origin class (artifact, spell effect, secondary skill, …) — drives source-based dispels.");
 		s("sourceID",           sourceID,           "Identifier of the specific source within its sourceType.");
 		s("targetSourceType",   targetSourceType,   "Source type the bonus is restricted to act upon (used by hero specialty bonuses).");
+		s("targetSourceID",     targetSourceID,     "Optional identifier of the specific source object within `targetSourceType` this bonus is restricted to.");
 		s("addInfo",            addInfo,            "Optional auxiliary payload — meaning depends on the bonus type.");
 		s("limiters",           limiters,           "JSON-defined limiter chain that definea whether the bonus applies to a given bearer.");
 		s("propagator",         propagator,         "Rule for propagating the bonus upwards for area effect (army-wide, player-wide, …).");

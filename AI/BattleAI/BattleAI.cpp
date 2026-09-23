@@ -106,20 +106,19 @@ void CBattleAI::actionFinished(const BattleID & battleID, const BattleAction & a
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
 {
 	auto stacks = cb->battleGetAllStacks();
-	auto our = 0;
-	auto enemy = 0;
+	uint64_t our = 0;
+	uint64_t enemy = 0;
+
+	// evaluate each side against its actual opponent, to account for bonuses useful only against that opponent
+	const auto ourEnemy = CombatValueContext::against(*cb, side);
+	const auto theirEnemy = CombatValueContext::against(*cb, CBattleInfoEssentials::otherSide(side));
 
 	for(auto stack : stacks)
 	{
-		auto creature = stack->creatureId().toCreature();
-
-		if(!creature)
-			continue;
-
 		if(stack->unitSide() == side)
-			our += stack->getCount() * creature->getAIValue();
+			our += stack->estimateCombatValue(ourEnemy);
 		else
-			enemy += stack->getCount() * creature->getAIValue();
+			enemy += stack->estimateCombatValue(theirEnemy);
 	}
 
 	return enemy == 0 ? 1.0f : static_cast<float>(our) / enemy;

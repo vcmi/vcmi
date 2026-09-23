@@ -8,7 +8,7 @@ Total value of Bonus is calculated using the following:
 newVal = (val * (100 + PERCENT_TO_SOURCE) / 100))
 ```
 
-- PERCENT_TO_TARGET_TYPE applies as PERCENT_TO_SOURCE to targetSourceType of bonus.
+- PERCENT_TO_TARGET_TYPE applies as PERCENT_TO_SOURCE to targetSourceType of bonus. If bonus also has targetSourceID, only bonuses granted by that specific source object are affected.
 
 - All bonus value types summarized and then used as subject of the following formula:
 

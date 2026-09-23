@@ -742,7 +742,10 @@
 			// Allow behavior that emulates h3 bug where quest from Seer Hut or Border Guard can take entire army from hero
 			// WARNING: handling of heroes without armies is not tested and may lead to bugs or crashes! Use at own risk!
 			// If this option is off, quests will only allow taking entire army if quest reward also gives creatures
-			"h3BugQuestTakesEntireArmy" : false
+			"h3BugQuestTakesEntireArmy" : false,
+
+			// If enabled, roads and rivers are drawn above special ground (cursed ground, magic plains...) like in HotA, instead of below it like in H3
+			"roadsAboveSpecialGround" : false
 		},
 
 		"markets" :

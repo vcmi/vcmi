@@ -22,6 +22,6 @@ Where the bonus has to come from - an artifact, a spell effect, ...
 
 ### shooting
 
-Kind of blow the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
+Kind of attack the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
 
 - type: `boolean?`

@@ -23,7 +23,7 @@ constexpr int32_t bloodlustAttack = 3;
 }
 
 /// The enchanted ability keeps a spell applied to its bearer for the whole battle, re-applying it
-/// at the start of every round. What it is worth is the stat the spell changes, so that is what
+/// at the start of every round. Its value is the stat the spell changes, so that is what
 /// these check: the attack of a creature under a permanent bloodlust.
 class EnchantedTest : public BattleTestFixture
 {

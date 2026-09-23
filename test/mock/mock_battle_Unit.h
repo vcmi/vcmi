@@ -72,8 +72,11 @@ public:
 	MOCK_CONST_METHOD0(getCount, int32_t());
 	MOCK_CONST_METHOD0(getFirstHPleft, int32_t());
 	MOCK_CONST_METHOD0(getKilled, int32_t());
+	MOCK_CONST_METHOD0(getResurrected, int32_t());
 	MOCK_CONST_METHOD0(getAvailableHealth, int64_t());
 	MOCK_CONST_METHOD0(getTotalHealth, int64_t());
+	MOCK_CONST_METHOD0(estimateCombatValue, uint64_t());
+	MOCK_CONST_METHOD1(estimateCombatValue, uint64_t(const CombatValueContext &));
 
 	MOCK_CONST_METHOD1(getTotalAttacks, int(bool));
 

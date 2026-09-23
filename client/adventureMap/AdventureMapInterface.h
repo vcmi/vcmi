@@ -66,6 +66,10 @@ private:
 	/// tile the map view is centered on, kept up to date by onMapViewMoved
 	int3 mapViewCenter;
 
+	/// number of other players whose turn has already started since our own last turn ended,
+	/// used to show how close we are to our own turn coming back around
+	int enemyTurnsCompletedThisRound = 0;
+
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
@@ -131,6 +135,7 @@ public:
 	void hotkeyNextTown();
 	void hotkeySwitchMapLevel();
 	void hotkeyZoom(int delta, bool useDeadZone);
+	void hotkeyScreenshotWholeMap();
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);

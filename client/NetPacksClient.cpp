@@ -116,6 +116,41 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 	}
 }
 
+/// as in H3, the AI keeps playing if the prompt after its turn is left unanswered
+static constexpr uint32_t aiSoloPromptTimeoutMs = 2000;
+
+/// gosolo replaces the very interfaces a netpack visitor iterates over, so it runs after the visitor
+static void requestAiSoloToggle(EAiSoloMode mode, bool ownVision = false)
+{
+	ENGINE->dispatchMainThread([mode, ownVision]()
+	{
+		if(GAME->server().client)
+			GAME->server().client->toggleAiSolo(mode, ownVision);
+	});
+}
+
+/// Gives control back, but never in the middle of a turn the AI is still playing
+static void requestAiSoloStop()
+{
+	if(!settings["session"]["aiSolo"].Bool())
+		return;
+
+	const PlayerColor player = GAME->interface() ? GAME->interface()->playerID : PlayerColor::NEUTRAL;
+
+	if(GAME->server().client && GAME->server().client->gameState().actingPlayers.count(player))
+	{
+		// taking over now would leave the half finished turn of the AI behind
+		Settings session = settings.write["session"];
+		session["aiSoloStopRequested"].Bool() = true;
+
+		GAME->server().getGameChat().onNewSystemMessageReceived(
+			LIBRARY->generaltexth->translate("vcmi.adventureMap.aiSoloStopsNextTurn"));
+		return;
+	}
+
+	requestAiSoloToggle(EAiSoloMode::NONE);
+}
+
 static void showEagleEyeLearnedSpellsDialog(CClient & cl, ObjectInstanceID heroId, const std::set<SpellID> & spells, PlayerColor player)
 {
 	if(spells.empty())
@@ -965,6 +1000,30 @@ void ApplyClientNetPackVisitor::visitPlayerEndsTurn(PlayerEndsTurn & pack)
 	logNetwork->debug("Server ends turn of %s", pack.player.toString());
 
 	callAllInterfaces(cl, &IGameEventsReceiver::playerEndsTurn, pack.player);
+
+	if(!settings["session"]["aiSolo"].Bool() || !GAME->interface() || GAME->interface()->playerID != pack.player)
+		return;
+
+	// the AI has finished the turn it was asked to stop after
+	if(settings["session"]["aiSoloStopRequested"].Bool())
+	{
+		Settings session = settings.write["session"];
+		session["aiSoloStopRequested"].Bool() = false;
+
+		requestAiSoloToggle(EAiSoloMode::NONE);
+		return;
+	}
+
+	// gosolo without a mode asks after every turn whether the AI shall keep playing
+	if(settings["session"]["aiSoloAskEachTurn"].Bool())
+	{
+		GAME->interface()->showYesNoDialog(
+			LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmAiSoloContinue"),
+			nullptr,
+			requestAiSoloStop,
+			{},
+			aiSoloPromptTimeoutMs);
+	}
 }
 
 void ApplyClientNetPackVisitor::visitTurnTimeUpdate(TurnTimeUpdate & pack)
@@ -1118,6 +1177,15 @@ void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
 {
 	if(pack.colorScheme != ColorScheme::KEEP && vstd::contains(cl.playerint, pack.player))
 		cl.playerint[pack.player]->setColorScheme(pack.colorScheme);
+
+	// the cheat reaches every client, only the one playing that color hands its turn over
+	if(pack.aiSolo != EAiSoloMode::NONE && GAME->interface() && GAME->interface()->playerID == pack.player)
+	{
+		if(settings["session"]["aiSolo"].Bool())
+			requestAiSoloStop();
+		else
+			requestAiSoloToggle(pack.aiSolo, pack.localOnlyCheat); // only a counted cheat may reveal the enemies
+	}
 }
 
 void ApplyClientNetPackVisitor::visitChangeTownName(ChangeTownName & pack)

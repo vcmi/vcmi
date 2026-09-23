@@ -172,6 +172,7 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 
 	bool losingCheatCode = false;
 	bool winningCheatCode = false;
+	EAiSoloMode aiSolo = EAiSoloMode::NONE;
 	ColorScheme colorScheme = ColorScheme::KEEP;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -183,6 +184,7 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 		h & losingCheatCode;
 		h & winningCheatCode;
 		h & colorScheme;
+		h & aiSolo;
 	}
 };
 

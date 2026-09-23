@@ -10,16 +10,19 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "IQueryStackListener.h"
 #include "constants/EntityIdentifiers.h"
 #include "queries/CQuery.h"
-#include "IQueryStackListener.h"
 
+class CGameHandler;
 class CQuery;
 using QueryPtr = std::shared_ptr<CQuery>;
 
 class QueriesProcessor
 {
 public:
+	explicit QueriesProcessor(CGameHandler & gameHandler);
+
 	using QueriesStack = std::vector<QueryPtr>;
 	using QueriesPerPlayer = std::array<QueriesStack, PlayerColor::PLAYER_LIMIT_I>;
 
@@ -31,6 +34,7 @@ private:
 	void popQuery(PlayerColor player, QueryPtr query);
 
 	QueriesPerPlayer queries;
+	CGameHandler & gameHandler;
 	IQueryStackListener * queriesStackListener = nullptr;
 
 	template<typename StorageT>

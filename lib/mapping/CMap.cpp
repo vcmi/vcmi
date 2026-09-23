@@ -510,8 +510,17 @@ void CMap::checkForObjectives()
 				case EventCondition::CONTROL_CURRENT:
 					if(isInTheMap(cond.position))
 					{
-						if(const auto * object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>()))
+						const auto & type = cond.objectType.as<MapObjectID>();
+						if(const auto * object = getObjectiveObjectFrom(cond.position, type))
+						{
 							cond.objectID = object->id;
+						}
+						else if (type == MapObjectID::HERO)	//HotA maps can put event conditions on an imprisoned hero
+						{
+							const CGObjectInstance * prison = getObjectiveObjectFrom(cond.position, MapObjectID::PRISON);
+							if (prison)
+								cond.objectID = prison->id;
+						}
 					}
 
 					if(cond.objectID != ObjectInstanceID::NONE)
@@ -718,16 +727,18 @@ std::shared_ptr<CGObjectInstance> CMap::replaceObject(ObjectInstanceID oldObject
 {
 	auto oldObject = objects.at(oldObjectID.getNum());
 
+	if(oldObject)
+	{
+		hideObject(oldObject.get());
+		instanceNames.erase(oldObject->instanceName);
+		oldObject->afterRemoveFromMap(this);
+	}
+
 	newObject->id = oldObjectID;
-
-	hideObject(oldObject.get());
-	instanceNames.erase(oldObject->instanceName);
-
 	objects.at(oldObjectID.getNum()) = newObject;
 	showObject(newObject.get());
 	instanceNames[newObject->instanceName] = newObject;
 
-	oldObject->afterRemoveFromMap(this);
 	newObject->afterAddToMap(this);
 
 	return oldObject;
@@ -893,6 +904,8 @@ void CMap::reindexObjects()
 	// Only reindex at editor / RMG operations
 
 	auto oldIndex = objects;
+
+	objects.erase(std::remove(objects.begin(), objects.end(), nullptr), objects.end());
 
 	std::sort(objects.begin(), objects.end(), [](const auto & lhs, const auto & rhs)
 	{
@@ -1131,68 +1144,6 @@ void CMap::parseUidCounter()
 
 	// Directly set uidCounter using simplified logic
 	uidCounter = max_index + 1;  // Automatically 0 when max_index = -1
-}
-
-bool CMap::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
-{
-	//FIXME: Optimize
-	// this method is called A LOT on game start and some parts, e.g. for loops are too slow for that
-
-	assert(a && b);
-	if(!a)
-		return true;
-	if(!b)
-		return false;
-
-	// Background objects will always be placed below foreground objects
-	if(a->appearance->printPriority != 0 || b->appearance->printPriority != 0)
-	{
-		if(a->appearance->printPriority != b->appearance->printPriority)
-			return a->appearance->printPriority > b->appearance->printPriority;
-
-		//Two background objects will be placed based on their placement order on map
-		return a->id < b->id;
-	}
-
-	int aBlocksB = 0;
-	int bBlocksA = 0;
-
-	for(const auto & aOffset : a->getBlockedOffsets())
-	{
-		int3 testTarget = a->anchorPos() + aOffset + int3(0, 1, 0);
-		if(b->blockingAt(testTarget))
-			bBlocksA += 1;
-	}
-
-	for(const auto & bOffset : b->getBlockedOffsets())
-	{
-		int3 testTarget = b->anchorPos() + bOffset + int3(0, 1, 0);
-		if(a->blockingAt(testTarget))
-			aBlocksB += 1;
-	}
-
-	// Discovered by experimenting with H3 maps - object priority depends on how many tiles of object A are "blocked" by object B
-	// For example if blockmap of two objects looks like this:
-	//  ABB
-	//  AAB
-	// Here, in middle column object A has blocked tile that is immediately below tile blocked by object B
-	// Meaning, object A blocks 1 tile of object B and object B blocks 0 tiles of object A
-	// In this scenario in H3 object A will always appear above object B, irregardless of H3M order
-	if(aBlocksB != bBlocksA)
-		return aBlocksB < bBlocksA;
-
-	// object that don't have clear priority via tile blocking will appear based on their row
-	if(a->anchorPos().y != b->anchorPos().y)
-		return a->anchorPos().y < b->anchorPos().y;
-
-	// heroes should appear on top of objects on the same tile
-	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
-		return true;
-	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
-		return false;
-
-	// or, if all other tests fail to determine priority - simply based on H3M order
-	return a->id < b->id;
 }
 
 void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > & poolFromSave)

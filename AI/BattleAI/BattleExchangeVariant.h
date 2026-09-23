@@ -62,7 +62,8 @@ struct MoveTarget
 
 struct EvaluationResult
 {
-	static const int64_t INEFFECTIVE_SCORE = -100000000;
+	// scores are combat value, which a large army of expensive creatures can push past a billion
+	static constexpr float INEFFECTIVE_SCORE = -1e12f;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;

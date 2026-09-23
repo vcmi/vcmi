@@ -44,6 +44,7 @@ set(test_SRCS
 		game/HeroRecruitmentTest.cpp
 		game/HeroSecondarySkillsTest.cpp
 		game/MovementCostTest.cpp
+		game/VictoryLossTest.cpp
 
 		json/JsonTests.cpp
 
@@ -52,6 +53,7 @@ set(test_SRCS
 		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
 		map/MapScriptTest.cpp
+		map/MapObjectDrawOrderTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp

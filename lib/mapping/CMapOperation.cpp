@@ -669,13 +669,13 @@ CRemoveObjectOperation::CRemoveObjectOperation(CMap* map, CGObjectInstance * obj
 
 void CRemoveObjectOperation::execute()
 {
-	removedObject = map->removeObject(targetedObject->id);
+	removedObject = map->eraseObject(targetedObject->id);
 }
 
 void CRemoveObjectOperation::undo()
 {
 	assert(removedObject != nullptr);
-	map->addNewObject(removedObject);
+	map->replaceObject(removedObject->id, removedObject);
 }
 
 void CRemoveObjectOperation::redo()

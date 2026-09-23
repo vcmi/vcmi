@@ -9,6 +9,8 @@
 */
 #include "../StdInc.h"
 #include "BuyArmy.h"
+#include "../../../lib/battle/CombatValue.h"
+#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
@@ -88,7 +90,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 			{
 				aiGw->cc->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
 			}
-			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
+			valueBought += ci.count * LIBRARY->creh->getCombatValue().getAIValue(ci.creID.toCreature());
 		}
 	}
 

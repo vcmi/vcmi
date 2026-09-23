@@ -13,7 +13,9 @@
 #include "CArmedInstance.h"
 
 #include "../../CConfigHandler.h"
+#include "../../CCreatureHandler.h"
 #include "../../GameLibrary.h"
+#include "../../battle/CombatValue.h"
 #include "../../IGameSettings.h"
 #include "../../callback/IGameInfoCallback.h"
 #include "../../entities/faction/CFaction.h"
@@ -280,6 +282,15 @@ ui64 CStackInstance::getPower() const
 {
 	assert(getType());
 	return static_cast<ui64>(getType()->getAIValue()) * getCount();
+}
+
+ui64 CStackInstance::estimateCombatValue() const
+{
+	assert(getType());
+
+	// TODO: account for hero and artifact bonuses by valuing the stack instead of its creature type.
+	// Blocked on proposed armies - creatures about to be bought or upgraded - having no bonus bearer
+	return static_cast<ui64>(LIBRARY->creh->getCombatValue().getAIValue(getType())) * getCount();
 }
 
 ui64 CStackInstance::getMarketValue() const

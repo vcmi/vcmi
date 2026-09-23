@@ -44,6 +44,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -391,6 +392,16 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(playerID);
 	setState(isHuman ? EAdventureState::MAKING_TURN : EAdventureState::AI_PLAYER_TURN);
+
+	int totalOtherPlayers = static_cast<int>(GAME->interface()->cb->getStartInfo()->playerInfos.size()) - 1;
+	if (totalOtherPlayers > 1)
+	{
+		float progress = static_cast<float>(enemyTurnsCompletedThisRound) / totalOtherPlayers;
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::NORMAL, progress);
+	}
+	else
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::INDETERMINATE, 0.f);
+	enemyTurnsCompletedThisRound++;
 }
 
 EAdventureState AdventureMapInterface::getState() const
@@ -434,6 +445,9 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		widget->getMinimap()->setAIRadar(false);
 		widget->getInfoBar()->showSelection();
+
+		enemyTurnsCompletedThisRound = 0;
+		ENGINE->screenHandler().setTaskbarProgress(TaskbarProgress::HIDDEN, 0.f);
 	}
 
 	widget->getHeroList()->updateWidget();
@@ -520,10 +534,8 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 {
 	std::vector < const CGObjectInstance * > bobjs = GAME->interface()->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
-	if (bobjs.empty())
-		return nullptr;
-
-	return *std::ranges::max_element(bobjs, &CMap::compareObjectBlitOrder);
+	//FIXME: remove mh access
+	return MapObjectDrawOrder::findTopObject(*GAME->map().getMap(), bobjs, mapPos);
 }
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
@@ -1004,6 +1016,11 @@ void AdventureMapInterface::hotkeySwitchMapLevel()
 void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 {
 	widget->getMapView()->onMapZoomLevelChanged(delta, useDeadZone);
+}
+
+void AdventureMapInterface::hotkeyScreenshotWholeMap()
+{
+	widget->getMapView()->exportScreenshot();
 }
 
 void AdventureMapInterface::onScreenResize()

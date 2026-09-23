@@ -61,6 +61,35 @@ public:
 	bool hasBonus() const;
 };
 
+/// Cache of a value that is costly to compute and only changes when the bonuses of its target do
+class BonusDerivedValueCache : public BonusCacheBase
+{
+	mutable BonusCacheEntry entry;
+	mutable std::atomic<int32_t> variant = 0;
+
+    int getTreeVersion() const;
+public:
+	explicit BonusDerivedValueCache(const IBonusBearer * target)
+		: BonusCacheBase(target)
+	{}
+
+	/// Result of 'compute', recomputed whenever bonuses of the target change or 'of' differs from last call
+	template<typename Compute>
+	int getValue(const Compute & compute, int32_t of) const
+	{
+        auto version = getTreeVersion();
+
+		if(entry.version != version || variant != of)
+		{
+			entry.value = compute();
+			entry.version = version;
+			variant = of;
+		}
+
+		return entry.value;
+	}
+};
+
 /// Cache that can track a list of queries to bonus system
 template<size_t SIZE>
 class BonusValuesArrayCache : public BonusCacheBase

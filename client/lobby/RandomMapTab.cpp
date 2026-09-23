@@ -48,6 +48,18 @@
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
+static void extendButtonHitArea(const std::shared_ptr<CToggleButton> & button, const std::shared_ptr<CIntObject> & hitArea)
+{
+	if(button && hitArea)
+		button->pos = button->pos.include(hitArea->pos);
+}
+
+static std::string getRoadWidgetName(const std::string & jsonKey)
+{
+	const auto separator = jsonKey.find(':');
+	return jsonKey.substr(separator == std::string::npos ? 0 : separator + 1);
+}
+
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable(),
 	templateIndex(0)
@@ -135,6 +147,7 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
+	extendRoadButtonHitAreas();
 
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
@@ -214,6 +227,15 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	loadOptions();
+}
+
+void RandomMapTab::extendRoadButtonHitAreas()
+{
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	{
+		const auto widgetName = getRoadWidgetName(road->getJsonKey());
+		extendButtonHitArea(widget<CToggleButton>(widgetName), widget<CIntObject>(widgetName + "Preview"));
+	}
 }
 
 void RandomMapTab::onToggleMapSize(int btnId)
@@ -508,10 +530,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
-		std::string jsonKey = r->getJsonKey();
-		std::string identifier = jsonKey.substr(jsonKey.find(':')+1);
-
-		if(auto w = widget<CToggleButton>(identifier))
+		if(auto w = widget<CToggleButton>(getRoadWidgetName(r->getJsonKey())))
 		{
 			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
