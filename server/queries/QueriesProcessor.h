@@ -69,16 +69,52 @@ private:
 	std::array<std::deque<QueryID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
 	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
 
-	/// Guards resolveAnsweredQueries against re-entry: removing a query runs hooks
-	/// that may themselves add or remove queries, which would otherwise recurse.
-	std::array<bool, PlayerColor::PLAYER_LIMIT_I> resolvingAnswered = {};
+	/// Number of query stack mutations currently in progress. Query hooks routinely
+	/// add or remove further queries, so a single player action can nest several
+	/// levels deep; deferred work runs only once the outermost one finishes.
+	int mutationDepth = 0;
+
+	/// Set while settle() is running, so that mutations it causes do not recurse
+	/// back into it - its own loop picks them up instead.
+	bool settling = false;
+
+	/// Players whose stack changed since the last quiescent point.
+	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
+
+	/// settle() gives up after this many rounds and logs an error, rather than
+	/// spinning forever should two pieces of deferred work keep triggering each other.
+	static constexpr int MAX_SETTLE_ROUNDS = 64;
 
 	void rememberCompleted(PlayerColor player, const QueryPtr & query);
 	bool wasRecentlyCompleted(PlayerColor player, QueryID queryID) const;
+	void markStackChanged(PlayerColor player);
 
-	/// Pops every query at the top of this player's stack that has already been
-	/// answered. Loops, because removing one answered query can expose another.
-	void resolveAnsweredQueries(PlayerColor player);
+	/// Pops every query at the top of a player's stack that has already been
+	/// answered. Returns true if anything was removed.
+	bool resolveAnsweredQueries();
+
+	/// Reports stack changes to the listener. Returns true if that changed a stack.
+	bool reportStackChanges();
+
+	/// Runs victory/loss checks for players that just became idle. Returns true if
+	/// that changed a stack.
+	bool runVictoryChecks();
+
+	/// Runs everything that must not happen while the stacks are still moving:
+	/// resolving answered queries, notifying the listener, and victory/loss checks.
+	/// Loops until no further change, so callers always observe a settled state.
+	void settle();
+
+	/// RAII bracket around a public mutation. The outermost one settles on exit.
+	class MutationScope : boost::noncopyable
+	{
+	public:
+		explicit MutationScope(QueriesProcessor & owner);
+		~MutationScope();
+
+	private:
+		QueriesProcessor & owner;
+	};
 
 	template<typename StorageT>
 	class AllQueriesViewT
