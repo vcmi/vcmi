@@ -27,10 +27,30 @@ public:
 	bool blocksPack(const CPackForServer * pack) const final;
 };
 
-class MapObjectVisitQuery final : public VisitQuery
+/// Drives a hero's visit to a map object: starts it, lets the object take over, and
+/// once the object is finished applies any level-ups that a battle during the visit
+/// postponed.
+class MapObjectVisitQuery final : public VisitQuery, public IRoutine
 {
+	/// Position within the visit. Also tells onChildCompleted() whether a finished
+	/// child belongs to the object's own reward pipeline, or is a level-up that
+	/// merely follows a battle and must not be reported back to the object.
+	enum class Step : uint8_t
+	{
+		NotStarted,
+		StartVisit,
+		DeferredLevelUps,
+		Finished
+	};
+
+	Step activeStep = Step::NotStarted;
+
+	/// Heroes that won experience in a battle during this visit, whose level-up
+	/// prompts were held back until the object had applied the battle result.
 	std::vector<ObjectInstanceID> deferredBattleLevelUps;
-	bool processingDeferredBattleLevelUps = false;
+
+	void startVisit();
+	void applyDeferredLevelUps();
 
 public:
 	static constexpr QueryType TYPE = QueryType::MapObjectVisit;
@@ -39,8 +59,10 @@ public:
 
 	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 
+	IRoutine * asRoutine() final { return this; }
+	StepResult advance() final;
+	void onChildCompleted(const QueryPtr & child) final;
 	void onRemoval(PlayerColor color) final;
-	void onExposure(QueryPtr topQuery) final;
 };
 
 /// Visits a list of hero/building pairs one at a time. A building may open a dialog
