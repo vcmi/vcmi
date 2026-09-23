@@ -188,12 +188,15 @@ void CMapLoaderH3M::readHeader()
 			}
 		}
 
-		if(features.levelHOTA9)
-		{
-			// MOD COMPATIBILITY TODO: should be moved to hota mod for future versions
-			if (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1,8,0))
-				throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
-		}
+		const JsonNode & hotaFormat = LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
+
+		// hota mod versions that predate the maxVersion field are recognized by their own version instead
+		int maxSupportedVersion = hotaFormat["maxVersion"].isNull()
+			? (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1, 8, 0) ? 8 : 9)
+			: hotaFormat["maxVersion"].Integer();
+
+		if(hotaVersion > maxSupportedVersion)
+			throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
 
 	}
 	else
