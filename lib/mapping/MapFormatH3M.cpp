@@ -2527,8 +2527,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
-	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut.get(), hut->addQuest(), position, idToBeGiven);
+	int questIndex = 0;
+	for(; questIndex < questsCount; ++questIndex)
+		readSeerHutQuest(hut->addQuest(), position, idToBeGiven, questIndex);
 
 	if(features.levelHOTA3)
 	{
@@ -2537,8 +2538,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
 		{
 			Quest & quest = hut->addQuest();
-			readSeerHutQuest(hut.get(), quest, position, idToBeGiven);
+			readSeerHutQuest(quest, position, idToBeGiven, questIndex);
 			quest.repeatedQuest = true;
+			questIndex++;
 		}
 	}
 
@@ -2562,12 +2564,12 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven, const int & questIndex)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		missionType = readQuest(quest, position);
+		missionType = readQuest(quest, position, questIndex);
 	}
 	else
 	{
@@ -2682,7 +2684,7 @@ void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & 
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, const int questIndex)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
@@ -2803,9 +2805,19 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 	}
 
 	quest.lastDay = reader->readInt32();
-	quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
-	quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
-	quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
+
+	if (questIndex!=0)
+	{
+		quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "firstVisit")));
+		quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "nextVisit")));
+		quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex,  "completed")));
+	}
+	else
+	{
+		quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+		quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+		quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z,  "completed")));
+	}
 	return missionId;
 }
 

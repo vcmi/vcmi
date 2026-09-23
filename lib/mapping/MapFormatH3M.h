@@ -251,9 +251,9 @@ private:
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	EQuestMission readQuest(Quest & quest, const int3 & position);
+	EQuestMission readQuest(Quest & quest, const int3 & position, const int questIndex = 0);
 
-	void readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven);
+	void readSeerHutQuest(Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven, const int & questIndex);
 
 	/**
 	 * Reads events.
