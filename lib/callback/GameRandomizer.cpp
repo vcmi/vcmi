@@ -380,8 +380,6 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 		basicAndAdv.erase(skills.back());
 	}
 
-	logGlobal->trace("Level-up offers for %s at level %d: %d upgradeable, %d withheld, %d learnable, %d upgrade slots", hero->getNameTextID(), hero->level, static_cast<int>(basicAndAdv.size() + skills.size()), static_cast<int>(withheld.size()), newSkillsAvailable, upgradedSkillsToSelect);
-
 	while (skills.size() < maxTotalSkills && !none.empty())
 	{
 		skills.push_back(rollSecondarySkillForLevelup(hero, none));
