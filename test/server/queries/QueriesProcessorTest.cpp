@@ -148,6 +148,51 @@ public:
 	}
 };
 
+/// A routine that runs a fixed number of steps and can push a child query on a
+/// chosen one, so that suspension and resumption can be driven deterministically.
+class TestRoutine : public CQuery, public IRoutine
+{
+public:
+	TestRoutine(CGameHandler * gh, PlayerColor player, int totalSteps)
+		: CQuery(gh, QueryType::MapObjectVisit)
+		, totalSteps(totalSteps)
+	{
+		players.push_back(player);
+	}
+
+	int totalSteps;
+	int stepsTaken = 0;
+
+	/// Step index on which to push childToPush, or -1 to never push.
+	int pushChildOnStep = -1;
+	QueryPtr childToPush;
+
+	std::vector<QueryPtr> completedChildren;
+	/// Step indices at which advance() was entered, to check resumption order.
+	std::vector<int> stepLog;
+
+	IRoutine * asRoutine() final { return this; }
+
+	StepResult advance() final
+	{
+		if(stepsTaken >= totalSteps)
+			return StepResult::Done;
+
+		stepLog.push_back(stepsTaken);
+		const int currentStep = stepsTaken++;
+
+		if(currentStep == pushChildOnStep && childToPush)
+			owner->addQuery(childToPush);
+
+		return StepResult::Continue;
+	}
+
+	void onChildCompleted(const QueryPtr & child) final
+	{
+		completedChildren.push_back(child);
+	}
+};
+
 /// Records every stack-change notification along with what the stack looked like
 /// at that moment, so that tests can assert both how often the listener fires and
 /// what state it observes.
@@ -1049,4 +1094,120 @@ TEST_F(QueriesProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredWo
 	EXPECT_NE(queries.topQuery(player), nullptr);
 
 	queries.setListener(nullptr); // leave the fixture in a sane state
+}
+
+
+// --------------------------------------------------------------------------------
+// Routines.
+//
+// A routine is a multi-step server-side activity - visiting the buildings of a town,
+// visiting an object - that must be able to stop in the middle when a step needs the
+// player, and carry on afterwards from where it left off. The processor drives it;
+// the routine keeps its own position rather than inferring it from the stack.
+// --------------------------------------------------------------------------------
+
+TEST_F(QueriesProcessorTest, routine_isSteppedToCompletionAndThenRemoved)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 3);
+
+	queries.addQuery(routine);
+
+	EXPECT_EQ(routine->stepsTaken, 3);
+	EXPECT_EQ(routine->stepLog, std::vector<int>({0, 1, 2}));
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+}
+
+TEST_F(QueriesProcessorTest, routine_suspendsWhenAStepPushesAChild)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 4);
+	auto child = std::make_shared<TestQuery>(&gh, player, QueryType::BlockingDialog);
+	routine->pushChildOnStep = 1;
+	routine->childToPush = child;
+
+	queries.addQuery(routine);
+
+	// Stopped on the step that pushed the child, with the child on top.
+	EXPECT_EQ(routine->stepsTaken, 2);
+	EXPECT_EQ(queries.topQuery(player), child);
+}
+
+TEST_F(QueriesProcessorTest, routine_resumesFromWhereItStoppedOnceTheChildFinishes)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 4);
+	auto child = std::make_shared<TestQuery>(&gh, player, QueryType::BlockingDialog);
+	routine->pushChildOnStep = 1;
+	routine->childToPush = child;
+
+	queries.addQuery(routine);
+	ASSERT_EQ(routine->stepsTaken, 2);
+
+	queries.popIfTop(child);
+
+	// Carries on from step 2 - it does not restart, and does not skip a step.
+	EXPECT_EQ(routine->stepLog, std::vector<int>({0, 1, 2, 3}));
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+
+	ASSERT_EQ(routine->completedChildren.size(), 1u);
+	EXPECT_EQ(routine->completedChildren.front(), child);
+}
+
+TEST_F(QueriesProcessorTest, routine_doesNotReceiveTheGenericExposureHook)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 2);
+	auto child = std::make_shared<TestQuery>(&gh, player, QueryType::BlockingDialog);
+	routine->pushChildOnStep = 0;
+	routine->childToPush = child;
+
+	queries.addQuery(routine);
+	queries.popIfTop(child);
+
+	// Child completion is reported through onChildCompleted only, so a routine
+	// cannot accidentally implement resumption twice.
+	EXPECT_EQ(routine->completedChildren.size(), 1u);
+}
+
+TEST_F(QueriesProcessorTest, routine_waitsForAChildThatPushesAChildOfItsOwn)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 3);
+	auto child = std::make_shared<TestQuery>(&gh, player, QueryType::BlockingDialog);
+	auto grandchild = std::make_shared<TestQuery>(&gh, player, QueryType::Battle);
+	routine->pushChildOnStep = 0;
+	routine->childToPush = child;
+
+	queries.addQuery(routine);
+	ASSERT_EQ(queries.topQuery(player), child);
+
+	queries.addQuery(grandchild);
+	EXPECT_EQ(routine->stepsTaken, 1); // still suspended, two levels down now
+
+	queries.popIfTop(grandchild);
+	EXPECT_EQ(routine->stepsTaken, 1); // the child is still unfinished
+
+	queries.popIfTop(child);
+	EXPECT_EQ(routine->stepsTaken, 3);
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+}
+
+TEST_F(QueriesProcessorTest, routine_underneathAnAnsweredQueryResumesAfterItResolves)
+{
+	const PlayerColor player(1);
+	auto routine = std::make_shared<TestRoutine>(&gh, player, 3);
+	auto dialog = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	routine->pushChildOnStep = 0;
+	routine->childToPush = dialog;
+
+	queries.addQuery(routine);
+	ASSERT_EQ(queries.topQuery(player), dialog);
+
+	// Answering the dialog must both resolve it and let the routine continue,
+	// within the same quiescent point.
+	EXPECT_EQ(queries.submitReply(dialog->queryID, player, 1), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(routine->stepsTaken, 3);
+	EXPECT_EQ(queries.topQuery(player), nullptr);
 }

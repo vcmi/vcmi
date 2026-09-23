@@ -85,9 +85,19 @@ private:
 	/// spinning forever should two pieces of deferred work keep triggering each other.
 	static constexpr int MAX_SETTLE_ROUNDS = 64;
 
+	/// Steps a single routine may take in one go before the processor assumes it is
+	/// stuck. Generous: a routine legitimately takes one step per unit of work, such
+	/// as one per building visited in a town.
+	static constexpr int MAX_ROUTINE_STEPS = 1000;
+
 	void rememberCompleted(PlayerColor player, const QueryPtr & query);
 	bool wasRecentlyCompleted(PlayerColor player, QueryID queryID) const;
 	void markStackChanged(PlayerColor player);
+
+	/// Steps every routine that is at the top of a player's stack, until it either
+	/// finishes or suspends itself by pushing a child. Returns true if it changed
+	/// anything.
+	bool advanceRoutines();
 
 	/// Pops every query at the top of a player's stack that has already been
 	/// answered. Returns true if anything was removed.

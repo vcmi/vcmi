@@ -41,7 +41,14 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 
 	//Exposure on query below happens only if removal didn't trigger any new query
 	if(nextQuery && nextQuery == topQuery(player))
-		nextQuery->onExposure(query);
+	{
+		// A routine is told which child finished and is then stepped by settle();
+		// it must not also receive the generic exposure hook.
+		if(auto * routine = nextQuery->asRoutine())
+			routine->onChildCompleted(query);
+		else
+			nextQuery->onExposure(query);
+	}
 
 	// Resolving answered queries, notifying the listener and checking victory
 	// conditions all happen in settle(), once the stacks have stopped moving.
@@ -227,6 +234,46 @@ QueriesProcessor::MutationScope::~MutationScope()
 		owner.settle();
 }
 
+bool QueriesProcessor::advanceRoutines()
+{
+	bool changedAnything = false;
+
+	for(size_t idx = 0; idx < queries.size(); ++idx)
+	{
+		const PlayerColor player(static_cast<int32_t>(idx));
+
+		for(int step = 0; step < MAX_ROUTINE_STEPS; ++step)
+		{
+			auto top = topQuery(player);
+			if(!top)
+				break;
+
+			auto * routine = top->asRoutine();
+			if(!routine)
+				break;
+
+			const size_t depthBefore = queries.at(idx).size();
+			const StepResult result = routine->advance();
+			changedAnything = true;
+
+			// The step pushed a child query: the routine is suspended until it is done.
+			if(queries.at(idx).size() != depthBefore || topQuery(player) != top)
+				break;
+
+			if(result == StepResult::Done)
+			{
+				popQuery(player, top);
+				break;
+			}
+
+			if(step + 1 == MAX_ROUTINE_STEPS)
+				logGlobal->error("Routine did not finish after %d steps: %s", MAX_ROUTINE_STEPS, top->toString());
+		}
+	}
+
+	return changedAnything;
+}
+
 bool QueriesProcessor::resolveAnsweredQueries()
 {
 	bool changedAnything = false;
@@ -305,6 +352,11 @@ void QueriesProcessor::settle()
 		// A reply may have arrived for a query that was buried at the time. Now that
 		// the stacks have stopped moving, any answered query on top must be removed.
 		if(resolveAnsweredQueries())
+			continue;
+
+		// A routine exposed by that removal has more work to do before the player
+		// can be considered idle.
+		if(advanceRoutines())
 			continue;
 
 		if(reportStackChanges())
