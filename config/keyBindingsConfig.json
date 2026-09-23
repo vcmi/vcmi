@@ -31,6 +31,7 @@
 		"adventureQuitGame":        "Ctrl+Q",
 		"adventureReplayTurn":      "Ctrl+R",
 		"adventureRestartGame":     "R",
+		"adventureScreenshotWholeMap": "Shift+F3",
 		"adventureSaveGame":        "S",
 		"adventureQuickSave":       ["F8"],
 		"adventureQuickLoad":       ["F9"],

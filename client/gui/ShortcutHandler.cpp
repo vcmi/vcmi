@@ -199,6 +199,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureToggleGrid",      EShortcut::ADVENTURE_TOGGLE_GRID     },
 		{"adventureToggleVisitable", EShortcut::ADVENTURE_TOGGLE_VISITABLE},
 		{"adventureToggleBlocked",   EShortcut::ADVENTURE_TOGGLE_BLOCKED  },
+		{"adventureScreenshotWholeMap", EShortcut::ADVENTURE_SCREENSHOT_WHOLE_MAP},
 		{"adventureToggleSleep",     EShortcut::ADVENTURE_TOGGLE_SLEEP    },
 		{"adventureSetHeroAsleep",   EShortcut::ADVENTURE_SET_HERO_ASLEEP },
 		{"adventureSetHeroAwake",    EShortcut::ADVENTURE_SET_HERO_AWAKE  },

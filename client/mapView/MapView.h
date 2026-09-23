@@ -97,6 +97,9 @@ public:
 
 	/// Switches view from View World mode back to standard view
 	void onViewMapActivated();
+
+	/// Saves every level of the whole map, fog included but without the hero path and debug overlays, and reports the files in chat
+	void exportScreenshot();
 };
 
 /// Main class that represents map view for puzzle map

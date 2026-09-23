@@ -27,12 +27,14 @@
 #include "render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
@@ -408,7 +410,18 @@ uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coo
 	return retBitmapID;
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectInstance* obj)
+/// Heroes and boats are drawn as one image, other objects are split into shadow, body and player color layers
+static bool objectIsSplitIntoLayers(const CGObjectInstance * obj)
+{
+	return !MapObjectDrawOrder::usesFixedDrawSlot(obj);
+}
+
+static bool objectIsFlaggable(const CGObjectInstance * obj)
+{
+	return obj->ID != Obj::BOAT && obj->ID != Obj::HERO && obj->getOwner() != PlayerColor::UNFLAGGABLE;
+}
+
+std::shared_ptr<CAnimation> MapRendererObjects::getBodyAnimation(const CGObjectInstance* obj)
 {
 	const auto & info = obj->appearance;
 
@@ -423,26 +436,50 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 	}
 
 	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
-	bool enableOverlay = obj->ID != Obj::BOAT && obj->ID != Obj::HERO && obj->getOwner() != PlayerColor::UNFLAGGABLE;
+
+	EImageBlitMode mode = EImageBlitMode::WITH_SHADOW;
+	if(objectIsSplitIntoLayers(obj))
+		mode = objectIsFlaggable(obj) ? EImageBlitMode::ONLY_BODY_HIDE_FLAG_COLOR : EImageBlitMode::ONLY_BODY_IGNORE_OVERLAY;
 
 	// Boat appearance files only contain single, unanimated image
 	// proper boat animations are actually in different file
 	if (info->id == Obj::BOAT)
 		if(auto boat = dynamic_cast<const CGBoat*>(obj); boat && !boat->actualAnimation.empty())
-			return getAnimation(boat->actualAnimation, generateMovementGroups, enableOverlay);
+			return getAnimation(boat->actualAnimation, generateMovementGroups, mode);
 
-	return getAnimation(info->animationFile, generateMovementGroups, enableOverlay);
+	return getAnimation(info->animationFile, generateMovementGroups, mode);
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay)
+std::shared_ptr<CAnimation> MapRendererObjects::getShadowAnimation(const CGObjectInstance * obj)
 {
-	auto it = animations.find(filename);
+	const auto & info = obj->appearance;
+
+	if(!objectIsSplitIntoLayers(obj) || info->animationFile.empty())
+		return nullptr;
+
+	return getAnimation(info->animationFile, false, objectIsFlaggable(obj) ? EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR : EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION);
+}
+
+std::shared_ptr<CAnimation> MapRendererObjects::getColorOverlayAnimation(const CGObjectInstance * obj)
+{
+	const auto & info = obj->appearance;
+
+	if(!objectIsSplitIntoLayers(obj) || !objectIsFlaggable(obj) || info->animationFile.empty())
+		return nullptr;
+
+	return getAnimation(info->animationFile, false, EImageBlitMode::ONLY_FLAG_COLOR);
+}
+
+std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath & filename, bool generateMovementGroups, EImageBlitMode mode)
+{
+	const auto key = std::make_pair(filename, mode);
+	auto it = animations.find(key);
 
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = ENGINE->renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR: EImageBlitMode::WITH_SHADOW);
-	animations[filename] = ret;
+	auto ret = ENGINE->renderHandler().loadAnimation(filename, mode);
+	animations[key] = ret;
 
 	if(generateMovementGroups)
 	{
@@ -481,14 +518,14 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
 		assert(obj->tempOwner.isValidPlayer());
-		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true, false);
+		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true, EImageBlitMode::WITH_SHADOW);
 	}
 
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 		if(boat && boat->getBoardedHero() && !boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()].empty())
-			return getAnimation(boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()], true, false);
+			return getAnimation(boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()], true, EImageBlitMode::WITH_SHADOW);
 	}
 
 	return nullptr;
@@ -501,7 +538,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 		if(boat && boat->getBoardedHero() && !boat->overlayAnimation.empty())
-			return getAnimation(boat->overlayAnimation, true, false);
+			return getAnimation(boat->overlayAnimation, true, EImageBlitMode::WITH_SHADOW);
 	}
 	return nullptr;
 }
@@ -532,7 +569,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImageToRender(const IMapRendererC
 	return animation->getImage(frameIndex, groupIndex);
 }
 
-void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image, double transparencyFactor)
+void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage>& image, double transparencyFactor, bool applyOwnerColor)
 {
 	if(!image)
 		return;
@@ -543,7 +580,7 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 		return;
 
 	image->setAlpha(transparency);
-	if (object->ID != Obj::HERO) // heroes use separate image with flag instead of player-colored palette
+	if (applyOwnerColor && object->ID != Obj::HERO) // heroes use separate image with flag instead of player-colored palette
 	{
 		if (object->getOwner().isValidPlayer())
 			image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
@@ -561,11 +598,35 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 	}
 }
 
+void MapRendererObjects::renderShadow(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object)
+{
+	renderImage(context, target, coordinates, object, getObjectImages(context, object)[LAYER_SHADOW], 1.0, false);
+}
+
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance, double transparencyFactor)
 {
 	// only the images are shared across tiles - transparency and offset stay per-tile
-	for(const auto & image : getObjectImages(context, instance))
-		renderImage(context, target, coordinates, instance, image, transparencyFactor);
+	const auto & images = getObjectImages(context, instance);
+
+	// player color is a layer of its own for flaggable objects, otherwise it is part of the body image
+	renderImage(context, target, coordinates, instance, images[LAYER_BODY], transparencyFactor, images[LAYER_COLOR_OVERLAY] == nullptr);
+
+	for(auto layer : {LAYER_COLOR_OVERLAY, LAYER_FLAG, LAYER_OVERLAY})
+		renderImage(context, target, coordinates, instance, images[layer], transparencyFactor);
+}
+
+void MapRendererObjects::renderGround(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+{
+	for(const auto & objectID : context.getObjects(coordinates))
+	{
+		const auto * objectInstance = context.getObject(objectID);
+
+		if(objectInstance && MapObjectDrawOrder::isSpecialGround(objectInstance))
+		{
+			renderShadow(context, target, coordinates, objectInstance);
+			renderObject(context, target, coordinates, objectInstance);
+		}
+	}
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -573,24 +634,34 @@ void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & targ
 	const CGObjectInstance * activeHero = nullptr;
 	bool activeHeroCovered = false;
 
-	for(const auto & objectID : context.getObjects(coordinates))
-	{
-		const auto * objectInstance = context.getObject(objectID);
-
-		assert(objectInstance);
-		if(!objectInstance)
+	MapObjectDrawOrder::drawTile(context.getObjects(coordinates), coordinates,
+		[&](ObjectInstanceID objectID)
 		{
-			logGlobal->error("Stray map object that isn't fading");
-			continue;
-		}
+			const auto * objectInstance = context.getObject(objectID);
 
-		if(context.isActiveHero(objectInstance))
-			activeHero = objectInstance;
-		else if(activeHero)
-			activeHeroCovered = true;
+			assert(objectInstance);
+			if(!objectInstance)
+				logGlobal->error("Stray map object that isn't fading");
 
-		renderObject(context, target, coordinates, objectInstance);
-	}
+			return objectInstance;
+		},
+		[&](const CGObjectInstance * object)
+		{
+			return context.objectImageOffset(object->id, coordinates);
+		},
+		[&](const CGObjectInstance * object)
+		{
+			renderShadow(context, target, coordinates, object);
+		},
+		[&](const CGObjectInstance * object)
+		{
+			if(context.isActiveHero(object))
+				activeHero = object;
+			else if(activeHero)
+				activeHeroCovered = true;
+
+			renderObject(context, target, coordinates, object);
+		});
 
 	// Like H3, draw the active hero a second time on top of the objects that cover him,
 	// so he stays visible behind obstacles - e.g. a town, or anything he flies over
@@ -612,11 +683,17 @@ const MapRendererObjects::ObjectImages & MapRendererObjects::getObjectImages(IMa
 
 	// Which image each layer resolves to is fixed for the whole pass: the animation clock
 	// does not advance inside one, and no object can change while it runs under the lock.
-	ObjectImages images = {
-		getImageToRender(context, object, getBaseAnimation(object)),
-		getImageToRender(context, object, getFlagAnimation(object)),
-		getImageToRender(context, object, getOverlayAnimation(object))
-	};
+	ObjectImages images;
+	images[LAYER_SHADOW] = getImageToRender(context, object, getShadowAnimation(object));
+	images[LAYER_BODY] = getImageToRender(context, object, getBodyAnimation(object));
+	images[LAYER_COLOR_OVERLAY] = getImageToRender(context, object, getColorOverlayAnimation(object));
+	images[LAYER_FLAG] = getImageToRender(context, object, getFlagAnimation(object));
+	images[LAYER_OVERLAY] = getImageToRender(context, object, getOverlayAnimation(object));
+
+	// one image stands in for all of them, e.g. wandering monster in a fight - draw it once
+	for(auto layer : {LAYER_SHADOW, LAYER_COLOR_OVERLAY})
+		if(images[layer] == images[LAYER_BODY])
+			images[layer] = nullptr;
 
 	return renderImageCache.emplace(object->id.getNum(), std::move(images)).first->second;
 }
@@ -633,7 +710,7 @@ const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumIn
 
 	// The image index depends on the animation clock, which does not advance during a
 	// single pass, so the image - and therefore its size - is fixed for the whole pass.
-	const auto & base = getBaseAnimation(object);
+	const auto & base = getBodyAnimation(object);
 	if(base && base->size(groupIndex) > 1)
 	{
 		const auto & image = base->getImage(context.objectImageIndex(object->id, base->size(groupIndex)), groupIndex);
@@ -928,7 +1005,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 	return result;
 }
 
-void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, bool withOverlays)
 {
 	if(!context.isInMap(coordinates))
 	{
@@ -950,15 +1027,26 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 	{
 		rendererTerrain.renderTile(context, target, coordinates);
 
+		const bool roadsAboveGround = LIBRARY->engineSettings()->getBoolean(EGameSettings::MAP_OBJECTS_ROADS_ABOVE_SPECIAL_GROUND);
+
+		if(roadsAboveGround)
+			rendererObjects.renderGround(context, target, coordinates);
+
 		if (context.showRivers())
 			rendererRiver.renderTile(context, target, coordinates);
 
 		if (context.showRoads())
 			rendererRoad.renderTile(context, target, coordinates);
 
+		if(!roadsAboveGround)
+			rendererObjects.renderGround(context, target, coordinates);
+
 		rendererObjects.renderTile(context, target, coordinates);
-		rendererPath.renderTile(context, target, coordinates);
-		rendererOverlay.renderTile(context, target, coordinates);
+		if(withOverlays)
+		{
+			rendererPath.renderTile(context, target, coordinates);
+			rendererOverlay.renderTile(context, target, coordinates);
+		}
 
 		if(!visible)
 			rendererFow.renderTile(context, target, coordinates, *neighborInfo);

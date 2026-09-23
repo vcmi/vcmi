@@ -20,21 +20,47 @@
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MapObjectDrawOrder.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
 
-static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
+static const CGObjectInstance * getMapObject(ObjectInstanceID id)
 {
 	//FIXME: remove mh access
-	return CMap::compareObjectBlitOrder(GAME->map().getMap()->getObject(left), GAME->map().getMap()->getObject(right));
+	return GAME->map().getMap()->getObject(id);
 }
 
 MapRendererContextState::MapRendererContextState()
 	: objects(GAME->interface()->cb->getMapSize())
+	, orderedObjects(GAME->interface()->cb->getMapSize())
 {
 	logGlobal->debug("Loading map objects");
 	for(const auto & obj : GAME->map().getMap()->getObjects())
 		addObject(obj);
 	logGlobal->debug("Done loading map objects");
+}
+
+void MapRendererContextState::updateVisibleObjects(const int3 & tile)
+{
+	boost::container::small_vector<ObjectInstanceID, 8> visible;
+
+	for(const auto & objectID : orderedObjects[tile])
+	{
+		const auto * object = getMapObject(objectID);
+
+		if(object && object->coveringAt(tile))
+			visible.push_back(objectID);
+	}
+
+	for(const auto & objectID : objects[tile])
+	{
+		const auto * object = getMapObject(objectID);
+
+		if(object && MapObjectDrawOrder::usesFixedDrawSlot(object))
+			visible.push_back(objectID);
+	}
+
+	objects[tile].assign(visible.begin(), visible.end());
 }
 
 void MapRendererContextState::addObject(const CGObjectInstance * obj)
@@ -48,14 +74,27 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 		{
 			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
-			{
-				auto & container = objects[currTile];
-				auto position = std::ranges::upper_bound(container, obj->id, compareObjectBlitOrder);
-				container.insert(position, obj->id);
+			if(!GAME->interface()->cb->isInTheMap(currTile))
+				continue;
 
-				usedTiles[obj->id].push_back(currTile);
+			if(MapObjectDrawOrder::usesFixedDrawSlot(obj))
+			{
+				if(obj->coveringAt(currTile))
+				{
+					objects[currTile].push_back(obj->id);
+					usedTiles[obj->id].push_back(currTile);
+				}
+				continue;
 			}
+
+			// like in H3 every cell of the object takes part in ordering, even if nothing is drawn there
+			const CMap & map = *GAME->map().getMap();
+			auto & ordered = orderedObjects[currTile];
+			ordered.insert(MapObjectDrawOrder::findInsertPosition(ordered, map, obj, currTile, [&](ObjectInstanceID id) { return map.getObject(id); }), obj->id);
+			usedTiles[obj->id].push_back(currTile);
+
+			if(obj->coveringAt(currTile))
+				updateVisibleObjects(currTile);
 		}
 	}
 }
@@ -75,10 +114,8 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 			if(GAME->interface()->cb->isInTheMap(currTile))
 			{
-				auto & container = objects[currTile];
-				auto position = std::ranges::upper_bound(container, object->id, compareObjectBlitOrder);
-				container.insert(position, object->id);
-
+				// only heroes and boats move, and those are not ordered
+				objects[currTile].push_back(object->id);
 				usedTiles[object->id].push_back(currTile);
 			}
 		}
@@ -88,7 +125,10 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 void MapRendererContextState::removeObject(const CGObjectInstance * object)
 {
 	for (const auto & usedTile : usedTiles[object->id])
+	{
+		vstd::erase(orderedObjects[usedTile], object->id);
 		vstd::erase(objects[usedTile], object->id);
+	}
 
 	usedTiles.erase(object->id);
 }
