@@ -875,6 +875,10 @@ if(MINGW)
 	target_link_libraries(vcmiMain PRIVATE ws2_32 mswsock dbghelp)
 endif()
 
+if(WIN32)
+	target_link_libraries(vcmiMain INTERFACE advapi32)
+endif()
+
 # Use '-Wa,-mbig-obj' for files that generate very large object files
 # when compiling with MinGW lest you get "too many sections" assembler errors
 if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -245,7 +245,7 @@ if(WIN32)
 	# - cmake_policy in all possible places
 	# - used NO_POLICY_SCOPE to make sure no other parts reset policies
 	# Still nothing worked, warning kept appearing and WinMain didn't link automatically
-	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain)
+	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain shell32)
 endif()
 
 if(APPLE)

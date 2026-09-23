@@ -109,6 +109,9 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
 		bool setPathInConfig(const std::string & key, const bfs::path & path);
+		std::optional<bfs::path> getPathFromRegistry(const std::string & key) const;
+		bool setPathInRegistry(const std::string & key, const bfs::path & path) const;
+		void removePathFromRegistry(const std::string & key) const;
 		bfs::path getDefaultUserDataPath() const;
 
 		std::wstring utf8ToWstring(const std::string& str) const;
@@ -146,29 +149,73 @@ bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & p
 		bfs::path temporaryPath = dirsConfigPath;
 		temporaryPath += ".tmp";
 		std::ofstream out(temporaryPath.wstring(), std::ios::binary | std::ios::trunc);
-		if(!out)
-			return false;
-		out << updatedConfig.toString() << '\n';
-		out.close();
-		if(!out)
+		if(out)
 		{
-			bfs::remove(temporaryPath);
-			return false;
-		}
-		if(!MoveFileExW(temporaryPath.c_str(), dirsConfigPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-		{
-			bfs::remove(temporaryPath);
-			return false;
+			out << updatedConfig.toString() << '\n';
+			out.close();
 		}
 
-		dirsConfig = std::make_unique<JsonNode>(std::move(updatedConfig));
+		if(out && MoveFileExW(temporaryPath.c_str(), dirsConfigPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+		{
+			removePathFromRegistry(key);
+			dirsConfig = std::make_unique<JsonNode>(std::move(updatedConfig));
+			IVCMIDirs::init();
+			return true;
+		}
+
+		bfs::remove(temporaryPath);
+		if(!setPathInRegistry(key, path))
+			return false;
+
 		IVCMIDirs::init();
 		return true;
 	}
 	catch(const std::exception &)
 	{
-		return false;
+		if(!setPathInRegistry(key, path))
+			return false;
+
+		IVCMIDirs::init();
+		return true;
 	}
+}
+
+std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & key) const
+{
+	const std::wstring valueName = utf8ToWstring(key);
+	DWORD size = 0;
+	if(RegGetValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str(), RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ, nullptr, nullptr, &size) != ERROR_SUCCESS || size < sizeof(wchar_t))
+		return std::nullopt;
+
+	std::wstring value(size / sizeof(wchar_t), L'\0');
+	if(RegGetValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str(), RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ, nullptr, value.data(), &size) != ERROR_SUCCESS)
+		return std::nullopt;
+
+	value.resize((size / sizeof(wchar_t)) - 1);
+	wchar_t expanded[32768];
+	const DWORD expandedSize = ExpandEnvironmentStringsW(value.c_str(), expanded, static_cast<DWORD>(std::size(expanded)));
+	return expandedSize > 0 && expandedSize <= std::size(expanded) ? bfs::path(expanded) : bfs::path(value);
+}
+
+bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path & path) const
+{
+	HKEY registryKey = nullptr;
+	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+		return false;
+
+	bfs::path preferredPath = path;
+	preferredPath.make_preferred();
+	const std::wstring valueName = utf8ToWstring(key);
+	const std::wstring value = preferredPath.wstring();
+	const LSTATUS result = RegSetValueExW(registryKey, valueName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE *>(value.c_str()), static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t)));
+	RegCloseKey(registryKey);
+	return result == ERROR_SUCCESS;
+}
+
+void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
+{
+	const std::wstring valueName = utf8ToWstring(key);
+	RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str());
 }
 
 bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path)
@@ -213,6 +260,9 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
 	const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
 {
+	if(const auto registryPath = getPathFromRegistry(key))
+		return *registryPath;
+
 	if (!dirsConfig || !dirsConfig->isStruct())
 		return fallbackFunc();
 
