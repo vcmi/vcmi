@@ -585,13 +585,16 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
-void Nullkiller::makeTurn()
+void Nullkiller::makeTurn(bool newTurn)
 {
-	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
-	resetState();
 	Goals::TGoalVec tasks;
-	tracePlayerStatus(true);
+	if(newTurn)
+	{
+		pathfinderTurnStorageMisses.store(0);
+		resetState();
+		tracePlayerStatus(true);
+	}
 
 	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
@@ -725,7 +728,11 @@ void Nullkiller::makeTurn()
 			}
 			else
 			{
-				if(!executeTask(selectedTask))
+				const auto taskStatus = executeTask(selectedTask);
+				if(taskStatus == TaskStatus::Deferred)
+					throw deferExecutionException();
+
+				if(taskStatus == TaskStatus::Failed)
 				{
 					lockTaskHeroes(selectedTask, HeroLockedReason::HERO_CHAIN);
 					const bool hasRemainingTasks = selectedTaskIndex + 1 < selectedTasks.size();
@@ -746,6 +753,7 @@ void Nullkiller::makeTurn()
 
 					return;
 				}
+
 				hasAnySuccess = true;
 			}
 		}
@@ -797,10 +805,17 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 			{
 				logAi->error("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
-			else if(!executeTask(bestPrioPassTask))
+			else
 			{
-				logAi->warn("Task failed to execute during priority pass. Continuing with regular turn planning.");
-				break;
+				const auto taskStatus = executeTask(bestPrioPassTask);
+				if(taskStatus == TaskStatus::Deferred)
+					throw deferExecutionException();
+
+				if(taskStatus == TaskStatus::Failed)
+				{
+					logAi->warn("Task failed to execute during priority pass. Continuing with regular turn planning.");
+					break;
+				}
 			}
 
 			updateState();
@@ -881,7 +896,7 @@ bool Nullkiller::hasUnlockedHeroWithMovement() const
 		});
 }
 
-bool Nullkiller::executeTask(const Goals::TTask & task)
+TaskStatus Nullkiller::executeTask(const Goals::TTask & task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
@@ -892,21 +907,28 @@ bool Nullkiller::executeTask(const Goals::TTask & task)
 	try
 	{
 		task->accept(aiGw);
+		if(!aiGw->status.isReadyToContinue())
+		{
+			logAi->debug("Task %s deferred due to pending blocking state", taskDescr);
+			aiGw->requestPlanningResume();
+			return TaskStatus::Deferred;
+		}
+
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
+		return TaskStatus::Done;
 	}
 	catch(goalFulfilledException &)
 	{
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
+		return TaskStatus::Done;
 	}
 	catch(cannotFulfillGoalException & e)
 	{
 		invalidatePathfinderData();
 		logAi->error("Failed to realize subgoal of type %s.", taskDescr);
 		logAi->error("The error message was: %s", e.what());
-		return false;
+		return TaskStatus::Failed;
 	}
-
-	return true;
 }
 
 TResources Nullkiller::getFreeResources() const

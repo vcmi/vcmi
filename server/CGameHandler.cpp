@@ -3749,7 +3749,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 
 		if(visitedTown)
 		{
-			const bool isEnemy = visitedHero->getOwner() != h->getOwner();
+			const bool isEnemy = gameInfo().getPlayerRelations(visitedHero->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES;
 
 			if(isEnemy && !visitedTown->isBattleOutsideTown(visitedHero))
 				visitedObject = visitedTown;

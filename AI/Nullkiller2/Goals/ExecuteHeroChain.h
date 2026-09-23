@@ -38,6 +38,7 @@ namespace Goals
 		bool isObjectAffected(ObjectInstanceID id) const override;
 
 	private:
+		void execute(AIGateway * aiGw, int firstNodeIndex, std::set<int> blockedIndexes);
 		bool moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile);
 	};
 }
