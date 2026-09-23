@@ -105,6 +105,42 @@ public:
 	}
 };
 
+/// A query that a player reply can end, so that reply routing can be tested without
+/// standing up a dialog query and the netpack traffic that goes with it.
+class TestDialogQuery : public CQuery
+{
+public:
+	TestDialogQuery(CGameHandler * gh, const std::vector<PlayerColor> & affectedPlayers, QueryType type)
+		: CQuery(gh, type)
+	{
+		for(auto player : affectedPlayers)
+			players.push_back(player);
+	}
+
+	TestDialogQuery(CGameHandler * gh, PlayerColor player, QueryType type)
+		: CQuery(gh, type)
+	{
+		players.push_back(player);
+	}
+
+	std::optional<int32_t> receivedReply;
+	int setReplyCalls = 0;
+	int onRemovalCalls = 0;
+
+	bool endsByPlayerAnswer() const override { return true; }
+
+	void setReply(std::optional<int32_t> reply) override
+	{
+		receivedReply = reply;
+		setReplyCalls++;
+	}
+
+	void onRemoval(PlayerColor color) override
+	{
+		onRemovalCalls++;
+	}
+};
+
 class QueriesProcessorTest : public ::testing::Test
 {
 protected:
@@ -591,4 +627,265 @@ TEST_F(QueriesProcessorTest, getQuery_returnsAddedQueryAndNullAfterRemoval)
 TEST_F(QueriesProcessorTest, countQuery_returnsZeroForNullptr)
 {
 	EXPECT_EQ(queries.countQuery(nullptr), 0);
+}
+
+
+// --------------------------------------------------------------------------------
+// Reply routing.
+//
+// The client is prompted for a query and answers it, but the server may push
+// something else in between. These tests drive the processor through those
+// orderings directly, because that is the shape of the client/server race that
+// used to leave a player holding a query that had already been answered.
+// --------------------------------------------------------------------------------
+
+TEST_F(QueriesProcessorTest, submitReply_resolvesTopQuery)
+{
+	const PlayerColor player(1);
+	auto query = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	queries.addQuery(query);
+
+	EXPECT_EQ(queries.submitReply(query->queryID, player, 7), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+	EXPECT_EQ(query->receivedReply, std::optional<int32_t>(7));
+	EXPECT_EQ(query->onRemovalCalls, 1);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_acceptsReplyForBuriedQueryAndResolvesItOnceExposed)
+{
+	const PlayerColor player(1);
+	auto dialog = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	auto pushedAfterPrompt = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+
+	queries.addQuery(dialog);
+	// Server pushes something else after the dialog was sent to the client, but
+	// before the client's answer arrives.
+	queries.addQuery(pushedAfterPrompt);
+
+	EXPECT_EQ(queries.submitReply(dialog->queryID, player, 3), ReplyOutcome::Accepted);
+
+	// The dialog is answered but still buried, so it stays put for now.
+	EXPECT_EQ(queries.topQuery(player), pushedAfterPrompt);
+	EXPECT_TRUE(dialog->isAnswered());
+	EXPECT_EQ(dialog->onRemovalCalls, 0);
+
+	queries.popIfTop(pushedAfterPrompt);
+
+	// Exposing it must resolve it rather than leave the player waiting forever.
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+	EXPECT_EQ(dialog->receivedReply, std::optional<int32_t>(3));
+	EXPECT_EQ(dialog->onRemovalCalls, 1);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_resolvesSeveralStackedQueriesAnsweredOutOfOrder)
+{
+	const PlayerColor player(1);
+	auto bottom = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	auto middle = std::make_shared<TestDialogQuery>(&gh, player, QueryType::TeleportDialog);
+	auto top = std::make_shared<TestDialogQuery>(&gh, player, QueryType::GarrisonDialog);
+
+	queries.addQuery(bottom);
+	queries.addQuery(middle);
+	queries.addQuery(top);
+
+	// Answers arrive bottom-up - the exact opposite of the stack order.
+	EXPECT_EQ(queries.submitReply(bottom->queryID, player, 1), ReplyOutcome::Accepted);
+	EXPECT_EQ(queries.submitReply(middle->queryID, player, 2), ReplyOutcome::Accepted);
+	EXPECT_EQ(queries.topQuery(player), top);
+
+	// Answering the top must unwind all three, not just one.
+	EXPECT_EQ(queries.submitReply(top->queryID, player, 3), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(queries.topQuery(player), nullptr);
+	EXPECT_EQ(bottom->onRemovalCalls, 1);
+	EXPECT_EQ(middle->onRemovalCalls, 1);
+	EXPECT_EQ(top->onRemovalCalls, 1);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_ignoresDuplicateReply)
+{
+	const PlayerColor player(1);
+	auto query = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	auto blocker = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+
+	queries.addQuery(query);
+	queries.addQuery(blocker);
+
+	EXPECT_EQ(queries.submitReply(query->queryID, player, 1), ReplyOutcome::Accepted);
+	EXPECT_EQ(queries.submitReply(query->queryID, player, 2), ReplyOutcome::IgnoredAlreadyAnswered);
+
+	// The second answer must not overwrite the first.
+	EXPECT_EQ(query->setReplyCalls, 1);
+	EXPECT_EQ(query->receivedReply, std::optional<int32_t>(1));
+}
+
+TEST_F(QueriesProcessorTest, submitReply_ignoresReplyToQueryThatAlreadyCompleted)
+{
+	const PlayerColor player(1);
+	auto query = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	queries.addQuery(query);
+
+	const QueryID queryID = query->queryID;
+	queries.popIfTop(query); // removed by some other event while the reply was in flight
+
+	EXPECT_EQ(queries.submitReply(queryID, player, 1), ReplyOutcome::IgnoredAlreadyCompleted);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_rejectsUnknownQuery)
+{
+	const PlayerColor player(1);
+	auto query = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	queries.addQuery(query);
+
+	EXPECT_EQ(queries.submitReply(QueryID(12345), player, 1), ReplyOutcome::RejectedUnknownQuery);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_rejectsReplyFromPlayerNotAffectedByQuery)
+{
+	const PlayerColor owner(1);
+	const PlayerColor other(2);
+	auto query = std::make_shared<TestDialogQuery>(&gh, owner, QueryType::BlockingDialog);
+	queries.addQuery(query);
+
+	EXPECT_EQ(queries.submitReply(query->queryID, other, 1), ReplyOutcome::RejectedWrongPlayer);
+	EXPECT_FALSE(query->isAnswered());
+	EXPECT_EQ(queries.topQuery(owner), query);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_rejectsQueryThatCannotBeEndedByAnswer)
+{
+	const PlayerColor player(1);
+	auto query = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+	queries.addQuery(query);
+
+	EXPECT_EQ(queries.submitReply(query->queryID, player, 1), ReplyOutcome::RejectedNotAnswerable);
+	EXPECT_EQ(queries.topQuery(player), query);
+}
+
+TEST_F(QueriesProcessorTest, getQuery_scopedByPlayerDistinguishesSharedQueryIds)
+{
+	// QueryID::CLIENT is used by every pause query, so two players can legitimately
+	// hold different queries carrying the same ID at the same time.
+	const PlayerColor first(1);
+	const PlayerColor second(2);
+
+	auto firstQuery = std::make_shared<TestDialogQuery>(&gh, first, QueryType::TimerPause);
+	auto secondQuery = std::make_shared<TestDialogQuery>(&gh, second, QueryType::TimerPause);
+	firstQuery->queryID = QueryID::CLIENT;
+	secondQuery->queryID = QueryID::CLIENT;
+
+	queries.addQuery(firstQuery);
+	queries.addQuery(secondQuery);
+
+	EXPECT_EQ(queries.getQuery(QueryID::CLIENT, first), firstQuery);
+	EXPECT_EQ(queries.getQuery(QueryID::CLIENT, second), secondQuery);
+
+	// A reply must land on the replying player's own query.
+	EXPECT_EQ(queries.submitReply(QueryID::CLIENT, second, 0), ReplyOutcome::Accepted);
+	EXPECT_FALSE(firstQuery->isAnswered());
+	EXPECT_EQ(queries.topQuery(first), firstQuery);
+	EXPECT_EQ(queries.topQuery(second), nullptr);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_sharedQueryIsRemovedFromEveryAffectedPlayer)
+{
+	const PlayerColor first(1);
+	const PlayerColor second(2);
+	auto shared = std::make_shared<TestDialogQuery>(&gh, std::vector<PlayerColor>{first, second}, QueryType::BattleDialog);
+
+	queries.addQuery(shared);
+	ASSERT_EQ(queries.countQuery(shared), 2);
+
+	EXPECT_EQ(queries.submitReply(shared->queryID, first, 1), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(queries.countQuery(shared), 0);
+	EXPECT_EQ(queries.topQuery(first), nullptr);
+	EXPECT_EQ(queries.topQuery(second), nullptr);
+}
+
+TEST_F(QueriesProcessorTest, submitReply_sharedQueryWaitsForPlayerWhoIsStillBusy)
+{
+	const PlayerColor first(1);
+	const PlayerColor second(2);
+	auto shared = std::make_shared<TestDialogQuery>(&gh, std::vector<PlayerColor>{first, second}, QueryType::BattleDialog);
+	auto busy = std::make_shared<TestQuery>(&gh, second, QueryType::MapObjectVisit);
+
+	queries.addQuery(shared);
+	queries.addQuery(busy); // only the second player has something on top of it
+
+	EXPECT_EQ(queries.submitReply(shared->queryID, first, 1), ReplyOutcome::Accepted);
+
+	// Resolved for the player whose stack allows it...
+	EXPECT_EQ(queries.topQuery(first), nullptr);
+	// ...and still in place for the one who is busy, rather than silently skipped.
+	EXPECT_EQ(queries.countQuery(shared), 1);
+	EXPECT_EQ(queries.topQuery(second), busy);
+
+	queries.popIfTop(busy);
+
+	EXPECT_EQ(queries.topQuery(second), nullptr);
+	EXPECT_EQ(queries.countQuery(shared), 0);
+}
+
+// --------------------------------------------------------------------------------
+// Property test: no ordering of prompts and replies may leave a player holding a
+// query that has already been answered. That invariant is exactly what used to
+// fail in practice, and it is not reachable by enumerating cases by hand.
+// --------------------------------------------------------------------------------
+
+TEST_F(QueriesProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredQuery)
+{
+	const PlayerColor player(1);
+
+	for(uint32_t seed = 0; seed < 500; ++seed)
+	{
+		QueriesProcessor processor(gh);
+		std::mt19937 rng(seed);
+		std::vector<std::shared_ptr<TestDialogQuery>> live;
+		std::vector<QueryID> answeredButLive;
+
+		for(int step = 0; step < 40; ++step)
+		{
+			const bool canReply = !live.empty();
+			const int action = rng() % (canReply ? 3 : 1);
+
+			if(action == 0) // server pushes a new query
+			{
+				auto query = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+				processor.addQuery(query);
+				live.push_back(query);
+			}
+			else if(action == 1) // client replies to some query it was prompted for
+			{
+				const auto & target = live[rng() % live.size()];
+				processor.submitReply(target->queryID, player, 0);
+			}
+			else // server removes the top query for reasons of its own
+			{
+				if(auto top = processor.topQuery(player))
+					processor.popIfTop(top);
+			}
+
+			// Invariant: an answered query is never left sitting at the top.
+			if(auto top = processor.topQuery(player))
+			{
+				ASSERT_FALSE(top->isAnswered())
+					<< "seed " << seed << " step " << step
+					<< " left an answered query on top:\n" << processor.describeStacks();
+			}
+
+			vstd::erase_if(live, [&processor](const std::shared_ptr<TestDialogQuery> & q)
+			{
+				return processor.countQuery(q) == 0;
+			});
+		}
+
+		// Draining the stack must always terminate with nothing answered left behind.
+		while(auto top = processor.topQuery(player))
+		{
+			ASSERT_FALSE(top->isAnswered()) << "seed " << seed << ":\n" << processor.describeStacks();
+			processor.popIfTop(top);
+		}
+	}
 }

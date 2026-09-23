@@ -16,6 +16,28 @@
 
 #include "../../lib/networkPacks/PacksForServer.h"
 
+std::string toString(QueryType type)
+{
+	switch(type)
+	{
+		case QueryType::BlockingDialog:         return "BlockingDialog";
+		case QueryType::GarrisonDialog:         return "GarrisonDialog";
+		case QueryType::TeleportDialog:         return "TeleportDialog";
+		case QueryType::HeroLevelUpDialog:      return "HeroLevelUpDialog";
+		case QueryType::CommanderLevelUpDialog: return "CommanderLevelUpDialog";
+		case QueryType::OpenWindow:             return "OpenWindow";
+		case QueryType::MapObjectVisit:         return "MapObjectVisit";
+		case QueryType::TownBuildingVisit:      return "TownBuildingVisit";
+		case QueryType::Battle:                 return "Battle";
+		case QueryType::BattleDialog:           return "BattleDialog";
+		case QueryType::HeroMovement:           return "HeroMovement";
+		case QueryType::TimerPause:             return "TimerPause";
+		case QueryType::Generic:                return "Generic";
+		case QueryType::LuaScript:              return "LuaScript";
+		default:                                return "Unknown";
+	}
+}
+
 std::ostream & operator<<(std::ostream & out, const CQuery & query)
 {
 	return out << query.toString();
@@ -67,11 +89,15 @@ std::string CQuery::toString() const
 			names += " and ";
 	}
 	std::string ret = boost::str(boost::format("A query of type '%s' and qid = %d affecting player%s %s")
-		% typeid(*this).name()
-		% queryID 
+		% ::toString(type)
+		% queryID
 		% plural
 		% names
 	);
+
+	if(answeredBy)
+		ret += boost::str(boost::format(" [answered by %s, awaiting exposure]") % answeredBy->toString());
+
 	return ret;
 }
 
