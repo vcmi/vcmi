@@ -35,6 +35,7 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 	auto nextQuery = topQuery(player);
 
 	rememberCompleted(player, query);
+	markStackChanged(player);
 
 	query->onRemoval(player);
 
@@ -42,20 +43,14 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 	if(nextQuery && nextQuery == topQuery(player))
 		nextQuery->onExposure(query);
 
-	if(queriesStackListener)
-		queriesStackListener->onQueryStackChanged(player);
-
-	// A query below may have been answered while it was buried under this one.
-	// Now that it is exposed, it must be resolved rather than left waiting forever.
-	resolveAnsweredQueries(player);
-
-	if(!topQuery(player))
-		gameHandler.checkVictoryLossConditionsForPlayer(player);
+	// Resolving answered queries, notifying the listener and checking victory
+	// conditions all happen in settle(), once the stacks have stopped moving.
 }
 
 void QueriesProcessor::popQuery(const CQuery &query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
+	MutationScope mutation(*this);
 
 	assert(query.players.size());
 	for(auto player : query.players)
@@ -82,12 +77,16 @@ void QueriesProcessor::popQuery(const CQuery &query)
 
 void QueriesProcessor::popQuery(QueryPtr query)
 {
+	MutationScope mutation(*this);
+
 	for(auto player : query->players)
 		popQuery(player, query);
 }
 
 void QueriesProcessor::addQuery(QueryPtr query)
 {
+	MutationScope mutation(*this);
+
 	for(auto player : query->players)
 		addQuery(player, query);
 }
@@ -104,12 +103,8 @@ void QueriesProcessor::addQuery(PlayerColor player, QueryPtr query)
 		return;
 	query->onAdding(player);
 	queries.at(idx).push_back(query);
+	markStackChanged(player);
 	query->onAdded(player);
-
-	if(queriesStackListener)
-		queriesStackListener->onQueryStackChanged(player);
-
-	resolveAnsweredQueries(player);
 }
 
 QueryPtr QueriesProcessor::topQuery(PlayerColor player)
@@ -135,6 +130,8 @@ void QueriesProcessor::popIfTop(QueryPtr query)
 
 void QueriesProcessor::popIfTop(const CQuery & query)
 {
+	MutationScope mutation(*this);
+
 	for(PlayerColor color : query.players)
 		if(topQuery(color).get() == &query)
 			popQuery(color, topQuery(color));
@@ -210,39 +207,122 @@ bool QueriesProcessor::wasRecentlyCompleted(PlayerColor player, QueryID queryID)
 	return vstd::contains(recentlyCompleted.at(player.getNum()), queryID);
 }
 
-void QueriesProcessor::resolveAnsweredQueries(PlayerColor player)
+void QueriesProcessor::markStackChanged(PlayerColor player)
 {
-	if(!player.isValidPlayer())
-		return;
+	if(player.isValidPlayer())
+		stackChanged.at(player.getNum()) = true;
+}
 
-	auto & guard = resolvingAnswered.at(player.getNum());
-	if(guard)
-		return; // already inside the loop for this player - it will pick up the change
+QueriesProcessor::MutationScope::MutationScope(QueriesProcessor & owner)
+	: owner(owner)
+{
+	owner.mutationDepth++;
+}
 
-	// Must be cleared even if a query hook throws: leaving it set would silently
-	// disable reply handling for this player from then on.
-	struct GuardReset
+QueriesProcessor::MutationScope::~MutationScope()
+{
+	owner.mutationDepth--;
+
+	if(owner.mutationDepth == 0)
+		owner.settle();
+}
+
+bool QueriesProcessor::resolveAnsweredQueries()
+{
+	bool changedAnything = false;
+
+	for(size_t idx = 0; idx < queries.size(); ++idx)
+	{
+		const PlayerColor player(static_cast<int32_t>(idx));
+
+		while(auto top = topQuery(player))
+		{
+			if(!top->isAnswered())
+				break;
+
+			if(!top->endsByPlayerAnswer())
+				break; // should not happen - submitReply refuses to answer such queries
+
+			popQuery(player, top);
+			changedAnything = true;
+		}
+	}
+
+	return changedAnything;
+}
+
+bool QueriesProcessor::reportStackChanges()
+{
+	auto changed = stackChanged;
+	stackChanged = {};
+
+	if(!queriesStackListener)
+		return false;
+
+	for(size_t idx = 0; idx < changed.size(); ++idx)
+	{
+		if(changed.at(idx))
+			queriesStackListener->onQueryStackChanged(PlayerColor(static_cast<int32_t>(idx)));
+	}
+
+	return std::ranges::any_of(stackChanged, [](bool value){ return value; });
+}
+
+bool QueriesProcessor::runVictoryChecks()
+{
+	// checkVictoryLossConditionsForPlayer() ignores players that still have queries,
+	// so it is enough to offer it every player that just went idle.
+	for(size_t idx = 0; idx < queries.size(); ++idx)
+	{
+		const PlayerColor player(static_cast<int32_t>(idx));
+
+		if(!queries.at(idx).empty())
+			continue;
+
+		gameHandler.checkVictoryLossConditionsForPlayer(player);
+	}
+
+	return std::ranges::any_of(stackChanged, [](bool value){ return value; });
+}
+
+void QueriesProcessor::settle()
+{
+	if(settling)
+		return; // the running settle() loop will observe whatever changed
+
+	settling = true;
+
+	// Must be cleared even if a query hook throws, otherwise no deferred work
+	// would ever run again.
+	struct SettlingReset
 	{
 		bool & flag;
-		~GuardReset() { flag = false; }
-	} guardReset{guard};
+		~SettlingReset() { flag = false; }
+	} settlingReset{settling};
 
-	guard = true;
-
-	while(auto top = topQuery(player))
+	for(int round = 0; round < MAX_SETTLE_ROUNDS; ++round)
 	{
-		if(!top->isAnswered())
-			break;
+		// A reply may have arrived for a query that was buried at the time. Now that
+		// the stacks have stopped moving, any answered query on top must be removed.
+		if(resolveAnsweredQueries())
+			continue;
 
-		if(!top->endsByPlayerAnswer())
-			break; // should not happen - submitReply refuses to answer such queries
+		if(reportStackChanges())
+			continue;
 
-		popQuery(player, top);
+		if(runVictoryChecks())
+			continue;
+
+		return;
 	}
+
+	logGlobal->error("Query stacks did not settle after %d rounds! Queries:\n%s", MAX_SETTLE_ROUNDS, describeStacks());
 }
 
 ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, std::optional<int32_t> reply)
 {
+	MutationScope mutation(*this);
+
 	auto query = getQuery(queryID, player);
 
 	if(!query)
@@ -273,10 +353,8 @@ ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, 
 	query->answeredBy = player;
 
 	// The query is resolved for every player it affects, not just the one who
-	// replied - but only once it is at the top of each of their stacks.
-	for(auto affected : query->players)
-		resolveAnsweredQueries(affected);
-
+	// replied - but only once it is at the top of each of their stacks, which
+	// settle() takes care of when this scope closes.
 	return ReplyOutcome::Accepted;
 }
 
