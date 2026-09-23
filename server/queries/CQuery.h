@@ -77,6 +77,40 @@ public:
 	virtual void onChildCompleted(const QueryPtr & child) {}
 };
 
+/// Outcome of offering a player the next question of an interaction.
+enum class PromptResult : uint8_t
+{
+	/// A question was put to the player. The interaction now waits for the answer.
+	Asked,
+
+	/// There is more to ask, but not right now - typically the player's interface
+	/// is not ready to show a dialog yet. The processor will try again later.
+	NotReady,
+
+	/// Everything has been asked and answered; the processor removes the interaction.
+	Finished
+};
+
+/// Implemented by queries that put one or more questions to a player. A plain dialog
+/// asks once; a hero gaining several levels at once asks once per level, without
+/// leaving the stack in between - so the player is never momentarily free to act, and
+/// whatever is waiting underneath is told only once, at the end.
+///
+/// Each question carries its own id, separate from the query's, so that an answer to
+/// a question that has already been superseded can be told apart from an answer to
+/// the current one.
+class IInteraction
+{
+public:
+	virtual ~IInteraction() = default;
+
+	/// Put the next question to the player, if there is one and they can receive it.
+	virtual PromptResult askNextQuestion() = 0;
+
+	/// Apply an answer to the question that was last asked.
+	virtual void applyAnswer(std::optional<int32_t> answer) = 0;
+};
+
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.
 // Examples:
@@ -137,6 +171,23 @@ public:
 	/// Non-null for queries that the processor should drive step by step.
 	virtual IRoutine * asRoutine() { return nullptr; }
 
+	/// Non-null for queries that put questions to a player.
+	virtual IInteraction * asInteraction() { return nullptr; }
+
+	/// Id of the question the player was last asked, which is what their answer must
+	/// carry. For a query that asks at most once this is simply its own id; an
+	/// interaction that asks repeatedly gives each question a fresh one.
+	QueryID getActiveQuestionID() const
+	{
+		return activeQuestionID.hasValue() ? activeQuestionID : queryID;
+	}
+
+	/// Whether the player has been asked something and has not answered yet.
+	bool hasOutstandingQuestion() const
+	{
+		return activeQuestionID.hasValue();
+	}
+
 	virtual ~CQuery();
 protected:
 	explicit CQuery(CGameHandler * gh, QueryType type);
@@ -151,6 +202,11 @@ private:
 
 	QueryType type = QueryType::Unknown;
 	std::optional<PlayerColor> answeredBy;
+
+protected:
+	/// Set by an interaction each time it asks something. Left unset by queries that
+	/// ask at most once, which answer to their own id.
+	QueryID activeQuestionID = QueryID::NONE;
 };
 
 /// Human-readable name of a query type, for logs and player-facing complaints.

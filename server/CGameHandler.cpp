@@ -131,21 +131,14 @@ IGameServer & CGameHandler::gameServer() const
 	return server;
 }
 
-void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
+void CGameHandler::applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill)
 {
 	changeSecSkill(hero, skill, 1, ChangeValueMode::RELATIVE);
-	expGiven(hero);
 }
 
-void CGameHandler::levelUpHero(const CGHeroInstance * hero)
+HeroLevelUp CGameHandler::rollHeroLevelUp(const CGHeroInstance * hero)
 {
-	// required exp for at least 1 lvl-up hasn't been reached
-	if (!hero->gainsLevel())
-	{
-		if (hero->getCommander() && hero->getCommander()->gainsLevel())
-			levelUpCommander(hero->getCommander());
-		return;
-	}
+	assert(hero->gainsLevel());
 
 	// give primary skill
 	logGlobal->trace("%s got level %d", hero->getNameTextID(), hero->level);
@@ -164,23 +157,41 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.primskill = primarySkill;
 	hlu.skills = randomizer->rollSecondarySkills(hero);
 
-	if (!hero->getOwner().isValidPlayer())
-	{
-		sendAndApply(hlu);
-		if(hlu.skills.empty())
-			levelUpHero(hero);
-		else
-			levelUpHero(hero, hlu.skills.front());
-	}
-	else
-	{
-		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
-		queries->addQuery(levelUpQuery);
-		//level up will be called on query reply
-	}
+	return hlu;
 }
 
-void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
+void CGameHandler::levelUpHero(const CGHeroInstance * hero)
+{
+	// required exp for at least 1 lvl-up hasn't been reached
+	if (!hero->gainsLevel())
+	{
+		if (hero->getCommander() && hero->getCommander()->gainsLevel())
+			levelUpCommander(hero->getCommander());
+		return;
+	}
+
+	if (!hero->getOwner().isValidPlayer())
+	{
+		// Nobody to ask - roll and pick for them, for as many levels as were earned.
+		while(hero->gainsLevel())
+		{
+			auto hlu = rollHeroLevelUp(hero);
+			sendAndApply(hlu);
+
+			if(!hlu.skills.empty())
+				applyHeroLevelUp(hero, hlu.skills.front());
+		}
+
+		if (hero->getCommander() && hero->getCommander()->gainsLevel())
+			levelUpCommander(hero->getCommander());
+		return;
+	}
+
+	// One query asks about every level earned, and about the commander afterwards.
+	queries->addQuery(std::make_shared<LevelUpQuery>(this, hero));
+}
+
+void CGameHandler::applyCommanderLevelUp(const CCommanderInstance * c, int skill)
 {
 	SetCommanderProperty scp;
 
@@ -263,28 +274,21 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 			sendAndApply(scp);
 		}
 	}
-	expGiven(hero);
 }
 
-void CGameHandler::levelUpCommander(const CCommanderInstance * c)
+std::optional<CommanderLevelUp> CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c)
 {
-	if (!c->gainsLevel())
-	{
-		return;
-	}
 	CommanderLevelUp clu;
 
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
-	if(hero)
-	{
-		clu.heroId = hero->id;
-		clu.player = hero->tempOwner;
-	}
-	else
+	if(!hero)
 	{
 		complain ("Commander is not led by hero!");
-		return;
+		return std::nullopt;
 	}
+
+	clu.heroId = hero->id;
+	clu.player = hero->tempOwner;
 
 	//picking sec. skills for choice
 
@@ -302,19 +306,39 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 			clu.skills.push_back (i);
 		++i;
 	}
+
+	return clu;
+}
+
+void CGameHandler::levelUpCommander(const CCommanderInstance * c)
+{
+	if (!c->gainsLevel())
+		return;
+
+	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
+	if(!hero)
+	{
+		complain ("Commander is not led by hero!");
+		return;
+	}
+
 	if (!hero->getOwner().isValidPlayer()) //choose skill automatically
 	{
-		sendAndApply(clu);
-		if(clu.skills.empty())
-			levelUpCommander(c);
-		else
-			levelUpCommander(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
+		while(c->gainsLevel())
+		{
+			auto clu = rollCommanderLevelUp(c);
+			if(!clu)
+				return;
+
+			sendAndApply(*clu);
+
+			if(!clu->skills.empty())
+				applyCommanderLevelUp(c, *RandomGeneratorUtil::nextItem(clu->skills, getRandomGenerator()));
+		}
+		return;
 	}
-	else
-	{
-		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
-		queries->addQuery(commanderLevelUp);
-	}
+
+	queries->addQuery(std::make_shared<LevelUpQuery>(this, hero));
 }
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
@@ -671,15 +695,9 @@ void CGameHandler::onAdvInterfaceReady(PlayerColor player)
 
 	logGlobal->trace("AdvInterfaceReady received for player %s", player);
 
-	// Kick top query for this player: if it's a dialog query waiting for UI, it should prompt now.
-	auto top = queries->topQuery(player);
-	if(!top)
-		return;
-
-	// We only want dialog queries to try prompting here.
-	// They should override onExposure() to "prompt when uiReadyForDialogs is true" (next step),
-	// so triggering exposure is enough.
-	top->onExposure(top);
+	// Anything that was waiting for the interface - a level-up asking which skill to
+	// take, say - can be put to the player now.
+	queries->retryDeferredWork(player);
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const

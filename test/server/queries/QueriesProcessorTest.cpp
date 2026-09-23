@@ -277,6 +277,7 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilQueryIsAnswered)
 	builder.playerActive(defeatedPlayer);
 	builder.playerActive(levelUpPlayer);
 	builder.hero(int3(5, 5, 0), HeroTypeID(0), levelUpPlayer);
+	builder.heroExperience(999); // one experience point short of the next level
 	startWithMap(std::move(builder));
 
 	auto * hero = findHeroByOwner(levelUpPlayer);
@@ -285,18 +286,24 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilQueryIsAnswered)
 	GameHandlerTestServer server(gameState(), levelUpPlayer);
 	CGameHandler gameHandler(server, gameState());
 
-	HeroLevelUp levelUpDialog;
-	levelUpDialog.player = levelUpPlayer;
-	levelUpDialog.heroId = hero->id;
-	auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(&gameHandler, levelUpDialog, hero);
-	levelUpQuery->setReply(0);
-	gameHandler.queries->addQuery(levelUpQuery);
+	// The level-up has to exist before the other player is eliminated, otherwise
+	// nothing is deferring anything and this would test the empty case.
+	gameHandler.giveExperience(hero, 10);
+	gameHandler.onAdvInterfaceReady(levelUpPlayer);
 
+	auto levelUpQuery = gameHandler.queries->topQuery(levelUpPlayer);
+	ASSERT_NE(levelUpQuery, nullptr);
+	ASSERT_EQ(levelUpQuery->getType(), QueryType::HeroLevelUpDialog);
+
+	// The player is mid-level-up, so winning is not announced yet.
 	gameHandler.checkVictoryLossConditionsForPlayer(defeatedPlayer);
 	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::LOSER);
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::INGAME);
 
-	gameHandler.queries->popIfTop(levelUpQuery);
+	ASSERT_EQ(gameHandler.queries->submitReply(levelUpQuery->getActiveQuestionID(), levelUpPlayer, 0),
+		ReplyOutcome::Accepted);
+
+	EXPECT_EQ(gameHandler.queries->topQuery(levelUpPlayer), nullptr);
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::WINNER);
 }
 
@@ -1429,7 +1436,7 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 		if(pending->getType() != QueryType::HeroLevelUpDialog)
 			break;
 
-		ASSERT_EQ(gameHandler.queries->submitReply(pending->queryID, player, 0), ReplyOutcome::Accepted);
+		ASSERT_EQ(gameHandler.queries->submitReply(pending->getActiveQuestionID(), player, 0), ReplyOutcome::Accepted);
 		ASSERT_LT(++levelUpsAnswered, 10) << "level-up chain did not terminate";
 	}
 
@@ -1545,4 +1552,127 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 	ASSERT_NE(top, nullptr);
 	EXPECT_EQ(top->getType(), QueryType::Battle);
 	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+}
+
+// --------------------------------------------------------------------------------
+// Repeated questions.
+//
+// A hero can earn several levels from one reward, and used to be asked about each
+// through a separate query pushed as the previous one was removed. It is now one
+// query that asks repeatedly, so the player is never briefly free between levels
+// and whatever waits underneath is told once, at the end.
+// --------------------------------------------------------------------------------
+
+namespace
+{
+class LevelUpQueryTest : public TinyMapGameTest
+{
+protected:
+	void buildHeroAboutToLevel(uint32_t experience)
+	{
+		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+		builder.size(36, false)
+			.playerActive(PlayerColor(0))
+			.hero(int3(5, 5, 0), HeroTypeID(0), PlayerColor(0))
+			.heroExperience(experience);
+		startWithMap(std::move(builder));
+	}
+};
+}
+
+TEST_F(LevelUpQueryTest, severalLevelsAreAskedAboutByOneQueryThatStaysOnTheStack)
+{
+	const PlayerColor player(0);
+	buildHeroAboutToLevel(999);
+
+	auto * hero = findHeroByOwner(player);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	gameHandler.onAdvInterfaceReady(player);
+
+	const int levelBefore = hero->level;
+	gameHandler.giveExperience(hero, 100000); // worth several levels at once
+
+	auto query = gameHandler.queries->topQuery(player);
+	ASSERT_NE(query, nullptr);
+	ASSERT_EQ(query->getType(), QueryType::HeroLevelUpDialog);
+
+	std::set<QueryID> questionsAsked;
+	int answers = 0;
+
+	while(auto pending = gameHandler.queries->topQuery(player))
+	{
+		// Always the same query object, however many times it asks.
+		ASSERT_EQ(pending, query) << "a second query was pushed instead of asking again";
+
+		const auto questionID = pending->getActiveQuestionID();
+		EXPECT_TRUE(questionsAsked.insert(questionID).second) << "a question id was reused";
+
+		ASSERT_EQ(gameHandler.queries->submitReply(questionID, player, 0), ReplyOutcome::Accepted);
+		ASSERT_LT(++answers, 50) << "level-up sequence did not terminate";
+	}
+
+	EXPECT_GT(answers, 1) << "expected more than one level from this much experience";
+	EXPECT_GT(hero->level, levelBefore + 1);
+	EXPECT_EQ(gameHandler.queries->topQuery(player), nullptr);
+}
+
+TEST_F(LevelUpQueryTest, answerNamingASupersededQuestionIsIgnored)
+{
+	const PlayerColor player(0);
+	buildHeroAboutToLevel(999);
+
+	auto * hero = findHeroByOwner(player);
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	gameHandler.onAdvInterfaceReady(player);
+
+	gameHandler.giveExperience(hero, 100000);
+
+	auto query = gameHandler.queries->topQuery(player);
+	ASSERT_NE(query, nullptr);
+
+	const auto firstQuestion = query->getActiveQuestionID();
+	ASSERT_EQ(gameHandler.queries->submitReply(firstQuestion, player, 0), ReplyOutcome::Accepted);
+
+	// The next question is now outstanding; the previous one is history.
+	ASSERT_EQ(gameHandler.queries->topQuery(player), query);
+	ASSERT_NE(query->getActiveQuestionID(), firstQuestion);
+
+	EXPECT_EQ(gameHandler.queries->submitReply(firstQuestion, player, 0),
+		ReplyOutcome::IgnoredAlreadyCompleted);
+
+	// Naming the query rather than the question is not good enough either.
+	EXPECT_EQ(gameHandler.queries->submitReply(query->queryID, player, 0),
+		ReplyOutcome::IgnoredAlreadyCompleted);
+
+	// Neither stale answer consumed the outstanding question.
+	EXPECT_EQ(gameHandler.queries->topQuery(player), query);
+}
+
+TEST_F(LevelUpQueryTest, nothingIsAskedBeforeThePlayersInterfaceIsReady)
+{
+	const PlayerColor player(0);
+	buildHeroAboutToLevel(999);
+
+	auto * hero = findHeroByOwner(player);
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	// Deliberately no onAdvInterfaceReady().
+	gameHandler.giveExperience(hero, 10);
+
+	auto query = gameHandler.queries->topQuery(player);
+	ASSERT_NE(query, nullptr);
+	EXPECT_FALSE(query->hasOutstandingQuestion()) << "asked before the client could show it";
+
+	// The level is applied by the dialog pack, so it is still pending too.
+	EXPECT_TRUE(hero->gainsLevel());
+
+	gameHandler.onAdvInterfaceReady(player);
+
+	EXPECT_TRUE(query->hasOutstandingQuestion());
+	EXPECT_FALSE(hero->gainsLevel());
 }

@@ -34,7 +34,8 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 	stack.pop_back();
 	auto nextQuery = topQuery(player);
 
-	rememberCompleted(player, query);
+	rememberCompleted(player, query->queryID);
+	rememberCompleted(player, query->getActiveQuestionID());
 	markStackChanged(player);
 
 	query->onRemoval(player);
@@ -195,19 +196,19 @@ QueryPtr QueriesProcessor::getQuery(QueryID queryID, PlayerColor player)
 		return nullptr;
 
 	for(const auto & query : queries.at(player.getNum()))
-		if(query->queryID == queryID)
+		if(query->queryID == queryID || query->getActiveQuestionID() == queryID)
 			return query;
 
 	return nullptr;
 }
 
-void QueriesProcessor::rememberCompleted(PlayerColor player, const QueryPtr & query)
+void QueriesProcessor::rememberCompleted(PlayerColor player, QueryID queryID)
 {
-	if(!player.isValidPlayer() || !query)
+	if(!player.isValidPlayer() || !queryID.hasValue())
 		return;
 
 	auto & completed = recentlyCompleted.at(player.getNum());
-	completed.push_back(query->queryID);
+	completed.push_back(queryID);
 
 	while(completed.size() > RECENTLY_COMPLETED_LIMIT)
 		completed.pop_front();
@@ -275,6 +276,45 @@ bool QueriesProcessor::advanceRoutines()
 
 			if(step + 1 == MAX_ROUTINE_STEPS)
 				logGlobal->error("Routine did not finish after %d steps: %s", MAX_ROUTINE_STEPS, top->toString());
+		}
+	}
+
+	return changedAnything;
+}
+
+bool QueriesProcessor::advanceInteractions()
+{
+	bool changedAnything = false;
+
+	for(size_t idx = 0; idx < queries.size(); ++idx)
+	{
+		const PlayerColor player(static_cast<int32_t>(idx));
+
+		auto top = topQuery(player);
+		if(!top)
+			continue;
+
+		auto * interaction = top->asInteraction();
+		if(!interaction || top->isAnswered())
+			continue;
+
+		// The player has been asked and has not answered yet.
+		if(top->hasOutstandingQuestion())
+			continue;
+
+		switch(interaction->askNextQuestion())
+		{
+			case PromptResult::Asked:
+				changedAnything = true;
+				break;
+
+			case PromptResult::Finished:
+				popQuery(player, top);
+				changedAnything = true;
+				break;
+
+			case PromptResult::NotReady:
+				break;
 		}
 	}
 
@@ -391,6 +431,10 @@ void QueriesProcessor::settle()
 		if(advanceRoutines())
 			continue;
 
+		// An interaction may still have questions to put to the player.
+		if(advanceInteractions())
+			continue;
+
 		// Only now, with nothing left of whatever the player was doing, may work
 		// that was queued up behind it begin.
 		if(promoteWaitingQueries())
@@ -435,6 +479,23 @@ ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, 
 	if(query->isAnswered())
 		return ReplyOutcome::IgnoredAlreadyAnswered;
 
+	if(auto * interaction = query->asInteraction())
+	{
+		// An interaction asks more than once, so an answer has to name the question
+		// it belongs to. Naming the interaction itself is not good enough: that would
+		// let an answer to a question already superseded be taken for the current one.
+		if(queryID != query->getActiveQuestionID())
+			return ReplyOutcome::IgnoredAlreadyCompleted;
+
+		// An interaction is not finished by an answer - it may have more to ask.
+		// Remember the question so that a repeated answer to it is recognised as a
+		// stale one rather than mistaken for an answer to whatever is asked next.
+		rememberCompleted(player, query->getActiveQuestionID());
+		query->activeQuestionID = QueryID::NONE;
+		interaction->applyAnswer(reply);
+		return ReplyOutcome::Accepted;
+	}
+
 	query->setReply(reply);
 	query->answeredBy = player;
 
@@ -442,6 +503,12 @@ ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, 
 	// replied - but only once it is at the top of each of their stacks, which
 	// settle() takes care of when this scope closes.
 	return ReplyOutcome::Accepted;
+}
+
+void QueriesProcessor::retryDeferredWork(PlayerColor player)
+{
+	MutationScope mutation(*this);
+	markStackChanged(player);
 }
 
 std::string QueriesProcessor::describeStacks() const

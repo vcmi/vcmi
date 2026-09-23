@@ -91,7 +91,7 @@ private:
 	/// as one per building visited in a town.
 	static constexpr int MAX_ROUTINE_STEPS = 1000;
 
-	void rememberCompleted(PlayerColor player, const QueryPtr & query);
+	void rememberCompleted(PlayerColor player, QueryID queryID);
 	bool wasRecentlyCompleted(PlayerColor player, QueryID queryID) const;
 	void markStackChanged(PlayerColor player);
 
@@ -99,6 +99,11 @@ private:
 	/// finishes or suspends itself by pushing a child. Returns true if it changed
 	/// anything.
 	bool advanceRoutines();
+
+	/// Puts the next question of every interaction at the top of a player's stack,
+	/// and removes those that have nothing left to ask. Returns true if it changed
+	/// anything.
+	bool advanceInteractions();
 
 	/// Pops every query at the top of a player's stack that has already been
 	/// answered. Returns true if anything was removed.
@@ -223,6 +228,11 @@ public:
 	/// the prompt and receiving the answer, and rejecting the reply for that reason
 	/// would leave both sides waiting for each other forever.
 	ReplyOutcome submitReply(QueryID queryID, PlayerColor player, std::optional<int32_t> reply);
+
+	/// Re-runs deferred work for a player. Needed when something outside the query
+	/// system changes whether it can go on - such as the player's interface becoming
+	/// ready to be shown a dialog.
+	void retryDeferredWork(PlayerColor player);
 
 	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
 	std::string describeStacks() const;
