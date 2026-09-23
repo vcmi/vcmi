@@ -64,7 +64,7 @@ enum class ESerializationVersion : int32_t
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = BONUS_TARGET_SOURCE_ID,
+	CURRENT = SECONDARY_SKILL_OFFER_COOLDOWN,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
