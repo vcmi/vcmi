@@ -150,6 +150,9 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 		}
 	}
 
+	if(newLevelClamped > currentLevel && which.hasValue() && which.toSkill()->offerCooldown > 0)
+		secSkillsGainedAtLevel[which] = level;
+
 	updateSkillBonus(which, newLevelClamped);
 }
 
@@ -441,6 +444,11 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 
 	if (patrol.patrolling)
 		patrol.initialPos = visitablePos();
+
+	// starting skills count as gained at the starting level
+	for(const auto & skill : secSkills)
+		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0)
+			secSkillsGainedAtLevel[skill.first] = level;
 
 	if(exp == UNINITIALIZED_EXPERIENCE)
 	{
@@ -1458,6 +1466,15 @@ bool CGHeroInstance::gainsLevel() const
 	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
+TExpType CGHeroInstance::experienceToGainLevels(ui32 levels) const
+{
+	const ui32 targetLevel = std::min(level + levels, LIBRARY->heroh->maxSupportedLevel());
+	if(targetLevel <= level)
+		return 0;
+
+	return LIBRARY->heroh->reqExp(targetLevel) - LIBRARY->heroh->reqExp(level);
+}
+
 void CGHeroInstance::levelUp()
 {
 	++level;
@@ -1478,11 +1495,16 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
 		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
+		// level is raised before the skill is picked, as on server
+		levelUp();
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())
-			setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
-
-		levelUp();
+		{
+			const auto & chosenSkill = proposedSecondarySkills.front();
+			setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
+			if(chosenSkill.toSkill()->grantsLevelUp())
+				exp += experienceToGainLevels(1);
+		}
 	}
 }
 

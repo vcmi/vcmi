@@ -58,12 +58,13 @@ enum class ESerializationVersion : int32_t
 	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
 	RECORD_TEXTS_METASTRING, // highscore scenario name and statistics map name are stored unresolved, to be rendered by the reader
 	BONUS_TARGET_SOURCE_ID, // bonus can restrict PERCENT_TO_TARGET_TYPE to a single source ID
+	SECONDARY_SKILL_OFFER_COOLDOWN, // hero stores level at which skills with offer cooldown were gained
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = BONUS_TARGET_SOURCE_ID,
+	CURRENT = SECONDARY_SKILL_OFFER_COOLDOWN,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

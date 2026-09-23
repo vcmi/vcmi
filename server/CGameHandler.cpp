@@ -28,6 +28,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"
 #include "../lib/IGameSettings.h"
@@ -319,6 +320,10 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
+	// pending level-up dialog continues the chain once answered
+	if (queries->findQuery<CHeroLevelUpDialogQuery>([hero](const CHeroLevelUpDialogQuery & query) { return query.hero == hero; }))
+		return;
+
 	if (hero->gainsLevel())
 		levelUpHero(hero);
 	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
@@ -344,13 +349,18 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	expGiven(hero);
 }
 
+TExpType CGameHandler::getHeroExperienceLimit() const
+{
+	if (gameState().getMap().levelLimit != 0)
+		return LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
+
+	return LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+}
+
 void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+	TExpType maxExp = getHeroExperienceLimit();
 	TExpType currHeroExp = hero->exp;
-
-	if (gameState().getMap().levelLimit != 0)
-		maxExp = LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
 
 	TExpType canGainHeroExp = 0;
 	if (maxExp > currHeroExp)
@@ -414,6 +424,8 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 		logGlobal->error("changeSecSkill provided no hero");
 		return;
 	}
+	const int masteryBefore = hero->getSecSkillLevel(which);
+
 	SetSecSkill sss;
 	sss.id = hero->id;
 	sss.which = which;
@@ -427,6 +439,11 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	// Our scouting range may have changed - update it
 	if (hero->getOwner().isValidPlayer())
 		changeFogOfWar(hero->getSightCenter(), hero->getSightRadius(), hero->getOwner(), ETileVisibility::REVEALED);
+
+	// one hero level per mastery level gained
+	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
+	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
+		giveExperience(hero, hero->experienceToGainLevels(masteryGained));
 
 }
 
