@@ -70,6 +70,7 @@ public:
 	bool popOnExposure = false;
 	bool addReplacementOnRemoval = false;
 	QueryPtr replacementQuery;
+	std::function<void()> onRemovalAction;
 
 	void onAdding(PlayerColor color) override
 	{
@@ -94,6 +95,9 @@ public:
 
 		if(addReplacementOnRemoval && replacementQuery)
 			owner->addQuery(replacementQuery);
+
+		if(onRemovalAction)
+			onRemovalAction();
 
 		if(sharedEventLog)
 			sharedEventLog->push_back({this, QueryEvent::OnRemoval});
@@ -191,49 +195,6 @@ public:
 	{
 		completedChildren.push_back(child);
 	}
-};
-
-/// Records every stack-change notification along with what the stack looked like
-/// at that moment, so that tests can assert both how often the listener fires and
-/// what state it observes.
-class RecordingStackListener : public IQueryStackListener
-{
-public:
-	explicit RecordingStackListener(QueriesProcessor & queries) : queries(queries) {}
-
-	struct Notification
-	{
-		PlayerColor player;
-		QueryPtr topQueryAtTheTime;
-	};
-
-	std::vector<Notification> notifications;
-
-	/// When set, every notification pushes another query, to check that settle()
-	/// gives up instead of looping forever.
-	CGameHandler * pushQueryOnEveryNotification = nullptr;
-
-	void onQueryStackChanged(PlayerColor player) override
-	{
-		notifications.push_back({player, queries.topQuery(player)});
-
-		if(pushQueryOnEveryNotification)
-		{
-			queries.addQuery(std::make_shared<TestQuery>(
-				pushQueryOnEveryNotification, player, QueryType::MapObjectVisit));
-		}
-	}
-
-	size_t notificationsFor(PlayerColor player) const
-	{
-		return std::ranges::count_if(notifications, [player](const Notification & n)
-		{
-			return n.player == player;
-		});
-	}
-
-private:
-	QueriesProcessor & queries;
 };
 
 class QueriesProcessorTest : public ::testing::Test
@@ -987,75 +948,99 @@ TEST_F(QueriesProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredQuery)
 
 
 // --------------------------------------------------------------------------------
-// Quiescence.
+// Quiescence and queued work.
 //
 // Removing a query runs hooks that may add or remove further queries, so the stacks
-// can pass through states that are not meaningful - briefly empty, or holding a
-// query that is about to be replaced. Work that reacts to the stack must see the
-// settled state, not those intermediate ones.
+// pass through states that are not meaningful - briefly empty, or holding a query
+// that is about to be replaced. Work queued behind whatever the player is doing must
+// start from the settled state, never from one of those.
 // --------------------------------------------------------------------------------
 
-TEST_F(QueriesProcessorTest, settle_reportsStackChangeOncePerQuiescentPointDuringUnwind)
+TEST_F(QueriesProcessorTest, waitingQuery_doesNotStartWhilePlayerIsBusy)
 {
 	const PlayerColor player(1);
-	RecordingStackListener listener(queries);
-	queries.setListener(&listener);
+	auto busy = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+	auto pending = std::make_shared<TestQuery>(&gh, player, QueryType::TurnStartVisit);
 
+	queries.addQuery(busy);
+	queries.addQueryWhenIdle(pending);
+
+	EXPECT_EQ(queries.topQuery(player), busy);
+	EXPECT_TRUE(pending->onAddedCalls.empty());
+
+	queries.popIfTop(busy);
+
+	EXPECT_EQ(queries.topQuery(player), pending);
+	EXPECT_EQ(pending->onAddedCalls.size(), 1u);
+}
+
+TEST_F(QueriesProcessorTest, waitingQuery_startsOnceAfterTheStackFullyUnwinds)
+{
+	const PlayerColor player(1);
 	auto bottom = std::make_shared<TestQuery>(&gh, player, QueryType::HeroMovement);
 	auto top = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
 	bottom->popOnExposure = true; // exposing it unwinds the rest of the stack
 
 	queries.addQuery(bottom);
 	queries.addQuery(top);
-	listener.notifications.clear();
+	queries.addQueryWhenIdle(std::make_shared<TestQuery>(&gh, player, QueryType::TurnStartVisit));
 
-	// Popping the top exposes the bottom, which pops itself. That is two removals,
-	// but only one quiescent point.
+	// Two removals happen here, but there is only one quiescent point, so the
+	// queued query must be started exactly once.
 	queries.popIfTop(top);
 
-	EXPECT_EQ(queries.topQuery(player), nullptr);
-	EXPECT_EQ(listener.notificationsFor(player), 1u);
+	auto started = queries.topQuery(player);
+	ASSERT_NE(started, nullptr);
+	EXPECT_EQ(started->getType(), QueryType::TurnStartVisit);
+	EXPECT_EQ(std::dynamic_pointer_cast<TestQuery>(started)->onAddedCalls.size(), 1u);
 }
 
-TEST_F(QueriesProcessorTest, settle_reportsReplacementChainOnceRatherThanPerRemoval)
+TEST_F(QueriesProcessorTest, waitingQuery_doesNotSlipIntoTheGapOfAReplacementChain)
 {
 	const PlayerColor player(1);
-	RecordingStackListener listener(queries);
-	queries.setListener(&listener);
 
 	// A query that pushes a successor as it is removed - the shape of a level-up
-	// chain, where the player is never actually idle between the two.
+	// chain, where the player is never really idle between the two.
 	auto replacement = std::make_shared<TestQuery>(&gh, player, QueryType::HeroLevelUpDialog);
 	auto original = std::make_shared<TestQuery>(&gh, player, QueryType::HeroLevelUpDialog);
 	original->addReplacementOnRemoval = true;
 	original->replacementQuery = replacement;
 
+	auto pending = std::make_shared<TestQuery>(&gh, player, QueryType::TurnStartVisit);
+
 	queries.addQuery(original);
-	listener.notifications.clear();
+	queries.addQueryWhenIdle(pending);
 
 	queries.popIfTop(original);
 
-	// The removal and the replacement's addition are one quiescent point, so the
-	// listener is told once. Previously it was told twice - once from inside the
-	// nested addQuery and once again as the removal finished.
-	ASSERT_EQ(listener.notificationsFor(player), 1u);
-	EXPECT_EQ(listener.notifications.front().topQueryAtTheTime, replacement);
-
+	// The queued work must wait for the whole chain, not cut in between its links.
 	EXPECT_EQ(queries.topQuery(player), replacement);
+	EXPECT_TRUE(pending->onAddedCalls.empty());
+
+	queries.popIfTop(replacement);
+	EXPECT_EQ(queries.topQuery(player), pending);
 }
 
-TEST_F(QueriesProcessorTest, settle_reportsEachAffectedPlayerOfAMultiPlayerQuery)
+TEST_F(QueriesProcessorTest, waitingQuery_sharedByTwoPlayersStartsOnlyWhenBothAreIdle)
 {
 	const PlayerColor first(1);
 	const PlayerColor second(2);
-	RecordingStackListener listener(queries);
-	queries.setListener(&listener);
+	auto busy = std::make_shared<TestQuery>(&gh, second, QueryType::MapObjectVisit);
+	auto pending = std::make_shared<TestQuery>(&gh, std::vector<PlayerColor>{first, second}, QueryType::Battle);
 
-	auto shared = std::make_shared<TestQuery>(&gh, std::vector<PlayerColor>{first, second}, QueryType::Battle);
-	queries.addQuery(shared);
+	queries.addQuery(busy);
+	queries.addQueryWhenIdle(pending);
 
-	EXPECT_EQ(listener.notificationsFor(first), 1u);
-	EXPECT_EQ(listener.notificationsFor(second), 1u);
+	// The first player is idle, but starting now would put the query on one stack
+	// and not the other.
+	EXPECT_TRUE(pending->onAddedCalls.empty());
+	EXPECT_EQ(queries.topQuery(first), nullptr);
+
+	queries.popIfTop(busy);
+
+	EXPECT_EQ(queries.topQuery(first), pending);
+	EXPECT_EQ(queries.topQuery(second), pending);
+	EXPECT_EQ(queries.countQuery(pending), 2);
 }
 
 TEST_F(QueriesProcessorTest, settle_resolvesRepliesThatArrivedWhileStacksWereMoving)
@@ -1081,21 +1066,25 @@ TEST_F(QueriesProcessorTest, settle_resolvesRepliesThatArrivedWhileStacksWereMov
 TEST_F(QueriesProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredWorkKeepsChanging)
 {
 	const PlayerColor player(1);
-	RecordingStackListener listener(queries);
-	listener.pushQueryOnEveryNotification = &gh; // every notification causes another change
-	queries.setListener(&listener);
 
-	auto query = std::make_shared<TestQuery>(&gh, player, QueryType::HeroMovement);
+	// Every removal queues another query, which is started, removed, and queues
+	// another... Must terminate rather than spin or recurse until the stack blows.
+	std::function<void()> queueAnother = [&]()
+	{
+		auto next = std::make_shared<TestQuery>(&gh, player, QueryType::TurnStartVisit);
+		next->onRemovalAction = queueAnother;
+		queries.addQueryWhenIdle(next);
+		queries.popIfTop(next);
+	};
 
-	// Must terminate. Before the round limit this would recurse until the stack blew.
-	queries.addQuery(query);
+	auto first = std::make_shared<TestQuery>(&gh, player, QueryType::TurnStartVisit);
+	first->onRemovalAction = queueAnother;
 
-	EXPECT_GT(listener.notificationsFor(player), 1u);
-	EXPECT_NE(queries.topQuery(player), nullptr);
+	queries.addQuery(first);
+	queries.popIfTop(first);
 
-	queries.setListener(nullptr); // leave the fixture in a sane state
+	SUCCEED() << "settle() terminated instead of looping forever";
 }
-
 
 // --------------------------------------------------------------------------------
 // Routines.

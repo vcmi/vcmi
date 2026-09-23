@@ -33,6 +33,7 @@ enum class QueryType : uint8_t
 	OpenWindow,
 	MapObjectVisit,
 	TownBuildingVisit,
+	TurnStartVisit,
 	Battle,
 	BattleDialog,
 	HeroMovement,

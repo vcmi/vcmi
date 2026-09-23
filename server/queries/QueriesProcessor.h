@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
-#include "IQueryStackListener.h"
 #include "constants/EntityIdentifiers.h"
 #include "queries/CQuery.h"
 
@@ -53,16 +52,17 @@ public:
 	using QueriesStack = std::vector<QueryPtr>;
 	using QueriesPerPlayer = std::array<QueriesStack, PlayerColor::PLAYER_LIMIT_I>;
 
-	// Sets an optional listener notified when a player's query stack changes.
-	void setListener(IQueryStackListener * listener);
-
 private:
 	void addQuery(PlayerColor player, QueryPtr query);
 	void popQuery(PlayerColor player, QueryPtr query);
 
 	QueriesPerPlayer queries;
 	CGameHandler & gameHandler;
-	IQueryStackListener * queriesStackListener = nullptr;
+
+	/// Queries that are waiting for their player to become idle. Work that is not
+	/// part of whatever the player is currently doing must not push itself on top of
+	/// it - the player would be answering it instead of what they were asked first.
+	std::array<std::deque<QueryPtr>, PlayerColor::PLAYER_LIMIT_I> waiting;
 
 	/// IDs of queries that recently left a player's stack. Lets submitReply tell a
 	/// harmless "your reply lost the race" apart from a genuinely bogus query ID.
@@ -78,7 +78,8 @@ private:
 	/// back into it - its own loop picks them up instead.
 	bool settling = false;
 
-	/// Players whose stack changed since the last quiescent point.
+	/// Players whose stack changed. Cleared and re-read around the victory checks,
+	/// which are the one piece of deferred work that does not report back directly.
 	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
 
 	/// settle() gives up after this many rounds and logs an error, rather than
@@ -103,15 +104,17 @@ private:
 	/// answered. Returns true if anything was removed.
 	bool resolveAnsweredQueries();
 
-	/// Reports stack changes to the listener. Returns true if that changed a stack.
-	bool reportStackChanges();
+	/// Starts the next waiting query of every player that has become idle.
+	/// Returns true if it started anything.
+	bool promoteWaitingQueries();
 
 	/// Runs victory/loss checks for players that just became idle. Returns true if
 	/// that changed a stack.
 	bool runVictoryChecks();
 
 	/// Runs everything that must not happen while the stacks are still moving:
-	/// resolving answered queries, notifying the listener, and victory/loss checks.
+	/// resolving answered queries, stepping routines, starting waiting queries and
+	/// victory/loss checks.
 	/// Loops until no further change, so callers always observe a settled state.
 	void settle();
 
@@ -195,6 +198,12 @@ public:
 	using AllQueriesViewConst = AllQueriesViewT<const QueriesPerPlayer>;
 
 	void addQuery(QueryPtr query);
+
+	/// Adds a query once its players have nothing else to do. Use this for work that
+	/// is not caused by the query the player is currently dealing with, so that it
+	/// queues up behind it instead of interrupting it.
+	void addQueryWhenIdle(QueryPtr query);
+
 	void popQuery(const CQuery &query);
 	void popQuery(QueryPtr query);
 	void popIfTop(const CQuery &query); //removes this query if it is at the top (otherwise, do nothing)
