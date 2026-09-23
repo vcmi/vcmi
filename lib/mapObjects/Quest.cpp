@@ -739,9 +739,7 @@ void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHe
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	// VCMI maps keep the seer's reward in the rewardable configuration (that is what the map editor
-	// edits), while the quest itself only carries a reward when loaded from H3M. initObj rebuilds
-	// configuration.info from the quest's reward, so the two are kept in sync here in both directions.
+	// VCMI maps keep the reward in configuration, H3M maps only in the quest
 	if(handler.saving && configuration.info.empty() && !allQuests().empty() && getQuest().reward)
 		configuration.info.push_back(*getQuest().reward);
 

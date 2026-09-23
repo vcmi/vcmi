@@ -298,7 +298,7 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-	/// Reads the pre-rewardable single "reward" struct of old VCMI maps into configuration.info
+	/// Loads reward from old VCMI maps that used single "reward" entry
 	void readLegacyReward(JsonSerializeFormat & handler);
 };
 
