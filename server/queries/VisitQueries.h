@@ -43,22 +43,28 @@ public:
 	void onExposure(QueryPtr topQuery) final;
 };
 
-class TownBuildingVisitQuery final : public VisitQuery
+/// Visits a list of hero/building pairs one at a time. A building may open a dialog
+/// or start a battle, in which case the routine suspends until that finishes and then
+/// carries on from the next pair.
+class TownBuildingVisitQuery final : public VisitQuery, public IRoutine
 {
 	struct BuildingVisit
 	{
-		const CGHeroInstance * hero;
+		ObjectInstanceID hero;
 		BuildingID building;
 	};
 
-	const CGTownInstance * visitedTown;
-	std::vector<BuildingVisit> visitedBuilding;
+	std::vector<BuildingVisit> visits;
+
+	/// Index of the next pair to visit - the routine's position within the activity.
+	size_t cursor = 0;
 
 public:
 	static constexpr QueryType TYPE = QueryType::TownBuildingVisit;
 
 	TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
 
-	void onAdded(PlayerColor color) final;
-	void onExposure(QueryPtr topQuery) final;
+	IRoutine * asRoutine() final { return this; }
+	StepResult advance() final;
+	void onChildCompleted(const QueryPtr & child) final;
 };

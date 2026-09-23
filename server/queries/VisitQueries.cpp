@@ -88,34 +88,43 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 
 TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
 	: VisitQuery(owner, Obj, heroes.front(), TYPE)
-	, visitedTown(Obj)
 {
-	// generate in reverse order - first building-hero pair to handle must be in the end of vector
-	for (auto const * hero : std::views::reverse(heroes))
-		for (auto const & building : std::views::reverse(buildingToVisit))
-			visitedBuilding.push_back({ hero, building});
+	for (const auto * hero : heroes)
+		for (const auto & building : buildingToVisit)
+			visits.push_back({ hero->id, building });
 }
 
-void TownBuildingVisitQuery::onExposure(QueryPtr topQuery)
+void TownBuildingVisitQuery::onChildCompleted(const QueryPtr & child)
 {
-	auto object = gh->gameState().getObjInstance(visitedObject);
-	auto hero = gh->gameState().getHero(visitingHero);
+	const auto * object = gh->gameState().getObjInstance(visitedObject);
+	const auto * hero = gh->gameState().getHero(visitingHero);
 
-	topQuery->notifyObjectAboutRemoval(object, hero);
-
-	onAdded(players.front());
+	// The town may have changed hands or the hero may have died in the meantime.
+	if(object)
+		child->notifyObjectAboutRemoval(object, hero);
 }
 
-void TownBuildingVisitQuery::onAdded(PlayerColor color)
+StepResult TownBuildingVisitQuery::advance()
 {
-	while (!visitedBuilding.empty() && owner->topQuery(color).get() == this)
-	{
-		visitingHero = visitedBuilding.back().hero->id;
-		const auto & building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
-		building->onHeroVisit(*gh, visitedBuilding.back().hero);
-		visitedBuilding.pop_back();
-	}
+	if(cursor >= visits.size())
+		return StepResult::Done;
 
-	if (visitedBuilding.empty() && owner->topQuery(color).get() == this)
-		owner->popIfTop(*this);
+	const auto & visit = visits.at(cursor++);
+
+	const auto * town = gh->gameInfo().getTown(visitedObject);
+	const auto * hero = gh->gameState().getHero(visit.hero);
+
+	// Either may be gone if an earlier building started a battle - skip that pair
+	// rather than abandoning the buildings that come after it.
+	if(!town || !hero)
+		return StepResult::Continue;
+
+	auto building = town->rewardableBuildings.find(visit.building);
+	if(building == town->rewardableBuildings.end())
+		return StepResult::Continue;
+
+	visitingHero = visit.hero;
+	building->second->onHeroVisit(*gh, hero);
+
+	return StepResult::Continue;
 }

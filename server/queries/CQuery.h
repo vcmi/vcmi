@@ -42,6 +42,40 @@ enum class QueryType : uint8_t
 	Unknown
 };
 
+/// Outcome of a single step of a routine.
+enum class StepResult : uint8_t
+{
+	/// More steps remain. If the step pushed a child query the routine is suspended
+	/// until that child completes; otherwise it is stepped again straight away.
+	Continue,
+
+	/// Nothing left to do - the processor removes the routine.
+	Done
+};
+
+/// Implemented by queries that are multi-step server-side activities rather than
+/// questions to a player: visiting an object, visiting the buildings of a town,
+/// moving a hero. The processor drives the routine by calling advance() until it
+/// reports Done, suspending it whenever a step pushes a child query.
+///
+/// Everything a routine needs in order to resume must live in its own members, so
+/// that the position within the activity is explicit state rather than something
+/// reconstructed from the shape of the stack. Members must be restricted to plain
+/// data and object IDs - never pointers into the game state, which do not survive
+/// a suspension: the object or hero may be gone by the time the routine resumes.
+class IRoutine
+{
+public:
+	virtual ~IRoutine() = default;
+
+	/// Perform one step. Called only while this routine is at the top of the stack.
+	virtual StepResult advance() = 0;
+
+	/// A child query pushed by an earlier step has finished. Called before the next
+	/// advance(), so that its result can be recorded.
+	virtual void onChildCompleted(const QueryPtr & child) {}
+};
+
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.
 // Examples:
@@ -98,6 +132,9 @@ public:
 
 	virtual void setReply(std::optional<int32_t> reply);
 	virtual std::string toString() const;
+
+	/// Non-null for queries that the processor should drive step by step.
+	virtual IRoutine * asRoutine() { return nullptr; }
 
 	virtual ~CQuery();
 protected:
