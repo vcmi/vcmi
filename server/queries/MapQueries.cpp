@@ -39,8 +39,9 @@ bool TimerPauseQuery::blocksPack(const CPackForServer * pack) const
 
 void TimerPauseQuery::onExposure(QueryPtr topQuery)
 {
-	// do nothing - don't self-pop (base onExposure)
-	// is removed explicitly when the pause ends (timer/handler triggers popQuery)
+	// do nothing - don't self-pop. This query ends either when the player replies
+	// (QueriesProcessor pops answered queries once they are exposed) or when the
+	// timer/handler removes it explicitly.
 }
 
 void TimerPauseQuery::onAdding(PlayerColor color)
@@ -268,12 +269,8 @@ void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
 
 void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
 {
-	if(answer)
-	{
-		owner->popIfTop(*this);
-		return;
-	}
-
+	// Note: an answered query is popped by QueriesProcessor when it is exposed,
+	// so this hook only ever has to deal with prompting.
 	if(prompted)
 		return;
 
@@ -321,12 +318,6 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 
 void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
 {
-	if(answer)
-	{
-		owner->popIfTop(*this);
-		return;
-	}
-
 	if(prompted)
 		return;
 

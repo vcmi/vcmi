@@ -61,6 +61,20 @@ public:
 		return type;
 	}
 
+	/// Player whose reply this query is resolved by, once one has been accepted.
+	/// Set by QueriesProcessor::submitReply, never by the query itself. A query may
+	/// be answered long before it reaches the top of the stack: the processor stores
+	/// the reply here and resolves the query once it is actually exposed.
+	const std::optional<PlayerColor> & getAnsweredBy() const
+	{
+		return answeredBy;
+	}
+
+	bool isAnswered() const
+	{
+		return answeredBy.has_value();
+	}
+
 	/// query can block attempting actions by player. Eg. he can't move hero during the battle.
 	virtual bool blocksPack(const CPackForServer *pack) const;
 
@@ -95,8 +109,14 @@ protected:
 	bool blockAllButReply(const CPackForServer * pack) const;
 
 private:
+	friend class QueriesProcessor;
+
 	QueryType type = QueryType::Unknown;
+	std::optional<PlayerColor> answeredBy;
 };
+
+/// Human-readable name of a query type, for logs and player-facing complaints.
+std::string toString(QueryType type);
 
 std::ostream &operator<<(std::ostream &out, const CQuery &query);
 std::ostream &operator<<(std::ostream &out, QueryPtr query);

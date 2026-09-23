@@ -18,6 +18,33 @@ class CGameHandler;
 class CQuery;
 using QueryPtr = std::shared_ptr<CQuery>;
 
+/// Result of offering a player's reply to the query system.
+/// Only Rejected* outcomes indicate a problem; the Ignored* ones are benign races
+/// that are expected in normal play and must not be reported to the player.
+enum class ReplyOutcome : uint8_t
+{
+	/// Reply was recorded. The query may or may not have been resolved yet:
+	/// it is resolved once it reaches the top of every affected player's stack.
+	Accepted,
+
+	/// The query completed before this reply arrived - typically because it was
+	/// removed by some other event while the reply was in flight. Benign.
+	IgnoredAlreadyCompleted,
+
+	/// This query has already been answered (duplicate or retried reply). Benign.
+	IgnoredAlreadyAnswered,
+
+	/// No such query, and none recently completed - the client is out of sync
+	/// or the reply is malformed.
+	RejectedUnknownQuery,
+
+	/// The query exists but this player is not one of the players it affects.
+	RejectedWrongPlayer,
+
+	/// The query exists but is not the kind that a player reply can end.
+	RejectedNotAnswerable,
+};
+
 class QueriesProcessor
 {
 public:
@@ -36,6 +63,22 @@ private:
 	QueriesPerPlayer queries;
 	CGameHandler & gameHandler;
 	IQueryStackListener * queriesStackListener = nullptr;
+
+	/// IDs of queries that recently left a player's stack. Lets submitReply tell a
+	/// harmless "your reply lost the race" apart from a genuinely bogus query ID.
+	std::array<std::deque<QueryID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
+	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
+
+	/// Guards resolveAnsweredQueries against re-entry: removing a query runs hooks
+	/// that may themselves add or remove queries, which would otherwise recurse.
+	std::array<bool, PlayerColor::PLAYER_LIMIT_I> resolvingAnswered = {};
+
+	void rememberCompleted(PlayerColor player, const QueryPtr & query);
+	bool wasRecentlyCompleted(PlayerColor player, QueryID queryID) const;
+
+	/// Pops every query at the top of this player's stack that has already been
+	/// answered. Loops, because removing one answered query can expose another.
+	void resolveAnsweredQueries(PlayerColor player);
 
 	template<typename StorageT>
 	class AllQueriesViewT
@@ -113,6 +156,21 @@ public:
 
 	QueryPtr topQuery(PlayerColor player);
 	QueryPtr getQuery(QueryID queryID);
+
+	/// Looks the query up on this player's stack only. Prefer this over getQuery()
+	/// when handling player input: query IDs are not guaranteed to be unique across
+	/// players (QueryID::CLIENT is shared by every pause query), so a global lookup
+	/// can return another player's query.
+	QueryPtr getQuery(QueryID queryID, PlayerColor player);
+
+	/// Records a player's reply to a query. The query does not have to be at the top
+	/// of the stack - the server may well have pushed something else between sending
+	/// the prompt and receiving the answer, and rejecting the reply for that reason
+	/// would leave both sides waiting for each other forever.
+	ReplyOutcome submitReply(QueryID queryID, PlayerColor player, std::optional<int32_t> reply);
+
+	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
+	std::string describeStacks() const;
 
 	AllQueriesView allQueries();
 	AllQueriesViewConst allQueries() const;

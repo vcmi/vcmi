@@ -3602,28 +3602,40 @@ bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
 
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
-	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
 	if (answer)
-		logGlobal->trace("%d", *answer);
+		logGlobal->trace("Player %s answers query %d with %d", player, qid, *answer);
+	else
+		logGlobal->trace("Player %s answers query %d with no value", player, qid);
 
-	auto topQuery = queries->topQuery(player);
-
-	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");
-
-	if(topQuery->queryID != qid)
+	// The reply is addressed to a query ID, not to a stack position. The client cannot
+	// know what the server pushed since it was prompted, so a reply that is no longer
+	// for the top query is still perfectly legal - it is stored and resolved later.
+	switch(queries->submitReply(qid, player, answer))
 	{
-		auto currentQuery = queries->getQuery(qid);
+		case ReplyOutcome::Accepted:
+			return true;
 
-		if(currentQuery != nullptr && currentQuery->endsByPlayerAnswer())
-			currentQuery->setReply(answer);
+		case ReplyOutcome::IgnoredAlreadyCompleted:
+			logGlobal->trace("Player %s replied to query %d that had already been removed - ignoring", player, qid);
+			return true;
 
-		COMPLAIN_RET("This player top query has different ID!"); //topQuery->queryID != qid
+		case ReplyOutcome::IgnoredAlreadyAnswered:
+			logGlobal->trace("Player %s replied to query %d more than once - ignoring", player, qid);
+			return true;
+
+		case ReplyOutcome::RejectedWrongPlayer:
+			logGlobal->warn("Player %s replied to query %d that does not affect them!\nQueries:\n%s", player, qid, queries->describeStacks());
+			COMPLAIN_RET("Attempt to answer a query of another player!");
+
+		case ReplyOutcome::RejectedNotAnswerable:
+			logGlobal->warn("Player %s replied to query %d that cannot be ended by an answer!\nQueries:\n%s", player, qid, queries->describeStacks());
+			COMPLAIN_RET("This query cannot be ended by player's answer!");
+
+		case ReplyOutcome::RejectedUnknownQuery:
+		default:
+			logGlobal->error("Player %s replied to unknown query %d!\nQueries:\n%s", player, qid, queries->describeStacks());
+			COMPLAIN_RET("Attempt to answer a query that does not exist!");
 	}
-	COMPLAIN_RET_FALSE_IF(!topQuery->endsByPlayerAnswer(), "This query cannot be ended by player's answer!");
-
-	topQuery->setReply(answer);
-	queries->popQuery(topQuery);
-	return true;
 }
 
 bool CGameHandler::complain(const std::string &problem)
