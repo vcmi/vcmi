@@ -13,6 +13,8 @@
 #include "HeroPoolProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../queries/QueriesProcessor.h"
+#include "../queries/VisitQueries.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
@@ -37,7 +39,6 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../TurnStartVisitScheduler.h"
 
 #include <vstd/RNG.h>
 
@@ -169,20 +170,25 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	for (const auto * t : playerState->getTowns())
 		handleTownEvents(t);
 
-	std::deque<PendingTurnStartVisit> visits;
+	std::vector<TurnStartVisitQuery::PendingVisit> visits;
 
 	for (const auto * t : playerState->getTowns())
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
 		if(t->getGarrisonHero() != nullptr)
-			visits.push_back({which, t->id, t->getGarrisonHero()->id});
+			visits.push_back({t->id, t->getGarrisonHero()->id});
 
 		if(t->getVisitingHero() != nullptr)
-			visits.push_back({which, t->id, t->getVisitingHero()->id});
+			visits.push_back({t->id, t->getVisitingHero()->id});
 	}
 
-	gameHandler->turnStartVisitScheduler->enqueue(which, std::move(visits));
-	gameHandler->turnStartVisitScheduler->processNext(which);
+	if (!visits.empty())
+	{
+		// Queued rather than added: the player may still be accepting the start of
+		// their turn, and these visits must not be pushed on top of that.
+		gameHandler->queries->addQueryWhenIdle(
+			std::make_shared<TurnStartVisitQuery>(gameHandler, which, std::move(visits)));
+	}
 }
 
 void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)

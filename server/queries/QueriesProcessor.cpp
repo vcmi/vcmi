@@ -98,6 +98,18 @@ void QueriesProcessor::addQuery(QueryPtr query)
 		addQuery(player, query);
 }
 
+void QueriesProcessor::addQueryWhenIdle(QueryPtr query)
+{
+	MutationScope mutation(*this);
+
+	assert(query);
+	for(auto player : query->players)
+	{
+		if(player.isValidPlayer())
+			waiting.at(player.getNum()).push_back(query);
+	}
+}
+
 void QueriesProcessor::addQuery(PlayerColor player, QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
@@ -175,11 +187,6 @@ int QueriesProcessor::countQuery(const QueryPtr & query) const
 			++result;
 	}
 	return result;
-}
-
-void QueriesProcessor::setListener(IQueryStackListener * listener)
-{
-	queriesStackListener = listener;
 }
 
 QueryPtr QueriesProcessor::getQuery(QueryID queryID, PlayerColor player)
@@ -298,25 +305,50 @@ bool QueriesProcessor::resolveAnsweredQueries()
 	return changedAnything;
 }
 
-bool QueriesProcessor::reportStackChanges()
+bool QueriesProcessor::promoteWaitingQueries()
 {
-	auto changed = stackChanged;
-	stackChanged = {};
+	bool startedAnything = false;
 
-	if(!queriesStackListener)
-		return false;
-
-	for(size_t idx = 0; idx < changed.size(); ++idx)
+	for(size_t idx = 0; idx < queries.size(); ++idx)
 	{
-		if(changed.at(idx))
-			queriesStackListener->onQueryStackChanged(PlayerColor(static_cast<int32_t>(idx)));
+		if(!queries.at(idx).empty())
+			continue; // fast path; everyPlayerIsIdle below is the actual condition
+
+		auto & queue = waiting.at(idx);
+		if(queue.empty())
+			continue;
+
+		auto query = queue.front();
+		queue.pop_front();
+
+		// A query shared by several players is queued for each of them; start it
+		// only once, when the last of them is ready for it.
+		const bool everyPlayerIsIdle = std::ranges::all_of(query->players, [this](PlayerColor player)
+		{
+			return player.isValidPlayer() && queries.at(player.getNum()).empty();
+		});
+
+		if(!everyPlayerIsIdle)
+		{
+			queue.push_front(query);
+			continue;
+		}
+
+		for(auto player : query->players)
+			vstd::erase_if_present(waiting.at(player.getNum()), query);
+
+		addQuery(query);
+		startedAnything = true;
 	}
 
-	return std::ranges::any_of(stackChanged, [](bool value){ return value; });
+	return startedAnything;
 }
 
 bool QueriesProcessor::runVictoryChecks()
 {
+	// Cleared first so that the flags report only what the checks themselves change.
+	stackChanged = {};
+
 	// checkVictoryLossConditionsForPlayer() ignores players that still have queries,
 	// so it is enough to offer it every player that just went idle.
 	for(size_t idx = 0; idx < queries.size(); ++idx)
@@ -359,7 +391,9 @@ void QueriesProcessor::settle()
 		if(advanceRoutines())
 			continue;
 
-		if(reportStackChanges())
+		// Only now, with nothing left of whatever the player was doing, may work
+		// that was queued up behind it begin.
+		if(promoteWaitingQueries())
 			continue;
 
 		if(runVictoryChecks())

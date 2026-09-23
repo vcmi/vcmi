@@ -68,3 +68,29 @@ public:
 	StepResult advance() final;
 	void onChildCompleted(const QueryPtr & child) final;
 };
+
+/// Visits the objects a player's heroes are standing on when their turn begins, one
+/// at a time. Queued to start only once the player has nothing else pending, so that
+/// it does not interrupt, for example, the dialog accepting the start of the turn.
+class TurnStartVisitQuery final : public CQuery, public IRoutine
+{
+public:
+	struct PendingVisit
+	{
+		ObjectInstanceID object;
+		ObjectInstanceID hero;
+	};
+
+	static constexpr QueryType TYPE = QueryType::TurnStartVisit;
+
+	TurnStartVisitQuery(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits);
+
+	IRoutine * asRoutine() final { return this; }
+	StepResult advance() final;
+
+private:
+	std::vector<PendingVisit> visits;
+
+	/// Index of the next visit - the routine's position within the activity.
+	size_t cursor = 0;
+};

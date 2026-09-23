@@ -28,6 +28,7 @@ std::string toString(QueryType type)
 		case QueryType::OpenWindow:             return "OpenWindow";
 		case QueryType::MapObjectVisit:         return "MapObjectVisit";
 		case QueryType::TownBuildingVisit:      return "TownBuildingVisit";
+		case QueryType::TurnStartVisit:         return "TurnStartVisit";
 		case QueryType::Battle:                 return "Battle";
 		case QueryType::BattleDialog:           return "BattleDialog";
 		case QueryType::HeroMovement:           return "HeroMovement";

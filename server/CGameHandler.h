@@ -48,7 +48,6 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 class IGameServer;
-class TurnStartVisitScheduler;
 
 namespace scripting
 {
@@ -63,7 +62,6 @@ public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
-	std::unique_ptr<TurnStartVisitScheduler> turnStartVisitScheduler;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;

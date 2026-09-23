@@ -128,3 +128,36 @@ StepResult TownBuildingVisitQuery::advance()
 
 	return StepResult::Continue;
 }
+
+TurnStartVisitQuery::TurnStartVisitQuery(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits)
+	: CQuery(owner, TYPE)
+	, visits(std::move(visits))
+{
+	addPlayer(player);
+}
+
+StepResult TurnStartVisitQuery::advance()
+{
+	if(cursor >= visits.size())
+		return StepResult::Done;
+
+	const auto & visit = visits.at(cursor++);
+
+	const auto * object = gh->gameState().getObjInstance(visit.object);
+	const auto * hero = gh->gameState().getHero(visit.hero);
+
+	// The town may have been captured, or the hero moved away or died, between the
+	// visits being collected and this one being reached.
+	if(!object || !hero)
+		return StepResult::Continue;
+
+	if(hero->visitablePos() != object->visitablePos())
+		return StepResult::Continue;
+
+	if(gh->getVisitingHero(object) != nullptr)
+		return StepResult::Continue;
+
+	gh->objectVisited(object, hero);
+
+	return StepResult::Continue;
+}
