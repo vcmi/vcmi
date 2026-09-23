@@ -116,6 +116,7 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 		case BonusType::BONUS_DAMAGE_CHANCE:
 		case BonusType::BONUS_DAMAGE_PERCENTAGE:
 		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::SPECIAL_UPGRADE_CHAIN:
 		case BonusType::HATE:
 		case BonusType::MANUAL_CONTROL:
 		case BonusType::SKELETON_TRANSFORMER_TARGET:

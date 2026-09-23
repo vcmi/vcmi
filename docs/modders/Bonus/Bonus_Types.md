@@ -450,6 +450,16 @@ Allows creature being upgraded to another creature (Gelu, Dracon)
 - addInfo: identifier of creature to which perform an upgrade
 - val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost.
 
+### SPECIAL_UPGRADE_CHAIN
+
+Allows creature to be upgraded through its existing upgrade chain towards a configured final target. Direct upgrades that can still reach the target are offered together with the final target. The bonus continues from intermediate creatures until the configured target is reached.
+
+The bonus uses existing creature `upgrades` topology and does not create new upgrade relationships. Towns and creature upgraders keep their own upgrade availability and costs.
+
+- subtype: identifier of creature that starts the upgrade chain
+- addInfo: identifier of final target creature
+- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost
+
 ## Artifact bonuses
 
 ### SPELL_DURATION

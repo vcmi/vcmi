@@ -132,6 +132,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::SPECIAL_UPGRADE_CHAIN:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
 			break;

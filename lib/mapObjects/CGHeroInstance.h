@@ -28,6 +28,7 @@ class TurnInfo;
 
 struct TerrainTile;
 struct TurnInfoCache;
+struct bonus;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
@@ -338,6 +339,7 @@ protected:
 private:
 	void levelUpAutomatically(IGameRandomizer & gameRandomizer);
 	void attachCommanderToArmy();
+	void addSpecialUpgradeChain(UpgradeInfo & info, const CStackInstance & stack, const Bonus & bonus) const;
 
 public:
 	std::string getHeroTypeName() const;
