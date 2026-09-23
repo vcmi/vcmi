@@ -3766,8 +3766,6 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 		throw std::runtime_error("Can not visit object that is being visited");
 	}
 
-	std::shared_ptr<MapObjectVisitQuery> visitQuery;
-
 	if(visitedObject->ID == Obj::HERO)
 	{
 		const auto * visitedHero = dynamic_cast<const CGHeroInstance *>(visitedObject);
@@ -3781,26 +3779,10 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 				visitedObject = visitedTown;
 		}
 	}
-	visitQuery = std::make_shared<MapObjectVisitQuery>(this, visitedObject, h);
-	queries->addQuery(visitQuery); //TODO real visit pos
 
-	HeroVisit hv;
-	hv.objId = visitedObject->id;
-	hv.heroId = h->id;
-	hv.player = h->tempOwner;
-	hv.starting = true;
-	sendAndApply(hv);
-
-	std::string scriptHandler = visitedObject->getVisitScriptHandler();
-	auto * dispatcher = gameState().getMapEventDispatcher();
-	if(!scriptHandler.empty() && dispatcher)
-		runScriptedEvent(*dispatcher, h->getOwner(), h->id,
-			[&](scripting::MapEventDispatcher & d){ return d.onObjectVisit(*this, scriptHandler, visitedObject, h); });
-	else
-		visitedObject->onHeroVisit(*this, h);
-
-	if(visitQuery)
-		queries->popIfTop(visitQuery); //visit ends here if no queries were created
+	// The visit itself runs as a routine: it announces the visit, hands control to
+	// the object, and finishes once the object - and anything it started - is done.
+	queries->addQuery(std::make_shared<MapObjectVisitQuery>(this, visitedObject, h)); //TODO real visit pos
 }
 
 void CGameHandler::objectVisitEnded(const ObjectInstanceID & heroObjectID, PlayerColor player)

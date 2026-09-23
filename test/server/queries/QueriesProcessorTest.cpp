@@ -16,6 +16,11 @@
 #include "lib/battle/BattleInfo.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGDwelling.h"
+#include "lib/mapObjects/CGResource.h"
+#include "lib/mapObjects/CGCreature.h"
+#include "lib/mapObjects/CGPandoraBox.h"
+#include "lib/bonuses/Bonus.h"
+#include "lib/CPlayerState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapping/CMap.h"
 
@@ -1199,4 +1204,239 @@ TEST_F(QueriesProcessorTest, routine_underneathAnAnsweredQueryResumesAfterItReso
 
 	EXPECT_EQ(routine->stepsTaken, 3);
 	EXPECT_EQ(queries.topQuery(player), nullptr);
+}
+
+// --------------------------------------------------------------------------------
+// Object visits driven end to end.
+//
+// The visit routine hands control to the object, which may finish immediately or
+// start a battle. These exercise the real pipeline rather than a stand-in routine.
+// --------------------------------------------------------------------------------
+
+namespace
+{
+class MapObjectVisitTest : public TinyMapGameTest
+{
+};
+}
+
+TEST_F(MapObjectVisitTest, unguardedVisitFinishesAndLeavesNothingOnTheStack)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.resource(int3(6, 5, 0), GameResID(GameResID::GOLD), 1000);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * resource = findFirst<CGResource>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(resource, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	const auto goldBefore = gameState()->getPlayerState(player)->resources[GameResID::GOLD];
+	const auto resourceID = resource->id;
+
+	gameHandler.objectVisited(resource, hero);
+
+	// The whole visit runs within the call: reward granted, object gone, no query left.
+	EXPECT_GT(gameState()->getPlayerState(player)->resources[GameResID::GOLD], goldBefore);
+	EXPECT_EQ(gameState()->getObjInstance(resourceID), nullptr);
+	EXPECT_EQ(gameHandler.queries->topQuery(player), nullptr);
+}
+
+TEST_F(MapObjectVisitTest, visitResumesAndCompletesAfterTheDialogItStarted)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	const auto pandoraID = pandora->id;
+
+	gameHandler.objectVisited(pandora, hero);
+
+	// The object opens a dialog, so the visit suspends rather than finishing.
+	auto dialog = gameHandler.queries->topQuery(player);
+	ASSERT_NE(dialog, nullptr);
+	EXPECT_EQ(dialog->getType(), QueryType::BlockingDialog);
+	EXPECT_NE(gameHandler.getVisitingHero(pandora), nullptr);
+
+	// Answering resumes the visit, which then runs to the end and unwinds fully.
+	ASSERT_EQ(gameHandler.queries->submitReply(dialog->queryID, player, 1), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(gameHandler.queries->topQuery(player), nullptr);
+	EXPECT_EQ(gameState()->getObjInstance(pandoraID), nullptr);
+}
+
+TEST_F(MapObjectVisitTest, visitStaysSuspendedAcrossAChainOfChildQueries)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroGarrison({{CreatureID(0), 50}})
+		.monster(int3(6, 5, 0), CreatureID(0), 1, /*character*/ 3);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * monster = findFirst<CGCreature>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(monster, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	auto visitIsPending = [&]()
+	{
+		for(const auto & query : gameHandler.queries->allQueries())
+			if(query->getType() == QueryType::MapObjectVisit)
+				return true;
+		return false;
+	};
+
+	gameHandler.objectVisited(monster, hero);
+
+	// The object puts something on top of the visit instead of finishing it.
+	auto child = gameHandler.queries->topQuery(player);
+	ASSERT_NE(child, nullptr);
+	EXPECT_NE(child->getType(), QueryType::MapObjectVisit);
+	EXPECT_TRUE(visitIsPending());
+	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+
+	// Whether the monster parleys first depends on a die roll, so accept either
+	// shape: if it asked, answering starts the battle one level deeper.
+	if(child->getType() == QueryType::BlockingDialog)
+	{
+		ASSERT_EQ(gameHandler.queries->submitReply(child->queryID, player, 1), ReplyOutcome::Accepted);
+		child = gameHandler.queries->topQuery(player);
+		ASSERT_NE(child, nullptr);
+	}
+
+	// Either way the visit is still waiting underneath, so that the object can be
+	// told the battle result when it ends.
+	EXPECT_EQ(child->getType(), QueryType::Battle);
+	EXPECT_TRUE(visitIsPending());
+	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+}
+
+TEST_F(MapObjectVisitTest, visitIsRefusedWhileAnotherHeroIsVisitingTheSameObject)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroGarrison({{CreatureID(0), 50}})
+		.monster(int3(6, 5, 0), CreatureID(0), 1, /*character*/ 3);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * monster = findFirst<CGCreature>();
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(monster, hero);
+	ASSERT_NE(gameHandler.getVisitingHero(monster), nullptr);
+
+	// The visit query must be findable on the stack for the whole visit - object code
+	// relies on that through removeAfterVisit() and isVisitCoveredByAnotherQuery().
+	EXPECT_THROW(gameHandler.objectVisited(monster, hero), std::runtime_error);
+}
+
+TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewardAgain)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroGarrison({{CreatureID(0), 200}})
+		.heroExperience(999) // one experience point short of the next level
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// A reward granted in the after-level-up half of the pipeline, so that granting
+	// it twice is visible, plus guards so the visit has to go through a battle.
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	pandora->configuration.info.at(0).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+	ASSERT_TRUE(pandora->setCreature(SlotID(0), CreatureID(0), 1));
+
+	auto rewardsGranted = [&]()
+	{
+		return hero->getBonuses([](const Bonus * b)
+		{
+			return b->type == BonusType::MORALE && b->source == BonusSource::OBJECT_TYPE;
+		})->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	// Level-up prompts are only sent once the client's interface is ready, and the
+	// hero's level is applied by that pack - without this the hero never levels up.
+	gameHandler.onAdvInterfaceReady(player);
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.queries->topQuery(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(dialog->getType(), QueryType::BlockingDialog);
+	ASSERT_EQ(gameHandler.queries->submitReply(dialog->queryID, player, 1), ReplyOutcome::Accepted);
+
+	ASSERT_EQ(gameHandler.queries->topQuery(player)->getType(), QueryType::Battle);
+	gameHandler.battles->cheatBattleVictory(player);
+
+	// Accept the result rather than replaying the battle.
+	auto resultDialog = gameHandler.queries->topQuery(player);
+	ASSERT_NE(resultDialog, nullptr);
+	ASSERT_EQ(resultDialog->getType(), QueryType::BattleDialog);
+	ASSERT_EQ(gameHandler.queries->submitReply(resultDialog->queryID, player, 0), ReplyOutcome::Accepted);
+
+	// The object has applied the battle result and granted its reward once. The
+	// level-up earned from battle experience is only now offered, on top of the visit.
+	ASSERT_EQ(rewardsGranted(), 1u);
+	auto levelUp = gameHandler.queries->topQuery(player);
+	ASSERT_NE(levelUp, nullptr);
+	ASSERT_EQ(levelUp->getType(), QueryType::HeroLevelUpDialog);
+
+	// The hero may gain several levels at once, each prompting in turn.
+	int levelUpsAnswered = 0;
+	while(auto pending = gameHandler.queries->topQuery(player))
+	{
+		if(pending->getType() != QueryType::HeroLevelUpDialog)
+			break;
+
+		ASSERT_EQ(gameHandler.queries->submitReply(pending->queryID, player, 0), ReplyOutcome::Accepted);
+		ASSERT_LT(++levelUpsAnswered, 10) << "level-up chain did not terminate";
+	}
+
+	EXPECT_GE(levelUpsAnswered, 1);
+
+	// None of those level-ups is part of the object's reward pipeline, so the object
+	// must not be told about them - otherwise heroLevelUpDone() grants the reward
+	// once more for each one.
+	EXPECT_EQ(rewardsGranted(), 1u);
+	EXPECT_EQ(gameHandler.queries->topQuery(player), nullptr);
 }
