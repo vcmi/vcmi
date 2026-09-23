@@ -104,36 +104,44 @@ public:
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
-class CHeroLevelUpDialogQuery : public CDialogQuery
+/// Asks a player to pick skills as a hero gains levels, and then as their commander
+/// does. A single hero can gain several levels at once, so this asks once per level
+/// without leaving the stack in between: the player cannot act between two levels,
+/// and whatever is waiting underneath - usually the visit that granted the
+/// experience - is told once, when the whole sequence is over.
+class LevelUpQuery : public CQuery, public IInteraction
 {
+	/// Which of the two sequences is being asked about. The hero levels first, then
+	/// the commander, matching the order the game applies them in.
+	enum class Phase : uint8_t
+	{
+		Hero,
+		Commander,
+		Finished
+	};
+
+	Phase phase = Phase::Hero;
+	ObjectInstanceID hero;
+
+	/// Skills offered by the question currently outstanding, so that an answer can be
+	/// turned back into the skill the player picked.
+	std::vector<SecondarySkill> offeredHeroSkills;
+	std::vector<ui32> offeredCommanderSkills;
+
+	PromptResult askHeroLevelUp();
+	PromptResult askCommanderLevelUp();
+
 public:
 	static constexpr QueryType TYPE = QueryType::HeroLevelUpDialog;
 
-	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
+	LevelUpQuery(CGameHandler * owner, const CGHeroInstance * hero);
 
-	void onRemoval(PlayerColor color) override;
-	void onAdded(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
+	IInteraction * asInteraction() final { return this; }
+	PromptResult askNextQuestion() final;
+	void applyAnswer(std::optional<int32_t> answer) final;
 
-	HeroLevelUp hlu;
-	const CGHeroInstance * hero;
-	bool prompted = false;
-};
-
-class CCommanderLevelUpDialogQuery : public CDialogQuery
-{
-public:
-	static constexpr QueryType TYPE = QueryType::CommanderLevelUpDialog;
-
-	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
-
-	void onRemoval(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
-	void onAdded(PlayerColor color) override;
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
-
-	CommanderLevelUp clu;
-	const CGHeroInstance * hero;
-	bool prompted = false;
+	bool endsByPlayerAnswer() const final;
+	bool blocksPack(const CPackForServer * pack) const final;
+	void onRemoval(PlayerColor color) final;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const final;
 };

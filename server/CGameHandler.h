@@ -32,6 +32,8 @@ struct StartInfo;
 struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
+struct HeroLevelUp;
+struct CommanderLevelUp;
 struct CArtifactOperationPack;
 struct CGarrisonOperationPack;
 struct SetResources;
@@ -203,10 +205,18 @@ public:
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
-	void levelUpHero(const CGHeroInstance * hero, SecondarySkill skill);//handle client respond and send one more request if needed
-	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
-	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
+	/// Starts a level-up: asks the player about each level earned, or picks for them
+	/// when there is nobody to ask.
+	void levelUpHero(const CGHeroInstance * hero);
 	void levelUpCommander (const CCommanderInstance * c);
+
+	/// Rolls what one level offers, and applies the level itself. Does not ask.
+	HeroLevelUp rollHeroLevelUp(const CGHeroInstance * hero);
+	std::optional<CommanderLevelUp> rollCommanderLevelUp(const CCommanderInstance * c);
+
+	/// Grants the skill picked for one level. Does not continue to the next level.
+	void applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill);
+	void applyCommanderLevelUp (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
 
 	void expGiven(const CGHeroInstance *hero); //triggers needed level-ups, handles also commander of this hero
 	//////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "MapQueries.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
@@ -229,124 +230,141 @@ CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportD
 	addPlayer(gh->gameInfo().getHero(dialog.hero)->getOwner());
 }
 
-CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu, const CGHeroInstance * Hero):
-	CDialogQuery(owner, TYPE), hero(Hero)
+LevelUpQuery::LevelUpQuery(CGameHandler * owner, const CGHeroInstance * hero)
+	: CQuery(owner, TYPE), hero(hero->id)
 {
-	hlu = Hlu;
 	addPlayer(hero->tempOwner);
 }
 
-void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
+bool LevelUpQuery::endsByPlayerAnswer() const
 {
-	assert(answer);
-	gh->sendQueryResolved(queryID);
-	if(hlu.skills.empty())
+	return true;
+}
+
+bool LevelUpQuery::blocksPack(const CPackForServer * pack) const
+{
+	return blockAllButReply(pack);
+}
+
+PromptResult LevelUpQuery::askNextQuestion()
+{
+	if(phase == Phase::Hero)
 	{
-		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getNameTextID());
-		gh->levelUpHero(hero);
-		return;
+		auto result = askHeroLevelUp();
+		if(result != PromptResult::Finished)
+			return result;
+
+		phase = Phase::Commander;
 	}
 
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getNameTextID(), answer.value());
-	gh->levelUpHero(hero, hlu.skills[*answer]);
-}
-
-void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
-{
-	if(prompted || answer)
-		return;
-
-	if(owner->topQuery(color).get() != this)
-		return;
-
-	if(!gh->uiReadyForDialogs.contains(color))
-		return;
-
-	prompted = true;
-	hlu.queryID = queryID;
-	gh->sendAndApply(hlu);
-}
-
-void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
-{
-	// Note: an answered query is popped by QueriesProcessor when it is exposed,
-	// so this hook only ever has to deal with prompting.
-	if(prompted)
-		return;
-
-	for(auto color : players)
+	if(phase == Phase::Commander)
 	{
-		if(owner->topQuery(color).get() != this)
-			continue;
+		auto result = askCommanderLevelUp();
+		if(result != PromptResult::Finished)
+			return result;
 
-		if(!gh->uiReadyForDialogs.contains(color))
-			continue;
-
-		prompted = true;
-		hlu.queryID = queryID;
-		gh->sendAndApply(hlu);
-		break;
-	}
-}
-
-void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
-{
-	visitedObject->heroLevelUpDone(*gh, visitingHero);
-}
-
-CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero)
-	: CDialogQuery(owner, TYPE), hero(Hero)
-{
-	clu = Clu;
-	addPlayer(hero->tempOwner);
-}
-
-void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
-{
-	assert(answer);
-	gh->sendQueryResolved(queryID);
-	if(clu.skills.empty())
-	{
-		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getNameTextID());
-		gh->levelUpCommander(hero->getCommander());
-		return;
+		phase = Phase::Finished;
 	}
 
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getNameTextID(), answer.value());
-	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
+	return PromptResult::Finished;
 }
 
-void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+PromptResult LevelUpQuery::askHeroLevelUp()
 {
-	if(prompted)
+	const auto * levellingHero = gh->gameInfo().getHero(hero);
+
+	if(!levellingHero || !levellingHero->gainsLevel())
+		return PromptResult::Finished;
+
+	// The dialog is only sent once the player's interface can show it. Until then the
+	// level is not applied either, so gainsLevel() stays true and we try again later.
+	if(!gh->uiReadyForDialogs.contains(players.front()))
+		return PromptResult::NotReady;
+
+	auto levelUp = gh->rollHeroLevelUp(levellingHero);
+	offeredHeroSkills = levelUp.skills;
+
+	activeQuestionID = ++gh->QID;
+	levelUp.queryID = activeQuestionID;
+	gh->sendAndApply(levelUp);
+
+	return PromptResult::Asked;
+}
+
+PromptResult LevelUpQuery::askCommanderLevelUp()
+{
+	const auto * levellingHero = gh->gameInfo().getHero(hero);
+
+	if(!levellingHero || !levellingHero->getCommander() || !levellingHero->getCommander()->gainsLevel())
+		return PromptResult::Finished;
+
+	if(!gh->uiReadyForDialogs.contains(players.front()))
+		return PromptResult::NotReady;
+
+	auto levelUp = gh->rollCommanderLevelUp(levellingHero->getCommander());
+	if(!levelUp)
+		return PromptResult::Finished;
+
+	offeredCommanderSkills = levelUp->skills;
+
+	activeQuestionID = ++gh->QID;
+	levelUp->queryID = activeQuestionID;
+	gh->sendAndApply(*levelUp);
+
+	return PromptResult::Asked;
+}
+
+void LevelUpQuery::applyAnswer(std::optional<int32_t> answer)
+{
+	const auto * levellingHero = gh->gameInfo().getHero(hero);
+	if(!levellingHero)
 		return;
 
-	for(const auto & color : players)
+	if(phase == Phase::Hero)
 	{
-		if(owner->topQuery(color).get() == this)
+		if(offeredHeroSkills.empty())
 		{
-			prompted = true;
-			clu.queryID = queryID;
-			gh->sendAndApply(clu);
-			break;
+			logGlobal->trace("%s gains no secondary skill", levellingHero->getNameTextID());
 		}
+		else if(answer && *answer >= 0 && *answer < static_cast<int32_t>(offeredHeroSkills.size()))
+		{
+			logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
+			gh->applyHeroLevelUp(levellingHero, offeredHeroSkills.at(*answer));
+		}
+		else
+		{
+			logGlobal->warn("Invalid secondary skill %d chosen for %s - granting none",
+				answer.value_or(-1), levellingHero->getNameTextID());
+		}
+
+		offeredHeroSkills.clear();
+		return;
 	}
+
+	if(offeredCommanderSkills.empty())
+	{
+		logGlobal->trace("Commander of %s gains no skill", levellingHero->getNameTextID());
+	}
+	else if(answer && *answer >= 0 && *answer < static_cast<int32_t>(offeredCommanderSkills.size()))
+	{
+		logGlobal->trace("Commander of %s gains skill %d", levellingHero->getNameTextID(), *answer);
+		gh->applyCommanderLevelUp(levellingHero->getCommander(), offeredCommanderSkills.at(*answer));
+	}
+	else
+	{
+		logGlobal->warn("Invalid commander skill %d chosen for %s - granting none",
+			answer.value_or(-1), levellingHero->getNameTextID());
+	}
+
+	offeredCommanderSkills.clear();
 }
 
-void CCommanderLevelUpDialogQuery::onAdded(PlayerColor color)
+void LevelUpQuery::onRemoval(PlayerColor color)
 {
-	if(prompted || answer)
-		return;
-
-	if(owner->topQuery(color).get() != this)
-		return;
-
-	prompted = true;
-	clu.queryID = queryID;
-	gh->sendAndApply(clu);
+	gh->sendQueryResolved(queryID);
 }
 
-void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void LevelUpQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
