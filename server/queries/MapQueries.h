@@ -42,7 +42,10 @@ public:
 
 	TryMoveHero tmh;
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
-	const CGHeroInstance *hero;
+
+	/// Held as an id rather than a pointer: the query outlives a guard battle, which
+	/// the hero may not - a beaten hero is taken off the map and put in the pool.
+	ObjectInstanceID hero;
 
 	void onExposure(QueryPtr topQuery) override;
 

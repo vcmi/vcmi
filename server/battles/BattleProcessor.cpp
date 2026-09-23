@@ -57,22 +57,32 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(pb);
 }
 
+CBattleQuery * BattleProcessor::findTopBattleQuery(const CBattleInfoCallback & battle, DefenderProbe probe) const
+{
+	const auto attackerPlayer = battle.sideToPlayer(BattleSide::ATTACKER);
+	if(auto * query = gameHandler->queries->queryAs<CBattleQuery>(gameHandler->queries->topQuery(attackerPlayer)))
+		return query;
+
+	const auto defenderPlayer = battle.sideToPlayer(BattleSide::DEFENDER);
+	if(!defenderPlayer.isValidPlayer())
+		return nullptr;
+
+	if(probe == DefenderProbe::WhenHuman)
+	{
+		const auto * defenderState = gameHandler->gameInfo().getPlayerState(defenderPlayer);
+		if(!defenderState || !defenderState->isHuman())
+			return nullptr;
+	}
+
+	return gameHandler->queries->queryAs<CBattleQuery>(gameHandler->queries->topQuery(defenderPlayer));
+}
+
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
 
-	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
-	auto * lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
-	if(!lastBattleQuery)
-	{
-		auto defenderPlayer = battle->getSide(BattleSide::DEFENDER).color;
-		if(defenderPlayer.isValidPlayer())
-		{
-			auto defenderQuery = gameHandler->queries->topQuery(defenderPlayer);
-			lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
-		}
-	}
+	auto * lastBattleQuery = findTopBattleQuery(*battle, DefenderProbe::WhenValidPlayer);
 
 	assert(lastBattleQuery);
 
@@ -133,13 +143,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 		}
 	}
 
-	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
-	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
-	if(!topBattleQuery && battle->getSide(BattleSide::DEFENDER).color.isValidPlayer())
-	{
-		auto defenderQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color);
-		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
-	}
+	auto * topBattleQuery = findTopBattleQuery(*battle, DefenderProbe::WhenValidPlayer);
 	if (topBattleQuery)
 	{
 		topBattleQuery->battleID = battleID;
@@ -256,14 +260,8 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
 	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
 
-	auto attackerQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::ATTACKER).color);
-	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
+	auto * topBattleQuery = findTopBattleQuery(*bs.info, DefenderProbe::WhenHuman);
 	bool isDefenderHuman = bs.info->getSide(BattleSide::DEFENDER).color.isValidPlayer() && gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::DEFENDER).color)->isHuman();
-	if(!topBattleQuery && isDefenderHuman)
-	{
-		auto defenderQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::DEFENDER).color);
-		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
-	}
 
 	bool isAttackerHuman = gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::ATTACKER).color)->isHuman();
 
