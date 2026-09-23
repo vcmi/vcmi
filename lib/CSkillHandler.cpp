@@ -310,6 +310,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 				bonus->addUpdater(std::make_shared<TimesHeroLevelUpdater>());
 			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
+			bonus->targetSourceID = skill->id; //only amplify bonuses granted by this skill
 			skill->specialtyTargetBonuses.push_back(bonus);
 		}
 		else

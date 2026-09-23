@@ -31,12 +31,6 @@ namespace Selector
 		return ssourceType;
 	}
 
-	DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType()
-	{
-		static const CSelectFieldEqual<BonusSource> ssourceType(&Bonus::targetSourceType);
-		return ssourceType;
-	}
-
 	DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange()
 	{
 		static const CSelectFieldEqual<BonusLimitEffect> seffectRange(&Bonus::effectRange);
@@ -67,6 +61,17 @@ namespace Selector
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source)
 	{
 		return CSelectFieldEqual<BonusSource>(&Bonus::source)(source);
+	}
+
+	CSelector DLL_LINKAGE targetSource(BonusSource source, BonusSourceID sourceID)
+	{
+		auto bySourceType = CSelectFieldEqual<BonusSource>(&Bonus::targetSourceType)(source);
+
+		if(!sourceID.hasValue())
+			return bySourceType; // no source ID specified - filter by source type only
+
+		CSelectFieldEqual<BonusSourceID> bySourceID(&Bonus::targetSourceID);
+		return bySourceType.And(bySourceID(sourceID).Or(bySourceID(BonusSourceID())));
 	}
 
 	CSelector DLL_LINKAGE valueType(BonusValueType valType)

@@ -844,6 +844,15 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	if (!value->isNull())
 		b->targetSourceType = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "target type "));
 
+	value = &ability["targetSourceID"];
+	if (!value->isNull())
+	{
+		if (b->targetSourceType == BonusSource::OTHER)
+			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
+		else
+			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value);
+	}
+
 	value = &ability["limiters"];
 	if (!value->isNull())
 		b->limiter = parseLimiter(*value);
@@ -920,7 +929,6 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -931,22 +939,46 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["sourceID"];
 	if(!value->isNull() && src.has_value())
 	{
-		loadBonusSourceInstance(*id, *src, ability);
-	}
+		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
+		// Selector has to look it up on each use, rather than capture it right away
+		auto sourceId = std::make_shared<BonusSourceID>();
+		loadBonusSourceInstance(*sourceId, *src, *value);
 
-	if(src && id)
-		ret = ret.And(Selector::source(*src, *id));
+		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
+		{
+			return bonus->source == source && bonus->sid == *sourceId;
+		}));
+	}
 	else if(src)
 		ret = ret.And(Selector::sourceTypeSel(*src));
 
 
 	value = &ability["targetSourceType"];
+	std::optional<BonusSource> targetSrc = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
 		if(it != bonusSourceMap.end())
-			ret = ret.And(Selector::targetSourceType()(it->second));
+			targetSrc = it->second;
 	}
+
+	value = &ability["targetSourceID"];
+	if(!value->isNull() && targetSrc.has_value())
+	{
+		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
+		// Selector has to look it up on each use, rather than capture it right away
+		auto targetId = std::make_shared<BonusSourceID>();
+		loadBonusSourceInstance(*targetId, *targetSrc, *value);
+
+		ret = ret.And(CSelector([targetSource = *targetSrc, targetId](const Bonus * bonus)
+		{
+			return bonus->targetSourceType == targetSource
+				&& (*targetId == BonusSourceID() || bonus->targetSourceID == *targetId);
+		}));
+	}
+	else if(targetSrc)
+		ret = ret.And(Selector::targetSource(*targetSrc));
+
 	value = &ability["valueType"];
 	if(value->isString())
 	{
