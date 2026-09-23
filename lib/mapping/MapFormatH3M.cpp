@@ -1644,7 +1644,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & map
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
 	if (guard)
-		readQuest(guard->addQuest(), mapPosition);
+	{
+		Quest & quest = guard->addQuest();
+		readQuest(quest, mapPosition);
+        readQuestGiverName(quest, mapPosition, 0);
+	}
 	return guard;
 }
 
@@ -1653,7 +1657,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapP
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto gate = std::dynamic_pointer_cast<QuestSource>(object);
 	if (gate)
-		readQuest(gate->addQuest(), mapPosition);
+	{
+		Quest & quest = gate->addQuest();
+		readQuest(quest, mapPosition);
+        readQuestGiverName(quest, mapPosition, 0);
+	}
 	return gate;
 }
 
@@ -2544,7 +2552,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 		}
 	}
 
-	reader->skipZero(2);
+	reader->skipZero(features.levelHOTA10 ? 3 : 2);
 
 	return hut;
 }
@@ -2586,6 +2594,8 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 
 	if(missionType != EQuestMission::NONE)
 	{
+        readQuestGiverName(quest, position, questIndex);
+
 		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Checked(0, 10));
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
@@ -2682,6 +2692,14 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 		// missionType==255
 		reader->skipZero(1);
 	}
+}
+
+void CMapLoaderH3M::readQuestGiverName(Quest & quest, const int3 & position, int questIndex)
+{
+	if(!features.levelHOTA10)
+		return;
+
+    quest.questGiverNameTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "giverName"));
 }
 
 EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, const int questIndex)
