@@ -163,7 +163,7 @@ public:
 			defineQuestName();
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 /// Narrow, read-only view of a quest-carrying object for outside consumers (AI,
@@ -207,6 +207,7 @@ public:
 
 	/// All quests this source owns (loader / setup use).
 	const std::vector<std::shared_ptr<Quest>> & allQuests() const { return quests; }
+	std::vector<std::shared_ptr<Quest>> & allQuestsEditor() { return quests; }
 	/// Appends a fresh quest and returns it (loader use).
 	Quest & addQuest();
 

@@ -517,15 +517,8 @@ void Inspector::updateProperties(CGEvent * o)
 void Inspector::updateProperties(SeerHut * o)
 {
 	if(!o) return;
-
-	addProperty(QObject::tr("First visit text"), o->getQuest().firstVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Next visit text"), o->getQuest().nextVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Completed text"), o->getQuest().completedText, new MessageDelegate, false);
-	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, false);
-	addProperty(QObject::tr("Time limit"), o->getQuest().lastDay, false);
-
-	{ //Quest
-		auto * delegate = new QuestDelegate(controller, o->getQuest());
+	{
+		auto * delegate = new QuestDelegate(controller, *static_cast<QuestSource *>(o));
 		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
@@ -858,21 +851,6 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 
 void Inspector::setProperty(SeerHut * o, const QString & key, const QVariant & value)
 {
-	if(!o) return;
-
-	if(key == QObject::tr("First visit text"))
-		o->getQuest().firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
-			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
-	if(key == QObject::tr("Next visit text"))
-		o->getQuest().nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
-			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
-	if(key == QObject::tr("Completed text"))
-		o->getQuest().completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
-			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
-	if(key == QObject::tr("Repeat quest"))
-		o->getQuest().repeatedQuest = value.toBool();
-	if(key == QObject::tr("Time limit"))
-		o->getQuest().lastDay = value.toString().toInt();
 }
 
 void Inspector::setProperty(QuestGuard * o, const QString & key, const QVariant & value)

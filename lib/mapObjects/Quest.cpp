@@ -331,10 +331,8 @@ void Quest::addKillTargetReplacements(MetaString &out) const
 	}
 }
 
-void Quest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+void Quest::serializeJson(JsonSerializeFormat & handler)
 {
-	auto q = handler.enterStruct(fieldName);
-
 	handler.serializeStruct("firstVisitText", firstVisitText);
 	handler.serializeStruct("nextVisitText", nextVisitText);
 	handler.serializeStruct("completedText", completedText);
@@ -778,9 +776,55 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
-	if(!handler.saving && allQuests().empty())
-		addQuest(); // JSON seer huts carry a single quest; create it to read into
-	getQuest().serializeJson(handler, "quest");
+
+	bool oldVersion = false;
+	{
+		if (!handler.saving)
+		{
+			auto s = handler.enterStruct("quest");
+			oldVersion = !handler.getCurrent().isNull();
+		}
+	}
+
+	if (oldVersion)
+	{
+		auto s = handler.enterStruct("quest");
+		addQuest().serializeJson(handler);
+		if (!configuration.info.empty())
+			allQuestsEditor()[0]->reward = configuration.info[0];
+	}
+	else
+	{
+		JsonArraySerializer questsArray = handler.enterArray("quests");
+		if(handler.saving)
+		{
+			int size = allQuests().size();
+			questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
+			for (int i = 0; i<size; i++)
+			{
+				auto questSerializer = questsArray.enterStruct(i);
+				allQuests()[i]->serializeJson(handler);
+			}
+		} else
+		{
+			int size = questsArray.size();
+			for (int i = 0; i<size; i++)
+			{
+				auto & quest = addQuest();
+				auto questSerializer = questsArray.enterStruct(i);
+				quest.serializeJson(handler);
+			}
+		}
+
+		//we copy rewards consecutively from rewardable to quests (TODO:add reward widget included within quest widget in the editor and save rewards as reward)
+		if (!handler.saving)
+		{
+			for (int i = 0; i<configuration.info.size() && i<allQuests().size(); i++)
+			{
+				allQuestsEditor()[i]->reward = configuration.info[i];
+			}
+		}
+	}
 
 	if(!handler.saving)
 	{
@@ -859,7 +903,8 @@ void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	//quest only, do not call base class
 	if(!handler.saving && allQuests().empty())
 		addQuest(); // quest guards carry a single quest; create it to read into
-	getQuest().serializeJson(handler, "quest");
+	auto s = handler.enterStruct("quest");
+	getQuest().serializeJson(handler);
 }
 
 MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
