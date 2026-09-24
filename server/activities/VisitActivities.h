@@ -86,6 +86,10 @@ class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
 	/// Index of the next pair to visit - the routine's position within the activity.
 	size_t cursor = 0;
 
+	/// Building whose visit is in progress. It, not the town, is what asked whatever
+	/// is running above, so it is what has to be told when that finishes.
+	BuildingID visitedBuilding;
+
 public:
 	static constexpr ActivityType TYPE = ActivityType::TownBuildingVisit;
 
