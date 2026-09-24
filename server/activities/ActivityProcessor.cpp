@@ -34,7 +34,6 @@ void ActivityProcessor::popActivity(PlayerColor player, ActivityPtr activity)
 	stack.pop_back();
 	auto nextActivity = topActivity(player);
 
-	rememberCompleted(player, activity->questionID);
 	rememberCompleted(player, activity->getActiveQuestionID());
 	markStackChanged(player);
 
@@ -171,12 +170,12 @@ ActivityPtr ActivityProcessor::getActivity(QuestionID questionID)
 {
 	for(auto & playerActivities : activities)
 		for(auto & activity : playerActivities)
-			if(activity->questionID == questionID)
+			if(activity->getActiveQuestionID() == questionID)
 				return activity;
 	return nullptr;
 }
 
-int ActivityProcessor::countActivity(const ActivityPtr & activity) const
+int ActivityProcessor::countActivity(const Activity * activity) const
 {
 	if(!activity)
 		return 0;
@@ -184,7 +183,7 @@ int ActivityProcessor::countActivity(const ActivityPtr & activity) const
 	int result = 0;
 	for(const auto & currentActivity : allActivities())
 	{
-		if(currentActivity == activity)
+		if(currentActivity.get() == activity)
 			++result;
 	}
 	return result;
@@ -196,7 +195,7 @@ ActivityPtr ActivityProcessor::getActivity(QuestionID questionID, PlayerColor pl
 		return nullptr;
 
 	for(const auto & activity : activities.at(player.getNum()))
-		if(activity->questionID == questionID || activity->getActiveQuestionID() == questionID)
+		if(activity->getActiveQuestionID() == questionID)
 			return activity;
 
 	return nullptr;
@@ -498,12 +497,6 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 
 	if(auto * interaction = activity->asInteraction())
 	{
-		// An interaction asks more than once, so an answer has to name the question
-		// it belongs to. Naming the interaction itself is not good enough: that would
-		// let an answer to a question already superseded be taken for the current one.
-		if(questionID != activity->getActiveQuestionID())
-			return ReplyOutcome::IgnoredAlreadyCompleted;
-
 		// An interaction is not finished by an answer - it may have more to ask.
 		// Remember the question so that a repeated answer to it is recognised as a
 		// stale one rather than mistaken for an answer to whatever is asked next.

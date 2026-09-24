@@ -39,7 +39,7 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 void ApplyGhNetPackVisitor::visitGamePause(GamePause & pack)
 {
 	auto turnActivity = std::make_shared<TimerPauseActivity>(&gh, pack.player);
-	turnActivity->questionID = QuestionID::CLIENT;
+	turnActivity->expectAnswerTo(QuestionID::CLIENT); // the client unpauses with a reserved id
 	gh.activities->addActivity(turnActivity);
 	result = true;
 }

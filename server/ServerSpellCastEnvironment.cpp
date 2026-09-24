@@ -129,7 +129,7 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 void ServerSpellCastEnvironment::askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
 	auto activity = std::make_shared<CallbackActivity>(gh, color, callback);
-	request->questionID = activity->questionID;
+	request->questionID = activity->askQuestion();
 	gh->activities->addActivity(activity);
 	gh->sendAndApply(*request);
 }

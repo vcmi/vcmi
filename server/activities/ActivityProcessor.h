@@ -250,7 +250,8 @@ public:
 
 	AllActivitiesView allActivities();
 	AllActivitiesViewConst allActivities() const;
-	int countActivity(const ActivityPtr & activity) const;
+	/// On how many players' stacks this activity sits.
+	int countActivity(const Activity * activity) const;
 
 	template<typename T, typename ActivityPtrT>
 	using ActivityAsResult = std::conditional_t<

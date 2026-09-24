@@ -263,11 +263,10 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		return;
 	}
 
-	auto battleActivity = gameHandler->activities->getActivity(typedBattleActivity->questionID);
 	typedBattleActivity->result = std::make_optional(*battleResult);
 
 	//Check how many battle gameHandler->activities were created (number of players blocked by battle)
-	const int askedPlayers = gameHandler->activities->countActivity(battleActivity);
+	const int askedPlayers = gameHandler->activities->countActivity(typedBattleActivity);
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
 	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, askedPlayers);
@@ -280,7 +279,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	if(onlyOnePlayerHuman)
 	{
 		auto battleDialogActivity = std::make_shared<BattleResultActivity>(gameHandler, battle.getBattle(), typedBattleActivity->result);
-		battleResult->questionID = battleDialogActivity->questionID;
+		battleResult->questionID = battleDialogActivity->askQuestion();
 		gameHandler->activities->addActivity(battleDialogActivity);
 	}
 	else

@@ -17,6 +17,7 @@
 #include "../lib/networkPacks/PacksForServer.h"
 #include "../lib/serializer/GameConnectionID.h"
 #include "../lib/serializer/PlayerConnectionID.h"
+#include "activities/ActivityID.h"
 
 struct SideInBattle;
 class IMarket;
@@ -80,7 +81,9 @@ public:
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	//activities stuff
-	QuestionID QID;
+	/// Next id for a new activity, and for the next question put to a player.
+	ActivityID activityCounter;
+	QuestionID questionCounter;
 
 	std::set<PlayerColor> uiReadyForDialogs;
 
@@ -276,7 +279,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & QID;
+		h & activityCounter;
+		h & questionCounter;
 		h & *randomizer;
 		h & *battles;
 		h & *heroPool;

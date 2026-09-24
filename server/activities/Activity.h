@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/constants/EntityIdentifiers.h"
+#include "ActivityID.h"
 #include <boost/container/small_vector.hpp>
 
 struct CPackForServer;
@@ -22,6 +22,8 @@ class Activity;
 class CGameHandler;
 
 using ActivityPtr = std::shared_ptr<Activity>;
+
+
 
 enum class ActivityType : uint8_t
 {
@@ -123,7 +125,7 @@ class Activity : boost::noncopyable
 {
 public:
 	boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I> players; //players that are affected (often "blocked") by activity
-	QuestionID questionID;
+	ActivityID activityID;
 
 	ActivityType getType() const
 	{
@@ -178,12 +180,11 @@ public:
 	/// Non-null for activities that put questions to a player.
 	virtual IInteraction * asInteraction() { return nullptr; }
 
-	/// Id of the question the player was last asked, which is what their answer must
-	/// carry. For a activity that asks at most once this is simply its own id; an
-	/// interaction that asks repeatedly gives each question a fresh one.
+	/// The question the player was last asked and has not yet answered, if any. This
+	/// is what an answer must name - never the activity, which the player never sees.
 	QuestionID getActiveQuestionID() const
 	{
-		return activeQuestionID.hasValue() ? activeQuestionID : questionID;
+		return activeQuestionID;
 	}
 
 	/// Whether the player has been asked something and has not answered yet.
@@ -191,6 +192,15 @@ public:
 	{
 		return activeQuestionID.hasValue();
 	}
+
+	/// Allocates the next question and records it as the outstanding one. The caller
+	/// puts the returned id into the pack it sends to the player.
+	QuestionID askQuestion();
+
+	/// Records a question the player will answer by a well-known id rather than one
+	/// allocated here. Used for unpausing, which the client reports with a reserved
+	/// id it was never given.
+	void expectAnswerTo(QuestionID reserved);
 
 	virtual ~Activity();
 protected:
@@ -208,8 +218,7 @@ private:
 	std::optional<PlayerColor> answeredBy;
 
 protected:
-	/// Set by an interaction each time it asks something. Left unset by activities that
-	/// ask at most once, which answer to their own id.
+	/// Set whenever a question is put to the player, cleared once it is answered.
 	QuestionID activeQuestionID = QuestionID::NONE;
 };
 

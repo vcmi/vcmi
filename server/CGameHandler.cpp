@@ -596,7 +596,8 @@ CGameHandler::CGameHandler(IGameServer & server)
 	, statistics(std::make_unique<StatisticDataSet>())
 	, spellEnv(std::make_unique<ServerSpellCastEnvironment>(this))
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
-	, QID(1)
+	, activityCounter(1)
+	, questionCounter(1)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
@@ -1235,7 +1236,7 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 {
 	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, caller, *iw);
 	activities->addActivity(dialogActivity);
-	iw->questionID = dialogActivity->questionID;
+	iw->questionID = dialogActivity->askQuestion();
 	sendAndApply(*iw);
 }
 
@@ -1253,7 +1254,7 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 	auto dialogActivity = std::make_shared<CallbackActivity>(this, iw->player,
 		[scriptActivity](std::optional<int32_t> reply){ scriptActivity->setPendingAnswer(reply); });
 	activities->addActivity(dialogActivity);
-	iw->questionID = dialogActivity->questionID;
+	iw->questionID = dialogActivity->askQuestion();
 	sendAndApply(*iw);
 }
 
@@ -1278,7 +1279,7 @@ void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogActivity = std::make_shared<TeleportDialogActivity>(this, *iw);
 	activities->addActivity(dialogActivity);
-	iw->questionID = dialogActivity->questionID;
+	iw->questionID = dialogActivity->askQuestion();
 	sendAndApply(*iw);
 }
 
@@ -1653,7 +1654,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	{
 		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1, h2);
 		ExchangeDialog hex;
-		hex.questionID = exchange->questionID;
+		hex.questionID = exchange->askQuestion();
 		hex.player = h1->getOwner();
 		hex.hero1 = hero1;
 		hex.hero2 = hero2;
@@ -3686,7 +3687,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	gd.objid = upobj;
 	gd.removableUnits = removableUnits;
 	gd.customTitle = customTitle;
-	gd.questionID = garrisonActivity->questionID;
+	gd.questionID = garrisonActivity->askQuestion();
 	sendAndApply(gd);
 }
 
@@ -3700,7 +3701,7 @@ void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindow
 	if (addActivity)
 	{
 		auto windowActivity = std::make_shared<OpenWindowActivity>(this, visitor, window);
-		pack.questionID = windowActivity->questionID;
+		pack.questionID = windowActivity->askQuestion();
 		activities->addActivity(windowActivity);
 	}
 	sendAndApply(pack);
