@@ -4360,6 +4360,10 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstan
 
 	if(artInst->canBePutAt(putTo, dst.slot))
 	{
+		const auto * hero = gameInfo().getHero(dst.artHolder);
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, artInst->getTypeId(), dst.slot))
+			giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
 		PutArtifact pa(id, dst, askAssemble.value());
 		sendAndApply(pa);
 		return true;
@@ -4396,6 +4400,9 @@ bool CGameHandler::giveHeroNewArtifact(
 	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
+	if(ArtifactUtils::checkSpellbookIsNeeded(h, artType->getId(), na.pos))
+		giveHeroNewArtifact(h, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
 	sendAndApply(na);
 	return true;
 }
