@@ -23,6 +23,7 @@
 #include "gui/CursorHandler.h"
 #include "gui/EventDispatcher.h"
 #include "gui/MouseButton.h"
+#include "gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "CMT.h"
@@ -75,6 +76,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 				if (enableMouse && !penIsTouching)
 				{
 					setCurrentInputMode(InputMode::PEN);
+					ENGINE->windows().notifyPointerInput(InputMode::PEN);
 					mouseHandler->handleEventMouseMotion(current.motion);
 				}
 				return;
@@ -82,6 +84,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseMotion(current.motion);
 			}
 			return;
@@ -93,6 +96,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 				if (enableMouse && (current.button.button != SDL_BUTTON_LEFT || !enableTouch))
 				{
 					setCurrentInputMode(InputMode::PEN);
+					ENGINE->windows().notifyPointerInput(InputMode::PEN);
 					mouseHandler->handleEventMouseButtonDown(current.button);
 				}
 				return;
@@ -100,6 +104,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
 			}
 			return;
@@ -117,6 +122,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableMouse)
 			{
 				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
+				ENGINE->windows().notifyPointerInput(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseWheel(current.wheel);
 			}
 			return;
@@ -131,6 +137,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			if (enableTouch)
 			{
 				setCurrentInputMode(inputModeForTouch(current.tfinger));
+				ENGINE->windows().notifyPointerInput(inputModeForTouch(current.tfinger));
 				fingerHandler->handleEventFingerMotion(current.tfinger);
 			}
 			return;
@@ -142,6 +149,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 				if (current.tfinger.touchID == SDL_PEN_TOUCHID)
 					penIsTouching = true;
 				setCurrentInputMode(inputModeForTouch(current.tfinger));
+				ENGINE->windows().notifyPointerInput(inputModeForTouch(current.tfinger));
 				fingerHandler->handleEventFingerDown(current.tfinger);
 			}
 			return;
@@ -160,6 +168,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 				{
 					gameControllerHandler->setActiveController(current.gaxis.which);
 					setCurrentInputMode(InputMode::CONTROLLER);
+					ENGINE->windows().notifyPointerInput(InputMode::CONTROLLER);
 				}
 				gameControllerHandler->handleEventAxisMotion(current.gaxis);
 			}
@@ -169,6 +178,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			{
 				gameControllerHandler->setActiveController(current.gbutton.which);
 				setCurrentInputMode(InputMode::CONTROLLER);
+				ENGINE->windows().notifyPointerInput(InputMode::CONTROLLER);
 				gameControllerHandler->handleEventButtonDown(current.gbutton);
 			}
 			return;
@@ -188,8 +198,12 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
 	{
+		if(currentInputMode == InputMode::CONTROLLER && modi != InputMode::CONTROLLER)
+			resetControllerInput();
 		currentInputMode = modi;
 		ENGINE->events().dispatchInputModeChanged(modi);
+		if(ENGINE->windows().hasNativeControllerAxisContext())
+			ENGINE->cursor().setControllerNativeHidden(true);
 	}
 }
 
@@ -201,6 +215,24 @@ InputMode InputHandler::getCurrentInputMode()
 ControllerPrompt::Family InputHandler::getActiveControllerPromptFamily() const
 {
 	return gameControllerHandler->getActiveControllerPromptFamily();
+}
+
+void InputHandler::clearControllerAxisMotion()
+{
+	gameControllerHandler->clearAxisMotion();
+}
+
+void InputHandler::resetControllerInput()
+{
+	gameControllerHandler->resetControllerInput();
+	ENGINE->windows().resetControllerInput();
+	ENGINE->cursor().setControllerNativeHidden(false);
+}
+
+void InputHandler::cancelControllerPressesForModeTransition()
+{
+	gameControllerHandler->cancelControllerPresses();
+	ENGINE->windows().resetControllerInput();
 }
 
 bool InputHandler::inputModeSupportsHover() const

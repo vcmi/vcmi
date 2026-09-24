@@ -77,7 +77,23 @@ void CSlider::gesturePanning(const Point & initialPosition, const Point & curren
 	else if (getOrientation() == Orientation::VERTICAL)
 		Scrollable::gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	else
+	{
+		const bool wasPressed = slider->isPressed();
 		mouseDragged(currentPosition, lastUpdateDistance);
+		if(!wasPressed)
+			touchDragging = slider->isPressed();
+	}
+}
+
+void CSlider::gestureCanceled()
+{
+	if(touchDragging)
+	{
+		touchDragging = false;
+		dragOffset = 0;
+		slider->clickCancel(ENGINE->getCursorPosition());
+	}
+	Scrollable::gestureCanceled();
 }
 
 void CSlider::gesture(bool on, const Point & initialPosition, const Point & finalPosition)

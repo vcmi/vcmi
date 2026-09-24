@@ -77,4 +77,5 @@ public:
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gestureCanceled() override;
 };

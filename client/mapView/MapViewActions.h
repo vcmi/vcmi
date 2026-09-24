@@ -41,6 +41,7 @@ public:
 	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gestureCanceled() override;
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
