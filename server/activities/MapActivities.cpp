@@ -284,9 +284,8 @@ PromptResult LevelUpActivity::askHeroLevelUp()
 	auto levelUp = gh->rollHeroLevelUp(levellingHero);
 	offeredHeroSkills = levelUp.skills;
 
-	activeQuestionID = ++gh->QID;
-	askedQuestionID = activeQuestionID;
-	levelUp.questionID = activeQuestionID;
+	askedQuestionID = askQuestion();
+	levelUp.questionID = askedQuestionID;
 	gh->sendAndApply(levelUp);
 
 	return PromptResult::Asked;
@@ -308,9 +307,8 @@ PromptResult LevelUpActivity::askCommanderLevelUp()
 
 	offeredCommanderSkills = levelUp->skills;
 
-	activeQuestionID = ++gh->QID;
-	askedQuestionID = activeQuestionID;
-	levelUp->questionID = activeQuestionID;
+	askedQuestionID = askQuestion();
+	levelUp->questionID = askedQuestionID;
 	gh->sendAndApply(*levelUp);
 
 	return PromptResult::Asked;

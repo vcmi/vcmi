@@ -36,6 +36,7 @@ set(vcmiservercommon_HEADERS
 		battles/BattleProcessor.h
 		battles/BattleResultProcessor.h
 
+		activities/ActivityID.h
 		activities/BattleActivities.h
 		activities/Activity.h
 		activities/LuaScriptActivity.h

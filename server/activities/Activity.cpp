@@ -53,13 +53,13 @@ Activity::Activity(CGameHandler * gameHandler, ActivityType type)
 	, gh(gameHandler)
 	, type(type)
 {
-	questionID = ++gameHandler->QID;
-	logGlobal->trace("Created a new activity with id %d", questionID);
+	activityID = ++gameHandler->activityCounter;
+	logGlobal->trace("Created a new activity with id %d", activityID);
 }
 
 Activity::~Activity()
 {
-	logGlobal->trace("Destructed the activity with id %d", questionID);
+	logGlobal->trace("Destructed the activity with id %d", activityID);
 }
 
 void Activity::addPlayer(PlayerColor color)
@@ -90,7 +90,7 @@ std::string Activity::toString() const
 	}
 	std::string ret = boost::str(boost::format("A activity of type '%s' and questionID = %d affecting player%s %s")
 		% ::toString(type)
-		% questionID
+		% activityID
 		% plural
 		% names
 	);
@@ -104,6 +104,17 @@ std::string Activity::toString() const
 bool Activity::endsByPlayerAnswer() const
 {
 	return false;
+}
+
+QuestionID Activity::askQuestion()
+{
+	activeQuestionID = ++gh->questionCounter;
+	return activeQuestionID;
+}
+
+void Activity::expectAnswerTo(QuestionID reserved)
+{
+	activeQuestionID = reserved;
 }
 
 bool Activity::acceptsAnswerWithoutValue() const
