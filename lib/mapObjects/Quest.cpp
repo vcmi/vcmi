@@ -778,14 +778,14 @@ bool SeerHut::allowsFullArmyRemoval() const
 	return seerGivesUnits || h3BugSettingEnabled;
 }
 
-void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
 {
 	if(answer)
 	{
 		getQuest().takeRequirements(gameEvents, hero, allowsFullArmyRemoval());
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
-	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
+	CRewardableObject::blockingDialogAnswered(gameEvents, hero, continuationTag, answer);
 	offerNextQuest(gameEvents, hero);
 }
 

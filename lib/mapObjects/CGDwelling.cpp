@@ -534,7 +534,7 @@ void CGDwelling::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 	}
 }
 
-void CGDwelling::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGDwelling::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
 {
 	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present

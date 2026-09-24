@@ -52,7 +52,7 @@ void BattleActivity::completeDeferredLevelUps() const
 			gh->expGiven(hero);
 }
 
-void BattleActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void BattleActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	assert(result);
 

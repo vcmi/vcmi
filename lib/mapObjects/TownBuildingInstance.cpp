@@ -134,24 +134,25 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
 			break;
-		case ObjProperty::REWARD_SELECT:
-			selectedReward = identifier.getNum();
-			break;
 	}
 }
 
-void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
+void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
 {
-	grantRewardAfterLevelup(gameEvents, configuration.info.at(selectedReward), town, hero);
+	// The tag is the reward that was part way through when the level-up interrupted it.
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), town, hero);
 }
 
-void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
 {
 	onBlockingDialogAnswered(gameEvents, hero, answer);
 }
 
 void TownRewardableBuildingInstance::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
 {
+	// Granting experience may open a level-up dialog and suspend the visit here; the
+	// tag says which reward to carry on with once it is answered.
+	gameEvents.setContinuationTag(hero, rewardID);
 	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately

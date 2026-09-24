@@ -1231,6 +1231,25 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	}
 }
 
+void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
+{
+	assert(hero);
+
+	for(const auto & activity : activities->allActivities())
+	{
+		auto * visit = dynamic_cast<VisitActivity *>(activity.get());
+
+		if(visit && visit->visitingHero == hero->id)
+		{
+			visit->continuationTag = tag;
+			return;
+		}
+	}
+
+	logGlobal->warn("Continuation tag %d set outside a visit, by hero %s - it will not be handed back",
+		tag, hero->getNameTextID());
+}
+
 void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw)
 {
 	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, caller, *iw);

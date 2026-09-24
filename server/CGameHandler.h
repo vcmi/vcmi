@@ -133,6 +133,7 @@ public:
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
+	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override;
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;

@@ -122,7 +122,7 @@ void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 		// told about a battle their defender won, and check the result rather than
 		// the hero.
 		if(object)
-			child->notifyObjectAboutRemoval(object, hero);
+			child->notifyObjectAboutRemoval(object, hero, continuationTag);
 	}
 
 	if(auto battleActivity = std::dynamic_pointer_cast<BattleActivity>(child))
@@ -155,7 +155,7 @@ void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 
 	// The town may have changed hands or the hero may have died in the meantime.
 	if(object)
-		child->notifyObjectAboutRemoval(object, hero);
+		child->notifyObjectAboutRemoval(object, hero, continuationTag);
 }
 
 StepResult TownBuildingVisitActivity::advance()

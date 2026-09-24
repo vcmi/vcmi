@@ -1818,3 +1818,81 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 	EXPECT_FALSE(dialog->isAnswered());
 	EXPECT_EQ(activities.topActivity(player), dialog);
 }
+
+// --------------------------------------------------------------------------------
+// Continuation tags.
+//
+// A reward is granted in two halves, either side of any level-up the experience in
+// it causes. Which reward that is used to be re-read from the object afterwards, from
+// a field that was deliberately not saved; it is now carried by the visit.
+// --------------------------------------------------------------------------------
+
+TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotTheObject)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroExperience(999) // one experience point short of the next level
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// Two rewards, of which only the second can be granted. If the reward being
+	// resumed were taken to be the first - which is what a missing tag amounts to -
+	// nothing would be granted at all.
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	pandora->configuration.info.push_back(pandora->configuration.info.at(0));
+	pandora->configuration.info.at(0).limiter.heroLevel = 99; // out of reach
+
+	auto & reward = pandora->configuration.info.at(1).reward;
+	reward.heroExperience = 5000;
+	reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+
+	auto rewardsGranted = [&]()
+	{
+		return hero->getBonuses([](const Bonus * b)
+		{
+			return b->type == BonusType::MORALE && b->source == BonusSource::OBJECT_TYPE;
+		})->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	gameHandler.onAdvInterfaceReady(player);
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.activities->topActivity(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(dialog->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	// The experience in the reward opened a level-up, suspending the reward half way.
+	auto levelUp = gameHandler.activities->topActivity(player);
+	ASSERT_NE(levelUp, nullptr);
+	ASSERT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
+	EXPECT_EQ(rewardsGranted(), 0u) << "the second half was granted before the level-up";
+
+	int answered = 0;
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		if(pending->getType() != ActivityType::HeroLevelUpDialog)
+			break;
+
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+		ASSERT_LT(++answered, 20);
+	}
+
+	// Answering it resumes the right reward, exactly once.
+	EXPECT_EQ(rewardsGranted(), 1u);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+}

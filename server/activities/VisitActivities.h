@@ -24,6 +24,11 @@ public:
 	ObjectInstanceID visitedObject;
 	ObjectInstanceID visitingHero;
 
+	/// What the visited object said it was part way through, handed back to it when
+	/// whatever it started finishes. Lets an object tell its own steps apart without
+	/// working it out again afterwards, from state that may have changed in between.
+	int32_t continuationTag = 0;
+
 	bool blocksPack(const CPackForServer * pack) const final;
 };
 
