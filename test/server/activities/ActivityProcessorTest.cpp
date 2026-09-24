@@ -6,6 +6,7 @@
 #include "../../../server/activities/BattleActivities.h"
 #include "../../../server/activities/Activity.h"
 #include "../../../server/activities/MapActivities.h"
+#include "../../../server/activities/VisitActivities.h"
 #include "../../../server/activities/ActivityProcessor.h"
 #include "CGameHandler.h"
 
@@ -20,6 +21,8 @@
 #include "lib/mapObjects/CGResource.h"
 #include "lib/mapObjects/CGCreature.h"
 #include "lib/mapObjects/CGPandoraBox.h"
+#include "lib/mapObjects/CGTownInstance.h"
+#include "lib/mapObjects/TownBuildingInstance.h"
 #include "lib/bonuses/Bonus.h"
 #include "lib/CPlayerState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
@@ -1895,4 +1898,63 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	// Answering it resumes the right reward, exactly once.
 	EXPECT_EQ(rewardsGranted(), 1u);
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+}
+
+/// Records which object it was told about when it finished.
+class NotifyRecordingActivity : public Activity
+{
+public:
+	NotifyRecordingActivity(CGameHandler * gh, PlayerColor player)
+		: Activity(gh, ActivityType::BlockingDialog)
+	{
+		players.push_back(player);
+	}
+
+	mutable const IObjectInterface * reportedTo = nullptr;
+
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject,
+		const CGHeroInstance * visitingHero, int32_t continuationTag) const override
+	{
+		reportedTo = visitedObject;
+	}
+};
+
+TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.town(int3(8, 8, 0), FactionID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_FALSE(town->rewardableBuildings.empty());
+
+	const auto buildingID = town->rewardableBuildings.begin()->first;
+	const auto * building = town->rewardableBuildings.begin()->second.get();
+	town->addBuilding(buildingID); // a building can only be visited once it exists
+	town->setVisitingHero(hero);   // and only by a hero who is actually in the town
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	auto visit = std::make_shared<TownBuildingVisitActivity>(
+		&gameHandler, town, std::vector<const CGHeroInstance *>{hero}, std::vector<BuildingID>{buildingID});
+
+	// This building finishes its visit without asking anything, so drive the report
+	// directly rather than waiting for a dialog that never appears.
+	gameHandler.activities->addActivity(visit);
+
+	auto child = std::make_shared<NotifyRecordingActivity>(&gameHandler, player);
+	visit->onChildCompleted(child);
+
+	// A dialog raised during a building's visit was raised by the building, not by
+	// the town around it, so that is what has to be told the answer.
+	EXPECT_EQ(child->reportedTo, static_cast<const IObjectInterface *>(building));
+	EXPECT_NE(child->reportedTo, static_cast<const IObjectInterface *>(town));
 }

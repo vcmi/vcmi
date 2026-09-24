@@ -150,12 +150,19 @@ TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const
 
 void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	const auto * object = gh->gameState().getObjInstance(visitedObject);
+	const auto * town = gh->gameInfo().getTown(visitedObject);
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
 	// The town may have changed hands or the hero may have died in the meantime.
-	if(object)
-		child->notifyObjectAboutRemoval(object, hero, continuationTag);
+	if(!town)
+		return;
+
+	auto building = town->rewardableBuildings.find(visitedBuilding);
+	if(building == town->rewardableBuildings.end())
+		return;
+
+	// The building is what put the dialog up, not the town around it.
+	child->notifyObjectAboutRemoval(building->second.get(), hero, continuationTag);
 }
 
 StepResult TownBuildingVisitActivity::advance()
@@ -178,6 +185,7 @@ StepResult TownBuildingVisitActivity::advance()
 		return StepResult::Continue;
 
 	visitingHero = visit.hero;
+	visitedBuilding = visit.building;
 	building->second->onHeroVisit(*gh, hero);
 
 	return StepResult::Continue;

@@ -60,7 +60,7 @@ bool TimerPauseActivity::endsByPlayerAnswer() const
 	return true;
 }
 
-void GarrisonDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
@@ -141,15 +141,17 @@ bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void BlockingDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	assert(answer);
-	caller->blockingDialogAnswered(*gh, visitingHero, continuationTag, *answer);
+
+	// Whoever put the dialog up is whatever is being visited - the visit knows it,
+	// so there is nothing to remember here.
+	visitedObject->blockingDialogAnswered(*gh, visitingHero, continuationTag, *answer);
 }
 
-BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
-	DialogActivity(owner, TYPE),
-	caller(caller)
+BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const BlockingDialog & bd):
+	DialogActivity(owner, TYPE)
 {
 	this->bd = bd;
 	addPlayer(bd.player);
@@ -214,7 +216,7 @@ bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void TeleportDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void TeleportDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
@@ -377,7 +379,7 @@ void LevelUpActivity::onRemoval(PlayerColor color)
 		gh->sendQuestionResolved(askedQuestionID);
 }
 
-void LevelUpActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void LevelUpActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	visitedObject->heroLevelUpDone(*gh, visitingHero, continuationTag);
 }

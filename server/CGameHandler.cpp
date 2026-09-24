@@ -1252,7 +1252,7 @@ void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
 
 void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw)
 {
-	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, caller, *iw);
+	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, *iw);
 	activities->addActivity(dialogActivity);
 	iw->questionID = dialogActivity->askQuestion();
 	sendAndApply(*iw);
