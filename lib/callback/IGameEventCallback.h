@@ -81,6 +81,12 @@ public:
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
+
+	/// Records which part of a multi-step visit this object is starting, so that it is
+	/// handed back when whatever it starts finishes. Objects use this instead of
+	/// working out afterwards what they were doing, from state that may have changed
+	/// in between. Has no effect outside a visit.
+	virtual void setContinuationTag(const CGHeroInstance * hero, int32_t tag) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;

@@ -185,7 +185,7 @@ void CGPandoraBox::battleFinished(IGameEventCallback & gameEvents, const CGHeroI
 	}
 }
 
-void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
 {
 	if(answer)
 	{

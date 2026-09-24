@@ -62,7 +62,7 @@ public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 };
 
@@ -77,7 +77,7 @@ public:
 
 	BlockingDialogActivity(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog &bd);
 
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
 };
 
 class OpenWindowActivity : public DialogActivity
@@ -101,7 +101,7 @@ public:
 
 	TeleportDialogActivity(CGameHandler * owner, const TeleportDialog & dialog);
 
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
 };
 
 /// Asks a player to pick skills as a hero gains levels, and then as their commander
@@ -148,5 +148,5 @@ public:
 	bool endsByPlayerAnswer() const final;
 	bool blocksPack(const CPackForServer * pack) const final;
 	void onRemoval(PlayerColor color) final;
-	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const final;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const final;
 };

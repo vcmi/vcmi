@@ -60,7 +60,7 @@ bool TimerPauseActivity::endsByPlayerAnswer() const
 	return true;
 }
 
-void GarrisonDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void GarrisonDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
@@ -141,10 +141,10 @@ bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void BlockingDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void BlockingDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	assert(answer);
-	caller->blockingDialogAnswered(*gh, visitingHero, *answer);
+	caller->blockingDialogAnswered(*gh, visitingHero, continuationTag, *answer);
 }
 
 BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
@@ -214,7 +214,7 @@ bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void TeleportDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void TeleportDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
@@ -377,9 +377,9 @@ void LevelUpActivity::onRemoval(PlayerColor color)
 		gh->sendQuestionResolved(askedQuestionID);
 }
 
-void LevelUpActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void LevelUpActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
-	visitedObject->heroLevelUpDone(*gh, visitingHero);
+	visitedObject->heroLevelUpDone(*gh, visitingHero, continuationTag);
 }
 
 HeroMovementActivity::HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):

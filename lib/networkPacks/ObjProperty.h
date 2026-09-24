@@ -45,7 +45,7 @@ enum class ObjProperty : int8_t
 	BANK_CLEAR,
 
 	//object with reward
-	REWARD_SELECT,
+	REWARD_SELECT_UNUSED, //kept so that the values after it keep their meaning in old saves
 	REWARD_CLEARED
 };
 

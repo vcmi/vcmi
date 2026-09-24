@@ -562,7 +562,7 @@ void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 	}
 }
 
-void CGCreature::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGCreature::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price

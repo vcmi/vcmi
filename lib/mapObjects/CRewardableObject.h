@@ -21,9 +21,6 @@ protected:
 
 	bool onceVisitableObjectCleared = false;
 	
-	/// reward selected by player, no serialize
-	ui16 selectedReward = 0;
-	
 	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 
 	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
@@ -65,10 +62,10 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
-	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
+	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const override;
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 
