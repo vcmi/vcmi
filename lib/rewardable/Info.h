@@ -13,6 +13,9 @@
 #include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include <cstdint>
+#include <optional>
+#include <utility>
 #include <vector>
 
 class MetaString;
@@ -72,6 +75,10 @@ public:
 	bool givesBonuses() const override;
 
 	bool hasGuards() const override;
+
+	/// Returns the minimum and maximum total guard strength across all configured reward tiers.
+	/// Returns std::nullopt when there are no guards or their range cannot be evaluated statically.
+	std::optional<std::pair<uint64_t, uint64_t>> getCreatureBankGuardRange() const;
 
 	void configureObject(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb) const;
 
