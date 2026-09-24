@@ -166,8 +166,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	// required exp for at least 1 lvl-up hasn't been reached
 	if (!hero->gainsLevel())
 	{
-		if (hero->getCommander() && hero->getCommander()->gainsLevel())
-			levelUpCommander(hero->getCommander());
+		levelUpCommander(hero->getCommander());
 		return;
 	}
 
@@ -183,8 +182,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 				applyHeroLevelUp(hero, hlu.skills.front());
 		}
 
-		if (hero->getCommander() && hero->getCommander()->gainsLevel())
-			levelUpCommander(hero->getCommander());
+		levelUpCommander(hero->getCommander());
 		return;
 	}
 
@@ -313,7 +311,8 @@ std::optional<CommanderLevelUp> CGameHandler::rollCommanderLevelUp(const CComman
 
 void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 {
-	if (!c->gainsLevel())
+	// Callers pass a hero's commander without checking, since most heroes have none
+	if (!c || !c->gainsLevel())
 		return;
 
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
@@ -350,7 +349,7 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 
 	if (hero->gainsLevel())
 		levelUpHero(hero);
-	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
+	else
 		levelUpCommander(hero->getCommander());
 }
 
@@ -697,7 +696,7 @@ void CGameHandler::onAdvInterfaceReady(PlayerColor player)
 	logGlobal->trace("AdvInterfaceReady received for player %s", player);
 
 	// Work that waited for the interface, e.g. a level-up dialog, can be sent now
-	activities->retryDeferredWork(player);
+	activities->retryDeferredWork();
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
@@ -1235,15 +1234,15 @@ void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
 {
 	assert(hero);
 
-	for(const auto & activity : activities->allActivities())
-	{
-		auto * visit = dynamic_cast<VisitActivity *>(activity.get());
+	// Searched from the top of the stack down: a town visit pushes a building visit above
+	// itself, and the tag belongs to the innermost visit, the one that is running now
+	auto * visit = activities->findActivity<VisitActivity>(
+		[hero](const VisitActivity & candidate){ return candidate.visitingHero == hero->id; });
 
-		if(visit && visit->visitingHero == hero->id)
-		{
-			visit->continuationTag = tag;
-			return;
-		}
+	if(visit)
+	{
+		visit->continuationTag = tag;
+		return;
 	}
 
 	logGlobal->warn("Continuation tag %d set outside a visit, by hero %s - it will not be handed back",

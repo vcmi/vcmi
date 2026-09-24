@@ -215,9 +215,9 @@ public:
 	/// receiving the answer, and rejecting the reply would leave both sides waiting forever.
 	ReplyOutcome submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply);
 
-	/// Re-runs deferred work for a player, after something outside the activity system
-	/// changed whether it can go on, e.g. the player's interface became able to show a dialog.
-	void retryDeferredWork(PlayerColor player);
+	/// Re-runs deferred work for every player, after something outside the activity system
+	/// changed whether it can go on, e.g. a player's interface became able to show a dialog.
+	void retryDeferredWork();
 
 	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
 	std::string describeStacks() const;

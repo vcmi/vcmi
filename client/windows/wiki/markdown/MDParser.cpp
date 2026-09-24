@@ -77,7 +77,7 @@ std::optional<MDAlignTag> MDParser::parseAlignTag(const std::string & line)
 
 std::string MDParser::parseAnchorTag(const std::string & s)
 {
-	// Matches <an id="name" /> or <a name="name" /> (case-insensitive)
+	// Matches <a id="name" /> or <a name="name" /> (case-insensitive)
 	static const std::regex ANCHOR_RE(
 		R"re(<a\s+(?:id|name)\s*=\s*"([^"]*?)"\s*/>)re", std::regex::icase);
 	std::smatch m;

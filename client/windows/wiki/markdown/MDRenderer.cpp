@@ -746,7 +746,7 @@ void MDRenderer::run(const std::string & markdownText)
 		// Pre-process: extract and register all inline anchor tags, then strip
 		// them from the line before dispatching to handlers.  This handles both
 		// standalone anchors and anchors embedded in headings, e.g.:
-		//   <an id="s2"/>## Section Two
+		//   <a id="s2"/>## Section Two
 		for(const auto & id : MDParser::parseAllAnchorTags(line))
 			if(anchors) (*anchors)[id] = curY;
 		line = MDParser::stripAnchorTags(line);

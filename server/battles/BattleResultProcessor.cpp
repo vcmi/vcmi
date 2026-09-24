@@ -294,20 +294,9 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 
 void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 {
-	auto attackerActivity = gameHandler->activities->topActivity(battle.sideToPlayer(BattleSide::ATTACKER));
-
-	ActivityPtr battleActivityPtr;
-	auto defenderPlayer = battle.sideToPlayer(BattleSide::DEFENDER);
-	if(gameHandler->activities->activityAs<BattleActivity>(attackerActivity))
-		battleActivityPtr = attackerActivity;
-	else if(defenderPlayer.isValidPlayer())
-	{
-		auto defenderActivity = gameHandler->activities->topActivity(battle.sideToPlayer(BattleSide::DEFENDER));
-		if(gameHandler->activities->activityAs<BattleActivity>(defenderActivity))
-			battleActivityPtr = defenderActivity;
-	}
-
-	auto * typedBattleActivity = gameHandler->activities->activityAs<BattleActivity>(battleActivityPtr);
+	// Searched on both stacks and at any depth, not just on top: a player may have paused
+	// the game during the battle, which leaves the pause activity above it.
+	auto * typedBattleActivity = gameHandler->battles->findBattleActivity(battle);
 	if(!typedBattleActivity)
 	{
 		logGlobal->trace("No battle activity, battle end was confirmed by another player");
@@ -358,6 +347,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	}
 
 	auto attackerPlayer = battle.sideToPlayer(BattleSide::ATTACKER);
+	auto defenderPlayer = battle.sideToPlayer(BattleSide::DEFENDER);
 	auto isAttackerNeutral = attackerPlayer == PlayerColor::NEUTRAL;
 	auto isDefenderNeutral = defenderPlayer == PlayerColor::NEUTRAL;
 
@@ -397,7 +387,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(raccepted);
 
-	gameHandler->activities->popIfTop(battleActivityPtr); // Workaround to remove battle activity for AI case. TODO Think of a cleaner solution.
+	gameHandler->activities->popIfTop(*typedBattleActivity); // Workaround to remove battle activity for AI case. TODO Think of a cleaner solution.
 	//--> continuation (battleFinalize) occurs on removing activity
 }
 

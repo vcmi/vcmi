@@ -269,7 +269,7 @@ void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 }
 
-void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
+void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);
@@ -860,7 +860,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					gameEvents.showBlockingDialog(this, &ynd);
 				}
 				else
-					blockingDialogAnswered(gameEvents, h, 0, true);
+					blockingDialogAnswered(gameEvents, h, true);
 			}
 			break;
 		}
@@ -884,7 +884,7 @@ void CGArtifact::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 		pick(gameEvents, hero);
 }
 
-void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
+void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);

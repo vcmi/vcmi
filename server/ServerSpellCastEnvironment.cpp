@@ -127,9 +127,9 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
 }
 
-void ServerSpellCastEnvironment::askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns)
+void ServerSpellCastEnvironment::askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster)
 {
-	auto activity = std::make_shared<TownSelectionActivity>(gh, request.player, spell, caster, towns);
+	auto activity = std::make_shared<TownSelectionActivity>(gh, request.player, spell, caster, request.objects);
 
 	MapObjectSelectDialog pack = request;
 	pack.questionID = activity->askQuestion();

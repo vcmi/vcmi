@@ -175,7 +175,7 @@ struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 };
 
 /// Sent by client to query current lobby state without joining as a player
-struct DLL_LINKAGE LobbyQuestionState : public CLobbyPackToServer
+struct DLL_LINKAGE LobbyQueryState : public CLobbyPackToServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -184,7 +184,7 @@ struct DLL_LINKAGE LobbyQuestionState : public CLobbyPackToServer
 	}
 };
 
-/// Server response to LobbyQuestionState with compatibility info for preview
+/// Server response to LobbyQueryState with compatibility info for preview
 struct DLL_LINKAGE LobbyModsCheck : public CPackForLobby
 {
 	std::string vcmiVersion;

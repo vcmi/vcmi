@@ -67,7 +67,7 @@ public:
 	/// Asks the player to pick one of several towns and completes the cast at the chosen
 	/// one. Takes ids instead of a callback, which can not be serialized and would hold
 	/// pointers across the wait.
-	virtual void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) = 0;
+	virtual void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster) = 0;
 };
 
 namespace spells

@@ -144,7 +144,7 @@ void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * v
 {
 	assert(answer);
 
-	visitedObject->blockingDialogAnswered(*gh, visitingHero, continuationTag, *answer);
+	visitedObject->blockingDialogAnswered(*gh, visitingHero, *answer);
 }
 
 BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const BlockingDialog & bd):
@@ -283,8 +283,7 @@ PromptResult LevelUpActivity::askHeroLevelUp()
 	auto levelUp = gh->rollHeroLevelUp(levellingHero);
 	offeredHeroSkills = levelUp.skills;
 
-	askedQuestionID = askQuestion();
-	levelUp.questionID = askedQuestionID;
+	levelUp.questionID = askQuestion();
 	gh->sendAndApply(levelUp);
 
 	return PromptResult::Asked;
@@ -306,22 +305,18 @@ PromptResult LevelUpActivity::askCommanderLevelUp()
 
 	offeredCommanderSkills = levelUp->skills;
 
-	askedQuestionID = askQuestion();
-	levelUp->questionID = askedQuestionID;
+	levelUp->questionID = askQuestion();
 	gh->sendAndApply(*levelUp);
 
 	return PromptResult::Asked;
 }
 
-void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
+void LevelUpActivity::applyAnswer(QuestionID answered, std::optional<int32_t> answer)
 {
 	// Resolve the answered question before the next one is sent: the client keeps its dialog
 	// open until that question is reported as resolved, and expects it before the next one.
-	if(askedQuestionID.hasValue())
-	{
-		gh->sendQuestionResolved(askedQuestionID);
-		askedQuestionID = QuestionID::NONE;
-	}
+	if(answered.hasValue())
+		gh->sendQuestionResolved(answered);
 
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 	if(!levellingHero)
@@ -370,8 +365,8 @@ void LevelUpActivity::onRemoval(PlayerColor color)
 {
 	// A question is still outstanding if the activity was removed without being answered,
 	// which would leave the client's dialog open.
-	if(askedQuestionID.hasValue())
-		gh->sendQuestionResolved(askedQuestionID);
+	if(hasOutstandingQuestion())
+		gh->sendQuestionResolved(getActiveQuestionID());
 }
 
 void LevelUpActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const

@@ -143,7 +143,7 @@ void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEv
 	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), town, hero);
 }
 
-void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	onBlockingDialogAnswered(gameEvents, hero, answer);
 }

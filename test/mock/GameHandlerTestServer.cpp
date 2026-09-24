@@ -11,6 +11,7 @@
 #include "GameHandlerTestServer.h"
 
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 GameHandlerTestServer::GameHandlerTestServer(std::shared_ptr<CGameState> gameState)
 	: gameState(std::move(gameState))
@@ -61,6 +62,9 @@ void GameHandlerTestServer::applyPack(CPackForClient & pack)
 
 	if(const auto * resolved = dynamic_cast<const QuestionResolved *>(&pack))
 		resolvedQuestionIDs.push_back(resolved->questionID);
+
+	if(dynamic_cast<const BattleResultAccepted *>(&pack))
+		battlesConfirmed++;
 
 	if(gameState)
 		gameState->apply(pack);

@@ -100,7 +100,7 @@ void CGResource::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		}
 		else
 		{
-			blockingDialogAnswered(gameEvents, h, 0, true); //behave as if player accepted battle
+			blockingDialogAnswered(gameEvents, h, true); //behave as if player accepted battle
 		}
 	}
 	else
@@ -135,7 +135,7 @@ void CGResource::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 		collectRes(gameEvents, hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
+void CGResource::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);

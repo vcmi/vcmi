@@ -81,12 +81,7 @@ void GameEventCallbackMock::giveExperience(const CGHeroInstance * hero, TExpType
 void GameEventCallbackMock::showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw)
 {
 	assert(iw);
-	blockingDialogs.push_back({*iw, caller, continuationTag});
-}
-
-void GameEventCallbackMock::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
-{
-	continuationTag = tag;
+	blockingDialogs.push_back({*iw, caller});
 }
 
 void GameEventCallbackMock::showScriptDialog(BlockingDialog * iw)

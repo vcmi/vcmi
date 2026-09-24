@@ -128,7 +128,7 @@ ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment
 		request.objects = offeredTownIDs;
 
 		// The cast pauses here, so everything needed to complete it is passed by value
-		env->askToSelectTown(request, owner->id, parameters.caster->getHeroCaster()->id, offeredTownIDs);
+		env->askToSelectTown(request, owner->id, parameters.caster->getHeroCaster()->id);
 		return ESpellCastResult::PENDING;
 	}
 

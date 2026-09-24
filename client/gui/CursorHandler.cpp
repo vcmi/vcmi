@@ -180,7 +180,7 @@ void CursorHandler::set(Cursor::Combat index)
 		"combatFly",
 		"combatShoot",
 		"combatHero",
-		"combatQuestion",
+		"combatQuery",
 		"combatPointer",
 		"combatHitNorthEast",
 		"combatHitEast",

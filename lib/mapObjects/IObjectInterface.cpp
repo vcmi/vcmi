@@ -68,7 +68,7 @@ void IObjectInterface::preInit()
 void IObjectInterface::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const
+void IObjectInterface::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {}
 
 void IObjectInterface::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const

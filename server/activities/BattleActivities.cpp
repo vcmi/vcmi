@@ -35,21 +35,9 @@ bool BattleActivity::hasPendingBattleOrVisitActivities() const
 
 std::vector<ObjectInstanceID> BattleActivity::takeDeferredLevelUps()
 {
-	deferredLevelUpsApplied = true;
 	auto deferredLevelUps = std::move(heroesWithDeferredLevelUp);
 	heroesWithDeferredLevelUp.clear();
 	return deferredLevelUps;
-}
-
-void BattleActivity::completeDeferredLevelUps() const
-{
-	if(deferredLevelUpsApplied)
-		return;
-
-	deferredLevelUpsApplied = true;
-	for(const auto & heroID : heroesWithDeferredLevelUp)
-		if(const auto * hero = gh->gameState().getHero(heroID))
-			gh->expGiven(hero);
 }
 
 void BattleActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
@@ -107,8 +95,12 @@ void BattleActivity::onRemoval(PlayerColor color)
 	// Guarded map object visits are notified after the battle activity is removed, so
 	// level-ups are postponed until the object applies its battle result. In multiplayer
 	// battles they also wait until this activity is removed for every player.
-	if(!hasPendingBattleOrVisitActivities())
-		completeDeferredLevelUps();
+	if(hasPendingBattleOrVisitActivities())
+		return;
+
+	for(const auto & heroID : takeDeferredLevelUps())
+		if(const auto * hero = gh->gameState().getHero(heroID))
+			gh->expGiven(hero);
 }
 
 void BattleActivity::onExposure(ActivityPtr topActivity)

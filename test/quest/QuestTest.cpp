@@ -49,7 +49,7 @@ void QuestTest::answerDialog(CGHeroInstance * hero, int32_t answer)
 
 	ASSERT_NE(captured.caller, nullptr)
 		<< "captured BlockingDialog has no caller; blockingDialogAnswered would have nothing to dispatch on";
-	captured.caller->blockingDialogAnswered(gameEvents(), hero, captured.continuationTag, answer);
+	captured.caller->blockingDialogAnswered(gameEvents(), hero, answer);
 }
 
 void QuestTest::advanceDays(int days)

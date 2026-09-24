@@ -37,7 +37,6 @@ public:
 	{
 		BlockingDialog dialog;
 		const IObjectInterface * caller = nullptr;
-		int32_t continuationTag = 0;
 	};
 	std::vector<CapturedBlockingDialog> blockingDialogs;
 	std::vector<InfoWindow>             infoWindows;
@@ -58,10 +57,7 @@ public:
 	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
-	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override;
-
-	/// Replaces the visit activity that holds the tag on a real server.
-	int32_t continuationTag = 0;
+	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override {}
 	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
