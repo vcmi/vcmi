@@ -1790,7 +1790,49 @@ bool CGHeroInstance::isMissionCritical() const
 	return false;
 }
 
-void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
+void CGHeroInstance::addSpecialUpgradeChain(UpgradeInfo & info, const CStackInstance& stack, const Bonus& bonus) const
+{
+	if(!bonus.parameters)
+		return;
+
+	CreatureID sourceID = bonus.subtype.as<CreatureID>();
+	CreatureID targetID = bonus.parameters->toCreature();
+
+	if(targetID == stack.getId())
+		return;
+
+	const CCreature * currentCreature = stack.getCreature();
+	const CCreature * sourceCreature = sourceID.toCreature();
+	const CCreature * targetCreature = targetID.toCreature();
+
+	if(sourceID != stack.getId() && !sourceCreature->isMyDirectOrIndirectUpgrade(currentCreature))
+		return;
+
+	if(!currentCreature->isMyDirectOrIndirectUpgrade(targetCreature))
+		return;
+
+	const int costModifier = std::max(0, 100 + bonus.val);
+
+	// Native topology is used to derive SPECIAL_UPGRADE_CHAIN offers.
+	// Towns and creature upgraders keep their own availability rules.
+	for (const auto& upgradeID : currentCreature->upgrades)
+	{
+		if(upgradeID == targetID)
+			continue;
+
+		const CCreature * upgradeCreature = upgradeID.toCreature();
+
+		if(!upgradeCreature->isMyDirectOrIndirectUpgrade(targetCreature))
+			continue;
+
+		info.addUpgrade(upgradeID, stack.getType(), costModifier);
+	}
+
+	info.addUpgrade(targetID, stack.getType(), costModifier);
+
+}
+
+void CGHeroInstance::fillUpgradeInfo(UpgradeInfo& info, const CStackInstance& stack) const
 {
 	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
@@ -1799,10 +1841,17 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 		{
 			auto nid = it->parameters->toCreature();
 			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+			{
 				// SPECIAL_UPGRADE value adjusts the default 100% cost; clamp the final modifier to 0%.
 				info.addUpgrade(nid, stack.getType(), std::max(0, 100 + it->val));
+			}
 		}
 	}
+
+	TConstBonusListPtr chainUpgrades = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE_CHAIN);
+
+	for(const auto & it : *chainUpgrades)
+		addSpecialUpgradeChain(info, stack, *it);
 }
 
 bool CGHeroInstance::isCampaignYog() const
