@@ -46,8 +46,8 @@ class PlayerMessageProcessor;
 class BattleProcessor;
 class TurnOrderProcessor;
 class TurnTimerHandler;
-class QueriesProcessor;
-class CObjectVisitQuery;
+class ActivityProcessor;
+class MapObjectVisitActivity;
 class NewTurnProcessor;
 class IGameServer;
 
@@ -63,7 +63,7 @@ class CGameHandler : public Environment, public IGameEventCallback
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
-	std::unique_ptr<QueriesProcessor> queries;
+	std::unique_ptr<ActivityProcessor> activities;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
@@ -79,7 +79,7 @@ public:
 
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
-	//queries stuff
+	//activities stuff
 	QueryID QID;
 
 	std::set<PlayerColor> uiReadyForDialogs;
@@ -90,7 +90,7 @@ public:
 	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
-	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
+	bool isBlockedByActivities(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
@@ -131,9 +131,9 @@ public:
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
-	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
+	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) override;
 
-	/// Runs a converted map-event handler under a LuaScriptQuery so blocking script actions can pause and
+	/// Runs a converted map-event handler under a LuaScriptActivity so blocking script actions can pause and
 	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
 	/// handle (empty when the handler finished without pausing).
 	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
@@ -266,7 +266,7 @@ public:
 	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
-	void sendQueryResolved(QueryID queryID);
+	void sendQuestionResolved(QueryID queryID);
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );

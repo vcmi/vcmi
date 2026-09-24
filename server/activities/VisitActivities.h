@@ -1,5 +1,5 @@
 /*
- * VisitQueries.h, part of VCMI engine
+ * VisitActivities.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,16 +9,16 @@
  */
 #pragma once
 
-#include "CQuery.h"
+#include "Activity.h"
 
 class CGTownInstance;
 
 //Created when hero visits object.
-//Removed when query above is resolved (or immediately after visit if no queries were created)
-class VisitQuery : public CQuery
+//Removed when activity above is resolved (or immediately after visit if no activities were created)
+class VisitActivity : public Activity
 {
 protected:
-	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, QueryType type);
+	VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, ActivityType type);
 
 public:
 	ObjectInstanceID visitedObject;
@@ -30,7 +30,7 @@ public:
 /// Drives a hero's visit to a map object: starts it, lets the object take over, and
 /// once the object is finished applies any level-ups that a battle during the visit
 /// postponed.
-class MapObjectVisitQuery final : public VisitQuery, public IRoutine
+class MapObjectVisitActivity final : public VisitActivity, public IRoutine
 {
 	/// Position within the visit. Also tells onChildCompleted() whether a finished
 	/// child belongs to the object's own reward pipeline, or is a level-up that
@@ -53,22 +53,22 @@ class MapObjectVisitQuery final : public VisitQuery, public IRoutine
 	void applyDeferredLevelUps();
 
 public:
-	static constexpr QueryType TYPE = QueryType::MapObjectVisit;
+	static constexpr ActivityType TYPE = ActivityType::MapObjectVisit;
 
 	bool removeObjectAfterVisit;
 
-	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
+	MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 
 	IRoutine * asRoutine() final { return this; }
 	StepResult advance() final;
-	void onChildCompleted(const QueryPtr & child) final;
+	void onChildCompleted(const ActivityPtr & child) final;
 	void onRemoval(PlayerColor color) final;
 };
 
 /// Visits a list of hero/building pairs one at a time. A building may open a dialog
 /// or start a battle, in which case the routine suspends until that finishes and then
 /// carries on from the next pair.
-class TownBuildingVisitQuery final : public VisitQuery, public IRoutine
+class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
 {
 	struct BuildingVisit
 	{
@@ -82,19 +82,19 @@ class TownBuildingVisitQuery final : public VisitQuery, public IRoutine
 	size_t cursor = 0;
 
 public:
-	static constexpr QueryType TYPE = QueryType::TownBuildingVisit;
+	static constexpr ActivityType TYPE = ActivityType::TownBuildingVisit;
 
-	TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
+	TownBuildingVisitActivity(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
 
 	IRoutine * asRoutine() final { return this; }
 	StepResult advance() final;
-	void onChildCompleted(const QueryPtr & child) final;
+	void onChildCompleted(const ActivityPtr & child) final;
 };
 
 /// Visits the objects a player's heroes are standing on when their turn begins, one
 /// at a time. Queued to start only once the player has nothing else pending, so that
 /// it does not interrupt, for example, the dialog accepting the start of the turn.
-class TurnStartVisitQuery final : public CQuery, public IRoutine
+class TurnStartVisitActivity final : public Activity, public IRoutine
 {
 public:
 	struct PendingVisit
@@ -103,9 +103,9 @@ public:
 		ObjectInstanceID hero;
 	};
 
-	static constexpr QueryType TYPE = QueryType::TurnStartVisit;
+	static constexpr ActivityType TYPE = ActivityType::TurnStartVisit;
 
-	TurnStartVisitQuery(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits);
+	TurnStartVisitActivity(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits);
 
 	IRoutine * asRoutine() final { return this; }
 	StepResult advance() final;

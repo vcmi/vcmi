@@ -1,5 +1,5 @@
 /*
- * BattleQueries.h, part of VCMI engine
+ * BattleActivities.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,17 +9,17 @@
  */
 #pragma once
 
-#include "CQuery.h"
+#include "Activity.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/battle/BattleSide.h"
 
 class IBattleInfo;
 struct SideInBattle;
 
-class CBattleQuery : public CQuery
+class BattleActivity : public Activity
 {
 public:
-	static constexpr QueryType TYPE = QueryType::Battle;
+	static constexpr ActivityType TYPE = ActivityType::Battle;
 
 	BattleSideArray<const CArmedInstance *> belligerents;
 
@@ -28,26 +28,26 @@ public:
 	std::vector<ObjectInstanceID> heroesWithDeferredLevelUp;
 	mutable bool deferredLevelUpsApplied = false;
 
-	bool hasPendingBattleOrVisitQueries() const;
+	bool hasPendingBattleOrVisitActivities() const;
 	std::vector<ObjectInstanceID> takeDeferredLevelUps();
 	void completeDeferredLevelUps() const;
 
-	CBattleQuery(CGameHandler * owner);
-	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi);
+	BattleActivity(CGameHandler * owner);
+	BattleActivity(CGameHandler * owner, const IBattleInfo * Bi);
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 	void onRemoval(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
+	void onExposure(ActivityPtr topActivity) override;
 };
 
-class CBattleDialogQuery : public CDialogQuery
+class BattleResultActivity : public DialogActivity
 {
 	bool resultProcessed = false;
 	const IBattleInfo * bi;
 	std::optional<BattleResult> result;
 
 public:
-	static constexpr QueryType TYPE = QueryType::BattleDialog;
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, const std::optional<BattleResult> & Br);
+	static constexpr ActivityType TYPE = ActivityType::BattleDialog;
+	BattleResultActivity(CGameHandler * owner, const IBattleInfo * Bi, const std::optional<BattleResult> & Br);
 	void onRemoval(PlayerColor color) override;
 };

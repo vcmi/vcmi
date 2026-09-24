@@ -1,5 +1,5 @@
 /*
- * MapQueries.h, part of VCMI engine
+ * MapActivities.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CQuery.h"
+#include "Activity.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 
 class CGHeroInstance;
@@ -19,15 +19,15 @@ class CArmedInstance;
 
 //Created when player starts turn or when player puts game on [ause
 //Removed when player accepts a turn or continur play
-class TimerPauseQuery : public CQuery
+class TimerPauseActivity : public Activity
 {
 public:
-	static constexpr QueryType TYPE = QueryType::TimerPause;
+	static constexpr ActivityType TYPE = ActivityType::TimerPause;
 
-	TimerPauseQuery(CGameHandler * owner, PlayerColor player);
+	TimerPauseActivity(CGameHandler * owner, PlayerColor player);
 
 	bool blocksPack(const CPackForServer *pack) const override;
-	void onExposure(QueryPtr topQuery) override;
+	void onExposure(ActivityPtr topActivity) override;
 	void onAdding(PlayerColor color) override;
 	void onRemoval(PlayerColor color) override;
 	bool endsByPlayerAnswer() const override;
@@ -35,71 +35,71 @@ public:
 
 //Created when hero attempts move and something happens
 //(not necessarily position change, could be just an object interaction).
-class CHeroMovementQuery : public CQuery
+class HeroMovementActivity : public Activity
 {
 public:
-	static constexpr QueryType TYPE = QueryType::HeroMovement;
+	static constexpr ActivityType TYPE = ActivityType::HeroMovement;
 
 	TryMoveHero tmh;
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
 
-	/// Held as an id rather than a pointer: the query outlives a guard battle, which
+	/// Held as an id rather than a pointer: the activity outlives a guard battle, which
 	/// the hero may not - a beaten hero is taken off the map and put in the pool.
 	ObjectInstanceID hero;
 
-	void onExposure(QueryPtr topQuery) override;
+	void onExposure(ActivityPtr topActivity) override;
 
-	CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory = false);
+	HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory = false);
 	void onAdding(PlayerColor color) override;
 	void onRemoval(PlayerColor color) override;
 };
 
-class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
+class GarrisonDialogActivity : public DialogActivity //used also for hero exchange dialogs
 {
 public:
-	static constexpr QueryType TYPE = QueryType::GarrisonDialog;
+	static constexpr ActivityType TYPE = ActivityType::GarrisonDialog;
 
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
-	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
+	GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 };
 
 //yes/no and component selection dialogs
-class CBlockingDialogQuery : public CDialogQuery
+class BlockingDialogActivity : public DialogActivity
 {
 public:
-	static constexpr QueryType TYPE = QueryType::BlockingDialog;
+	static constexpr ActivityType TYPE = ActivityType::BlockingDialog;
 
 	const IObjectInterface * caller;
 	BlockingDialog bd; //copy of pack... debug purposes
 
-	CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog &bd);
+	BlockingDialogActivity(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog &bd);
 
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
-class OpenWindowQuery : public CDialogQuery
+class OpenWindowActivity : public DialogActivity
 {
 	EOpenWindowMode mode;
 public:
-	static constexpr QueryType TYPE = QueryType::OpenWindow;
+	static constexpr ActivityType TYPE = ActivityType::OpenWindow;
 
-	OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
+	OpenWindowActivity(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
 
 	bool blocksPack(const CPackForServer *pack) const override;
-	void onExposure(QueryPtr topQuery) override;
+	void onExposure(ActivityPtr topActivity) override;
 };
 
-class CTeleportDialogQuery : public CDialogQuery
+class TeleportDialogActivity : public DialogActivity
 {
 public:
-	static constexpr QueryType TYPE = QueryType::TeleportDialog;
+	static constexpr ActivityType TYPE = ActivityType::TeleportDialog;
 
 	TeleportDialog td; //copy of pack... debug purposes
 
-	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & dialog);
+	TeleportDialogActivity(CGameHandler * owner, const TeleportDialog & dialog);
 
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
@@ -109,7 +109,7 @@ public:
 /// without leaving the stack in between: the player cannot act between two levels,
 /// and whatever is waiting underneath - usually the visit that granted the
 /// experience - is told once, when the whole sequence is over.
-class LevelUpQuery : public CQuery, public IInteraction
+class LevelUpActivity : public Activity, public IInteraction
 {
 	/// Which of the two sequences is being asked about. The hero levels first, then
 	/// the commander, matching the order the game applies them in.
@@ -137,9 +137,9 @@ class LevelUpQuery : public CQuery, public IInteraction
 	PromptResult askCommanderLevelUp();
 
 public:
-	static constexpr QueryType TYPE = QueryType::HeroLevelUpDialog;
+	static constexpr ActivityType TYPE = ActivityType::HeroLevelUpDialog;
 
-	LevelUpQuery(CGameHandler * owner, const CGHeroInstance * hero);
+	LevelUpActivity(CGameHandler * owner, const CGHeroInstance * hero);
 
 	IInteraction * asInteraction() final { return this; }
 	PromptResult askNextQuestion() final;

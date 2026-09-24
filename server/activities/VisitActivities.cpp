@@ -1,5 +1,5 @@
 /*
- * VisitQueries.cpp, part of VCMI engine
+ * VisitActivities.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,43 +8,43 @@
  *
  */
 #include "StdInc.h"
-#include "VisitQueries.h"
+#include "VisitActivities.h"
 
-#include "BattleQueries.h"
+#include "BattleActivities.h"
 
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
 #include "../CGameHandler.h"
-#include "QueriesProcessor.h"
+#include "ActivityProcessor.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 
-VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, QueryType type)
-	: CQuery(owner, type)
+VisitActivity::VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, ActivityType type)
+	: Activity(owner, type)
 	, visitedObject(Obj->id)
 	, visitingHero(Hero->id)
 {
 	addPlayer(Hero->tempOwner);
 }
 
-bool VisitQuery::blocksPack(const CPackForServer * pack) const
+bool VisitActivity::blocksPack(const CPackForServer * pack) const
 {
 	// During the visit itself all actions are blocked - except answering a question,
-	// which may have been asked by a query that has since been removed or buried.
+	// which may have been asked by a activity that has since been removed or buried.
 	// Refusing those is what leaves both sides waiting for each other.
-	// (The visit may also trigger a query above that lets more through.)
+	// (The visit may also trigger a activity above that lets more through.)
 	return blockAllButReply(pack);
 }
 
-MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
-	: VisitQuery(owner, Obj, Hero, TYPE)
+MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
+	: VisitActivity(owner, Obj, Hero, TYPE)
 	, removeObjectAfterVisit(false)
 {
 }
 
-StepResult MapObjectVisitQuery::advance()
+StepResult MapObjectVisitActivity::advance()
 {
 	// activeStep is set before the work runs, so that children pushed by a step are
 	// attributed to it when they finish.
@@ -66,7 +66,7 @@ StepResult MapObjectVisitQuery::advance()
 	}
 }
 
-void MapObjectVisitQuery::startVisit()
+void MapObjectVisitActivity::startVisit()
 {
 	const auto * object = gh->gameInfo().getObj(visitedObject);
 	const auto * hero = gh->gameState().getHero(visitingHero);
@@ -97,7 +97,7 @@ void MapObjectVisitQuery::startVisit()
 	}
 }
 
-void MapObjectVisitQuery::applyDeferredLevelUps()
+void MapObjectVisitActivity::applyDeferredLevelUps()
 {
 	auto pending = std::move(deferredBattleLevelUps);
 	deferredBattleLevelUps.clear();
@@ -107,7 +107,7 @@ void MapObjectVisitQuery::applyDeferredLevelUps()
 			gh->expGiven(hero);
 }
 
-void MapObjectVisitQuery::onChildCompleted(const QueryPtr & child)
+void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
 	// A level-up prompt shown during the DeferredLevelUps step comes from experience
 	// won in a battle, not from the object's reward. Reporting it to the object would
@@ -125,14 +125,14 @@ void MapObjectVisitQuery::onChildCompleted(const QueryPtr & child)
 			child->notifyObjectAboutRemoval(object, hero);
 	}
 
-	if(auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(child))
+	if(auto battleActivity = std::dynamic_pointer_cast<BattleActivity>(child))
 	{
-		auto levelUps = battleQuery->takeDeferredLevelUps();
+		auto levelUps = battleActivity->takeDeferredLevelUps();
 		deferredBattleLevelUps.insert(deferredBattleLevelUps.end(), levelUps.begin(), levelUps.end());
 	}
 }
 
-void MapObjectVisitQuery::onRemoval(PlayerColor color)
+void MapObjectVisitActivity::onRemoval(PlayerColor color)
 {
 	gh->objectVisitEnded(visitingHero, players.front());
 
@@ -140,15 +140,15 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 		gh->removeObject(gh->gameState().getObjInstance(visitedObject), color);
 }
 
-TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
-	: VisitQuery(owner, Obj, heroes.front(), TYPE)
+TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
+	: VisitActivity(owner, Obj, heroes.front(), TYPE)
 {
 	for (const auto * hero : heroes)
 		for (const auto & building : buildingToVisit)
 			visits.push_back({ hero->id, building });
 }
 
-void TownBuildingVisitQuery::onChildCompleted(const QueryPtr & child)
+void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
 	const auto * object = gh->gameState().getObjInstance(visitedObject);
 	const auto * hero = gh->gameState().getHero(visitingHero);
@@ -158,7 +158,7 @@ void TownBuildingVisitQuery::onChildCompleted(const QueryPtr & child)
 		child->notifyObjectAboutRemoval(object, hero);
 }
 
-StepResult TownBuildingVisitQuery::advance()
+StepResult TownBuildingVisitActivity::advance()
 {
 	if(cursor >= visits.size())
 		return StepResult::Done;
@@ -183,14 +183,14 @@ StepResult TownBuildingVisitQuery::advance()
 	return StepResult::Continue;
 }
 
-TurnStartVisitQuery::TurnStartVisitQuery(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits)
-	: CQuery(owner, TYPE)
+TurnStartVisitActivity::TurnStartVisitActivity(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits)
+	: Activity(owner, TYPE)
 	, visits(std::move(visits))
 {
 	addPlayer(player);
 }
 
-StepResult TurnStartVisitQuery::advance()
+StepResult TurnStartVisitActivity::advance()
 {
 	if(cursor >= visits.size())
 		return StepResult::Done;

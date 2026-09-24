@@ -1,5 +1,5 @@
 /*
- * BattleQueries.cpp, part of VCMI engine
+ * BattleActivities.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,10 +8,10 @@
  *
  */
 #include "StdInc.h"
-#include "BattleQueries.h"
-#include "MapQueries.h"
-#include "QueriesProcessor.h"
-#include "VisitQueries.h"
+#include "BattleActivities.h"
+#include "MapActivities.h"
+#include "ActivityProcessor.h"
+#include "VisitActivities.h"
 
 #include "../CGameHandler.h"
 #include "../battles/BattleProcessor.h"
@@ -24,16 +24,16 @@
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 
-bool CBattleQuery::hasPendingBattleOrVisitQueries() const
+bool BattleActivity::hasPendingBattleOrVisitActivities() const
 {
 	return std::any_of(players.begin(), players.end(), [this](const PlayerColor & player)
 	{
-		auto top = owner->topQuery(player);
-		return top.get() == this || std::dynamic_pointer_cast<MapObjectVisitQuery>(top);
+		auto top = owner->topActivity(player);
+		return top.get() == this || std::dynamic_pointer_cast<MapObjectVisitActivity>(top);
 	});
 }
 
-std::vector<ObjectInstanceID> CBattleQuery::takeDeferredLevelUps()
+std::vector<ObjectInstanceID> BattleActivity::takeDeferredLevelUps()
 {
 	deferredLevelUpsApplied = true;
 	auto deferredLevelUps = std::move(heroesWithDeferredLevelUp);
@@ -41,7 +41,7 @@ std::vector<ObjectInstanceID> CBattleQuery::takeDeferredLevelUps()
 	return deferredLevelUps;
 }
 
-void CBattleQuery::completeDeferredLevelUps() const
+void BattleActivity::completeDeferredLevelUps() const
 {
 	if(deferredLevelUpsApplied)
 		return;
@@ -52,7 +52,7 @@ void CBattleQuery::completeDeferredLevelUps() const
 			gh->expGiven(hero);
 }
 
-void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void BattleActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(result);
 
@@ -60,8 +60,8 @@ void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObje
 		visitedObject->battleFinished(*gh, visitingHero, *result);
 }
 
-CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
-	CQuery(owner, TYPE),
+BattleActivity::BattleActivity(CGameHandler * owner, const IBattleInfo * bi):
+	Activity(owner, TYPE),
 	battleID(bi->getBattleID())
 {
 	belligerents[BattleSide::ATTACKER] = bi->getSideArmy(BattleSide::ATTACKER);
@@ -76,14 +76,14 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 		addPlayer(defender);
 }
 
-CBattleQuery::CBattleQuery(CGameHandler * owner):
-	CQuery(owner, TYPE)
+BattleActivity::BattleActivity(CGameHandler * owner):
+	Activity(owner, TYPE)
 {
 	belligerents[BattleSide::ATTACKER] = nullptr;
 	belligerents[BattleSide::DEFENDER] = nullptr;
 }
 
-bool CBattleQuery::blocksPack(const CPackForServer * pack) const
+bool BattleActivity::blocksPack(const CPackForServer * pack) const
 {
 	if(dynamic_cast<const MakeAction*>(pack) != nullptr)
 		return false;
@@ -97,31 +97,31 @@ bool CBattleQuery::blocksPack(const CPackForServer * pack) const
 	return true;
 }
 
-void CBattleQuery::onRemoval(PlayerColor color)
+void BattleActivity::onRemoval(PlayerColor color)
 {
 	assert(result);
 
 	if(result)
 		gh->battles->battleFinalize(battleID, *result);
 
-	// Guarded map object visits are notified after the battle query is removed.
+	// Guarded map object visits are notified after the battle activity is removed.
 	// In that case, defer level-up prompts until the object applies its battle result.
-	// In multi-player battles, also wait until this battle query is removed for all players.
-	if(!hasPendingBattleOrVisitQueries())
+	// In multi-player battles, also wait until this battle activity is removed for all players.
+	if(!hasPendingBattleOrVisitActivities())
 		completeDeferredLevelUps();
 }
 
-void CBattleQuery::onExposure(QueryPtr topQuery)
+void BattleActivity::onExposure(ActivityPtr topActivity)
 {
 	// this method may be called in two cases:
 	// 1) when requesting battle replay (but before replay starts -> no valid result)
-	// 2) when aswering on levelup queries after accepting battle result -> valid result
+	// 2) when aswering on levelup activities after accepting battle result -> valid result
 	if(result)
-		owner->popQuery(*this);
+		owner->popActivity(*this);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, const std::optional<BattleResult> & Br):
-	CDialogQuery(owner, TYPE),
+BattleResultActivity::BattleResultActivity(CGameHandler * owner, const IBattleInfo * bi, const std::optional<BattleResult> & Br):
+	DialogActivity(owner, TYPE),
 	bi(bi),
 	result(Br)
 {
@@ -134,9 +134,9 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 		addPlayer(defender);
 }
 
-void CBattleDialogQuery::onRemoval(PlayerColor color)
+void BattleResultActivity::onRemoval(PlayerColor color)
 {
-	// answer to this query was already processed when handling 1st player
+	// answer to this activity was already processed when handling 1st player
 	// this removal call for 2nd player which can be safely ignored
 	if (resultProcessed)
 		return;

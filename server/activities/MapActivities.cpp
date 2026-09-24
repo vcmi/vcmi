@@ -1,5 +1,5 @@
 /*
- * MapQueries.cpp, part of VCMI engine
+ * MapActivities.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,10 +8,10 @@
  *
  */
 #include "StdInc.h"
-#include "MapQueries.h"
+#include "MapActivities.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 
-#include "QueriesProcessor.h"
+#include "ActivityProcessor.h"
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
 #include "../../lib/GameLibrary.h"
@@ -21,13 +21,13 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 
-TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
-	CQuery(owner, TYPE)
+TimerPauseActivity::TimerPauseActivity(CGameHandler * owner, PlayerColor player):
+	Activity(owner, TYPE)
 {
 	addPlayer(player);
 }
 
-bool TimerPauseQuery::blocksPack(const CPackForServer * pack) const
+bool TimerPauseActivity::blocksPack(const CPackForServer * pack) const
 {
 	if(dynamic_cast<const SaveGame *>(pack) != nullptr)
 		return false;
@@ -38,35 +38,35 @@ bool TimerPauseQuery::blocksPack(const CPackForServer * pack) const
 	return blockAllButReply(pack);
 }
 
-void TimerPauseQuery::onExposure(QueryPtr topQuery)
+void TimerPauseActivity::onExposure(ActivityPtr topActivity)
 {
-	// do nothing - don't self-pop. This query ends either when the player replies
-	// (QueriesProcessor pops answered queries once they are exposed) or when the
+	// do nothing - don't self-pop. This activity ends either when the player replies
+	// (ActivityProcessor pops answered activities once they are exposed) or when the
 	// timer/handler removes it explicitly.
 }
 
-void TimerPauseQuery::onAdding(PlayerColor color)
+void TimerPauseActivity::onAdding(PlayerColor color)
 {
 	gh->turnTimerHandler->setTimerEnabled(color, false);
 }
 
-void TimerPauseQuery::onRemoval(PlayerColor color)
+void TimerPauseActivity::onRemoval(PlayerColor color)
 {
 	gh->turnTimerHandler->setTimerEnabled(color, true);
 }
 
-bool TimerPauseQuery::endsByPlayerAnswer() const
+bool TimerPauseActivity::endsByPlayerAnswer() const
 {
 	return true;
 }
 
-void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void GarrisonDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
 
-CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
-	CDialogQuery(owner, TYPE)
+GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
+	DialogActivity(owner, TYPE)
 {
 	exchangingArmies[0] = up;
 	exchangingArmies[1] = down;
@@ -77,7 +77,7 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedIns
 		addPlayer(down->tempOwner);
 }
 
-bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
+bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const
 {
 	std::set<ObjectInstanceID> ourIds;
 	ourIds.insert(this->exchangingArmies[0]->id);
@@ -138,35 +138,35 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto tactics = dynamic_cast<const SetTactics*>(pack))
 		return !vstd::contains(ourIds, tactics->hid);
 
-	return CDialogQuery::blocksPack(pack);
+	return DialogActivity::blocksPack(pack);
 }
 
-void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void BlockingDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
 	caller->blockingDialogAnswered(*gh, visitingHero, *answer);
 }
 
-CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
-	CDialogQuery(owner, TYPE),
+BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
+	DialogActivity(owner, TYPE),
 	caller(caller)
 {
 	this->bd = bd;
 	addPlayer(bd.player);
 }
 
-OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance * hero, EOpenWindowMode mode)
-	: CDialogQuery(owner, TYPE), mode(mode)
+OpenWindowActivity::OpenWindowActivity(CGameHandler * owner, const CGHeroInstance * hero, EOpenWindowMode mode)
+	: DialogActivity(owner, TYPE), mode(mode)
 {
 	addPlayer(hero->getOwner());
 }
 
-void OpenWindowQuery::onExposure(QueryPtr topQuery)
+void OpenWindowActivity::onExposure(ActivityPtr topActivity)
 {
 	//do nothing - wait for reply
 }
 
-bool OpenWindowQuery::blocksPack(const CPackForServer * pack) const
+bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
 	{
@@ -211,42 +211,42 @@ bool OpenWindowQuery::blocksPack(const CPackForServer * pack) const
 			return false;
 	}
 
-	return CDialogQuery::blocksPack(pack);
+	return DialogActivity::blocksPack(pack);
 }
 
-void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void TeleportDialogActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
 		obj->teleportDialogAnswered(*gh, visitingHero, *answer, td.exits);
 	else
-		logGlobal->error("Invalid instance in teleport query");
+		logGlobal->error("Invalid instance in teleport activity");
 }
 
-CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & dialog) :
-	CDialogQuery(owner, TYPE)
+TeleportDialogActivity::TeleportDialogActivity(CGameHandler * owner, const TeleportDialog & dialog) :
+	DialogActivity(owner, TYPE)
 {
 	td = dialog;
 	addPlayer(gh->gameInfo().getHero(dialog.hero)->getOwner());
 }
 
-LevelUpQuery::LevelUpQuery(CGameHandler * owner, const CGHeroInstance * hero)
-	: CQuery(owner, TYPE), hero(hero->id)
+LevelUpActivity::LevelUpActivity(CGameHandler * owner, const CGHeroInstance * hero)
+	: Activity(owner, TYPE), hero(hero->id)
 {
 	addPlayer(hero->tempOwner);
 }
 
-bool LevelUpQuery::endsByPlayerAnswer() const
+bool LevelUpActivity::endsByPlayerAnswer() const
 {
 	return true;
 }
 
-bool LevelUpQuery::blocksPack(const CPackForServer * pack) const
+bool LevelUpActivity::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }
 
-PromptResult LevelUpQuery::askNextQuestion()
+PromptResult LevelUpActivity::askNextQuestion()
 {
 	if(phase == Phase::Hero)
 	{
@@ -269,7 +269,7 @@ PromptResult LevelUpQuery::askNextQuestion()
 	return PromptResult::Finished;
 }
 
-PromptResult LevelUpQuery::askHeroLevelUp()
+PromptResult LevelUpActivity::askHeroLevelUp()
 {
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 
@@ -292,7 +292,7 @@ PromptResult LevelUpQuery::askHeroLevelUp()
 	return PromptResult::Asked;
 }
 
-PromptResult LevelUpQuery::askCommanderLevelUp()
+PromptResult LevelUpActivity::askCommanderLevelUp()
 {
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 
@@ -316,14 +316,14 @@ PromptResult LevelUpQuery::askCommanderLevelUp()
 	return PromptResult::Asked;
 }
 
-void LevelUpQuery::applyAnswer(std::optional<int32_t> answer)
+void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
 {
 	// Release the dialog the player just answered before the next question is sent.
-	// The client keeps a query-backed dialog open until it is told that question is
+	// The client keeps a activity-backed dialog open until it is told that question is
 	// resolved, and relies on being told before the following one arrives.
 	if(askedQuestionID.hasValue())
 	{
-		gh->sendQueryResolved(askedQuestionID);
+		gh->sendQuestionResolved(askedQuestionID);
 		askedQuestionID = QueryID::NONE;
 	}
 
@@ -370,27 +370,27 @@ void LevelUpQuery::applyAnswer(std::optional<int32_t> answer)
 	offeredCommanderSkills.clear();
 }
 
-void LevelUpQuery::onRemoval(PlayerColor color)
+void LevelUpActivity::onRemoval(PlayerColor color)
 {
 	// Normally every question has already been released as it was answered. One may
-	// still be outstanding if the query was removed without being answered, and the
+	// still be outstanding if the activity was removed without being answered, and the
 	// client would otherwise be left holding that dialog open.
 	if(askedQuestionID.hasValue())
-		gh->sendQueryResolved(askedQuestionID);
+		gh->sendQuestionResolved(askedQuestionID);
 }
 
-void LevelUpQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
+void LevelUpActivity::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
 
-CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
-	CQuery(owner, TYPE), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero->id)
+HeroMovementActivity::HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
+	Activity(owner, TYPE), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero->id)
 {
 	players.push_back(Hero->tempOwner);
 }
 
-void CHeroMovementQuery::onExposure(QueryPtr topQuery)
+void HeroMovementActivity::onExposure(ActivityPtr topActivity)
 {
 	assert(players.size() == 1);
 
@@ -409,7 +409,7 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 	owner->popIfTop(*this);
 }
 
-void CHeroMovementQuery::onRemoval(PlayerColor color)
+void HeroMovementActivity::onRemoval(PlayerColor color)
 {
 	PlayerBlocked pb;
 	pb.player = color;
@@ -418,7 +418,7 @@ void CHeroMovementQuery::onRemoval(PlayerColor color)
 	gh->sendAndApply(pb);
 }
 
-void CHeroMovementQuery::onAdding(PlayerColor color)
+void HeroMovementActivity::onAdding(PlayerColor color)
 {
 	PlayerBlocked pb;
 	pb.player = color;
