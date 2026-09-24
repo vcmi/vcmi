@@ -65,16 +65,16 @@ public:
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
 	virtual void receivedResource(){};
 	virtual void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID){};
-	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID){}
+	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QuestionID questionID){}
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can build, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};
-	virtual void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID){};
-	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
+	virtual void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID){};
+	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QuestionID questionID){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
-	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
+	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QuestionID questionID) {};
 	virtual void showQuestLog(){};
 	virtual void showScenarioEventJournal(){};
 	virtual void scenarioEventJournalChanged(){};
@@ -89,7 +89,7 @@ public:
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestSent(const CPackForServer *pack, int requestID){};
 	virtual void requestRealized(PackageApplied *pa){};
-	virtual void queryResolved(QueryID queryID){}; // query-backed dialog (eg. level-up) was resolved and removed
+	virtual void questionResolved(QuestionID questionID){}; // question-backed dialog (eg. level-up) was resolved and removed
 	virtual void beforeObjectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj, const PlayerColor & initiator){}; //eg. collected resource, picked artifact, beaten hero
@@ -102,5 +102,5 @@ public:
 	virtual void responseStatistic(StatisticDataSet & statistic){};
 
 	//TODO shouldn't be moved down the tree?
-	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
+	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID questionID){};
 };

@@ -158,7 +158,7 @@ ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment
 		request.icon = Component(ComponentType::SPELL, owner->id);
 		request.objects = offeredTownIDs;
 
-		env->genericQuery(&request, request.player, queryCallback);
+		env->askQuestion(&request, request.player, queryCallback);
 		return ESpellCastResult::PENDING;
 	}
 

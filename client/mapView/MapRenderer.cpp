@@ -978,7 +978,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 
 	const bool visible = context.isVisible(coordinates);
 
-	// Neighbour visibility costs eight queries and is only consulted for hidden tiles, so it is
+	// Neighbour visibility costs eight questions and is only consulted for hidden tiles, so it is
 	// skipped for the common case of a visible one - which the old code built and discarded.
 	std::optional<NeighborTilesInfo> neighborInfo;
 	if(!visible)

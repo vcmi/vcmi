@@ -28,21 +28,21 @@ class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEven
 public:
 	virtual ~CGameInterface() = default;
 	virtual void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
-	virtual void yourTurn(QueryID askID){}; //called AFTER playerStartsTurn(player)
+	virtual void yourTurn(QuestionID questionID){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;
-	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)=0;
+	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QuestionID questionID)=0;
+	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID)=0;
 
 	// Show a dialog, player must take decision. If selection then he has to choose between one of given components,
 	// if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called
-	// with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) = 0;
+	// with number of selected component (1 - n) or 0 for cancel (if allowed) and questionID.
+	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) = 0;
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID, const MetaString & customTitle) = 0;
-	virtual void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) = 0;
-	virtual void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QuestionID questionID, const MetaString & customTitle) = 0;
+	virtual void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) = 0;
+	virtual void showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
 	virtual void finish(){}; //if for some reason we want to end
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};

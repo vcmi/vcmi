@@ -69,7 +69,7 @@ private:
 
 	/// IDs of activities that recently left a player's stack. Lets submitReply tell a
 	/// harmless "your reply lost the race" apart from a genuinely bogus activity ID.
-	std::array<std::deque<QueryID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
+	std::array<std::deque<QuestionID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
 	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
 
 	/// Number of activity stack mutations currently in progress. Activity hooks routinely
@@ -97,8 +97,8 @@ private:
 	/// as one per building visited in a town.
 	static constexpr int MAX_ROUTINE_STEPS = 1000;
 
-	void rememberCompleted(PlayerColor player, QueryID queryID);
-	bool wasRecentlyCompleted(PlayerColor player, QueryID queryID) const;
+	void rememberCompleted(PlayerColor player, QuestionID questionID);
+	bool wasRecentlyCompleted(PlayerColor player, QuestionID questionID) const;
 	void markStackChanged(PlayerColor player);
 
 	/// Steps every routine that is at the top of a player's stack, until it either
@@ -226,19 +226,19 @@ public:
 	void popIfTop(ActivityPtr activity); //removes this activity if it is at the top (otherwise, do nothing)
 
 	ActivityPtr topActivity(PlayerColor player);
-	ActivityPtr getActivity(QueryID queryID);
+	ActivityPtr getActivity(QuestionID questionID);
 
 	/// Looks the activity up on this player's stack only. Prefer this over getActivity()
 	/// when handling player input: activity IDs are not guaranteed to be unique across
-	/// players (QueryID::CLIENT is shared by every pause activity), so a global lookup
+	/// players (QuestionID::CLIENT is shared by every pause activity), so a global lookup
 	/// can return another player's activity.
-	ActivityPtr getActivity(QueryID queryID, PlayerColor player);
+	ActivityPtr getActivity(QuestionID questionID, PlayerColor player);
 
 	/// Records a player's reply to a activity. The activity does not have to be at the top
 	/// of the stack - the server may well have pushed something else between sending
 	/// the prompt and receiving the answer, and rejecting the reply for that reason
 	/// would leave both sides waiting for each other forever.
-	ReplyOutcome submitReply(QueryID queryID, PlayerColor player, std::optional<int32_t> reply);
+	ReplyOutcome submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply);
 
 	/// Re-runs deferred work for a player. Needed when something outside the activity
 	/// system changes whether it can go on - such as the player's interface becoming

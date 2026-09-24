@@ -123,7 +123,7 @@ class Activity : boost::noncopyable
 {
 public:
 	boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I> players; //players that are affected (often "blocked") by activity
-	QueryID queryID;
+	QuestionID questionID;
 
 	ActivityType getType() const
 	{
@@ -181,9 +181,9 @@ public:
 	/// Id of the question the player was last asked, which is what their answer must
 	/// carry. For a activity that asks at most once this is simply its own id; an
 	/// interaction that asks repeatedly gives each question a fresh one.
-	QueryID getActiveQuestionID() const
+	QuestionID getActiveQuestionID() const
 	{
-		return activeQuestionID.hasValue() ? activeQuestionID : queryID;
+		return activeQuestionID.hasValue() ? activeQuestionID : questionID;
 	}
 
 	/// Whether the player has been asked something and has not answered yet.
@@ -210,7 +210,7 @@ private:
 protected:
 	/// Set by an interaction each time it asks something. Left unset by activities that
 	/// ask at most once, which answer to their own id.
-	QueryID activeQuestionID = QueryID::NONE;
+	QuestionID activeQuestionID = QuestionID::NONE;
 };
 
 /// Human-readable name of a activity type, for logs and player-facing complaints.

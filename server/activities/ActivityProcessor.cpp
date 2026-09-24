@@ -34,7 +34,7 @@ void ActivityProcessor::popActivity(PlayerColor player, ActivityPtr activity)
 	stack.pop_back();
 	auto nextActivity = topActivity(player);
 
-	rememberCompleted(player, activity->queryID);
+	rememberCompleted(player, activity->questionID);
 	rememberCompleted(player, activity->getActiveQuestionID());
 	markStackChanged(player);
 
@@ -167,11 +167,11 @@ ActivityProcessor::AllActivitiesView ActivityProcessor::allActivities()
 	return AllActivitiesView(activities);
 }
 
-ActivityPtr ActivityProcessor::getActivity(QueryID queryID)
+ActivityPtr ActivityProcessor::getActivity(QuestionID questionID)
 {
 	for(auto & playerActivities : activities)
 		for(auto & activity : playerActivities)
-			if(activity->queryID == queryID)
+			if(activity->questionID == questionID)
 				return activity;
 	return nullptr;
 }
@@ -190,36 +190,36 @@ int ActivityProcessor::countActivity(const ActivityPtr & activity) const
 	return result;
 }
 
-ActivityPtr ActivityProcessor::getActivity(QueryID queryID, PlayerColor player)
+ActivityPtr ActivityProcessor::getActivity(QuestionID questionID, PlayerColor player)
 {
 	if(!player.isValidPlayer())
 		return nullptr;
 
 	for(const auto & activity : activities.at(player.getNum()))
-		if(activity->queryID == queryID || activity->getActiveQuestionID() == queryID)
+		if(activity->questionID == questionID || activity->getActiveQuestionID() == questionID)
 			return activity;
 
 	return nullptr;
 }
 
-void ActivityProcessor::rememberCompleted(PlayerColor player, QueryID queryID)
+void ActivityProcessor::rememberCompleted(PlayerColor player, QuestionID questionID)
 {
-	if(!player.isValidPlayer() || !queryID.hasValue())
+	if(!player.isValidPlayer() || !questionID.hasValue())
 		return;
 
 	auto & completed = recentlyCompleted.at(player.getNum());
-	completed.push_back(queryID);
+	completed.push_back(questionID);
 
 	while(completed.size() > RECENTLY_COMPLETED_LIMIT)
 		completed.pop_front();
 }
 
-bool ActivityProcessor::wasRecentlyCompleted(PlayerColor player, QueryID queryID) const
+bool ActivityProcessor::wasRecentlyCompleted(PlayerColor player, QuestionID questionID) const
 {
 	if(!player.isValidPlayer())
 		return false;
 
-	return vstd::contains(recentlyCompleted.at(player.getNum()), queryID);
+	return vstd::contains(recentlyCompleted.at(player.getNum()), questionID);
 }
 
 void ActivityProcessor::markStackChanged(PlayerColor player)
@@ -460,22 +460,22 @@ void ActivityProcessor::settle()
 	logGlobal->error("Activity stacks did not settle after %d rounds! Activities:\n%s", MAX_SETTLE_ROUNDS, describeStacks());
 }
 
-ReplyOutcome ActivityProcessor::submitReply(QueryID queryID, PlayerColor player, std::optional<int32_t> reply)
+ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply)
 {
 	MutationScope mutation(*this);
 
-	auto activity = getActivity(queryID, player);
+	auto activity = getActivity(questionID, player);
 
 	if(!activity)
 	{
 		// The activity may have been removed while the reply was travelling to us.
 		// That is a normal race and must not be reported as a problem.
-		if(wasRecentlyCompleted(player, queryID))
+		if(wasRecentlyCompleted(player, questionID))
 			return ReplyOutcome::IgnoredAlreadyCompleted;
 
 		// It may also belong to a different player - report that specifically,
 		// rather than claiming the activity does not exist at all.
-		if(getActivity(queryID))
+		if(getActivity(questionID))
 			return ReplyOutcome::RejectedWrongPlayer;
 
 		return ReplyOutcome::RejectedUnknownActivity;
@@ -501,14 +501,14 @@ ReplyOutcome ActivityProcessor::submitReply(QueryID queryID, PlayerColor player,
 		// An interaction asks more than once, so an answer has to name the question
 		// it belongs to. Naming the interaction itself is not good enough: that would
 		// let an answer to a question already superseded be taken for the current one.
-		if(queryID != activity->getActiveQuestionID())
+		if(questionID != activity->getActiveQuestionID())
 			return ReplyOutcome::IgnoredAlreadyCompleted;
 
 		// An interaction is not finished by an answer - it may have more to ask.
 		// Remember the question so that a repeated answer to it is recognised as a
 		// stale one rather than mistaken for an answer to whatever is asked next.
 		rememberCompleted(player, activity->getActiveQuestionID());
-		activity->activeQuestionID = QueryID::NONE;
+		activity->activeQuestionID = QuestionID::NONE;
 		interaction->applyAnswer(reply);
 		return ReplyOutcome::Accepted;
 	}

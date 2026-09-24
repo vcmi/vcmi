@@ -230,7 +230,7 @@ void CStupidAI::battleStacksAttacked(const BattleID & battleID, const std::vecto
 	print("battleStacksAttacked called");
 }
 
-void CStupidAI::battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID)
+void CStupidAI::battleEnd(const BattleID & battleID, const BattleResult *br, QuestionID questionID)
 {
 	print("battleEnd called");
 }

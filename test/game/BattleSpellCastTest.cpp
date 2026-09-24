@@ -162,7 +162,7 @@ public:
 	{
 	}
 
-	void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
+	void askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
 	{
 		//todo:
 	}

@@ -990,7 +990,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				return true;
 
 		case BuildingID::TAVERN:
-				GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
+				GAME->interface()->showTavernWindow(town, nullptr, QuestionID::NONE);
 				return true;
 
 		case BuildingID::SHIPYARD:
@@ -1837,7 +1837,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 	}
 	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
-			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
+			GAME->interface()->showTavernWindow(town, nullptr, QuestionID::NONE);
 		break;
 	case EShortcut::ADVENTURE_OPEN_WIKI:
 		ENGINE->windows().createAndPushWindow<WikiWindow>(

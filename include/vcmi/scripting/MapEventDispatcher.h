@@ -34,7 +34,7 @@ public:
 	virtual std::optional<int> onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town) = 0;
 
 	/// Resumes a paused coroutine with the player's reply (nullopt for non-dialog children such as combat).
-	/// Returns true if the coroutine finished (its query may now be removed), false if it paused again.
+	/// Returns true if the coroutine finished (its activity may now be removed), false if it paused again.
 	virtual bool resumeCoroutine(IGameEventCallback & server, int coroutineHandle, std::optional<int> answer) = 0;
 };
 

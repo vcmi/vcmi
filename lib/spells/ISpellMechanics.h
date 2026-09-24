@@ -18,7 +18,7 @@
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
 
-struct Query;
+struct Question;
 class IBattleState;
 class CreatureService;
 class CMap;
@@ -63,7 +63,7 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
-	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
+	virtual void askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety, use a generic question packet when implemented
 };
 
 namespace spells

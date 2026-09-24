@@ -313,7 +313,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 
 	if(lobbyPreviewMode)
 	{
-		LobbyQueryState lqs;
+		LobbyQuestionState lqs;
 		sendLobbyPack(lqs);
 	}
 	else
@@ -1204,7 +1204,7 @@ void CServerHandler::onLobbyPreviewResponse(LobbyModsCheck & pack)
 {
 	lobbyPreviewMode = false;
 
-	// Close the temporary query connection
+	// Close the temporary question connection
 	if(networkConnection)
 	{
 		networkConnection->close();

@@ -30,12 +30,12 @@ public:
 	MOCK_METHOD1(init, void(std::shared_ptr<CCallback> CB));
 	MOCK_METHOD0(yourTurn, void());
 
-	MOCK_METHOD4(heroGotLevel, void(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID));
-	MOCK_METHOD3(commanderGotLevel, void(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID));
-	MOCK_METHOD6(showBlockingDialog, void(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept));
-	MOCK_METHOD4(showGarrisonDialog, void(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID));
-	MOCK_METHOD4(showTeleportDialog, void(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID));
-	MOCK_METHOD5(showMapObjectSelectDialog, void(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects));
+	MOCK_METHOD4(heroGotLevel, void(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QuestionID questionID));
+	MOCK_METHOD3(commanderGotLevel, void(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID));
+	MOCK_METHOD6(showBlockingDialog, void(const std::string & text, const std::vector<Component> & components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept));
+	MOCK_METHOD4(showGarrisonDialog, void(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID));
+	MOCK_METHOD4(showTeleportDialog, void(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID));
+	MOCK_METHOD5(showMapObjectSelectDialog, void(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects));
 	MOCK_METHOD2(saveGame, void(BinarySerializer & h, const int version));
 	MOCK_METHOD2(loadGame, void(BinaryDeserializer & h, const int version));
 	MOCK_METHOD0(finish, void());
@@ -60,7 +60,7 @@ public:
 	MOCK_METHOD1(availableArtifactsChanged, void(const CGBlackMarket * bm));
 	MOCK_METHOD2(heroVisitsTown, void(const CGHeroInstance * hero, const CGTownInstance * town));
 	MOCK_METHOD1(tileRevealed, void(const std::unordered_set<int3, ShashInt3> & pos));
-	MOCK_METHOD3(heroExchangeStarted, void(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query));
+	MOCK_METHOD3(heroExchangeStarted, void(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID query));
 	MOCK_METHOD3(heroPrimarySkillChanged, void(const CGHeroInstance * hero, int which, si64 val));
 	MOCK_METHOD3(showRecruitmentDialog, void(const CGDwelling * dwelling, const CArmedInstance * dst, int level));
 	MOCK_METHOD1(heroMovePointsChanged, void(const CGHeroInstance * hero));

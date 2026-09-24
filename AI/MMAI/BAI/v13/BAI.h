@@ -34,7 +34,7 @@ public:
 	) override; //called when stack receives damage (after battleAttack())
 
 	void battleTriggerEffect(const BattleID & bid, const BattleTriggerEffect & bte) override;
-	void battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID) override;
+	void battleEnd(const BattleID & bid, const BattleResult * br, QuestionID questionID) override;
 	void battleStart(
 		const BattleID & bid,
 		const CCreatureSet * army1,

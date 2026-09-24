@@ -27,7 +27,7 @@ public:
 	virtual void visitForServer(CPackForServer & pack) {}
 	virtual void visitForClient(CPackForClient & pack) {}
 	virtual void visitPackageApplied(PackageApplied & pack) {}
-	virtual void visitQueryResolved(QueryResolved & pack) {}
+	virtual void visitQuestionResolved(QuestionResolved & pack) {}
 	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
@@ -154,7 +154,7 @@ public:
 	virtual void visitSetTownName(SetTownName & pack) {}
 	virtual void visitHireHero(HireHero & pack) {}
 	virtual void visitBuildBoat(BuildBoat & pack) {}
-	virtual void visitQueryReply(QueryReply & pack) {}
+	virtual void visitQuestionAnswer(QuestionAnswer & pack) {}
 	virtual void visitMakeAction(MakeAction & pack) {}
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
@@ -173,7 +173,7 @@ public:
 	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
-	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}
+	virtual void visitLobbyQuestionState(LobbyQuestionState & pack) {}
 	virtual void visitLobbyModsCheck(LobbyModsCheck & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}

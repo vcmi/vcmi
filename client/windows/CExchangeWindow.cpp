@@ -43,7 +43,7 @@ static bool isQuickExchangeLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ImagePath::builtin("SPRITES/" + QUICK_EXCHANGE_BG));
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID questionID)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : (ENGINE->isRoeData() ? "TRADE" : "TRADE2"))),
 	controller(hero1, hero2)
 {
@@ -167,8 +167,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	quit = std::make_shared<CButton>(Point(732, 567), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_ACCEPT);
-	if(queryID.getNum() > 0)
-		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, queryID); });
+	if(questionID.getNum() > 0)
+		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, questionID); });
 
 	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));

@@ -111,7 +111,7 @@ public:
 	{
 		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
 		{
-			si32 legacyQuestInstanceID = 0; // removed Quest::qid
+			si32 legacyQuestInstanceID = 0; // removed Quest::questionID
 			h & legacyQuestInstanceID;
 		}
 		h & isCompleted;

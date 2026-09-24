@@ -169,7 +169,7 @@ public:
 	MapRendererFow();
 
 	/// Both take the neighbour visibility that the caller has already computed - it costs
-	/// eight visibility queries and the caller needs it anyway to reach this point.
+	/// eight visibility questions and the caller needs it anyway to reach this point.
 	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates, const NeighborTilesInfo & neighborInfo);
 	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const NeighborTilesInfo & neighborInfo);
 };

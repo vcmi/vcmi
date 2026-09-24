@@ -297,7 +297,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	{
 		auto turnActivity = std::make_shared<TimerPauseActivity>(gameHandler, which);
 		gameHandler->activities->addActivity(turnActivity);
-		pst.queryID = turnActivity->queryID;
+		pst.questionID = turnActivity->questionID;
 	}
 
 	if(isHuman)

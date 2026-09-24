@@ -36,8 +36,8 @@ public:
 	void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit, const EPathfindingLayer & layer) override;
 	void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit, const EPathfindingLayer & layer = EPathfindingLayer::AUTO) override;
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
-	int selectionMade(int selection, QueryID queryID) override;
-	int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) override;
+	int selectionMade(int selection, QuestionID questionID) override;
+	int sendQuestionAnswer(std::optional<int32_t> reply, QuestionID questionID) override;
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override;
 	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second

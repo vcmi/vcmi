@@ -108,7 +108,7 @@ public:
 	void showAbsoluteObstacles(Canvas & canvas);
 	void collectRenderableObjects(BattleRenderer & renderer);
 
-	/// queries from other battle controllers
+	/// questions from other battle controllers
 	bool isAttackableByCatapult(const BattleHex & hex) const;
 	/// True if the given battle hex belongs to a siege tower (keep / upper / lower)
 	bool isTowerHex(const BattleHex & hex) const;

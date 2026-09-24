@@ -71,7 +71,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	const CGarrisonSlot * getSelectedSlotID() const;
 
 public:
-	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID questionID);
 
 	void keyPressed(EShortcut key) override;
 
