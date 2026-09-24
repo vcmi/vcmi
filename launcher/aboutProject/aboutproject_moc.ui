@@ -71,7 +71,7 @@
     </spacer>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout" columnstretch="2,4,1">
+    <layout class="QGridLayout" name="gridLayout" columnstretch="2,4,1,1">
      <item row="2" column="1">
       <widget class="QLineEdit" name="lineEditOperatingSystem">
        <property name="text">
@@ -96,6 +96,13 @@
        </property>
       </widget>
      </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="changeUserDataDir">
+       <property name="text">
+        <string>Change</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="0">
       <widget class="QLabel" name="labelDataDirs">
        <property name="font">
@@ -108,7 +115,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="labelTempDir">
        <property name="text">
         <string>Log files directory</string>
@@ -122,7 +129,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="8" column="1">
       <widget class="QLineEdit" name="lineEditTempDir">
        <property name="enabled">
         <bool>true</bool>
@@ -143,6 +150,9 @@
        <property name="text">
         <string notr="true">/usr/share/vcmi</string>
        </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -155,17 +165,24 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
+     <item row="8" column="2">
       <widget class="QPushButton" name="openTempDir">
        <property name="text">
         <string>Open</string>
        </property>
       </widget>
      </item>
+     <item row="8" column="3">
+      <widget class="QPushButton" name="changeTempDir">
+       <property name="text">
+        <string>Change</string>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="labelGameDir">
        <property name="text">
-        <string>Game data directory</string>
+        <string>Installation directory</string>
        </property>
       </widget>
      </item>
@@ -245,6 +262,69 @@
       <widget class="QPushButton" name="openConfigDir">
        <property name="text">
         <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QPushButton" name="changeConfigDir">
+       <property name="text">
+        <string>Change</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelCacheDir">
+       <property name="text">
+        <string>Cache directory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="lineEditCacheDir">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QPushButton" name="openCacheDir">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
+      <widget class="QPushButton" name="changeCacheDir">
+       <property name="text">
+        <string>Change</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="labelSaveDir">
+       <property name="text">
+        <string>Saved games directory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLineEdit" name="lineEditSaveDir">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="2">
+      <widget class="QPushButton" name="openSaveDir">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="3">
+      <widget class="QPushButton" name="changeSaveDir">
+       <property name="text">
+        <string>Change</string>
        </property>
       </widget>
      </item>

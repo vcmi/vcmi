@@ -868,6 +868,33 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
+bool CModListView::pauseDownloads()
+{
+	if(!dlManager)
+		return false;
+
+	dlManager->pauseDownloads();
+	return true;
+}
+
+void CModListView::resumeDownloads()
+{
+	if(dlManager)
+		dlManager->resumeDownloads();
+}
+
+void CModListView::cancelDownloads()
+{
+	delete dlManager;
+	dlManager = nullptr;
+	enqueuedModDownloads.clear();
+	enqueuedDownloadFiles.clear();
+	enqueuedDownloadDescriptions.clear();
+	activeDownloadFile.clear();
+	Helper::keepScreenOn(false);
+	hideProgressBar();
+}
+
 void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 max)
 {
 	Q_UNUSED(currentFile);
@@ -1639,14 +1666,7 @@ void CModListView::on_refreshButton_clicked()
 
 void CModListView::on_abortButton_clicked()
 {
-	delete dlManager;
-	dlManager = nullptr;
-	enqueuedModDownloads.clear();
-	enqueuedDownloadFiles.clear();
-	enqueuedDownloadDescriptions.clear();
-	activeDownloadFile.clear();
-	Helper::keepScreenOn(false);
-	hideProgressBar();
+	cancelDownloads();
 }
 
 void CModListView::modelReset()

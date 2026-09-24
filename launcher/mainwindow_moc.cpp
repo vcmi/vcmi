@@ -24,6 +24,8 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
+#include "firstLaunch/progressoverlay.h"
+
 #ifndef VCMI_MOBILE
 #include "gamepadHandler.h"
 #endif
@@ -36,12 +38,12 @@ void MainWindow::load()
 
 #ifndef VCMI_MOBILE
 	console = std::make_unique<CConsoleHandler>();
-	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+	logConfigurator = std::make_unique<CBasicLogConfigurator>(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
 #else
-	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
+	logConfigurator = std::make_unique<CBasicLogConfigurator>(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
 
-	logConfigurator.configureDefault();
+	logConfigurator->configureDefault();
 
 	try
 	{
@@ -91,6 +93,7 @@ MainWindow::MainWindow(QWidget * parent)
 	updateTranslation(); // load translation
 
 	ui->setupUi(this);
+	connect(ui->aboutView, &AboutProjectView::logDirectoryChanged, this, &MainWindow::reconfigureLogDirectory);
 
 #ifndef VCMI_MOBILE
 	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
@@ -147,6 +150,66 @@ MainWindow::MainWindow(QWidget * parent)
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::reconfigureLogDirectory(const QString & path)
+{
+	logConfigurator->deconfigure();
+
+#ifndef VCMI_MOBILE
+	logConfigurator = std::make_unique<CBasicLogConfigurator>(qstringToPath(path) / "VCMI_Launcher_log.txt", console.get(), true);
+#else
+	logConfigurator = std::make_unique<CBasicLogConfigurator>(qstringToPath(path) / "VCMI_Launcher_log.txt", nullptr, true);
+#endif
+
+	logConfigurator->configure();
+	logGlobal->info("Launcher log directory changed to %s", path.toStdString());
+}
+
+bool MainWindow::reloadDirectories()
+{
+	auto progressOverlay = std::make_unique<ProgressOverlay>(this, 0);
+	progressOverlay->setTitle(tr("Reloading launcher data..."));
+	progressOverlay->setIndeterminate(true);
+	progressOverlay->show();
+	progressOverlay->raise();
+
+	auto updateProgress = [&progressOverlay](const QString & message)
+	{
+		progressOverlay->setFileName(message);
+		qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+	};
+
+	try
+	{
+		updateProgress(tr("Closing the current filesystem..."));
+		CResourceHandler::destroy();
+
+		updateProgress(tr("Initializing directories..."));
+		CResourceHandler::initialize();
+
+		updateProgress(tr("Loading game data..."));
+		CResourceHandler::load("config/filesystem.json");
+
+		updateProgress(tr("Reloading settings and mods..."));
+		Helper::reLoadSettings();
+
+		updateProgress(tr("Refreshing the launcher..."));
+		ui->startGameView->refreshState();
+		const bool h3DataFound = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
+		setGamepadStartAllowed(h3DataFound && settings["launcher"]["setupCompleted"].Bool());
+
+		logGlobal->info("Reloaded launcher filesystem after directory change");
+
+		progressOverlay.reset();
+		return true;
+	}
+	catch(const std::exception & e)
+	{
+		progressOverlay.reset();
+		QMessageBox::critical(this, tr("Failed to reload directories"), QString::fromUtf8(e.what()));
+		return false;
+	}
 }
 
 void MainWindow::setGamepadStartAllowed(bool allowed)

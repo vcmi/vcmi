@@ -78,6 +78,9 @@ public:
 
 	void loadScreenshots();
 	void loadRepositories();
+	bool pauseDownloads();
+	void resumeDownloads();
+	void cancelDownloads();
 
 	void reload(const QString& modToSelect = QString());
 

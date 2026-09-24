@@ -13,6 +13,10 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/ModManager.h"
 
+#include <QEventLoop>
+#include <QFutureWatcher>
+#include <QtConcurrent/QtConcurrentRun>
+
 ModStateModel::ModStateModel()
 	: repositoryData(std::make_unique<JsonNode>())
 	, modManager(std::make_unique<ModManager>())
@@ -29,8 +33,35 @@ void ModStateModel::setRepositoryData(const JsonNode & repositoriesList)
 
 void ModStateModel::reloadLocalState()
 {
-	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
-	modManager = std::make_unique<ModManager>(*repositoryData);
+	const JsonNode repositories = *repositoryData;
+
+	std::unique_ptr<ModManager> reloadedManager;
+	std::exception_ptr reloadException;
+
+	QFutureWatcher<void> watcher;
+	QEventLoop eventLoop;
+	QObject::connect(&watcher, &QFutureWatcher<void>::finished, &eventLoop, &QEventLoop::quit);
+
+	watcher.setFuture(QtConcurrent::run([&]()
+	{
+		try
+		{
+			CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+			reloadedManager = std::make_unique<ModManager>(repositories);
+		}
+		catch(...)
+		{
+			reloadException = std::current_exception();
+		}
+	}));
+
+	eventLoop.exec(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers);
+	watcher.waitForFinished();
+
+	if(reloadException)
+		std::rethrow_exception(reloadException);
+
+	modManager = std::move(reloadedManager);
 }
 
 const JsonNode & ModStateModel::getRepositoryData() const
