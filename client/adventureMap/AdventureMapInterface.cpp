@@ -214,8 +214,18 @@ void AdventureMapInterface::tick(uint32_t msPassed)
 	widget->getMapView()->tick(msPassed);
 }
 
+AdventureMapInterface::KeyboardModifiers AdventureMapInterface::currentKeyboardModifiers()
+{
+	return {ENGINE->isKeyboardCtrlDown(), ENGINE->isKeyboardAltDown(), ENGINE->isKeyboardShiftDown()};
+}
+
 void AdventureMapInterface::handleKeyboardScrollingUpdate(uint32_t timePassed)
 {
+	// a key release is reported as the shortcut of the modifiers that were held on last key press,
+	// so a shortcut pressed with different modifiers will never be reported as released
+	if (!ENGINE->screenHandler().hasFocus() || currentKeyboardModifiers() != heldScrollModifiers)
+		heldScrollShortcuts.clear();
+
 	Point scrollDirection;
 
 	if (heldScrollShortcuts.contains(EShortcut::ADVENTURE_SCROLL_LEFT))
@@ -341,6 +351,7 @@ void AdventureMapInterface::keyPressed(EShortcut key)
 		case EShortcut::ADVENTURE_SCROLL_RIGHT:
 		case EShortcut::ADVENTURE_SCROLL_UP:
 		case EShortcut::ADVENTURE_SCROLL_DOWN:
+			heldScrollModifiers = currentKeyboardModifiers();
 			heldScrollShortcuts.insert(key);
 			break;
 		default:

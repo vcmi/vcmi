@@ -120,7 +120,12 @@ public:
 			result.push_back({battle()->getRound(), active->unitSide(), active->unitSlot(), active->getInitiative(0), active->creatureId().toCreature()->getJsonKey()});
 
 			BattleAction action = BattleAction::makeDefend(active);
-			EXPECT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), action));
+			if(!gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), action))
+			{
+				// a rejected action leaves the same unit active, so the round would never end
+				ADD_FAILURE() << "defend action rejected for " << result.back();
+				break;
+			}
 		}
 		return result;
 	}

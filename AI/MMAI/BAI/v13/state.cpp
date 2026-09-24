@@ -94,12 +94,14 @@ namespace
 			}
 		}
 
-		auto clamp = [](int64_t value)
+		// clamp to the maximum the encoder accepts - anything above it is capped there anyway,
+		// and this keeps the sum of both sides well within int, unlike a clamp to int max
+		auto clamp = [](int64_t value, int maximum)
 		{
-			return static_cast<int>(std::min<int64_t>(value, std::numeric_limits<int>::max()));
+			return static_cast<int>(std::min<int64_t>(value, maximum));
 		};
 
-		return {clamp(lv), clamp(lh), clamp(rv), clamp(rh)};
+		return {clamp(lv, S13::BFIELD_VALUE_MAX), clamp(lh, S13::BFIELD_HP_MAX), clamp(rv, S13::BFIELD_VALUE_MAX), clamp(rh, S13::BFIELD_HP_MAX)};
 	}
 
 	struct AttackLogAggregateData

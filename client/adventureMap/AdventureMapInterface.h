@@ -60,6 +60,12 @@ private:
 	/// map scrolling shortcuts that are currently held by player
 	std::set<EShortcut> heldScrollShortcuts;
 
+	/// state of Ctrl, Alt and Shift keys, only ever compared for changes
+	using KeyboardModifiers = std::tuple<bool, bool, bool>;
+
+	/// keyboard modifiers that were held when scrolling shortcut was pressed
+	KeyboardModifiers heldScrollModifiers;
+
 	/// how much should the background dimmed, when windows are on the top
 	int backgroundDimLevel;
 
@@ -112,6 +118,9 @@ private:
 
 	/// scrolls map using held scrolling shortcuts
 	void handleKeyboardScrollingUpdate(uint32_t timePassed);
+
+	/// keyboard modifiers that are currently held
+	static KeyboardModifiers currentKeyboardModifiers();
 
 	/// checks if tile is a valid disembark target
 	bool isValidDisembarkTarget(int3 targetPosition) const;
