@@ -22,6 +22,7 @@
 #include "activities/ActivityProcessor.h"
 #include "activities/LuaScriptActivity.h"
 #include "activities/MapActivities.h"
+#include "activities/SpellActivities.h"
 #include "activities/VisitActivities.h"
 
 #include "../lib/CConfigHandler.h"
@@ -1269,8 +1270,7 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 		return;
 	}
 
-	auto dialogActivity = std::make_shared<CallbackActivity>(this, iw->player,
-		[scriptActivity](std::optional<int32_t> reply){ scriptActivity->setPendingAnswer(reply); });
+	auto dialogActivity = std::make_shared<ScriptDialogActivity>(this, iw->player);
 	activities->addActivity(dialogActivity);
 	iw->questionID = dialogActivity->askQuestion();
 	sendAndApply(*iw);

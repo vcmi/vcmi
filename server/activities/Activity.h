@@ -40,7 +40,8 @@ enum class ActivityType : uint8_t
 	BattleDialog,
 	HeroMovement,
 	TimerPause,
-	Generic,
+	TownSelection,
+	ScriptDialog,
 	LuaScript,
 	Unknown
 };
@@ -242,18 +243,3 @@ protected:
 	std::optional<ui32> answer;
 };
 
-class CallbackActivity : public Activity
-{
-public:
-	CallbackActivity(CGameHandler * gh, PlayerColor color, const std::function<void(std::optional<int32_t>)> & callback);
-
-	bool blocksPack(const CPackForServer * pack) const override;
-	bool endsByPlayerAnswer() const override;
-	bool acceptsAnswerWithoutValue() const override;
-	void onExposure(ActivityPtr topActivity) override;
-	void setReply(std::optional<int32_t> reply) override;
-	void onRemoval(PlayerColor color) override;
-private:
-	std::function<void(std::optional<int32_t>)> callback;
-	std::optional<int32_t> reply;
-};
