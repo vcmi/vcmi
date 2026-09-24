@@ -28,6 +28,7 @@
 			"hornOfTheAbyss" :
 			{
 				"supported" : true,
+				"maxVersion" : 10,
 				"objects" :
 				{
 					"questGate" : { "object" : [ 212, 1000 ] }

@@ -143,7 +143,7 @@ std::string CQuestLog::getItemText(size_t itemIndex) const
 		{
 			MetaString toSeer;
 			toSeer.appendTextID("core.genrltxt.347");
-			toSeer.replaceRawString(giver);
+			toSeer.replaceTextID(giver);
 			text.replaceRawString(toSeer.toString(&GAME->translator()));
 		}
 		else if(questObject)

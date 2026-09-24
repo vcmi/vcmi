@@ -341,6 +341,7 @@ void Quest::serializeJson(JsonSerializeFormat & handler, const std::string & fie
 	handler.serializeBool("repeatedQuest", repeatedQuest, false);
 
 	handler.serializeInt("timeLimit", lastDay, -1);
+	handler.serializeString("questGiverName", questGiverNameTextID);
 	handler.serializeStruct("limiter", mission);
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
@@ -550,8 +551,7 @@ void SeerHut::init(vstd::RNG & rand)
 {
 	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
-	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
-	seerName = LIBRARY->generaltexth->translate(seerNameID);
+	seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
 
 	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	for(const auto & q : allQuests())
@@ -615,15 +615,32 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	syncActiveReward();
 }
 
+std::string SeerHut::getQuestGiverName() const
+{
+	if(seerNameTextID.empty()) // quest guards have no seer of their own
+		return {};
+
+	if(!isEmpty() && !getQuest().questGiverNameTextID.empty())
+		return getQuest().questGiverNameTextID;
+
+	return seerNameTextID;
+}
+
+void SeerHut::setSeerName(CMap & map, const std::string & newName)
+{
+	seerNameTextID = mapRegisterLocalizedString("map", map, TextIdentifier("map", "seerHut", instanceName, "name"), newName);
+}
+
 MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
 	MetaString text;
-	if(!seerName.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
+	std::string seer = getQuestGiverName();
+	if(!seer.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
 	{
 		text.appendTextID("core.genrltxt", 347);
-		text.replaceRawString(seerName);
+		text.replaceTextID(seer);
 	}
 	else
 		text.append(getObjectName());
@@ -730,8 +747,8 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		// no active quest: pick a valid "empty seer" flavour without one
 		ui8 emptyOption = allQuests().empty() ? 0 : allQuests().front()->completedOption;
 		iw.text.appendTextID("core.seerhut.empty", emptyOption);
-		if(!seerName.empty())
-			iw.text.replaceRawString(seerName);
+		if(!seerNameTextID.empty())
+			iw.text.replaceTextID(seerNameTextID);
 		gameEvents.showInfoDialog(&iw);
 	}
 }
