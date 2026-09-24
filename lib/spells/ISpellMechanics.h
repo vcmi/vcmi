@@ -64,9 +64,9 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
-	/// Asks the player to pick one of several towns, and finishes this cast at the one
-	/// they choose. Takes what it needs to find everything again afterwards rather
-	/// than a callback, which cannot be saved and would hold pointers across the wait.
+	/// Asks the player to pick one of several towns and completes the cast at the chosen
+	/// one. Takes ids instead of a callback, which can not be serialized and would hold
+	/// pointers across the wait.
 	virtual void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) = 0;
 };
 
@@ -382,8 +382,8 @@ public:
 	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 
-	/// The second half of adventureCast, without the checks it has already made. Used
-	/// to finish a cast that stopped part way to ask the player something.
+	/// Second half of adventureCast, without the checks that it has already done. Used to
+	/// complete a cast that was interrupted by a question to the player.
 	virtual void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 	virtual int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const = 0;
 	virtual int getCastsAlreadyPerformed(const spells::Caster * caster) const = 0;

@@ -11,9 +11,9 @@
 
 #include "Activity.h"
 
-/// Keeps a paused map-script coroutine alive between blocking actions. Sits on the activity stack between
-/// the object-visit activity and whatever child (dialog / battle) the script spawned; when that child is
-/// removed this activity is exposed and resumes the coroutine, popping itself once the script finishes.
+/// Keeps a paused map script coroutine alive between blocking actions. Sits on the stack
+/// between the object visit activity and the dialog or battle that the script started. On
+/// removal of that child it is exposed and resumes the coroutine, popping itself at the end.
 class LuaScriptActivity : public Activity
 {
 public:

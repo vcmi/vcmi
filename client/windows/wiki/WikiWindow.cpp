@@ -106,7 +106,7 @@ WikiListItem::WikiListItem(size_t itemIndex, std::string itemText, std::string i
 
 	if(iconInfo)
 	{
-		// Question native image size to compute aspect-correct rendered height and center it.
+		// Query native image size to compute aspect-correct rendered height and center it.
 		auto refImg = ENGINE->renderHandler().loadImage(
 			iconInfo->path, static_cast<int>(iconInfo->frame), static_cast<int>(iconInfo->group), EImageBlitMode::COLORKEY);
 		const Point nativeSz = refImg ? refImg->dimensions() : Point(ICON_SIZE, ICON_SIZE);

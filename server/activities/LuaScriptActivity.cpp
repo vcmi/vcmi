@@ -42,8 +42,8 @@ void LuaScriptActivity::onExposure(ActivityPtr topActivity)
 {
 	auto * dispatcher = gh->gameState().getMapEventDispatcher();
 
-	// If the hero lost a scripted combat it no longer exists; abandon the coroutine rather than resume
-	// a handler whose captured hero is gone.
+	// A hero that lost a scripted combat no longer exists, so the coroutine is abandoned
+	// instead of resumed with a hero that is gone.
 	bool heroGone = visitingHero.hasValue() && gh->gameInfo().getHero(visitingHero) == nullptr;
 
 	if(!dispatcher || heroGone)
@@ -52,8 +52,8 @@ void LuaScriptActivity::onExposure(ActivityPtr topActivity)
 		return;
 	}
 
-	// Resuming may spawn a new child activity (another blocking action); in that case the coroutine is
-	// not finished and this activity stays on the stack under the freshly-added child.
+	// Resuming may add a new child activity for another blocking action. The coroutine is
+	// then not finished and this activity stays on the stack below that child.
 	bool finished = dispatcher->resumeCoroutine(*gh, coroutineHandle, pendingAnswer);
 	pendingAnswer.reset();
 

@@ -24,22 +24,20 @@ public:
 	ObjectInstanceID visitedObject;
 	ObjectInstanceID visitingHero;
 
-	/// What the visited object said it was part way through, handed back to it when
-	/// whatever it started finishes. Lets an object tell its own steps apart without
-	/// working it out again afterwards, from state that may have changed in between.
+	/// Value set by the visited object, passed back to it once the activity that it started
+	/// finishes, so that it can identify its own step without deducing it from state that
+	/// may have changed in the meantime.
 	int32_t continuationTag = 0;
 
 	bool blocksPack(const CPackForServer * pack) const final;
 };
 
-/// Drives a hero's visit to a map object: starts it, lets the object take over, and
-/// once the object is finished applies any level-ups that a battle during the visit
-/// postponed.
+/// Hero visit to a map object: starts the visit, waits for the object, then applies the
+/// level-ups postponed by a battle during the visit.
 class MapObjectVisitActivity final : public VisitActivity, public IRoutine
 {
-	/// Position within the visit. Also tells onChildCompleted() whether a finished
-	/// child belongs to the object's own reward pipeline, or is a level-up that
-	/// merely follows a battle and must not be reported back to the object.
+	/// Position within the visit. Also tells onChildCompleted() whether a finished child
+	/// belongs to the object, or is a postponed level-up that must not be reported to it.
 	enum class Step : uint8_t
 	{
 		NotStarted,
@@ -50,8 +48,8 @@ class MapObjectVisitActivity final : public VisitActivity, public IRoutine
 
 	Step activeStep = Step::NotStarted;
 
-	/// Heroes that won experience in a battle during this visit, whose level-up
-	/// prompts were held back until the object had applied the battle result.
+	/// Heroes that gained experience in a battle during this visit. Their level-up dialogs
+	/// are postponed until the object has applied the battle result.
 	std::vector<ObjectInstanceID> deferredBattleLevelUps;
 
 	void startVisit();
@@ -70,9 +68,8 @@ public:
 	void onRemoval(PlayerColor color) final;
 };
 
-/// Visits a list of hero/building pairs one at a time. A building may open a dialog
-/// or start a battle, in which case the routine suspends until that finishes and then
-/// carries on from the next pair.
+/// Visits a list of hero/building pairs one at a time. A building may open a dialog or
+/// start a battle, which suspends the routine until it finishes.
 class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
 {
 	struct BuildingVisit
@@ -83,11 +80,10 @@ class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
 
 	std::vector<BuildingVisit> visits;
 
-	/// Index of the next pair to visit - the routine's position within the activity.
-	size_t cursor = 0;
+	size_t cursor = 0; ///< index of the next pair to visit
 
-	/// Building whose visit is in progress. It, not the town, is what asked whatever
-	/// is running above, so it is what has to be told when that finishes.
+	/// Building whose visit is in progress. Activities above belong to the building and
+	/// not to the town, so results are reported to the building.
 	BuildingID visitedBuilding;
 
 public:
@@ -100,9 +96,9 @@ public:
 	void onChildCompleted(const ActivityPtr & child) final;
 };
 
-/// Visits the objects a player's heroes are standing on when their turn begins, one
-/// at a time. Queued to start only once the player has nothing else pending, so that
-/// it does not interrupt, for example, the dialog accepting the start of the turn.
+/// Visits the objects that a player's heroes stand on at the start of their turn, one at a
+/// time. Started only once the player has nothing else pending, so that it does not
+/// interrupt e.g. the dialog that accepts the start of the turn.
 class TurnStartVisitActivity final : public Activity, public IRoutine
 {
 public:
@@ -122,6 +118,5 @@ public:
 private:
 	std::vector<PendingVisit> visits;
 
-	/// Index of the next visit - the routine's position within the activity.
-	size_t cursor = 0;
+	size_t cursor = 0; ///< index of the next visit
 };

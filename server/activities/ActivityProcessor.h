@@ -17,34 +17,17 @@ class CGameHandler;
 class Activity;
 using ActivityPtr = std::shared_ptr<Activity>;
 
-/// Result of offering a player's reply to the activity system.
-/// Only Rejected* outcomes indicate a problem; the Ignored* ones are benign races
-/// that are expected in normal play and must not be reported to the player.
+/// Result of submitting a player's reply. Only the Rejected* outcomes indicate a problem,
+/// the Ignored* ones are races that happen in normal play and are not reported to the player.
 enum class ReplyOutcome : uint8_t
 {
-	/// Reply was recorded. The activity may or may not have been resolved yet:
-	/// it is resolved once it reaches the top of every affected player's stack.
-	Accepted,
-
-	/// The activity completed before this reply arrived - typically because it was
-	/// removed by some other event while the reply was in flight. Benign.
-	IgnoredAlreadyCompleted,
-
-	/// This activity has already been answered (duplicate or retried reply). Benign.
-	IgnoredAlreadyAnswered,
-
-	/// No such activity, and none recently completed - the client is out of sync
-	/// or the reply is malformed.
-	RejectedUnknownActivity,
-
-	/// The activity exists but this player is not one of the players it affects.
-	RejectedWrongPlayer,
-
-	/// The activity exists but is not the kind that a player reply can end.
-	RejectedNotAnswerable,
-
-	/// The reply carried no answer, for an activity that needs one.
-	RejectedMissingAnswer,
+	Accepted, ///< Reply was recorded, activity is resolved once it is on top of every affected stack
+	IgnoredAlreadyCompleted, ///< Activity was removed by another event while the reply was in flight
+	IgnoredAlreadyAnswered, ///< Duplicate or retried reply
+	RejectedUnknownActivity, ///< No such activity and none recently completed, client is out of sync
+	RejectedWrongPlayer, ///< Activity does not affect this player
+	RejectedNotAnswerable, ///< Activity can not be ended by a player reply
+	RejectedMissingAnswer, ///< Reply has no answer, but the activity requires one
 };
 
 class ActivityProcessor
@@ -62,72 +45,65 @@ private:
 	ActivitiesPerPlayer activities;
 	CGameHandler & gameHandler;
 
-	/// Activities that are waiting for their player to become idle. Work that is not
-	/// part of whatever the player is currently doing must not push itself on top of
-	/// it - the player would be answering it instead of what they were asked first.
+	/// Activities that wait for their player to become idle. Work unrelated to what the
+	/// player is currently doing must not be pushed on top of it, since the player would
+	/// then answer it before the question that was asked first.
 	std::array<std::deque<ActivityPtr>, PlayerColor::PLAYER_LIMIT_I> waiting;
 
-	/// IDs of activities that recently left a player's stack. Lets submitReply tell a
-	/// harmless "your reply lost the race" apart from a genuinely bogus activity ID.
+	/// Questions of activities that recently left a player's stack, so that submitReply can
+	/// distinguish a lost race from an invalid question id.
 	std::array<std::deque<QuestionID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
 	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
 
-	/// Number of activity stack mutations currently in progress. Activity hooks routinely
-	/// add or remove further activities, so a single player action can nest several
-	/// levels deep; deferred work runs only once the outermost one finishes.
+	/// Number of stack mutations in progress. Activity hooks add or remove further
+	/// activities, so one player action nests several levels deep. Deferred work runs
+	/// only once the outermost mutation finishes.
 	int mutationDepth = 0;
 
-	/// Set while settle() is running, so that mutations it causes do not recurse
-	/// back into it - its own loop picks them up instead.
+	/// Set while settle() runs, so that mutations caused by it are picked up by its own
+	/// loop instead of recursing into it.
 	bool settling = false;
 
-	/// Players whose stack changed. Cleared and re-read around the victory checks,
-	/// which are the one piece of deferred work that does not report back directly.
+	/// Players whose stack changed. Cleared and re-read around the victory checks, the only
+	/// deferred work that does not report back directly.
 	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
 
-	/// Absolute ceiling on settle() rounds, to catch two pieces of deferred work that
-	/// keep triggering each other forever. Every round that continues has made
-	/// progress, so this bounds total work rather than futile spinning: it must stay
-	/// far above anything legitimate, such as a turn start queuing a visit for every
-	/// town and every building in them. Hitting it means a bug, not a busy turn.
+	/// Limit of settle() rounds, to catch two pieces of deferred work that trigger each
+	/// other endlessly. Every round that continues has made progress, so this bounds total
+	/// work and must stay far above a legitimate case such as a turn start that queues a
+	/// visit for every town and every building in them.
 	static constexpr int MAX_SETTLE_ROUNDS = 100000;
 
-	/// Steps a single routine may take in one go before the processor assumes it is
-	/// stuck. Generous: a routine legitimately takes one step per unit of work, such
-	/// as one per building visited in a town.
+	/// Steps that a single routine may take in one go before it is assumed to be stuck.
+	/// A routine takes one step per unit of work, e.g. per building visited in a town.
 	static constexpr int MAX_ROUTINE_STEPS = 1000;
 
 	void rememberCompleted(PlayerColor player, QuestionID questionID);
 	bool wasRecentlyCompleted(PlayerColor player, QuestionID questionID) const;
 	void markStackChanged(PlayerColor player);
 
-	/// Steps every routine that is at the top of a player's stack, until it either
-	/// finishes or suspends itself by pushing a child. Returns true if it changed
-	/// anything. Routines affect one player, and are removed from that one stack.
+	/// Steps every routine at the top of a player's stack until it finishes or suspends
+	/// itself by pushing a child. Returns true if anything changed.
 	bool advanceRoutines();
 
-	/// Puts the next question of every interaction at the top of a player's stack,
-	/// and removes those that have nothing left to ask. Returns true if it changed
-	/// anything.
+	/// Asks the next question of every interaction at the top of a player's stack and
+	/// removes those with nothing left to ask. Returns true if anything changed.
 	bool advanceInteractions();
 
-	/// Pops every activity at the top of a player's stack that has already been
-	/// answered. Returns true if anything was removed.
+	/// Pops every already answered activity at the top of a player's stack. Returns true
+	/// if anything was removed.
 	bool resolveAnsweredActivities();
 
 	/// Starts the next waiting activity of every player that has become idle.
 	/// Returns true if it started anything.
 	bool promoteWaitingActivities();
 
-
-	/// Runs victory/loss checks for players that just became idle. Returns true if
-	/// that changed a stack.
+	/// Runs victory/loss checks for players that just became idle. Returns true if a stack changed.
 	bool runVictoryChecks();
 
-	/// Runs everything that must not happen while the stacks are still moving:
-	/// resolving answered activities, stepping routines, starting waiting activities and
-	/// victory/loss checks.
-	/// Loops until no further change, so callers always observe a settled state.
+	/// Runs everything that must not happen while the stacks are still changing: resolving
+	/// answered activities, stepping routines, starting waiting activities and victory/loss
+	/// checks. Loops until nothing changes, so callers always observe a settled state.
 	void settle();
 
 	/// RAII bracket around a public mutation. The outermost one settles on exit.
@@ -211,13 +187,13 @@ public:
 
 	void addActivity(ActivityPtr activity);
 
-	/// Adds an activity once its players have nothing else to do. Use this for work that
-	/// is not caused by the activity the player is currently dealing with, so that it
-	/// queues up behind it instead of interrupting it.
+	/// Adds an activity once its players have nothing else to do. Use for work unrelated to
+	/// the activity that the player is currently dealing with, so that it queues up behind
+	/// it instead of interrupting it.
 	void addActivityWhenIdle(ActivityPtr activity);
 
-	/// Drops everything still queued for a player. Used when their turn ends, so that
-	/// work queued for it cannot surface during a later one.
+	/// Drops everything still queued for a player. Used on turn end, so that work queued
+	/// during that turn can not surface in a later one.
 	void discardQueuedWork(PlayerColor player);
 
 	void popActivity(const Activity &activity);
@@ -228,21 +204,19 @@ public:
 	ActivityPtr topActivity(PlayerColor player);
 	ActivityPtr getActivity(QuestionID questionID);
 
-	/// Looks the activity up on this player's stack only. Prefer this over getActivity()
-	/// when handling player input: activity IDs are not guaranteed to be unique across
-	/// players (QuestionID::CLIENT is shared by every pause activity), so a global lookup
-	/// can return another player's activity.
+	/// Looks the activity up on this player's stack only. Use instead of getActivity() when
+	/// handling player input: question ids are not unique across players (QuestionID::CLIENT
+	/// is shared by every pause activity), so a global lookup can return another player's
+	/// activity.
 	ActivityPtr getActivity(QuestionID questionID, PlayerColor player);
 
-	/// Records a player's reply to an activity. The activity does not have to be at the top
-	/// of the stack - the server may well have pushed something else between sending
-	/// the prompt and receiving the answer, and rejecting the reply for that reason
-	/// would leave both sides waiting for each other forever.
+	/// Records a player's reply to an activity. The activity does not have to be at the top of
+	/// the stack: the server may have pushed something else between sending the question and
+	/// receiving the answer, and rejecting the reply would leave both sides waiting forever.
 	ReplyOutcome submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply);
 
-	/// Re-runs deferred work for a player. Needed when something outside the activity
-	/// system changes whether it can go on - such as the player's interface becoming
-	/// ready to be shown a dialog.
+	/// Re-runs deferred work for a player, after something outside the activity system
+	/// changed whether it can go on, e.g. the player's interface became able to show a dialog.
 	void retryDeferredWork(PlayerColor player);
 
 	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
@@ -274,10 +248,9 @@ public:
 		return static_cast<ResultT*>(activity.get());
 	}
 
-	/// The one activity of the given type anywhere on a player's stack, or nullptr.
-	/// Some kinds of activity are limited to one per player - a player can only be in
-	/// one battle - and callers rely on that. Complains if the invariant is broken
-	/// rather than silently picking one.
+	/// The single activity of the given type anywhere on a player's stack, or nullptr. Some
+	/// types are limited to one per player, e.g. a player can only be in one battle. Logs an
+	/// error instead of picking one if there are several.
 	template<typename T>
 	T * findSoleActivity(PlayerColor player)
 	{

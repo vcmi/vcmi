@@ -1204,7 +1204,7 @@ void CServerHandler::onLobbyPreviewResponse(LobbyModsCheck & pack)
 {
 	lobbyPreviewMode = false;
 
-	// Close the temporary question connection
+	// Close the temporary query connection
 	if(networkConnection)
 	{
 		networkConnection->close();

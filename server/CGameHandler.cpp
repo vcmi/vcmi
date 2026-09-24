@@ -173,7 +173,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 
 	if (!hero->getOwner().isValidPlayer())
 	{
-		// Nobody to ask - roll and pick for them, for as many levels as were earned.
+		// No player to ask, so roll and pick automatically for every gained level
 		while(hero->gainsLevel())
 		{
 			auto hlu = rollHeroLevelUp(hero);
@@ -188,7 +188,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		return;
 	}
 
-	// One activity asks about every level earned, and about the commander afterwards.
+	// A single activity asks about every gained level, and about the commander afterwards
 	activities->addActivity(std::make_shared<LevelUpActivity>(this, hero));
 }
 
@@ -696,8 +696,7 @@ void CGameHandler::onAdvInterfaceReady(PlayerColor player)
 
 	logGlobal->trace("AdvInterfaceReady received for player %s", player);
 
-	// Anything that was waiting for the interface - a level-up asking which skill to
-	// take, say - can be put to the player now.
+	// Work that waited for the interface, e.g. a level-up dialog, can be sent now
 	activities->retryDeferredWork(player);
 }
 
@@ -1261,8 +1260,8 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 
 void CGameHandler::showScriptDialog(BlockingDialog * iw)
 {
-	// The dialog sits above the paused script's activity; its reply is stashed there and consumed when
-	// the script activity is exposed and resumes the coroutine.
+	// The dialog is placed above the paused script activity. Its reply is stored there and
+	// read when the script activity is exposed and resumes the coroutine.
 	auto scriptActivity = std::dynamic_pointer_cast<LuaScriptActivity>(activities->topActivity(iw->player));
 	if(!scriptActivity)
 	{
@@ -1279,8 +1278,9 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
 {
-	// The script may pause on a blocking action; a LuaScriptActivity keeps its coroutine alive between
-	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
+	// The script may pause on a blocking action. LuaScriptActivity keeps its coroutine alive
+	// between resumptions and stays on the stack, blocking the end of the event, until the
+	// script finishes.
 	auto scriptActivity = std::make_shared<LuaScriptActivity>(this, player);
 	if(visitingHero.hasValue())
 		scriptActivity->setVisitingHero(visitingHero);
@@ -3641,9 +3641,9 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 	else
 		logGlobal->trace("Player %s answers activity %d with no value", player, questionID);
 
-	// The reply is addressed to an activity ID, not to a stack position. The client cannot
-	// know what the server pushed since it was prompted, so a reply that is no longer
-	// for the top activity is still perfectly legal - it is stored and resolved later.
+	// The reply names a question id, not a stack position. The client can not know what the
+	// server pushed since it was asked, so a reply for an activity that is no longer on top
+	// is valid and is stored to be resolved later.
 	switch(activities->submitReply(questionID, player, answer))
 	{
 		case ReplyOutcome::Accepted:
@@ -3821,8 +3821,8 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 		}
 	}
 
-	// The visit itself runs as a routine: it announces the visit, hands control to
-	// the object, and finishes once the object - and anything it started - is done.
+	// The visit runs as a routine: it starts the visit, passes control to the object, and
+	// finishes once the object and everything that it started are done.
 	activities->addActivity(std::make_shared<MapObjectVisitActivity>(this, visitedObject, h)); //TODO real visit pos
 }
 

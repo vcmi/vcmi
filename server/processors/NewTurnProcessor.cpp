@@ -184,8 +184,8 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 
 	if (!visits.empty())
 	{
-		// Queued rather than added: the player may still be accepting the start of
-		// their turn, and these visits must not be pushed on top of that.
+		// Queued instead of added: the player may still be accepting the start of their
+		// turn, and these visits must not be pushed on top of that.
 		gameHandler->activities->addActivityWhenIdle(
 			std::make_shared<TurnStartVisitActivity>(gameHandler, which, std::move(visits)));
 	}

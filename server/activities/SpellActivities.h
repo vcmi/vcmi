@@ -11,9 +11,9 @@
 
 #include "Activity.h"
 
-/// Asks which town a town-portal style spell should send its caster to, and finishes
-/// the cast once the player has chosen. Everything it needs to do that is held by
-/// value, so it does not depend on anything staying alive across the wait.
+/// Asks which town a town portal style spell should teleport its caster to, and completes
+/// the cast once the player has chosen. Holds everything it needs by value, so nothing has
+/// to stay alive while it waits.
 class TownSelectionActivity : public DialogActivity
 {
 	SpellID spell;
@@ -29,8 +29,8 @@ public:
 	void onRemoval(PlayerColor color) override;
 };
 
-/// Holds the answer to a dialog a map script put up, for the paused script sitting
-/// underneath it to take when it resumes.
+/// Holds the answer to a dialog opened by a map script, for the paused script below it to
+/// read when it resumes.
 class ScriptDialogActivity : public DialogActivity
 {
 public:

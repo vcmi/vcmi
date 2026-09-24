@@ -42,16 +42,16 @@ void ActivityProcessor::popActivity(PlayerColor player, ActivityPtr activity)
 	//Exposure on activity below happens only if removal didn't trigger any new activity
 	if(nextActivity && nextActivity == topActivity(player))
 	{
-		// A routine is told which child finished and is then stepped by settle();
-		// it must not also receive the generic exposure hook.
+		// A routine receives onChildCompleted() and is then stepped by settle(),
+		// so it must not also receive the generic exposure hook.
 		if(auto * routine = nextActivity->asRoutine())
 			routine->onChildCompleted(activity);
 		else
 			nextActivity->onExposure(activity);
 	}
 
-	// Resolving answered activities, notifying the listener and checking victory
-	// conditions all happen in settle(), once the stacks have stopped moving.
+	// Resolving answered activities and checking victory conditions happen in settle(),
+	// once the stacks have stopped changing.
 }
 
 void ActivityProcessor::popActivity(const Activity &activity)
@@ -269,7 +269,7 @@ bool ActivityProcessor::advanceRoutines()
 
 			if(result == StepResult::Done)
 			{
-				// Finished on this player's stack only - routines affect one player.
+				// Routines affect a single player, so only one stack is unwound
 				assert(top->players.size() == 1);
 				popActivity(player, top);
 				break;
@@ -299,7 +299,6 @@ bool ActivityProcessor::advanceInteractions()
 		if(!interaction || top->isAnswered())
 			continue;
 
-		// The player has been asked and has not answered yet.
 		if(top->hasOutstandingQuestion())
 			continue;
 
@@ -310,8 +309,7 @@ bool ActivityProcessor::advanceInteractions()
 				break;
 
 			case PromptResult::Finished:
-				// Removed from this player's stack only - an interaction that put
-				// questions to several players would need to unwind for each.
+				// Interaction affects a single player, so only one stack is unwound
 				assert(top->players.size() == 1);
 				popActivity(player, top);
 				changedAnything = true;
@@ -362,7 +360,7 @@ bool ActivityProcessor::promoteWaitingActivities()
 	for(size_t idx = 0; idx < activities.size(); ++idx)
 	{
 		if(!activities.at(idx).empty())
-			continue; // fast path; everyPlayerIsIdle below is the actual condition
+			continue; // fast path, everyPlayerIsIdle below is the actual condition
 
 		auto & queue = waiting.at(idx);
 		if(queue.empty())
@@ -371,8 +369,8 @@ bool ActivityProcessor::promoteWaitingActivities()
 		auto activity = queue.front();
 		queue.pop_front();
 
-		// An activity shared by several players is queued for each of them; start it
-		// only once, when the last of them is ready for it.
+		// An activity shared by several players is queued for each of them, and started
+		// only once all of them are idle
 		const bool everyPlayerIsIdle = std::ranges::all_of(activity->players, [this](PlayerColor player)
 		{
 			return player.isValidPlayer() && activities.at(player.getNum()).empty();
@@ -396,11 +394,11 @@ bool ActivityProcessor::promoteWaitingActivities()
 
 bool ActivityProcessor::runVictoryChecks()
 {
-	// Cleared first so that the flags report only what the checks themselves change.
+	// Cleared first so that the flags reflect only what the checks themselves change
 	stackChanged = {};
 
 	// checkVictoryLossConditionsForPlayer() ignores players that still have activities,
-	// so it is enough to offer it every player that just went idle.
+	// so it can be called for every idle player
 	for(size_t idx = 0; idx < activities.size(); ++idx)
 	{
 		const PlayerColor player(static_cast<int32_t>(idx));
@@ -417,12 +415,12 @@ bool ActivityProcessor::runVictoryChecks()
 void ActivityProcessor::settle()
 {
 	if(settling)
-		return; // the running settle() loop will observe whatever changed
+		return; // the running settle() loop will pick up the change
 
 	settling = true;
 
 	// Must be cleared even if an activity hook throws, otherwise no deferred work
-	// would ever run again.
+	// would ever run again
 	struct SettlingReset
 	{
 		bool & flag;
@@ -431,22 +429,19 @@ void ActivityProcessor::settle()
 
 	for(int round = 0; round < MAX_SETTLE_ROUNDS; ++round)
 	{
-		// A reply may have arrived for an activity that was buried at the time. Now that
-		// the stacks have stopped moving, any answered activity on top must be removed.
+		// A reply may have arrived for an activity that was not on top at that moment
 		if(resolveAnsweredActivities())
 			continue;
 
-		// A routine exposed by that removal has more work to do before the player
-		// can be considered idle.
+		// A routine exposed by that removal may have more work before its player is idle
 		if(advanceRoutines())
 			continue;
 
-		// An interaction may still have questions to put to the player.
+		// An interaction may still have questions to ask
 		if(advanceInteractions())
 			continue;
 
-		// Only now, with nothing left of whatever the player was doing, may work
-		// that was queued up behind it begin.
+		// Queued work starts only once the player has nothing left to do
 		if(promoteWaitingActivities())
 			continue;
 
@@ -467,13 +462,11 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 
 	if(!activity)
 	{
-		// The activity may have been removed while the reply was travelling to us.
-		// That is a normal race and must not be reported as a problem.
+		// The activity may have been removed while the reply was in flight, which is a
+		// normal race and not an error
 		if(wasRecentlyCompleted(player, questionID))
 			return ReplyOutcome::IgnoredAlreadyCompleted;
 
-		// It may also belong to a different player - report that specifically,
-		// rather than claiming the activity does not exist at all.
 		if(getActivity(questionID))
 			return ReplyOutcome::RejectedWrongPlayer;
 
@@ -489,17 +482,16 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	if(activity->isAnswered())
 		return ReplyOutcome::IgnoredAlreadyAnswered;
 
-	// Only a dialog that offers a way out - cancelling a town selection, say - may be
-	// answered with nothing. Letting a value-less reply through to an activity that needs
-	// one would leave it resolved with no answer to act on.
+	// Only an activity that the player can cancel, e.g. town selection, may be answered
+	// without a value
 	if(!reply.has_value() && !activity->acceptsAnswerWithoutValue())
 		return ReplyOutcome::RejectedMissingAnswer;
 
 	if(auto * interaction = activity->asInteraction())
 	{
-		// An interaction is not finished by an answer - it may have more to ask.
-		// Remember the question so that a repeated answer to it is recognised as a
-		// stale one rather than mistaken for an answer to whatever is asked next.
+		// An interaction is not finished by an answer since it may have more to ask, so
+		// remember the question to recognize a repeated answer as stale instead of taking
+		// it for an answer to the next question
 		rememberCompleted(player, activity->getActiveQuestionID());
 		activity->activeQuestionID = QuestionID::NONE;
 		interaction->applyAnswer(reply);
@@ -509,16 +501,14 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	activity->setReply(reply);
 	activity->answeredBy = player;
 
-	// The activity is resolved for every player it affects, not just the one who
-	// replied - but only once it is at the top of each of their stacks, which
-	// settle() takes care of when this scope closes.
+	// The activity is resolved for every player that it affects, once it is at the top of
+	// each of their stacks. Done by settle() when this scope closes.
 	return ReplyOutcome::Accepted;
 }
 
 void ActivityProcessor::retryDeferredWork(PlayerColor player)
 {
-	// Opening and closing a scope is the whole of it: settle() runs when the
-	// outermost one closes, and re-offers every step to every player.
+	// settle() runs when the outermost scope closes and retries every step for every player
 	MutationScope mutation(*this);
 }
 

@@ -22,8 +22,8 @@ enum class EShortcut
 	MOUSE_SWIPE_Y,
 
 	// Global hotkeys that are available in multiple dialogs
-	GLOBAL_ACCEPT,     // Return - Accept question
-	GLOBAL_CANCEL,     // Escape - Cancel question
+	GLOBAL_ACCEPT,     // Return - Accept dialog
+	GLOBAL_CANCEL,     // Escape - Cancel dialog
 	GLOBAL_RETURN,     // Enter, Escape - Close current window and return to previous view
 	GLOBAL_FULLSCREEN, // F4
 	GLOBAL_SCREENSHOT, // F3

@@ -265,7 +265,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 
 	typedBattleActivity->result = std::make_optional(*battleResult);
 
-	//Check how many battle gameHandler->activities were created (number of players blocked by battle)
+	//Check how many battle activities were created (number of players blocked by battle)
 	const int askedPlayers = gameHandler->activities->countActivity(typedBattleActivity);
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
@@ -415,7 +415,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	logGlobal->trace("Decremented gameHandler->activities count to %d", finishingBattle->remainingBattleActivitiesCount);
 
 	if (finishingBattle->remainingBattleActivitiesCount > 0)
-		//Battle results will be handled when all battle gameHandler->activities are closed
+		//Battle results will be handled when all battle activities are closed
 		return;
 
 	//TODO consider if we really want it to work like above. ATM each player as unblocked as soon as possible

@@ -127,8 +127,7 @@ ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment
 		request.icon = Component(ComponentType::SPELL, owner->id);
 		request.objects = offeredTownIDs;
 
-		// The cast pauses here. Everything needed to finish it once the player has
-		// chosen is handed over by value, so nothing has to survive as a pointer.
+		// The cast pauses here, so everything needed to complete it is passed by value
 		env->askToSelectTown(request, owner->id, parameters.caster->getHeroCaster()->id, offeredTownIDs);
 		return ESpellCastResult::PENDING;
 	}
