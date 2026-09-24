@@ -126,7 +126,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CObstacleInstance>(79);
 	s.template registerType<SpellCreatedObstacle>(80);
 	s.template registerType<CPack>(82);
-	s.template registerType<QueryResolved>(83);
+	s.template registerType<QuestionResolved>(83);
 	s.template registerType<PackageApplied>(84);
 	s.template registerType<SystemMessage>(85);
 	s.template registerType<PlayerBlocked>(86);
@@ -235,7 +235,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetFormation>(194);
 	s.template registerType<HireHero>(195);
 	s.template registerType<BuildBoat>(196);
-	s.template registerType<QueryReply>(197);
+	s.template registerType<QuestionAnswer>(197);
 	s.template registerType<MakeAction>(198);
 	s.template registerType<DigWithHero>(199);
 	s.template registerType<CastAdvSpell>(200);
@@ -303,7 +303,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<ChangeTactics>(262);
 	s.template registerType<CompositeUpdater>(263);
 	s.template registerType<BonusParameters>(264);
-	s.template registerType<LobbyQueryState>(265);
+	s.template registerType<LobbyQuestionState>(265);
 	s.template registerType<LobbyModsCheck>(266);
 	s.template registerType<SetScriptVariable>(267);
 	s.template registerType<SetQuestHint>(268);

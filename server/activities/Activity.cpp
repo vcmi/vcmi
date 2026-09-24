@@ -53,13 +53,13 @@ Activity::Activity(CGameHandler * gameHandler, ActivityType type)
 	, gh(gameHandler)
 	, type(type)
 {
-	queryID = ++gameHandler->QID;
-	logGlobal->trace("Created a new activity with id %d", queryID);
+	questionID = ++gameHandler->QID;
+	logGlobal->trace("Created a new activity with id %d", questionID);
 }
 
 Activity::~Activity()
 {
-	logGlobal->trace("Destructed the activity with id %d", queryID);
+	logGlobal->trace("Destructed the activity with id %d", questionID);
 }
 
 void Activity::addPlayer(PlayerColor color)
@@ -88,9 +88,9 @@ std::string Activity::toString() const
 		else if(size > 1 && i == size - 2)
 			names += " and ";
 	}
-	std::string ret = boost::str(boost::format("A activity of type '%s' and qid = %d affecting player%s %s")
+	std::string ret = boost::str(boost::format("A activity of type '%s' and questionID = %d affecting player%s %s")
 		% ::toString(type)
-		% queryID
+		% questionID
 		% plural
 		% names
 	);
@@ -149,7 +149,7 @@ void Activity::setReply(std::optional<int32_t> reply)
 bool Activity::blockAllButReply(const CPackForServer * pack) const
 {
 	//We accept only activity replies from correct player
-	if(auto reply = dynamic_cast<const QueryReply*>(pack))
+	if(auto reply = dynamic_cast<const QuestionAnswer*>(pack))
 		return !vstd::contains(players, reply->player);
 
 	return true;

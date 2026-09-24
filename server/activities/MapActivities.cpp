@@ -286,7 +286,7 @@ PromptResult LevelUpActivity::askHeroLevelUp()
 
 	activeQuestionID = ++gh->QID;
 	askedQuestionID = activeQuestionID;
-	levelUp.queryID = activeQuestionID;
+	levelUp.questionID = activeQuestionID;
 	gh->sendAndApply(levelUp);
 
 	return PromptResult::Asked;
@@ -310,7 +310,7 @@ PromptResult LevelUpActivity::askCommanderLevelUp()
 
 	activeQuestionID = ++gh->QID;
 	askedQuestionID = activeQuestionID;
-	levelUp->queryID = activeQuestionID;
+	levelUp->questionID = activeQuestionID;
 	gh->sendAndApply(*levelUp);
 
 	return PromptResult::Asked;
@@ -324,7 +324,7 @@ void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
 	if(askedQuestionID.hasValue())
 	{
 		gh->sendQuestionResolved(askedQuestionID);
-		askedQuestionID = QueryID::NONE;
+		askedQuestionID = QuestionID::NONE;
 	}
 
 	const auto * levellingHero = gh->gameInfo().getHero(hero);

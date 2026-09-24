@@ -365,7 +365,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 		siegeController->gateStateChanged(state);
 }
 
-void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
+void BattleInterface::battleFinished(const BattleResult& br, QuestionID questionID)
 {
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
@@ -373,13 +373,13 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 	curInt->waitWhileDialog();
 
-	// a spectator watches a battle it has no side in, so the query belongs to whoever fights it
-	const bool ownsQuery = attackerInt || defenderInt;
+	// a spectator watches a battle it has no side in, so the question belongs to whoever fights it
+	const bool ownsQuestion = attackerInt || defenderInt;
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
-		if(ownsQuery)
-			curInt->cb->selectionMade(0, queryID);
+		if(ownsQuestion)
+			curInt->cb->selectionMade(0, questionID);
 		windowObject->close();
 		CPlayerInterface::battleInt.reset(); // must stay last, it destroys this object
 		return;
@@ -394,11 +394,11 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	}
 
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
-	if(ownsQuery)
+	if(ownsQuestion)
 	{
-		wnd->resultCallback = [this, queryID](ui32 selection)
+		wnd->resultCallback = [this, questionID](ui32 selection)
 		{
-			curInt->cb->selectionMade(selection, queryID);
+			curInt->cb->selectionMade(selection, questionID);
 		};
 	}
 	ENGINE->windows().pushWindow(wnd);

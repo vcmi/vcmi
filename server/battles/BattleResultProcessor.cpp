@@ -263,14 +263,14 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		return;
 	}
 
-	auto battleActivity = gameHandler->activities->getActivity(typedBattleActivity->queryID);
+	auto battleActivity = gameHandler->activities->getActivity(typedBattleActivity->questionID);
 	typedBattleActivity->result = std::make_optional(*battleResult);
 
 	//Check how many battle gameHandler->activities were created (number of players blocked by battle)
-	const int queriedPlayers = gameHandler->activities->countActivity(battleActivity);
+	const int askedPlayers = gameHandler->activities->countActivity(battleActivity);
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
-	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, queriedPlayers);
+	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, askedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
 	const auto * attackerPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
@@ -280,16 +280,16 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	if(onlyOnePlayerHuman)
 	{
 		auto battleDialogActivity = std::make_shared<BattleResultActivity>(gameHandler, battle.getBattle(), typedBattleActivity->result);
-		battleResult->queryID = battleDialogActivity->queryID;
+		battleResult->questionID = battleDialogActivity->questionID;
 		gameHandler->activities->addActivity(battleDialogActivity);
 	}
 	else
-		battleResult->queryID = QueryID::NONE;
+		battleResult->questionID = QuestionID::NONE;
 
 	gameHandler->turnTimerHandler->onBattleEnd(battle.getBattle()->getBattleID());
 	gameHandler->sendAndApply(*battleResult);
 
-	if (battleResult->queryID == QueryID::NONE)
+	if (battleResult->questionID == QuestionID::NONE)
 		endBattleConfirm(battle);
 }
 

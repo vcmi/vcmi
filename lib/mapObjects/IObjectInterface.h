@@ -59,8 +59,8 @@ public:
 	virtual void pickRandomObject(IGameRandomizer & gameRandomizer);
 	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
-	//Called when queries created DURING HERO VISIT are resolved
-	//First parameter is always hero that visited object and triggered the query
+	//Called when activities created DURING HERO VISIT are resolved
+	//First parameter is always hero that visited object and triggered the activity
 	virtual void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const;
 	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const;
 	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;

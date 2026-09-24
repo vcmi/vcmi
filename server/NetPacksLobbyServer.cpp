@@ -44,13 +44,13 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	}
 }
 
-void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuestionState(LobbyQuestionState & pack)
 {
 	// Anyone can activity lobby state without being a registered player
 	result = true;
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+void ApplyOnServerNetPackVisitor::visitLobbyQuestionState(LobbyQuestionState & pack)
 {
 	LobbyModsCheck lms;
 	lms.vcmiVersion = VCMI_VERSION_STRING;
@@ -69,7 +69,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 	result = false;
 }
 
-void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQuestionState(LobbyQuestionState & pack)
 {
 	// Do nothing - activity response is sent directly, no broadcast needed
 }

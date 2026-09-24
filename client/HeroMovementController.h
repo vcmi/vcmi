@@ -51,7 +51,7 @@ class HeroMovementController
 	void stopMovementSound();
 
 public:
-	// const queries
+	// const questions
 
 	/// Returns true if hero should move through garrison without displaying garrison dialog
 	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const;
@@ -61,10 +61,10 @@ public:
 
 	// netpack handlers
 	void onMoveHeroApplied();
-	void onQueryReplyApplied();
+	void onQuestionAnswerApplied();
 	void onPlayerTurnStarted();
 	void onBattleStarted();
-	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID);
 	void onTryMoveHero(const CGHeroInstance * hero, const TryMoveHero & details);
 
 	// UI handlers

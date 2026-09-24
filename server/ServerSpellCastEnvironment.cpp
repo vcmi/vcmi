@@ -126,10 +126,10 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
 }
 
-void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
+void ServerSpellCastEnvironment::askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
 	auto activity = std::make_shared<CallbackActivity>(gh, color, callback);
-	request->queryID = activity->queryID;
+	request->questionID = activity->questionID;
 	gh->activities->addActivity(activity);
 	gh->sendAndApply(*request);
 }

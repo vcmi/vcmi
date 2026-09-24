@@ -39,25 +39,25 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/ConditionalWait.h"
 
-CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
+CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QuestionID questionID)
 {
 	OBJECT_CONSTRUCTION;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
-	ID = askID;
+	ID = questionID;
 	for(int i = 0; i < Buttons.size(); i++)
 	{
 		buttons.push_back(std::make_shared<CButton>(Point(0, 0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
-		if(!i && askID.getNum() >= 0)
+		if(!i && questionID.getNum() >= 0)
 			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice, this));
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	if(buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
-		buttons.back()->addCallback([askID](){GAME->interface()->cb->selectionMade(0, askID);});
+	if(buttons.size() > 1 && questionID.getNum() >= 0) //cancel button functionality
+		buttons.back()->addCallback([questionID](){GAME->interface()->cb->selectionMade(0, questionID);});
 
 	if(buttons.size() == 1)
 		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
@@ -101,7 +101,7 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
-	ID = QueryID(-1);
+	ID = QuestionID(-1);
 	for(const auto & Button : Buttons)
 	{
 		auto button = std::make_shared<CButton>(Point(0, 0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
@@ -135,7 +135,7 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 
 CInfoWindow::CInfoWindow()
 {
-	ID = QueryID(-1);
+	ID = QuestionID(-1);
 }
 
 void CInfoWindow::close()

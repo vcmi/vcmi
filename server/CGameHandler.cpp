@@ -1235,7 +1235,7 @@ void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingD
 {
 	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, caller, *iw);
 	activities->addActivity(dialogActivity);
-	iw->queryID = dialogActivity->queryID;
+	iw->questionID = dialogActivity->questionID;
 	sendAndApply(*iw);
 }
 
@@ -1253,7 +1253,7 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 	auto dialogActivity = std::make_shared<CallbackActivity>(this, iw->player,
 		[scriptActivity](std::optional<int32_t> reply){ scriptActivity->setPendingAnswer(reply); });
 	activities->addActivity(dialogActivity);
-	iw->queryID = dialogActivity->queryID;
+	iw->questionID = dialogActivity->questionID;
 	sendAndApply(*iw);
 }
 
@@ -1278,7 +1278,7 @@ void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogActivity = std::make_shared<TeleportDialogActivity>(this, *iw);
 	activities->addActivity(dialogActivity);
-	iw->queryID = dialogActivity->queryID;
+	iw->questionID = dialogActivity->questionID;
 	sendAndApply(*iw);
 }
 
@@ -1653,7 +1653,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	{
 		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1, h2);
 		ExchangeDialog hex;
-		hex.queryID = exchange->queryID;
+		hex.questionID = exchange->questionID;
 		hex.player = h1->getOwner();
 		hex.hero1 = hero1;
 		hex.hero2 = hero2;
@@ -1669,9 +1669,9 @@ void CGameHandler::sendAndApply(CPackForClient & pack)
 	gameServer().applyPack(pack);
 }
 
-void CGameHandler::sendQuestionResolved(QueryID queryID)
+void CGameHandler::sendQuestionResolved(QuestionID questionID)
 {
-	QueryResolved pack(queryID);
+	QuestionResolved pack(questionID);
 	sendAndApply(pack);
 }
 
@@ -3615,44 +3615,44 @@ bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
 	return true;
 }
 
-bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
+bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> answer, PlayerColor player)
 {
 	if (answer)
-		logGlobal->trace("Player %s answers activity %d with %d", player, qid, *answer);
+		logGlobal->trace("Player %s answers activity %d with %d", player, questionID, *answer);
 	else
-		logGlobal->trace("Player %s answers activity %d with no value", player, qid);
+		logGlobal->trace("Player %s answers activity %d with no value", player, questionID);
 
 	// The reply is addressed to a activity ID, not to a stack position. The client cannot
 	// know what the server pushed since it was prompted, so a reply that is no longer
 	// for the top activity is still perfectly legal - it is stored and resolved later.
-	switch(activities->submitReply(qid, player, answer))
+	switch(activities->submitReply(questionID, player, answer))
 	{
 		case ReplyOutcome::Accepted:
 			return true;
 
 		case ReplyOutcome::IgnoredAlreadyCompleted:
-			logGlobal->trace("Player %s replied to activity %d that had already been removed - ignoring", player, qid);
+			logGlobal->trace("Player %s replied to activity %d that had already been removed - ignoring", player, questionID);
 			return true;
 
 		case ReplyOutcome::IgnoredAlreadyAnswered:
-			logGlobal->trace("Player %s replied to activity %d more than once - ignoring", player, qid);
+			logGlobal->trace("Player %s replied to activity %d more than once - ignoring", player, questionID);
 			return true;
 
 		case ReplyOutcome::RejectedWrongPlayer:
-			logGlobal->warn("Player %s replied to activity %d that does not affect them!\nActivities:\n%s", player, qid, activities->describeStacks());
+			logGlobal->warn("Player %s replied to activity %d that does not affect them!\nActivities:\n%s", player, questionID, activities->describeStacks());
 			COMPLAIN_RET("Attempt to answer a activity of another player!");
 
 		case ReplyOutcome::RejectedMissingAnswer:
-			logGlobal->warn("Player %s replied to activity %d without an answer!\nActivities:\n%s", player, qid, activities->describeStacks());
+			logGlobal->warn("Player %s replied to activity %d without an answer!\nActivities:\n%s", player, questionID, activities->describeStacks());
 			COMPLAIN_RET("This activity needs an answer!");
 
 		case ReplyOutcome::RejectedNotAnswerable:
-			logGlobal->warn("Player %s replied to activity %d that cannot be ended by an answer!\nActivities:\n%s", player, qid, activities->describeStacks());
+			logGlobal->warn("Player %s replied to activity %d that cannot be ended by an answer!\nActivities:\n%s", player, questionID, activities->describeStacks());
 			COMPLAIN_RET("This activity cannot be ended by player's answer!");
 
 		case ReplyOutcome::RejectedUnknownActivity:
 		default:
-			logGlobal->error("Player %s replied to unknown activity %d!\nActivities:\n%s", player, qid, activities->describeStacks());
+			logGlobal->error("Player %s replied to unknown activity %d!\nActivities:\n%s", player, questionID, activities->describeStacks());
 			COMPLAIN_RET("Attempt to answer a activity that does not exist!");
 	}
 }
@@ -3686,7 +3686,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	gd.objid = upobj;
 	gd.removableUnits = removableUnits;
 	gd.customTitle = customTitle;
-	gd.queryID = garrisonActivity->queryID;
+	gd.questionID = garrisonActivity->questionID;
 	sendAndApply(gd);
 }
 
@@ -3700,7 +3700,7 @@ void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindow
 	if (addActivity)
 	{
 		auto windowActivity = std::make_shared<OpenWindowActivity>(this, visitor, window);
-		pack.queryID = windowActivity->queryID;
+		pack.questionID = windowActivity->questionID;
 		activities->addActivity(windowActivity);
 	}
 	sendAndApply(pack);

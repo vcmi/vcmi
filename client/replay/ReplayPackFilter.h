@@ -42,7 +42,7 @@ class ReplayPackFilter final : public ICPackVisitor
 	// packs that would ask the player for input, or that would answer a request that we never sent
 	void visitPackageApplied(PackageApplied & pack) override { markInteractive(); }
 	void visitPackageReceived(PackageReceived & pack) override { markInteractive(); }
-	void visitQueryResolved(QueryResolved & pack) override { markInteractive(); }
+	void visitQuestionResolved(QuestionResolved & pack) override { markInteractive(); }
 	void visitPlayerStartsTurn(PlayerStartsTurn & pack) override { markInteractive(); }
 	void visitPlayerEndsGame(PlayerEndsGame & pack) override { markInteractive(); }
 	void visitPlayerBlocked(PlayerBlocked & pack) override { markInteractive(); }

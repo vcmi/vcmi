@@ -39,7 +39,7 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 void ApplyGhNetPackVisitor::visitGamePause(GamePause & pack)
 {
 	auto turnActivity = std::make_shared<TimerPauseActivity>(&gh, pack.player);
-	turnActivity->queryID = QueryID::CLIENT;
+	turnActivity->questionID = QuestionID::CLIENT;
 	gh.activities->addActivity(turnActivity);
 	result = true;
 }
@@ -420,14 +420,14 @@ void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
 	result = gh.buildBoat(pack.objid, pack.player);
 }
 
-void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
+void ApplyGhNetPackVisitor::visitQuestionAnswer(QuestionAnswer & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 
-	if(pack.qid == QueryID(-1))
+	if(pack.questionID == QuestionID(-1))
 		gh.throwAndComplain(connection, "Cannot answer the activity with pack.id -1!");
 
-	result = gh.queryReply(pack.qid, pack.reply, pack.player);
+	result = gh.answerQuestion(pack.questionID, pack.reply, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)

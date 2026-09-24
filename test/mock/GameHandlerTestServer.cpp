@@ -54,13 +54,13 @@ void GameHandlerTestServer::applyPack(CPackForClient & pack)
 	// Record the handful of packs that carry the client-facing activity contract, so
 	// that tests can assert on what the client would receive.
 	if(const auto * heroLevelUp = dynamic_cast<const HeroLevelUp *>(&pack))
-		levelUpPromptIDs.push_back(heroLevelUp->queryID);
+		levelUpPromptIDs.push_back(heroLevelUp->questionID);
 
 	if(const auto * commanderLevelUp = dynamic_cast<const CommanderLevelUp *>(&pack))
-		levelUpPromptIDs.push_back(commanderLevelUp->queryID);
+		levelUpPromptIDs.push_back(commanderLevelUp->questionID);
 
-	if(const auto * resolved = dynamic_cast<const QueryResolved *>(&pack))
-		resolvedQuestionIDs.push_back(resolved->queryID);
+	if(const auto * resolved = dynamic_cast<const QuestionResolved *>(&pack))
+		resolvedQuestionIDs.push_back(resolved->questionID);
 
 	if(gameState)
 		gameState->apply(pack);

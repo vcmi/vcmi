@@ -63,18 +63,18 @@ class CPlayerInterface : public CGameInterface
 	{
 		enum class Type : std::uint8_t { NonBlocking, Blocking };
 
-		enum class State : std::uint8_t { Queued, AwaitingQueryResolution };
+		enum class State : std::uint8_t { Queued, AwaitingQuestionResolution };
 
 		bool dropOnTurnEnd = false;
 		Type blockingPolicy = Type::Blocking;
-		QueryID queryID = QueryID::NONE;
+		QuestionID questionID = QuestionID::NONE;
 		State state = State::Queued;
 		std::function<void()> showCallback;
 
 		bool isLevelUpDialog() const
 		{
-			// queryID means we are dealing with hero or commander level up dialog
-			return queryID != QueryID::NONE;
+			// questionID means we are dealing with hero or commander level up dialog
+			return questionID != QuestionID::NONE;
 		}
 	};
 
@@ -125,8 +125,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void heroCreated(const CGHeroInstance* hero) override;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
-	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QuestionID questionID) override;
+	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
@@ -137,26 +137,26 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
-	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID) override;
-	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
-	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID, const MetaString & customTitle) override;
-	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
-	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
+	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QuestionID questionID) override;
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and questionID.
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) override;
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QuestionID questionID, const MetaString & customTitle) override;
+	void showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID) override;
+	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QuestionID questionID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
 	void tileHidden(const FowTilesType &pos) override; //called when given tiles become hidden under fog of war
 	void tileRevealed(const FowTilesType &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
-	void yourTurn(QueryID queryID) override;
+	void yourTurn(QuestionID questionID) override;
 	void availableCreaturesChanged(const CGDwelling *town) override;
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	void requestRealized(PackageApplied *pa) override;
-	void queryResolved(QueryID queryID) override;
-	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
+	void questionResolved(QuestionID questionID) override;
+	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID question) override;
 	void centerView (int3 pos, int focusTime) override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
@@ -175,7 +175,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void actionStarted(const BattleID & battleID, const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
 	void activeStack(const BattleID & battleID, const CStack * stack) override; //called when it's turn of that stack
 	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override; //stack performs attack
-	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override; //end of battle
+	void battleEnd(const BattleID & battleID, const BattleResult *br, QuestionID questionID) override; //end of battle
 	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
@@ -207,7 +207,7 @@ public: // public interface for use by client via GAME->interface() access
 	bool hasScenarioEventJournalEntries() const;
 	bool hasJournalEntries() const;
 	void showThievesGuildWindow (const CGObjectInstance * obj) override;
-	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QuestionID questionID) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
@@ -266,14 +266,14 @@ private:
 
 	void heroKilled(const CGHeroInstance* hero);
 	void closeActiveLevelUpDialog();
-	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QueryID queryID = QueryID::NONE);
-	std::list<PendingDialog>::iterator findQueryBackedDialogInsertionPoint();
+	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QuestionID questionID = QuestionID::NONE);
+	std::list<PendingDialog>::iterator findQuestionBackedDialogInsertionPoint();
 	void tryShowNextPendingDialog();
-	std::list<PendingDialog>::iterator findPendingDialog(QueryID queryID);
+	std::list<PendingDialog>::iterator findPendingDialog(QuestionID questionID);
 	void townRemoved(const CGTownInstance* town);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);
-	void acceptTurn(QueryID queryID, bool hotseatWait); //used during hot seat after your turn message is close
+	void acceptTurn(QuestionID questionID, bool hotseatWait); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 	std::string getQuickSavePath() const;

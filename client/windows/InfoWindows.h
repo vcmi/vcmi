@@ -39,7 +39,7 @@ class CInfoWindow : public WindowBase
 public:
 	using TButtonsInfo = std::vector<std::pair<AnimationPath, CFunctionList<void()>>>;
 	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
-	QueryID ID; //for identification
+	QuestionID ID; //for identification
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<CTextBox> text;
 	std::shared_ptr<CComponentBox> components;
@@ -125,7 +125,7 @@ class CSelWindow : public CInfoWindow
 public:
 	void madeChoice(); //looks for selected component and calls callback
 	void madeChoiceAndClose();
-	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
+	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QuestionID questionID);
 };
 
 class MinimapWithIcons : public CIntObject

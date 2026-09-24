@@ -32,8 +32,8 @@ class AIStatus
 	std::condition_variable cv;
 
 	BattleState battle;
-	std::map<QueryID, std::string> remainingQueries;
-	std::map<int, QueryID> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
+	std::map<QuestionID, std::string> remainingQuestions;
+	std::map<int, QuestionID> requestToQuestionID; //IDs of answer-requests sent to server => question ids (so we can match answer confirmation from server to the question)
 	std::vector<ObjectInstanceID> objectsBeingVisited;
 	bool ongoingHeroMovement;
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
@@ -48,14 +48,14 @@ public:
 	void setChannelProbing(bool ongoing);
 	bool channelProbing();
 	BattleState getBattle();
-	void addQuery(QueryID ID, std::string description);
-	void removeQuery(QueryID ID);
-	int getQueriesCount();
+	void addQuestion(QuestionID ID, std::string description);
+	void removeQuestion(QuestionID ID);
+	int getQuestionsCount();
 	void startedTurn();
 	void madeTurn();
 	void waitTillFree();
 	bool haveTurn();
-	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
+	void attemptedAnsweringQuestion(QuestionID questionID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
 	ObjectInstanceID getCurrentVisitedObject();
@@ -90,14 +90,14 @@ public:
 	std::string getBattleAIName() const override;
 
 	void initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> callback) override;
-	void yourTurn(QueryID queryID) override;
+	void yourTurn(QuestionID questionID) override;
 
-	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
-	void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
-	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
+	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QuestionID questionID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID) override; //TODO
+	void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and questionID.
+	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) override;
+	void showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
@@ -107,7 +107,7 @@ public:
 	void tileHidden(const FowTilesType & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
-	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QuestionID questionID) override;
 	void showThievesGuildWindow(const CGObjectInstance * obj) override;
 	void playerBlocked(int reason, bool start) override;
 	void showPuzzleMap() override;
@@ -120,10 +120,10 @@ public:
 	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
 	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
 	void tileRevealed(const FowTilesType & pos) override;
-	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
+	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID question) override;
 	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
-	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
+	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QuestionID questionID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	void newObject(const CGObjectInstance * obj) override;
@@ -135,7 +135,7 @@ public:
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
 	void objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator) override;
-	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void battleResultsApplied() override;
@@ -144,12 +144,12 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
-	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
+	void battleEnd(const BattleID & battleID, const BattleResult * br, QuestionID questionID) override;
 
 	void invalidatePaths() override;
 	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
@@ -180,7 +180,7 @@ public:
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
-	void answerQuery(QueryID queryID, int selection) const;
+	void answerQuestion(QuestionID questionID, int selection) const;
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 

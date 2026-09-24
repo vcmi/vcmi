@@ -80,7 +80,7 @@ public:
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	//activities stuff
-	QueryID QID;
+	QuestionID QID;
 
 	std::set<PlayerColor> uiReadyForDialogs;
 
@@ -227,7 +227,7 @@ public:
 	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionId) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
-	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
+	bool answerQuestion( QuestionID questionID, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, EArmyFormation formation );
 	bool setTactics( ObjectInstanceID hid, bool enabled );
@@ -266,7 +266,7 @@ public:
 	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
-	void sendQuestionResolved(QueryID queryID);
+	void sendQuestionResolved(QuestionID questionID);
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );

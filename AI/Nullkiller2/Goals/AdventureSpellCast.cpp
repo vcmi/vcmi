@@ -74,7 +74,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	const auto wait = aiGw->cc->waitTillRealize;
 	aiGw->cc->waitTillRealize = true;
 	aiGw->cc->castSpell(hero, spellID, tile);
-	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up queries.
+	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up questions.
 
 	if(town && townPortalEffect)
 	{

@@ -299,7 +299,7 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 					switch(ReplayPackFilter::classify(clientPack))
 					{
 						case EReplayPackKind::INTERACTIVE:
-							// dialogs, queries and session bookkeeping are applied, but never shown
+							// dialogs, questions and session bookkeeping are applied, but never shown
 							client.applyPackSilently(clientPack);
 							break;
 						case EReplayPackKind::BATTLE:
