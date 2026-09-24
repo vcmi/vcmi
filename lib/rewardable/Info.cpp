@@ -15,6 +15,7 @@
 #include "Limiter.h"
 #include "Reward.h"
 
+#include "../battle/CombatValue.h"
 #include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
 #include "../callback/IGameRandomizer.h"
@@ -24,6 +25,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
+#include "../constants/EntityIdentifiers.h"
 
 #include <vstd/RNG.h>
 
@@ -655,6 +657,44 @@ bool Rewardable::Info::givesBonuses() const
 bool Rewardable::Info::hasGuards() const
 {
 	return testForKey(parameters, "guards");
+}
+
+std::optional<std::pair<uint64_t, uint64_t>> Rewardable::Info::getCreatureBankGuardRange() const
+{
+	if(!hasGuards())
+		return std::nullopt;
+
+	const auto & combatValue = LIBRARY->creh->getCombatValue();
+	std::optional<std::pair<uint64_t, uint64_t>> result;
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		std::pair<uint64_t, uint64_t> tier;
+		const auto guards = JsonRandom::evaluateCreatures(reward["guards"]);
+		if(!guards)
+			return std::nullopt;
+		for(const auto & guard : *guards)
+		{
+			const auto * weakest = std::ranges::min(guard.allowedCreatures, {}, [&](const auto * creature)
+			{
+				return combatValue.getAIValue(creature);
+			});
+			const auto * strongest = std::ranges::max(guard.allowedCreatures, {}, [&](const auto * creature)
+			{
+				return combatValue.getAIValue(creature);
+			});
+			tier.first += guard.minAmount * combatValue.getAIValue(weakest);
+			tier.second += guard.maxAmount * combatValue.getAIValue(strongest);
+		}
+
+		if(result.has_value())
+		{
+			result->first = std::min(result->first, tier.first);
+			result->second = std::max(result->second, tier.second);
+		}
+		else
+			result = tier;
+	}
+	return result;
 }
 
 const JsonNode & Rewardable::Info::getParameters() const
