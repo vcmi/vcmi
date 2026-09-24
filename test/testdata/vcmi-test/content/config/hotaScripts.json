@@ -1,0 +1,52 @@
+// HotA ability scripts copied into vcmi-test for engine integration coverage.
+{
+	"automatonDetonation" : {
+		"implements" : "combatEvent",
+		"script" : "combat/automatonDetonation",
+		"patches" : [ ],
+		// Execute after resurrection handlers.
+		"priority" : 100,
+		"schema" : {
+			"properties" : { },
+			"additionalProperties" : false
+		},
+		"description" : "{Detonation}\nDamages every adjacent unit when this one dies."
+	},
+	"devourCorpses" : {
+		"implements" : "combatEvent",
+		"script" : "combat/devourCorpses",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : { },
+			"additionalProperties" : false
+		},
+		"description" : "{Devours Corpses}\nDevours corpses it stands on to gain additional attacks."
+	},
+	"runes" : {
+		"implements" : "combatEvent",
+		"script" : "combat/runes",
+		"patches" : [ ],
+		"priority" : 500,
+		"schema" : {
+			"properties" : {
+				"isYeti" : { "type" : "boolean", "description" : "is the intended bonus bearer a Yeti Runemaster" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : "{Runes}\nGains rune levels in combat."
+	},
+	"heatStroke" : {
+		"implements" : "spellEffect",
+		"script" : "spells/heatStroke",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : { },
+				"indirect" : { },
+				"optional" : { }
+			},
+			"additionalProperties" : false
+		}
+	}
+}

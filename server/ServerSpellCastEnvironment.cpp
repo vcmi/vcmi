@@ -11,6 +11,7 @@
 #include "ServerSpellCastEnvironment.h"
 
 #include "CGameHandler.h"
+#include "battles/BattleProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/CQuery.h"
 
@@ -77,6 +78,11 @@ void ServerSpellCastEnvironment::apply(SetStackEffect & pack)
 
 void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
+	// Spell, moat, obstacle and script damage use this non-attack pack.
+	const auto * battle = gh->gameState().getBattle(pack.battleID);
+	if(battle)
+		gh->battles->noteDeaths(*battle, pack.stacks);
+
 	gh->sendAndApply(pack);
 }
 
@@ -93,6 +99,11 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
 	return &gh->gameInfo();
+}
+
+void ServerSpellCastEnvironment::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
+{
+	gh->battles->spellHasHit(battle, spell, casterUnit, unitsBefore);
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const

@@ -334,5 +334,63 @@
 		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
 		"sound" : {},
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
+	},
+
+	// Test fixture for HotA detonation; skips the mod's arming spell.
+	"testAutomaton" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Automaton", "plural" : "Test Automatons" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"detonates" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "automatonDetonation" },
+			// Removing the corpse prevents repeated detonation in a chain.
+			"removeCorpse" : { "type" : "DISINTEGRATE" }
+		}
+	},
+
+	// Grants one additional attack per consumed corpse.
+	"testDevourer" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Devourer", "plural" : "Test Devourers" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" : { "devours" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "devourCorpses" } }
+	},
+
+	// Double-wide footprint is required for cone-origin tests.
+	"testJuggernaut" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"doubleWide" : true,
+		"name" : { "singular" : "Test Juggernaut", "plural" : "Test Juggernauts" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"heatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
+			"castsCount" : { "type" : "CASTS", "val" : 99 }
+		}
 	}
 }

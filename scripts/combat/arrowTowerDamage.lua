@@ -2,9 +2,7 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Arrow towers shoot for the state of their town rather than for what their creature says.
---- The damage is settled once, when the battle is set up, and handed to the tower as a bonus -
---- nothing can change a town's buildings while it is under siege.
+--- Applies arrow tower damage calculated from defended-town buildings during battle setup.
 ---
 --- Parameters:
 ---  keepBase    - damage of the keep in a town with nothing built
@@ -13,11 +11,8 @@ Script.__index = Script
 
 local DEFAULTS = { keepBase = 10, towerBase = 6, perBuilding = 2 }
 
---- Buildings that count towards the damage of the towers. Heroes 3 counts the town hall but not
---- the village hall it replaces, ignores the fort line, and counts a building only once however
---- often it has been upgraded.
---- Asked by building type rather than by json key, so that a mod town's fort counts for as much as
---- the fort of a core town.
+--- Implements the H3 building count: town hall instead of village hall, no fort line and only final upgrades.
+--- Building types make the rule independent of town mod scope.
 local function countsTowardsDamage(building)
 	local buildingType = building:getBuildingType()
 
@@ -37,8 +32,7 @@ function Script:getTownLevel(town)
 	return level
 end
 
---- Lowest and highest damage of one shot of this tower. The highest is twice the lowest, as it is
---- for every creature whose damage Heroes 3 gives as a single number.
+--- Returns the damage range for one tower shot; H3 doubles the single base value for the maximum.
 function Script:getDamageRange(town, turretPart)
 	local level = self:getTownLevel(town)
 	local perBuilding = self.perBuilding or DEFAULTS.perBuilding
@@ -61,7 +55,7 @@ function Script:onBattleSetup(server, battle, unit, other)
 
 	local town = battle:getDefendedTown()
 
-	-- a tower outside a siege has no town to read; its creature's own damage will do
+	-- Outside a siege, retain creature damage.
 	if town == nil then return end
 
 	local minDamage, maxDamage = self:getDamageRange(town, turretPart)

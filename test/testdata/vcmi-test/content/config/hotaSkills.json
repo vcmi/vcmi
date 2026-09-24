@@ -1,0 +1,22 @@
+// Minimal Runes skill required as the source of script-generated bonuses.
+{
+	"runes" : {
+		"name" : "Runes",
+		"gainChance" : { "might" : 0, "magic" : 0 },
+		"specialty" : [ ],
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"runesCap" : { "type" : "RUNE_LEVEL_CAP", "hidden" : true },
+				"runesEffect" : {
+					"type" : "COMBAT_EVENT_TRIGGER",
+					"subtype" : "runes",
+					"addInfo" : { "isYeti" : false }
+				}
+			}
+		},
+		"basic" : { "description" : "{Basic Runes}", "effects" : { "runesCap" : { "val" : 3 } } },
+		"advanced" : { "description" : "{Advanced Runes}", "effects" : { "runesCap" : { "val" : 6 } } },
+		"expert" : { "description" : "{Expert Runes}", "effects" : { "runesCap" : { "val" : 9 } } }
+	}
+}

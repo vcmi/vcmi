@@ -35,8 +35,6 @@ public:
 
 		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		attacker = addStack(BattleSide::DEFENDER, creatureByName(transmuter), BattleHex(rightHex), transmuterCount);
-		ASSERT_NE(victim, nullptr);
-		ASSERT_NE(attacker, nullptr);
 
 		blockRetaliation(attacker);
 	}

@@ -23,8 +23,6 @@ const BonusCustomSubtype BonusCustomSubtype::damageTypeMelee(0);
 const BonusCustomSubtype BonusCustomSubtype::damageTypeRanged(1);
 const BonusCustomSubtype BonusCustomSubtype::heroMovementLand(1);
 const BonusCustomSubtype BonusCustomSubtype::heroMovementSea(0);
-const BonusCustomSubtype BonusCustomSubtype::rebirthRegular(0);
-const BonusCustomSubtype BonusCustomSubtype::rebirthSpecial(1);
 const BonusCustomSubtype BonusCustomSubtype::visionsMonsters(0);
 const BonusCustomSubtype BonusCustomSubtype::visionsHeroes(1);
 const BonusCustomSubtype BonusCustomSubtype::visionsTowns(2);
@@ -161,7 +159,6 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
-		case BonusType::REBIRTH:
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL:
 		case BonusType::CREATURE_GROWTH:

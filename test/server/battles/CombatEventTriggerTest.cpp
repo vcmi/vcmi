@@ -22,6 +22,10 @@ constexpr int markerBeforeAttack = 1;
 constexpr int markerAfterAttack = 2;
 constexpr int markerBeforeAttacked = 4;
 constexpr int markerAfterAttacked = 8;
+constexpr int markerDeath = 16;
+constexpr int markerActionFinished = 32;
+constexpr int markerMove = 64;
+constexpr int markerSpellHit = 128;
 
 }
 
@@ -62,8 +66,6 @@ TEST_F(CombatEventTriggerTest, everyAttackEventReachesItsUnit)
 
 	CStack * defender = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), stackCount);
 	CStack * attacker = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(rightHex), stackCount);
-	ASSERT_NE(defender, nullptr);
-	ASSERT_NE(attacker, nullptr);
 
 	// a retaliation would fire the same events again, with the roles swapped
 	blockRetaliation(attacker);
@@ -81,4 +83,90 @@ TEST_F(CombatEventTriggerTest, everyAttackEventReachesItsUnit)
 
 	EXPECT_EQ(markersOf(attacker), markerBeforeAttack + markerAfterAttack);
 	EXPECT_EQ(markersOf(defender), markerBeforeAttacked + markerAfterAttacked);
+}
+
+/// Verifies one ACTION_FINISHED event per participant after UNIT_DEATH
+TEST_F(CombatEventTriggerTest, deathAndTheEndOfAnActionReachEvenTheUnitTheActionKilled)
+{
+	startGame();
+	startBattle();
+
+	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 1);
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), stackCount);
+
+	// Two attacks must produce one ACTION_FINISHED event.
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::OTHER, 1, BonusSourceID()));
+	ASSERT_EQ(attacker->getTotalAttacks(false), 2);
+
+	reactWithMarker(victim, CombatEventType::UNIT_DEATH, markerDeath);
+	reactWithMarker(victim, CombatEventType::ACTION_FINISHED, markerActionFinished);
+	reactWithMarker(attacker, CombatEventType::ACTION_FINISHED, markerActionFinished);
+
+	beginCombat();
+
+	ASSERT_TRUE(attack(attacker, BattleHex(rightHex)));
+	ASSERT_FALSE(victim->alive()) << "the victim has to die for the scenario to say anything";
+
+	EXPECT_EQ(markersOf(victim), markerDeath + markerActionFinished);
+	EXPECT_EQ(markersOf(attacker), markerActionFinished) << "two attacks, one action";
+}
+
+/// Verifies separate movement events for approach and RETURN_AFTER_STRIKE
+TEST_F(CombatEventTriggerTest, theStepBackAfterStrikingIsAnnouncedAsAMove)
+{
+	constexpr int attackFromHex = leftHex + 3;
+	constexpr int targetHex = leftHex + 4;
+
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), stackCount);
+	addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(targetHex), stackCount);
+
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::RETURN_AFTER_STRIKE, BonusSource::OTHER, 0, BonusSourceID()));
+
+	// Keep the attacker alive for the return movement.
+	blockRetaliation(attacker);
+
+	reactWithMarker(attacker, CombatEventType::AFTER_MOVE, markerMove);
+
+	beginCombat();
+
+	ASSERT_TRUE(attackFrom(attacker, BattleHex(targetHex), BattleHex(attackFromHex)));
+	ASSERT_EQ(attacker->getPosition(), BattleHex(leftHex)) << "the scenario is about the step back";
+
+	EXPECT_EQ(markersOf(attacker), 2 * markerMove) << "the walk in and the step back are both moves";
+}
+
+/// Verifies that script-applied spells do not generate SPELL_HIT
+TEST_F(CombatEventTriggerTest, aScriptedCastIsNoSpellHit)
+{
+	startGame();
+
+	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+	attackerSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+	attackerSideHero->mana = 9999;
+
+	startBattle();
+
+	CStack * automaton = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), BattleHex(rightHex), 1);
+	CStack * bystander = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), stackCount);
+	CStack * killer = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), stackCount);
+
+	reactWithMarker(bystander, CombatEventType::SPELL_HIT, markerSpellHit);
+
+	beginCombat();
+
+	const int64_t healthBefore = bystander->getAvailableHealth();
+
+	// The detonation must execute without recursively generating SPELL_HIT.
+	ASSERT_TRUE(attack(killer, BattleHex(rightHex)));
+	ASSERT_FALSE(automaton->alive());
+	ASSERT_LT(bystander->getAvailableHealth(), healthBefore) << "detonation did not damage the bystander";
+
+	EXPECT_EQ(markersOf(bystander), 0);
+
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID(SpellID::MAGIC_ARROW), bystander));
+
+	EXPECT_EQ(markersOf(bystander), markerSpellHit) << "a cast someone made is a spell hit";
 }

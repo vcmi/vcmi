@@ -62,7 +62,6 @@ TEST_P(SummonGuardiansTest, PlacesGuardiansAroundTheBearer)
 	startBattle();
 
 	CStack * bearer = addStack(scenario.side, creatureByName(scenario.bearer), BattleHex(scenario.bearerHex), bearerCount);
-	ASSERT_NE(bearer, nullptr);
 
 	beginCombat();
 

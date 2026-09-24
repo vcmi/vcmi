@@ -35,6 +35,8 @@ public:
 	void apply(BattleObstaclesChanged & pack) override;
 	void apply(CatapultAttack & pack) override;
 
+	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore) override;
+
 	const CMap * getMap() const override;
 	const IGameInfoCallback * getCb() const override;
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) override;

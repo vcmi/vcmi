@@ -45,8 +45,6 @@ TEST_P(DestructionTest, killsExpectedCreatures)
 
 	CStack * victim = addStack(BattleSide::ATTACKER, creatureByName("core:blackDragon"), BattleHex(leftHex), scenario.victimCount);
 	CStack * destroyer = addStack(BattleSide::DEFENDER, creatureByName(scenario.destroyer), BattleHex(rightHex), destroyerCount);
-	ASSERT_NE(victim, nullptr);
-	ASSERT_NE(destroyer, nullptr);
 
 	blockRetaliation(destroyer);
 

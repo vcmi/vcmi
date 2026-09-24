@@ -14,8 +14,6 @@
 namespace
 {
 
-/// One scenario: which creatures meet, what the casting hero knows and carries,
-/// and how much health the attacker must lose to the fire shield.
 struct FireShieldCase
 {
 	const char * name;
@@ -29,18 +27,11 @@ struct FireShieldCase
 
 }
 
-/// Fire shield reflects part of the damage a melee attacker deals back at it. The amount
-/// passes through the spell damage pipeline of the shielded unit's hero, so hero skills and
-/// artifacts scale it, and the attacker's own fire resistances cut it down again.
-///
-/// Every scenario is the same battle: the casting hero shields its own unit, the enemy hero
-/// blesses its own unit so that it always deals its maximum damage, and that enemy attacks.
-/// The health the attacker loses is the reflected damage.
+/// Fire shield integration scenarios for spell-power and resistance modifiers
 class FireShieldTest : public BattleTestFixture, public ::testing::WithParamInterface<FireShieldCase>
 {
 public:
-	/// The shielded stack is oversized on purpose: the reflected amount is capped by its
-	/// remaining health, and no scenario is meant to hit that cap.
+	/// Prevents remaining-health limits from affecting reflected damage
 	static constexpr int32_t shieldedCount = 5000;
 	static constexpr int32_t attackingCount = 1000;
 };
@@ -69,18 +60,14 @@ TEST_P(FireShieldTest, reflectsExpectedDamage)
 
 	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(scenario.shieldedCreature), BattleHex(leftHex), shieldedCount);
 	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(scenario.attackingCreature), BattleHex(rightHex), attackingCount);
-	ASSERT_NE(shielded, nullptr);
-	ASSERT_NE(attacking, nullptr);
 
 	// retaliation would injure the attacker as well, hiding the reflected damage
 	blockRetaliation(attacking);
 
-	// a fire-immune target refuses the spell, which is what leaves its own shield untouched
+	// Fire immunity rejects the spell but preserves the creature ability.
 	castOn(attackerSideHero, SpellID::FIRE_SHIELD, shielded);
 
-	// bless collapses the damage range onto its maximum, making the reflected amount exact.
-	// It comes from the enemy hero, whose kit no scenario touches, so nothing granted to the
-	// casting hero can reach the damage the attack itself deals
+	// Bless fixes attack damage at the maximum. The unmodified enemy hero casts it to isolate shield modifiers.
 	ASSERT_TRUE(castOn(defenderSideHero, SpellID(SpellID::BLESS), attacking));
 
 	const int64_t healthBefore = attacking->getAvailableHealth();
@@ -116,54 +103,47 @@ constexpr int advanced = 2;
 constexpr int expert = 3;
 }
 
-// 1000 pikemen blessed to their maximum damage reflect a base of 3000 off a plain target, so
-// the undisturbed reflection is the shield percentage of that: 600 at base mastery, 750
-// advanced, 900 expert. Sorcery and the orb scale that, the attacker's own fire resistance
-// cuts it down.
+// Base reflected damage is 600/750/900 by mastery. Sorcery and Orb of Vulnerability increase it;
+// fire resistance reduces it.
 INSTANTIATE_TEST_SUITE_P(Scenarios, FireShieldTest, ::testing::Values(
-	// the spell alone, and the mastery that decides its percentage
+	// Spell mastery controls the base percentage.
 	FireShieldCase{"plain",              pikeman, pikeman, noSkill,   0,        noArtifact,  600},
 	FireShieldCase{"fireMagicBasic",     pikeman, pikeman, fireMagic, basic,    noArtifact,  600},
 	FireShieldCase{"fireMagicAdvanced",  pikeman, pikeman, fireMagic, advanced, noArtifact,  750},
 	FireShieldCase{"fireMagicExpert",    pikeman, pikeman, fireMagic, expert,   noArtifact,  900},
 
-	// sorcery scales the reflected damage like any other spell damage
+	// Sorcery scales reflected damage.
 	FireShieldCase{"sorceryBasic",       pikeman, pikeman, sorcery,   basic,    noArtifact,  630},
 	FireShieldCase{"sorceryAdvanced",    pikeman, pikeman, sorcery,   advanced, noArtifact,  660},
 	FireShieldCase{"sorceryExpert",      pikeman, pikeman, sorcery,   expert,   noArtifact,  690},
 
-	// the orb adds its fire school bonus on top of both
+	// Orb of Fire adds its school bonus.
 	FireShieldCase{"orb",                pikeman, pikeman, noSkill,   0,        orbOfFire,   900},
 	FireShieldCase{"orbAndFireMagic",    pikeman, pikeman, fireMagic, expert,   orbOfFire,  1350},
 	FireShieldCase{"orbAndSorcery",      pikeman, pikeman, sorcery,   expert,   orbOfFire,  1035},
 
-	// a fire-immune attacker takes nothing at all
+	// Fire immunity prevents reflected damage.
 	FireShieldCase{"immuneEfreet",       pikeman, efreet,        noSkill, 0, noArtifact, 0},
 	FireShieldCase{"immuneElemental",    pikeman, fireElemental, noSkill, 0, noArtifact, 0},
 
-	// golems reduce magic damage, so they take a fraction of what they reflect back
+	// Golem resistance reduces reflected damage.
 	FireShieldCase{"resistantStoneGolem",   pikeman, stoneGolem,   noSkill, 0, noArtifact, 300},
 	FireShieldCase{"resistantGoldGolem",    pikeman, goldGolem,    noSkill, 0, noArtifact, 390},
 	FireShieldCase{"resistantDiamondGolem", pikeman, diamondGolem, noSkill, 0, noArtifact, 196},
 
-	// water elementals take double damage from this spell. 3218 rather than 3220 because the
-	// damage calculator works in doubles and 7000 * 1.15 lands just below 8050
+	// Floating-point calculation produces 3218 instead of the integer-arithmetic result 3220.
 	FireShieldCase{"vulnerableWaterElemental", pikeman, waterElemental, noSkill, 0, noArtifact, 3218},
 
-	// an efreet sultan already burns its attackers; the spell it is immune to adds nothing,
-	// so expert mastery still reflects only the creature's own 20%
+	// Efreet Sultan immunity leaves only its native 20% fire shield.
 	FireShieldCase{"efreetSultanDoesNotStack", efreetSultan, pikeman, fireMagic, expert, noArtifact, 600},
 
-	// with the Orb of Vulnerability the sultan loses that immunity and does accept the spell, so
-	// both shields sit on the same unit. They share a stacking group, so only the stronger one is
-	// active: the creature's own 20% until expert mastery makes the spell's 30% win
+	// Orb of Vulnerability permits the spell; the shared stacking group selects the larger percentage.
 	FireShieldCase{"efreetSultanVulnerable",       efreetSultan, pikeman, noSkill,   0,      orbOfVulnerability, 600},
 	FireShieldCase{"efreetSultanVulnerableExpert", efreetSultan, pikeman, fireMagic, expert, orbOfVulnerability, 900}
 ),
 	[](const ::testing::TestParamInfo<FireShieldCase> & info) { return info.param.name; });
 
-/// Every scenario above blesses the attacker, which collapses its damage range and hides which end
-/// of that range the reflection is taken from. This one leaves the range open.
+/// Verifies reflection from rolled damage instead of the maximum damage range
 class FireShieldRollTest : public BattleTestFixture
 {
 };
@@ -178,12 +158,9 @@ TEST_F(FireShieldRollTest, reflectsTheHitThatLandedRatherThanTheBestPossibleRoll
 
 	startBattle();
 
-	// horned demons on both sides: 10 attack against 10 defence, and nothing else either stack
-	// carries touches the damage, so what the hit deals is what it would deal undefended
+	// Equal attack and defence make rolled and undefended damage equal.
 	CStack * shielded = addStack(BattleSide::ATTACKER, CreatureID(hornedDemon), BattleHex(leftHex), 5000);
 	CStack * attacking = addStack(BattleSide::DEFENDER, CreatureID(hornedDemon), BattleHex(rightHex), 1000);
-	ASSERT_NE(shielded, nullptr);
-	ASSERT_NE(attacking, nullptr);
 
 	blockRetaliation(attacking);
 	ASSERT_TRUE(castOn(attackerSideHero, SpellID::FIRE_SHIELD, shielded));
@@ -196,8 +173,7 @@ TEST_F(FireShieldRollTest, reflectsTheHitThatLandedRatherThanTheBestPossibleRoll
 	const int64_t dealt = shieldedHealthBefore - shielded->getAvailableHealth();
 	const int64_t reflected = attackingHealthBefore - attacking->getAvailableHealth();
 
-	// 1000 demons deal 7 to 9 each, and the reflection would follow the 9000 end if it were taken
-	// from the range rather than from the roll
+	// A range-based implementation would reflect from the 9000 maximum.
 	ASSERT_LT(dealt, 9000);
 	EXPECT_EQ(reflected, dealt * 20 / 100);
 }

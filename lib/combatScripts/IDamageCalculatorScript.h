@@ -63,7 +63,7 @@ struct DLL_LINKAGE DamageAttackInfo final : public scripting::ApiSerializable<Da
 		s("shooting", shooting, "Whether the attack is a shot.");
 		s("luckyStrike", luckyStrike, "Whether luck struck.");
 		s("unluckyStrike", unluckyStrike, "Whether bad luck struck.");
-		s("deathBlow", deathBlow, "Whether a death blow was rolled.");
+		s("deathBlow", deathBlow, "Whether Death Blow was rolled.");
 		s("doubleDamage", doubleDamage, "Whether the attack is a doubled one, as a ballista may roll.");
 		s("attackFactorPerPoint", attackFactorPerPoint, "Damage added per point of attack over the target's defense.");
 		s("attackFactorCap", attackFactorCap, "Most that attack points alone may add.");

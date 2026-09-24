@@ -126,9 +126,7 @@ public:
 
 	static void setSkill(CGHeroInstance * hero, const std::string & skill, int level)
 	{
-		auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", skill);
-		ASSERT_TRUE(identifier.has_value()) << "unknown secondary skill " << skill;
-		hero->setSecSkillLevel(SecondarySkill(*identifier), level, ChangeValueMode::ABSOLUTE);
+		hero->setSecSkillLevel(skillByName(skill), level, ChangeValueMode::ABSOLUTE);
 	}
 };
 
@@ -287,7 +285,7 @@ INSTANTIATE_TEST_SUITE_P(Scenarios, SecondarySkillDamageTest, ::testing::Values(
 ),
 	[](const ::testing::TestParamInfo<SkillCase> & info) { return info.param.name; });
 
-// ---- luck, death blow and the rest of the attack flags ------------------------------------------
+// ---- luck, Death Blow and the rest of the attack flags ------------------------------------------
 
 namespace
 {

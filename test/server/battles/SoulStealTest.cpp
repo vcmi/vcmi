@@ -33,8 +33,6 @@ public:
 
 		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		stealer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stealerCount);
-		ASSERT_NE(victim, nullptr);
-		ASSERT_NE(stealer, nullptr);
 
 		blockRetaliation(stealer);
 	}

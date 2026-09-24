@@ -784,7 +784,7 @@ int CUnitState::getDefense(bool ranged) const
 
 std::shared_ptr<Unit> CUnitState::acquire() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -792,7 +792,7 @@ std::shared_ptr<Unit> CUnitState::acquire() const
 
 std::shared_ptr<CUnitState> CUnitState::acquireState() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -957,20 +957,33 @@ void CUnitState::onRemoved()
 	ghost = true;
 }
 
-CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_):
+CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_, bool snapshotBonuses):
 	unit(unit_),
-	bonus(bonus_)
+	bonus(bonus_),
+	bonusTreeVersion(0)
 {
+	if(snapshotBonuses)
+	{
+		bonusTreeVersion = bonus->getTreeVersion();
+		bonusSnapshot = bonus->getAllBonuses(Selector::all);
+	}
 }
 
 TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
+	if(bonusSnapshot)
+	{
+		auto result = std::make_shared<BonusList>();
+		bonusSnapshot->getBonuses(*result, selector);
+		return result;
+	}
+
 	return bonus->getAllBonuses(selector, cachingStr);
 }
 
 int32_t CUnitStateDetached::getTreeVersion() const
 {
-	return bonus->getTreeVersion();
+	return bonusSnapshot ? bonusTreeVersion : bonus->getTreeVersion();
 }
 
 CUnitStateDetached & CUnitStateDetached::operator=(const CUnitState & other)

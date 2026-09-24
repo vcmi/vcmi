@@ -192,11 +192,12 @@ struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient, public scripting:
 
 struct BattleStackAttacked
 {
-	ui32 stackAttacked = 0, attackerID = 0;
+	ui32 stackAttacked = 0;
+	ui32 attackerID = -1; ///< no unit; 0 is a valid unit id, so it cannot stand for "nobody"
 	ui32 killedAmount = 0;
 	int64_t damageAmount = 0;
 	UnitChanges newState;
-	enum EFlags { KILLED = 1, SECONDARY = 2, REBIRTH = 4, CLONE_KILLED = 8, SPELL_EFFECT = 16, };
+	enum EFlags { KILLED = 1, SECONDARY = 2, /* 4 was REBIRTH, now a combat script */ CLONE_KILLED = 8, SPELL_EFFECT = 16, };
 	ui32 flags = 0; //uses EFlags (above)
 	SpellID spellID = SpellID::NONE; //only if flag SPELL_EFFECT is set
 
@@ -217,11 +218,6 @@ struct BattleStackAttacked
 	{
 		return flags & SPELL_EFFECT;
 	}
-	bool willRebirth() const//resurrection, e.g. Phoenix
-	{
-		return flags & REBIRTH;
-	}
-
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & stackAttacked;

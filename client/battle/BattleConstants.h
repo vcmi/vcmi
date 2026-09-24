@@ -39,10 +39,10 @@ enum class EAnimationEvents
 	MOVE_END,    // stack end movement
 
 	// attack/spellcast action
-	BEFORE_HIT,  // attack and defence effects play, e.g. luck/death blow
+	BEFORE_HIT,  // attack and defence effects play, e.g. luck/Death Blow
 	ATTACK,      // attack and defence animations are playing
 	HIT,         // hit & death animations are playing
-	AFTER_HIT,   // post-attack effect, e.g. phoenix rebirth
+	AFTER_HIT,   // post-attack effect, e.g. removal of a summon that died
 
 	COUNT
 };

@@ -22,10 +22,8 @@ void BuildingProxy::registerMethods(MethodRegistrar & R)
 		{"Identifier of this building, scoped by the mod providing it."},
 		"Returns the json key of this building, such as `core:fort`.");
 	R.function<&BuildingProxy::getBuildingType>("getBuildingType",
-        {"'fort', 'villageHall', ...; nil for a building the game has no name of its own for."},
-		"Returns which of the buildings known to the game this one is. Unlike the json key this is "
-		"the same in every town, so it is what to test against when a rule speaks of a fort or a "
-		"town hall rather than of one particular mod's version of it.");
+		{"'fort', 'villageHall', ...; nil for buildings without a predefined type."},
+		"Returns the predefined building type shared across towns.");
 	R.function<&BuildingProxy::isUpgrade>("isUpgrade",
 		{"True when this building improves another one instead of standing on its own."},
 		"Whether this building is an upgrade of another, as a citadel is of a fort.");
@@ -38,8 +36,7 @@ std::string BuildingProxy::getJsonKey(const CBuilding & building)
 
 std::optional<std::string> BuildingProxy::getBuildingType(const CBuilding & building)
 {
-	// past the seventh upgraded dwelling the names stop lining up with the ids, and everything
-	// beyond it is a mod's own building that the game has no name for anyway
+	// Values outside the enum represent mod-specific buildings without a predefined type.
 	if(building.bid < BuildingID::FIRST_REGULAR_ID || building.bid > BuildingID::DWELL_LVL_7_UP)
 		return std::nullopt;
 

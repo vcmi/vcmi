@@ -113,7 +113,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		if(!h.saving && !h.hasFeature(Handler::Version::RETREAT_PERMISSION_BONUSES) && type == BonusType::BATTLE_CAN_FLEE)
 			val = -GameConstants::BATTLE_RETREAT_BLOCK;
 
-		if (!h.saving && !h.hasFeature(Handler::Version::COMBAT_ABILITY_SCRIPTS))
+		// Rebirth was retired after COMBAT_ABILITY_SCRIPTS without changing the serialized layout.
+		if(!h.saving && (type == BonusType::UNUSED_REBIRTH || !h.hasFeature(Handler::Version::COMBAT_ABILITY_SCRIPTS)))
 			BonusMigration::migrateCombatAbility(*this);
 	}
 

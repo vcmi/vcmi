@@ -269,4 +269,7 @@ enum class CombatEventType : int8_t
 	BATTLE_START = 10,
 	ROUND_START = 11,
 	BATTLE_SETUP = 12,
+	SPELL_HIT = 13,
+	ACTION_FINISHED = 14,
+	UNIT_DEATH = 15,
 };
