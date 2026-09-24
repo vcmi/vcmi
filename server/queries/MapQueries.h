@@ -123,6 +123,11 @@ class LevelUpQuery : public CQuery, public IInteraction
 	Phase phase = Phase::Hero;
 	ObjectInstanceID hero;
 
+	/// Question the player is currently looking at. The client keeps its dialog open
+	/// until the server reports that exact question resolved, so each one has to be
+	/// released as it is answered - not once when the whole sequence ends.
+	QueryID askedQuestionID = QueryID::NONE;
+
 	/// Skills offered by the question currently outstanding, so that an answer can be
 	/// turned back into the skill the player picked.
 	std::vector<SecondarySkill> offeredHeroSkills;

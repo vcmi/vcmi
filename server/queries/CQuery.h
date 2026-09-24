@@ -29,7 +29,6 @@ enum class QueryType : uint8_t
 	GarrisonDialog,
 	TeleportDialog,
 	HeroLevelUpDialog,
-	CommanderLevelUpDialog,
 	OpenWindow,
 	MapObjectVisit,
 	TownBuildingVisit,
@@ -150,6 +149,10 @@ public:
 	/// query is removed after player gives answer (like dialogs)
 	virtual bool endsByPlayerAnswer() const;
 
+	/// Whether an answer carrying no value is meaningful. True only where the player
+	/// is offered a way out, such as cancelling a town selection.
+	virtual bool acceptsAnswerWithoutValue() const;
+
 	/// called just before query is pushed on stack
 	virtual void onAdding(PlayerColor color);
 
@@ -233,6 +236,7 @@ public:
 
 	bool blocksPack(const CPackForServer * pack) const override;
 	bool endsByPlayerAnswer() const override;
+	bool acceptsAnswerWithoutValue() const override;
 	void onExposure(QueryPtr topQuery) override;
 	void setReply(std::optional<int32_t> reply) override;
 	void onRemoval(PlayerColor color) override;

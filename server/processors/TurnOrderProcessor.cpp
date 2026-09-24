@@ -383,6 +383,10 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 	gameHandler->onPlayerTurnEnded(which);
 
+	// Anything still queued belonged to the turn that just ended, whether or not the
+	// player is still in the game.
+	gameHandler->queries->discardQueuedWork(which);
+
 	// it is possible that player have lost - e.g. spent 7 days without town
 	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder
 	if(gameHandler->gameInfo().getPlayerStatus(which) == EPlayerStatus::INGAME)

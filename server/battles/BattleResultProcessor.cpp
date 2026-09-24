@@ -286,14 +286,6 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	else
 		battleResult->queryID = QueryID::NONE;
 
-	//set same battle result for all gameHandler->queries
-	for(const auto & q : gameHandler->queries->allQueries())
-	{
-		auto * otherBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(q);
-		if(otherBattleQuery && otherBattleQuery->battleID == battle.getBattle()->getBattleID())
-			otherBattleQuery->result = typedBattleQuery->result;
-	}
-
 	gameHandler->turnTimerHandler->onBattleEnd(battle.getBattle()->getBattleID());
 	gameHandler->sendAndApply(*battleResult);
 

@@ -270,6 +270,8 @@ bool QueriesProcessor::advanceRoutines()
 
 			if(result == StepResult::Done)
 			{
+				// Finished on this player's stack only - routines affect one player.
+				assert(top->players.size() == 1);
 				popQuery(player, top);
 				break;
 			}
@@ -309,6 +311,9 @@ bool QueriesProcessor::advanceInteractions()
 				break;
 
 			case PromptResult::Finished:
+				// Removed from this player's stack only - an interaction that put
+				// questions to several players would need to unwind for each.
+				assert(top->players.size() == 1);
 				popQuery(player, top);
 				changedAnything = true;
 				break;
@@ -343,6 +348,12 @@ bool QueriesProcessor::resolveAnsweredQueries()
 	}
 
 	return changedAnything;
+}
+
+void QueriesProcessor::discardQueuedWork(PlayerColor player)
+{
+	if(player.isValidPlayer())
+		waiting.at(player.getNum()).clear();
 }
 
 bool QueriesProcessor::promoteWaitingQueries()
@@ -479,6 +490,12 @@ ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, 
 	if(query->isAnswered())
 		return ReplyOutcome::IgnoredAlreadyAnswered;
 
+	// Only a dialog that offers a way out - cancelling a town selection, say - may be
+	// answered with nothing. Letting a value-less reply through to a query that needs
+	// one would leave it resolved with no answer to act on.
+	if(!reply.has_value() && !query->acceptsAnswerWithoutValue())
+		return ReplyOutcome::RejectedMissingAnswer;
+
 	if(auto * interaction = query->asInteraction())
 	{
 		// An interaction asks more than once, so an answer has to name the question
@@ -507,8 +524,9 @@ ReplyOutcome QueriesProcessor::submitReply(QueryID queryID, PlayerColor player, 
 
 void QueriesProcessor::retryDeferredWork(PlayerColor player)
 {
+	// Opening and closing a scope is the whole of it: settle() runs when the
+	// outermost one closes, and re-offers every step to every player.
 	MutationScope mutation(*this);
-	markStackChanged(player);
 }
 
 std::string QueriesProcessor::describeStacks() const

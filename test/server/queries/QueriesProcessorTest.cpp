@@ -109,6 +109,15 @@ public:
 			sharedEventLog->push_back({this, QueryEvent::OnRemoval});
 	}
 
+	bool blocksPack(const CPackForServer * pack) const override
+	{
+		// Mirrors VisitQuery: everything is blocked except answering a question.
+		if(getType() == QueryType::MapObjectVisit)
+			return blockAllButReply(pack);
+
+		return CQuery::blocksPack(pack);
+	}
+
 	void onExposure(QueryPtr topQuery) override
 	{
 		events.push_back(QueryEvent::OnExposure);
@@ -202,6 +211,14 @@ public:
 		completedChildren.push_back(child);
 	}
 };
+
+/// A QueryReply pack from a given player, for checking what blocksPack() lets past.
+inline const QueryReply & replyFromPlayer(PlayerColor player)
+{
+	static QueryReply reply;
+	reply.player = player;
+	return reply;
+}
 
 class QueriesProcessorTest : public ::testing::Test
 {
@@ -1675,4 +1692,136 @@ TEST_F(LevelUpQueryTest, nothingIsAskedBeforeThePlayersInterfaceIsReady)
 
 	EXPECT_TRUE(query->hasOutstandingQuestion());
 	EXPECT_FALSE(hero->gainsLevel());
+}
+
+TEST_F(LevelUpQueryTest, everyQuestionSentToTheClientIsReportedResolved)
+{
+	const PlayerColor player(0);
+	buildHeroAboutToLevel(999);
+
+	auto * hero = findHeroByOwner(player);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	gameHandler.onAdvInterfaceReady(player);
+
+	gameHandler.giveExperience(hero, 100000); // worth several levels at once
+
+	while(auto pending = gameHandler.queries->topQuery(player))
+	{
+		ASSERT_EQ(gameHandler.queries->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+	}
+
+	// The client keeps a query-backed dialog open until the server reports that
+	// question resolved, so every prompt sent has to come back resolved - by the id
+	// the client was given, not by the id of the query behind it.
+	ASSERT_GT(server.levelUpPromptIDs.size(), 1u) << "expected several levels";
+	EXPECT_EQ(server.resolvedQueryIDs, server.levelUpPromptIDs);
+}
+
+TEST_F(TwoPlayerBattleTest, pausingDuringABattleHidesTheBattleQueryFromItsFinder)
+{
+	buildTwoPlayerMap();
+
+	auto * attacker = findHeroByOwner(PlayerColor(0));
+	auto * defender = findHeroByOwner(PlayerColor(AI_PLAYER));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	GameHandlerTestServer server(gameState(), PlayerColor(0));
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.battles->startBattle(attacker, defender);
+	const auto * battle = gameState()->getBattle(PlayerColor(0));
+	ASSERT_NE(battle, nullptr);
+	ASSERT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+
+	// CBattleQuery lets GamePause through, so a player may pause mid-battle - which
+	// puts a TimerPauseQuery on top of the battle query.
+	auto pause = std::make_shared<TimerPauseQuery>(&gameHandler, PlayerColor(0));
+	gameHandler.queries->addQuery(pause);
+	ASSERT_EQ(gameHandler.queries->topQuery(PlayerColor(0)), pause);
+
+	// The battle query is still there, just no longer on top. The defender is an AI,
+	// so the human-only fallback does not look at their stack either.
+	EXPECT_EQ(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
+}
+
+TEST_F(QueriesProcessorTest, settle_completesALongRunOfQueuedWork)
+{
+	const PlayerColor player(1);
+
+	// A turn start can queue a lot in one go: one visit per town, each running a
+	// routine that visits several buildings. All of it lands in a single settle(),
+	// so the round limit must not act as a budget for legitimate work.
+	constexpr int queuedItems = 60;
+	std::vector<std::shared_ptr<TestRoutine>> queued;
+
+	auto seeder = std::make_shared<TestQuery>(&gh, player, QueryType::HeroMovement);
+	seeder->onRemovalAction = [&]()
+	{
+		for(int i = 0; i < queuedItems; ++i)
+		{
+			auto routine = std::make_shared<TestRoutine>(&gh, player, 2);
+			queued.push_back(routine);
+			queries.addQueryWhenIdle(routine);
+		}
+	};
+
+	queries.addQuery(seeder);
+	queries.popIfTop(seeder); // everything above is queued within this one mutation
+
+	EXPECT_EQ(queries.topQuery(player), nullptr) << "work was left unfinished";
+
+	int unfinished = 0;
+	for(const auto & routine : queued)
+		if(routine->stepsTaken != 2)
+			unfinished++;
+
+	EXPECT_EQ(unfinished, 0) << unfinished << " of " << queuedItems << " queued routines never ran";
+}
+
+TEST_F(QueriesProcessorTest, replyIsAcceptedWhileAVisitSitsOnTop)
+{
+	const PlayerColor player(1);
+	auto dialog = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	auto visit = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+
+	queries.addQuery(dialog);
+	queries.addQuery(visit);
+
+	// A visit blocks every action, but answering a question is not an action - the
+	// reply may well be for a query the visit is sitting on top of.
+	EXPECT_FALSE(visit->blocksPack(&replyFromPlayer(player)));
+
+	EXPECT_EQ(queries.submitReply(dialog->queryID, player, 1), ReplyOutcome::Accepted);
+	EXPECT_TRUE(dialog->isAnswered());
+}
+
+TEST_F(QueriesProcessorTest, aVisitStillBlocksOrdinaryActions)
+{
+	const PlayerColor player(1);
+	auto visit = std::make_shared<TestQuery>(&gh, player, QueryType::MapObjectVisit);
+	queries.addQuery(visit);
+
+	SaveGame save;
+	save.player = player;
+	EXPECT_TRUE(visit->blocksPack(&save)) << "saving mid-visit must still be refused";
+}
+
+TEST_F(QueriesProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNeeded)
+{
+	const PlayerColor player(1);
+	auto dialog = std::make_shared<TestDialogQuery>(&gh, player, QueryType::BlockingDialog);
+	queries.addQuery(dialog);
+
+	// Only a query that offers a way out may be answered with nothing. Accepting it
+	// here would resolve the dialog with no answer for the object to act on.
+	EXPECT_EQ(queries.submitReply(dialog->queryID, player, std::nullopt),
+		ReplyOutcome::RejectedMissingAnswer);
+	EXPECT_FALSE(dialog->isAnswered());
+	EXPECT_EQ(queries.topQuery(player), dialog);
 }

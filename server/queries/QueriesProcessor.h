@@ -42,6 +42,9 @@ enum class ReplyOutcome : uint8_t
 
 	/// The query exists but is not the kind that a player reply can end.
 	RejectedNotAnswerable,
+
+	/// The reply carried no answer, for a query that needs one.
+	RejectedMissingAnswer,
 };
 
 class QueriesProcessor
@@ -82,9 +85,12 @@ private:
 	/// which are the one piece of deferred work that does not report back directly.
 	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
 
-	/// settle() gives up after this many rounds and logs an error, rather than
-	/// spinning forever should two pieces of deferred work keep triggering each other.
-	static constexpr int MAX_SETTLE_ROUNDS = 64;
+	/// Absolute ceiling on settle() rounds, to catch two pieces of deferred work that
+	/// keep triggering each other forever. Every round that continues has made
+	/// progress, so this bounds total work rather than futile spinning: it must stay
+	/// far above anything legitimate, such as a turn start queuing a visit for every
+	/// town and every building in them. Hitting it means a bug, not a busy turn.
+	static constexpr int MAX_SETTLE_ROUNDS = 100000;
 
 	/// Steps a single routine may take in one go before the processor assumes it is
 	/// stuck. Generous: a routine legitimately takes one step per unit of work, such
@@ -97,7 +103,7 @@ private:
 
 	/// Steps every routine that is at the top of a player's stack, until it either
 	/// finishes or suspends itself by pushing a child. Returns true if it changed
-	/// anything.
+	/// anything. Routines affect one player, and are removed from that one stack.
 	bool advanceRoutines();
 
 	/// Puts the next question of every interaction at the top of a player's stack,
@@ -112,6 +118,7 @@ private:
 	/// Starts the next waiting query of every player that has become idle.
 	/// Returns true if it started anything.
 	bool promoteWaitingQueries();
+
 
 	/// Runs victory/loss checks for players that just became idle. Returns true if
 	/// that changed a stack.
@@ -208,6 +215,10 @@ public:
 	/// is not caused by the query the player is currently dealing with, so that it
 	/// queues up behind it instead of interrupting it.
 	void addQueryWhenIdle(QueryPtr query);
+
+	/// Drops everything still queued for a player. Used when their turn ends, so that
+	/// work queued for it cannot surface during a later one.
+	void discardQueuedWork(PlayerColor player);
 
 	void popQuery(const CQuery &query);
 	void popQuery(QueryPtr query);

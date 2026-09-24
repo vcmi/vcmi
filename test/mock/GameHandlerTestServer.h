@@ -11,8 +11,11 @@
 #include "../../server/IGameServer.h"
 #include "../../lib/GameConstants.h"
 
+#include "../../lib/networkPacks/PacksForClient.h"
+
 #include <memory>
 #include <optional>
+#include <vector>
 
 class CGameState;
 
@@ -29,6 +32,14 @@ public:
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
 	void applyPack(CPackForClient & pack) override;
 	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
+
+	/// Ids carried by the level-up prompts the server sent, in order. Lets a test
+	/// check what the client would actually have been shown, rather than only what
+	/// the query stack looked like.
+	std::vector<QueryID> levelUpPromptIDs;
+
+	/// Ids the server reported resolved, in order.
+	std::vector<QueryID> resolvedQueryIDs;
 
 private:
 	EServerState state = EServerState::LOBBY;
