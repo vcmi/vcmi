@@ -213,6 +213,7 @@ class JsonNode;
 	BONUS_NAME(ALIGNMENT_MIX) /*creatures of alignment in subtype can be mixed with other mixable alignments without morale penalty*/\
 	BONUS_NAME(BLOCK_CREATURE_MAGIC) /*blocks casting of magical spells and abilities by creatures, eg. Cursed Ground*/ \
 	BONUS_NAME(BLOCK_NATIVE_TERRAIN_BONUS) /*blocks bonuses of native terrain for creatures, eg. Cursed Ground*/ \
+	BONUS_NAME(SPELLS_OF_SCHOOL_LEVEL) /*hero knows all spells of given school and level, val - spell level; subtype - spell school*/ \
 
 	/* end of list */
 

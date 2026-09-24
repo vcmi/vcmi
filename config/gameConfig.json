@@ -813,8 +813,9 @@
 		{
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
 			"dimensionDoorTriggersGuards" : false,
-			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic)
-			// and SPELLS_OF_LEVEL bonus (Spellbinder Hat) will grant spells that are banned on map (SoD behavior)
+			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic),
+			// SPELLS_OF_LEVEL bonus (Spellbinder Hat), and SPELLS_OF_SCHOOL_LEVEL bonus
+			// will grant spells that are banned on map (SoD behavior)
 			// NOTE: this value only affects random maps and .vmap's. For h3m's value is loaded from map format configuration
 			"tomesGrantBannedSpells" : false
 		},

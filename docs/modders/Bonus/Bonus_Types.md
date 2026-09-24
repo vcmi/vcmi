@@ -478,6 +478,15 @@ Allows affected heroes to cast any spell of specified school. Does not grant spe
 
 - subtype: spell school
 
+### SPELLS_OF_SCHOOL_LEVEL
+
+Allows affected heroes to cast any spell of specified school and level. This bonus can grant spells set to `special`.
+
+Non-special banned spells follow the same `tomesGrantBannedSpells` map/settings behavior as `SPELLS_OF_SCHOOL` and `SPELLS_OF_LEVEL`.
+
+- subtype: spell school
+- val: spell level (1-5), not spell mastery level
+
 ### GENERATE_RESOURCE
 
 Affected heroes will add specified resources amounts to player treasure on new day

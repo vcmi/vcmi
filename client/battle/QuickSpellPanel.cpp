@@ -75,10 +75,9 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 		if(spellIds[i] != SpellID::NONE)
 			continue;
 
-		for(const auto & availableSpellID : LIBRARY->spellh->getDefaultAllowed())
+		for(const auto & availableSpell : LIBRARY->spellh->objects)
 		{
-			const auto * availableSpell = availableSpellID.toSpell();
-			if(!availableSpell->isAdventure() && !availableSpell->isCreatureAbility() && hero->canCastThisSpell(availableSpell) && !vstd::contains(spellIds, availableSpell->getId()))
+			if(!availableSpell->isAdventure() && !availableSpell->isCreatureAbility() && hero->canCastThisSpell(availableSpell.get()) && !vstd::contains(spellIds, availableSpell->getId()))
 			{
 				spellIds[i] = availableSpell->getId();
 				break;
