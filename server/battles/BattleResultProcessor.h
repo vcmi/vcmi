@@ -20,7 +20,7 @@ class CBattleInfoCallback;
 class CGHeroInstance;
 class CArmedInstance;
 
-class CBattleQuery;
+class BattleActivity;
 class BattleProcessor;
 class CGameHandler;
 
@@ -40,7 +40,7 @@ struct CasualtiesAfterBattle
 
 struct FinishingBattleHelper
 {
-	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
+	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleActivitiesCount);
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
@@ -50,7 +50,7 @@ struct FinishingBattleHelper
 	PlayerColor loser;
 	BattleSide winnerSide;
 
-	int remainingBattleQueriesCount;
+	int remainingBattleActivitiesCount;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -59,7 +59,7 @@ struct FinishingBattleHelper
 		h & victor;
 		h & loser;
 		h & winnerSide;
-		h & remainingBattleQueriesCount;
+		h & remainingBattleActivitiesCount;
 	}
 };
 

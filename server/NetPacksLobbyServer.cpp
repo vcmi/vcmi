@@ -46,7 +46,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 {
-	// Anyone can query lobby state without being a registered player
+	// Anyone can activity lobby state without being a registered player
 	result = true;
 }
 
@@ -71,7 +71,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 {
-	// Do nothing - query response is sent directly, no broadcast needed
+	// Do nothing - activity response is sent directly, no broadcast needed
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)

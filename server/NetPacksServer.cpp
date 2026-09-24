@@ -15,9 +15,9 @@
 #include "processors/HeroPoolProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
-#include "queries/QueriesProcessor.h"
-#include "queries/MapQueries.h"
-#include "queries/BattleQueries.h"
+#include "activities/ActivityProcessor.h"
+#include "activities/MapActivities.h"
+#include "activities/BattleActivities.h"
 
 #include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -38,9 +38,9 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 
 void ApplyGhNetPackVisitor::visitGamePause(GamePause & pack)
 {
-	auto turnQuery = std::make_shared<TimerPauseQuery>(&gh, pack.player);
-	turnQuery->queryID = QueryID::CLIENT;
-	gh.queries->addQuery(turnQuery);
+	auto turnActivity = std::make_shared<TimerPauseActivity>(&gh, pack.player);
+	turnActivity->queryID = QueryID::CLIENT;
+	gh.activities->addActivity(turnActivity);
 	result = true;
 }
 
@@ -71,10 +71,10 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 			return;
 		}
 
-		// player got some query he has to reply to first for example, from triggered event
+		// player got some activity he has to reply to first for example, from triggered event
 		// ignore remaining path (if any), but handle this as success - since at least part of path was legal & was applied
-		auto query = gh.queries->topQuery(pack.player);
-		if (query && query->blocksPack(&pack))
+		auto activity = gh.activities->topActivity(pack.player);
+		if (activity && activity->blocksPack(&pack))
 		{
 			result = true;
 			return;
@@ -254,7 +254,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 
 	const bool resourceTradeDuringBattle = pack.mode == EMarketMode::RESOURCE_RESOURCE
-		&& std::dynamic_pointer_cast<CBattleQuery>(gh.queries->topQuery(pack.player));
+		&& std::dynamic_pointer_cast<BattleActivity>(gh.activities->topActivity(pack.player));
 
 	gh.throwIfWrongPlayer(connection, &pack);
 	if(resourceTradeDuringBattle)
@@ -304,7 +304,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		if (!hero)
 			gh.throwAndComplain(connection, "Can not trade - no hero!");
 
-		// TODO: check that object is actually being visited (e.g. Query exists)
+		// TODO: check that object is actually being visited (e.g. Activity exists)
 		if (!object->visitableAt(hero->visitablePos()))
 			gh.throwAndComplain(connection, "Can not trade - object not visited!");
 
@@ -425,7 +425,7 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 	gh.throwIfWrongPlayer(connection, &pack);
 
 	if(pack.qid == QueryID(-1))
-		gh.throwAndComplain(connection, "Cannot answer the query with pack.id -1!");
+		gh.throwAndComplain(connection, "Cannot answer the activity with pack.id -1!");
 
 	result = gh.queryReply(pack.qid, pack.reply, pack.player);
 }

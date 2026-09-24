@@ -11,8 +11,8 @@
 #include "TurnOrderProcessor.h"
 #include "PlayerMessageProcessor.h"
 
-#include "../queries/QueriesProcessor.h"
-#include "../queries/MapQueries.h"
+#include "../activities/ActivityProcessor.h"
+#include "../activities/MapActivities.h"
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 
@@ -295,9 +295,9 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 
 	if(timersActive && isHuman)
 	{
-		auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
-		gameHandler->queries->addQuery(turnQuery);
-		pst.queryID = turnQuery->queryID;
+		auto turnActivity = std::make_shared<TimerPauseActivity>(gameHandler, which);
+		gameHandler->activities->addActivity(turnActivity);
+		pst.queryID = turnActivity->queryID;
 	}
 
 	if(isHuman)
@@ -375,9 +375,9 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 		return false;
 	}
 
-	if(gameHandler->queries->topQuery(which) != nullptr)
+	if(gameHandler->activities->topActivity(which) != nullptr)
 	{
-		gameHandler->complain("Cannot end turn before resolving queries!");
+		gameHandler->complain("Cannot end turn before resolving activities!");
 		return false;
 	}
 
@@ -385,7 +385,7 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 	// Anything still queued belonged to the turn that just ended, whether or not the
 	// player is still in the game.
-	gameHandler->queries->discardQueuedWork(which);
+	gameHandler->activities->discardQueuedWork(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town
 	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder

@@ -35,11 +35,11 @@ public:
 
 	/// Ids carried by the level-up prompts the server sent, in order. Lets a test
 	/// check what the client would actually have been shown, rather than only what
-	/// the query stack looked like.
+	/// the activity stack looked like.
 	std::vector<QueryID> levelUpPromptIDs;
 
 	/// Ids the server reported resolved, in order.
-	std::vector<QueryID> resolvedQueryIDs;
+	std::vector<QueryID> resolvedQuestionIDs;
 
 private:
 	EServerState state = EServerState::LOBBY;

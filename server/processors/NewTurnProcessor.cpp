@@ -13,8 +13,8 @@
 #include "HeroPoolProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../queries/QueriesProcessor.h"
-#include "../queries/VisitQueries.h"
+#include "../activities/ActivityProcessor.h"
+#include "../activities/VisitActivities.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
@@ -170,7 +170,7 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	for (const auto * t : playerState->getTowns())
 		handleTownEvents(t);
 
-	std::vector<TurnStartVisitQuery::PendingVisit> visits;
+	std::vector<TurnStartVisitActivity::PendingVisit> visits;
 
 	for (const auto * t : playerState->getTowns())
 	{
@@ -186,8 +186,8 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	{
 		// Queued rather than added: the player may still be accepting the start of
 		// their turn, and these visits must not be pushed on top of that.
-		gameHandler->queries->addQueryWhenIdle(
-			std::make_shared<TurnStartVisitQuery>(gameHandler, which, std::move(visits)));
+		gameHandler->activities->addActivityWhenIdle(
+			std::make_shared<TurnStartVisitActivity>(gameHandler, which, std::move(visits)));
 	}
 }
 

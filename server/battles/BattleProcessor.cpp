@@ -15,8 +15,8 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../queries/QueriesProcessor.h"
-#include "../queries/BattleQueries.h"
+#include "../activities/ActivityProcessor.h"
+#include "../activities/BattleActivities.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
@@ -57,14 +57,14 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(pb);
 }
 
-CBattleQuery * BattleProcessor::findBattleQuery(const CBattleInfoCallback & battle) const
+BattleActivity * BattleProcessor::findBattleActivity(const CBattleInfoCallback & battle) const
 {
 	for(auto side : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		const auto player = battle.sideToPlayer(side);
 
-		if(auto * query = gameHandler->queries->findSoleQuery<CBattleQuery>(player))
-			return query;
+		if(auto * activity = gameHandler->activities->findSoleActivity<BattleActivity>(player))
+			return activity;
 	}
 
 	return nullptr;
@@ -75,12 +75,12 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
 
-	auto * lastBattleQuery = findBattleQuery(*battle);
+	auto * lastBattleActivity = findBattleActivity(*battle);
 
-	assert(lastBattleQuery);
+	assert(lastBattleActivity);
 
-	//existing battle query for retying auto-combat
-	if(lastBattleQuery)
+	//existing battle activity for retying auto-combat
+	if(lastBattleActivity)
 	{
 		BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
 
@@ -96,10 +96,10 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 			}
 		}
 
-		lastBattleQuery->result = std::nullopt;
+		lastBattleActivity->result = std::nullopt;
 
-		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
-		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
+		assert(lastBattleActivity->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
+		assert(lastBattleActivity->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
 	}
 
 	BattleCancelled bc;
@@ -136,15 +136,15 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 		}
 	}
 
-	auto * topBattleQuery = findBattleQuery(*battle);
-	if (topBattleQuery)
+	auto * topBattleActivity = findBattleActivity(*battle);
+	if (topBattleActivity)
 	{
-		topBattleQuery->battleID = battleID;
+		topBattleActivity->battleID = battleID;
 	}
 	else
 	{
-		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
-		gameHandler->queries->addQuery(newBattleQuery);
+		auto newBattleActivity = std::make_shared<BattleActivity>(gameHandler, battle);
+		gameHandler->activities->addActivity(newBattleActivity);
 	}
 
 	if (!restarted)
@@ -253,13 +253,13 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
 	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
 
-	auto * topBattleQuery = findBattleQuery(*bs.info);
+	auto * topBattleActivity = findBattleActivity(*bs.info);
 	bool isDefenderHuman = bs.info->getSide(BattleSide::DEFENDER).color.isValidPlayer() && gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::DEFENDER).color)->isHuman();
 
 	bool isAttackerHuman = gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::ATTACKER).color)->isHuman();
 
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
-	bs.info->replayAllowed = topBattleQuery == nullptr && onlyOnePlayerHuman;
+	bs.info->replayAllowed = topBattleActivity == nullptr && onlyOnePlayerHuman;
 
 	gameHandler->sendAndApply(bs);
 

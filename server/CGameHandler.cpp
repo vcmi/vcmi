@@ -19,10 +19,10 @@
 #include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
-#include "queries/QueriesProcessor.h"
-#include "queries/LuaScriptQuery.h"
-#include "queries/MapQueries.h"
-#include "queries/VisitQueries.h"
+#include "activities/ActivityProcessor.h"
+#include "activities/LuaScriptActivity.h"
+#include "activities/MapActivities.h"
+#include "activities/VisitActivities.h"
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
@@ -187,8 +187,8 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		return;
 	}
 
-	// One query asks about every level earned, and about the commander afterwards.
-	queries->addQuery(std::make_shared<LevelUpQuery>(this, hero));
+	// One activity asks about every level earned, and about the commander afterwards.
+	activities->addActivity(std::make_shared<LevelUpActivity>(this, hero));
 }
 
 void CGameHandler::applyCommanderLevelUp(const CCommanderInstance * c, int skill)
@@ -338,7 +338,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 		return;
 	}
 
-	queries->addQuery(std::make_shared<LevelUpQuery>(this, hero));
+	activities->addActivity(std::make_shared<LevelUpActivity>(this, hero));
 }
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
@@ -550,7 +550,7 @@ void CGameHandler::handleReceivedPack(GameConnectionID connection, CPackForServe
 	);
 	gameServer().sendPack(received, connection);
 
-	if(isBlockedByQueries(&pack, pack.player))
+	if(isBlockedByActivities(&pack, pack.player))
 	{
 		sendPackageResponse(false);
 	}
@@ -589,7 +589,7 @@ CGameHandler::CGameHandler(IGameServer & server)
 	: server(server)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
-	, queries(std::make_unique<QueriesProcessor>(*this))
+	, activities(std::make_unique<ActivityProcessor>(*this))
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 	, newTurnProcessor(std::make_unique<NewTurnProcessor>(this))
@@ -697,7 +697,7 @@ void CGameHandler::onAdvInterfaceReady(PlayerColor player)
 
 	// Anything that was waiting for the interface - a level-up asking which skill to
 	// take, say - can be put to the player now.
-	queries->retryDeferredWork(player);
+	activities->retryDeferredWork(player);
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
@@ -1042,8 +1042,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	{
 		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->getNameTextID() % tmh.start.toString() % tmh.end.toString());
 
-		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
-		queries->addQuery(moveQuery);
+		auto moveActivity = std::make_shared<HeroMovementActivity>(this, tmh, h);
+		activities->addActivity(moveActivity);
 
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
@@ -1062,14 +1062,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		{
 			objectVisited(guardian, h);
 
-			moveQuery->visitDestAfterVictory = visitDest==VISIT_DEST;
+			moveActivity->visitDestAfterVictory = visitDest==VISIT_DEST;
 		}
 		else if (visitDest == VISIT_DEST)
 		{
 			visitObjectOnTile(t, h);
 		}
 
-		queries->popIfTop(moveQuery);
+		activities->popIfTop(moveActivity);
 		logGlobal->trace("Hero %s ends movement", h->getNameTextID());
 		return result != TryMoveHero::FAILED;
 	};
@@ -1233,52 +1233,52 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw)
 {
-	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, caller, *iw);
-	queries->addQuery(dialogQuery);
-	iw->queryID = dialogQuery->queryID;
+	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, caller, *iw);
+	activities->addActivity(dialogActivity);
+	iw->queryID = dialogActivity->queryID;
 	sendAndApply(*iw);
 }
 
 void CGameHandler::showScriptDialog(BlockingDialog * iw)
 {
-	// The dialog sits above the paused script's query; its reply is stashed there and consumed when
-	// the script query is exposed and resumes the coroutine.
-	auto scriptQuery = std::dynamic_pointer_cast<LuaScriptQuery>(queries->topQuery(iw->player));
-	if(!scriptQuery)
+	// The dialog sits above the paused script's activity; its reply is stashed there and consumed when
+	// the script activity is exposed and resumes the coroutine.
+	auto scriptActivity = std::dynamic_pointer_cast<LuaScriptActivity>(activities->topActivity(iw->player));
+	if(!scriptActivity)
 	{
-		logGlobal->error("showScriptDialog called without an active script query for player %s", iw->player.toString());
+		logGlobal->error("showScriptDialog called without an active script activity for player %s", iw->player.toString());
 		return;
 	}
 
-	auto dialogQuery = std::make_shared<CGenericQuery>(this, iw->player,
-		[scriptQuery](std::optional<int32_t> reply){ scriptQuery->setPendingAnswer(reply); });
-	queries->addQuery(dialogQuery);
-	iw->queryID = dialogQuery->queryID;
+	auto dialogActivity = std::make_shared<CallbackActivity>(this, iw->player,
+		[scriptActivity](std::optional<int32_t> reply){ scriptActivity->setPendingAnswer(reply); });
+	activities->addActivity(dialogActivity);
+	iw->queryID = dialogActivity->queryID;
 	sendAndApply(*iw);
 }
 
 void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 	const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch)
 {
-	// The script may pause on a blocking action; a LuaScriptQuery keeps its coroutine alive between
+	// The script may pause on a blocking action; a LuaScriptActivity keeps its coroutine alive between
 	// resumptions and stays on the stack (blocking the event from ending) until the script finishes.
-	auto scriptQuery = std::make_shared<LuaScriptQuery>(this, player);
+	auto scriptActivity = std::make_shared<LuaScriptActivity>(this, player);
 	if(visitingHero.hasValue())
-		scriptQuery->setVisitingHero(visitingHero);
-	queries->addQuery(scriptQuery);
+		scriptActivity->setVisitingHero(visitingHero);
+	activities->addActivity(scriptActivity);
 
 	auto handle = dispatch(dispatcher);
 	if(handle)
-		scriptQuery->setCoroutine(*handle);
+		scriptActivity->setCoroutine(*handle);
 	else
-		queries->popIfTop(scriptQuery);
+		activities->popIfTop(scriptActivity);
 }
 
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
-	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
-	queries->addQuery(dialogQuery);
-	iw->queryID = dialogQuery->queryID;
+	auto dialogActivity = std::make_shared<TeleportDialogActivity>(this, *iw);
+	activities->addActivity(dialogActivity);
+	iw->queryID = dialogActivity->queryID;
 	sendAndApply(*iw);
 }
 
@@ -1449,8 +1449,8 @@ void CGameHandler::visitCastleObjects(const CGTownInstance * t, const std::vecto
 
 	if (!buildingsToVisit.empty())
 	{
-		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
-		queries->addQuery(visitQuery);
+		auto visitActivity = std::make_shared<TownBuildingVisitActivity>(this, t, visitors, buildingsToVisit);
+		activities->addActivity(visitActivity);
 	}
 }
 
@@ -1651,7 +1651,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	if (gameInfo().getPlayerRelations(h1->getOwner(), h2->getOwner()) != PlayerRelations::ENEMIES)
 	{
-		auto exchange = std::make_shared<CGarrisonDialogQuery>(this, h1, h2);
+		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1, h2);
 		ExchangeDialog hex;
 		hex.queryID = exchange->queryID;
 		hex.player = h1->getOwner();
@@ -1660,7 +1660,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		sendAndApply(hex);
 
 		useScholarSkill(hero1,hero2);
-		queries->addQuery(exchange);
+		activities->addActivity(exchange);
 	}
 }
 
@@ -1669,7 +1669,7 @@ void CGameHandler::sendAndApply(CPackForClient & pack)
 	gameServer().applyPack(pack);
 }
 
-void CGameHandler::sendQueryResolved(QueryID queryID)
+void CGameHandler::sendQuestionResolved(QueryID queryID)
 {
 	QueryResolved pack(queryID);
 	sendAndApply(pack);
@@ -2543,8 +2543,8 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		std::vector<const CGHeroInstance*> visitors;
 		buildingsToVisit.push_back(bid);
 		visitors.push_back(t->getVisitingHero());
-		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
-		queries->addQuery(visitQuery);
+		auto visitActivity = std::make_shared<TownBuildingVisitActivity>(this, t, visitors, buildingsToVisit);
+		activities->addActivity(visitActivity);
 		return true;
 	}
 
@@ -3618,42 +3618,42 @@ bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
 	if (answer)
-		logGlobal->trace("Player %s answers query %d with %d", player, qid, *answer);
+		logGlobal->trace("Player %s answers activity %d with %d", player, qid, *answer);
 	else
-		logGlobal->trace("Player %s answers query %d with no value", player, qid);
+		logGlobal->trace("Player %s answers activity %d with no value", player, qid);
 
-	// The reply is addressed to a query ID, not to a stack position. The client cannot
+	// The reply is addressed to a activity ID, not to a stack position. The client cannot
 	// know what the server pushed since it was prompted, so a reply that is no longer
-	// for the top query is still perfectly legal - it is stored and resolved later.
-	switch(queries->submitReply(qid, player, answer))
+	// for the top activity is still perfectly legal - it is stored and resolved later.
+	switch(activities->submitReply(qid, player, answer))
 	{
 		case ReplyOutcome::Accepted:
 			return true;
 
 		case ReplyOutcome::IgnoredAlreadyCompleted:
-			logGlobal->trace("Player %s replied to query %d that had already been removed - ignoring", player, qid);
+			logGlobal->trace("Player %s replied to activity %d that had already been removed - ignoring", player, qid);
 			return true;
 
 		case ReplyOutcome::IgnoredAlreadyAnswered:
-			logGlobal->trace("Player %s replied to query %d more than once - ignoring", player, qid);
+			logGlobal->trace("Player %s replied to activity %d more than once - ignoring", player, qid);
 			return true;
 
 		case ReplyOutcome::RejectedWrongPlayer:
-			logGlobal->warn("Player %s replied to query %d that does not affect them!\nQueries:\n%s", player, qid, queries->describeStacks());
-			COMPLAIN_RET("Attempt to answer a query of another player!");
+			logGlobal->warn("Player %s replied to activity %d that does not affect them!\nActivities:\n%s", player, qid, activities->describeStacks());
+			COMPLAIN_RET("Attempt to answer a activity of another player!");
 
 		case ReplyOutcome::RejectedMissingAnswer:
-			logGlobal->warn("Player %s replied to query %d without an answer!\nQueries:\n%s", player, qid, queries->describeStacks());
-			COMPLAIN_RET("This query needs an answer!");
+			logGlobal->warn("Player %s replied to activity %d without an answer!\nActivities:\n%s", player, qid, activities->describeStacks());
+			COMPLAIN_RET("This activity needs an answer!");
 
 		case ReplyOutcome::RejectedNotAnswerable:
-			logGlobal->warn("Player %s replied to query %d that cannot be ended by an answer!\nQueries:\n%s", player, qid, queries->describeStacks());
-			COMPLAIN_RET("This query cannot be ended by player's answer!");
+			logGlobal->warn("Player %s replied to activity %d that cannot be ended by an answer!\nActivities:\n%s", player, qid, activities->describeStacks());
+			COMPLAIN_RET("This activity cannot be ended by player's answer!");
 
-		case ReplyOutcome::RejectedUnknownQuery:
+		case ReplyOutcome::RejectedUnknownActivity:
 		default:
-			logGlobal->error("Player %s replied to unknown query %d!\nQueries:\n%s", player, qid, queries->describeStacks());
-			COMPLAIN_RET("Attempt to answer a query that does not exist!");
+			logGlobal->error("Player %s replied to unknown activity %d!\nActivities:\n%s", player, qid, activities->describeStacks());
+			COMPLAIN_RET("Attempt to answer a activity that does not exist!");
 	}
 }
 
@@ -3678,30 +3678,30 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	assert(lowerArmy);
 	assert(upperArmy);
 
-	auto garrisonQuery = std::make_shared<CGarrisonDialogQuery>(this, upperArmy, lowerArmy);
-	queries->addQuery(garrisonQuery);
+	auto garrisonActivity = std::make_shared<GarrisonDialogActivity>(this, upperArmy, lowerArmy);
+	activities->addActivity(garrisonActivity);
 
 	GarrisonDialog gd;
 	gd.hid = hid;
 	gd.objid = upobj;
 	gd.removableUnits = removableUnits;
 	gd.customTitle = customTitle;
-	gd.queryID = garrisonQuery->queryID;
+	gd.queryID = garrisonActivity->queryID;
 	sendAndApply(gd);
 }
 
-void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery)
+void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity)
 {
 	OpenWindow pack;
 	pack.window = window;
 	pack.object = object->id;
 	pack.visitor = visitor->id;
 
-	if (addQuery)
+	if (addActivity)
 	{
-		auto windowQuery = std::make_shared<OpenWindowQuery>(this, visitor, window);
-		pack.queryID = windowQuery->queryID;
-		queries->addQuery(windowQuery);
+		auto windowActivity = std::make_shared<OpenWindowActivity>(this, visitor, window);
+		pack.queryID = windowActivity->queryID;
+		activities->addActivity(windowActivity);
 	}
 	sendAndApply(pack);
 }
@@ -3711,14 +3711,14 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 	if (id1 == id2)
 		return true;
 
-	for(const auto & query : queries->allQueries())
+	for(const auto & activity : activities->allActivities())
 	{
-		const auto * garrisonQuery = dynamic_cast<const CGarrisonDialogQuery *>(query.get());
-		if(garrisonQuery == nullptr)
+		const auto * garrisonActivity = dynamic_cast<const GarrisonDialogActivity *>(activity.get());
+		if(garrisonActivity == nullptr)
 			continue;
 
-		const bool matchesForward = garrisonQuery->exchangingArmies[0]->id == id1 && garrisonQuery->exchangingArmies[1]->id == id2;
-		const bool matchesBackward = garrisonQuery->exchangingArmies[0]->id == id2 && garrisonQuery->exchangingArmies[1]->id == id1;
+		const bool matchesForward = garrisonActivity->exchangingArmies[0]->id == id1 && garrisonActivity->exchangingArmies[1]->id == id2;
+		const bool matchesBackward = garrisonActivity->exchangingArmies[0]->id == id2 && garrisonActivity->exchangingArmies[1]->id == id1;
 		if(matchesForward || matchesBackward)
 			return true;
 	}
@@ -3760,11 +3760,11 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 		}
 
 		// Ongoing garrison exchange
-		const auto * dialog = queries->findQuery<CGarrisonDialogQuery>(
-			[o1, o2](const CGarrisonDialogQuery & query)
+		const auto * dialog = activities->findActivity<GarrisonDialogActivity>(
+			[o1, o2](const GarrisonDialogActivity & activity)
 			{
-				const auto * topArmy = query.exchangingArmies.at(0);
-				const auto * bottomArmy = query.exchangingArmies.at(1);
+				const auto * topArmy = activity.exchangingArmies.at(0);
+				const auto * bottomArmy = activity.exchangingArmies.at(1);
 
 				return (topArmy == o1 && bottomArmy == o2) || (topArmy == o2 && bottomArmy == o1);
 			});
@@ -3804,7 +3804,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 
 	// The visit itself runs as a routine: it announces the visit, hands control to
 	// the object, and finishes once the object - and anything it started - is done.
-	queries->addQuery(std::make_shared<MapObjectVisitQuery>(this, visitedObject, h)); //TODO real visit pos
+	activities->addActivity(std::make_shared<MapObjectVisitActivity>(this, visitedObject, h)); //TODO real visit pos
 }
 
 void CGameHandler::objectVisitEnded(const ObjectInstanceID & heroObjectID, PlayerColor player)
@@ -3874,7 +3874,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	if(!p || p->status != EPlayerStatus::INGAME)
 		return;
 
-	if(queries->topQuery(player))
+	if(activities->topActivity(player))
 		return;
 
 	if(gameState().getMap().battleOnly)
@@ -4450,7 +4450,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	}
 }
 
-bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
+bool CGameHandler::isBlockedByActivities(const CPackForServer *pack, PlayerColor player)
 {
 	if(!player.isValidPlayer())
 		return false;
@@ -4464,13 +4464,13 @@ bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor pl
 	if(dynamic_cast<const AdvInterfaceReady *>(pack) != nullptr)
 		return false;
 
-	auto query = queries->topQuery(player);
-	if (query && query->blocksPack(pack))
+	auto activity = activities->topActivity(player);
+	if (activity && activity->blocksPack(pack))
 	{
 		complain(boost::str(boost::format(
-			"\r\n| Player \"%s\" has to answer queries before attempting any further actions.\r\n| Top Query: \"%s\"\r\n")
+			"\r\n| Player \"%s\" has to answer activities before attempting any further actions.\r\n| Top Activity: \"%s\"\r\n")
 			% boost::to_upper_copy<std::string>(player.toString())
-			% query->toString()
+			% activity->toString()
 		));
 		return true;
 	}
@@ -4480,22 +4480,22 @@ bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor pl
 
 void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 {
-	//If the object is being visited, there must be a matching query
-	for (const auto &query : queries->allQueries())
+	//If the object is being visited, there must be a matching activity
+	for (const auto &activity : activities->allActivities())
 	{
-		auto * someVisitQuery = queries->queryAs<MapObjectVisitQuery>(query);
+		auto * someVisitActivity = activities->activityAs<MapObjectVisitActivity>(activity);
 
-		if(!someVisitQuery)
+		if(!someVisitActivity)
 			continue;
 
-		if(someVisitQuery->visitedObject == id)
+		if(someVisitActivity->visitedObject == id)
 		{
-			someVisitQuery->removeObjectAfterVisit = true;
+			someVisitActivity->removeObjectAfterVisit = true;
 			return;
 		}
 	}
 
-	//If we haven't returned so far, there is no query and no visit, call was wrong
+	//If we haven't returned so far, there is no activity and no visit, call was wrong
 	throw std::runtime_error("This function needs to be called during the object visit!");
 }
 
@@ -4544,9 +4544,9 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 {
 	assert(obj);
 
-	for(const auto & query : queries->allQueries())
+	for(const auto & activity : activities->allActivities())
 	{
-		const auto * visit = dynamic_cast<VisitQuery *>(query.get());
+		const auto * visit = dynamic_cast<VisitActivity *>(activity.get());
 		if(!visit)
 			continue;
 
@@ -4560,9 +4560,9 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 {
 	assert(hero);
 
-	for(const auto & query : queries->allQueries())
+	for(const auto & activity : activities->allActivities())
 	{
-		const auto * visit = dynamic_cast<VisitQuery *>(query.get());
+		const auto * visit = dynamic_cast<VisitActivity *>(activity.get());
 		if(!visit)
 			continue;
 
@@ -4577,12 +4577,12 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	assert(obj);
 	assert(hero);
 	assert(getVisitingHero(obj) == hero);
-	// Check top query of targeted player:
-	// If top query is NOT visit to targeted object then we assume that
-	// visitation query is covered by other query that must be answered first
+	// Check top activity of targeted player:
+	// If top activity is NOT visit to targeted object then we assume that
+	// visitation activity is covered by other activity that must be answered first
 
-	if(const auto & topQuery = queries->topQuery(hero->getOwner()))
-		if(const auto * visit =  dynamic_cast<VisitQuery *>(topQuery.get()))
+	if(const auto & topActivity = activities->topActivity(hero->getOwner()))
+		if(const auto * visit =  dynamic_cast<VisitActivity *>(topActivity.get()))
 			return !(visit->visitedObject == obj->id && visit->visitingHero == hero->id);
 
 	return true;

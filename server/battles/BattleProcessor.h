@@ -31,7 +31,7 @@ class CUnitState;
 }
 
 class CGameHandler;
-class CBattleQuery;
+class BattleActivity;
 
 namespace spells
 {
@@ -66,12 +66,12 @@ class BattleProcessor : boost::noncopyable
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
 public:
-	/// The battle query of a battle, wherever it sits on either belligerent's stack.
-	/// A battle query is one object shared by both sides, and a player is in at most
-	/// one battle, so whichever side still holds it refers to the same query. It need
+	/// The battle activity of a battle, wherever it sits on either belligerent's stack.
+	/// A battle activity is one object shared by both sides, and a player is in at most
+	/// one battle, so whichever side still holds it refers to the same activity. It need
 	/// not be on top: a player may legitimately have put something above it, such as
 	/// pausing the game mid-battle.
-	CBattleQuery * findBattleQuery(const CBattleInfoCallback & battle) const;
+	BattleActivity * findBattleActivity(const CBattleInfoCallback & battle) const;
 
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	~BattleProcessor();

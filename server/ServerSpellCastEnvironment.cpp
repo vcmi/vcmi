@@ -12,8 +12,8 @@
 
 #include "CGameHandler.h"
 #include "battles/BattleProcessor.h"
-#include "queries/QueriesProcessor.h"
-#include "queries/CQuery.h"
+#include "activities/ActivityProcessor.h"
+#include "activities/Activity.h"
 
 #include "../lib/battle/IBattleInfoCallback.h"
 #include "../lib/battle/IBattleState.h"
@@ -128,8 +128,8 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
-	auto query = std::make_shared<CGenericQuery>(gh, color, callback);
-	request->queryID = query->queryID;
-	gh->queries->addQuery(query);
+	auto activity = std::make_shared<CallbackActivity>(gh, color, callback);
+	request->queryID = activity->queryID;
+	gh->activities->addActivity(activity);
 	gh->sendAndApply(*request);
 }
