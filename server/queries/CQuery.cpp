@@ -24,7 +24,6 @@ std::string toString(QueryType type)
 		case QueryType::GarrisonDialog:         return "GarrisonDialog";
 		case QueryType::TeleportDialog:         return "TeleportDialog";
 		case QueryType::HeroLevelUpDialog:      return "HeroLevelUpDialog";
-		case QueryType::CommanderLevelUpDialog: return "CommanderLevelUpDialog";
 		case QueryType::OpenWindow:             return "OpenWindow";
 		case QueryType::MapObjectVisit:         return "MapObjectVisit";
 		case QueryType::TownBuildingVisit:      return "TownBuildingVisit";
@@ -103,6 +102,11 @@ std::string CQuery::toString() const
 }
 
 bool CQuery::endsByPlayerAnswer() const
+{
+	return false;
+}
+
+bool CQuery::acceptsAnswerWithoutValue() const
 {
 	return false;
 }
@@ -186,6 +190,12 @@ bool CGenericQuery::blocksPack(const CPackForServer * pack) const
 
 bool CGenericQuery::endsByPlayerAnswer() const
 {
+	return true;
+}
+
+bool CGenericQuery::acceptsAnswerWithoutValue() const
+{
+	// Its callers treat an absent answer as "the player cancelled".
 	return true;
 }
 

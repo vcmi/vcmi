@@ -3642,6 +3642,10 @@ bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, Player
 			logGlobal->warn("Player %s replied to query %d that does not affect them!\nQueries:\n%s", player, qid, queries->describeStacks());
 			COMPLAIN_RET("Attempt to answer a query of another player!");
 
+		case ReplyOutcome::RejectedMissingAnswer:
+			logGlobal->warn("Player %s replied to query %d without an answer!\nQueries:\n%s", player, qid, queries->describeStacks());
+			COMPLAIN_RET("This query needs an answer!");
+
 		case ReplyOutcome::RejectedNotAnswerable:
 			logGlobal->warn("Player %s replied to query %d that cannot be ended by an answer!\nQueries:\n%s", player, qid, queries->describeStacks());
 			COMPLAIN_RET("This query cannot be ended by player's answer!");

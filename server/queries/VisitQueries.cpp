@@ -31,9 +31,11 @@ VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const
 
 bool VisitQuery::blocksPack(const CPackForServer * pack) const
 {
-	//During the visit itself ALL actions are blocked.
-	//(However, the visit may trigger a query above that'll pass some.)
-	return true;
+	// During the visit itself all actions are blocked - except answering a question,
+	// which may have been asked by a query that has since been removed or buried.
+	// Refusing those is what leaves both sides waiting for each other.
+	// (The visit may also trigger a query above that lets more through.)
+	return blockAllButReply(pack);
 }
 
 MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)

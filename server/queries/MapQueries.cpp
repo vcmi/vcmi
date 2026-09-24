@@ -285,6 +285,7 @@ PromptResult LevelUpQuery::askHeroLevelUp()
 	offeredHeroSkills = levelUp.skills;
 
 	activeQuestionID = ++gh->QID;
+	askedQuestionID = activeQuestionID;
 	levelUp.queryID = activeQuestionID;
 	gh->sendAndApply(levelUp);
 
@@ -308,6 +309,7 @@ PromptResult LevelUpQuery::askCommanderLevelUp()
 	offeredCommanderSkills = levelUp->skills;
 
 	activeQuestionID = ++gh->QID;
+	askedQuestionID = activeQuestionID;
 	levelUp->queryID = activeQuestionID;
 	gh->sendAndApply(*levelUp);
 
@@ -316,6 +318,15 @@ PromptResult LevelUpQuery::askCommanderLevelUp()
 
 void LevelUpQuery::applyAnswer(std::optional<int32_t> answer)
 {
+	// Release the dialog the player just answered before the next question is sent.
+	// The client keeps a query-backed dialog open until it is told that question is
+	// resolved, and relies on being told before the following one arrives.
+	if(askedQuestionID.hasValue())
+	{
+		gh->sendQueryResolved(askedQuestionID);
+		askedQuestionID = QueryID::NONE;
+	}
+
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 	if(!levellingHero)
 		return;
@@ -361,7 +372,11 @@ void LevelUpQuery::applyAnswer(std::optional<int32_t> answer)
 
 void LevelUpQuery::onRemoval(PlayerColor color)
 {
-	gh->sendQueryResolved(queryID);
+	// Normally every question has already been released as it was answered. One may
+	// still be outstanding if the query was removed without being answered, and the
+	// client would otherwise be left holding that dialog open.
+	if(askedQuestionID.hasValue())
+		gh->sendQueryResolved(askedQuestionID);
 }
 
 void LevelUpQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
