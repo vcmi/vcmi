@@ -13,18 +13,56 @@
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
 
+#include "../../../lib/callback/CGameInfoCallback.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../../lib/IGameSettings.h"
+#include "../../../lib/mapObjects/CRewardableObject.h"
+#include "../../../lib/mapping/MapDifficulty.h"
+#include "../../../lib/rewardable/Info.h"
+#include "../../../lib/StartInfo.h"
 
 namespace NK2AI
 {
+
+static constexpr ui64 UNKNOWN_DANGER = 190000000;
+
+static ui64 evaluateRewardableDanger(const CGObjectInstance * obj, const RewardableObjectInfo & rewardableInfo)
+{
+	const bool guardsVisible = obj->cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION);
+	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
+	// Some banks trigger combat immediately on visit.
+	const bool forceCombat = rewardableObject && rewardableObject->configuration.forceCombat;
+	const bool knowsRange = !guardsVisible || forceCombat || (!rewardableInfo.scouted &&
+		static_cast<int>(obj->cb->getStartInfo()->getDifficulty()) >= static_cast<int>(EMapDifficulty::EXPERT));
+	if(obj->ID == Obj::CREATURE_BANK && (!rewardableInfo.scouted || rewardableInfo.guarded) && knowsRange)
+	{
+		auto objectInfo = obj->getObjectHandler()->getObjectInfo();
+		const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
+		if(rewardable)
+		{
+			if(const auto guardRange = rewardable->getCreatureBankGuardRange())
+			{
+				if(!guardsVisible || forceCombat)
+				{
+					// banks with hidden guards and modded banks that force combat need maximal danger estimation
+					return guardRange->second;
+				}
+				// standard banks use minimum danger estimation so a hero with just-sufficient army can visit the bank and clear it if it is minimum tier
+				return guardRange->first;
+			}
+		}
+		return UNKNOWN_DANGER;
+	}
+	return rewardableInfo.guardStrength;
+}
 
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
 	auto cb = aiNk->cc.get();
 	const TerrainTile * t = cb->tryGetTile(tile);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
-		return 190000000; //MUCH
+		return UNKNOWN_DANGER;
 
 	ui64 objectDanger = 0;
 	ui64 guardDanger = 0;
@@ -133,8 +171,8 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	}
 	default:
 	{
-		if(const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(obj))
-			return rewardableInfo->guardStrength;
+		if(const auto info = aiNk->cc->getRewardableObjectInfo(obj))
+			return evaluateRewardableDanger(obj, *info);
 
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		if (a)
