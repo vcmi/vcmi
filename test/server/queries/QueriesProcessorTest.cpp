@@ -1503,12 +1503,12 @@ protected:
 };
 }
 
-TEST_F(TwoPlayerBattleTest, findTopBattleQueryFallsBackToTheDefenderOnlyWhenAllowed)
+TEST_F(TwoPlayerBattleTest, findBattleQueryLooksAtBothSidesForTheOneSharedQuery)
 {
 	buildTwoPlayerMap();
 
 	auto * attacker = findHeroByOwner(PlayerColor(0));
-	auto * defender = findHeroByOwner(PlayerColor(1));
+	auto * defender = findHeroByOwner(PlayerColor(AI_PLAYER));
 	ASSERT_NE(attacker, nullptr);
 	ASSERT_NE(defender, nullptr);
 
@@ -1519,24 +1519,12 @@ TEST_F(TwoPlayerBattleTest, findTopBattleQueryFallsBackToTheDefenderOnlyWhenAllo
 	const auto * battle = gameState()->getBattle(PlayerColor(0));
 	ASSERT_NE(battle, nullptr);
 
-	// The battle query sits on both stacks, so either side finds it.
-	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
-	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+	auto * found = gameHandler.battles->findBattleQuery(*battle);
+	ASSERT_NE(found, nullptr);
 
-	// Cover the attacker's copy, so that only the defender still has it on top.
-	auto cover = std::make_shared<TestQuery>(&gameHandler, PlayerColor(0), QueryType::BlockingDialog);
-	gameHandler.queries->addQuery(cover);
-	ASSERT_EQ(gameHandler.queries->topQuery(PlayerColor(0)), cover);
-
-	ASSERT_FALSE(gameState()->getPlayerState(PlayerColor(AI_PLAYER))->isHuman());
-
-	// Falling back to the defender finds it again...
-	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
-
-	// ...but the human-only probe does not, because this defender is an AI. Both
-	// callers that use it decide whether a battle may be replayed, which is only
-	// offered when exactly one side is human.
-	EXPECT_EQ(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
+	// One object, on both belligerents' stacks - and only one per player.
+	EXPECT_EQ(gameHandler.queries->findSoleQuery<CBattleQuery>(PlayerColor(0)), found);
+	EXPECT_EQ(gameHandler.queries->findSoleQuery<CBattleQuery>(PlayerColor(AI_PLAYER)), found);
 }
 
 TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderTheBattle)
@@ -1721,7 +1709,7 @@ TEST_F(LevelUpQueryTest, everyQuestionSentToTheClientIsReportedResolved)
 	EXPECT_EQ(server.resolvedQueryIDs, server.levelUpPromptIDs);
 }
 
-TEST_F(TwoPlayerBattleTest, pausingDuringABattleHidesTheBattleQueryFromItsFinder)
+TEST_F(TwoPlayerBattleTest, battleQueryIsStillFoundWhenThePlayerPausesMidBattle)
 {
 	buildTwoPlayerMap();
 
@@ -1736,18 +1724,19 @@ TEST_F(TwoPlayerBattleTest, pausingDuringABattleHidesTheBattleQueryFromItsFinder
 	gameHandler.battles->startBattle(attacker, defender);
 	const auto * battle = gameState()->getBattle(PlayerColor(0));
 	ASSERT_NE(battle, nullptr);
-	ASSERT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
 
-	// CBattleQuery lets GamePause through, so a player may pause mid-battle - which
-	// puts a TimerPauseQuery on top of the battle query.
+	auto * expected = gameHandler.battles->findBattleQuery(*battle);
+	ASSERT_NE(expected, nullptr);
+
+	// CBattleQuery lets GamePause through, so a player may pause mid-battle, which
+	// puts a TimerPauseQuery on top of the battle query. That is legal, and the
+	// battle query must still be found - looking only at the top of the stack lost
+	// it, and the battle then ended with "Cannot find battle query!".
 	auto pause = std::make_shared<TimerPauseQuery>(&gameHandler, PlayerColor(0));
 	gameHandler.queries->addQuery(pause);
 	ASSERT_EQ(gameHandler.queries->topQuery(PlayerColor(0)), pause);
 
-	// The battle query is still there, just no longer on top. The defender is an AI,
-	// so the human-only fallback does not look at their stack either.
-	EXPECT_EQ(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenHuman), nullptr);
-	EXPECT_NE(gameHandler.battles->findTopBattleQuery(*battle, BattleProcessor::DefenderProbe::WhenValidPlayer), nullptr);
+	EXPECT_EQ(gameHandler.battles->findBattleQuery(*battle), expected);
 }
 
 TEST_F(QueriesProcessorTest, settle_completesALongRunOfQueuedWork)

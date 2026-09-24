@@ -66,22 +66,12 @@ class BattleProcessor : boost::noncopyable
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
 public:
-	/// Which of the two sides' stacks to look at when locating the battle query.
-	/// A battle query is one object shared by both belligerents, so whichever stack
-	/// still has it on top refers to the same query.
-	enum class DefenderProbe : uint8_t
-	{
-		/// Look at the defender whenever they are a real player.
-		WhenValidPlayer,
-
-		/// Look at the defender only when they are human. Used where the answer
-		/// decides whether a battle may be replayed, which is offered only when
-		/// exactly one side is human.
-		WhenHuman
-	};
-
-	/// Battle query at the top of either belligerent's stack, or nullptr.
-	CBattleQuery * findTopBattleQuery(const CBattleInfoCallback & battle, DefenderProbe probe) const;
+	/// The battle query of a battle, wherever it sits on either belligerent's stack.
+	/// A battle query is one object shared by both sides, and a player is in at most
+	/// one battle, so whichever side still holds it refers to the same query. It need
+	/// not be on top: a player may legitimately have put something above it, such as
+	/// pausing the game mid-battle.
+	CBattleQuery * findBattleQuery(const CBattleInfoCallback & battle) const;
 
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	~BattleProcessor();

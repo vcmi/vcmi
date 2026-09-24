@@ -254,7 +254,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	const auto * defenderPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 
-	auto * typedBattleQuery = gameHandler->battles->findTopBattleQuery(battle, BattleProcessor::DefenderProbe::WhenHuman);
+	auto * typedBattleQuery = gameHandler->battles->findBattleQuery(battle);
 
 	if (!typedBattleQuery)
 	{
