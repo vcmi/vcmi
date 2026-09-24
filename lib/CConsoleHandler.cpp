@@ -269,6 +269,9 @@ CConsoleHandler::CConsoleHandler(const std::function<void(const std::string &, b
 	handleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	handleErr = GetStdHandle(STD_ERROR_HANDLE);
 
+	// all strings in vcmi are in UTF-8, while console uses system codepage by default
+	SetConsoleOutputCP(CP_UTF8);
+
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(handleOut,&csbi);
 	defColor = csbi.wAttributes;

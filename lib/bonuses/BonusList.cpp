@@ -14,6 +14,14 @@
 
 void BonusList::stackBonuses()
 {
+	// same bonus can be reached through several paths in bonus graph - keep only one copy of it
+	// this must be done before sorting, since sorting does not guarantee that copies of same bonus will be adjacent
+	std::unordered_set<const Bonus *> uniqueBonuses;
+	bonuses.erase(std::remove_if(bonuses.begin(), bonuses.end(), [&uniqueBonuses](const std::shared_ptr<Bonus> & bonus)
+	{
+		return !uniqueBonuses.insert(bonus.get()).second;
+	}), bonuses.end());
+
 	std::ranges::sort(bonuses, [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
 	{
 		if(b1 == b2)
@@ -34,9 +42,7 @@ void BonusList::stackBonuses()
 		std::shared_ptr<Bonus> last = bonuses[next-1];
 		std::shared_ptr<Bonus> current = bonuses[next];
 
-		if(current->stacking.empty())
-			remove = current == last;
-		else if(current->stacking == "ALWAYS")
+		if(current->stacking.empty() || current->stacking == "ALWAYS")
 			remove = false;
 		else
 			remove = current->stacking == last->stacking

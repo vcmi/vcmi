@@ -190,6 +190,12 @@ enum class EShortcut
 	ADVENTURE_MOVE_HERO_NN,
 	ADVENTURE_MOVE_HERO_NE,
 
+	// Scroll adventure map in specified direction while key is held
+	ADVENTURE_SCROLL_LEFT,
+	ADVENTURE_SCROLL_RIGHT,
+	ADVENTURE_SCROLL_UP,
+	ADVENTURE_SCROLL_DOWN,
+
 	// Battle screen
 	BATTLE_TOGGLE_QUEUE,
 	BATTLE_USE_CREATURE_SPELL,

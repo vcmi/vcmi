@@ -463,10 +463,15 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 		}
 	}
 
-	// In auto testing pack.mode we always close client if red pack.player won or lose
-	if(!settings["session"]["testmap"].isNull() && pack.player == PlayerColor(0))
+	// In auto testing mode close client once game is over for all players
+	bool allPlayersEndedGame = std::none_of(gs.players.begin(), gs.players.end(), [](const auto & player)
 	{
-		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
+		return player.second.status == EPlayerStatus::INGAME;
+	});
+
+	if(!settings["session"]["testmap"].isNull() && allPlayersEndedGame)
+	{
+		logAi->info("All players have ended the game. Ending game.");
 
 		GAME->onShutdownRequested(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 	}

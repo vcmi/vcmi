@@ -108,6 +108,7 @@ set(test_SRCS
 		server/battles/BattleTestFixture.cpp
 		server/battles/CombatEventTriggerTest.cpp
 		server/battles/DamageCalculatorTest.cpp
+		server/battles/BindTest.cpp
 		server/battles/DeathStareTest.cpp
 		server/battles/DestructionTest.cpp
 		server/battles/EnchantedTest.cpp
@@ -115,6 +116,7 @@ set(test_SRCS
 		server/battles/LifeDrainTest.cpp
 		server/battles/SoulStealTest.cpp
 		server/battles/SummonGuardiansTest.cpp
+		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
 		server/queries/QueriesProcessorTest.cpp
 

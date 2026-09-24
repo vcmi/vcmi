@@ -71,15 +71,16 @@ namespace
 {
 	std::tuple<int, int, int, int> CalcGlobalStats(const CPlayerBattleCallback * battle)
 	{
-		int lv = 0;
-		int lh = 0;
-		int rv = 0;
-		int rh = 0;
+		// accumulate in 64 bits - values of huge armies do not fit into int
+		int64_t lv = 0;
+		int64_t lh = 0;
+		int64_t rv = 0;
+		int64_t rh = 0;
 
 		for(auto & stack : battle->battleGetStacks())
 		{
-			auto v = stack->getCount() * Stack::GetValue(stack->unitType());
-			auto h = stack->getAvailableHealth();
+			auto v = static_cast<int64_t>(stack->getCount()) * Stack::GetValue(stack->unitType());
+			int64_t h = stack->getAvailableHealth();
 
 			if(stack->unitSide() == BattleSide::ATTACKER)
 			{
@@ -93,7 +94,14 @@ namespace
 			}
 		}
 
-		return {lv, lh, rv, rh};
+		// clamp to the maximum the encoder accepts - anything above it is capped there anyway,
+		// and this keeps the sum of both sides well within int, unlike a clamp to int max
+		auto clamp = [](int64_t value, int maximum)
+		{
+			return static_cast<int>(std::min<int64_t>(value, maximum));
+		};
+
+		return {clamp(lv, S13::BFIELD_VALUE_MAX), clamp(lh, S13::BFIELD_HP_MAX), clamp(rv, S13::BFIELD_VALUE_MAX), clamp(rh, S13::BFIELD_HP_MAX)};
 	}
 
 	struct AttackLogAggregateData
