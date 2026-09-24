@@ -10,6 +10,7 @@ set(vcmiservercommon_SRCS
 		activities/Activity.cpp
 		activities/LuaScriptActivity.cpp
 		activities/MapActivities.cpp
+		activities/SpellActivities.cpp
 		activities/VisitActivities.cpp
 		activities/ActivityProcessor.cpp
 
@@ -40,6 +41,7 @@ set(vcmiservercommon_HEADERS
 		activities/Activity.h
 		activities/LuaScriptActivity.h
 		activities/MapActivities.h
+		activities/SpellActivities.h
 		activities/VisitActivities.h
 		activities/ActivityProcessor.h
 

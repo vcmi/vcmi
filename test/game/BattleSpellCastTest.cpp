@@ -162,9 +162,9 @@ public:
 	{
 	}
 
-	void askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
+	void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) override
 	{
-		//todo:
+		//todo: no adventure spell under test asks this
 	}
 
 	void mapLoaded(CMap * map) override

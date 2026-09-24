@@ -42,7 +42,7 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) override;
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
-	void askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override;
+	void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) override;
 private:
 	CGameHandler * gh;
 };

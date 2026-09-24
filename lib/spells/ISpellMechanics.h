@@ -19,6 +19,7 @@
 #include "../bonuses/Bonus.h"
 
 struct Question;
+struct MapObjectSelectDialog;
 class IBattleState;
 class CreatureService;
 class CMap;
@@ -63,7 +64,10 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
-	virtual void askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety, use a generic question packet when implemented
+	/// Asks the player to pick one of several towns, and finishes this cast at the one
+	/// they choose. Takes what it needs to find everything again afterwards rather
+	/// than a callback, which cannot be saved and would hold pointers across the wait.
+	virtual void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) = 0;
 };
 
 namespace spells
@@ -377,6 +381,10 @@ public:
 	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
 	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
+
+	/// The second half of adventureCast, without the checks it has already made. Used
+	/// to finish a cast that stopped part way to ask the player something.
+	virtual void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 	virtual int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const = 0;
 	virtual int getCastsAlreadyPerformed(const spells::Caster * caster) const = 0;
 

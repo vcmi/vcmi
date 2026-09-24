@@ -467,7 +467,7 @@ TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityOnlyWhereItIsTo
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
 		std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)},
-		ActivityType::Generic);
+		ActivityType::ScriptDialog);
 
 	auto blueTopActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
 
@@ -489,7 +489,7 @@ TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityAfterItBecomesT
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
 		std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)},
-		ActivityType::Generic);
+		ActivityType::ScriptDialog);
 
 	auto blueTopActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
 
@@ -528,7 +528,7 @@ TEST_F(ActivityProcessorTest, popActivity_removesMultiPlayerActivityOnlyWhereItI
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
 		std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)},
-		ActivityType::Generic);
+		ActivityType::ScriptDialog);
 
 	auto blueTopActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
 
@@ -548,7 +548,7 @@ TEST_F(ActivityProcessorTest, popActivity_removesRemainingMultiPlayerActivityAft
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
 		std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)},
-		ActivityType::Generic);
+		ActivityType::ScriptDialog);
 
 	auto blueTopActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
 
@@ -620,7 +620,7 @@ TEST_F(ActivityProcessorTest, popIfTop_skipsExposureWhenRemovalAddsNewTopActivit
 {
 	auto bottomActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
 	auto topActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
-	auto replacementActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::Generic);
+	auto replacementActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::ScriptDialog);
 
 	topActivity->addReplacementOnRemoval = true;
 	topActivity->replacementActivity = replacementActivity;
@@ -655,7 +655,7 @@ TEST_F(ActivityProcessorTest, popIfTop_skipsExposureWhenRemovalAddsNewTopActivit
 
 TEST_F(ActivityProcessorTest, addActivity_addsSameActivityForAllAffectedPlayers)
 {
-	auto activity = std::make_shared<TestActivity>(&gh, std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)}, ActivityType::Generic);
+	auto activity = std::make_shared<TestActivity>(&gh, std::initializer_list<PlayerColor>{PlayerColor(0), PlayerColor(1)}, ActivityType::ScriptDialog);
 
 	activities.addActivity(activity);
 
@@ -1957,4 +1957,89 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	// the town around it, so that is what has to be told the answer.
 	EXPECT_EQ(child->reportedTo, static_cast<const IObjectInterface *>(building));
 	EXPECT_NE(child->reportedTo, static_cast<const IObjectInterface *>(town));
+}
+
+// --------------------------------------------------------------------------------
+// Casts that pause to ask something.
+//
+// A town-portal style spell stops part way to ask which town to travel to. It used
+// to leave a lambda behind, holding the caster and the spell mechanics by pointer
+// across the wait; it now leaves an activity holding ids.
+// --------------------------------------------------------------------------------
+
+namespace
+{
+class TownPortalTest : public TinyMapGameTest
+{
+};
+}
+
+TEST_F(TownPortalTest, castingPausesToAskWhichTownAndFinishesAtTheChosenOne)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroSpells({SpellID(SpellID::decode("core:townPortal"))})
+		.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID(ArtifactID::SPELLBOOK)}})
+		.heroPrimary(0, 0, 20, 20) // enough spell power and knowledge for the mana
+		.heroSecondarySkills({{SecondarySkill(SecondarySkill::EARTH_MAGIC), 3}})
+		.town(int3(20, 20, 0), FactionID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(town, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	// Cast with no destination, which is what makes the spell ask.
+	gameHandler.castSpell(hero, SpellID(SpellID::decode("core:townPortal")), int3(-1, -1, -1));
+
+	auto asking = gameHandler.activities->topActivity(player);
+	ASSERT_NE(asking, nullptr) << "the cast did not stop to ask";
+	EXPECT_EQ(asking->getType(), ActivityType::TownSelection);
+
+	const auto startedAt = hero->visitablePos();
+	ASSERT_EQ(gameHandler.activities->submitReply(asking->getActiveQuestionID(), player, town->id.getNum()),
+		ReplyOutcome::Accepted);
+
+	// The answer finished the cast, from ids alone.
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+	EXPECT_NE(hero->visitablePos(), startedAt);
+	EXPECT_EQ(hero->visitablePos(), town->visitablePos());
+}
+
+TEST_F(TownPortalTest, closingTheTownWindowAbandonsTheCast)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroSpells({SpellID(SpellID::decode("core:townPortal"))})
+		.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID(ArtifactID::SPELLBOOK)}})
+		.heroPrimary(0, 0, 20, 20)
+		.heroSecondarySkills({{SecondarySkill(SecondarySkill::EARTH_MAGIC), 3}})
+		.town(int3(20, 20, 0), FactionID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.castSpell(hero, SpellID(SpellID::decode("core:townPortal")), int3(-1, -1, -1));
+
+	auto asking = gameHandler.activities->topActivity(player);
+	ASSERT_NE(asking, nullptr);
+
+	const auto startedAt = hero->visitablePos();
+	ASSERT_EQ(gameHandler.activities->submitReply(asking->getActiveQuestionID(), player, std::nullopt),
+		ReplyOutcome::Accepted);
+
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+	EXPECT_EQ(hero->visitablePos(), startedAt) << "the hero travelled without a town being chosen";
 }

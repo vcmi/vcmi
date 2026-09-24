@@ -32,7 +32,8 @@ std::string toString(ActivityType type)
 		case ActivityType::BattleDialog:           return "BattleDialog";
 		case ActivityType::HeroMovement:           return "HeroMovement";
 		case ActivityType::TimerPause:             return "TimerPause";
-		case ActivityType::Generic:                return "Generic";
+		case ActivityType::TownSelection:          return "TownSelection";
+		case ActivityType::ScriptDialog:           return "ScriptDialog";
 		case ActivityType::LuaScript:              return "LuaScript";
 		default:                                return "Unknown";
 	}
@@ -189,41 +190,4 @@ void DialogActivity::setReply(std::optional<int32_t> reply)
 {
 	if(reply.has_value())
 		answer = *reply;
-}
-
-CallbackActivity::CallbackActivity(CGameHandler * gh, PlayerColor color, const std::function<void(std::optional<int32_t>)> & callback):
-	Activity(gh, ActivityType::Generic), callback(callback)
-{
-	addPlayer(color);
-}
-
-bool CallbackActivity::blocksPack(const CPackForServer * pack) const
-{
-	return blockAllButReply(pack);
-}
-
-bool CallbackActivity::endsByPlayerAnswer() const
-{
-	return true;
-}
-
-bool CallbackActivity::acceptsAnswerWithoutValue() const
-{
-	// Its callers treat an absent answer as "the player cancelled".
-	return true;
-}
-
-void CallbackActivity::onExposure(ActivityPtr topActivity)
-{
-	//do nothing
-}
-
-void CallbackActivity::setReply(std::optional<int32_t> receivedReply)
-{
-	reply = receivedReply;
-}
-
-void CallbackActivity::onRemoval(PlayerColor color)
-{
-	callback(reply);
 }

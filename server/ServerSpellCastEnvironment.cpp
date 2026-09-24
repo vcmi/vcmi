@@ -13,6 +13,7 @@
 #include "CGameHandler.h"
 #include "battles/BattleProcessor.h"
 #include "activities/ActivityProcessor.h"
+#include "activities/SpellActivities.h"
 #include "activities/Activity.h"
 
 #include "../lib/battle/IBattleInfoCallback.h"
@@ -126,10 +127,13 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
 }
 
-void ServerSpellCastEnvironment::askQuestion(Question * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
+void ServerSpellCastEnvironment::askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns)
 {
-	auto activity = std::make_shared<CallbackActivity>(gh, color, callback);
-	request->questionID = activity->askQuestion();
+	auto activity = std::make_shared<TownSelectionActivity>(gh, request.player, spell, caster, towns);
+
+	MapObjectSelectDialog pack = request;
+	pack.questionID = activity->askQuestion();
+
 	gh->activities->addActivity(activity);
-	gh->sendAndApply(*request);
+	gh->sendAndApply(pack);
 }
