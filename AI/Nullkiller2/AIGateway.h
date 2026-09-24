@@ -154,6 +154,8 @@ public:
 	void invalidatePaths() override;
 	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
+	bool canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const;
+
 	void makeTurn();
 
 	void buildArmyIn(const CGTownInstance * t);

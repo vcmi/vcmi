@@ -129,10 +129,8 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 	if(stack->isCatapult())
 	{
+		// Action has no target - catapult will pick one on its own, according to its targeting rules
 		BattleAction attack;
-		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
-		auto seletectedHex = *RandomGeneratorUtil::nextItem(wallHexes, CRandomGenerator::getDefault());
-		attack.aimToHex(seletectedHex);
 		attack.actionType = EActionType::CATAPULT;
 		attack.side = side;
 		attack.stackNumber = stack->unitId();
