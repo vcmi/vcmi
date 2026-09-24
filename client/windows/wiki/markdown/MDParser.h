@@ -97,14 +97,14 @@ namespace MDParser
 	/// <left>, <center>, <right>, </left>, </center>, </right>.
 	std::optional<MDAlignTag> parseAlignTag(const std::string & line);
 
-	/// Extracts the anchor name from the first <a id="name" /> or <a name="name" /> tag
+	/// Extracts the anchor name from the first <an id="name" /> or <a name="name" /> tag
 	/// found anywhere in @p s.  Returns an empty string when no tag is present.
 	std::string parseAnchorTag(const std::string & s);
 
 	/// Returns all anchor names found in @p s (in left-to-right order).
 	std::vector<std::string> parseAllAnchorTags(const std::string & s);
 
-	/// Returns @p s with all <a id|name="…" /> tags removed.
+	/// Returns @p s with all <an id|name="…" /> tags removed.
 	std::string stripAnchorTags(const std::string & s);
 
 	/// Parses a media line: "![alt](path)" or "[![alt](path)](uri)".

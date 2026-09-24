@@ -99,7 +99,7 @@ struct WikiEntryKey
 	WikiCategory category; ///< Which category tab to open
 	std::string entryName; ///< Entity identifier / JSON key (used for lookup, not a translated string)
 	/// Optional anchor to scroll to after the entry is displayed.
-	/// Corresponds to the id/name attribute of an <a id="name" /> tag in the entry's Markdown.
+	/// Corresponds to the id/name attribute of an <an id="name" /> tag in the entry's Markdown.
 	std::string anchor = {};
 
 	bool operator==(const WikiEntryKey & o) const { return category == o.category && entryName == o.entryName; }

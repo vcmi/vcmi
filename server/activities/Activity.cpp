@@ -53,13 +53,13 @@ Activity::Activity(CGameHandler * gameHandler, ActivityType type)
 	, gh(gameHandler)
 	, type(type)
 {
-	activityID = ++gameHandler->activityCounter;
-	logGlobal->trace("Created a new activity with id %d", activityID);
+	traceNumber = ++gameHandler->activityTraceCounter;
+	logGlobal->trace("Created a new activity #%d", traceNumber);
 }
 
 Activity::~Activity()
 {
-	logGlobal->trace("Destructed the activity with id %d", activityID);
+	logGlobal->trace("Destructed activity #%d", traceNumber);
 }
 
 void Activity::addPlayer(PlayerColor color)
@@ -88,12 +88,15 @@ std::string Activity::toString() const
 		else if(size > 1 && i == size - 2)
 			names += " and ";
 	}
-	std::string ret = boost::str(boost::format("A activity of type '%s' and questionID = %d affecting player%s %s")
+	std::string ret = boost::str(boost::format("Activity #%d of type '%s' affecting player%s %s")
+		% traceNumber
 		% ::toString(type)
-		% activityID
 		% plural
 		% names
 	);
+
+	if(activeQuestionID.hasValue())
+		ret += boost::str(boost::format(" [awaiting an answer to question %d]") % activeQuestionID);
 
 	if(answeredBy)
 		ret += boost::str(boost::format(" [answered by %s, awaiting exposure]") % answeredBy->toString());

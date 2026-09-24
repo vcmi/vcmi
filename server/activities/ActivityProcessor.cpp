@@ -371,7 +371,7 @@ bool ActivityProcessor::promoteWaitingActivities()
 		auto activity = queue.front();
 		queue.pop_front();
 
-		// A activity shared by several players is queued for each of them; start it
+		// An activity shared by several players is queued for each of them; start it
 		// only once, when the last of them is ready for it.
 		const bool everyPlayerIsIdle = std::ranges::all_of(activity->players, [this](PlayerColor player)
 		{
@@ -421,7 +421,7 @@ void ActivityProcessor::settle()
 
 	settling = true;
 
-	// Must be cleared even if a activity hook throws, otherwise no deferred work
+	// Must be cleared even if an activity hook throws, otherwise no deferred work
 	// would ever run again.
 	struct SettlingReset
 	{
@@ -431,7 +431,7 @@ void ActivityProcessor::settle()
 
 	for(int round = 0; round < MAX_SETTLE_ROUNDS; ++round)
 	{
-		// A reply may have arrived for a activity that was buried at the time. Now that
+		// A reply may have arrived for an activity that was buried at the time. Now that
 		// the stacks have stopped moving, any answered activity on top must be removed.
 		if(resolveAnsweredActivities())
 			continue;
@@ -490,7 +490,7 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 		return ReplyOutcome::IgnoredAlreadyAnswered;
 
 	// Only a dialog that offers a way out - cancelling a town selection, say - may be
-	// answered with nothing. Letting a value-less reply through to a activity that needs
+	// answered with nothing. Letting a value-less reply through to an activity that needs
 	// one would leave it resolved with no answer to act on.
 	if(!reply.has_value() && !activity->acceptsAnswerWithoutValue())
 		return ReplyOutcome::RejectedMissingAnswer;
