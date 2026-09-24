@@ -58,7 +58,7 @@ function Script:onDeath(server, battle, unit, other, payload)
 		local damage = explosionDamage
 		local cap = target:getBonusesValue({ type = "DAMAGE_RECEIVED_CAP" })
 		if cap > 0 then
-		    damage = m	ath.min(damage, math.max(math.floor(target:getMaxHealth() * cap / 100), 1))
+			damage = math.min(damage, math.max(math.floor(target:getMaxHealth() * cap / 100), 1))
 		end
 		local dealt, killed = server:damageUnit(battle, target, damage)
 		totalDamage = totalDamage + dealt

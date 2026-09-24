@@ -14,8 +14,7 @@ end
 function Script:getDamageRange(unit, minDamage, maxDamage)
 	local heroAttack = self:getHeroAttack(unit)
 
-	local offset = self.val or 1
-	return minDamage * (heroAttack + offset), maxDamage * (heroAttack + offset)
+	return minDamage * (heroAttack + self.val), maxDamage * (heroAttack + self.val)
 end
 
 function Script:grantDamage(server, battle, unit, subtype, value)

@@ -160,7 +160,7 @@ Priority also orders death handlers. Resurrection scripts use a priority below 1
 
 ### ballistaDamage
 
-Applies a `CREATURE_DAMAGE` bonus to a war machine during battle setup. The value uses its hero's base and artifact attack. Army, spell and terrain attack bonuses are excluded.
+Applies a `CREATURE_DAMAGE` bonus to a war machine during battle setup. The value uses its hero's base and artifact attack, multiplied by bonus `val`. Army, spell and terrain attack bonuses are excluded.
 
 Override `getDamageRange(unit, minDamage, maxDamage)` in a patch to change the formula. It returns the final minimum and maximum damage.
 
