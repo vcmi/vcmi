@@ -162,7 +162,7 @@ public:
 	{
 	}
 
-	void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster, const std::vector<ObjectInstanceID> & towns) override
+	void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster) override
 	{
 		//todo: no adventure spell under test asks this
 	}

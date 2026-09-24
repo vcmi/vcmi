@@ -121,11 +121,6 @@ class LevelUpActivity : public Activity, public IInteraction
 	Phase phase = Phase::Hero;
 	ObjectInstanceID hero;
 
-	/// Question that the client currently shows. The client keeps its dialog open until the
-	/// server reports that exact question as resolved, so every question must be released
-	/// as it is answered, not once at the end of the sequence.
-	QuestionID askedQuestionID = QuestionID::NONE;
-
 	/// Skills offered by the outstanding question, to map an answer back to a skill.
 	std::vector<SecondarySkill> offeredHeroSkills;
 	std::vector<ui32> offeredCommanderSkills;
@@ -140,7 +135,7 @@ public:
 
 	IInteraction * asInteraction() final { return this; }
 	PromptResult askNextQuestion() final;
-	void applyAnswer(std::optional<int32_t> answer) final;
+	void applyAnswer(QuestionID answered, std::optional<int32_t> answer) final;
 
 	bool endsByPlayerAnswer() const final;
 	bool blocksPack(const CPackForServer * pack) const final;

@@ -155,12 +155,16 @@ void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 	if(!town)
 		return;
 
-	auto building = town->rewardableBuildings.find(visitedBuilding);
-	if(building == town->rewardableBuildings.end())
-		return;
+	// Activities are started by the building, not by the town - except before the first
+	// building is reached, since the town queues its building visits and only then opens
+	// its own dialogs, which end up above this routine
+	const IObjectInterface * reportTo = town;
 
-	// Activities are started by the building, not by the town
-	child->notifyObjectAboutRemoval(building->second.get(), hero, continuationTag);
+	auto building = town->rewardableBuildings.find(visitedBuilding);
+	if(building != town->rewardableBuildings.end())
+		reportTo = building->second.get();
+
+	child->notifyObjectAboutRemoval(reportTo, hero, continuationTag);
 }
 
 StepResult TownBuildingVisitActivity::advance()

@@ -354,7 +354,7 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 	}
 }
 
-void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag, int32_t answer) const
+void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
 {
 	if(!answer || !hero->getCommander() || hero->getCommander()->alive)
 		return;

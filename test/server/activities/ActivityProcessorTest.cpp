@@ -216,6 +216,14 @@ public:
 	{
 		completedChildren.push_back(child);
 	}
+
+	std::function<void()> onRemovalAction;
+
+	void onRemoval(PlayerColor color) override
+	{
+		if(onRemovalAction)
+			onRemovalAction();
+	}
 };
 
 /// A QuestionAnswer pack from a given player, to check what blocksPack() allows
@@ -1100,23 +1108,23 @@ TEST_F(ActivityProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredW
 {
 	const PlayerColor player(1);
 
-	// Every removal queues another activity, which is started, removed and queues another.
-	// Must terminate instead of spinning or recursing until the stack overflows.
+	// A routine that is done on its first step and queues another one as it is removed, so
+	// every settle() round finds real work and only the round limit can end the chain.
+	// Reaching the end of this test at all is what proves the limit works.
 	std::function<void()> queueAnother = [&]()
 	{
-		auto next = std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit);
+		auto next = std::make_shared<TestRoutine>(&gh, player, 0);
 		next->onRemovalAction = queueAnother;
 		activities.addActivityWhenIdle(next);
-		activities.popIfTop(next);
 	};
 
-	auto first = std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit);
+	auto first = std::make_shared<TestRoutine>(&gh, player, 0);
 	first->onRemovalAction = queueAnother;
 
-	activities.addActivity(first);
-	activities.popIfTop(first);
+	activities.addActivity(first); // settle() runs on leaving this call
 
-	SUCCEED() << "settle() terminated instead of looping forever";
+	EXPECT_GT(gh.activityTraceCounter, 100u)
+		<< "the chain ended on its own, so the round limit was never reached";
 }
 
 // --------------------------------------------------------------------------------
@@ -1738,6 +1746,36 @@ TEST_F(TwoPlayerBattleTest, battleActivityIsStillFoundWhenThePlayerPausesMidBatt
 	EXPECT_EQ(gameHandler.battles->findBattleActivity(*battle), expected);
 }
 
+TEST_F(TwoPlayerBattleTest, battleResultIsAppliedEvenWhenThePlayerPausedMidBattle)
+{
+	buildTwoPlayerMap();
+
+	auto * attacker = findHeroByOwner(PlayerColor(0));
+	auto * defender = findHeroByOwner(PlayerColor(AI_PLAYER));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	GameHandlerTestServer server(gameState(), PlayerColor(0));
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.battles->startBattle(attacker, defender);
+	ASSERT_NE(gameState()->getBattle(PlayerColor(0)), nullptr);
+
+	// The pause ends up between the battle activity and the result dialog pushed on top of
+	// it, so the battle activity is no longer the top one when the result is answered
+	gameHandler.activities->addActivity(std::make_shared<TimerPauseActivity>(&gameHandler, PlayerColor(0)));
+
+	gameHandler.battles->cheatBattleVictory(PlayerColor(0));
+
+	auto resultDialog = gameHandler.activities->topActivity(PlayerColor(0));
+	ASSERT_NE(gameHandler.activities->activityAs<BattleResultActivity>(resultDialog), nullptr);
+
+	ASSERT_EQ(gameHandler.activities->submitReply(resultDialog->getActiveQuestionID(), PlayerColor(0), 0),
+		ReplyOutcome::Accepted);
+
+	EXPECT_EQ(server.battlesConfirmed, 1) << "the battle result was never applied";
+}
+
 TEST_F(ActivityProcessorTest, settle_completesALongRunOfQueuedWork)
 {
 	const PlayerColor player(1);
@@ -1948,6 +1986,105 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	// town, so the answer is reported to the building.
 	EXPECT_EQ(child->reportedTo, static_cast<const IObjectInterface *>(building));
 	EXPECT_NE(child->reportedTo, static_cast<const IObjectInterface *>(town));
+}
+
+TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTown)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.town(int3(8, 8, 0), FactionID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_FALSE(town->rewardableBuildings.empty());
+
+	const auto buildingID = town->rewardableBuildings.begin()->first;
+	town->addBuilding(buildingID);
+	town->setVisitingHero(hero);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	// Not added, so no building has been visited yet - the state the town is in while it
+	// queues its building visits and then opens its own dialog, which lands above them.
+	auto visit = std::make_shared<TownBuildingVisitActivity>(
+		&gameHandler, town, std::vector<const CGHeroInstance *>{hero}, std::vector<BuildingID>{buildingID});
+
+	auto child = std::make_shared<NotifyRecordingActivity>(&gameHandler, player);
+	visit->onChildCompleted(child);
+
+	// The dialog was opened by the town, so dropping the answer would silently lose it
+	EXPECT_EQ(child->reportedTo, static_cast<const IObjectInterface *>(town));
+}
+
+TEST_F(MapObjectVisitTest, aBuildingRewardInterruptedByALevelUpResumesTheBuildingsOwnReward)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroExperience(999) // one experience point short of the next level
+		.town(int3(8, 8, 0), FactionID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_FALSE(town->rewardableBuildings.empty());
+
+	const auto buildingID = town->rewardableBuildings.begin()->first;
+	auto * building = town->rewardableBuildings.begin()->second.get();
+	town->addBuilding(buildingID);
+	hero->setAnchorPos(town->visitablePos() + hero->getVisitableOffset()); // stand in the town
+
+	// Two rewards of which only the second can be granted. The tag is written while the
+	// town's own visit sits below the building's, so a search from the wrong end of the
+	// stack resumes reward 0 and nothing is granted at all.
+	auto & info = building->configuration.info;
+	ASSERT_FALSE(info.empty());
+	info.push_back(info.at(0));
+	info.at(0).limiter.heroLevel = 99; // out of reach
+
+	auto & reward = info.at(1).reward;
+	reward.heroExperience = 5000;
+	reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+
+	auto rewardsGranted = [&]()
+	{
+		return hero->getBonuses([](const Bonus * b)
+		{
+			return b->type == BonusType::MORALE && b->source == BonusSource::OBJECT_TYPE;
+		})->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	gameHandler.onAdvInterfaceReady(player);
+
+	gameHandler.objectVisited(town, hero);
+
+	int answered = 0;
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		if(pending->getType() != ActivityType::HeroLevelUpDialog)
+			break;
+
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+		ASSERT_LT(++answered, 20);
+	}
+
+	EXPECT_GT(answered, 0) << "the reward granted no experience, so nothing interrupted it";
+	EXPECT_EQ(rewardsGranted(), 1u);
 }
 
 // --------------------------------------------------------------------------------

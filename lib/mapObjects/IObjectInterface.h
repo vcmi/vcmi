@@ -62,7 +62,7 @@ public:
 	//Called when activities created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the activity
 	virtual void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const;
-	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const;
+	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const;
 	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
 	virtual void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const;
 

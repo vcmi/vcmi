@@ -79,7 +79,9 @@ bool ScriptDialogActivity::acceptsAnswerWithoutValue() const
 
 void ScriptDialogActivity::onRemoval(PlayerColor color)
 {
-	// The script below this activity is suspended until it receives this answer
-	if(auto * script = owner->findSoleActivity<LuaScriptActivity>(color))
+	// This dialog was pushed directly on top of the script that is waiting for the answer,
+	// and has already been popped by now, so that script is the current top. A type search
+	// would pick the wrong one when two map events paused at the same time.
+	if(auto * script = owner->activityAs<LuaScriptActivity>(owner->topActivity(color)))
 		script->setPendingAnswer(answer);
 }

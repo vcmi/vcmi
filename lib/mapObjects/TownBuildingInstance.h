@@ -71,7 +71,7 @@ public:
 	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const override;
 	
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	
 	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, IGameRandomizer & gameRandomizer);
 	TownRewardableBuildingInstance(IGameInfoCallback *cb);

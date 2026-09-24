@@ -276,7 +276,13 @@ bool ActivityProcessor::advanceRoutines()
 			}
 
 			if(step + 1 == MAX_ROUTINE_STEPS)
-				logGlobal->error("Routine did not finish after %d steps: %s", MAX_ROUTINE_STEPS, top->toString());
+			{
+				// Dropped rather than left in place: settle() would otherwise step it again
+				// on every round, and leaving it on the stack blocks its player forever
+				logGlobal->error("Routine did not finish after %d steps, dropping it: %s", MAX_ROUTINE_STEPS, top->toString());
+				assert(false);
+				popActivity(player, top);
+			}
 		}
 	}
 
@@ -473,9 +479,6 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 		return ReplyOutcome::RejectedUnknownActivity;
 	}
 
-	if(!vstd::contains(activity->players, player))
-		return ReplyOutcome::RejectedWrongPlayer;
-
 	if(!activity->endsByPlayerAnswer())
 		return ReplyOutcome::RejectedNotAnswerable;
 
@@ -492,9 +495,10 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 		// An interaction is not finished by an answer since it may have more to ask, so
 		// remember the question to recognize a repeated answer as stale instead of taking
 		// it for an answer to the next question
-		rememberCompleted(player, activity->getActiveQuestionID());
+		const QuestionID answered = activity->getActiveQuestionID();
+		rememberCompleted(player, answered);
 		activity->activeQuestionID = QuestionID::NONE;
-		interaction->applyAnswer(reply);
+		interaction->applyAnswer(answered, reply);
 		return ReplyOutcome::Accepted;
 	}
 
@@ -506,7 +510,7 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	return ReplyOutcome::Accepted;
 }
 
-void ActivityProcessor::retryDeferredWork(PlayerColor player)
+void ActivityProcessor::retryDeferredWork()
 {
 	// settle() runs when the outermost scope closes and retries every step for every player
 	MutationScope mutation(*this);
@@ -522,7 +526,7 @@ std::string ActivityProcessor::describeStacks() const
 		if(stack.empty())
 			continue;
 
-		result += boost::str(boost::format("  player %d, %d quer%s (top last):\n")
+		result += boost::str(boost::format("  player %d, %d activit%s (top last):\n")
 			% idx
 			% stack.size()
 			% (stack.size() == 1 ? "y" : "ies"));

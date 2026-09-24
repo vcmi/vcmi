@@ -313,7 +313,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 
 	if(lobbyPreviewMode)
 	{
-		LobbyQuestionState lqs;
+		LobbyQueryState lqs;
 		sendLobbyPack(lqs);
 	}
 	else

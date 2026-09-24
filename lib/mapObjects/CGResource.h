@@ -37,7 +37,7 @@ public:
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	MetaString getHoverText(PlayerColor player) const override;
 
 	GameResID resourceID() const;

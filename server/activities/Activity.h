@@ -91,8 +91,9 @@ public:
 	/// Ask the next question, if there is one and the player can receive it.
 	virtual PromptResult askNextQuestion() = 0;
 
-	/// Apply an answer to the question that was last asked.
-	virtual void applyAnswer(std::optional<int32_t> answer) = 0;
+	/// Apply an answer to the question it names, which is no longer the outstanding one by
+	/// the time this is called.
+	virtual void applyAnswer(QuestionID answered, std::optional<int32_t> answer) = 0;
 };
 
 // Any kind of prolonged interaction that may need to do something special once it is over.
@@ -115,14 +116,8 @@ public:
 		return type;
 	}
 
-	/// Player that has answered this activity, set by ActivityProcessor::submitReply. An
-	/// activity may be answered before it reaches the top of the stack, in which case the
+	/// An activity may be answered before it reaches the top of the stack, in which case the
 	/// reply is stored and applied once the activity is exposed.
-	const std::optional<PlayerColor> & getAnsweredBy() const
-	{
-		return answeredBy;
-	}
-
 	bool isAnswered() const
 	{
 		return answeredBy.has_value();

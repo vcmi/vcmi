@@ -61,7 +61,7 @@ public:
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
 	TQuantity getJoiningAmount() const;

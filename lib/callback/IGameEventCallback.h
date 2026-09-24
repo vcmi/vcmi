@@ -80,9 +80,9 @@ public:
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
-	/// Shows a dialog to the player. On the server the answer is routed back through the
-	/// visit in progress, which already holds the visited object, so the caller is used
-	/// only outside of a visit.
+	/// Shows a dialog to the player. The server routes the answer back through the visit in
+	/// progress, which knows what it is currently visiting, so the caller is only read by
+	/// tests that have no visit to route through.
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
 
 	/// Records which part of a multi-step visit this object is starting. The tag is passed

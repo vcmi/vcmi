@@ -108,7 +108,7 @@ void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGH
 	gameEvents.startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
 }
 
-void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag, int32_t answer) const
+void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
 {
 	if(isGuarded())
 	{
