@@ -1273,8 +1273,7 @@ public:
 			if (target->ID == Obj::TOWN)
 				evaluationContext.defenseValue = dynamic_cast<const CGTownInstance*>(target)->fortLevel();
 			evaluationContext.goldCost += rewards.goldCost;
-			if(evaluationContext.danger > 0)
-				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->estimateCombatValue();
+			evaluationContext.skillReward += (float)evaluationContext.danger / (float)army->estimateCombatValue();
 		}
 		evaluationContext.armyInvolvement += army->getArmyCost();
 
@@ -1584,10 +1583,10 @@ float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLoss
 	return score;
 }
 
-float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyInvolvement, const float armyLossRatio)
+float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyLossRatio)
 {
-	// Encourage stronger heroes
-	return score + skillReward * armyInvolvement * (1 - armyLossRatio) * 0.05;
+	// Keep skill rewards bounded and loss-aware.
+	return score + skillReward * 1000.0f * std::max(0.0f, 1.0f - armyLossRatio);
 }
 
 float PriorityEvaluator::evaluateConquestValue(float score, const float conquestValue, const float armyInvolvement)
@@ -1826,20 +1825,11 @@ float PriorityEvaluator::evaluate(
 
 				if(evaluationContext.skillReward > 0)
 				{
-					if(evaluationContext.heroRole == MAIN)
-					{
-						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
-
-						// Encourage skill increases before battles
-						if(!requiresBattle)
-							score *= 3;
-					}
+					if(!requiresBattle)
+						score += evaluationContext.skillReward * (evaluationContext.heroRole == MAIN ? 1000.0f : 200.0f);
 					else
-						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
-						// TODO: Mircea: Ease the restriction after 1 month or a bit more, because MAINs had enough time to grow, avoiding a SPAM of role shifts for each upgrade a SCOUT gets
-						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
-						// MAINs grow and fight, SCOUTs do the groundwork.
-						score = std::max(1.0f, score / 1000.0f);
+						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
+					score *= evaluationContext.heroRole == SCOUT ? 1.2f : 2.0f;
 				}
 
 				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10.0f;
@@ -1890,7 +1880,7 @@ float PriorityEvaluator::evaluate(
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
-				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
+				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
 
