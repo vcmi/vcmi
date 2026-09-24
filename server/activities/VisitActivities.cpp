@@ -31,10 +31,9 @@ VisitActivity::VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj,
 
 bool VisitActivity::blocksPack(const CPackForServer * pack) const
 {
-	// During the visit itself all actions are blocked - except answering a question,
-	// which may have been asked by an activity that has since been removed or buried.
-	// Refusing those is what leaves both sides waiting for each other.
-	// (The visit may also trigger an activity above that lets more through.)
+	// All packs are blocked during the visit, except answers to questions, which may have
+	// been asked by an activity that was since removed or buried. Blocking those would
+	// leave client and server waiting for each other.
 	return blockAllButReply(pack);
 }
 
@@ -47,7 +46,7 @@ MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObj
 StepResult MapObjectVisitActivity::advance()
 {
 	// activeStep is set before the work runs, so that children pushed by a step are
-	// attributed to it when they finish.
+	// attributed to it once they finish
 	switch(activeStep)
 	{
 		case Step::NotStarted:
@@ -81,8 +80,8 @@ void MapObjectVisitActivity::startVisit()
 	hv.starting = true;
 	gh->sendAndApply(hv);
 
-	// The object takes over from here. Anything it starts - a dialog, a battle - is
-	// pushed on top of this routine, which resumes once that has finished.
+	// The object continues from here. A dialog or battle that it starts is pushed on top
+	// of this routine, which resumes once that child is done.
 	std::string scriptHandler = object->getVisitScriptHandler();
 	auto * dispatcher = gh->gameState().getMapEventDispatcher();
 
@@ -109,18 +108,17 @@ void MapObjectVisitActivity::applyDeferredLevelUps()
 
 void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	// A level-up prompt shown during the DeferredLevelUps step comes from experience
-	// won in a battle, not from the object's reward. Reporting it to the object would
-	// run heroLevelUpDone() again and grant the reward a second time.
+	// A level-up in the DeferredLevelUps step comes from battle experience, not from the
+	// object's reward. Reporting it to the object would call heroLevelUpDone() again and
+	// grant the reward twice.
 	if(activeStep != Step::DeferredLevelUps)
 	{
 		const auto * object = gh->gameInfo().getObj(visitedObject);
 		const auto * hero = gh->gameState().getHero(visitingHero);
 
-		// The object may have been removed by the visit itself. The hero may be dead,
-		// and is deliberately still passed on: objects such as CGCreature need to be
-		// told about a battle their defender won, and check the result rather than
-		// the hero.
+		// The object may have been removed by the visit itself. A dead hero is passed on
+		// intentionally: objects such as CGCreature handle a battle won by the defender
+		// and check the battle result instead of the hero.
 		if(object)
 			child->notifyObjectAboutRemoval(object, hero, continuationTag);
 	}
@@ -153,7 +151,7 @@ void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 	const auto * town = gh->gameInfo().getTown(visitedObject);
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
-	// The town may have changed hands or the hero may have died in the meantime.
+	// The town may have changed owner or the hero may have died in the meantime
 	if(!town)
 		return;
 
@@ -161,7 +159,7 @@ void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 	if(building == town->rewardableBuildings.end())
 		return;
 
-	// The building is what put the dialog up, not the town around it.
+	// Activities are started by the building, not by the town
 	child->notifyObjectAboutRemoval(building->second.get(), hero, continuationTag);
 }
 
@@ -175,8 +173,8 @@ StepResult TownBuildingVisitActivity::advance()
 	const auto * town = gh->gameInfo().getTown(visitedObject);
 	const auto * hero = gh->gameState().getHero(visit.hero);
 
-	// Either may be gone if an earlier building started a battle - skip that pair
-	// rather than abandoning the buildings that come after it.
+	// Either may be gone if an earlier building started a battle. Skip this pair and
+	// continue with the remaining buildings.
 	if(!town || !hero)
 		return StepResult::Continue;
 
@@ -208,8 +206,8 @@ StepResult TurnStartVisitActivity::advance()
 	const auto * object = gh->gameState().getObjInstance(visit.object);
 	const auto * hero = gh->gameState().getHero(visit.hero);
 
-	// The town may have been captured, or the hero moved away or died, between the
-	// visits being collected and this one being reached.
+	// The town may have been captured, or the hero moved away or died, between collecting
+	// the visits and reaching this one.
 	if(!object || !hero)
 		return StepResult::Continue;
 

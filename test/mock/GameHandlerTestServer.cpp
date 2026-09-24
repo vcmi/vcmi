@@ -51,8 +51,8 @@ bool GameHandlerTestServer::hasBothPlayersAtSameConnection(PlayerColor, PlayerCo
 
 void GameHandlerTestServer::applyPack(CPackForClient & pack)
 {
-	// Record the handful of packs that carry the client-facing activity contract, so
-	// that tests can assert on what the client would receive.
+	// Record the packs that carry the client-facing activity contract, so that tests can
+	// check what the client would receive.
 	if(const auto * heroLevelUp = dynamic_cast<const HeroLevelUp *>(&pack))
 		levelUpPromptIDs.push_back(heroLevelUp->questionID);
 

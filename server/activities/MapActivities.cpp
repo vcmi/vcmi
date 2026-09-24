@@ -40,9 +40,8 @@ bool TimerPauseActivity::blocksPack(const CPackForServer * pack) const
 
 void TimerPauseActivity::onExposure(ActivityPtr topActivity)
 {
-	// do nothing - don't self-pop. This activity ends either when the player replies
-	// (ActivityProcessor pops answered activities once they are exposed) or when the
-	// timer/handler removes it explicitly.
+	// do not self-pop: this activity ends on player reply, which ActivityProcessor resolves
+	// once the activity is exposed, or on explicit removal by the timer handler
 }
 
 void TimerPauseActivity::onAdding(PlayerColor color)
@@ -145,8 +144,6 @@ void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * v
 {
 	assert(answer);
 
-	// Whoever put the dialog up is whatever is being visited - the visit knows it,
-	// so there is nothing to remember here.
 	visitedObject->blockingDialogAnswered(*gh, visitingHero, continuationTag, *answer);
 }
 
@@ -278,8 +275,8 @@ PromptResult LevelUpActivity::askHeroLevelUp()
 	if(!levellingHero || !levellingHero->gainsLevel())
 		return PromptResult::Finished;
 
-	// The dialog is only sent once the player's interface can show it. Until then the
-	// level is not applied either, so gainsLevel() stays true and we try again later.
+	// The dialog is sent only once the player's interface can show it. The level is not
+	// applied until then, so gainsLevel() stays true and this is retried later.
 	if(!gh->uiReadyForDialogs.contains(players.front()))
 		return PromptResult::NotReady;
 
@@ -318,9 +315,8 @@ PromptResult LevelUpActivity::askCommanderLevelUp()
 
 void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
 {
-	// Release the dialog the player just answered before the next question is sent.
-	// The client keeps an activity-backed dialog open until it is told that question is
-	// resolved, and relies on being told before the following one arrives.
+	// Resolve the answered question before the next one is sent: the client keeps its dialog
+	// open until that question is reported as resolved, and expects it before the next one.
 	if(askedQuestionID.hasValue())
 	{
 		gh->sendQuestionResolved(askedQuestionID);
@@ -372,9 +368,8 @@ void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
 
 void LevelUpActivity::onRemoval(PlayerColor color)
 {
-	// Normally every question has already been released as it was answered. One may
-	// still be outstanding if the activity was removed without being answered, and the
-	// client would otherwise be left holding that dialog open.
+	// A question is still outstanding if the activity was removed without being answered,
+	// which would leave the client's dialog open.
 	if(askedQuestionID.hasValue())
 		gh->sendQuestionResolved(askedQuestionID);
 }
@@ -396,8 +391,8 @@ void HeroMovementActivity::onExposure(ActivityPtr topActivity)
 
 	const auto * movingHero = gh->gameInfo().getHero(hero);
 
-	// A hero that lost the guard battle is no longer on the map, and one that
-	// changed hands is no longer ours - either way there is no visit to finish.
+	// A hero that lost the guard battle is no longer on the map, and one that changed
+	// owner is no longer ours, so there is no visit to finish.
 	if(visitDestAfterVictory && movingHero && movingHero->tempOwner == players[0])
 	{
 		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", movingHero->getNameTextID(), tmh.end.toString());

@@ -383,8 +383,8 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 	gameHandler->onPlayerTurnEnded(which);
 
-	// Anything still queued belonged to the turn that just ended, whether or not the
-	// player is still in the game.
+	// Anything still queued belongs to the turn that just ended, whether or not the player
+	// is still in the game.
 	gameHandler->activities->discardQueuedWork(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town

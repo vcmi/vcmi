@@ -525,9 +525,8 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 
 		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, callback);
 
-		// Free the visible-dialog gate as soon as the player makes a choice.
-		// The question-backed dialog queue still keeps manual input blocked until the
-		// server resolves this level-up step and advances the chain.
+		// Free the visible-dialog gate as soon as the player makes a choice. The dialog
+		// queue still blocks manual input until the server resolves this level-up step.
 		levelWindow->setCloseOnSelection(questionID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
@@ -554,9 +553,8 @@ void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, s
 
 		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, callback);
 
-		// Free the visible-dialog gate as soon as the player makes a choice.
-		// The question-backed dialog queue still keeps manual input blocked until the
-		// server resolves this level-up step and advances the chain.
+		// Free the visible-dialog gate as soon as the player makes a choice. The dialog
+		// queue still blocks manual input until the server resolves this level-up step.
 		levelWindow->setCloseOnSelection(questionID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
@@ -1316,8 +1314,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	if (!h)
 		return; //can't find hero
 
-	// Question-backed level-up chains can keep input blocked briefly after the visible
-	// window closes, until QuestionResolved advances or completes the chain.
+	// A level-up chain keeps input blocked after its window closes, until QuestionResolved
+	// advances or completes the chain.
 	if (showingDialog->isBusy() || !dialogs.empty())
 		return;
 
@@ -1380,9 +1378,9 @@ void CPlayerInterface::questionResolved(QuestionID questionID)
 		if(wasLevelUpDialog)
 		{
 			levelUpChainPendingContinuation = true;
-			// Drain any queued accept/click events from the just-confirmed question-backed
-			// dialog before showing whatever comes next. Otherwise the same Enter can
-			// instantly accept the next level-up step or close a queued info dialog.
+			// Drain accept/click events queued by the confirmed dialog before showing the
+			// next one, otherwise the same Enter accepts the next level-up step or closes
+			// a queued info dialog.
 			delayQueuedDialogsUntilInputSettles = true;
 			return;
 		}
@@ -1949,9 +1947,8 @@ void CPlayerInterface::createAndQueueDialog(PendingDialog::Type blockingPolicy, 
 	PendingDialog dialog;
 	dialog.questionID = questionID >= 0 ? questionID : QuestionID::NONE;
 	dialog.blockingPolicy = blockingPolicy;
-	// Level-up dialogs currently mean hero/commander level-up prompts.
-	// Keep them alive across turn-end and keep the whole question-backed chain
-	// ahead of ordinary queued info/reward dialogs.
+	// Level-up dialogs (hero and commander) survive turn end, and the whole chain of them
+	// is kept ahead of ordinary queued info and reward dialogs.
 	dialog.dropOnTurnEnd = !dialog.isLevelUpDialog();
 	dialog.showCallback = std::move(showCallback);
 

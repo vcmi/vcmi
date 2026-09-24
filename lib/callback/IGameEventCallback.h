@@ -80,15 +80,14 @@ public:
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
-	/// Puts a dialog to the player. The caller is the object raising it; on the server
-	/// the answer is routed back through the visit in progress, which already knows
-	/// what is being visited, so the caller matters only where there is no visit.
+	/// Shows a dialog to the player. On the server the answer is routed back through the
+	/// visit in progress, which already holds the visited object, so the caller is used
+	/// only outside of a visit.
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
 
-	/// Records which part of a multi-step visit this object is starting, so that it is
-	/// handed back when whatever it starts finishes. Objects use this instead of
-	/// working out afterwards what they were doing, from state that may have changed
-	/// in between. Has no effect outside a visit.
+	/// Records which part of a multi-step visit this object is starting. The tag is passed
+	/// back once the started activity finishes, so that the object does not have to deduce
+	/// its step from state that may have changed. Has no effect outside of a visit.
 	virtual void setContinuationTag(const CGHeroInstance * hero, int32_t tag) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window

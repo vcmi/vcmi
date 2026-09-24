@@ -33,15 +33,14 @@ TownSelectionActivity::TownSelectionActivity(CGameHandler * owner, PlayerColor p
 
 bool TownSelectionActivity::acceptsAnswerWithoutValue() const
 {
-	// The player may close the window instead of picking a town, which abandons the
-	// cast.
+	// The player may close the window instead of picking a town, which cancels the cast
 	return true;
 }
 
 void TownSelectionActivity::onRemoval(PlayerColor color)
 {
 	if(!answer)
-		return; // the player closed the window rather than choosing
+		return; // window was closed without choosing a town
 
 	const ObjectInstanceID chosen(*answer);
 
@@ -51,7 +50,7 @@ void TownSelectionActivity::onRemoval(PlayerColor color)
 		return;
 	}
 
-	// Both may have gone while the dialog was open.
+	// Both may have been removed while the dialog was open
 	const auto * town = gh->gameInfo().getTown(chosen);
 	const auto * hero = gh->gameInfo().getHero(caster);
 
@@ -62,8 +61,8 @@ void TownSelectionActivity::onRemoval(PlayerColor color)
 	parameters.caster = hero;
 	parameters.pos = town->visitablePos();
 
-	// performCast rather than a fresh cast: whether this spell may be cast at all was
-	// settled before the player was asked, and asking again would charge them twice.
+	// performCast instead of a new cast: castability was already checked before asking the
+	// player, and a new cast would charge the spell cost twice.
 	spell.toSpell()->getAdventureMechanics().performCast(gh->spellEnv.get(), parameters);
 }
 
@@ -80,7 +79,7 @@ bool ScriptDialogActivity::acceptsAnswerWithoutValue() const
 
 void ScriptDialogActivity::onRemoval(PlayerColor color)
 {
-	// The script is suspended underneath, waiting for this answer.
+	// The script below this activity is suspended until it receives this answer
 	if(auto * script = owner->findSoleActivity<LuaScriptActivity>(color))
 		script->setPendingAnswer(answer);
 }

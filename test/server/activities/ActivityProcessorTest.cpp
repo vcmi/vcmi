@@ -114,7 +114,7 @@ public:
 
 	bool blocksPack(const CPackForServer * pack) const override
 	{
-		// Mirrors VisitActivity: everything is blocked except answering a question.
+		// Mirrors VisitActivity: everything is blocked except answers
 		if(getType() == ActivityType::MapObjectVisit)
 			return blockAllButReply(pack);
 
@@ -134,8 +134,8 @@ public:
 	}
 };
 
-/// An activity that a player reply can end, so that reply routing can be tested without
-/// standing up a dialog activity and the netpack traffic that goes with it.
+/// An activity that a player reply can end, to test reply routing without a dialog
+/// activity and its netpack traffic.
 class TestDialogActivity : public Activity
 {
 public:
@@ -145,7 +145,7 @@ public:
 		for(auto player : affectedPlayers)
 			players.push_back(player);
 
-		askQuestion(); // a dialog stands for a question already put to the player
+		askQuestion(); // a dialog stands for a question already asked
 	}
 
 	TestDialogActivity(CGameHandler * gh, PlayerColor player, ActivityType type)
@@ -153,7 +153,7 @@ public:
 	{
 		players.push_back(player);
 
-		askQuestion(); // a dialog stands for a question already put to the player
+		askQuestion(); // a dialog stands for a question already asked
 	}
 
 	std::optional<int32_t> receivedReply;
@@ -174,8 +174,8 @@ public:
 	}
 };
 
-/// A routine that runs a fixed number of steps and can push a child activity on a
-/// chosen one, so that suspension and resumption can be driven deterministically.
+/// A routine of a fixed number of steps that can push a child activity on a chosen one,
+/// to drive suspension and resumption deterministically.
 class TestRoutine : public Activity, public IRoutine
 {
 public:
@@ -189,12 +189,11 @@ public:
 	int totalSteps;
 	int stepsTaken = 0;
 
-	/// Step index on which to push childToPush, or -1 to never push.
-	int pushChildOnStep = -1;
+	int pushChildOnStep = -1; ///< step index on which to push childToPush, -1 to never push
 	ActivityPtr childToPush;
 
 	std::vector<ActivityPtr> completedChildren;
-	/// Step indices at which advance() was entered, to check resumption order.
+	/// Step indices at which advance() was entered, to check resumption order
 	std::vector<int> stepLog;
 
 	IRoutine * asRoutine() final { return this; }
@@ -219,7 +218,7 @@ public:
 	}
 };
 
-/// A QuestionAnswer pack from a given player, for checking what blocksPack() lets past.
+/// A QuestionAnswer pack from a given player, to check what blocksPack() allows
 inline const QuestionAnswer & replyFromPlayer(PlayerColor player)
 {
 	static QuestionAnswer reply;
@@ -310,8 +309,8 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 	GameHandlerTestServer server(gameState(), levelUpPlayer);
 	CGameHandler gameHandler(server, gameState());
 
-	// The level-up has to exist before the other player is eliminated, otherwise
-	// nothing is deferring anything and this would test the empty case.
+	// The level-up must exist before the other player is eliminated, otherwise nothing
+	// is deferred and this would test the empty case.
 	gameHandler.giveExperience(hero, 10);
 	gameHandler.onAdvInterfaceReady(levelUpPlayer);
 
@@ -319,7 +318,7 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 	ASSERT_NE(levelUpActivity, nullptr);
 	ASSERT_EQ(levelUpActivity->getType(), ActivityType::HeroLevelUpDialog);
 
-	// The player is mid-level-up, so winning is not announced yet.
+	// The player is mid-level-up, so victory is not applied yet
 	gameHandler.checkVictoryLossConditionsForPlayer(defeatedPlayer);
 	EXPECT_EQ(gameState()->getPlayerState(defeatedPlayer)->status, EPlayerStatus::LOSER);
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::INGAME);
@@ -727,10 +726,9 @@ TEST_F(ActivityProcessorTest, countActivity_returnsZeroForNullptr)
 // --------------------------------------------------------------------------------
 // Reply routing.
 //
-// The client is prompted for an activity and answers it, but the server may push
-// something else in between. These tests drive the processor through those
-// orderings directly, because that is the shape of the client/server race that
-// used to leave a player holding an activity that had already been answered.
+// The client is asked about an activity and answers it, but the server may push something
+// else in between. These tests drive the processor through those orderings, which is the
+// client/server race that used to leave a player holding an already answered activity.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, submitReply_resolvesTopActivity)
@@ -753,8 +751,7 @@ TEST_F(ActivityProcessorTest, submitReply_acceptsReplyForBuriedActivityAndResolv
 	auto pushedAfterPrompt = std::make_shared<TestActivity>(&gh, player, ActivityType::MapObjectVisit);
 
 	activities.addActivity(dialog);
-	// Server pushes something else after the dialog was sent to the client, but
-	// before the client's answer arrives.
+	// Server pushes something else after the dialog was sent, but before the answer arrives
 	activities.addActivity(pushedAfterPrompt);
 
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, 3), ReplyOutcome::Accepted);
@@ -766,7 +763,7 @@ TEST_F(ActivityProcessorTest, submitReply_acceptsReplyForBuriedActivityAndResolv
 
 	activities.popIfTop(pushedAfterPrompt);
 
-	// Exposing it must resolve it rather than leave the player waiting forever.
+	// Exposing it must resolve it instead of leaving the player waiting forever
 	EXPECT_EQ(activities.topActivity(player), nullptr);
 	EXPECT_EQ(dialog->receivedReply, std::optional<int32_t>(3));
 	EXPECT_EQ(dialog->onRemovalCalls, 1);
@@ -783,7 +780,7 @@ TEST_F(ActivityProcessorTest, submitReply_resolvesSeveralStackedActivitiesAnswer
 	activities.addActivity(middle);
 	activities.addActivity(top);
 
-	// Answers arrive bottom-up - the exact opposite of the stack order.
+	// Answers arrive bottom-up, the opposite of the stack order
 	EXPECT_EQ(activities.submitReply(bottom->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
 	EXPECT_EQ(activities.submitReply(middle->getActiveQuestionID(), player, 2), ReplyOutcome::Accepted);
 	EXPECT_EQ(activities.topActivity(player), top);
@@ -859,8 +856,8 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsActivityThatCannotBeEndedByAnsw
 
 TEST_F(ActivityProcessorTest, getActivity_scopedByPlayerDistinguishesSharedActivityIds)
 {
-	// QuestionID::CLIENT is used by every pause activity, so two players can legitimately
-	// hold different activities carrying the same ID at the same time.
+	// QuestionID::CLIENT is used by every pause activity, so two players can hold different
+	// activities with the same id at the same time.
 	const PlayerColor first(1);
 	const PlayerColor second(2);
 
@@ -912,7 +909,7 @@ TEST_F(ActivityProcessorTest, submitReply_sharedActivityWaitsForPlayerWhoIsStill
 
 	// Resolved for the player whose stack allows it...
 	EXPECT_EQ(activities.topActivity(first), nullptr);
-	// ...and still in place for the one who is busy, rather than silently skipped.
+	// ...and still in place for the one that is busy, instead of silently skipped
 	EXPECT_EQ(activities.countActivity(shared.get()), 1);
 	EXPECT_EQ(activities.topActivity(second), busy);
 
@@ -923,9 +920,9 @@ TEST_F(ActivityProcessorTest, submitReply_sharedActivityWaitsForPlayerWhoIsStill
 }
 
 // --------------------------------------------------------------------------------
-// Property test: no ordering of prompts and replies may leave a player holding a
-// activity that has already been answered. That invariant is exactly what used to
-// fail in practice, and it is not reachable by enumerating cases by hand.
+// Property test: no ordering of questions and replies may leave a player holding an
+// already answered activity. This invariant used to fail in practice and is not reachable
+// by enumerating cases by hand.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivity)
@@ -950,7 +947,7 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 				processor.addActivity(activity);
 				live.push_back(activity);
 			}
-			else if(action == 1) // client replies to some activity it was prompted for
+			else if(action == 1) // client replies to some activity it was asked about
 			{
 				const auto & target = live[rng() % live.size()];
 				processor.submitReply(target->getActiveQuestionID(), player, 0);
@@ -989,9 +986,8 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 // Quiescence and queued work.
 //
 // Removing an activity runs hooks that may add or remove further activities, so the stacks
-// pass through states that are not meaningful - briefly empty, or holding an activity
-// that is about to be replaced. Work queued behind whatever the player is doing must
-// start from the settled state, never from one of those.
+// pass through meaningless intermediate states: briefly empty, or holding an activity that
+// is about to be replaced. Queued work must start from the settled state only.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, waitingActivity_doesNotStartWhilePlayerIsBusy)
@@ -1023,8 +1019,7 @@ TEST_F(ActivityProcessorTest, waitingActivity_startsOnceAfterTheStackFullyUnwind
 	activities.addActivity(top);
 	activities.addActivityWhenIdle(std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit));
 
-	// Two removals happen here, but there is only one quiescent point, so the
-	// queued activity must be started exactly once.
+	// Two removals, but only one quiescent point, so the queued activity starts exactly once
 	activities.popIfTop(top);
 
 	auto started = activities.topActivity(player);
@@ -1037,8 +1032,8 @@ TEST_F(ActivityProcessorTest, waitingActivity_doesNotSlipIntoTheGapOfAReplacemen
 {
 	const PlayerColor player(1);
 
-	// An activity that pushes a successor as it is removed - the shape of a level-up
-	// chain, where the player is never really idle between the two.
+	// An activity that pushes a successor as it is removed, like a level-up chain, where
+	// the player is never idle between the two.
 	auto replacement = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
 	auto original = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
 	original->addReplacementOnRemoval = true;
@@ -1051,7 +1046,7 @@ TEST_F(ActivityProcessorTest, waitingActivity_doesNotSlipIntoTheGapOfAReplacemen
 
 	activities.popIfTop(original);
 
-	// The queued work must wait for the whole chain, not cut in between its links.
+	// The queued work must wait for the whole chain, not start between its links
 	EXPECT_EQ(activities.topActivity(player), replacement);
 	EXPECT_TRUE(pending->onAddedCalls.empty());
 
@@ -1093,8 +1088,8 @@ TEST_F(ActivityProcessorTest, settle_resolvesRepliesThatArrivedWhileStacksWereMo
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
 	EXPECT_EQ(activities.topActivity(player), cover);
 
-	// Removing the cover exposes an answered activity; settle() must resolve it within
-	// the same quiescent point rather than leaving it for some later mutation.
+	// Removing the cover exposes an answered activity, which settle() must resolve within
+	// the same quiescent point instead of leaving it to a later mutation.
 	activities.popIfTop(cover);
 
 	EXPECT_EQ(activities.topActivity(player), nullptr);
@@ -1105,8 +1100,8 @@ TEST_F(ActivityProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredW
 {
 	const PlayerColor player(1);
 
-	// Every removal queues another activity, which is started, removed, and queues
-	// another... Must terminate rather than spin or recurse until the stack blows.
+	// Every removal queues another activity, which is started, removed and queues another.
+	// Must terminate instead of spinning or recursing until the stack overflows.
 	std::function<void()> queueAnother = [&]()
 	{
 		auto next = std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit);
@@ -1127,10 +1122,9 @@ TEST_F(ActivityProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredW
 // --------------------------------------------------------------------------------
 // Routines.
 //
-// A routine is a multi-step server-side activity - visiting the buildings of a town,
-// visiting an object - that must be able to stop in the middle when a step needs the
-// player, and carry on afterwards from where it left off. The processor drives it;
-// the routine keeps its own position rather than inferring it from the stack.
+// A routine is a multi-step server-side activity, e.g. an object visit or a town building
+// visit, that stops when a step needs the player and continues from where it stopped. The
+// processor drives it and the routine keeps its own position instead of reading the stack.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, routine_isSteppedToCompletionAndThenRemoved)
@@ -1173,7 +1167,7 @@ TEST_F(ActivityProcessorTest, routine_resumesFromWhereItStoppedOnceTheChildFinis
 
 	activities.popIfTop(child);
 
-	// Carries on from step 2 - it does not restart, and does not skip a step.
+	// Continues from step 2, without restarting or skipping a step
 	EXPECT_EQ(routine->stepLog, std::vector<int>({0, 1, 2, 3}));
 	EXPECT_EQ(activities.topActivity(player), nullptr);
 
@@ -1192,8 +1186,8 @@ TEST_F(ActivityProcessorTest, routine_doesNotReceiveTheGenericExposureHook)
 	activities.addActivity(routine);
 	activities.popIfTop(child);
 
-	// Child completion is reported through onChildCompleted only, so a routine
-	// cannot accidentally implement resumption twice.
+	// Child completion is reported through onChildCompleted only, so that a routine can
+	// not implement resumption twice.
 	EXPECT_EQ(routine->completedChildren.size(), 1u);
 }
 
@@ -1231,8 +1225,8 @@ TEST_F(ActivityProcessorTest, routine_underneathAnAnsweredActivityResumesAfterIt
 	activities.addActivity(routine);
 	ASSERT_EQ(activities.topActivity(player), dialog);
 
-	// Answering the dialog must both resolve it and let the routine continue,
-	// within the same quiescent point.
+	// Answering the dialog must resolve it and continue the routine within the same
+	// quiescent point.
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
 
 	EXPECT_EQ(routine->stepsTaken, 3);
@@ -1242,8 +1236,8 @@ TEST_F(ActivityProcessorTest, routine_underneathAnAnsweredActivityResumesAfterIt
 // --------------------------------------------------------------------------------
 // Object visits driven end to end.
 //
-// The visit routine hands control to the object, which may finish immediately or
-// start a battle. These exercise the real pipeline rather than a stand-in routine.
+// The visit routine passes control to the object, which may finish immediately or start a
+// battle. These tests use the real pipeline instead of a stand-in routine.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1303,7 +1297,7 @@ TEST_F(MapObjectVisitTest, visitResumesAndCompletesAfterTheDialogItStarted)
 
 	gameHandler.objectVisited(pandora, hero);
 
-	// The object opens a dialog, so the visit suspends rather than finishing.
+	// The object opens a dialog, so the visit suspends instead of finishing
 	auto dialog = gameHandler.activities->topActivity(player);
 	ASSERT_NE(dialog, nullptr);
 	EXPECT_EQ(dialog->getType(), ActivityType::BlockingDialog);
@@ -1354,8 +1348,8 @@ TEST_F(MapObjectVisitTest, visitStaysSuspendedAcrossAChainOfChildActivities)
 	EXPECT_TRUE(visitIsPending());
 	EXPECT_EQ(gameHandler.getVisitingHero(pandora), hero);
 
-	// Answering starts a battle one level deeper. The visit must still be waiting
-	// underneath it, so the object can be told the result when the battle ends.
+	// Answering starts a battle one level deeper. The visit must still be below it, so that
+	// the object receives the result when the battle ends.
 	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
 
 	auto battle = gameHandler.activities->topActivity(player);
@@ -1409,8 +1403,8 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(pandora, nullptr);
 
-	// A reward granted in the after-level-up half of the pipeline, so that granting
-	// it twice is visible, plus guards so the visit has to go through a battle.
+	// A reward granted in the after-level-up half of the pipeline, so that granting it
+	// twice is visible, plus guards so that the visit goes through a battle.
 	ASSERT_FALSE(pandora->configuration.info.empty());
 	pandora->configuration.info.at(0).reward.heroBonuses.push_back(
 		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
@@ -1427,8 +1421,8 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
 
-	// Level-up prompts are only sent once the client's interface is ready, and the
-	// hero's level is applied by that pack - without this the hero never levels up.
+	// Level-up dialogs are sent only once the client's interface is ready, and the hero's
+	// level is applied by that pack, so without this the hero never levels up.
 	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.objectVisited(pandora, hero);
@@ -1441,20 +1435,20 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	ASSERT_EQ(gameHandler.activities->topActivity(player)->getType(), ActivityType::Battle);
 	gameHandler.battles->cheatBattleVictory(player);
 
-	// Accept the result rather than replaying the battle.
+	// Accept the result instead of replaying the battle
 	auto resultDialog = gameHandler.activities->topActivity(player);
 	ASSERT_NE(resultDialog, nullptr);
 	ASSERT_EQ(resultDialog->getType(), ActivityType::BattleDialog);
 	ASSERT_EQ(gameHandler.activities->submitReply(resultDialog->getActiveQuestionID(), player, 0), ReplyOutcome::Accepted);
 
-	// The object has applied the battle result and granted its reward once. The
-	// level-up earned from battle experience is only now offered, on top of the visit.
+	// The object has applied the battle result and granted its reward once. The level-up
+	// from battle experience is offered only now, on top of the visit.
 	ASSERT_EQ(rewardsGranted(), 1u);
 	auto levelUp = gameHandler.activities->topActivity(player);
 	ASSERT_NE(levelUp, nullptr);
 	ASSERT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
 
-	// The hero may gain several levels at once, each prompting in turn.
+	// The hero may gain several levels at once, each asked about in turn
 	int levelUpsAnswered = 0;
 	while(auto pending = gameHandler.activities->topActivity(player))
 	{
@@ -1467,9 +1461,8 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 
 	EXPECT_GE(levelUpsAnswered, 1);
 
-	// None of those level-ups is part of the object's reward pipeline, so the object
-	// must not be told about them - otherwise heroLevelUpDone() grants the reward
-	// once more for each one.
+	// None of those level-ups belongs to the object's reward pipeline, so the object must
+	// not be notified, otherwise heroLevelUpDone() grants the reward once more for each.
 	EXPECT_EQ(rewardsGranted(), 1u);
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }
@@ -1477,9 +1470,9 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 // --------------------------------------------------------------------------------
 // Locating the battle activity.
 //
-// A battle activity is one object on both belligerents' stacks. Most callers look at
-// the attacker first and fall back to the defender, but they disagree on whether an
-// AI defender counts - a difference that used to be spelled out four times over.
+// A battle activity is one object on both belligerents' stacks. Most callers look at the
+// attacker first and fall back to the defender, but they disagree on whether an AI
+// defender counts, a difference that used to be duplicated in four places.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1487,7 +1480,7 @@ namespace
 class TwoPlayerBattleTest : public TinyMapGameTest
 {
 protected:
-	/// Colour that is played by the computer rather than a person.
+	/// Color that is played by an AI, not by a human
 	static constexpr int AI_PLAYER = 1;
 
 	void configurePlayer(PlayerSettings & settings) const override
@@ -1530,7 +1523,7 @@ TEST_F(TwoPlayerBattleTest, findBattleActivityLooksAtBothSidesForTheOneSharedAct
 	auto * found = gameHandler.battles->findBattleActivity(*battle);
 	ASSERT_NE(found, nullptr);
 
-	// One object, on both belligerents' stacks - and only one per player.
+	// One object on both belligerents' stacks, and only one per player
 	EXPECT_EQ(gameHandler.activities->findSoleActivity<BattleActivity>(PlayerColor(0)), found);
 	EXPECT_EQ(gameHandler.activities->findSoleActivity<BattleActivity>(PlayerColor(AI_PLAYER)), found);
 }
@@ -1543,9 +1536,8 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 		.playerActive(player)
 		.hero(int3(5, 5, 0), HeroTypeID(0), player)
 		.heroGarrison({{CreatureID(0), 1}})
-		// Savage is the one disposition with a fixed aggression rather than a rolled
-		// one, and a hero this weak cannot talk its way out, so the monster always
-		// fights and the outcome does not depend on the die.
+		// Savage is the only disposition with a fixed aggression instead of a rolled one,
+		// and a hero this weak can not avoid the fight, so the outcome is deterministic.
 		.monster(int3(6, 5, 0), CreatureID(0), 100,
 			static_cast<int8_t>(CGCreature::Character::SAVAGE));
 	startWithMap(std::move(builder));
@@ -1570,10 +1562,10 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 // --------------------------------------------------------------------------------
 // Repeated questions.
 //
-// A hero can earn several levels from one reward, and used to be asked about each
-// through a separate activity pushed as the previous one was removed. It is now one
-// activity that asks repeatedly, so the player is never briefly free between levels
-// and whatever waits underneath is told once, at the end.
+// A hero can gain several levels from one reward, and used to be asked about each through
+// a separate activity pushed as the previous one was removed. It is now one activity that
+// asks repeatedly, so the player can not act between levels and the activity below is
+// notified only once, at the end.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1617,7 +1609,7 @@ TEST_F(LevelUpActivityTest, severalLevelsAreAskedAboutByOneActivityThatStaysOnTh
 
 	while(auto pending = gameHandler.activities->topActivity(player))
 	{
-		// Always the same activity object, however many times it asks.
+		// Always the same activity object, however many times it asks
 		ASSERT_EQ(pending, activity) << "a second activity was pushed instead of asking again";
 
 		const auto questionID = pending->getActiveQuestionID();
@@ -1650,15 +1642,15 @@ TEST_F(LevelUpActivityTest, answerNamingASupersededQuestionIsIgnored)
 	const auto firstQuestion = activity->getActiveQuestionID();
 	ASSERT_EQ(gameHandler.activities->submitReply(firstQuestion, player, 0), ReplyOutcome::Accepted);
 
-	// The next question is now outstanding; the previous one is history.
+	// The next question is now outstanding, the previous one is stale
 	ASSERT_EQ(gameHandler.activities->topActivity(player), activity);
 	ASSERT_NE(activity->getActiveQuestionID(), firstQuestion);
 
 	EXPECT_EQ(gameHandler.activities->submitReply(firstQuestion, player, 0),
 		ReplyOutcome::IgnoredAlreadyCompleted);
 
-	// Naming the activity rather than the question is not expressible at all: an
-	// ActivityID is a distinct type and cannot be passed here.
+	// Naming the activity instead of the question is not expressible: ActivityID is a
+	// distinct type and can not be passed here.
 
 	// Neither stale answer consumed the outstanding question.
 	EXPECT_EQ(gameHandler.activities->topActivity(player), activity);
@@ -1709,9 +1701,9 @@ TEST_F(LevelUpActivityTest, everyQuestionSentToTheClientIsReportedResolved)
 			ReplyOutcome::Accepted);
 	}
 
-	// The client keeps an activity-backed dialog open until the server reports that
-	// question resolved, so every prompt sent has to come back resolved - by the id
-	// the client was given, not by the id of the activity behind it.
+	// The client keeps its dialog open until the server reports that question as resolved,
+	// so every question sent must come back resolved, by the id that the client was given
+	// and not by the id of the activity behind it.
 	ASSERT_GT(server.levelUpPromptIDs.size(), 1u) << "expected several levels";
 	EXPECT_EQ(server.resolvedQuestionIDs, server.levelUpPromptIDs);
 }
@@ -1735,10 +1727,10 @@ TEST_F(TwoPlayerBattleTest, battleActivityIsStillFoundWhenThePlayerPausesMidBatt
 	auto * expected = gameHandler.battles->findBattleActivity(*battle);
 	ASSERT_NE(expected, nullptr);
 
-	// BattleActivity lets GamePause through, so a player may pause mid-battle, which
-	// puts a TimerPauseActivity on top of the battle activity. That is legal, and the
-	// battle activity must still be found - looking only at the top of the stack lost
-	// it, and the battle then ended with "Cannot find battle activity!".
+	// BattleActivity allows GamePause, so a player may pause mid-battle, which puts a
+	// TimerPauseActivity on top of the battle activity. The battle activity must still be
+	// found: looking only at the top of the stack ended the battle with
+	// "Cannot find battle activity!".
 	auto pause = std::make_shared<TimerPauseActivity>(&gameHandler, PlayerColor(0));
 	gameHandler.activities->addActivity(pause);
 	ASSERT_EQ(gameHandler.activities->topActivity(PlayerColor(0)), pause);
@@ -1750,9 +1742,9 @@ TEST_F(ActivityProcessorTest, settle_completesALongRunOfQueuedWork)
 {
 	const PlayerColor player(1);
 
-	// A turn start can queue a lot in one go: one visit per town, each running a
-	// routine that visits several buildings. All of it lands in a single settle(),
-	// so the round limit must not act as a budget for legitimate work.
+	// A turn start can queue one visit per town, each running a routine over several
+	// buildings. All of it lands in a single settle(), so the round limit must not act as
+	// a budget for legitimate work.
 	constexpr int queuedItems = 60;
 	std::vector<std::shared_ptr<TestRoutine>> queued;
 
@@ -1789,8 +1781,8 @@ TEST_F(ActivityProcessorTest, replyIsAcceptedWhileAVisitSitsOnTop)
 	activities.addActivity(dialog);
 	activities.addActivity(visit);
 
-	// A visit blocks every action, but answering a question is not an action - the
-	// reply may well be for an activity the visit is sitting on top of.
+	// A visit blocks every action, but an answer is not an action: the reply may be for an
+	// activity below the visit.
 	EXPECT_FALSE(visit->blocksPack(&replyFromPlayer(player)));
 
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
@@ -1814,8 +1806,8 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 	auto dialog = std::make_shared<TestDialogActivity>(&gh, player, ActivityType::BlockingDialog);
 	activities.addActivity(dialog);
 
-	// Only an activity that offers a way out may be answered with nothing. Accepting it
-	// here would resolve the dialog with no answer for the object to act on.
+	// Only an activity that the player can cancel may be answered without a value.
+	// Accepting it here would resolve the dialog with no answer for the object to use.
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, std::nullopt),
 		ReplyOutcome::RejectedMissingAnswer);
 	EXPECT_FALSE(dialog->isAnswered());
@@ -1825,9 +1817,9 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 // --------------------------------------------------------------------------------
 // Continuation tags.
 //
-// A reward is granted in two halves, either side of any level-up the experience in
-// it causes. Which reward that is used to be re-read from the object afterwards, from
-// a field that was deliberately not saved; it is now carried by the visit.
+// A reward is granted in two halves, around any level-up caused by its experience. The
+// reward id used to be re-read from the object, from a field that was not serialized, and
+// is now carried by the visit.
 // --------------------------------------------------------------------------------
 
 TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotTheObject)
@@ -1846,9 +1838,8 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(pandora, nullptr);
 
-	// Two rewards, of which only the second can be granted. If the reward being
-	// resumed were taken to be the first - which is what a missing tag amounts to -
-	// nothing would be granted at all.
+	// Two rewards, of which only the second can be granted. A missing tag would resume the
+	// first one and nothing would be granted at all.
 	ASSERT_FALSE(pandora->configuration.info.empty());
 	pandora->configuration.info.push_back(pandora->configuration.info.at(0));
 	pandora->configuration.info.at(0).limiter.heroLevel = 99; // out of reach
@@ -1878,7 +1869,7 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1),
 		ReplyOutcome::Accepted);
 
-	// The experience in the reward opened a level-up, suspending the reward half way.
+	// The experience in the reward opened a level-up, suspending the reward half way
 	auto levelUp = gameHandler.activities->topActivity(player);
 	ASSERT_NE(levelUp, nullptr);
 	ASSERT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
@@ -1900,7 +1891,7 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }
 
-/// Records which object it was told about when it finished.
+/// Records the object that it was notified about on completion.
 class NotifyRecordingActivity : public Activity
 {
 public:
@@ -1946,15 +1937,15 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	auto visit = std::make_shared<TownBuildingVisitActivity>(
 		&gameHandler, town, std::vector<const CGHeroInstance *>{hero}, std::vector<BuildingID>{buildingID});
 
-	// This building finishes its visit without asking anything, so drive the report
-	// directly rather than waiting for a dialog that never appears.
+	// This building finishes its visit without asking anything, so the report is driven
+	// directly instead of waiting for a dialog that never appears.
 	gameHandler.activities->addActivity(visit);
 
 	auto child = std::make_shared<NotifyRecordingActivity>(&gameHandler, player);
 	visit->onChildCompleted(child);
 
-	// A dialog raised during a building's visit was raised by the building, not by
-	// the town around it, so that is what has to be told the answer.
+	// A dialog opened during a building's visit belongs to the building and not to the
+	// town, so the answer is reported to the building.
 	EXPECT_EQ(child->reportedTo, static_cast<const IObjectInterface *>(building));
 	EXPECT_NE(child->reportedTo, static_cast<const IObjectInterface *>(town));
 }
@@ -1962,9 +1953,9 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 // --------------------------------------------------------------------------------
 // Casts that pause to ask something.
 //
-// A town-portal style spell stops part way to ask which town to travel to. It used
-// to leave a lambda behind, holding the caster and the spell mechanics by pointer
-// across the wait; it now leaves an activity holding ids.
+// A town portal style spell stops to ask which town to teleport to. It used to leave a
+// lambda holding the caster and the spell mechanics by pointer across the wait, and now
+// leaves an activity holding ids.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1996,7 +1987,7 @@ TEST_F(TownPortalTest, castingPausesToAskWhichTownAndFinishesAtTheChosenOne)
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
 
-	// Cast with no destination, which is what makes the spell ask.
+	// Cast with no destination, which makes the spell ask
 	gameHandler.castSpell(hero, SpellID(SpellID::decode("core:townPortal")), int3(-1, -1, -1));
 
 	auto asking = gameHandler.activities->topActivity(player);
@@ -2007,7 +1998,7 @@ TEST_F(TownPortalTest, castingPausesToAskWhichTownAndFinishesAtTheChosenOne)
 	ASSERT_EQ(gameHandler.activities->submitReply(asking->getActiveQuestionID(), player, town->id.getNum()),
 		ReplyOutcome::Accepted);
 
-	// The answer finished the cast, from ids alone.
+	// The answer completed the cast, from ids alone
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 	EXPECT_NE(hero->visitablePos(), startedAt);
 	EXPECT_EQ(hero->visitablePos(), town->visitablePos());

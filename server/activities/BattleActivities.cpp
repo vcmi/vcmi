@@ -104,9 +104,9 @@ void BattleActivity::onRemoval(PlayerColor color)
 	if(result)
 		gh->battles->battleFinalize(battleID, *result);
 
-	// Guarded map object visits are notified after the battle activity is removed.
-	// In that case, defer level-up prompts until the object applies its battle result.
-	// In multi-player battles, also wait until this battle activity is removed for all players.
+	// Guarded map object visits are notified after the battle activity is removed, so
+	// level-ups are postponed until the object applies its battle result. In multiplayer
+	// battles they also wait until this activity is removed for every player.
 	if(!hasPendingBattleOrVisitActivities())
 		completeDeferredLevelUps();
 }

@@ -43,8 +43,8 @@ public:
 	TryMoveHero tmh;
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
 
-	/// Held as an id rather than a pointer: the activity outlives a guard battle, which
-	/// the hero may not - a beaten hero is taken off the map and put in the pool.
+	/// Stored as id, not as pointer: the activity outlives a guard battle, but a defeated
+	/// hero is removed from the map and put into the pool.
 	ObjectInstanceID hero;
 
 	void onExposure(ActivityPtr topActivity) override;
@@ -103,15 +103,14 @@ public:
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
 };
 
-/// Asks a player to pick skills as a hero gains levels, and then as their commander
-/// does. A single hero can gain several levels at once, so this asks once per level
-/// without leaving the stack in between: the player cannot act between two levels,
-/// and whatever is waiting underneath - usually the visit that granted the
-/// experience - is told once, when the whole sequence is over.
+/// Asks a player to pick skills for the levels gained by a hero and then by their
+/// commander. A hero can gain several levels at once, so this asks once per level without
+/// leaving the stack in between: the player can not act between two levels, and the
+/// activity below, usually the visit that granted the experience, is notified only once.
 class LevelUpActivity : public Activity, public IInteraction
 {
-	/// Which of the two sequences is being asked about. The hero levels first, then
-	/// the commander, matching the order the game applies them in.
+	/// Hero levels are asked about first, then commander levels, in the order in which
+	/// the game applies them.
 	enum class Phase : uint8_t
 	{
 		Hero,
@@ -122,13 +121,12 @@ class LevelUpActivity : public Activity, public IInteraction
 	Phase phase = Phase::Hero;
 	ObjectInstanceID hero;
 
-	/// Question the player is currently looking at. The client keeps its dialog open
-	/// until the server reports that exact question resolved, so each one has to be
-	/// released as it is answered - not once when the whole sequence ends.
+	/// Question that the client currently shows. The client keeps its dialog open until the
+	/// server reports that exact question as resolved, so every question must be released
+	/// as it is answered, not once at the end of the sequence.
 	QuestionID askedQuestionID = QuestionID::NONE;
 
-	/// Skills offered by the question currently outstanding, so that an answer can be
-	/// turned back into the skill the player picked.
+	/// Skills offered by the outstanding question, to map an answer back to a skill.
 	std::vector<SecondarySkill> offeredHeroSkills;
 	std::vector<ui32> offeredCommanderSkills;
 

@@ -80,12 +80,8 @@ public:
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	//activities stuff
-	/// Next question to put to a player. Saved, because an outstanding question has
-	/// to keep its id across a save.
-	QuestionID questionCounter;
-
-	/// Numbers activities in logs. Not saved - it identifies nothing.
-	uint32_t activityTraceCounter = 0;
+	QuestionID questionCounter; ///< next question id, serialized so that an outstanding question keeps its id
+	uint32_t activityTraceCounter = 0; ///< numbers activities in logs, not serialized
 
 	std::set<PlayerColor> uiReadyForDialogs;
 
@@ -139,9 +135,9 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) override;
 
-	/// Runs a converted map-event handler under a LuaScriptActivity so blocking script actions can pause and
-	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
-	/// handle (empty when the handler finished without pausing).
+	/// Runs a converted map event handler under a LuaScriptActivity, so that blocking script
+	/// actions can pause and later resume it. `dispatch` calls the dispatcher entry point and
+	/// returns its coroutine handle, empty if the handler finished without pausing.
 	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 		const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch);
 	void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) override;
@@ -211,16 +207,16 @@ public:
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
-	/// Starts a level-up: asks the player about each level earned, or picks for them
-	/// when there is nobody to ask.
+	/// Starts a level-up, asking the player about every gained level, or picking skills
+	/// automatically if there is no player to ask.
 	void levelUpHero(const CGHeroInstance * hero);
 	void levelUpCommander (const CCommanderInstance * c);
 
-	/// Rolls what one level offers, and applies the level itself. Does not ask.
+	/// Rolls the skills offered by one level and applies the level itself, without asking.
 	HeroLevelUp rollHeroLevelUp(const CGHeroInstance * hero);
 	std::optional<CommanderLevelUp> rollCommanderLevelUp(const CCommanderInstance * c);
 
-	/// Grants the skill picked for one level. Does not continue to the next level.
+	/// Grants the skill chosen for one level, without continuing to the next level.
 	void applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill);
 	void applyCommanderLevelUp (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
 

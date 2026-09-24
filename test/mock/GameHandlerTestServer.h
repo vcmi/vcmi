@@ -33,12 +33,10 @@ public:
 	void applyPack(CPackForClient & pack) override;
 	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
 
-	/// Ids carried by the level-up prompts the server sent, in order. Lets a test
-	/// check what the client would actually have been shown, rather than only what
-	/// the activity stack looked like.
+	/// Question ids of the level-up dialogs that the server sent, in order.
 	std::vector<QuestionID> levelUpPromptIDs;
 
-	/// Ids the server reported resolved, in order.
+	/// Question ids that the server reported as resolved, in order.
 	std::vector<QuestionID> resolvedQuestionIDs;
 
 private:

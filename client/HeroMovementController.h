@@ -51,7 +51,7 @@ class HeroMovementController
 	void stopMovementSound();
 
 public:
-	// const questions
+	// const queries
 
 	/// Returns true if hero should move through garrison without displaying garrison dialog
 	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const;

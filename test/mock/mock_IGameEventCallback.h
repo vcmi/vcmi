@@ -60,7 +60,7 @@ public:
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
 	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override;
 
-	/// Stands in for the visit activity that would hold the tag on a real server.
+	/// Replaces the visit activity that holds the tag on a real server.
 	int32_t continuationTag = 0;
 	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
