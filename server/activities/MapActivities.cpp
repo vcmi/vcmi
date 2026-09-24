@@ -317,7 +317,7 @@ PromptResult LevelUpActivity::askCommanderLevelUp()
 void LevelUpActivity::applyAnswer(std::optional<int32_t> answer)
 {
 	// Release the dialog the player just answered before the next question is sent.
-	// The client keeps a activity-backed dialog open until it is told that question is
+	// The client keeps an activity-backed dialog open until it is told that question is
 	// resolved, and relies on being told before the following one arrives.
 	if(askedQuestionID.hasValue())
 	{

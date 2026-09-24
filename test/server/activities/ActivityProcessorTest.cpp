@@ -131,7 +131,7 @@ public:
 	}
 };
 
-/// A activity that a player reply can end, so that reply routing can be tested without
+/// An activity that a player reply can end, so that reply routing can be tested without
 /// standing up a dialog activity and the netpack traffic that goes with it.
 class TestDialogActivity : public Activity
 {
@@ -724,10 +724,10 @@ TEST_F(ActivityProcessorTest, countActivity_returnsZeroForNullptr)
 // --------------------------------------------------------------------------------
 // Reply routing.
 //
-// The client is prompted for a activity and answers it, but the server may push
+// The client is prompted for an activity and answers it, but the server may push
 // something else in between. These tests drive the processor through those
 // orderings directly, because that is the shape of the client/server race that
-// used to leave a player holding a activity that had already been answered.
+// used to leave a player holding an activity that had already been answered.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, submitReply_resolvesTopActivity)
@@ -985,8 +985,8 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 // --------------------------------------------------------------------------------
 // Quiescence and queued work.
 //
-// Removing a activity runs hooks that may add or remove further activities, so the stacks
-// pass through states that are not meaningful - briefly empty, or holding a activity
+// Removing an activity runs hooks that may add or remove further activities, so the stacks
+// pass through states that are not meaningful - briefly empty, or holding an activity
 // that is about to be replaced. Work queued behind whatever the player is doing must
 // start from the settled state, never from one of those.
 // --------------------------------------------------------------------------------
@@ -1034,7 +1034,7 @@ TEST_F(ActivityProcessorTest, waitingActivity_doesNotSlipIntoTheGapOfAReplacemen
 {
 	const PlayerColor player(1);
 
-	// A activity that pushes a successor as it is removed - the shape of a level-up
+	// An activity that pushes a successor as it is removed - the shape of a level-up
 	// chain, where the player is never really idle between the two.
 	auto replacement = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
 	auto original = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
@@ -1706,7 +1706,7 @@ TEST_F(LevelUpActivityTest, everyQuestionSentToTheClientIsReportedResolved)
 			ReplyOutcome::Accepted);
 	}
 
-	// The client keeps a activity-backed dialog open until the server reports that
+	// The client keeps an activity-backed dialog open until the server reports that
 	// question resolved, so every prompt sent has to come back resolved - by the id
 	// the client was given, not by the id of the activity behind it.
 	ASSERT_GT(server.levelUpPromptIDs.size(), 1u) << "expected several levels";
@@ -1787,7 +1787,7 @@ TEST_F(ActivityProcessorTest, replyIsAcceptedWhileAVisitSitsOnTop)
 	activities.addActivity(visit);
 
 	// A visit blocks every action, but answering a question is not an action - the
-	// reply may well be for a activity the visit is sitting on top of.
+	// reply may well be for an activity the visit is sitting on top of.
 	EXPECT_FALSE(visit->blocksPack(&replyFromPlayer(player)));
 
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
@@ -1811,7 +1811,7 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 	auto dialog = std::make_shared<TestDialogActivity>(&gh, player, ActivityType::BlockingDialog);
 	activities.addActivity(dialog);
 
-	// Only a activity that offers a way out may be answered with nothing. Accepting it
+	// Only an activity that offers a way out may be answered with nothing. Accepting it
 	// here would resolve the dialog with no answer for the object to act on.
 	EXPECT_EQ(activities.submitReply(dialog->getActiveQuestionID(), player, std::nullopt),
 		ReplyOutcome::RejectedMissingAnswer);

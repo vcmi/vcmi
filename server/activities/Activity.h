@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "ActivityID.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 #include <boost/container/small_vector.hpp>
 
 struct CPackForServer;
@@ -125,7 +125,9 @@ class Activity : boost::noncopyable
 {
 public:
 	boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I> players; //players that are affected (often "blocked") by activity
-	ActivityID activityID;
+	/// Sequence number, for logs and stack dumps only - it identifies nothing and is
+	/// never sent anywhere. What a player is asked carries a QuestionID instead.
+	uint32_t traceNumber = 0;
 
 	ActivityType getType() const
 	{
@@ -133,7 +135,7 @@ public:
 	}
 
 	/// Player whose reply this activity is resolved by, once one has been accepted.
-	/// Set by ActivityProcessor::submitReply, never by the activity itself. A activity may
+	/// Set by ActivityProcessor::submitReply, never by the activity itself. An activity may
 	/// be answered long before it reaches the top of the stack: the processor stores
 	/// the reply here and resolves the activity once it is actually exposed.
 	const std::optional<PlayerColor> & getAnsweredBy() const
@@ -222,7 +224,7 @@ protected:
 	QuestionID activeQuestionID = QuestionID::NONE;
 };
 
-/// Human-readable name of a activity type, for logs and player-facing complaints.
+/// Human-readable name of an activity type, for logs and player-facing complaints.
 std::string toString(ActivityType type);
 
 std::ostream &operator<<(std::ostream &out, const Activity &activity);

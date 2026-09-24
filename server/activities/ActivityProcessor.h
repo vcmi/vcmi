@@ -43,7 +43,7 @@ enum class ReplyOutcome : uint8_t
 	/// The activity exists but is not the kind that a player reply can end.
 	RejectedNotAnswerable,
 
-	/// The reply carried no answer, for a activity that needs one.
+	/// The reply carried no answer, for an activity that needs one.
 	RejectedMissingAnswer,
 };
 
@@ -211,7 +211,7 @@ public:
 
 	void addActivity(ActivityPtr activity);
 
-	/// Adds a activity once its players have nothing else to do. Use this for work that
+	/// Adds an activity once its players have nothing else to do. Use this for work that
 	/// is not caused by the activity the player is currently dealing with, so that it
 	/// queues up behind it instead of interrupting it.
 	void addActivityWhenIdle(ActivityPtr activity);
@@ -234,7 +234,7 @@ public:
 	/// can return another player's activity.
 	ActivityPtr getActivity(QuestionID questionID, PlayerColor player);
 
-	/// Records a player's reply to a activity. The activity does not have to be at the top
+	/// Records a player's reply to an activity. The activity does not have to be at the top
 	/// of the stack - the server may well have pushed something else between sending
 	/// the prompt and receiving the answer, and rejecting the reply for that reason
 	/// would leave both sides waiting for each other forever.

@@ -32,9 +32,9 @@ VisitActivity::VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj,
 bool VisitActivity::blocksPack(const CPackForServer * pack) const
 {
 	// During the visit itself all actions are blocked - except answering a question,
-	// which may have been asked by a activity that has since been removed or buried.
+	// which may have been asked by an activity that has since been removed or buried.
 	// Refusing those is what leaves both sides waiting for each other.
-	// (The visit may also trigger a activity above that lets more through.)
+	// (The visit may also trigger an activity above that lets more through.)
 	return blockAllButReply(pack);
 }
 

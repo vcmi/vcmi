@@ -40,9 +40,9 @@ class CViewport;
 ///                             Append #anchor to jump to a named section.
 ///   [![alt](path)](wiki:id)   Clickable media link — left-click navigates,
 ///                             right-click shows the alt-text tooltip.
-///   <a id="name" />           Invisible named anchor (also <a name="name" />).
+///   <an id="name" />           Invisible named anchor (also <a name="name" />).
 ///                             Embedding in a heading is allowed:
-///                               ## <a id="top" />Section title
+///                               ## <an id="top" />Section title
 ///                             When @p anchors is non-null the map is populated
 ///                             with name → content Y-offset (px) entries.
 ///   {VCMI color tags}         Passed through as-is to all text labels.

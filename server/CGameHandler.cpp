@@ -596,7 +596,6 @@ CGameHandler::CGameHandler(IGameServer & server)
 	, statistics(std::make_unique<StatisticDataSet>())
 	, spellEnv(std::make_unique<ServerSpellCastEnvironment>(this))
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
-	, activityCounter(1)
 	, questionCounter(1)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
@@ -3623,7 +3622,7 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 	else
 		logGlobal->trace("Player %s answers activity %d with no value", player, questionID);
 
-	// The reply is addressed to a activity ID, not to a stack position. The client cannot
+	// The reply is addressed to an activity ID, not to a stack position. The client cannot
 	// know what the server pushed since it was prompted, so a reply that is no longer
 	// for the top activity is still perfectly legal - it is stored and resolved later.
 	switch(activities->submitReply(questionID, player, answer))
@@ -3641,7 +3640,7 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 
 		case ReplyOutcome::RejectedWrongPlayer:
 			logGlobal->warn("Player %s replied to activity %d that does not affect them!\nActivities:\n%s", player, questionID, activities->describeStacks());
-			COMPLAIN_RET("Attempt to answer a activity of another player!");
+			COMPLAIN_RET("Attempt to answer an activity of another player!");
 
 		case ReplyOutcome::RejectedMissingAnswer:
 			logGlobal->warn("Player %s replied to activity %d without an answer!\nActivities:\n%s", player, questionID, activities->describeStacks());
@@ -3654,7 +3653,7 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 		case ReplyOutcome::RejectedUnknownActivity:
 		default:
 			logGlobal->error("Player %s replied to unknown activity %d!\nActivities:\n%s", player, questionID, activities->describeStacks());
-			COMPLAIN_RET("Attempt to answer a activity that does not exist!");
+			COMPLAIN_RET("Attempt to answer an activity that does not exist!");
 	}
 }
 
