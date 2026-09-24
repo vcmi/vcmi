@@ -273,6 +273,38 @@ public:
 		return static_cast<ResultT*>(query.get());
 	}
 
+	/// The one query of the given type anywhere on a player's stack, or nullptr.
+	/// Some kinds of query are limited to one per player - a player can only be in
+	/// one battle - and callers rely on that. Complains if the invariant is broken
+	/// rather than silently picking one.
+	template<typename T>
+	T * findSoleQuery(PlayerColor player)
+	{
+		if(!player.isValidPlayer())
+			return nullptr;
+
+		T * result = nullptr;
+
+		for(const auto & query : queries.at(player.getNum()))
+		{
+			auto * typed = queryAs<T>(query);
+			if(!typed)
+				continue;
+
+			if(result != nullptr)
+			{
+				logGlobal->error("Player %s has more than one query of type '%s'!\nQueries:\n%s",
+					player.toString(), ::toString(T::TYPE), describeStacks());
+				assert(false);
+				break;
+			}
+
+			result = typed;
+		}
+
+		return result;
+	}
+
 	template<typename T, typename Predicate>
 	T * findQuery(Predicate predicate) const
 	{
