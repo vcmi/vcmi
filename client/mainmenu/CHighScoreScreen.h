@@ -46,7 +46,6 @@ private:
 
 	HighScorePage highscorepage;
 
-	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::vector<std::shared_ptr<CAnimImage>> images;
@@ -78,7 +77,7 @@ class CHighScoreInputScreen : public CWindowObject, public IVideoHolder
 {
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::shared_ptr<CHighScoreInput> input;
-	std::shared_ptr<TransparentFilledRectangle> background;
+	std::shared_ptr<TransparentFilledRectangle> backgroundRect;
 	std::shared_ptr<VideoWidgetBase> videoPlayer;
 
 	std::shared_ptr<CButton> statisticButton;

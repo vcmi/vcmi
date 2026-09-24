@@ -809,8 +809,8 @@ SetSizeWindow::SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const C
 	updateShadow();
 	center();
 
-	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	background->setPlayerColor(PlayerColor(1));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	buttonCancel = std::make_shared<CButton>(Point(160, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 	buttonOk = std::make_shared<CButton>(Point(70, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
 		close();
@@ -918,8 +918,8 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	updateShadow();
 	center();
 
-	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	background->setPlayerColor(PlayerColor(1));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 
 	titles.push_back(std::make_shared<CLabel>(centerX, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.2")));

@@ -49,19 +49,19 @@ public:
 	BattleAction goTowardsNearest(
 		const CStack * stack,
 		const BattleHexArray & movementTargets,
-		const PotentialTargets & targets,
+		const PotentialTargets & potentialTargets,
 		const BattleHexArray & finalDestinationHexes);
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 	bool hasWorkingTowers() const;
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps);
 	/// Value that bonuses of a simulated cast add to our army and take away from the enemy. Health that
 	/// the same cast changed is scored separately, so only what the bonuses are worth is counted here
-	float scoreBonusEffects(const battle::Units & units, const DamageCache & damageCache) const;
+	float scoreBonusEffects(const battle::Units & units, const DamageCache & cache) const;
 	void print(const std::string & text) const;
 	BattleAction moveOrAttack(
 		const CStack * stack,
 		const BattleHex & movementTarget,
-		const PotentialTargets & targets,
+		const PotentialTargets & potentialTargets,
 		const BattleHexArray & allowedAttackOrigins = {});
 
 	BattleEvaluator(

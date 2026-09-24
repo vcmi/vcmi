@@ -390,7 +390,7 @@ void CSoundHandler::setCallback(int channel, std::function<void()> function)
 	if(iter == callbacks.end())
 		function();
 	else
-		iter->second.push_back(function);
+		iter->second.push_back(std::move(function));
 }
 
 void CSoundHandler::resetCallback(int channel)

@@ -276,7 +276,7 @@ void FFMpegStream::decodeNextFrame()
 			// Decode read packet
 			// Note: this method may return AVERROR(EAGAIN). However this should never happen with ffmpeg API
 			// since there is guaranteed call to avcodec_receive_frame and ffmpeg API promises that *both* of these methods will never return AVERROR(EAGAIN).
-			int rc = avcodec_send_packet(codecContext, &packet);
+			rc = avcodec_send_packet(codecContext, &packet);
 			if(rc < 0)
 				throwFFmpegError(rc);
 

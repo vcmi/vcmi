@@ -137,7 +137,7 @@ class BattleActionProcessor : boost::noncopyable
 
 	bool dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
-	void removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, BonusList bonuses);
+	void removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, const BonusList & bonuses);
 
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);

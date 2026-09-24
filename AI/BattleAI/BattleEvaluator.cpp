@@ -130,7 +130,7 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
-float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const DamageCache & damageCache) const
+float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const DamageCache & cache) const
 {
 	float result = 0;
 
@@ -142,8 +142,8 @@ float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const Dama
 		if(!before || !before->alive() || !unit->alive())
 			continue;
 
-		const auto & context = damageCache.facing.at(unit->unitSide());
-		const auto gainedPerCreature = LIBRARY->creh->getCombatValue().getAIValue(unit, context) - damageCache.getOriginalValue(unit);
+		const auto & context = cache.facing.at(unit->unitSide());
+		const auto gainedPerCreature = LIBRARY->creh->getCombatValue().getAIValue(unit, context) - cache.getOriginalValue(unit);
 
 		// stack size is taken from before the cast, so that health the spell changed is not counted twice
 		const float gained = gainedPerCreature * CombatValue::stackScale(*before);
@@ -383,13 +383,13 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 BattleAction BattleEvaluator::moveOrAttack(
 	const CStack * stack,
 	const BattleHex & movementTarget,
-	const PotentialTargets & targets,
+	const PotentialTargets & potentialTargets,
 	const BattleHexArray & allowedAttackOrigins)
 {
 	float bestAttackValue = 0.0f;
 	std::optional<AttackPossibility> attackOnTheWay;
 
-	for(const auto & target : targets.possibleAttacks)
+	for(const auto & target : potentialTargets.possibleAttacks)
 	{
 		if(!target.attack.shooting
 			&& (target.from == movementTarget || allowedAttackOrigins.contains(target.from))
@@ -417,7 +417,7 @@ BattleAction BattleEvaluator::moveOrAttack(
 BattleAction BattleEvaluator::goTowardsNearest(
 	const CStack * stack,
 	const BattleHexArray & movementTargets,
-	const PotentialTargets & targets,
+	const PotentialTargets & potentialTargets,
 	const BattleHexArray & finalDestinationHexes)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
@@ -466,7 +466,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 		const auto movementRange = stack->getMovementRange(0);
 
 		if(movementRange == 0)
-			return moveOrAttack(stack, movementDestination, targets);
+			return moveOrAttack(stack, movementDestination, potentialTargets);
 
 		ReachabilityInfo::TDistances remainingDistances;
 		remainingDistances.fill(ReachabilityInfo::INFINITE_DIST);
@@ -494,7 +494,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 		const auto movementDistance = remainingDistances[movementDestination.toInt()];
 		const auto turnsAfterMovement = (movementDistance + movementRange - 1) / movementRange;
 
-		for(const auto & target : targets.possibleAttacks)
+		for(const auto & target : potentialTargets.possibleAttacks)
 		{
 			if(target.attack.shooting
 				|| !avHexes.contains(target.from)
@@ -512,7 +512,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 			}
 		}
 
-		return moveOrAttack(stack, movementDestination, targets, allowedAttackOrigins);
+		return moveOrAttack(stack, movementDestination, potentialTargets, allowedAttackOrigins);
 	};
 
 	// this turn

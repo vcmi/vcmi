@@ -683,19 +683,19 @@ const MapRendererObjects::ObjectImages & MapRendererObjects::getObjectImages(IMa
 
 	// Which image each layer resolves to is fixed for the whole pass: the animation clock
 	// does not advance inside one, and no object can change while it runs under the lock.
-	ObjectImages images;
-	images[LAYER_SHADOW] = getImageToRender(context, object, getShadowAnimation(object));
-	images[LAYER_BODY] = getImageToRender(context, object, getBodyAnimation(object));
-	images[LAYER_COLOR_OVERLAY] = getImageToRender(context, object, getColorOverlayAnimation(object));
-	images[LAYER_FLAG] = getImageToRender(context, object, getFlagAnimation(object));
-	images[LAYER_OVERLAY] = getImageToRender(context, object, getOverlayAnimation(object));
+    ObjectImages objectImages;
+	objectImages[LAYER_SHADOW] = getImageToRender(context, object, getShadowAnimation(object));
+	objectImages[LAYER_BODY] = getImageToRender(context, object, getBodyAnimation(object));
+	objectImages[LAYER_COLOR_OVERLAY] = getImageToRender(context, object, getColorOverlayAnimation(object));
+	objectImages[LAYER_FLAG] = getImageToRender(context, object, getFlagAnimation(object));
+	objectImages[LAYER_OVERLAY] = getImageToRender(context, object, getOverlayAnimation(object));
 
 	// one image stands in for all of them, e.g. wandering monster in a fight - draw it once
 	for(auto layer : {LAYER_SHADOW, LAYER_COLOR_OVERLAY})
-		if(images[layer] == images[LAYER_BODY])
-			images[layer] = nullptr;
+        if(objectImages[layer] == objectImages[LAYER_BODY])
+            objectImages[layer] = nullptr;
 
-	return renderImageCache.emplace(object->id.getNum(), std::move(images)).first->second;
+	return renderImageCache.emplace(object->id.getNum(), std::move(objectImages)).first->second;
 }
 
 const MapRendererObjects::ObjectChecksumInfo & MapRendererObjects::getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex)

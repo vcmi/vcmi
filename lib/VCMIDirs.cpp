@@ -35,15 +35,15 @@ std::string IVCMIDirs::genHelpString() const
 	const auto gdStringA = boost::algorithm::join(tempVec, ":");
 
 	return
-		"  game data:		" + gdStringA + "\n"
-		"  server:			" + TextOperations::filesystemPathToUtf8(serverPath()) + "\n"
+		"  game data:\t\t" + gdStringA + "\n"
+		"  server:\t\t\t" + TextOperations::filesystemPathToUtf8(serverPath()) + "\n"
 		"\n"
-		"  user data:		" + TextOperations::filesystemPathToUtf8(userDataPath()) + "\n"
-		"  user cache:		" + TextOperations::filesystemPathToUtf8(userCachePath()) + "\n"
-		"  user config:		" + TextOperations::filesystemPathToUtf8(userConfigPath()) + "\n"
-		"  user logs:		" + TextOperations::filesystemPathToUtf8(userLogsPath()) + "\n"
-		"  user saves:		" + TextOperations::filesystemPathToUtf8(userSavePath()) + "\n"
-		"  user extracted:	" + TextOperations::filesystemPathToUtf8(userExtractedPath()) + "\n";
+		"  user data:\t\t" + TextOperations::filesystemPathToUtf8(userDataPath()) + "\n"
+		"  user cache:\t\t" + TextOperations::filesystemPathToUtf8(userCachePath()) + "\n"
+		"  user config:\t\t" + TextOperations::filesystemPathToUtf8(userConfigPath()) + "\n"
+		"  user logs:\t\t" + TextOperations::filesystemPathToUtf8(userLogsPath()) + "\n"
+		"  user saves:\t\t" + TextOperations::filesystemPathToUtf8(userSavePath()) + "\n"
+		"  user extracted:\t" + TextOperations::filesystemPathToUtf8(userExtractedPath()) + "\n";
 }
 
 void IVCMIDirs::init()
