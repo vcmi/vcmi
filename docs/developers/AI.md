@@ -38,6 +38,8 @@ BattleAI itself handles all the rest and issues actual commands
 
 Adventure AI responsible for moving heroes on map, gathering things, developing town. Main idea is to gather all possible tasks on map, prioritize them and select the best one for each heroes. Initially was a fork of VCAI
 
+For a proposed workflow for evaluating and improving adventure AI decisions, see [Adventure AI Evaluation Plan](Adventure_AI_Evaluation_Plan.md).
+
 ### Parts
 
 Gateway - a callback for server used to invoke AI actions when server thinks it is time to do something. Through this callback AI is informed about various events like hero level up, tile revialed, blocking dialogs and so on. In order to do this Gaateway implements specific interface. The interface is exactly the same for human and AI
