@@ -294,4 +294,18 @@ TEST_F(BattleEvaluatorSpellTest, PrefersRestoringManyCreaturesToDamageSpell)
 	EXPECT_EQ(action->spell, SpellID(SpellID::RESURRECTION));
 	EXPECT_EQ(targetOf(*action), wounded);
 }
+
+TEST_F(BattleEvaluatorSpellTest, DeclinesUselessSpellWhenStackCannotAct)
+{
+	teachDefender(SpellID::PROTECTION_FROM_AIR);
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(1, 5), 30);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(15, 5), 30);
+	ours->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BIND_EFFECT, BonusSource::OTHER, 0, BonusSourceID()));
+	ASSERT_EQ(ours->getMovementRange(), 0);
+
+	auto action = decideSpell(ours);
+
+	EXPECT_FALSE(action.has_value());
+}
 }

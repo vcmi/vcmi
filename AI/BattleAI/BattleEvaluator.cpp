@@ -982,7 +982,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 			return ps.value;
 		});
 
-	if(castToPerform.value > cachedAttack.score && !vstd::isAlmostEqual(castToPerform.value, cachedAttack.score))
+	const float baselineScore = vstd::isAlmostEqual(cachedAttack.score, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE))
+		? 0.0f : cachedAttack.score;
+	if(castToPerform.value > baselineScore && !vstd::isAlmostEqual(castToPerform.value, baselineScore))
 	{
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
