@@ -203,6 +203,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Pathfinding/AIPathNodePoolTest.cpp
 		nullkiller2/Pathfinding/ArmyLossTest.cpp
 		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
+		nullkiller2/Pathfinding/QuestActionTest.cpp
 	)
 
 	list(APPEND test_HEADERS

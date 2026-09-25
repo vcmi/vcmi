@@ -31,19 +31,31 @@ namespace AIPathfinding
 
 	bool QuestAction::canAct(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		auto object = questInfo.getObject(aiNk->cc.get());
-		auto quest = questInfo.getQuest(aiNk->cc.get());
+		const auto * object = questInfo.getObject(aiNk->cc.get());
+		if(questInfo.hasObjectInstance() && !object)
+			return false;
+
+		const auto * quest = questInfo.getQuest(aiNk->cc.get());
+		if(!quest)
+			return false;
+
 		// key-gated object: only actionable once the key is held (nothing to activate first)
 		if(!quest->mission.requiredKeys.empty())
 		{
 			return quest->checkQuest(hero);
 		}
 
-		auto notActivated = !object->wasVisited(aiNk->playerID)
-			&& !quest->activeForPlayers.count(hero->getOwner());
+		auto notActivated = (!object || !object->wasVisited(aiNk->playerID))
+			&& !quest->isKnownTo(hero->getOwner());
 		
 		return notActivated
 			|| quest->checkQuest(hero);
+	}
+
+	bool QuestAction::needsInitialVisit(const Nullkiller * aiNk, const CGHeroInstance * hero) const
+	{
+		const auto * quest = questInfo.getQuest(aiNk->cc.get());
+		return quest && !quest->isKnownTo(hero->getOwner());
 	}
 
 	Goals::TSubgoal QuestAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
@@ -53,7 +65,11 @@ namespace AIPathfinding
 
 	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		const auto * object = questInfo.getObject(aiGw->cc.get());
+		if(!object)
+			throw cannotFulfillGoalException("Quest object is no longer available.");
+
+		aiGw->moveHeroToTile(object->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
 	}
 
 	std::string QuestAction::toString() const
