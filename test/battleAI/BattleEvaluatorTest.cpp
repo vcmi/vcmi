@@ -308,4 +308,21 @@ TEST_F(BattleEvaluatorSpellTest, DeclinesUselessSpellWhenStackCannotAct)
 
 	EXPECT_FALSE(action.has_value());
 }
+
+TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
+{
+	const auto * griffins = addStack(BattleSide::ATTACKER, creatureByName("core:royalGriffin"), BattleHex(8, 5), 50);
+	const auto * crusaders = addStack(BattleSide::DEFENDER, creatureByName("core:crusader"), BattleHex(9, 5), 20);
+	ASSERT_EQ(crusaders->getTotalAttacks(false), 2);
+	ASSERT_TRUE(griffins->hasBonusOfType(BonusType::UNLIMITED_RETALIATIONS));
+
+	DamageEstimation retaliation;
+	battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
+	const int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
+	ASSERT_GT(retaliationDamage, 0);
+
+	auto attack = evaluateMelee(crusaders, griffins, crusaders->getPosition());
+
+	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
+}
 }
