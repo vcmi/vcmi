@@ -25,6 +25,12 @@ else
 	VCMI_PACKAGE_NAME_SUFFIX="(PR ${TMP_PRID})"
 fi
 
+# Release builds are identified by version alone - commit hash is only useful for development builds
+if [ "$VCMI_PACKAGE_GOLDMASTER" = "ON" ]
+then
+	VCMI_PACKAGE_BUILD=""
+fi
+
 echo "VCMI_PACKAGE_FILE_NAME=${VCMI_PACKAGE_FILE_NAME}"
 echo "VCMI_PACKAGE_BUILD=${VCMI_PACKAGE_BUILD}"
 echo "VCMI_PACKAGE_NAME_SUFFIX=${VCMI_PACKAGE_NAME_SUFFIX}"
