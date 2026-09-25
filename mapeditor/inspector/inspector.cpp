@@ -514,11 +514,11 @@ void Inspector::updateProperties(CGEvent * o)
 	addProperty(QObject::tr("Available for"), o->availableFor, new PlayerSelectionDelegate(o->availableFor), false);
 }
 
-void Inspector::updateProperties(SeerHut * o)
+void Inspector::updateProperties(QuestSource * o)
 {
 	if(!o) return;
 	{
-		auto * delegate = new QuestDelegate(controller, *static_cast<QuestSource *>(o));
+		auto * delegate = new QuestDelegate(controller, *o);
 		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
@@ -566,7 +566,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CRewardableObject);
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
-	UPDATE_OBJ_PROPERTIES(SeerHut);
+	UPDATE_OBJ_PROPERTIES(QuestSource);
 	UPDATE_OBJ_PROPERTIES(QuestGuard);
 
 	table->show();
@@ -614,7 +614,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CRewardableObject);
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
-	SET_PROPERTIES(SeerHut);
+	SET_PROPERTIES(QuestSource);
 	SET_PROPERTIES(QuestGuard);
 }
 
@@ -849,7 +849,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 		o->stacksCount = std::clamp(value.toInt(), -3, GameConstants::ARMY_SIZE);
 }
 
-void Inspector::setProperty(SeerHut * o, const QString & key, const QVariant & value)
+void Inspector::setProperty(QuestSource * o, const QString & key, const QVariant & value)
 {
 }
 

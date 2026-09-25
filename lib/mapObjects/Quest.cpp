@@ -910,13 +910,18 @@ bool QuestGuard::passableFor(PlayerColor color) const
 	return getQuest().isCompleted;
 }
 
-void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+void QuestSource::serializeJsonSingleQuest(JsonSerializeFormat & handler)
 {
 	//quest only, do not call base class
 	if(!handler.saving && allQuests().empty())
-		addQuest(); // quest guards carry a single quest; create it to read into
+		addQuest(); // guards and gates carry a single quest; create it to read into
 	auto s = handler.enterStruct("quest");
 	getQuest().serializeJson(handler);
+}
+
+void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
 }
 
 MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
@@ -966,13 +971,25 @@ void KeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIns
 void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	CRewardableObject::initObj(gameRandomizer);
+
+	if(isEmpty())
+		return; // a gate without any quest is a doorway that stands open
+
 	getQuest().defineQuestName();
 	if(getQuest().firstVisitText.empty())
 		getQuest().firstVisitText.appendTextID("core.advevent", 18);
 }
 
+void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
+}
+
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	if(isEmpty())
+		return;
+
 	// the player has seen the gate and now knows what it asks for - the pathfinder
 	// only routes heroes through a gate whose quest is known
 	if(!getQuest().isKnownTo(h->getOwner()))
@@ -996,6 +1013,9 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 bool QuestGate::passableFor(PlayerColor color) const
 {
+	if(isEmpty())
+		return true;
+
 	// player-level fallback (no hero context): only the keymaster-key limiter can
 	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
 	for(const auto & key : getQuest().mission.requiredKeys)
@@ -1008,5 +1028,5 @@ bool QuestGate::passableFor(const CGHeroInstance * hero) const
 {
 	// Passable once the limiter is satisfied. For a toll gate this means the hero
 	// currently holds the goods (i.e. can pay); checkQuest re-checks every pass.
-	return checkQuest(hero);
+	return isEmpty() || checkQuest(hero);
 }

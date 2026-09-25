@@ -264,6 +264,9 @@ protected:
 	void syncActiveReward();
 	/// Records that a player has been shown the active quest (SEERHUT_VISITED).
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
+	/// H3M-shaped JSON layout: a single "quest" struct and no separate reward. Used by
+	/// quest guards and quest gates; seer huts store a "quests" array instead.
+	void serializeJsonSingleQuest(JsonSerializeFormat & handler);
 	/// True once `player` already holds this source's quest-log entry (border guards/gates
 	/// of a colour share one entry, so the first visited instance is enough).
 	bool hasQuestInLog(PlayerColor player) const;
@@ -365,6 +368,11 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 	bool passableFor(const CGHeroInstance * hero) const override;
+
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+
+public:
 
 	template <typename Handler> void serialize(Handler & h)
 	{
