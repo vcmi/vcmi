@@ -1553,17 +1553,17 @@ Warning: levels cannot be removed once added.</source>
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="640"/>
+        <location filename="../mapcontroller.cpp" line="650"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Sankaria %1 ei voida luoda NEUTRAALINA.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="654"/>
+        <location filename="../mapcontroller.cpp" line="664"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Vaadittu modi puuttuu</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="654"/>
+        <location filename="../mapcontroller.cpp" line="664"/>
         <source>
 
 Do you want to do that now ?</source>
@@ -1573,7 +1573,7 @@ Do you want to do that now ?</source>
 Haluatko tehdä sen nyt?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="674"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">Tämän objektin modi on pakollinen,jotta kartta pysyy kelvollisena.</translation>
     </message>
@@ -2089,27 +2089,27 @@ Haluatko tehdä sen nyt?</translation>
         <translation type="unfinished">Toissijaiset taidot:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1009"/>
+        <location filename="../inspector/inspector.cpp" line="1049"/>
         <source>Compliant</source>
         <translation type="unfinished">Myöntyvä</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1010"/>
+        <location filename="../inspector/inspector.cpp" line="1050"/>
         <source>Friendly</source>
         <translation type="unfinished">Ystävällinen</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1011"/>
+        <location filename="../inspector/inspector.cpp" line="1051"/>
         <source>Aggressive</source>
         <translation type="unfinished">Aggressiivinen</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1012"/>
+        <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Hostile</source>
         <translation type="unfinished">Vihamielinen</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1013"/>
+        <location filename="../inspector/inspector.cpp" line="1053"/>
         <source>Savage</source>
         <translation type="unfinished">Raivoisa</translation>
     </message>
@@ -2174,49 +2174,89 @@ Haluatko tehdä sen nyt?</translation>
         <translation type="unfinished">Resurssi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="452"/>
+        <location filename="../inspector/inspector.cpp" line="846"/>
+        <source>Aggression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="453"/>
+        <location filename="../inspector/inspector.cpp" line="848"/>
+        <source>Join only for money</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="454"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
+        <source>Joining percentage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="458"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
+        <source>Upgraded stack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="460"/>
+        <location filename="../inspector/inspector.cpp" line="854"/>
+        <source>Stacks count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="461"/>
         <source>Artifact reward</source>
         <translation type="unfinished">Artefaktipalkinto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="518"/>
+        <location filename="../inspector/inspector.cpp" line="529"/>
         <source>Quest</source>
         <translation type="unfinished">Tehtävä</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="536"/>
+        <location filename="../inspector/inspector.cpp" line="547"/>
         <source>Identifier</source>
         <translation type="unfinished">Tunniste</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="537"/>
+        <location filename="../inspector/inspector.cpp" line="548"/>
         <source>ID</source>
         <translation type="unfinished">ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="538"/>
+        <location filename="../inspector/inspector.cpp" line="549"/>
         <source>SubID</source>
         <translation type="unfinished">Alitunniste</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="539"/>
+        <location filename="../inspector/inspector.cpp" line="550"/>
         <source>InstanceName</source>
         <translation type="unfinished">Instanssinimi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="544"/>
+        <location filename="../inspector/inspector.cpp" line="555"/>
         <source>IsStatic</source>
         <translation type="unfinished">OnStaattinen</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1063"/>
+        <location filename="../inspector/inspector.cpp" line="957"/>
+        <location filename="../inspector/inspector.cpp" line="1111"/>
         <source>neutral</source>
         <translation type="unfinished">neutraali</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="1060"/>
+        <source>Never</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="1061"/>
+        <source>Always</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="451"/>
+        <location filename="../inspector/inspector.cpp" line="462"/>
         <source>Army</source>
         <translation type="unfinished">Armeija</translation>
     </message>
@@ -2228,46 +2268,46 @@ Haluatko tehdä sen nyt?</translation>
         <location filename="../inspector/inspector.cpp" line="295"/>
         <location filename="../inspector/inspector.cpp" line="326"/>
         <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="547"/>
-        <location filename="../inspector/inspector.cpp" line="594"/>
+        <location filename="../inspector/inspector.cpp" line="558"/>
+        <location filename="../inspector/inspector.cpp" line="605"/>
         <source>Owner</source>
         <translation type="unfinished">Omistaja</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="719"/>
+        <location filename="../inspector/inspector.cpp" line="730"/>
         <source>Same as town</source>
         <translation type="unfinished">Sama kuin kaupungilla</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="734"/>
+        <location filename="../inspector/inspector.cpp" line="745"/>
         <source>Removable units</source>
         <translation type="unfinished">Poistettavat yksiköt</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="742"/>
+        <location filename="../inspector/inspector.cpp" line="753"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Paikanpitotyyppi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="760"/>
+        <location filename="../inspector/inspector.cpp" line="771"/>
         <source>Power rank</source>
         <translation type="unfinished">Voimatason sijoitus</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="317"/>
         <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="763"/>
-        <location filename="../inspector/inspector.cpp" line="787"/>
+        <location filename="../inspector/inspector.cpp" line="774"/>
+        <location filename="../inspector/inspector.cpp" line="798"/>
         <source>Hero type</source>
         <translation type="unfinished">Sankarityyppi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="795"/>
         <source>Experience</source>
         <translation type="unfinished">Kokemus</translation>
     </message>
@@ -2285,19 +2325,19 @@ Haluatko tehdä sen nyt?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="773"/>
+        <location filename="../inspector/inspector.cpp" line="784"/>
         <source>Gender</source>
         <translation type="unfinished">Sukupuoli</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="776"/>
+        <location filename="../inspector/inspector.cpp" line="787"/>
         <source>Name</source>
         <translation type="unfinished">Nimi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="791"/>
         <source>Biography</source>
         <translation type="unfinished">Elämäkerta</translation>
     </message>
@@ -2309,19 +2349,19 @@ Haluatko tehdä sen nyt?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="799"/>
+        <location filename="../inspector/inspector.cpp" line="810"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Partiointisäde</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="676"/>
+        <location filename="../inspector/inspector.cpp" line="687"/>
         <source>Town name</source>
         <translation type="unfinished">Kaupungin nimi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="691"/>
         <source>Same as player</source>
         <translation type="unfinished">Sama kuin pelaajalla</translation>
     </message>
@@ -2330,37 +2370,37 @@ Haluatko tehdä sen nyt?</translation>
         <location filename="../inspector/inspector.cpp" line="428"/>
         <location filename="../inspector/inspector.cpp" line="435"/>
         <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="492"/>
-        <location filename="../inspector/inspector.cpp" line="636"/>
-        <location filename="../inspector/inspector.cpp" line="688"/>
-        <location filename="../inspector/inspector.cpp" line="705"/>
-        <location filename="../inspector/inspector.cpp" line="824"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
+        <location filename="../inspector/inspector.cpp" line="647"/>
+        <location filename="../inspector/inspector.cpp" line="699"/>
+        <location filename="../inspector/inspector.cpp" line="716"/>
+        <location filename="../inspector/inspector.cpp" line="835"/>
         <source>Message</source>
         <translation type="unfinished">Viesti</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
+        <location filename="../inspector/inspector.cpp" line="720"/>
         <source>Spell</source>
         <translation type="unfinished">Loitsu</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="697"/>
+        <location filename="../inspector/inspector.cpp" line="708"/>
         <source>Productivity</source>
         <translation type="unfinished">Tuottavuus</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="816"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="463"/>
+        <location filename="../inspector/inspector.cpp" line="827"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Amount</source>
         <translation type="unfinished">Määrä</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="827"/>
+        <location filename="../inspector/inspector.cpp" line="838"/>
         <source>Character</source>
         <translation type="unfinished">Hahmo</translation>
     </message>
@@ -2369,18 +2409,18 @@ Haluatko tehdä sen nyt?</translation>
         <translation type="obsolete">Kyvyt</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="654"/>
+        <location filename="../inspector/inspector.cpp" line="514"/>
+        <location filename="../inspector/inspector.cpp" line="665"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="978"/>
+        <location filename="../inspector/inspector.cpp" line="1018"/>
         <source>Select town</source>
         <translation type="unfinished">Valitse kaupunki</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="989"/>
+        <location filename="../inspector/inspector.cpp" line="1029"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
@@ -2388,93 +2428,93 @@ Haluatko tehdä sen nyt?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="829"/>
+        <location filename="../inspector/inspector.cpp" line="840"/>
         <source>Never flees</source>
         <translation type="unfinished">Ei koskaan pakene</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="842"/>
         <source>Not growing</source>
         <translation type="unfinished">Ei kasva</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="485"/>
-        <location filename="../inspector/inspector.cpp" line="526"/>
+        <location filename="../inspector/inspector.cpp" line="496"/>
+        <location filename="../inspector/inspector.cpp" line="537"/>
         <source>Reward</source>
         <translation type="unfinished">Palkinto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="499"/>
-        <location filename="../inspector/inspector.cpp" line="645"/>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="656"/>
         <source>Remove after</source>
         <translation type="unfinished">Poista jälkeen</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="500"/>
-        <location filename="../inspector/inspector.cpp" line="648"/>
+        <location filename="../inspector/inspector.cpp" line="511"/>
+        <location filename="../inspector/inspector.cpp" line="659"/>
         <source>Human trigger</source>
         <translation type="unfinished">Ihmisen laukaisija</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="501"/>
-        <location filename="../inspector/inspector.cpp" line="651"/>
+        <location filename="../inspector/inspector.cpp" line="512"/>
+        <location filename="../inspector/inspector.cpp" line="662"/>
         <source>Cpu trigger</source>
         <translation type="unfinished">Tietokoneen laukaisija</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
+        <location filename="../inspector/inspector.cpp" line="521"/>
+        <location filename="../inspector/inspector.cpp" line="863"/>
         <source>First visit text</source>
         <translation type="unfinished">Ensimmäinen vierailuteksti</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="844"/>
+        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="866"/>
         <source>Next visit text</source>
         <translation type="unfinished">Seuraavan vierailun teksti</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
+        <location filename="../inspector/inspector.cpp" line="523"/>
+        <location filename="../inspector/inspector.cpp" line="869"/>
         <source>Completed text</source>
         <translation type="unfinished">Suoritettu teksti</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="513"/>
-        <location filename="../inspector/inspector.cpp" line="527"/>
-        <location filename="../inspector/inspector.cpp" line="850"/>
+        <location filename="../inspector/inspector.cpp" line="524"/>
+        <location filename="../inspector/inspector.cpp" line="538"/>
+        <location filename="../inspector/inspector.cpp" line="872"/>
         <source>Repeat quest</source>
         <translation type="unfinished">Toista tehtävä</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="852"/>
+        <location filename="../inspector/inspector.cpp" line="525"/>
+        <location filename="../inspector/inspector.cpp" line="874"/>
         <source>Time limit</source>
         <translation type="unfinished">Aikaraja</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="955"/>
         <source>UNFLAGGABLE</source>
         <translation type="unfinished">EI LIPUTETTAVISSA</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="445"/>
+        <location filename="../mapcontroller.cpp" line="446"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Objektia ei voi sijoittaa</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="622"/>
+        <location filename="../mapcontroller.cpp" line="632"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Kartalla voi olla vain yksi Graali-objekti.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="677"/>
+        <location filename="../mapcontroller.cpp" line="687"/>
         <source> (submod of %1)</source>
         <translation type="unfinished"> (alalisäosa %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="679"/>
+        <location filename="../mapcontroller.cpp" line="689"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2502,6 +2542,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
+        <location filename="../inspector/inspector.cpp" line="1055"/>
         <source>Custom</source>
         <translation type="unfinished">Mukautettu</translation>
     </message>
@@ -2697,6 +2738,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="1059"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished">Satunnainen</translation>
