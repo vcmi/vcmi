@@ -30,7 +30,7 @@ enum class EAccessibility
 
 
 using TAccessibilityArray = std::array<EAccessibility, GameConstants::BFIELD_SIZE>;
-using TBattlefieldTurnsArray = std::array<int8_t, GameConstants::BFIELD_SIZE>;
+using TBattlefieldTurnsArray = std::array<int16_t, GameConstants::BFIELD_SIZE>;
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {

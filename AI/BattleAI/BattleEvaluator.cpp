@@ -361,12 +361,24 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 		if(brokenWallMoat.size())
 		{
-			activeActionMade = true;
-
 			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
-				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
+			{
+				// step out of the moat - but only if the engine actually allows standing there,
+				// otherwise the server rejects our action and the stack stays active forever
+				const auto sideStep = stack->getPosition().cloneInDirection(BattleHex::RIGHT);
+				const auto availableHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
+
+				if(availableHexes.contains(sideStep))
+				{
+					activeActionMade = true;
+					return BattleAction::makeMove(stack, sideStep);
+				}
+			}
 			else
+			{
+				activeActionMade = true;
 				return goTowardsNearest(stack, brokenWallMoat, *targets, brokenWallMoat);
+			}
 		}
 	}
 
