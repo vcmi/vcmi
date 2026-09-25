@@ -276,20 +276,19 @@ float AttackPossibility::calculateDamageReduce(
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(
-	const BattleAttackInfo & attackInfo,
-	BattleHex hex,
+	const AttackPossibility & attack,
 	DamageCache & damageCache,
 	std::shared_ptr<CBattleInfoCallback> state)
 {
 	int64_t res = 0;
 
-	if(attackInfo.shooting)
+	if(attack.attack.shooting || !attack.attackerState->alive())
 		return 0;
 
 	std::set<uint32_t> checkedUnits;
 
-	auto attacker = attackInfo.attacker;
-	const auto & hexes = attacker->getSurroundingHexes(hex);
+	const auto * attacker = attack.attackerState.get();
+	const auto & hexes = attacker->getSurroundingHexes(attack.from);
 	for(const BattleHex & tile : hexes)
 	{
 		auto st = state->battleGetUnitByPos(tile, true);
@@ -299,20 +298,34 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 			continue;
 		if(!state->battleCanShoot(st))
 			continue;
+		if(st->canShootBlocked())
+			continue;
+
+		const battle::Unit * shooter = st;
+		for(const auto & affected : attack.affectedUnits)
+		{
+			if(affected->unitId() == st->unitId())
+			{
+				shooter = affected.get();
+				break;
+			}
+		}
+		if(!shooter->alive())
+			continue;
 
 		checkedUnits.insert(st->unitId());
 
 		// FIXME: provide distance info for Jousting bonus
-		BattleAttackInfo rangeAttackInfo(st, attacker, 0, true);
-		rangeAttackInfo.defenderPos = hex;
+		BattleAttackInfo rangeAttackInfo(shooter, attacker, 0, true);
+		rangeAttackInfo.defenderPos = attack.from;
 
-		BattleAttackInfo meleeAttackInfo(st, attacker, 0, false);
-		meleeAttackInfo.defenderPos = hex;
+		BattleAttackInfo meleeAttackInfo(shooter, attacker, 0, false);
+		meleeAttackInfo.defenderPos = attack.from;
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 		// blocking a shooter denies a fraction of its combat value, scored on the same scale as a kill
-		const int64_t shooterValue = damageCache.getOriginalValue(st) * CombatValue::stackScale(*st);
+		const int64_t shooterValue = damageCache.getOriginalValue(shooter) * CombatValue::stackScale(*shooter);
 		const int64_t rangeDamage = averageDmg(rangeDmg.damage);
 		const int64_t gain = rangeDamage - static_cast<int64_t>(averageDmg(meleeDmg.damage)) + 1;
 
@@ -350,7 +363,6 @@ AttackPossibility AttackPossibility::evaluate(
 
 		AttackPossibility ap(hex, defHex, attackInfo);
 		ap.attackerState = attacker->acquireState();
-		ap.shootersBlockedDmg = bestAp.shootersBlockedDmg;
 
 		const int totalAttacks = ap.attackerState->getTotalAttacks(attackInfo.shooting);
 
@@ -496,6 +508,8 @@ AttackPossibility AttackPossibility::evaluate(
 			}
 		}
 
+		ap.shootersBlockedDmg = evaluateBlockedShootersDmg(ap, damageCache, state);
+
 #if BATTLE_TRACE_LEVEL>=2
 		logAi->trace("BattleAI AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			attackInfo.attacker->unitType()->getJsonKey(),
@@ -507,9 +521,6 @@ AttackPossibility AttackPossibility::evaluate(
 		if(!bestAp.dest.isValid() || ap.attackValue() > bestAp.attackValue())
 			bestAp = ap;
 	}
-
-	// check how much damage we gain from blocking enemy shooters on this hex
-	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, damageCache, state);
 
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
