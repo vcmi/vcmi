@@ -273,4 +273,25 @@ TEST_F(BattleEvaluatorTest, DragonBreathStillDamagesAnAllyBehindTheTarget)
 	auto attack = evaluateMelee(dragon, enemy, dragon->getPosition());
 	EXPECT_GT(attack.collateralDamageReduce, 0);
 }
+
+TEST_F(BattleEvaluatorSpellTest, PrefersRestoringManyCreaturesToDamageSpell)
+{
+	teachDefender(SpellID::RESURRECTION);
+	defenderSideHero->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 2, ChangeValueMode::ABSOLUTE);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(7, 5), 15);
+	const auto * active = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 40);
+	auto * wounded = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(14, 5), 300);
+	// One survivor used to cap the value of restoring the rest, making Magic Arrow look better.
+	int64_t damage = wounded->getAvailableHealth() - wounded->getMaxHealth();
+	wounded->damage(damage);
+	ASSERT_EQ(wounded->getCount(), 1);
+
+	auto action = decideSpell(active);
+
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::RESURRECTION));
+	EXPECT_EQ(targetOf(*action), wounded);
+}
 }

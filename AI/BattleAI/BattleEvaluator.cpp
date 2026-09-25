@@ -900,9 +900,12 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					{
 						auto damage = std::abs(oldHealth - newHealth);
 						auto originalDefender = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
+						const battle::Unit * valuationUnit = newHealth > oldHealth || !originalDefender || !originalDefender->alive()
+							? unit
+							: originalDefender;
 
 						auto dpsReduce = AttackPossibility::calculateDamageReduce(
-							originalDefender && originalDefender->alive() ? originalDefender : unit,
+							valuationUnit,
 							damage,
 							innerCache);
 
