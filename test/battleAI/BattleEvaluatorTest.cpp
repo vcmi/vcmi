@@ -190,6 +190,40 @@ TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
 	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
 }
 
+TEST_F(BattleEvaluatorTest, KillingShooterDoesNotEarnBlockingBonus)
+{
+	const auto * marksman = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 1);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(12, 5), 100);
+
+	auto attack = evaluateMelee(swordsmen, marksman, BattleHex(9, 5));
+
+	ASSERT_TRUE(attack.defenderDead);
+	EXPECT_EQ(attack.shootersBlockedDmg, 0);
+}
+
+TEST_F(BattleEvaluatorTest, DeadAttackerDoesNotEarnBlockingBonus)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 50);
+	const auto * peasant = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(12, 5), 1);
+
+	auto attack = evaluateMelee(peasant, marksmen, BattleHex(9, 5));
+
+	ASSERT_FALSE(attack.attackerState->alive());
+	EXPECT_EQ(attack.shootersBlockedDmg, 0);
+}
+
+TEST_F(BattleEvaluatorTest, SurvivingAttackerEarnsBlockingBonus)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 50);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(12, 5), 10);
+
+	auto attack = evaluateMelee(swordsmen, marksmen, BattleHex(9, 5));
+
+	ASSERT_TRUE(attack.attackerState->alive());
+	ASSERT_FALSE(attack.defenderDead);
+	EXPECT_GT(attack.shootersBlockedDmg, 0);
+}
+
 /// Drives the whole hero-spell decision of BattleAI and reports what it chose to cast. Spells are
 /// the one part of the AI that is blind to plain damage numbers, so a scenario grants exactly one
 /// spell and asks whether the AI found it worth casting at all.
