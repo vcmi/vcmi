@@ -19,7 +19,6 @@
 
 CStupidAI::CStupidAI()
 	: side(BattleSide::NONE)
-	, wasWaitingForRealize(false)
 {
 	print("created");
 }
@@ -27,11 +26,6 @@ CStupidAI::CStupidAI()
 CStupidAI::~CStupidAI()
 {
 	print("destroyed");
-	if(cb)
-	{
-		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
-		cb->waitTillRealize = wasWaitingForRealize;
-	}
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
@@ -39,9 +33,6 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
 	cb = CB;
-
-	wasWaitingForRealize = CB->waitTillRealize;
-	CB->waitTillRealize = false;
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)
