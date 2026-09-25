@@ -580,12 +580,20 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 
 		// A HOTA_SCRIPTED quest is intentionally limiter-less (its condition is Lua-evaluated), so an
 		// empty limiter must not be read as "nothing to do" here like it is for every other mission kind.
-		if(q.mission == Rewardable::Limiter{} && q.missionKind != EQuestMission::HOTA_SCRIPTED)
+		// init() has already set hasExtraCreatures, which is a payment rule rather than a requirement,
+		// so the baseline to compare against must carry the same value.
+		Rewardable::Limiter emptyMission;
+		emptyMission.hasExtraCreatures = q.mission.hasExtraCreatures;
+
+		if(q.mission == emptyMission && q.missionKind != EQuestMission::HOTA_SCRIPTED)
 			q.isCompleted = true;
 
 		if(q.missionKind == EQuestMission::NONE)
 		{
+			// same "hut stands abandoned" text as a hut without any offerable quest - it names the seer
 			q.firstVisitText.appendTextID("core.seerhut.empty", q.completedOption);
+			if(!seerNameTextID.empty())
+				q.firstVisitText.replaceTextID(seerNameTextID);
 		}
 		else if(q.missionKind == EQuestMission::KEYMASTER)
 		{
