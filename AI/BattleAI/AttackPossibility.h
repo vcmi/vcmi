@@ -17,7 +17,15 @@
 class DamageCache
 {
 private:
-	std::unordered_map<uint32_t, std::unordered_map<uint32_t, float>> damageCache;
+	struct CachedDamage
+	{
+		std::array<std::optional<float>, 2> byMode;
+		bool originalShooting = false;
+		BattleHex attackerPos;
+		BattleHex defenderPos;
+		int32_t attackerCount = 0;
+	};
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, CachedDamage>> damageCache;
 	std::unordered_map<uint32_t, float> unitValues;
 	std::map<BattleHex, std::unordered_map<uint32_t, int64_t>> obstacleDamage;
 	DamageCache * parent;
@@ -31,8 +39,8 @@ public:
 	DamageCache() : parent(nullptr) {}
 	DamageCache(DamageCache * parent) : parent(parent) {}
 
-	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
-	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
+	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, bool shooting, std::shared_ptr<CBattleInfoCallback> hb);
+	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, bool shooting, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getObstacleDamage(const BattleHex & hex, const battle::Unit * defender);
 	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
     /// Value of a single creature of this unit, as it was when the cache was built

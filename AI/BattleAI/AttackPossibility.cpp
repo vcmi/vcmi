@@ -29,11 +29,19 @@ uint64_t averageDmg(const DamageRange & range)
 	return (range.min + range.max) / 2;
 }
 
-void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
+void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, bool shooting, std::shared_ptr<CBattleInfoCallback> hb)
 {
-	auto damage = averageDmg(hb->battleEstimateDamage(attacker, defender, 0).damage);
+	auto & cached = damageCache[attacker->unitId()][defender->unitId()];
+	if(!cached.byMode[false] && !cached.byMode[true])
+	{
+		cached.originalShooting = shooting;
+		cached.attackerPos = attacker->getPosition();
+		cached.defenderPos = defender->getPosition();
+		cached.attackerCount = attacker->getCount();
+	}
+	auto damage = averageDmg(hb->battleEstimateDamage(BattleAttackInfo(attacker, defender, 0, shooting)).damage);
 
-	damageCache[attacker->unitId()][defender->unitId()] = static_cast<float>(damage) / attacker->getCount();
+	cached.byMode[shooting] = static_cast<float>(damage) / attacker->getCount();
 }
 
 void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
@@ -131,21 +139,26 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleS
 		{
 			if(enemyUnit->alive())
 			{
-				cacheDamage(ourUnit, enemyUnit, hb);
-				cacheDamage(enemyUnit, ourUnit, hb);
+				cacheDamage(ourUnit, enemyUnit, hb->battleCanShoot(ourUnit, enemyUnit->getPosition()), hb);
+				cacheDamage(enemyUnit, ourUnit, hb->battleCanShoot(enemyUnit, ourUnit->getPosition()), hb);
 			}
 		}
 	}
 }
 
-int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
+int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit * defender, bool shooting, std::shared_ptr<CBattleInfoCallback> hb)
 {
-	bool wasComputedBefore = damageCache[attacker->unitId()].count(defender->unitId());
+	auto & cached = damageCache[attacker->unitId()][defender->unitId()];
 
-	if (!wasComputedBefore)
-		cacheDamage(attacker, defender, hb);
+	// Candidate moves change range penalties; casualties change whole-stack rounding.
+	if(cached.attackerPos != attacker->getPosition() || cached.defenderPos != defender->getPosition()
+		|| cached.attackerCount != attacker->getCount())
+		return averageDmg(hb->battleEstimateDamage(BattleAttackInfo(attacker, defender, 0, shooting)).damage);
 
-	return damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
+	if(!cached.byMode[shooting])
+		cacheDamage(attacker, defender, shooting, hb);
+
+	return *cached.byMode[shooting] * attacker->getCount();
 }
 
 int64_t DamageCache::getObstacleDamage(const BattleHex & hex, const battle::Unit * defender)
@@ -167,22 +180,21 @@ int64_t DamageCache::getObstacleDamage(const BattleHex & hex, const battle::Unit
 
 int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
 {
-	if(parent)
+	const auto * originalCache = parent ? parent : this;
+	auto attackerDamageMap = originalCache->damageCache.find(attacker->unitId());
+	if(attackerDamageMap != originalCache->damageCache.end())
 	{
-		auto attackerDamageMap = parent->damageCache.find(attacker->unitId());
+		auto targetDamage = attackerDamageMap->second.find(defender->unitId());
 
-		if(attackerDamageMap != parent->damageCache.end())
+		if(targetDamage != attackerDamageMap->second.end())
 		{
-			auto targetDamage = attackerDamageMap->second.find(defender->unitId());
-
-			if(targetDamage != attackerDamageMap->second.end())
-			{
-				return static_cast<int64_t>(targetDamage->second * attacker->getCount());
-			}
+			const auto & cached = targetDamage->second;
+			if(cached.byMode[cached.originalShooting])
+				return static_cast<int64_t>(*cached.byMode[cached.originalShooting] * attacker->getCount());
 		}
 	}
 
-	return getDamage(attacker, defender, hb);
+	return getDamage(attacker, defender, hb->battleCanShoot(attacker, defender->getPosition()), hb);
 }
 
 float DamageCache::getOriginalValue(const battle::Unit * unit) const
