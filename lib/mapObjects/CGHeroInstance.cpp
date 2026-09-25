@@ -419,6 +419,20 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	else
 		spells -= SpellID::SPELLBOOK_PRESET;
 
+	if(!isFake)
+	{
+		for(const auto & slot : ArtifactUtils::commonWornSlots())
+		{
+			const auto * artifact = getArt(slot);
+			if(artifact && ArtifactUtils::checkSpellbookIsNeeded(this, artifact->getTypeId(), slot))
+			{
+				auto spellbook = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
+				putArtifact(ArtifactPosition::SPELLBOOK, spellbook);
+				break;
+			}
+		}
+	}
+
 	if(!getArt(ArtifactPosition::MACH4) && !isFake)
 	{
 		auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);

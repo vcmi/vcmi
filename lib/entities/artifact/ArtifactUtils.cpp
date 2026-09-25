@@ -166,9 +166,9 @@ DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition,
 
 DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot)
 {
-	// TODO verify Titan's Thunder behavior when equipped at the start of the game.
 	// Titan's Thunder creates new spellbook on equip
 	if(artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
+
 	{
 		if(heroPtr && !heroPtr->hasSpellbook())
 		{
