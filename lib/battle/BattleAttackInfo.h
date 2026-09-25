@@ -31,6 +31,12 @@ struct DLL_LINKAGE BattleAttackInfo
 	bool unluckyStrike = false;
 	bool deathBlow     = false;
 	bool doubleDamage  = false;
+	/// Optional whole-stack base damage used by deterministic planners that
+	/// evaluate the midpoint before applying combat modifiers.
+	int64_t baseDamageOverride = -1;
+	/// Optional exact Offense/Archery contribution. Classic battle AI uses this
+	/// to preserve the fractional part of secondary-skill specialties.
+	double offenseArcheryFactorOverride = -1.0;
 
 	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, int chargeDistance, bool Shooting);
 	BattleAttackInfo reverse() const;

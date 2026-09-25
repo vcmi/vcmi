@@ -1133,6 +1133,8 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 	payload.unluckyStrike = info.unluckyStrike;
 	payload.deathBlow = info.deathBlow;
 	payload.doubleDamage = info.doubleDamage;
+	payload.baseDamageOverride = info.baseDamageOverride;
+	payload.offenseArcheryFactorOverride = info.offenseArcheryFactorOverride;
 	payload.attackFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
 	payload.attackFactorCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 	payload.defenseFactorPerPoint = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
@@ -2284,9 +2286,10 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 	return units;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * subject) const
+std::vector<SpellID> CBattleInfoCallback::getPossibleBeneficialSpells(
+	const battle::Unit * caster, const battle::Unit * subject) const
 {
-	RETURN_IF_NOT_BATTLE(SpellID::NONE);
+	RETURN_IF_NOT_BATTLE({});
 	//This is complete list. No spells from mods.
 	//todo: this should be Spellbook of caster Stack
 	static const std::set<SpellID> allPossibleSpells =
@@ -2416,6 +2419,12 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		beneficialSpells.push_back(spellID);
 	}
 
+	return beneficialSpells;
+}
+
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * subject) const
+{
+	const auto beneficialSpells = getPossibleBeneficialSpells(caster, subject);
 	if(!beneficialSpells.empty())
 	{
 		return *RandomGeneratorUtil::nextItem(beneficialSpells, rand);

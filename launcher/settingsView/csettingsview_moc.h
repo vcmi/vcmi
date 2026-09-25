@@ -47,6 +47,7 @@ private slots:
 	void on_comboBoxEnemyAI_currentIndexChanged(int index);
 	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
 	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
+	void on_buttonBattleAIClassicMode_toggled(bool value);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 	void on_buttonSaveBeforeVisit_toggled(bool value);
 	void on_buttonShowIntro_toggled(bool value);
@@ -111,6 +112,7 @@ private:
 	QSize getPreferredRenderingResolution();
 
 	void fillValidAILibraries();
+	void updateBattleAIClassicModeAvailability();
 	void fillValidCombatAILibraries(QComboBox *, QString activeAI);
 	void fillValidAdventureAILibraries(QComboBox *, QString activeAI);
 	void fillValidAnyAILibraries(QComboBox *, QString activeAI);

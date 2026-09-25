@@ -11,6 +11,7 @@
 #include "AIFactory.h"
 
 #include "CGlobalAI.h"
+#include "../CConfigHandler.h"
 
 #ifdef ENABLE_NULLKILLER2_AI
 #  include "../../AI/Nullkiller2/AIGateway.h"
@@ -52,7 +53,12 @@ std::shared_ptr<CBattleGameInterface> AIFactory::createBattleAI(const std::strin
 
 	if(name == "BattleAI")
 #ifdef ENABLE_BATTLE_AI
-		return std::make_shared<CBattleAI>();
+	{
+		BattleAISettings battleAISettings;
+		if(settings["ai"]["battleAIClassicMode"].Bool())
+			battleAISettings.mode = BattleAIMode::CLASSIC;
+		return std::make_shared<CBattleAI>(battleAISettings);
+	}
 #else
 		throw std::runtime_error("BattleAI is not available in this build!");
 #endif
