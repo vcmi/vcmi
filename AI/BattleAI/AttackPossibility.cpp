@@ -264,6 +264,9 @@ float AttackPossibility::calculateDamageReduce(
 	const float HEALTH_BOUNTY = 0.5;
 	const float KILL_BOUNTY = 0.5;
 
+	if(!defender->alive() || damageDealt == 0)
+		return 0;
+
 	auto maxHealth = defender->getMaxHealth();
 	auto availableHealth = defender->getFirstHPleft() + ((defender->getCount() - 1) * maxHealth);
 
@@ -441,28 +444,41 @@ AttackPossibility AttackPossibility::evaluate(
 			if(!ap.attackerState->alive() || !defenderStates[defender->unitId()]->alive())
 				break;
 
+			// All victims of one strike are hit before retaliation can reduce the attacker.
+			auto strikingAttacker = ap.attackerState->acquireState();
+			ap.attackerState->afterAttack(attackInfo.shooting, false);
+
 			for(auto u : defenderUnits)
 			{
 				auto defenderState = defenderStates.at(u->unitId());
+				if(!defenderState->alive())
+					continue;
 
 				int64_t damageDealt;
 				float defenderDamageReduce;
 				float attackerDamageReduce;
 
+				auto currentAttack = ap.attack;
+				currentAttack.attacker = strikingAttacker.get();
+				currentAttack.defender = defenderState.get();
+				currentAttack.defenderPos = u->unitId() == defender->unitId() ? defHex : u->getPosition();
+				currentAttack.chargeDistance = i == 0 ? attackInfo.chargeDistance : 0;
 				DamageEstimation retaliation;
-				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);
+				auto attackDmg = state->battleEstimateDamage(currentAttack, &retaliation);
 
 				damageDealt = averageDmg(attackDmg.damage);
 				vstd::amin(damageDealt, defenderState->getAvailableHealth());
 
-				defenderDamageReduce = calculateDamageReduce(u, damageDealt, damageCache);
-				ap.attackerState->afterAttack(attackInfo.shooting, false);
+				defenderDamageReduce = calculateDamageReduce(defenderState.get(), damageDealt, damageCache);
 
 				//FIXME: use ranged retaliation
 				attackerDamageReduce = 0;
 
 				if(i == 0 && !attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
+					auto retaliatingDefender = defenderState->acquireState();
+					auto damageBeforeRetaliation = damageDealt;
+					retaliatingDefender->damage(damageBeforeRetaliation);
 					for(auto retaliated : retaliatedUnits)
 					{
 						if(retaliated->unitId() == attacker->unitId())
@@ -471,22 +487,24 @@ AttackPossibility AttackPossibility::evaluate(
 
 							vstd::amin(damageReceived, ap.attackerState->getAvailableHealth());
 
-							attackerDamageReduce = calculateDamageReduce(retaliated, damageReceived, damageCache);
+							attackerDamageReduce = calculateDamageReduce(ap.attackerState.get(), damageReceived, damageCache);
 							ap.attackerState->damage(damageReceived);
 						}
 						else
 						{
-							auto retaliationCollateral = state->battleEstimateDamage(defender, retaliated, 0);
+							auto retaliatedState = defenderStates.at(retaliated->unitId());
+							BattleAttackInfo retaliationAttack(retaliatingDefender.get(), retaliatedState.get(), 0, false);
+							auto retaliationCollateral = state->battleEstimateDamage(retaliationAttack);
 							int64_t damageReceived = averageDmg(retaliationCollateral.damage);
 
-							vstd::amin(damageReceived, retaliated->getAvailableHealth());
+							vstd::amin(damageReceived, retaliatedState->getAvailableHealth());
 
 							if(defender->unitSide() == retaliated->unitSide())
-								defenderDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
+								defenderDamageReduce += calculateDamageReduce(retaliatedState.get(), damageReceived, damageCache);
 							else
-								ap.collateralDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
+								ap.collateralDamageReduce += calculateDamageReduce(retaliatedState.get(), damageReceived, damageCache);
 
-							defenderStates.at(retaliated->unitId())->damage(damageReceived);
+							retaliatedState->damage(damageReceived);
 						}
 						
 					}
