@@ -48,6 +48,25 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	totalRedraw();
 }
 
+bool WindowHandler::tryReplaceWindow(std::shared_ptr<IShowActivatable> oldInt, std::shared_ptr<IShowActivatable> newInt)
+{
+	int pos = vstd::find_pos(windowsStack, oldInt);
+	if(pos == -1)
+		return false;
+
+	if(newInt == nullptr)
+		throw std::runtime_error("Attempt to replace null window onto windows stack!");
+
+	if(vstd::contains(windowsStack, newInt))
+		throw std::runtime_error("Attempt to add already existing window to stack!");
+
+	windowsStack[pos] = newInt;
+	if(!windowsStack.empty())
+		windowsStack.back()->activate();
+	totalRedraw();
+	return true;
+}
+
 bool WindowHandler::isTopWindowPopup() const
 {
 	if (windowsStack.empty())
