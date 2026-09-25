@@ -262,6 +262,8 @@ protected:
 	void selectInitialQuest();
 	/// Mirror the active quest's reward into configuration.info.
 	void syncActiveReward();
+	/// Records that a player has been shown the active quest (SEERHUT_VISITED).
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	/// True once `player` already holds this source's quest-log entry (border guards/gates
 	/// of a colour share one entry, so the first visited instance is enough).
 	bool hasQuestInLog(PlayerColor player) const;

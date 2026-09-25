@@ -681,15 +681,16 @@ std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGH
 	return result;
 }
 
+void QuestSource::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
+{
+	if(what == ObjProperty::SEERHUT_VISITED)
+		getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
+}
+
 void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case ObjProperty::SEERHUT_VISITED:
-		{
-			getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
-			break;
-		}
 		case ObjProperty::SEERHUT_COMPLETE:
 		{
 			if(identifier.getNum())
@@ -706,6 +707,9 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			syncActiveReward();
 			break;
 		}
+		default:
+			QuestSource::setPropertyDer(what, identifier);
+			break;
 	}
 }
 
@@ -969,6 +973,11 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	// the player has seen the gate and now knows what it asks for - the pathfinder
+	// only routes heroes through a gate whose quest is known
+	if(!getQuest().isKnownTo(h->getOwner()))
+		gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
+
 	if(checkQuest(h))
 	{
 		// satisfied: a toll gate charges the limiter cost on every passage and
