@@ -830,22 +830,22 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbättra skärpan för xBRZ + Förbättra uppskalningsfiltren</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + Förbättrad skärpan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + Förbättrad skärpan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + Förbättrad skärpan</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
@@ -1607,12 +1607,12 @@ Vänligen välj mappen där ni installerade Heroes III.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>HD Edition-installation hittad!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationen av Heroes III HD Edition har hittats. Vill du installera HD-grafikmodden med hjälp av denna installation?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
