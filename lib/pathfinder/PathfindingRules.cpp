@@ -171,8 +171,9 @@ void DestinationActionRule::process(
 				source && source->requiresQuestToPass() && !destination.nodeObject->isBlockedVisitable())
 			{
 				const auto * quest = source->getActiveQuest();
-				// first encounter: stop so the player learns of the gate before passing through
-				if(quest && !quest->isKnownTo(hero->getOwner()))
+				// first encounter: stop so the player learns of the gate before passing through. Not needed for
+				// a border gate - its only requirement is a keymaster key, which the player learns of from the tent
+				if(quest && !quest->isKnownTo(hero->getOwner()) && quest->missionKind != EQuestMission::KEYMASTER)
 					action = EPathNodeAction::BLOCKING_VISIT;
 				else if(destination.nodeObject->passableFor(hero))
 				{

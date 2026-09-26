@@ -21,7 +21,6 @@ class CStupidAI : public CBattleGameInterface
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<Environment> env;
 
-	bool wasWaitingForRealize;
 
 	void print(const std::string &text) const;
 public:

@@ -53,8 +53,6 @@ class CBattleAI : public CBattleGameInterface
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<Environment> env;
 
-	//Previous setting of cb
-	bool wasWaitingForRealize;
 	int movesSkippedByDefense;
 
 	std::unique_ptr<TacticsHandler> tacticsHandler;

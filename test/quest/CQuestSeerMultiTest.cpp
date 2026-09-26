@@ -314,3 +314,94 @@ TEST_F(QuestSeerMultiTest, QuestlessSeer_isVisitableAndGetQuestThrows)
 	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore);
 	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
 }
+
+// ---- quests without any requirement -----------------------------------------
+
+TEST_F(QuestSeerMultiTest, EmptyMissionIsPreCompletedAndSkipped)
+{
+	// A quest with no requirement at all ("None" in the editor, mission type 0 in a
+	// h3m) is nothing the hero can do: the hut must skip it and offer the next quest.
+	auto s = multiSeer({{TinyH3M::Quest{}, B::rewardExperience(100)},
+	                    {trivial(), B::rewardExperience(500)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+	ASSERT_EQ(seer->allQuests().size(), 2u);
+	EXPECT_TRUE(seer->allQuests()[0]->isCompleted) << "a quest without requirements is nothing to do";
+	EXPECT_EQ(seer->getQuest().missionKind, EQuestMission::LEVEL) << "the first real quest must be active";
+}
+
+TEST_F(QuestSeerMultiTest, EmptyMissionOnlySeerIsAbandoned)
+{
+	// A hut whose only quest has no requirement has nothing to offer at all.
+	auto s = multiSeer({{TinyH3M::Quest{}, B::rewardExperience(100)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
+	ASSERT_NO_FATAL_FAILURE(visit(hero, seer));
+
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore) << "nothing to log";
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty()) << "nothing to accept";
+	ASSERT_FALSE(gameEvents().infoWindows.empty());
+	EXPECT_EQ(gameEvents().infoWindows.back().text.toString(LIBRARY->staticTexts()).find("%s"), std::string::npos)
+		<< "the abandoned-hut text names the seer instead of leaving a raw placeholder";
+}
+
+// ---- offering the next quest right away -------------------------------------
+
+TEST_F(QuestSeerMultiTest, OffersNextQuestWithinTheSameVisit)
+{
+	auto s = multiSeer({{trivial(), B::rewardExperience(500)},
+	                    {trivial(), B::rewardResource(GameResID::WOOD, 7)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+	auto & res  = gameState()->players.at(PlayerColor(0)).resources;
+	const int woodBefore = res[GameResID::WOOD];
+
+	visit(hero, seer);
+	answerDialog(hero, 1); // hand in the first quest and take its reward
+
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get())
+		<< "the seer moves on to his next quest without waiting for another visit";
+	ASSERT_FALSE(gameEvents().blockingDialogs.empty())
+		<< "and states it at once, offering its reward to a hero who already qualifies";
+
+	answerDialog(hero, 1); // the hero never left the hut
+	EXPECT_EQ(res[GameResID::WOOD], woodBefore + 7);
+}
+
+TEST_F(QuestSeerMultiTest, DoesNotReofferALoneRepeatableQuest)
+{
+	// Re-offering the only quest of the hut on the spot would let a hero hand it in
+	// over and over without ever leaving the tile.
+	auto s = multiSeer({}, {{trivial(), B::rewardExperience(100)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+
+	visit(hero, seer);
+	answerDialog(hero, 1);
+
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
+}
+
+TEST_F(QuestSeerMultiTest, DoesNotOfferNextQuestWhileActiveOneIsUnfinished)
+{
+	auto s = multiSeer({{B::missionLevel(99), B::rewardExperience(500)},
+	                    {trivial(), B::rewardResource(GameResID::WOOD, 7)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+
+	visit(hero, seer); // hero is level 1 and cannot finish this quest
+
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[0].get());
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
+}

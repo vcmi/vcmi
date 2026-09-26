@@ -311,9 +311,13 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 
 			vstd::amin(turnsToKill, 100);
 
+			// clamp - the product of turns and movement range does not fit into the array element type
+			constexpr auto maxCost = std::numeric_limits<TBattlefieldTurnsArray::value_type>::max();
+			auto bypassCost = static_cast<int>(std::min<int64_t>(turnsToKill * unit->getMovementRange(), maxCost));
+
 			for(auto & hex : unit->getHexes())
 				if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
-					params.destructibleEnemyTurns[hex.toInt()] = turnsToKill * unit->getMovementRange();
+					params.destructibleEnemyTurns[hex.toInt()] = bypassCost;
 		}
 
 		params.bypassEnemyStacks = true;
