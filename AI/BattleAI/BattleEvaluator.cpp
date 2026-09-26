@@ -977,12 +977,18 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
-	auto castToPerform = *vstd::maxElementByFun(possibleCasts, [](const PossibleSpellcast & ps) -> float
+	auto castToPerform = *std::ranges::max_element(possibleCasts,
+		[&](const PossibleSpellcast & left, const PossibleSpellcast & right) -> bool
 		{
-			return ps.value;
+			if(left.value < right.value)
+				return true;
+			if(right.value < left.value)
+				return false;
+			return cb->getBattle(battleID)->battleGetSpellCost(left.spell, hero)
+				> cb->getBattle(battleID)->battleGetSpellCost(right.spell, hero);
 		});
 
-	const float baselineScore = vstd::isAlmostEqual(cachedAttack.score, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE))
+	const float baselineScore = vstd::isAlmostEqual(cachedAttack.score, EvaluationResult::INEFFECTIVE_SCORE)
 		? 0.0f : cachedAttack.score;
 	if(castToPerform.value > baselineScore && !vstd::isAlmostEqual(castToPerform.value, baselineScore))
 	{

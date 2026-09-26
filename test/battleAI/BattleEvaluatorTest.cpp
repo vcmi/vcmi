@@ -325,4 +325,20 @@ TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
 
 	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
 }
+
+TEST_F(BattleEvaluatorSpellTest, PrefersCheaperSpellForAnEquivalentFinishingKill)
+{
+	teachDefender(SpellID::IMPLOSION, 18);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::FIREBALL));
+	defenderSideHero->setSecSkillLevel(SecondarySkill::FIRE_MAGIC, 3, ChangeValueMode::ABSOLUTE);
+	defenderSideHero->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
+	addStack(BattleSide::ATTACKER, creatureByName("core:zealot"), BattleHex(1, 2), 3);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:devil"), BattleHex(6, 2), 1);
+	int64_t damage = ours->getAvailableHealth() - 39;
+	ours->damage(damage);
+
+	auto action = decideSpell(ours);
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::FIREBALL));
+}
 }
