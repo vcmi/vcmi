@@ -92,6 +92,11 @@ std::string CHero::getSpecialtyTooltipTextID() const
 	return TextIdentifier("hero", modScope, identifier, "specialty", "tooltip").get();
 }
 
+std::string CHero::getSpecialtyBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("hero", modScope, identifier, "specialty", "bonus", bonusID).get();
+}
+
 CreatureID CHero::defaultCreature() const
 {
 	for (const auto	& unit : initialArmy)
