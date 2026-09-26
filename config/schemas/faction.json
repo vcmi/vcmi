@@ -322,7 +322,7 @@
 						"type" : "object",
 						"additionalProperties" : false,
 						"properties" : {
-							"index" : { "type" : "number", "description" : "Order in which images will be opened" },
+							"index" : { "type" : "number", "minimum" : 1, "maximum" : 48, "description" : "Order in which images will be opened, from 1 to 48" },
 							"x" :     { "type" : "number", "description" : "X coordinate on screen" },
 							"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
 						}
