@@ -171,3 +171,45 @@ TEST_F(QuestGateTest, GateWithoutQuestStandsOpen)
 	ASSERT_NO_FATAL_FAILURE(visit(hero, gate));
 	EXPECT_TRUE(gameEvents().infoWindows.empty());
 }
+
+// ---- gate whose quest can no longer be met ----------------------------------
+
+TEST_F(QuestGateTest, GateWithExpiredQuestNeverOpens)
+{
+	auto s = gateScenario(B::missionLevel(1).withLastDay(3)); // hero satisfies it, but only until day 3
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+	EXPECT_TRUE(gate->passableFor(hero));
+
+	advanceDays(5);
+
+	EXPECT_FALSE(gate->passableFor(PlayerColor(0)));
+	EXPECT_FALSE(gate->passableFor(hero)) << "an expired quest can not be met anymore";
+
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
+	visit(hero, gate);
+	EXPECT_FALSE(gameEvents().infoWindows.empty()) << "the hero is told the gate is shut";
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore) << "nothing to do - nothing to log";
+}
+
+TEST_F(QuestGateTest, GateWithQuestForOtherDifficultyNeverOpens)
+{
+	auto s = gateScenario(B::missionDifficulty(/*NORMAL only*/ 1 << 1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::EASY));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	EXPECT_FALSE(gate->passableFor(PlayerColor(0)));
+	EXPECT_FALSE(gate->passableFor(hero));
+}
+
+TEST_F(QuestGateTest, GateWithQuestForCurrentDifficultyOpens)
+{
+	auto s = gateScenario(B::missionDifficulty(/*NORMAL only*/ 1 << 1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::NORMAL));
+
+	EXPECT_TRUE(expectAt<QuestGate>(kGatePos)->passableFor(findHeroAt(kHeroPos)));
+}

@@ -1544,8 +1544,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessib
 			{
 				auto enemyToBypass = params.destructibleEnemyTurns.at(neighbour.toInt());
 
-				// cost must never be negative - a negative cycle would make this loop non-terminating
-				if(enemyToBypass > 0)
+				if(enemyToBypass >= 0)
 				{
 					additionalCost = enemyToBypass;
 				}

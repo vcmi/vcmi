@@ -1017,7 +1017,7 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	CRewardableObject::initObj(gameRandomizer);
 
-	if(isEmpty())
+	if(allQuests().empty())
 		return; // a gate without any quest is a doorway that stands open
 
 	getQuest().defineQuestName();
@@ -1032,8 +1032,15 @@ void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(isEmpty())
+	if(allQuests().empty())
 		return;
+
+	// deadline passed or quest not offered on this difficulty - it can never be met, so the gate stays shut
+	if(!isQuestAvailable(getQuest()))
+	{
+		h->showInfoDialog(gameEvents, 18);
+		return;
+	}
 
 	// the player has seen the gate and now knows what it asks for - the pathfinder
 	// only routes heroes through a gate whose quest is known
@@ -1058,8 +1065,11 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 bool QuestGate::passableFor(PlayerColor color) const
 {
-	if(isEmpty())
+	if(allQuests().empty())
 		return true;
+
+	if(!isQuestAvailable(getQuest()))
+		return false;
 
 	// player-level fallback (no hero context): only the keymaster-key limiter can
 	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
@@ -1073,5 +1083,8 @@ bool QuestGate::passableFor(const CGHeroInstance * hero) const
 {
 	// Passable once the limiter is satisfied. For a toll gate this means the hero
 	// currently holds the goods (i.e. can pay); checkQuest re-checks every pass.
-	return isEmpty() || checkQuest(hero);
+	if(allQuests().empty())
+		return true;
+
+	return isQuestAvailable(getQuest()) && checkQuest(hero);
 }

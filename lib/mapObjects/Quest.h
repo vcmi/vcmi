@@ -365,7 +365,8 @@ void loadLegacyBorderGuard(Handler & h, QuestSource & object)
 }
 
 /// Key/toll gate: stays in place, passable for a player once its limiter is met
-/// (border gates require the matching keymaster key).
+/// (border gates require the matching keymaster key). A gate without any quest always stands open,
+/// one whose quest expired or is not offered on this difficulty never opens.
 class QuestGate : public QuestSource
 {
 public:
