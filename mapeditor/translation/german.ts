@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1532"/>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Level hinzufügen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -1160,14 +1160,16 @@ Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (od
     <message>
         <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Karte hat bereits die maximal vom Editor unterstützte Anzahl an Level.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ des neuen Levels auswählen.
+
+Warnung: Einmal hinzugefügte Level können nicht mehr entfernt werden.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1593"/>
@@ -1598,7 +1600,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Level</translation>
+        <translation>Level</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
@@ -1608,7 +1610,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished">Level %1</translation>
+        <translation>Level %1</translation>
     </message>
 </context>
 <context>
@@ -5151,7 +5153,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Minen besetzen</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>

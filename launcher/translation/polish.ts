@@ -132,7 +132,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation>Proszę wybrać plik docelowy i zapisać archiwum jako vcmi-saves.zip</translation>
+        <translation>Proszę wybrać plik docelowy i zapisać archiwum jako vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
@@ -518,19 +518,21 @@ Powód: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wymaga: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się włączyć moda</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można włączyć jednego lub więcej zainstalowanych modów:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
@@ -834,22 +836,22 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Siła wyostrzania dla filtrów skalowania xBRZ + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
@@ -864,7 +866,7 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba autozapisów na grę (0 = brak limitu)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
@@ -1606,12 +1608,12 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryto instalację HD Edition!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryto instalację Heroes III HD Edition. Czy zainstalować modyfikację grafiki HD, korzystając z tej instalacji?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
@@ -2181,7 +2183,7 @@ Powód: %2</translation>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import nie powiódł się</translation>
+        <translation>Import nie powiódł się</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
@@ -2443,7 +2445,7 @@ Powód: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
-        <translation type="unfinished">Import nie powiódł się</translation>
+        <translation>Import nie powiódł się</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>

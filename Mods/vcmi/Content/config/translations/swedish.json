@@ -1231,6 +1231,7 @@
 	"vcmi.tutorialWindow.decription.RadialWheel": "Genom att svepa öppnas radialhjulet för olika åtgärder, såsom trupp-/hjältehantering och stadsordning.",
 	"vcmi.tutorialWindow.decription.RightClick": "Rör vid och håll kvar det element som du vill högerklicka på. Rör området utanför menyn för att stänga menyn.",
 	"vcmi.tutorialWindow.title": "Pekskärmsintroduktion",
+	"vcmi.upgrade.freeConfirm": "Vill du uppgradera dessa varelser?",
 	"vcmi.wiki.alignment.evil": "Ond",
 	"vcmi.wiki.alignment.good": "God",
 	"vcmi.wiki.alignment.neutral": "Neutral",
