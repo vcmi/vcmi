@@ -45,37 +45,23 @@ private:
 	ActivitiesPerPlayer activities;
 	CGameHandler & gameHandler;
 
-	/// Activities that wait for their player to become idle. Work unrelated to what the
-	/// player is currently doing must not be pushed on top of it, since the player would
-	/// then answer it before the question that was asked first.
+	/// Activities that start once their players are idle, instead of interrupting the current question
 	std::array<std::deque<ActivityPtr>, PlayerColor::PLAYER_LIMIT_I> waiting;
 
-	/// Questions of activities that recently left a player's stack, so that submitReply can
-	/// distinguish a lost race from an invalid question id.
+	/// Questions that recently left a player's stack, to tell a lost race from an invalid question id
 	std::array<std::deque<QuestionID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
 	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
 
-	/// Number of stack mutations in progress. Activity hooks add or remove further
-	/// activities, so one player action nests several levels deep. Deferred work runs
-	/// only once the outermost mutation finishes.
-	int mutationDepth = 0;
+	int mutationDepth = 0; ///< nested stack mutations in progress, deferred work runs when the outermost one ends
+	bool settling = false; ///< set while settle() runs, so that mutations it causes do not recurse into it
 
-	/// Set while settle() runs, so that mutations caused by it are picked up by its own
-	/// loop instead of recursing into it.
-	bool settling = false;
-
-	/// Players whose stack changed. Cleared and re-read around the victory checks, the only
-	/// deferred work that does not report back directly.
+	/// Players whose stack changed since the last victory checks
 	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
 
-	/// Limit of settle() rounds, to catch two pieces of deferred work that trigger each
-	/// other endlessly. Every round that continues has made progress, so this bounds total
-	/// work and must stay far above a legitimate case such as a turn start that queues a
-	/// visit for every town and every building in them.
+	/// Bound on total settle() work, far above a turn start that visits every building of every town
 	static constexpr int MAX_SETTLE_ROUNDS = 100000;
 
-	/// Steps that a single routine may take in one go before it is assumed to be stuck.
-	/// A routine takes one step per unit of work, e.g. per building visited in a town.
+	/// Steps a routine may take in one go before it is assumed to be stuck
 	static constexpr int MAX_ROUTINE_STEPS = 1000;
 
 	void rememberCompleted(PlayerColor player, QuestionID questionID);

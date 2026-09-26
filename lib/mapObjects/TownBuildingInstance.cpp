@@ -156,7 +156,7 @@ void TownRewardableBuildingInstance::grantReward(IGameEventCallback & gameEvents
 	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!gameEvents.isVisitCoveredByAnotherQuery(town, hero))
+	if(!gameEvents.isVisitCoveredByAnotherActivity(town, hero))
 	{
 		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), town, hero);
 	}

@@ -255,7 +255,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.replaceName(*Slots().begin()->second);
-		gameEvents.showBlockingDialog(this, &bd);
+		gameEvents.showBlockingDialog(&bd);
 		return;
 	}
 
@@ -301,7 +301,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
 
-	gameEvents.showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(&bd);
 }
 
 void CGDwelling::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const

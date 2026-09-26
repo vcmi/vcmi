@@ -78,16 +78,16 @@ void GameEventCallbackMock::giveExperience(const CGHeroInstance * hero, TExpType
 	sendAndApply(she);
 }
 
-void GameEventCallbackMock::showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw)
+void GameEventCallbackMock::showBlockingDialog(BlockingDialog * iw)
 {
 	assert(iw);
-	blockingDialogs.push_back({*iw, caller});
+	blockingDialogs.push_back(*iw);
 }
 
 void GameEventCallbackMock::showScriptDialog(BlockingDialog * iw)
 {
 	assert(iw);
-	blockingDialogs.push_back({*iw, nullptr});
+	blockingDialogs.push_back(*iw);
 }
 
 void GameEventCallbackMock::giveResource(PlayerColor player, GameResID which, int val)

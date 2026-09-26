@@ -96,7 +96,7 @@ void CGResource::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text = message;
-			gameEvents.showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(&ynd);
 		}
 		else
 		{

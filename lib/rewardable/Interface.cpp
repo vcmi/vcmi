@@ -295,7 +295,7 @@ void Rewardable::Interface::selectRewardWithMessage(IGameEventCallback & gameEve
 	sd.player = contextHero->tempOwner;
 	sd.text = dialog;
 	sd.components = loadComponents(contextHero, rewardIndices);
-	gameEvents.showBlockingDialog(getObject(), &sd);
+	gameEvents.showBlockingDialog(&sd);
 }
 
 std::vector<Component> Rewardable::Interface::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const

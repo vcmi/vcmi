@@ -424,8 +424,8 @@ void ApplyGhNetPackVisitor::visitQuestionAnswer(QuestionAnswer & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 
-	if(pack.questionID == QuestionID(-1))
-		gh.throwAndComplain(connection, "Cannot answer the activity with pack.id -1!");
+	if(pack.questionID == QuestionID::NONE)
+		gh.throwAndComplain(connection, "Cannot answer a question with id -1!");
 
 	result = gh.answerQuestion(pack.questionID, pack.reply, pack.player);
 }

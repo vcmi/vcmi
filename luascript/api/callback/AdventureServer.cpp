@@ -257,7 +257,7 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 			{"components", "Optional icons shown under the text."}
 		}, {},
 		"Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and "
-		"registers the query whose reply resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.");
+		"registers the question whose answer resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.");
 	R.function<&AdventureServerProxy::spawnCombat>("spawnCombat",
 		{
 			{"host", "The visited event/pandora whose garrison is replaced with the opposing army."},

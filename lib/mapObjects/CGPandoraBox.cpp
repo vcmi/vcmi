@@ -174,7 +174,7 @@ void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInst
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
 	bd.text.appendTextID("core.advevent.14");
-	gameEvents.showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(&bd);
 }
 
 void CGPandoraBox::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const

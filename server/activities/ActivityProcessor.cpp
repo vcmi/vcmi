@@ -277,8 +277,8 @@ bool ActivityProcessor::advanceRoutines()
 
 			if(step + 1 == MAX_ROUTINE_STEPS)
 			{
-				// Dropped rather than left in place: settle() would otherwise step it again
-				// on every round, and leaving it on the stack blocks its player forever
+				// Dropped: left on the stack, settle() would step it again on every round and
+				// its player would stay blocked forever
 				logGlobal->error("Routine did not finish after %d steps, dropping it: %s", MAX_ROUTINE_STEPS, top->toString());
 				assert(false);
 				popActivity(player, top);
@@ -400,19 +400,17 @@ bool ActivityProcessor::promoteWaitingActivities()
 
 bool ActivityProcessor::runVictoryChecks()
 {
-	// Cleared first so that the flags reflect only what the checks themselves change
-	stackChanged = {};
+	// Taken before the checks, so that the flags then reflect only what the checks change
+	const auto changedStacks = std::exchange(stackChanged, {});
 
-	// checkVictoryLossConditionsForPlayer() ignores players that still have activities,
-	// so it can be called for every idle player
+	// Only players whose stack has just emptied: a check may end the game outright, e.g. on
+	// a battle-only map, so an idle player must not be checked on every unrelated change
 	for(size_t idx = 0; idx < activities.size(); ++idx)
 	{
-		const PlayerColor player(static_cast<int32_t>(idx));
-
-		if(!activities.at(idx).empty())
+		if(!changedStacks.at(idx) || !activities.at(idx).empty())
 			continue;
 
-		gameHandler.checkVictoryLossConditionsForPlayer(player);
+		gameHandler.checkVictoryLossConditionsForPlayer(PlayerColor(static_cast<int32_t>(idx)));
 	}
 
 	return std::ranges::any_of(stackChanged, [](bool value){ return value; });
