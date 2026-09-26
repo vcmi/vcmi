@@ -257,6 +257,8 @@ public:
 	{
 		startBattle();
 		redirectUnitsToFake();
+		EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
+		EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
 
 		return subject.getAttackedBattleUnits(
 			&attacker, &defender,

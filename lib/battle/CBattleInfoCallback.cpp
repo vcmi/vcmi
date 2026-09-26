@@ -1982,14 +1982,15 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	else
 		at = getPotentiallyAttackableHexes(attacker, defender, destinationTile, attackerPos, defenderPos);
 
-	units = battleGetUnitsIf([=](const battle::Unit * unit)
+	units = battleGetUnitsIf([this, at, attacker](const battle::Unit * unit)
 	{
 		if (unit->isGhost() || !unit->alive() || unit->isInvincible())
 			return false;
 
 		for (const BattleHex & hex : unit->getHexes())
 		{
-			if (at.hostileCreaturePositions.contains(hex))
+			if(at.hostileCreaturePositions.contains(hex)
+				&& battleGetOwner(unit) != battleGetOwner(attacker))
 				return true;
 			if (at.friendlyCreaturePositions.contains(hex))
 				return true;
