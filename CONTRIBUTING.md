@@ -7,7 +7,7 @@ Please review this document to make the contribution process easy and effective 
 Following these guidelines shows respect for the time of the developers who maintain this open-source project.
 In return, they will respect your time when they review your issue or pull request.
 
-If you're planning something non-trivial (a new feature, a large refactor, a new mod format extension), please talk to us on [Discord](https://discord.gg/chBT42V) or open an issue first. It's much easier to agree on an approach before code is written than to rework a finished pull request.
+If you're planning something non-trivial (a new feature or mechanic, a new mod format capability, a large refactor, or a port to a new platform), please talk to us on [Discord](https://discord.gg/chBT42V) or open an issue first. It's much easier to agree on an approach before code is written than to rework a finished pull request, and you avoid spending time on something the maintainers are unlikely to merge.
 
 ## Using the issue tracker
 
@@ -18,8 +18,6 @@ If you're planning something non-trivial (a new feature, a large refactor, a new
 
 * Please **do not** post comments consisting solely of "+1" or ":thumbsup:".
   Use [GitHub's "reactions" feature](https://github.com/blog/2119-add-reactions-to-pull-requests-issues-and-comments) instead.
-
-* Please use [Weblate](https://hosted.weblate.org/engage/vcmi/) to submit corrections and improvements to translations, not issues or pull requests against locale files directly. See [Translations](docs/translators/Translations.md).
 
 ## Bug reports
 
@@ -42,11 +40,11 @@ A good bug report should include enough information for others to investigate it
 * What is your environment (OS and VCMI version)?
 * What steps will reproduce the issue?
 * What did you expect to happen, and what happened instead?
-* Logs, a saved game, or a map, if applicable.
+* Logs, a saved game, or a map, if applicable. Use Launcher → Help → Export logs to collect the logs, and Export saves for saved games.
 
 ## Translations
 
-Please use [Weblate](https://hosted.weblate.org/engage/vcmi/) to submit corrections and improvements to translations of the game.
+Please use [Weblate](https://hosted.weblate.org/engage/vcmi/) to submit corrections and improvements to translations of the game, not issues or pull requests against locale files. See [Translations](docs/translators/Translations.md).
 
 You can also help translate mods on a [separate Weblate instance](https://weblate.vcmi.eu/).
 
@@ -56,15 +54,11 @@ The preferred channel for feature requests is the [issue tracker](https://github
 
 It is up to *you* to make a strong case for your idea. Provide as much detail and context as possible. Describe the problem you see and explain why it should be fixed instead of only proposing a solution.
 
-For any non-trivial request, such as new mechanics, new mod format capabilities, or engine-level changes, consider discussing it with the team on [Discord](https://discord.gg/chBT42V) first. See the note at the top of this document. This avoids spending time on a design that the maintainers are unlikely to accept.
-
 ## Pull requests
 
 Good pull requests, including patches, improvements, and new features, are very helpful.
 
 Every pull request should have a clear scope, with no unrelated commits.
-
-**Please ask first** before starting any significant pull request, such as a new feature, a large refactor, or a port to a new platform. Otherwise, you risk spending a lot of time on something the maintainers might not want to merge.
 
 1. Set up your development environment using the build guide for your platform:
    [Windows](docs/developers/Building_Windows.md),
@@ -75,7 +69,7 @@ Every pull request should have a clear scope, with no unrelated commits.
 
 2. Fork the project and clone your fork:
 
-   ```bash
+   ```sh
    git clone --recursive https://github.com/<your-username>/vcmi.git
    cd vcmi
    git remote add upstream https://github.com/vcmi/vcmi.git
@@ -83,7 +77,7 @@ Every pull request should have a clear scope, with no unrelated commits.
 
 3. Branch off `develop` — that's where all active development happens:
 
-   ```bash
+   ```sh
    git fetch upstream
    git checkout upstream/develop -b <topic-branch-name>
    ```
@@ -97,7 +91,7 @@ Every pull request should have a clear scope, with no unrelated commits.
 
 5. Push your topic branch to your fork and [open a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/creating-a-pull-request-from-a-fork) against `develop`.
    * Target `develop` if you want your change in the next *major* release. If a `beta` branch exists, you can target it instead for a fix intended for the next minor ("hotfix") release — but please verify with the team first, since changes to `beta` are usually limited to avoid regressions.
-   * Fill out the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). It is a short checklist. Include a section on user-facing changes that can be copied to [ChangeLog.md](ChangeLog.md) later, but do not edit the changelog yourself.
+   * Fill out every section of the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). Its Changelog section lists user-facing changes that can be copied to [ChangeLog.md](ChangeLog.md) later; do not edit the changelog yourself.
 
 ### Pull request validation
 
@@ -115,7 +109,7 @@ You may use AI tools to help write code, tests, translations, or documentation. 
 
 The line is ownership, not tooling:
 
-* **You must be the author of the text.** Issue and pull request descriptions, and comments in discussions, have to be written by you and reflect your own understanding. Using an AI tool to proofread or translate your text is fine; generating it is not. You need to be able to answer questions about what you wrote.
+* **You must be the author of the pull request.** Open issues and pull requests yourself, not through an AI agent. Their descriptions, and comments in discussions, have to be written by you and reflect your own understanding. Using an AI tool to proofread or translate your text is fine; generating it is not. You need to be able to answer questions about what you wrote.
 
 * **You must understand every line of code you submit.** If you cannot explain what your change does, why it works, and how it can fail, do not open the pull request, regardless of who or what wrote it.
 

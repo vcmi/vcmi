@@ -174,7 +174,7 @@ If a finding concerns a credential, token, or other secret, redact the value. De
 Use `PASS`, `WARNING`, `FAIL`, or `NOT ASSESSED` for every dimension:
 
 | Dimension | Typical grade |
-|---|---|
+| --- | --- |
 | Specification Adherence | `NOT ASSESSED` without a specification; otherwise grade drift |
 | Scope Discipline | Grade cohesion, unnecessary work, and declared scope |
 | Safety & Quality | `FAIL` on a verified critical finding; `WARNING` on warning-severity findings |
@@ -197,7 +197,7 @@ Overall verdict:
 
 This example is synthetic. Match its structure, not its subject matter; replace the illustrative location with a clickable path into the current checkout.
 
-```markdown
+```md
 ## Findings
 
 ### F1 — Resource loaded on every frame
@@ -217,7 +217,7 @@ This example is synthetic. Match its structure, not its subject matter; replace 
 ## Scorecard
 
 | Dimension | Verdict |
-|---|---|
+| --- | --- |
 | Specification Adherence | NOT ASSESSED |
 | Scope Discipline | PASS |
 | Safety & Quality | WARNING |

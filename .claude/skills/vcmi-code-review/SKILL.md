@@ -31,7 +31,7 @@ Use an explicitly named diff, range, commit, PR, or file set when supplied.
 Otherwise:
 
 1. Review staged and unstaged changes relative to `HEAD`, plus relevant untracked files.
-2. If the worktree is clean and the current branch is not `develop`, review the branch from its merge-base with the locally available `origin/develop` or `develop`.
+2. If the worktree is clean and the current branch is not `develop`, review the branch from its merge-base with the locally available `develop` branch of `vcmi/vcmi`. Use whichever remote the developer configured for that repository (`git remote -v`), preferring `origin` when several qualify.
 3. If no change can be identified, stop and ask the user for a target.
 
 Do not fetch remotes or contact GitHub unless explicitly requested. Exclude generated files and third-party code unless the change modifies how VCMI produces or integrates them.
