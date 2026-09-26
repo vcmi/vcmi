@@ -123,28 +123,36 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
 
 	//printing casualties
+	static constexpr int iconWidth = 32;
+	static constexpr int maxIconGap = 10;
+	static constexpr int maxCasualtiesWidth = 380; // width of casualties frame on background image
+
 	for(auto step : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		if(br.casualties[step].empty())
+		std::vector<std::pair<CreatureID, si32>> shownCasualties;
+		for(const auto & elem : br.casualties[step])
+		{
+			if (elem.first != CreatureID::ARROW_TOWERS) // do not show destroyed towers in battle results
+				shownCasualties.push_back(elem);
+		}
+
+		if(shownCasualties.empty())
 		{
 			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[523]));
 		}
 		else
 		{
-			int casualties = br.casualties[step].size();
-			int xPos = 235 - (casualties*32 + (casualties - 1)*10)/2; //increment by 42 with each picture
+			int casualties = shownCasualties.size();
+			// negative gap if icons can't fit into frame - overlap icons instead
+			int iconGap = casualties > 1 ? std::min((maxCasualtiesWidth - casualties * iconWidth) / (casualties - 1), maxIconGap) : 0;
+			int xPos = 235 - (casualties * iconWidth + (casualties - 1) * iconGap) / 2;
 			int yPos = 344 + static_cast<int>(step) * 97;
-			for(auto & elem : br.casualties[step])
+			for(int i = 0; i < casualties; ++i)
 			{
-				if (elem.first == CreatureID::ARROW_TOWERS)
-					continue; // do not show destroyed towers in battle results
-
-				const auto * creature = elem.first.toEntity(LIBRARY);
+				const auto * creature = shownCasualties[i].first.toEntity(LIBRARY);
 				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creature->getIconIndex(), 0, xPos, yPos));
-				std::ostringstream amount;
-				amount<<elem.second;
-				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, amount.str()));
-				xPos += 42;
+				labels.push_back(std::make_shared<CLabel>(xPos + iconWidth / 2, yPos + 42, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(shownCasualties[i].second)));
+				xPos += iconWidth + iconGap;
 			}
 		}
 	}

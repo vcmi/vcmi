@@ -102,8 +102,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 				"x" : 0
 				"y" : 0
 
-				//indicates order in which this image will be opened
-				"index" : 0 
+				// Indicates order in which this image will be opened
+				// Valid values are from 1 to 48, where pieces with index 1 are opened first
+				"index" : 1
 			},
 			...
 		]

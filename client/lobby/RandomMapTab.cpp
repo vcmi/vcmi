@@ -211,7 +211,7 @@ RandomMapTab::RandomMapTab():
 					templateIndex = 0;
 
 				texts.push_back(templates[i]->getName());
-				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescriptionTranslated());
 			}
 
 			ENGINE->windows().popWindows(1);
@@ -306,7 +306,7 @@ void RandomMapTab::updateMapInfoByHost()
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
-		auto randomTemplateDescription = temp->getDescription();
+		auto randomTemplateDescription = temp->getDescriptionTranslated();
 		if (!randomTemplateDescription.empty())
 		{
 			auto description = std::string("\n\n") + randomTemplateDescription;

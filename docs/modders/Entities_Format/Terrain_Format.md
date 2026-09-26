@@ -10,6 +10,10 @@
 	
 	// Human-readable name of the terrain
 	"text" : "My Terrain",
+
+	// Description of location on this terrain, used in tavern rumor about location of the Grail
+	// Inserted into the "The ultimate artifact may be found %s" string
+	"grailRumor" : "on my terrain.",
 	
 	// Type(s) of this terrain.
 	// WATER - this terrain is water-like terrains that requires boat for movement

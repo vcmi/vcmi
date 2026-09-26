@@ -235,11 +235,11 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 
 void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const
 {
-	for(const auto & b : source.Vector())
+	for(size_t i = 0; i < source.Vector().size(); ++i)
 	{
 		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BonusSourceID(building->getUniqueTypeID()));
 
-		if(!JsonUtils::parseBonus(b, bonus.get()))
+		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), TextIdentifier(building->getBaseTextID(), "bonus", i)))
 			continue;
 
 		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))

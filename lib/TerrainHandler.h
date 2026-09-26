@@ -61,6 +61,9 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
+	/// Text ID of description of location on this terrain for tavern rumor about Grail location. Empty if not set
+	std::string grailRumorTextID;
+
 	std::vector<BattleField> battleFields;
 	std::vector<TerrainId> prohibitTransitions;
 	ColorRGBA minimapBlocked;

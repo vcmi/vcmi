@@ -24,6 +24,7 @@
 #include "../IGameSettings.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../TerrainHandler.h"
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
@@ -631,7 +632,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	case RumorState::TYPE_SPECIAL:
 		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);
 		if(rumor.first == RumorState::RUMOR_GRAIL)
-			text.replaceTextID("core.arraytxt", 158 + rumor.second);
+			text.replaceTextID(TerrainId(rumor.second).toEntity(LIBRARY)->grailRumorTextID);
 		else
 			text.replaceTextID("core.plcolors", rumor.second);
 
