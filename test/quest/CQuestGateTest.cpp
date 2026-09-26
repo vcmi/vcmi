@@ -14,6 +14,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 // Quest Gate semantics. A Quest Gate stays on the map and is
 // passable once its limiter is satisfied; a "toll" gate (consumable limiter)
@@ -151,6 +152,21 @@ TEST_F(QuestGateTest, BlockedVisitMakesQuestKnownToPlayer)
 	visit(hero, gate);
 	EXPECT_TRUE(gate->getQuest().isKnownTo(PlayerColor(0)))
 		<< "a hero that cannot pass still learns what the gate asks for";
+}
+
+TEST_F(QuestGateTest, PathfinderStopsAtGateUntilQuestKnown)
+{
+	// Even a hero that satisfies the gate is routed onto it rather than through it,
+	// so that the player learns what the gate asks for.
+	auto s = gateScenario(B::missionLevel(1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::BLOCKING_VISIT);
+	visit(hero, gate);
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::VISIT);
 }
 
 // ---- gate without any quest --------------------------------------------------

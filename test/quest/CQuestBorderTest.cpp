@@ -16,6 +16,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 // The H3 key-and-gate puzzle as seen by the player: keymaster tents grant
 // access, border gates block until the right colour is held, border guards
@@ -57,6 +58,29 @@ TEST_F(QuestBorderTest, BorderGate_AfterKeymaster_passableForTrue)
 
 	EXPECT_TRUE(gate->passableFor(PlayerColor(0)))
 		<< "after visiting the matching keymaster, the gate should be passable for red";
+}
+
+TEST_F(QuestBorderTest, BorderGate_AfterKeymaster_pathfinderRoutesThroughUnvisitedGate)
+{
+	// Unlike other quest gates, a border gate does not stop the hero on first
+	// encounter - the keymaster tent already told the player what it asks for.
+	auto s = questBorderGate();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	auto * hero      = findHeroAt(s.heroPos);
+	auto * keymaster = findObjectAt(s.questPos);
+	auto * gate      = findObjectAt(s.questPos2);
+	ASSERT_NE(hero,      nullptr);
+	ASSERT_NE(keymaster, nullptr);
+	ASSERT_NE(gate,      nullptr);
+
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::BLOCKING_VISIT)
+		<< "without the key the gate is a dead end";
+
+	visit(hero, keymaster);
+
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::VISIT)
+		<< "with the key the hero is routed through a gate not visited before";
 }
 
 TEST_F(QuestBorderTest, BorderGate_NeverRemoved)
