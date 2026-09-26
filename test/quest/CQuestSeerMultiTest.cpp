@@ -349,3 +349,59 @@ TEST_F(QuestSeerMultiTest, EmptyMissionOnlySeerIsAbandoned)
 	EXPECT_EQ(gameEvents().infoWindows.back().text.toString(LIBRARY->staticTexts()).find("%s"), std::string::npos)
 		<< "the abandoned-hut text names the seer instead of leaving a raw placeholder";
 }
+
+// ---- offering the next quest right away -------------------------------------
+
+TEST_F(QuestSeerMultiTest, OffersNextQuestWithinTheSameVisit)
+{
+	auto s = multiSeer({{trivial(), B::rewardExperience(500)},
+	                    {trivial(), B::rewardResource(GameResID::WOOD, 7)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+	auto & res  = gameState()->players.at(PlayerColor(0)).resources;
+	const int woodBefore = res[GameResID::WOOD];
+
+	visit(hero, seer);
+	answerDialog(hero, 1); // hand in the first quest and take its reward
+
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get())
+		<< "the seer moves on to his next quest without waiting for another visit";
+	ASSERT_FALSE(gameEvents().blockingDialogs.empty())
+		<< "and states it at once, offering its reward to a hero who already qualifies";
+
+	answerDialog(hero, 1); // the hero never left the hut
+	EXPECT_EQ(res[GameResID::WOOD], woodBefore + 7);
+}
+
+TEST_F(QuestSeerMultiTest, DoesNotReofferALoneRepeatableQuest)
+{
+	// Re-offering the only quest of the hut on the spot would let a hero hand it in
+	// over and over without ever leaving the tile.
+	auto s = multiSeer({}, {{trivial(), B::rewardExperience(100)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+
+	visit(hero, seer);
+	answerDialog(hero, 1);
+
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
+}
+
+TEST_F(QuestSeerMultiTest, DoesNotOfferNextQuestWhileActiveOneIsUnfinished)
+{
+	auto s = multiSeer({{B::missionLevel(99), B::rewardExperience(500)},
+	                    {trivial(), B::rewardResource(GameResID::WOOD, 7)}});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+
+	visit(hero, seer); // hero is level 1 and cannot finish this quest
+
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[0].get());
+	EXPECT_TRUE(gameEvents().blockingDialogs.empty());
+}
