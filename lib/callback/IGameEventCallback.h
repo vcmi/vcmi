@@ -80,10 +80,8 @@ public:
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
-	/// Shows a dialog to the player. The server routes the answer back through the visit in
-	/// progress, which knows what it is currently visiting, so the caller is only read by
-	/// tests that have no visit to route through.
-	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
+	/// Shows a dialog to the player. The answer is delivered to the object being visited.
+	virtual void showBlockingDialog(BlockingDialog *iw) =0;
 
 	/// Records which part of a multi-step visit this object is starting. The tag is passed
 	/// back once the started activity finishes, so that the object does not have to deduce
@@ -92,7 +90,7 @@ public:
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
-	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
+	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, const ResourceSet & resources)=0;
 
@@ -135,7 +133,7 @@ public:
 
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 
-	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
+	virtual bool isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
 
 	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;

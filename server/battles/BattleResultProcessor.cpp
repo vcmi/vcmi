@@ -259,7 +259,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	if (!typedBattleActivity)
 	{
 		logGlobal->error("Cannot find battle activity!\nActivities:\n%s", gameHandler->activities->describeStacks());
-		gameHandler->complain("Player " + std::to_string(battle.sideToPlayer(BattleSide::ATTACKER).getNum()) + " has no battle activity at the top!");
+		gameHandler->complain("Player " + std::to_string(battle.sideToPlayer(BattleSide::ATTACKER).getNum()) + " has no battle activity!");
 		return;
 	}
 

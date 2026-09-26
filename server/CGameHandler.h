@@ -80,7 +80,7 @@ public:
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	//activities stuff
-	QuestionID questionCounter; ///< next question id, serialized so that an outstanding question keeps its id
+	QuestionID questionCounter; ///< id of the last question asked
 	uint32_t activityTraceCounter = 0; ///< numbers activities in logs, not serialized
 
 	std::set<PlayerColor> uiReadyForDialogs;
@@ -128,7 +128,7 @@ public:
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
-	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
+	void showBlockingDialog(BlockingDialog *iw) override;
 	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override;
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
@@ -193,7 +193,7 @@ public:
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	const CGObjectInstance * getVisitingObject(const CGHeroInstance *hero);
-	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
+	bool isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override;

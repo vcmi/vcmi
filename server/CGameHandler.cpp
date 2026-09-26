@@ -1249,7 +1249,7 @@ void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
 		tag, hero->getNameTextID());
 }
 
-void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw)
+void CGameHandler::showBlockingDialog(BlockingDialog *iw)
 {
 	auto dialogActivity = std::make_shared<BlockingDialogActivity>(this, *iw);
 	activities->addActivity(dialogActivity);
@@ -4590,7 +4590,7 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 	return nullptr;
 }
 
-bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
+bool CGameHandler::isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
 	assert(obj);
 	assert(hero);

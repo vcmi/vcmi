@@ -186,7 +186,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			ynd.player = h->tempOwner;
 			ynd.text.appendTextID("core.advevent.86");
 			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
-			gameEvents.showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(&ynd);
 			break;
 		}
 	default: //join for gold
@@ -201,7 +201,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			ynd.text.replaceNumber(getJoiningAmount());
 			ynd.text.replaceNumber(action);
 			ynd.text.replaceNamePlural(getCreature()->getId());
-			gameEvents.showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(&ynd);
 			break;
 		}
 	}
@@ -514,7 +514,7 @@ void CGCreature::flee(IGameEventCallback & gameEvents, const CGHeroInstance * h)
 	ynd.player = h->tempOwner;
 	ynd.text.appendTextID("core.advevent.91");
 	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
-	gameEvents.showBlockingDialog(this, &ynd);
+	gameEvents.showBlockingDialog(&ynd);
 }
 
 void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const

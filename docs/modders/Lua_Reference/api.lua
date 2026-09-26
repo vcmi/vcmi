@@ -164,7 +164,7 @@ function AdventureServer:constructBuilding(town, building) end
 ---@param windowType integer? # Optional look of the window. Omit to let the engine pick automatically based on the contents.
 function AdventureServer:showMessage(player, text, components, soundID, windowType) end
 
----Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and registers the query whose reply resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.
+---Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and registers the question whose answer resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.
 ---@param player integer # Player who must answer the dialog.
 ---@param text MetaString # The dialog text, built with MetaString.
 ---@param mode integer # 0 shows a plain acknowledge box; any other value shows a yes/no question.

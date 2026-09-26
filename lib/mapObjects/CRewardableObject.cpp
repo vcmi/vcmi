@@ -70,7 +70,7 @@ void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHer
 		bd.text = guardedReward.message;
 		bd.components = getPopupComponents(hero->getOwner());
 
-		gameEvents.showBlockingDialog(this, &bd);
+		gameEvents.showBlockingDialog(&bd);
 	}
 }
 
@@ -137,7 +137,7 @@ void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 reward
 	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!gameEvents.isVisitCoveredByAnotherQuery(this, hero))
+	if(!gameEvents.isVisitCoveredByAnotherActivity(this, hero))
 	{
 		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
 	}

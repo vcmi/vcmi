@@ -338,6 +338,30 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::WINNER);
 }
 
+TEST_F(DeferredVictoryLossTest, battleOnlyGameContinuesWhenInterfaceBecomesReady)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false);
+	builder.playerActive(PlayerColor(0));
+	builder.playerActive(PlayerColor(1));
+	builder.hero(int3(5, 6, 0), HeroTypeID(0), PlayerColor(0));
+	builder.hero(int3(5, 5, 0), HeroTypeID(1), PlayerColor(1));
+	startWithMap(std::move(builder));
+
+	// Any victory check ends a battle-only game, which must last until its battle is over
+	gameState()->getMap().battleOnly = true;
+
+	GameHandlerTestServer server(gameState(), PlayerColor(0));
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.onAdvInterfaceReady(PlayerColor(0));
+	gameHandler.onAdvInterfaceReady(PlayerColor(1));
+
+	EXPECT_EQ(server.getState(), EServerState::GAMEPLAY);
+	EXPECT_EQ(gameState()->getPlayerState(PlayerColor(0))->status, EPlayerStatus::INGAME);
+	EXPECT_EQ(gameState()->getPlayerState(PlayerColor(1))->status, EPlayerStatus::INGAME);
+}
+
 TEST_F(ActivityProcessorTest, popIfTop_removesTopActivity)
 {
 	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
@@ -735,8 +759,7 @@ TEST_F(ActivityProcessorTest, countActivity_returnsZeroForNullptr)
 // Reply routing.
 //
 // The client is asked about an activity and answers it, but the server may push something
-// else in between. These tests drive the processor through those orderings, which is the
-// client/server race that used to leave a player holding an already answered activity.
+// else in between. These tests drive the processor through those orderings.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, submitReply_resolvesTopActivity)
@@ -929,8 +952,7 @@ TEST_F(ActivityProcessorTest, submitReply_sharedActivityWaitsForPlayerWhoIsStill
 
 // --------------------------------------------------------------------------------
 // Property test: no ordering of questions and replies may leave a player holding an
-// already answered activity. This invariant used to fail in practice and is not reachable
-// by enumerating cases by hand.
+// already answered activity.
 // --------------------------------------------------------------------------------
 
 TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivity)
@@ -1390,7 +1412,7 @@ TEST_F(MapObjectVisitTest, visitIsRefusedWhileAnotherHeroIsVisitingTheSameObject
 	ASSERT_NE(gameHandler.getVisitingHero(pandora), nullptr);
 
 	// The visit activity must be findable on the stack for the whole visit - object code
-	// relies on that through removeAfterVisit() and isVisitCoveredByAnotherQuery().
+	// relies on that through removeAfterVisit() and isVisitCoveredByAnotherActivity().
 	EXPECT_THROW(gameHandler.objectVisited(pandora, hero), std::runtime_error);
 }
 
@@ -1478,9 +1500,7 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 // --------------------------------------------------------------------------------
 // Locating the battle activity.
 //
-// A battle activity is one object on both belligerents' stacks. Most callers look at the
-// attacker first and fall back to the defender, but they disagree on whether an AI
-// defender counts, a difference that used to be duplicated in four places.
+// A battle activity is one object on both belligerents' stacks, found from either side.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1570,10 +1590,8 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 // --------------------------------------------------------------------------------
 // Repeated questions.
 //
-// A hero can gain several levels from one reward, and used to be asked about each through
-// a separate activity pushed as the previous one was removed. It is now one activity that
-// asks repeatedly, so the player can not act between levels and the activity below is
-// notified only once, at the end.
+// A hero can gain several levels from one reward. One activity asks about each of them,
+// so the player can not act between levels and the activity below is notified only once.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1856,8 +1874,7 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 // Continuation tags.
 //
 // A reward is granted in two halves, around any level-up caused by its experience. The
-// reward id used to be re-read from the object, from a field that was not serialized, and
-// is now carried by the visit.
+// visit carries the id of the reward in progress.
 // --------------------------------------------------------------------------------
 
 TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotTheObject)
@@ -2090,9 +2107,8 @@ TEST_F(MapObjectVisitTest, aBuildingRewardInterruptedByALevelUpResumesTheBuildin
 // --------------------------------------------------------------------------------
 // Casts that pause to ask something.
 //
-// A town portal style spell stops to ask which town to teleport to. It used to leave a
-// lambda holding the caster and the spell mechanics by pointer across the wait, and now
-// leaves an activity holding ids.
+// A town portal style spell stops to ask which town to teleport to, and an activity
+// holding ids completes the cast once the player answers.
 // --------------------------------------------------------------------------------
 
 namespace
