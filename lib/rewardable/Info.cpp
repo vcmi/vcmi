@@ -18,6 +18,7 @@
 #include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
 #include "../callback/IGameRandomizer.h"
+#include "../json/JsonBonus.h"
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
@@ -60,6 +61,26 @@ namespace {
 		return ret;
 	}
 
+	std::vector<std::shared_ptr<Bonus>> loadBonuses(const JsonNode & value, const TextIdentifier & textIdentifier)
+	{
+		std::vector<std::shared_ptr<Bonus>> ret;
+		for(size_t i = 0; i < value.Vector().size(); ++i)
+		{
+			const JsonNode & entry = value[i];
+			auto bonus = JsonUtils::parseBonus(entry);
+			if(!bonus)
+				continue;
+
+			// description string was registered in Info::init, since it is not possible to register strings on object configuration
+			const JsonNode & description = entry["description"];
+			if(description.isString() && !description.String().empty() && description.String()[0] != '@')
+				bonus->description.appendTextID(TextIdentifier(textIdentifier.get(), i, "description").get());
+
+			ret.push_back(bonus);
+		}
+		return ret;
+	}
+
 	bool testForKey(const JsonNode & value, const std::string & key)
 	{
 		for(const auto & reward : value["rewards"].Vector())
@@ -82,22 +103,20 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	parameters = objectConfig;
 
-	for(size_t i = 0; i < parameters["rewards"].Vector().size(); ++i)
+	for(const std::string modeName : {"rewards", "onVisited", "onEmpty"})
 	{
-		const JsonNode message = parameters["rewards"][i]["message"];
-		loadString(message, TextIdentifier(objectName, "rewards", i));
-	}
+		for(size_t i = 0; i < parameters[modeName].Vector().size(); ++i)
+		{
+			const JsonNode & reward = parameters[modeName][i];
+			loadString(reward["message"], TextIdentifier(objectName, modeName, i));
+			loadString(reward["description"], TextIdentifier(objectName, "description", modeName, i));
 
-	for(size_t i = 0; i < parameters["onVisited"].Vector().size(); ++i)
-	{
-		const JsonNode message = parameters["onVisited"][i]["message"];
-		loadString(message, TextIdentifier(objectName, "onVisited", i));
-	}
-
-	for(size_t i = 0; i < parameters["onEmpty"].Vector().size(); ++i)
-	{
-		const JsonNode message = parameters["onEmpty"][i]["message"];
-		loadString(message, TextIdentifier(objectName, "onEmpty", i));
+			for(const std::string bonusesName : {"bonuses", "commanderBonuses", "playerBonuses"})
+			{
+				for(size_t j = 0; j < reward[bonusesName].Vector().size(); ++j)
+					loadString(reward[bonusesName][j]["description"], TextIdentifier(objectName, modeName, i, bonusesName, j, "description"));
+			}
+		}
 	}
 
 	loadString(parameters["onSelectMessage"], TextIdentifier(objectName, "onSelect"));
@@ -163,7 +182,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 	limiter.noneOf = configureSublimiters(object, gameRandomizer, cb, source["noneOf"]);
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & reward, const JsonNode & source, const TextIdentifier & textIdentifier) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb, gameRandomizer);
@@ -182,9 +201,9 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGame
 	reward.moveOverflowFactor = source["moveOverflowFactor"].isNull() ? 100 : randomizer.loadValue(source["moveOverflowFactor"], variables);
 
 	reward.removeObject = source["removeObject"].Bool();
-	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);
-	reward.commanderBonuses = randomizer.loadBonuses(source["commanderBonuses"]);
-	reward.playerBonuses = randomizer.loadBonuses(source["playerBonuses"]);
+	reward.heroBonuses = loadBonuses(source["bonuses"], TextIdentifier(textIdentifier.get(), "bonuses"));
+	reward.commanderBonuses = loadBonuses(source["commanderBonuses"], TextIdentifier(textIdentifier.get(), "commanderBonuses"));
+	reward.playerBonuses = loadBonuses(source["playerBonuses"], TextIdentifier(textIdentifier.get(), "playerBonuses"));
 
 	reward.guards = randomizer.loadCreatures(source["guards"], variables);
 
@@ -424,7 +443,7 @@ void Rewardable::Info::configureRewards(
 
 		Rewardable::VisitInfo info;
 		configureLimiter(object, gameRandomizer, cb, info.limiter, reward["limiter"]);
-		configureReward(object, gameRandomizer, cb, info.reward, reward);
+		configureReward(object, gameRandomizer, cb, info.reward, reward, TextIdentifier(objectTextID, modeName, i));
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));

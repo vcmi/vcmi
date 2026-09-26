@@ -57,6 +57,14 @@
 				"onEmpty" : [
 					{
 						"limiter" : {
+							"spells" : [
+								"@gainedSpell"
+							]
+						},
+						"message" : [ 106, "{%s}." ] // Spell is already known
+					},
+					{
+						"limiter" : {
 							"artifacts" : [
 								{
 									"type" : "spellBook"

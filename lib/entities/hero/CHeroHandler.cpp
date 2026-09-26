@@ -320,7 +320,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 	}
 
 	for(const auto & keyValue : specialtyNode["bonuses"].Struct())
-		hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
+		hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second, hero->getSpecialtyBonusTextID(keyValue.first))));
 }
 
 void CHeroHandler::loadExperience()

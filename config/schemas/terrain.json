@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI terrain format",
 	"description" : "Format used to define new terrains in VCMI",
-	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "allowedLayers", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
+	"required" : [ "text", "grailRumor", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "allowedLayers", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
 	"additionalProperties" : false,
 	"properties" : {
 		"compatibilityIdentifiers" : {
@@ -17,6 +17,11 @@
 		{
 			"type" : "string",
 			"description" : "Human-readable name of this terrain"
+		},
+		"grailRumor" :
+		{
+			"type" : "string",
+			"description" : "Description of location on this terrain, used in tavern rumor about location of the Grail"
 		},
 		"shortIdentifier" :
 		{
