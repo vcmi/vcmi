@@ -258,10 +258,18 @@ protected:
 	bool isQuestAvailable(const Quest & q) const;
 	/// Move the active quest to the next offerable one (loops within repeatables).
 	void advanceToNextQuest();
+	/// True when some quest other than the active one can be offered - advancing would
+	/// actually move on, rather than land back on a lone repeatable quest.
+	bool hasAnotherOfferableQuest() const;
 	/// Pick the first offerable quest as active.
 	void selectInitialQuest();
 	/// Mirror the active quest's reward into configuration.info.
 	void syncActiveReward();
+	/// Records that a player has been shown the active quest (SEERHUT_VISITED).
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
+	/// H3M-shaped JSON layout: a single "quest" struct and no separate reward. Used by
+	/// quest guards and quest gates; seer huts store a "quests" array instead.
+	void serializeJsonSingleQuest(JsonSerializeFormat & handler);
 	/// True once `player` already holds this source's quest-log entry (border guards/gates
 	/// of a colour share one entry, so the first visited instance is enough).
 	bool hasQuestInLog(PlayerColor player) const;
@@ -294,6 +302,8 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
+	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
@@ -312,6 +322,9 @@ protected:
 	/// Object name / seer header followed by the active quest's rollover; onHover
 	/// picks the short hover variant, otherwise the longer description variant.
 	MetaString buildText(PlayerColor player, bool onHover) const;
+	/// Once the reward of a finished quest is fully handed over, move on to the next
+	/// quest and state it right away - still as part of the visit that finished it.
+	void offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -363,6 +376,11 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 	bool passableFor(const CGHeroInstance * hero) const override;
+
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+
+public:
 
 	template <typename Handler> void serialize(Handler & h)
 	{

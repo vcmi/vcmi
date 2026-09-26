@@ -34,19 +34,11 @@
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
 CBattleAI::CBattleAI()
-	: side(BattleSide::NONE),
-	wasWaitingForRealize(false)
+	: side(BattleSide::NONE)
 {
 }
 
-CBattleAI::~CBattleAI()
-{
-	if(cb)
-	{
-		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
-		cb->waitTillRealize = wasWaitingForRealize;
-	}
-}
+CBattleAI::~CBattleAI() = default;
 
 void logHexNumbers()
 {
@@ -64,8 +56,6 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	env = ENV;
 	cb = CB;
 	playerID = *CB->getPlayerID();
-	wasWaitingForRealize = CB->waitTillRealize;
-	CB->waitTillRealize = false;
 	movesSkippedByDefense = 0;
 
 	logHexNumbers();

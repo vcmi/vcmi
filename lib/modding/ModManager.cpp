@@ -78,19 +78,37 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 		modChecksum.process_bytes(static_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
 
-	// third - add all detected text files from this mod into checksum
+	// third - add contents of all detected text files from this mod into checksum
 	const auto & filesystem = CResourceHandler::get(modName);
 
-	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
+	auto configFiles = filesystem->getFilteredFiles([](const ResourcePath & resID)
 	{
 		return resID.getType() == EResType::JSON && boost::starts_with(resID.getName(), "CONFIG");
 	});
 
-	for (const ResourcePath & file : files)
+	// iteration order of an unordered container is not guaranteed, so sort to get a reproducible checksum
+	std::vector<ResourcePath> sortedConfigFiles(configFiles.begin(), configFiles.end());
+	std::ranges::sort(sortedConfigFiles, {}, [](const ResourcePath & file) { return file.getName(); });
+
+	for (const ResourcePath & file : sortedConfigFiles)
 	{
 		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
 		modChecksum.process_bytes(static_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
 	}
+
+	// fourth - add names of all remaining files from this mod into checksum. Their contents are not
+	// validated, but their presence is - so adding or removing an asset must invalidate the checksum
+	auto assetFiles = filesystem->getFilteredFiles([](const ResourcePath &) { return true; });
+
+	std::vector<std::string> sortedAssetNames;
+	sortedAssetNames.reserve(assetFiles.size());
+	for (const ResourcePath & file : assetFiles)
+		sortedAssetNames.push_back(EResTypeHelper::getEResTypeAsString(file.getType()) + ':' + file.getName());
+	std::ranges::sort(sortedAssetNames);
+
+	for (const std::string & name : sortedAssetNames)
+		modChecksum.process_bytes(static_cast<const void *>(name.data()), name.size());
+
 	return modChecksum.checksum();
 }
 

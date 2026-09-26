@@ -462,6 +462,14 @@ void QuestSource::advanceToNextQuest()
 	// nothing offerable: seer has no active quest, active index stays put
 }
 
+bool QuestSource::hasAnotherOfferableQuest() const
+{
+	for(int i = 0; i < static_cast<int>(quests.size()); ++i)
+		if(i != currentQuestIndex && isQuestAvailable(*quests[i]))
+			return true;
+	return false;
+}
+
 void QuestSource::syncActiveReward()
 {
 	configuration.info.clear();
@@ -580,12 +588,20 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 
 		// A HOTA_SCRIPTED quest is intentionally limiter-less (its condition is Lua-evaluated), so an
 		// empty limiter must not be read as "nothing to do" here like it is for every other mission kind.
-		if(q.mission == Rewardable::Limiter{} && q.missionKind != EQuestMission::HOTA_SCRIPTED)
+		// init() has already set hasExtraCreatures, which is a payment rule rather than a requirement,
+		// so the baseline to compare against must carry the same value.
+		Rewardable::Limiter emptyMission;
+		emptyMission.hasExtraCreatures = q.mission.hasExtraCreatures;
+
+		if(q.mission == emptyMission && q.missionKind != EQuestMission::HOTA_SCRIPTED)
 			q.isCompleted = true;
 
 		if(q.missionKind == EQuestMission::NONE)
 		{
+			// same "hut stands abandoned" text as a hut without any offerable quest - it names the seer
 			q.firstVisitText.appendTextID("core.seerhut.empty", q.completedOption);
+			if(!seerNameTextID.empty())
+				q.firstVisitText.replaceTextID(seerNameTextID);
 		}
 		else if(q.missionKind == EQuestMission::KEYMASTER)
 		{
@@ -673,15 +689,16 @@ std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGH
 	return result;
 }
 
+void QuestSource::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
+{
+	if(what == ObjProperty::SEERHUT_VISITED)
+		getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
+}
+
 void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case ObjProperty::SEERHUT_VISITED:
-		{
-			getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
-			break;
-		}
 		case ObjProperty::SEERHUT_COMPLETE:
 		{
 			if(identifier.getNum())
@@ -698,6 +715,9 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			syncActiveReward();
 			break;
 		}
+		default:
+			QuestSource::setPropertyDer(what, identifier);
+			break;
 	}
 }
 
@@ -766,6 +786,43 @@ void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHe
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
 	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
+	offerNextQuest(gameEvents, hero);
+}
+
+void SeerHut::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	CRewardableObject::heroLevelUpDone(gameEvents, hero);
+	offerNextQuest(gameEvents, hero);
+}
+
+void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	CRewardableObject::garrisonDialogClosed(gameEvents, hero);
+	offerNextQuest(gameEvents, hero);
+}
+
+// The three callers above are every point at which granting a reward can come to an end:
+// inline, after a hero / commander level-up, or after a garrison dialog for creatures the
+// hero had no room for. Whichever one finishes last offers the next quest.
+void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	if(!advancePending)
+		return; // no quest was finished, or the next one is already being offered
+
+	// a hut whose only offer is a repeatable quest must not re-offer it on the spot,
+	// or the hero could hand it in over and over without ever leaving the tile
+	if(!hasAnotherOfferableQuest())
+		return;
+
+	// the reward that was just granted tears the hut down - there is nothing left to visit
+	if(getQuest().reward && getQuest().reward->reward.removeObject)
+		return;
+
+	if(gameEvents.isVisitCoveredByAnotherQuery(this, hero))
+		return; // a dialog of this grant is still open - the reward is not fully handed over yet
+
+	gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
+	onHeroVisit(gameEvents, hero); // still the same visit: the seer simply states his next quest
 }
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -898,13 +955,18 @@ bool QuestGuard::passableFor(PlayerColor color) const
 	return getQuest().isCompleted;
 }
 
-void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+void QuestSource::serializeJsonSingleQuest(JsonSerializeFormat & handler)
 {
 	//quest only, do not call base class
 	if(!handler.saving && allQuests().empty())
-		addQuest(); // quest guards carry a single quest; create it to read into
+		addQuest(); // guards and gates carry a single quest; create it to read into
 	auto s = handler.enterStruct("quest");
 	getQuest().serializeJson(handler);
+}
+
+void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
 }
 
 MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
@@ -954,13 +1016,30 @@ void KeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIns
 void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	CRewardableObject::initObj(gameRandomizer);
+
+	if(isEmpty())
+		return; // a gate without any quest is a doorway that stands open
+
 	getQuest().defineQuestName();
 	if(getQuest().firstVisitText.empty())
 		getQuest().firstVisitText.appendTextID("core.advevent", 18);
 }
 
+void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
+}
+
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	if(isEmpty())
+		return;
+
+	// the player has seen the gate and now knows what it asks for - the pathfinder
+	// only routes heroes through a gate whose quest is known
+	if(!getQuest().isKnownTo(h->getOwner()))
+		gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
+
 	if(checkQuest(h))
 	{
 		// satisfied: a toll gate charges the limiter cost on every passage and
@@ -979,6 +1058,9 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 bool QuestGate::passableFor(PlayerColor color) const
 {
+	if(isEmpty())
+		return true;
+
 	// player-level fallback (no hero context): only the keymaster-key limiter can
 	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
 	for(const auto & key : getQuest().mission.requiredKeys)
@@ -991,5 +1073,5 @@ bool QuestGate::passableFor(const CGHeroInstance * hero) const
 {
 	// Passable once the limiter is satisfied. For a toll gate this means the hero
 	// currently holds the goods (i.e. can pay); checkQuest re-checks every pass.
-	return checkQuest(hero);
+	return isEmpty() || checkQuest(hero);
 }
