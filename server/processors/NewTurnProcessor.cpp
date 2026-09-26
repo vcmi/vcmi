@@ -466,8 +466,13 @@ RumorState NewTurnProcessor::pickNewRumor()
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(gameHandler->gameState().getMap().grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
-		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+	const int3 & grailPos = gameHandler->gameState().getMap().grailPos;
+	if(grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+	{
+		// terrains from mods may have no text for this rumor
+		if (!gameHandler->gameState().getTile(grailPos)->getTerrain()->grailRumorTextID.empty())
+			sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+	}
 
 	int rumorId = -1;
 	int rumorExtra = -1;
