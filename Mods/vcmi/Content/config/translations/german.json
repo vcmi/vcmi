@@ -1231,6 +1231,7 @@
 	"vcmi.tutorialWindow.decription.RadialWheel": "Durch Streichen öffnet sich das Radialrad für verschiedene Aktionen, wie z.B. Kreaturen-/Heldenverwaltung und Stadtreihenfolge.",
 	"vcmi.tutorialWindow.decription.RightClick": "Berührt und haltet das Element, auf das mit der rechten Maustaste geklickt werden soll. Berührt den freien Bereich, um zu schließen.",
 	"vcmi.tutorialWindow.title": "Touchscreen Einführung",
+	"vcmi.upgrade.freeConfirm": "Möchtet Ihr diese Kreaturen aufrüsten?",
 	"vcmi.wiki.alignment.evil": "Böse",
 	"vcmi.wiki.alignment.good": "Gut",
 	"vcmi.wiki.alignment.neutral": "Neutral",
