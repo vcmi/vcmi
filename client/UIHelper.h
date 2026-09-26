@@ -26,6 +26,6 @@ namespace UIHelper
     std::vector<Component> getSpellsComponents(const std::set<SpellID> & spells);
     soundBase::soundID getNecromancyInfoWindowSound();
     std::string getNecromancyInfoWindowText(const CStackBasicDescriptor & stack);
-    std::string getArtifactsInfoWindowText();
+    std::string getArtifactsInfoWindowText(size_t artifactsCount);
     std::string getEagleEyeInfoWindowText(const CGHeroInstance & hero, const std::set<SpellID> & spells);
 }
