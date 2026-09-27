@@ -159,6 +159,7 @@ public:
 	/// If there is no replaced war machine (for example slot is empty), method will return empty ArtifactID
 	ArtifactID getReplacedWarMachine(ArtifactID newWarMachine) const;
 	bool hasSpellbook() const;
+	bool hasSpellbookFreeCombatSpell() const;
 	int maxSpellLevel() const;
 	void addSpellToSpellbook(const SpellID & spell);
 	void removeSpellFromSpellbook(const SpellID & spell);
@@ -185,6 +186,7 @@ public:
 
 	bool canLearnSpell(const spells::Spell * spell,  bool allowBanned = false) const;
 	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
+	bool canCastThisSpellWithoutSpellbook(const spells::Spell * spell) const;
 
 	/// convert given position between map position (CGObjectInstance::pos) and visitable position used for hero interactions
 	int3 convertToVisitablePos(const int3 & position) const;

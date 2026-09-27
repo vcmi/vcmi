@@ -593,6 +593,10 @@
 		"hidden" : {
 			"type" : "boolean",
 			"description" : "Optional, hide bonus in creature window"
+		},
+		"castWithoutSpellbook" : {
+			"type" : "boolean",
+			"description" : "Optional, allows this spell-granting bonus to bypass the hero spellbook requirement in combat"
 		}
 	}
 }
