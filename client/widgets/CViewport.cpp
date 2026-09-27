@@ -150,14 +150,14 @@ void CViewport::updateSliders()
 		if(hSlider) hSlider->disable();
 	}
 
-	// scrollBounds: wheel area (wide, content clip rect). gestureBounds: touch-panning
-	// area (own bar only) so CViewport::gesturePanning doesn't double-scroll with it.
+	// scrollBounds: wheel area (wide, content clip rect). Touch-panning gestures are always
+	// restricted to the slider's own bounds so CViewport::gesturePanning doesn't double-scroll with it.
 	if(vSlider && !vSlider->isDisabled())
 	{
 		// Exclude the hSlider strip: use content clip area, not full pos.
 		const Rect vScrollArea(pos.x, pos.y, clipW, clipH);
 		vSlider->setScrollBounds(vScrollArea - vSlider->pos.topLeft());
-		vSlider->setGestureBounds(Rect(0, 0, vSlider->pos.w, vSlider->pos.h));
+		vSlider->setRestrictGestureToOwnBounds(true);
 	}
 	if(hSlider && !hSlider->isDisabled())
 	{
@@ -167,7 +167,7 @@ void CViewport::updateSliders()
 		else
 			// Alone: respond everywhere over the viewport.
 			hSlider->setScrollBounds(pos - hSlider->pos.topLeft());
-		hSlider->setGestureBounds(Rect(0, 0, hSlider->pos.w, hSlider->pos.h));
+		hSlider->setRestrictGestureToOwnBounds(true);
 	}
 
 	// Strip render bits (enable() resets recActions to ALL_ACTIONS).

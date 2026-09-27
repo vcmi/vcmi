@@ -33,8 +33,9 @@ private:
 
 	std::optional<Rect> scrollBounds;
 
-	/// Like scrollBounds, but only for touch-panning gestures; falls back to scrollBounds if unset.
-	std::optional<Rect> gestureBounds;
+	/// If true, touch-panning (GESTURE) is only accepted within this slider's own bounds,
+	/// ignoring scrollBounds (which still applies to WHEEL events).
+	bool restrictGestureToOwnBounds = false;
 
 	/// how many elements are visible simultaneously
 	int capacity;
@@ -73,8 +74,7 @@ public:
 	void setScrollBounds(const Rect & bounds );
 	void clearScrollBounds();
 
-	void setGestureBounds(const Rect & bounds );
-	void clearGestureBounds();
+	void setRestrictGestureToOwnBounds(bool on);
 
 	/// Value modifiers
 	void scrollTo(int value, bool callCallbacks = true);
