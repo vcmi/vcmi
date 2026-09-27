@@ -11,6 +11,8 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/Destination.h"
 #include "../../../lib/bonuses/BonusParameters.h"
 
 namespace
@@ -170,3 +172,76 @@ TEST_F(CombatEventTriggerTest, aScriptedCastIsNoSpellHit)
 
 	EXPECT_EQ(markersOf(bystander), markerSpellHit) << "a cast someone made is a spell hit";
 }
+
+namespace
+{
+// creatures
+constexpr int pikeman = 0;
+constexpr int stormElemental = 127; // casts Protection from Air
+
+constexpr int markerOfEvent = 1;
+
+/// An action of `creature` that fires `event` for it once. The ally stands a few hexes away on
+/// the same row.
+struct ActionEventCase
+{
+	const char * name;
+	int creature;
+	CombatEventType event;
+	/// Grants the unit what the action needs and returns the action.
+	BattleAction (*setUp)(CStack * unit, const CStack * ally);
+};
+
+}
+
+/// Events that the actions other than an attack fire for the acting unit.
+class ActionEventTest : public CombatEventTriggerTest, public ::testing::WithParamInterface<ActionEventCase>
+{
+};
+
+TEST_P(ActionEventTest, actionFiresEventOnce)
+{
+	const auto & scenario = GetParam();
+
+	startGame();
+	startBattle();
+
+	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(scenario.creature), BattleHex(3, 5), 10);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(7, 5), 10);
+	reactWithMarker(unit, scenario.event, markerOfEvent);
+
+	ASSERT_TRUE(act(scenario.setUp(unit, ally))) << scenario.name;
+	EXPECT_EQ(markersOf(unit), markerOfEvent) << scenario.name;
+	EXPECT_EQ(markersOf(ally), 0) << scenario.name;
+}
+
+INSTANTIATE_TEST_SUITE_P(Actions, ActionEventTest, ::testing::Values(
+	ActionEventCase{"wait", pikeman, CombatEventType::WAIT, [](CStack * unit, const CStack *)
+	{
+		return BattleAction::makeWait(unit);
+	}},
+	ActionEventCase{"defend", pikeman, CombatEventType::DEFEND, [](CStack * unit, const CStack *)
+	{
+		return BattleAction::makeDefend(unit);
+	}},
+	ActionEventCase{"walkBeforeMove", pikeman, CombatEventType::BEFORE_MOVE, [](CStack * unit, const CStack *)
+	{
+		return BattleAction::makeMove(unit, BattleHex(5, 5));
+	}},
+	ActionEventCase{"walkAfterMove", pikeman, CombatEventType::AFTER_MOVE, [](CStack * unit, const CStack *)
+	{
+		return BattleAction::makeMove(unit, BattleHex(5, 5));
+	}},
+	ActionEventCase{"creatureSpell", stormElemental, CombatEventType::UNIT_SPELLCAST, [](CStack * unit, const CStack * ally)
+	{
+		battle::Target target;
+		target.emplace_back(ally);
+		return BattleAction::makeCreatureSpellcast(unit, target, SpellID::PROTECTION_FROM_AIR);
+	}},
+	ActionEventCase{"walkAndCast", pikeman, CombatEventType::UNIT_SPELLCAST, [](CStack * unit, const CStack * ally)
+	{
+		BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
+		return BattleAction::makeWalkAndCast(unit, ally->getPosition().cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS);
+	}}
+),
+	[](const ::testing::TestParamInfo<ActionEventCase> & info) { return info.param.name; });

@@ -42,13 +42,8 @@ TEST_P(FireShieldTest, reflectsExpectedDamage)
 
 	startGame();
 
-	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	attackerSideHero->addSpellToSpellbook(SpellID::FIRE_SHIELD);
-	attackerSideHero->mana = 9999;
-
-	giveArtifact(defenderSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::BLESS));
-	defenderSideHero->mana = 9999;
+	teachSpell(attackerSideHero, SpellID::FIRE_SHIELD);
+	teachSpell(defenderSideHero, SpellID::BLESS);
 
 	if(scenario.skill >= 0)
 		attackerSideHero->setSecSkillLevel(SecondarySkill(scenario.skill), scenario.mastery, ChangeValueMode::ABSOLUTE);
@@ -152,9 +147,7 @@ TEST_F(FireShieldRollTest, reflectsTheHitThatLandedRatherThanTheBestPossibleRoll
 {
 	startGame();
 
-	giveArtifact(attackerSideHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-	attackerSideHero->addSpellToSpellbook(SpellID::FIRE_SHIELD);
-	attackerSideHero->mana = 9999;
+	teachSpell(attackerSideHero, SpellID::FIRE_SHIELD);
 
 	startBattle();
 

@@ -105,6 +105,7 @@ set(test_SRCS
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
 		server/battles/AcidBreathTest.cpp
+		server/battles/ActionOptionsTest.cpp
 		server/battles/AttackSequenceTest.cpp
 		server/battles/BallistaDamageTest.cpp
 		server/battles/BattleTestFixture.cpp
@@ -117,11 +118,17 @@ set(test_SRCS
 		server/battles/FireShieldTest.cpp
 		server/battles/HotaAbilitiesTest.cpp
 		server/battles/LifeDrainTest.cpp
+		server/battles/MeleeActionTest.cpp
+		server/battles/MoatActionTest.cpp
+		server/battles/NoTargetActionTest.cpp
+		server/battles/RangedActionTest.cpp
 		server/battles/RebirthTest.cpp
 		server/battles/SoulStealTest.cpp
+		server/battles/SpellcastActionTest.cpp
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
+		server/battles/WalkActionTest.cpp
 		server/queries/QueriesProcessorTest.cpp
 
 		texts/TextOperationsTest.cpp
