@@ -22,6 +22,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CViewport.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
@@ -95,7 +96,7 @@ void CSelWindow::madeChoiceAndClose()
 	close();
 }
 
-CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
+CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons, int maxComponentRows)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -130,7 +131,39 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 	if(!comps.empty())
 		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0));
 
+	// A dialog that is asked to show only a few rows of components must not grow past the screen, as that would push
+	// its buttons out of reach. Keep the whole grid inside a viewport of the requested height instead and let the
+	// player scroll the surplus rows.
+	if(components && maxComponentRows > 0)
+	{
+		const auto & rowOffsets = components->getRowOffsets();
+
+		if(static_cast<int>(rowOffsets.size()) > maxComponentRows)
+		{
+			// end the view on a row border, so that no row is cut in half
+			const int visibleHeight = rowOffsets[maxComponentRows] - rowOffsets.front();
+
+			// let the components redraw through the viewport, otherwise they would paint over its borders
+			for(const auto & comp : comps)
+				comp->setRedrawParent(true);
+
+			// scrollbars are drawn inside the viewport, so it has to reserve room for one
+			componentViewport = std::make_shared<CViewport>(
+				Rect(0, 0, components->pos.w + CViewport::SLIDER_W, visibleHeight),
+				Point(components->pos.w, components->pos.h));
+			componentViewport->content()->addChild(components.get());
+			componentViewport->fitContentSize();
+		}
+	}
+
 	CMessage::drawIWindow(this, Text, player);
+}
+
+CIntObject * CInfoWindow::componentArea() const
+{
+	if(componentViewport)
+		return componentViewport.get();
+	return components.get();
 }
 
 CInfoWindow::CInfoWindow()

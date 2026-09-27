@@ -271,7 +271,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	// STEP 2: COMPUTE WINDOW SIZE
 
-	if(ret->buttons.empty() && !ret->components)
+	if(ret->buttons.empty() && !ret->componentArea())
 	{
 		// use more compact form for right-click popup with no buttons / components
 		if(ret->text->slider)
@@ -290,10 +290,10 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	{
 		int windowContentWidth = ret->text->pos.w;
 		int windowContentHeight = ret->text->pos.h;
-		if(ret->components)
+		if(auto * area = ret->componentArea())
 		{
-			vstd::amax(windowContentWidth, ret->components->pos.w);
-			windowContentHeight += INTERVAL_BETWEEN_TEXT_AND_BUTTONS + ret->components->pos.h;
+			vstd::amax(windowContentWidth, area->pos.w);
+			windowContentHeight += INTERVAL_BETWEEN_TEXT_AND_BUTTONS + area->pos.h;
 		}
 		if(!ret->buttons.empty())
 		{
@@ -307,15 +307,15 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	// STEP 3: MOVE ALL ELEMENTS IN PLACE
 
-	if(ret->buttons.empty() && !ret->components)
+	if(ret->buttons.empty() && !ret->componentArea())
 	{
 		ret->text->trimToFit();
 		ret->text->center(ret->pos.center());
 	}
 	else
 	{
-		if(ret->components)
-			ret->components->moveBy(Point((ret->pos.w - ret->components->pos.w) / 2, TOP_MARGIN + ret->text->pos.h + INTERVAL_BETWEEN_TEXT_AND_BUTTONS));
+		if(auto * area = ret->componentArea())
+			area->moveBy(Point((ret->pos.w - area->pos.w) / 2, TOP_MARGIN + ret->text->pos.h + INTERVAL_BETWEEN_TEXT_AND_BUTTONS));
 
 		ret->text->trimToFit();
 		ret->text->moveBy(Point((ret->pos.w - ret->text->pos.w) / 2, TOP_MARGIN + (textHeight - ret->text->pos.h) / 2 ));

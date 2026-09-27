@@ -457,6 +457,11 @@ int CComponentBox::selectedIndex()
 	return -1;
 }
 
+const std::vector<int> & CComponentBox::getRowOffsets() const
+{
+	return rowOffsets;
+}
+
 Point CComponentBox::getOrTextPos(CComponent *left, CComponent *right)
 {
 	int leftSubtitle  = ( left->pos.w -  left->image->pos.w) / 2;
@@ -548,6 +553,8 @@ void CComponentBox::placeComponents(bool selectable)
 	//move components to their positions
 	for (auto & rows_row : rows)
 	{
+		rowOffsets.push_back(currentY);
+
 		// amount of free space we may add on each side of every component
 		int freeSpace = (pos.w - rows_row.width) / ((int)rows_row.comps * 2);
 		prevComp = nullptr;

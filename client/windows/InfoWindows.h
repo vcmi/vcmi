@@ -32,6 +32,7 @@ class TransparentFilledRectangle;
 class CMinimapInstance;
 class CLabel;
 class CSlider;
+class CViewport;
 
 /// text + comp. + ok button
 class CInfoWindow : public WindowBase
@@ -43,6 +44,7 @@ public:
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<CTextBox> text;
 	std::shared_ptr<CComponentBox> components;
+	std::shared_ptr<CViewport> componentViewport;
 	std::vector<std::shared_ptr<CButton>> buttons;
 
 	uint32_t closeTimeLeft = 0; // ms, 0 keeps the window open until a button is pressed
@@ -56,7 +58,13 @@ public:
 
 	void sliderMoved(int to);
 
-	CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
+	/// Widget that lays out the components of this dialog. That is the component box itself, unless the dialog was
+	/// built with a limit on how many rows of components to show, in which case the box sits inside a scrollable
+	/// viewport and the viewport is what occupies the space of a row in the dialog.
+	CIntObject * componentArea() const;
+
+	/// @param maxComponentRows how many rows of components to show at once, 0 to let the dialog grow to fit all of them
+	CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo(), int maxComponentRows = 0);
 	CInfoWindow();
 	~CInfoWindow();
 

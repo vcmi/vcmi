@@ -89,6 +89,8 @@ class CComponentBox : public CIntObject
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
+	std::vector<int> rowOffsets;
+
 	static constexpr int defaultBetweenImagesMin = 42;
 	static constexpr int defaultBetweenSubtitlesMin = 10;
 	static constexpr int defaultBetweenRows = 22;
@@ -112,6 +114,9 @@ class CComponentBox : public CIntObject
 public:
 	/// return index of selected item
 	int selectedIndex();
+
+	/// vertical offset of the top of every row of components, relative to the top of the box
+	const std::vector<int> & getRowOffsets() const;
 
 	/// constructors for non-selectable components
 	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position);

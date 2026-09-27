@@ -68,6 +68,8 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 #include "../../lib/spells/CSpellHandler.h"
 
+static constexpr int SPELL_ROWS_VISIBLE = 3;
+
 BattleOnlyModeTab::BattleOnlyModeTab()
 	: startInfo(std::make_shared<BattleOnlyModeStartInfo>())
 	, disabledColor(GAME->server().isHost() ? Colors::WHITE : Colors::ORANGE)
@@ -454,7 +456,7 @@ void BattleOnlyModeHeroSelector::manageSpells()
 		ENGINE->windows().pushWindow(window);
 	};
 
-	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(owner.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom);
+	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(owner.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom, SPELL_ROWS_VISIBLE);
 	temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
 	temp->buttons[0]->addCallback([openList, toAdd](){ openList(toAdd, true); });
 	temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellAdd")); });
