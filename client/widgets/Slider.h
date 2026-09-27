@@ -33,6 +33,9 @@ private:
 
 	std::optional<Rect> scrollBounds;
 
+	/// Like scrollBounds, but only for touch-panning gestures; falls back to scrollBounds if unset.
+	std::optional<Rect> gestureBounds;
+
 	/// how many elements are visible simultaneously
 	int capacity;
 	/// number of highest position, or 0 if there is only one
@@ -69,6 +72,9 @@ public:
 	/// If set, mouse scroll will only scroll slider when inside of this area
 	void setScrollBounds(const Rect & bounds );
 	void clearScrollBounds();
+
+	void setGestureBounds(const Rect & bounds );
+	void clearGestureBounds();
 
 	/// Value modifiers
 	void scrollTo(int value, bool callCallbacks = true);

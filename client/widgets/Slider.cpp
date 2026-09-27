@@ -110,6 +110,16 @@ void CSlider::clearScrollBounds()
 	scrollBounds = std::nullopt;
 }
 
+void CSlider::setGestureBounds(const Rect & bounds)
+{
+	gestureBounds = bounds;
+}
+
+void CSlider::clearGestureBounds()
+{
+	gestureBounds = std::nullopt;
+}
+
 int CSlider::getAmount() const
 {
 	return amount;
@@ -253,6 +263,9 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 
 	if(eventType != WHEEL && eventType != GESTURE)
 		return CIntObject::receiveEvent(position, eventType);
+
+	if (eventType == GESTURE && gestureBounds)
+		return (*gestureBounds + pos.topLeft()).isInside(position);
 
 	if (!scrollBounds)
 		return true;
