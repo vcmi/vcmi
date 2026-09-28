@@ -265,6 +265,15 @@ void BattleMirrorServer::start()
 	}
 }
 
+uint16_t BattleMirrorServer::listenPort() const
+{
+	boost::system::error_code ec;
+	const auto endpoint = acceptor.local_endpoint(ec);
+	if(ec)
+		return 0;
+	return endpoint.port();
+}
+
 void BattleMirrorServer::closeAll()
 {
 	boost::system::error_code ec;

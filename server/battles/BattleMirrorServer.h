@@ -72,6 +72,7 @@ public:
 
 	/// Binds and starts accepting; on failure logs and leaves the listener disabled.
 	void start();
+	uint16_t listenPort() const;
 	/// Closes the acceptor and every viewer socket; called on server shutdown.
 	void closeAll();
 	void onPackApplied(CPackForClient & pack, const CGameState & gameState);
