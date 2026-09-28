@@ -24,7 +24,9 @@ Optional keys: `"hostname"` (default `"127.0.0.1"`) and `"port"` (default `3033`
 
 ## How it works
 
-A post-apply hook in `CVCMIServer::applyPack` feeds every applied client pack to `BattleMirrorController` (server/battles/BattleMirrorServer.cpp). The controller filters battle packs, keeps an 8-line log ring, and re-renders a frame via the pure renderer in server/battles/BattleTextViewRenderer.cpp — but only when at least one viewer is connected. `BattleMirrorServer` is a minimal boost.asio acceptor running on the shared network io_context (no extra threads). Viewers connect read-only: their input is drained and discarded.
+A post-apply hook in `CVCMIServer::applyPack` feeds every applied client pack to `BattleMirrorController` (server/battles/BattleMirrorServer.cpp). The controller filters battle packs, keeps an 8-line log ring, and re-renders a frame via the pure renderer in server/battles/BattleTextViewRenderer.cpp: a frame is rendered and sent only when at least one viewer is connected — with no viewers, nothing is rendered or sent. `BattleMirrorServer` is a minimal boost.asio acceptor running on the shared network io_context (no extra threads). Viewers connect read-only: their input is drained and discarded.
+
+Every entry point — the pack hook, accepts, reads and writes — runs on the single network thread, so no locks are needed by design; should the io_context ever become a pool, all entry points must be marshalled onto it via `boost::asio::post`. On server shutdown the mirror is closed before the network handler stops: `closeAll()` posts its body onto the io thread (the shutdown path can run on a non-io thread in client-embedded mode), and if the context was already stopped, the destructor closes the acceptor and sockets idempotently. Mirror errors anywhere in the hook are caught and logged and never affect server flow.
 
 ## Frame legend
 
@@ -35,7 +37,7 @@ Each frame clears the screen (ANSI escape sequences — use an ANSI terminal). F
 	- `a`/`d` + 3-letter creature abbreviation, e.g. `aPik` — attacker/defender stack; wide creatures fill both hexes
 	- the active stack is shown in inverse video
 	- `#` usual/absolute obstacle, `%` spell-created obstacle, `~` moat
-	- siege: `K` keep, `T` tower, gate `G` closed / `g` opened / `X` destroyed, walls `X` destroyed / `x` damaged / `=` intact / `H` reinforced
+ 	- siege: `K` keep, `T` tower, gate `G` closed or blocked (creature-held) / `g` opened / `X` destroyed, walls `X` destroyed / `x` damaged / `=` intact / `H` reinforced
 	- `A`/`D` attacker/defender hero position
 - One legend line per living stack: `<side> <name>  count <N>  HP <left>/<max>`
 - Log tail lines prefixed with `| `
@@ -44,6 +46,7 @@ Each frame clears the screen (ANSI escape sequences — use an ANSI terminal). F
 
 - Mirrors the **most recently active** battle: concurrent battles flip the view to the latest activity; per-viewer battle selection is not supported.
 - On connect the server sends a greeting and, if a battle is already running, an immediate full snapshot frame.
+- Frame updates are coalesced depth-1, latest-wins: while a frame is still being written, a newer frame replaces the queued one — slow viewers see the latest state; intermediate frames may be skipped.
 - After a battle ends, the final summary frame stays on screen and the connection stays open (idle) — the next battle reuses it.
 
 ## Limitations
