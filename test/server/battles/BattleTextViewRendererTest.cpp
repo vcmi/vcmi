@@ -145,6 +145,19 @@ TEST_F(BattleTextViewRendererTest, StackRenderedAtPosition)
 	}
 }
 
+TEST_F(BattleTextViewRendererTest, DoubleWideStackOccupiesBothHexes)
+{
+	CStack * champion = addStack(BattleSide::ATTACKER, creatureByName("core:champion"), BattleHex(leftHex), 1);
+	ASSERT_NE(champion, nullptr);
+	ASSERT_TRUE(champion->doubleWide());
+
+	const std::string tag = "a" + champion->unitType()->getNameSingularTranslated().substr(0, 3);
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, champion->getPosition()), tag);
+	EXPECT_EQ(cellAt(lines, champion->occupiedHex()), tag);
+}
+
 TEST_F(BattleTextViewRendererTest, DeadStackRemovedFromGridAndLegend)
 {
 	CStack * victim = nullptr;
@@ -265,20 +278,61 @@ TEST_F(BattleTextViewRendererTest, ObstacleCoversWholeFootprint)
 	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ");
 }
 
+TEST_F(BattleTextViewRendererTest, StackOverrulesMarkersAtSameHex)
+{
+	CStack * bystander = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), 1);
+	ASSERT_NE(bystander, nullptr);
+
+	auto spellObstacle = std::make_shared<SpellCreatedObstacle>();
+	spellObstacle->pos = BattleHex(leftHex);
+	spellObstacle->customSize = BattleHexArray{BattleHex(leftHex), BattleHex(rightHex)};
+	battle()->obstacles.push_back(spellObstacle);
+
+	const std::string tag = "a" + bystander->unitType()->getNameSingularTranslated().substr(0, 3);
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, BattleHex(leftHex)), tag) << "obstacle marker hides the living stack";
+	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ") << "the footprint hex without the stack keeps its obstacle marker";
+}
+
 TEST_F(BattleTextViewRendererTest, SiegeWalls)
 {
 	battle()->si.wallState[EWallPart::UPPER_WALL] = EWallState::DESTROYED;
+	battle()->si.wallState[EWallPart::BOTTOM_WALL] = EWallState::DAMAGED;
+	battle()->si.wallState[EWallPart::OVER_GATE] = EWallState::INTACT;
 	battle()->si.wallState[EWallPart::GATE] = EWallState::INTACT;
 	battle()->si.gateState = EGateState::CLOSED;
 	battle()->si.wallState[EWallPart::KEEP] = EWallState::INTACT;
+	battle()->si.wallState[EWallPart::UPPER_TOWER] = EWallState::INTACT;
 
 	const auto lines = splitLines(renderPlainFrame());
 	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::UPPER_WALL)), "X   ");
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::BOTTOM_WALL)), "x   ");
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::OVER_GATE)), "=   ");
 	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::GATE)), "G   ");
 	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::KEEP)), "K   ");
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::UPPER_TOWER)), "T   ");
 
 	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::HERO_ATTACKER)), "A   ");
 	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::HERO_DEFENDER)), "D   ");
+}
+
+TEST_F(BattleTextViewRendererTest, GateStatesCoverOpenDestroyedBlocked)
+{
+	battle()->si.wallState[EWallPart::GATE] = EWallState::INTACT;
+
+	const std::pair<EGateState, std::string> scenarios[] = {
+		{EGateState::OPENED, "g   "},
+		{EGateState::DESTROYED, "X   "},
+		{EGateState::BLOCKED, "G   "},
+	};
+
+	for(const auto & [state, marker] : scenarios)
+	{
+		SCOPED_TRACE("gate marker " + marker);
+		battle()->si.gateState = state;
+		EXPECT_EQ(cellAt(splitLines(renderPlainFrame()), battle()->wallPartToBattleHex(EWallPart::GATE)), marker);
+	}
 }
 
 TEST_F(BattleTextViewRendererTest, AnsiVsPlain)
@@ -288,6 +342,25 @@ TEST_F(BattleTextViewRendererTest, AnsiVsPlain)
 
 	const std::string plain = renderPlainFrame();
 	EXPECT_EQ(std::find(plain.begin(), plain.end(), '\x1b'), plain.end()) << "plain frame carries escape bytes";
+}
+
+TEST_F(BattleTextViewRendererTest, ActiveCellAnsiHighlight)
+{
+	beginCombat();
+
+	const CStack * active = battle()->getStack(battle()->activeStack);
+	ASSERT_NE(active, nullptr);
+
+	std::string cell = active->unitSide() == BattleSide::DEFENDER ? "d" : "a";
+	cell += active->unitType()->getNameSingularTranslated().substr(0, 3);
+	if(cell.size() < 4)
+		cell.append(4 - cell.size(), ' ');
+
+	const std::string frame = battleTextView::renderBattleTextView(*battle(), {}, battleTextView::RenderOptions{true});
+	EXPECT_NE(frame.find("\x1b[7m"), std::string::npos);
+	EXPECT_NE(frame.find("\x1b[27m"), std::string::npos);
+	EXPECT_NE(frame.find("\x1b[7m" + cell + "\x1b[27m"), std::string::npos)
+		<< "reverse video does not wrap the active stack's cell";
 }
 
 TEST_F(BattleTextViewRendererTest, SummaryFrames)
