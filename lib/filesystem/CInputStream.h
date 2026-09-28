@@ -33,7 +33,7 @@ public:
 	 *
 	 * @return pair, first = raw data, second = size of data
 	 */
-	std::pair<std::unique_ptr<ui8[]>, si64> readAll()
+	virtual std::pair<std::unique_ptr<ui8[]>, si64> readAll()
 	{
 		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
 

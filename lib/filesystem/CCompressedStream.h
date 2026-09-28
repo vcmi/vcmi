@@ -70,6 +70,8 @@ public:
 	 */
 	si64 getSize() override;
 
+	std::pair<std::unique_ptr<ui8[]>, si64> readAll() override;
+
 protected:
 	/**
 	 * @brief virtual method to get more data into the buffer
