@@ -173,7 +173,16 @@ TEST_F(BattleTextViewRendererTest, DeadStackRemovedFromGridAndLegend)
 
 	const BattleHex position = victim->getPosition();
 	const std::string tag = "a" + victim->unitType()->getNameSingularTranslated().substr(0, 3);
-	EXPECT_EQ(cellAt(splitLines(renderPlainFrame()), position), tag) << "victim starts on the grid";
+	// grid cells never carry a space in position 2, headers start with "VCMI", log lines with '|'
+	const auto isLegendLine = [](const std::string & line)
+	{
+		return line.size() > 2 && (line[0] == 'a' || line[0] == 'd') && line[1] == ' ';
+	};
+
+	const auto linesBefore = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(linesBefore, position), tag) << "victim starts on the grid";
+	EXPECT_EQ(std::count_if(linesBefore.begin(), linesBefore.end(), isLegendLine), 2u)
+		<< "both stacks reported before the death";
 
 	int64_t fatalDamage = 1'000'000'000;
 	victim->damage(fatalDamage);
@@ -182,8 +191,12 @@ TEST_F(BattleTextViewRendererTest, DeadStackRemovedFromGridAndLegend)
 	const auto lines = splitLines(renderPlainFrame());
 	EXPECT_NE(cellAt(lines, position), tag) << "dead stack still rendered on the grid";
 
+	std::vector<std::string> legends;
 	for(const std::string & line : lines)
-		EXPECT_EQ(line.find(victim->getName()), std::string::npos) << "dead stack still reported: " << line;
+		if(isLegendLine(line))
+			legends.push_back(line);
+	ASSERT_EQ(legends.size(), 1u) << "only the surviving defender may remain in the legend";
+	EXPECT_EQ(legends[0].substr(0, 2), "d ");
 }
 
 TEST_F(BattleTextViewRendererTest, ActiveStackMarker)
