@@ -64,7 +64,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonN
 
 	ModInfo & modInfo = modData[modName];
 
-	for(auto entry : data.Struct())
+	for(auto & entry : data.Struct())
 	{
 		size_t colon = entry.first.find(':');
 
