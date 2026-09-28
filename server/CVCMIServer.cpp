@@ -113,7 +113,7 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 		logNetwork->error("Battle mirror failed to start: %s", e.what());
 	}
 
-	if(state == EServerState::LOBBY)
+	if(state.load(std::memory_order_relaxed) == EServerState::LOBBY)
 		startDiscoveryListener();
 }
 
@@ -178,20 +178,22 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 
 void CVCMIServer::setState(EServerState value)
 {
-	if (value == EServerState::SHUTDOWN && state == EServerState::SHUTDOWN)
+	const EServerState currentState = state.load(std::memory_order_relaxed);
+
+	if (value == EServerState::SHUTDOWN && currentState == EServerState::SHUTDOWN)
 		logGlobal->warn("Attempt to shutdown already shutdown server!");
 
 	// do not attempt to restart dying server
-	assert(state != EServerState::SHUTDOWN || state == value);
+	assert(currentState != EServerState::SHUTDOWN || currentState == value);
 
-	if(state != EServerState::LOBBY && value == EServerState::LOBBY && discoveryListener)
+	if(currentState != EServerState::LOBBY && value == EServerState::LOBBY && discoveryListener)
 		startDiscoveryListener();
-	if(state == EServerState::LOBBY && value != EServerState::LOBBY && discoveryListener)
+	if(currentState == EServerState::LOBBY && value != EServerState::LOBBY && discoveryListener)
 		stopDiscoveryListener();
 
-	state = value;
+	state.store(value, std::memory_order_relaxed);
 
-	if (state == EServerState::SHUTDOWN)
+	if (value == EServerState::SHUTDOWN)
 	{
 		if (battleMirror)
 			battleMirror->closeAll();
@@ -217,7 +219,7 @@ void CVCMIServer::stopDiscoveryListener()
 
 EServerState CVCMIServer::getState() const
 {
-	return state;
+	return state.load(std::memory_order_relaxed);
 }
 
 bool CVCMIServer::isInLobby() const

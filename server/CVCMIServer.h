@@ -14,6 +14,8 @@
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
+#include <atomic>
+
 class CMapInfo;
 
 struct CPackForLobby;
@@ -46,7 +48,8 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	/// Handles connection with global lobby. Must be constructed and destroyed after network handler
 	std::unique_ptr<GlobalLobbyProcessor> lobbyProcessor;
 
-	EServerState state = EServerState::LOBBY;
+	/// Shutdown is signalled from the client thread while io-thread handlers poll this — atomic, relaxed ordering suffices
+	std::atomic<EServerState> state = EServerState::LOBBY;
 
 	std::shared_ptr<GameConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
