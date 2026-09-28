@@ -4,7 +4,7 @@ A server-side, read-only battle spectator streamed as ANSI text over a plain TCP
 
 ## Security
 
-The mirror has **no authentication** and is **loopback-only by default**. It is a local debugging and spectating tool — do not expose the port to untrusted networks.
+The mirror has **no authentication** and is **loopback-only by default**. It is a local debugging and spectating tool — do not expose the port to untrusted networks. If the mirror is ever enabled on a non-loopback hostname, the 16-viewer session cap is the only flood guard — keep it loopback.
 
 ## Enabling
 
