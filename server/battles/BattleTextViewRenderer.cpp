@@ -133,11 +133,23 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
 			marker = '~';
 
-		markerAt[obstacle->pos.toInt()] = marker;
+		// base-class getAffectedTiles() asserts for MOAT, so only virtual overrides are safe to ask
+		const bool bareMoat = obstacle->obstacleType == CObstacleInstance::MOAT
+			&& !dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+		const BattleHexArray tiles = bareMoat ? BattleHexArray() : obstacle->getAffectedTiles();
+
+		if(!tiles.empty())
+			for(const BattleHex & hex : tiles)
+				markerAt[hex.toInt()] = marker;
+		else
+			markerAt[obstacle->pos.toInt()] = marker;
 	}
 
 	for(const auto & stack : battle.stacks)
 	{
+		if(!stack->alive())
+			continue;
+
 		BattleHex position = stack->getPosition();
 		if(position.isValid())
 			stackAt[position.toInt()] = stack.get();
@@ -153,9 +165,9 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 
 	frame += "VCMI battle mirror - battle #" + std::to_string(battle.getBattleID().getNum());
 	frame += ", round " + std::to_string(battle.getRound());
-	frame += ", active: " + (activeStack ? activeStack->getName() : "-") + "\n";
+	frame += ", active: " + (activeStack ? activeStack->getName() : "-") + "\r\n";
 
-	frame += "\n";
+	frame += "\r\n";
 
 	for(int y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
 	{
@@ -179,10 +191,10 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 				frame += "    ";
 		}
 
-		frame += "\n";
+		frame += "\r\n";
 	}
 
-	frame += "\n";
+	frame += "\r\n";
 
 	std::vector<const CStack *> livingStacks;
 	for(const auto & stack : battle.stacks)
@@ -200,13 +212,13 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 		frame += " " + stack->getName();
 		frame += "  count " + std::to_string(stack->getCount());
 		frame += "  HP " + std::to_string(stack->getFirstHPleft()) + "/" + std::to_string(stack->getMaxHealth());
-		frame += "\n";
+		frame += "\r\n";
 	}
 
-	frame += "\n";
+	frame += "\r\n";
 
 	for(const std::string & entry : logTail)
-		frame += "| " + entry + "\n";
+		frame += "| " + entry + "\r\n";
 
 	return frame;
 }
@@ -217,8 +229,8 @@ std::string renderBattleSummary(const BattleID & id, const PlayerColor & victor,
 	if(options.ansi)
 		frame += "\x1b[2J\x1b[H";
 
-	frame += "VCMI battle mirror - battle #" + std::to_string(id.getNum()) + "\n";
-	frame += "Battle ended, victor: player " + std::to_string(victor.getNum()) + "\n";
+	frame += "VCMI battle mirror - battle #" + std::to_string(id.getNum()) + "\r\n";
+	frame += "Battle ended, victor: player " + std::to_string(victor.getNum()) + "\r\n";
 	return frame;
 }
 
@@ -228,8 +240,8 @@ std::string renderBattleCancelled(const BattleID & id, RenderOptions options)
 	if(options.ansi)
 		frame += "\x1b[2J\x1b[H";
 
-	frame += "VCMI battle mirror - battle #" + std::to_string(id.getNum()) + "\n";
-	frame += "Battle cancelled.\n";
+	frame += "VCMI battle mirror - battle #" + std::to_string(id.getNum()) + "\r\n";
+	frame += "Battle cancelled.\r\n";
 	return frame;
 }
 

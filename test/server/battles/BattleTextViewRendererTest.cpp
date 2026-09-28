@@ -36,7 +36,12 @@ std::vector<std::string> splitLines(const std::string & text)
 	std::string line;
 
 	while(std::getline(stream, line))
+	{
+		// telnet frames terminate every line with CRLF; assertions match the bare payload
+		if(!line.empty() && line.back() == '\r')
+			line.pop_back();
 		lines.push_back(line);
+	}
 
 	return lines;
 }
@@ -140,6 +145,32 @@ TEST_F(BattleTextViewRendererTest, StackRenderedAtPosition)
 	}
 }
 
+TEST_F(BattleTextViewRendererTest, DeadStackRemovedFromGridAndLegend)
+{
+	CStack * victim = nullptr;
+	for(const auto & stack : battle()->stacks)
+		if(stack->alive() && stack->unitSide() == BattleSide::ATTACKER)
+		{
+			victim = stack.get();
+			break;
+		}
+	ASSERT_NE(victim, nullptr);
+
+	const BattleHex position = victim->getPosition();
+	const std::string tag = "a" + victim->unitType()->getNameSingularTranslated().substr(0, 3);
+	EXPECT_EQ(cellAt(splitLines(renderPlainFrame()), position), tag) << "victim starts on the grid";
+
+	int64_t fatalDamage = 1'000'000'000;
+	victim->damage(fatalDamage);
+	ASSERT_FALSE(victim->alive());
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_NE(cellAt(lines, position), tag) << "dead stack still rendered on the grid";
+
+	for(const std::string & line : lines)
+		EXPECT_EQ(line.find(victim->getName()), std::string::npos) << "dead stack still reported: " << line;
+}
+
 TEST_F(BattleTextViewRendererTest, ActiveStackMarker)
 {
 	const std::string before = renderPlainFrame();
@@ -180,10 +211,19 @@ TEST_F(BattleTextViewRendererTest, LogTailRenderedAndBounded)
 	const std::string frame = renderPlainFrame(bounded);
 
 	for(int i = 4; i < 12; ++i)
-		EXPECT_NE(frame.find("| line" + std::to_string(i) + "\n"), std::string::npos) << "dropped " << i;
-	EXPECT_NE(frame.find("| line11\n"), std::string::npos);
+		EXPECT_NE(frame.find("| line" + std::to_string(i) + "\r\n"), std::string::npos) << "dropped " << i;
+	EXPECT_NE(frame.find("| line11\r\n"), std::string::npos);
 	for(int i = 0; i < 4; ++i)
-		EXPECT_EQ(frame.find("| line" + std::to_string(i) + "\n"), std::string::npos) << "oldest entry " << i << " leaked in";
+		EXPECT_EQ(frame.find("| line" + std::to_string(i) + "\r\n"), std::string::npos) << "oldest entry " << i << " leaked in";
+
+	EXPECT_NE(frame.find("VCMI battle mirror - battle #0, round"), std::string::npos);
+	EXPECT_NE(frame.find("\r\n"), std::string::npos) << "telnet NVT requires CRLF line endings";
+	for(size_t i = 0; i < frame.size(); ++i)
+	{
+		if(frame[i] != '\n')
+			continue;
+		ASSERT_TRUE(i > 0 && frame[i - 1] == '\r') << "bare LF at offset " << i;
+	}
 
 	const std::string full = renderPlainFrame({"log a", "log b", "log c"});
 	for(const char * entry : {"| log a", "| log b", "| log c"})
@@ -211,6 +251,18 @@ TEST_F(BattleTextViewRendererTest, ObstacleMarkers)
 	const auto lines = splitLines(renderPlainFrame());
 	EXPECT_EQ(cellAt(lines, BattleHex(leftHex)), "%   ");
 	EXPECT_EQ(cellAt(lines, BattleHex(leftHex + GameConstants::BFIELD_WIDTH)), "~   ");
+}
+
+TEST_F(BattleTextViewRendererTest, ObstacleCoversWholeFootprint)
+{
+	auto spellObstacle = std::make_shared<SpellCreatedObstacle>();
+	spellObstacle->pos = BattleHex(leftHex);
+	spellObstacle->customSize = BattleHexArray{BattleHex(leftHex), BattleHex(rightHex)};
+	battle()->obstacles.push_back(spellObstacle);
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, BattleHex(leftHex)), "%   ");
+	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ");
 }
 
 TEST_F(BattleTextViewRendererTest, SiegeWalls)
