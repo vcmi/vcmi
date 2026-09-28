@@ -48,7 +48,7 @@ Each frame clears the screen (ANSI escape sequences — use an ANSI terminal). F
 - On connect the server sends a greeting and, if a battle is already running, an immediate full snapshot frame.
 - Frame updates are coalesced depth-1, latest-wins: while a frame is still being written, a newer frame replaces the queued one — slow viewers see the latest state; intermediate frames may be skipped.
 - After a battle ends, the final summary frame stays on screen and the connection stays open (idle) — the next battle reuses it.
-- At most 16 concurrent viewers; further connections are refused with a "battle mirror busy" line; saturation is logged once per episode.
+- At most 16 concurrent viewers; further connections are refused with a "battle mirror busy" line; saturation is logged once per continuous saturation period.
 
 ## Limitations
 
