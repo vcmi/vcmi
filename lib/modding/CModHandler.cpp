@@ -25,6 +25,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
+#include <tbb/parallel_for.h>
+
 CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
 	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
@@ -84,10 +86,17 @@ void CModHandler::loadModFilesystems()
 
 	const auto & activeMods = modManager->getActiveMods();
 
-	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
+	// mod filesystems are independent from each other, and their creation is dominated by reading of archive indexes
+	std::vector<std::unique_ptr<ISimpleResourceLoader>> loadedFilesystems(activeMods.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size()), [this, &activeMods, &loadedFilesystems](const tbb::blocked_range<size_t> & range)
+	{
+		for(size_t i = range.begin(); i != range.end(); ++i)
+			loadedFilesystems[i] = genModFilesystem(activeMods[i], getModInfo(activeMods[i]).getFilesystemConfig());
+	});
 
-	for(const TModID & modName : activeMods)
-		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
+	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
+	for(size_t i = 0; i < activeMods.size(); ++i)
+		modFilesystems[activeMods[i]] = std::move(loadedFilesystems[i]);
 
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);
