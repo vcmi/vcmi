@@ -421,3 +421,14 @@ TEST_F(BattleTextViewRendererTest, SummaryFrames)
 	EXPECT_TRUE(battleTextView::renderBattleSummary(BattleID(0), PlayerColor(0), {}).starts_with("\x1b[2J\x1b[H"));
 	EXPECT_TRUE(battleTextView::renderBattleCancelled(BattleID(0), {}).starts_with("\x1b[2J\x1b[H"));
 }
+
+TEST(BattleTextViewAbbreviateName, ClipsOnUtf8CodePointBoundaries)
+{
+	// Cyrillic and Latin-1 Supplement spell out the byte pattern explicitly: raw non-ASCII in
+	// source survives too many editors to stay trustworthy here
+	EXPECT_EQ(battleTextView::abbreviateName("\xD0\x9E\xD0\xB3\xD1\x80\xD1\x8B", 3), "\xD0\x9E\xD0\xB3\xD1\x80");
+	EXPECT_EQ(battleTextView::abbreviateName("\xC3\x84rzte", 3), "\xC3\x84rz");
+	EXPECT_EQ(battleTextView::abbreviateName("Pikeman", 3), "Pik");
+	EXPECT_EQ(battleTextView::abbreviateName("Gr", 3), "Gr");
+	EXPECT_EQ(battleTextView::abbreviateName("", 3), "");
+}

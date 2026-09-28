@@ -11,7 +11,9 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
+#include <cstddef>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class BattleInfo;
@@ -31,4 +33,7 @@ namespace battleTextView
 
 	/// Frame for a cancelled battle (no victor exists).
 	std::string renderBattleCancelled(const BattleID & id, RenderOptions options);
+
+	/// First `maxCodePoints` code points of `name`, never splitting a multi-byte UTF-8 sequence.
+	std::string abbreviateName(std::string_view name, size_t maxCodePoints);
 }

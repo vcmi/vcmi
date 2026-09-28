@@ -16,6 +16,25 @@
 
 #include <algorithm>
 #include <array>
+#include <string_view>
+
+namespace battleTextView
+{
+
+std::string abbreviateName(std::string_view name, size_t maxCodePoints)
+{
+	size_t byte = 0;
+	for(size_t codePoint = 0; codePoint < maxCodePoints && byte < name.size(); ++codePoint)
+	{
+		++byte;
+		while(byte < name.size() && (static_cast<unsigned char>(name[byte]) & 0xC0) == 0x80)
+			++byte;
+	}
+
+	return std::string(name.substr(0, byte));
+}
+
+}
 
 namespace
 {
@@ -28,7 +47,7 @@ std::string stackCell(const CStack & stack, bool isActive, bool ansi)
 
 	std::string cell;
 	cell += side;
-	cell += stack.unitType()->getNameSingularTranslated().substr(0, 3);
+	cell += battleTextView::abbreviateName(stack.unitType()->getNameSingularTranslated(), 3);
 	if(cell.size() < 4)
 		cell.append(4 - cell.size(), ' ');
 
