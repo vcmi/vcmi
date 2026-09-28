@@ -14,6 +14,8 @@
 #include "../../../server/battles/BattleTextViewRenderer.h"
 
 #include "../../../lib/CStack.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/ObstacleHandler.h"
 #include "../../../lib/battle/BattleHex.h"
 #include "../../../lib/battle/BattleInfo.h"
 #include "../../../lib/battle/CObstacleInstance.h"
@@ -276,6 +278,48 @@ TEST_F(BattleTextViewRendererTest, ObstacleCoversWholeFootprint)
 	const auto lines = splitLines(renderPlainFrame());
 	EXPECT_EQ(cellAt(lines, BattleHex(leftHex)), "%   ");
 	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ");
+}
+
+TEST_F(BattleTextViewRendererTest, AbsoluteObstacleRendersWholeFootprint)
+{
+	// looked up at runtime so the test survives changes in obstacle handler data
+	const ObstacleInfo * absolute = nullptr;
+	for(const auto & info : LIBRARY->obstacleHandler->objects)
+		if(info->isAbsoluteObstacle)
+		{
+			absolute = info.get();
+			break;
+		}
+	ASSERT_NE(absolute, nullptr) << "no absolute obstacle in handler data";
+
+	auto obstacle = std::make_shared<CObstacleInstance>();
+	obstacle->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
+	obstacle->ID = absolute->getId().getNum();
+	battle()->obstacles.push_back(obstacle);
+
+	const BattleHexArray footprint = obstacle->getAffectedTiles();
+	ASSERT_FALSE(footprint.empty());
+
+	const auto lines = splitLines(renderPlainFrame());
+	for(const BattleHex & hex : footprint)
+	{
+		SCOPED_TRACE("footprint hex " + std::to_string(hex.toInt()));
+		EXPECT_EQ(cellAt(lines, hex), "#   ");
+	}
+}
+
+TEST_F(BattleTextViewRendererTest, InvalidFootprintEntriesAreIgnored)
+{
+	auto spellObstacle = std::make_shared<SpellCreatedObstacle>();
+	spellObstacle->pos = BattleHex(leftHex);
+	// resize() default-fills with INVALID hexes and set() rewrites single slots - the shape a dirty deserialize leaves
+	spellObstacle->customSize.resize(2);
+	spellObstacle->customSize.set(0, BattleHex(rightHex));
+	battle()->obstacles.push_back(spellObstacle);
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ");
+	EXPECT_NE(cellAt(lines, BattleHex(leftHex)), "%   ") << "non-empty footprint replaces the pos fallback";
 }
 
 TEST_F(BattleTextViewRendererTest, StackOverrulesMarkersAtSameHex)

@@ -124,9 +124,6 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 
 	for(const auto & obstacle : battle.obstacles)
 	{
-		if(!obstacle->pos.isValid())
-			continue;
-
 		char marker = '#';
 		if(obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
 			marker = '%';
@@ -134,14 +131,18 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 			marker = '~';
 
 		// base-class getAffectedTiles() asserts for MOAT, so only virtual overrides are safe to ask
+		// absolute obstacles carry no pos by design - their blocked tiles are absolute hexes rather than offsets
 		const bool bareMoat = obstacle->obstacleType == CObstacleInstance::MOAT
 			&& !dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
 		const BattleHexArray tiles = bareMoat ? BattleHexArray() : obstacle->getAffectedTiles();
 
 		if(!tiles.empty())
+		{
 			for(const BattleHex & hex : tiles)
-				markerAt[hex.toInt()] = marker;
-		else
+				if(hex.isValid())
+					markerAt[hex.toInt()] = marker;
+		}
+		else if(obstacle->pos.isValid())
 			markerAt[obstacle->pos.toInt()] = marker;
 	}
 
