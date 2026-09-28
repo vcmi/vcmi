@@ -50,6 +50,8 @@ Server is responsible for:
 - informing all clients about changes in state of the game that are
     visible to them
 
+The server can also stream a read-only text rendering of running battles to a local TCP port - see [Battle Telnet Mirror](Battle_Telnet_Mirror.md).
+
 ## Lib
 
 ### Main purposes of lib
