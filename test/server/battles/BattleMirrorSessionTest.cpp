@@ -17,6 +17,8 @@
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../../lib/texts/MetaString.h"
 
+#include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <functional>
 #include <future>
@@ -24,6 +26,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#ifndef _WIN32
+#include <poll.h>
+#include <sys/socket.h>
+#endif
 
 namespace
 {
@@ -315,7 +322,9 @@ TEST_F(BattleMirrorSessionTest, TeardownFromNonIoThread)
 	std::thread ioThread([&] { io.run(); });
 	mirror->closeAll();
 
-	// data races on this teardown path are only deterministically observable under TSan; the assertions below pin the post-fix teardown semantics
+	// the assertions below pin the post-fix teardown semantics; the data-race class itself is only deterministically
+	// observable under TSan — the sibling CloseAllBodyRunsOnIoThreadNotCaller pins the io-thread marshalling of the
+	// close body deterministically on a plain build
 	const auto ec = readFuture.get();
 	EXPECT_EQ(ec, boost::asio::error::eof);
 	ioThread.join();
@@ -324,4 +333,70 @@ TEST_F(BattleMirrorSessionTest, TeardownFromNonIoThread)
 	boost::system::error_code ignored;
 	client.close(ignored);
 	io.stop();
+}
+
+TEST_F(BattleMirrorSessionTest, CloseAllBodyRunsOnIoThreadNotCaller)
+{
+#ifdef _WIN32
+	GTEST_SKIP() << "POSIX poll-based marshalling tripwire";
+#else
+	startMirror();
+
+	std::string received;
+	ASSERT_FALSE(connectClient(client));
+	EXPECT_FALSE(readUntil(client, received, [](const std::string & s) { return s.find("read-only\r\n") != std::string::npos; }));
+
+	std::promise<void> release;
+	auto releaseFuture = release.get_future();
+	std::atomic<bool> gateEntered{false};
+	boost::asio::post(io, [&]
+	{
+		gateEntered = true;
+		releaseFuture.wait_for(std::chrono::seconds(5));
+	});
+
+	std::thread ioThread([&] { io.run(); });
+	const auto gateDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+	while(!gateEntered.load() && std::chrono::steady_clock::now() < gateDeadline)
+		std::this_thread::yield();
+	ASSERT_TRUE(gateEntered.load()) << "gate handler never ran on the io thread";
+
+	mirror->closeAll();
+	// the gate handler and the closeAll body are both posted from this thread, and asio runs same-thread posts FIFO,
+	// so the body cannot run while the only run() thread is parked inside the gate
+	pollfd watched{};
+	watched.fd = client.native_handle();
+	watched.events = POLLIN;
+	const int polled = ::poll(&watched, 1, 200);
+	ASSERT_NE(polled, -1);
+	if(polled == 1 && (watched.revents & POLLIN))
+	{
+		char probe = 0;
+		if(::recv(watched.fd, &probe, 1, MSG_PEEK) == 0)
+			FAIL() << "closeAll body executed out-of-band (EOF observable while the io thread is parked)";
+	}
+	EXPECT_EQ(polled, 0) << "the mirror socket must stay quiet while the only run() thread is parked";
+
+	std::promise<boost::system::error_code> readOutcome;
+	auto readFuture = readOutcome.get_future();
+	auto buffer = boost::asio::dynamic_buffer(received);
+	client.async_read_some(buffer.prepare(512),
+		[promise = std::move(readOutcome), buffer](const boost::system::error_code & ec, std::size_t bytes) mutable
+		{
+			buffer.commit(bytes);
+			promise.set_value(ec);
+		});
+	// armed before the gate opens: the pending read keeps run() alive, so the EOF can only come from the posted body
+	release.set_value();
+
+	ASSERT_EQ(readFuture.wait_for(std::chrono::seconds(10)), std::future_status::ready);
+	EXPECT_EQ(readFuture.get(), boost::asio::error::eof);
+
+	ioThread.join();
+	mirror.reset();
+
+	boost::system::error_code teardownEc;
+	client.close(teardownEc);
+	io.stop();
+#endif
 }
