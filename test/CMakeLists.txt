@@ -108,6 +108,7 @@ set(test_SRCS
 		server/battles/AttackSequenceTest.cpp
 		server/battles/BallistaDamageTest.cpp
 		server/battles/BattleTestFixture.cpp
+		server/battles/BattleTextViewRendererTest.cpp
 		server/battles/CombatEventTriggerTest.cpp
 		server/battles/DamageCalculatorTest.cpp
 		server/battles/BindTest.cpp
