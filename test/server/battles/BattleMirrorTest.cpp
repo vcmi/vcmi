@@ -82,6 +82,9 @@ TEST_F(BattleMirrorTest, LifecycleProducesFramesAndSummary)
 	BattleEnded ended;
 	ended.battleID = battle()->battleID;
 	ended.victor = PlayerColor(0);
+	// terminal packs reach the mirror only after the game state applied them, which erases the
+	// battle - the summary must still come out of the pack fields alone
+	server.applyPack(ended);
 	apply(ended);
 	EXPECT_FALSE(controller.hasBattle());
 
@@ -172,6 +175,17 @@ TEST_F(BattleMirrorTest, SnapshotWithoutBattle)
 	EXPECT_FALSE(controller.hasBattle());
 }
 
+TEST_F(BattleMirrorTest, PortSettingIsRangeChecked)
+{
+	const JsonNode schema(JsonPath::builtin("config/schemas/settings.json"));
+	const JsonNode & port = schema["properties"]["server"]["properties"]["battleMirror"]["properties"]["port"];
+
+	EXPECT_TRUE(port["minimum"].isNumber());
+	EXPECT_EQ(port["minimum"].Integer(), 0);
+	EXPECT_TRUE(port["maximum"].isNumber());
+	EXPECT_EQ(port["maximum"].Integer(), 65535);
+}
+
 TEST_F(BattleMirrorTest, ResetClearsMirroredState)
 {
 	controller.setInterested(true);
@@ -191,13 +205,66 @@ TEST_F(BattleMirrorTest, ResetClearsMirroredState)
 	EXPECT_EQ(controller.snapshotFrame().find("stale"), std::string::npos) << "log ring survived the reset";
 }
 
-TEST_F(BattleMirrorTest, PortSettingIsRangeChecked)
+TEST_F(BattleMirrorTest, CancelledBattleSendsTerminalFrameFromPackFields)
 {
-	const JsonNode schema(JsonPath::builtin("config/schemas/settings.json"));
-	const JsonNode & port = schema["properties"]["server"]["properties"]["battleMirror"]["properties"]["port"];
+	controller.setInterested(true);
+	attachSink();
 
-	EXPECT_TRUE(port["minimum"].isNumber());
-	EXPECT_EQ(port["minimum"].Integer(), 0);
-	EXPECT_TRUE(port["maximum"].isNumber());
-	EXPECT_EQ(port["maximum"].Integer(), 65535);
+	const BattleID id = battle()->battleID;
+	applyStart(id);
+	ASSERT_EQ(sinkFrames.size(), 1u);
+
+	BattleCancelled cancelled;
+	cancelled.battleID = id;
+	// the game state erases the battle while applying the terminal pack, so the controller sees
+	// the pack only after the battle it refers to is already gone
+	server.applyPack(cancelled);
+	apply(cancelled);
+
+	ASSERT_EQ(sinkFrames.size(), 2u) << "one frame for the start, one terminal frame";
+	EXPECT_NE(sinkFrames.back().find("Battle cancelled"), std::string::npos);
+	EXPECT_FALSE(controller.hasBattle());
+
+	applyLog(id, "ghost");
+	EXPECT_EQ(sinkFrames.size(), 2u) << "no further frame once the battle is gone from the game state";
+}
+
+TEST_F(BattleMirrorTest, BattleEventPacksEachProduceAFrame)
+{
+	controller.setInterested(true);
+	attachSink();
+
+	applyStart(battle()->battleID);
+	ASSERT_EQ(sinkFrames.size(), 1u);
+
+	const auto applyEvent = [this](auto & pack)
+	{
+		pack.battleID = battle()->battleID;
+		apply(pack);
+	};
+
+	BattleNextRound nextRound;
+	applyEvent(nextRound);
+	BattleStackMoved stackMoved;
+	applyEvent(stackMoved);
+	BattleUnitsChanged unitsChanged;
+	applyEvent(unitsChanged);
+	BattleAttack attackPack;
+	applyEvent(attackPack);
+	BattleSpellCast spellCast;
+	applyEvent(spellCast);
+	StacksInjured injured;
+	applyEvent(injured);
+	BattleObstaclesChanged obstaclesChanged;
+	applyEvent(obstaclesChanged);
+	CatapultAttack catapultAttack;
+	applyEvent(catapultAttack);
+	BattleSetStackProperty setStackProperty;
+	applyEvent(setStackProperty);
+	BattleTriggerEffect triggerEffect;
+	applyEvent(triggerEffect);
+	BattleUpdateGateState updateGateState;
+	applyEvent(updateGateState);
+
+	EXPECT_EQ(sinkFrames.size(), 12u) << "exactly one frame per event pack";
 }
