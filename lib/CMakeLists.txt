@@ -7,6 +7,7 @@ set(lib_SRCS
 	filesystem/CCompressedStream.cpp
 	filesystem/CFileInputStream.cpp
 	filesystem/CFilesystemLoader.cpp
+	filesystem/CInputStream.cpp
 	filesystem/CMemoryBuffer.cpp
 	filesystem/CMemoryStream.cpp
 	filesystem/CZipLoader.cpp

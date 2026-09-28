@@ -27,6 +27,7 @@
 
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
+#include <zlib.h>
 
 CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
@@ -97,7 +98,7 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 
 	auto fileNames = fileList.convertTo<std::vector<std::string>>();
 	std::vector<std::pair<std::unique_ptr<ui8[]>, si64>> fileContents(fileNames.size());
-	boost::crc_32_type checksum;
+	uLong checksum = 0;
 
 	// all files of a mod usually come from a single archive, so reading them in sequence reuses its handle
 	for (size_t i = 0; i < fileNames.size(); ++i)
@@ -112,7 +113,7 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 		}
 
 		fileContents[i] = CResourceHandler::get(modName)->load(path)->readAll();
-		checksum.process_bytes(fileContents[i].first.get(), fileContents[i].second);
+		checksum = crc32_z(checksum, fileContents[i].first.get(), fileContents[i].second);
 	}
 
 	// parsing of a file does not depend on any other file, so files can be parsed in parallel
@@ -127,7 +128,7 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 	for (auto & section : sections)
 		JsonUtils::merge(result.data, section);
 
-	result.checksum = checksum.checksum();
+	result.checksum = static_cast<uint32_t>(checksum);
 	return result;
 }
 
@@ -334,23 +335,23 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 				fallbackTranslation = assembleModFiles(modName, modConfig[modBaseLanguage]["translations"]);
 		});
 
-	boost::crc_32_type modChecksum;
+	uLong modChecksum = 0;
 	// current VCMI version is part of checksum to force re-validation of all mods on VCMI update
 	const std::string_view vcmiVersion{GameConstants::VCMI_VERSION};
-	modChecksum.process_bytes(static_cast<const void *>(vcmiVersion.data()), vcmiVersion.size());
+	modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(vcmiVersion.data()), vcmiVersion.size());
 
 	// mod.json is not a part of mod filesystem, so it has to be added into checksum separately
 	if (modName != ModScope::scopeBuiltin())
 	{
 		ui32 configChecksum = CResourceHandler::get("initial")->load(getModDefinitionFile(modName))->calculateCRC32();
-		modChecksum.process_bytes(static_cast<const void *>(&configChecksum), sizeof(configChecksum));
+		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&configChecksum), sizeof(configChecksum));
 	}
 
 	JsonNode result;
 
 	for (size_t i = 0; i < contentTypes.size(); ++i)
 	{
-		modChecksum.process_bytes(static_cast<const void *>(&contentFiles[i].checksum), sizeof(uint32_t));
+		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
 		isValid = isValid && contentFiles[i].valid;
 		contentFiles[i].data.setModScope(modName);
 		result[contentTypes[i]] = std::move(contentFiles[i].data);
@@ -358,7 +359,7 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 
 	for (const ModFiles * translation : { &baseTranslation, &extraTranslation, &fallbackTranslation })
 	{
-		modChecksum.process_bytes(static_cast<const void *>(&translation->checksum), sizeof(uint32_t));
+		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&translation->checksum), sizeof(uint32_t));
 		isValid = isValid && translation->valid;
 	}
 
@@ -380,7 +381,7 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	result["translations"] = std::move(baseTranslation.data);
 	result[preferredLanguage]["translations"] = std::move(extraTranslation.data);
 
-	checksum = modChecksum.checksum();
+	checksum = static_cast<uint32_t>(modChecksum);
 	return result;
 }
 
