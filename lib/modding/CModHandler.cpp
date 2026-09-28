@@ -396,8 +396,10 @@ void CModHandler::loadModContent()
 	// std::vector<bool> can not be written to from multiple threads
 	std::vector<char> validity(activeMods.size(), 1);
 
-	// reading and parsing of files of one mod is independent from every other mod
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size()), [&](const tbb::blocked_range<size_t> & range)
+	// reading and parsing of files of one mod is independent from every other mod.
+	// mods vary in size by three orders of magnitude, so every mod is a separate task -
+	// a thread that took a large mod must not block the small mods that follow it
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size(), 1), [&](const tbb::blocked_range<size_t> & range)
 	{
 		for (size_t i = range.begin(); i != range.end(); ++i)
 		{
@@ -405,7 +407,7 @@ void CModHandler::loadModContent()
 			loadedContent[i] = loadModContent(activeMods[i], contentTypes, preferredLanguage, checksums[i], isValid);
 			validity[i] = isValid ? 1 : 0;
 		}
-	});
+	}, tbb::simple_partitioner());
 
 	for (size_t i = 0; i < activeMods.size(); ++i)
 	{
