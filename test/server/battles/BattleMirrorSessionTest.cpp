@@ -164,7 +164,12 @@ TEST_F(BattleMirrorSessionTest, ConnectMidBattleGetsSnapshot)
 
 	std::string received;
 	ASSERT_FALSE(connectClient(client));
-	EXPECT_FALSE(readUntil(client, received, [](const std::string & s) { return s.find("VCMI battle telnet mirror") != std::string::npos; }));
+	EXPECT_FALSE(readUntil(client, received, [](const std::string & s)
+	{
+		return s.find("VCMI battle telnet mirror") != std::string::npos
+			&& s.find("battle #0") != std::string::npos
+			&& s.find("00|") != std::string::npos;
+	}));
 	EXPECT_NE(received.find("battle #0"), std::string::npos);
 	EXPECT_NE(received.find("00|"), std::string::npos);
 
