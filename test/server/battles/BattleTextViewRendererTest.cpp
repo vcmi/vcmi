@@ -280,6 +280,19 @@ TEST_F(BattleTextViewRendererTest, ObstacleCoversWholeFootprint)
 	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "%   ");
 }
 
+TEST_F(BattleTextViewRendererTest, SpellCreatedMoatRendersWholeFootprint)
+{
+	auto moat = std::make_shared<SpellCreatedObstacle>();
+	moat->obstacleType = CObstacleInstance::MOAT;
+	moat->pos = BattleHex(leftHex);
+	moat->customSize = BattleHexArray{BattleHex(leftHex), BattleHex(rightHex)};
+	battle()->obstacles.push_back(moat);
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, BattleHex(leftHex)), "~   ");
+	EXPECT_EQ(cellAt(lines, BattleHex(rightHex)), "~   ");
+}
+
 TEST_F(BattleTextViewRendererTest, AbsoluteObstacleRendersWholeFootprint)
 {
 	// looked up at runtime so the test survives changes in obstacle handler data
