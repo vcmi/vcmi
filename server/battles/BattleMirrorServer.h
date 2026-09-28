@@ -40,6 +40,8 @@ public:
 	/// Full frame on demand, for a viewer that connects mid-battle.
 	std::string snapshotFrame() const;
 	bool hasBattle() const;
+	/// Clears all mirrored state; used when the game state it points at is about to be dropped.
+	void reset();
 
 private:
 	class PackVisitor;
@@ -80,6 +82,8 @@ public:
 	/// the close work is posted onto the io thread.
 	void closeAll();
 	void onPackApplied(CPackForClient & pack, const CGameState & gameState);
+	/// Clears all mirrored state; used when the game state is about to be dropped.
+	void reset();
 
 private:
 	class Session;

@@ -283,6 +283,18 @@ void CVCMIServer::prepareToRestart()
 		activeConnection->enterLobbyConnectionMode();
 
 	gh = nullptr;
+	if(battleMirror)
+	{
+		// the mirror keeps a raw pointer to the state being dropped, so it must forget it here
+		try
+		{
+			battleMirror->reset();
+		}
+		catch(const std::exception & e)
+		{
+			logNetwork->error("Battle mirror error: %s", e.what());
+		}
+	}
 }
 
 bool CVCMIServer::prepareToStartGame()

@@ -169,3 +169,22 @@ TEST_F(BattleMirrorTest, SnapshotWithoutBattle)
 	EXPECT_EQ(controller.snapshotFrame(), "");
 	EXPECT_FALSE(controller.hasBattle());
 }
+
+TEST_F(BattleMirrorTest, ResetClearsMirroredState)
+{
+	controller.setInterested(true);
+	attachSink();
+
+	applyStart(battle()->battleID);
+	applyLog(battle()->battleID, "stale");
+	ASSERT_TRUE(controller.hasBattle());
+	EXPECT_NE(controller.snapshotFrame().find("stale"), std::string::npos);
+
+	controller.reset();
+
+	EXPECT_FALSE(controller.hasBattle());
+	EXPECT_TRUE(controller.snapshotFrame().empty());
+
+	applyStart(battle()->battleID);
+	EXPECT_EQ(controller.snapshotFrame().find("stale"), std::string::npos) << "log ring survived the reset";
+}

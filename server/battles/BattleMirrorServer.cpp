@@ -109,6 +109,13 @@ bool BattleMirrorController::hasBattle() const
 	return current.has_value();
 }
 
+void BattleMirrorController::reset()
+{
+	gameState = nullptr;
+	current.reset();
+	logRing.clear();
+}
+
 void BattleMirrorController::switchBattle(const BattleID & id)
 {
 	if(current != id)
@@ -310,6 +317,11 @@ void BattleMirrorServer::closeAllImpl()
 void BattleMirrorServer::onPackApplied(CPackForClient & pack, const CGameState & gameState)
 {
 	controller.onPackApplied(pack, gameState);
+}
+
+void BattleMirrorServer::reset()
+{
+	controller.reset();
 }
 
 void BattleMirrorServer::startAccept()
