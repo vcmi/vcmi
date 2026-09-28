@@ -383,8 +383,7 @@ void BattleMirrorServer::dropSession(const std::shared_ptr<Session> & session)
 {
 	session->close();
 	sessions.erase(session);
-	if(sessions.size() < maxSessions)
-		sessionCapLogged = false;
+	sessionCapLogged = false;
 	if(sessions.empty())
 		controller.setInterested(false);
 }
