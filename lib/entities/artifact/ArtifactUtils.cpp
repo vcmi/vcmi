@@ -168,7 +168,6 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 {
 	// Titan's Thunder creates new spellbook on equip
 	if(artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
-
 	{
 		if(heroPtr && !heroPtr->hasSpellbook())
 		{
