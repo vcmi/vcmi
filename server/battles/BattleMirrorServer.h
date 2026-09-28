@@ -26,7 +26,8 @@ class CGameState;
 
 /// Headless half of the telnet battle mirror: derives text frames for the viewers from netpacks
 /// applied to the game state. Reached only from the network thread that runs the mirror's
-/// io_context (teardown aside, see BattleMirrorServer), so no locking.
+/// io_context — excepting the pre-run() phase (the constructor wires the sink before the io
+/// thread exists) and teardown (see BattleMirrorServer) — so no locking.
 class BattleMirrorController
 {
 public:
