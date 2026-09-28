@@ -382,6 +382,18 @@ TEST_F(BattleTextViewRendererTest, IndestructibleSegmentsAndDrawbridge)
 	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::GATE_BRIDGE)), "=   ");
 }
 
+TEST_F(BattleTextViewRendererTest, DestroyedKeepAndTowerRenderAsRuins)
+{
+	battle()->si.wallState[EWallPart::KEEP] = EWallState::DESTROYED;
+	battle()->si.wallState[EWallPart::UPPER_TOWER] = EWallState::DESTROYED;
+	battle()->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::INTACT;
+
+	const auto lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::KEEP)), "X   ");
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::UPPER_TOWER)), "X   ");
+	EXPECT_EQ(cellAt(lines, battle()->wallPartToBattleHex(EWallPart::BOTTOM_TOWER)), "T   ");
+}
+
 TEST_F(BattleTextViewRendererTest, GateStatesCoverOpenDestroyedBlocked)
 {
 	battle()->si.wallState[EWallPart::GATE] = EWallState::INTACT;

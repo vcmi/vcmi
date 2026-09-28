@@ -122,11 +122,10 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 		switch(wallPart)
 		{
 		case EWallPart::KEEP:
-			marker = 'K';
-			break;
 		case EWallPart::UPPER_TOWER:
 		case EWallPart::BOTTOM_TOWER:
-			marker = 'T';
+			// keep and towers degrade like any wall segment; only their standing marker is distinct
+			marker = wallState == EWallState::DESTROYED ? 'X' : (wallPart == EWallPart::KEEP ? 'K' : 'T');
 			break;
 		case EWallPart::GATE:
 			marker = gateMarker(battle.getGateState());
