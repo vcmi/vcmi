@@ -56,12 +56,8 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 	}
 }
 
-bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
+void ContentTypeHandler::preloadModData(const std::string & modName, JsonNode & data)
 {
-	bool result = true;
-	JsonNode data = JsonUtils::assembleFromFiles(fileList, {}, result);
-	data.setModScope(modName);
-
 	ModInfo & modInfo = modData[modName];
 
 	for(auto & entry : data.Struct())
@@ -86,7 +82,6 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonN
 			modData[remoteName].patches[objectName].push_back(entry.second);
 		}
 	}
-	return result;
 }
 
 bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
@@ -277,7 +272,18 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
 }
 
-bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
+std::vector<std::string> CContentHandler::getContentTypeNames() const
+{
+	std::vector<std::string> result;
+	result.reserve(handlers.size());
+
+	for(const auto & handler : handlers)
+		result.push_back(handler.first);
+
+	return result;
+}
+
+bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modContent, bool validate)
 {
 	bool result = true;
 
@@ -286,9 +292,8 @@ bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
 		result = false;
 
 	for(auto & handler : handlers)
-	{
-		result &= handler.second.preloadModData(mod.getID(), mod.getLocalValue(handler.first), validate);
-	}
+		handler.second.preloadModData(mod.getID(), modContent[handler.first]);
+
 	return result;
 }
 

@@ -105,55 +105,6 @@ TModList ModsState::getInstalledMods() const
 	return modList;
 }
 
-uint32_t ModsState::computeChecksum(const TModID & modName) const
-{
-	boost::crc_32_type modChecksum;
-	// first - add current VCMI version into checksum to force re-validation on VCMI updates
-	const std::string_view vcmiVersion{GameConstants::VCMI_VERSION};
-	modChecksum.process_bytes(static_cast<const void*>(vcmiVersion.data()), vcmiVersion.size());
-
-	// second - add mod.json into checksum because filesystem does not contains this file
-	if (modName != ModScope::scopeBuiltin())
-	{
-		auto modConfFile = getModDefinitionFile(modName);
-		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
-		modChecksum.process_bytes(static_cast<const void *>(&configChecksum), sizeof(configChecksum));
-	}
-
-	// third - add contents of all detected text files from this mod into checksum
-	const auto & filesystem = CResourceHandler::get(modName);
-
-	auto configFiles = filesystem->getFilteredFiles([](const ResourcePath & resID)
-	{
-		return resID.getType() == EResType::JSON && boost::starts_with(resID.getName(), "CONFIG");
-	});
-
-	// iteration order of an unordered container is not guaranteed, so sort to get a reproducible checksum
-	std::vector<ResourcePath> sortedConfigFiles(configFiles.begin(), configFiles.end());
-	std::ranges::sort(sortedConfigFiles, {}, [](const ResourcePath & file) { return file.getName(); });
-
-	for (const ResourcePath & file : sortedConfigFiles)
-	{
-		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
-		modChecksum.process_bytes(static_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
-	}
-
-	// fourth - add names of all remaining files from this mod into checksum. Their contents are not
-	// validated, but their presence is - so adding or removing an asset must invalidate the checksum
-	auto assetFiles = filesystem->getFilteredFiles([](const ResourcePath &) { return true; });
-
-	std::vector<std::string> sortedAssetNames;
-	sortedAssetNames.reserve(assetFiles.size());
-	for (const ResourcePath & file : assetFiles)
-		sortedAssetNames.push_back(EResTypeHelper::getEResTypeAsString(file.getType()) + ':' + file.getName());
-	std::ranges::sort(sortedAssetNames);
-
-	for (const std::string & name : sortedAssetNames)
-		modChecksum.process_bytes(static_cast<const void *>(name.data()), name.size());
-
-	return modChecksum.checksum();
-}
-
 double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 {
 	ResourcePath resDir(getModDirectory(modName), EResType::DIRECTORY);
@@ -578,11 +529,6 @@ bool ModManager::isModActive(const TModID & modID) const
 const TModList & ModManager::getActiveMods() const
 {
 	return depedencyResolver->getActiveMods();
-}
-
-uint32_t ModManager::computeChecksum(const TModID & modName) const
-{
-	return modsState->computeChecksum(modName);
 }
 
 std::optional<uint32_t> ModManager::getValidatedChecksum(const TModID & modName) const

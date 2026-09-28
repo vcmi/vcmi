@@ -30,8 +30,6 @@ public:
 
 	TModList getInstalledMods() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
-
-	uint32_t computeChecksum(const TModID & modName) const;
 };
 
 /// Provides interface to access or change current mod preset
@@ -148,7 +146,6 @@ public:
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
 	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
-	uint32_t computeChecksum(const TModID & modName) const;
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 	void saveConfigurationState() const;
