@@ -703,6 +703,59 @@ jobs:
         name: partial-json-test-${{ matrix.platform }}
         path: .summary/test-${{ matrix.platform }}.json
 
+  test-tsan:
+    name: Build+Test TSan (gcc-latest)
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+      with:
+        submodules: recursive
+
+    - name: Prepare CI
+      run: source '${{ github.workspace }}/CI/before_install/linux_qt6.sh'
+
+    - name: Setup compiler cache for PRs
+      uses: step-security/ccache-action@v1
+      if: ${{ github.event.number != '' }}
+      with:
+        key: gcc-tsan-PR-${{ github.event.number }}
+        restore-keys: |
+          gcc-tsan-PR-${{ github.event.number }}
+          gcc-tsan-branch-${{ github.base_ref }}
+          gcc-tsan-
+        max-size: '5G'
+        verbose: 2
+        job-summary: ""
+
+    - name: Setup compiler cache for branch builds
+      uses: step-security/ccache-action@v1
+      if: ${{ github.event.number == '' }}
+      with:
+        key: gcc-tsan-branch-${{ github.ref_name }}
+        restore-keys: |
+          gcc-tsan-branch-${{ github.ref_name }}
+          gcc-tsan-
+        max-size: '5G'
+        verbose: 2
+        job-summary: ""
+
+    - name: Configure
+      run: cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-15 -DCMAKE_CXX_COMPILER=g++-15 --preset linux-gcc-tsan
+
+    - name: Build
+      run: cmake --build --preset linux-gcc-tsan --target vcmitest
+
+    - name: Test
+      run: |
+        # TSan scoped to suites with threading contracts; engine-wide TSan is a follow-up
+        cd "${{github.workspace}}/out/build/linux-gcc-tsan/bin"
+        ./vcmitest --gtest_filter='*BattleMirror*:*BattleTextViewRenderer*'
+
   lobby:
     name: Build VCMI Lobby
     # Warning: Lobby .deb must be build on the same Ubuntu version and arch as our server. Do not change to ubuntu-latest

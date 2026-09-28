@@ -175,6 +175,17 @@
             }
         },
         {
+            "name": "linux-gcc-tsan",
+            "displayName": "GCC x86_64-pc-linux-gnu with ThreadSanitizer",
+            "description": "VCMI Linux GCC with unit testing under TSan",
+            "inherits": "linux-gcc-test",
+            "cacheVariables": {
+                "ENABLE_MMAI": "OFF",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer"
+            }
+        },
+        {
             "name": "windows-mingw-release",
             "displayName": "Windows x64 MinGW Release",
             "description": "VCMI Windows Ninja using MinGW",
@@ -425,6 +436,11 @@
             "inherits": "default-release"
         },
         {
+            "name": "linux-gcc-tsan",
+            "configurePreset": "linux-gcc-tsan",
+            "inherits": "default-release"
+        },
+        {
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
@@ -593,6 +609,11 @@
         {
             "name": "linux-gcc-test",
             "configurePreset": "linux-gcc-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-tsan",
+            "configurePreset": "linux-gcc-tsan",
             "inherits": "default-release"
         },
         {

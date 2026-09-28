@@ -329,9 +329,10 @@ TEST_F(BattleMirrorSessionTest, TeardownFromNonIoThread)
 	std::thread ioThread([&] { io.run(); });
 	mirror->closeAll();
 
-	// the assertions below pin the post-fix teardown semantics; the data-race class itself is only deterministically
-	// observable under TSan — the sibling CloseAllBodyRunsOnIoThreadNotCaller pins the io-thread marshalling of the
-	// close body deterministically on a plain build
+	// the assertions below pin the post-fix teardown semantics; the data-race class itself is only observable
+	// under TSan — the linux-gcc-tsan preset and its scoped CI job (test-tsan) now run these suites under TSan
+	// in CI, while regular CI still runs this canary deterministically on a plain build; the sibling
+	// CloseAllBodyRunsOnIoThreadNotCaller pins the io-thread marshalling of the close body deterministically
 	// bounded: a regression that never closes the socket must fail fast, not hang until CI timeout
 	if(readFuture.wait_for(std::chrono::seconds(30)) != std::future_status::ready)
 	{
