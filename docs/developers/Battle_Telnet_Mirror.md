@@ -20,7 +20,7 @@ Disabled by default; when disabled there is no listener at all (check with `ss -
 }
 ```
 
-Optional keys: `"hostname"` (default `"127.0.0.1"`) and `"port"` (default `3033`; `0` = OS-assigned, the actual port is logged on startup).
+Optional keys: `"hostname"` (default `"127.0.0.1"`) and `"port"` (default `3033`; valid range 0-65535, out-of-range values log a settings-validation warning at startup and are clamped by the server; `0` = OS-assigned, the actual port is logged on startup).
 
 ## How it works
 
@@ -48,6 +48,7 @@ Each frame clears the screen (ANSI escape sequences — use an ANSI terminal). F
 - On connect the server sends a greeting and, if a battle is already running, an immediate full snapshot frame.
 - Frame updates are coalesced depth-1, latest-wins: while a frame is still being written, a newer frame replaces the queued one — slow viewers see the latest state; intermediate frames may be skipped.
 - After a battle ends, the final summary frame stays on screen and the connection stays open (idle) — the next battle reuses it.
+- At most 16 concurrent viewers; further connections are refused with a "battle mirror busy" line; saturation is logged once per episode.
 
 ## Limitations
 

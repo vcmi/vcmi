@@ -96,7 +96,7 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 			std::string hostname = mirrorConfig["hostname"].String();
 			if(hostname.empty())
 				hostname = "127.0.0.1";
-			// schema validation already rejects out-of-range ports; the clamp is defense in depth
+			// schema validation only warns on out-of-range ports (its result is discarded at load), so this clamp is the actual enforcement
 			int64_t mirrorPort = mirrorConfig["port"].Integer();
 			if(mirrorPort < 0 || mirrorPort > 65535)
 			{
