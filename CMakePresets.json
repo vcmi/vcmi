@@ -181,8 +181,8 @@
             "inherits": "linux-gcc-test",
             "cacheVariables": {
                 "ENABLE_MMAI": "OFF",
-                "CMAKE_C_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer",
-                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer"
+                "CMAKE_C_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer -Wno-error=tsan",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O1 -g -DNDEBUG -fsanitize=thread -fno-omit-frame-pointer -Wno-error=tsan"
             }
         },
         {
