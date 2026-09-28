@@ -19,15 +19,11 @@
 class CZipStream : public CBufferedStream
 {
 	unzFile file;
+	uint64_t archiveId;
 
 public:
-	/**
-	 * @brief constructs zip stream from already opened file
-	 * @param api virtual filesystem interface
-	 * @param archive path to archive to open
-	 * @param filepos position of file to open
-	 */
-	CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos);
+	/// Takes ownership of an opened archive handle. On destruction the handle is kept for reuse, or closed if archiveId is 0
+	CZipStream(unzFile file, uint64_t archiveId, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;
@@ -43,6 +39,7 @@ class CZipLoader : public ISimpleResourceLoader
 	zlib_filefunc64_def zlibApi;
 	boost::filesystem::path archiveName;
 	std::string mountPoint;
+	uint64_t archiveId; ///< identifies handles of this archive kept for reuse, 0 if handles are not reused
 
 	std::unordered_map<ResourcePath, unz64_file_pos> files;
 

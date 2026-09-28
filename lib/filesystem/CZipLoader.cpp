@@ -13,13 +13,31 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
-CZipStream::CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos)
+namespace
 {
-	zlib_filefunc64_def zlibApi;
+/// Performance optimization: every unzOpen scans up to 64 KB at the end of the archive for its central directory.
+/// Each thread keeps the handle of the last CZipStream destroyed on this thread and reuses it for the next load from the same archive.
+/// Files are mostly loaded in runs from one archive, so this removes most reopens while keeping at most one idle handle per thread
+struct IdleZipHandle
+{
+	uint64_t archiveId = 0;
+	unzFile handle = nullptr;
 
-	zlibApi = api->getApiStructure();
+	~IdleZipHandle()
+	{
+		if(handle)
+			unzClose(handle);
+	}
+};
 
-	file = unzOpen2_64(archive.c_str(), &zlibApi);
+thread_local IdleZipHandle idleHandle;
+std::atomic<uint64_t> nextArchiveId = 1;
+}
+
+CZipStream::CZipStream(unzFile file, uint64_t archiveId, unz64_file_pos filepos):
+	file(file),
+	archiveId(archiveId)
+{
 	unzGoToFilePos64(file, &filepos);
 	unzOpenCurrentFile(file);
 }
@@ -27,7 +45,17 @@ CZipStream::CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesys
 CZipStream::~CZipStream()
 {
 	unzCloseCurrentFile(file);
-	unzClose(file);
+
+	if(archiveId == 0)
+	{
+		unzClose(file);
+		return;
+	}
+
+	if(idleHandle.handle)
+		unzClose(idleHandle.handle);
+	idleHandle.archiveId = archiveId;
+	idleHandle.handle = file;
 }
 
 si64 CZipStream::readMore(ui8 * data, si64 size)
@@ -55,6 +83,8 @@ CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::
 	zlibApi(ioApi->getApiStructure()),
 	archiveName(archive),
 	mountPoint(mountPoint),
+	// handles of other I/O APIs may use streams that are destroyed together with the loader, so they are never kept for reuse
+	archiveId(dynamic_cast<CDefaultIOApi *>(ioApi.get()) ? nextArchiveId++ : 0),
 	files(listFiles(mountPoint, archive))
 {
 	logGlobal->trace("Zip archive loaded, %d files found", files.size());
@@ -94,7 +124,19 @@ std::unordered_map<ResourcePath, unz64_file_pos> CZipLoader::listFiles(const std
 
 std::unique_ptr<CInputStream> CZipLoader::load(const ResourcePath & resourceName) const
 {
-	return std::unique_ptr<CInputStream>(new CZipStream(ioApi, archiveName, files.at(resourceName)));
+	unz64_file_pos filepos = files.at(resourceName);
+	unzFile handle = nullptr;
+
+	if(archiveId != 0 && idleHandle.archiveId == archiveId)
+		handle = std::exchange(idleHandle.handle, nullptr);
+
+	if(handle == nullptr)
+	{
+		zlib_filefunc64_def api = zlibApi;
+		handle = unzOpen2_64(archiveName.c_str(), &api);
+	}
+
+	return std::make_unique<CZipStream>(handle, archiveId, filepos);
 }
 
 bool CZipLoader::existsResource(const ResourcePath & resourceName) const
