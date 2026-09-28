@@ -84,6 +84,8 @@ public:
 private:
 	class Session;
 
+	static constexpr size_t maxSessions = 16;
+
 	void startAccept();
 	void onAccepted(const std::shared_ptr<Session> & session, const boost::system::error_code & ec);
 	void dropSession(const std::shared_ptr<Session> & session);
@@ -95,5 +97,6 @@ private:
 	uint16_t port;
 	boost::asio::ip::tcp::acceptor acceptor;
 	std::set<std::shared_ptr<Session>> sessions;
+	bool sessionCapLogged = false;
 	BattleMirrorController controller;
 };

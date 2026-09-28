@@ -21,7 +21,9 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <string>
 #include <thread>
+#include <vector>
 
 namespace
 {
@@ -251,6 +253,44 @@ TEST_F(BattleMirrorSessionTest, AbruptClientCloseThenReconnect)
 	EXPECT_FALSE(readUntil(fresh, freshReceived, [](const std::string & s) { return s.find("VCMI battle telnet mirror") != std::string::npos; }));
 
 	fresh.close(ec);
+	shutdownMirror();
+}
+
+TEST_F(BattleMirrorSessionTest, SessionCapRejectsWithBusyLine)
+{
+	startMirror();
+	primeBattle();
+
+	constexpr size_t viewerCount = 16;
+	std::vector<boost::asio::ip::tcp::socket> viewers;
+	std::vector<std::string> received;
+	for(size_t i = 0; i < viewerCount; ++i)
+	{
+		viewers.emplace_back(io);
+		received.emplace_back();
+		ASSERT_FALSE(connectClient(viewers.back())) << "viewer " << i;
+		EXPECT_FALSE(readUntil(viewers.back(), received.back(), [](const std::string & s) { return s.find("read-only\r\n") != std::string::npos; })) << "viewer " << i;
+	}
+
+	boost::asio::ip::tcp::socket rejected(io);
+	ASSERT_FALSE(connectClient(rejected));
+
+	std::string rejectedReceived;
+	EXPECT_FALSE(readUntil(rejected, rejectedReceived, [](const std::string & s) { return s.find("battle mirror busy, try again later\r\n") != std::string::npos || s.find("read-only\r\n") != std::string::npos; }));
+	EXPECT_NE(rejectedReceived.find("battle mirror busy, try again later\r\n"), std::string::npos) << "overflow viewer must get the busy line, not a session";
+
+	const auto ec = readUntil(rejected, rejectedReceived, [](const std::string &) { return false; });
+	EXPECT_EQ(ec, boost::asio::error::eof);
+
+	// the rejected overflow must not disturb the established sessions
+	applyLog("cap-followup");
+	pump();
+	EXPECT_FALSE(readUntil(viewers.front(), received.front(), [](const std::string & s) { return s.find("| cap-followup") != std::string::npos; }));
+
+	boost::system::error_code ignored;
+	for(auto & viewer : viewers)
+		viewer.close(ignored);
+	rejected.close(ignored);
 	shutdownMirror();
 }
 

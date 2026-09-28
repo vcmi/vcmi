@@ -266,6 +266,10 @@ void BattleMirrorServer::start()
 	}
 	catch(const std::exception & e)
 	{
+		// leaving a half-open acceptor behind would leak its descriptor for the server's lifetime
+		boost::system::error_code closeEc;
+		if(acceptor.is_open())
+			acceptor.close(closeEc);
 		logNetwork->error("Battle mirror failed to start: %s", e.what());
 	}
 }
@@ -318,15 +322,43 @@ void BattleMirrorServer::onAccepted(const std::shared_ptr<Session> & session, co
 {
 	if(ec)
 	{
+		// aborted means teardown closed the acceptor; any other failure is transient and must re-arm
+		// (accept completions are event-driven, so an immediate restart cannot busy-loop)
 		if(ec != boost::asio::error::operation_aborted)
+		{
 			logNetwork->error("Battle mirror accept failed: %s", ec.message());
+			startAccept();
+		}
+		return;
+	}
+
+	if(sessions.size() >= maxSessions)
+	{
+		if(!sessionCapLogged)
+		{
+			sessionCapLogged = true;
+			logNetwork->error("Battle mirror full (%d viewers), rejecting further connections", static_cast<int>(maxSessions));
+		}
+		const std::string busyLine = "battle mirror busy, try again later\r\n";
+		boost::system::error_code writeEc;
+		boost::asio::write(session->socket, boost::asio::buffer(busyLine), writeEc);
+		session->close();
+		startAccept();
 		return;
 	}
 
 	sessions.insert(session);
 	if(sessions.size() == 1)
 		controller.setInterested(true);
-	session->start();
+	try
+	{
+		session->start();
+	}
+	catch(const std::exception & e)
+	{
+		logNetwork->error("Battle mirror error: %s", e.what());
+		dropSession(session);
+	}
 	startAccept();
 }
 
@@ -334,6 +366,8 @@ void BattleMirrorServer::dropSession(const std::shared_ptr<Session> & session)
 {
 	session->close();
 	sessions.erase(session);
+	if(sessions.size() < maxSessions)
+		sessionCapLogged = false;
 	if(sessions.empty())
 		controller.setInterested(false);
 }
