@@ -40,7 +40,7 @@ public:
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override {}
+	bool updateFilteredFiles(std::function<bool(const std::string &)> filter) override { return false; }
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
@@ -58,6 +58,14 @@ class CFilesystemList : public ISimpleResourceLoader
 	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
+
+	/// Resource hash -> position in `loaders` of the last child that has a resource with this hash.
+	/// Kept only for lists with many children. Stays correct only if children gain resources through this list
+	std::unordered_map<size_t, size_t> index;
+	mutable std::shared_mutex indexGuard;
+
+	void indexLoader(size_t position);
+	void rebuildIndex();
 
 	/// Loader that provides the resource, or nullptr. Every lookup goes through here,
 	/// so that a resource is located exactly once per query
@@ -77,7 +85,7 @@ public:
 	std::string getMountPoint() const override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	std::set<boost::filesystem::path> getResourceNames(const ResourcePath & resourceName) const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
+	bool updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(const std::string & filename, bool update = false) override;
 	bool removeResource(const ResourcePath & resourceName) override;

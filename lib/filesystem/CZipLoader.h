@@ -55,7 +55,7 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override {}
+	bool updateFilteredFiles(std::function<bool(const std::string &)> filter) override { return false; }
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
