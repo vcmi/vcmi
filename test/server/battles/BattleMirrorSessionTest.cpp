@@ -18,6 +18,7 @@
 #include "../../../lib/texts/MetaString.h"
 
 #include <atomic>
+#include <cerrno>
 #include <chrono>
 #include <cstddef>
 #include <functional>
@@ -379,7 +380,9 @@ TEST_F(BattleMirrorSessionTest, CloseAllBodyRunsOnIoThreadNotCaller)
 	pollfd watched{};
 	watched.fd = client.native_handle();
 	watched.events = POLLIN;
-	const int polled = ::poll(&watched, 1, 200);
+	int polled = ::poll(&watched, 1, 200);
+	while(polled == -1 && errno == EINTR)
+		polled = ::poll(&watched, 1, 200);
 	ASSERT_NE(polled, -1);
 	if(polled == 1 && (watched.revents & POLLIN))
 	{
