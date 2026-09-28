@@ -21,6 +21,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstddef>
+#include <cstring>
 #include <functional>
 #include <future>
 #include <memory>
@@ -390,12 +391,25 @@ TEST_F(BattleMirrorSessionTest, CloseAllBodyRunsOnIoThreadNotCaller)
 	int polled = ::poll(&watched, 1, 200);
 	while(polled == -1 && errno == EINTR)
 		polled = ::poll(&watched, 1, 200);
-	ASSERT_NE(polled, -1);
+	if(polled == -1)
+	{
+		release.set_value();
+		io.stop();
+		ioThread.join();
+		FAIL() << "poll on the mirror socket failed: " << strerror(errno);
+		return;
+	}
 	if(polled == 1 && (watched.revents & POLLIN))
 	{
 		char probe = 0;
 		if(::recv(watched.fd, &probe, 1, MSG_PEEK) == 0)
+		{
+			release.set_value();
+			io.stop();
+			ioThread.join();
 			FAIL() << "closeAll body executed out-of-band (EOF observable while the io thread is parked)";
+			return;
+		}
 	}
 	EXPECT_EQ(polled, 0) << "the mirror socket must stay quiet while the only run() thread is parked";
 
