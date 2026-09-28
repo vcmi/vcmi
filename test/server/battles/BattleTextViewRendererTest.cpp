@@ -321,7 +321,10 @@ TEST_F(BattleTextViewRendererTest, AbsoluteObstacleRendersWholeFootprint)
 	}
 }
 
-TEST_F(BattleTextViewRendererTest, InvalidFootprintEntriesAreIgnored)
+// this test pins only the deterministic semantics: valid entries render and a non-empty footprint
+// replaces the pos fallback; the skipped-slot guard itself is observable only through the
+// out-of-bounds write it prevents, which requires a sanitizer no CI preset runs
+TEST_F(BattleTextViewRendererTest, InvalidFootprintEntriesAreSkippedButFallbackNotTaken)
 {
 	auto spellObstacle = std::make_shared<SpellCreatedObstacle>();
 	spellObstacle->pos = BattleHex(leftHex);
