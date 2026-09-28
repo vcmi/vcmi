@@ -25,8 +25,6 @@ class ModsState : boost::noncopyable
 {
 	TModList modList;
 
-	TModList scanModsDirectory(const std::string & modDir) const;
-
 public:
 	ModsState();
 

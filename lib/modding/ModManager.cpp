@@ -26,9 +26,44 @@ static std::string getModDirectory(const TModID & modName)
 	return "MODS/" + result;
 }
 
-static std::string getModSettingsDirectory(const TModID & modName)
+/// Converts path of a mod definition file, e.g. 'MODS/HOTA/MODS/MAPS/MOD', into mod ID, e.g. 'hota.maps'
+/// Returns nullopt if the path is not a valid mod location, e.g. a 'mod.json' shipped as mod content
+static std::optional<TModID> getModIDFromDefinitionFile(const std::string & path)
 {
-	return getModDirectory(modName) + "/MODS/";
+	std::vector<std::string> segments;
+	boost::split(segments, path, boost::is_any_of("/"));
+
+	// expected form: MODS / <mod> [ / MODS / <submod> ]... / MOD
+	if(segments.size() < 3 || segments.size() % 2 == 0 || segments.back() != "MOD")
+		return std::nullopt;
+
+	TModID result;
+	for(size_t i = 0; i < segments.size() - 1; i += 2)
+	{
+		if(segments[i] != "MODS")
+			return std::nullopt;
+
+		std::string name = boost::to_lower_copy(segments[i + 1]);
+
+		// '.' separates mod from its submods, so it can not be part of a mod name
+		if(name.empty() || name.find('.') != std::string::npos || ModScope::isScopeReserved(name))
+			return std::nullopt;
+
+		if(!result.empty())
+			result += '.';
+		result += name;
+	}
+	return result;
+}
+
+/// Returns true if every mod that the specified submod is nested in is a mod on its own
+static bool hasValidParentMods(const TModID & modID, const std::set<TModID> & candidates)
+{
+	for(size_t separator = modID.find('.'); separator != std::string::npos; separator = modID.find('.', separator + 1))
+		if(!candidates.count(modID.substr(0, separator)))
+			return false;
+
+	return true;
 }
 
 static JsonPath getModDefinitionFile(const TModID & modName)
@@ -45,17 +80,24 @@ ModsState::ModsState()
 {
 	modList.push_back(ModScope::scopeBuiltin());
 
-	std::vector<TModID> testLocations = scanModsDirectory("MODS/");
-
-	while(!testLocations.empty())
+	// every mod is identified by its definition file, so a single scan of game data locates all of them
+	auto definitionFiles = CResourceHandler::get("initial")->getFilteredFiles([](const ResourcePath & id)
 	{
-		std::string target = testLocations.back();
-		testLocations.pop_back();
-		modList.push_back(boost::algorithm::to_lower_copy(target));
+		return id.getType() == EResType::JSON && boost::algorithm::ends_with(id.getName(), "/MOD");
+	});
 
-		for(const auto & submod : scanModsDirectory(getModSettingsDirectory(target)))
-			testLocations.push_back(target + '.' + submod);
+	// sorted, so that mod order does not depend on iteration order of an unordered container
+	std::set<TModID> candidates;
+	for(const auto & definitionFile : definitionFiles)
+	{
+		auto modID = getModIDFromDefinitionFile(definitionFile.getName());
+		if(modID)
+			candidates.insert(*modID);
 	}
+
+	for(const auto & modID : candidates)
+		if(hasValidParentMods(modID, candidates))
+			modList.push_back(modID);
 }
 
 TModList ModsState::getInstalledMods() const
@@ -129,47 +171,6 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 
 	double sizeMegabytes = sizeBytes / static_cast<double>(1024*1024);
 	return sizeMegabytes;
-}
-
-std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) const
-{
-	size_t depth = std::ranges::count(modDir, '/');
-
-	const auto & modScanFilter = [&](const ResourcePath & id) -> bool
-	{
-		if(id.getType() != EResType::DIRECTORY)
-			return false;
-		if(!boost::algorithm::starts_with(id.getName(), modDir))
-			return false;
-		if(std::ranges::count(id.getName(), '/') != depth)
-			return false;
-		return true;
-	};
-
-	auto list = CResourceHandler::get("initial")->getFilteredFiles(modScanFilter);
-
-	//storage for found mods
-	std::vector<TModID> foundMods;
-	for(const auto & entry : list)
-	{
-		std::string name = entry.getName();
-		name.erase(0, modDir.size()); //Remove path prefix
-
-		if(name.empty())
-			continue;
-
-		if(name.find('.') != std::string::npos)
-			continue;
-
-		if (ModScope::isScopeReserved(boost::to_lower_copy(name)))
-			continue;
-
-		if(!CResourceHandler::get("initial")->existsResource(JsonPath::builtin(entry.getName() + "/MOD")))
-			continue;
-
-		foundMods.push_back(name);
-	}
-	return foundMods;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
