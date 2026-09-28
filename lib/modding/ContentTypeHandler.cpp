@@ -181,21 +181,28 @@ void ContentTypeHandler::afterLoadFinalization()
 					for (auto & node : objectPatches)
 						logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.getModScope(), objectName, data.first);
 			}
+		}
 
-			for(auto & otherMod : modData)
+		// comparing objects of every mod against objects of every other mod is too slow for a normal game start
+		if (settings["mods"]["validation"].String() == "full")
+		{
+			for (auto const & data : modData)
 			{
-				if (otherMod.first == data.first)
-					continue;
-
-				if (otherMod.second.modData.isNull())
-					continue;
-
-				for(auto & otherObject : otherMod.second.modData.Struct())
+				for(auto & otherMod : modData)
 				{
-					if (data.second.modData.Struct().count(otherObject.first))
+					if (otherMod.first == data.first)
+						continue;
+
+					if (otherMod.second.modData.isNull())
+						continue;
+
+					for(auto & otherObject : otherMod.second.modData.Struct())
 					{
-						logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
-						logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+						if (data.second.modData.Struct().count(otherObject.first))
+						{
+							logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
+							logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+						}
 					}
 				}
 			}
