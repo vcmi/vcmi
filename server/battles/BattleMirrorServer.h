@@ -1,0 +1,93 @@
+/*
+ * BattleMirrorServer.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/network/NetworkInterface.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <deque>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <set>
+#include <string>
+
+struct CPackForClient;
+class CGameState;
+
+/// Headless half of the telnet battle mirror: derives text frames for the viewers from netpacks
+/// applied to the game state. Every entry point runs on the single network thread, so no locking.
+class BattleMirrorController
+{
+public:
+	using FrameSink = std::function<void(std::string)>;
+
+	/// Replaces the sink that live frames are pushed to.
+	void setSink(FrameSink sink);
+	/// Fast-path gate: with no viewers present no frame is rendered or sent.
+	void setInterested(bool viewersPresent);
+	void onPackApplied(CPackForClient & pack, const CGameState & gameState);
+	/// Full frame on demand, for a viewer that connects mid-battle.
+	std::string snapshotFrame() const;
+	bool hasBattle() const;
+
+private:
+	class PackVisitor;
+
+	static constexpr size_t logRingCapacity = 8;
+
+	void switchBattle(const BattleID & id);
+	void followBattle(const BattleID & id);
+	void trimLogRing();
+	void renderAndSend();
+	std::string renderFrame() const;
+	void sendFrame(const std::string & frame);
+
+	FrameSink sink;
+	bool interested = false;
+	std::optional<BattleID> current;
+	std::deque<std::string> logRing;
+	const CGameState * gameState = nullptr;
+};
+
+/// TCP half of the telnet battle mirror: accepts telnet viewer connections and pushes
+/// controller frames to every connected socket.
+/// Every entry point runs on the single network thread (the io_context is blocking-run by
+/// INetworkHandler::run), so no locking; if the io_context ever becomes a pool, wrap all
+/// entry points in boost::asio::post.
+class BattleMirrorServer
+{
+public:
+	BattleMirrorServer(NetworkContext & context, const std::string & hostname, uint16_t port);
+	~BattleMirrorServer();
+
+	/// Binds and starts accepting; on failure logs and leaves the listener disabled.
+	void start();
+	/// Closes the acceptor and every viewer socket; called on server shutdown.
+	void closeAll();
+	void onPackApplied(CPackForClient & pack, const CGameState & gameState);
+
+private:
+	class Session;
+
+	void startAccept();
+	void onAccepted(const std::shared_ptr<Session> & session, const boost::system::error_code & ec);
+	void dropSession(const std::shared_ptr<Session> & session);
+	void broadcast(std::string frame);
+
+	NetworkContext & context;
+	std::string hostname;
+	uint16_t port;
+	boost::asio::ip::tcp::acceptor acceptor;
+	std::set<std::shared_ptr<Session>> sessions;
+	BattleMirrorController controller;
+};

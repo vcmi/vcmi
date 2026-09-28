@@ -10,11 +10,13 @@
 #include "StdInc.h"
 #include "CVCMIServer.h"
 
+#include "battles/BattleMirrorServer.h"
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
 #include "LobbyNetPackVisitors.h"
 #include "processors/PlayerMessageProcessor.h"
 
+#include "../lib/CConfigHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/CPlayerState.h"
@@ -85,6 +87,25 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
 
 	networkHandler = INetworkHandler::createHandler();
+
+	try
+	{
+		const auto & mirrorConfig = settings["server"]["battleMirror"];
+		if(mirrorConfig["enabled"].Bool())
+		{
+			std::string hostname = mirrorConfig["hostname"].String();
+			if(hostname.empty())
+				hostname = "127.0.0.1";
+			uint16_t mirrorPort = static_cast<uint16_t>(mirrorConfig["port"].Integer());
+			battleMirror = std::make_unique<BattleMirrorServer>(networkHandler->getContext(), hostname, mirrorPort);
+			battleMirror->start();
+		}
+	}
+	catch(const std::exception & e)
+	{
+		battleMirror.reset();
+		logNetwork->error("Battle mirror failed to start: %s", e.what());
+	}
 
 	if(state == EServerState::LOBBY)
 		startDiscoveryListener();
@@ -165,7 +186,11 @@ void CVCMIServer::setState(EServerState value)
 	state = value;
 
 	if (state == EServerState::SHUTDOWN)
+	{
+		if (battleMirror)
+			battleMirror->closeAll();
 		networkHandler->stop();
+	}
 }
 void CVCMIServer::startDiscoveryListener()
 {
@@ -1249,6 +1274,17 @@ void CVCMIServer::applyPack(CPackForClient & pack)
 	for (const auto & c : activeConnections)
 		c->sendPack(pack);
 	gh->gs->apply(pack);
+	if(battleMirror)
+	{
+		try
+		{
+			battleMirror->onPackApplied(pack, *gh->gs);
+		}
+		catch(const std::exception & e)
+		{
+			logNetwork->error("Battle mirror error: %s", e.what());
+		}
+	}
 	logNetwork->trace("\tApplied on gameState(): %s", typeid(pack).name());
 }
 
