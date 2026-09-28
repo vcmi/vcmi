@@ -37,7 +37,7 @@ Each frame clears the screen (ANSI escape sequences — use an ANSI terminal). F
 	- `a`/`d` + 3-letter creature abbreviation, e.g. `aPik` — attacker/defender stack; wide creatures fill both hexes
 	- the active stack is shown in inverse video
 	- `#` usual/absolute obstacle, `%` spell-created obstacle, `~` moat
- 	- siege: `K` keep, `T` tower, gate `G` closed or blocked (creature-held) / `g` opened / `X` destroyed, walls `X` destroyed / `x` damaged / `=` intact / `H` reinforced
+ 	- siege: `K` keep, `T` tower (both `X` once destroyed), `W` indestructible wall segment, drawbridge `=` lowered while the gate stands open, gate `G` closed or blocked (creature-held) / `g` opened / `X` destroyed, walls `X` destroyed / `x` damaged / `=` intact / `H` reinforced
 	- `A`/`D` attacker/defender hero position
 - One legend line per living stack: `<side> <name>  count <N>  HP <left>/<max>`
 - Log tail lines prefixed with `| `
