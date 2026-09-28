@@ -330,8 +330,15 @@ TEST_F(BattleMirrorSessionTest, TeardownFromNonIoThread)
 	// the assertions below pin the post-fix teardown semantics; the data-race class itself is only deterministically
 	// observable under TSan — the sibling CloseAllBodyRunsOnIoThreadNotCaller pins the io-thread marshalling of the
 	// close body deterministically on a plain build
-	const auto ec = readFuture.get();
-	EXPECT_EQ(ec, boost::asio::error::eof);
+	// bounded: a regression that never closes the socket must fail fast, not hang until CI timeout
+	if(readFuture.wait_for(std::chrono::seconds(30)) != std::future_status::ready)
+	{
+		io.stop();
+		ioThread.join();
+		FAIL() << "closeAll did not deliver EOF within 30 s";
+		return;
+	}
+	EXPECT_EQ(readFuture.get(), boost::asio::error::eof);
 	ioThread.join();
 	mirror.reset();
 
