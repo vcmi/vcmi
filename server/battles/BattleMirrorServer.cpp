@@ -132,6 +132,9 @@ void BattleMirrorController::trimLogRing()
 
 void BattleMirrorController::renderAndSend()
 {
+	// fast path: with no viewer connected, packs cost no render work at all
+	if(!interested)
+		return;
 	const std::string frame = renderFrame();
 	if(!frame.empty())
 		sendFrame(frame);
