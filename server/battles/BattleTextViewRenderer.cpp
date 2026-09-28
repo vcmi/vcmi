@@ -141,6 +141,18 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 			markerAt[wallHex.toInt()] = marker;
 	}
 
+	// indestructible segments exist exactly in walled sieges, where the gate part carries a state
+	if(battle.getWallState(EWallPart::GATE) != EWallState::NONE)
+	{
+		// hexes of the engine's wall-part table that no catapult can destroy
+		constexpr si16 indestructibleHexes[] = {45, 62, 112, 147, 165, BattleHex::GATE_OUTER};
+		for(const si16 hex : indestructibleHexes)
+			markerAt[hex] = 'W';
+
+		if(battle.getGateState() == EGateState::OPENED)
+			markerAt[BattleHex::GATE_BRIDGE] = '=';
+	}
+
 	for(const auto & obstacle : battle.obstacles)
 	{
 		char marker = '#';

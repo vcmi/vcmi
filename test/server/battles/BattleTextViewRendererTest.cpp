@@ -361,6 +361,27 @@ TEST_F(BattleTextViewRendererTest, SiegeWalls)
 	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::HERO_DEFENDER)), "D   ");
 }
 
+TEST_F(BattleTextViewRendererTest, IndestructibleSegmentsAndDrawbridge)
+{
+	EXPECT_EQ(renderPlainFrame().find('W'), std::string::npos) << "open field must not grow indestructible segments";
+
+	battle()->si.wallState[EWallPart::GATE] = EWallState::INTACT;
+	battle()->si.gateState = EGateState::CLOSED;
+
+	auto lines = splitLines(renderPlainFrame());
+	constexpr si16 indestructibleHexes[] = {45, 62, 112, 147, 165, BattleHex::GATE_OUTER};
+	for(const si16 hex : indestructibleHexes)
+	{
+		SCOPED_TRACE("indestructible hex " + std::to_string(hex));
+		EXPECT_EQ(cellAt(lines, BattleHex(hex)), "W   ");
+	}
+	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::GATE_BRIDGE)), "    ") << "closed gate leaves the bridge up";
+
+	battle()->si.gateState = EGateState::OPENED;
+	lines = splitLines(renderPlainFrame());
+	EXPECT_EQ(cellAt(lines, BattleHex(BattleHex::GATE_BRIDGE)), "=   ");
+}
+
 TEST_F(BattleTextViewRendererTest, GateStatesCoverOpenDestroyedBlocked)
 {
 	battle()->si.wallState[EWallPart::GATE] = EWallState::INTACT;
