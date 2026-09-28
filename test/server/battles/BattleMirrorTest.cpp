@@ -13,6 +13,8 @@
 
 #include "../../../server/battles/BattleMirrorServer.h"
 
+#include "../../../lib/filesystem/ResourcePath.h"
+#include "../../../lib/json/JsonNode.h"
 #include "../../../lib/networkPacks/PacksForClient.h"
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../../lib/texts/MetaString.h"
@@ -187,4 +189,15 @@ TEST_F(BattleMirrorTest, ResetClearsMirroredState)
 
 	applyStart(battle()->battleID);
 	EXPECT_EQ(controller.snapshotFrame().find("stale"), std::string::npos) << "log ring survived the reset";
+}
+
+TEST_F(BattleMirrorTest, PortSettingIsRangeChecked)
+{
+	const JsonNode schema(JsonPath::builtin("config/schemas/settings.json"));
+	const JsonNode & port = schema["properties"]["server"]["properties"]["battleMirror"]["properties"]["port"];
+
+	EXPECT_TRUE(port["minimum"].isNumber());
+	EXPECT_EQ(port["minimum"].Integer(), 0);
+	EXPECT_TRUE(port["maximum"].isNumber());
+	EXPECT_EQ(port["maximum"].Integer(), 65535);
 }

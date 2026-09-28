@@ -96,8 +96,14 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 			std::string hostname = mirrorConfig["hostname"].String();
 			if(hostname.empty())
 				hostname = "127.0.0.1";
-			uint16_t mirrorPort = static_cast<uint16_t>(mirrorConfig["port"].Integer());
-			battleMirror = std::make_unique<BattleMirrorServer>(networkHandler->getContext(), hostname, mirrorPort);
+			// schema validation already rejects out-of-range ports; the clamp is defense in depth
+			int64_t mirrorPort = mirrorConfig["port"].Integer();
+			if(mirrorPort < 0 || mirrorPort > 65535)
+			{
+				logNetwork->warn("Battle mirror port %d out of range, clamping to the valid port range", static_cast<int>(mirrorPort));
+				mirrorPort = std::clamp(mirrorPort, static_cast<int64_t>(0), static_cast<int64_t>(65535));
+			}
+			battleMirror = std::make_unique<BattleMirrorServer>(networkHandler->getContext(), hostname, static_cast<uint16_t>(mirrorPort));
 			battleMirror->start();
 		}
 	}
