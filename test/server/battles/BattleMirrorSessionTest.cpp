@@ -372,7 +372,14 @@ TEST_F(BattleMirrorSessionTest, CloseAllBodyRunsOnIoThreadNotCaller)
 	const auto gateDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
 	while(!gateEntered.load() && std::chrono::steady_clock::now() < gateDeadline)
 		std::this_thread::yield();
-	ASSERT_TRUE(gateEntered.load()) << "gate handler never ran on the io thread";
+	if(!gateEntered.load())
+	{
+		release.set_value(); // release the gate handler if it is parked or still queued
+		io.stop();
+		ioThread.join();
+		FAIL() << "gate handler never ran on the io thread";
+		return;
+	}
 
 	mirror->closeAll();
 	// the gate handler and the closeAll body are both posted from this thread, and asio runs same-thread posts FIFO,
@@ -404,7 +411,13 @@ TEST_F(BattleMirrorSessionTest, CloseAllBodyRunsOnIoThreadNotCaller)
 	// armed before the gate opens: the pending read keeps run() alive, so the EOF can only come from the posted body
 	release.set_value();
 
-	ASSERT_EQ(readFuture.wait_for(std::chrono::seconds(10)), std::future_status::ready);
+	if(readFuture.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
+	{
+		io.stop();
+		ioThread.join();
+		FAIL() << "posted closeAll body never delivered EOF";
+		return;
+	}
 	EXPECT_EQ(readFuture.get(), boost::asio::error::eof);
 
 	ioThread.join();
