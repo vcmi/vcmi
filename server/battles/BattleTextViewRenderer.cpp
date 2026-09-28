@@ -172,6 +172,8 @@ std::string renderBattleTextView(const BattleInfo & battle, const std::vector<st
 				if(hex.isValid())
 					markerAt[hex.toInt()] = marker;
 		}
+		// a non-empty footprint with no valid hex renders nothing: the pos fallback exists only for
+		// obstacles without any footprint at all, not as a rescue for dirty footprints
 		else if(obstacle->pos.isValid())
 			markerAt[obstacle->pos.toInt()] = marker;
 	}
