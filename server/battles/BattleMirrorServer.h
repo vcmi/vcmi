@@ -65,10 +65,12 @@ private:
 /// TCP half of the telnet battle mirror: accepts telnet viewer connections and pushes
 /// controller frames to every connected socket.
 /// Every entry point runs on the single network thread (the io_context is blocking-run by
-/// INetworkHandler::run), so no locking — teardown is the sole exception: closeAll() may be
-/// called from any thread and marshals its body onto the io thread via asio::post, and the
-/// destructor repeats that body idempotently for the case where the posted closure never ran
-/// because the context was stopped first (safe there: it executes post-join).
+/// INetworkHandler::run), so no locking — two exceptions: the pre-run() phase (construction,
+/// start() and listenPort() run on the spawning thread, before the io thread exists) and
+/// teardown: closeAll() may be called from any thread and marshals its body onto the io thread
+/// via asio::post, and the destructor repeats that body idempotently for the case where the
+/// posted closure never ran because the context was stopped first (safe there: it executes
+/// post-join).
 class BattleMirrorServer
 {
 public:

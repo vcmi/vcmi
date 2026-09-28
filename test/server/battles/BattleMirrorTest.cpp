@@ -154,6 +154,35 @@ TEST_F(BattleMirrorTest, NotInterestedSkipsSinkButSnapshotWorks)
 	EXPECT_NE(sinkFrames[0].find("loud"), std::string::npos);
 }
 
+TEST_F(BattleMirrorTest, NotInterestedTerminalPacksStillClearState)
+{
+	controller.setInterested(false);
+	attachSink();
+
+	applyStart(battle()->battleID);
+	ASSERT_TRUE(controller.hasBattle());
+
+	BattleEnded ended;
+	ended.battleID = battle()->battleID;
+	ended.victor = PlayerColor(0);
+	server.applyPack(ended);
+	apply(ended);
+	EXPECT_TRUE(sinkFrames.empty());
+	EXPECT_FALSE(controller.hasBattle());
+
+	startBattle();
+
+	applyStart(battle()->battleID);
+	ASSERT_TRUE(controller.hasBattle());
+
+	BattleCancelled cancelled;
+	cancelled.battleID = battle()->battleID;
+	server.applyPack(cancelled);
+	apply(cancelled);
+	EXPECT_TRUE(sinkFrames.empty());
+	EXPECT_FALSE(controller.hasBattle());
+}
+
 TEST_F(BattleMirrorTest, NonBattlePacksIgnored)
 {
 	controller.setInterested(true);

@@ -54,14 +54,16 @@ public:
 	void visitBattleEnded(BattleEnded & pack) override
 	{
 		owner.current = pack.battleID;
-		owner.sendFrame(battleTextView::renderBattleSummary(pack.battleID, pack.victor, mirrorRenderOptions));
+		if(owner.interested)
+			owner.sendFrame(battleTextView::renderBattleSummary(pack.battleID, pack.victor, mirrorRenderOptions));
 		owner.current.reset();
 	}
 
 	void visitBattleCancelled(BattleCancelled & pack) override
 	{
 		owner.current = pack.battleID;
-		owner.sendFrame(battleTextView::renderBattleCancelled(pack.battleID, mirrorRenderOptions));
+		if(owner.interested)
+			owner.sendFrame(battleTextView::renderBattleCancelled(pack.battleID, mirrorRenderOptions));
 		owner.current.reset();
 	}
 
