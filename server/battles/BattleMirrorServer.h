@@ -25,7 +25,8 @@ struct CPackForClient;
 class CGameState;
 
 /// Headless half of the telnet battle mirror: derives text frames for the viewers from netpacks
-/// applied to the game state. Every entry point runs on the single network thread, so no locking.
+/// applied to the game state. Reached only from the network thread that runs the mirror's
+/// io_context (teardown aside, see BattleMirrorServer), so no locking.
 class BattleMirrorController
 {
 public:
@@ -62,8 +63,10 @@ private:
 /// TCP half of the telnet battle mirror: accepts telnet viewer connections and pushes
 /// controller frames to every connected socket.
 /// Every entry point runs on the single network thread (the io_context is blocking-run by
-/// INetworkHandler::run), so no locking; if the io_context ever becomes a pool, wrap all
-/// entry points in boost::asio::post.
+/// INetworkHandler::run), so no locking — teardown is the sole exception: closeAll() may be
+/// called from any thread and marshals its body onto the io thread via asio::post, and the
+/// destructor repeats that body idempotently for the case where the posted closure never ran
+/// because the context was stopped first (safe there: it executes post-join).
 class BattleMirrorServer
 {
 public:
@@ -73,7 +76,8 @@ public:
 	/// Binds and starts accepting; on failure logs and leaves the listener disabled.
 	void start();
 	uint16_t listenPort() const;
-	/// Closes the acceptor and every viewer socket; called on server shutdown.
+	/// Closes the acceptor and every viewer socket; called on server shutdown. Thread-safe:
+	/// the close work is posted onto the io thread.
 	void closeAll();
 	void onPackApplied(CPackForClient & pack, const CGameState & gameState);
 
@@ -84,6 +88,7 @@ private:
 	void onAccepted(const std::shared_ptr<Session> & session, const boost::system::error_code & ec);
 	void dropSession(const std::shared_ptr<Session> & session);
 	void broadcast(std::string frame);
+	void closeAllImpl();
 
 	NetworkContext & context;
 	std::string hostname;

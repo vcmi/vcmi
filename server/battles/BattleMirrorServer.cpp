@@ -19,6 +19,7 @@
 #include "../../lib/texts/MetaString.h"
 
 #include <array>
+#include <boost/asio/post.hpp>
 
 namespace
 {
@@ -245,7 +246,11 @@ BattleMirrorServer::BattleMirrorServer(NetworkContext & context, const std::stri
 	});
 }
 
-BattleMirrorServer::~BattleMirrorServer() = default;
+BattleMirrorServer::~BattleMirrorServer()
+{
+	// posted close never runs when the context was stopped first; this post-join pass is the safety net
+	closeAllImpl();
+}
 
 void BattleMirrorServer::start()
 {
@@ -275,6 +280,16 @@ uint16_t BattleMirrorServer::listenPort() const
 }
 
 void BattleMirrorServer::closeAll()
+{
+	// server shutdown may call this from a non-io thread while run() is still inside the context
+	boost::asio::post(context, [this]()
+	{
+		closeAllImpl();
+	});
+}
+
+// idempotent on purpose: it runs as the posted close and again in the destructor
+void BattleMirrorServer::closeAllImpl()
 {
 	boost::system::error_code ec;
 	if(acceptor.is_open())
