@@ -1,0 +1,38 @@
+// Spells with properties that no Heroes 3 spell has, so that the engine paths reading them can be
+// tested in a real battle.
+{
+	"testCastWithoutSkip" :
+	{
+		"type" : "ability",
+		"targetType" : "CREATURE",
+		"name" : "Test Cast Without Skip",
+		"school" : {},
+		"level" : 1,
+		"power" : 0,
+		"canCastWithoutSkip" : true,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "0",
+				"targetModifier" : { "smart" : true },
+				"effects" : {
+					"luck" : {
+						"type" : "LUCK",
+						"val" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true
+		}
+	}
+}

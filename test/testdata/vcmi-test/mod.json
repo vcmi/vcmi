@@ -10,7 +10,7 @@
 	"creatures" : [ "config/creatures.json" ],
 	"scripts" : [ "config/hotaScripts.json" ],
 	"skills" : [ "config/hotaSkills.json" ],
-	"spells" : [ "config/hotaSpells.json" ],
+	"spells" : [ "config/hotaSpells.json", "config/spells.json" ],
 	"bonuses" : [ "config/hotaBonuses.json" ],
 	"objects" : {
 		"questGate" : {
