@@ -804,10 +804,3 @@ struct DLL_LINKAGE PlayerMessage : public CPackForServer
 		h & currObj;
 	}
 };
-
-struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
-{
-	AdvInterfaceReady() = default;
-
-	void visitTyped(ICPackVisitor & cpackVisitor) override;
-};

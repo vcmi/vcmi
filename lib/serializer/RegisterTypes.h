@@ -44,6 +44,17 @@
 #include "../networkPacks/SetScriptVariable.h"
 #include "../networkPacks/SetStackEffect.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+/// Removed pack, still registered below so that saves and replays recorded before its
+/// removal keep deserializing. Carries no data of its own and does nothing when applied.
+struct DLL_LINKAGE AdvInterfaceReady final : public CPackForServer
+{
+	void visitTyped(ICPackVisitor & visitor) override {}
+};
+
+VCMI_LIB_NAMESPACE_END
+
 /// This method defines all types that are part of Serializeable hieararchy and can be serialized as their base type
 /// Each class is registered with a unique index that is used to determine correct type on deserialization
 /// For example, if CGHeroInstance is serialized as pointer to CGObjectInstance serializer will write type index for CGHeroInstance, followed by CGHeroInstance::serialize() call

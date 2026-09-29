@@ -32,9 +32,6 @@ bool TimerPauseActivity::blocksPack(const CPackForServer * pack) const
 	if(dynamic_cast<const SaveGame *>(pack) != nullptr)
 		return false;
 
-	if(dynamic_cast<const AdvInterfaceReady *>(pack) != nullptr)
-		return false;
-
 	return blockAllButReply(pack);
 }
 

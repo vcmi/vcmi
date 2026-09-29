@@ -83,7 +83,6 @@ public:
 	QuestionID questionCounter; ///< id of the last question asked
 	uint32_t activityTraceCounter = 0; ///< numbers activities in logs, not serialized
 
-	std::set<PlayerColor> uiReadyForDialogs;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
@@ -266,7 +265,6 @@ public:
 
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
-	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
 	void sendQuestionResolved(QuestionID questionID);
