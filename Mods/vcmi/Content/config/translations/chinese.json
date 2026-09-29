@@ -278,6 +278,8 @@
 	"vcmi.adventureMap.dwelling3": "{%s}\n\n你想招募%s、%s还是%s？",
 	"vcmi.adventureMap.dwelling5": "{%s}\n\n你想招募%s、%s、%s、%s还是%s?",
 	"vcmi.adventureMap.dwelling6": "{%s}\n\n你想招募%s、%s、%s、%s、%s还是%s?",
+	"vcmi.adventureMap.journal.events": "事件",
+	"vcmi.adventureMap.journal.quests": "任务",
 	"vcmi.adventureMap.layer.help": "{切换层级}\n\n在多个地图层级间切换冒险地图\n\n从%s (%d)切换到%s (%d)",
 	"vcmi.adventureMap.layer.hover": "切换层级  -  %s (%d)至%s (%d)",
 	"vcmi.adventureMap.monsterLevel": "\n\n%TOWN%LEVEL级%ATTACK_TYPE生物",
