@@ -452,12 +452,6 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	return ReplyOutcome::Accepted;
 }
 
-void ActivityProcessor::retryDeferredWork()
-{
-	// settle() runs when the outermost scope closes and retries every step for every player
-	MutationScope mutation(*this);
-}
-
 std::string ActivityProcessor::describeStacks() const
 {
 	std::string result;

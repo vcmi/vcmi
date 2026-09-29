@@ -60,7 +60,6 @@ class ReplayPackFilter final : public ICPackVisitor
 	void visitMapObjectSelectDialog(MapObjectSelectDialog & pack) override { markInteractive(); }
 	void visitShowWorldViewEx(ShowWorldViewEx & pack) override { markInteractive(); }
 	void visitResponseStatistic(ResponseStatistic & pack) override { markInteractive(); }
-	void visitAdvInterfaceReady(AdvInterfaceReady & pack) override { markInteractive(); }
 	void visitSystemMessage(SystemMessage & pack) override { markInteractive(); }
 	void visitPlayerMessageClient(PlayerMessageClient & pack) override { markInteractive(); }
 

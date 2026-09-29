@@ -655,19 +655,6 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
-void CGameHandler::onAdvInterfaceReady(PlayerColor player)
-{
-	if(uiReadyForDialogs.count(player))
-		return;
-
-	uiReadyForDialogs.insert(player);
-
-	logGlobal->trace("AdvInterfaceReady received for player %s", player);
-
-	// Work that waited for the interface, e.g. a level-up dialog, can be sent now
-	activities->retryDeferredWork();
-}
-
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
 {
 	for (const auto & elem : gameState().players)
@@ -4446,9 +4433,6 @@ bool CGameHandler::isBlockedByActivities(const CPackForServer *pack, PlayerColor
 		return false;
 
 	if (dynamic_cast<const SaveLocalState *>(pack) != nullptr)
-		return false;
-
-	if(dynamic_cast<const AdvInterfaceReady *>(pack) != nullptr)
 		return false;
 
 	auto activity = activities->topActivity(player);

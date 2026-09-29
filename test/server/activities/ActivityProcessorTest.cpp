@@ -320,7 +320,6 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 	// The level-up must exist before the other player is eliminated, otherwise nothing
 	// is deferred and this would test the empty case.
 	gameHandler.giveExperience(hero, 10);
-	gameHandler.onAdvInterfaceReady(levelUpPlayer);
 
 	auto levelUpActivity = gameHandler.activities->topActivity(levelUpPlayer);
 	ASSERT_NE(levelUpActivity, nullptr);
@@ -354,8 +353,6 @@ TEST_F(DeferredVictoryLossTest, battleOnlyGameContinuesWhenInterfaceBecomesReady
 	GameHandlerTestServer server(gameState(), PlayerColor(0));
 	CGameHandler gameHandler(server, gameState());
 
-	gameHandler.onAdvInterfaceReady(PlayerColor(0));
-	gameHandler.onAdvInterfaceReady(PlayerColor(1));
 
 	EXPECT_EQ(server.getState(), EServerState::GAMEPLAY);
 	EXPECT_EQ(gameState()->getPlayerState(PlayerColor(0))->status, EPlayerStatus::INGAME);
@@ -1453,7 +1450,6 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 
 	// Level-up dialogs are sent only once the client's interface is ready, and the hero's
 	// level is applied by that pack, so without this the hero never levels up.
-	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.objectVisited(pandora, hero);
 
@@ -1695,7 +1691,6 @@ TEST_F(LevelUpActivityTest, everyQuestionSentToTheClientIsReportedResolved)
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
-	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.giveExperience(hero, 100000); // worth several levels at once
 
@@ -1892,7 +1887,6 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
-	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.objectVisited(pandora, hero);
 
@@ -2063,7 +2057,6 @@ TEST_F(MapObjectVisitTest, aBuildingRewardInterruptedByALevelUpResumesTheBuildin
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
-	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.objectVisited(town, hero);
 
