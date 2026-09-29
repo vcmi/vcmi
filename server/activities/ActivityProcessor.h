@@ -46,9 +46,6 @@ private:
 	ActivitiesPerPlayer activities;
 	CGameHandler & gameHandler;
 
-	/// Activities that start once their players are idle, instead of interrupting the current question
-	std::array<std::deque<ActivityPtr>, PlayerColor::PLAYER_LIMIT_I> waiting;
-
 	/// The visit each map object is currently under. An object can only be visited by one
 	/// hero at a time, so this is the object's visit, not a list of candidates.
 	std::map<ObjectInstanceID, MapObjectVisitActivity *> activeVisits;
@@ -81,16 +78,12 @@ private:
 	/// if anything was removed.
 	bool resolveAnsweredActivities();
 
-	/// Starts the next waiting activity of every player that has become idle.
-	/// Returns true if it started anything.
-	bool promoteWaitingActivities();
-
 	/// Runs victory/loss checks for players that just became idle. Returns true if a stack changed.
 	bool runVictoryChecks();
 
 	/// Runs everything that must not happen while the stacks are still changing: resolving
-	/// answered activities, stepping routines, starting waiting activities and victory/loss
-	/// checks. Loops until nothing changes, so callers always observe a settled state.
+	/// answered activities, stepping routines and victory/loss checks. Loops until nothing
+	/// changes, so callers always observe a settled state.
 	void settle();
 
 	/// RAII bracket around a public mutation. The outermost one settles on exit.
@@ -106,15 +99,6 @@ private:
 
 public:
 	void addActivity(ActivityPtr activity);
-
-	/// Adds an activity once its players have nothing else to do. Use for work unrelated to
-	/// the activity that the player is currently dealing with, so that it queues up behind
-	/// it instead of interrupting it.
-	void addActivityWhenIdle(ActivityPtr activity);
-
-	/// Drops everything still queued for a player. Used on turn end, so that work queued
-	/// during that turn can not surface in a later one.
-	void discardQueuedWork(PlayerColor player);
 
 	void popActivity(const Activity &activity);
 	void popActivity(ActivityPtr activity);

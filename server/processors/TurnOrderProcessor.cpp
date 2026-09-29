@@ -13,6 +13,7 @@
 
 #include "../activities/ActivityProcessor.h"
 #include "../activities/MapActivities.h"
+#include "../activities/VisitActivities.h"
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 
@@ -310,30 +311,44 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	bool timersActive = gameHandler->gameInfo().getStartInfo()->turnTimerInfo.isEnabled();
 	bool isHuman = gameHandler->gameInfo().getPlayerState(which)->isHuman();
 
+	ActivityPtr turnPause;
+
 	if(timersActive && isHuman)
 	{
-		auto turnActivity = std::make_shared<TimerPauseActivity>(gameHandler, which);
-		gameHandler->activities->addActivity(turnActivity);
-		pst.questionID = turnActivity->askQuestion();
+		// Added by the routine below and not here, so that the turn-start visits queue up
+		// behind it instead of reaching the player before they accepted their turn
+		auto pause = std::make_shared<TimerPauseActivity>(gameHandler, which);
+		pst.questionID = pause->askQuestion();
+		turnPause = pause;
 	}
+
+	auto startTurn = [&]()
+	{
+		// Loading from a save resumes a turn instead of starting one, so only the pause
+		// is restored
+		if(wasAlreadyActing)
+		{
+			if(turnPause)
+				gameHandler->activities->addActivity(turnPause);
+			return;
+		}
+
+		gameHandler->onPlayerTurnStarted(which);
+		gameHandler->activities->addActivity(std::make_shared<TurnStartRoutine>(gameHandler, which, turnPause));
+	};
 
 	if(isHuman)
 	{
+		// Send PlayerStartsTurn first so the client enters the new-turn flow before the
+		// turn-start visits (e.g. Battle Scholar Academy) start producing dialogs.
 		gameHandler->sendAndApply(pst);
-
-		// Only if player is actually starting his turn (and not loading from save).
-		// Send PlayerStartsTurn first so the client enters the new-turn flow before
-		// deferred turn-start visits (e.g. Battle Scholar Academy) start producing dialogs.
-		if (!wasAlreadyActing)
-			gameHandler->onPlayerTurnStarted(which);
+		startTurn();
 	}
 	else
 	{
 		// AI starts acting immediately from PlayerStartsTurn/yourTurn, so keep the
-		// original ordering and prepare deferred turn-start visits first.
-		if (!wasAlreadyActing)
-			gameHandler->onPlayerTurnStarted(which);
-
+		// original ordering and run the turn-start visits first.
+		startTurn();
 		gameHandler->sendAndApply(pst);
 	}
 
@@ -399,10 +414,6 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 	}
 
 	gameHandler->onPlayerTurnEnded(which);
-
-	// Anything still queued belongs to the turn that just ended, whether or not the player
-	// is still in the game.
-	gameHandler->activities->discardQueuedWork(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town
 	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder

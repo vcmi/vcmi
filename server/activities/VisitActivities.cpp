@@ -12,6 +12,7 @@
 
 #include "BattleActivities.h"
 
+#include "../../lib/CPlayerState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -201,14 +202,51 @@ StepResult TownBuildingVisitActivity::advance()
 	return StepResult::Continue;
 }
 
-TurnStartVisitActivity::TurnStartVisitActivity(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits)
+TurnStartRoutine::TurnStartRoutine(CGameHandler * owner, PlayerColor player, ActivityPtr turnPause)
 	: Activity(owner, TYPE)
-	, visits(std::move(visits))
+	, turnPause(std::move(turnPause))
 {
 	addPlayer(player);
 }
 
-StepResult TurnStartVisitActivity::advance()
+StepResult TurnStartRoutine::advance()
+{
+	switch(activeStep)
+	{
+		case Step::Pause:
+			activeStep = Step::CollectVisits;
+			if(turnPause)
+				owner->addActivity(std::exchange(turnPause, nullptr));
+			return StepResult::Continue;
+
+		case Step::CollectVisits:
+			activeStep = Step::Visits;
+			collectVisits();
+			return StepResult::Continue;
+
+		default:
+			return visitNext();
+	}
+}
+
+void TurnStartRoutine::collectVisits()
+{
+	const auto * playerState = gh->gameInfo().getPlayerState(players.front());
+	if(!playerState)
+		return;
+
+	for(const auto * town : playerState->getTowns())
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		if(town->getGarrisonHero() != nullptr)
+			visits.push_back({town->id, town->getGarrisonHero()->id});
+
+		if(town->getVisitingHero() != nullptr)
+			visits.push_back({town->id, town->getVisitingHero()->id});
+	}
+}
+
+StepResult TurnStartRoutine::visitNext()
 {
 	if(cursor >= visits.size())
 		return StepResult::Done;
