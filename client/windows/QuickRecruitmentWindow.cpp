@@ -104,6 +104,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 void QuickRecruitmentWindow::purchaseUnits()
 {
 	int freeSlotsLeft = town->getUpperArmy()->getFreeSlots().size();
+	std::vector<std::tuple<CreatureID, int, int>> purchases;
 
 	for(auto selected : std::views::reverse(cards))
 	{
@@ -131,8 +132,11 @@ void QuickRecruitmentWindow::purchaseUnits()
 		}
 
 		if(dstslot.validSlot())
-			GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), crid, selected->slider->getValue(), level);
+			purchases.push_back({crid, selected->slider->getValue(), level});
 	}
+
+	for(const auto & [crid, amount, level] : std::views::reverse(purchases))
+		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), crid, amount, level);
 	close();
 }
 
