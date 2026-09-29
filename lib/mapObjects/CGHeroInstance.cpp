@@ -1025,34 +1025,49 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		return CStackBasicDescriptor();
 
 	// figure out what to raise - pick strongest creature meeting requirements
-	CreatureID bestCreature = CreatureID::NONE;
 	int necromancerPower = improvedNecromancy->totalValue();
 
-	// pick best bonus available
-	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
+	// filter out bonuses that can not be used - e.g. hero has necromancy from a temporary source,
+	// but his necromancy power is not enough for any of the available raise types
+	std::vector<std::shared_ptr<Bonus>> availableBonuses;
+	for(const std::shared_ptr<Bonus> & bonus : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
 		// MOD COMPATIBILITY: Bonus::convertAddInfo stored multi-element legacy addInfo
 		// as std::vector<int32_t> regardless of bonus type; saves taken with that bug
 		// keep the wrong variant after re-save. Fall back to the first vector element.
 		int requiredSkill = 0;
-		if(newPick->parameters)
+		if(bonus->parameters)
 		{
 			try
 			{
-				requiredSkill = newPick->parameters->toNumber();
+				requiredSkill = bonus->parameters->toNumber();
 			}
 			catch(const std::runtime_error &)
 			{
-				const auto & vec = newPick->parameters->toVector();
+				const auto & vec = bonus->parameters->toVector();
 				if(!vec.empty())
 					requiredSkill = vec.front();
 			}
 		}
-		if(newPick->parameters && requiredSkill > necromancerPower)
+		if(bonus->parameters && requiredSkill > necromancerPower)
 			continue;
 
-		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
+		if(!bonus->subtype.as<CreatureID>().hasValue())
+			continue;
+
+		availableBonuses.push_back(bonus);
+	}
+
+	// nothing to raise - skip necromancy entirely
+	if(availableBonuses.empty())
+		return CStackBasicDescriptor();
+
+	// pick best bonus available
+	CreatureID bestCreature = CreatureID::NONE;
+	for(const std::shared_ptr<Bonus> & newPick : availableBonuses)
+	{
+		CreatureID newCreature = newPick->subtype.as<CreatureID>();
 
 		if(!bestCreature.hasValue())
 		{
