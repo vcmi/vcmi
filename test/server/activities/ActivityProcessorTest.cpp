@@ -1010,98 +1010,12 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 
 
 // --------------------------------------------------------------------------------
-// Quiescence and queued work.
+// Quiescence.
 //
 // Removing an activity runs hooks that may add or remove further activities, so the stacks
 // pass through meaningless intermediate states: briefly empty, or holding an activity that
-// is about to be replaced. Queued work must start from the settled state only.
+// is about to be replaced. Deferred work must run from the settled state only.
 // --------------------------------------------------------------------------------
-
-TEST_F(ActivityProcessorTest, waitingActivity_doesNotStartWhilePlayerIsBusy)
-{
-	const PlayerColor player(1);
-	auto busy = std::make_shared<TestActivity>(&gh, player, ActivityType::MapObjectVisit);
-	auto pending = std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit);
-
-	activities.addActivity(busy);
-	activities.addActivityWhenIdle(pending);
-
-	EXPECT_EQ(activities.topActivity(player), busy);
-	EXPECT_TRUE(pending->onAddedCalls.empty());
-
-	activities.popIfTop(busy);
-
-	EXPECT_EQ(activities.topActivity(player), pending);
-	EXPECT_EQ(pending->onAddedCalls.size(), 1u);
-}
-
-TEST_F(ActivityProcessorTest, waitingActivity_startsOnceAfterTheStackFullyUnwinds)
-{
-	const PlayerColor player(1);
-	auto bottom = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroMovement);
-	auto top = std::make_shared<TestActivity>(&gh, player, ActivityType::MapObjectVisit);
-	bottom->popOnExposure = true; // exposing it unwinds the rest of the stack
-
-	activities.addActivity(bottom);
-	activities.addActivity(top);
-	activities.addActivityWhenIdle(std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit));
-
-	// Two removals, but only one quiescent point, so the queued activity starts exactly once
-	activities.popIfTop(top);
-
-	auto started = activities.topActivity(player);
-	ASSERT_NE(started, nullptr);
-	EXPECT_EQ(started->getType(), ActivityType::TurnStartVisit);
-	EXPECT_EQ(std::dynamic_pointer_cast<TestActivity>(started)->onAddedCalls.size(), 1u);
-}
-
-TEST_F(ActivityProcessorTest, waitingActivity_doesNotSlipIntoTheGapOfAReplacementChain)
-{
-	const PlayerColor player(1);
-
-	// An activity that pushes a successor as it is removed, like a level-up chain, where
-	// the player is never idle between the two.
-	auto replacement = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
-	auto original = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroLevelUpDialog);
-	original->addReplacementOnRemoval = true;
-	original->replacementActivity = replacement;
-
-	auto pending = std::make_shared<TestActivity>(&gh, player, ActivityType::TurnStartVisit);
-
-	activities.addActivity(original);
-	activities.addActivityWhenIdle(pending);
-
-	activities.popIfTop(original);
-
-	// The queued work must wait for the whole chain, not start between its links
-	EXPECT_EQ(activities.topActivity(player), replacement);
-	EXPECT_TRUE(pending->onAddedCalls.empty());
-
-	activities.popIfTop(replacement);
-	EXPECT_EQ(activities.topActivity(player), pending);
-}
-
-TEST_F(ActivityProcessorTest, waitingActivity_sharedByTwoPlayersStartsOnlyWhenBothAreIdle)
-{
-	const PlayerColor first(1);
-	const PlayerColor second(2);
-	auto busy = std::make_shared<TestActivity>(&gh, second, ActivityType::MapObjectVisit);
-	auto pending = std::make_shared<TestActivity>(&gh, std::vector<PlayerColor>{first, second}, ActivityType::Battle);
-
-	activities.addActivity(busy);
-	activities.addActivityWhenIdle(pending);
-
-	// The first player is idle, but starting now would put the activity on one stack
-	// and not the other.
-	EXPECT_TRUE(pending->onAddedCalls.empty());
-	EXPECT_EQ(activities.topActivity(first), nullptr);
-
-	activities.popIfTop(busy);
-
-	EXPECT_EQ(activities.topActivity(first), pending);
-	EXPECT_EQ(activities.topActivity(second), pending);
-	EXPECT_EQ(activities.countActivity(pending.get()), 2);
-}
 
 TEST_F(ActivityProcessorTest, settle_resolvesRepliesThatArrivedWhileStacksWereMoving)
 {
@@ -1134,7 +1048,7 @@ TEST_F(ActivityProcessorTest, settle_givesUpInsteadOfLoopingForeverWhenDeferredW
 	{
 		auto next = std::make_shared<TestRoutine>(&gh, player, 0);
 		next->onRemovalAction = queueAnother;
-		activities.addActivityWhenIdle(next);
+		activities.addActivity(next);
 	};
 
 	auto first = std::make_shared<TestRoutine>(&gh, player, 0);
@@ -1764,29 +1678,29 @@ TEST_F(TwoPlayerBattleTest, battleResultIsAppliedEvenWhenThePlayerPausedMidBattl
 	EXPECT_EQ(server.battlesConfirmed, 1) << "the battle result was never applied";
 }
 
-TEST_F(ActivityProcessorTest, settle_completesALongRunOfQueuedWork)
+TEST_F(ActivityProcessorTest, settle_completesALongRunOfDeferredWork)
 {
 	const PlayerColor player(1);
 
-	// A turn start can queue one visit per town, each running a routine over several
+	// A turn start visits every town of a player, each visit running a routine over several
 	// buildings. All of it lands in a single settle(), so the round limit must not act as
 	// a budget for legitimate work.
-	constexpr int queuedItems = 60;
+	constexpr int deferredItems = 60;
 	std::vector<std::shared_ptr<TestRoutine>> queued;
 
 	auto seeder = std::make_shared<TestActivity>(&gh, player, ActivityType::HeroMovement);
 	seeder->onRemovalAction = [&]()
 	{
-		for(int i = 0; i < queuedItems; ++i)
+		for(int i = 0; i < deferredItems; ++i)
 		{
 			auto routine = std::make_shared<TestRoutine>(&gh, player, 2);
 			queued.push_back(routine);
-			activities.addActivityWhenIdle(routine);
+			activities.addActivity(routine);
 		}
 	};
 
 	activities.addActivity(seeder);
-	activities.popIfTop(seeder); // everything above is queued within this one mutation
+	activities.popIfTop(seeder); // everything above is added within this one mutation
 
 	EXPECT_EQ(activities.topActivity(player), nullptr) << "work was left unfinished";
 
@@ -1795,7 +1709,7 @@ TEST_F(ActivityProcessorTest, settle_completesALongRunOfQueuedWork)
 		if(routine->stepsTaken != 2)
 			unfinished++;
 
-	EXPECT_EQ(unfinished, 0) << unfinished << " of " << queuedItems << " queued routines never ran";
+	EXPECT_EQ(unfinished, 0) << unfinished << " of " << deferredItems << " routines never ran";
 }
 
 TEST_F(ActivityProcessorTest, replyIsAcceptedWhileAVisitSitsOnTop)
@@ -2020,6 +1934,41 @@ TEST_F(MapObjectVisitTest, aTownEntryLeavesOneVisitIdentifyingTheObjectAndTheHer
 
 	EXPECT_EQ(gameHandler.activities->findVisit(town->id), nullptr);
 	EXPECT_EQ(gameHandler.getVisitingHero(town), nullptr);
+}
+
+TEST_F(MapObjectVisitTest, turnStartVisitsWaitForThePlayerToAcceptTheTurn)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.town(int3(8, 8, 0), FactionID(5), player)  // Dungeon
+		.hero(int3(6, 8, 0), HeroTypeID(0), player); // the town entrance
+	startWithMap(std::move(builder));
+
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(town, nullptr);
+	ASSERT_EQ(town->getVisitingHero(), findHeroByOwner(player));
+
+	// The Battle Scholar Academy grants experience, so the turn-start visit stops on a level-up
+	ASSERT_TRUE(town->rewardableBuildings.count(BuildingID::SPECIAL_4));
+	town->addBuilding(BuildingID::SPECIAL_4);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	auto pause = std::make_shared<TimerPauseActivity>(&gameHandler, player);
+	const auto questionID = pause->askQuestion();
+	gameHandler.activities->addActivity(std::make_shared<TurnStartRoutine>(&gameHandler, player, pause));
+
+	// Accepting the turn comes first - the academy level-up must not overtake it
+	EXPECT_EQ(gameHandler.activities->topActivity(player), pause);
+
+	ASSERT_EQ(gameHandler.activities->submitReply(questionID, player, 0), ReplyOutcome::Accepted);
+
+	auto levelUp = gameHandler.activities->topActivity(player);
+	ASSERT_NE(levelUp, nullptr) << "the turn-start visit never ran";
+	EXPECT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
 }
 
 TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTown)

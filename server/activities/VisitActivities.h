@@ -107,27 +107,45 @@ public:
 	void onChildCompleted(const ActivityPtr & child) final;
 };
 
-/// Visits the objects that a player's heroes stand on at the start of their turn, one at a
-/// time. Started only once the player has nothing else pending, so that it does not
-/// interrupt e.g. the dialog that accepts the start of the turn.
-class TurnStartVisitActivity final : public Activity, public IRoutine
+/// Runs what happens at the start of a player's turn: the pause that the player has to
+/// accept, then a visit to each object their heroes stand on, one at a time. Both live in
+/// one routine because a stack can not be inserted into - adding the visits on their own
+/// would put them in front of the pause.
+class TurnStartRoutine final : public Activity, public IRoutine
 {
-public:
 	struct PendingVisit
 	{
 		ObjectInstanceID object;
 		ObjectInstanceID hero;
 	};
 
-	static constexpr ActivityType TYPE = ActivityType::TurnStartVisit;
+	enum class Step : uint8_t
+	{
+		Pause,
+		CollectVisits,
+		Visits
+	};
 
-	TurnStartVisitActivity(CGameHandler * owner, PlayerColor player, std::vector<PendingVisit> visits);
+	Step activeStep = Step::Pause;
 
-	IRoutine * asRoutine() final { return this; }
-	StepResult advance() final;
+	/// Pause that ends when the player accepts the start of their turn. Null when turn
+	/// timers are off, and for an AI.
+	ActivityPtr turnPause;
 
-private:
+	/// Collected only once the pause is over, so that a town captured meanwhile by another
+	/// player acting at the same time is not visited.
 	std::vector<PendingVisit> visits;
 
 	size_t cursor = 0; ///< index of the next visit
+
+	void collectVisits();
+	StepResult visitNext();
+
+public:
+	static constexpr ActivityType TYPE = ActivityType::TurnStart;
+
+	TurnStartRoutine(CGameHandler * owner, PlayerColor player, ActivityPtr turnPause);
+
+	IRoutine * asRoutine() final { return this; }
+	StepResult advance() final;
 };

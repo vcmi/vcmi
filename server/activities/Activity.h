@@ -35,7 +35,7 @@ enum class ActivityType : uint8_t
 	OpenWindow,
 	MapObjectVisit,
 	TownBuildingVisit,
-	TurnStartVisit,
+	TurnStart,
 	Battle,
 	BattleDialog,
 	HeroMovement,

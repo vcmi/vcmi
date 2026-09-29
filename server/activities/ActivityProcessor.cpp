@@ -96,18 +96,6 @@ void ActivityProcessor::addActivity(ActivityPtr activity)
 		addActivity(player, activity);
 }
 
-void ActivityProcessor::addActivityWhenIdle(ActivityPtr activity)
-{
-	MutationScope mutation(*this);
-
-	assert(activity);
-	for(auto player : activity->players)
-	{
-		if(player.isValidPlayer())
-			waiting.at(player.getNum()).push_back(activity);
-	}
-}
-
 void ActivityProcessor::addActivity(PlayerColor player, ActivityPtr activity)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player='%d', activity='%s'", player.getNum() % activity);
@@ -333,51 +321,6 @@ bool ActivityProcessor::resolveAnsweredActivities()
 	return changedAnything;
 }
 
-void ActivityProcessor::discardQueuedWork(PlayerColor player)
-{
-	if(player.isValidPlayer())
-		waiting.at(player.getNum()).clear();
-}
-
-bool ActivityProcessor::promoteWaitingActivities()
-{
-	bool startedAnything = false;
-
-	for(size_t idx = 0; idx < activities.size(); ++idx)
-	{
-		if(!activities.at(idx).empty())
-			continue; // fast path, everyPlayerIsIdle below is the actual condition
-
-		auto & queue = waiting.at(idx);
-		if(queue.empty())
-			continue;
-
-		auto activity = queue.front();
-		queue.pop_front();
-
-		// An activity shared by several players is queued for each of them, and started
-		// only once all of them are idle
-		const bool everyPlayerIsIdle = std::ranges::all_of(activity->players, [this](PlayerColor player)
-		{
-			return player.isValidPlayer() && activities.at(player.getNum()).empty();
-		});
-
-		if(!everyPlayerIsIdle)
-		{
-			queue.push_front(activity);
-			continue;
-		}
-
-		for(auto player : activity->players)
-			vstd::erase_if_present(waiting.at(player.getNum()), activity);
-
-		addActivity(activity);
-		startedAnything = true;
-	}
-
-	return startedAnything;
-}
-
 bool ActivityProcessor::runVictoryChecks()
 {
 	// Taken before the checks, so that the flags then reflect only what the checks change
@@ -419,10 +362,6 @@ void ActivityProcessor::settle()
 
 		// A routine exposed by that removal may have more work before its player is idle
 		if(advanceRoutines())
-			continue;
-
-		// Queued work starts only once the player has nothing left to do
-		if(promoteWaitingActivities())
 			continue;
 
 		if(runVictoryChecks())

@@ -29,7 +29,7 @@ std::string toString(ActivityType type)
 		case ActivityType::OpenWindow:             return "OpenWindow";
 		case ActivityType::MapObjectVisit:         return "MapObjectVisit";
 		case ActivityType::TownBuildingVisit:      return "TownBuildingVisit";
-		case ActivityType::TurnStartVisit:         return "TurnStartVisit";
+		case ActivityType::TurnStart:              return "TurnStart";
 		case ActivityType::Battle:                 return "Battle";
 		case ActivityType::BattleDialog:           return "BattleDialog";
 		case ActivityType::HeroMovement:           return "HeroMovement";
