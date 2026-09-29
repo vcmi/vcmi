@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter les sauvegardes</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -116,44 +116,44 @@
         <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegardes exportées vers %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de sauvegarde des archives vers la destination sélectionnée</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le fichier de destination</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Veuillez sélectionner le fichier de destination et enregistrer l&apos;archive sous le nom vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archives Zip (*.zip);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportation des journaux...</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Export de journaux</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
@@ -426,7 +426,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="906"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraction de content.zip (%1/%2) pour %3</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="913"/>
@@ -459,7 +459,9 @@ Installer les téchargements réussis?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de l&apos;installation du fichier %1.
+Raison : %2.
+Veuillez signaler ce problème aux développeurs</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
@@ -484,18 +486,19 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>La sauvegarde existe</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>La sauvegarde &apos;%1&apos; existe déjà. Voulez-vous la remplacer ?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec d&apos;importation des sauvegardes depuis %1.
+Raison : %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
@@ -505,7 +508,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers de sauvegarde %1 importés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
@@ -515,19 +518,21 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nécessite : %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de l&apos;activation du mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;activer un ou plusieurs mods installés :
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
@@ -567,12 +572,12 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Désinstaller le mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Êtes-vous sûr de vouloir désinstaller %1 ?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
@@ -586,7 +591,9 @@ Reason: %2</source>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Traiter les fichiers téléchargés avec succès ?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
@@ -813,32 +820,32 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraction complète des mods</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensité de la netteté pour les filtres de mise à l&apos;échelle xBRZ + Netteté</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + Netteté</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + Netteté</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + Netteté</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le statut sur Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="706"/>
@@ -848,7 +855,7 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegardes automatiques par partie (0 = illimité)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
@@ -868,7 +875,7 @@ Mode Plein Écran Exclusif - le jeu couvrira entièrement votre écran et utilis
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1550"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrer avant de visiter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="187"/>
@@ -1250,7 +1257,7 @@ Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge&
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous pouvez copier manuellement les dossiers Maps, Data et Mp3 depuis le dossier d&apos;origine du jeu vers le dossier de données VCMI indiqué ci-dessous.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
@@ -1280,12 +1287,12 @@ Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge&
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous n&apos;avez pas les données de Heroes III ? Téléchargez la démo gratuite pour essayer VCMI.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Télécharger la démo</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1295,7 +1302,7 @@ Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge&
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer les mods VCMI recommandés</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
@@ -1305,42 +1312,42 @@ Heroes® of Might and Magic® III HD n&apos;est pas actuellement pris en charge&
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>Extras VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajoute des améliorations à l&apos;interface et au gameplay, telles qu&apos;une meilleure interface pour les cartes auto-générées, des boutons de consultation et de recherche pour la carte d&apos;aventure, l&apos;échange rapide entre héros, des icônes de bonus et d&apos;immunité, ainsi que des actions en combat.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Une extension soignée créée par des fans qui ajoute les villes Crique, Usine et Rempart, ainsi que de nouvelles campagnes, des héros, des artefacts, des objets de carte, les compétences Interférence et Runes, des ajustements d&apos;équilibrage et de nouveaux types de terrain, tout en restant fidèle à Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Enrichit Heroes III grâce aux commandants, à l&apos;expérience et aux artefacts des troupes, à de nombreux nouveaux artefacts pour héros et commandants, à des systèmes de progression supplémentaires et à des objets interactifs sur la carte d&apos;aventure.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Une extension riche en fonctionnalités qui élargit le gameplay avec une unité alternative pour chacune des 9 villes standards, ainsi que de nouvelles créatures neutres, banques de créatures, compétences et sorts.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Plongez dans le royaume souterrain et découvrez Casemate — une nouvelle faction créée pour VCMI, où champignons, pierre et magie des runes prospèrent dans l&apos;obscurité.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="818"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Les Remous de la Guerre</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="823"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Les Déchus des Profondeurs</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -1403,7 +1410,7 @@ L&apos;installateur hors ligne est composé de deux fichiers : &quot;.exe&quot; 
     </message>
     <message>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="vanished">Installe un mod qui améliore l&apos;interface, comme une meilleure interface pour les cartes aléatoires et des actions sélectionnables en bataille.</translation>
+        <translation type="vanished">Installe un mod qui améliore l&apos;interface, comme une meilleure interface pour les cartes auto-générées et des actions sélectionnables en bataille.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="813"/>
@@ -1500,30 +1507,31 @@ Veuillez sélectionner le répertoire contenant les données installées de Hero
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Téléchargement de la démo de Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="424"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vous devez sélectionner un fichier %1 !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un programme d&apos;installation inconnu a été sélectionné.
+Vous devez sélectionner le programme d&apos;installation hors ligne de GOG.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="444"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous avez sélectionné un installateur GOG Galaxy. Ce fichier ne contient pas le jeu. Veuillez plutôt télécharger l&apos;installateur de sauvegarde hors ligne du jeu.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez le programme d&apos;installation hors ligne GOG (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
@@ -1535,13 +1543,13 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="489"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez le fichier de données du programme d&apos;installation hors ligne GOG : %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="697"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier de données non valide</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1553,17 +1561,17 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="604"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="759"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importation des données de Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="643"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparation du programme d&apos;installation...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="706"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraction du programme d&apos;installation...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
@@ -1573,17 +1581,17 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse du dossier sélectionné...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Les Larmes d&apos;Ashan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Une extension créée par des fans et inspirée de Heroes V, qui ajoute à Heroes III des alternatives d&apos;évolutions de créatures, la magie blanche et noire, la capacité d&apos;Invocation (Gating), un plafond plus élevé pour les compétences secondaires ainsi qu&apos;un gameplay remanié pour la faction Conflux.</translation>
     </message>
 </context>
 <context>
@@ -1591,12 +1599,12 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation de l&apos;édition HD détectée !</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;installation de Heroes III HD Edition a été trouvée. Installer le mod graphique HD en utilisant cette installation ?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
@@ -1752,12 +1760,12 @@ Bin (%n octets):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinois simplifié</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinois traditionnel</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1822,7 +1830,7 @@ Bin (%n octets):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Lituanien</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
@@ -2139,7 +2147,7 @@ Bin (%n octets):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Démo</translation>
     </message>
 </context>
 <context>
@@ -2165,12 +2173,12 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de l&apos;importation de la sauvegarde %1 depuis %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de l&apos;importation du fichier de sauvegarde %1</translation>
     </message>
 </context>
 <context>
@@ -2287,7 +2295,7 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer le jeu</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2331,17 +2339,17 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez les fichiers (configurations, mods, sauvegardes, cartes, campagnes, fichiers GOG) à installer...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Cela supprimera toutes les données de la démo du jeu (dossiers Data, Maps, Mp3 et Video) et relancera l&apos;assistant d&apos;installation. Êtes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="276"/>
@@ -2361,7 +2369,7 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegardes</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="280"/>
@@ -2408,12 +2416,12 @@ Raison&#xa0;: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
         <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparation des fichiers sélectionnés pour l&apos;importation...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparation des fichiers sélectionnés pour l&apos;importation... %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
@@ -2423,7 +2431,7 @@ Raison&#xa0;: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de la préparation du fichier pour l&apos;importation : %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="427"/>
@@ -2437,7 +2445,16 @@ Raison&#xa0;: %2</translation>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Cette option vous permet d&apos;importer des fichiers de données supplémentaires dans votre installation VCMI. Actuellement, les éléments suivants sont pris en charge :
+
+- Cartes Heroes III (.h3m ou .vmap). 
+- Campagnes Heroes III (.h3c ou .vcmp). 
+- Heroes III Chronicles via l&apos;installateur de sauvegarde hors ligne de GOG.com, au format (.exe). 
+- Mods VCMI au format zip (.zip).
+- Archives de sauvegardes VCMI au format zip (.zip).
+- Fichiers de sauvegarde VCMI (.vsgm1).
+- Fichiers de configuration VCMI (.json).
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="444"/>
@@ -2462,42 +2479,53 @@ ATTENTION : Dans certains cas, les versions mises à jour des mods peuvent ne pa
         <location filename="../startGame/StartGameTab.cpp" line="476"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si vous possédez Heroes Chronicles sur GOG.com, vous pouvez utiliser les installateurs de sauvegarde hors ligne fournis par GOG pour importer les données de Heroes Chronicles dans VCMI sous forme de campagnes personnalisées.
+Pour importer Heroes Chronicles, téléchargez l&apos;installateur hors ligne de chaque chronique que vous souhaitez installer, choisissez l&apos;option &apos;Importer des fichiers&apos; et sélectionnez le fichier téléchargé. Cela générera et installera un mod pour VCMI contenant les chroniques importées.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="489"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI a détecté que les fichiers musicaux de Heroes III sont absents de votre installation. VCMI fonctionnera, mais la musique en jeu ne sera pas disponible.
+
+Pour résoudre ce problème, veuillez copier manuellement les fichiers MP3 manquants de Heroes III vers le dossier de données de VCMI, ou bien réinstaller VCMI et réimporter les fichiers de données de Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="500"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI a détecté qu&apos;il manque des fichiers vidéo de Heroes III dans votre installation. VCMI fonctionnera, mais les cinématiques du jeu ne seront pas disponibles.
+
+Pour résoudre ce problème, veuillez copier manuellement le fichier VIDEO.VID de Heroes III vers le dossier des fichiers de données de VCMI, ou bien réinstaller VCMI et réimporter les fichiers de données de Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="511"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI a détecté qu&apos;il manque certains fichiers de données de Heroes III dans votre installation. Vous pouvez tenter de lancer VCMI, mais le jeu risque de ne pas fonctionner correctement ou de planter.
+
+Pour résoudre ce problème, veuillez réinstaller le jeu et réimporter les fichiers de données à partir d&apos;une version prise en charge de Heroes III. VCMI nécessite Heroes III: Shadow of Death ou la Complete Edition pour fonctionner ; vous pouvez vous procurer ces versions, par exemple, sur gog.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="522"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI a détecté qu&apos;il manque certains fichiers de données de Heroes III: Armageddon&apos;s Blade dans votre installation. VCMI fonctionnera, mais les campagnes d&apos;Armageddon&apos;s Blade ne seront pas disponibles.
+
+Pour résoudre ce problème, veuillez copier manuellement les fichiers de données manquants depuis Heroes III vers le dossier de données de VCMI, ou bien réinstaller VCMI et réimporter les fichiers de données de Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="533"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pour améliorer la qualité graphique dans VCMI, vous pouvez installer les fichiers de la version officielle Heroes III HD disponible sur Steam. Sélectionnez le dossier « Heroes HD » de Steam.
+
+Une fois l&apos;installation terminée, vous devez régler le filtre de mise à l&apos;échelle (upscaling) sur « x2 » ou plus pour réellement profiter des graphismes HD.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>

@@ -440,7 +440,9 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Het downloaden van alle bestanden lukt niet.\n\nEr zijn de volgende fouten opgetreden:</translation>
+        <translation type="unfinished">Het downloaden van alle bestanden lukt niet.
+
+Er zijn de volgende fouten opgetreden:</translation>
     </message>
     <message>
         <source>
@@ -586,7 +588,8 @@ Process successfully downloaded files?</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Het importeren van de volgende kaarten is mislukt:\n%1</translation>
+        <translation type="unfinished">Het importeren van de volgende kaarten is mislukt:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
@@ -774,7 +777,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Selecteer een weergavemodus voor het spel:\n\nVenstermodus - het spel wordt uitgevoerd in een venster dat een deel van je scherm bedekt.\n\nVenstermodus zonder randen - het spel wordt uitgevoerd in een venster op volledig scherm, met dezelfde resolutie als je scherm.\n\nExclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt de geselecteerde resolutie.</translation>
+        <translation type="unfinished">Selecteer een weergavemodus voor het spel:
+
+Venstermodus - het spel wordt uitgevoerd in een venster dat een deel van je scherm bedekt.
+
+Venstermodus zonder randen - het spel wordt uitgevoerd in een venster op volledig scherm, met dezelfde resolutie als je scherm.
+
+Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt de geselecteerde resolutie.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -1368,9 +1377,11 @@ Heroes® of Might and Magic® III HD wordt momenteel niet ondersteund!</translat
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer.
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">Als je Heroes III op gog.com hebt gekocht, kun je een offline installatieprogramma downloaden van gog.com. VCMI importeert vervolgens de Heroes III-gegevens met behulp van dit offline installatieprogramma.\n\nHet offline installatieprogramma bestaat uit twee bestanden: \&quot;.exe\&quot; en \&quot;.bin\&quot; - je moet ze allebei downloaden.</translation>
+        <translation type="unfinished">Als je Heroes III op gog.com hebt gekocht, kun je een offline installatieprogramma downloaden van gog.com. VCMI importeert vervolgens de Heroes III-gegevens met behulp van dit offline installatieprogramma.
+
+Het offline installatieprogramma bestaat uit twee bestanden: \&quot;.exe\&quot; en \&quot;.bin\&quot; - je moet ze allebei downloaden.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1423,13 +1434,17 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">De bestanden van Heroes III: HD Edition worden niet ondersteund door VCMI.\n\nSelecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">De bestanden van Heroes III: HD Edition worden niet ondersteund door VCMI.
+
+Selecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Er is een onbekende of niet-ondersteunde versie van Heroes III gevonden.\n\nSelecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">Er is een onbekende of niet-ondersteunde versie van Heroes III gevonden.
+
+Selecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
@@ -1559,7 +1574,9 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Er zijn geen geldige Heroes III-gegevens gevonden in de geselecteerde map.\n\nSelecteer de map met de geïnstalleerde Heroes III-gegevens.</translation>
+        <translation type="unfinished">Er zijn geen geldige Heroes III-gegevens gevonden in de geselecteerde map.
+
+Selecteer de map met de geïnstalleerde Heroes III-gegevens.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1620,7 +1637,9 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Er is een streamfout opgetreden tijdens het uitpakken van bestanden!\n\nReden van de fout:</translation>
+        <translation type="unfinished">Er is een streamfout opgetreden tijdens het uitpakken van bestanden!
+
+Reden van de fout:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
@@ -1667,7 +1686,9 @@ Bin (%n byte):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Het interne kopieerproces is mislukt. Is er voldoende ruimte op het apparaat?\n\n%1</translation>
+        <translation type="unfinished">Het interne kopieerproces is mislukt. Is er voldoende ruimte op het apparaat?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1685,7 +1706,11 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Taalverschil!\n\n%1\n\n%2</translation>
+        <translation type="unfinished">Taalverschil!
+
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="168"/>
@@ -1693,14 +1718,20 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Slechts één bestand bekend! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.\n\n%1\n\n%2</translation>
+        <translation type="unfinished">Slechts één bestand bekend! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.
+
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Onbekende bestanden! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.\n\n%1</translation>
+        <translation type="unfinished">Onbekende bestanden! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -2123,7 +2154,8 @@ Bin (%n byte):
         <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished">Starten mislukt %1\nReden: %2</translation>
+        <translation type="unfinished">Starten mislukt %1
+Reden: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
@@ -2364,7 +2396,17 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="obsolete">Met deze optie kunt u extra gegevensbestanden importeren in uw VCMI-installatie. Momenteel worden de volgende opties ondersteund:\n\n- Heroes III-kaarten (.h3m of .vmap).\n\n- Heroes III-campagnes (.h3c of .vcmp).\n\n- Heroes III Chronicles met behulp van de offline back-upinstallatie van GOG.com (.exe).\n\n- VCMI-mods in zip-formaat (.zip)\n\n- VCMI-configuratiebestanden (.json)</translation>
+        <translation type="obsolete">Met deze optie kunt u extra gegevensbestanden importeren in uw VCMI-installatie. Momenteel worden de volgende opties ondersteund:
+
+- Heroes III-kaarten (.h3m of .vmap).
+
+- Heroes III-campagnes (.h3c of .vcmp).
+
+- Heroes III Chronicles met behulp van de offline back-upinstallatie van GOG.com (.exe).
+
+- VCMI-mods in zip-formaat (.zip)
+
+- VCMI-configuratiebestanden (.json)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
@@ -2416,7 +2458,9 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">Een nieuwe versie van enkele van de mods die je hebt geïnstalleerd, is nu beschikbaar in de mod-repository. Gebruik deze optie om al je mods automatisch bij te werken naar de nieuwste versie.\n\nWAARSCHUWING: In sommige gevallen zijn bijgewerkte versies van mods mogelijk niet compatibel met je bestaande savegames. Je kunt de mod-update beter uitstellen tot je een van je lopende games hebt uitgespeeld.</translation>
+        <translation type="unfinished">Een nieuwe versie van enkele van de mods die je hebt geïnstalleerd, is nu beschikbaar in de mod-repository. Gebruik deze optie om al je mods automatisch bij te werken naar de nieuwste versie.
+
+WAARSCHUWING: In sommige gevallen zijn bijgewerkte versies van mods mogelijk niet compatibel met je bestaande savegames. Je kunt de mod-update beter uitstellen tot je een van je lopende games hebt uitgespeeld.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>
