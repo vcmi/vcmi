@@ -133,7 +133,7 @@ public:
 
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 
-	virtual bool isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
+	virtual bool isVisitCoveredByAnotherActivity(const CGHeroInstance *hero) = 0;
 
 	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;

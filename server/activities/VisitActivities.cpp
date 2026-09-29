@@ -21,15 +21,14 @@
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 
-VisitActivity::VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, ActivityType type)
+ObjectInteractionActivity::ObjectInteractionActivity(CGameHandler * owner, const CGHeroInstance * Hero, ActivityType type)
 	: Activity(owner, type)
-	, visitedObject(Obj->id)
 	, visitingHero(Hero->id)
 {
 	addPlayer(Hero->tempOwner);
 }
 
-bool VisitActivity::blocksPack(const CPackForServer * pack) const
+bool ObjectInteractionActivity::blocksPack(const CPackForServer * pack) const
 {
 	// All packs are blocked during the visit, except answers to questions, which may have
 	// been asked by an activity that was since removed or buried. Blocking those would
@@ -38,7 +37,8 @@ bool VisitActivity::blocksPack(const CPackForServer * pack) const
 }
 
 MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
-	: VisitActivity(owner, Obj, Hero, TYPE)
+	: ObjectInteractionActivity(owner, Hero, TYPE)
+	, visitedObject(Obj->id)
 	, removeObjectAfterVisit(false)
 {
 }
@@ -139,7 +139,8 @@ void MapObjectVisitActivity::onRemoval(PlayerColor color)
 }
 
 TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
-	: VisitActivity(owner, Obj, heroes.front(), TYPE)
+	: ObjectInteractionActivity(owner, heroes.front(), TYPE)
+	, town(Obj->id)
 {
 	for (const auto * hero : heroes)
 		for (const auto & building : buildingToVisit)
@@ -148,20 +149,20 @@ TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const
 
 void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	const auto * town = gh->gameInfo().getTown(visitedObject);
+	const auto * visitedTown = gh->gameInfo().getTown(town);
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
 	// The town may have changed owner or the hero may have died in the meantime
-	if(!town)
+	if(!visitedTown)
 		return;
 
 	// Activities are started by the building, not by the town - except before the first
 	// building is reached, since the town queues its building visits and only then opens
 	// its own dialogs, which end up above this routine
-	const IObjectInterface * reportTo = town;
+	const IObjectInterface * reportTo = visitedTown;
 
-	auto building = town->rewardableBuildings.find(visitedBuilding);
-	if(building != town->rewardableBuildings.end())
+	auto building = visitedTown->rewardableBuildings.find(visitedBuilding);
+	if(building != visitedTown->rewardableBuildings.end())
 		reportTo = building->second.get();
 
 	child->notifyObjectAboutRemoval(reportTo, hero, continuationTag);
@@ -174,16 +175,16 @@ StepResult TownBuildingVisitActivity::advance()
 
 	const auto & visit = visits.at(cursor++);
 
-	const auto * town = gh->gameInfo().getTown(visitedObject);
+	const auto * visitedTown = gh->gameInfo().getTown(town);
 	const auto * hero = gh->gameState().getHero(visit.hero);
 
 	// Either may be gone if an earlier building started a battle. Skip this pair and
 	// continue with the remaining buildings.
-	if(!town || !hero)
+	if(!visitedTown || !hero)
 		return StepResult::Continue;
 
-	auto building = town->rewardableBuildings.find(visit.building);
-	if(building == town->rewardableBuildings.end())
+	auto building = visitedTown->rewardableBuildings.find(visit.building);
+	if(building == visitedTown->rewardableBuildings.end())
 		return StepResult::Continue;
 
 	visitingHero = visit.hero;

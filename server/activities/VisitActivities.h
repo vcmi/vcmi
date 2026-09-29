@@ -13,15 +13,18 @@
 
 class CGTownInstance;
 
-//Created when hero visits object.
-//Removed when activity above is resolved (or immediately after visit if no activities were created)
-class VisitActivity : public Activity
+/// Common base for activities that run an object's interaction with a hero: a visit to a
+/// map object, a walk through a town's buildings. Holds what the interaction needs to hand
+/// results back to the object, not what identifies a visit - only a map object visit makes
+/// that object busy.
+class ObjectInteractionActivity : public Activity
 {
 protected:
-	VisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, ActivityType type);
+	ObjectInteractionActivity(CGameHandler * owner, const CGHeroInstance * Hero, ActivityType type);
 
 public:
-	ObjectInstanceID visitedObject;
+	/// Hero whose interaction is running now. A town walks several heroes through its
+	/// buildings, so this changes as the routine advances.
 	ObjectInstanceID visitingHero;
 
 	/// Value set by the visited object, passed back to it once the activity that it started
@@ -33,8 +36,9 @@ public:
 };
 
 /// Hero visit to a map object: starts the visit, waits for the object, then applies the
-/// level-ups postponed by a battle during the visit.
-class MapObjectVisitActivity final : public VisitActivity, public IRoutine
+/// level-ups postponed by a battle during the visit. One of these makes its object busy,
+/// so at most one exists per object and per hero.
+class MapObjectVisitActivity final : public ObjectInteractionActivity, public IRoutine
 {
 	/// Position within the visit. Also tells onChildCompleted() whether a finished child
 	/// belongs to the object, or is a postponed level-up that must not be reported to it.
@@ -58,6 +62,7 @@ class MapObjectVisitActivity final : public VisitActivity, public IRoutine
 public:
 	static constexpr ActivityType TYPE = ActivityType::MapObjectVisit;
 
+	ObjectInstanceID visitedObject;
 	bool removeObjectAfterVisit;
 
 	MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
@@ -70,7 +75,7 @@ public:
 
 /// Visits a list of hero/building pairs one at a time. A building may open a dialog or
 /// start a battle, which suspends the routine until it finishes.
-class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
+class TownBuildingVisitActivity final : public ObjectInteractionActivity, public IRoutine
 {
 	struct BuildingVisit
 	{
@@ -81,6 +86,11 @@ class TownBuildingVisitActivity final : public VisitActivity, public IRoutine
 	std::vector<BuildingVisit> visits;
 
 	size_t cursor = 0; ///< index of the next pair to visit
+
+	/// Town whose buildings are being walked. Not a visited object: entering the town is a
+	/// separate MapObjectVisitActivity, and a building may also be visited from the town
+	/// screen with no such visit around.
+	ObjectInstanceID town;
 
 	/// Building whose visit is in progress. Activities above belong to the building and
 	/// not to the town, so results are reported to the building.

@@ -192,7 +192,7 @@ public:
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	const CGObjectInstance * getVisitingObject(const CGHeroInstance *hero);
-	bool isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
+	bool isVisitCoveredByAnotherActivity(const CGHeroInstance *hero) override;
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override;
