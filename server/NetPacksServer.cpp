@@ -254,7 +254,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 
 	const bool resourceTradeDuringBattle = pack.mode == EMarketMode::RESOURCE_RESOURCE
-		&& std::dynamic_pointer_cast<BattleActivity>(gh.activities->topActivity(pack.player));
+		&& gh.activities->activityAs<BattleActivity>(gh.activities->topActivity(pack.player)) != nullptr;
 
 	gh.throwIfWrongPlayer(connection, &pack);
 	if(resourceTradeDuringBattle)

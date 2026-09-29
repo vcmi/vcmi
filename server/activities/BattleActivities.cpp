@@ -29,7 +29,7 @@ bool BattleActivity::hasPendingBattleOrVisitActivities() const
 	return std::any_of(players.begin(), players.end(), [this](const PlayerColor & player)
 	{
 		auto top = owner->topActivity(player);
-		return top.get() == this || std::dynamic_pointer_cast<MapObjectVisitActivity>(top);
+		return top.get() == this || owner->activityAs<MapObjectVisitActivity>(top) != nullptr;
 	});
 }
 

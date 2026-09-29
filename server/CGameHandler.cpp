@@ -1217,7 +1217,7 @@ void CGameHandler::showScriptDialog(BlockingDialog * iw)
 {
 	// The dialog is placed above the paused script activity. Its reply is stored there and
 	// read when the script activity is exposed and resumes the coroutine.
-	auto scriptActivity = std::dynamic_pointer_cast<LuaScriptActivity>(activities->topActivity(iw->player));
+	auto * scriptActivity = activities->activityAs<LuaScriptActivity>(activities->topActivity(iw->player));
 	if(!scriptActivity)
 	{
 		logGlobal->error("showScriptDialog called without an active script activity for player %s", iw->player.toString());
