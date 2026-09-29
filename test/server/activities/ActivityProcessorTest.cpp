@@ -1400,7 +1400,7 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	EXPECT_GE(levelUpsAnswered, 1);
 
 	// None of those level-ups belongs to the object's reward pipeline, so the object must
-	// not be notified, otherwise heroLevelUpDone() grants the reward once more for each.
+	// not be notified, otherwise experienceApplied() grants the reward once more for each.
 	EXPECT_EQ(rewardsGranted(), 1u);
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }

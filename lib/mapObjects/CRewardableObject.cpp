@@ -74,7 +74,7 @@ void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHer
 	}
 }
 
-void CRewardableObject::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
+void CRewardableObject::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
 {
 	// The tag is the reward that was in progress when the level-up interrupted it
 	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), this, hero);

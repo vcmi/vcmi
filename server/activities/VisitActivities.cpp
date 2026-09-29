@@ -111,7 +111,7 @@ void MapObjectVisitActivity::applyDeferredLevelUps()
 void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
 	// A level-up in the DeferredLevelUps step comes from battle experience, not from the
-	// object's reward. Reporting it to the object would call heroLevelUpDone() again and
+	// object's reward. Reporting it to the object would call experienceApplied() again and
 	// grant the reward twice.
 	if(activeStep != Step::DeferredLevelUps)
 	{

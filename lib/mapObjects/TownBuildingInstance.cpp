@@ -137,7 +137,7 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 	}
 }
 
-void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
+void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
 {
 	// The tag is the reward that was in progress when the level-up interrupted it
 	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), town, hero);
