@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "ControllerActionButton.h"
+#include "ControllerPrompt.h"
 
 #include "../GameEngine.h"
 #include "events/InputHandler.h"
@@ -29,45 +30,24 @@ const Point promptSpritePosition(12, 4);
 constexpr int promptTextLeft = 44;
 constexpr int promptTextWidth = 68;
 
-enum class PromptState
-{
-	NORMAL,
-	PRESSED,
-	DISABLED
-};
+using PromptState = ControllerPrompt::State;
 
-std::optional<std::string> resolvePromptSprite(ControllerPrompt::Family family,
+std::optional<ControllerPrompt::Glyph> resolvePromptSprite(ControllerPrompt::Family family,
 	const std::vector<std::string> & bindings, PromptState state)
 {
-	if(family == ControllerPrompt::Family::UNKNOWN || bindings.size() != 1
-		|| (bindings.front() != "a" && bindings.front() != "b"))
+	auto glyph = ControllerPrompt::resolve(family, bindings, state);
+	// Keep the existing M2 footprint and original-button fallback for wider remaps.
+	if(glyph && (glyph->source.w > 24 || glyph->source.h > 24))
 		return std::nullopt;
-
-	const std::string familyPrefix = family == ControllerPrompt::Family::PLAYSTATION ? "playstation" : "xbox";
-
-	std::string stateSuffix;
-	switch(state)
-	{
-	case PromptState::NORMAL:
-		stateSuffix = "normal";
-		break;
-	case PromptState::PRESSED:
-		stateSuffix = "pressed";
-		break;
-	case PromptState::DISABLED:
-		stateSuffix = "disabled";
-		break;
-	}
-
-	return "controllerActionBar/" + familyPrefix + "-" + bindings.front() + "-" + stateSuffix + ".png";
+	return glyph;
 }
 
 }
 
 class CControllerActionButton::PromptOverlay final : public CIntObject
 {
-	std::shared_ptr<IImage> sprite;
-	std::optional<std::string> spriteName;
+	ControllerPrompt::Renderer renderer;
+	std::optional<ControllerPrompt::Glyph> glyph;
 	std::string text;
 
 public:
@@ -82,23 +62,17 @@ public:
 		text = newText;
 	}
 
-	void setPresentation(const std::optional<std::string> & newSpriteName)
+	void setPresentation(const std::optional<ControllerPrompt::Glyph> & presentation)
 	{
-		if(spriteName != newSpriteName)
-		{
-			spriteName = newSpriteName;
-			sprite = spriteName
-				? ENGINE->renderHandler().loadImage(ImagePath::builtin(*spriteName), EImageBlitMode::COLORKEY)
-				: nullptr;
-		}
+		glyph = presentation;
 	}
 
 	void showAll(Canvas & to) override
 	{
-		if(!sprite)
+		if(!glyph)
 			return;
 
-		to.draw(sprite, pos.topLeft() + promptSpritePosition);
+		renderer.draw(to, *glyph, pos.topLeft() + promptSpritePosition);
 
 		const auto & font = ENGINE->renderHandler().loadFont(EFonts::FONT_SMALL);
 		const int textTop = pos.y + (pos.h - static_cast<int>(font->getLineHeight())) / 2;

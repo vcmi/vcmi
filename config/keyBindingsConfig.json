@@ -78,6 +78,9 @@
 		"battleToggleMouseShadow":  "F7",
 		"battleToggleMovementShadow": "F8",
 		"battleToggleStackInfo":     "F5",
+		"battleToggleCursorMode":    [],
+		"battlePreviousAttackDirection": [],
+		"battleNextAttackDirection": [],
 		"battleSpellShortcut0":     "1",
 		"battleSpellShortcut1":     "2",
 		"battleSpellShortcut2":     "3",
@@ -309,6 +312,9 @@
 		"adventureViewSelected" : "a",
 		"adventureExitWorldView" : [ "a", "b" ],
 		"battleTacticsEnd" : "a",
+		"battleToggleCursorMode" : { "default" : "back", "playstation" : "touchpad" },
+		"battlePreviousAttackDirection" : "leftshoulder",
+		"battleNextAttackDirection" : "rightshoulder",
 		
 		"mouseClickLeft": "x",
 		"mouseClickRight": "y",
@@ -327,7 +333,7 @@
 		"battleCastSpell" : "righttrigger",
 		
 		"adventureEndTurn" : "back",
-		"battleAutocombatEnd" : "back",
+		"battleAutocombatEnd" : [],
 		
 		"globalOptions" : "start",
 		"adventureGameOptions" : "start",

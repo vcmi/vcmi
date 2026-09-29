@@ -18,6 +18,7 @@ public:
 	~CArtifactsOfHeroMain() override;
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
+	void keyCanceled(EShortcut key) override;
 
 private:
 	static constexpr std::array costumeSaveShortcuts = {

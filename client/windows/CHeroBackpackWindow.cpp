@@ -110,6 +110,11 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	pos.h = stretchedBackground->pos.h = arts->pos.h + windowMargin;
 }
 
+void CHeroQuickBackpackWindow::gestureCanceled()
+{
+	close();
+}
+
 void CHeroQuickBackpackWindow::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if(on)
