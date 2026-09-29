@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1532"/>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat úroveň</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -1160,14 +1160,16 @@ Pro nejlepší zážitek doporučujeme používat editor map na tabletu (nebo s 
     <message>
         <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tato mapa již má maximální počet úrovní podporovaný editorem.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte typ nové úrovně.
+
+Varování: Přidané úrovně nelze odstranit.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1593"/>
@@ -5152,7 +5154,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Obsadit všechny doly</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
