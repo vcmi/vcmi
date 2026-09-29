@@ -23,7 +23,9 @@ std::string toString(ActivityType type)
 		case ActivityType::BlockingDialog:         return "BlockingDialog";
 		case ActivityType::GarrisonDialog:         return "GarrisonDialog";
 		case ActivityType::TeleportDialog:         return "TeleportDialog";
+		case ActivityType::HeroLevelUp:            return "HeroLevelUp";
 		case ActivityType::HeroLevelUpDialog:      return "HeroLevelUpDialog";
+		case ActivityType::CommanderLevelUpDialog: return "CommanderLevelUpDialog";
 		case ActivityType::OpenWindow:             return "OpenWindow";
 		case ActivityType::MapObjectVisit:         return "MapObjectVisit";
 		case ActivityType::TownBuildingVisit:      return "TownBuildingVisit";

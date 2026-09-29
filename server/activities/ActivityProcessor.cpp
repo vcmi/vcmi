@@ -289,46 +289,6 @@ bool ActivityProcessor::advanceRoutines()
 	return changedAnything;
 }
 
-bool ActivityProcessor::advanceInteractions()
-{
-	bool changedAnything = false;
-
-	for(size_t idx = 0; idx < activities.size(); ++idx)
-	{
-		const PlayerColor player(static_cast<int32_t>(idx));
-
-		auto top = topActivity(player);
-		if(!top)
-			continue;
-
-		auto * interaction = top->asInteraction();
-		if(!interaction || top->isAnswered())
-			continue;
-
-		if(top->hasOutstandingQuestion())
-			continue;
-
-		switch(interaction->askNextQuestion())
-		{
-			case PromptResult::Asked:
-				changedAnything = true;
-				break;
-
-			case PromptResult::Finished:
-				// Interaction affects a single player, so only one stack is unwound
-				assert(top->players.size() == 1);
-				popActivity(player, top);
-				changedAnything = true;
-				break;
-
-			case PromptResult::NotReady:
-				break;
-		}
-	}
-
-	return changedAnything;
-}
-
 bool ActivityProcessor::resolveAnsweredActivities()
 {
 	bool changedAnything = false;
@@ -441,10 +401,6 @@ void ActivityProcessor::settle()
 		if(advanceRoutines())
 			continue;
 
-		// An interaction may still have questions to ask
-		if(advanceInteractions())
-			continue;
-
 		// Queued work starts only once the player has nothing left to do
 		if(promoteWaitingActivities())
 			continue;
@@ -487,18 +443,6 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	// without a value
 	if(!reply.has_value() && !activity->acceptsAnswerWithoutValue())
 		return ReplyOutcome::RejectedMissingAnswer;
-
-	if(auto * interaction = activity->asInteraction())
-	{
-		// An interaction is not finished by an answer since it may have more to ask, so
-		// remember the question to recognize a repeated answer as stale instead of taking
-		// it for an answer to the next question
-		const QuestionID answered = activity->getActiveQuestionID();
-		rememberCompleted(player, answered);
-		activity->activeQuestionID = QuestionID::NONE;
-		interaction->applyAnswer(answered, reply);
-		return ReplyOutcome::Accepted;
-	}
 
 	activity->setReply(reply);
 	activity->answeredBy = player;

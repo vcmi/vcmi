@@ -229,149 +229,110 @@ TeleportDialogActivity::TeleportDialogActivity(CGameHandler * owner, const Telep
 	addPlayer(gh->gameInfo().getHero(dialog.hero)->getOwner());
 }
 
-LevelUpActivity::LevelUpActivity(CGameHandler * owner, const CGHeroInstance * hero)
+LevelUpRoutine::LevelUpRoutine(CGameHandler * owner, const CGHeroInstance * hero)
 	: Activity(owner, TYPE), hero(hero->id)
 {
 	addPlayer(hero->tempOwner);
 }
 
-bool LevelUpActivity::endsByPlayerAnswer() const
-{
-	return true;
-}
-
-bool LevelUpActivity::blocksPack(const CPackForServer * pack) const
+bool LevelUpRoutine::blocksPack(const CPackForServer * pack) const
 {
 	return blockAllButReply(pack);
 }
 
-PromptResult LevelUpActivity::askNextQuestion()
+StepResult LevelUpRoutine::advance()
 {
-	if(phase == Phase::Hero)
-	{
-		auto result = askHeroLevelUp();
-		if(result != PromptResult::Finished)
-			return result;
-
-		phase = Phase::Commander;
-	}
-
-	if(phase == Phase::Commander)
-	{
-		auto result = askCommanderLevelUp();
-		if(result != PromptResult::Finished)
-			return result;
-
-		phase = Phase::Finished;
-	}
-
-	return PromptResult::Finished;
-}
-
-PromptResult LevelUpActivity::askHeroLevelUp()
-{
-	const auto * levellingHero = gh->gameInfo().getHero(hero);
-
-	if(!levellingHero || !levellingHero->gainsLevel())
-		return PromptResult::Finished;
-
-	// The dialog is sent only once the player's interface can show it. The level is not
-	// applied until then, so gainsLevel() stays true and this is retried later.
-	if(!gh->uiReadyForDialogs.contains(players.front()))
-		return PromptResult::NotReady;
-
-	auto levelUp = gh->rollHeroLevelUp(levellingHero);
-	offeredHeroSkills = levelUp.skills;
-
-	levelUp.questionID = askQuestion();
-	gh->sendAndApply(levelUp);
-
-	return PromptResult::Asked;
-}
-
-PromptResult LevelUpActivity::askCommanderLevelUp()
-{
-	const auto * levellingHero = gh->gameInfo().getHero(hero);
-
-	if(!levellingHero || !levellingHero->getCommander() || !levellingHero->getCommander()->gainsLevel())
-		return PromptResult::Finished;
-
-	if(!gh->uiReadyForDialogs.contains(players.front()))
-		return PromptResult::NotReady;
-
-	auto levelUp = gh->rollCommanderLevelUp(levellingHero->getCommander());
-	if(!levelUp)
-		return PromptResult::Finished;
-
-	offeredCommanderSkills = levelUp->skills;
-
-	levelUp->questionID = askQuestion();
-	gh->sendAndApply(*levelUp);
-
-	return PromptResult::Asked;
-}
-
-void LevelUpActivity::applyAnswer(QuestionID answered, std::optional<int32_t> answer)
-{
-	// Resolve the answered question before the next one is sent: the client keeps its dialog
-	// open until that question is reported as resolved, and expects it before the next one.
-	if(answered.hasValue())
-		gh->sendQuestionResolved(answered);
-
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 	if(!levellingHero)
-		return;
+		return StepResult::Done;
 
-	if(phase == Phase::Hero)
+	const auto * commander = levellingHero->getCommander();
+	const bool heroLevels = levellingHero->gainsLevel();
+	const bool commanderLevels = commander && commander->gainsLevel();
+
+	if(!heroLevels && !commanderLevels)
+		return StepResult::Done;
+
+	// Hero levels first, in the order in which the game applies them
+	if(heroLevels)
 	{
-		if(offeredHeroSkills.empty())
-		{
-			logGlobal->trace("%s gains no secondary skill", levellingHero->getNameTextID());
-		}
-		else if(answer && *answer >= 0 && *answer < static_cast<int32_t>(offeredHeroSkills.size()))
-		{
-			logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
-			gh->applyHeroLevelUp(levellingHero, offeredHeroSkills.at(*answer));
-		}
-		else
-		{
-			logGlobal->warn("Invalid secondary skill %d chosen for %s - granting none",
-				answer.value_or(-1), levellingHero->getNameTextID());
-		}
-
-		offeredHeroSkills.clear();
-		return;
+		owner->addActivity(std::make_shared<HeroLevelUpPrompt>(gh, levellingHero, gh->rollHeroLevelUp(levellingHero)));
+		return StepResult::Continue;
 	}
 
-	if(offeredCommanderSkills.empty())
+    owner->addActivity(std::make_shared<CommanderLevelUpPrompt>(gh, levellingHero, gh->rollCommanderLevelUp(commander)));
+	return StepResult::Continue;
+}
+
+void LevelUpRoutine::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+{
+	visitedObject->heroLevelUpDone(*gh, visitingHero, continuationTag);
+}
+
+HeroLevelUpPrompt::HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled)
+	: DialogActivity(owner, TYPE), hero(hero->id), levelUp(rolled)
+{
+	addPlayer(hero->tempOwner);
+}
+
+void HeroLevelUpPrompt::onAdded(PlayerColor color)
+{
+	levelUp.questionID = askQuestion();
+	gh->sendAndApply(levelUp);
+}
+
+void HeroLevelUpPrompt::onRemoval(PlayerColor color)
+{
+	// The client keeps its window open until the question it was given is reported resolved,
+	// and expects that before the next one of the chain arrives.
+	gh->sendQuestionResolved(getActiveQuestionID());
+
+	const auto * levellingHero = gh->gameInfo().getHero(hero);
+	if(!levellingHero || levelUp.skills.empty())
+		return;
+
+	if(answer && *answer < levelUp.skills.size())
 	{
-		logGlobal->trace("Commander of %s gains no skill", levellingHero->getNameTextID());
+		logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
+		gh->applyHeroLevelUp(levellingHero, levelUp.skills.at(*answer));
 	}
-	else if(answer && *answer >= 0 && *answer < static_cast<int32_t>(offeredCommanderSkills.size()))
+	else
+	{
+		logGlobal->warn("Invalid secondary skill %d chosen for %s - granting none",
+			answer ? static_cast<int>(*answer) : -1, levellingHero->getNameTextID());
+	}
+}
+
+CommanderLevelUpPrompt::CommanderLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const CommanderLevelUp & rolled)
+	: DialogActivity(owner, TYPE), hero(hero->id), levelUp(rolled)
+{
+	addPlayer(hero->tempOwner);
+}
+
+void CommanderLevelUpPrompt::onAdded(PlayerColor color)
+{
+	levelUp.questionID = askQuestion();
+	gh->sendAndApply(levelUp);
+}
+
+void CommanderLevelUpPrompt::onRemoval(PlayerColor color)
+{
+	gh->sendQuestionResolved(getActiveQuestionID());
+
+	const auto * levellingHero = gh->gameInfo().getHero(hero);
+	if(!levellingHero || !levellingHero->getCommander() || levelUp.skills.empty())
+		return;
+
+	if(answer && *answer < levelUp.skills.size())
 	{
 		logGlobal->trace("Commander of %s gains skill %d", levellingHero->getNameTextID(), *answer);
-		gh->applyCommanderLevelUp(levellingHero->getCommander(), offeredCommanderSkills.at(*answer));
+		gh->applyCommanderLevelUp(levellingHero->getCommander(), levelUp.skills.at(*answer));
 	}
 	else
 	{
 		logGlobal->warn("Invalid commander skill %d chosen for %s - granting none",
-			answer.value_or(-1), levellingHero->getNameTextID());
+			answer ? static_cast<int>(*answer) : -1, levellingHero->getNameTextID());
 	}
-
-	offeredCommanderSkills.clear();
-}
-
-void LevelUpActivity::onRemoval(PlayerColor color)
-{
-	// A question is still outstanding if the activity was removed without being answered,
-	// which would leave the client's dialog open.
-	if(hasOutstandingQuestion())
-		gh->sendQuestionResolved(getActiveQuestionID());
-}
-
-void LevelUpActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
-{
-	visitedObject->heroLevelUpDone(*gh, visitingHero, continuationTag);
 }
 
 HeroMovementActivity::HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):

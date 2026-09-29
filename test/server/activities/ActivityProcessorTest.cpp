@@ -1590,8 +1590,8 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 // --------------------------------------------------------------------------------
 // Repeated questions.
 //
-// A hero can gain several levels from one reward. One activity asks about each of them,
-// so the player can not act between levels and the activity below is notified only once.
+// A hero can gain several levels from one reward. One routine asks about each of them in
+// turn, so the player can not act between levels and the activity below is notified once.
 // --------------------------------------------------------------------------------
 
 namespace
@@ -1611,7 +1611,7 @@ protected:
 };
 }
 
-TEST_F(LevelUpActivityTest, severalLevelsAreAskedAboutByOneActivityThatStaysOnTheStack)
+TEST_F(LevelUpActivityTest, severalLevelsAreAskedAboutByOneRoutineThatStaysOnTheStack)
 {
 	const PlayerColor player(0);
 	buildHeroAboutToLevel(999);
@@ -1621,22 +1621,23 @@ TEST_F(LevelUpActivityTest, severalLevelsAreAskedAboutByOneActivityThatStaysOnTh
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
-	gameHandler.onAdvInterfaceReady(player);
 
 	const int levelBefore = hero->level;
 	gameHandler.giveExperience(hero, 100000); // worth several levels at once
 
-	auto activity = gameHandler.activities->topActivity(player);
-	ASSERT_NE(activity, nullptr);
-	ASSERT_EQ(activity->getType(), ActivityType::HeroLevelUpDialog);
+	auto * routine = gameHandler.activities->findSoleActivity<LevelUpRoutine>(player);
+	ASSERT_NE(routine, nullptr);
 
 	std::set<QuestionID> questionsAsked;
 	int answers = 0;
 
 	while(auto pending = gameHandler.activities->topActivity(player))
 	{
-		// Always the same activity object, however many times it asks
-		ASSERT_EQ(pending, activity) << "a second activity was pushed instead of asking again";
+		ASSERT_EQ(pending->getType(), ActivityType::HeroLevelUpDialog);
+
+		// Always the same routine underneath, however many prompts it puts on top
+		ASSERT_EQ(gameHandler.activities->findSoleActivity<LevelUpRoutine>(player), routine)
+			<< "the chain was driven by more than one routine";
 
 		const auto questionID = pending->getActiveQuestionID();
 		EXPECT_TRUE(questionsAsked.insert(questionID).second) << "a question id was reused";
@@ -1658,53 +1659,30 @@ TEST_F(LevelUpActivityTest, answerNamingASupersededQuestionIsIgnored)
 	auto * hero = findHeroByOwner(player);
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
-	gameHandler.onAdvInterfaceReady(player);
 
 	gameHandler.giveExperience(hero, 100000);
 
-	auto activity = gameHandler.activities->topActivity(player);
-	ASSERT_NE(activity, nullptr);
+	auto * routine = gameHandler.activities->findSoleActivity<LevelUpRoutine>(player);
+	ASSERT_NE(routine, nullptr);
 
-	const auto firstQuestion = activity->getActiveQuestionID();
+	auto prompt = gameHandler.activities->topActivity(player);
+	ASSERT_NE(prompt, nullptr);
+
+	const auto firstQuestion = prompt->getActiveQuestionID();
 	ASSERT_EQ(gameHandler.activities->submitReply(firstQuestion, player, 0), ReplyOutcome::Accepted);
 
-	// The next question is now outstanding, the previous one is stale
-	ASSERT_EQ(gameHandler.activities->topActivity(player), activity);
-	ASSERT_NE(activity->getActiveQuestionID(), firstQuestion);
+	// The next level is now being asked about, the previous question is stale
+	auto nextPrompt = gameHandler.activities->topActivity(player);
+	ASSERT_NE(nextPrompt, nullptr);
+	ASSERT_NE(nextPrompt, prompt);
+	ASSERT_NE(nextPrompt->getActiveQuestionID(), firstQuestion);
 
 	EXPECT_EQ(gameHandler.activities->submitReply(firstQuestion, player, 0),
 		ReplyOutcome::IgnoredAlreadyCompleted);
 
-	// Naming the activity instead of the question is not expressible: ActivityID is a
-	// distinct type and can not be passed here.
-
-	// Neither stale answer consumed the outstanding question.
-	EXPECT_EQ(gameHandler.activities->topActivity(player), activity);
-}
-
-TEST_F(LevelUpActivityTest, nothingIsAskedBeforeThePlayersInterfaceIsReady)
-{
-	const PlayerColor player(0);
-	buildHeroAboutToLevel(999);
-
-	auto * hero = findHeroByOwner(player);
-	GameHandlerTestServer server(gameState(), player);
-	CGameHandler gameHandler(server, gameState());
-
-	// Deliberately no onAdvInterfaceReady().
-	gameHandler.giveExperience(hero, 10);
-
-	auto activity = gameHandler.activities->topActivity(player);
-	ASSERT_NE(activity, nullptr);
-	EXPECT_FALSE(activity->hasOutstandingQuestion()) << "asked before the client could show it";
-
-	// The level is applied by the dialog pack, so it is still pending too.
-	EXPECT_TRUE(hero->gainsLevel());
-
-	gameHandler.onAdvInterfaceReady(player);
-
-	EXPECT_TRUE(activity->hasOutstandingQuestion());
-	EXPECT_FALSE(hero->gainsLevel());
+	// The stale answer consumed neither the outstanding question nor the routine below.
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nextPrompt);
+	EXPECT_EQ(gameHandler.activities->findSoleActivity<LevelUpRoutine>(player), routine);
 }
 
 TEST_F(LevelUpActivityTest, everyQuestionSentToTheClientIsReportedResolved)

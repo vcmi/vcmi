@@ -29,7 +29,9 @@ enum class ActivityType : uint8_t
 	BlockingDialog,
 	GarrisonDialog,
 	TeleportDialog,
+	HeroLevelUp,
 	HeroLevelUpDialog,
+	CommanderLevelUpDialog,
 	OpenWindow,
 	MapObjectVisit,
 	TownBuildingVisit,
@@ -51,9 +53,10 @@ enum class StepResult : uint8_t
 	Done ///< Nothing left to do, the processor removes the routine
 };
 
-/// Implemented by activities that are multi-step server-side work instead of questions to
-/// a player: object visit, town building visit, hero movement. The processor calls advance()
-/// until it returns Done, suspending the routine whenever a step pushes a child activity.
+/// Implemented by activities that are multi-step server-side work instead of a single
+/// question to a player: object visit, town building visit, a chain of level-ups. The
+/// processor calls advance() until it returns Done, suspending the routine whenever a
+/// step pushes a child activity.
 ///
 /// State needed to resume must be kept in members of the routine, restricted to plain data
 /// and object IDs: a pointer into the game state may dangle by the time the routine resumes.
@@ -67,33 +70,6 @@ public:
 
 	/// Called before the next advance() when a child activity pushed by an earlier step is done.
 	virtual void onChildCompleted(const ActivityPtr & child) {}
-};
-
-/// Outcome of asking a player the next question of an interaction.
-enum class PromptResult : uint8_t
-{
-	Asked, ///< Question was sent, the interaction waits for the answer
-	NotReady, ///< More to ask, but the player's interface can not show a dialog yet, retried later
-	Finished ///< Everything has been asked and answered, the processor removes the interaction
-};
-
-/// Implemented by activities that ask a player one or more questions. A dialog asks once;
-/// a hero gaining several levels at once asks once per level without leaving the stack, so
-/// that the player can not act in between and the activity below is notified only at the end.
-///
-/// Each question has its own id, separate from the activity id, so that an answer to a
-/// superseded question can be distinguished from an answer to the current one.
-class IInteraction
-{
-public:
-	virtual ~IInteraction() = default;
-
-	/// Ask the next question, if there is one and the player can receive it.
-	virtual PromptResult askNextQuestion() = 0;
-
-	/// Apply an answer to the question it names, which is no longer the outstanding one by
-	/// the time this is called.
-	virtual void applyAnswer(QuestionID answered, std::optional<int32_t> answer) = 0;
 };
 
 // Any kind of prolonged interaction that may need to do something special once it is over.
@@ -153,9 +129,6 @@ public:
 
 	/// Non-null for activities that the processor should drive step by step.
 	virtual IRoutine * asRoutine() { return nullptr; }
-
-	/// Non-null for activities that ask questions to a player.
-	virtual IInteraction * asInteraction() { return nullptr; }
 
 	/// The question that the player was last asked and has not answered yet, if any.
 	/// Answers from the player identify this id, never the activity.

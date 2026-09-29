@@ -161,33 +161,16 @@ HeroLevelUp CGameHandler::rollHeroLevelUp(const CGHeroInstance * hero)
 	return hlu;
 }
 
-void CGameHandler::levelUpHero(const CGHeroInstance * hero)
+void CGameHandler::levelUpHeroAutomatically(const CGHeroInstance * hero)
 {
-	// required exp for at least 1 lvl-up hasn't been reached
-	if (!hero->gainsLevel())
+	while(hero->gainsLevel())
 	{
-		levelUpCommander(hero->getCommander());
-		return;
+		auto hlu = rollHeroLevelUp(hero);
+		sendAndApply(hlu);
+
+		if(!hlu.skills.empty())
+			applyHeroLevelUp(hero, hlu.skills.front());
 	}
-
-	if (!hero->getOwner().isValidPlayer())
-	{
-		// No player to ask, so roll and pick automatically for every gained level
-		while(hero->gainsLevel())
-		{
-			auto hlu = rollHeroLevelUp(hero);
-			sendAndApply(hlu);
-
-			if(!hlu.skills.empty())
-				applyHeroLevelUp(hero, hlu.skills.front());
-		}
-
-		levelUpCommander(hero->getCommander());
-		return;
-	}
-
-	// A single activity asks about every gained level, and about the commander afterwards
-	activities->addActivity(std::make_shared<LevelUpActivity>(this, hero));
 }
 
 void CGameHandler::applyCommanderLevelUp(const CCommanderInstance * c, int skill)
@@ -275,16 +258,13 @@ void CGameHandler::applyCommanderLevelUp(const CCommanderInstance * c, int skill
 	}
 }
 
-std::optional<CommanderLevelUp> CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c)
+CommanderLevelUp CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c)
 {
 	CommanderLevelUp clu;
 
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
 	if(!hero)
-	{
-		complain ("Commander is not led by hero!");
-		return std::nullopt;
-	}
+        throw std::runtime_error("Commander is not led by hero!");
 
 	clu.heroId = hero->id;
 	clu.player = hero->tempOwner;
@@ -309,48 +289,37 @@ std::optional<CommanderLevelUp> CGameHandler::rollCommanderLevelUp(const CComman
 	return clu;
 }
 
-void CGameHandler::levelUpCommander(const CCommanderInstance * c)
+void CGameHandler::levelUpCommanderAutomatically(const CCommanderInstance * c)
 {
-	// Callers pass a hero's commander without checking, since most heroes have none
-	if (!c || !c->gainsLevel())
-		return;
-
-	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
-	if(!hero)
+	while(c->gainsLevel())
 	{
-		complain ("Commander is not led by hero!");
-		return;
+		auto clu = rollCommanderLevelUp(c);
+
+        sendAndApply(clu);
+
+        if(!clu.skills.empty())
+            applyCommanderLevelUp(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
 	}
-
-	if (!hero->getOwner().isValidPlayer()) //choose skill automatically
-	{
-		while(c->gainsLevel())
-		{
-			auto clu = rollCommanderLevelUp(c);
-			if(!clu)
-				return;
-
-			sendAndApply(*clu);
-
-			if(!clu->skills.empty())
-				applyCommanderLevelUp(c, *RandomGeneratorUtil::nextItem(clu->skills, getRandomGenerator()));
-		}
-		return;
-	}
-
-	activities->addActivity(std::make_shared<LevelUpActivity>(this, hero));
 }
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
-	// pending level-up dialog continues the chain once answered
-	if (queries->findQuery<CHeroLevelUpDialogQuery>([hero](const CHeroLevelUpDialogQuery & query) { return query.hero == hero; }))
+	const auto * commander = hero->getCommander();
+
+	if(!hero->gainsLevel() && !(commander && commander->gainsLevel()))
 		return;
 
-	if (hero->gainsLevel())
-		levelUpHero(hero);
-	else
-		levelUpCommander(hero->getCommander());
+	// No player to ask, so roll and pick automatically for every gained level
+	if(!hero->getOwner().isValidPlayer())
+	{
+		levelUpHeroAutomatically(hero);
+		if(commander)
+			levelUpCommanderAutomatically(commander);
+		return;
+	}
+
+	// A single routine asks about every gained level, and about the commander afterwards
+	activities->addActivity(std::make_shared<LevelUpRoutine>(this, hero));
 }
 
 void CGameHandler::giveStackExperience(const CArmedInstance * army, TExpType val)

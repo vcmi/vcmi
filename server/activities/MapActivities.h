@@ -103,42 +103,53 @@ public:
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
 };
 
-/// Asks a player to pick skills for the levels gained by a hero and then by their
-/// commander. A hero can gain several levels at once, so this asks once per level without
-/// leaving the stack in between: the player can not act between two levels, and the
-/// activity below, usually the visit that granted the experience, is notified only once.
-class LevelUpActivity : public Activity, public IInteraction
+/// Drives the level-ups a hero has pending: one prompt per gained hero level, then one per
+/// gained commander level. Stays on the stack for the whole chain, so the player can not act
+/// between two levels and the activity below, usually the visit that granted the experience,
+/// is notified only once.
+class LevelUpRoutine final : public Activity, public IRoutine
 {
-	/// Hero levels are asked about first, then commander levels, in the order in which
-	/// the game applies them.
-	enum class Phase : uint8_t
-	{
-		Hero,
-		Commander,
-		Finished
-	};
-
-	Phase phase = Phase::Hero;
+	/// Stored as id: the routine outlives every prompt it pushes.
 	ObjectInstanceID hero;
 
-	/// Skills offered by the outstanding question, to map an answer back to a skill.
-	std::vector<SecondarySkill> offeredHeroSkills;
-	std::vector<ui32> offeredCommanderSkills;
+public:
+	static constexpr ActivityType TYPE = ActivityType::HeroLevelUp;
 
-	PromptResult askHeroLevelUp();
-	PromptResult askCommanderLevelUp();
+	LevelUpRoutine(CGameHandler * owner, const CGHeroInstance * hero);
+
+	IRoutine * asRoutine() final { return this; }
+	StepResult advance() final;
+
+	bool blocksPack(const CPackForServer * pack) const final;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const final;
+};
+
+/// Asks a player which secondary skill a hero gains for one level, and grants it.
+class HeroLevelUpPrompt final : public DialogActivity
+{
+	ObjectInstanceID hero;
+	HeroLevelUp levelUp; ///< the pack sent to the player; its skills map the answer back to a skill
 
 public:
 	static constexpr ActivityType TYPE = ActivityType::HeroLevelUpDialog;
 
-	LevelUpActivity(CGameHandler * owner, const CGHeroInstance * hero);
+	HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled);
 
-	IInteraction * asInteraction() final { return this; }
-	PromptResult askNextQuestion() final;
-	void applyAnswer(QuestionID answered, std::optional<int32_t> answer) final;
-
-	bool endsByPlayerAnswer() const final;
-	bool blocksPack(const CPackForServer * pack) const final;
+	void onAdded(PlayerColor color) final;
 	void onRemoval(PlayerColor color) final;
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const final;
+};
+
+/// Asks a player which skill a hero's commander gains for one level, and grants it.
+class CommanderLevelUpPrompt final : public DialogActivity
+{
+	ObjectInstanceID hero;
+	CommanderLevelUp levelUp; ///< the pack sent to the player; its skills map the answer back to a skill
+
+public:
+	static constexpr ActivityType TYPE = ActivityType::CommanderLevelUpDialog;
+
+	CommanderLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const CommanderLevelUp & rolled);
+
+	void onAdded(PlayerColor color) final;
+	void onRemoval(PlayerColor color) final;
 };
