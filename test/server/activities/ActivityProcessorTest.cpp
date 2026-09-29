@@ -1830,6 +1830,52 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }
 
+TEST_F(MapObjectVisitTest, aRewardWithTooLittleExperienceStillGrantsItsSecondHalf)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// Experience far too little to gain a level, so nothing interrupts the reward
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	auto & reward = pandora->configuration.info.at(0).reward;
+	reward.heroExperience = 1;
+	reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+
+	auto rewardsGranted = [&]()
+	{
+		return hero->getBonuses([](const Bonus * b)
+		{
+			return b->type == BonusType::MORALE && b->source == BonusSource::OBJECT_TYPE;
+		})->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.activities->topActivity(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(dialog->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	// No level was gained, so the whole reward is applied and the visit is over
+	EXPECT_EQ(rewardsGranted(), 1u);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+}
+
 /// Records the object that it was notified about on completion.
 class NotifyRecordingActivity : public Activity
 {

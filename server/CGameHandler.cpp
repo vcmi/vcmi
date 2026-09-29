@@ -304,21 +304,19 @@ void CGameHandler::levelUpCommanderAutomatically(const CCommanderInstance * c)
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
-	const auto * commander = hero->getCommander();
-
-	if(!hero->gainsLevel() && !(commander && commander->gainsLevel()))
-		return;
-
-	// No player to ask, so roll and pick automatically for every gained level
+	// An owner-less hero has nobody to ask and is never inside a visit, so no activity is
+	// created for him - the processor has no stack to put one on
 	if(!hero->getOwner().isValidPlayer())
 	{
 		levelUpHeroAutomatically(hero);
-		if(commander)
+		if(const auto * commander = hero->getCommander())
 			levelUpCommanderAutomatically(commander);
 		return;
 	}
 
-	// A single routine asks about every gained level, and about the commander afterwards
+	// A single routine asks about every gained level, and about the commander afterwards.
+	// Added even when nothing levels: whoever granted the experience is told when the
+	// routine finishes, and must be told in that case too.
 	activities->addActivity(std::make_shared<LevelUpRoutine>(this, hero));
 }
 
