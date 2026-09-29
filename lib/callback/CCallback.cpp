@@ -377,6 +377,11 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 	return gameState().getMap().canMoveBetween(a, b);
 }
 
+bool CCallback::isContactAllowed(PlayerColor color1, PlayerColor color2) const
+{
+	return gameState().isContactAllowed(color1, color2);
+}
+
 std::optional<PlayerColor> CCallback::getPlayerID() const
 {
 	return CBattleCallback::getPlayerID();

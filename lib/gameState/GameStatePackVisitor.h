@@ -62,6 +62,7 @@ public:
 	void visitDischargeArtifact(DischargeArtifact & pack) override;
 	void visitHeroVisit(HeroVisit & pack) override;
 	void visitNewTurn(NewTurn & pack) override;
+	void visitSimturnsContactStatus(SimturnsContactStatus & pack) override;
 	void visitGiveBonus(GiveBonus & pack) override;
 	void visitChangeObjPos(ChangeObjPos & pack) override;
 	void visitPlayerEndsTurn(PlayerEndsTurn & pack) override;

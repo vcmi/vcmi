@@ -198,6 +198,20 @@ bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 	return isObjectPassable(obj, aiNk->playerID, aiNk->cc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
 }
 
+bool canInteractWithObject(const Nullkiller * aiNk, const CGObjectInstance * obj)
+{
+	const PlayerColor targetOwner = obj->getOwner();
+
+	if (!targetOwner.isValidPlayer())
+		return true;
+
+	if (aiNk->cc->getPlayerRelations(targetOwner, aiNk->playerID) != PlayerRelations::ENEMIES)
+		return true;
+
+	// server will reject interaction with objects of players that are still playing simultaneous turns
+	return aiNk->cc->isContactAllowed(targetOwner, aiNk->playerID);
+}
+
 // Pathfinder internal helper
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
@@ -632,6 +646,9 @@ int getDuplicatingSlots(const CArmedInstance * army)
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj)
 {
+	if (!canInteractWithObject(aiNk, obj))
+		return false;
+
 	auto relations = aiNk->cc->getPlayerRelations(obj->tempOwner, hero->tempOwner);
 
 	switch(obj->ID)

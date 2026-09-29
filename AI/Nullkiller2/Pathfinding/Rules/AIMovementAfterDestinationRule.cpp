@@ -14,6 +14,7 @@
 #include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
+#include "../../AIUtility.h"
 #include "../../../../lib/mapObjects/Quest.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
@@ -36,6 +37,18 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
+		// objects of players that AI has not met yet can not be interacted with while simultaneous turns are active,
+		// server rejects such moves, so do not attempt to enter such tiles at all - even to pass through them
+		const CGObjectInstance * interactionTarget = destination.nodeHero ? destination.nodeHero : destination.nodeObject;
+
+		if(interactionTarget && !canInteractWithObject(aiNk, interactionTarget))
+		{
+			destination.blocked = true;
+			destination.node->locked = true;
+
+			return;
+		}
+
 		if(nodeStorage->isMovementInefficient(source, destination))
 		{
 			destination.node->locked = true;

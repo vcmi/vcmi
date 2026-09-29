@@ -87,6 +87,11 @@ void SystemMessage::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSystemMessage(*this);
 }
 
+void SimturnsContactStatus::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSimturnsContactStatus(*this);
+}
+
 void PlayerBlocked::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPlayerBlocked(*this);

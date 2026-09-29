@@ -1164,6 +1164,11 @@ void GameStatePackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pa
 	}
 }
 
+void GameStatePackVisitor::visitSimturnsContactStatus(SimturnsContactStatus & pack)
+{
+	gs.blockedContacts = pack.blockedContacts;
+}
+
 void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 {
 	gs.day = pack.day;

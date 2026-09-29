@@ -67,6 +67,10 @@ class TurnOrderProcessor : boost::noncopyable
 
 	void updateAndNotifyContactStatus();
 
+	/// Sends current blocked contacts to all clients, so that AI can avoid attempting
+	/// to interact with objects of players that it has not met yet
+	void sendContactStatus();
+
 	std::vector<PlayerPair> computeContactStatus() const;
 
 	void doStartNewDay();

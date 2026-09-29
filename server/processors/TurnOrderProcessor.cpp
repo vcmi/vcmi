@@ -101,6 +101,23 @@ void TurnOrderProcessor::updateAndNotifyContactStatus()
 	}
 
 	blockedContacts = newBlockedContacts;
+
+	sendContactStatus();
+}
+
+void TurnOrderProcessor::sendContactStatus()
+{
+	SimturnsContactStatus pack;
+
+	for (const auto & contact : blockedContacts)
+	{
+		if (contact.a < contact.b)
+			pack.blockedContacts.insert({contact.a, contact.b});
+		else
+			pack.blockedContacts.insert({contact.b, contact.a});
+	}
+
+	gameHandler->sendAndApply(pack);
 }
 
 bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
@@ -410,6 +427,8 @@ void TurnOrderProcessor::onGameStarted()
 
 	if (actingPlayers.empty())
 		blockedContacts = computeContactStatus();
+
+	sendContactStatus();
 
 	// this may be game load - send notification to players that they can act
 	auto actingPlayersCopy = actingPlayers;

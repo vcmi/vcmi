@@ -146,6 +146,21 @@ struct DLL_LINKAGE SystemMessage : public CPackForClient
 	}
 };
 
+/// Notification about players that are playing their turns simultaneously without contact yet.
+/// Such players can not interact with objects owned by each other (see TurnOrderProcessor on server)
+struct DLL_LINKAGE SimturnsContactStatus : public CPackForClient
+{
+	/// pairs of players that are still playing simultaneous turns and have not yet made contact
+	std::set<std::pair<PlayerColor, PlayerColor>> blockedContacts;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & blockedContacts;
+	}
+};
+
 struct DLL_LINKAGE PlayerBlocked : public CPackForClient
 {
 	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
