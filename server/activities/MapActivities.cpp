@@ -263,7 +263,7 @@ StepResult LevelUpRoutine::advance()
 
 void LevelUpRoutine::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
 {
-	visitedObject->heroLevelUpDone(*gh, visitingHero, continuationTag);
+	visitedObject->experienceApplied(*gh, visitingHero, continuationTag);
 }
 
 HeroLevelUpPrompt::HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled)
