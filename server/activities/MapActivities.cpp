@@ -257,7 +257,7 @@ StepResult LevelUpRoutine::advance()
 		return StepResult::Continue;
 	}
 
-    owner->addActivity(std::make_shared<CommanderLevelUpPrompt>(gh, levellingHero, gh->rollCommanderLevelUp(commander)));
+	owner->addActivity(std::make_shared<CommanderLevelUpPrompt>(gh, levellingHero, gh->rollCommanderLevelUp(commander)));
 	return StepResult::Continue;
 }
 
