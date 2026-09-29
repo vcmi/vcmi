@@ -72,10 +72,6 @@ private:
 	/// itself by pushing a child. Returns true if anything changed.
 	bool advanceRoutines();
 
-	/// Asks the next question of every interaction at the top of a player's stack and
-	/// removes those with nothing left to ask. Returns true if anything changed.
-	bool advanceInteractions();
-
 	/// Pops every already answered activity at the top of a player's stack. Returns true
 	/// if anything was removed.
 	bool resolveAnsweredActivities();

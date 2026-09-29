@@ -209,12 +209,13 @@ public:
 	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
 	/// Starts a level-up, asking the player about every gained level, or picking skills
 	/// automatically if there is no player to ask.
-	void levelUpHero(const CGHeroInstance * hero);
-	void levelUpCommander (const CCommanderInstance * c);
+	/// Grants every pending level without asking. For heroes that have no player to ask.
+	void levelUpHeroAutomatically(const CGHeroInstance * hero);
+	void levelUpCommanderAutomatically(const CCommanderInstance * c);
 
 	/// Rolls the skills offered by one level and applies the level itself, without asking.
 	HeroLevelUp rollHeroLevelUp(const CGHeroInstance * hero);
-	std::optional<CommanderLevelUp> rollCommanderLevelUp(const CCommanderInstance * c);
+    CommanderLevelUp rollCommanderLevelUp(const CCommanderInstance * c);
 
 	/// Grants the skill chosen for one level, without continuing to the next level.
 	void applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill);
