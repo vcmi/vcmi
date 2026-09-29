@@ -131,16 +131,12 @@ void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGH
 
 void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
 {
-	// Granting experience may open a level-up dialog and suspend the visit here, so the
-	// tag records which reward to continue with once it is answered.
+	// Granting experience hands the visit to the level-up routine, so the tag records which
+	// reward experienceApplied() has to continue with.
 	gameEvents.setContinuationTag(hero, rewardID);
-	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
-	
-	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!gameEvents.isVisitCoveredByAnotherActivity(hero))
-	{
+
+	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
 		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
-	}
 }
 
 bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) const

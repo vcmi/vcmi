@@ -41,7 +41,7 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 	return ret;
 }
 
-void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
+bool Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
 {
 	auto cb = getObject()->cb;
 
@@ -126,8 +126,12 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	if (info.reward.heroExperience > 0)
 		expToGive += hero->calculateXp(info.reward.heroExperience);
 
-	if(expToGive)
-		gameEvents.giveExperience(hero, expToGive);
+	// Nothing else granted here can suspend the visit, so this is the only reason to wait
+	if(!expToGive)
+		return false;
+
+	gameEvents.giveExperience(hero, expToGive);
+	return true;
 }
 
 void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CArmedInstance * army, const CGHeroInstance * hero) const

@@ -4488,21 +4488,6 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 	return visit ? gameInfo().getHero(visit->visitingHero) : nullptr;
 }
 
-bool CGameHandler::isVisitCoveredByAnotherActivity(const CGHeroInstance *hero)
-{
-	assert(hero);
-
-	// The interaction that is granting a reward sits at the top of its player's stack until
-	// something is pushed above it, e.g. a level-up dialog that must be answered first.
-	// Cast to the base: a reward may be granted by a map object visit or by a town building
-	// visit, and both are the hero's own interaction.
-	if(const auto & topActivity = activities->topActivity(hero->getOwner()))
-		if(const auto * interaction = dynamic_cast<const ObjectInteractionActivity *>(topActivity.get()))
-			return interaction->visitingHero != hero->id;
-
-	return true;
-}
-
 void CGameHandler::setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value)
 {
 	SetObjectProperty sob;
