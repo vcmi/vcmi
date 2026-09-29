@@ -27,6 +27,7 @@
 #include "lib/CPlayerState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapping/CMap.h"
+#include "lib/mapping/CMapEvent.h"
 
 namespace
 {
@@ -1969,6 +1970,42 @@ TEST_F(MapObjectVisitTest, turnStartVisitsWaitForThePlayerToAcceptTheTurn)
 	auto levelUp = gameHandler.activities->topActivity(player);
 	ASSERT_NE(levelUp, nullptr) << "the turn-start visit never ran";
 	EXPECT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
+}
+
+TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player);
+	startWithMap(std::move(builder));
+
+	// A scenario event of the day. It runs from the turn start routine, so it must wait
+	// for the pause just like the visits do.
+	CMapEvent event;
+	event.players.insert(player);
+	event.humanAffected = true;
+	event.nextOccurrence = 1; // recurring daily, so that it also fires on the very first day
+	event.resources[GameResID::GOLD] = 1000;
+	map()->events.push_back(event);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	const auto goldBefore = gameState()->getPlayerState(player)->resources[GameResID::GOLD];
+
+	auto pause = std::make_shared<TimerPauseActivity>(&gameHandler, player);
+	const auto questionID = pause->askQuestion();
+	gameHandler.activities->addActivity(std::make_shared<TurnStartRoutine>(&gameHandler, player, pause));
+
+	EXPECT_EQ(gameState()->getPlayerState(player)->resources[GameResID::GOLD], goldBefore)
+		<< "the event was applied before the player accepted the turn";
+
+	ASSERT_EQ(gameHandler.activities->submitReply(questionID, player, 0), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(gameState()->getPlayerState(player)->resources[GameResID::GOLD], goldBefore + 1000);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr) << "the routine did not finish";
 }
 
 TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTown)

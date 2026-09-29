@@ -46,6 +46,8 @@ public:
 	NewTurnProcessor(CGameHandler * gameHandler);
 
 	void onNewTurn();
-	void onPlayerTurnStarted(PlayerColor color);
+	/// Runs the scenario and town events of a starting turn. Called from the turn start
+	/// routine, so that a dialog an event opens is answered before the turn-start visits.
+	void handleTurnStartEvents(PlayerColor color);
 	void onPlayerTurnEnded(PlayerColor color);
 };

@@ -262,7 +262,6 @@ public:
 	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit = 0);
 	void load(const StartInfo &info);
 
-	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
