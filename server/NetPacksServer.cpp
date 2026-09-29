@@ -105,7 +105,7 @@ void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 	gh.throwIfWrongOwner(connection, &pack, pack.srcArmy);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	result = gh.bulkMoveArmy(pack.srcArmy, pack.destArmy, pack.srcSlot);
+	result = gh.bulkMoveArmy(pack.player, pack.srcArmy, pack.destArmy, pack.srcSlot);
 }
 
 void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
