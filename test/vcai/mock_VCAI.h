@@ -30,7 +30,7 @@ public:
 	MOCK_METHOD1(init, void(std::shared_ptr<CCallback> CB));
 	MOCK_METHOD0(yourTurn, void());
 
-	MOCK_METHOD4(heroGotLevel, void(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QuestionID questionID));
+	MOCK_METHOD4(heroGotLevel, void(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID questionID));
 	MOCK_METHOD3(commanderGotLevel, void(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID));
 	MOCK_METHOD6(showBlockingDialog, void(const std::string & text, const std::vector<Component> & components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept));
 	MOCK_METHOD4(showGarrisonDialog, void(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID));

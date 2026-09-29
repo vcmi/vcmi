@@ -61,11 +61,12 @@ class CPlayerInterface : public CGameInterface
 
 	struct PendingDialog
 	{
-		enum class Type : std::uint8_t { NonBlocking, Blocking };
+		/// A level-up dialog is also blocking, but the server owns when it closes: it stays
+		/// open until the question behind it is resolved, and it survives turn end.
+		enum class Type : std::uint8_t { NonBlocking, Blocking, LevelUp };
 
 		enum class State : std::uint8_t { Queued, AwaitingQuestionResolution };
 
-		bool dropOnTurnEnd = false;
 		Type blockingPolicy = Type::Blocking;
 		QuestionID questionID = QuestionID::NONE;
 		State state = State::Queued;
@@ -73,8 +74,7 @@ class CPlayerInterface : public CGameInterface
 
 		bool isLevelUpDialog() const
 		{
-			// questionID means we are dealing with hero or commander level up dialog
-			return questionID != QuestionID::NONE;
+			return blockingPolicy == Type::LevelUp;
 		}
 	};
 
@@ -125,7 +125,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void heroCreated(const CGHeroInstance* hero) override;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QuestionID questionID) override;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID questionID) override;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
@@ -266,8 +266,9 @@ private:
 
 	void heroKilled(const CGHeroInstance* hero);
 	void closeActiveLevelUpDialog();
-	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QuestionID questionID = QuestionID::NONE);
-	std::list<PendingDialog>::iterator findQuestionBackedDialogInsertionPoint();
+	void queueDialog(PendingDialog::Type blocking, QuestionID questionID, std::function<void()> showCallback);
+	void queueDialog(PendingDialog::Type blocking, std::function<void()> showCallback);
+	std::list<PendingDialog>::iterator firstNonLevelUpDialog();
 	void tryShowNextPendingDialog();
 	std::list<PendingDialog>::iterator findPendingDialog(QuestionID questionID);
 	void townRemoved(const CGTownInstance* town);

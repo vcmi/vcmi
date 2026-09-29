@@ -22,7 +22,7 @@ public:
 	void yourTurn(QuestionID questionID) override;
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	void activeStack(const BattleID & battleID, const CStack * stack) override;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QuestionID questionID) override;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID questionID) override;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID) override;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override;
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) override;

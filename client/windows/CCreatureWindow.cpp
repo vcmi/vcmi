@@ -56,7 +56,6 @@ public:
 	struct CommanderLevelInfo
 	{
 		std::vector<ui32> skills;
-		std::function<void(ui32)> callback;
 	};
 	struct StackDismissInfo
 	{
@@ -855,20 +854,21 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup)
 	init();
 }
 
-CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback)
+CStackWindow::CStackWindow(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question)
 	: CWindowObject(BORDERED),
 	info(std::make_unique<UnitView>())
 {
-	initCommanderLevelUpData(commander, skills, callback);
+	initCommanderLevelUpData(commander, skills, question);
 	init();
 }
 
 CStackWindow::~CStackWindow() = default;
 
-void CStackWindow::initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
+void CStackWindow::initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question)
 {
 	GAME->interface()->showingDialog->setBusy();
 	selectionSubmitted = false;
+	questionID = question;
 
 	info->stackNode = commander;
 	info->creature = commander->getCreature();
@@ -876,45 +876,7 @@ void CStackWindow::initCommanderLevelUpData(const CCommanderInstance * commander
 	info->creatureCount = 1;
 	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
 	info->levelupInfo->skills = skills;
-	info->levelupInfo->callback = callback;
 	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
-}
-
-void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
-{
-	OBJECT_CONSTRUCTION;
-
-	initCommanderLevelUpData(commander, skills, callback);
-
-	if(!backgroundTexture)
-	{
-		init();
-		return;
-	}
-
-	fakeNode.reset();
-	activeBonuses.clear();
-
-	switchButtons.clear();
-	mainSection.reset();
-	activeSpellsSection.reset();
-	commanderMainSection.reset();
-	commanderBonusesSection.reset();
-	bonusesSection.reset();
-	buttonsSection.reset();
-	commanderTab.reset();
-
-	selectedIcon = nullptr;
-	selectedSkill = skills.empty() ? -1 : skills.front();
-	activeTab = 0;
-
-	pos = Rect();
-	initBonusesList();
-	initSections();
-	backgroundTexture->pos = pos;
-
-	setRedrawParent(true);
-	redraw();
 }
 
 bool CStackWindow::isCommanderLevelUpDialog() const
@@ -929,17 +891,25 @@ void CStackWindow::submitSelection()
 		if(info->levelupInfo)
 		{
 			if(info->levelupInfo->skills.empty())
-				info->levelupInfo->callback(0);
+				answer(0);
 			else
-				info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
+				answer(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
 		}
 
 		selectionSubmitted = true;
 		GAME->interface()->showingDialog->setFree();
 	}
 
-	if(closeOnSelection)
+	// A server-driven level-up stays open until the server resolves its question, so that a
+	// chain of levels reuses this window instead of flickering between them.
+	if(!questionID.hasValue())
 		close();
+}
+
+void CStackWindow::answer(ui32 selection)
+{
+	if(questionID.hasValue())
+		GAME->interface()->cb->selectionMade(selection, questionID);
 }
 
 void CStackWindow::close()
@@ -1266,8 +1236,4 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 		stackArtifact.reset();
 		redraw();
 	}
-}
-void CStackWindow::setCloseOnSelection(bool value)
-{
-	closeOnSelection = value;
 }

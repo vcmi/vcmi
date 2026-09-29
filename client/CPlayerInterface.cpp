@@ -230,9 +230,9 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 		levelUpChainPendingContinuation = false;
 		closeAllDialogs();
 
-		// remove all pending dialogs that do not expect question answer
+		// level-up dialogs survive turn end, everything else queued for this turn does not
 		vstd::erase_if(dialogs, [](const PendingDialog & dialog){
-						   return dialog.dropOnTurnEnd;
+						   return !dialog.isLevelUpDialog();
 					   });
 	}
 }
@@ -499,68 +499,35 @@ void CPlayerInterface::receivedResource()
 	ENGINE->windows().totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill>& skills, QuestionID questionID)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID questionID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto availableSkills = skills;
-
-	auto showLevelUpDialog = [this, hero, pskill, availableSkills = std::move(availableSkills), questionID]() mutable
+	queueDialog(PendingDialog::Type::LevelUp, questionID, [this, hero, pskill, skills, questionID]()
 	{
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
-		auto callback = [this, questionID](ui32 selection)
-		{
-			if(questionID < 0)
-				return;
 
-			cb->selectionMade(selection, questionID);
-		};
-
+		// Reuse the open window of the previous level, so that a chain of them does not flicker
 		if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
 		{
-			levelWindow->updateLevelUpData(hero, pskill, availableSkills, callback);
+			levelWindow->updateLevelUpData(hero, pskill, skills, questionID);
 			return;
 		}
 
 		closeActiveLevelUpDialog();
-
-		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, callback);
-
-		// Free the visible-dialog gate as soon as the player makes a choice. The dialog
-		// queue still blocks manual input until the server resolves this level-up step.
-		levelWindow->setCloseOnSelection(questionID < 0);
-		ENGINE->windows().pushWindow(levelWindow);
-	};
-
-	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showLevelUpDialog), questionID);
-	tryShowNextPendingDialog();
+		ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, questionID);
+	});
 }
 
 void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto showCallback = [this, commander, skills = std::move(skills), questionID]() mutable
+	queueDialog(PendingDialog::Type::LevelUp, questionID, [this, commander, skills = std::move(skills), questionID]()
 	{
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
-		auto callback = [this, questionID](ui32 selection)
-		{
-			if(questionID < 0)
-				return;
-
-			cb->selectionMade(selection, questionID);
-		};
 
 		closeActiveLevelUpDialog();
-
-		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, callback);
-
-		// Free the visible-dialog gate as soon as the player makes a choice. The dialog
-		// queue still blocks manual input until the server resolves this level-up step.
-		levelWindow->setCloseOnSelection(questionID < 0);
-		ENGINE->windows().pushWindow(levelWindow);
-	};
-
-	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showCallback), questionID);
-	tryShowNextPendingDialog();
+		ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, questionID);
+	});
 }
 
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
@@ -1026,11 +993,10 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 
 		if(showingDialog->isBusy() || !dialogs.empty())
 		{
-			createAndQueueDialog(PendingDialog::Type::NonBlocking, [showInfoBox = std::move(showInfoBox)]() mutable
+			queueDialog(PendingDialog::Type::NonBlocking, [showInfoBox = std::move(showInfoBox)]() mutable
 			{
 				showInfoBox(false);
 			});
-			tryShowNextPendingDialog();
 			return;
 		}
 
@@ -1083,8 +1049,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	if(showingDialog->isBusy() || !dialogs.empty())
 	{
-		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
-		tryShowNextPendingDialog();
+		queueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
 		return;
 	}
 
@@ -1097,8 +1062,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	else
 	{
-		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
-		tryShowNextPendingDialog();
+		queueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
 	}
 }
 
@@ -1942,23 +1906,30 @@ void CPlayerInterface::waitForAllDialogs()
 	waitWhileDialog();
 }
 
-void CPlayerInterface::createAndQueueDialog(PendingDialog::Type blockingPolicy, std::function<void()> showCallback, QuestionID questionID)
+void CPlayerInterface::queueDialog(PendingDialog::Type blockingPolicy, std::function<void()> showCallback)
+{
+	queueDialog(blockingPolicy, QuestionID::NONE, std::move(showCallback));
+}
+
+void CPlayerInterface::queueDialog(PendingDialog::Type blockingPolicy, QuestionID questionID, std::function<void()> showCallback)
 {
 	PendingDialog dialog;
 	dialog.questionID = questionID >= 0 ? questionID : QuestionID::NONE;
 	dialog.blockingPolicy = blockingPolicy;
-	// Level-up dialogs (hero and commander) survive turn end, and the whole chain of them
-	// is kept ahead of ordinary queued info and reward dialogs.
-	dialog.dropOnTurnEnd = !dialog.isLevelUpDialog();
 	dialog.showCallback = std::move(showCallback);
 
+	// A level-up that continues a chain goes ahead of ordinary queued dialogs, so that the
+	// chain is not interrupted. The first one of a chain does not: the reward message that
+	// granted the experience is shown before it, as in the original game.
 	if(dialog.isLevelUpDialog() && (levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog())))
-		dialogs.insert(findQuestionBackedDialogInsertionPoint(), std::move(dialog));
+		dialogs.insert(firstNonLevelUpDialog(), std::move(dialog));
 	else
 		dialogs.push_back(std::move(dialog));
+
+	tryShowNextPendingDialog();
 }
 
-std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::findQuestionBackedDialogInsertionPoint()
+std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::firstNonLevelUpDialog()
 {
 	return std::find_if(dialogs.begin(), dialogs.end(), [](const PendingDialog & dialog)
 	{
@@ -2010,7 +1981,7 @@ void CPlayerInterface::tryShowNextPendingDialog()
 
 		dialogs.pop_front();
 
-		if(dialog.blockingPolicy == PendingDialog::Type::Blocking || showingDialog->isBusy())
+		if(dialog.blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
 			return;
 	}
 }
