@@ -33,8 +33,9 @@ protected:
 	/// function that must be called if hero got level-up during grantReward call
 	void grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CArmedInstance * army, const CGHeroInstance * hero) const;
 
-	/// grants reward to hero
-	void grantRewardBeforeLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
+	/// Grants the part of the reward that must be applied before any level-up. Returns true
+	/// if it granted experience, which always ends in experienceApplied() applying the rest.
+	bool grantRewardBeforeLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
 	
 	virtual void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
 	virtual void configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance * contextHero, int rewardIndex) const;

@@ -1320,8 +1320,8 @@ TEST_F(MapObjectVisitTest, visitIsRefusedWhileAnotherHeroIsVisitingTheSameObject
 	gameHandler.objectVisited(pandora, hero);
 	ASSERT_NE(gameHandler.getVisitingHero(pandora), nullptr);
 
-	// The visit activity must be findable on the stack for the whole visit - object code
-	// relies on that through removeAfterVisit() and isVisitCoveredByAnotherActivity().
+	// The visit must stay registered for its whole duration - object code relies on that
+	// through removeAfterVisit().
 	EXPECT_THROW(gameHandler.objectVisited(pandora, hero), std::runtime_error);
 }
 
