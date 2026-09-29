@@ -68,16 +68,13 @@ void ActivityProcessor::popActivity(const Activity &activity)
 			popActivity(top);
 		else
 		{
-			if(logGlobal->isTraceEnabled())
-			{
-				const auto idx = static_cast<size_t>(player.getNum());
+			const auto idx = static_cast<size_t>(player.getNum());
 
-				logGlobal->trace("Cannot remove activity %s", activity.toString());
-				logGlobal->trace("Activities found:");
-				for(const auto & q : activities.at(idx))
-				{
-					logGlobal->trace(q->toString());
-				}
+			logGlobal->trace("Cannot remove activity %s", activity.toString());
+			logGlobal->trace("Activities found:");
+			for(const auto & q : activities.at(idx))
+			{
+				logGlobal->trace(q->toString());
 			}
 		}
 	}
