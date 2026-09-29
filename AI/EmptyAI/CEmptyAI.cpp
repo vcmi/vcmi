@@ -40,7 +40,7 @@ void CEmptyAI::yourTacticPhase(const BattleID & battleID, int distance)
 	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
-void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QuestionID questionID)
+void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID questionID)
 {
 	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), questionID);
 }

@@ -479,24 +479,24 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
+CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID question)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
 	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
-	initLevelUpData(hero, skills, callback);
+	initLevelUpData(hero, skills, question);
 	createLevelUpControls(pskill);
 	setRedrawParent(true);
 	redraw();
 }
 
-void CLevelWindow::initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
+void CLevelWindow::initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, QuestionID question)
 {
 	GAME->interface()->showingDialog->setBusy();
 	selectionSubmitted = false;
 	hero = heroInstance;
-	cb = callback;
+	questionID = question;
 	skills = availableSkills;
 	skillViewOffset = 0;
 	sortedSkills = availableSkills;
@@ -566,11 +566,11 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, skillValueText.toString(&GAME->translator()));
 }
 
-void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
+void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, QuestionID question)
 {
 	OBJECT_CONSTRUCTION;
 
-	initLevelUpData(heroInstance, availableSkills, callback);
+	initLevelUpData(heroInstance, availableSkills, question);
 	createLevelUpControls(pskill);
 	setRedrawParent(true);
 	redraw();
@@ -617,11 +617,6 @@ void CLevelWindow::createSkillBox()
 	redraw();
 }
 
-void CLevelWindow::setCloseOnSelection(bool value)
-{
-	closeOnSelection = value;
-}
-
 void CLevelWindow::submitSelection()
 {
 	if(!selectionSubmitted)
@@ -635,7 +630,7 @@ void CLevelWindow::submitSelection()
 		// For a single available option, auto-pick it
 		if(skills.empty())
 		{
-			cb(0);
+			answer(0);
 		}
 		else
 		{
@@ -650,15 +645,23 @@ void CLevelWindow::submitSelection()
 			const auto & chosen = sortedSkills[(idx + skillViewOffset) % skills.size()];
 			auto it = std::find(skills.begin(), skills.end(), chosen);
 
-			cb(std::distance(skills.begin(), it));
+			answer(std::distance(skills.begin(), it));
 		}
 
 		selectionSubmitted = true;
 		GAME->interface()->showingDialog->setFree();
 	}
 
-	if(closeOnSelection)
+	// A server-driven level-up stays open until the server resolves its question, so that a
+	// chain of levels reuses this window instead of flickering between them.
+	if(!questionID.hasValue())
 		close();
+}
+
+void CLevelWindow::answer(ui32 selection)
+{
+	if(questionID.hasValue())
+		GAME->interface()->cb->selectionMade(selection, questionID);
 }
 
 void CLevelWindow::close()

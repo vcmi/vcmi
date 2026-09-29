@@ -572,7 +572,7 @@ void AIGateway::yourTurn(QuestionID questionID)
 	});
 }
 
-void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QuestionID questionID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID questionID)
 {
 	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
 	status.addQuestion(questionID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTextID() % hero->level));
