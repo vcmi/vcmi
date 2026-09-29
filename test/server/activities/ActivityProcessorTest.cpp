@@ -1977,6 +1977,45 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	EXPECT_NE(child->reportedTo, static_cast<const IObjectInterface *>(town));
 }
 
+TEST_F(MapObjectVisitTest, aTownEntryLeavesOneVisitIdentifyingTheObjectAndTheHero)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.town(int3(8, 8, 0), FactionID(5), player)  // Dungeon
+		.hero(int3(6, 8, 0), HeroTypeID(0), player); // the town entrance
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_EQ(hero->visitablePos(), town->visitablePos());
+
+	// The Battle Scholar Academy grants experience, so the entry stops on a level-up and
+	// the stack can still be inspected.
+	ASSERT_TRUE(town->rewardableBuildings.count(BuildingID::SPECIAL_4));
+	town->addBuilding(BuildingID::SPECIAL_4);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(town, hero);
+	ASSERT_NE(gameHandler.activities->topActivity(player), nullptr) << "the entry did not stop anywhere";
+
+	// Entering a town nests a building walk inside the visit. Only the visit says that the
+	// town is busy with this hero, so the object and the hero each name exactly one visit.
+	int visitsOfTheObject = 0;
+	for(const auto & activity : gameHandler.activities->allActivities())
+		if(activity->getType() == ActivityType::MapObjectVisit)
+			++visitsOfTheObject;
+
+	EXPECT_EQ(visitsOfTheObject, 1);
+	EXPECT_EQ(gameHandler.getVisitingHero(town), hero);
+	EXPECT_EQ(gameHandler.getVisitingObject(hero), town);
+}
+
 TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTown)
 {
 	const PlayerColor player(0);

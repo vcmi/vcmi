@@ -1192,8 +1192,8 @@ void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
 
 	// Searched from the top of the stack down: a town visit pushes a building visit above
 	// itself, and the tag belongs to the innermost visit, the one that is running now
-	auto * visit = activities->findActivity<VisitActivity>(
-		[hero](const VisitActivity & candidate){ return candidate.visitingHero == hero->id; });
+	auto * visit = activities->findActivity<ObjectInteractionActivity>(
+		[hero](const ObjectInteractionActivity & candidate){ return candidate.visitingHero == hero->id; });
 
 	if(visit)
 	{
@@ -4517,7 +4517,7 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 
 	for(const auto & activity : activities->allActivities())
 	{
-		const auto * visit = dynamic_cast<VisitActivity *>(activity.get());
+		const auto * visit = activities->activityAs<MapObjectVisitActivity>(activity);
 		if(!visit)
 			continue;
 
@@ -4533,7 +4533,7 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 
 	for(const auto & activity : activities->allActivities())
 	{
-		const auto * visit = dynamic_cast<VisitActivity *>(activity.get());
+		const auto * visit = activities->activityAs<MapObjectVisitActivity>(activity);
 		if(!visit)
 			continue;
 
@@ -4543,18 +4543,17 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 	return nullptr;
 }
 
-bool CGameHandler::isVisitCoveredByAnotherActivity(const CGObjectInstance *obj, const CGHeroInstance *hero)
+bool CGameHandler::isVisitCoveredByAnotherActivity(const CGHeroInstance *hero)
 {
-	assert(obj);
 	assert(hero);
-	assert(getVisitingHero(obj) == hero);
-	// Check top activity of targeted player:
-	// If top activity is NOT visit to targeted object then we assume that
-	// visitation activity is covered by other activity that must be answered first
 
+	// The interaction that is granting a reward sits at the top of its player's stack until
+	// something is pushed above it, e.g. a level-up dialog that must be answered first.
+	// Cast to the base: a reward may be granted by a map object visit or by a town building
+	// visit, and both are the hero's own interaction.
 	if(const auto & topActivity = activities->topActivity(hero->getOwner()))
-		if(const auto * visit =  dynamic_cast<VisitActivity *>(topActivity.get()))
-			return !(visit->visitedObject == obj->id && visit->visitingHero == hero->id);
+		if(const auto * interaction = dynamic_cast<const ObjectInteractionActivity *>(topActivity.get()))
+			return interaction->visitingHero != hero->id;
 
 	return true;
 }

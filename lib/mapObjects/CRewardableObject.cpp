@@ -137,7 +137,7 @@ void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 reward
 	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!gameEvents.isVisitCoveredByAnotherActivity(this, hero))
+	if(!gameEvents.isVisitCoveredByAnotherActivity(hero))
 	{
 		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
 	}

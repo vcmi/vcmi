@@ -107,7 +107,7 @@ public:
 	void changeFogOfWar(int3, ui32, PlayerColor, ETileVisibility) override {}
 	void changeFogOfWar(const FowTilesType &, PlayerColor, ETileVisibility) override {}
 	void castSpell(const spells::Caster *, SpellID, const int3 &) override {}
-	bool isVisitCoveredByAnotherActivity(const CGObjectInstance *, const CGHeroInstance *) override { return false; }
+	bool isVisitCoveredByAnotherActivity(const CGHeroInstance *) override { return false; }
 
 private:
 	UpperCallback *      upperCallback = nullptr;
