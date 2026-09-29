@@ -15,6 +15,7 @@
 
 class CGameHandler;
 class Activity;
+class MapObjectVisitActivity;
 using ActivityPtr = std::shared_ptr<Activity>;
 
 /// Result of submitting a player's reply. Only the Rejected* outcomes indicate a problem,
@@ -47,6 +48,10 @@ private:
 
 	/// Activities that start once their players are idle, instead of interrupting the current question
 	std::array<std::deque<ActivityPtr>, PlayerColor::PLAYER_LIMIT_I> waiting;
+
+	/// The visit each map object is currently under. An object can only be visited by one
+	/// hero at a time, so this is the object's visit, not a list of candidates.
+	std::map<ObjectInstanceID, MapObjectVisitActivity *> activeVisits;
 
 	/// Questions that recently left a player's stack, to tell a lost race from an invalid question id
 	std::array<std::deque<QuestionID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
@@ -99,74 +104,7 @@ private:
 		ActivityProcessor & owner;
 	};
 
-	template<typename StorageT>
-	class AllActivitiesViewT
-	{
-	public:
-		explicit AllActivitiesViewT(StorageT & s) : storage(&s) {}
-
-		struct iterator
-		{
-			StorageT * storage = nullptr;
-			size_t outer = 0;
-			size_t inner = 0;
-
-			void advance()
-			{
-				while(outer < storage->size())
-				{
-					auto & v = (*storage)[outer];
-					if(inner < v.size())
-						return;
-
-					outer++;
-					inner = 0;
-				}
-			}
-
-			decltype(auto) operator*() const
-			{
-				return (*storage)[outer][inner]; // ActivityPtr& or const ActivityPtr&
-			}
-
-			iterator & operator++()
-			{
-				inner++;
-				advance();
-				return *this;
-			}
-
-			bool operator==(const iterator & other) const
-			{
-				return storage == other.storage && outer == other.outer && inner == other.inner;
-			}
-
-			bool operator!=(const iterator & other) const
-			{
-				return !(*this == other);
-			}
-		};
-
-		iterator begin() const
-		{
-			iterator it{ storage, 0, 0 };
-			it.advance();
-			return it;
-		}
-
-		iterator end() const
-		{
-			return iterator{ storage, storage->size(), 0 };
-		}
-
-	private:
-		StorageT * storage;
-	};
-
 public:
-	using AllActivitiesView = AllActivitiesViewT<ActivitiesPerPlayer>;
-	using AllActivitiesViewConst = AllActivitiesViewT<const ActivitiesPerPlayer>;
-
 	void addActivity(ActivityPtr activity);
 
 	/// Adds an activity once its players have nothing else to do. Use for work unrelated to
@@ -200,8 +138,12 @@ public:
 	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
 	std::string describeStacks() const;
 
-	AllActivitiesView allActivities();
-	AllActivitiesViewConst allActivities() const;
+	/// The visit this object is currently under, or nullptr. Registered by the visit itself
+	/// when it is added, so a caller never has to search the stacks for it.
+	MapObjectVisitActivity * findVisit(ObjectInstanceID object) const;
+	void registerVisit(MapObjectVisitActivity * visit);
+	void unregisterVisit(MapObjectVisitActivity * visit);
+
 	/// On how many players' stacks this activity sits.
 	int countActivity(const Activity * activity) const;
 

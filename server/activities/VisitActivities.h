@@ -70,6 +70,7 @@ public:
 	IRoutine * asRoutine() final { return this; }
 	StepResult advance() final;
 	void onChildCompleted(const ActivityPtr & child) final;
+	void onAdded(PlayerColor color) final;
 	void onRemoval(PlayerColor color) final;
 };
 

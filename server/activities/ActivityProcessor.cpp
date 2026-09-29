@@ -12,6 +12,7 @@
 
 #include "../CGameHandler.h"
 #include "Activity.h"
+#include "VisitActivities.h"
 
 ActivityProcessor::ActivityProcessor(CGameHandler & gameHandler)
 	: gameHandler(gameHandler)
@@ -156,14 +157,36 @@ void ActivityProcessor::popIfTop(const Activity & activity)
 			popActivity(color, topActivity(color));
 }
 
-ActivityProcessor::AllActivitiesViewConst ActivityProcessor::allActivities() const
+MapObjectVisitActivity * ActivityProcessor::findVisit(ObjectInstanceID object) const
 {
-	return AllActivitiesViewConst(activities);
+	auto it = activeVisits.find(object);
+	return it == activeVisits.end() ? nullptr : it->second;
 }
 
-ActivityProcessor::AllActivitiesView ActivityProcessor::allActivities()
+void ActivityProcessor::registerVisit(MapObjectVisitActivity * visit)
 {
-	return AllActivitiesView(activities);
+	assert(visit);
+	const auto [it, inserted] = activeVisits.try_emplace(visit->visitedObject, visit);
+
+	if(!inserted)
+	{
+		// Starting a second visit of one object would make the first unreachable, and the
+		// object would then be told about the wrong one
+		logGlobal->error("Object %d is already being visited!", visit->visitedObject.getNum());
+		assert(false);
+		it->second = visit;
+	}
+}
+
+void ActivityProcessor::unregisterVisit(MapObjectVisitActivity * visit)
+{
+	assert(visit);
+	auto it = activeVisits.find(visit->visitedObject);
+
+	// Only the visit that registered may unregister, so that an erroneous second visit
+	// does not take the entry away from the one that is still running
+	if(it != activeVisits.end() && it->second == visit)
+		activeVisits.erase(it);
 }
 
 ActivityPtr ActivityProcessor::getActivity(QuestionID questionID)
@@ -181,11 +204,11 @@ int ActivityProcessor::countActivity(const Activity * activity) const
 		return 0;
 
 	int result = 0;
-	for(const auto & currentActivity : allActivities())
-	{
-		if(currentActivity.get() == activity)
-			++result;
-	}
+	for(const auto & playerActivities : activities)
+		for(const auto & currentActivity : playerActivities)
+			if(currentActivity.get() == activity)
+				++result;
+
 	return result;
 }
 

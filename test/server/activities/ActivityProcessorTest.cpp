@@ -1361,10 +1361,7 @@ TEST_F(MapObjectVisitTest, visitStaysSuspendedAcrossAChainOfChildActivities)
 
 	auto visitIsPending = [&]()
 	{
-		for(const auto & activity : gameHandler.activities->allActivities())
-			if(activity->getType() == ActivityType::MapObjectVisit)
-				return true;
-		return false;
+		return gameHandler.activities->findVisit(pandora->id) != nullptr;
 	};
 
 	gameHandler.objectVisited(pandora, hero);
@@ -2004,16 +2001,25 @@ TEST_F(MapObjectVisitTest, aTownEntryLeavesOneVisitIdentifyingTheObjectAndTheHer
 	gameHandler.objectVisited(town, hero);
 	ASSERT_NE(gameHandler.activities->topActivity(player), nullptr) << "the entry did not stop anywhere";
 
-	// Entering a town nests a building walk inside the visit. Only the visit says that the
-	// town is busy with this hero, so the object and the hero each name exactly one visit.
-	int visitsOfTheObject = 0;
-	for(const auto & activity : gameHandler.activities->allActivities())
-		if(activity->getType() == ActivityType::MapObjectVisit)
-			++visitsOfTheObject;
+	// Entering a town nests a building walk inside the visit, but only the visit says that
+	// the town is busy, so the town still names one hero.
+	EXPECT_NE(gameHandler.activities->findActivity<TownBuildingVisitActivity>(
+		player, [](const TownBuildingVisitActivity &){ return true; }), nullptr)
+		<< "no building walk was nested inside the visit";
 
-	EXPECT_EQ(visitsOfTheObject, 1);
 	EXPECT_EQ(gameHandler.getVisitingHero(town), hero);
-	EXPECT_EQ(gameHandler.getVisitingObject(hero), town);
+
+	// Answering everything must hand the town back, otherwise it would stay busy forever
+	int answered = 0;
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+		ASSERT_LT(++answered, 20) << "the entry did not finish";
+	}
+
+	EXPECT_EQ(gameHandler.activities->findVisit(town->id), nullptr);
+	EXPECT_EQ(gameHandler.getVisitingHero(town), nullptr);
 }
 
 TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTown)

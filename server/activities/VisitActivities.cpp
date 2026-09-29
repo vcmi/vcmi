@@ -130,8 +130,15 @@ void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 	}
 }
 
+void MapObjectVisitActivity::onAdded(PlayerColor color)
+{
+	owner->registerVisit(this);
+}
+
 void MapObjectVisitActivity::onRemoval(PlayerColor color)
 {
+	owner->unregisterVisit(this);
+
 	gh->objectVisitEnded(visitingHero, players.front());
 
 	if(removeObjectAfterVisit)

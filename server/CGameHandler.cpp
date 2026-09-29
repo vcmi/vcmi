@@ -4440,22 +4440,11 @@ bool CGameHandler::isBlockedByActivities(const CPackForServer *pack, PlayerColor
 void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 {
 	//If the object is being visited, there must be a matching activity
-	for (const auto &activity : activities->allActivities())
-	{
-		auto * someVisitActivity = activities->activityAs<MapObjectVisitActivity>(activity);
+	auto * visit = activities->findVisit(id);
+	if(!visit)
+		throw std::runtime_error("This function needs to be called during the object visit!");
 
-		if(!someVisitActivity)
-			continue;
-
-		if(someVisitActivity->visitedObject == id)
-		{
-			someVisitActivity->removeObjectAfterVisit = true;
-			return;
-		}
-	}
-
-	//If we haven't returned so far, there is no activity and no visit, call was wrong
-	throw std::runtime_error("This function needs to be called during the object visit!");
+	visit->removeObjectAfterVisit = true;
 }
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)
@@ -4503,32 +4492,8 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 {
 	assert(obj);
 
-	for(const auto & activity : activities->allActivities())
-	{
-		const auto * visit = activities->activityAs<MapObjectVisitActivity>(activity);
-		if(!visit)
-			continue;
-
-		if(visit->visitedObject == obj->id)
-			return gameInfo().getHero(visit->visitingHero);
-	}
-	return nullptr;
-}
-
-const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *hero)
-{
-	assert(hero);
-
-	for(const auto & activity : activities->allActivities())
-	{
-		const auto * visit = activities->activityAs<MapObjectVisitActivity>(activity);
-		if(!visit)
-			continue;
-
-		if(visit->visitingHero == hero->id)
-			return gameInfo().getObjInstance(visit->visitedObject);
-	}
-	return nullptr;
+	const auto * visit = activities->findVisit(obj->id);
+	return visit ? gameInfo().getHero(visit->visitingHero) : nullptr;
 }
 
 bool CGameHandler::isVisitCoveredByAnotherActivity(const CGHeroInstance *hero)
