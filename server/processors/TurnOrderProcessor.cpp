@@ -16,6 +16,7 @@
 #include "../activities/VisitActivities.h"
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
+#include "../TurnTimerHandler.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapping/CMap.h"
@@ -316,7 +317,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 			return;
 		}
 
-		gameHandler->onPlayerTurnStarted(which);
+		gameHandler->turnTimerHandler->onPlayerGetTurn(which);
 		gameHandler->activities->addActivity(std::make_shared<TurnStartRoutine>(gameHandler, which, turnPause));
 	};
 

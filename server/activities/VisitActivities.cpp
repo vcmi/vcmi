@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
 #include "../CGameHandler.h"
+#include "../processors/NewTurnProcessor.h"
 #include "ActivityProcessor.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
@@ -214,9 +215,16 @@ StepResult TurnStartRoutine::advance()
 	switch(activeStep)
 	{
 		case Step::Pause:
-			activeStep = Step::CollectVisits;
+			activeStep = Step::Events;
 			if(turnPause)
 				owner->addActivity(std::exchange(turnPause, nullptr));
+			return StepResult::Continue;
+
+		case Step::Events:
+			// The step is left before the events run: a script that opens a dialog suspends
+			// the routine, which must then continue with the visits and not run them again
+			activeStep = Step::CollectVisits;
+			gh->newTurnProcessor->handleTurnStartEvents(players.front());
 			return StepResult::Continue;
 
 		case Step::CollectVisits:

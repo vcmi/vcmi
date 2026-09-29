@@ -160,7 +160,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 	}
 }
 
-void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
+void NewTurnProcessor::handleTurnStartEvents(PlayerColor which)
 {
 	const auto * playerState = gameHandler->gameState().getPlayerState(which);
 

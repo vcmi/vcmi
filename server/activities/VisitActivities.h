@@ -107,10 +107,10 @@ public:
 	void onChildCompleted(const ActivityPtr & child) final;
 };
 
-/// Runs what happens at the start of a player's turn: the pause that the player has to
-/// accept, then a visit to each object their heroes stand on, one at a time. Both live in
-/// one routine because a stack can not be inserted into - adding the visits on their own
-/// would put them in front of the pause.
+/// Runs what happens at the start of a player's turn, in order: the pause that the player
+/// has to accept, the scenario and town events of the day, then a visit to each object
+/// their heroes stand on. All of it is one routine because a stack can not be inserted
+/// into - adding any of these on their own would put it in front of the earlier ones.
 class TurnStartRoutine final : public Activity, public IRoutine
 {
 	struct PendingVisit
@@ -122,6 +122,7 @@ class TurnStartRoutine final : public Activity, public IRoutine
 	enum class Step : uint8_t
 	{
 		Pause,
+		Events,
 		CollectVisits,
 		Visits
 	};
@@ -132,8 +133,8 @@ class TurnStartRoutine final : public Activity, public IRoutine
 	/// timers are off, and for an AI.
 	ActivityPtr turnPause;
 
-	/// Collected only once the pause is over, so that a town captured meanwhile by another
-	/// player acting at the same time is not visited.
+	/// Collected only once the events are over, so that a town captured meanwhile by another
+	/// player acting at the same time, or a hero a script moved, is not visited.
 	std::vector<PendingVisit> visits;
 
 	size_t cursor = 0; ///< index of the next visit

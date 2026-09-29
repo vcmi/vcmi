@@ -643,12 +643,6 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		}
 }
 
-void CGameHandler::onPlayerTurnStarted(PlayerColor which)
-{
-	turnTimerHandler->onPlayerGetTurn(which);
-	newTurnProcessor->onPlayerTurnStarted(which);
-}
-
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
 	turnTimerHandler->onEndTurn(which);
