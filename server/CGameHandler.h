@@ -91,7 +91,7 @@ public:
 	ServerCallback * spellcastEnvironment() const;
 
 	bool isBlockedByActivities(const CPackForServer *pack, PlayerColor player);
-	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
+	bool isAllowedExchange(PlayerColor player, ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
 	IGameInfoCallback & gameInfo();
@@ -255,7 +255,7 @@ public:
 	bool spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
-	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
+	bool bulkMoveArmy(PlayerColor player, ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);

@@ -1979,12 +1979,12 @@ bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
 	return true;
 }
 
-bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+bool CGameHandler::bulkMoveArmy(PlayerColor player, ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
 {
 	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	if(!isAllowedExchange(srcArmy, destArmy))
+	if(!isAllowedExchange(player, srcArmy, destArmy))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto * armySrc = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(srcArmy));
@@ -2161,7 +2161,7 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 		return false;
 	}
 
-	if (!isAllowedExchange(id1,id2))
+	if (!isAllowedExchange(player, id1, id2))
 	{
 		complain("Cannot exchange stacks between these two objects!\n");
 		return false;
@@ -2834,7 +2834,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	assert(dstArtSet);
 
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(src.artHolder, dst.artHolder))
+	if(!isAllowedExchange(player, src.artHolder, dst.artHolder))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	COMPLAIN_RET_FALSE_IF(!ArtifactUtils::checkIfSlotValid(*srcArtSet, src.slot), "moveArtifact: wrong artifact source slot");
@@ -2902,7 +2902,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(srcId, dstId))
+	if(!isAllowedExchange(player, srcId, dstId))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto * psrcSet = gameState().getArtSet(srcId);
@@ -3680,22 +3680,23 @@ void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindow
 	sendAndApply(pack);
 }
 
-bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
+bool CGameHandler::isAllowedExchange(PlayerColor player, ObjectInstanceID id1, ObjectInstanceID id2)
 {
 	if (id1 == id2)
 		return true;
 
-	for(const auto & activity : activities->allActivities())
-	{
-		const auto * garrisonActivity = dynamic_cast<const GarrisonDialogActivity *>(activity.get());
-		if(garrisonActivity == nullptr)
-			continue;
+	// An exchange dialog this player opened authorizes the pair it was opened for
+	const auto * exchange = activities->findActivity<GarrisonDialogActivity>(player,
+		[id1, id2](const GarrisonDialogActivity & activity)
+		{
+			const auto first = activity.exchangingArmies.at(0)->id;
+			const auto second = activity.exchangingArmies.at(1)->id;
 
-		const bool matchesForward = garrisonActivity->exchangingArmies[0]->id == id1 && garrisonActivity->exchangingArmies[1]->id == id2;
-		const bool matchesBackward = garrisonActivity->exchangingArmies[0]->id == id2 && garrisonActivity->exchangingArmies[1]->id == id1;
-		if(matchesForward || matchesBackward)
-			return true;
-	}
+			return (first == id1 && second == id2) || (first == id2 && second == id1);
+		});
+
+	if(exchange)
+		return true;
 
 	const CGObjectInstance *o1 = gameInfo().getObj(id1);
 	const CGObjectInstance *o2 = gameInfo().getObj(id2);
@@ -3732,19 +3733,6 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 			if (h1->getVisitedTown() != nullptr && h2->getVisitedTown() != nullptr && h1->getVisitedTown() == h2->getVisitedTown())
 				return true;
 		}
-
-		// Ongoing garrison exchange
-		const auto * dialog = activities->findActivity<GarrisonDialogActivity>(
-			[o1, o2](const GarrisonDialogActivity & activity)
-			{
-				const auto * topArmy = activity.exchangingArmies.at(0);
-				const auto * bottomArmy = activity.exchangingArmies.at(1);
-
-				return (topArmy == o1 && bottomArmy == o2) || (topArmy == o2 && bottomArmy == o1);
-			});
-
-		if(dialog)
-			return true;
 	}
 
 	return false;
