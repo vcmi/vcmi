@@ -277,5 +277,8 @@
 		// MD059 - Link text should be descriptive
 		"MD059" : false
 
-	}
+	},
+
+	// PR descriptions are rendered below the PR title, so the template starts with H2 instead of H1
+	"ignores" : [ ".github/PULL_REQUEST_TEMPLATE.md" ]
 }
