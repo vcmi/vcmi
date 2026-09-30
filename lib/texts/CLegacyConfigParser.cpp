@@ -13,6 +13,8 @@
 #include "TextOperations.h"
 #include "Languages.h"
 
+#include "ExceptionsCommon.h"
+
 #include "../GameLibrary.h"
 #include "filesystem/Filesystem.h"
 #include "../modding/CModHandler.h"
@@ -30,6 +32,8 @@ protected:
 CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
 {
 	auto input = CResourceHandler::get()->load(resource);
+	if (!input)
+		throw DataLoadingException("Resource " + resource.getName() + " not found. Check data symlink or VCMI filesystem configuration.");
 	fileEncoding = LIBRARY->modh->findResourceEncoding(resource);
 
 	data.reset(new char[input->getSize()]);
