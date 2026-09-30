@@ -48,104 +48,77 @@ void UnitActionPanel::restoreAllActions()
 	owner.actionsController->resetCurrentStackPossibleActions();
 }
 
-void UnitActionPanel::setActions(int buttonIndex, const std::vector<PossiblePlayerBattleAction> & filteredActions)
+void UnitActionPanel::setActions(int buttonIndex, const BattleActionEntries & filteredActions)
 {
 	for (const auto & button : buttons)
 		if (button != buttons.at(buttonIndex))
 			button->setSelectedSilent(false);
 
 	owner.actionsController->setPriorityActions(filteredActions);
-	if (filteredActions.front().spellcast())
+	if (filteredActions.front()->getSpell() != SpellID::NONE)
 		owner.actionsController->enterCreatureCastingMode();
 	owner.actionsController->setPriorityActions(filteredActions);
 }
 
-void UnitActionPanel::testAndAddAction(const std::vector<PossiblePlayerBattleAction> & allActions, const std::vector<PossiblePlayerBattleAction::Actions> & actionFilter, const ImagePath & iconPath, const std::string & descriptionTextID)
+void UnitActionPanel::addButton(const UnitActionButton & button, const BattleActionEntries & entries)
 {
-	std::vector<PossiblePlayerBattleAction> filteredActions;
-
-	for (const auto & action : allActions)
-		if (vstd::contains(actionFilter, action.get()))
-			filteredActions.push_back(action);
-
-	if (filteredActions.empty())
-		return;
-
 	int index = buttons.size();
 
-	const auto & callback = [this, filteredActions, index](bool isSelected){ if (isSelected) setActions(index, filteredActions); else restoreAllActions(); };
+	const auto & callback = [this, entries, index](bool isSelected){ if (isSelected) setActions(index, entries); else restoreAllActions(); };
 
-	MetaString tooltip;
-	tooltip.appendTextID(descriptionTextID);
+	std::shared_ptr<CToggleButton> toggle;
 
-	auto button = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(tooltip.toString(&GAME->translator())), callback);
-	button->setOverlay(std::make_shared<CPicture>(iconPath));
-	button->setHighlightedBorderColor(Colors::WHITE);
-	button->setAllowDeselection(true);
-	buttons.push_back(button);
+	if (button.spell == SpellID::NONE)
+	{
+		MetaString tooltip;
+		tooltip.appendTextID(button.tooltipTextID);
+
+		toggle = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(tooltip.toString(&GAME->translator())), callback);
+		toggle->setOverlay(std::make_shared<CPicture>(button.icon));
+		toggle->setAllowDeselection(true);
+	}
+	else
+	{
+		MetaString tooltip;
+		tooltip.appendTextID("core.genrltxt.26");
+		tooltip.replaceName(button.spell);
+
+		std::string hoverText = tooltip.toString(&GAME->translator());
+		std::string description = button.spell.toSpell()->getDescriptionTranslated(0);
+
+		toggle = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(hoverText, description), callback);
+		toggle->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), button.spell.getNum() + 1));
+	}
+
+	toggle->setHighlightedBorderColor(Colors::WHITE);
+	buttons.push_back(toggle);
 }
 
-void UnitActionPanel::testAndAddSpell(const std::vector<PossiblePlayerBattleAction> & allActions, const SpellID & spellFilter)
-{
-	std::vector<PossiblePlayerBattleAction> filteredActions;
-
-	for (const auto & action : allActions)
-		if (action.spellcast() && action.spell() == spellFilter)
-			filteredActions.push_back(action);
-
-	if (filteredActions.empty())
-		return;
-
-	int index = buttons.size();
-	const auto & callback = [this, filteredActions, index](bool isSelected){ if (isSelected) setActions(index, filteredActions); else restoreAllActions();};
-
-	MetaString tooltip;
-	tooltip.appendTextID("core.genrltxt.26");
-	tooltip.replaceName(spellFilter);
-
-	std::string hoverText = tooltip.toString(&GAME->translator());
-	std::string description = spellFilter.toSpell()->getDescriptionTranslated(0);
-
-
-	auto button = std::make_shared<CToggleButton>(Point(2, 7 + 50 * index), AnimationPath::builtin("battleUnitAction"), CButton::tooltip(hoverText, description), callback);
-	button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), spellFilter.getNum() + 1));
-	button->setHighlightedBorderColor(Colors::WHITE);
-	buttons.push_back(button);
-}
-
-void UnitActionPanel::setPossibleActions(const std::vector<PossiblePlayerBattleAction> & newActions)
+void UnitActionPanel::setPossibleActions(const BattleActionEntries & newActions)
 {
 	OBJECT_CONSTRUCTION;
 
 	buttons.clear();
 
-	static const std::vector actionsMove = { PossiblePlayerBattleAction::MOVE_STACK };
-	static const std::vector actionsInfo = { PossiblePlayerBattleAction::CREATURE_INFO, PossiblePlayerBattleAction::HERO_INFO };
-	static const std::vector actionsShoot = { PossiblePlayerBattleAction::SHOOT };
-	static const std::vector actionsGenie = { PossiblePlayerBattleAction::RANDOM_GENIE_SPELL };
-	static const std::vector actionsAttack = { PossiblePlayerBattleAction::ATTACK, PossiblePlayerBattleAction::WALK_AND_ATTACK };
-	static const std::vector actionsReturn = { PossiblePlayerBattleAction::ATTACK_AND_RETURN };
-	static const std::vector actionsAttackLongWeapon = { PossiblePlayerBattleAction::LONG_WEAPON_ATTACK };
+	std::vector<std::pair<UnitActionButton, BattleActionEntries>> groups;
 
-	testAndAddAction(newActions, actionsMove, ImagePath::builtin("battle/actionMove"), "vcmi.battle.action.move");
-	testAndAddAction(newActions, actionsReturn, ImagePath::builtin("battle/actionReturn"), "vcmi.battle.action.return");
-	testAndAddAction(newActions, actionsAttack, ImagePath::builtin("battle/actionAttack"), "vcmi.battle.action.attack");
-	testAndAddAction(newActions, actionsShoot, ImagePath::builtin("battle/actionShoot"), "vcmi.battle.action.shoot");
-	testAndAddAction(newActions, actionsGenie, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie");
-	testAndAddAction(newActions, actionsAttackLongWeapon, ImagePath::builtin("battle/actionLongWeapon"), "vcmi.battle.action.attackLongWeapon");
+	for (const auto & entry : newActions)
+	{
+		const auto button = entry->getPanelButton();
+		if (!button)
+			continue;
 
-	std::vector<SpellID> spells;
+		auto group = std::find_if(groups.begin(), groups.end(), [&button](const auto & group){ return group.first == *button; });
+		if (group == groups.end())
+			groups.emplace_back(*button, BattleActionEntries{entry});
+		else
+			group->second.push_back(entry);
+	}
 
-	for (const auto & action : newActions)
-		if (action.spellcast())
-			spells.push_back(action.spell());
+	std::stable_sort(groups.begin(), groups.end(), [](const auto & lhs, const auto & rhs){ return lhs.first.order < rhs.first.order; });
 
-
-	for (const auto & spell : spells)
-		testAndAddSpell(newActions, spell);
-
-	// Not really a unit action, so place it at the end
-	testAndAddAction(newActions, actionsInfo, ImagePath::builtin("battle/actionInfo"), "vcmi.battle.action.info");
+	for (const auto & [button, entries] : groups)
+		addButton(button, entries);
 
 	redraw();
 }

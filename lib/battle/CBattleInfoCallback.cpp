@@ -300,7 +300,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	if(data.tacticsMode) //would "if(battleGetTacticDist() > 0)" work?
 	{
 		allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_TACTICS);
-		allowedActionList.push_back(PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK);
 	}
 	else
 	{
