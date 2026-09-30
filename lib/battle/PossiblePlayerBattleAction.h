@@ -16,10 +16,7 @@ class PossiblePlayerBattleAction // actions performed at l-click
 public:
 	enum Actions {
 		INVALID = -1,
-		CREATURE_INFO,
-		HERO_INFO,
 		MOVE_TACTICS,
-		CHOOSE_TACTICS_STACK,
 
 		MOVE_STACK,
 		ATTACK,

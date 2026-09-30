@@ -781,7 +781,7 @@ void BattleWindow::reallySurrender(bool allowMarketplaceOffer, bool marketplaceS
 	}
 }
 
-void BattleWindow::setPossibleActions(const std::vector<PossiblePlayerBattleAction> & actions)
+void BattleWindow::setPossibleActions(const BattleActionEntries & actions)
 {
 	unitActionWindow->setPossibleActions(actions);
 }

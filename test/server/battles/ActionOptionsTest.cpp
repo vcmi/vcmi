@@ -141,14 +141,14 @@ TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)
 	EXPECT_THAT(optionsOf(catapult), ::testing::UnorderedElementsAre(Option::CATAPULT));
 }
 
-TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMovingAndChoosingUnits)
+TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyTacticsMove)
 {
 	startGame();
 	startBattle();
 
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(archer), unitHex, 10);
 
-	EXPECT_THAT(optionsOf(unit, {}, true), ::testing::UnorderedElementsAre(Option::MOVE_TACTICS, Option::CHOOSE_TACTICS_STACK));
+	EXPECT_THAT(optionsOf(unit, {}, true), ::testing::ElementsAre(Option::MOVE_TACTICS));
 }
 
 class SpellAimTest : public ActionOptionsTest, public ::testing::WithParamInterface<AimCase>

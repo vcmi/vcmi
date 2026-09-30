@@ -9,7 +9,10 @@
  */
 #pragma once
 
+#include "BattleActionEntry.h"
+
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/PossiblePlayerBattleAction.h"
 
 class BattleAction;
 namespace spells {
@@ -23,10 +26,12 @@ class BattleInterface;
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
 {
+	class LegacyEntry;
+
 	BattleInterface & owner;
 	
-	/// all actions possible to call at the moment by player
-	std::vector<PossiblePlayerBattleAction> possibleActions;
+	/// all entries possible to select at the moment by player
+	BattleActionEntries possibleActions;
 
 	/// spell for which player's hero is choosing destination
 	std::shared_ptr<BattleAction> heroSpellToCast;
@@ -47,20 +52,24 @@ class BattleActionsController
 	const CStack * selectedStack;
 
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
-	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
-	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
+	BattleActionEntries getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
+
+	/// True if the entry is a legacy entry of the given action kind
+	static bool isLegacyAction(const IBattleActionEntry & entry, PossiblePlayerBattleAction::Actions kind);
+
+	int actionGetPriority(PossiblePlayerBattleAction action, const CStack * stack, const CStack * targetStack) const;
 
 	bool actionIsLegal(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	void actionSetCursor(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
-	void actionSetCursorBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	std::string actionGetCursor(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
 	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex, const std::function<void(const CStack *)> & showStackInfo);
+	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	PossiblePlayerBattleAction selectAction(const BattleHex & myNumber);
+	/// Highest priority entry that is legal for the hex, else the highest priority entry; nullptr if there are no entries
+	std::shared_ptr<const IBattleActionEntry> selectEntry(const BattleHex & myNumber);
 
 	const CStack * getStackForHex(const BattleHex & myNumber) ;
 
@@ -133,11 +142,8 @@ public:
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
 	spells::Mode getCurrentCastMode() const;
 
-	/// methods to work with array of possible actions, needed to control special creatures abilities
-	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
-	
 	/// sets list of high-priority actions that should be selected before any other actions
-	void setPriorityActions(const std::vector<PossiblePlayerBattleAction> &);
+	void setPriorityActions(const BattleActionEntries &);
 
 	/// resets possible actions to original state
 	void resetCurrentStackPossibleActions();
