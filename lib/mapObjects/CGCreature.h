@@ -49,6 +49,7 @@ public:
 	int8_t joiningPercentage = -1;
 	bool joinOnlyForMoney = false;
 
+	/// Unused - the visit state tells which question is answered. Kept so that saves keep their layout.
 	bool refusedJoining = false;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;

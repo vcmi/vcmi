@@ -18,6 +18,7 @@
 #include "../bonuses/BonusParameters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../json/JsonNode.h"
 #include "../callback/IGameRandomizer.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -187,6 +188,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			ynd.text.appendTextID("core.advevent.86");
 			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
 			gameEvents.showBlockingDialog(&ynd);
+			gameEvents.setVisitState(h, JsonNode(action));
 			break;
 		}
 	default: //join for gold
@@ -202,6 +204,7 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			ynd.text.replaceNumber(action);
 			ynd.text.replaceNamePlural(getCreature()->getId());
 			gameEvents.showBlockingDialog(&ynd);
+			gameEvents.setVisitState(h, JsonNode(action));
 			break;
 		}
 	}
@@ -303,7 +306,6 @@ void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 	}
 
 	temppower = stacks[SlotID(0)]->getCount() * static_cast<int64_t>(1000);
-	refusedJoining = false;
 }
 
 void CGCreature::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
@@ -333,9 +335,6 @@ void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			break;
 		case ObjProperty::MONSTER_EXP:
 			giveAverageStackExperience(identifier.getNum());
-			break;
-		case ObjProperty::MONSTER_REFUSED_JOIN:
-			refusedJoining = identifier.getNum();
 			break;
 	}
 }
@@ -412,9 +411,6 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 void CGCreature::fleeDecision(IGameEventCallback & gameEvents, const CGHeroInstance *h, ui32 pursue) const
 {
-	if(refusedJoining)
-		gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
-
 	if(pursue)
 	{
 		fight(gameEvents, h);
@@ -431,7 +427,6 @@ void CGCreature::joinDecision(IGameEventCallback & gameEvents, const CGHeroInsta
 	{
 		if(takenAction(h,false) == FLEE)
 		{
-			gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
 			flee(gameEvents, h);
 		}
 		else //they fight
@@ -515,6 +510,7 @@ void CGCreature::flee(IGameEventCallback & gameEvents, const CGHeroInstance * h)
 	ynd.text.appendTextID("core.advevent.91");
 	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
 	gameEvents.showBlockingDialog(&ynd);
+	gameEvents.setVisitState(h, JsonNode(static_cast<int32_t>(FLEE)));
 }
 
 void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
@@ -564,13 +560,19 @@ void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 
 void CGCreature::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
-	auto action = takenAction(hero);
-	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
-		joinDecision(gameEvents, hero, action, answer);
-	else if(action != FIGHT)
-		fleeDecision(gameEvents, hero, answer);
+	// Acted on as asked instead of decided anew: after a refused offer to join, the question is
+	// about fleeing while a fresh decision would still be to join
+	if(!visitState.isNumber() || visitState.Integer() == FIGHT)
+	{
+		logGlobal->error("Creatures at %s got an answer to a question they did not ask: %s", visitablePos().toString(), visitState.toCompactString());
+		return;
+	}
+
+	const auto askedAbout = static_cast<int>(visitState.Integer());
+	if(askedAbout >= JOIN_FOR_FREE) //higher means price
+		joinDecision(gameEvents, hero, askedAbout, answer);
 	else
-		assert(0);
+		fleeDecision(gameEvents, hero, answer);
 }
 
 bool CGCreature::containsUpgradedStack() const
