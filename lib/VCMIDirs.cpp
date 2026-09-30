@@ -183,25 +183,60 @@ bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & p
 std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & key) const
 {
 	const std::wstring valueName = utf8ToWstring(key);
-	DWORD size = 0;
-	if(RegGetValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str(), RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ, nullptr, nullptr, &size) != ERROR_SUCCESS || size < sizeof(wchar_t))
-		return std::nullopt;
+	auto readValue = [&](REGSAM registryView) -> std::optional<bfs::path>
+	{
+		HKEY registryKey = nullptr;
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_QUERY_VALUE | registryView, &registryKey) != ERROR_SUCCESS)
+			return std::nullopt;
 
-	std::wstring value(size / sizeof(wchar_t), L'\0');
-	if(RegGetValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str(), RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ, nullptr, value.data(), &size) != ERROR_SUCCESS)
-		return std::nullopt;
+		DWORD type = 0;
+		DWORD size = 0;
+		const LSTATUS sizeResult = RegQueryValueExW(registryKey, valueName.c_str(), nullptr, &type, nullptr, &size);
+		if(sizeResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size < sizeof(wchar_t))
+		{
+			RegCloseKey(registryKey);
+			return std::nullopt;
+		}
 
-	value.resize((size / sizeof(wchar_t)) - 1);
-	wchar_t expanded[32768];
-	const DWORD expandedSize = ExpandEnvironmentStringsW(value.c_str(), expanded, static_cast<DWORD>(std::size(expanded)));
-	return expandedSize > 0 && expandedSize <= std::size(expanded) ? bfs::path(expanded) : bfs::path(value);
+		std::wstring value(size / sizeof(wchar_t), L'\0');
+		const LSTATUS valueResult = RegQueryValueExW(registryKey, valueName.c_str(), nullptr, &type, reinterpret_cast<BYTE *>(value.data()), &size);
+		RegCloseKey(registryKey);
+		if(valueResult != ERROR_SUCCESS)
+			return std::nullopt;
+
+		while(!value.empty() && value.back() == L'\0')
+			value.pop_back();
+		if(value.empty())
+			return std::nullopt;
+
+		if(type == REG_EXPAND_SZ)
+		{
+			const DWORD expandedSize = ExpandEnvironmentStringsW(value.c_str(), nullptr, 0);
+			if(expandedSize > 0)
+			{
+				std::wstring expanded(expandedSize, L'\0');
+				if(ExpandEnvironmentStringsW(value.c_str(), expanded.data(), expandedSize) == expandedSize)
+				{
+					expanded.resize(expandedSize - 1);
+					return bfs::path(expanded);
+				}
+			}
+		}
+
+		return bfs::path(value);
+	};
+
+	if(const auto path = readValue(KEY_WOW64_64KEY))
+		return path;
+	return readValue(KEY_WOW64_32KEY);
 }
 
 bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path & path) const
 {
 	HKEY registryKey = nullptr;
-	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
-		return false;
+	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE | KEY_WOW64_64KEY, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+		if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+			return false;
 
 	bfs::path preferredPath = path;
 	preferredPath.make_preferred();
@@ -209,13 +244,25 @@ bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path &
 	const std::wstring value = preferredPath.wstring();
 	const LSTATUS result = RegSetValueExW(registryKey, valueName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE *>(value.c_str()), static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t)));
 	RegCloseKey(registryKey);
-	return result == ERROR_SUCCESS;
+	if(result != ERROR_SUCCESS)
+		return false;
+
+	const auto savedPath = getPathFromRegistry(key);
+	return savedPath && _wcsicmp(savedPath->c_str(), preferredPath.c_str()) == 0;
 }
 
 void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
 {
 	const std::wstring valueName = utf8ToWstring(key);
-	RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\VCMI", valueName.c_str());
+	for(const REGSAM registryView : { KEY_WOW64_64KEY, KEY_WOW64_32KEY })
+	{
+		HKEY registryKey = nullptr;
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
+		{
+			RegDeleteValueW(registryKey, valueName.c_str());
+			RegCloseKey(registryKey);
+		}
+	}
 }
 
 bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path)
