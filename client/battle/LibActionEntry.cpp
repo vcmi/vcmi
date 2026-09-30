@@ -46,12 +46,7 @@ bool LibActionEntry::isLegal(const BattleHex & hex) const
 BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
 {
 	const ActionPreview preview = option.type->preview(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex));
-	return {preview.cursor, preview.statusText.toString(&GAME->translator())};
-}
-
-BattleHexArray LibActionEntry::getShadedHexes(const BattleHex & hex) const
-{
-	return option.type->preview(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex)).shadedHexes;
+	return {preview.cursor, preview.statusText.toString(&GAME->translator()), preview.shadedHexes};
 }
 
 void LibActionEntry::realize(const BattleHex & hex) const

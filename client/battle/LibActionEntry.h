@@ -28,7 +28,6 @@ public:
 	int getPriority(const CStack * actor, const CStack * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
 	BattleActionPreview preview(const BattleHex & hex) const override;
-	BattleHexArray getShadedHexes(const BattleHex & hex) const override;
 	void realize(const BattleHex & hex) const override;
 	SpellID getSpell() const override;
 	std::optional<UnitActionButton> getPanelButton() const override;

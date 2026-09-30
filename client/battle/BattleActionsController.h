@@ -33,6 +33,17 @@ class BattleActionsController
 	/// all entries possible to select at the moment by player
 	BattleActionEntries possibleActions;
 
+	/// Entry selected for a hex and its preview
+	struct HexSelection
+	{
+		BattleHex hex;
+		std::shared_ptr<const IBattleActionEntry> entry;
+		BattleActionPreview preview;
+	};
+
+	/// Selection of the last queried hex, reused by the per-frame queries until the next hover or change of the controller state
+	std::optional<HexSelection> cachedSelection;
+
 	/// spell for which player's hero is choosing destination
 	std::shared_ptr<BattleAction> heroSpellToCast;
 
@@ -70,6 +81,12 @@ class BattleActionsController
 
 	/// Highest priority entry that is legal for the hex, else the highest priority entry; nullptr if there are no entries
 	std::shared_ptr<const IBattleActionEntry> selectEntry(const BattleHex & myNumber);
+
+	/// Selection for the hex, taken from the cache when it holds the same hex
+	const HexSelection & getSelection(const BattleHex & hex);
+
+	/// Replaces the entries and drops the cached selection
+	void setEntries(BattleActionEntries entries);
 
 	const CStack * getStackForHex(const BattleHex & myNumber) ;
 
