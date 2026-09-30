@@ -569,14 +569,16 @@ bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, cons
 	if(BattleActionType::checkUnitCanAct(battle, stack, problem))
 		return true;
 
-	complain(problem);
+	complain(problem, "Stack can not act!");
 	return false;
 }
 
-void BattleActionProcessor::complain(const spells::Problem & problem)
+void BattleActionProcessor::complain(const spells::Problem & problem, const std::string & fallback)
 {
 	std::vector<std::string> texts;
 	problem.getAll(texts);
+	if(texts.empty())
+		gameHandler->complain(fallback);
 	for(const auto & text : texts)
 		gameHandler->complain(text);
 }
@@ -593,9 +595,20 @@ public:
 	{
 	}
 
-	void apply(CPackForClient & pack) override
+	void updateUnitBonuses(const battle::Unit & unit, const std::vector<Bonus> & bonuses) override
 	{
-		processor.gameHandler->sendAndApply(pack);
+		SetStackEffect sse;
+		sse.battleID = battle.getBattle()->getBattleID();
+		sse.toUpdate.emplace_back(unit.unitId(), bonuses);
+		processor.gameHandler->sendAndApply(sse);
+	}
+
+	void addBattleLogLine(const MetaString & line) override
+	{
+		BattleLogMessage message;
+		message.battleID = battle.getBattle()->getBattleID();
+		message.lines.push_back(line);
+		processor.gameHandler->sendAndApply(message);
 	}
 
 	void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) override
@@ -626,7 +639,7 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 		spells::detail::ProblemImpl problem;
 		if(!type->validate(gameHandler->gameInfo(), battle, ba, problem))
 		{
-			complain(problem);
+			complain(problem, "Battle action refused without a reason: " + ba.toString());
 			return false;
 		}
 

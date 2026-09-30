@@ -12,7 +12,7 @@
 #include "BattleActionType.h"
 
 /// NO_ACTION: the unit ends its turn without acting
-class DLL_LINKAGE SkipTurnAction : public BattleActionType
+class SkipTurnAction : public BattleActionType
 {
 public:
 	bool isUnitAction() const override;
@@ -21,13 +21,13 @@ public:
 };
 
 /// BAD_MORALE: the unit loses its turn to bad morale
-class DLL_LINKAGE BadMoraleAction : public SkipTurnAction
+class BadMoraleAction : public SkipTurnAction
 {
 public:
 	MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class DLL_LINKAGE WaitAction : public BattleActionType
+class WaitAction : public BattleActionType
 {
 public:
 	bool isUnitAction() const override;
@@ -37,7 +37,7 @@ public:
 	MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class DLL_LINKAGE DefendAction : public BattleActionType
+class DefendAction : public BattleActionType
 {
 public:
 	bool isUnitAction() const override;
@@ -46,7 +46,7 @@ public:
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class DLL_LINKAGE EndTacticsAction : public BattleActionType
+class EndTacticsAction : public BattleActionType
 {
 public:
 	bool isTacticsAction() const override;
@@ -54,7 +54,7 @@ public:
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class DLL_LINKAGE RetreatAction : public BattleActionType
+class RetreatAction : public BattleActionType
 {
 public:
 	bool isTacticsAction() const override;
@@ -63,7 +63,7 @@ public:
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class DLL_LINKAGE SurrenderAction : public BattleActionType
+class SurrenderAction : public BattleActionType
 {
 public:
 	bool isTacticsAction() const override;

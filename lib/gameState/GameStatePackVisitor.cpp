@@ -1441,7 +1441,8 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 
 	if (pack.ba.isUnitAction())
 	{
-		assert(st); // stack must exists for all non-hero actions
+		if(!st)
+			throw std::runtime_error("StartAction of a unit action without an existing unit: " + pack.ba.toString());
 
 		if(const auto * type = BattleActionType::find(pack.ba))
 		{

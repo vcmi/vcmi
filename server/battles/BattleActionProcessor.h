@@ -147,7 +147,8 @@ class BattleActionProcessor : boost::noncopyable
 	void addGenericDamageLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, int64_t damageDealt) const;
 
 	bool canStackAct(const CBattleInfoCallback & battle, const CStack * stack);
-	void complain(const spells::Problem & problem);
+	/// Reports every text of the problem, or `fallback` if it has none
+	void complain(const spells::Problem & problem, const std::string & fallback);
 
 	bool doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doWalkAction(const CBattleInfoCallback & battle, const BattleAction & ba);
