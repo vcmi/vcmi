@@ -252,12 +252,6 @@ BattleHex Unit::occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSid
 	}
 }
 
-void Unit::addText(MetaString & text, EMetaText type, int32_t serial) const
-{
-	serial = LIBRARY->generaltexth->pluralText(serial, getCount());
-	text.appendLocalString(type, serial);
-}
-
 void Unit::addNameReplacement(MetaString & text) const
 {
 	addNameReplacement(text, getCount());
@@ -268,7 +262,7 @@ void Unit::addNameReplacement(MetaString & text, TQuantity count) const
 	text.replaceName(creatureId(), count);
 }
 
-std::string Unit::formatGeneralMessage(const int32_t baseTextId, const ITranslator * translator) const
+MetaString Unit::formatGeneralMessage(const int32_t baseTextId) const
 {
 	const int32_t textId = LIBRARY->generaltexth->pluralText(baseTextId, getCount());
 
@@ -276,7 +270,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId, const ITranslat
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
 	text.replaceName(creatureId(), getCount());
 
-	return text.toString(translator);
+	return text;
 }
 
 int Unit::getRawSurrenderCost() const
