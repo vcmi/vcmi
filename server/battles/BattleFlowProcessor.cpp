@@ -281,12 +281,7 @@ bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & b
 		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
 			//unit loses its turn - empty freeze action
-			BattleAction ba;
-			ba.actionType = EActionType::BAD_MORALE;
-			ba.side = next->unitSide();
-			ba.stackNumber = next->unitId();
-
-			makeAutomaticAction(battle, next, ba);
+			makeAutomaticAction(battle, next, BattleAction::makeBadMorale(next));
 			return true;
 		}
 	}
@@ -732,12 +727,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 
 void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next)
 {
-	BattleAction doNothing;
-	doNothing.actionType = EActionType::NO_ACTION;
-	doNothing.side = next->unitSide();
-	doNothing.stackNumber = next->unitId();
-
-	makeAutomaticAction(battle, next, doNothing);
+	makeAutomaticAction(battle, next, BattleAction::makeNoAction(next));
 }
 
 bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, const BattleAction &ba)

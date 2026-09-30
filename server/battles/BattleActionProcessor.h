@@ -35,11 +35,15 @@ class ICombatEventScript;
 namespace spells
 {
 class Spell;
+class Problem;
 }
 
 /// Processes incoming battle action requests and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
+	/// IBattleActionEnvironment for actions applied to one battle
+	class ActionEnvironment;
+
 	struct MovementResult
 	{
 		/// Number of traversed hexes; undefined for flying units
@@ -143,15 +147,10 @@ class BattleActionProcessor : boost::noncopyable
 	void addGenericDamageLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, int64_t damageDealt) const;
 
 	bool canStackAct(const CBattleInfoCallback & battle, const CStack * stack);
+	void complain(const spells::Problem & problem);
 
-	bool doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doRetreatAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doSurrenderAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doWalkAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doWaitAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doDefendAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doShootAction(const CBattleInfoCallback & battle, const BattleAction & ba);

@@ -44,6 +44,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/bonuses/BonusEnum.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
@@ -708,7 +709,7 @@ void BattleWindow::bFleef()
 
 void BattleWindow::reallyFlee()
 {
-	owner.giveCommand(EActionType::RETREAT);
+	owner.sendCommand(BattleAction::makeRetreat(owner.getBattle()->battleGetMySide()));
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 }
 
@@ -775,7 +776,7 @@ void BattleWindow::reallySurrender(bool allowMarketplaceOffer, bool marketplaceS
 	}
 	else
 	{
-		owner.giveCommand(EActionType::SURRENDER);
+		owner.sendCommand(BattleAction::makeSurrender(owner.getBattle()->battleGetMySide()));
 		ENGINE->cursor().set(Cursor::Map::POINTER);
 	}
 }
@@ -874,8 +875,9 @@ void BattleWindow::bWaitf()
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
-	if (owner.stacksController->getActiveStack() != nullptr)
-		owner.giveCommand(EActionType::WAIT);
+	const CStack * stack = owner.stacksController->getActiveStack();
+	if (stack != nullptr)
+		owner.sendCommand(BattleAction::makeWait(stack), stack);
 }
 
 void BattleWindow::bDefencef()
@@ -883,8 +885,9 @@ void BattleWindow::bDefencef()
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
-	if (owner.stacksController->getActiveStack() != nullptr)
-		owner.giveCommand(EActionType::DEFEND);
+	const CStack * stack = owner.stacksController->getActiveStack();
+	if (stack != nullptr)
+		owner.sendCommand(BattleAction::makeDefend(stack), stack);
 }
 
 void BattleWindow::bConsoleUpf()

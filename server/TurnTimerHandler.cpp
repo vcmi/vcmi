@@ -332,15 +332,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 
 		if(isPvpBattle(battleID))
 		{
-			BattleAction doNothing;
-			doNothing.side = side;
-			if(isTactisPhase)
-				doNothing.actionType = EActionType::END_TACTIC_PHASE;
-			else
-			{
-				doNothing.actionType = EActionType::DEFEND;
-				doNothing.stackNumber = stack->unitId();
-			}
+			BattleAction doNothing = isTactisPhase ? BattleAction::makeEndOFTacticPhase(side) : BattleAction::makeDefend(stack);
 			gameHandler.battles->makePlayerBattleAction(battleID, player, doNothing);
 		}
 		else

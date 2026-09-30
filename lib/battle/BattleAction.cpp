@@ -12,6 +12,7 @@
 #include "BattleAction.h"
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
+#include "actions/BattleActionType.h"
 
 static const int32_t INVALID_UNIT_ID = -1000;
 
@@ -29,6 +30,24 @@ BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::U
 	ba.actionType = EActionType::STACK_HEAL;
 	ba.stackNumber = healer->unitId();
 	ba.aimToUnit(healed);
+	return ba;
+}
+
+BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::NO_ACTION;
+	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeBadMorale(const battle::Unit * stack)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::BAD_MORALE;
+	ba.stackNumber = stack->unitId();
 	return ba;
 }
 
@@ -215,16 +234,15 @@ void BattleAction::setTarget(const battle::Target & target_)
 
 bool BattleAction::isUnitAction() const
 {
-	static const std::array<EActionType, 109> actions = {
-		EActionType::NO_ACTION,
+	if(const auto * type = BattleActionType::find(*this))
+		return type->isUnitAction();
+
+	static const std::array<EActionType, 7> actions = {
 		EActionType::WALK,
-		EActionType::WAIT,
-		EActionType::DEFEND,
 		EActionType::WALK_AND_ATTACK,
 		EActionType::SHOOT,
 		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
-		EActionType::BAD_MORALE,
 		EActionType::STACK_HEAL,
 		EActionType::WALK_AND_CAST
 	};
@@ -243,22 +261,16 @@ bool BattleAction::isSpellAction() const
 
 bool BattleAction::isBattleEndAction() const
 {
-	static const std::array<EActionType, 2> actions = {
-		EActionType::RETREAT,
-		EActionType::SURRENDER
-	};
-	return vstd::contains(actions, actionType);
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isBattleEndAction();
 }
 
 bool BattleAction::isTacticsAction() const
 {
-	static const std::array<EActionType, 9> actions = {
-		EActionType::WALK,
-		EActionType::END_TACTIC_PHASE,
-		EActionType::RETREAT,
-		EActionType::SURRENDER
-	};
-	return vstd::contains(actions, actionType);
+	if(const auto * type = BattleActionType::find(*this))
+		return type->isTacticsAction();
+
+	return actionType == EActionType::WALK;
 }
 
 std::ostream & operator<<(std::ostream & os, const BattleAction & ba)

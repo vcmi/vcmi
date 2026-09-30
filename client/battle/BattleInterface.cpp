@@ -288,7 +288,7 @@ void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, Sp
 void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHex> & tiles,  SpellID spell)
 {
 	const CStack * actor = nullptr;
-	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
+	if(action != EActionType::HERO_SPELL)
 	{
 		actor = stacksController->getActiveStack();
 	}
