@@ -20,6 +20,7 @@
 #include "../StartInfo.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../json/JsonNode.h"
 #include "../constants/StringConstants.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -47,13 +48,12 @@ void CGPandoraBox::initObj(IGameRandomizer & gameRandomizer)
 	CRewardableObject::initObj(gameRandomizer);
 }
 
-void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const
+bool CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
 	if(!vi.message.empty())
 	{
-		CRewardableObject::grantRewardWithMessage(gameEvents, h, index, markAsVisit);
-		return;
+		return CRewardableObject::grantRewardWithMessage(gameEvents, h, index, markAsVisit);
 	}
 	
 	//split reward message for pandora box
@@ -166,7 +166,7 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 	// grant reward afterwards. Note that it may remove object
 	if(markAsVisit)
 		markAsVisited(gameEvents, h);
-	grantReward(gameEvents, index, h);
+	return grantReward(gameEvents, index, h);
 }
 
 void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -185,8 +185,16 @@ void CGPandoraBox::battleFinished(IGameEventCallback & gameEvents, const CGHeroI
 	}
 }
 
-void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
+	// Only the question whether to open the box carries no state. A choice between rewards,
+	// asked once the box is open, must not be taken for opening it again.
+	if(!visitState.isNull())
+	{
+		CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer, visitState);
+		return;
+	}
+
 	if(answer)
 	{
 		if(stacksCount() > 0) //if pandora's box is protected by army
@@ -309,9 +317,9 @@ void CGEvent::configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance 
 	infoWindow.journalInfo = ScenarioEventJournalInfo{visitablePos()};
 }
 
-void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
+bool CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
-	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
+	return CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
 void CGEvent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

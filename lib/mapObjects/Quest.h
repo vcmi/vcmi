@@ -301,8 +301,8 @@ public:
 	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
-	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
+	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const override;
 	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	virtual void init(vstd::RNG & rand);

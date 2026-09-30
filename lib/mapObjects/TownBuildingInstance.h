@@ -70,7 +70,7 @@ public:
 	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
 	
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
 	
 	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, IGameRandomizer & gameRandomizer);
 	TownRewardableBuildingInstance(IGameInfoCallback *cb);

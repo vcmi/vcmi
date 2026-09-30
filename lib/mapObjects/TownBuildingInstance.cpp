@@ -142,9 +142,9 @@ void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & game
 	resumeAfterExperience(gameEvents, hero, visitState);
 }
 
-void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
-	onBlockingDialogAnswered(gameEvents, hero, answer);
+	onBlockingDialogAnswered(gameEvents, hero, answer, visitState);
 }
 
 bool TownRewardableBuildingInstance::wasVisited(const CGHeroInstance * contextHero) const

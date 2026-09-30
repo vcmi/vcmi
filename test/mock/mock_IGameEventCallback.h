@@ -15,6 +15,7 @@
 #include "../../lib/callback/IGameEventCallback.h"
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 
 class GameEventCallbackMock : public IGameEventCallback
@@ -36,6 +37,8 @@ public:
 	std::vector<BlockingDialog>         blockingDialogs;
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
+	JsonNode                            visitState; ///< last setVisitState(), handed back by QuestTest::answerDialog
+	bool                                experienceGranted = false; ///< giveExperience() owes the object experienceApplied()
 
 	// ---- captured mutations inspected by MapScriptTest -------------------
 	std::vector<std::pair<ObjectInstanceID, int>>        manaPointsSet;
@@ -52,7 +55,7 @@ public:
 	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(BlockingDialog * iw) override;
-	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override {}
+	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override { visitState = state; }
 	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
