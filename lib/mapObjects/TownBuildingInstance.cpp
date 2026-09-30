@@ -137,9 +137,9 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 	}
 }
 
-void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
+void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
 {
-	resumeAfterExperience(gameEvents, hero, continuationTag);
+	resumeAfterExperience(gameEvents, hero, visitState);
 }
 
 void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const

@@ -38,6 +38,14 @@ bool ObjectInteractionActivity::blocksPack(const CPackForServer * pack) const
 	return blockAllButReply(pack);
 }
 
+std::string ObjectInteractionActivity::toString() const
+{
+	if(visitState.isNull())
+		return Activity::toString();
+
+	return Activity::toString() + " [state " + visitState.toCompactString() + "]";
+}
+
 MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
 	: ObjectInteractionActivity(owner, Hero, TYPE)
 	, visitedObject(Obj->id)
@@ -122,7 +130,7 @@ void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 		// intentionally: objects such as CGCreature handle a battle won by the defender
 		// and check the battle result instead of the hero.
 		if(object)
-			child->notifyObjectAboutRemoval(object, hero, continuationTag);
+			child->notifyObjectAboutRemoval(object, hero, std::exchange(visitState, {}));
 	}
 
 	if(auto battleActivity = std::dynamic_pointer_cast<BattleActivity>(child))
@@ -174,7 +182,7 @@ void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
 	if(building != visitedTown->rewardableBuildings.end())
 		reportTo = building->second.get();
 
-	child->notifyObjectAboutRemoval(reportTo, hero, continuationTag);
+	child->notifyObjectAboutRemoval(reportTo, hero, std::exchange(visitState, {}));
 }
 
 StepResult TownBuildingVisitActivity::advance()

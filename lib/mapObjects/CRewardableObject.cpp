@@ -74,9 +74,9 @@ void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHer
 	}
 }
 
-void CRewardableObject::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
+void CRewardableObject::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
 {
-	resumeAfterExperience(gameEvents, hero, continuationTag);
+	resumeAfterExperience(gameEvents, hero, visitState);
 }
 
 void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const

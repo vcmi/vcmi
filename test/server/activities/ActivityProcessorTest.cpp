@@ -1762,7 +1762,7 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerWithNoValueWhereOneIsNe
 // visit carries the id of the reward in progress.
 // --------------------------------------------------------------------------------
 
-TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotTheObject)
+TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheVisitStateNotTheObject)
 {
 	const PlayerColor player(0);
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
@@ -1778,8 +1778,8 @@ TEST_F(MapObjectVisitTest, rewardInterruptedByALevelUpIsFinishedFromTheTagNotThe
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(pandora, nullptr);
 
-	// Two rewards, of which only the second can be granted. A missing tag would resume the
-	// first one and nothing would be granted at all.
+	// Two rewards, of which only the second can be granted, so resuming from anything but
+	// the recorded state grants nothing.
 	ASSERT_FALSE(pandora->configuration.info.empty());
 	pandora->configuration.info.push_back(pandora->configuration.info.at(0));
 	pandora->configuration.info.at(0).limiter.heroLevel = 99; // out of reach
@@ -1889,7 +1889,7 @@ public:
 	mutable const IObjectInterface * reportedTo = nullptr;
 
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject,
-		const CGHeroInstance * visitingHero, int32_t continuationTag) const override
+		const CGHeroInstance * visitingHero, const JsonNode & visitState) const override
 	{
 		reportedTo = visitedObject;
 	}

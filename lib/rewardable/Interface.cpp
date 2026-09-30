@@ -18,6 +18,7 @@
 #include "../callback/IGameEventCallback.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
+#include "../json/JsonNode.h"
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -267,17 +268,31 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 
 void Rewardable::Interface::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
 {
-	// Granting experience hands the visit to the level-up routine, so the tag records which
-	// reward resumeAfterExperience() has to continue with.
-	gameEvents.setContinuationTag(hero, rewardID);
-
 	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
+	{
 		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), hero);
+		return;
+	}
+
+	// Stored only now that the visit is known to be suspended - a visit that finishes inline
+	// must not leave a state behind. The level-up routine can not have finished yet: it is
+	// stepped once control returns to the activity processor.
+	JsonNode state;
+	state["reward"].Integer() = rewardID;
+	gameEvents.setVisitState(hero, state);
 }
 
-void Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag) const
+void Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
-	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), hero);
+	const auto & reward = visitState["reward"];
+
+	if(!reward.isNumber() || reward.Integer() < 0 || reward.Integer() >= static_cast<si64>(configuration.info.size()))
+	{
+		logGlobal->error("Object at %s can not resume its visit from state %s", getObject()->visitablePos().toString(), visitState.toCompactString());
+		return;
+	}
+
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(reward.Integer()), hero);
 }
 
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)

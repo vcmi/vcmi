@@ -35,7 +35,7 @@ public:
 
 	BattleActivity(CGameHandler * owner);
 	BattleActivity(CGameHandler * owner, const IBattleInfo * Bi);
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 	void onRemoval(PlayerColor color) override;
 	void onExposure(ActivityPtr topActivity) override;

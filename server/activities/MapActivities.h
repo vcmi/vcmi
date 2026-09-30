@@ -62,7 +62,7 @@ public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 };
 
@@ -76,7 +76,7 @@ public:
 
 	BlockingDialogActivity(CGameHandler * owner, const BlockingDialog & bd);
 
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 };
 
 class OpenWindowActivity : public DialogActivity
@@ -100,7 +100,7 @@ public:
 
 	TeleportDialogActivity(CGameHandler * owner, const TeleportDialog & dialog);
 
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const override;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 };
 
 /// Drives the level-ups a hero has pending: one prompt per gained hero level, then one per
@@ -121,7 +121,7 @@ public:
 	StepResult advance() final;
 
 	bool blocksPack(const CPackForServer * pack) const final;
-	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const final;
+	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const final;
 };
 
 /// Asks a player which secondary skill a hero gains for one level, and grants it.

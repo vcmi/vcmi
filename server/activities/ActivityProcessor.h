@@ -184,8 +184,7 @@ public:
 	}
 
 	/// The topmost activity of the given type on this player's stack that satisfies the
-	/// predicate, or nullptr. Prefer this to the cross-player overload: a question about
-	/// what a player may do must not be answered by another player's activity.
+	/// predicate, or nullptr.
 	template<typename T, typename Predicate>
 	T * findActivity(PlayerColor player, Predicate predicate) const
 	{
@@ -198,22 +197,6 @@ public:
 			auto * activity = dynamic_cast<T *>(it->get());
 			if(activity && predicate(*activity))
 				return activity;
-		}
-
-		return nullptr;
-	}
-
-	template<typename T, typename Predicate>
-	T * findActivity(Predicate predicate) const
-	{
-		for(const auto & playerActivities : activities)
-		{
-			for(auto it = playerActivities.rbegin(); it != playerActivities.rend(); ++it)
-			{
-				auto * activity = dynamic_cast<T *>(it->get());
-				if(activity && predicate(*activity))
-					return activity;
-			}
 		}
 
 		return nullptr;

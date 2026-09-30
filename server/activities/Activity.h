@@ -13,6 +13,7 @@
 #include <boost/container/small_vector.hpp>
 
 struct CPackForServer;
+class JsonNode;
 class CGObjectInstance;
 class IObjectInterface;
 class CGHeroInstance;
@@ -122,7 +123,7 @@ public:
 	virtual void onExposure(ActivityPtr topActivity);
 
 	/// called when this activity is being removed and must report its result to currently visited object
-	virtual void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const;
+	virtual void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const;
 
 	virtual void setReply(std::optional<int32_t> reply);
 	virtual std::string toString() const;

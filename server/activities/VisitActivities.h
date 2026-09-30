@@ -11,6 +11,8 @@
 
 #include "Activity.h"
 
+#include "../../lib/json/JsonNode.h"
+
 class CGTownInstance;
 
 /// Common base for activities that run an object's interaction with a hero: a visit to a
@@ -27,12 +29,12 @@ public:
 	/// buildings, so this changes as the routine advances.
 	ObjectInstanceID visitingHero;
 
-	/// Value set by the visited object, passed back to it once the activity that it started
-	/// finishes, so that it can identify its own step without deducing it from state that
-	/// may have changed in the meantime.
-	int32_t continuationTag = 0;
+	/// The object's own record of where its interaction stopped, handed back to it once the
+	/// activity that suspended the interaction finishes. Opaque to the server.
+	JsonNode visitState;
 
 	bool blocksPack(const CPackForServer * pack) const final;
+	std::string toString() const override;
 };
 
 /// Hero visit to a map object: starts the visit, waits for the object, then applies the

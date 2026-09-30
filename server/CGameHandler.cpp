@@ -1178,23 +1178,24 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	}
 }
 
-void CGameHandler::setContinuationTag(const CGHeroInstance * hero, int32_t tag)
+void CGameHandler::setVisitState(const CGHeroInstance * hero, const JsonNode & state)
 {
 	assert(hero);
 
 	// Searched from the top of the stack down: a town visit pushes a building visit above
-	// itself, and the tag belongs to the innermost visit, the one that is running now
-	auto * visit = activities->findActivity<ObjectInteractionActivity>(
+	// itself, and the state belongs to the innermost one, the one that is running now
+	auto * visit = activities->findActivity<ObjectInteractionActivity>(hero->getOwner(),
 		[hero](const ObjectInteractionActivity & candidate){ return candidate.visitingHero == hero->id; });
 
-	if(visit)
+	if(!visit)
 	{
-		visit->continuationTag = tag;
+		// The object suspended and will never be resumed, so the rest of its visit is lost
+		logGlobal->error("Hero %s stored visit state %s outside of a visit", hero->getNameTextID(), state.toCompactString());
+		assert(false);
 		return;
 	}
 
-	logGlobal->warn("Continuation tag %d set outside a visit, by hero %s - it will not be handed back",
-		tag, hero->getNameTextID());
+	visit->visitState = state;
 }
 
 void CGameHandler::showBlockingDialog(BlockingDialog *iw)
