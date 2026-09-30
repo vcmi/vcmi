@@ -56,6 +56,10 @@ protected:
 	GameEventCallbackMock & gameEvents() const { return *gameEventCallback; }
 
 private:
+	/// Delivers experienceApplied() owed by experience granted in the last call, like the
+	/// server does once the level-up chain ends.
+	void finishExperienceGrants(CGHeroInstance * hero);
+
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
 	const CGObjectInstance * visitedObject = nullptr;
 };

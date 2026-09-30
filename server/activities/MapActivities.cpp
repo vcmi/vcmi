@@ -141,7 +141,7 @@ void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * v
 {
 	assert(answer);
 
-	visitedObject->blockingDialogAnswered(*gh, visitingHero, *answer);
+	visitedObject->blockingDialogAnswered(*gh, visitingHero, *answer, visitState);
 }
 
 BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const BlockingDialog & bd):

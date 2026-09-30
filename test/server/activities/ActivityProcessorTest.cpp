@@ -21,6 +21,7 @@
 #include "lib/mapObjects/CGResource.h"
 #include "lib/mapObjects/CGCreature.h"
 #include "lib/mapObjects/CGPandoraBox.h"
+#include "lib/mapObjects/Quest.h"
 #include "lib/mapObjects/CGTownInstance.h"
 #include "lib/mapObjects/TownBuildingInstance.h"
 #include "lib/bonuses/Bonus.h"
@@ -2016,6 +2017,193 @@ TEST_F(MapObjectVisitTest, turnStartVisitsWaitForThePlayerToAcceptTheTurn)
 	auto levelUp = gameHandler.activities->topActivity(player);
 	ASSERT_NE(levelUp, nullptr) << "the turn-start visit never ran";
 	EXPECT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
+}
+
+TEST_F(MapObjectVisitTest, aSeerHutOffersItsNextQuestOnlyAfterTheRewardLevelUp)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+	builder.hotaVersion(3)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(6), player)
+		.seerHutMulti(int3(8, 8, 0), {
+			{TinyH3M::TinyH3MBuilder::missionLevel(1), TinyH3M::TinyH3MBuilder::rewardExperience(5000)},
+			{TinyH3M::TinyH3MBuilder::missionLevel(1), TinyH3M::TinyH3MBuilder::rewardResource(GameResID::WOOD, 7)}});
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * seer = findFirst<SeerHut>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(seer, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(seer, hero);
+
+	auto completion = gameHandler.activities->topActivity(player);
+	ASSERT_NE(completion, nullptr);
+	ASSERT_EQ(completion->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(completion->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	// The reward levelled the hero, so it is not fully handed over yet - the next quest
+	// must wait for the level-up instead of being stated on top of it
+	auto next = gameHandler.activities->topActivity(player);
+	ASSERT_NE(next, nullptr);
+	EXPECT_EQ(next->getType(), ActivityType::HeroLevelUpDialog) << gameHandler.activities->describeStacks();
+}
+
+TEST_F(MapObjectVisitTest, aSeerHutOffersItsNextQuestOnlyAfterTheGarrisonWindowCloses)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+	builder.hotaVersion(3)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(6), player)
+		.seerHutMulti(int3(8, 8, 0), {
+			{TinyH3M::TinyH3MBuilder::missionLevel(1), TinyH3M::TinyH3MBuilder::rewardNothing()},
+			{TinyH3M::TinyH3MBuilder::missionLevel(1), TinyH3M::TinyH3MBuilder::rewardResource(GameResID::WOOD, 7)}});
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * seer = findFirst<SeerHut>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(seer, nullptr);
+
+	// Seven different stacks leave no room for an eighth kind, so the reward opens a garrison window
+	for(int slot = 0; slot < GameConstants::ARMY_SIZE; ++slot)
+		ASSERT_TRUE(hero->setCreature(SlotID(slot), CreatureID(slot), 1));
+	seer->configuration.info.at(0).reward.creatures.emplace_back(CreatureID(10), 5);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(seer, hero);
+
+	auto completion = gameHandler.activities->topActivity(player);
+	ASSERT_NE(completion, nullptr);
+	ASSERT_EQ(completion->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(completion->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	auto garrison = gameHandler.activities->topActivity(player);
+	ASSERT_NE(garrison, nullptr);
+	ASSERT_EQ(garrison->getType(), ActivityType::GarrisonDialog) << gameHandler.activities->describeStacks();
+	ASSERT_EQ(gameHandler.activities->submitReply(garrison->getActiveQuestionID(), player, 0),
+		ReplyOutcome::Accepted);
+
+	// With the reward handed over, the seer states his next quest within the same visit
+	auto next = gameHandler.activities->topActivity(player);
+	ASSERT_NE(next, nullptr);
+	EXPECT_EQ(next->getType(), ActivityType::BlockingDialog) << gameHandler.activities->describeStacks();
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
+}
+
+TEST_F(MapObjectVisitTest, aPandoraRewardChoiceIsNotTakenForOpeningTheBoxAgain)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// Two rewards that the player has to choose between once the box is open
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	pandora->configuration.info.resize(1);
+	pandora->configuration.info.push_back(pandora->configuration.info.at(0));
+	pandora->configuration.selectMode = Rewardable::SELECT_PLAYER;
+	pandora->configuration.info.at(0).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+	pandora->configuration.info.at(1).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LUCK, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+
+	auto granted = [&](BonusType type)
+	{
+		return hero->getBonuses([type](const Bonus * b){ return b->type == type && b->source == BonusSource::OBJECT_TYPE; })->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto open = gameHandler.activities->topActivity(player);
+	ASSERT_NE(open, nullptr);
+	ASSERT_EQ(gameHandler.activities->submitReply(open->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
+
+	auto choice = gameHandler.activities->topActivity(player);
+	ASSERT_NE(choice, nullptr);
+	ASSERT_EQ(choice->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(choice->getActiveQuestionID(), player, 2), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(granted(BonusType::LUCK), 1u);
+	EXPECT_EQ(granted(BonusType::MORALE), 0u);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr) << gameHandler.activities->describeStacks();
+}
+
+TEST_F(MapObjectVisitTest, aRewardChoiceGrantsWhatItOfferedNotTheFirstAvailable)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// A random pick that may be refused: the question names one reward out of both available
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	pandora->configuration.info.resize(1);
+	pandora->configuration.info.push_back(pandora->configuration.info.at(0));
+	pandora->configuration.selectMode = Rewardable::SELECT_RANDOM;
+	pandora->configuration.canRefuse = true;
+	pandora->configuration.info.at(0).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+	pandora->configuration.info.at(1).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LUCK, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+
+	auto granted = [&](BonusType type)
+	{
+		return hero->getBonuses([type](const Bonus * b){ return b->type == type && b->source == BonusSource::OBJECT_TYPE; })->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto open = gameHandler.activities->topActivity(player);
+	ASSERT_NE(open, nullptr);
+	ASSERT_EQ(gameHandler.activities->submitReply(open->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
+
+	auto offer = gameHandler.activities->topActivity(player);
+	ASSERT_NE(offer, nullptr);
+	ASSERT_EQ(offer->getType(), ActivityType::BlockingDialog);
+
+	auto & offered = gameHandler.activities->findVisit(pandora->id)->visitState;
+	ASSERT_TRUE(offered.isVector());
+	ASSERT_EQ(offered.Vector().size(), 1u);
+
+	// Stands in for the random pick landing on the second reward, which it does only sometimes
+	offered.Vector().at(0) = JsonNode(1u);
+
+	ASSERT_EQ(gameHandler.activities->submitReply(offer->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
+
+	EXPECT_EQ(granted(BonusType::LUCK), 1u);
+	EXPECT_EQ(granted(BonusType::MORALE), 0u) << "the first available reward was granted instead of the offered one";
 }
 
 TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)

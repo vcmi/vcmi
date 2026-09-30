@@ -23,6 +23,10 @@ protected:
 	
 	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 
+	/// Handles the answer to either of the questions a rewardable object asks. Returns true if
+	/// the visit is suspended until an activity it started finishes.
+	bool answerBlockingDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const;
+
 	void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	const IObjectInterface * getObject() const override;
@@ -64,7 +68,7 @@ public:
 	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 

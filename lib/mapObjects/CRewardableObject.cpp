@@ -16,6 +16,7 @@
 #include "../battle/BattleLayout.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../json/JsonNode.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
@@ -107,17 +108,28 @@ void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGH
 	gameEvents.startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
 }
 
-void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
+void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const
 {
-	if(isGuarded())
+	answerBlockingDialog(gameEvents, hero, answer, visitState);
+}
+
+bool CRewardableObject::answerBlockingDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const
+{
+	// A reward choice carries what it offered, the question whether to attack the guards nothing
+	if(!visitState.isNull())
+		return onBlockingDialogAnswered(gameEvents, hero, answer, visitState);
+
+	if(!isGuarded())
 	{
-		if (answer)
-			doStartBattle(gameEvents, hero);
+		logGlobal->error("Object at %s got an answer to a question it did not ask", visitablePos().toString());
+		return false;
 	}
-	else
-	{
-		onBlockingDialogAnswered(gameEvents, hero, answer);
-	}
+
+	if(!answer)
+		return false;
+
+	doStartBattle(gameEvents, hero);
+	return true;
 }
 
 void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
