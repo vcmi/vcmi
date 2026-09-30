@@ -655,7 +655,21 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	auto battleint = battleints.at(color);
 	auto activateStack = [&]()
 	{
-		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		const BattleInfo * battle = gameState().getBattle(battleID);
+		if(!battle)
+		{
+			logGlobal->error("startPlayerBattleAction: battle %d not found for player %s", battleID.getNum(), color.toString());
+			return;
+		}
+
+		auto * stack = battle->battleGetStackByID(battle->activeStack, false);
+		if(!stack)
+		{
+			logGlobal->error("startPlayerBattleAction: active stack %d not found in battle %d for player %s", battle->activeStack, battleID.getNum(), color.toString());
+			return;
+		}
+
+		battleint->activeStack(battleID, stack);
 	};
 
 	if (!battleint->human)
