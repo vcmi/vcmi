@@ -417,7 +417,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 			{
 				QByteArray dataDev = deviceInfo.toUtf8();
 				auto streamDev = saver.addFile(std::string("device-info.txt"));
-				writeToArchive(*stream, data);
+				writeToArchive(*streamDev, dataDev);
 			}
 		}
 		if(!advanceProgress(progress, progressValue, outPath))
