@@ -19,13 +19,13 @@
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
-	static const SkipTurnAction skipTurn;
-	static const BadMoraleAction badMorale;
-	static const WaitAction wait;
-	static const DefendAction defend;
-	static const EndTacticsAction endTactics;
-	static const RetreatAction retreat;
-	static const SurrenderAction surrender;
+	static constexpr SkipTurnAction skipTurn;
+	static constexpr BadMoraleAction badMorale;
+	static constexpr WaitAction wait;
+	static constexpr DefendAction defend;
+	static constexpr EndTacticsAction endTactics;
+	static constexpr RetreatAction retreat;
+	static constexpr SurrenderAction surrender;
 
 	switch(action.actionType)
 	{
@@ -103,4 +103,12 @@ bool BattleActionType::checkUnitCanAct(const CBattleInfoCallback & battle, const
 	}
 
 	return true;
+}
+
+const battle::Unit & BattleActionType::getActor(const CBattleInfoCallback & battle, const BattleAction & action)
+{
+	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	if(!unit)
+		throw std::runtime_error("Battle action without an existing actor: " + action.toString());
+	return *unit;
 }

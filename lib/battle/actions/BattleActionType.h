@@ -54,4 +54,8 @@ public:
 
 	/// Checks that the unit exists, is alive and may act now
 	static bool checkUnitCanAct(const CBattleInfoCallback & battle, const battle::Unit * unit, spells::Problem & problem);
+
+protected:
+	/// Returns the unit making the action. Throws if the battle has no such unit
+	static const battle::Unit & getActor(const CBattleInfoCallback & battle, const BattleAction & action);
 };

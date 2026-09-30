@@ -15,10 +15,10 @@
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
+#include "../../bonuses/Bonus.h"
+#include "../../bonuses/BonusList.h"
 #include "../../bonuses/BonusSelector.h"
 #include "../../callback/IGameInfoCallback.h"
-#include "../../networkPacks/PacksForClientBattle.h"
-#include "../../networkPacks/SetStackEffect.h"
 #include "../../spells/Problem.h"
 
 bool SkipTurnAction::isUnitAction() const
@@ -37,11 +37,11 @@ void SkipTurnAction::apply(IBattleActionEnvironment & env, const CBattleInfoCall
 
 MetaString BadMoraleAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	const battle::Unit & unit = getActor(battle, action);
 
 	MetaString text;
-	unit->addText(text, EMetaText::GENERAL_TXT, -34);
-	unit->addNameReplacement(text);
+	unit.addText(text, EMetaText::GENERAL_TXT, -34);
+	unit.addNameReplacement(text);
 	return text;
 }
 
@@ -63,19 +63,19 @@ void WaitAction::applyStartState(battle::CUnitState & actor, const BattleAction 
 
 void WaitAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	const battle::Unit & unit = getActor(battle, action);
 
-	env.fireCombatEvent(CombatEventType::WAIT, unit, nullptr);
-	env.triggerObstaclesUnder(*unit);
+	env.fireCombatEvent(CombatEventType::WAIT, &unit, nullptr);
+	env.triggerObstaclesUnder(unit);
 }
 
 MetaString WaitAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	const battle::Unit & unit = getActor(battle, action);
 
 	MetaString text;
-	unit->addText(text, EMetaText::GENERAL_TXT, 136);
-	unit->addNameReplacement(text);
+	unit.addText(text, EMetaText::GENERAL_TXT, 136);
+	unit.addNameReplacement(text);
 	return text;
 }
 
@@ -97,18 +97,15 @@ void DefendAction::applyStartState(battle::CUnitState & actor, const BattleActio
 
 void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	const battle::Unit & unit = getActor(battle, action);
 
 	//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
-	SetStackEffect sse;
-	sse.battleID = battle.getBattle()->getBattleID();
-
 	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, unit->valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, unit.valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 	Bonus tagBonus(BonusDuration::STACK_GETS_TURN, BonusType::UNIT_DEFENDING, BonusSource::OTHER, 0, BonusSourceID());
 
-	BonusList defence = *unit->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
+	BonusList defence = *unit.getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
 
 	defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
@@ -129,23 +126,17 @@ void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallba
 	buffer.push_back(bonus2);
 	buffer.push_back(tagBonus);
 
-	sse.toUpdate.emplace_back(action.stackNumber, buffer);
-	env.apply(sse);
-
-	BattleLogMessage message;
-	message.battleID = battle.getBattle()->getBattleID();
+	env.updateUnitBonuses(unit, buffer);
 
 	MetaString text;
-	unit->addText(text, EMetaText::GENERAL_TXT, 120);
-	unit->addNameReplacement(text);
+	unit.addText(text, EMetaText::GENERAL_TXT, 120);
+	unit.addNameReplacement(text);
 	text.replaceNumber(difference);
 
-	message.lines.push_back(text);
+	env.addBattleLogLine(text);
 
-	env.apply(message);
-
-	env.fireCombatEvent(CombatEventType::DEFEND, unit, nullptr);
-	env.triggerObstaclesUnder(*unit);
+	env.fireCombatEvent(CombatEventType::DEFEND, &unit, nullptr);
+	env.triggerObstaclesUnder(unit);
 }
 
 bool EndTacticsAction::isTacticsAction() const

@@ -11,9 +11,10 @@
 
 #include "../../constants/Enumerations.h"
 
-struct CPackForClient;
-class PlayerColor;
+struct Bonus;
 class GameResID;
+class MetaString;
+class PlayerColor;
 enum class BattleSide : int8_t;
 
 namespace battle
@@ -27,8 +28,9 @@ class DLL_LINKAGE IBattleActionEnvironment
 public:
 	virtual ~IBattleActionEnvironment() = default;
 
-	/// Sends the pack to clients and applies it to the game state
-	virtual void apply(CPackForClient & pack) = 0;
+	/// Adds the bonuses to the unit, as IBattleState::updateUnitBonus does
+	virtual void updateUnitBonuses(const battle::Unit & unit, const std::vector<Bonus> & bonuses) = 0;
+	virtual void addBattleLogLine(const MetaString & line) = 0;
 	/// Runs combat event handlers of the unit and of every other unit reacting to the event
 	virtual void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) = 0;
 	/// Triggers obstacles on the hexes the unit occupies
