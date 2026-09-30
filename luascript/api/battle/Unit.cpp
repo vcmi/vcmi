@@ -44,6 +44,11 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.method<&ACreature::getDefense, Unit>("getDefense",
 		{{"ranged", "True for defense against ranged attacks, false for defense against melee."}}, {},
 		"Returns the creature's defense stat.");
+	R.method<&AFactionMember::luckVal, Unit>("getLuck", {},
+		"Returns effective luck after caps and unit exclusions. Returns 0 when luck does not apply. "
+		"Prefer this method to summing LUCK bonuses.");
+	R.method<&AFactionMember::moraleVal, Unit>("getMorale", {},
+		"Returns effective morale after caps and unit exclusions.");
 	R.method<&Unit::alive>("isAlive", {},
 		"True if the stack has at least one alive creature.");
 	R.method<&Unit::isClone>("isClone", {},
@@ -84,11 +89,14 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the health left of the first creature in the unit stack.");
 	R.method<&Unit::isShooter>("isShooter", {},
 		"True if the stack can shoot in general, even if out of ammo. See canShoot to check if unit can shoot right now.");
+	R.method<&Unit::ableToRetaliate>("ableToRetaliate", {},
+		"True when the unit is alive and has an unused retaliation this round. Attacker-side "
+		"retaliation blocking is not considered.");
 	R.method<&Unit::isTurret>("isTurret", {},
 		"True if the stack is one of the towers of a besieged town.");
 	R.function<&UnitProxy::getTurretPart>("getTurretPart",
-        {" 'keep', 'upper' or 'lower'; nil when the stack is no tower."},
-		"Which of the three towers of a besieged town this stack is.");
+		{"'keep', 'upper' or 'lower'; nil for non-turret units."},
+		"Returns the tower position of a besieged-town stack.");
 	R.method<&ACreature::getMaxHealth, Unit>("getMaxHealth", {},
 		"Returns the maximum hit points of a single creature in the stack.");
 	R.method<&Unit::coversPos>("coversPos",

@@ -140,7 +140,7 @@ float BattleExchangeVariant::trackAttack(
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
-	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
+	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attackDamage, damageCache);
 	float attackerDamageReduce = 0;
 
 	if(!evaluateOnly)
@@ -170,7 +170,7 @@ float BattleExchangeVariant::trackAttack(
 	if(!evaluateOnly && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
-		attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, damageCache, hb);
+		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
 
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(
@@ -311,9 +311,13 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 
 			vstd::amin(turnsToKill, 100);
 
+			// clamp - the product of turns and movement range does not fit into the array element type
+			constexpr auto maxCost = std::numeric_limits<TBattlefieldTurnsArray::value_type>::max();
+			auto bypassCost = static_cast<int>(std::min<int64_t>(turnsToKill * unit->getMovementRange(), maxCost));
+
 			for(auto & hex : unit->getHexes())
 				if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
-					params.destructibleEnemyTurns[hex.toInt()] = turnsToKill * unit->getMovementRange();
+					params.destructibleEnemyTurns[hex.toInt()] = bypassCost;
 		}
 
 		params.bypassEnemyStacks = true;

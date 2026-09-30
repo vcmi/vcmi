@@ -20,6 +20,9 @@ public:
 
 	Canvas getCanvas();
 
+	/// Copies pixels to the buffer in RGBA byte order
+	void readPixelsRGBA(std::vector<uint8_t> & buffer) const;
+
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src, int scalingFactor) const override;
 	void scaleTo(const Point & size, EScalingAlgorithm algorithm) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;

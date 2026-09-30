@@ -162,7 +162,7 @@ Returns every valid battlefield hex.
 
 ### getWallState
 
-Returns the current state of the given wall section, or nil if absent.
+Returns the number of hitpoints that the given wall section has left, or nil if the town has no such section. Section with no hitpoints left has been destroyed.
 
 - param `part`: [`WallPart`](WallPart.md) — Wall section to query.
 

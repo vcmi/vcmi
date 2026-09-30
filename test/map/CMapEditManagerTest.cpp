@@ -33,7 +33,7 @@ TEST(MapManager, DrawTerrain_Type)
 		auto editManager = map->getEditManager();
 		editManager->clearTerrain(&rand);
 
-		// 1x1 Blow up
+		// 1x1 explosion
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
 		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };

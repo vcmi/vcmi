@@ -80,4 +80,5 @@ public:
 	std::string getSpecialtyNameTextID() const override;
 	std::string getSpecialtyDescriptionTextID() const override;
 	std::string getSpecialtyTooltipTextID() const override;
+	std::string getSpecialtyBonusTextID(const std::string & bonusID) const;
 };

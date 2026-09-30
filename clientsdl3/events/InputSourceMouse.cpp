@@ -56,8 +56,8 @@ void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
 	Point newPosition = Point(motion.x, motion.y) / ENGINE->screenHandler().getScalingFactor();
-	motionAccumulatedX += static_cast<float>(-motion.xrel) / ENGINE->screenHandler().getScalingFactor();
-	motionAccumulatedY += static_cast<float>(-motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedX += -motion.xrel / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedY += -motion.yrel / ENGINE->screenHandler().getScalingFactor();
 	Point distance = Point(motionAccumulatedX, motionAccumulatedY);
 	motionAccumulatedX -= distance.x;
 	motionAccumulatedY -= distance.y;

@@ -431,7 +431,7 @@ const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance
 
 		const int coveredThreats = Goals::countTownThreatsCoveredByDefender(*town, *hero, threats, safeAttackRatio);
 		const bool reserveDefender = Goals::shouldReserveTownDefender(*town, *hero, threats, safeAttackRatio);
-		const uint64_t strength = hero->getTotalStrength();
+		const uint64_t strength = hero->estimateHeroCombatValue();
 
 		if(!reserveDefender)
 			return;
@@ -938,7 +938,7 @@ void Nullkiller::tracePlayerStatus(bool beginning) const
 	int totalTownsLevel = 0;
 	for (const auto *heroInfo : cc->getHeroesInfo())
 	{
-		totalHeroesStrength += heroInfo->getTotalStrength();
+		totalHeroesStrength += heroInfo->estimateHeroCombatValue();
 	}
 	for (const auto *townInfo : cc->getTownsInfo())
 	{

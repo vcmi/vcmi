@@ -110,6 +110,8 @@ JsonNode Bonus::toJsonNode() const
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
+	if(targetSourceID.hasValue())
+		root["targetSourceID"].String() = targetSourceID.toString();
 	if(sid != BonusSourceID())
 		root["sourceID"].String() = sid.toString();
 	if(val != 0)

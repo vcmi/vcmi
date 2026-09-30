@@ -45,6 +45,20 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
+	const JsonNode & grailRumor = json["grailRumor"];
+	if (!grailRumor.String().empty())
+	{
+		if (grailRumor.String()[0] == '@')
+		{
+			info->grailRumorTextID = grailRumor.String().substr(1);
+		}
+		else
+		{
+			info->grailRumorTextID = TextIdentifier("terrain", scope, identifier, "grailRumor").get();
+			LIBRARY->generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
+		}
+	}
+
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
 	{

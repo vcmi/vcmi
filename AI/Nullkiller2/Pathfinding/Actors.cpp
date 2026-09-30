@@ -64,7 +64,7 @@ ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatu
 {
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
-	armyValue = creatureSet->getArmyStrength();
+	armyValue = creatureSet->estimateCombatValue();
 }
 
 int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
@@ -296,8 +296,8 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		if(!newArmy) return result;
 
-		auto newArmyStrength = newArmy->getArmyStrength();
-		auto oldArmyStrength = actor->creatureSet->getArmyStrength();
+		auto newArmyStrength = newArmy->estimateCombatValue();
+		auto oldArmyStrength = actor->creatureSet->estimateCombatValue();
 
 		if(newArmyStrength <= oldArmyStrength)
 		{
@@ -380,7 +380,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 		}
 	}
 
-	if(target->getArmyStrength() <= army->getArmyStrength())
+	if(target->estimateCombatValue() <= army->estimateCombatValue())
 	{
 		delete target;
 

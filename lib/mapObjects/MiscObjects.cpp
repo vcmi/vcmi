@@ -410,9 +410,9 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObj
 		return obj && vstd::contains(IDs, obj->ID) && obj->subID == SubID;
 	};
 
-	for(const auto & [channelID, channel] : cb->gameState().getMap().teleportChannels)
+	for(const auto & [channelID, teleportChannel] : cb->gameState().getMap().teleportChannels)
 	{
-		if(vstd::contains_if(channel->entrances, matches) || vstd::contains_if(channel->exits, matches))
+		if(vstd::contains_if(teleportChannel->entrances, matches) || vstd::contains_if(teleportChannel->exits, matches))
 			return channelID;
 	}
 	return TeleportChannelID();

@@ -23,7 +23,6 @@ namespace Goals
 		const CGObjectInstance * upgrader;
 		uint64_t initialValue;
 		uint64_t upgradeValue;
-		uint64_t goldCost;
 
 	public:
 		ArmyUpgrade(const AIPath & upgradePath, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade);

@@ -28,6 +28,7 @@ class RNG;
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
+class CombatValue;
 class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
@@ -204,6 +205,8 @@ private:
 	/// help function for parsing CREXPBON.txt
 	int stringToNumber(std::string & s) const;
 
+	std::unique_ptr<CombatValue> combatValues;
+
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CCreature> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
@@ -233,6 +236,13 @@ public:
 	void loadCrExpMod();
 
 	const ResourceSet & getCommanderResurrectionPrice(const CCreature * commander) const;
+
+	/// Builds the combat value model. Reads creature stats and resolves script identifiers,
+	/// so it can only be called once all mods are loaded
+	void buildCombatValues();
+
+	/// Estimates combat value of a creature or a battle unit
+	const CombatValue & getCombatValue() const;
 
 	void afterLoadFinalization() override;
 

@@ -23,7 +23,7 @@ constexpr int32_t bloodlustAttack = 3;
 }
 
 /// The enchanted ability keeps a spell applied to its bearer for the whole battle, re-applying it
-/// at the start of every round. What it is worth is the stat the spell changes, so that is what
+/// at the start of every round. Its value is the stat the spell changes, so that is what
 /// these check: the attack of a creature under a permanent bloodlust.
 class EnchantedTest : public BattleTestFixture
 {
@@ -35,7 +35,6 @@ TEST_F(EnchantedTest, EnchantsItsBearerWhenTheBattleStarts)
 	startBattle();
 
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
 	ASSERT_EQ(enchanter->getAttack(false), baseAttack);
 
 	beginCombat();
@@ -49,9 +48,7 @@ TEST_F(EnchantedTest, KeepsTheEnchantmentAsRoundsPass)
 	startBattle();
 
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testEnchanter"), BattleHex(leftHex), stackCount);
-	CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
-	ASSERT_NE(opponent, nullptr);
+    [[maybe_unused]] CStack * opponent = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
 
 	beginCombat();
 
@@ -71,9 +68,6 @@ TEST_F(EnchantedTest, MassiveEnchantmentReachesEveryAllyAndNoEnemy)
 	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testMassEnchanter"), BattleHex(leftHex), stackCount);
 	CStack * ally = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex - 1), stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stackCount);
-	ASSERT_NE(enchanter, nullptr);
-	ASSERT_NE(ally, nullptr);
-	ASSERT_NE(enemy, nullptr);
 
 	beginCombat();
 

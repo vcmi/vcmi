@@ -68,7 +68,7 @@ class CStackWindow : public CWindowObject
 	private:
 		std::shared_ptr<CPicture> background;
 	protected:
-		CStackWindow * parent;
+		CStackWindow * stackWindow;
 	public:
 		CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset);
 	};
@@ -166,7 +166,7 @@ class CStackWindow : public CWindowObject
 	class StackExperienceDetailsWindow;
 
 
-	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<CFilledTexture> backgroundTexture;
 
 	std::shared_ptr<CArtPlace> stackArtifact;
 	std::shared_ptr<CButton> stackArtifactButton;

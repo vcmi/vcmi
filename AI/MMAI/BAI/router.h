@@ -75,7 +75,6 @@ private:
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<CBattleGameInterface> bai; // calls will be delegated to this object
 
-	bool wasWaitingForRealize = false;
 	AutocombatPreferences autocombatPreferences;
 	std::string addrstr = "?";
 	std::string colorname = "?";

@@ -51,6 +51,8 @@ class BattleFlowProcessor : boost::noncopyable
 
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
+	void tryUnbindStack(const CBattleInfoCallback & battle, const CStack * stack);
+	void removeBrokenBindings(const CBattleInfoCallback & battle);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
 	double calculateTowerAttackValue(const CBattleInfoCallback& battle, const CStack* attacker, const CStack* target) const;
 

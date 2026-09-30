@@ -48,6 +48,18 @@
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
+static void extendButtonHitArea(const std::shared_ptr<CToggleButton> & button, const std::shared_ptr<CIntObject> & hitArea)
+{
+	if(button && hitArea)
+		button->pos = button->pos.include(hitArea->pos);
+}
+
+static std::string getRoadWidgetName(const std::string & jsonKey)
+{
+	const auto separator = jsonKey.find(':');
+	return jsonKey.substr(separator == std::string::npos ? 0 : separator + 1);
+}
+
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable(),
 	templateIndex(0)
@@ -135,6 +147,7 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
+	extendRoadButtonHitAreas();
 
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
@@ -198,7 +211,7 @@ RandomMapTab::RandomMapTab():
 					templateIndex = 0;
 
 				texts.push_back(templates[i]->getName());
-				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescriptionTranslated());
 			}
 
 			ENGINE->windows().popWindows(1);
@@ -214,6 +227,15 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	loadOptions();
+}
+
+void RandomMapTab::extendRoadButtonHitAreas()
+{
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	{
+		const auto widgetName = getRoadWidgetName(road->getJsonKey());
+		extendButtonHitArea(widget<CToggleButton>(widgetName), widget<CIntObject>(widgetName + "Preview"));
+	}
 }
 
 void RandomMapTab::onToggleMapSize(int btnId)
@@ -284,7 +306,7 @@ void RandomMapTab::updateMapInfoByHost()
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
-		auto randomTemplateDescription = temp->getDescription();
+		auto randomTemplateDescription = temp->getDescriptionTranslated();
 		if (!randomTemplateDescription.empty())
 		{
 			auto description = std::string("\n\n") + randomTemplateDescription;
@@ -508,10 +530,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
-		std::string jsonKey = r->getJsonKey();
-		std::string identifier = jsonKey.substr(jsonKey.find(':')+1);
-
-		if(auto w = widget<CToggleButton>(identifier))
+		if(auto w = widget<CToggleButton>(getRoadWidgetName(r->getJsonKey())))
 		{
 			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
@@ -790,8 +809,8 @@ SetSizeWindow::SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const C
 	updateShadow();
 	center();
 
-	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	background->setPlayerColor(PlayerColor(1));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	buttonCancel = std::make_shared<CButton>(Point(160, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 	buttonOk = std::make_shared<CButton>(Point(70, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
 		close();
@@ -899,8 +918,8 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	updateShadow();
 	center();
 
-	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	background->setPlayerColor(PlayerColor(1));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 
 	titles.push_back(std::make_shared<CLabel>(centerX, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.2")));

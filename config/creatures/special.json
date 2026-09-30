@@ -83,6 +83,7 @@
 			{
 				"type" : "SIEGE_WEAPON"
 			},
+			"heroAttackDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "ballistaDamage", "val" : 1 },
 			"shooter" :
 			{
 				"type" : "SHOOTER"

@@ -6,4 +6,4 @@ UCRT_URL="https://github.com/vcmi/vcmi-deps-windows/releases/download/$RELEASE_T
 
 UCRT_DIR="ucrt"
 mkdir -p "$UCRT_DIR"
-curl -L "$UCRT_URL" | tar -xf - --xz -C "$UCRT_DIR"
+curl --proto =https -L "$UCRT_URL" | tar -xf - --xz -C "$UCRT_DIR"

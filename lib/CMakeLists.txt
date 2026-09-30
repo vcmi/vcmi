@@ -14,6 +14,7 @@ set(lib_SRCS
 	filesystem/FileInfo.cpp
 	filesystem/Filesystem.cpp
 	filesystem/MinizipExtensions.cpp
+	filesystem/PngStripWriter.cpp
 	filesystem/ResourcePath.cpp
 
 	json/JsonFormatException.cpp
@@ -170,6 +171,7 @@ set(lib_MAIN_SRCS
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
+	mapObjects/MapObjectDrawOrder.cpp
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
@@ -373,6 +375,7 @@ set(lib_HEADERS
 	filesystem/Filesystem.h
 	filesystem/ISimpleResourceLoader.h
 	filesystem/MinizipExtensions.h
+	filesystem/PngStripWriter.h
 	filesystem/ResourcePath.h
 
 	json/JsonFormatException.h
@@ -600,6 +603,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGHeroInstance.h
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
+	mapObjects/MapObjectDrawOrder.h
 	mapObjects/CGPandoraBox.h
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
@@ -894,4 +898,8 @@ endif()
 
 if(VCMI_PORTMASTER)
 	target_compile_definitions(vcmiMain PRIVATE VCMI_PORTMASTER)
+endif()
+
+if(VCMI_FLATPAK)
+	target_compile_definitions(vcmiMain PRIVATE VCMI_FLATPAK)
 endif()

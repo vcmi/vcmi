@@ -417,6 +417,49 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 	return isWithin(X, Y) && usedTiles[Y][X] & BLOCKED;
 }
 
+ui8 ObjectTemplate::getDrawLayerAt(si32 X, si32 Y) const
+{
+	if(X < 0 || Y < 0 || Y >= static_cast<si32>(drawLayers.size()) || X >= static_cast<si32>(drawLayers[Y].size()))
+		return 0;
+	return drawLayers[Y][X];
+}
+
+void ObjectTemplate::calculateDrawLayers()
+{
+	const int width = static_cast<int>(getWidth());
+	const int height = static_cast<int>(getHeight());
+
+	drawLayers.assign(height, std::vector<ui8>(width, 0));
+
+	// objects with print priority stay out of the layers - positive is drawn below everything else, negative above
+	if(printPriority != 0)
+	{
+		if(printPriority < 0)
+			drawLayers.assign(height, std::vector<ui8>(width, 255));
+		return;
+	}
+
+	// Layers of H3: a column is numbered bottom to top and restarts where blocked cell is above passable one,
+	// while passable cell that has blocked cell to its right takes over the layer of that cell
+	for(int x = 0; x < width; ++x)
+	{
+		ui8 layer = 1;
+		for(int y = 0; y < height; ++y)
+		{
+			if(y > 0 && isBlockedAt(x, y) && !isBlockedAt(x, y - 1))
+				layer = 1;
+
+			if(x > 0 && !isBlockedAt(x, y) && isBlockedAt(x - 1, y))
+				layer = drawLayers[y][x - 1];
+
+			drawLayers[y][x] = layer;
+
+			if(layer < 254)
+				++layer;
+		}
+	}
+}
+
 void ObjectTemplate::calculateBlockedOffsets()
 {
 	blockedOffsets.clear();
@@ -548,6 +591,7 @@ void ObjectTemplate::recalculate()
 	calculateBlockMapOffset();
 	calculateVisitableOffset();
 	calculateTopVisibleOffset();
+	calculateDrawLayers();
 
 	if (visitable && visitDir == 0)
 		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());

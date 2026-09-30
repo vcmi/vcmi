@@ -20,7 +20,11 @@
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+class BattleAction;
+class CArmedInstance;
 class CGHeroInstance;
+class CGTownInstance;
+struct SpellCreatedObstacle;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -41,6 +45,8 @@ class RecordingGameServer : public IGameServer
 public:
 	std::shared_ptr<CGameState> gameState;
 	std::vector<RecordedCast> casts;
+	std::vector<CatapultAttack> catapultAttacks;
+	std::vector<BattleResult> battleResults;
 
 	void setState(EServerState value) override { state = value; }
 	EServerState getState() const override { return state; }
@@ -77,21 +83,51 @@ public:
 
 	/// Two heroes with a token army each, so that a battle between them is valid.
 	void startGame();
-	void startBattle();
+	/// Sand is native to no faction, so by default no unit gets the native terrain bonus
+	void startBattle(TerrainId terrain = ETerrainId::SAND);
+	/// Same as startBattle, but the defender is a town with a fort and no hero, so the battlefield has walls.
+	void startSiege();
 	/// Ends the tactics phase, which fires the battle-start triggers and activates the first
 	/// stack. Call once every unit a scenario needs is on the field.
 	void beginCombat();
 
 	BattleInfo * battle() const;
 
+	/// Adds a stack and fails the test if placement fails
 	CStack * addStack(BattleSide side, const CreatureID & creature, const BattleHex & position, int32_t count);
 	void giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position);
 
-	/// Casts a hero spell at a unit, reporting whether the game allowed it at all.
+	/// Applies a hero spell without creating a battle action
 	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const;
+	/// Executes a hero spell battle action during an allied unit turn
+	bool castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target);
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
 	bool attack(const CStack * attacker, const BattleHex & targetHex);
+	/// Moves the attacker to `fromHex` before attacking `targetHex`
+	bool attackFrom(const CStack * attacker, const BattleHex & targetHex, const BattleHex & fromHex);
+	/// Moves the stack to `destination`
+	bool move(const CStack * stack, const BattleHex & destination);
+	/// Executes a defend action
+	bool defend(const CStack * stack);
+	/// Sets the clone state used by clone-specific abilities
+	void makeClone(CStack * stack);
+	/// Executes a creature spell action; an invalid hex creates an empty target
+	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
+	/// Submits the action as the player of its side, making the stack it names the active one.
+	bool act(const BattleAction & action);
+
+	/// Hidden quicksand of the defender, which stops a unit that walks into it.
+	void addQuicksand(const BattleHex & hex);
+	/// Castle moat, which stops a unit that walks into it and damages a unit that acts inside it.
+	void addMoat(const BattleHex & hex);
+
+	/// Takes health from the stack, killing it when the damage covers all it has.
+	void injure(const CStack * stack, int64_t damage);
+	/// Gives the hero a spellbook, the spell, and mana to cast it.
+	void teachSpell(CGHeroInstance * hero, SpellID spell);
+	/// Lets the unit cast `spell` once, at the given level, through `ability` - SPELLCASTER or ADJACENT_SPELLCASTER.
+	static void grantSpell(CStack * unit, BonusType ability, SpellID spell, int level);
 	/// Waits out the current round with every unit defending, leaving the battle in the next one.
 	void endRound();
 
@@ -102,8 +138,11 @@ public:
 	/// rather than cast, because some of the creatures that need it are undead and refuse the spell.
 	static void forceMaximumDamage(CStack * stack);
 
-	/// Creature declared by a mod, by its full identifier - "vcmi-test:testSoulStealer".
+	/// Resolves a mod entity by its full identifier, for example `vcmi-test:testSoulStealer`
 	static CreatureID creatureByName(const std::string & name);
+	static SpellID spellByName(const std::string & name);
+	static SecondarySkill skillByName(const std::string & name);
+	static ScriptID scriptByName(const std::string & name);
 
 	/// Shared rather than unique so that tests need not see the definition of the game handler
 	/// only in order to destroy one.
@@ -121,4 +160,6 @@ protected:
 
 private:
 	static void makeNeutral(CGHeroInstance * hero);
+	void setupBattle(BattleSideArray<const CGHeroInstance *> heroes, BattleSideArray<const CArmedInstance *> armies, const CGTownInstance * town, TerrainId terrain);
+	void addObstacle(SpellCreatedObstacle & obstacle);
 };

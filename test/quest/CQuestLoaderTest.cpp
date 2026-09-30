@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/army/CStackBasicDescriptor.h"
 #include "../../lib/mapping/MapDifficulty.h"
+#include "../../lib/rewardable/Configuration.h"
 #include "../../lib/rewardable/Limiter.h"
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -247,4 +248,41 @@ TEST(QuestLimiterJsonTest, AllowedDifficultiesDefaultOmitted)
 	src.serializeJson(ser);
 
 	EXPECT_TRUE(node["allowedDifficulties"].isNull());
+}
+
+class QuestJsonRewardTest : public QuestTest {};
+
+TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
+{
+	// serializeJsonOptions is protected
+	struct SeerProbe : public SeerHut
+	{
+		using SeerHut::SeerHut;
+		using SeerHut::serializeJsonOptions;
+	};
+
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	// as loaded from H3M: reward only in the quest
+	SeerProbe source(gameState().get());
+	source.addQuest();
+	source.getQuest().mission.heroLevel = 3;
+	Rewardable::VisitInfo vinfo;
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	vinfo.reward.heroExperience = 100;
+	source.getQuest().reward = vinfo;
+
+	JsonNode written;
+	JsonSerializer saver(nullptr, written);
+	source.serializeJsonOptions(saver);
+	ASSERT_EQ(written["rewardable"]["info"].Vector().size(), 1u);
+
+	// load it back
+	SeerProbe loaded(gameState().get());
+	JsonDeserializer loader(nullptr, written);
+	loaded.serializeJsonOptions(loader);
+	ASSERT_EQ(loaded.configuration.info.size(), 1u);
+	ASSERT_TRUE(loaded.getQuest().reward.has_value());
+	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 100);
 }

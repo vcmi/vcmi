@@ -196,6 +196,10 @@ void WindowHandler::clear()
 
 	windowsStack.clear();
 	disposed.clear();
+
+	// covered windows reclaim their layers on redraw, and only the top one was deactivated
+	for(size_t i = 0; i < static_cast<size_t>(GpuRenderLayer::COUNT); ++i)
+		ENGINE->screenHandler().releaseLayer(static_cast<GpuRenderLayer>(i));
 }
 
 void WindowHandler::setOverlay(std::shared_ptr<IShowActivatable> newOverlay)

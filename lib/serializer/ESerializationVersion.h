@@ -57,6 +57,9 @@ enum class ESerializationVersion : int32_t
 	MUTARE_DRAKE_OVERRIDE, // campaign header stores hero type override used for Mutare Drake crossover bonus targeting
 	TOWN_NAME_TEXT_ID, // renaming a town registers the new name in the map text container instead of storing free-form text
 	RECORD_TEXTS_METASTRING, // highscore scenario name and statistics map name are stored unresolved, to be rendered by the reader
+	BONUS_TARGET_SOURCE_ID, // bonus can restrict PERCENT_TO_TARGET_TYPE to a single source ID
+	SECONDARY_SKILL_OFFER_COOLDOWN, // hero stores level at which skills with offer cooldown were gained
+	SEER_HUT_NAME_TEXT_ID, // seer name is stored as text identifier, and a quest may override it with a map-defined name
 	HOTA_HERO_LEVEL_OPTIONS, // persist HotA per-hero experience lock
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,

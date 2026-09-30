@@ -35,6 +35,8 @@
 #include "gui/CursorHandler.h"
 #include "gui/WindowHandler.h"
 
+#include "lobby/SelectionTab.h"
+
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CHighScoreScreen.h"
 #include "mainmenu/CStatisticScreen.h"
@@ -263,9 +265,9 @@ void CPlayerInterface::performAutosave()
 	{
 		const auto calendar = cb->getCalendar();
 		const auto autosaveCountLimit = static_cast<int>(settings["general"]["autosaveCountLimit"].Integer());
-		cb->saveAutosave(
-			SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar),
-			autosaveCountLimit);
+		const auto autosavePath = SavegamePath::getAutosavePath(*cb->getStartInfo(), *cb->getMapHeader(), calendar);
+		SelectionTab::rememberSave(autosavePath);
+		cb->saveAutosave(autosavePath, autosaveCountLimit);
 	}
 }
 
@@ -943,7 +945,6 @@ void CPlayerInterface::battleStacksAttacked(const BattleID & battleID, const std
 		info.spellEffect    = SpellID::NONE;
 		info.indirectAttack = ranged;
 		info.killed         = elem.killed();
-		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
 
 		if (elem.isSpell())
@@ -1113,12 +1114,12 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	waitWhileDialog();
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
+void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components, uint32_t timeoutMs)
 {
 	waitWhileDialog();
 	movementController->requestMovementAbort();
 	GAME->interface()->showingDialog->setBusy();
-	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
+	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID, timeoutMs);
 }
 
 void CPlayerInterface::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -2047,6 +2048,7 @@ void CPlayerInterface::quickSaveGame()
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
 	txt.replaceRawString(quickSavePath);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
+	SelectionTab::rememberSave(quickSavePath);
 	GAME->interface()->cb->save(quickSavePath, false);
 	hasQuickSave = true;
 	if(adventureInt)

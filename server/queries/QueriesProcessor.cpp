@@ -10,7 +10,13 @@
 #include "StdInc.h"
 #include "QueriesProcessor.h"
 
+#include "../CGameHandler.h"
 #include "CQuery.h"
+
+QueriesProcessor::QueriesProcessor(CGameHandler & gameHandler)
+	: gameHandler(gameHandler)
+{
+}
 
 void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 {
@@ -36,6 +42,9 @@ void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 
 	if(queriesStackListener)
 		queriesStackListener->onQueryStackChanged(player);
+
+	if(!topQuery(player))
+		gameHandler.checkVictoryLossConditionsForPlayer(player);
 }
 
 void QueriesProcessor::popQuery(const CQuery &query)
@@ -160,4 +169,3 @@ void QueriesProcessor::setListener(IQueryStackListener * listener)
 {
 	queriesStackListener = listener;
 }
-

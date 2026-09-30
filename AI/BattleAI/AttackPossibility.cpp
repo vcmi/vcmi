@@ -15,6 +15,8 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
+#include "../../lib/battle/CombatValue.h"
+#include "../../lib/CCreatureHandler.h"
 
 #include "../../lib/GameLibrary.h"
 
@@ -92,10 +94,22 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleS
 		buildObstacleDamageCache(hb, side);
 	}
 
+	// a nested cache describes the same battle, so it keeps the data its parent was built against
+	if(parent)
+		facing = parent->facing;
+	else
+		for(auto known : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+			facing.at(known) = CombatValueContext::against(*hb, known);
+
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
 			return u->isValidTarget();
 		});
+
+	// only the root cache holds them, so that a nested one scores its changes against the original state
+	if(parent == nullptr)
+		for(auto stack : stacks)
+			unitValues[stack->unitId()] = LIBRARY->creh->getCombatValue().getAIValue(stack, facing.at(stack->unitSide()));
 
 	battle::Units ourUnits;
 	battle::Units enemyUnits;
@@ -171,6 +185,20 @@ int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const batt
 	return getDamage(attacker, defender, hb);
 }
 
+float DamageCache::getOriginalValue(const battle::Unit * unit) const
+{
+	if(parent)
+		return parent->getOriginalValue(unit);
+
+	auto value = unitValues.find(unit->unitId());
+
+	if(value != unitValues.end())
+		return value->second;
+
+	// unit that did not exist when the cache was built, such as one summoned by a spell
+	return LIBRARY->creh->getCombatValue().getAIValue(unit, facing.at(unit->unitSide()));
+}
+
 AttackPossibility::AttackPossibility(const BattleHex & from, const BattleHex & dest, const BattleAttackInfo & attack)
 	: from(from), dest(dest), attack(attack)
 {
@@ -217,44 +245,20 @@ float hpFunction(uint64_t unitHealthStart, uint64_t unitHealthEnd, uint64_t maxH
 /// Bounty - the killed creature average damage calculated against attacker
 /// </summary>
 float AttackPossibility::calculateDamageReduce(
-	const battle::Unit * attacker,
 	const battle::Unit * defender,
 	uint64_t damageDealt,
-	DamageCache & damageCache,
-	std::shared_ptr<CBattleInfoCallback> state)
+	const DamageCache & damageCache)
 {
 	const float HEALTH_BOUNTY = 0.5;
 	const float KILL_BOUNTY = 0.5;
-
-	// FIXME: provide distance info for Jousting bonus
-	auto attackerUnitForMeasurement = attacker;
-
-	if(!attackerUnitForMeasurement || attackerUnitForMeasurement->isTurret())
-	{
-		auto ourUnits = state->battleGetUnitsIf([&](const battle::Unit * u) -> bool
-			{
-				return u->unitSide() != defender->unitSide()
-					&& !u->isTurret()
-					&& !u->isCatapult()
-					&& !u->isBallista()
-					&& !u->isFirstAidTent()
-					&& u->getCount();
-			});
-
-		if(ourUnits.empty())
-			attackerUnitForMeasurement = defender;
-		else
-			attackerUnitForMeasurement = ourUnits.front();
-	}
 
 	auto maxHealth = defender->getMaxHealth();
 	auto availableHealth = defender->getFirstHPleft() + ((defender->getCount() - 1) * maxHealth);
 
 	vstd::amin(damageDealt, availableHealth);
 
-	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
 	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
-	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
+	auto damagePerEnemy = damageCache.getOriginalValue(defender);
 	auto exceedingDamage = (damageDealt % maxHealth);
 	float hpValue = (damageDealt / maxHealth);
 	
@@ -307,10 +311,12 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
-		auto cachedDmg = damageCache.getOriginalDamage(st, attacker, state);
+		// blocking a shooter denies a fraction of its combat value, scored on the same scale as a kill
+		const int64_t shooterValue = damageCache.getOriginalValue(st) * CombatValue::stackScale(*st);
+		const int64_t rangeDamage = averageDmg(rangeDmg.damage);
+		const int64_t gain = rangeDamage - static_cast<int64_t>(averageDmg(meleeDmg.damage)) + 1;
 
-		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
-		res += gain * cachedDmg / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
+		res += gain * shooterValue / std::max<int64_t>(1, rangeDamage);
 	}
 
 	return res;
@@ -374,7 +380,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 			if(obstacleDamage > 0)
 			{
-				ap.attackerDamageReduce += calculateDamageReduce(nullptr, attacker, obstacleDamage, damageCache, state);
+				ap.attackerDamageReduce += calculateDamageReduce(attacker, obstacleDamage, damageCache);
 
 				ap.attackerState->damage(obstacleDamage);
 			}
@@ -425,7 +431,7 @@ AttackPossibility AttackPossibility::evaluate(
 				damageDealt = averageDmg(attackDmg.damage);
 				vstd::amin(damageDealt, defenderState->getAvailableHealth());
 
-				defenderDamageReduce = calculateDamageReduce(attacker, u, damageDealt, damageCache, state);
+				defenderDamageReduce = calculateDamageReduce(u, damageDealt, damageCache);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
@@ -441,7 +447,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 							vstd::amin(damageReceived, ap.attackerState->getAvailableHealth());
 
-							attackerDamageReduce = calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+							attackerDamageReduce = calculateDamageReduce(retaliated, damageReceived, damageCache);
 							ap.attackerState->damage(damageReceived);
 						}
 						else
@@ -452,9 +458,9 @@ AttackPossibility AttackPossibility::evaluate(
 							vstd::amin(damageReceived, retaliated->getAvailableHealth());
 
 							if(defender->unitSide() == retaliated->unitSide())
-								defenderDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+								defenderDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
 							else
-								ap.collateralDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+								ap.collateralDamageReduce += calculateDamageReduce(retaliated, damageReceived, damageCache);
 
 							defenderStates.at(retaliated->unitId())->damage(damageReceived);
 						}

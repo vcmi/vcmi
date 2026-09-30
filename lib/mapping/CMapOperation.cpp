@@ -179,7 +179,7 @@ void CDrawTerrainOperation::expandSelection(CTerrainSelection selection)
 		tiles = getInvalidTiles(centerPos);
 		if(tiles.nativeTiles.find(centerPos) != tiles.nativeTiles.end())
 		{
-			// Blow up
+			// Explosion
 			auto rect = extendTileAroundSafely(centerPos);
 			std::set<int3> suitableTiles;
 			int invalidForeignTilesCnt = std::numeric_limits<int>::max();
@@ -669,13 +669,13 @@ CRemoveObjectOperation::CRemoveObjectOperation(CMap* map, CGObjectInstance * obj
 
 void CRemoveObjectOperation::execute()
 {
-	removedObject = map->removeObject(targetedObject->id);
+	removedObject = map->eraseObject(targetedObject->id);
 }
 
 void CRemoveObjectOperation::undo()
 {
 	assert(removedObject != nullptr);
-	map->addNewObject(removedObject);
+	map->replaceObject(removedObject->id, removedObject);
 }
 
 void CRemoveObjectOperation::redo()

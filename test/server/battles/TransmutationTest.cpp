@@ -35,8 +35,6 @@ public:
 
 		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		attacker = addStack(BattleSide::DEFENDER, creatureByName(transmuter), BattleHex(rightHex), transmuterCount);
-		ASSERT_NE(victim, nullptr);
-		ASSERT_NE(attacker, nullptr);
 
 		blockRetaliation(attacker);
 	}
@@ -74,8 +72,8 @@ TEST_F(TransmutationTest, KeepsTheTotalHealth)
 	ASSERT_NE(replacement, nullptr);
 	EXPECT_EQ(replacement->unitType()->getId(), creatureByName("core:pikeman"));
 
-	// 50 dragons of 300 health each are worth 1500 pikemen of 10. Damage already dealt does not
-	// count: the health that carries over is what the stack was worth at full strength
+	// 50 dragons of 300 health each become 1500 pikemen of 10. Damage already dealt does not
+	// count: the health that carries over is the health the stack had at full strength
 	EXPECT_EQ(replacement->getCount(), victimCount * 300 / 10);
 }
 

@@ -309,7 +309,7 @@ function Battle:hasNativeStack(side) end
 ---@return BattleHexArray
 function Battle:getAllPossibleHexes() end
 
----Returns the current state of the given wall section, or nil if absent.
+---Returns the number of hitpoints that the given wall section has left, or nil if the town has no such section. Section with no hitpoints left has been destroyed.
 ---@param part WallPart # Wall section to query.
 ---@return integer?
 function Battle:getWallState(part) end
@@ -620,6 +620,7 @@ function Bonus:getParametersAsVector() end
 ---@field sourceType any # Origin class (artifact, spell effect, secondary skill, …) — drives source-based dispels.
 ---@field sourceID any # Identifier of the specific source within its sourceType.
 ---@field targetSourceType any # Source type the bonus is restricted to act upon (used by hero specialty bonuses).
+---@field targetSourceID any # Optional identifier of the specific source object within `targetSourceType` this bonus is restricted to.
 ---@field addInfo any # Optional auxiliary payload — meaning depends on the bonus type.
 ---@field limiters any # JSON-defined limiter chain that definea whether the bonus applies to a given bearer.
 ---@field propagator any # Rule for propagating the bonus upwards for area effect (army-wide, player-wide, …).
@@ -632,7 +633,7 @@ local BonusDescriptor = {}
 ---@field type string? # Bonus type to look for, by its json key.
 ---@field subtype string? # Subtype to look for, by its json key. Requires a type.
 ---@field sourceType BonusSource? # Where the bonus has to come from - an artifact, a spell effect, ...
----@field shooting boolean? # Kind of blow the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
+---@field shooting boolean? # Kind of attack the bonus has to count for - pass the `shooting` flag of the attack. Bonuses limited to the other kind are left out, those limited to neither always count.
 local BonusFilter = {}
 
 ---A collection of Bonus values returned by `getBonuses(...)`. Use `size()` and `getBonus(index)` to iterate. A copy of the engine's internal list at the moment of the call — changes to holder afterwards will not affect this snapshot.
@@ -665,8 +666,8 @@ local Building = {}
 ---@return string # Identifier of this building, scoped by the mod providing it.
 function Building:getJsonKey() end
 
----Returns which of the buildings known to the game this one is. Unlike the json key this is the same in every town, so it is what to test against when a rule speaks of a fort or a town hall rather than of one particular mod's version of it.
----@return string? # "fort", "villageHall", ...; nil for a building the game has no name of its own for.
+---Returns the predefined building type shared across towns.
+---@return string? # 'fort', 'villageHall', ...; nil for buildings without a predefined type.
 function Building:getBuildingType() end
 
 ---Whether this building is an upgrade of another, as a citadel is of a fort.
@@ -1179,7 +1180,7 @@ local HeroInstance = {}
 ---@return BonusList # Bonuses of the bearer the filter describes.
 function HeroInstance:getBonuses(filter) end
 
----Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---Returns the combined value of the matching bonuses. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
 ---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
 ---@return integer # Value of the matching bonuses taken together.
 function HeroInstance:getBonusesValue(filter) end
@@ -1646,7 +1647,7 @@ local Unit = {}
 ---@return BonusList # Bonuses of the bearer the filter describes.
 function Unit:getBonuses(filter) end
 
----Returns what the matching bonuses are worth together. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
+---Returns the combined value of the matching bonuses. Not a plain sum - percentages, independent floors and ceilings combine by the rules of the engine. Prefer this over adding up `getBonuses` where possible.
 ---@param filter BonusFilter # Which bonuses to count. An empty filter counts every one of them.
 ---@return integer # Value of the matching bonuses taken together.
 function Unit:getBonusesValue(filter) end
@@ -1675,6 +1676,14 @@ function Unit:getAttack(ranged) end
 ---@param ranged boolean # True for defense against ranged attacks, false for defense against melee.
 ---@return integer
 function Unit:getDefense(ranged) end
+
+---Returns effective luck after caps and unit exclusions. Returns 0 when luck does not apply. Prefer this method to summing LUCK bonuses.
+---@return integer
+function Unit:getLuck() end
+
+---Returns effective morale after caps and unit exclusions.
+---@return integer
+function Unit:getMorale() end
 
 ---True if the stack has at least one alive creature.
 ---@return boolean
@@ -1754,12 +1763,16 @@ function Unit:getFirstHPleft() end
 ---@return boolean
 function Unit:isShooter() end
 
+---True when the unit is alive and has an unused retaliation this round. Attacker-side retaliation blocking is not considered.
+---@return boolean
+function Unit:ableToRetaliate() end
+
 ---True if the stack is one of the towers of a besieged town.
 ---@return boolean
 function Unit:isTurret() end
 
----Which of the three towers of a besieged town this stack is.
----@return string? # "keep", "upper" or "lower"; nil when the stack is no tower.
+---Returns the tower position of a besieged-town stack.
+---@return string? # 'keep', 'upper' or 'lower'; nil for non-turret units.
 function Unit:getTurretPart() end
 
 ---Returns the maximum hit points of a single creature in the stack.

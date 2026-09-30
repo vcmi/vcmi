@@ -228,7 +228,8 @@ void MapViewController::updateState()
 {
 	if(adventureContext)
 	{
-		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
+		// gosolo borrows the spectator interface without granting vision the player did not have
+		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool() && !settings["session"]["spectate-own-vision"].Bool();
 		adventureContext->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
 		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
@@ -517,8 +518,33 @@ void MapViewController::onBeforeHeroTeleported(const CGHeroInstance * obj, const
 	if(isEventVisible(obj, from, dest))
 	{
 		setViewCenter(obj->getSightCenter());
-		view->createTransitionSnapshot(context);
+		createTransitionSnapshot();
 	}
+}
+
+void MapViewController::createTransitionSnapshot()
+{
+	if(ENGINE->amIGuiThread())
+	{
+		view->createTransitionSnapshot(context);
+		return;
+	}
+
+	// netpacks arrive on the network thread, but drawing needs the GUI thread's GL context. The pack
+	// must wait, as applying it would change what the snapshot shows.
+	snapshotWait->setBusy();
+
+	// dispatched tasks run with interfaceMutex held
+	ENGINE->dispatchMainThread([wait = snapshotWait, weakView = std::weak_ptr<MapViewCache>(view), context = context]()
+	{
+		if(auto strongView = weakView.lock())
+			strongView->createTransitionSnapshot(context);
+
+		wait->setFree();
+	});
+
+	auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+	snapshotWait->waitWhileBusy();
 }
 
 void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
@@ -607,6 +633,7 @@ void MapViewController::waitForOngoingAnimations()
 void MapViewController::endNetwork()
 {
 	animationWait.requestTermination();
+	snapshotWait->requestTermination();
 }
 
 void MapViewController::activateAdventureContext(uint32_t animationTime)

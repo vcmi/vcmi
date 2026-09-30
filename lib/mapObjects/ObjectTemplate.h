@@ -81,6 +81,10 @@ public:
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
 
+	/// Layer in which the cell is drawn, position is relative to bottom-right corner like above
+	/// Objects drawn at higher layer cover the ones on lower layer: 0 - below everything, 1-254 - regular objects, 255 - above everything
+	ui8 getDrawLayerAt(si32 X, si32 Y) const;
+
 	inline const std::set<int3> & getBlockedOffsets() const
 	{
 		return blockedOffsets;
@@ -146,6 +150,9 @@ private:
 	int3 visitableOffset;
 	int3 topVisibleOffset;
 
+	/// draw layer of every cell, indexed like usedTiles
+	std::vector<std::vector<ui8>> drawLayers;
+
 	void recalculate();
 
 	void calculateWidth();
@@ -155,6 +162,7 @@ private:
 	void calculateBlockMapOffset();
 	void calculateVisitableOffset();
 	void calculateTopVisibleOffset();
+	void calculateDrawLayers();
 
 public:
 	template <typename Handler> void serialize(Handler &h)

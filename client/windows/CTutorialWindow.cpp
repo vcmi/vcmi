@@ -33,7 +33,7 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	OBJECT_CONSTRUCTION;
 
 	pos = Rect(pos.x, pos.y, 380, 400); //video: 320x240
-	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 
 	updateShadow();
 

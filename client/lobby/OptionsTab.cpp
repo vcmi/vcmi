@@ -879,15 +879,14 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
 			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
 			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
-			textinputs[player][resource]->setCallback([this, player, resource, isIncome, isGrowth](const std::string & s){
+			textinputs[player][resource]->setFilterCustom([resource, isIncome, isGrowth](std::string & text, const std::string & oldText){
 				// text input processing: add/remove sign when pressing "-"; remove non digits; cut length; fill empty field with 0
-				std::string tmp = s;
-				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
-				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
+				bool negative = std::count_if(text.begin(), text.end(), [](char c){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
+				text.erase(std::remove_if(text.begin(), text.end(), [](char c) { return !isdigit(c); }), text.end());
 				int maxLength = isIncome || isGrowth ? 3 : (resource == EGameResID::GOLD ? 6 : 5);
-				tmp = tmp.substr(0, maxLength);
-				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
-			});
+				text = text.substr(0, maxLength);
+				text = text.empty() ? "0" : (negative ? "-" : "") + std::to_string(stoi(text));
+			}, true);
 			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
 				// Help for the textinputs
 				if(isIncome)

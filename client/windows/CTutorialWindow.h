@@ -26,7 +26,7 @@ enum TutorialMode
 class CTutorialWindow : public CWindowObject
 {
 	TutorialMode mode;
-	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<CFilledTexture> backgroundTexture;
 
 	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonLeft;

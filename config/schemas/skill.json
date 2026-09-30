@@ -86,6 +86,10 @@
 				}
 			}
 		},
+		"offerCooldown" : {
+			"type" : "number",
+			"description" : "After the skill is gained or upgraded, it is not offered for upgrade on this many following level-ups, unless the hero has nothing else to upgrade"
+		},
 		"base" : {
 			"type" : "object",
 			"description" : "will be merged with all levels",

@@ -57,6 +57,15 @@ private:
 	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
 	bool scrollingWasBlocked;
 
+	/// map scrolling shortcuts that are currently held by player
+	std::set<EShortcut> heldScrollShortcuts;
+
+	/// state of Ctrl, Alt and Shift keys, only ever compared for changes
+	using KeyboardModifiers = std::tuple<bool, bool, bool>;
+
+	/// keyboard modifiers that were held when scrolling shortcut was pressed
+	KeyboardModifiers heldScrollModifiers;
+
 	/// how much should the background dimmed, when windows are on the top
 	int backgroundDimLevel;
 
@@ -65,6 +74,10 @@ private:
 
 	/// tile the map view is centered on, kept up to date by onMapViewMoved
 	int3 mapViewCenter;
+
+	/// number of other players whose turn has already started since our own last turn ended,
+	/// used to show how close we are to our own turn coming back around
+	int enemyTurnsCompletedThisRound = 0;
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
@@ -103,6 +116,12 @@ private:
 	/// performs disembark to specified location
 	void performDisembark(const int3 & destTarget);
 
+	/// scrolls map using held scrolling shortcuts
+	void handleKeyboardScrollingUpdate(uint32_t timePassed);
+
+	/// keyboard modifiers that are currently held
+	static KeyboardModifiers currentKeyboardModifiers();
+
 	/// checks if tile is a valid disembark target
 	bool isValidDisembarkTarget(int3 targetPosition) const;
 protected:
@@ -116,6 +135,7 @@ protected:
 	void showAll(Canvas & to) override;
 
 	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 
 	void onScreenResize() override;
 
@@ -131,6 +151,7 @@ public:
 	void hotkeyNextTown();
 	void hotkeySwitchMapLevel();
 	void hotkeyZoom(int delta, bool useDeadZone);
+	void hotkeyScreenshotWholeMap();
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);

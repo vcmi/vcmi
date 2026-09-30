@@ -14,6 +14,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 // Quest Gate semantics. A Quest Gate stays on the map and is
 // passable once its limiter is satisfied; a "toll" gate (consumable limiter)
@@ -121,4 +122,110 @@ TEST_F(QuestGateTest, TollChargedEveryPassAndNeverCompleted)
 
 	EXPECT_NE(findObjectAt(kGatePos), nullptr) << "toll gate is never removed";
 	EXPECT_FALSE(gate->getQuest().isCompleted) << "toll gate is never persistently completed";
+}
+
+// ---- quest becomes known on visit -------------------------------------------
+
+TEST_F(QuestGateTest, VisitMakesQuestKnownToPlayer)
+{
+	// The pathfinder routes heroes through a gate only once its quest is known, so
+	// visiting one must record that the player has seen it.
+	auto s = gateScenario(B::missionLevel(1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	EXPECT_FALSE(gate->getQuest().isKnownTo(PlayerColor(0)));
+	visit(hero, gate);
+	EXPECT_TRUE(gate->getQuest().isKnownTo(PlayerColor(0)));
+}
+
+TEST_F(QuestGateTest, BlockedVisitMakesQuestKnownToPlayer)
+{
+	auto s = gateScenario(B::missionLevel(99)); // hero cannot satisfy it
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	visit(hero, gate);
+	EXPECT_TRUE(gate->getQuest().isKnownTo(PlayerColor(0)))
+		<< "a hero that cannot pass still learns what the gate asks for";
+}
+
+TEST_F(QuestGateTest, PathfinderStopsAtGateUntilQuestKnown)
+{
+	// Even a hero that satisfies the gate is routed onto it rather than through it,
+	// so that the player learns what the gate asks for.
+	auto s = gateScenario(B::missionLevel(1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::BLOCKING_VISIT);
+	visit(hero, gate);
+	EXPECT_EQ(pathActionAt(hero, gate->visitablePos()), EPathNodeAction::VISIT);
+}
+
+// ---- gate without any quest --------------------------------------------------
+
+TEST_F(QuestGateTest, GateWithoutQuestStandsOpen)
+{
+	// A gate whose quest was never configured (a fresh one placed in the map editor)
+	// is a doorway with nothing to ask for - it must stay passable and not crash.
+	auto s = gateScenario(B::missionLevel(1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+	gate->allQuestsEditor().clear();
+
+	EXPECT_TRUE(gate->passableFor(PlayerColor(0)));
+	EXPECT_TRUE(gate->passableFor(hero));
+	ASSERT_NO_FATAL_FAILURE(visit(hero, gate));
+	EXPECT_TRUE(gameEvents().infoWindows.empty());
+}
+
+// ---- gate whose quest can no longer be met ----------------------------------
+
+TEST_F(QuestGateTest, GateWithExpiredQuestNeverOpens)
+{
+	auto s = gateScenario(B::missionLevel(1).withLastDay(3)); // hero satisfies it, but only until day 3
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+	EXPECT_TRUE(gate->passableFor(hero));
+
+	advanceDays(5);
+
+	EXPECT_FALSE(gate->passableFor(PlayerColor(0)));
+	EXPECT_FALSE(gate->passableFor(hero)) << "an expired quest can not be met anymore";
+
+	const size_t addQuestsBefore = gameEvents().addedQuests.size();
+	visit(hero, gate);
+	EXPECT_FALSE(gameEvents().infoWindows.empty()) << "the hero is told the gate is shut";
+	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore) << "nothing to do - nothing to log";
+}
+
+TEST_F(QuestGateTest, GateWithQuestForOtherDifficultyNeverOpens)
+{
+	auto s = gateScenario(B::missionDifficulty(/*NORMAL only*/ 1 << 1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::EASY));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	EXPECT_FALSE(gate->passableFor(PlayerColor(0)));
+	EXPECT_FALSE(gate->passableFor(hero));
+}
+
+TEST_F(QuestGateTest, GateWithQuestForCurrentDifficultyOpens)
+{
+	auto s = gateScenario(B::missionDifficulty(/*NORMAL only*/ 1 << 1));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::NORMAL));
+
+	EXPECT_TRUE(expectAt<QuestGate>(kGatePos)->passableFor(findHeroAt(kHeroPos)));
 }

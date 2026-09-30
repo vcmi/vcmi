@@ -11,6 +11,9 @@
 #include "StdInc.h"
 #include "NotificationHandler.h"
 
+#include "GameEngine.h"
+#include "../render/IScreenHandler.h"
+
 #if defined(VCMI_WINDOWS)
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_properties.h>
@@ -35,7 +38,7 @@ struct NotificationState
 	SDL_Window * window;
 };
 
-NotificationState state;
+static NotificationState state;
 
 /// SDL3 exposes native handles through window properties instead of SDL_SysWMinfo
 static HWND getWindowHandle(SDL_Window * window)
@@ -59,8 +62,11 @@ static bool SDLCALL windowsMessageHook(void * userdata, MSG * msg)
 	return true;
 }
 
-void NotificationHandler::notify(std::string msg)
+void NotificationHandler::notify(const std::string & msg)
 {
+	// independent of the tray icon below, which only exists while the "notifications" setting is on
+	ENGINE->screenHandler().flashWindowIfUnfocused();
+
 	NOTIFYICONDATA niData;
 	HWND windowHandle = getWindowHandle(state.window);
 
@@ -145,7 +151,7 @@ void NotificationHandler::destroy()
 
 #include "../../lib/CAndroidVMHelper.h"
 
-void NotificationHandler::notify(std::string msg)
+void NotificationHandler::notify(const std::string & msg)
 {
 	// java decides whether this is worth a notification - it knows whether the game is on screen
 	CAndroidVMHelper vmHelper;
@@ -168,8 +174,9 @@ void NotificationHandler::destroy()
 
 #else
 
-void NotificationHandler::notify(std::string msg)
+void NotificationHandler::notify(const std::string & msg)
 {
+	ENGINE->screenHandler().flashWindowIfUnfocused();
 }
 
 void NotificationHandler::init(SDL_Window * window)

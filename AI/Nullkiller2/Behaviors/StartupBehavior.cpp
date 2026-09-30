@@ -76,7 +76,7 @@ bool needToRecruitHero(const Nullkiller * aiNk, const CGTownInstance * startupTo
 
 		auto armed = dynamic_cast<const CArmedInstance *>(obj);
 
-		if(armed && armed->getArmyStrength() > 0)
+		if(armed && armed->estimateCombatValue() > 0)
 			continue;
 
 		bool isGoldPile = dynamic_cast<const CGResource *>(obj)

@@ -322,6 +322,14 @@ void CGameState::updateOnLoad(const StartInfo & si)
 			town->legacyCustomName.clear();
 		}
 
+	// pre-SEER_HUT_NAME_TEXT_ID saves carry the rolled seer name as free-form text
+	for(auto * hut : getMap().getObjects<SeerHut>())
+		if(!hut->legacySeerName.empty())
+		{
+			hut->setSeerName(getMap(), hut->legacySeerName);
+			hut->legacySeerName.clear();
+		}
+
 	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si.turnTimerInfo;
 	scenarioOps->simturnsInfo = si.simturnsInfo;
@@ -1494,6 +1502,11 @@ PlayerColor CGameState::checkForStandardWin() const
 			{
 				//current candidate has enemy remaining in game -> no vicotry
 				return PlayerColor::NEUTRAL;
+			}
+			else if(!players.at(supposedWinner).human && elem.second.human)
+			{
+				//prefer a human winner over an AI ally from the same surviving team
+				supposedWinner = elem.second.color;
 			}
 		}
 	}

@@ -480,9 +480,9 @@ void InputHandler::setCursorPosition(const Point & position)
 	ENGINE->events().dispatchMouseMoved(Point(0, 0), position);
 }
 
-void InputHandler::startTextInput(const Rect & where)
+void InputHandler::startTextInput(const Rect & where, bool numbersOnly)
 {
-	textHandler->startTextInput(where);
+	textHandler->startTextInput(where, numbersOnly);
 }
 
 void InputHandler::stopTextInput()

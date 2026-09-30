@@ -5,14 +5,15 @@ cls
 
 REM Define variables dynamically relative to the normalized base directory
 set "AppVersion=1.7.0"
-set "AppBuild=1122334455A"
+set "AppBuild="
 set "InstallerArch=x64compatible"
 set "VCMIFolder=VCMI"
 set "InstallerName=VCMI-Windows"
 
 REM Override defaults with optional parameters
 if not "%~1"=="" set "AppVersion=%~1"
-if not "%~2"=="" set "AppBuild=%~2"
+REM Assigned unconditionally - an empty build ID is a valid value used by release builds
+set "AppBuild=%~2"
 if not "%~3"=="" set "InstallerArch=%~3"
 if not "%~4"=="" set "VCMIFolder=%~4"
 if not "%~5"=="" set "InstallerName=%~5"

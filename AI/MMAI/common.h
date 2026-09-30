@@ -25,16 +25,6 @@ namespace MMAI
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
-inline bool isMMAIVerbose()
-{
-	static const bool value = []
-	{
-		const char * envvar = std::getenv("MMAI_VERBOSE");
-		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
-	}();
-	return value;
-}
-
 /*
  * RAII for temporarily setting a new name for the current thread.
  * The thread name appears in messages logged through VCMI's logger.

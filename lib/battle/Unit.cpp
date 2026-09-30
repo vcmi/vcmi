@@ -278,8 +278,13 @@ int Unit::getRawSurrenderCost() const
 {
 	//we pay for army-slot stacks and for war machines (ballista, ammo cart, first aid tent);
 	//summoned creatures and the free siege catapult are not paid for
+	//temporarily resurrected creatures (e.g. by First Aid Tent or a temporary resurrection spell) will vanish after combat and must not be paid for
 	if(unitSlot().validSlot() || (unitSlot() == SlotID::WAR_MACHINES_SLOT && !isCatapult()))
-		return creatureCost() * getCount();
+	{
+		int32_t permanentCount = getCount() - getResurrected();
+		vstd::amax(permanentCount, 0);
+		return creatureCost() * permanentCount;
+	}
 	else
 		return 0;
 }

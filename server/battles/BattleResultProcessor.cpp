@@ -550,7 +550,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
-		const auto addArtifactToTransfer = [&artFittingSet, &dyingArtifacts](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
+		const auto addArtifactToTransfer = [this, &artFittingSet, &dyingArtifacts, winnerHero](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
 		{
 			assert(art);
 			if (vstd::contains(dyingArtifacts, art->getId()))
@@ -559,6 +559,10 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
 			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{
+				// Battle loot prepares the artifact transfer directly, bypassing CGameHandler artifact placement handlers.
+				if(ArtifactUtils::checkSpellbookIsNeeded(winnerHero, art->getTypeId(), dstSlot))
+					gameHandler->giveHeroNewArtifact(winnerHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
 				pack.artsPack0.emplace_back(MoveArtifactInfo(srcSlot, dstSlot));
 				if(ArtifactUtils::isSlotEquipment(dstSlot))
 					pack.artsPack0.back().askAssemble = true;

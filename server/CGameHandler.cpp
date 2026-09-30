@@ -28,6 +28,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"
 #include "../lib/IGameSettings.h"
@@ -319,6 +320,10 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 
 void CGameHandler::expGiven(const CGHeroInstance *hero)
 {
+	// pending level-up dialog continues the chain once answered
+	if (queries->findQuery<CHeroLevelUpDialogQuery>([hero](const CHeroLevelUpDialogQuery & query) { return query.hero == hero; }))
+		return;
+
 	if (hero->gainsLevel())
 		levelUpHero(hero);
 	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
@@ -344,13 +349,18 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	expGiven(hero);
 }
 
+TExpType CGameHandler::getHeroExperienceLimit() const
+{
+	if (gameState().getMap().levelLimit != 0)
+		return LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
+
+	return LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+}
+
 void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
+	TExpType maxExp = getHeroExperienceLimit();
 	TExpType currHeroExp = hero->exp;
-
-	if (gameState().getMap().levelLimit != 0)
-		maxExp = LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
 
 	TExpType canGainHeroExp = 0;
 	if (maxExp > currHeroExp)
@@ -414,6 +424,8 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 		logGlobal->error("changeSecSkill provided no hero");
 		return;
 	}
+	const int masteryBefore = hero->getSecSkillLevel(which);
+
 	SetSecSkill sss;
 	sss.id = hero->id;
 	sss.which = which;
@@ -427,6 +439,11 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	// Our scouting range may have changed - update it
 	if (hero->getOwner().isValidPlayer())
 		changeFogOfWar(hero->getSightCenter(), hero->getSightRadius(), hero->getOwner(), ETileVisibility::REVEALED);
+
+	// one hero level per mastery level gained
+	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
+	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
+		giveExperience(hero, hero->experienceToGainLevels(masteryGained));
 
 }
 
@@ -549,7 +566,7 @@ CGameHandler::CGameHandler(IGameServer & server)
 	: server(server)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
-	, queries(std::make_unique<QueriesProcessor>())
+	, queries(std::make_unique<QueriesProcessor>(*this))
 	, turnStartVisitScheduler(std::make_unique<TurnStartVisitScheduler>(*this, *queries))
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
@@ -3841,7 +3858,11 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState * p = gameInfo().getPlayerState(player);
 
-	if(!p || p->status != EPlayerStatus::INGAME) return;
+	if(!p || p->status != EPlayerStatus::INGAME)
+		return;
+
+	if(queries->topQuery(player))
+		return;
 
 	if(gameState().getMap().battleOnly)
 	{
@@ -4339,6 +4360,10 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstan
 
 	if(artInst->canBePutAt(putTo, dst.slot))
 	{
+		const auto * hero = gameInfo().getHero(dst.artHolder);
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, artInst->getTypeId(), dst.slot))
+			giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
 		PutArtifact pa(id, dst, askAssemble.value());
 		sendAndApply(pa);
 		return true;
@@ -4375,6 +4400,9 @@ bool CGameHandler::giveHeroNewArtifact(
 	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
+	if(ArtifactUtils::checkSpellbookIsNeeded(h, artType->getId(), na.pos))
+		giveHeroNewArtifact(h, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
 	sendAndApply(na);
 	return true;
 }

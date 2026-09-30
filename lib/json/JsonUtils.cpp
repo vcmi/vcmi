@@ -150,6 +150,8 @@ const JsonNode & getSchemaByName(const std::string & name)
 {
 	// cached schemas to avoid loading json data multiple times
 	static std::map<std::string, JsonNode> loadedSchemas;
+	static std::mutex loadedSchemasMutex;
+	std::lock_guard lock(loadedSchemasMutex);
 
 	if (vstd::contains(loadedSchemas, name))
 		return loadedSchemas[name];

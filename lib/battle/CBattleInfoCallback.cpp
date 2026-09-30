@@ -1115,7 +1115,7 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 
 	const auto * script = LIBRARY->scriptTypes()->getDamageCalculator();
 
-	// core declares one, and there is no rule for what an attack is worth without it
+	// core declares one, and there is no rule for how much damage an attack deals without it
 	if(!script)
 		throw std::runtime_error("No damage calculator script is loaded!");
 
@@ -1123,7 +1123,7 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 
 	payload.attacker = info.attacker;
 	payload.defender = info.defender;
-	// the script is told where the blow happens rather than left to work it out, so that an
+	// the script is told where the attack happens rather than left to work it out, so that an
 	// attack being weighed reads the same as one being dealt
 	payload.attackerHex = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
 	payload.defenderHex = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();

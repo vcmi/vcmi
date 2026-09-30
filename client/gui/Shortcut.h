@@ -134,6 +134,7 @@ enum class EShortcut
 	ADVENTURE_TOGGLE_GRID,  // F6, Toggles map grid
 	ADVENTURE_TOGGLE_VISITABLE,  // Toggles visitable tiles overlay
 	ADVENTURE_TOGGLE_BLOCKED,  // Toggles blocked tiles overlay
+	ADVENTURE_SCREENSHOT_WHOLE_MAP,  // Shift+F3, Screenshot of the whole map without overlays like paths
 	ADVENTURE_TOGGLE_SLEEP, // Toggles hero sleep status
 	ADVENTURE_SET_HERO_ASLEEP, // Moves hero to sleep state
 	ADVENTURE_SET_HERO_AWAKE, // Move hero to awake state
@@ -188,6 +189,12 @@ enum class EShortcut
 	ADVENTURE_MOVE_HERO_NW,
 	ADVENTURE_MOVE_HERO_NN,
 	ADVENTURE_MOVE_HERO_NE,
+
+	// Scroll adventure map in specified direction while key is held
+	ADVENTURE_SCROLL_LEFT,
+	ADVENTURE_SCROLL_RIGHT,
+	ADVENTURE_SCROLL_UP,
+	ADVENTURE_SCROLL_DOWN,
 
 	// Battle screen
 	BATTLE_TOGGLE_QUEUE,

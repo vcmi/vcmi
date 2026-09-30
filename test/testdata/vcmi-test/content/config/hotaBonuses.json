@@ -1,0 +1,27 @@
+// Bonus types the HotA ability scripts store their own state in.
+{
+	"AUTOMATON_EXPLOSION_DAMAGE" : {
+		"description" : "{High Explosives}\nThis unit deals +${val}% Damage when it detonates.",
+		"hidden" : false
+	},
+	"RUNE_LEVEL_CAP" : {
+		"description" : "Altar of the Runes gives units 1 starting rune level.",
+		"hidden" : true
+	},
+	"STARTING_RUNE_LEVEL" : {
+		"description" : "Altars of the Runes give units %d starting rune level.",
+		"hidden" : true
+	},
+	"RUNE_LEVEL_COUNTER" : {
+		"description" : "%s achieves %d Rune Level.",
+		"hidden" : false
+	},
+	"YETI_RUNE_LEVEL_COUNTER" : {
+		"description" : "%s achieve %d Rune Level.",
+		"hidden" : false
+	},
+	"RUNE_LEVEL_PENDING" : {
+		"description" : "Rune levels the running action has earned.",
+		"hidden" : true
+	}
+}

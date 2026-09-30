@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/battle/CombatValue.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
@@ -19,6 +21,8 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
@@ -498,13 +502,42 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double ourStrength = battleState.getOurStrength();
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
-	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cc->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
+	if(ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee && canRetreatFromBattle(battleID, battleState.ourHero))
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
 
 	return std::nullopt;
+}
+
+bool AIGateway::canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const
+{
+	if(!hero)
+		return false;
+
+	// retreating hero can only be rehired in a tavern. Besieged town will be lost, so it does not count
+	const CGTownInstance * besiegedTown = cc->getBattle(battleID)->battleGetDefendedTown();
+	bool hasTavern = false;
+	for(const auto * town : cc->getTownsInfo())
+		if(town != besiegedTown && town->hasBuilt(BuildingID::TAVERN))
+			hasTavern = true;
+
+	if(!hasTavern)
+		return false;
+
+	// do not retreat if losing this hero may cause victory or defeat of any player, e.g. "defeat hero X" victory condition
+	bool heroIsObjective = false;
+	for(const auto & event : cc->getMapHeader()->triggeredEvents)
+	{
+		event.trigger.morph([hero, &heroIsObjective](const EventCondition & condition) -> EventExpression::Variant
+		{
+			if(condition.objectID == hero->id)
+				heroIsObjective = true;
+			return condition;
+		});
+	}
+
+	return !heroIsObjective;
 }
 
 
@@ -592,7 +625,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
-				auto ratio = static_cast<float>(danger) / heroPtr->getTotalStrength();
+				auto ratio = static_cast<float>(danger) / heroPtr->estimateHeroCombatValue();
 
 				answer = true;
 
@@ -744,11 +777,11 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 					// creature at given slot might have alternative upgrades, pick best one
 					CreatureID upgID = *vstd::maxElementByFun(upgradeInfo.getAvailableUpgrades(), [](const CreatureID & id)
 						{
-							return id.toCreature()->getAIValue();
+							return LIBRARY->creh->getCombatValue().getAIValue(id.toCreature());
 						});
 
-					int oldValue = s->getCreature()->getAIValue();
-					int newValue = upgID.toCreature()->getAIValue();
+					auto oldValue = LIBRARY->creh->getCombatValue().getAIValue(s->getCreature());
+					auto newValue = LIBRARY->creh->getCombatValue().getAIValue(upgID.toCreature());
 
 					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
@@ -880,7 +913,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 					// remove unwanted creatures
 					cc->mergeOrSwapStacks(destinationArmy, source, i, targetSlot);
 				}
-				else if(destinationArmy->getStack(i).getPower() < destinationArmy->getArmyStrength() / 100)
+				else if(destinationArmy->getStack(i).estimateCombatValue() < destinationArmy->estimateCombatValue() / 100)
 				{
 					// dismiss creatures if the amount is small
 					cc->dismissCreature(destinationArmy, i);
@@ -1607,7 +1640,7 @@ std::string AIGateway::heroRoleDebugText(const CGHeroInstance * hero) const
 		return {};
 
 	const auto role = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero);
-	const auto armyStrength = hero->getArmyStrength();
+	const auto armyStrength = hero->estimateCombatValue();
 	uint64_t mainArmyStrength = armyStrength;
 	bool isMainArmy = true;
 	for(const auto * otherHero : cc->getHeroesInfo())
@@ -1615,7 +1648,7 @@ std::string AIGateway::heroRoleDebugText(const CGHeroInstance * hero) const
 		if(otherHero == hero)
 			continue;
 
-		const auto otherArmyStrength = otherHero->getArmyStrength();
+		const auto otherArmyStrength = otherHero->estimateCombatValue();
 		mainArmyStrength = std::max(mainArmyStrength, otherArmyStrength);
 		if(otherArmyStrength > armyStrength
 			|| (otherArmyStrength == armyStrength && otherHero->id.getNum() < hero->id.getNum()))

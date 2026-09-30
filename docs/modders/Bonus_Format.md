@@ -30,6 +30,11 @@ All parameters but type are optional.
 
 	// TODO
 	"targetSourceType" : "SOURCE_TYPE",
+
+	// Optional. Narrows targetSourceType (used by PERCENT_TO_TARGET_TYPE) to a single source object.
+	// For example, targetSourceType "SECONDARY_SKILL" + targetSourceID "armorer" will only affect
+	// bonuses granted by the Armorer skill. If not set, only targetSourceType is checked
+	"targetSourceID" : "SOURCE_ID",
 	
 	// TODO
 	"sourceType" :  "SOURCE_TYPE",

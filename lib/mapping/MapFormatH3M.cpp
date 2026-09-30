@@ -175,17 +175,28 @@ void CMapLoaderH3M::readHeader()
 
 		if(features.levelHOTA9)
 		{
-			int unknown = reader->readInt32();
-			if(unknown != 0)
-				logGlobal->warn("Map '%s': Unknown value in header was set to %d!", mapName, unknown);
+			// duplicates those script variables that are shared with the campaign, so that they can be read without loading the map
+			uint32_t sharedVariablesCount = reader->readUInt32();
+
+			for(uint32_t i = 0; i < sharedVariablesCount; ++i)
+			{
+				std::string variableName = readBasicString();
+				int32_t variableUnknownA = reader->readInt32(); // unique ID or initial value
+				uint8_t variableUnknownB = reader->readUInt8(); // one of the two campaign flags
+
+				logGlobal->warn("Map '%s': Variable '%s' (%d, %d) shared with campaign is not implemented!", mapName, variableName, variableUnknownA, static_cast<int>(variableUnknownB));
+			}
 		}
 
-		if(features.levelHOTA9)
-		{
-			// MOD COMPATIBILITY TODO: should be moved to hota mod for future versions
-			if (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1,8,0))
-				throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
-		}
+		const JsonNode & hotaFormat = LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
+
+		// hota mod versions that predate the maxVersion field are recognized by their own version instead
+		int maxSupportedVersion = hotaFormat["maxVersion"].isNull()
+			? (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1, 8, 0) ? 8 : 9)
+			: hotaFormat["maxVersion"].Integer();
+
+		if(hotaVersion > maxSupportedVersion)
+			throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
 
 	}
 	else
@@ -933,9 +944,6 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 			auto * hero = map->tryGetFromHeroPool(HeroTypeID(heroID));
 
-			// HotA stores these options independently from the legacy customized
-			// hero block. Create a pool entry when the extension carries runtime
-			// state that would otherwise be lost.
 			if(!hero && (level > 1 || cannotGainXP))
 			{
 				const auto heroType = HeroTypeID(heroID);
@@ -954,9 +962,6 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				hero->mapSpecifiedLevel = static_cast<ui32>(level);
 				hero->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
 				hero->cannotGainExperience = cannotGainXP;
-
-				// Keep the parsed map representation faithful before game-state
-				// initialization. initHero() will rebuild skill rolls from level 1.
 				hero->level = static_cast<ui32>(level);
 			}
 		}
@@ -1664,7 +1669,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & map
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
 	if (guard)
-		readQuest(guard->addQuest(), mapPosition);
+	{
+		Quest & quest = guard->addQuest();
+		readQuest(quest, mapPosition);
+        readQuestGiverName(quest, mapPosition, 0);
+	}
 	return guard;
 }
 
@@ -1673,7 +1682,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapP
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto gate = std::dynamic_pointer_cast<QuestSource>(object);
 	if (gate)
-		readQuest(gate->addQuest(), mapPosition);
+	{
+		Quest & quest = gate->addQuest();
+		readQuest(quest, mapPosition);
+        readQuestGiverName(quest, mapPosition, 0);
+	}
 	return gate;
 }
 
@@ -2529,9 +2542,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		object->mapSpecifiedLevel = static_cast<ui32>(level);
 		object->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
 		object->cannotGainExperience = cannotGainXP;
-
-		// Preserve HotA's exact authored level without deriving it from the
-		// experience table. This also covers the H3 overflow range (75-195).
 		object->level = static_cast<ui32>(level);
 	}
 	return object;
@@ -2546,8 +2556,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
-	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut.get(), hut->addQuest(), position, idToBeGiven);
+	int questIndex = 0;
+	for(; questIndex < questsCount; ++questIndex)
+		readSeerHutQuest(hut->addQuest(), position, idToBeGiven, questIndex);
 
 	if(features.levelHOTA3)
 	{
@@ -2556,12 +2567,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
 		{
 			Quest & quest = hut->addQuest();
-			readSeerHutQuest(hut.get(), quest, position, idToBeGiven);
+			readSeerHutQuest(quest, position, idToBeGiven, questIndex);
 			quest.repeatedQuest = true;
+			questIndex++;
 		}
 	}
 
-	reader->skipZero(2);
+	reader->skipZero(features.levelHOTA10 ? 3 : 2);
 
 	return hut;
 }
@@ -2581,12 +2593,12 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven, const int & questIndex)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		missionType = readQuest(quest, position);
+		missionType = readQuest(quest, position, questIndex);
 	}
 	else
 	{
@@ -2603,6 +2615,8 @@ void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & 
 
 	if(missionType != EQuestMission::NONE)
 	{
+        readQuestGiverName(quest, position, questIndex);
+
 		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Checked(0, 10));
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
@@ -2701,7 +2715,15 @@ void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & 
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
+void CMapLoaderH3M::readQuestGiverName(Quest & quest, const int3 & position, int questIndex)
+{
+	if(!features.levelHOTA10)
+		return;
+
+    quest.questGiverNameTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "giverName"));
+}
+
+EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, const int questIndex)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
@@ -2822,9 +2844,19 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 	}
 
 	quest.lastDay = reader->readInt32();
-	quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
-	quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
-	quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
+
+	if (questIndex!=0)
+	{
+		quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "firstVisit")));
+		quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "nextVisit")));
+		quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex,  "completed")));
+	}
+	else
+	{
+		quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+		quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+		quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z,  "completed")));
+	}
 	return missionId;
 }
 

@@ -16,7 +16,7 @@ union SDL_Event;
 class NotificationHandler
 {
 public:
-	static void notify(std::string msg);
+	static void notify(const std::string & msg);
 	static void init(SDL_Window * window);
 	static void destroy();
 };

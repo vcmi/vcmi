@@ -89,7 +89,8 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 	std::string timeFormatted = TextOperations::getCurrentFormattedTimeLocal();
 	std::string playerName = "<UNKNOWN>";
 
-	if (sender.isValidPlayer())
+	// no player interface while an AI plays for us, e.g. after the `gosolo` command
+	if (sender.isValidPlayer() && GAME->interface())
 		playerName = GAME->interface()->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
@@ -97,7 +98,8 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 
-	GAME->interface()->cingconsole->addMessage(timeFormatted, playerName, messageText);
+	if (GAME->interface())
+		GAME->interface()->cingconsole->addMessage(timeFormatted, playerName, messageText);
 }
 
 void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText)

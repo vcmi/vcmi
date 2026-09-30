@@ -20,6 +20,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_properties.h>
 
 /// SDL3 tracks text input state per window instead of globally
 static SDL_Window * textInputWindow()
@@ -42,9 +43,9 @@ void InputSourceText::handleEventTextEditing(const SDL_TextEditingEvent & text)
 	ENGINE->events().dispatchTextEditing(text.text);
 }
 
-void InputSourceText::startTextInput(const Rect & whereInput)
+void InputSourceText::startTextInput(const Rect & whereInput, bool numbersOnly)
 {
-	ENGINE->dispatchMainThread([whereInput]()
+	ENGINE->dispatchMainThread([whereInput, numbersOnly]()
 	{
 		Rect rectInScreenCoordinates = ENGINE->screenHandler().convertLogicalPointsToWindow(whereInput);
 		SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
@@ -55,7 +56,17 @@ void InputSourceText::startTextInput(const Rect & whereInput)
 
 		SDL_SetTextInputArea(window, &textInputRect, 0);
 
-		if (!SDL_TextInputActive(window))
+		if (SDL_TextInputActive(window))
+			SDL_StopTextInput(window);
+
+		if (numbersOnly)
+		{
+			SDL_PropertiesID properties = SDL_CreateProperties();
+			SDL_SetNumberProperty(properties, SDL_PROP_TEXTINPUT_TYPE_NUMBER, SDL_TEXTINPUT_TYPE_NUMBER);
+			SDL_StartTextInputWithProperties(window, properties);
+			SDL_DestroyProperties(properties);
+		}
+		else
 		{
 			SDL_StartTextInput(window);
 		}

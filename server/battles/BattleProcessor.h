@@ -21,15 +21,23 @@ class int3;
 class CBattleInfoCallback;
 struct BattleResult;
 struct BattleLayout;
+struct BattleStackAttacked;
 class BattleID;
 
 namespace battle
 {
 class Unit;
+class CUnitState;
 }
 
 class CGameHandler;
 class CBattleQuery;
+
+namespace spells
+{
+class Spell;
+}
+
 class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
@@ -54,7 +62,6 @@ class BattleProcessor : boost::noncopyable
 	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
 
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
@@ -72,6 +79,14 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
+	/// Dispatches one combat event to the given unit
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
+	/// Dispatches SPELL_HIT to all affected units after a deliberate cast
+	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
+	/// Queues UNIT_DEATH events from the given casualties
+	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
+	/// Dispatches queued UNIT_DEATH events outside a battle action
+	void flushPendingDeaths(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);
 
@@ -85,4 +100,3 @@ public:
 
 	}
 };
-

@@ -27,7 +27,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	void handleLoadCommand(std::istringstream & singleWordBuffer);
 
 	// AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)
-	void handleGoSoloCommand();
 
 	// Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves.
 	// However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually.

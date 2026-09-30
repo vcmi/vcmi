@@ -37,7 +37,7 @@
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
-	parent(Parent),
+	owner(Parent),
 	selection()
 {
 }
@@ -52,14 +52,14 @@ void CList::CListItem::showPopupWindow(const Point & cursorPosition)
 void CList::CListItem::clickPressed(const Point & cursorPosition)
 {
 	//second click on already selected item
-	if(parent->selected == this->shared_from_this())
+	if(owner->selected == this->shared_from_this())
 	{
 		open();
 	}
 	else
 	{
 		//first click - switch selection
-		parent->select(this->shared_from_this());
+		owner->select(this->shared_from_this());
 	}
 }
 
@@ -218,8 +218,8 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 }
 
-CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
-	: CListItem(parent),
+CHeroList::CHeroItem::CHeroItem(CHeroList *owner, const CGHeroInstance * Hero)
+	: CListItem(owner),
 	hero(Hero)
 {
 	OBJECT_CONSTRUCTION;
@@ -311,7 +311,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 	if(!hero)
 		return;
 
-	if(parent->selected != this->shared_from_this())
+	if(owner->selected != this->shared_from_this())
 		return;
 
 	auto & heroes = GAME->interface()->localState->getWanderingHeroes();
@@ -415,8 +415,8 @@ std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 	return std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 }
 
-CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
-	CListItem(parent),
+CTownList::CTownItem::CTownItem(CTownList *owner, const CGTownInstance *Town):
+	CListItem(owner),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION;
@@ -508,7 +508,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 
 void CTownList::CTownItem::keyPressed(EShortcut key)
 {
-	if(parent->selected != this->shared_from_this())
+	if(owner->selected != this->shared_from_this())
 		return;
 
 	const std::vector<const CGTownInstance *> towns = GAME->interface()->localState->getOwnedTowns();

@@ -185,7 +185,7 @@ double InputSourceGameController::getRealAxisValue(int value) const
 	return clampedValue;
 }
 
-void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GamepadAxis axisID, int axisValue, std::string axisName)
+void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GamepadAxis axisID, int axisValue, const std::string & axisName)
 {
 	if(getRealAxisValue(axisValue) > configTriggerThreshold)
 	{

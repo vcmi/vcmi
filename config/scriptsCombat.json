@@ -47,6 +47,30 @@
 		},
 		"description" : ""
 	},
+	"ballistaDamage" : {
+		"implements" : "combatEvent",
+		"script" : "combat/ballistaDamage",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
+	"rebirth" : {
+		"implements" : "combatEvent",
+		"script" : "combat/rebirth",
+		"patches" : [ ],
+		"priority" : 0,
+		"schema" : {
+			"properties" : {
+				"guaranteed" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		},
+		"description" : ""
+	},
 	"lifeDrain" : {
 		"implements" : "combatEvent",
 		"script" : "combat/lifeDrain",
@@ -78,7 +102,6 @@
 		"script" : "damage/damageCalculator",
 		"patches" : [
 			// special cases for H3 scenarios
-			"damage/siegeWeapon",
 			"damage/magicElemental",
 			"damage/psychicElemental",
 			// mod-only logic, to be removed after migration

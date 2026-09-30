@@ -24,12 +24,14 @@
 #include "../../../lib/battle/BattleInfo.h"
 #include "../../../lib/battle/BattleLayout.h"
 #include "../../../lib/battle/CObstacleInstance.h"
+#include "../../../lib/battle/CUnitState.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/entities/hero/CHero.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/modding/IdentifierStorage.h"
 #include "../../../lib/modding/ModScope.h"
@@ -48,6 +50,18 @@ void RecordingGameServer::applyPack(CPackForClient & pack)
 /// belonging to the next attack closes the window again.
 void RecordingGameServer::record(CPackForClient & pack)
 {
+	if(const auto * catapultAttack = dynamic_cast<const CatapultAttack *>(&pack))
+	{
+		catapultAttacks.push_back(*catapultAttack);
+		return;
+	}
+
+	if(const auto * result = dynamic_cast<const BattleResult *>(&pack))
+	{
+		battleResults.push_back(*result);
+		return;
+	}
+
 	if(dynamic_cast<const BattleAttack *>(&pack))
 	{
 		recording = false;
@@ -120,7 +134,8 @@ void BattleTestFixture::startGame()
 		.playerActive(PlayerColor(0))
 		.playerActive(PlayerColor(1))
 		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0)).heroGarrison({{token, 1}})
-		.hero({7, 7, 0}, HeroTypeID(1), PlayerColor(1)).heroGarrison({{token, 1}});
+		.hero({7, 7, 0}, HeroTypeID(1), PlayerColor(1)).heroGarrison({{token, 1}})
+		.town({12, 12, 0}, FactionID::CASTLE, PlayerColor(1)); // used only by startSiege
 
 	startWithMap(std::move(builder));
 
@@ -154,14 +169,25 @@ void BattleTestFixture::makeNeutral(CGHeroInstance * hero)
 		hero->setPrimarySkill(skill, 0, ChangeValueMode::ABSOLUTE);
 }
 
-void BattleTestFixture::startBattle()
+void BattleTestFixture::startBattle(TerrainId terrain)
 {
-	BattleSideArray<const CGHeroInstance *> heroes = {attackerSideHero, defenderSideHero};
-	BattleSideArray<const CArmedInstance *> armies = {attackerSideHero, defenderSideHero};
+	setupBattle({attackerSideHero, defenderSideHero}, {attackerSideHero, defenderSideHero}, nullptr, terrain);
+}
 
+void BattleTestFixture::startSiege()
+{
+	const auto * town = findFirst<CGTownInstance>();
+	ASSERT_NE(town, nullptr);
+	ASSERT_GT(town->fortificationsLevel().wallsHealth, 0);
+
+	// a defending hero would have to be inside the town, so the town defends itself
+	setupBattle({attackerSideHero, nullptr}, {attackerSideHero, town}, town, ETerrainId::SAND);
+}
+
+void BattleTestFixture::setupBattle(BattleSideArray<const CGHeroInstance *> heroes, BattleSideArray<const CArmedInstance *> armies, const CGTownInstance * town, TerrainId terrain)
+{
 	int3 tile(4, 4, 0);
-	auto terrain = gameState()->getTile(tile)->getTerrainID();
-	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState(), attackerSideHero, defenderSideHero);
+	BattleLayout layout = BattleLayout::createDefaultLayout(*gameState(), armies[BattleSide::ATTACKER], armies[BattleSide::DEFENDER]);
 
 	// a battlefield grants bonuses of its own, and the default one is a clover field, whose luck
 	// would turn some attacks into lucky strikes and double the damage a scenario measures
@@ -170,7 +196,7 @@ void BattleTestFixture::startBattle()
 	BattleField battlefield(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "battlefield", battlefieldName));
 
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(gameState().get(), tile, terrain, battlefield, armies, heroes, layout, nullptr);
+	bs.info = BattleInfo::setupBattle(gameState().get(), tile, terrain, battlefield, armies, heroes, layout, town);
 	bs.battleID = BattleID(0);
 	gameHandler->sendAndApply(bs);
 
@@ -184,13 +210,16 @@ void BattleTestFixture::startBattle()
 
 void BattleTestFixture::beginCombat()
 {
+	// Test-added units bypass layout processing and require explicit BATTLE_SETUP dispatch.
+	for(const auto & unit : battle()->stacks)
+		gameHandler->battles->processBattleEventTriggers(*battle(), CombatEventType::BATTLE_SETUP, unit.get(), nullptr);
+
 	// ending the tactics phase is what fires the battle-start triggers, so the battle is put back
 	// into one for as long as it takes to end it
 	battle()->tacticDistance = 1;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	BattleAction action = BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER);
-	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), PlayerColor(0), action));
+	ASSERT_TRUE(act(BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER)));
 	ASSERT_EQ(battle()->tacticDistance, 0);
 }
 
@@ -215,7 +244,10 @@ CStack * BattleTestFixture::addStack(BattleSide side, const CreatureID & creatur
 	info.save(pack.changedStacks.back().data);
 	gameHandler->sendAndApply(pack);
 
-	return battle()->getStack(info.id);
+	CStack * stack = battle()->getStack(info.id);
+	EXPECT_NE(stack, nullptr) << "stack placement failed";
+
+	return stack;
 }
 
 void BattleTestFixture::giveArtifact(const CGHeroInstance * hero, ArtifactID artifact, ArtifactPosition position)
@@ -244,12 +276,150 @@ bool BattleTestFixture::castOn(const CGHeroInstance * hero, SpellID spellID, con
 	return true;
 }
 
+bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)
+{
+	const BattleSide side = hero == attackerSideHero ? BattleSide::ATTACKER : BattleSide::DEFENDER;
+
+	// Hero spell actions require an active allied unit.
+	for(const auto & unit : battle()->stacks)
+	{
+		if(unit->unitSide() == side && unit->alive())
+		{
+			battle()->activeStack = unit->unitId();
+			break;
+		}
+	}
+
+	BattleAction action;
+	action.actionType = EActionType::HERO_SPELL;
+	action.side = side;
+	action.spell = spellID;
+	action.aimToUnit(target);
+
+	return act(action);
+}
+
 bool BattleTestFixture::attack(const CStack * attacker, const BattleHex & targetHex)
 {
-	battle()->activeStack = attacker->unitId();
+	return attackFrom(attacker, targetHex, attacker->getPosition());
+}
 
-	BattleAction action = BattleAction::makeMeleeAttack(attacker, targetHex, attacker->getPosition());
-	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(attacker->unitSide()), action);
+bool BattleTestFixture::attackFrom(const CStack * attacker, const BattleHex & targetHex, const BattleHex & fromHex)
+{
+	return act(BattleAction::makeMeleeAttack(attacker, targetHex, fromHex));
+}
+
+bool BattleTestFixture::act(const BattleAction & action)
+{
+	// hero actions name no stack; a hero spell still needs a unit of the hero's side to be active
+	if(battle()->battleGetStackByID(action.stackNumber, false) != nullptr)
+		battle()->activeStack = action.stackNumber;
+
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(action.side), action);
+}
+
+void BattleTestFixture::addQuicksand(const BattleHex & hex)
+{
+	SpellCreatedObstacle obstacle;
+	obstacle.ID = SpellID(SpellID::QUICKSAND).getNum();
+	obstacle.obstacleType = CObstacleInstance::SPELL_CREATED;
+	obstacle.pos = hex;
+	obstacle.customSize.insert(hex);
+	obstacle.casterSide = BattleSide::DEFENDER;
+	obstacle.hidden = true;
+	obstacle.passable = true;
+	obstacle.trap = true;
+
+	addObstacle(obstacle);
+}
+
+void BattleTestFixture::addMoat(const BattleHex & hex)
+{
+	// the values the castle moat spell gives its patches
+	SpellCreatedObstacle obstacle;
+	obstacle.ID = spellByName("core:castleMoat").getNum();
+	obstacle.obstacleType = CObstacleInstance::MOAT;
+	obstacle.pos = hex;
+	obstacle.customSize.insert(hex);
+	obstacle.casterSide = BattleSide::DEFENDER;
+	obstacle.passable = true;
+	obstacle.trap = true;
+	obstacle.nativeVisible = false;
+	obstacle.trigger = spellByName("core:castleMoatTrigger");
+	obstacle.minimalDamage = 70;
+
+	addObstacle(obstacle);
+}
+
+void BattleTestFixture::addObstacle(SpellCreatedObstacle & obstacle)
+{
+	obstacle.uniqueID = battle()->nextObstacleId();
+
+	BattleObstaclesChanged pack;
+	pack.battleID = BattleID(0);
+	obstacle.toInfo(pack.change);
+	gameHandler->sendAndApply(pack);
+}
+
+void BattleTestFixture::injure(const CStack * stack, int64_t damage)
+{
+	auto state = stack->acquireState();
+	state->damage(damage);
+
+	UnitChanges changes(stack->unitId(), UnitChanges::EOperation::UPDATE);
+	changes.data = state->save();
+	changes.healthDelta = -damage;
+
+	BattleUnitsChanged pack;
+	pack.battleID = BattleID(0);
+	pack.changedStacks.push_back(changes);
+	gameHandler->sendAndApply(pack);
+}
+
+void BattleTestFixture::teachSpell(CGHeroInstance * hero, SpellID spell)
+{
+	if(!hero->hasSpellbook())
+		giveArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
+
+	hero->addSpellToSpellbook(spell);
+	hero->mana = 999;
+}
+
+void BattleTestFixture::grantSpell(CStack * unit, BonusType ability, SpellID spell, int level)
+{
+	unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, ability, BonusSource::OTHER, level, BonusSourceID(), BonusSubtypeID(spell)));
+	unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CASTS, BonusSource::OTHER, 1, BonusSourceID()));
+}
+
+bool BattleTestFixture::move(const CStack * stack, const BattleHex & destination)
+{
+	return act(BattleAction::makeMove(stack, destination));
+}
+
+bool BattleTestFixture::defend(const CStack * stack)
+{
+	return act(BattleAction::makeDefend(stack));
+}
+
+void BattleTestFixture::makeClone(CStack * stack)
+{
+	auto state = stack->acquireState();
+	state->cloned = true;
+
+	BattleUnitsChanged pack;
+	pack.battleID = BattleID(0);
+	pack.changedStacks.emplace_back(state->unitId(), UnitChanges::EOperation::UPDATE);
+	pack.changedStacks.back().data = state->save();
+	gameHandler->sendAndApply(pack);
+}
+
+bool BattleTestFixture::castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex)
+{
+	battle::Target target;
+	if(targetHex.isValid())
+		target.emplace_back(targetHex);
+
+	return act(BattleAction::makeCreatureSpellcast(caster, target, spellID));
 }
 
 void BattleTestFixture::endRound()
@@ -263,8 +433,7 @@ void BattleTestFixture::endRound()
 		const auto * active = battle()->battleActiveUnit();
 		ASSERT_NE(active, nullptr);
 
-		BattleAction action = BattleAction::makeDefend(active);
-		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), action));
+		ASSERT_TRUE(act(BattleAction::makeDefend(active)));
 	}
 }
 
@@ -278,10 +447,38 @@ void BattleTestFixture::forceMaximumDamage(CStack * stack)
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ALWAYS_MAXIMUM_DAMAGE, BonusSource::OTHER, 0, BonusSourceID()));
 }
 
+static std::optional<si32> identifierByName(const std::string & category, const std::string & name)
+{
+	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), category, name);
+	EXPECT_TRUE(identifier.has_value()) << "unknown " << category << " " << name;
+
+	return identifier;
+}
+
 CreatureID BattleTestFixture::creatureByName(const std::string & name)
 {
-	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", name);
-	EXPECT_TRUE(identifier.has_value()) << "unknown creature " << name;
+	auto identifier = identifierByName("creature", name);
 
 	return identifier ? CreatureID(*identifier) : CreatureID::NONE;
+}
+
+SpellID BattleTestFixture::spellByName(const std::string & name)
+{
+	auto identifier = identifierByName("spell", name);
+
+	return identifier ? SpellID(*identifier) : SpellID::NONE;
+}
+
+SecondarySkill BattleTestFixture::skillByName(const std::string & name)
+{
+	auto identifier = identifierByName("secondarySkill", name);
+
+	return identifier ? SecondarySkill(*identifier) : SecondarySkill::NONE;
+}
+
+ScriptID BattleTestFixture::scriptByName(const std::string & name)
+{
+	auto identifier = identifierByName("script", name);
+
+	return identifier ? ScriptID(*identifier) : ScriptID();
 }

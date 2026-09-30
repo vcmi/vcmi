@@ -724,8 +724,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 					break;
 				case HA::STACK_QUEUE:
 				{
-					// at battle end, queue is messed up
-					// (the stack that dealt the killing blow is still "active", but not on 0 pos)
+					// At battle end, the killing stack may remain active outside queue position 0.
 					if(ended || !cstack)
 						break;
 
@@ -796,8 +795,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 						switch(f)
 						{
 							case SF1::IS_ACTIVE:
-								// at battle end, queue is messed up
-								// (the stack that dealt the killing blow is still "active", but not on 0 pos)
+								// At battle end, the killing stack may remain active outside queue position 0.
 								if(ended)
 									break;
 

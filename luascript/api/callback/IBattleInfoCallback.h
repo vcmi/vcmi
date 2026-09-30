@@ -53,7 +53,7 @@ public:
 	static bool hasMoat(const IBattleInfoCallback & object);
 	static bool hasNativeStack(const IBattleInfoCallback & object, BattleSide side);
 	static BattleHexArray getAllPossibleHexes(const IBattleInfoCallback & object);
-	static std::optional<EWallState> getWallState(const IBattleInfoCallback & object, EWallPart part);
+	static std::optional<int> getWallState(const IBattleInfoCallback & object, EWallPart part);
 	static bool isWallPartAttackable(const IBattleInfoCallback & object, EWallPart part);
 	static BattleHex wallPartToBattleHex(const IBattleInfoCallback & object, EWallPart part);
 	static EWallPart hexToWallPart(const IBattleInfoCallback & object, BattleHex hex);

@@ -95,9 +95,9 @@ void CursorSoftware::setVisible(bool on)
 CursorSoftware::CursorSoftware():
 	cursorTexture(nullptr),
 	cursorSurface(nullptr),
+	pivot(0,0),
 	needUpdate(false),
-	visible(false),
-	pivot(0,0)
+	visible(false)
 {
 	SDL_HideCursor();
 }

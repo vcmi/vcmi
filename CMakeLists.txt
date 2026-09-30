@@ -162,6 +162,14 @@ cmake_dependent_option(ENABLE_TEMPLATE_EDITOR "Enable template editor inside map
 
 option(VCMI_PORTMASTER "PortMaster build" OFF)
 
+# flatpak-builder sets FLATPAK_ID for the build environment
+if(DEFINED ENV{FLATPAK_ID})
+	set(VCMI_FLATPAK_DEFAULT ON)
+else()
+	set(VCMI_FLATPAK_DEFAULT OFF)
+endif()
+option(VCMI_FLATPAK "Flatpak build" ${VCMI_FLATPAK_DEFAULT})
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -300,6 +308,11 @@ if(MSVC)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/Gy> $<$<COMPILE_LANGUAGE:CXX>:/Gw>)
 	# not in Debug - /OPT:REF disables incremental linking
 	add_link_options($<$<NOT:$<CONFIG:Debug>>:/OPT:REF> $<$<NOT:$<CONFIG:Debug>>:/OPT:ICF>)
+	# RelWithDebInfo defaults to /Ob1 that only inlines functions explicitly marked as inline
+	# Use same inlining as in Release, debug information is not affected by this
+	foreach(lang C CXX)
+		string(REPLACE "/Ob1" "/Ob2" CMAKE_${lang}_FLAGS_RELWITHDEBINFO "${CMAKE_${lang}_FLAGS_RELWITHDEBINFO}")
+	endforeach()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-ffunction-sections -fdata-sections)
 	if(APPLE)

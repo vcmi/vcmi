@@ -16,6 +16,7 @@ class CGObjectInstance;
 class CGHeroInstance;
 class SeerHut;
 class QuestGuard;
+enum class EPathNodeAction : ui8;
 
 /// Test fixture for scenarios involving quest objects. Loads a TinyH3MBuilder
 /// scenario into a live CGameState and exposes helpers for the everyday
@@ -44,6 +45,10 @@ public:
 
 	/// Advance the in-game calendar by `days`.
 	void advanceDays(int days);
+
+	/// Action the pathfinder assigns to `hero` stepping onto `tile`. Reveals the
+	/// map first, so the answer is not "unreachable" merely due to fog of war.
+	EPathNodeAction pathActionAt(const CGHeroInstance * hero, const int3 & tile);
 
 protected:
 	void onMapStarted() override;

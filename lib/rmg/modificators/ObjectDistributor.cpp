@@ -169,6 +169,9 @@ void ObjectDistributor::distributePrisons()
 		}
 	}
 
+	if(!prisonHeroPlacer)
+		throw rmgException("PrisonHeroPlacer is missing in all zones!");
+
 	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaining();
 	for (int i = zones.size() - 1; i >= 0; i--)
 	{

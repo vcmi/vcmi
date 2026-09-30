@@ -72,8 +72,21 @@ private:
 	TFlippedAnimations riverAnimations;//[river type, rotation]
 	TFlippedCache riverImages;//[river type, view type, rotation]
 	
+	/// Shadow and body of an indexed image as separate images, since like in H3 all shadows of a tile go under the bodies
+	struct SplitImage
+	{
+		std::shared_ptr<QImage> source; // keeps the key alive
+		std::shared_ptr<QImage> shadow; // empty if the image has no separate shadow
+		std::shared_ptr<QImage> body;
+	};
+	std::map<const QImage *, SplitImage> splitImages;
+
 	std::vector<TileObjects> tileObjects; //information about map tiles
 	std::map<const CGObjectInstance *, std::set<int3>> tilesCache; //set of tiles belonging to object
+
+	/// Objects on every tile of their footprint, drawn or not, in the order of H3. Heroes and boats are not part of it
+	std::vector<std::vector<const CGObjectInstance *>> orderedObjects;
+	std::map<const CGObjectInstance *, std::vector<int3>> stampedTiles;
 	
 	const CMap * map = nullptr;
 	
@@ -82,6 +95,16 @@ private:
 	QRgb getTileColor(int x, int y, int z);
 	
 	std::shared_ptr<QImage> getObjectImage(const CGObjectInstance * obj);
+	const SplitImage & getSplitImage(const std::shared_ptr<QImage> & image);
+
+	std::vector<int3> getStampTiles(const CGObjectInstance * object) const;
+	void stampObject(const CGObjectInstance * object);
+	void restampTiles(const std::set<int3> & tiles);
+	void sortTile(const int3 & tile);
+
+	/// draws the part of the object that is on the tile - its shadow or the rest of it
+	void drawObjectTile(QPainter & painter, const CGObjectInstance * obj, const int3 & tile, const QPoint & target, bool shadow, bool locked);
+	void drawImageSlice(QPainter & painter, const QImage & image, const QPoint & tilesFromAnchor, const QPoint & target, bool locked);
 		
 public:
 	MapHandler();

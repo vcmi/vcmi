@@ -98,11 +98,21 @@
 #define VCMIHome "https://vcmi.eu/"
 #define VCMIContact "https://discord.gg/chBT42V"
 
+; Release builds ship without a build ID - show the plain version number in that case
+#ifndef AppBuild
+  #define AppBuild ""
+#endif
+#if AppBuild == ""
+  #define AppFullVersion AppVersion
+#else
+  #define AppFullVersion AppVersion + "." + AppBuild
+#endif
+
 
 [Setup]
 AppId={#VCMIFolder}.{#InstallerArch}
 AppName={#VCMIDisplayName}
-AppVersion={#AppVersion}.{#AppBuild}
+AppVersion={#AppFullVersion}
 AppVerName={#VCMIDisplayName}
 AppPublisher={#VCMITeam}
 AppPublisherURL={#VCMIHome}
@@ -138,7 +148,7 @@ WizardImageFile={#WizardLogo}
 ; Version informations
 MinVersion=6.1sp1
 VersionInfoCompany={#VCMITeam}
-VersionInfoDescription={#VCMIDisplayName} {#AppVersion} Setup (Build {#AppBuild})
+VersionInfoDescription={#VCMIDisplayName} {#AppFullVersion} Setup
 VersionInfoProductName={#VCMIDisplayName}
 VersionInfoCopyright={#VCMICopyright}
 VersionInfoVersion={#AppVersion}
@@ -643,7 +653,7 @@ begin
   // Create a custom label for the footer message
   FooterLabel := TLabel.Create(WizardForm);
   FooterLabel.Parent := WizardForm;
-  FooterLabel.Caption := '{#VCMIDisplayName} v' + '{#AppVersion}' + '.' + '{#AppBuild}';
+  FooterLabel.Caption := '{#VCMIDisplayName} v' + '{#AppFullVersion}';
   // Padding from the left edge
   FooterLabel.Left := 10;
   // Adjust to leave space for multiple lines

@@ -55,6 +55,8 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Texture * screenTarget = nullptr;
 
 	/// Render targets composited under screenTexture, in GpuRenderLayer order
+	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
+
 	/// What presentFromCanvas() registered per layer: regions of an offscreen canvas drawn while
 	/// the frame is composed, in place of that layer's own content. Kept across frames, like the
 	/// layer textures themselves.
@@ -64,8 +66,6 @@ class ScreenHandler final : public IScreenHandler
 		std::vector<PresentedRegion> regions;
 	};
 	std::array<PresentedCanvas, static_cast<size_t>(GpuRenderLayer::COUNT)> presentedCanvases;
-
-	std::array<SDL_Texture *, static_cast<size_t>(GpuRenderLayer::COUNT)> layerTextures = {};
 
 	/// Whether a layer currently holds content that should be composited
 	std::array<bool, static_cast<size_t>(GpuRenderLayer::COUNT)> layerActive = {};
@@ -119,6 +119,9 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Clears one layer to its initial state; the bottom layer is opaque, the rest transparent
 	void clearLayer(size_t index);
+
+	/// Draws the layers and the screen target into the current render target, without cursor
+	void composeFrame() const;
 	void destroyScreenBuffers();
 
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
@@ -184,4 +187,8 @@ public:
 	void screenShot() const final;
 
 	void setColorScheme(ColorScheme filter) final;
+
+	void setTaskbarProgress(TaskbarProgress state, float value) final;
+
+	void flashWindowIfUnfocused() final;
 };

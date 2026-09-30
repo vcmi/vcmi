@@ -14,6 +14,14 @@
 
 void BonusList::stackBonuses()
 {
+	// same bonus can be reached through several paths in bonus graph - keep only one copy of it
+	// this must be done before sorting, since sorting does not guarantee that copies of same bonus will be adjacent
+	std::unordered_set<const Bonus *> uniqueBonuses;
+	bonuses.erase(std::remove_if(bonuses.begin(), bonuses.end(), [&uniqueBonuses](const std::shared_ptr<Bonus> & bonus)
+	{
+		return !uniqueBonuses.insert(bonus.get()).second;
+	}), bonuses.end());
+
 	std::ranges::sort(bonuses, [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
 	{
 		if(b1 == b2)
@@ -34,9 +42,7 @@ void BonusList::stackBonuses()
 		std::shared_ptr<Bonus> last = bonuses[next-1];
 		std::shared_ptr<Bonus> current = bonuses[next];
 
-		if(current->stacking.empty())
-			remove = current == last;
-		else if(current->stacking == "ALWAYS")
+		if(current->stacking.empty() || current->stacking == "ALWAYS")
 			remove = false;
 		else
 			remove = current->stacking == last->stacking
@@ -85,6 +91,9 @@ int BonusList::totalValue(int baseValue) const
 
 	std::array<int, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
 
+	// PERCENT_TO_TARGET_TYPE bonuses that name a specific source object - they apply only to it
+	std::vector<const Bonus *> percentToSourceID;
+
 	for(const auto & b : bonuses)
 	{
 		switch(b->valType)
@@ -93,7 +102,10 @@ int BonusList::totalValue(int baseValue) const
 			percentToSource[vstd::to_underlying(b->source)] += b->val;
 		break;
 		case BonusValueType::PERCENT_TO_TARGET_TYPE:
-			percentToSource[vstd::to_underlying(b->targetSourceType)] += b->val;
+			if(b->targetSourceID.hasValue())
+				percentToSourceID.push_back(b.get());
+			else
+				percentToSource[vstd::to_underlying(b->targetSourceType)] += b->val;
 			break;
 		}
 	}
@@ -101,11 +113,17 @@ int BonusList::totalValue(int baseValue) const
 	for(const auto & b : bonuses)
 	{
 		int sourceIndex = vstd::to_underlying(b->source);
+
+		int percent = percentToSource[sourceIndex];
+		for(const Bonus * restriction : percentToSourceID)
+			if(restriction->targetSourceType == b->source && restriction->targetSourceID == b->sid)
+				percent += restriction->val;
+
 		// Workaround: creature hero specialties in H3 is the only place that uses rounding up in bonuses
 		// TODO: try to find more elegant solution?
 		int valModified	= b->source == BonusSource::CREATURE_ABILITY ?
-			applyPercentageRoundUp(b->val, percentToSource[sourceIndex]):
-			applyPercentageRoundDown(b->val, percentToSource[sourceIndex]);
+			applyPercentageRoundUp(b->val, percent):
+			applyPercentageRoundDown(b->val, percent);
 
 		switch(b->valType)
 		{

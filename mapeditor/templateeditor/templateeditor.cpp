@@ -410,7 +410,7 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 		{
 			MetaString str;
 			str.appendName(color);
-			ui->comboBoxZoneOwner->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(static_cast<int>(color + 1)));
+			ui->comboBoxZoneOwner->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(color + 1));
 		}
 		for (int i = 0; i < ui->comboBoxZoneOwner->count(); ++i)
 			if (ui->comboBoxZoneOwner->itemData(i).toInt() == static_cast<int>(*zone->getOwner()))

@@ -13,7 +13,10 @@
 
 #include <vcmi/spells/Spell.h>
 
+#include "CombatValue.h"
+
 #include "../CCreatureHandler.h"
+#include "../GameLibrary.h"
 
 #include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
@@ -334,6 +337,7 @@ CUnitState::CUnitState():
 	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
 	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this),
+	combatValue(this),
 	cloneID(-1)
 {
 
@@ -559,6 +563,11 @@ int32_t CUnitState::getCount() const
 	return health.getCount();
 }
 
+int32_t CUnitState::getResurrected() const
+{
+	return health.getResurrected();
+}
+
 int32_t CUnitState::getFirstHPleft() const
 {
 	return health.getFirstHPleft();
@@ -572,6 +581,23 @@ int64_t CUnitState::getAvailableHealth() const
 int64_t CUnitState::getTotalHealth() const
 {
 	return health.total();
+}
+
+uint64_t CUnitState::estimateCombatValue() const
+{
+	return estimateCombatValue(LIBRARY->creh->getCombatValue().averageBattle());
+}
+
+uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) const
+{
+	const auto perCreature = combatValue.getValue(
+		[this, &context] { return static_cast<int>(LIBRARY->creh->getCombatValue().getAIValue(*this, unitType(), context)); },
+		context.id());
+
+	if(perCreature <= 0)
+		return 0;
+
+	return std::llround(perCreature * CombatValue::stackScale(*this));
 }
 
 uint32_t CUnitState::getMaxHealth() const
@@ -599,7 +625,8 @@ ui32 CUnitState::getMovementRange(int turn) const
 	if (immobilizedPerTurn.getValue(0) != 0)
 		return 0;
 
-	return stackSpeedPerTurn.getValue(0);
+	// total speed can become negative if several speed-reducing effects stack past -100%
+	return std::max(0, stackSpeedPerTurn.getValue(0));
 }
 
 ui32 CUnitState::getMovementRange() const
@@ -757,7 +784,7 @@ int CUnitState::getDefense(bool ranged) const
 
 std::shared_ptr<Unit> CUnitState::acquire() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -765,7 +792,7 @@ std::shared_ptr<Unit> CUnitState::acquire() const
 
 std::shared_ptr<CUnitState> CUnitState::acquireState() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -930,20 +957,33 @@ void CUnitState::onRemoved()
 	ghost = true;
 }
 
-CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_):
+CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_, bool snapshotBonuses):
 	unit(unit_),
-	bonus(bonus_)
+	bonus(bonus_),
+	bonusTreeVersion(0)
 {
+	if(snapshotBonuses)
+	{
+		bonusTreeVersion = bonus->getTreeVersion();
+		bonusSnapshot = bonus->getAllBonuses(Selector::all);
+	}
 }
 
 TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
+	if(bonusSnapshot)
+	{
+		auto result = std::make_shared<BonusList>();
+		bonusSnapshot->getBonuses(*result, selector);
+		return result;
+	}
+
 	return bonus->getAllBonuses(selector, cachingStr);
 }
 
 int32_t CUnitStateDetached::getTreeVersion() const
 {
-	return bonus->getTreeVersion();
+	return bonusSnapshot ? bonusTreeVersion : bonus->getTreeVersion();
 }
 
 CUnitStateDetached & CUnitStateDetached::operator=(const CUnitState & other)

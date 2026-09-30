@@ -106,6 +106,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,                "mapFormat", "restorationOfErathia"                 },
 		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,                       "mapFormat", "shadowOfDeath"                        },
 		{EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY,       "mapObjects","h3BugQuestTakesEntireArmy"            },
+		{EGameSettings::MAP_OBJECTS_ROADS_ABOVE_SPECIAL_GROUND,           "mapObjects","roadsAboveSpecialGround"              },
 		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,              "markets",   "blackMarketRestockPeriod"             },
 		{EGameSettings::MARKETS_UNIVERSITY_GOLD_COST,                     "markets",   "universityGoldCost"                   },
 		{EGameSettings::MODULE_COMMANDERS,                                "modules",   "commanders"                           },

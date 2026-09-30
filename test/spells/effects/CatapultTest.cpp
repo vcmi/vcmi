@@ -26,7 +26,35 @@ using namespace ::testing;
 
 namespace
 {
+	/// Any random roll picks the middle of its range, which also selects the first of two equal candidates
 	int midpointRng(int low, int high) { return (low + high) / 2; }
+
+	/// Hexes that wall parts are aimed at, see wallParts in CBattleInfoCallback.cpp
+	const std::map<EWallPart, BattleHex> WALL_HEXES = {
+		{ EWallPart::KEEP,         BattleHex(50)  },
+		{ EWallPart::BOTTOM_TOWER, BattleHex(183) },
+		{ EWallPart::BOTTOM_WALL,  BattleHex(182) },
+		{ EWallPart::BELOW_GATE,   BattleHex(130) },
+		{ EWallPart::OVER_GATE,    BattleHex(78)  },
+		{ EWallPart::UPPER_WALL,   BattleHex(29)  },
+		{ EWallPart::UPPER_TOWER,  BattleHex(12)  },
+		{ EWallPart::GATE,         BattleHex(96)  },
+	};
+
+	using WallStates = std::map<EWallPart, EWallState>;
+
+	/// Wall states of a town with every fortification built, with specified parts overridden
+	WallStates fortifiedTown(const WallStates & overrides = {})
+	{
+		WallStates states;
+		for(const auto & [part, hex] : WALL_HEXES)
+			states[part] = EWallState::INTACT;
+
+		for(const auto & [part, state] : overrides)
+			states[part] = state;
+
+		return states;
+	}
 }
 
 class CatapultTest : public Test, public EffectFixture
@@ -35,6 +63,12 @@ public:
 	CatapultTest()
 		:EffectFixture("core:catapult")
 	{
+	}
+
+	void expectDefendedTown(const CGTownInstance * town)
+	{
+		EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(town));
+		EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 	}
 
 protected:
@@ -47,9 +81,8 @@ protected:
 
 TEST_F(CatapultTest, NotApplicableWithoutTown)
 {
-	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(nullptr));
+	expectDefendedTown(nullptr);
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
@@ -58,9 +91,8 @@ TEST_F(CatapultTest, NotApplicableInVillage)
 {
 	TownFake fakeTown;
 
-	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
+	expectDefendedTown(fakeTown.get());
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
@@ -71,9 +103,8 @@ TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 	fakeTown.withBuilding(BuildingID::FORT);
 	mechanicsMock.casterSide = BattleSide::DEFENDER;
 
-	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
+	expectDefendedTown(fakeTown.get());
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
@@ -83,9 +114,8 @@ TEST_F(CatapultTest, ApplicableInTown)
 	TownFake fakeTown;
 	fakeTown.withBuilding(BuildingID::FORT);
 
-	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
+	expectDefendedTown(fakeTown.get());
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).Times(0);
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::INTACT));
 
 	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
@@ -99,13 +129,77 @@ public:
 	{
 	}
 
-	void setDefaultExpectations()
+	/// Sets up a catapult that always deals one damage per shot and never hits its intended target,
+	/// so that every test only needs to configure what it actually cares about
+	void setupCatapult(const JsonNode & config)
 	{
+		JsonNode effectConfig = config;
+		if(effectConfig["targetsToAttack"].isNull())
+			effectConfig["targetsToAttack"].Integer() = 1;
+		if(effectConfig["chanceToNormalHit"].isNull())
+			effectConfig["chanceToNormalHit"].Integer() = 100;
+
+		EffectFixture::setupEffect(effectConfig);
+
 		EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
 		EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
+		EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
+		EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
 		setupDefaultRNG();
-		EXPECT_CALL(rngMock, nextInt(Matcher<int>(_), Matcher<int>(_)))
-			.WillRepeatedly(Invoke(&midpointRng));
+		EXPECT_CALL(rngMock, nextInt(Matcher<int>(_), Matcher<int>(_))).WillRepeatedly(Invoke(&midpointRng));
+
+		caster = &unitsFake.add(BattleSide::ATTACKER);
+		mechanicsMock.caster = caster;
+		EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(caster));
+		EXPECT_CALL(*caster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
+
+		EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
+			.WillRepeatedly(Invoke([this](CatapultAttack & pack)
+			{
+				attacks.push_back(pack);
+				BattleStatePackVisitor visitor(*battleFake);
+				pack.visit(visitor);
+			}));
+	}
+
+	/// Wall parts keep track of damage they receive, so that shots can be tested one after another
+	void setupWalls(const WallStates & states)
+	{
+		wallStates = states;
+
+		EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Invoke([this](EWallPart part)
+		{
+			auto it = wallStates.find(part);
+			return it == wallStates.end() ? EWallState::NONE : it->second;
+		}));
+
+		EXPECT_CALL(*battleFake, setWallState(_, _)).WillRepeatedly(Invoke([this](EWallPart part, EWallState state)
+		{
+			wallStates[part] = state;
+		}));
+	}
+
+	void applyAimedAt(EWallPart part)
+	{
+		Target target;
+		target.emplace_back(WALL_HEXES.at(part));
+		subject->apply(&serverMock, &mechanicsMock, target);
+	}
+
+	/// Applies a shot that was not aimed by a hero, so catapult has to pick its own target
+	void applyAutomatic()
+	{
+		Target target;
+		target.emplace_back();
+		subject->apply(&serverMock, &mechanicsMock, target);
+	}
+
+	std::vector<EWallPart> attackedParts() const
+	{
+		std::vector<EWallPart> result;
+		for(const auto & attack : attacks)
+			result.push_back(attack.attackedPart);
+		return result;
 	}
 
 protected:
@@ -116,226 +210,241 @@ protected:
 	}
 
 	TownFake fakeTown;
+	battle::UnitFake * caster = nullptr;
+	WallStates wallStates;
+	std::vector<CatapultAttack> attacks;
 };
 
-TEST_F(CatapultApplyTest, DamageToIntactPart)
+TEST_F(CatapultApplyTest, AimedShotHitsChosenPart)
 {
-	{
-		JsonNode config;
-		config["targetsToAttack"].Integer() = 1;
-		config["chanceToNormalHit"].Integer() = 100;
-		EffectFixture::setupEffect(config);
-	}
+	JsonNode config;
+	config["chanceToHitWall"].Integer() = 100;
+	setupCatapult(config);
+	setupWalls(fortifiedTown());
 
-	setDefaultExpectations();
+	applyAimedAt(EWallPart::BELOW_GATE);
 
-	const EWallPart targetPart = EWallPart::BELOW_GATE;
-	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
-
-	mechanicsMock.caster = &actualCaster;
-	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
-	EXPECT_CALL(actualCaster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
-	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DAMAGED))).Times(1);
-
-	CatapultAttack capturedPack;
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
-		.WillOnce(Invoke([this, &capturedPack](CatapultAttack & pack)
-		{
-			capturedPack = pack;
-			BattleStatePackVisitor visitor(*battleFake);
-			pack.visit(visitor);
-		}));
-
-	Target target;
-	target.emplace_back();
-
-	subject->apply(&serverMock, &mechanicsMock, target);
-
-	EXPECT_EQ(capturedPack.attackedPart, targetPart);
-	EXPECT_EQ(capturedPack.killedTowerShooter, -1);
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::BELOW_GATE));
+	EXPECT_EQ(attacks.at(0).damageDealt, 1u);
+	EXPECT_EQ(attacks.at(0).killedTowerShooter, -1);
 }
 
-TEST_F(CatapultApplyTest, TargetedHitOnSpecifiedPart)
+TEST_F(CatapultApplyTest, MissedShotNeverRedirectsToIntendedTarget)
 {
-	{
-		JsonNode config;
-		config["targetsToAttack"].Integer() = 1;
-		config["chanceToNormalHit"].Integer() = 100;
-		config["chanceToHitWall"].Integer() = 100;
-		EffectFixture::setupEffect(config);
-	}
+	setupCatapult(JsonNode()); // no chance to hit anything - every shot misses
+	setupWalls(fortifiedTown({
+		{ EWallPart::UPPER_WALL, EWallState::DESTROYED },
+		{ EWallPart::OVER_GATE,  EWallState::DESTROYED },
+	}));
 
-	setDefaultExpectations();
+	// Intended target is the only standing wall segment besides the one next to it
+	applyAimedAt(EWallPart::BELOW_GATE);
 
-	const EWallPart targetPart = EWallPart::BELOW_GATE;
-	const BattleHex targetHex(130); // maps to BELOW_GATE
-	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
-
-	mechanicsMock.caster = &actualCaster;
-	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
-	EXPECT_CALL(actualCaster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
-	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DAMAGED))).Times(1);
-
-	CatapultAttack capturedPack;
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
-		.WillOnce(Invoke([this, &capturedPack](CatapultAttack & pack)
-		{
-			capturedPack = pack;
-			BattleStatePackVisitor visitor(*battleFake);
-			pack.visit(visitor);
-		}));
-
-	Target target;
-	target.emplace_back(targetHex);
-
-	subject->apply(&serverMock, &mechanicsMock, target);
-
-	EXPECT_EQ(capturedPack.attackedPart, targetPart);
-	EXPECT_EQ(capturedPack.killedTowerShooter, -1);
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::BOTTOM_WALL));
 }
 
-TEST_F(CatapultApplyTest, TargetedMissRedirectsToPotentialTarget)
+TEST_F(CatapultApplyTest, MissedShotHitsIntendedTargetIfNoWallSegmentsLeft)
 {
-	{
-		JsonNode config;
-		config["targetsToAttack"].Integer() = 1;
-		config["chanceToNormalHit"].Integer() = 100;
-		config["chanceToHitWall"].Integer() = 0; // always miss the desired part
-		EffectFixture::setupEffect(config);
-	}
+	setupCatapult(JsonNode());
+	setupWalls(fortifiedTown({
+		{ EWallPart::UPPER_WALL,  EWallState::DESTROYED },
+		{ EWallPart::OVER_GATE,   EWallState::DESTROYED },
+		{ EWallPart::BELOW_GATE,  EWallState::DESTROYED },
+		{ EWallPart::BOTTOM_WALL, EWallState::DESTROYED },
+	}));
 
-	setDefaultExpectations();
+	applyAimedAt(EWallPart::KEEP);
 
-	const EWallPart desiredPart = EWallPart::BELOW_GATE;
-	const EWallPart fallbackPart = EWallPart::BOTTOM_WALL;
-	const BattleHex desiredHex(130);
-	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::KEEP));
+}
 
-	mechanicsMock.caster = &actualCaster;
-	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
-	EXPECT_CALL(actualCaster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
-	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(desiredPart))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, getWallState(Eq(fallbackPart))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(Eq(fallbackPart), _)).Times(1);
-	EXPECT_CALL(*battleFake, setWallState(Eq(desiredPart), _)).Times(0);
+TEST_F(CatapultApplyTest, SecondShotIsReaimedOnceTargetIsDestroyed)
+{
+	JsonNode config;
+	config["targetsToAttack"].Integer() = 2;
+	config["chanceToHitWall"].Integer() = 100;
+	config["chanceToNormalHit"].Integer() = 0;
+	config["chanceToCrit"].Integer() = 100; // two damage per shot destroys an intact segment
+	setupCatapult(config);
+	setupWalls(fortifiedTown({
+		{ EWallPart::UPPER_WALL, EWallState::DESTROYED },
+		{ EWallPart::OVER_GATE,  EWallState::DESTROYED },
+	}));
 
-	CatapultAttack capturedPack;
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
-		.WillOnce(Invoke([this, &capturedPack](CatapultAttack & pack)
-		{
-			capturedPack = pack;
-			BattleStatePackVisitor visitor(*battleFake);
-			pack.visit(visitor);
-		}));
+	applyAimedAt(EWallPart::BELOW_GATE);
 
-	Target target;
-	target.emplace_back(desiredHex);
+	// Destroying the target does not consume the second shot, which moves on to the nearest target left
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::BELOW_GATE, EWallPart::BOTTOM_WALL));
+}
 
-	subject->apply(&serverMock, &mechanicsMock, target);
+TEST_F(CatapultApplyTest, AutomaticShotWithoutBallisticsHitsMostDamagedWall)
+{
+	JsonNode config;
+	config["chanceToHitWall"].Integer() = 100;
+	setupCatapult(config);
+	setupWalls(fortifiedTown({{ EWallPart::OVER_GATE, EWallState::DAMAGED }}));
 
-	EXPECT_EQ(capturedPack.attackedPart, fallbackPart);
-	EXPECT_EQ(capturedPack.killedTowerShooter, -1);
+	applyAutomatic();
+
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::OVER_GATE));
+}
+
+TEST_F(CatapultApplyTest, AutomaticShotWithoutBallisticsTurnsToGateOnlyAfterWallsFall)
+{
+	JsonNode config;
+	config["chanceToHitGate"].Integer() = 100;
+	setupCatapult(config);
+	setupWalls(fortifiedTown({
+		{ EWallPart::UPPER_WALL,  EWallState::DESTROYED },
+		{ EWallPart::OVER_GATE,   EWallState::DESTROYED },
+		{ EWallPart::BELOW_GATE,  EWallState::DESTROYED },
+		{ EWallPart::BOTTOM_WALL, EWallState::DESTROYED },
+	}));
+
+	applyAutomatic();
+
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::GATE));
+}
+
+TEST_F(CatapultApplyTest, AutomaticShotWithBallisticsHitsGateFirst)
+{
+	JsonNode config;
+	config["chanceToHitGate"].Integer() = 100;
+	setupCatapult(config);
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(1)); // hero has Ballistics
+	setupWalls(fortifiedTown());
+
+	applyAutomatic();
+
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::GATE));
+}
+
+TEST_F(CatapultApplyTest, AutomaticShotWithBallisticsTurnsToKeepOnceWallIsDestroyed)
+{
+	JsonNode config;
+	config["chanceToHitKeep"].Integer() = 100;
+	setupCatapult(config);
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(1)); // hero has Ballistics
+	setupWalls(fortifiedTown({
+		{ EWallPart::GATE,       EWallState::DESTROYED },
+		{ EWallPart::UPPER_WALL, EWallState::DESTROYED },
+	}));
+
+	applyAutomatic();
+
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::KEEP));
 }
 
 TEST_F(CatapultApplyTest, RemovesTowerShooterOnKeepDestroyed)
 {
-	{
-		JsonNode config;
-		config["targetsToAttack"].Integer() = 1;
-		config["chanceToCrit"].Integer() = 100; // damage = 2, takes DAMAGED -> DESTROYED
-		EffectFixture::setupEffect(config);
-	}
+	JsonNode config;
+	config["chanceToHitKeep"].Integer() = 100;
+	config["chanceToNormalHit"].Integer() = 0;
+	config["chanceToCrit"].Integer() = 100; // two damage destroys a damaged keep
+	setupCatapult(config);
+	setupWalls(fortifiedTown({{ EWallPart::KEEP, EWallState::DAMAGED }}));
 
-	setDefaultExpectations();
-
-	const EWallPart targetPart = EWallPart::KEEP;
-	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
 	auto & towerShooter = unitsFake.add(BattleSide::DEFENDER);
 	const uint32_t shooterId = 99;
 	EXPECT_CALL(towerShooter, getPosition()).WillRepeatedly(Return(BattleHex(BattleHex::CASTLE_CENTRAL_TOWER)));
 	EXPECT_CALL(towerShooter, isGhost()).WillRepeatedly(Return(false));
 	EXPECT_CALL(towerShooter, unitId()).WillRepeatedly(Return(shooterId));
 	EXPECT_CALL(towerShooter, doubleWide()).WillRepeatedly(Return(false));
-
-	mechanicsMock.caster = &actualCaster;
-	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
-	EXPECT_CALL(actualCaster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
-	// All wall parts DESTROYED except KEEP which is DAMAGED so it becomes the only attackable.
-	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::DAMAGED));
-	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DESTROYED))).Times(1);
 	EXPECT_CALL(*battleFake, removeUnit(Eq(shooterId))).Times(1);
 
-	CatapultAttack capturedPack;
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
-		.WillOnce(Invoke([this, &capturedPack](CatapultAttack & pack)
-		{
-			capturedPack = pack;
-			BattleStatePackVisitor visitor(*battleFake);
-			pack.visit(visitor);
-		}));
+	applyAimedAt(EWallPart::KEEP);
 
-	Target target;
-	target.emplace_back();
-
-	subject->apply(&serverMock, &mechanicsMock, target);
-
-	EXPECT_EQ(capturedPack.attackedPart, targetPart);
-	EXPECT_EQ(capturedPack.damageDealt, 2u);
-	EXPECT_EQ(capturedPack.killedTowerShooter, static_cast<int32_t>(shooterId));
+	EXPECT_THAT(attackedParts(), ElementsAre(EWallPart::KEEP));
+	EXPECT_EQ(attacks.at(0).damageDealt, 2u);
+	EXPECT_EQ(attacks.at(0).killedTowerShooter, static_cast<int32_t>(shooterId));
 }
 
-TEST_F(CatapultApplyTest, MassiveAttacksMultipleParts)
+TEST_F(CatapultApplyTest, EarthquakeSpreadsAllOfItsDamageOverStandingParts)
 {
+	JsonNode config;
+	config["targetsToAttack"].Integer() = 4;
+	setupCatapult(config);
+	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
+	setupWalls(fortifiedTown());
+
+	applyAutomatic();
+
+	uint32_t damageDealt = 0;
+	for(const auto & attack : attacks)
+		damageDealt += attack.damageDealt;
+
+	EXPECT_EQ(damageDealt, 4u); // no damage is wasted on parts that are already about to fall
+
+	const auto parts = attackedParts();
+	const std::set<EWallPart> distinctParts(parts.begin(), parts.end());
+	EXPECT_EQ(distinctParts.size(), attacks.size()); // each part is attacked by a single pack
+}
+
+TEST_F(CatapultApplyTest, EarthquakeIgnoresPartsThatTownHasNotBuilt)
+{
+	JsonNode config;
+	config["targetsToAttack"].Integer() = 4;
+	setupCatapult(config);
+	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
+
+	// Town with a fort only - it has neither keep nor towers
+	setupWalls({
+		{ EWallPart::UPPER_WALL,  EWallState::INTACT },
+		{ EWallPart::OVER_GATE,   EWallState::INTACT },
+		{ EWallPart::BELOW_GATE,  EWallState::INTACT },
+		{ EWallPart::BOTTOM_WALL, EWallState::INTACT },
+		{ EWallPart::GATE,        EWallState::INTACT },
+	});
+
+	applyAutomatic();
+
+	uint32_t damageDealt = 0;
+	for(const auto & attack : attacks)
 	{
-		JsonNode config;
-		config["targetsToAttack"].Integer() = 3;
-		config["chanceToNormalHit"].Integer() = 100;
-		EffectFixture::setupEffect(config);
+		damageDealt += attack.damageDealt;
+		EXPECT_THAT(attack.attackedPart, Not(AnyOf(EWallPart::KEEP, EWallPart::UPPER_TOWER, EWallPart::BOTTOM_TOWER)));
 	}
 
-	setDefaultExpectations();
-
-	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
-
-	mechanicsMock.caster = &actualCaster;
-	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
-	EXPECT_CALL(actualCaster, unitId()).WillRepeatedly(Return(static_cast<uint32_t>(-1)));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
-	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(_, _)).Times(AtLeast(1));
-
-	std::vector<CatapultAttack> capturedPacks;
-	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack &>(_)))
-		.WillRepeatedly(Invoke([this, &capturedPacks](CatapultAttack & pack)
-		{
-			capturedPacks.push_back(pack);
-			BattleStatePackVisitor visitor(*battleFake);
-			pack.visit(visitor);
-		}));
-
-	Target target;
-	target.emplace_back();
-
-	subject->apply(&serverMock, &mechanicsMock, target);
-
-	const int distinctParts = static_cast<int>(capturedPacks.size());
-	EXPECT_GE(distinctParts, 1);
-	EXPECT_LE(distinctParts, 3);
-
-	std::set<EWallPart> seen;
-	for(const auto & p : capturedPacks)
-		seen.insert(p.attackedPart);
-	EXPECT_EQ(seen.size(), capturedPacks.size()); // each pack hits a distinct part
+	EXPECT_EQ(damageDealt, 4u);
 }
+
+struct RedirectCase
+{
+	EWallPart intended;
+	EWallPart expected;
+};
+
+/// Checks which wall segment a missed shot lands on, in a town where every segment still stands
+class CatapultRedirectTest : public CatapultApplyTest, public WithParamInterface<RedirectCase>
+{
+};
+
+TEST_P(CatapultRedirectTest, MissedShotHitsNearestWallSegment)
+{
+	setupCatapult(JsonNode()); // no chance to hit anything - every shot misses
+	setupWalls(fortifiedTown());
+
+	applyAimedAt(GetParam().intended);
+
+	EXPECT_THAT(attackedParts(), ElementsAre(GetParam().expected));
+}
+
+INSTANTIATE_TEST_SUITE_P
+(
+	ByIntendedTarget,
+	CatapultRedirectTest,
+	Values
+	(
+		RedirectCase{ EWallPart::UPPER_WALL,   EWallPart::OVER_GATE   },
+		RedirectCase{ EWallPart::OVER_GATE,    EWallPart::UPPER_WALL  },
+		RedirectCase{ EWallPart::BELOW_GATE,   EWallPart::BOTTOM_WALL },
+		RedirectCase{ EWallPart::BOTTOM_WALL,  EWallPart::BELOW_GATE  },
+		RedirectCase{ EWallPart::KEEP,         EWallPart::BOTTOM_WALL },
+		RedirectCase{ EWallPart::UPPER_TOWER,  EWallPart::UPPER_WALL  },
+		RedirectCase{ EWallPart::BOTTOM_TOWER, EWallPart::BOTTOM_WALL },
+		// Both segments next to the gate are equally close, so one of them is picked at random
+		RedirectCase{ EWallPart::GATE,         EWallPart::OVER_GATE   }
+	)
+);
 
 }

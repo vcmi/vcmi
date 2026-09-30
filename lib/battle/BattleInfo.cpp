@@ -746,25 +746,20 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 		}
 	}
 
-	bool killed = (-healthDelta) >= changedStack->getAvailableHealth();//todo: check using alive state once rebirth will be handled separately
-
-	bool resurrected = !changedStack->alive() && healthDelta > 0;
+	const bool wasAlive = changedStack->alive();
 
 	//applying changes
 	changedStack->load(data);
 
+	// Use the alive-state transition because a zero-health-change pack may update an existing corpse.
+	const bool killed = wasAlive && !changedStack->alive();
+	const bool resurrected = !wasAlive && changedStack->alive();
 
 	if(healthDelta < 0)
 	{
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
-	}
-
-	if(healthDelta < 0)
-	{
 		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
 	}
-
-	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)
 	{

@@ -16,11 +16,24 @@ class CAdventureAI : public CGlobalAI
 {
 public:
 	CAdventureAI() = default;
+	~CAdventureAI() override;
 
 	std::shared_ptr<CBattleGameInterface> battleAI;
 	std::shared_ptr<CBattleCallback> cbc;
 
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
+
+private:
+	/// Value of cbc->waitTillRealize before the battle has started.
+	/// Battle AI must not block on server responses, but the callback is shared with the adventure AI,
+	/// so the flag has to be restored once the battle is over. Owned here - and only here - so that
+	/// nested battle AI instances can not restore it out of order.
+	std::optional<bool> waitTillRealizeBeforeBattle;
+
+	void suspendWaitTillRealize();
+	void restoreWaitTillRealize();
+
+public:
 
 	//battle interface
 	void activeStack(const BattleID & battleID, const CStack * stack) override;

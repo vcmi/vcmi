@@ -82,6 +82,7 @@ public:
 	bool visitableAt(const int3 & pos) const; //returns true if object is visitable at location
 	bool blockingAt (const int3 & pos) const; //returns true if object is blocking location
 	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location
+	ui8 drawLayerAt(const int3 & pos) const; //returns layer in which object is drawn on this tile, see ObjectTemplate::getDrawLayerAt
 
 	/// Visibility of this object to `player`, used as the fog-of-war gate.
 	virtual bool isVisibleFor(PlayerColor player) const;

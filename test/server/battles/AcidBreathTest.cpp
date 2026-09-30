@@ -54,8 +54,6 @@ TEST_P(AcidBreathTest, dealsExpectedDamage)
 
 	CStack * target = addStack(BattleSide::ATTACKER, CreatureID(scenario.defendingCreature), BattleHex(targetHex), targetCount);
 	CStack * dragon = addStack(BattleSide::DEFENDER, creatureByName("core:rustDragon"), BattleHex(dragonHex), dragonCount);
-	ASSERT_NE(target, nullptr);
-	ASSERT_NE(dragon, nullptr);
 
 	// retaliation would shrink the attacking stack, and the acid damage scales with its size
 	blockRetaliation(dragon);

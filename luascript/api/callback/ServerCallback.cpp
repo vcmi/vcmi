@@ -490,7 +490,6 @@ int ServerCallbackProxy::damageUnit(lua_State * L)
 	BattleStackAttacked bsa;
 	bsa.damageAmount = damageAmount;
 	bsa.stackAttacked = unit->unitId();
-	bsa.attackerID = -1;
 	auto newState = unit->acquireState();
 	CStack::prepareAttacked(bsa, *object->getRNG(), newState);
 

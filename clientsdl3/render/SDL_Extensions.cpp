@@ -661,9 +661,9 @@ void loopOverPixel(SDL_Surface * surf, const Rect & rect, Functor functor)
 	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
 	const int bytesPerPixel = CSDL_Ext::getBytesPerPixel(surf);
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& range)
 	{
-		for(int yp = r.begin(); yp != r.end(); ++yp)
+		for(int yp = range.begin(); yp != range.end(); ++yp)
 		{
 			uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * bytesPerPixel;
 			uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * bytesPerPixel;

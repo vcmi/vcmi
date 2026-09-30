@@ -969,7 +969,7 @@ void SelectionTab::selectNewestFile(bool skipAutosaves)
 	selectFileName(newestFile);
 }
 
-std::string SelectionTab::getLastSaveSettingName() const
+std::string SelectionTab::getLastSaveSettingName()
 {
 	switch(GAME->server().getLoadMode())
 	{
@@ -982,7 +982,7 @@ std::string SelectionTab::getLastSaveSettingName() const
 	}
 }
 
-void SelectionTab::rememberSave(const std::string & savePath) const
+void SelectionTab::rememberSave(const std::string & savePath)
 {
 	Settings lastSave = settings.write["general"]["lastSave"];
 	lastSave->String() = savePath;

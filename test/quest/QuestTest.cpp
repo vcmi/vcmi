@@ -14,6 +14,9 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 void QuestTest::onMapStarted()
 {
@@ -61,4 +64,15 @@ void QuestTest::advanceDays(int days)
 	for(const auto & obj : map()->objects)
 		if(obj)
 			obj->newTurn(gameEvents(), randomizer);
+}
+
+EPathNodeAction QuestTest::pathActionAt(const CGHeroInstance * hero, const int3 & tile)
+{
+	revealMap(hero->getOwner());
+
+	CPathsInfo paths(gameState()->getMapSize(), hero);
+	auto config = std::make_shared<SingleHeroPathfinderConfig>(paths, *gameState(), hero);
+	CPathfinder pathfinder(*gameState(), config);
+	pathfinder.calculatePaths();
+	return paths.getNode(tile, EPathfindingLayer::LAND)->action;
 }

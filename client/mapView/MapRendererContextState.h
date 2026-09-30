@@ -56,10 +56,18 @@ public:
 	using MapObjectsList = std::vector<MapObject>;
 	using ObjectTilesList = boost::container::small_vector<int3, 16>;
 
+	/// Objects drawn on every tile. Ordered like in H3, apart from heroes and boats that are put last
 	MapTilesStorage<MapObjectsList> objects;
+
+	/// Objects on every tile of their footprint, drawn or not, ordered by draw layer - the way H3 keeps them.
+	/// Heroes and boats are not part of it
+	MapTilesStorage<MapObjectsList> orderedObjects;
 	std::map<ObjectInstanceID, ObjectTilesList> usedTiles;
 
 	void addObject(const CGObjectInstance * object);
 	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);
 	void removeObject(const CGObjectInstance * object);
+
+private:
+	void updateVisibleObjects(const int3 & tile);
 };

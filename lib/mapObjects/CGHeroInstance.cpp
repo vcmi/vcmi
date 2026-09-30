@@ -150,6 +150,9 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, Cha
 		}
 	}
 
+	if(newLevelClamped > currentLevel && which.hasValue() && which.toSkill()->offerCooldown > 0)
+		secSkillsGainedAtLevel[which] = level;
+
 	updateSkillBonus(which, newLevelClamped);
 }
 
@@ -207,21 +210,30 @@ int CGHeroInstance::movementPointsLimit() const
 	return getTurnInfo(0)->getMaxMovePoints(layer);
 }
 
+static int getMovementSpeed(const CStackInstance & stack)
+{
+	// artifact speed bonuses (e.g. Ring of the Wayfarer) only apply in battle
+	static const CSelector selector = Selector::type()(BonusType::STACKS_SPEED)
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT).Not())
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not());
+
+	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifacts");
+}
+
 int CGHeroInstance::getLowestCreatureSpeed() const
 {
 	if(stacksCount() != 0)
 	{
 		int minimalSpeed = std::numeric_limits<int>::max();
-		//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 		for(const auto & slot : Slots())
-			minimalSpeed = std::min(minimalSpeed, slot.second->getInitiative());
+			minimalSpeed = std::min(minimalSpeed, getMovementSpeed(*slot.second));
 
 		return minimalSpeed;
 	}
 	else
 	{
 		if(commander && commander->alive)
-			return commander->getInitiative();
+			return getMovementSpeed(*commander);
 	}
 
 	return 10;
@@ -432,6 +444,11 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 
 	if (patrol.patrolling)
 		patrol.initialPos = visitablePos();
+
+	// starting skills count as gained at the starting level
+	for(const auto & skill : secSkills)
+		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0)
+			secSkillsGainedAtLevel[skill.first] = level;
 
 	if(mapSpecifiedLevel.has_value())
 	{
@@ -782,10 +799,9 @@ bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGH
 	return left->getHeroTypeID() > right->getHeroTypeID();
 }
 
-ui64 CGHeroInstance::getTotalStrength() const
+ui64 CGHeroInstance::estimateHeroCombatValue() const
 {
-	double ret = getHeroStrength() * getArmyStrength();
-	return static_cast<ui64>(ret);
+	return static_cast<ui64>(getHeroStrength() * estimateCombatValue());
 }
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
@@ -1460,6 +1476,15 @@ bool CGHeroInstance::gainsLevel() const
 	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
+TExpType CGHeroInstance::experienceToGainLevels(ui32 levels) const
+{
+	const ui32 targetLevel = std::min(level + levels, LIBRARY->heroh->maxSupportedLevel());
+	if(targetLevel <= level)
+		return 0;
+
+	return LIBRARY->heroh->reqExp(targetLevel) - LIBRARY->heroh->reqExp(level);
+}
+
 void CGHeroInstance::levelUp()
 {
 	++level;
@@ -1480,11 +1505,16 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
 		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
+		// level is raised before the skill is picked, as on server
+		levelUp();
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())
-			setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
-
-		levelUp();
+		{
+			const auto & chosenSkill = proposedSecondarySkills.front();
+			setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
+			if(chosenSkill.toSkill()->grantsLevelUp())
+				exp += experienceToGainLevels(1);
+		}
 	}
 }
 
@@ -1496,29 +1526,20 @@ void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomize
 	const ui32 targetLevel = *mapSpecifiedLevel;
 	const bool addSkills = mapSpecifiedLevelAddsSkills;
 
-	// These two fields describe map-start initialization only. Consume them so
-	// later hero initialization paths cannot apply the authored level twice.
 	mapSpecifiedLevel.reset();
 	mapSpecifiedLevelAddsSkills = true;
 
-	// A HotA hero with cannotGainXP is a map-authored final snapshot. Preserve
-	// its exact level, primary skills and secondary skills as loaded. In
-	// particular, alwaysAddSkills must not replay normal level-up rolls here.
+	// A HotA hero with cannotGainXP is a map-authored final snapshot.
 	if(cannotGainExperience)
 	{
 		level = targetLevel;
 		nodeHasChanged();
 
-		// The flag prevents future positive experience gain. Do not erase an
-		// authored experience value, because other engine systems may still read it.
 		if(exp == UNINITIALIZED_EXPERIENCE)
 			exp = 0;
 		return;
 	}
 
-	// Heroes that may still gain experience retain the existing explicit-level
-	// initialization behavior until alwaysAddSkills semantics are verified
-	// independently.
 	level = 1;
 
 	if(addSkills)
@@ -1528,11 +1549,11 @@ void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomize
 			const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
 			const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
+			// Keep current VCMI ordering: the new level exists before skills are applied.
+			levelUp();
 			setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 			if(!proposedSecondarySkills.empty())
 				setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
-
-			levelUp();
 		}
 	}
 	else
@@ -1541,10 +1562,6 @@ void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomize
 		nodeHasChanged();
 	}
 
-	// For levels representable by VCMI keep experience coherent with the exact
-	// level so normal future progression starts from the correct threshold.
-	// Above that range there is no representable threshold; preserve map XP if
-	// present, otherwise start the counter at zero.
 	if(targetLevel <= LIBRARY->heroh->maxSupportedLevel())
 		exp = LIBRARY->heroh->reqExp(targetLevel);
 	else if(exp == UNINITIALIZED_EXPERIENCE)

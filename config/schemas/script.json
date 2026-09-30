@@ -22,7 +22,7 @@
 		"implements" : {
 			"type" : "string",
 			"enum" : [ "spellEffect", "combatEvent", "damageCalculator" ],
-			"description" : "Which part of the game this script implements. 'spellEffect' is an effect of a spell, 'combatEvent' reacts to events that happen to a unit in combat, 'damageCalculator' decides what an attack is worth"
+			"description" : "Which part of the game this script implements. 'spellEffect' is an effect of a spell, 'combatEvent' reacts to events that happen to a unit in combat, 'damageCalculator' decides how much damage an attack deals"
 		},
 		"compatibilityIdentifiers" : {
 			"type" : "array",

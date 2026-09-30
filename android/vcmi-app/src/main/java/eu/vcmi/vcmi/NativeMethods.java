@@ -68,6 +68,12 @@ public class NativeMethods
         return root;
     }
 
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    public static String applicationId()
+    {
+        return context().getPackageName();
+    }
+
     /// shown when the game wants the player's attention while it is in the background
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static void showNotification(final String message)

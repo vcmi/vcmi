@@ -237,6 +237,22 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	
 	if(lastDay >= 0)
 		text.replaceNumber(lastDay - cb->getCalendar().getCurrentDay());
+
+	if(mission.daysPassed > 0)
+	{
+		// HotA "reach date" quest (e.g. timed quest gate): the text contains a string placeholder
+		// that must be filled with the date on which the object becomes accessible.
+		// Use the same date format as the adventure map date bar
+		const auto calendar = cb->getCalendar(mission.daysPassed);
+
+		text.replaceTextID("vcmi.adventureMap.dateFormat");
+		text.replaceTokenTextID("%MONTH", "core.genrltxt.62");
+		text.replaceTokenNumber("%MONTHNUMBER", calendar.getMonth());
+		text.replaceTokenTextID("%WEEK", "core.genrltxt.63");
+		text.replaceTokenNumber("%WEEKNUMBER", calendar.getWeek());
+		text.replaceTokenTextID("%DAY", "core.genrltxt.64");
+		text.replaceTokenNumber("%DAYNUMBER", calendar.getDayOfWeek());
+	}
 }
 
 void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
@@ -315,16 +331,15 @@ void Quest::addKillTargetReplacements(MetaString &out) const
 	}
 }
 
-void Quest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+void Quest::serializeJson(JsonSerializeFormat & handler)
 {
-	auto q = handler.enterStruct(fieldName);
-
 	handler.serializeStruct("firstVisitText", firstVisitText);
 	handler.serializeStruct("nextVisitText", nextVisitText);
 	handler.serializeStruct("completedText", completedText);
 	handler.serializeBool("repeatedQuest", repeatedQuest, false);
 
 	handler.serializeInt("timeLimit", lastDay, -1);
+	handler.serializeString("questGiverName", questGiverNameTextID);
 	handler.serializeStruct("limiter", mission);
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
@@ -447,6 +462,14 @@ void QuestSource::advanceToNextQuest()
 	// nothing offerable: seer has no active quest, active index stays put
 }
 
+bool QuestSource::hasAnotherOfferableQuest() const
+{
+	for(int i = 0; i < static_cast<int>(quests.size()); ++i)
+		if(i != currentQuestIndex && isQuestAvailable(*quests[i]))
+			return true;
+	return false;
+}
+
 void QuestSource::syncActiveReward()
 {
 	configuration.info.clear();
@@ -534,8 +557,7 @@ void SeerHut::init(vstd::RNG & rand)
 {
 	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
-	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
-	seerName = LIBRARY->generaltexth->translate(seerNameID);
+	seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
 
 	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	for(const auto & q : allQuests())
@@ -566,12 +588,20 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 
 		// A HOTA_SCRIPTED quest is intentionally limiter-less (its condition is Lua-evaluated), so an
 		// empty limiter must not be read as "nothing to do" here like it is for every other mission kind.
-		if(q.mission == Rewardable::Limiter{} && q.missionKind != EQuestMission::HOTA_SCRIPTED)
+		// init() has already set hasExtraCreatures, which is a payment rule rather than a requirement,
+		// so the baseline to compare against must carry the same value.
+		Rewardable::Limiter emptyMission;
+		emptyMission.hasExtraCreatures = q.mission.hasExtraCreatures;
+
+		if(q.mission == emptyMission && q.missionKind != EQuestMission::HOTA_SCRIPTED)
 			q.isCompleted = true;
 
 		if(q.missionKind == EQuestMission::NONE)
 		{
+			// same "hut stands abandoned" text as a hut without any offerable quest - it names the seer
 			q.firstVisitText.appendTextID("core.seerhut.empty", q.completedOption);
+			if(!seerNameTextID.empty())
+				q.firstVisitText.replaceTextID(seerNameTextID);
 		}
 		else if(q.missionKind == EQuestMission::KEYMASTER)
 		{
@@ -599,15 +629,32 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	syncActiveReward();
 }
 
+std::string SeerHut::getQuestGiverName() const
+{
+	if(seerNameTextID.empty()) // quest guards have no seer of their own
+		return {};
+
+	if(!isEmpty() && !getQuest().questGiverNameTextID.empty())
+		return getQuest().questGiverNameTextID;
+
+	return seerNameTextID;
+}
+
+void SeerHut::setSeerName(CMap & map, const std::string & newName)
+{
+	seerNameTextID = mapRegisterLocalizedString("map", map, TextIdentifier("map", "seerHut", instanceName, "name"), newName);
+}
+
 MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
 	MetaString text;
-	if(!seerName.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
+	std::string seer = getQuestGiverName();
+	if(!seer.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
 	{
 		text.appendTextID("core.genrltxt", 347);
-		text.replaceRawString(seerName);
+		text.replaceTextID(seer);
 	}
 	else
 		text.append(getObjectName());
@@ -642,15 +689,16 @@ std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGH
 	return result;
 }
 
+void QuestSource::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
+{
+	if(what == ObjProperty::SEERHUT_VISITED)
+		getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
+}
+
 void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case ObjProperty::SEERHUT_VISITED:
-		{
-			getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
-			break;
-		}
 		case ObjProperty::SEERHUT_COMPLETE:
 		{
 			if(identifier.getNum())
@@ -667,6 +715,9 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			syncActiveReward();
 			break;
 		}
+		default:
+			QuestSource::setPropertyDer(what, identifier);
+			break;
 	}
 }
 
@@ -714,8 +765,8 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		// no active quest: pick a valid "empty seer" flavour without one
 		ui8 emptyOption = allQuests().empty() ? 0 : allQuests().front()->completedOption;
 		iw.text.appendTextID("core.seerhut.empty", emptyOption);
-		if(!seerName.empty())
-			iw.text.replaceRawString(seerName);
+		if(!seerNameTextID.empty())
+			iw.text.replaceTextID(seerNameTextID);
 		gameEvents.showInfoDialog(&iw);
 	}
 }
@@ -735,68 +786,163 @@ void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHe
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
 	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
+	offerNextQuest(gameEvents, hero);
+}
+
+void SeerHut::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	CRewardableObject::heroLevelUpDone(gameEvents, hero);
+	offerNextQuest(gameEvents, hero);
+}
+
+void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	CRewardableObject::garrisonDialogClosed(gameEvents, hero);
+	offerNextQuest(gameEvents, hero);
+}
+
+// The three callers above are every point at which granting a reward can come to an end:
+// inline, after a hero / commander level-up, or after a garrison dialog for creatures the
+// hero had no room for. Whichever one finishes last offers the next quest.
+void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+{
+	if(!advancePending)
+		return; // no quest was finished, or the next one is already being offered
+
+	// a hut whose only offer is a repeatable quest must not re-offer it on the spot,
+	// or the hero could hand it in over and over without ever leaving the tile
+	if(!hasAnotherOfferableQuest())
+		return;
+
+	// the reward that was just granted tears the hut down - there is nothing left to visit
+	if(getQuest().reward && getQuest().reward->reward.removeObject)
+		return;
+
+	if(gameEvents.isVisitCoveredByAnotherQuery(this, hero))
+		return; // a dialog of this grant is still open - the reward is not fully handed over yet
+
+	gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
+	onHeroVisit(gameEvents, hero); // still the same visit: the seer simply states his next quest
 }
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	// VCMI maps keep the reward in configuration, H3M maps only in the quest
+	if(handler.saving && configuration.info.empty() && !allQuests().empty() && getQuest().reward)
+		configuration.info.push_back(*getQuest().reward);
+
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
-	if(!handler.saving && allQuests().empty())
-		addQuest(); // JSON seer huts carry a single quest; create it to read into
-	getQuest().serializeJson(handler, "quest");
+
+	bool oldVersion = false;
+	{
+		if (!handler.saving)
+		{
+			auto s = handler.enterStruct("quest");
+			oldVersion = !handler.getCurrent().isNull();
+		}
+	}
+
+	if (oldVersion)
+	{
+		auto s = handler.enterStruct("quest");
+		addQuest().serializeJson(handler);
+		if (!configuration.info.empty())
+			allQuestsEditor()[0]->reward = configuration.info[0];
+	}
+	else
+	{
+		JsonArraySerializer questsArray = handler.enterArray("quests");
+		if(handler.saving)
+		{
+			int size = allQuests().size();
+			questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
+			for (int i = 0; i<size; i++)
+			{
+				auto questSerializer = questsArray.enterStruct(i);
+				allQuests()[i]->serializeJson(handler);
+			}
+		} else
+		{
+			int size = questsArray.size();
+			for (int i = 0; i<size; i++)
+			{
+				auto & quest = addQuest();
+				auto questSerializer = questsArray.enterStruct(i);
+				quest.serializeJson(handler);
+			}
+		}
+
+		//we copy rewards consecutively from rewardable to quests (TODO:add reward widget included within quest widget in the editor and save rewards as reward)
+		if (!handler.saving)
+		{
+			for (int i = 0; i<configuration.info.size() && i<allQuests().size(); i++)
+			{
+				allQuestsEditor()[i]->reward = configuration.info[i];
+			}
+		}
+	}
 
 	if(!handler.saving)
 	{
-		//backward compatibility for VCMI maps that use old SeerHut format
-		auto s = handler.enterStruct("reward");
-		const JsonNode & rewardsJson = handler.getCurrent();
+		readLegacyReward(handler);
 
-		if (rewardsJson.Struct().empty())
-			return;
-		
-		std::string fullIdentifier;
-		std::string metaTypeName;
-		std::string scope;
-		std::string identifier;
-
-		auto iter = rewardsJson.Struct().begin();
-		fullIdentifier = iter->first;
-
-		ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
-		if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
-			return;
-
-		int val = 0;
-		handler.serializeInt(fullIdentifier, val);
-		
-		auto rawId = [&]{ return *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false); };
-
-		Rewardable::VisitInfo vinfo;
-		auto & reward = vinfo.reward;
-		if(metaTypeName == "experience")
-			reward.heroExperience = val;
-		if(metaTypeName == "mana")
-			reward.manaDiff = val;
-		if(metaTypeName == "morale")
-			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
-		if(metaTypeName == "luck")
-			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
-		if(metaTypeName == "resource")
-			reward.resources[rawId()] = val;
-		if(metaTypeName == "primarySkill")
-			reward.primary.at(rawId()) = val;
-		if(metaTypeName == "secondarySkill")
-			reward.secondary[rawId()] = val;
-		if(metaTypeName == "artifact")
-			reward.grantedArtifacts.push_back(rawId());
-		if(metaTypeName == "spell")
-			reward.spells.push_back(rawId());
-		if(metaTypeName == "creature")
-			reward.creatures.emplace_back(rawId(), val);
-		
-		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		configuration.info.push_back(vinfo);
+		if(!getQuest().reward && !configuration.info.empty())
+			getQuest().reward = configuration.info.front();
 	}
+}
+
+void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
+{
+	//backward compatibility for VCMI maps that use old SeerHut format
+	auto s = handler.enterStruct("reward");
+	const JsonNode & rewardsJson = handler.getCurrent();
+
+	if (rewardsJson.Struct().empty())
+		return;
+	
+	std::string fullIdentifier;
+	std::string metaTypeName;
+	std::string scope;
+	std::string identifier;
+
+	auto iter = rewardsJson.Struct().begin();
+	fullIdentifier = iter->first;
+
+	ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+	if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
+		return;
+
+	int val = 0;
+	handler.serializeInt(fullIdentifier, val);
+	
+	auto rawId = [&]{ return *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false); };
+
+	Rewardable::VisitInfo vinfo;
+	auto & reward = vinfo.reward;
+	if(metaTypeName == "experience")
+		reward.heroExperience = val;
+	if(metaTypeName == "mana")
+		reward.manaDiff = val;
+	if(metaTypeName == "morale")
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
+	if(metaTypeName == "luck")
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
+	if(metaTypeName == "resource")
+		reward.resources[rawId()] = val;
+	if(metaTypeName == "primarySkill")
+		reward.primary.at(rawId()) = val;
+	if(metaTypeName == "secondarySkill")
+		reward.secondary[rawId()] = val;
+	if(metaTypeName == "artifact")
+		reward.grantedArtifacts.push_back(rawId());
+	if(metaTypeName == "spell")
+		reward.spells.push_back(rawId());
+	if(metaTypeName == "creature")
+		reward.creatures.emplace_back(rawId(), val);
+	
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	configuration.info.push_back(vinfo);
 }
 
 void QuestGuard::init(vstd::RNG & rand)
@@ -809,12 +955,18 @@ bool QuestGuard::passableFor(PlayerColor color) const
 	return getQuest().isCompleted;
 }
 
-void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+void QuestSource::serializeJsonSingleQuest(JsonSerializeFormat & handler)
 {
 	//quest only, do not call base class
 	if(!handler.saving && allQuests().empty())
-		addQuest(); // quest guards carry a single quest; create it to read into
-	getQuest().serializeJson(handler, "quest");
+		addQuest(); // guards and gates carry a single quest; create it to read into
+	auto s = handler.enterStruct("quest");
+	getQuest().serializeJson(handler);
+}
+
+void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
 }
 
 MetaString QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
@@ -864,13 +1016,37 @@ void KeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIns
 void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	CRewardableObject::initObj(gameRandomizer);
+
+	if(allQuests().empty())
+		return; // a gate without any quest is a doorway that stands open
+
 	getQuest().defineQuestName();
 	if(getQuest().firstVisitText.empty())
 		getQuest().firstVisitText.appendTextID("core.advevent", 18);
 }
 
+void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeJsonSingleQuest(handler);
+}
+
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	if(allQuests().empty())
+		return;
+
+	// deadline passed or quest not offered on this difficulty - it can never be met, so the gate stays shut
+	if(!isQuestAvailable(getQuest()))
+	{
+		h->showInfoDialog(gameEvents, 18);
+		return;
+	}
+
+	// the player has seen the gate and now knows what it asks for - the pathfinder
+	// only routes heroes through a gate whose quest is known
+	if(!getQuest().isKnownTo(h->getOwner()))
+		gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
+
 	if(checkQuest(h))
 	{
 		// satisfied: a toll gate charges the limiter cost on every passage and
@@ -889,6 +1065,12 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 bool QuestGate::passableFor(PlayerColor color) const
 {
+	if(allQuests().empty())
+		return true;
+
+	if(!isQuestAvailable(getQuest()))
+		return false;
+
 	// player-level fallback (no hero context): only the keymaster-key limiter can
 	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
 	for(const auto & key : getQuest().mission.requiredKeys)
@@ -901,5 +1083,8 @@ bool QuestGate::passableFor(const CGHeroInstance * hero) const
 {
 	// Passable once the limiter is satisfied. For a toll gate this means the hero
 	// currently holds the goods (i.e. can pay); checkQuest re-checks every pass.
-	return checkQuest(hero);
+	if(allQuests().empty())
+		return true;
+
+	return isQuestAvailable(getQuest()) && checkQuest(hero);
 }

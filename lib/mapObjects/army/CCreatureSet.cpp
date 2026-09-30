@@ -310,20 +310,34 @@ bool CCreatureSet::needsLastStack() const
 	return false;
 }
 
-ui64 CCreatureSet::getArmyStrength(int fortLevel) const
+ui64 CCreatureSet::getArmyStrength() const
 {
 	ui64 ret = 0;
 	for(const auto & elem : stacks)
+		ret += elem.second->getPower();
+	return ret;
+}
+
+ui64 CCreatureSet::estimateCombatValue(int fortLevel) const
+{
+	ui64 ret = 0;
+
+	for(const auto & elem : stacks)
 	{
-		ui64 powerToAdd = elem.second->getPower();
+		ui64 value = elem.second->estimateCombatValue();
+
+		// town walls delay attackers, and delay them longer when they can neither fly nor shoot
 		if(fortLevel > 0 && !elem.second->hasBonusOfType(BonusType::FLYING))
 		{
-			powerToAdd /= fortLevel;
+			value /= fortLevel;
+
 			if(!elem.second->hasBonusOfType(BonusType::SHOOTER))
-				powerToAdd /= fortLevel;
+				value /= fortLevel;
 		}
-		ret += powerToAdd;
+
+		ret += value;
 	}
+
 	return ret;
 }
 

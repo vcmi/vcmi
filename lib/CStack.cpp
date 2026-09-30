@@ -182,43 +182,6 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	else if(!customState->alive()) //stack killed
 	{
 		bsa.flags |= BattleStackAttacked::KILLED;
-
-		auto resurrectValue = customState->valOfBonuses(BonusType::REBIRTH);
-
-		if(resurrectValue > 0 && customState->canCast()) //there must be casts left
-		{
-			double resurrectFactor = resurrectValue / 100.0;
-
-			auto baseAmount = customState->unitBaseAmount();
-
-			double resurrectedRaw = baseAmount * resurrectFactor;
-
-			auto resurrectedCount = static_cast<int32_t>(floor(resurrectedRaw));
-
-			auto resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount / resurrectFactor));
-
-			for(int32_t i = 0; i < resurrectedAdd; i++)
-			{
-				if(resurrectValue > rand.nextInt(0, 99))
-					resurrectedCount += 1;
-			}
-
-			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusCustomSubtype::rebirthSpecial))
-			{
-				// resurrect at least one Sacred Phoenix
-				vstd::amax(resurrectedCount, 1);
-			}
-
-			if(resurrectedCount > 0)
-			{
-				customState->casts.use();
-				bsa.flags |= BattleStackAttacked::REBIRTH;
-				int64_t toHeal = customState->getMaxHealth() * resurrectedCount;
-				//TODO: add one-battle rebirth?
-				customState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
-				customState->counterAttacks.use(customState->counterAttacks.available());
-			}
-		}
 	}
 
 	bsa.newState.data = customState->save();

@@ -230,10 +230,11 @@ local function toComponents(images)
 end
 
 -- Adds a whole resource set to a player; the amounts follow the engine resource order.
-local function grantResources(server, player, amounts)
+-- Sign is 1 to give the set to the player and -1 to take it away.
+local function changeResources(server, player, amounts, sign)
 	for index, key in ipairs(RESOURCES) do
 		local amount = amounts[index]
-		if amount and amount ~= 0 then server:giveResource(player, LIBRARY:getResourceByName(key), amount) end
+		if amount and amount ~= 0 then server:giveResource(player, LIBRARY:getResourceByName(key), sign * amount) end
 	end
 end
 
@@ -390,7 +391,10 @@ std::string HotaScriptConverter::loadVariables()
 		declaration.name = variableID.empty() ? "var" + std::to_string(uniqueID) : variableID;
 		declaration.persistInCampaign = reader.readBool();
 		declaration.importFromPreviousScenario = reader.readBool();
-		declaration.initialValue.Integer() = reader.readInt32();
+
+		// an imported variable starts with whatever the previous scenario left, so no initial value is stored
+		if(!declaration.importFromPreviousScenario)
+			declaration.initialValue.Integer() = reader.readInt32();
 
 		result += "\t[" + std::to_string(uniqueID) + "] = " + luaString(declaration.name) + ",\n";
 	}
@@ -726,7 +730,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::RESOURCES:
 			{
-				int mode = reader.readInt8();
+				int mode = reader.readInt8(); // 0 = give, 1 = take
 				std::string amounts;
 				for(int i = 0; i < 7; ++i)
 				{
@@ -735,11 +739,15 @@ std::string HotaScriptConverter::loadActions(int indent)
 					amounts += loadExpression();
 				}
 				reader.readBool(); // showMessage flag
-				// mode may scale or redirect the grant; handing out the raw amounts would be wrong
-				if(mode != 0)
+				// spell and movement points read the same field as 0 = add, 1 = subtract, 2 = set the total,
+				// so mode 2 likely sets the treasury - unverified, no known map uses it here
+				if(mode != 0 && mode != 1)
+				{
+					logGlobal->warn("Map '%s': RESOURCES event with unknown mode %d, possibly 'set total'!", mapName, mode);
 					throw unsupported("RESOURCES with mode " + num(mode));
+				}
 
-				result += pad + "grantResources(server, player, {" + amounts + "})\n";
+				result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
 				break;
 			}
 			case HotaScriptActions::PRIMARY_SKILL:

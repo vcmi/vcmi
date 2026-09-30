@@ -158,7 +158,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" },
+				"roadsAboveSpecialGround" : { "type" : "boolean" }
 			}
 		},
 		"banks": {

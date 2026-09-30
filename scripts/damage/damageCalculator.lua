@@ -106,14 +106,12 @@ function Script:divideAndRound(dividend, divisor)
 	return idiv(dividend - idiv(divisor, 2) + 1, divisor)
 end
 
---- Whether the unit carries this bonus. Reading the table directly does the same, but goes unnoticed
---- when the type was never declared - this says so instead.
+--- Returns whether the unit carries a declared bonus type.
 function Script:hasBonusOfType(present, type)
 	return hasBonusOfType(present, type)
 end
 
---- Value of every bonus of this type the unit carries. Answers 0 without asking the engine when the
---- unit has none, which is the usual case.
+--- Returns the total bonus value, or 0 without an engine call when the type is absent.
 function Script:getBonusValueOfType(unit, present, type)
 	return getBonusValueOfType(unit, present, type)
 end
@@ -130,7 +128,7 @@ end
 
 -- ---- what the creatures themselves deal ------------------------------------------------------
 
---- Damage of a single creature, before anything about this particular blow is taken into account.
+--- Damage of a single creature, before anything about this particular attack is taken into account.
 function Script:getBaseDamageSingle(info)
 	local attacker = info.attacker
 
@@ -256,7 +254,7 @@ function Script:getAttackDefenseFactor(info)
 	return 0
 end
 
---- Offense and archery, whichever of the two this blow is.
+--- Offense and archery, whichever of the two this attack is.
 function Script:getOffenseArcheryFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
@@ -300,7 +298,7 @@ function Script:getHateCreatureFactor(info)
 	return getBonusValueOfSubtype(info.attacker, info.attackerBonuses, "HATE", hatedKey) / 100
 end
 
---- Armorer and everything else that lessens every kind of blow, other than being petrified.
+--- Armorer and everything else that lessens every kind of attack, other than being petrified.
 function Script:getArmorerFactor(info)
 	if not hasBonusOfType(info.defenderBonuses, "GENERAL_DAMAGE_REDUCTION") then return 0 end
 
@@ -309,7 +307,7 @@ function Script:getArmorerFactor(info)
 	end):totalValue() / 100
 end
 
---- Shield and air shield: each lessens one kind of blow and ignores the other.
+--- Shield and air shield: each lessens one kind of attack and ignores the other.
 function Script:getMagicShieldFactor(info)
 	local subtype = info.shooting and DAMAGE_TYPE_RANGED or DAMAGE_TYPE_MELEE
 
@@ -365,20 +363,20 @@ function Script:getPetrificationFactor(info)
 	}) / 100
 end
 
---- Every factor of this blow, by name. A patch adds its own with `addDamageFactor`.
+--- Every factor of this attack, by name. A patch adds its own with `addDamageFactor`.
 function Script:getFactors()
 	return self.damageFactors
 end
 
 -- ---- what comes out of it all ----------------------------------------------------------------
 
---- Most damage the target can take from one blow, whatever the blow is worth. Nothing of the game
+--- Most damage the target can take from one hit, however much that hit deals. Nothing of the game
 --- caps it, so the rule lives in a patch and this is the hook it hangs on.
 function Script:getDamageCap(info)
 	return math.huge
 end
 
---- How many creatures blows of this size kill. Both ends of the range are answered at once, since
+--- How many creatures a hit of this size kills. Both ends of the range are answered at once, since
 --- what decides it - the health and the size of the target - is the same for either.
 function Script:getCasualties(info, lowDamage, highDamage)
 	local firstHealth = info.defender:getFirstHPleft()
@@ -395,8 +393,7 @@ function Script:getCasualties(info, lowDamage, highDamage)
 end
 
 function Script:calculate(battle, info)
-	-- the battle answers the queries that depend on where the blow happens; it rides along with the
-	-- rest of the attack rather than in a global, which a script shared between threads must not have
+	-- Pass battle-dependent query context explicitly because script instances are shared between threads.
 	info.battle = battle
 
 	local baseMin, baseMax = self:getBaseDamage(info)
@@ -429,8 +426,7 @@ function Script:calculate(battle, info)
 	return {
 		damage = { min = damageMin, max = damageMax },
 		kills = { min = killsMin, max = killsMax },
-		-- what the blow would have been worth had the target no defences at all, which is what an
-		-- ability reflecting a strike works from
+		-- Damage with target defences ignored, used by reflected-damage abilities.
 		damageBeforeDefense = { min = apply(baseMin, raising), max = apply(baseMax, raising) }
 	}
 end

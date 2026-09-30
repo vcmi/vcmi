@@ -115,6 +115,7 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 	}
 
 	castOpeningSpells(battle);
+	owner->flushPendingDeaths(battle);
 
 	// it is possible that due to opening spells one side was eliminated -> check for end of battle
 	if (owner->checkBattleStateChanges(battle))
@@ -172,11 +173,14 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 		bte.stackID = stack->unitId();
 		bte.effect = BonusType::HP_REGENERATION;
 
-		const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
-		if(stack->hasBonusOfType(BonusType::HP_REGENERATION))
+		// STACK_HEALTH bonus can be reduced after stack was created - e.g. by battle-wide debuff of creature
+		// summoned after battle start. In this case stack health is higher than its current max health,
+		// so lost health has to be clamped to 0 instead of producing negative regeneration value
+		const int32_t lostHealth = static_cast<int32_t>(stack->getMaxHealth()) - stack->getFirstHPleft();
+		if(stack->hasBonusOfType(BonusType::HP_REGENERATION) && lostHealth > 0)
 			bte.val = std::min(lostHealth, stack->valOfBonuses(BonusType::HP_REGENERATION));
 
-		if(bte.val) // anything to heal
+		if(bte.val > 0) // anything to heal
 			gameHandler->sendAndApply(bte);
 	}
 
@@ -303,6 +307,7 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 			BattleAction movement;
 			movement.actionType = EActionType::WALK;
 			movement.stackNumber = next->unitId();
+			movement.side = next->unitSide();
 			movement.aimToHex(forcedAction.position);
 			makeAutomaticAction(battle, next, movement);
 		}
@@ -659,6 +664,8 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	if(owner->checkBattleStateChanges(battle))
 		return;
 
+	removeBrokenBindings(battle);
+
 	// tactics - next stack will be selected by player
 	if(battle.battleGetTacticDist() != 0)
 		return;
@@ -739,6 +746,45 @@ void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, con
 	gameHandler->sendAndApply(obsRem);
 }
 
+void BattleFlowProcessor::tryUnbindStack(const CBattleInfoCallback & battle, const CStack * st)
+{
+	if (!st->alive() || !st->hasBonusOfType(BonusType::BIND_EFFECT))
+		return;
+
+	bool unbind = true;
+	BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
+	auto adjacent = battle.battleAdjacentUnits(st);
+
+	for (const auto & b : bl)
+	{
+		if(b->parameters)
+		{
+			const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
+			if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
+				unbind = false;
+		}
+		else
+		{
+			unbind = false;
+		}
+	}
+	if (unbind)
+	{
+		BattleSetStackProperty ssp;
+		ssp.battleID = battle.getBattle()->getBattleID();
+		ssp.which = BattleSetStackProperty::UNBIND;
+		ssp.stackID = st->unitId();
+		gameHandler->sendAndApply(ssp);
+	}
+}
+
+void BattleFlowProcessor::removeBrokenBindings(const CBattleInfoCallback & battle)
+{
+	// binding unit could have been killed or moved away during last action
+	for (const CStack * stack : battle.battleGetAllStacks())
+		tryUnbindStack(battle, stack);
+}
+
 void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, const CStack *st)
 {
 	BattleTriggerEffect bte;
@@ -749,35 +795,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
-		//unbind
-		if (st->hasBonusOfType(BonusType::BIND_EFFECT))
-		{
-			bool unbind = true;
-			BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
-			auto adjacent = battle.battleAdjacentUnits(st);
-
-			for (const auto & b : bl)
-			{
-				if(b->parameters)
-				{
-					const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
-					if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
-						unbind = false;
-				}
-				else
-				{
-					unbind = false;
-				}
-			}
-			if (unbind)
-			{
-				BattleSetStackProperty ssp;
-				ssp.battleID = battle.getBattle()->getBattleID();
-				ssp.which = BattleSetStackProperty::UNBIND;
-				ssp.stackID = st->unitId();
-				gameHandler->sendAndApply(ssp);
-			}
-		}
+		tryUnbindStack(battle, st);
 
 		if (st->hasBonusOfType(BonusType::POISON) && !st->waiting)
 		{

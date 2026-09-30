@@ -164,19 +164,13 @@ namespace
 
 Router::Router() : addrstr(MakeAddrStr(this)), basetag(addrstr + ":MMAI"), logtag(basetag) {}
 
-Router::~Router()
-{
-	cb->waitTillRealize = wasWaitingForRealize;
-}
+Router::~Router() = default;
 
 void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	env = ENV;
 	cb = CB;
 	colorname = cb->getPlayerID()->toString();
-	wasWaitingForRealize = cb->waitTillRealize;
-
-	cb->waitTillRealize = false;
 	bai.reset();
 }
 

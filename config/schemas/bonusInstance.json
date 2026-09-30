@@ -520,6 +520,10 @@
 			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER" ],
 			"description" : "targetSourceType"
 		},
+		"targetSourceID" : {
+			"type" : "string",
+			"description" : "Optional. Narrows targetSourceType to a single source object. If not set, targetSourceType is the only filter"
+		},
 		"propagator" : {
 			"description" : "propagator",
 			"type" : "string",

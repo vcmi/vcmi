@@ -37,7 +37,7 @@ public:
 		R.template function<&getBonusesValue>("getBonusesValue",
 			{{"filter", "Which bonuses to count. An empty filter counts every one of them."}},
 			{"Value of the matching bonuses taken together."},
-			"Returns what the matching bonuses are worth together. Not a plain sum - percentages, "
+			"Returns the combined value of the matching bonuses. Not a plain sum - percentages, "
 			"independent floors and ceilings combine by the rules of the engine. Prefer this over "
 			"adding up `getBonuses` where possible.");
 		R.template function<&hasBonuses>("hasBonuses",

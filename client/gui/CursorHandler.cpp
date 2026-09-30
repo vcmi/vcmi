@@ -257,6 +257,12 @@ void CursorHandler::updateAnimatedCursor()
 		newFrame++;
 	}
 
+	if (animation->size() == 0)
+	{
+		logGlobal->error("CursorHandler::updateAnimatedCursor: animation '%s' has no frames, skipping update", animationName.getName().c_str());
+		return; //nothing to display, would loop forever in loop below
+	}
+
 	while (newFrame >= animation->size())
 		newFrame -= animation->size();
 

@@ -84,7 +84,15 @@ void BAI::battleStart(
 //      since the terminal result is needed only during training.
 void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
 {
-	state->onBattleEnd(br);
+	try
+	{
+		state->onBattleEnd(br);
+	}
+	catch(const std::exception & e)
+	{
+		logger.error("MMAI error on battle end: " + std::string(e.what()));
+		return;
+	}
 
 	logger.debug("MMAI %s this battle.", (br->winner == battle->battleGetMySide() ? "won" : "lost"));
 
