@@ -28,13 +28,9 @@
 #include "../../lib/VCMIDirs.h"
 
 WindowsUserDirectoryManager::WindowsUserDirectoryManager(QWidget * parent)
-	: parent(parent)
+	: QObject(parent)
+	, parent(parent)
 {
-}
-
-QString WindowsUserDirectoryManager::tr(const char * text) const
-{
-	return QCoreApplication::translate("AboutProjectView", text);
 }
 
 QString WindowsUserDirectoryManager::normalizedPath(const QString & path) const
@@ -68,9 +64,13 @@ void WindowsUserDirectoryManager::reportPermissionError(const QString & message)
 	if(dialog.clickedButton() != restartButton)
 		return;
 
-	const QString executable = QCoreApplication::applicationFilePath();
-	const auto result = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"runas", reinterpret_cast<LPCWSTR>(executable.utf16()), nullptr, nullptr, SW_SHOWNORMAL));
-	if(result > 32)
+	const std::wstring executable = QCoreApplication::applicationFilePath().toStdWString();
+	SHELLEXECUTEINFOW executeInfo{};
+	executeInfo.cbSize = sizeof(executeInfo);
+	executeInfo.lpVerb = L"runas";
+	executeInfo.lpFile = executable.c_str();
+	executeInfo.nShow = SW_SHOWNORMAL;
+	if(ShellExecuteExW(&executeInfo) != FALSE)
 	{
 		qApp->quit();
 		return;
@@ -388,16 +388,12 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		if(answer == QMessageBox::Yes)
 		{
 			const QString targetParent = QFileInfo(selected).dir().absolutePath();
-			if(!isDirectoryWritable(targetParent))
-			{
-				reportPermissionError(tr("The launcher cannot prepare or replace the selected directory because its parent directory is not writable:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(targetParent)));
-				return;
-			}
 
 			moveExistingData = moveCheckBox->isChecked();
 			EExistingTargetAction targetAction = EExistingTargetAction::REPLACE;
+			const bool targetIsEmpty = QDir(selected).entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
 
-			if(!QDir(selected).entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty())
+			if(!targetIsEmpty)
 			{
 				const auto selectedAction = askExistingTargetAction(selected);
 				if(!selectedAction)
@@ -405,7 +401,18 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 				targetAction = *selectedAction;
 			}
 
-			const qint64 requiredSpace = sourceSize + (targetAction == EExistingTargetAction::MERGE ? directorySize(selected) : 0);
+			const bool targetParentWritable = isDirectoryWritable(targetParent);
+			if(!targetParentWritable && !targetIsEmpty && targetAction != EExistingTargetAction::MERGE)
+			{
+				reportPermissionError(tr("The launcher cannot replace or back up the selected directory because its parent directory is not writable:\n%1\n\nUse merge instead, select another location, or restart the launcher as administrator.").arg(QDir::toNativeSeparators(targetParent)));
+				return;
+			}
+
+			// Without access to the target's parent, stage inside the writable target and
+			// merge the completed copy in place. This is needed for directories such as
+			// C:\fff, whose contents may be writable even though C:\ itself is protected.
+			const bool installInPlace = !targetParentWritable;
+			const qint64 requiredSpace = sourceSize + (!installInPlace && targetAction == EExistingTargetAction::MERGE ? directorySize(selected) : 0);
 			const QStorageInfo currentStorage(selected);
 
 			if(currentStorage.isValid() && currentStorage.isReady() && currentStorage.bytesAvailable() >= 0 && currentStorage.bytesAvailable() < requiredSpace)
@@ -416,7 +423,8 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 			pauseDownloads();
 
-			QTemporaryDir stagingDirectory(QFileInfo(selected).dir().filePath(QStringLiteral(".vcmi-transfer-XXXXXX")));
+			const QString stagingParent = installInPlace ? selected : targetParent;
+			QTemporaryDir stagingDirectory(QDir(stagingParent).filePath(QStringLiteral(".vcmi-transfer-XXXXXX")));
 
 			if(!stagingDirectory.isValid())
 			{
@@ -433,22 +441,31 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
 			QString error;
-			if((targetAction == EExistingTargetAction::MERGE && !copyDirectoryContents(selected, stagingDirectory.path(), *progress, error)) || !copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE))
+			if((!installInPlace && targetAction == EExistingTargetAction::MERGE && !copyDirectoryContents(selected, stagingDirectory.path(), *progress, error)) || !copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE))
 			{
 				progress.reset();
 				QMessageBox::critical(parent, tr("Copy failed"), error);
 				return;
 			}
 
-			progress.reset();
-
-			if(!installStagedDirectory(stagingDirectory.path(), selected, targetAction, targetBackupPath, error))
+			if(installInPlace)
+			{
+				if(!copyDirectoryContents(stagingDirectory.path(), selected, *progress, error, true))
+				{
+					QMessageBox::critical(parent, tr("Copy failed"), error);
+					return;
+				}
+			}
+			else if(!installStagedDirectory(stagingDirectory.path(), selected, targetAction, targetBackupPath, error))
 			{
 				QMessageBox::critical(parent, tr("Copy failed"), error);
 				return;
 			}
 
-			stagingDirectory.setAutoRemove(false);
+			progress.reset();
+
+			if(!installInPlace)
+				stagingDirectory.setAutoRemove(false);
 			if(!error.isEmpty())
 				QMessageBox::warning(parent, tr("Cleanup failed"), error);
 		}

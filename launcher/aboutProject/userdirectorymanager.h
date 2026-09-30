@@ -16,8 +16,10 @@ class ProgressOverlay;
 enum class EUserDirectory;
 
 #if defined(VCMI_WINDOWS)
-class WindowsUserDirectoryManager
+class WindowsUserDirectoryManager : public QObject
 {
+	Q_OBJECT
+
 	enum class EExistingTargetAction
 	{
 		MERGE,
@@ -27,7 +29,6 @@ class WindowsUserDirectoryManager
 
 	QWidget * parent;
 
-	QString tr(const char * text) const;
 	QString normalizedPath(const QString & path) const;
 	bool isSameOrChildPath(const QString & path, const QString & parentPath) const;
 	bool pathsOverlap(const QString & first, const QString & second) const;

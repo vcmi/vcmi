@@ -21,6 +21,18 @@
 
 #include "../../lib/json/JsonUtils.h"
 
+static void writeToArchive(COutputStream & stream, const QByteArray & data)
+{
+	std::vector<ui8> bytes;
+	bytes.reserve(static_cast<size_t>(data.size()));
+	for(const char value : data)
+		bytes.push_back(static_cast<ui8>(value));
+
+	const auto byteCount = static_cast<si64>(bytes.size());
+	if(stream.write(bytes.data(), byteCount) != byteCount)
+		throw std::runtime_error("Failed to write data to ZIP archive");
+}
+
 static void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
 {
 	const auto json = JsonUtils::assembleFromFiles("config/settings.json");
@@ -124,14 +136,14 @@ static bool exportSavesToLocalArchive(AboutProjectView * view, const QString & o
 			QByteArray data = saveFile.readAll();
 			QByteArray relativePathUtf8 = relativePath.toUtf8();
 			auto stream = saver.addFile(std::string(relativePathUtf8.constData(), relativePathUtf8.size()));
-			stream->write(reinterpret_cast<const ui8 *>(data.constData()), data.size());
+			writeToArchive(*stream, data);
 		}
 
 		progress.setValue(saveFiles.size());
 		qApp->processEvents();
 		progress.hide();
 	}
-	catch(const std::exception & e)
+	catch(const std::runtime_error & e)
 	{
 		logGlobal->error("Save export failed while creating archive %s. Reason: %s", outPath.toStdString(), e.what());
 		QMessageBox::critical(view, view->tr("Error"), view->tr("Failed to create archive: %1").arg(QString::fromUtf8(e.what())));
@@ -376,7 +388,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 				QByteArray data = f.readAll();
 				QByteArray fileNameUtf8 = file.fileName().toUtf8();
 				auto stream = saver.addFile(std::string(fileNameUtf8.constData(), fileNameUtf8.size()));
-				stream->write(reinterpret_cast<const ui8 *>(data.constData()), data.size());
+				writeToArchive(*stream, data);
 			}
 
 			if(!advanceProgress(progress, progressValue, outPath))
@@ -393,7 +405,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 		{
 			QByteArray data = listing.toUtf8();
 			auto stream = saver.addFile(std::string("data-directory-structure.txt"));
-			stream->write(reinterpret_cast<const ui8 *>(data.constData()), data.size());
+			writeToArchive(*stream, data);
 		}
 		if(!advanceProgress(progress, progressValue, outPath))
 			return;
@@ -405,7 +417,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 			{
 				QByteArray dataDev = deviceInfo.toUtf8();
 				auto streamDev = saver.addFile(std::string("device-info.txt"));
-				streamDev->write(reinterpret_cast<const ui8 *>(dataDev.constData()), dataDev.size());
+				writeToArchive(*stream, data);
 			}
 		}
 		if(!advanceProgress(progress, progressValue, outPath))
@@ -413,7 +425,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 
 		progress.hide();
 	}
-	catch(const boost::filesystem::filesystem_error & e)
+	catch(const std::runtime_error & e)
 	{
 		QFile::remove(outPath);
 		logGlobal->error("Log export failed while creating archive %s. Reason: %s", outPath.toStdString(), e.what());

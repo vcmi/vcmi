@@ -9,8 +9,10 @@
  */
 
 #include "StdInc.h"
+#include "ScopeGuard.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
+#include "logging/CLogger.h"
 #include "texts/TextOperations.h"
 
 #ifdef VCMI_IOS
@@ -107,22 +109,35 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		std::unique_ptr<JsonNode> dirsConfig;
 		bfs::path dirsConfigPath;
 
-		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
+		template<typename Fallback>
+		bfs::path getPathFromConfigOrDefault(const std::string & key, Fallback && fallbackFunc) const;
+
 		bool setPathInConfig(const std::string & key, const bfs::path & path);
 		std::optional<bfs::path> getPathFromRegistry(const std::string & key) const;
 		bool setPathInRegistry(const std::string & key, const bfs::path & path) const;
 		void removePathFromRegistry(const std::string & key) const;
 		bfs::path getDefaultUserDataPath() const;
 
-		std::wstring utf8ToWstring(const std::string& str) const;
-		std::string pathToUtf8(const bfs::path& path) const;
+		std::wstring utf8ToWstring(const std::string & str) const;
+		std::string pathToUtf8(const bfs::path & path) const;
 };
 
 
 VCMIDirsWIN32::VCMIDirsWIN32()
 {
-	wchar_t currentPath[MAX_PATH];
-	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
+	std::wstring currentPath(MAX_PATH, L'\0');
+	while(true)
+	{
+		const DWORD pathLength = GetModuleFileNameW(nullptr, currentPath.data(), static_cast<DWORD>(currentPath.size()));
+		if(pathLength == 0)
+			return;
+		if(pathLength < currentPath.size())
+		{
+			currentPath.resize(pathLength);
+			break;
+		}
+		currentPath.resize(currentPath.size() * 2);
+	}
 	dirsConfigPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
 
 	if (!bfs::exists(dirsConfigPath))
@@ -133,7 +148,7 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(dirsConfigPath));
+	dirsConfig = std::make_unique<JsonNode>(buffer.data(), buffer.size(), pathToUtf8(dirsConfigPath));
 }
 
 bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & path)
@@ -170,8 +185,9 @@ bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & p
 		IVCMIDirs::init();
 		return true;
 	}
-	catch(const std::exception &)
+	catch(const std::exception & e)
 	{
+		logGlobal->warn("Failed to save user directory '%s' to %s: %s. Falling back to the current user's registry.", key, pathToUtf8(dirsConfigPath), e.what());
 		if(!setPathInRegistry(key, path))
 			return false;
 
@@ -188,10 +204,12 @@ std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & 
 		HKEY registryKey = nullptr;
 		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_QUERY_VALUE | registryView, &registryKey) != ERROR_SUCCESS)
 			return std::nullopt;
+		auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
 
 		DWORD type = 0;
 		DWORD size = 0;
-		const LSTATUS sizeResult = RegQueryValueExW(registryKey, valueName.c_str(), nullptr, &type, nullptr, &size);
+		constexpr DWORD acceptedTypes = RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND;
+		const LSTATUS sizeResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, nullptr, &size);
 		if(sizeResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size < sizeof(wchar_t))
 		{
 			RegCloseKey(registryKey);
@@ -199,9 +217,8 @@ std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & 
 		}
 
 		std::wstring value(size / sizeof(wchar_t), L'\0');
-		const LSTATUS valueResult = RegQueryValueExW(registryKey, valueName.c_str(), nullptr, &type, reinterpret_cast<BYTE *>(value.data()), &size);
-		RegCloseKey(registryKey);
-		if(valueResult != ERROR_SUCCESS)
+		const LSTATUS valueResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, value.data(), &size);
+		if(valueResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size % sizeof(wchar_t) != 0)
 			return std::nullopt;
 
 		while(!value.empty() && value.back() == L'\0')
@@ -233,22 +250,38 @@ std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & 
 
 bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path & path) const
 {
-	HKEY registryKey = nullptr;
-	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE | KEY_WOW64_64KEY, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
-		if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
-			return false;
-
 	bfs::path preferredPath = path;
 	preferredPath.make_preferred();
 	const std::wstring valueName = utf8ToWstring(key);
 	const std::wstring value = preferredPath.wstring();
-	const LSTATUS result = RegSetValueExW(registryKey, valueName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE *>(value.c_str()), static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t)));
-	RegCloseKey(registryKey);
+	const auto valueSize = static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t));
+
+	HKEY registryKey = nullptr;
+	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE | KEY_WOW64_64KEY, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+		if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+			return false;
+	auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
+
+	const LSTATUS result = RegSetKeyValueW(registryKey, nullptr, valueName.c_str(), REG_SZ, value.c_str(), valueSize);
 	if(result != ERROR_SUCCESS)
 		return false;
 
 	const auto savedPath = getPathFromRegistry(key);
 	return savedPath && _wcsicmp(savedPath->c_str(), preferredPath.c_str()) == 0;
+}
+
+void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
+{
+	const std::wstring valueName = utf8ToWstring(key);
+	for(const REGSAM registryView : { KEY_WOW64_64KEY, KEY_WOW64_32KEY })
+	{
+		HKEY registryKey = nullptr;
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
+		{
+			auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
+			RegDeleteValueW(registryKey, valueName.c_str());
+		}
+	}
 }
 
 void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
@@ -283,29 +316,30 @@ bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path
 	return false;
 }
 
-std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
+std::string VCMIDirsWIN32::pathToUtf8(const bfs::path & path) const
 {
-	std::wstring wstr = path.wstring();
-	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string result(size - 1, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string & str) const
+{
+	if(str.empty())
+		return {};
+
+	const int size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), nullptr, 0);
+	if(size <= 0)
+		return {};
+
+	std::wstring result(size, L'\0');
+	if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), result.data(), size) != size)
+		return {};
+
 	return result;
 }
 
-std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
-{
-	std::wstring result;
-	int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-	if (size_needed > 0)
-	{
-		result.resize(size_needed - 1);
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, result.data(), size_needed);
-	}
-	return result;
-}
-
+template<typename Fallback>
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
-	const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
+	const std::string & key, Fallback && fallbackFunc) const
 {
 	if(const auto registryPath = getPathFromRegistry(key))
 		return *registryPath;
@@ -317,12 +351,20 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
 	if (!node.isString())
 		return fallbackFunc();
 
-	std::wstring raw = utf8ToWstring(node.String());
-	wchar_t expanded[MAX_PATH];
-	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
-		return bfs::path(expanded);
-	else
+	const std::wstring raw = utf8ToWstring(node.String());
+	if(raw.empty())
+		return fallbackFunc();
+
+	const DWORD expandedSize = ExpandEnvironmentStringsW(raw.c_str(), nullptr, 0);
+	if(expandedSize == 0)
 		return bfs::path(raw);
+
+	std::wstring expanded(expandedSize, L'\0');
+	if(ExpandEnvironmentStringsW(raw.c_str(), expanded.data(), expandedSize) != expandedSize)
+		return bfs::path(raw);
+
+	expanded.resize(expandedSize - 1);
+	return bfs::path(expanded);
 }
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
@@ -355,7 +397,7 @@ bfs::path VCMIDirsWIN32::userLogsPath() const
 
 bfs::path VCMIDirsWIN32::userSavePath() const
 {
-	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "Saves"; });
+	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "saves"; });
 }
 
 std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
@@ -366,8 +408,8 @@ std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
 bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_mapeditor.exe"; }
 bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
-
 bfs::path VCMIDirsWIN32::binaryPath() const { return ".";  }
+
 #elif defined(VCMI_UNIX)
 class IVCMIDirsUNIX : public IVCMIDirs
 {
