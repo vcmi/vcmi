@@ -1318,7 +1318,8 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 		if (pack.info->getSide(i).heroID.hasValue())
 		{
 			CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(i)->id);
-			hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
+			if (hero)
+				hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
 		}
 	}
 
@@ -1540,7 +1541,8 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 		if (currentBattle.getSide(i).heroID.hasValue())
 		{
 			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
-			hero->mana = currentBattle.getSide(i).initialMana;
+			if (hero)
+				hero->mana = currentBattle.getSide(i).initialMana;
 		}
 	}
 
@@ -1573,7 +1575,8 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 		if (currentBattle.getSide(i).heroID.hasValue())
 		{
 			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
-			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
+			if (hero)
+				hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
 		}
 	}
 
