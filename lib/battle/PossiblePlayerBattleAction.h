@@ -20,7 +20,6 @@ public:
 		LONG_WEAPON_ATTACK,
 		WALK_AND_ATTACK,
 		ATTACK_AND_RETURN,
-		CATAPULT,
 		WALK_AND_SPELLCAST,
 
 		RANDOM_GENIE_SPELL,   // random spell on a friendly creature

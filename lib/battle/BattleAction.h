@@ -40,6 +40,8 @@ public:
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const BattleHex & destination);
 	static BattleAction makeHeal(const battle::Unit * healer, const BattleHex & destination);
+	/// Catapult shot without a target, at a wall part that the spell picks
+	static BattleAction makeCatapultShot(const battle::Unit * catapult);
 	static BattleAction makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID);
 	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
 	static BattleAction makeMove(const battle::Unit * stack, const BattleHex & dest);

@@ -367,9 +367,6 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			return 9;
 			break;
-		case PossiblePlayerBattleAction::CATAPULT:
-			return 11;
-			break;
 		case PossiblePlayerBattleAction::TELEPORT:
 			return 15;
 			break;
@@ -504,9 +501,6 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 				return "castSpell";
 			else
 				return "combatSacrifice";
-
-		case PossiblePlayerBattleAction::CATAPULT:
-			return "combatShootCatapult";
 	}
 	assert(0);
 	return "combatBlocked";
@@ -635,9 +629,6 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			text.replaceName(action.spell());
 			return text.toString(&GAME->translator());
 		}
-
-		case PossiblePlayerBattleAction::CATAPULT:
-			return ""; // TODO
 	}
 	assert(0);
 	return "";
@@ -728,9 +719,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
-
-		case PossiblePlayerBattleAction::CATAPULT:
-			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
 	}
 
 	assert(0);
@@ -769,12 +757,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 				BattleAction command = BattleAction::makeWalkAndCast(stack, attackFromHex, targetStack, getStackSpellToCast(targetHex)->id);
 				owner.sendCommand(command, stack);
 			}
-			return;
-		}
-
-		case PossiblePlayerBattleAction::CATAPULT:
-		{
-			owner.giveCommand(EActionType::CATAPULT, targetHex);
 			return;
 		}
 

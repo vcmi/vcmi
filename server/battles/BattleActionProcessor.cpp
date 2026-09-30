@@ -324,30 +324,6 @@ void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle,
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 }
 
-bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	std::shared_ptr<const Bonus> catapultAbility = stack->getFirstBonus(Selector::type()(BonusType::CATAPULT));
-	if(!catapultAbility || catapultAbility->subtype == BonusSubtypeID())
-	{
-		gameHandler->complain("We do not know how to shoot :P");
-	}
-	else
-	{
-		const CSpell * spell = catapultAbility->subtype.as<SpellID>().toSpell();
-		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can shot infinitely by catapult
-		auto shotLevel = stack->valOfBonuses(Selector::typeSubtype(BonusType::CATAPULT_EXTRA_SHOTS, catapultAbility->subtype));
-		parameters.setSpellLevel(shotLevel);
-		parameters.cast(gameHandler->spellcastEnvironment(), target);
-	}
-	return true;
-}
-
 bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba)
 {
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
@@ -587,8 +563,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
 			return doWalkAndSpellcastAction(battle, ba);
-		case EActionType::CATAPULT:
-			return doCatapultAction(battle, ba);
 		case EActionType::MONSTER_SPELL:
 			return doUnitSpellAction(battle, ba);
 		default:
