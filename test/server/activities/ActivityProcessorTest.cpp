@@ -2100,6 +2100,47 @@ TEST_F(MapObjectVisitTest, aSeerHutOffersItsNextQuestOnlyAfterTheGarrisonWindowC
 	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
+TEST_F(MapObjectVisitTest, creaturesRefusedAsRecruitsAskWhetherToLetThemFlee)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		// Compliant is the one disposition that always offers to join for free
+		.monster(int3(6, 5, 0), CreatureID(0), 10,
+			static_cast<int8_t>(CGCreature::Character::COMPLIANT));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * monster = findFirst<CGCreature>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(monster, nullptr);
+	const auto monsterID = monster->id;
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(monster, hero);
+
+	auto offer = gameHandler.activities->topActivity(player);
+	ASSERT_NE(offer, nullptr);
+	ASSERT_EQ(offer->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(offer->getActiveQuestionID(), player, 0),
+		ReplyOutcome::Accepted);
+
+	// Refused, they would still join if asked anew - the question now is whether to pursue them
+	auto flee = gameHandler.activities->topActivity(player);
+	ASSERT_NE(flee, nullptr);
+	ASSERT_EQ(flee->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->findVisit(monsterID)->visitState, JsonNode(static_cast<int32_t>(CGCreature::FLEE)));
+	ASSERT_EQ(gameHandler.activities->submitReply(flee->getActiveQuestionID(), player, 0),
+		ReplyOutcome::Accepted);
+
+	EXPECT_EQ(gameState()->getObjInstance(monsterID), nullptr) << "the creatures were let go";
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+}
+
 TEST_F(MapObjectVisitTest, aPandoraRewardChoiceIsNotTakenForOpeningTheBoxAgain)
 {
 	const PlayerColor player(0);
