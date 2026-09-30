@@ -278,20 +278,6 @@ void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
 		HKEY registryKey = nullptr;
 		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
 		{
-			auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
-			RegDeleteValueW(registryKey, valueName.c_str());
-		}
-	}
-}
-
-void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
-{
-	const std::wstring valueName = utf8ToWstring(key);
-	for(const REGSAM registryView : { KEY_WOW64_64KEY, KEY_WOW64_32KEY })
-	{
-		HKEY registryKey = nullptr;
-		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
-		{
 			RegDeleteValueW(registryKey, valueName.c_str());
 			RegCloseKey(registryKey);
 		}
