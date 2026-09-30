@@ -811,14 +811,10 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 		return {fromHex};
 	}
 
-	auto toHex = owner.getBattle()->toWhichHexMove(availableHexes, stack, hoveredHex);
-	if (!toHex.isValid())
+	if (!hoveredHex.isValid())
 		return {};
-	
-	if (stack->doubleWide())
-		return {toHex, stack->occupiedHex(toHex)};
-	else
-		return {toHex};
+
+	return owner.actionsController->getShadedHexes(hoveredHex);
 }
 
 // Range limit highlight helpers

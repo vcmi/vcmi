@@ -11,41 +11,53 @@
 #include "BattleActionType.h"
 
 #include "NoTargetActions.h"
+#include "WalkAction.h"
 
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
 #include "../../spells/Problem.h"
 
+static constexpr SkipTurnAction skipTurnAction;
+static constexpr BadMoraleAction badMoraleAction;
+static constexpr WaitAction waitAction;
+static constexpr DefendAction defendAction;
+static constexpr EndTacticsAction endTacticsAction;
+static constexpr RetreatAction retreatAction;
+static constexpr SurrenderAction surrenderAction;
+static constexpr WalkAction walkAction;
+
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
-	static constexpr SkipTurnAction skipTurn;
-	static constexpr BadMoraleAction badMorale;
-	static constexpr WaitAction wait;
-	static constexpr DefendAction defend;
-	static constexpr EndTacticsAction endTactics;
-	static constexpr RetreatAction retreat;
-	static constexpr SurrenderAction surrender;
-
 	switch(action.actionType)
 	{
 		case EActionType::NO_ACTION:
-			return &skipTurn;
+			return &skipTurnAction;
 		case EActionType::BAD_MORALE:
-			return &badMorale;
+			return &badMoraleAction;
 		case EActionType::WAIT:
-			return &wait;
+			return &waitAction;
 		case EActionType::DEFEND:
-			return &defend;
+			return &defendAction;
 		case EActionType::END_TACTIC_PHASE:
-			return &endTactics;
+			return &endTacticsAction;
 		case EActionType::RETREAT:
-			return &retreat;
+			return &retreatAction;
 		case EActionType::SURRENDER:
-			return &surrender;
+			return &surrenderAction;
+		case EActionType::WALK:
+			return &walkAction;
 		default:
 			return nullptr;
 	}
+}
+
+void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)
+{
+	static constexpr std::array<const BattleActionType *, 8> types = {&skipTurnAction, &badMoraleAction, &waitAction, &defendAction, &endTacticsAction, &retreatAction, &surrenderAction, &walkAction};
+
+	for(const auto * type : types)
+		type->collectOptions(battle, actor, out);
 }
 
 bool BattleActionType::isUnitAction() const
@@ -67,6 +79,31 @@ void BattleActionType::applyStartState(battle::CUnitState & actor, const BattleA
 {
 	actor.waiting = false;
 	actor.movedThisRound = true;
+}
+
+void BattleActionType::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+}
+
+int BattleActionType::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+{
+	throw std::runtime_error("Priority requested from a battle action type that offers no options");
+}
+
+bool BattleActionType::isLegal(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	spells::detail::ProblemImpl problem;
+	return validate(game, battle, build(battle, option, context), problem);
+}
+
+ActionPreview BattleActionType::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	throw std::runtime_error("Preview requested from a battle action type that offers no options");
+}
+
+BattleAction BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	throw std::runtime_error("Action built from a battle action type that offers no options");
 }
 
 MetaString BattleActionType::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const

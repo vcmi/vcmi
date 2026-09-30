@@ -12,6 +12,7 @@
 #include "../../constants/Enumerations.h"
 
 struct Bonus;
+class BattleHex;
 class GameResID;
 class MetaString;
 class PlayerColor;
@@ -35,6 +36,8 @@ public:
 	virtual void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) = 0;
 	/// Triggers obstacles on the hexes the unit occupies
 	virtual void triggerObstaclesUnder(const battle::Unit & unit) = 0;
+	/// Moves the unit to the hex, stopping early at obstacles on the way. Fires BEFORE_MOVE and AFTER_MOVE
+	virtual void moveUnit(const battle::Unit & unit, const BattleHex & destination) = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
 };

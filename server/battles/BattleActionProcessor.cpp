@@ -93,29 +93,6 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 	return true;
 }
 
-bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	if(target.empty())
-	{
-		gameHandler->complain("Destination required for move action.");
-		return false;
-	}
-
-	auto movementResult = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
-	if (movementResult.invalidRequest)
-	{
-		gameHandler->complain("Stack failed movement!");
-		return false;
-	}
-	return true;
-}
-
 void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance, bool longWeaponAttack)
 {
 	int totalAttacks = attacker->getTotalAttacks(false);
@@ -621,6 +598,13 @@ public:
 		battle.handleObstacleTriggersForUnit(*processor.gameHandler->spellEnv, unit);
 	}
 
+	void moveUnit(const battle::Unit & unit, const BattleHex & destination) override
+	{
+		// the action was validated, so moveStack refuses the move only if a BEFORE_MOVE handler changed the battle;
+		// it complains then, and the action still counts as made
+		processor.moveStack(battle, unit.unitId(), destination);
+	}
+
 	void endBattle(EBattleResult result, BattleSide winner) override
 	{
 		processor.owner->setBattleResult(battle, result, winner);
@@ -652,8 +636,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 	{
 		case EActionType::HERO_SPELL:
 			return doHeroSpellAction(battle, ba);
-		case EActionType::WALK:
-			return doWalkAction(battle, ba);
 		case EActionType::WALK_AND_ATTACK:
 			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:

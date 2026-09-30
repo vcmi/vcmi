@@ -297,11 +297,8 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 {
 	THROW_IF_NOT_BATTLE();
 	std::vector<PossiblePlayerBattleAction> allowedActionList;
-	if(data.tacticsMode) //would "if(battleGetTacticDist() > 0)" work?
-	{
-		allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_TACTICS);
-	}
-	else
+	// the only option of the tactics phase is the move of WalkAction
+	if(!data.tacticsMode)
 	{
 		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
 		{
@@ -329,9 +326,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
 			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
 		}
-
-		if(stack->canMove() && stack->getMovementRange(0)) //probably no reason to try move war machines or bound stacks
-			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
 		if(siegedTown && siegedTown->fortificationsLevel().wallsHealth > 0 && stack->hasBonusOfType(BonusType::CATAPULT)) //TODO: check shots

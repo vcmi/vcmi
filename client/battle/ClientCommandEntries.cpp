@@ -41,6 +41,11 @@ const CStack * ClientCommandEntry::getUnit(const BattleHex & hex) const
 	return owner.getBattle()->battleGetStackByPos(hex, true);
 }
 
+BattleHexArray ClientCommandEntry::getShadedHexes(const BattleHex & hex) const
+{
+	return {};
+}
+
 SpellID ClientCommandEntry::getSpell() const
 {
 	return SpellID::NONE;

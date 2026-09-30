@@ -237,8 +237,7 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 7> actions = {
-		EActionType::WALK,
+	static const std::array<EActionType, 6> actions = {
 		EActionType::WALK_AND_ATTACK,
 		EActionType::SHOOT,
 		EActionType::CATAPULT,
@@ -267,10 +266,8 @@ bool BattleAction::isBattleEndAction() const
 
 bool BattleAction::isTacticsAction() const
 {
-	if(const auto * type = BattleActionType::find(*this))
-		return type->isTacticsAction();
-
-	return actionType == EActionType::WALK;
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isTacticsAction();
 }
 
 std::ostream & operator<<(std::ostream & os, const BattleAction & ba)

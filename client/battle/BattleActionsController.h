@@ -116,6 +116,9 @@ public:
 	std::string primaryActionText(const BattleHex & hex);
 	std::string secondaryActionText(const BattleHex & hex, bool persistentInfo) const;
 
+	/// Hexes highlighted as the result of clicking the hovered hex
+	BattleHexArray getShadedHexes(const BattleHex & hoveredHex);
+
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
 
