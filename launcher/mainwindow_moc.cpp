@@ -206,6 +206,7 @@ bool MainWindow::reloadDirectories()
 	}
 	catch(const std::exception & e)
 	{
+		logGlobal->error("Failed to reload launcher directories: %s", e.what());
 		progressOverlay.reset();
 		QMessageBox::critical(this, tr("Failed to reload directories"), QString::fromUtf8(e.what()));
 		return false;
