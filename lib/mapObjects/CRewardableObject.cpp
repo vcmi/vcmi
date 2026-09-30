@@ -76,8 +76,7 @@ void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHer
 
 void CRewardableObject::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
 {
-	// The tag is the reward that was in progress when the level-up interrupted it
-	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), this, hero);
+	resumeAfterExperience(gameEvents, hero, continuationTag);
 }
 
 void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
@@ -127,16 +126,6 @@ void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGH
 
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
 	gameEvents.sendAndApply(cov);
-}
-
-void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
-{
-	// Granting experience hands the visit to the level-up routine, so the tag records which
-	// reward experienceApplied() has to continue with.
-	gameEvents.setContinuationTag(hero, rewardID);
-
-	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
-		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
 }
 
 bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) const

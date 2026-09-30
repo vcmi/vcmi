@@ -134,7 +134,7 @@ bool Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	return true;
 }
 
-void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CArmedInstance * army, const CGHeroInstance * hero) const
+void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
 {
 	auto cb = getObject()->cb;
 
@@ -263,6 +263,21 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
 			gameEvents.removeAfterVisit(instance->id);
+}
+
+void Rewardable::Interface::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
+{
+	// Granting experience hands the visit to the level-up routine, so the tag records which
+	// reward resumeAfterExperience() has to continue with.
+	gameEvents.setContinuationTag(hero, rewardID);
+
+	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
+		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), hero);
+}
+
+void Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag) const
+{
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), hero);
 }
 
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
