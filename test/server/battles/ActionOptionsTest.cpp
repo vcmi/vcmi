@@ -169,7 +169,8 @@ TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)
 
 	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), unitHex, 1);
 
-	EXPECT_THAT(optionsOf(catapult), ::testing::UnorderedElementsAre(Option::CATAPULT));
+	EXPECT_THAT(optionsOf(catapult), ::testing::IsEmpty());
+	EXPECT_THAT(typesOffered(catapult), ::testing::ElementsAre(BattleActionType::find(EActionType::CATAPULT)));
 }
 
 TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)

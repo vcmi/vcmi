@@ -43,6 +43,15 @@ BattleAction BattleAction::makeHeal(const battle::Unit * healer, const BattleHex
 	return ba;
 }
 
+BattleAction BattleAction::makeCatapultShot(const battle::Unit * catapult)
+{
+	BattleAction ba;
+	ba.side = catapult->unitSide();
+	ba.actionType = EActionType::CATAPULT;
+	ba.stackNumber = catapult->unitId();
+	return ba;
+}
+
 BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
 {
 	BattleAction ba;
@@ -257,9 +266,8 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 4> actions = {
+	static const std::array<EActionType, 3> actions = {
 		EActionType::WALK_AND_ATTACK,
-		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
 		EActionType::WALK_AND_CAST
 	};

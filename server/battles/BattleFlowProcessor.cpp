@@ -576,12 +576,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCall
 
 		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
 		{
-			BattleAction attack;
-			attack.actionType = EActionType::CATAPULT;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-
-			makeAutomaticAction(battle, next, attack);
+			makeAutomaticAction(battle, next, BattleAction::makeCatapultShot(next));
 			return true;
 		}
 	}

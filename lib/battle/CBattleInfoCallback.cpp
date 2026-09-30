@@ -324,10 +324,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
 			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
 		}
-
-		const auto * siegedTown = battleGetDefendedTown();
-		if(siegedTown && siegedTown->fortificationsLevel().wallsHealth > 0 && stack->hasBonusOfType(BonusType::CATAPULT)) //TODO: check shots
-			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
 		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
 		{
 			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();

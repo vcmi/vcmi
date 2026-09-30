@@ -160,10 +160,7 @@ TEST_F(RangedActionTest, catapultShootsAtWalls)
 	// the town has no garrison, and a side without units would lose the battle after the shot
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
-	BattleAction shot;
-	shot.side = BattleSide::ATTACKER;
-	shot.stackNumber = catapult->unitId();
-	shot.actionType = EActionType::CATAPULT;
+	BattleAction shot = BattleAction::makeCatapultShot(catapult);
 	shot.aimToHex(battle()->wallPartToBattleHex(EWallPart::UPPER_WALL));
 
 	ASSERT_TRUE(act(shot));
@@ -275,4 +272,51 @@ TEST_F(HealOptionTest, woundedStackOfTentSideCanBeHealed)
 	EXPECT_EQ(shown.cursor, "combatHeal");
 	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::StartsWith("Apply first aid to the Pikemen"));
 	EXPECT_EQ(preview(tent, enemy->getPosition()).cursor, "combatBlocked");
+}
+
+TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
+{
+	startGame();
+	startSiege();
+
+	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	BattleAction shot = BattleAction::makeCatapultShot(catapult);
+	shot.aimToHex(BattleHex(8, 5));
+
+	EXPECT_FALSE(act(shot));
+	// the hero's own catapult takes its automatic turn right after
+	for(const auto & attack : server.catapultAttacks)
+		EXPECT_NE(attack.attacker, static_cast<int>(catapult->unitId()));
+}
+
+TEST_F(RangedActionTest, catapultOutsideSiegeIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	EXPECT_FALSE(act(BattleAction::makeCatapultShot(catapult)));
+}
+
+TEST_F(RangedActionTest, catapultOptionTargetsStandingWall)
+{
+	startGame();
+	startSiege();
+
+	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	battle()->activeStack = catapult->unitId();
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *catapult, options);
+	ASSERT_EQ(options.size(), 1);
+	const auto & option = options.front();
+
+	const BattleHex wall = battle()->wallPartToBattleHex(EWallPart::UPPER_WALL);
+	EXPECT_EQ(option.type->preview(*gameState(), *battle(), option, {catapult, wall}).cursor, "combatShootCatapult");
+	EXPECT_EQ(option.type->preview(*gameState(), *battle(), option, {catapult, BattleHex(8, 5)}).cursor, "combatBlocked");
 }
