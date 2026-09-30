@@ -1424,9 +1424,7 @@ void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CS
 
 void BattleActionProcessor::addGenericDamageLog(BattleLogMessage& blm, const std::shared_ptr<battle::CUnitState> &attackerState, int64_t damageDealt) const
 {
-	MetaString text;
-	attackerState->addText(text, EMetaText::GENERAL_TXT, 376);
-	attackerState->addNameReplacement(text);
+	MetaString text = attackerState->formatGeneralMessage(376);
 	text.replaceNumber(damageDealt);
 	blm.lines.push_back(std::move(text));
 }

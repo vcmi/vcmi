@@ -37,12 +37,7 @@ void SkipTurnAction::apply(IBattleActionEnvironment & env, const CBattleInfoCall
 
 MetaString BadMoraleAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit & unit = getActor(battle, action);
-
-	MetaString text;
-	unit.addText(text, EMetaText::GENERAL_TXT, -34);
-	unit.addNameReplacement(text);
-	return text;
+	return getActor(battle, action).formatGeneralMessage(-34);
 }
 
 bool WaitAction::isUnitAction() const
@@ -71,12 +66,7 @@ void WaitAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback
 
 MetaString WaitAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	const battle::Unit & unit = getActor(battle, action);
-
-	MetaString text;
-	unit.addText(text, EMetaText::GENERAL_TXT, 136);
-	unit.addNameReplacement(text);
-	return text;
+	return getActor(battle, action).formatGeneralMessage(136);
 }
 
 bool DefendAction::isUnitAction() const
@@ -128,9 +118,7 @@ void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallba
 
 	env.updateUnitBonuses(unit, buffer);
 
-	MetaString text;
-	unit.addText(text, EMetaText::GENERAL_TXT, 120);
-	unit.addNameReplacement(text);
+	MetaString text = unit.formatGeneralMessage(120);
 	text.replaceNumber(difference);
 
 	env.addBattleLogLine(text);
