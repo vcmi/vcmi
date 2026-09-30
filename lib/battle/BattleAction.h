@@ -31,6 +31,8 @@ public:
 	BattleAction();
 
 	static BattleAction makeHeal(const battle::Unit * healer, const battle::Unit * healed);
+	static BattleAction makeNoAction(const battle::Unit * stack);
+	static BattleAction makeBadMorale(const battle::Unit * stack);
 	static BattleAction makeDefend(const battle::Unit * stack);
 	static BattleAction makeWait(const battle::Unit * stack);
 	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack = true);

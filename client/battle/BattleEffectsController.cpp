@@ -28,6 +28,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -139,16 +140,17 @@ void BattleEffectsController::startAction(const BattleAction & action)
 
 	const CStack *stack = owner.getBattle()->battleGetStackByID(action.stackNumber);
 
-	switch(action.actionType)
+	if(const auto * type = BattleActionType::find(action))
 	{
-	case EActionType::WAIT:
-		owner.appendBattleLog(stack->formatGeneralMessage(136, &GAME->translator()));
-		break;
-	case EActionType::BAD_MORALE:
-		owner.appendBattleLog(stack->formatGeneralMessage(-34, &GAME->translator()));
+		MetaString logLine = type->getStartLogLine(*owner.getBattle(), action);
+		if(!logLine.empty())
+			owner.appendBattleLog(logLine.toString(&GAME->translator()));
+	}
+
+	if(action.actionType == EActionType::BAD_MORALE)
+	{
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
 		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
-		break;
 	}
 
 	owner.waitForAnimations();

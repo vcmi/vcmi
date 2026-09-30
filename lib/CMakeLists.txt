@@ -71,6 +71,8 @@ set(lib_MAIN_SRCS
 	battle/SideInBattle.cpp
 	battle/SiegeInfo.cpp
 	battle/Unit.cpp
+	battle/actions/BattleActionType.cpp
+	battle/actions/NoTargetActions.cpp
 
 	bonuses/Bonus.cpp
 	bonuses/BonusCache.cpp
@@ -486,6 +488,9 @@ set(lib_MAIN_HEADERS
 	battle/SideInBattle.h
 	battle/SiegeInfo.h
 	battle/Unit.h
+	battle/actions/BattleActionType.h
+	battle/actions/IBattleActionEnvironment.h
+	battle/actions/NoTargetActions.h
 
 	bonuses/Bonus.h
 	bonuses/BonusCache.h

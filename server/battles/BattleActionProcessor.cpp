@@ -22,6 +22,8 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/actions/BattleActionType.h"
+#include "../../lib/battle/actions/IBattleActionEnvironment.h"
 #include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/scripting/ScriptService.h"
 #include "../../lib/combatScripts/ICombatEventScript.h"
@@ -51,60 +53,6 @@ BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandl
 	: owner(owner)
 	, gameHandler(newGameHandler)
 {
-}
-
-bool BattleActionProcessor::doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	return true;
-}
-
-bool BattleActionProcessor::doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	return true;
-}
-
-bool BattleActionProcessor::doWaitAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	processBattleEventTriggers(battle, CombatEventType::WAIT, stack, nullptr);
-	return true;
-}
-
-bool BattleActionProcessor::doRetreatAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	if (!battle.battleCanFlee(battle.sideToPlayer(ba.side)))
-	{
-		gameHandler->complain("Cannot retreat!");
-		return false;
-	}
-
-	owner->setBattleResult(battle, EBattleResult::ESCAPE, battle.otherSide(ba.side));
-	return true;
-}
-
-bool BattleActionProcessor::doSurrenderAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	PlayerColor player = battle.sideToPlayer(ba.side);
-	int cost = battle.battleGetSurrenderCost(player);
-	if (cost < 0)
-	{
-		gameHandler->complain("Cannot surrender!");
-		return false;
-	}
-
-	if (gameHandler->gameInfo().getResource(player, EGameResID::GOLD) < cost)
-	{
-		gameHandler->complain("Not enough gold to surrender!");
-		return false;
-	}
-
-	gameHandler->giveResource(player, EGameResID::GOLD, -cost);
-	owner->setBattleResult(battle, EBattleResult::SURRENDER, battle.otherSide(ba.side));
-	return true;
 }
 
 bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -165,62 +113,6 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 		gameHandler->complain("Stack failed movement!");
 		return false;
 	}
-	return true;
-}
-
-bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
-	SetStackEffect sse;
-	sse.battleID = battle.getBattle()->getBattleID();
-
-	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
-	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
-	Bonus tagBonus(BonusDuration::STACK_GETS_TURN, BonusType::UNIT_DEFENDING, BonusSource::OTHER, 0, BonusSourceID());
-
-	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
-	int oldDefenceValue = defence.totalValue();
-
-	defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
-	defence.push_back(std::make_shared<Bonus>(bonus2));
-
-	int difference = defence.totalValue() - oldDefenceValue;
-	std::vector<Bonus> buffer;
-	if(difference == 0) //give replacement bonus for creatures not reaching 5 defense points (20% of def becomes 0)
-	{
-		difference = 1;
-		buffer.push_back(alternativeWeakCreatureBonus);
-	}
-	else
-	{
-		buffer.push_back(defenseBonusToAdd);
-	}
-
-	buffer.push_back(bonus2);
-	buffer.push_back(tagBonus);
-
-	sse.toUpdate.emplace_back(ba.stackNumber, buffer);
-	gameHandler->sendAndApply(sse);
-
-	BattleLogMessage message;
-	message.battleID = battle.getBattle()->getBattleID();
-
-	MetaString text;
-	stack->addText(text, EMetaText::GENERAL_TXT, 120);
-	stack->addNameReplacement(text);
-	text.replaceNumber(difference);
-
-	message.lines.push_back(text);
-
-	gameHandler->sendAndApply(message);
-
-	processBattleEventTriggers(battle, CombatEventType::DEFEND, stack, nullptr);
 	return true;
 }
 
@@ -673,57 +565,82 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 
 bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, const CStack * stack)
 {
-	if (!stack)
+	spells::detail::ProblemImpl problem;
+	if(BattleActionType::checkUnitCanAct(battle, stack, problem))
+		return true;
+
+	complain(problem);
+	return false;
+}
+
+void BattleActionProcessor::complain(const spells::Problem & problem)
+{
+	std::vector<std::string> texts;
+	problem.getAll(texts);
+	for(const auto & text : texts)
+		gameHandler->complain(text);
+}
+
+class BattleActionProcessor::ActionEnvironment final : public IBattleActionEnvironment
+{
+	BattleActionProcessor & processor;
+	const CBattleInfoCallback & battle;
+
+public:
+	ActionEnvironment(BattleActionProcessor & processor, const CBattleInfoCallback & battle)
+		: processor(processor)
+		, battle(battle)
 	{
-		gameHandler->complain("No such stack!");
-		return false;
-	}
-	if (!stack->alive())
-	{
-		gameHandler->complain("This stack is dead: " + stack->nodeName());
-		return false;
 	}
 
-	if (battle.battleTacticDist())
+	void apply(CPackForClient & pack) override
 	{
-		if (stack && stack->unitSide() != battle.battleGetTacticsSide())
-		{
-			gameHandler->complain("This is not a stack of side that has tactics!");
-			return false;
-		}
+		processor.gameHandler->sendAndApply(pack);
 	}
-	else
+
+	void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) override
 	{
-		if (stack != battle.battleActiveUnit())
-		{
-			gameHandler->complain("Action has to be about active stack!");
-			return false;
-		}
+		processor.processBattleEventTriggers(battle, event, unit, other);
 	}
-	return true;
-}
+
+	void triggerObstaclesUnder(const battle::Unit & unit) override
+	{
+		battle.handleObstacleTriggersForUnit(*processor.gameHandler->spellEnv, unit);
+	}
+
+	void endBattle(EBattleResult result, BattleSide winner) override
+	{
+		processor.owner->setBattleResult(battle, result, winner);
+	}
+
+	void giveResource(PlayerColor player, GameResID resource, int amount) override
+	{
+		processor.gameHandler->giveResource(player, resource, amount);
+	}
+};
 
 bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)
 {
+	if(const auto * type = BattleActionType::find(ba))
+	{
+		spells::detail::ProblemImpl problem;
+		if(!type->validate(gameHandler->gameInfo(), battle, ba, problem))
+		{
+			complain(problem);
+			return false;
+		}
+
+		ActionEnvironment env(*this, battle);
+		type->apply(env, battle, ba);
+		return true;
+	}
+
 	switch(ba.actionType)
 	{
-		case EActionType::BAD_MORALE:
-		case EActionType::NO_ACTION:
-			return doEmptyAction(battle, ba);
-		case EActionType::END_TACTIC_PHASE:
-			return doEndTacticsAction(battle, ba);
-		case EActionType::RETREAT:
-			return doRetreatAction(battle, ba);
-		case EActionType::SURRENDER:
-			return doSurrenderAction(battle, ba);
 		case EActionType::HERO_SPELL:
 			return doHeroSpellAction(battle, ba);
 		case EActionType::WALK:
 			return doWalkAction(battle, ba);
-		case EActionType::WAIT:
-			return doWaitAction(battle, ba);
-		case EActionType::DEFEND:
-			return doDefendAction(battle, ba);
 		case EActionType::WALK_AND_ATTACK:
 			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
@@ -736,6 +653,8 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doUnitSpellAction(battle, ba);
 		case EActionType::STACK_HEAL:
 			return doHealAction(battle, ba);
+		default:
+			break;
 	}
 	gameHandler->complain("Unrecognized action type received!!");
 	return false;
@@ -765,7 +684,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if(ba.isBattleEndAction())
 		return result;
 
-	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
+	if(ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
 
 	// Resolve deaths first so ACTION_FINISHED observes final alive states.

@@ -17,6 +17,7 @@
 #include "../CStack.h"
 #include "../IGameSettings.h"
 
+#include "../battle/actions/BattleActionType.h"
 #include "../campaign/CampaignState.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -1471,16 +1472,14 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 	{
 		assert(st); // stack must exists for all non-hero actions
 
+		if(const auto * type = BattleActionType::find(pack.ba))
+		{
+			type->applyStartState(*st, pack.ba);
+			return;
+		}
+
 		switch(pack.ba.actionType)
 		{
-			case EActionType::DEFEND:
-				st->defending = true;
-				st->waiting = false;
-				break;
-			case EActionType::WAIT:
-				st->waiting = true;
-				st->waitedThisTurn = true;
-				break;
 			case EActionType::MONSTER_SPELL:
 			{
 				SpellID spellID = pack.ba.spell;
