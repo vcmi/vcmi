@@ -32,6 +32,7 @@ class AboutProjectView : public QWidget
 public:
 	explicit AboutProjectView(QWidget * parent = nullptr);
 	~AboutProjectView() override;
+	void directoriesChanged(const QString & changedLogPath);
 
 signals:
 	void logDirectoryChanged(const QString & path);

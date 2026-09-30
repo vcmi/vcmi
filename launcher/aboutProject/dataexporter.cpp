@@ -30,7 +30,7 @@ static void writeToArchive(COutputStream & stream, const QByteArray & data)
 
 	const auto byteCount = static_cast<si64>(bytes.size());
 	if(stream.write(bytes.data(), byteCount) != byteCount)
-		throw std::runtime_error("Failed to write data to ZIP archive");
+		throw CZipArchiveException("Failed to write data to ZIP archive");
 }
 
 static void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
@@ -143,7 +143,7 @@ static bool exportSavesToLocalArchive(AboutProjectView * view, const QString & o
 		qApp->processEvents();
 		progress.hide();
 	}
-	catch(const std::runtime_error & e)
+	catch(const CZipArchiveException & e)
 	{
 		logGlobal->error("Save export failed while creating archive %s. Reason: %s", outPath.toStdString(), e.what());
 		QMessageBox::critical(view, view->tr("Error"), view->tr("Failed to create archive: %1").arg(QString::fromUtf8(e.what())));
@@ -425,7 +425,7 @@ void AboutProjectView::on_pushButtonExportLogs_clicked()
 
 		progress.hide();
 	}
-	catch(const std::runtime_error & e)
+	catch(const CZipArchiveException & e)
 	{
 		QFile::remove(outPath);
 		logGlobal->error("Log export failed while creating archive %s. Reason: %s", outPath.toStdString(), e.what());

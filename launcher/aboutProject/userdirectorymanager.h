@@ -13,6 +13,7 @@
 
 class IVCMIDirs;
 class ProgressOverlay;
+class AboutProjectView;
 enum class EUserDirectory;
 
 #if defined(VCMI_WINDOWS)
@@ -25,7 +26,7 @@ class WindowsUserDirectoryManager : public QObject
 		REPLACE
 	};
 
-	QWidget * parent;
+	AboutProjectView * parent;
 
 	QString normalizedPath(const QString & path) const;
 	bool isSameOrChildPath(const QString & path, const QString & parentPath) const;
@@ -42,7 +43,7 @@ class WindowsUserDirectoryManager : public QObject
 	bool installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & backupPath, QString & error) const;
 
 public:
-	explicit WindowsUserDirectoryManager(QWidget * parent);
-	void changeDirectory(EUserDirectory directory, const QString & title, const std::function<void(const QString &)> & onDirectoriesChanged) const;
+	explicit WindowsUserDirectoryManager(AboutProjectView * parent);
+	void changeDirectory(EUserDirectory directory, const QString & title) const;
 };
 #endif
