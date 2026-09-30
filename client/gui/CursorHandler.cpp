@@ -93,6 +93,9 @@ void CursorHandler::set(const std::string & index)
 		}
 	}
 
+	if (cursors.at(currentCursorIndex).cursorID != index)
+		logGlobal->error("Cursor '%s' is not defined in config/cursors.json", index);
+
 	const auto & currentCursor = cursors.at(currentCursorIndex);
 
 	if (currentCursor.image.empty())

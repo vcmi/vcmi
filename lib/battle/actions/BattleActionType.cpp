@@ -27,37 +27,39 @@ static constexpr RetreatAction retreatAction;
 static constexpr SurrenderAction surrenderAction;
 static constexpr WalkAction walkAction;
 
+namespace
+{
+struct RegisteredActionType
+{
+	EActionType actionType;
+	const BattleActionType * type;
+};
+}
+
+static constexpr std::array<RegisteredActionType, 8> registeredTypes = {{
+	{EActionType::NO_ACTION, &skipTurnAction},
+	{EActionType::BAD_MORALE, &badMoraleAction},
+	{EActionType::WAIT, &waitAction},
+	{EActionType::DEFEND, &defendAction},
+	{EActionType::END_TACTIC_PHASE, &endTacticsAction},
+	{EActionType::RETREAT, &retreatAction},
+	{EActionType::SURRENDER, &surrenderAction},
+	{EActionType::WALK, &walkAction},
+}};
+
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
-	switch(action.actionType)
-	{
-		case EActionType::NO_ACTION:
-			return &skipTurnAction;
-		case EActionType::BAD_MORALE:
-			return &badMoraleAction;
-		case EActionType::WAIT:
-			return &waitAction;
-		case EActionType::DEFEND:
-			return &defendAction;
-		case EActionType::END_TACTIC_PHASE:
-			return &endTacticsAction;
-		case EActionType::RETREAT:
-			return &retreatAction;
-		case EActionType::SURRENDER:
-			return &surrenderAction;
-		case EActionType::WALK:
-			return &walkAction;
-		default:
-			return nullptr;
-	}
+	for(const auto & registered : registeredTypes)
+		if(registered.actionType == action.actionType)
+			return registered.type;
+
+	return nullptr;
 }
 
 void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)
 {
-	static constexpr std::array<const BattleActionType *, 8> types = {&skipTurnAction, &badMoraleAction, &waitAction, &defendAction, &endTacticsAction, &retreatAction, &surrenderAction, &walkAction};
-
-	for(const auto * type : types)
-		type->collectOptions(battle, actor, out);
+	for(const auto & registered : registeredTypes)
+		registered.type->collectOptions(battle, actor, out);
 }
 
 bool BattleActionType::isUnitAction() const
