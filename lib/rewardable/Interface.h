@@ -30,8 +30,8 @@ private:
 	
 protected:
 	
-	/// function that must be called if hero got level-up during grantReward call
-	void grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CArmedInstance * army, const CGHeroInstance * hero) const;
+	/// Grants the part of the reward that must wait until any level-up it caused is resolved
+	void grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
 
 	/// Grants the part of the reward that must be applied before any level-up. Returns true
 	/// if it granted experience, which always ends in experienceApplied() applying the rest.
@@ -50,7 +50,12 @@ protected:
 	virtual bool wasVisited(PlayerColor player) const = 0;
 	virtual void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const = 0;
 	virtual void markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const = 0;
-	virtual void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const = 0;
+
+	/// Grants a reward. If it grants experience, the rest continues from resumeAfterExperience().
+	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const;
+
+	/// Finishes the reward that granted experience, once its level-ups are resolved.
+	void resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag) const;
 
 	void onBlockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const;
 public:

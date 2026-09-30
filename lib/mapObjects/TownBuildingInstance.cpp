@@ -139,23 +139,12 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 
 void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
 {
-	// The tag is the reward that was in progress when the level-up interrupted it
-	grantRewardAfterLevelup(gameEvents, configuration.info.at(continuationTag), town, hero);
+	resumeAfterExperience(gameEvents, hero, continuationTag);
 }
 
 void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	onBlockingDialogAnswered(gameEvents, hero, answer);
-}
-
-void TownRewardableBuildingInstance::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
-{
-	// Granting experience hands the visit to the level-up routine, so the tag records which
-	// reward experienceApplied() has to continue with.
-	gameEvents.setContinuationTag(hero, rewardID);
-
-	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
-		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), town, hero);
 }
 
 bool TownRewardableBuildingInstance::wasVisited(const CGHeroInstance * contextHero) const

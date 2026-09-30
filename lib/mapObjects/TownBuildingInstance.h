@@ -52,7 +52,6 @@ class TownRewardableBuildingInstance : public TownBuildingInstance, public Rewar
 	std::set<ObjectInstanceID> visitors;
 
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
-	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
 	Rewardable::Configuration generateConfiguration(IGameRandomizer & gameRandomizer) const;
 	void assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses) const;
 

@@ -23,7 +23,6 @@ protected:
 	
 	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 
-	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
 	void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	const IObjectInterface * getObject() const override;
