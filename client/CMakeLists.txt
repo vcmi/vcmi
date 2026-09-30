@@ -31,6 +31,7 @@ set(vcmiclientcommon_SRCS
 	battle/ClientCommandEntries.cpp
 	battle/CreatureAnimation.cpp
 	battle/HeroInfoWindow.cpp
+	battle/LibActionEntry.cpp
 	battle/QuickSpellPanel.cpp
 	battle/StackInfoBasicPanel.cpp
 	battle/StackQueue.cpp
@@ -240,6 +241,7 @@ set(vcmiclientcommon_HEADERS
 	battle/ClientCommandEntries.h
 	battle/CreatureAnimation.h
 	battle/HeroInfoWindow.h
+	battle/LibActionEntry.h
 	battle/QuickSpellPanel.h
 	battle/StackInfoBasicPanel.h
 	battle/StackQueue.h

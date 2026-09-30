@@ -11,7 +11,9 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/PossiblePlayerBattleAction.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/spells/CSpell.h"
@@ -45,6 +47,8 @@ struct UnitOptionsCase
 	/// Spells the client lets a SPELLCASTER unit choose from.
 	std::vector<SpellID> spells;
 	std::vector<Option> expected;
+	/// WalkAction offers a move
+	bool walks;
 };
 
 /// How the client aims a hero spell, depending on the aim types of the spell at the hero's mastery.
@@ -71,6 +75,25 @@ public:
 		data.tacticsMode = tacticsMode;
 		return battle()->getClientActionsForStack(unit, data);
 	}
+
+	/// Types of the options that the lib action types offer
+	std::vector<const BattleActionType *> typesOffered(const CStack * unit) const
+	{
+		std::vector<ActionOption> options;
+		BattleActionType::collectAllOptions(*battle(), *unit, options);
+
+		std::vector<const BattleActionType *> result;
+		for(const auto & option : options)
+			result.push_back(option.type);
+		return result;
+	}
+
+	static const BattleActionType * walkType()
+	{
+		BattleAction walk;
+		walk.actionType = EActionType::WALK;
+		return BattleActionType::find(walk);
+	}
 };
 
 class UnitOptionsTest : public ActionOptionsTest, public ::testing::WithParamInterface<UnitOptionsCase>
@@ -89,34 +112,35 @@ TEST_P(UnitOptionsTest, offersOptionsOfUnitAbilities)
 		scenario.grant(unit);
 
 	EXPECT_THAT(optionsOf(unit, scenario.spells), ::testing::UnorderedElementsAreArray(scenario.expected)) << scenario.name;
+	EXPECT_EQ(typesOffered(unit), scenario.walks ? std::vector{walkType()} : std::vector<const BattleActionType *>{}) << scenario.name;
 }
 
 INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 	UnitOptionsCase{"melee", pikeman, nullptr, {},
-		{Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"shooter", archer, nullptr, {},
-		{Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"returning", harpy, nullptr, {},
-		{Option::ATTACK_AND_RETURN, Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option::ATTACK_AND_RETURN, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"longWeapon", pikeman, [](CStack * unit)
 		{
 			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 		}, {},
-		{Option::LONG_WEAPON_ATTACK, Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option::LONG_WEAPON_ATTACK, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"spellcaster", stormElemental, nullptr, {SpellID::PROTECTION_FROM_AIR},
-		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR), Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR), Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr, {},
-		{Option::RANDOM_GENIE_SPELL, Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option::RANDOM_GENIE_SPELL, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 		}, {},
-		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK}},
+		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK}, true},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr, {},
-		{Option::HEAL}},
+		{Option::HEAL}, false},
 	// the catapult has nothing to shoot at outside of a siege
 	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr, {},
-		{}}
+		{}, false}
 ),
 	[](const ::testing::TestParamInfo<UnitOptionsCase> & info) { return info.param.name; });
 
@@ -128,7 +152,8 @@ TEST_F(ActionOptionsTest, shooterNextToEnemyCannotShoot)
 	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), unitHex, 10);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), unitHex.cloneInDirection(BattleHex::RIGHT), 10);
 
-	EXPECT_THAT(optionsOf(shooter), ::testing::UnorderedElementsAre(Option::ATTACK, Option::WALK_AND_ATTACK, Option::MOVE_STACK));
+	EXPECT_THAT(optionsOf(shooter), ::testing::UnorderedElementsAre(Option::ATTACK, Option::WALK_AND_ATTACK));
+	EXPECT_THAT(typesOffered(shooter), ::testing::ElementsAre(walkType()));
 }
 
 TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)
@@ -141,14 +166,22 @@ TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)
 	EXPECT_THAT(optionsOf(catapult), ::testing::UnorderedElementsAre(Option::CATAPULT));
 }
 
-TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyTacticsMove)
+TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 {
 	startGame();
 	startBattle();
 
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(archer), unitHex, 10);
+	battle()->tacticDistance = 4;
+	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	EXPECT_THAT(optionsOf(unit, {}, true), ::testing::ElementsAre(Option::MOVE_TACTICS));
+	EXPECT_THAT(optionsOf(unit, {}, true), ::testing::IsEmpty());
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *unit, options);
+	ASSERT_EQ(options.size(), 1);
+	EXPECT_EQ(options.front().type, walkType());
+	EXPECT_FALSE(options.front().button.has_value());
 }
 
 class SpellAimTest : public ActionOptionsTest, public ::testing::WithParamInterface<AimCase>

@@ -25,6 +25,7 @@ protected:
 public:
 	explicit ClientCommandEntry(BattleInterface & owner);
 
+	BattleHexArray getShadedHexes(const BattleHex & hex) const override;
 	SpellID getSpell() const override;
 };
 
