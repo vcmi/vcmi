@@ -195,11 +195,6 @@ std::string CStack::getName() const
 	return (getCount() == 1) ? typeID.toEntity(LIBRARY)->getNameSingularTranslated() : typeID.toEntity(LIBRARY)->getNamePluralTranslated(); //War machines can't use base
 }
 
-bool CStack::canBeHealed() const
-{
-	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
-}
-
 bool CStack::isOnNativeTerrain() const
 {
 	return isNativeTerrain(getCurrentTerrain());

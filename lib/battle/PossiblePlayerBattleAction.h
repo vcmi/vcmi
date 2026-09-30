@@ -21,7 +21,6 @@ public:
 		WALK_AND_ATTACK,
 		ATTACK_AND_RETURN,
 		CATAPULT,
-		HEAL,
 		WALK_AND_SPELLCAST,
 
 		RANDOM_GENIE_SPELL,   // random spell on a friendly creature

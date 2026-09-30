@@ -62,6 +62,11 @@ bool Unit::isAmmoCart() const
 	return unitType()->warMachine == ArtifactID::AMMO_CART;
 }
 
+bool Unit::canBeHealed() const
+{
+	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
+}
+
 bool Unit::isSummoned() const
 {
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;

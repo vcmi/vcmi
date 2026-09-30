@@ -9,9 +9,11 @@
  */
 #pragma once
 
+#include "../Destination.h"
 #include "../../constants/Enumerations.h"
 
 struct Bonus;
+class CSpell;
 class BattleHex;
 class GameResID;
 class MetaString;
@@ -21,6 +23,11 @@ enum class BattleSide : int8_t;
 namespace battle
 {
 class Unit;
+}
+
+namespace spells
+{
+enum class Mode;
 }
 
 /// Server operations available to a battle action while it is applied, bound to the battle of the action
@@ -40,6 +47,8 @@ public:
 	virtual void moveUnit(const battle::Unit & unit, const BattleHex & destination) = 0;
 	/// Makes the shots of a ranged attack at the hex, with first strike, ranged retaliation and extra shots
 	virtual void rangedAttack(const battle::Unit & attacker, const BattleHex & destination) = 0;
+	/// Casts the spell of the unit at the target with the given mode and spell level
+	virtual void castSpell(const battle::Unit & caster, const CSpell * spell, spells::Mode mode, int level, const battle::Target & target) = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
 };

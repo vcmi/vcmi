@@ -412,43 +412,6 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	return true;
 }
 
-bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	if(target.empty())
-	{
-		gameHandler->complain("Destination required for heal action.");
-		return false;
-	}
-
-	const battle::Unit * destStack = nullptr;
-	std::shared_ptr<const Bonus> healerAbility = stack->getFirstBonus(Selector::type()(BonusType::HEALER));
-
-	if(target.at(0).unitValue)
-		destStack = target.at(0).unitValue;
-	else
-		destStack = battle.battleGetUnitByPos(target.at(0).hexValue);
-
-	if(stack == nullptr || destStack == nullptr || !healerAbility || !healerAbility->subtype.hasValue())
-	{
-		gameHandler->complain("There is either no healer, no destination, or healer cannot heal :P");
-	}
-	else
-	{
-		const CSpell * spell = healerAbility->subtype.as<SpellID>().toSpell();
-		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
-		auto dest = battle::Destination(destStack, target.at(0).hexValue);
-		parameters.setSpellLevel(0);
-		parameters.cast(gameHandler->spellcastEnvironment(), {dest});
-	}
-	return true;
-}
-
 bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba)
 {
 	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
@@ -582,6 +545,13 @@ public:
 		processor.makeRangedAttack(battle, battle.battleGetStackByID(attacker.unitId()), destination);
 	}
 
+	void castSpell(const battle::Unit & caster, const CSpell * spell, spells::Mode mode, int level, const battle::Target & target) override
+	{
+		spells::BattleCast parameters(&battle, &caster, mode, spell);
+		parameters.setSpellLevel(level);
+		parameters.cast(processor.gameHandler->spellcastEnvironment(), target);
+	}
+
 	void endBattle(EBattleResult result, BattleSide winner) override
 	{
 		processor.owner->setBattleResult(battle, result, winner);
@@ -621,8 +591,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doCatapultAction(battle, ba);
 		case EActionType::MONSTER_SPELL:
 			return doUnitSpellAction(battle, ba);
-		case EActionType::STACK_HEAL:
-			return doHealAction(battle, ba);
 		default:
 			break;
 	}

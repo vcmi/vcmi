@@ -143,7 +143,7 @@ INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 		}, {},
 		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr, {},
-		{Option::HEAL}, {}},
+		{}, {EActionType::STACK_HEAL}},
 	// the catapult has nothing to shoot at outside of a siege
 	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr, {},
 		{}, {}}

@@ -609,13 +609,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfo
 			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
 			const CStack * toBeHealed = possibleStacks.front();
 
-			BattleAction heal;
-			heal.actionType = EActionType::STACK_HEAL;
-			heal.aimToUnit(toBeHealed);
-			heal.side = next->unitSide();
-			heal.stackNumber = next->unitId();
-
-			makeAutomaticAction(battle, next, heal);
+			makeAutomaticAction(battle, next, BattleAction::makeHeal(next, toBeHealed));
 			return true;
 		}
 	}
