@@ -134,6 +134,23 @@ TEST_F(RangedActionTest, firstAidTentHealsWoundedStack)
 	EXPECT_LE(patient->getAvailableHealth(), patient->getMaxHealth() * stackCount);
 }
 
+TEST_F(RangedActionTest, firstAidTentRefusesEnemyAndUnwoundedStacks)
+{
+	startGame();
+	startBattle();
+
+	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	CStack * unwounded = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	injure(enemy, enemy->getMaxHealth() / 2);
+	const auto enemyHealth = enemy->getAvailableHealth();
+
+	EXPECT_FALSE(act(BattleAction::makeHeal(tent, enemy)));
+	EXPECT_EQ(enemy->getAvailableHealth(), enemyHealth);
+	EXPECT_FALSE(act(BattleAction::makeHeal(tent, unwounded)));
+}
+
 TEST_F(RangedActionTest, catapultShootsAtWalls)
 {
 	startGame();
@@ -224,4 +241,38 @@ TEST_F(ShootOptionTest, emptyHexIsBlocked)
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	EXPECT_EQ(preview(shooter, BattleHex(8, 5)).cursor, "combatBlocked");
+}
+
+/// What the client shows and sends for the heal option of a first aid tent on a hovered hex.
+class HealOptionTest : public RangedActionTest
+{
+public:
+	ActionPreview preview(const CStack * unit, const BattleHex & hex) const
+	{
+		battle()->activeStack = unit->unitId();
+		std::vector<ActionOption> options;
+		BattleActionType::collectAllOptions(*battle(), *unit, options);
+		EXPECT_EQ(options.size(), 1);
+		return options.at(0).type->preview(*gameState(), *battle(), options.at(0), {unit, hex});
+	}
+};
+
+TEST_F(HealOptionTest, woundedStackOfTentSideCanBeHealed)
+{
+	startGame();
+	startBattle();
+
+	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	EXPECT_EQ(preview(tent, patient->getPosition()).cursor, "combatBlocked");
+
+	injure(patient, patient->getMaxHealth() / 2);
+	injure(enemy, enemy->getMaxHealth() / 2);
+
+	const auto shown = preview(tent, patient->getPosition());
+	EXPECT_EQ(shown.cursor, "combatHeal");
+	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::StartsWith("Apply first aid to the Pikemen"));
+	EXPECT_EQ(preview(tent, enemy->getPosition()).cursor, "combatBlocked");
 }

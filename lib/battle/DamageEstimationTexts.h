@@ -29,4 +29,6 @@ DLL_LINKAGE MetaString rangedAttack(const DamageEstimation & estimation, const s
 DLL_LINKAGE MetaString rangedAttack(const DamageEstimation & estimation, const battle::Unit & target, int shotsLeft);
 /// "May retaliate (%DAMAGE, %KILLS)." or "Will not retaliate."
 DLL_LINKAGE MetaString retaliation(const DamageEstimation & estimation, bool mayBeKilled);
+/// Text of the "<baseTextID>.<index>" form for the amount of health, with "%d" replaced by the amount
+DLL_LINKAGE MetaString healthGain(int64_t amount, const std::string & baseTextID);
 }

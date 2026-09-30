@@ -81,3 +81,11 @@ MetaString DamageEstimationTexts::retaliation(const DamageEstimation & estimatio
 	replacePlural(text, "%KILLS", estimation.kills, "vcmi.battleWindow.damageEstimation.kills");
 	return text;
 }
+
+MetaString DamageEstimationTexts::healthGain(int64_t amount, const std::string & baseTextID)
+{
+	const int64_t pluralIndex = amount > 3 ? 0 : std::clamp<int64_t>(amount, 1, 2);
+	MetaString text = MetaString::createFromTextID(baseTextID + "." + std::to_string(pluralIndex));
+	text.replaceTokenNumber("%d", amount);
+	return text;
+}

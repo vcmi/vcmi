@@ -44,23 +44,6 @@
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-struct TextReplacement
-{
-	std::string placeholder;
-	std::string replacement;
-};
-
-using TextReplacementList = std::vector<TextReplacement>;
-
-static std::string replacePlaceholders(const std::string & input, const TextReplacementList & format )
-{
-	MetaString result = MetaString::createFromRawString(input);
-	for(const auto & entry : format)
-		result.replaceTokenRawString(entry.placeholder, entry.replacement);
-
-	return result.toString(&GAME->translator());
-}
-
 static std::string formatWithStackName(const std::string & textID, const CStack * stack)
 {
 	MetaString result = MetaString::createFromTextID(textID);
@@ -97,16 +80,8 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 	std::string outputString;
 	if(value.hpDelta > 0)
 	{
-		auto val = value.hpDelta;
-		TextReplacementList replacements {{ "%d", std::to_string(val) }};
-		int64_t correctPluralIndex = val > 3 ? 0 : std::clamp(val, int64_t(1), int64_t(2));
-		std::string textTemplateKey;
-		if(gnrlTextID == 549) //sacrifice spell
-			textTemplateKey = "vcmi.battleWindow.sacrificeAcquiredHealth.";
-		else
-			textTemplateKey = "vcmi.battleWindow.healValuePreview.";
-		outputString = LIBRARY->generaltexth->translate(textTemplateKey + std::to_string(correctPluralIndex));
-		outputString = replacePlaceholders(outputString, replacements);
+		const std::string baseTextID = gnrlTextID == 549 ? "vcmi.battleWindow.sacrificeAcquiredHealth" : "vcmi.battleWindow.healValuePreview"; //sacrifice spell
+		outputString = DamageEstimationTexts::healthGain(value.hpDelta, baseTextID).toString(&GAME->translator());
 	}
 	else
 	{
@@ -395,9 +370,6 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return 11;
 			break;
-		case PossiblePlayerBattleAction::HEAL:
-			return 12;
-			break;
 		case PossiblePlayerBattleAction::TELEPORT:
 			return 15;
 			break;
@@ -533,9 +505,6 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 			else
 				return "combatSacrifice";
 
-		case PossiblePlayerBattleAction::HEAL:
-			return "combatHeal";
-
 		case PossiblePlayerBattleAction::CATAPULT:
 			return "combatShootCatapult";
 	}
@@ -667,14 +636,6 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return text.toString(&GAME->translator());
 		}
 
-		case PossiblePlayerBattleAction::HEAL:
-		{
-			spells::effects::SpellEffectValue value = {};
-			value.hpDelta = owner.getBattle()->getFirstAidHealValue(owner.currentHero(), targetStack);
-			//Apply first aid to the %s plus heal value
-			return prepareSpellEffectText(419, value, "", targetStack->getName());
-		}
-
 		case PossiblePlayerBattleAction::CATAPULT:
 			return ""; // TODO
 	}
@@ -770,9 +731,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
-
-		case PossiblePlayerBattleAction::HEAL:
-			return targetStack && targetStackOwned && targetStack->canBeHealed();
 	}
 
 	assert(0);
@@ -801,12 +759,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			owner.sendCommand(command, attacker);
 			return;
 		}
-
-		case PossiblePlayerBattleAction::HEAL:
-		{
-			owner.giveCommand(EActionType::STACK_HEAL, targetHex);
-			return;
-		};
 
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 		{

@@ -33,6 +33,16 @@ BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::U
 	return ba;
 }
 
+BattleAction BattleAction::makeHeal(const battle::Unit * healer, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.side = healer->unitSide();
+	ba.actionType = EActionType::STACK_HEAL;
+	ba.stackNumber = healer->unitId();
+	ba.aimToHex(destination);
+	return ba;
+}
+
 BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
 {
 	BattleAction ba;
@@ -247,11 +257,10 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 5> actions = {
+	static const std::array<EActionType, 4> actions = {
 		EActionType::WALK_AND_ATTACK,
 		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
-		EActionType::STACK_HEAL,
 		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "BattleActionType.h"
 
+#include "HealAction.h"
 #include "NoTargetActions.h"
 #include "ShootAction.h"
 #include "WalkAction.h"
@@ -28,6 +29,7 @@ static constexpr RetreatAction retreatAction;
 static constexpr SurrenderAction surrenderAction;
 static constexpr WalkAction walkAction;
 static constexpr ShootAction shootAction;
+static constexpr HealAction healAction;
 
 namespace
 {
@@ -38,7 +40,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 9> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 10> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -48,6 +50,7 @@ static constexpr std::array<RegisteredActionType, 9> registeredTypes = {{
 	{EActionType::SURRENDER, &surrenderAction},
 	{EActionType::WALK, &walkAction},
 	{EActionType::SHOOT, &shootAction},
+	{EActionType::STACK_HEAL, &healAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
