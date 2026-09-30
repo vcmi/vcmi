@@ -18,8 +18,6 @@ enum class EUserDirectory;
 #if defined(VCMI_WINDOWS)
 class WindowsUserDirectoryManager : public QObject
 {
-	Q_OBJECT
-
 	enum class EExistingTargetAction
 	{
 		MERGE,
