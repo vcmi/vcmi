@@ -267,37 +267,11 @@ void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, co
 	gameHandler->sendAndApply(sse);
 }
 
-bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle, const CStack * stack, const BattleHex & destination)
 {
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	if(target.empty())
-	{
-		gameHandler->complain("Destination required for shot action.");
-		return false;
-	}
-
-	auto destination = target.at(0).hexValue;
-
 	const CStack * destinationStack = battle.battleGetStackByPos(destination);
-
-	if (!battle.battleCanShoot(stack, destination))
-	{
-		gameHandler->complain("Cannot shoot!");
-		return false;
-	}
-
+	// ShootAction::validate guarantees a target unit for shooters that can't target empty hexes
 	const bool emptyTileAreaAttack = battle.battleCanTargetEmptyHex(stack);
-
-	if (!destinationStack && !emptyTileAreaAttack)
-	{
-		gameHandler->complain("No target to shoot!");
-		return false;
-	}
 
 	bool firstStrike = false;
 	if(!emptyTileAreaAttack)
@@ -328,7 +302,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	int totalRangedAttacks = stack->getTotalAttacks(true);
 
 	//TODO: move to CUnitState
-	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
+	const auto * attackingHero = battle.battleGetFightingHero(stack->unitSide());
 	if(attackingHero)
 	{
 		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
@@ -348,8 +322,6 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 
 	removeBonuses(battle, stack, attackerBonusesToRemove);
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
-
-	return true;
 }
 
 bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -605,6 +577,11 @@ public:
 		processor.moveStack(battle, unit.unitId(), destination);
 	}
 
+	void rangedAttack(const battle::Unit & attacker, const BattleHex & destination) override
+	{
+		processor.makeRangedAttack(battle, battle.battleGetStackByID(attacker.unitId()), destination);
+	}
+
 	void endBattle(EBattleResult result, BattleSide winner) override
 	{
 		processor.owner->setBattleResult(battle, result, winner);
@@ -640,8 +617,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
 			return doWalkAndSpellcastAction(battle, ba);
-		case EActionType::SHOOT:
-			return doShootAction(battle, ba);
 		case EActionType::CATAPULT:
 			return doCatapultAction(battle, ba);
 		case EActionType::MONSTER_SPELL:

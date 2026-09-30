@@ -314,8 +314,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			if(stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		}
-		if(battleCanShoot(stack))
-			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
 		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
 		if(stack->hasBonusOfType(BonusType::LONG_WEAPON))

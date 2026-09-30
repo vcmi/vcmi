@@ -47,8 +47,8 @@ struct UnitOptionsCase
 	/// Spells the client lets a SPELLCASTER unit choose from.
 	std::vector<SpellID> spells;
 	std::vector<Option> expected;
-	/// WalkAction offers a move
-	bool walks;
+	/// Actions whose lib types offer an option
+	std::vector<EActionType> libActions;
 };
 
 /// How the client aims a hero spell, depending on the aim types of the spell at the hero's mastery.
@@ -88,11 +88,17 @@ public:
 		return result;
 	}
 
+	static std::vector<const BattleActionType *> typesOf(const std::vector<EActionType> & actions)
+	{
+		std::vector<const BattleActionType *> result;
+		for(const auto action : actions)
+			result.push_back(BattleActionType::find(action));
+		return result;
+	}
+
 	static const BattleActionType * walkType()
 	{
-		BattleAction walk;
-		walk.actionType = EActionType::WALK;
-		return BattleActionType::find(walk);
+		return BattleActionType::find(EActionType::WALK);
 	}
 };
 
@@ -112,35 +118,35 @@ TEST_P(UnitOptionsTest, offersOptionsOfUnitAbilities)
 		scenario.grant(unit);
 
 	EXPECT_THAT(optionsOf(unit, scenario.spells), ::testing::UnorderedElementsAreArray(scenario.expected)) << scenario.name;
-	EXPECT_EQ(typesOffered(unit), scenario.walks ? std::vector{walkType()} : std::vector<const BattleActionType *>{}) << scenario.name;
+	EXPECT_THAT(typesOffered(unit), ::testing::UnorderedElementsAreArray(typesOf(scenario.libActions))) << scenario.name;
 }
 
 INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 	UnitOptionsCase{"melee", pikeman, nullptr, {},
-		{Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"shooter", archer, nullptr, {},
-		{Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK, EActionType::SHOOT}},
 	UnitOptionsCase{"returning", harpy, nullptr, {},
-		{Option::ATTACK_AND_RETURN, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option::ATTACK_AND_RETURN, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"longWeapon", pikeman, [](CStack * unit)
 		{
 			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 		}, {},
-		{Option::LONG_WEAPON_ATTACK, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option::LONG_WEAPON_ATTACK, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"spellcaster", stormElemental, nullptr, {SpellID::PROTECTION_FROM_AIR},
-		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR), Option::SHOOT, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR), Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK, EActionType::SHOOT}},
 	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr, {},
-		{Option::RANDOM_GENIE_SPELL, Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option::RANDOM_GENIE_SPELL, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 		}, {},
-		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK}, true},
+		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr, {},
-		{Option::HEAL}, false},
+		{Option::HEAL}, {}},
 	// the catapult has nothing to shoot at outside of a siege
 	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr, {},
-		{}, false}
+		{}, {}}
 ),
 	[](const ::testing::TestParamInfo<UnitOptionsCase> & info) { return info.param.name; });
 

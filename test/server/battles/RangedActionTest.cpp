@@ -11,8 +11,12 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/gameState/CGameState.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 namespace
 {
@@ -65,6 +69,35 @@ TEST_F(RangedActionTest, shooterNextToEnemyCannotShoot)
 	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, target)));
 	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(shooter->shots.available(), shotsBefore);
+}
+
+TEST_F(RangedActionTest, shotAtEmptyHexIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	const auto shotsBefore = shooter->shots.available();
+
+	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, BattleHex(8, 5))));
+	EXPECT_EQ(shooter->shots.available(), shotsBefore);
+}
+
+TEST_F(RangedActionTest, shotAtFriendlyUnitIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	CStack * friendly = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	const auto friendlyHealth = friendly->getAvailableHealth();
+
+	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, friendly)));
+	EXPECT_EQ(friendly->getAvailableHealth(), friendlyHealth);
 }
 
 TEST_F(RangedActionTest, targetWithRangedRetaliationShootsBack)
@@ -127,4 +160,68 @@ TEST_F(RangedActionTest, catapultShootsAtWalls)
 	// a catapult without Ballistics makes one shot, which may still miss the wall it aimed at
 	ASSERT_EQ(shots.size(), 1u);
 	EXPECT_NE(shots.front().attackedPart, EWallPart::INVALID);
+}
+
+/// What the client shows and sends for the shot option of the active unit on a hovered hex.
+class ShootOptionTest : public RangedActionTest
+{
+public:
+	ActionOption shotOption(const CStack * unit) const
+	{
+		battle()->activeStack = unit->unitId();
+		std::vector<ActionOption> options;
+		BattleActionType::collectAllOptions(*battle(), *unit, options);
+
+		for(const auto & option : options)
+			if(option.type == BattleActionType::find(EActionType::SHOOT))
+				return option;
+
+		ADD_FAILURE() << "no shot option";
+		return {};
+	}
+
+	ActionPreview preview(const CStack * unit, const BattleHex & hex) const
+	{
+		const auto option = shotOption(unit);
+		return option.type->preview(*gameState(), *battle(), option, {unit, hex});
+	}
+};
+
+TEST_F(ShootOptionTest, shotPreviewShowsShotsLeftAndDamage)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
+
+	const auto shown = preview(shooter, target->getPosition());
+	EXPECT_EQ(shown.cursor, "combatShoot");
+	// ten archers deal a range of damage, which the text shows as "min - max"
+	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::MatchesRegex("Shoot Pikemen \\(12 shots left, [0-9]+ - [0-9]+ damage.*\\)\\."));
+
+	const auto option = shotOption(shooter);
+	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()})));
+}
+
+TEST_F(ShootOptionTest, distantTargetShowsPenaltyCursor)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
+
+	EXPECT_EQ(preview(shooter, target->getPosition()).cursor, "combatShootPenalty");
+}
+
+TEST_F(ShootOptionTest, emptyHexIsBlocked)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	EXPECT_EQ(preview(shooter, BattleHex(8, 5)).cursor, "combatBlocked");
 }

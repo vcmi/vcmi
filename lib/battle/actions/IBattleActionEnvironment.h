@@ -38,6 +38,8 @@ public:
 	virtual void triggerObstaclesUnder(const battle::Unit & unit) = 0;
 	/// Moves the unit to the hex, stopping early at obstacles on the way. Fires BEFORE_MOVE and AFTER_MOVE
 	virtual void moveUnit(const battle::Unit & unit, const BattleHex & destination) = 0;
+	/// Makes the shots of a ranged attack at the hex, with first strike, ranged retaliation and extra shots
+	virtual void rangedAttack(const battle::Unit & attacker, const BattleHex & destination) = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
 };

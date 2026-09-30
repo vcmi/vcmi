@@ -120,6 +120,8 @@ class BattleActionProcessor : boost::noncopyable
 	};
 
 	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest);
+	/// Shots of a ranged attack at the hex, with first strike, ranged retaliation and extra shots
+	void makeRangedAttack(const CBattleInfoCallback & battle, const CStack * stack, const BattleHex & destination);
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const AttackDescriptor & attack);
 
 	/// Runs one melee attack to completion: first strike, every attacker hit, the retaliation,
@@ -153,7 +155,6 @@ class BattleActionProcessor : boost::noncopyable
 	bool doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doShootAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doCatapultAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doUnitSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doHealAction(const CBattleInfoCallback & battle, const BattleAction & ba);
