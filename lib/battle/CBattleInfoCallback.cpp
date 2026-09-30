@@ -655,7 +655,8 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityIn
 
 	auto unitSpeed = unit->getMovementRange(0);
 
-	const bool tacticsPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
+	// a unit that can't move stays in place during the tactics phase too, as BattleActionProcessor::moveStack requires
+	const bool tacticsMovement = battleTacticDist() && battleGetTacticsSide() == unit->unitSide() && unitSpeed > 0;
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
 	{
@@ -663,7 +664,7 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityIn
 		if(!cache.isReachable(i))
 			continue;
 
-		if(tacticsPhase && !obtainMovementRange) // if obtainMovementRange requested do not return tactics range
+		if(tacticsMovement && !obtainMovementRange) // if obtainMovementRange requested do not return tactics range
 		{
 			// Stack has to perform tactic-phase movement -> can enter any reachable tile within given range
 			if(!isInTacticRange(i))
