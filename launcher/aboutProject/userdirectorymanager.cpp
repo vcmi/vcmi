@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "userdirectorymanager.h"
+#include "aboutproject_moc.h"
 
 #if defined(VCMI_WINDOWS)
 
@@ -27,7 +28,7 @@
 #include "../../lib/ScopeGuard.h"
 #include "../../lib/VCMIDirs.h"
 
-WindowsUserDirectoryManager::WindowsUserDirectoryManager(QWidget * parent)
+WindowsUserDirectoryManager::WindowsUserDirectoryManager(AboutProjectView * parent)
 	: QObject(parent)
 	, parent(parent)
 {
@@ -244,9 +245,9 @@ std::optional<WindowsUserDirectoryManager::EExistingTargetAction> WindowsUserDir
 	QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
 	dialog.setInformativeText(tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
 
-	auto * mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
-	auto * backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
-	auto * replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+	auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
+	auto * const backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
+	auto * const replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
 
 	dialog.addButton(QMessageBox::Cancel);
 	dialog.setDefaultButton(backupButton);
@@ -305,7 +306,7 @@ bool WindowsUserDirectoryManager::installStagedDirectory(const QString & staging
 	return true;
 }
 
-void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, const QString & title, const std::function<void(const QString &)> & onDirectoriesChanged) const
+void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, const QString & title) const
 {
 	auto * mainWindow = qobject_cast<MainWindow *>(parent->window());
 	auto & dirs = VCMIDirs::get();
@@ -336,13 +337,13 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 	bool downloadsPaused = false;
 	QString targetBackupPath;
 
-	auto cancelPausedDownloads = vstd::makeScopeGuard([&]()
+	auto cancelPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, mainWindow]()
 	{
 		if(downloadsPaused && mainWindow)
 			mainWindow->getModView()->cancelDownloads();
 	});
 
-	auto pauseDownloads = [&]()
+	auto pauseDownloads = [&downloadsPaused, mainWindow]()
 	{
 		if(!downloadsPaused && mainWindow)
 			downloadsPaused = mainWindow->getModView()->pauseDownloads();
@@ -369,16 +370,16 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			copyDialog.button(QMessageBox::Yes)->setEnabled(false);
 		}
 
-		auto * moveCheckBox = new QCheckBox(tr("Move existing data (remove the original files after a successful reload)"));
-		moveCheckBox->setChecked(sourceCanBeRemoved);
-		moveCheckBox->setEnabled(sourceCanBeRemoved);
+		QCheckBox moveCheckBox(tr("Move existing data (remove the original files after a successful reload)"));
+		moveCheckBox.setChecked(sourceCanBeRemoved);
+		moveCheckBox.setEnabled(sourceCanBeRemoved);
 		if(!sourceCanBeRemoved)
 		{
-			moveCheckBox->setToolTip(tr("The original directory cannot be removed with the current permissions. Data can only be copied."));
+			moveCheckBox.setToolTip(tr("The original directory cannot be removed with the current permissions. Data can only be copied."));
 			const QString permissionMessage = tr("The original directory is not writable, so its files can only be copied and will not be removed.");
 			copyDialog.setInformativeText(copyDialog.informativeText().isEmpty() ? permissionMessage : copyDialog.informativeText() + QStringLiteral("\n\n") + permissionMessage);
 		}
-		copyDialog.setCheckBox(moveCheckBox);
+		copyDialog.setCheckBox(&moveCheckBox);
 
 		const auto answer = static_cast<QMessageBox::StandardButton>(copyDialog.exec());
 
@@ -389,7 +390,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		{
 			const QString targetParent = QFileInfo(selected).dir().absolutePath();
 
-			moveExistingData = moveCheckBox->isChecked();
+			moveExistingData = moveCheckBox.isChecked();
 			EExistingTargetAction targetAction = EExistingTargetAction::REPLACE;
 			const bool targetIsEmpty = QDir(selected).entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
 
@@ -480,8 +481,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 	}
 
 	const QString newLogPath = pathToQString(dirs.userLogsPath());
-
-	onDirectoriesChanged(oldLogPath == newLogPath ? QString() : newLogPath);
+	parent->directoriesChanged(oldLogPath == newLogPath ? QString() : newLogPath);
 
 	if(!mainWindow || !mainWindow->reloadDirectories())
 		return;
@@ -502,7 +502,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 	const QString message = targetBackupPath.isEmpty() ? tr("The launcher has reloaded files from the new directory.") : tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(targetBackupPath));
 	QMessageBox::information(parent, tr("Directory changed"), message);
-	return;
+
 }
 
 #endif

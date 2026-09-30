@@ -114,17 +114,19 @@ void AboutProjectView::changeDirectory(EUserDirectory directory, const QString &
 {
 #if defined(VCMI_WINDOWS)
 	WindowsUserDirectoryManager manager(this);
-	manager.changeDirectory(directory, title, [this](const QString & changedLogPath)
-	{
-		refreshDirectoryPaths();
-		if(!changedLogPath.isEmpty())
-			emit logDirectoryChanged(changedLogPath);
-	});
+	manager.changeDirectory(directory, title);
 #else
 	// TODO: Every Non-Windows OS is unsupported right now
 	Q_UNUSED(directory);
 	Q_UNUSED(title);
 #endif
+}
+
+void AboutProjectView::directoriesChanged(const QString & changedLogPath)
+{
+	refreshDirectoryPaths();
+	if(!changedLogPath.isEmpty())
+		emit logDirectoryChanged(changedLogPath);
 }
 
 void AboutProjectView::on_changeUserDataDir_clicked()
