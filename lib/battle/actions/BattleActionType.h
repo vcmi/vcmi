@@ -17,6 +17,7 @@ class BattleAction;
 class CBattleInfoCallback;
 class IBattleActionEnvironment;
 class IGameInfoCallback;
+enum class EActionType : int8_t;
 
 namespace battle
 {
@@ -37,6 +38,7 @@ public:
 
 	/// Returns the type of the action, or nullptr if the action type is still handled by the legacy code
 	static const BattleActionType * find(const BattleAction & action);
+	static const BattleActionType * find(EActionType actionType);
 
 	/// Made by the acting unit on its turn, instead of by the side or its hero
 	virtual bool isUnitAction() const;

@@ -31,4 +31,6 @@ public:
 	void realize(const BattleHex & hex) const override;
 	SpellID getSpell() const override;
 	std::optional<UnitActionButton> getPanelButton() const override;
+
+	const BattleActionType * getType() const;
 };

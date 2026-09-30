@@ -65,6 +65,7 @@ set(lib_MAIN_SRCS
 	battle/CombatValue.cpp
 	battle/CPlayerBattleCallback.cpp
 	battle/CUnitState.cpp
+	battle/DamageEstimationTexts.cpp
 	battle/Destination.cpp
 	battle/IBattleState.cpp
 	battle/ReachabilityInfo.cpp
@@ -73,6 +74,7 @@ set(lib_MAIN_SRCS
 	battle/Unit.cpp
 	battle/actions/BattleActionType.cpp
 	battle/actions/NoTargetActions.cpp
+	battle/actions/ShootAction.cpp
 	battle/actions/WalkAction.cpp
 
 	bonuses/Bonus.cpp
@@ -480,6 +482,7 @@ set(lib_MAIN_HEADERS
 	battle/CombatValue.h
 	battle/CPlayerBattleCallback.h
 	battle/CUnitState.h
+	battle/DamageEstimationTexts.h
 	battle/Destination.h
 	battle/IBattleInfoCallback.h
 	battle/IBattleState.h
@@ -493,6 +496,7 @@ set(lib_MAIN_HEADERS
 	battle/actions/BattleActionType.h
 	battle/actions/IBattleActionEnvironment.h
 	battle/actions/NoTargetActions.h
+	battle/actions/ShootAction.h
 	battle/actions/WalkAction.h
 
 	bonuses/Bonus.h

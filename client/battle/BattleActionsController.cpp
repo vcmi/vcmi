@@ -36,6 +36,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/DamageEstimationTexts.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/effects/Effect.h"
@@ -67,82 +68,9 @@ static std::string formatWithStackName(const std::string & textID, const CStack 
 	return result.toString(&GAME->translator());
 }
 
-static std::string translatePlural(int amount, const std::string& baseTextID)
-{
-	if(amount == 1)
-		return LIBRARY->generaltexth->translate(baseTextID + ".1");
-	return LIBRARY->generaltexth->translate(baseTextID);
-}
-
-static std::string formatPluralImpl(int amount, const std::string & amountString, const std::string & baseTextID)
-{
-	std::string baseString = translatePlural(amount, baseTextID);
-	TextReplacementList replacements {
-		{ "%d", amountString }
-	};
-
-	return replacePlaceholders(baseString, replacements);
-}
-
 static std::string formatPlural(int amount, const std::string & baseTextID)
 {
-	return formatPluralImpl(amount, std::to_string(amount), baseTextID);
-}
-
-static std::string formatPlural(DamageRange range, const std::string & baseTextID)
-{
-	if (range.min == range.max)
-		return formatPlural(range.min, baseTextID);
-
-	std::string rangeString = std::to_string(range.min) + " - " + std::to_string(range.max);
-
-	return formatPluralImpl(range.max, rangeString, baseTextID);
-}
-
-static std::string formatAttack(const DamageEstimation & estimation, const std::string & creatureName, const std::string & baseTextID, int shotsLeft)
-{
-	TextReplacementList replacements = {
-		{ "%CREATURE", creatureName },
-		{ "%DAMAGE", formatPlural(estimation.damage, "vcmi.battleWindow.damageEstimation.damage") },
-		{ "%SHOTS", formatPlural(shotsLeft, "vcmi.battleWindow.damageEstimation.shots") },
-		{ "%KILLS", formatPlural(estimation.kills, "vcmi.battleWindow.damageEstimation.kills") },
-	};
-
-	return replacePlaceholders(LIBRARY->generaltexth->translate(baseTextID), replacements);
-}
-
-static std::string formatMeleeAttack(const DamageEstimation & estimation, const std::string & creatureName)
-{
-	std::string baseTextID = estimation.kills.max == 0 ?
-		"vcmi.battleWindow.damageEstimation.melee" :
-		"vcmi.battleWindow.damageEstimation.meleeKills";
-
-	return formatAttack(estimation, creatureName, baseTextID, 0);
-}
-
-static std::string formatRangedAttack(const DamageEstimation & estimation, const std::string & creatureName, int shotsLeft)
-{
-	std::string baseTextID = estimation.kills.max == 0 ?
-		"vcmi.battleWindow.damageEstimation.ranged" :
-		"vcmi.battleWindow.damageEstimation.rangedKills";
-
-	return formatAttack(estimation, creatureName, baseTextID, shotsLeft);
-}
-
-static std::string formatRetaliation(const DamageEstimation & estimation, bool mayBeKilled)
-{
-	if (estimation.damage.max == 0)
-		return LIBRARY->generaltexth->translate("vcmi.battleWindow.damageRetaliation.never");
-
-	std::string baseTextID = estimation.kills.max == 0 ?
-								 "vcmi.battleWindow.damageRetaliation.damage" :
-								 "vcmi.battleWindow.damageRetaliation.damageKills";
-
-	std::string prefixTextID = mayBeKilled ?
-		"vcmi.battleWindow.damageRetaliation.may" :
-		"vcmi.battleWindow.damageRetaliation.will";
-
-	return LIBRARY->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
+	return DamageEstimationTexts::plural({amount, amount}, baseTextID).toString(&GAME->translator());
 }
 
 static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects::SpellEffectValue & value,
@@ -264,8 +192,6 @@ public:
 			case PossiblePlayerBattleAction::ATTACK:
 			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 				return UnitActionButton{2, SpellID::NONE, ImagePath::builtin("battle/actionAttack"), "vcmi.battle.action.attack"};
-			case PossiblePlayerBattleAction::SHOOT:
-				return UnitActionButton{3, SpellID::NONE, ImagePath::builtin("battle/actionShoot"), "vcmi.battle.action.shoot"};
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 				return UnitActionButton{4, SpellID::NONE, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie"};
 			case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
@@ -280,6 +206,12 @@ bool BattleActionsController::isLegacyAction(const IBattleActionEntry & entry, P
 {
 	const auto * legacy = dynamic_cast<const LegacyEntry *>(&entry);
 	return legacy && legacy->action.get() == kind;
+}
+
+bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, EActionType actionType)
+{
+	const auto * lib = dynamic_cast<const LibActionEntry *>(&entry);
+	return lib && lib->getType() == BattleActionType::find(actionType);
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -342,7 +274,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	{
 		auto actionFilterPredicate = [](const std::shared_ptr<const IBattleActionEntry> & x)
 		{
-			return !isLegacyAction(*x, PossiblePlayerBattleAction::SHOOT);
+			return !isLibAction(*x, EActionType::SHOOT);
 		};
 
 		BattleActionEntries entries = possibleActions;
@@ -444,12 +376,6 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 			break;
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return 2;
-			break;
-		case PossiblePlayerBattleAction::SHOOT:
-			if(targetStack == nullptr || targetStack->unitSide() == stack->unitSide() || !targetStack->alive())
-				return 100; //bottom priority
-
-			return 4;
 			break;
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			return 5;
@@ -587,12 +513,6 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 			return sectorCursor.at(direction);
 		}
 
-		case PossiblePlayerBattleAction::SHOOT:
-			if (owner.getBattle()->battleHasShootingPenalty(owner.stacksController->getActiveStack(), targetHex))
-				return "combatShootPenalty";
-			else
-				return "combatShoot";
-
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
@@ -662,30 +582,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 					estimation.kills.max += std::min<int64_t>(splash.kills.max, splashTarget->getCount());
 				}
 
-				return formatMeleeAttack(estimation, targetStack->getName()) + "\n" + formatRetaliation(retaliation, enemyMayBeKilled);
+				return DamageEstimationTexts::meleeAttack(estimation, *targetStack).toString(&GAME->translator()) + "\n" + DamageEstimationTexts::retaliation(retaliation, enemyMayBeKilled).toString(&GAME->translator());
 			}
-
-		case PossiblePlayerBattleAction::SHOOT:
-		{
-			const auto * shooter = owner.stacksController->getActiveStack();
-
-			if(targetStack == nullptr) //should be true only for spell-like attack
-			{
-				auto spellLikeAttackBonus = shooter->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-				assert(spellLikeAttackBonus != nullptr);
-				const CSpell * spell = spellLikeAttackBonus->subtype.as<SpellID>().toSpell();
-
-				DamageEstimation est = owner.getBattle()->estimateSpellLikeAttackDamage(shooter, spell, targetHex);
-				return formatRangedAttack(est, spell->getNameTranslated(), shooter->shots.available());
-			}
-
-			DamageEstimation retaliation;
-			BattleAttackInfo attackInfo(shooter, targetStack, 0, true );
-			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
-			estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
-			estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
-			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
-		}
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		{
@@ -843,22 +741,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 
 				return owner.getBattle()->battleCanAttackHex(currentStack, targetHex) && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 			}
-		case PossiblePlayerBattleAction::SHOOT:
-			{
-				auto currentStack = owner.stacksController->getActiveStack();
-				if(!owner.getBattle()->battleCanShoot(currentStack, targetHex))
-					return false;
-
-				if((targetStack == nullptr || targetStack->isInvincible()) && owner.getBattle()->battleCanTargetEmptyHex(currentStack))
-				{
-					auto spellLikeAttackBonus = currentStack->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-					const CSpell * spellDataToCheck = spellLikeAttackBonus->subtype.as<SpellID>().toSpell();
-					return isCastingPossibleHere(spellDataToCheck, nullptr, targetHex);
-				}
-
-				return true;
-			}
-
 		case PossiblePlayerBattleAction::NO_LOCATION:
 			return false;
 
@@ -917,12 +799,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 				return;
 			BattleAction command = BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
 			owner.sendCommand(command, attacker);
-			return;
-		}
-
-		case PossiblePlayerBattleAction::SHOOT:
-		{
-			owner.giveCommand(EActionType::SHOOT, targetHex);
 			return;
 		}
 
@@ -1316,7 +1192,7 @@ bool BattleActionsController::creatureSpellcastingModeActive() const
 {
 	auto spellcastModePredicate = [](const std::shared_ptr<const IBattleActionEntry> & entry)
 	{
-		return entry->getSpell() != SpellID::NONE || isLegacyAction(*entry, PossiblePlayerBattleAction::SHOOT); //for hotkey-eligible SPELL_LIKE_ATTACK creature should have only SHOOT action
+		return entry->getSpell() != SpellID::NONE || isLibAction(*entry, EActionType::SHOOT); //for hotkey-eligible SPELL_LIKE_ATTACK creature should have only SHOOT action
 	};
 
 	return !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastModePredicate);

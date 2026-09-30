@@ -11,6 +11,7 @@
 #include "BattleActionType.h"
 
 #include "NoTargetActions.h"
+#include "ShootAction.h"
 #include "WalkAction.h"
 
 #include "../BattleAction.h"
@@ -26,6 +27,7 @@ static constexpr EndTacticsAction endTacticsAction;
 static constexpr RetreatAction retreatAction;
 static constexpr SurrenderAction surrenderAction;
 static constexpr WalkAction walkAction;
+static constexpr ShootAction shootAction;
 
 namespace
 {
@@ -36,7 +38,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 8> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 9> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -45,12 +47,18 @@ static constexpr std::array<RegisteredActionType, 8> registeredTypes = {{
 	{EActionType::RETREAT, &retreatAction},
 	{EActionType::SURRENDER, &surrenderAction},
 	{EActionType::WALK, &walkAction},
+	{EActionType::SHOOT, &shootAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
+	return find(action.actionType);
+}
+
+const BattleActionType * BattleActionType::find(EActionType actionType)
+{
 	for(const auto & registered : registeredTypes)
-		if(registered.actionType == action.actionType)
+		if(registered.actionType == actionType)
 			return registered.type;
 
 	return nullptr;

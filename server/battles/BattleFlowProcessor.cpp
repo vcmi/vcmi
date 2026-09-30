@@ -354,11 +354,6 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 	if (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && (battle.battleCanShoot(next) || !next->isMeleeAttacker())
 		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
-		BattleAction attack;
-		attack.actionType = EActionType::SHOOT;
-		attack.side = next->unitSide();
-		attack.stackNumber = next->unitId();
-
 		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
 			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
@@ -443,8 +438,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 		}
 		else
 		{
-			attack.aimToUnit(target->stack);
-			makeAutomaticAction(battle, next, attack);
+			makeAutomaticAction(battle, next, BattleAction::makeShotAttack(next, target->stack));
 		}
 		return true;
 	}

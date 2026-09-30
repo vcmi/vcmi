@@ -67,6 +67,8 @@ class BattleActionsController
 
 	/// True if the entry is a legacy entry of the given action kind
 	static bool isLegacyAction(const IBattleActionEntry & entry, PossiblePlayerBattleAction::Actions kind);
+	/// True if the entry wraps an option of the lib type of the action type
+	static bool isLibAction(const IBattleActionEntry & entry, EActionType actionType);
 
 	int actionGetPriority(PossiblePlayerBattleAction action, const CStack * stack, const CStack * targetStack) const;
 

@@ -64,3 +64,8 @@ std::optional<UnitActionButton> LibActionEntry::getPanelButton() const
 {
 	return option.button;
 }
+
+const BattleActionType * LibActionEntry::getType() const
+{
+	return option.type;
+}

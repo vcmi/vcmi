@@ -106,6 +106,16 @@ BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const ba
 	return ba;
 }
 
+BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.side = shooter->unitSide();
+	ba.actionType = EActionType::SHOOT;
+	ba.stackNumber = shooter->unitId();
+	ba.aimToHex(destination);
+	return ba;
+}
+
 BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
 	BattleAction ba;
@@ -237,9 +247,8 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 6> actions = {
+	static const std::array<EActionType, 5> actions = {
 		EActionType::WALK_AND_ATTACK,
-		EActionType::SHOOT,
 		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
 		EActionType::STACK_HEAL,
