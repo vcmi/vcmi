@@ -85,10 +85,10 @@ public:
 	/// Shows a dialog to the player. The answer is delivered to the object being visited.
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
 
-	/// Records which part of a multi-step visit this object is starting. The tag is passed
-	/// back once the started activity finishes, so that the object does not have to deduce
-	/// its step from state that may have changed. Has no effect outside of a visit.
-	virtual void setContinuationTag(const CGHeroInstance * hero, int32_t tag) =0;
+	/// Stores the object's own record of where its visit stopped. It is handed back once the
+	/// activity that suspended the visit finishes, so that the object does not have to deduce
+	/// its step from state that may have changed. Must be called while that hero's visit runs.
+	virtual void setVisitState(const CGHeroInstance * hero, const JsonNode & state) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;

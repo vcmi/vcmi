@@ -52,7 +52,7 @@ public:
 	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(BlockingDialog * iw) override;
-	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override {}
+	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override {}
 	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;

@@ -56,7 +56,7 @@ bool TimerPauseActivity::endsByPlayerAnswer() const
 	return true;
 }
 
-void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
@@ -137,7 +137,7 @@ bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void BlockingDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 	assert(answer);
 
@@ -210,7 +210,7 @@ bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 	return DialogActivity::blocksPack(pack);
 }
 
-void TeleportDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void TeleportDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
@@ -261,9 +261,9 @@ StepResult LevelUpRoutine::advance()
 	return StepResult::Continue;
 }
 
-void LevelUpRoutine::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void LevelUpRoutine::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
-	visitedObject->experienceApplied(*gh, visitingHero, continuationTag);
+	visitedObject->experienceApplied(*gh, visitingHero, visitState);
 }
 
 HeroLevelUpPrompt::HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled)

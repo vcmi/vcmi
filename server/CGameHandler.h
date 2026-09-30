@@ -128,7 +128,7 @@ public:
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(BlockingDialog *iw) override;
-	void setContinuationTag(const CGHeroInstance * hero, int32_t tag) override;
+	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override;
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;

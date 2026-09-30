@@ -74,7 +74,7 @@ void IObjectInterface::blockingDialogAnswered(IGameEventCallback & gameEvents, c
 void IObjectInterface::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
-void IObjectInterface::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t continuationTag) const
+void IObjectInterface::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
 {}
 
 int3 IBoatGenerator::bestLocation() const

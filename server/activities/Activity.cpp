@@ -138,7 +138,7 @@ bool Activity::blocksPack(const CPackForServer * pack) const
 	return false;
 }
 
-void Activity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void Activity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 
 }

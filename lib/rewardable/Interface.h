@@ -55,7 +55,7 @@ protected:
 	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const;
 
 	/// Finishes the reward that granted experience, once its level-ups are resolved.
-	void resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t continuationTag) const;
+	void resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const;
 
 	void onBlockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const;
 public:

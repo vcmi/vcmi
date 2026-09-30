@@ -40,7 +40,7 @@ std::vector<ObjectInstanceID> BattleActivity::takeDeferredLevelUps()
 	return deferredLevelUps;
 }
 
-void BattleActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, int32_t continuationTag) const
+void BattleActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 	assert(result);
 
