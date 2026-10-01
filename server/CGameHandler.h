@@ -299,8 +299,8 @@ public:
 	[[noreturn]] void throwNotAllowedAction(GameConnectionID connectionID);
 	/// Throws if player stated in pack is not making turn right now
 	void throwIfPlayerNotActive(GameConnectionID connectionID, const CPackForServer * pack);
-	/// Also lets a player who is not acting trade in an exchange that an ally opened with them
-	void throwIfPlayerCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack);
+	/// Throws unless the player may move creatures or artifacts between these armies, or within one if both are the same
+	void throwIfCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id1, ObjectInstanceID id2);
 	/// Throws if object is not owned by pack sender
 	void throwIfWrongOwner(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack
