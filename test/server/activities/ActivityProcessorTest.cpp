@@ -8,6 +8,7 @@
 #include "../../../server/activities/MapActivities.h"
 #include "../../../server/activities/VisitActivities.h"
 #include "../../../server/activities/ActivityProcessor.h"
+#include "../../../server/TurnTimerHandler.h"
 #include "CGameHandler.h"
 
 #include "mock/GameHandlerTestServer.h"
@@ -2248,7 +2249,7 @@ TEST_F(MapObjectVisitTest, grantingAllRewardsContinuesPastALevelUpAndAGarrisonWi
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr) << gameHandler.activities->describeStacks();
 }
 
-TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesOpensAWindowForEachOfThem)
+TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 {
 	const PlayerColor red(0);
 	const PlayerColor blue(1);
@@ -2272,25 +2273,30 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesOpensAWindowForEachOfThem)
 
 	GameHandlerTestServer server(gameState(), red);
 	CGameHandler gameHandler(server, gameState());
+	gameHandler.turnTimerHandler->setTimerEnabled(blue, true);
 
 	gameHandler.heroExchange(redHero->id, blueHero->id);
 
-	auto redWindow = gameHandler.activities->topActivity(red);
-	auto blueWindow = gameHandler.activities->topActivity(blue);
-	ASSERT_NE(redWindow, nullptr);
-	ASSERT_NE(blueWindow, nullptr);
-	EXPECT_EQ(redWindow->getType(), ActivityType::GarrisonDialog);
-	EXPECT_EQ(blueWindow->getType(), ActivityType::GarrisonDialog);
-	EXPECT_NE(redWindow, blueWindow);
+	// One exchange on both stacks, so that both stay in it until red closes it
+	auto exchange = gameHandler.activities->topActivity(red);
+	ASSERT_NE(exchange, nullptr);
+	EXPECT_EQ(exchange->getType(), ActivityType::GarrisonDialog);
+	EXPECT_EQ(gameHandler.activities->topActivity(blue), exchange);
 	EXPECT_TRUE(gameHandler.isAllowedExchange(blue, redHero->id, blueHero->id));
+	EXPECT_FALSE(gameHandler.turnTimerHandler->isTimerEnabled(blue));
 
-	// Each closes their own window
-	ASSERT_EQ(gameHandler.activities->submitReply(redWindow->getActiveQuestionID(), red, 0), ReplyOutcome::Accepted);
+	EXPECT_EQ(gameHandler.activities->submitReply(exchange->getActiveQuestionID(), blue, 0), ReplyOutcome::RejectedWrongPlayer);
+	EXPECT_EQ(gameHandler.activities->topActivity(blue), exchange);
+
+	// An artifact that blue still holds when red closes the window goes back to its hero
+	ASSERT_TRUE(gameHandler.giveHeroNewArtifact(blueHero, ArtifactID(7), ArtifactPosition::TRANSITION_POS));
+	ASSERT_NE(blueHero->getArt(ArtifactPosition::TRANSITION_POS), nullptr);
+
+	ASSERT_EQ(gameHandler.activities->submitReply(exchange->getActiveQuestionID(), red, 0), ReplyOutcome::Accepted);
 	EXPECT_EQ(gameHandler.activities->topActivity(red), nullptr);
-	EXPECT_EQ(gameHandler.activities->topActivity(blue), blueWindow);
-
-	ASSERT_EQ(gameHandler.activities->submitReply(blueWindow->getActiveQuestionID(), blue, 0), ReplyOutcome::Accepted);
 	EXPECT_EQ(gameHandler.activities->topActivity(blue), nullptr);
+	EXPECT_TRUE(gameHandler.turnTimerHandler->isTimerEnabled(blue));
+	EXPECT_EQ(blueHero->getArt(ArtifactPosition::TRANSITION_POS), nullptr);
 }
 
 TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)

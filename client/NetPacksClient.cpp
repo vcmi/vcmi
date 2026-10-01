@@ -334,8 +334,9 @@ void ApplyClientNetPackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pac
 
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
+	const auto srcOwner = cl.gameState().getOwner(pack.srcArtHolder);
 	const auto dstOwner = cl.gameState().getOwner(pack.dstArtHolder);
-	const auto applyMove = [this, &pack, dstOwner](const std::vector<MoveArtifactInfo> & artsPack)
+	const auto applyMove = [this, &pack, srcOwner, dstOwner](const std::vector<MoveArtifactInfo> & artsPack)
 	{
 		for(const auto & slotToMove : artsPack)
 		{
@@ -347,6 +348,9 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 				callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::askToAssembleArtifact, dstLoc);
 			if(pack.interfaceOwner != dstOwner)
 				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			// The owner of the source hero may be an ally trading in the same exchange window
+			if(srcOwner != pack.interfaceOwner && srcOwner != dstOwner)
+				callInterfaceIfPresent(cl, srcOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 		}
 	};
 

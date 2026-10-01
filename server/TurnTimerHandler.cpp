@@ -50,6 +50,12 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 	sendTimerUpdate(player);
 }
 
+bool TurnTimerHandler::isTimerEnabled(PlayerColor player) const
+{
+	auto it = timers.find(player);
+	return it != timers.end() && it->second.isActive;
+}
+
 void TurnTimerHandler::setEndTurnAllowed(PlayerColor player, bool enabled)
 {
 	assert(player.isValidPlayer());

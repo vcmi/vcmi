@@ -1328,6 +1328,18 @@ void CPlayerInterface::closeActiveLevelUpDialog()
 
 void CPlayerInterface::questionResolved(QuestionID questionID)
 {
+	for(const auto & exchange : ENGINE->windows().findWindows<CExchangeWindow>())
+	{
+		if(exchange->getQuestionID() != questionID)
+			continue;
+
+		// Windows opened from the exchange, e.g. a stack split, can not outlive it
+		while(!ENGINE->windows().isTopWindow(exchange))
+			ENGINE->windows().popWindows(1);
+
+		exchange->close();
+	}
+
 	auto dialog = findPendingDialog(questionID);
 	if(dialog == dialogs.end())
 		return;

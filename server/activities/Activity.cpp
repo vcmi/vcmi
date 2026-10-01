@@ -126,6 +126,11 @@ bool Activity::acceptsAnswer(int32_t answer) const
 	return true;
 }
 
+bool Activity::acceptsAnswerFrom(PlayerColor player) const
+{
+	return true;
+}
+
 void Activity::onRemoval()
 {
 }
