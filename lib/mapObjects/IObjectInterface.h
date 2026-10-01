@@ -64,7 +64,7 @@ public:
 	//First parameter is always hero that visited object and triggered the activity
 	virtual void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const;
 	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const;
-	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
+	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const;
 	virtual void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const;
 
 	//unified helper to show info dialog for object owner

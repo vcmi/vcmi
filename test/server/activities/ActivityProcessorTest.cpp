@@ -2247,6 +2247,70 @@ TEST_F(MapObjectVisitTest, aRewardChoiceGrantsWhatItOfferedNotTheFirstAvailable)
 	EXPECT_EQ(granted(BonusType::MORALE), 0u) << "the first available reward was granted instead of the offered one";
 }
 
+TEST_F(MapObjectVisitTest, grantingAllRewardsContinuesPastALevelUpAndAGarrisonWindow)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	// Seven different stacks leave no room for an eighth kind, so the second reward opens a garrison window
+	for(int slot = 0; slot < GameConstants::ARMY_SIZE; ++slot)
+		ASSERT_TRUE(hero->setCreature(SlotID(slot), CreatureID(slot), 1));
+
+	auto & info = pandora->configuration.info;
+	ASSERT_FALSE(info.empty());
+	info.resize(3, info.front());
+	info[0].reward = {};
+	info[0].reward.heroExperience = 5000;
+	info[1].reward = {};
+	info[1].reward.creatures.emplace_back(CreatureID(10), 5);
+	info[2].reward = {};
+	info[2].reward.resources[GameResID::WOOD] = 7;
+	pandora->configuration.selectMode = Rewardable::SELECT_ALL;
+
+	const auto woodBefore = gameState()->players.at(player).resources[GameResID::WOOD];
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.activities->topActivity(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(dialog->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	auto pending = gameHandler.activities->topActivity(player);
+	ASSERT_NE(pending, nullptr);
+	ASSERT_EQ(pending->getType(), ActivityType::HeroLevelUpDialog) << gameHandler.activities->describeStacks();
+	while(pending && pending->getType() == ActivityType::HeroLevelUpDialog)
+	{
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+		pending = gameHandler.activities->topActivity(player);
+	}
+
+	ASSERT_NE(pending, nullptr);
+	ASSERT_EQ(pending->getType(), ActivityType::GarrisonDialog) << gameHandler.activities->describeStacks();
+	EXPECT_EQ(gameState()->players.at(player).resources[GameResID::WOOD], woodBefore);
+	ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+		ReplyOutcome::Accepted);
+
+	// The reward after the garrison window is still granted, and the visit is over
+	EXPECT_EQ(gameState()->players.at(player).resources[GameResID::WOOD], woodBefore + 7);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr) << gameHandler.activities->describeStacks();
+}
+
 TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)
 {
 	const PlayerColor player(0);

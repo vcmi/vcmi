@@ -135,7 +135,7 @@ bool Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	return true;
 }
 
-bool Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CGHeroInstance * hero) const
+bool Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEvents, const Rewardable::VisitInfo & info, const CGHeroInstance * hero, const std::vector<ui32> & pending) const
 {
 	auto cb = getObject()->cb;
 
@@ -271,18 +271,22 @@ bool Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
 			gameEvents.removeAfterVisit(instance->id);
 
+	if(openedGarrison && !pending.empty())
+		gameEvents.setVisitState(hero, toJson(pending));
 	return openedGarrison;
 }
 
-bool Rewardable::Interface::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
+bool Rewardable::Interface::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero, const std::vector<ui32> & pending) const
 {
 	if(!grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero))
-		return grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), hero);
+		return grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), hero, pending);
 
 	// Stored only now that the visit is known to be suspended - a visit that finishes inline
 	// must not leave a state behind. The level-up routine can not have finished yet: it is
 	// stepped once control returns to the activity processor.
-	gameEvents.setVisitState(hero, JsonNode(rewardID));
+	std::vector<ui32> state = {rewardID};
+	state.insert(state.end(), pending.begin(), pending.end());
+	gameEvents.setVisitState(hero, toJson(state));
 	return true;
 }
 
@@ -291,15 +295,45 @@ bool Rewardable::Interface::isRewardIndex(const JsonNode & node) const
 	return node.isNumber() && node.Integer() >= 0 && node.Integer() < static_cast<si64>(configuration.info.size());
 }
 
+bool Rewardable::Interface::isRewardList(const JsonNode & node) const
+{
+	return node.isVector() && std::ranges::all_of(node.Vector(), [this](const JsonNode & entry){ return isRewardIndex(entry); });
+}
+
+JsonNode Rewardable::Interface::toJson(const std::vector<ui32> & rewardIndices)
+{
+	JsonNode result;
+	for(ui32 index : rewardIndices)
+		result.Vector().emplace_back(index);
+	return result;
+}
+
 bool Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
-	if(!isRewardIndex(visitState))
+	if(!isRewardList(visitState) || visitState.Vector().empty())
 	{
 		logGlobal->error("Object at %s can not resume its visit from state %s", getObject()->visitablePos().toString(), visitState.toCompactString());
 		return false;
 	}
 
-	return grantRewardAfterLevelup(gameEvents, configuration.info.at(visitState.Integer()), hero);
+	auto rewards = visitState.convertTo<std::vector<ui32>>();
+	std::vector<ui32> pending(rewards.begin() + 1, rewards.end());
+	return grantRewardAfterLevelup(gameEvents, configuration.info.at(rewards.front()), hero, pending) || grantRewardsWithMessage(gameEvents, hero, pending);
+}
+
+bool Rewardable::Interface::resumeAfterGarrison(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
+{
+	// A garrison window that closes the last reward leaves nothing pending
+	if(visitState.isNull())
+		return false;
+
+	if(!isRewardList(visitState))
+	{
+		logGlobal->error("Object at %s can not resume its visit from state %s", getObject()->visitablePos().toString(), visitState.toCompactString());
+		return false;
+	}
+
+	return grantRewardsWithMessage(gameEvents, hero, visitState.convertTo<std::vector<ui32>>());
 }
 
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
@@ -308,6 +342,16 @@ void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
 }
 
 bool Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int index, bool markAsVisit) const
+{
+	showRewardMessage(gameEvents, contextHero, index);
+
+	// grant reward afterwards. Note that it may remove object
+	if(markAsVisit)
+		markAsVisited(gameEvents, contextHero);
+	return grantReward(gameEvents, index, contextHero);
+}
+
+void Rewardable::Interface::showRewardMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int index) const
 {
 	auto vi = configuration.info.at(index);
 	logGlobal->debug("Granting reward %d", index);
@@ -319,11 +363,6 @@ bool Rewardable::Interface::grantRewardWithMessage(IGameEventCallback & gameEven
 	iw.type = configuration.infoWindowType;
 	configureInfoWindow(iw, contextHero, index);
 	gameEvents.showInfoDialog(&iw);
-
-	// grant reward afterwards. Note that it may remove object
-	if(markAsVisit)
-		markAsVisited(gameEvents, contextHero);
-	return grantReward(gameEvents, index, contextHero);
 }
 
 void Rewardable::Interface::configureInfoWindow(InfoWindow &, const CGHeroInstance *, int) const
@@ -339,10 +378,7 @@ void Rewardable::Interface::selectRewardWithMessage(IGameEventCallback & gameEve
 	gameEvents.showBlockingDialog(&sd);
 
 	// The answer picks from what was offered, which may be a random subset of what is available
-	JsonNode offered;
-	for(ui32 index : rewardIndices)
-		offered.Vector().emplace_back(index);
-	gameEvents.setVisitState(contextHero, offered);
+	gameEvents.setVisitState(contextHero, toJson(rewardIndices));
 }
 
 std::vector<Component> Rewardable::Interface::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
@@ -365,19 +401,16 @@ std::vector<Component> Rewardable::Interface::loadComponents(const CGHeroInstanc
 	return result;
 }
 
-void Rewardable::Interface::grantAllRewardsWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
+bool Rewardable::Interface::grantRewardsWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
 {
-	if (rewardIndices.empty())
-		return;
-
-	for (auto index : rewardIndices)
+	for(size_t i = 0; i < rewardIndices.size(); ++i)
 	{
 		// TODO: Merge all rewards of same type, with single message?
-		grantRewardWithMessage(gameEvents, contextHero, index, false);
+		showRewardMessage(gameEvents, contextHero, rewardIndices[i]);
+		if(grantReward(gameEvents, rewardIndices[i], contextHero, std::vector<ui32>(rewardIndices.begin() + i + 1, rewardIndices.end())))
+			return true;
 	}
-	// Mark visited only after all rewards were processed
-	if(markAsVisit)
-		markAsVisited(gameEvents, contextHero);
+	return false;
 }
 
 void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const
@@ -434,7 +467,9 @@ void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const C
 						break;
 					}
 					case Rewardable::SELECT_ALL: // grant all possible
-						grantAllRewardsWithMessage(gameEvents, h, rewards, true);
+						// Marked up front, since the rewards may be granted across several suspensions
+						markAsVisited(gameEvents, h);
+						grantRewardsWithMessage(gameEvents, h, rewards);
 						break;
 				}
 				break;

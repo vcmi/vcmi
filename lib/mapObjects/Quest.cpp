@@ -795,10 +795,10 @@ void SeerHut::experienceApplied(IGameEventCallback & gameEvents, const CGHeroIns
 		offerNextQuest(gameEvents, hero);
 }
 
-void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
-	CRewardableObject::garrisonDialogClosed(gameEvents, hero);
-	offerNextQuest(gameEvents, hero);
+	if(!closeGarrisonDialog(gameEvents, hero, visitState))
+		offerNextQuest(gameEvents, hero);
 }
 
 // The three callers above are every point at which granting a reward can come to an end:

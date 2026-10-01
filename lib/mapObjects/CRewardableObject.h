@@ -27,6 +27,9 @@ protected:
 	/// the visit is suspended until an activity it started finishes.
 	bool answerBlockingDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const;
 
+	/// Clears creatures the hero left behind and grants the rewards still pending. Returns true if the visit is suspended again.
+	bool closeGarrisonDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const;
+
 	void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	const IObjectInterface * getObject() const override;
@@ -59,7 +62,7 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const override;
 
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
+	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
 
 	///possibly resets object state
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
