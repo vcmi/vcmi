@@ -1016,7 +1016,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			visitObjectOnTile(t, h);
 		}
 
-		activities->popIfTop(*moveActivity);
+		moveActivity->finish();
 		logGlobal->trace("Hero %s ends movement", h->getNameTextID());
 		return result != TryMoveHero::FAILED;
 	};
@@ -1234,7 +1234,7 @@ void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, 
 	if(handle)
 		scriptActivity->setCoroutine(*handle);
 	else
-		activities->popIfTop(*scriptActivity);
+		scriptActivity->finish();
 }
 
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
@@ -3614,6 +3614,10 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 		case ReplyOutcome::RejectedMissingAnswer:
 			logGlobal->warn("Player %s replied to activity %d without an answer!\nActivities:\n%s", player, questionID, activities->describeStacks());
 			COMPLAIN_RET("This activity needs an answer!");
+
+		case ReplyOutcome::RejectedInvalidAnswer:
+			logGlobal->warn("Player %s replied to activity %d with an answer it was not offered!\nActivities:\n%s", player, questionID, activities->describeStacks());
+			COMPLAIN_RET("This answer was not offered!");
 
 		case ReplyOutcome::RejectedNotAnswerable:
 			logGlobal->warn("Player %s replied to activity %d that cannot be ended by an answer!\nActivities:\n%s", player, questionID, activities->describeStacks());

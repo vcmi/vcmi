@@ -76,4 +76,6 @@ public:
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
 	void battleFinalize(const BattleID & battleID, const BattleResult & result);
+	/// Forgets the result of a battle that is replayed under a new id instead of being finalized
+	void battleCancelled(const BattleID & battleID);
 };

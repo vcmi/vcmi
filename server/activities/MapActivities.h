@@ -76,6 +76,8 @@ public:
 
 	BlockingDialogActivity(CGameHandler * owner, const BlockingDialog & bd);
 
+	bool acceptsAnswer(int32_t answer) const override;
+
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 };
 
@@ -134,6 +136,8 @@ public:
 
 	HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled);
 
+	bool acceptsAnswer(int32_t answer) const final;
+
 	void onAdded() final;
 	void onRemoval() final;
 };
@@ -148,6 +152,8 @@ public:
 	static constexpr ActivityType TYPE = ActivityType::CommanderLevelUpDialog;
 
 	CommanderLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const CommanderLevelUp & rolled);
+
+	bool acceptsAnswer(int32_t answer) const final;
 
 	void onAdded() final;
 	void onRemoval() final;

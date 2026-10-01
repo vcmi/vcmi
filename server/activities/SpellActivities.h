@@ -26,6 +26,7 @@ public:
 	TownSelectionActivity(CGameHandler * owner, PlayerColor player, SpellID spell, ObjectInstanceID caster, std::vector<ObjectInstanceID> offeredTowns);
 
 	bool acceptsAnswerWithoutValue() const override;
+	bool acceptsAnswer(int32_t answer) const override;
 	void onRemoval() override;
 };
 

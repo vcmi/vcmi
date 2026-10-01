@@ -37,18 +37,17 @@ bool TownSelectionActivity::acceptsAnswerWithoutValue() const
 	return true;
 }
 
+bool TownSelectionActivity::acceptsAnswer(int32_t answer) const
+{
+	return vstd::contains(offeredTowns, ObjectInstanceID(answer));
+}
+
 void TownSelectionActivity::onRemoval()
 {
 	if(!answer)
 		return; // window was closed without choosing a town
 
 	const ObjectInstanceID chosen(*answer);
-
-	if(!vstd::contains(offeredTowns, chosen))
-	{
-		gh->complain("Invalid town selected in dialog");
-		return;
-	}
 
 	// Both may have been removed while the dialog was open
 	const auto * town = gh->gameInfo().getTown(chosen);

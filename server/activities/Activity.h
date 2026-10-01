@@ -123,6 +123,9 @@ public:
 	/// e.g. town selection.
 	virtual bool acceptsAnswerWithoutValue() const;
 
+	/// Whether the answer is one of those the player was offered.
+	virtual bool acceptsAnswer(int32_t answer) const;
+
 	/// called once the activity is pushed on the stacks of all its players
 	virtual void onAdded();
 

@@ -69,6 +69,12 @@ BattleResultActivity::BattleResultActivity(CGameHandler * owner, const IBattleIn
 		addPlayer(defender);
 }
 
+bool BattleResultActivity::acceptsAnswer(int32_t answer) const
+{
+	// 1 replays the battle, 0 accepts the result
+	return answer == 0 || answer == 1;
+}
+
 void BattleResultActivity::onRemoval()
 {
 	if(*answer == 1)

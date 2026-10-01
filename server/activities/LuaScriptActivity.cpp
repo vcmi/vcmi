@@ -48,7 +48,7 @@ void LuaScriptActivity::onChildCompleted(const ActivityPtr & child)
 
 	if(!dispatcher || heroGone)
 	{
-		owner->popIfTop(*this);
+		finish();
 		return;
 	}
 
@@ -58,5 +58,5 @@ void LuaScriptActivity::onChildCompleted(const ActivityPtr & child)
 	pendingAnswer.reset();
 
 	if(finished)
-		owner->popIfTop(*this);
+		finish();
 }

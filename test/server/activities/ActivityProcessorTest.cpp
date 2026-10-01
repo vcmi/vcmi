@@ -613,6 +613,50 @@ TEST_F(ActivityProcessorTest, addActivity_addsSameActivityForAllAffectedPlayers)
 	EXPECT_TRUE(activity->exposureArgs.empty());
 }
 
+TEST_F(ActivityProcessorTest, finish_removesAnActivityOnTopRightAway)
+{
+	// Finished from outside of any other mutation, e.g. a battle that ends with nobody to
+	// ask about the result, so nothing else would settle the stacks afterwards
+	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::Battle);
+	activities.addActivity(activity);
+
+	activity->finish();
+
+	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
+	EXPECT_EQ(activity->onRemovalCalls, 1);
+}
+
+TEST_F(ActivityProcessorTest, finish_waitsUntilTheActivityIsOnTop)
+{
+	auto below = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::Battle);
+	auto above = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::TimerPause);
+	activities.addActivity(below);
+	activities.addActivity(above);
+
+	below->finish();
+	EXPECT_EQ(activities.countActivity(below.get()), 1);
+
+	activities.popIfTop(*above);
+	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
+}
+
+TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerThatWasNotOffered)
+{
+	const PlayerColor player(1);
+	BlockingDialog dialog(true, false);
+	dialog.player = player;
+
+	auto activity = std::make_shared<BlockingDialogActivity>(&gh, dialog);
+	activities.addActivity(activity);
+	const auto questionID = activity->askQuestion();
+
+	// A yes/no question is answered with 0 or 1 only
+	EXPECT_EQ(activities.submitReply(questionID, player, 2), ReplyOutcome::RejectedInvalidAnswer);
+	EXPECT_EQ(activities.submitReply(questionID, player, -1), ReplyOutcome::RejectedInvalidAnswer);
+	EXPECT_EQ(activities.topActivity(player), activity);
+	EXPECT_EQ(activities.submitReply(questionID, player, 1), ReplyOutcome::Accepted);
+}
+
 TEST_F(ActivityProcessorTest, addActivity_throwsForAnActivityAlreadyOnTheStack)
 {
 	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);

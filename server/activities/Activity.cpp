@@ -121,13 +121,18 @@ bool Activity::acceptsAnswerWithoutValue() const
 	return false;
 }
 
+bool Activity::acceptsAnswer(int32_t answer) const
+{
+	return true;
+}
+
 void Activity::onRemoval()
 {
 }
 
 void Activity::finish()
 {
-	finished = true;
+	owner->finishActivity(*this);
 }
 
 bool Activity::blocksPack(const CPackForServer * pack) const
