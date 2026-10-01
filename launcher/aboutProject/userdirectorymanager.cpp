@@ -20,7 +20,7 @@
 
 #include <shellapi.h>
 
-#include "../firstLaunch/progressoverlay.h"
+#include "../progressoverlay.h"
 #include "../helper.h"
 #include "../mainwindow_moc.h"
 #include "../modManager/cmodlistview_moc.h"

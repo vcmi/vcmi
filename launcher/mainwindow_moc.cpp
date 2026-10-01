@@ -24,7 +24,7 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
-#include "firstLaunch/progressoverlay.h"
+#include "progressoverlay.h"
 
 #ifndef VCMI_MOBILE
 #include "gamepadHandler.h"

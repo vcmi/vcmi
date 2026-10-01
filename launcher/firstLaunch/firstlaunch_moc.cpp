@@ -24,7 +24,7 @@
 #include "../languages.h"
 #include "../innoextract.h"
 #include "../demo.h"
-#include "progressoverlay.h"
+#include "../progressoverlay.h"
 
 // Create and show overlay immediately
 static ProgressOverlay* createOverlayWidget(QWidget *parent, const QString &title, bool indeterminate = true)
