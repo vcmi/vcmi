@@ -373,16 +373,17 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	battleFinalize(battleID, *typedBattleActivity.result);
 
-	// Removed from each stack once it is on top, which for a player that paused the game
-	// is only once the pause is over
-	typedBattleActivity.finish();
-
-	// Level-ups are asked above the finished battle, so that the object guarded by the
-	// battle is told about the battle once they are over, and not about the experience.
+	// Level-ups are asked above the battle, so that the object guarded by the battle is told
+	// about the battle once they are over, and not about the experience. Queued before the
+	// battle is finished, which removes it right away unless a reply is being processed.
 	// The winner is gone if none of its units were left.
 	if(levellingHero.hasValue())
 		if(const auto * hero = gameHandler->gameState().getHero(levellingHero))
 			gameHandler->expGiven(hero);
+
+	// Removed from each stack once it is on top, which for a player that paused the game
+	// is only once the pause is over
+	typedBattleActivity.finish();
 }
 
 void BattleResultProcessor::battleFinalize(const BattleID & battleID, const BattleResult & result)

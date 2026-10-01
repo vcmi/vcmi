@@ -1620,9 +1620,11 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	{
 		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1->getOwner(), h1, h2);
 
-		// An AI does not trade with allies, and in hotseat both windows would share one screen
+		// An AI does not trade with allies, and in hotseat both windows would share one screen.
+		// An ally busy with something else, e.g. their own garrison window, is left out, since
+		// an exchange above it would block it until the initiator closes the window.
 		const PlayerColor partner = h2->getOwner();
-		if(partner != h1->getOwner() && gameInfo().getPlayerState(partner)->isHuman() && !hasBothPlayersAtSameConnection(h1->getOwner(), partner))
+		if(partner != h1->getOwner() && gameInfo().getPlayerState(partner)->isHuman() && !hasBothPlayersAtSameConnection(h1->getOwner(), partner) && !activities->topActivity(partner))
 			exchange->addPartner(partner);
 
 		activities->addActivity(exchange);

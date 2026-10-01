@@ -1,4 +1,5 @@
-// Minimal Runes skill required as the source of script-generated bonuses.
+// Minimal Runes skill required as the source of script-generated bonuses, and a skill that
+// grants a level when learned, like HotA Learning.
 {
 	"runes" : {
 		"name" : "Runes",
@@ -18,5 +19,15 @@
 		"basic" : { "description" : "{Basic Runes}", "effects" : { "runesCap" : { "val" : 3 } } },
 		"advanced" : { "description" : "{Advanced Runes}", "effects" : { "runesCap" : { "val" : 6 } } },
 		"expert" : { "description" : "{Expert Runes}", "effects" : { "runesCap" : { "val" : 9 } } }
+	},
+	"levelGranting" : {
+		"name" : "Level Granting",
+		"gainChance" : { "might" : 0, "magic" : 0 },
+		"specialty" : [ ],
+		"tags" : { "grantsLevelUp" : true },
+		"base" : { "description" : "", "effects" : { } },
+		"basic" : { "description" : "", "effects" : { } },
+		"advanced" : { "description" : "", "effects" : { } },
+		"expert" : { "description" : "", "effects" : { } }
 	}
 }
