@@ -55,15 +55,47 @@ bool WindowsUserDirectoryManager::isDirectoryWritable(const QString & path) cons
 	return probe.open();
 }
 
-void WindowsUserDirectoryManager::reportPermissionError(const QString & message) const
+bool WindowsUserDirectoryManager::removePath(const QString & path) const
 {
-	QMessageBox dialog(QMessageBox::Critical, tr("Insufficient permissions"), message, QMessageBox::Cancel, parent);
+	const auto remove = [&path]()
+	{
+		return QFileInfo(path).isDir() ? QDir(path).removeRecursively() : QFile::remove(path);
+	};
+
+	if(remove() || !QFileInfo::exists(path))
+		return true;
+
+	// QFile/QDir may not remove entries carrying the Windows read-only attribute, even when the user has permission - deleteting using Windows Explorer clears it automatically
+	QStringList remainingPaths{path};
+	QDirIterator iterator(path, QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System, QDirIterator::Subdirectories);
+	while(iterator.hasNext())
+		remainingPaths.push_back(iterator.next());
+
+	for(const auto & remainingPath : remainingPaths)
+	{
+		const QString nativePath = QDir::toNativeSeparators(remainingPath);
+		const DWORD attributes = GetFileAttributesW(reinterpret_cast<LPCWSTR>(nativePath.utf16()));
+		if(attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_READONLY) != 0)
+			SetFileAttributesW(reinterpret_cast<LPCWSTR>(nativePath.utf16()), attributes & ~FILE_ATTRIBUTE_READONLY);
+	}
+
+	return remove() || !QFileInfo::exists(path);
+}
+
+bool WindowsUserDirectoryManager::reportPermissionError(const QString & message) const
+{
+	QMessageBox dialog(QMessageBox::Critical, tr("Insufficient permissions"), message, QMessageBox::NoButton, parent);
+	auto * selectButton = dialog.addButton(tr("Select another location"), QMessageBox::ActionRole);
 	auto * restartButton = dialog.addButton(tr("Restart as administrator"), QMessageBox::AcceptRole);
+	dialog.addButton(QMessageBox::Cancel);
 	dialog.setDefaultButton(restartButton);
 	dialog.exec();
 
+	if(dialog.clickedButton() == selectButton)
+		return true;
+
 	if(dialog.clickedButton() != restartButton)
-		return;
+		return false;
 
 	const std::wstring executable = QCoreApplication::applicationFilePath().toStdWString();
 	SHELLEXECUTEINFOW executeInfo{};
@@ -74,14 +106,14 @@ void WindowsUserDirectoryManager::reportPermissionError(const QString & message)
 	if(ShellExecuteExW(&executeInfo) != FALSE)
 	{
 		qApp->quit();
-		return;
+		return false;
 	}
 
 	QMessageBox::critical(parent, tr("Error"), tr("Failed to restart the launcher with administrator privileges."));
+	return false;
 }
 
-bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target) const
-{
+bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const{
 	if(isSameOrChildPath(target, source) && isSameOrChildPath(source, target))
 	{
 		logGlobal->info("User directory change skipped because source and target are the same: %s", source.toStdString());
@@ -114,7 +146,7 @@ bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDi
 
 	if(!isDirectoryWritable(target))
 	{
-		reportPermissionError(tr("The selected directory is not writable:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(target)));
+		selectAnother = reportPermissionError(tr("The selected directory is not writable:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(target)));
 		return false;
 	}
 
@@ -202,7 +234,7 @@ bool WindowsUserDirectoryManager::copyDirectoryContents(const QString & source, 
 
 		if(sourceInfo.isDir())
 		{
-			if(overwrite && QFileInfo(destinationPath).isFile() && !QFile::remove(destinationPath))
+			if(overwrite && QFileInfo(destinationPath).isFile() && !removePath(destinationPath))
 			{
 				error = tr("Failed to replace file with directory: %1").arg(destinationPath);
 				return false;
@@ -223,7 +255,7 @@ bool WindowsUserDirectoryManager::copyDirectoryContents(const QString & source, 
 		if(overwrite && QFileInfo::exists(destinationPath))
 		{
 			const QFileInfo destinationInfo(destinationPath);
-			const bool removed = destinationInfo.isDir() ? QDir(destinationPath).removeRecursively() : QFile::remove(destinationPath);
+			const bool removed = removePath(destinationPath);
 			if(!removed)
 			{
 				error = tr("Failed to overwrite: %1").arg(destinationPath);
@@ -320,7 +352,7 @@ bool WindowsUserDirectoryManager::restoreDisplacedDirectory(const QString & targ
 		return true;
 
 	const QString failedPath = QFileInfo(target).dir().filePath(QStringLiteral(".%1-vcmi-failed-%2").arg(QFileInfo(target).fileName(), QUuid::createUuid().toString(QUuid::Id128)));
-	return QDir().rename(target, failedPath) && QDir().rename(displacedPath, target) && QDir(failedPath).removeRecursively();
+	return QDir().rename(target, failedPath) && QDir().rename(displacedPath, target) && removePath(failedPath);
 }
 
 void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, const QString & title) const
@@ -329,28 +361,35 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 	auto & dirs = VCMIDirs::get();
 
 	const QString source = pathToQString(dirs.userPath(directory));
-	QString selected = QFileDialog::getExistingDirectory(parent, title, source);
-
-	if(selected.isEmpty())
-		return;
-
-	logGlobal->info("Changing user directory from '%s' to '%s'", source.toStdString(), selected.toStdString());
-
+	QString selected;
 	const QString binaryPath = QCoreApplication::applicationDirPath();
-	if(normalizedPath(selected).compare(normalizedPath(binaryPath), Qt::CaseInsensitive) == 0)
+	while(true)
 	{
-		selected = QDir(binaryPath).filePath(QStringLiteral("vcmi-data"));
-		QMessageBox::information(parent, tr("Using a data subdirectory"), tr("User data cannot be stored directly in the VCMI installation directory.\n\nThe following compatible directory will be used instead:\n%1").arg(QDir::toNativeSeparators(selected)));
-		if(!QDir().mkpath(selected))
-		{
-			reportPermissionError(tr("The launcher could not create the data directory:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(selected)));
+		selected = QFileDialog::getExistingDirectory(parent, title, selected.isEmpty() ? source : selected);
+		if(selected.isEmpty())
 			return;
+
+		logGlobal->info("Changing user directory from '%s' to '%s'", source.toStdString(), selected.toStdString());
+
+		if(normalizedPath(selected).compare(normalizedPath(binaryPath), Qt::CaseInsensitive) == 0)
+		{
+			selected = QDir(binaryPath).filePath(QStringLiteral("vcmi-data"));
+			QMessageBox::information(parent, tr("Using a data subdirectory"), tr("User data cannot be stored directly in the VCMI installation directory.\n\nThe following compatible directory will be used instead:\n%1").arg(QDir::toNativeSeparators(selected)));
+			if(!QDir().mkpath(selected))
+			{
+				if(reportPermissionError(tr("The launcher could not create the data directory:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(selected))))
+					continue;
+				return;
+			}
 		}
+
+		bool selectAnother = false;
+		if(validateTarget(dirs, directory, source, selected, selectAnother))
+			break;
+
+		if(!selectAnother)
+			return;
 	}
-
-	if(!validateTarget(dirs, directory, source, selected))
-		return;
-
 	const QString oldLogPath = pathToQString(dirs.userLogsPath());
 	bool moveExistingData = false;
 	bool downloadsPaused = false;
@@ -374,7 +413,6 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 	if(sourceDir.exists() && !sourceDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty())
 	{
 		const qint64 sourceSize = directorySize(source);
-		const bool sourceCanBeRemoved = isDirectoryWritable(source) && isDirectoryWritable(QFileInfo(source).dir().absolutePath());
 		const QStorageInfo targetStorage(selected);
 		const qint64 availableSpace = targetStorage.bytesAvailable();
 		const bool storageSpaceKnown = targetStorage.isValid() && targetStorage.isReady() && availableSpace >= 0;
@@ -392,14 +430,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		}
 
 		QCheckBox moveCheckBox(tr("Move existing data (remove the original files after a successful reload)"));
-		moveCheckBox.setChecked(sourceCanBeRemoved);
-		moveCheckBox.setEnabled(sourceCanBeRemoved);
-		if(!sourceCanBeRemoved)
-		{
-			moveCheckBox.setToolTip(tr("The original directory cannot be removed with the current permissions. Data can only be copied."));
-			const QString permissionMessage = tr("The original directory is not writable, so its files can only be copied and will not be removed.");
-			copyDialog.setInformativeText(copyDialog.informativeText().isEmpty() ? permissionMessage : copyDialog.informativeText() + QStringLiteral("\n\n") + permissionMessage);
-		}
+		moveCheckBox.setChecked(true);
 		copyDialog.setCheckBox(&moveCheckBox);
 
 		const auto answer = static_cast<QMessageBox::StandardButton>(copyDialog.exec());
@@ -426,12 +457,13 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			const bool targetParentWritable = isDirectoryWritable(targetParent);
 			if(!targetParentWritable && !targetIsEmpty && targetAction != EExistingTargetAction::MERGE)
 			{
-				reportPermissionError(tr("The launcher cannot replace or back up the selected directory because its parent directory is not writable:\n%1\n\nUse merge instead, select another location, or restart the launcher as administrator.").arg(QDir::toNativeSeparators(targetParent)));
+				if(reportPermissionError(tr("The launcher cannot replace or back up the selected directory because its parent directory is not writable:\n%1\n\nUse merge instead, select another location, or restart the launcher as administrator.").arg(QDir::toNativeSeparators(targetParent))))
+					changeDirectory(directory, title);
 				return;
 			}
 			completedTargetAction = targetAction;
 
-			const bool installInPlace = !targetParentWritable;
+			const bool installInPlace = targetAction == EExistingTargetAction::MERGE || !targetParentWritable;
 			const qint64 requiredSpace = sourceSize + (!installInPlace && targetAction == EExistingTargetAction::MERGE ? directorySize(selected) : 0);
 			const QStorageInfo currentStorage(selected);
 
@@ -465,7 +497,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 			QString error;
 			const QString excludedSourcePath = targetInsideSource ? selected : QString();
-			if((!installInPlace && targetAction == EExistingTargetAction::MERGE && !copyDirectoryContents(selected, stagingDirectory.path(), *progress, error)) || !copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE, excludedSourcePath))
+			if(!copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE, excludedSourcePath))
 			{
 				logGlobal->error("Failed to stage user directory transfer: %s", error.toStdString());
 				progress.reset();
@@ -528,7 +560,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		return;
 	}
 
-	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !QDir(displacedTargetPath).removeRecursively())
+	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
 	{
 		logGlobal->warn("Failed to purge replaced user directory '%s'", displacedTargetPath.toStdString());
 		QMessageBox::warning(parent, tr("Cleanup failed"), tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedTargetPath));
@@ -548,16 +580,21 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		{
 			QDir sourceDirectory(source);
 			const QString childToKeep = sourceDirectory.relativeFilePath(selected).section('/', 0, 0);
+			bool removalFailed = false;
 			for(const auto & entry : sourceDirectory.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries))
 			{
 				if(entry.fileName() == childToKeep)
 					continue;
-				const bool removed = entry.isDir() ? QDir(entry.absoluteFilePath()).removeRecursively() : QFile::remove(entry.absoluteFilePath());
-				if(!removed)
+				if(!removePath(entry.absoluteFilePath()))
+				{
+					removalFailed = true;
 					logGlobal->warn("Failed to remove old user data '%s'", entry.absoluteFilePath().toStdString());
+				}
 			}
+			if(removalFailed)
+				QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but some original files could not be removed."));
 		}
-		else if(QFileInfo::exists(source) && !QDir(source).removeRecursively())
+		else if(QFileInfo::exists(source) && !removePath(source))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
 		else
 		{

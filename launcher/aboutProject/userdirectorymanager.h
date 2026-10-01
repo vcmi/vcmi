@@ -32,8 +32,9 @@ class WindowsUserDirectoryManager : public QObject
 	bool isSameOrChildPath(const QString & path, const QString & parentPath) const;
 	bool pathsOverlap(const QString & first, const QString & second) const;
 	bool isDirectoryWritable(const QString & path) const;
-	void reportPermissionError(const QString & message) const;
-	bool validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target) const;
+	bool removePath(const QString & path) const;
+	bool reportPermissionError(const QString & message) const;
+	bool validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const;
 	qint64 directorySize(const QString & path) const;
 	QString formattedDataSize(qint64 bytes) const;
 	bool containsActiveUserDirectory(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & path) const;
