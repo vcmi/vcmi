@@ -55,12 +55,55 @@ void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * v
 	visitedObject->garrisonDialogClosed(*gh, visitingHero, visitState);
 }
 
-GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, PlayerColor player, const CArmedInstance * up, const CArmedInstance * down):
-	DialogActivity(owner, TYPE)
+GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, PlayerColor initiator, const CArmedInstance * up, const CArmedInstance * down):
+	DialogActivity(owner, TYPE),
+	initiator(initiator)
 {
 	exchangingArmies[0] = up;
 	exchangingArmies[1] = down;
-	addPlayer(player);
+	addPlayer(initiator);
+}
+
+void GarrisonDialogActivity::addPartner(PlayerColor partner)
+{
+	addPlayer(partner);
+}
+
+bool GarrisonDialogActivity::acceptsAnswerFrom(PlayerColor player) const
+{
+	return player == initiator;
+}
+
+void GarrisonDialogActivity::onAdded()
+{
+	// The partner can not leave the exchange, so it must not cost them their turn time
+	for(const auto & player : getPlayers())
+	{
+		if(player == initiator)
+			continue;
+
+		partnerTimerWasEnabled = gh->turnTimerHandler->isTimerEnabled(player);
+		gh->turnTimerHandler->setTimerEnabled(player, false);
+	}
+}
+
+void GarrisonDialogActivity::onRemoval()
+{
+	// An artifact still held by the partner when the initiator closed the window goes back
+	// to its hero; the partner's own request to do so would arrive once trading is over
+	for(const auto * army : exchangingArmies)
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
+		if(hero && hero->getArt(ArtifactPosition::TRANSITION_POS))
+			gh->moveArtifact(hero->getOwner(), ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(hero->id, ArtifactPosition::FIRST_AVAILABLE));
+	}
+
+	for(const auto & player : getPlayers())
+		if(player != initiator)
+			gh->turnTimerHandler->setTimerEnabled(player, partnerTimerWasEnabled);
+
+	// Closes the window of the partner
+	gh->sendQuestionResolved(getActiveQuestionID());
 }
 
 bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const

@@ -1614,17 +1614,22 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	if (gameInfo().getPlayerRelations(h1->getOwner(), h2->getOwner()) != PlayerRelations::ENEMIES)
 	{
-		std::set<PlayerColor> owners = {h1->getOwner(), h2->getOwner()};
-		for(const auto & player : owners)
-		{
-			auto exchange = std::make_shared<GarrisonDialogActivity>(this, player, h1, h2);
-			activities->addActivity(exchange);
+		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1->getOwner(), h1, h2);
 
-			ExchangeDialog hex;
-			hex.questionID = exchange->askQuestion();
+		// An AI does not trade with allies, and in hotseat both windows would share one screen
+		const PlayerColor partner = h2->getOwner();
+		if(partner != h1->getOwner() && gameInfo().getPlayerState(partner)->isHuman() && !hasBothPlayersAtSameConnection(h1->getOwner(), partner))
+			exchange->addPartner(partner);
+
+		activities->addActivity(exchange);
+
+		ExchangeDialog hex;
+		hex.questionID = exchange->askQuestion();
+		hex.hero1 = hero1;
+		hex.hero2 = hero2;
+		for(const auto & player : exchange->getPlayers())
+		{
 			hex.player = player;
-			hex.hero1 = hero1;
-			hex.hero2 = hero2;
 			sendAndApply(hex);
 		}
 
@@ -1703,6 +1708,15 @@ void CGameHandler::throwIfPlayerNotActive(GameConnectionID connectionID, const C
 {
 	if (!vstd::contains(gs->actingPlayers, pack->player))
 		throwNotAllowedAction(connectionID);
+}
+
+void CGameHandler::throwIfPlayerCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack)
+{
+	// The exchange window already limits the pack to the two exchanging armies
+	if(activities->activityAs<GarrisonDialogActivity>(activities->topActivity(pack->player)))
+		return;
+
+	throwIfPlayerNotActive(connectionID, pack);
 }
 
 void CGameHandler::throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack)

@@ -53,15 +53,28 @@ public:
 	void onRemoval() override;
 };
 
-/// Garrison or hero exchange window of one player. An exchange between allies opens one for each of them.
+/// Garrison or hero exchange window. An exchange with an ally may also show it to the ally, who
+/// can trade too but can not close it: that is up to the player who started the exchange.
 class GarrisonDialogActivity : public DialogActivity
 {
+	PlayerColor initiator;
+
+	/// Partner's turn timer before the exchange stopped it, restored once the exchange is over
+	bool partnerTimerWasEnabled = false;
+
 public:
 	static constexpr ActivityType TYPE = ActivityType::GarrisonDialog;
 
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
-	GarrisonDialogActivity(CGameHandler * owner, PlayerColor player, const CArmedInstance *up, const CArmedInstance *down);
+	GarrisonDialogActivity(CGameHandler * owner, PlayerColor initiator, const CArmedInstance *up, const CArmedInstance *down);
+
+	/// Lets the owner of the other army trade too, until the initiator closes the window
+	void addPartner(PlayerColor partner);
+
+	bool acceptsAnswerFrom(PlayerColor player) const override;
+	void onAdded() override;
+	void onRemoval() override;
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 };

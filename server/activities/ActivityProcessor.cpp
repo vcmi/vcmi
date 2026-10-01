@@ -338,6 +338,9 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	if(!activity->endsByPlayerAnswer())
 		return ReplyOutcome::RejectedNotAnswerable;
 
+	if(!activity->acceptsAnswerFrom(player))
+		return ReplyOutcome::RejectedWrongPlayer;
+
 	if(activity->isAnswered())
 		return ReplyOutcome::IgnoredAlreadyAnswered;
 
