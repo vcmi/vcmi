@@ -23,7 +23,7 @@ set(launcher_SRCS
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
-		firstLaunch/progressoverlay.cpp
+		progressoverlay.cpp
 		demo.cpp
 		main.cpp
 		helper.cpp
@@ -66,7 +66,7 @@ set(launcher_HEADERS
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
-		firstLaunch/progressoverlay.h
+		progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
