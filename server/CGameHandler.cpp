@@ -940,6 +940,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		if (gs->getBattle(objectToVisit->getOwner()) != nullptr)
 			return complainRet("You cannot move your hero there. This object belongs to another player who is engaged in battle and simultaneous turns are still active!");
+
+		// A battle pushed above a pending level-up could kill the hero before the skill is applied
+		if (objectToVisit->getOwner() != h->getOwner() && activities->findActivity<LevelUpRoutine>(objectToVisit->getOwner(), [](const LevelUpRoutine &){ return true; }))
+			return complainRet("You cannot move your hero there. This object belongs to another player who is choosing skills for a hero!");
 	}
 
 	//it's a rock or blocked and not visitable tile

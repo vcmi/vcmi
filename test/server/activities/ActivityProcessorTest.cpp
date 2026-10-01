@@ -1618,6 +1618,34 @@ TEST_F(TwoPlayerBattleTest, battleResultIsAppliedEvenWhenThePlayerPausedMidBattl
 	EXPECT_EQ(server.battlesConfirmed, 1) << "the battle result was never applied";
 }
 
+TEST_F(MapObjectVisitTest, aHeroIsNotAttackedWhileItsOwnerChoosesSkillsAfterDefending)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(PlayerColor(0))
+		.playerActive(PlayerColor(1))
+		.hero(int3(5, 5, 0), HeroTypeID(0), PlayerColor(0))
+		.heroGarrison({{CreatureID(0), 10}})
+		.hero(int3(6, 5, 0), HeroTypeID(1), PlayerColor(1))
+		.heroGarrison({{CreatureID(0), 10}});
+	startWithMap(std::move(builder));
+
+	auto * attacker = findHeroByOwner(PlayerColor(0));
+	auto * defender = findHeroByOwner(PlayerColor(1));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	GameHandlerTestServer server(gameState(), PlayerColor(0));
+	CGameHandler gameHandler(server, gameState());
+
+	// As after winning a defence: the defender's owner is asked about a level while the attacker still acts
+	gameHandler.giveExperience(defender, 100000);
+	ASSERT_NE(gameHandler.activities->findSoleActivity<LevelUpRoutine>(PlayerColor(1)), nullptr);
+
+	EXPECT_FALSE(gameHandler.moveHero(attacker->id, defender->anchorPos(), EMovementMode::STANDARD, false, PlayerColor(0), EPathfindingLayer::LAND));
+	EXPECT_EQ(gameState()->getBattle(PlayerColor(0)), nullptr);
+}
+
 TEST_F(ActivityProcessorTest, settle_completesALongRunOfDeferredWork)
 {
 	const PlayerColor player(1);
