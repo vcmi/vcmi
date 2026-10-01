@@ -2258,7 +2258,9 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 		.playerActive(red)
 		.playerActive(blue)
 		.hero(int3(5, 5, 0), HeroTypeID(0), red)
-		.hero(int3(6, 5, 0), HeroTypeID(1), blue);
+		.heroGarrison({{CreatureID(0), 10}, {CreatureID(1), 10}})
+		.hero(int3(6, 5, 0), HeroTypeID(1), blue)
+		.heroGarrison({{CreatureID(2), 10}});
 	startWithMap(std::move(builder));
 
 	auto * redHero = findHeroByOwner(red);
@@ -2271,9 +2273,13 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 	gameState()->teams.at(team).players.insert(blue);
 	ASSERT_EQ(gameState()->getPlayerRelations(red, blue), PlayerRelations::ALLIES);
 
+	// Only red acts, blue trades out of turn
+	gameState()->actingPlayers = {red};
+
 	GameHandlerTestServer server(gameState(), red);
 	CGameHandler gameHandler(server, gameState());
 	gameHandler.turnTimerHandler->setTimerEnabled(blue, true);
+	EXPECT_FALSE(gameHandler.isAllowedExchange(blue, blueHero->id, blueHero->id));
 
 	gameHandler.heroExchange(redHero->id, blueHero->id);
 
@@ -2283,7 +2289,16 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 	EXPECT_EQ(exchange->getType(), ActivityType::GarrisonDialog);
 	EXPECT_EQ(gameHandler.activities->topActivity(blue), exchange);
 	EXPECT_TRUE(gameHandler.isAllowedExchange(blue, redHero->id, blueHero->id));
+	EXPECT_TRUE(gameHandler.isAllowedExchange(blue, blueHero->id, blueHero->id));
 	EXPECT_FALSE(gameHandler.turnTimerHandler->isTimerEnabled(blue));
+
+	// Either side may give, neither may take
+	const SlotID freeSlot(5);
+	EXPECT_TRUE(gameHandler.arrangeStacks(redHero->id, blueHero->id, 1, SlotID(1), freeSlot, 0, red));
+	EXPECT_EQ(blueHero->getCreature(freeSlot), CreatureID(1).toCreature());
+	EXPECT_FALSE(gameHandler.arrangeStacks(blueHero->id, redHero->id, 1, SlotID(0), freeSlot, 0, red));
+	EXPECT_FALSE(gameHandler.arrangeStacks(redHero->id, blueHero->id, 1, SlotID(0), SlotID(6), 0, blue));
+	EXPECT_EQ(blueHero->getCreature(SlotID(6)), nullptr);
 
 	EXPECT_EQ(gameHandler.activities->submitReply(exchange->getActiveQuestionID(), blue, 0), ReplyOutcome::RejectedWrongPlayer);
 	EXPECT_EQ(gameHandler.activities->topActivity(blue), exchange);
@@ -2297,6 +2312,8 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 	EXPECT_EQ(gameHandler.activities->topActivity(blue), nullptr);
 	EXPECT_TRUE(gameHandler.turnTimerHandler->isTimerEnabled(blue));
 	EXPECT_EQ(blueHero->getArt(ArtifactPosition::TRANSITION_POS), nullptr);
+	EXPECT_FALSE(gameHandler.isAllowedExchange(blue, redHero->id, blueHero->id));
+	EXPECT_FALSE(gameHandler.isAllowedExchange(red, redHero->id, blueHero->id));
 }
 
 TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)

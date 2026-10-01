@@ -1710,13 +1710,10 @@ void CGameHandler::throwIfPlayerNotActive(GameConnectionID connectionID, const C
 		throwNotAllowedAction(connectionID);
 }
 
-void CGameHandler::throwIfPlayerCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack)
+void CGameHandler::throwIfCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id1, ObjectInstanceID id2)
 {
-	// The exchange window already limits the pack to the two exchanging armies
-	if(activities->activityAs<GarrisonDialogActivity>(activities->topActivity(pack->player)))
-		return;
-
-	throwIfPlayerNotActive(connectionID, pack);
+	if(!isAllowedExchange(pack->player, id1, id2))
+		throwNotAllowedAction(connectionID);
 }
 
 void CGameHandler::throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack)
@@ -1992,8 +1989,6 @@ bool CGameHandler::bulkMoveArmy(PlayerColor player, ObjectInstanceID srcArmy, Ob
 	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	if(!isAllowedExchange(player, srcArmy, destArmy))
-		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto * armySrc = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(srcArmy));
 	const auto * armyDest = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(destArmy));
@@ -2166,12 +2161,6 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
 		complain(complainInvalidSlot);
-		return false;
-	}
-
-	if (!isAllowedExchange(player, id1, id2))
-	{
-		complain("Cannot exchange stacks between these two objects!\n");
 		return false;
 	}
 
@@ -2842,8 +2831,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	assert(dstArtSet);
 
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(player, src.artHolder, dst.artHolder))
-		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	COMPLAIN_RET_FALSE_IF(!ArtifactUtils::checkIfSlotValid(*srcArtSet, src.slot), "moveArtifact: wrong artifact source slot");
 	const auto * srcArtifact = srcArtSet->getArt(src.slot);
@@ -2910,8 +2897,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(player, srcId, dstId))
-		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto * psrcSet = gameState().getArtSet(srcId);
 	const auto * pdstSet = gameState().getArtSet(dstId);
@@ -3696,20 +3681,24 @@ void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindow
 
 bool CGameHandler::isAllowedExchange(PlayerColor player, ObjectInstanceID id1, ObjectInstanceID id2)
 {
-	if (id1 == id2)
-		return true;
-
-	// An exchange dialog this player opened authorizes the pair it was opened for
-	const auto * exchange = activities->findActivity<GarrisonDialogActivity>(player,
-		[id1, id2](const GarrisonDialogActivity & activity)
+	// An exchange window lets everyone in it trade between its two armies, even an ally
+	// whose turn it is not
+	if(const auto * exchange = activities->activityAs<GarrisonDialogActivity>(activities->topActivity(player)))
+	{
+		const auto isExchanged = [exchange](ObjectInstanceID id)
 		{
-			const auto first = activity.exchangingArmies.at(0)->id;
-			const auto second = activity.exchangingArmies.at(1)->id;
+			return id == exchange->exchangingArmies.at(0)->id || id == exchange->exchangingArmies.at(1)->id;
+		};
 
-			return (first == id1 && second == id2) || (first == id2 && second == id1);
-		});
+		if(isExchanged(id1) && isExchanged(id2))
+			return true;
+	}
 
-	if(exchange)
+	// Anything else needs no window, but only the acting player may do it
+	if(!vstd::contains(gs->actingPlayers, player))
+		return false;
+
+	if (id1 == id2)
 		return true;
 
 	const CGObjectInstance *o1 = gameInfo().getObj(id1);

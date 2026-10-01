@@ -95,7 +95,7 @@ void ApplyGhNetPackVisitor::visitCastleTeleportHero(CastleTeleportHero & pack)
 void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.id1, pack.id2);
 
 	result = gh.arrangeStacks(pack.id1, pack.id2, pack.what, pack.p1, pack.p2, pack.val, pack.player);
 }
@@ -103,31 +103,31 @@ void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.srcArmy);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.srcArmy, pack.destArmy);
 
 	result = gh.bulkMoveArmy(pack.player, pack.srcArmy, pack.destArmy, pack.srcSlot);
 }
 
 void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
 {
-	gh.throwIfWrongPlayer(connection, &pack);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkSplitStack(pack.src, pack.srcOwner, pack.amount);
 }
 
 void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 {
-	gh.throwIfWrongPlayer(connection, &pack);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
 void ApplyGhNetPackVisitor::visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack)
 {
-	gh.throwIfWrongPlayer(connection, &pack);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkSplitAndRebalanceStack(pack.src, pack.srcOwner);
 }
@@ -135,7 +135,7 @@ void ApplyGhNetPackVisitor::visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanc
 void ApplyGhNetPackVisitor::visitDisbandCreature(DisbandCreature & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.id);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.id, pack.id);
 
 	result = gh.disbandCreature(pack.id, pack.pos);
 }
@@ -194,7 +194,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
 	if(gh.gameInfo().getHero(pack.src.artHolder))
 		gh.throwIfWrongPlayer(connection, &pack, gh.gameState().getOwner(pack.src.artHolder)); //second hero can be ally
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.src.artHolder, pack.dst.artHolder);
 
 	result = gh.moveArtifact(pack.player, pack.src, pack.dst);
 }
@@ -206,14 +206,15 @@ void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & p
 	if(pack.swap)
 		gh.throwIfWrongOwner(connection, &pack, pack.dstHero);
 
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.srcHero, pack.dstHero);
 	result = gh.bulkMoveArtifacts(pack.player, pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
 }
 
 void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts & pack)
 {
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.artHolder, pack.artHolder);
 
+	// Sorting the backpack of an ally's hero takes nothing from them
 	if(gh.gameInfo().getPlayerRelations(pack.player, gh.gameState().getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
 		result = gh.manageBackpackArtifacts(pack.player, pack.artHolder, pack.cmd);
 }
@@ -236,7 +237,7 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack, gh.gameState().getOwner(pack.al.artHolder));
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.al.artHolder, pack.al.artHolder);
 	result = gh.eraseArtifactByClient(pack.al);
 }
 
@@ -381,7 +382,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.hid, pack.hid);
 
 	result = gh.setFormation(pack.hid, pack.formation);
 }
@@ -389,7 +390,7 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 void ApplyGhNetPackVisitor::visitSetTactics(SetTactics & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
-	gh.throwIfPlayerCanNotTrade(connection, &pack);
+	gh.throwIfCanNotTrade(connection, &pack, pack.hid, pack.hid);
 
 	result = gh.setTactics(pack.hid, pack.enabled);
 }
