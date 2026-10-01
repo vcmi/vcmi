@@ -311,10 +311,7 @@ JsonNode Rewardable::Interface::toJson(const std::vector<ui32> & rewardIndices)
 bool Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
 	if(!isRewardList(visitState) || visitState.Vector().empty())
-	{
-		logGlobal->error("Object at %s can not resume its visit from state %s", getObject()->visitablePos().toString(), visitState.toCompactString());
-		return false;
-	}
+		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " can not resume its visit from state " + visitState.toCompactString());
 
 	auto rewards = visitState.convertTo<std::vector<ui32>>();
 	std::vector<ui32> pending(rewards.begin() + 1, rewards.end());
@@ -328,10 +325,7 @@ bool Rewardable::Interface::resumeAfterGarrison(IGameEventCallback & gameEvents,
 		return false;
 
 	if(!isRewardList(visitState))
-	{
-		logGlobal->error("Object at %s can not resume its visit from state %s", getObject()->visitablePos().toString(), visitState.toCompactString());
-		return false;
-	}
+		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " can not resume its visit from state " + visitState.toCompactString());
 
 	return grantRewardsWithMessage(gameEvents, hero, visitState.convertTo<std::vector<ui32>>());
 }
@@ -499,7 +493,11 @@ bool Rewardable::Interface::onBlockingDialogAnswered(IGameEventCallback & gameEv
 	if (answer == 0)
 		return false; //Player refused
 
-	if(!offeredRewards.isVector() || answer < 0 || answer > static_cast<int32_t>(offeredRewards.Vector().size()) || !isRewardIndex(offeredRewards.Vector().at(answer - 1)))
+	if(!isRewardList(offeredRewards))
+		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " offered invalid rewards " + offeredRewards.toCompactString());
+
+	// The answer comes from the client
+	if(answer < 0 || answer > static_cast<int32_t>(offeredRewards.Vector().size()))
 	{
 		logGlobal->error("Object at %s got answer %d to a reward choice that offered %s", getObject()->visitablePos().toString(), answer, offeredRewards.toCompactString());
 		return false;

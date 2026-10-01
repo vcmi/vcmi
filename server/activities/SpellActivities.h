@@ -26,7 +26,7 @@ public:
 	TownSelectionActivity(CGameHandler * owner, PlayerColor player, SpellID spell, ObjectInstanceID caster, std::vector<ObjectInstanceID> offeredTowns);
 
 	bool acceptsAnswerWithoutValue() const override;
-	void onRemoval(PlayerColor color) override;
+	void onRemoval() override;
 };
 
 /// Holds the answer to a dialog opened by a map script, for the paused script below it to
@@ -39,5 +39,5 @@ public:
 	ScriptDialogActivity(CGameHandler * owner, PlayerColor player);
 
 	bool acceptsAnswerWithoutValue() const override;
-	void onRemoval(PlayerColor color) override;
+	void onRemoval() override;
 };

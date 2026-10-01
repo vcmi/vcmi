@@ -25,7 +25,7 @@ public:
 	void setPendingAnswer(std::optional<int32_t> answer);
 	void setVisitingHero(ObjectInstanceID hero);
 
-	void onExposure(ActivityPtr topActivity) override;
+	void onChildCompleted(const ActivityPtr & child) override;
 
 private:
 	int coroutineHandle = 0;

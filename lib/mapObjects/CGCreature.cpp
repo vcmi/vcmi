@@ -563,10 +563,7 @@ void CGCreature::blockingDialogAnswered(IGameEventCallback & gameEvents, const C
 	// Acted on as asked instead of decided anew: after a refused offer to join, the question is
 	// about fleeing while a fresh decision would still be to join
 	if(!visitState.isNumber() || visitState.Integer() == FIGHT)
-	{
-		logGlobal->error("Creatures at %s got an answer to a question they did not ask: %s", visitablePos().toString(), visitState.toCompactString());
-		return;
-	}
+		throw std::runtime_error("Creatures at " + visitablePos().toString() + " got an answer to a question they did not ask: " + visitState.toCompactString());
 
 	const auto askedAbout = static_cast<int>(visitState.Integer());
 	if(askedAbout >= JOIN_FOR_FREE) //higher means price

@@ -35,20 +35,14 @@ bool TimerPauseActivity::blocksPack(const CPackForServer * pack) const
 	return blockAllButReply(pack);
 }
 
-void TimerPauseActivity::onExposure(ActivityPtr topActivity)
+void TimerPauseActivity::onAdded()
 {
-	// do not self-pop: this activity ends on player reply, which ActivityProcessor resolves
-	// once the activity is exposed, or on explicit removal by the timer handler
+	gh->turnTimerHandler->setTimerEnabled(getPlayers().front(), false);
 }
 
-void TimerPauseActivity::onAdding(PlayerColor color)
+void TimerPauseActivity::onRemoval()
 {
-	gh->turnTimerHandler->setTimerEnabled(color, false);
-}
-
-void TimerPauseActivity::onRemoval(PlayerColor color)
-{
-	gh->turnTimerHandler->setTimerEnabled(color, true);
+	gh->turnTimerHandler->setTimerEnabled(getPlayers().front(), true);
 }
 
 bool TimerPauseActivity::endsByPlayerAnswer() const
@@ -61,16 +55,12 @@ void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * v
 	visitedObject->garrisonDialogClosed(*gh, visitingHero, visitState);
 }
 
-GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
+GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, PlayerColor player, const CArmedInstance * up, const CArmedInstance * down):
 	DialogActivity(owner, TYPE)
 {
 	exchangingArmies[0] = up;
 	exchangingArmies[1] = down;
-
-	if(up->tempOwner.isValidPlayer())
-		addPlayer(up->tempOwner);
-	if(down->tempOwner.isValidPlayer())
-		addPlayer(down->tempOwner);
+	addPlayer(player);
 }
 
 bool GarrisonDialogActivity::blocksPack(const CPackForServer * pack) const
@@ -157,11 +147,6 @@ OpenWindowActivity::OpenWindowActivity(CGameHandler * owner, const CGHeroInstanc
 	addPlayer(hero->getOwner());
 }
 
-void OpenWindowActivity::onExposure(ActivityPtr topActivity)
-{
-	//do nothing - wait for reply
-}
-
 bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
@@ -213,10 +198,10 @@ bool OpenWindowActivity::blocksPack(const CPackForServer * pack) const
 void TeleportDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
-	if(obj)
-		obj->teleportDialogAnswered(*gh, visitingHero, *answer, td.exits);
-	else
-		logGlobal->error("Invalid instance in teleport activity");
+	if(!obj)
+		throw std::runtime_error("Teleport dialog answered to an object that is not a teleport");
+
+	obj->teleportDialogAnswered(*gh, visitingHero, *answer, td.exits);
 }
 
 TeleportDialogActivity::TeleportDialogActivity(CGameHandler * owner, const TeleportDialog & dialog) :
@@ -241,7 +226,7 @@ StepResult LevelUpRoutine::advance()
 {
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
 	if(!levellingHero)
-		return StepResult::Done;
+		throw std::runtime_error("Hero disappeared during level-up");
 
 	const auto * commander = levellingHero->getCommander();
 	const bool heroLevels = levellingHero->gainsLevel();
@@ -272,32 +257,34 @@ HeroLevelUpPrompt::HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance 
 	addPlayer(hero->tempOwner);
 }
 
-void HeroLevelUpPrompt::onAdded(PlayerColor color)
+void HeroLevelUpPrompt::onAdded()
 {
 	levelUp.questionID = askQuestion();
 	gh->sendAndApply(levelUp);
 }
 
-void HeroLevelUpPrompt::onRemoval(PlayerColor color)
+void HeroLevelUpPrompt::onRemoval()
 {
 	// The client keeps its window open until the question it was given is reported resolved,
 	// and expects that before the next one of the chain arrives.
 	gh->sendQuestionResolved(getActiveQuestionID());
 
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
-	if(!levellingHero || levelUp.skills.empty())
+	if(!levellingHero)
+		throw std::runtime_error("Hero disappeared during level-up");
+
+	// A hero who knows every skill he can learn is offered none
+	if(levelUp.skills.empty())
 		return;
 
-	if(answer && *answer < levelUp.skills.size())
+	if(*answer >= levelUp.skills.size())
 	{
-		logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
-		gh->applyHeroLevelUp(levellingHero, levelUp.skills.at(*answer));
+		gh->complain("Invalid secondary skill chosen for " + levellingHero->getNameTextID() + " - granting none");
+		return;
 	}
-	else
-	{
-		logGlobal->warn("Invalid secondary skill %d chosen for %s - granting none",
-			answer ? static_cast<int>(*answer) : -1, levellingHero->getNameTextID());
-	}
+
+	logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
+	gh->applyHeroLevelUp(levellingHero, levelUp.skills.at(*answer));
 }
 
 CommanderLevelUpPrompt::CommanderLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const CommanderLevelUp & rolled)
@@ -306,47 +293,47 @@ CommanderLevelUpPrompt::CommanderLevelUpPrompt(CGameHandler * owner, const CGHer
 	addPlayer(hero->tempOwner);
 }
 
-void CommanderLevelUpPrompt::onAdded(PlayerColor color)
+void CommanderLevelUpPrompt::onAdded()
 {
 	levelUp.questionID = askQuestion();
 	gh->sendAndApply(levelUp);
 }
 
-void CommanderLevelUpPrompt::onRemoval(PlayerColor color)
+void CommanderLevelUpPrompt::onRemoval()
 {
 	gh->sendQuestionResolved(getActiveQuestionID());
 
 	const auto * levellingHero = gh->gameInfo().getHero(hero);
-	if(!levellingHero || !levellingHero->getCommander() || levelUp.skills.empty())
+	if(!levellingHero || !levellingHero->getCommander())
+		throw std::runtime_error("Hero or commander disappeared during level-up");
+
+	// A commander with every skill maxed out is offered none
+	if(levelUp.skills.empty())
 		return;
 
-	if(answer && *answer < levelUp.skills.size())
+	if(*answer >= levelUp.skills.size())
 	{
-		logGlobal->trace("Commander of %s gains skill %d", levellingHero->getNameTextID(), *answer);
-		gh->applyCommanderLevelUp(levellingHero->getCommander(), levelUp.skills.at(*answer));
+		gh->complain("Invalid commander skill chosen for " + levellingHero->getNameTextID() + " - granting none");
+		return;
 	}
-	else
-	{
-		logGlobal->warn("Invalid commander skill %d chosen for %s - granting none",
-			answer ? static_cast<int>(*answer) : -1, levellingHero->getNameTextID());
-	}
+
+	logGlobal->trace("Commander of %s gains skill %d", levellingHero->getNameTextID(), *answer);
+	gh->applyCommanderLevelUp(levellingHero->getCommander(), levelUp.skills.at(*answer));
 }
 
 HeroMovementActivity::HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
 	Activity(owner, TYPE), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero->id)
 {
-	players.push_back(Hero->tempOwner);
+	addPlayer(Hero->tempOwner);
 }
 
-void HeroMovementActivity::onExposure(ActivityPtr topActivity)
+void HeroMovementActivity::onChildCompleted(const ActivityPtr & child)
 {
-	assert(players.size() == 1);
-
 	const auto * movingHero = gh->gameInfo().getHero(hero);
 
 	// A hero that lost the guard battle is no longer on the map, and one that changed
 	// owner is no longer ours, so there is no visit to finish.
-	if(visitDestAfterVictory && movingHero && movingHero->tempOwner == players[0])
+	if(visitDestAfterVictory && movingHero && movingHero->tempOwner == getPlayers().front())
 	{
 		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", movingHero->getNameTextID(), tmh.end.toString());
 		//finish movement
@@ -357,19 +344,19 @@ void HeroMovementActivity::onExposure(ActivityPtr topActivity)
 	owner->popIfTop(*this);
 }
 
-void HeroMovementActivity::onRemoval(PlayerColor color)
+void HeroMovementActivity::onRemoval()
 {
 	PlayerBlocked pb;
-	pb.player = color;
+	pb.player = getPlayers().front();
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_ENDED;
 	gh->sendAndApply(pb);
 }
 
-void HeroMovementActivity::onAdding(PlayerColor color)
+void HeroMovementActivity::onAdded()
 {
 	PlayerBlocked pb;
-	pb.player = color;
+	pb.player = getPlayers().front();
 	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
 	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
 	gh->sendAndApply(pb);

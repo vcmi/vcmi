@@ -40,7 +40,7 @@ struct CasualtiesAfterBattle
 
 struct FinishingBattleHelper
 {
-	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleActivitiesCount);
+	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result);
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
@@ -50,8 +50,6 @@ struct FinishingBattleHelper
 	PlayerColor loser;
 	BattleSide winnerSide;
 
-	int remainingBattleActivitiesCount;
-
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & winnerId;
@@ -59,7 +57,6 @@ struct FinishingBattleHelper
 		h & victor;
 		h & loser;
 		h & winnerSide;
-		h & remainingBattleActivitiesCount;
 	}
 };
 

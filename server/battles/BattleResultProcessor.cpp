@@ -183,7 +183,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 	}
 }
 
-FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, const BattleResult & result, int remainingBattleActivitiesCount)
+FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, const BattleResult & result)
 {
 	const auto attackerHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
 	const auto defenderHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
@@ -203,8 +203,6 @@ FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, c
 	}
 
 	winnerSide = result.winner;
-
-	this->remainingBattleActivitiesCount = remainingBattleActivitiesCount;
 }
 
 void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
@@ -254,22 +252,11 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	const auto * defenderPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 
-	auto * typedBattleActivity = gameHandler->battles->findBattleActivity(battle);
-
-	if (!typedBattleActivity)
-	{
-		logGlobal->error("Cannot find battle activity!\nActivities:\n%s", gameHandler->activities->describeStacks());
-		gameHandler->complain("Player " + std::to_string(battle.sideToPlayer(BattleSide::ATTACKER).getNum()) + " has no battle activity!");
-		return;
-	}
-
-	typedBattleActivity->result = std::make_optional(*battleResult);
-
-	//Check how many battle activities were created (number of players blocked by battle)
-	const int askedPlayers = gameHandler->activities->countActivity(typedBattleActivity);
+	auto & typedBattleActivity = gameHandler->battles->getBattleActivity(battle);
+	typedBattleActivity.result = std::make_optional(*battleResult);
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
-	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, askedPlayers);
+	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
 	const auto * attackerPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
@@ -278,7 +265,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	// in battles against neutrals attacker can ask to replay battle manually, additionally in battles against AI player human side can also ask for replay
 	if(onlyOnePlayerHuman)
 	{
-		auto battleDialogActivity = std::make_shared<BattleResultActivity>(gameHandler, battle.getBattle(), typedBattleActivity->result);
+		auto battleDialogActivity = std::make_shared<BattleResultActivity>(gameHandler, battle.getBattle(), typedBattleActivity.result);
 		battleResult->questionID = battleDialogActivity->askQuestion();
 		gameHandler->activities->addActivity(battleDialogActivity);
 	}
@@ -294,14 +281,10 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 
 void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 {
-	// Searched on both stacks and at any depth, not just on top: a player may have paused
-	// the game during the battle, which leaves the pause activity above it.
-	auto * typedBattleActivity = gameHandler->battles->findBattleActivity(battle);
-	if(!typedBattleActivity)
-	{
-		logGlobal->trace("No battle activity, battle end was confirmed by another player");
-		return;
-	}
+	// Searched at any depth, not just on top: a player may have paused the game during the
+	// battle, which leaves the pause activity above it.
+	auto & typedBattleActivity = gameHandler->battles->getBattleActivity(battle);
+	const BattleID battleID = battle.getBattle()->getBattleID();
 
 	const auto * battleResult = battleResults.at(battle.getBattle()->getBattleID()).get();
 	const auto * finishingBattle = finishingBattles.at(battle.getBattle()->getBattleID()).get();
@@ -318,6 +301,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 
 	//give exp
+	ObjectInstanceID levellingHero;
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide])
 	{
 		const auto winnerHero = battle.battleGetFightingHero(finishingBattle->winnerSide);
@@ -326,7 +310,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if (winnerHero)
 		{
 			gameHandler->giveExperienceWithoutLevelUp(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
-			typedBattleActivity->heroesWithDeferredLevelUp.push_back(winnerHero->id);
+			levellingHero = winnerHero->id;
 		}
 	}
 
@@ -387,30 +371,25 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(raccepted);
 
-	gameHandler->activities->popIfTop(*typedBattleActivity); // Workaround to remove battle activity for AI case. TODO Think of a cleaner solution.
-	//--> continuation (battleFinalize) occurs on removing activity
+	battleFinalize(battleID, *typedBattleActivity.result);
+
+	// Removed from each stack once it is on top, which for a player that paused the game
+	// is only once the pause is over
+	typedBattleActivity.finish();
+
+	// Level-ups are asked above the finished battle, so that the object guarded by the
+	// battle is told about the battle once they are over, and not about the experience.
+	// The winner is gone if none of its units were left.
+	if(levellingHero.hasValue())
+		if(const auto * hero = gameHandler->gameState().getHero(levellingHero))
+			gameHandler->expGiven(hero);
 }
 
 void BattleResultProcessor::battleFinalize(const BattleID & battleID, const BattleResult & result)
 {
 	LOG_TRACE(logGlobal);
 
-	assert(finishingBattles.count(battleID) != 0);
-	if(finishingBattles.count(battleID) == 0)
-		return;
-
-	auto & finishingBattle = finishingBattles[battleID];
-
-	finishingBattle->remainingBattleActivitiesCount--;
-	logGlobal->trace("Decremented gameHandler->activities count to %d", finishingBattle->remainingBattleActivitiesCount);
-
-	if (finishingBattle->remainingBattleActivitiesCount > 0)
-		//Battle results will be handled when all battle activities are closed
-		return;
-
-	//TODO consider if we really want it to work like above. ATM each player as unblocked as soon as possible
-	// but the battle consequences are applied after final player is unblocked. Hard to abuse...
-	// Still, it looks like a hole.
+	auto & finishingBattle = finishingBattles.at(battleID);
 
 	const auto battle = std::find_if(gameHandler->gameState().currentBattles.begin(), gameHandler->gameState().currentBattles.end(),
 		[battleID](const auto & desiredBattle)

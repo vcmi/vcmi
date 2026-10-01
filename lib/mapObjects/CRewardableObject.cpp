@@ -127,10 +127,7 @@ bool CRewardableObject::answerBlockingDialog(IGameEventCallback & gameEvents, co
 		return onBlockingDialogAnswered(gameEvents, hero, answer, visitState);
 
 	if(!isGuarded())
-	{
-		logGlobal->error("Object at %s got an answer to a question it did not ask", visitablePos().toString());
-		return false;
-	}
+		throw std::runtime_error("Object at " + visitablePos().toString() + " got an answer to a question it did not ask");
 
 	if(!answer)
 		return false;

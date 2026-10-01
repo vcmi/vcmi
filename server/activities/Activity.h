@@ -68,9 +68,6 @@ public:
 
 	/// Perform one step. Called only while this routine is at the top of the stack.
 	virtual StepResult advance() = 0;
-
-	/// Called before the next advance() when a child activity pushed by an earlier step is done.
-	virtual void onChildCompleted(const ActivityPtr & child) {}
 };
 
 // Any kind of prolonged interaction that may need to do something special once it is over.
@@ -85,12 +82,19 @@ public:
 class Activity : boost::noncopyable
 {
 public:
-	boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I> players; //players that are affected (often "blocked") by activity
+	using PlayerList = boost::container::small_vector<PlayerColor, PlayerColor::PLAYER_LIMIT_I>;
+
 	uint32_t traceNumber = 0; ///< sequence number for logs and stack dumps only, never sent anywhere
 
 	ActivityType getType() const
 	{
 		return type;
+	}
+
+	/// Players that are affected (often "blocked") by activity
+	const PlayerList & getPlayers() const
+	{
+		return players;
 	}
 
 	/// An activity may be answered before it reaches the top of the stack, in which case the
@@ -99,6 +103,15 @@ public:
 	{
 		return answeredBy.has_value();
 	}
+
+	/// Answered, or done on its own. The processor removes it from each stack where it is on top.
+	bool isFinished() const
+	{
+		return finished || isAnswered();
+	}
+
+	/// Marks the activity as done without a player's answer
+	void finish();
 
 	/// activity can block attempting actions by player. Eg. he can't move hero during the battle.
 	virtual bool blocksPack(const CPackForServer *pack) const;
@@ -110,17 +123,15 @@ public:
 	/// e.g. town selection.
 	virtual bool acceptsAnswerWithoutValue() const;
 
-	/// called just before activity is pushed on stack
-	virtual void onAdding(PlayerColor color);
+	/// called once the activity is pushed on the stacks of all its players
+	virtual void onAdded();
 
-	/// called right after activity is pushed on stack
-	virtual void onAdded(PlayerColor color);
+	/// called once the activity is removed from the stacks of all its players
+	virtual void onRemoval();
 
-	/// called after activity is removed from stack
-	virtual void onRemoval(PlayerColor color);
-
-	/// called when activity immediately above is removed and this is exposed (becomes top)
-	virtual void onExposure(ActivityPtr topActivity);
+	/// called when the activity immediately above is removed and this one becomes top. A routine
+	/// is stepped again afterwards.
+	virtual void onChildCompleted(const ActivityPtr & child);
 
 	/// called when this activity is being removed and must report its result to currently visited object
 	virtual void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const;
@@ -164,18 +175,16 @@ protected:
 private:
 	friend class ActivityProcessor;
 
+	std::string typeName() const;
+
+	PlayerList players;
 	ActivityType type = ActivityType::Unknown;
 	std::optional<PlayerColor> answeredBy;
+	bool finished = false;
 
 protected:
 	QuestionID activeQuestionID = QuestionID::NONE; ///< set when a question is asked, cleared when it is answered
 };
-
-/// Human-readable name of an activity type, for logs and complaints.
-std::string toString(ActivityType type);
-
-std::ostream &operator<<(std::ostream &out, const Activity &activity);
-std::ostream &operator<<(std::ostream &out, ActivityPtr activity);
 
 class DialogActivity : public Activity
 {

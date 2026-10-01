@@ -10,13 +10,12 @@
 #include "StdInc.h"
 #include "VisitActivities.h"
 
-#include "BattleActivities.h"
-
 #include "../../lib/CPlayerState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "../CGameHandler.h"
 #include "../processors/NewTurnProcessor.h"
 #include "ActivityProcessor.h"
@@ -55,24 +54,12 @@ MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObj
 
 StepResult MapObjectVisitActivity::advance()
 {
-	// activeStep is set before the work runs, so that children pushed by a step are
-	// attributed to it once they finish
-	switch(activeStep)
-	{
-		case Step::NotStarted:
-			activeStep = Step::StartVisit;
-			startVisit();
-			return StepResult::Continue;
+	if(started)
+		return StepResult::Done;
 
-		case Step::StartVisit:
-			activeStep = Step::DeferredLevelUps;
-			applyDeferredLevelUps();
-			return StepResult::Continue;
-
-		default:
-			activeStep = Step::Finished;
-			return StepResult::Done;
-	}
+	started = true;
+	startVisit();
+	return StepResult::Continue;
 }
 
 void MapObjectVisitActivity::startVisit()
@@ -81,7 +68,7 @@ void MapObjectVisitActivity::startVisit()
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
 	if(!object || !hero)
-		return;
+		throw std::runtime_error("Visit started without its object or hero");
 
 	HeroVisit hv;
 	hv.objId = visitedObject;
@@ -106,53 +93,31 @@ void MapObjectVisitActivity::startVisit()
 	}
 }
 
-void MapObjectVisitActivity::applyDeferredLevelUps()
-{
-	auto pending = std::move(deferredBattleLevelUps);
-	deferredBattleLevelUps.clear();
-
-	for(const auto & heroID : pending)
-		if(const auto * hero = gh->gameState().getHero(heroID))
-			gh->expGiven(hero);
-}
-
 void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	// A level-up in the DeferredLevelUps step comes from battle experience, not from the
-	// object's reward. Reporting it to the object would call experienceApplied() again and
-	// grant the reward twice.
-	if(activeStep != Step::DeferredLevelUps)
-	{
-		const auto * object = gh->gameInfo().getObj(visitedObject);
-		const auto * hero = gh->gameState().getHero(visitingHero);
+	const auto * object = gh->gameInfo().getObj(visitedObject);
+	const auto * hero = gh->gameState().getHero(visitingHero);
 
-		// The object may have been removed by the visit itself. A dead hero is passed on
-		// intentionally: objects such as CGCreature handle a battle won by the defender
-		// and check the battle result instead of the hero.
-		if(object)
-			child->notifyObjectAboutRemoval(object, hero, std::exchange(visitState, {}));
-	}
-
-	if(auto battleActivity = std::dynamic_pointer_cast<BattleActivity>(child))
-	{
-		auto levelUps = battleActivity->takeDeferredLevelUps();
-		deferredBattleLevelUps.insert(deferredBattleLevelUps.end(), levelUps.begin(), levelUps.end());
-	}
+	// The object may have been removed by the visit itself. A dead hero is passed on
+	// intentionally: objects such as CGCreature handle a battle won by the defender
+	// and check the battle result instead of the hero.
+	if(object)
+		child->notifyObjectAboutRemoval(object, hero, std::exchange(visitState, {}));
 }
 
-void MapObjectVisitActivity::onAdded(PlayerColor color)
+void MapObjectVisitActivity::onAdded()
 {
 	owner->registerVisit(this);
 }
 
-void MapObjectVisitActivity::onRemoval(PlayerColor color)
+void MapObjectVisitActivity::onRemoval()
 {
 	owner->unregisterVisit(this);
 
-	gh->objectVisitEnded(visitingHero, players.front());
+	gh->objectVisitEnded(visitingHero, getPlayers().front());
 
 	if(removeObjectAfterVisit)
-		gh->removeObject(gh->gameState().getObjInstance(visitedObject), color);
+		gh->removeObject(gh->gameState().getObjInstance(visitedObject), getPlayers().front());
 }
 
 TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
@@ -232,7 +197,7 @@ StepResult TurnStartRoutine::advance()
 			// The step is left before the events run: a script that opens a dialog suspends
 			// the routine, which must then continue with the visits and not run them again
 			activeStep = Step::CollectVisits;
-			gh->newTurnProcessor->handleTurnStartEvents(players.front());
+			gh->newTurnProcessor->handleTurnStartEvents(getPlayers().front());
 			return StepResult::Continue;
 
 		case Step::CollectVisits:
@@ -247,7 +212,7 @@ StepResult TurnStartRoutine::advance()
 
 void TurnStartRoutine::collectVisits()
 {
-	const auto * playerState = gh->gameInfo().getPlayerState(players.front());
+	const auto * playerState = gh->gameInfo().getPlayerState(getPlayers().front());
 	if(!playerState)
 		return;
 

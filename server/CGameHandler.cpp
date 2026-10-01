@@ -1016,7 +1016,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			visitObjectOnTile(t, h);
 		}
 
-		activities->popIfTop(moveActivity);
+		activities->popIfTop(*moveActivity);
 		logGlobal->trace("Hero %s ends movement", h->getNameTextID());
 		return result != TryMoveHero::FAILED;
 	};
@@ -1187,13 +1187,9 @@ void CGameHandler::setVisitState(const CGHeroInstance * hero, const JsonNode & s
 	auto * visit = activities->findActivity<ObjectInteractionActivity>(hero->getOwner(),
 		[hero](const ObjectInteractionActivity & candidate){ return candidate.visitingHero == hero->id; });
 
+	// The object would suspend and never be resumed, so the rest of its visit would be lost
 	if(!visit)
-	{
-		// The object suspended and will never be resumed, so the rest of its visit is lost
-		logGlobal->error("Hero %s stored visit state %s outside of a visit", hero->getNameTextID(), state.toCompactString());
-		assert(false);
-		return;
-	}
+		throw std::runtime_error("Hero " + hero->getNameTextID() + " stored visit state " + state.toCompactString() + " outside of a visit");
 
 	visit->visitState = state;
 }
@@ -1238,7 +1234,7 @@ void CGameHandler::runScriptedEvent(scripting::MapEventDispatcher & dispatcher, 
 	if(handle)
 		scriptActivity->setCoroutine(*handle);
 	else
-		activities->popIfTop(scriptActivity);
+		activities->popIfTop(*scriptActivity);
 }
 
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
@@ -1618,16 +1614,21 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	if (gameInfo().getPlayerRelations(h1->getOwner(), h2->getOwner()) != PlayerRelations::ENEMIES)
 	{
-		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1, h2);
-		ExchangeDialog hex;
-		hex.questionID = exchange->askQuestion();
-		hex.player = h1->getOwner();
-		hex.hero1 = hero1;
-		hex.hero2 = hero2;
-		sendAndApply(hex);
+		std::set<PlayerColor> owners = {h1->getOwner(), h2->getOwner()};
+		for(const auto & player : owners)
+		{
+			auto exchange = std::make_shared<GarrisonDialogActivity>(this, player, h1, h2);
+			activities->addActivity(exchange);
+
+			ExchangeDialog hex;
+			hex.questionID = exchange->askQuestion();
+			hex.player = player;
+			hex.hero1 = hero1;
+			hex.hero2 = hero2;
+			sendAndApply(hex);
+		}
 
 		useScholarSkill(hero1,hero2);
-		activities->addActivity(exchange);
 	}
 }
 
@@ -3597,12 +3598,13 @@ bool CGameHandler::answerQuestion(QuestionID questionID, std::optional<int32_t> 
 		case ReplyOutcome::Accepted:
 			return true;
 
+		// Nothing removes a question without its answer, so both mean that the client answered twice
 		case ReplyOutcome::IgnoredAlreadyCompleted:
-			logGlobal->trace("Player %s replied to activity %d that had already been removed - ignoring", player, questionID);
+			complain(boost::str(boost::format("Player %s replied to question %d that is already resolved") % player.toString() % questionID));
 			return true;
 
 		case ReplyOutcome::IgnoredAlreadyAnswered:
-			logGlobal->trace("Player %s replied to activity %d more than once - ignoring", player, questionID);
+			complain(boost::str(boost::format("Player %s replied to question %d more than once") % player.toString() % questionID));
 			return true;
 
 		case ReplyOutcome::RejectedWrongPlayer:
@@ -3645,7 +3647,8 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	assert(lowerArmy);
 	assert(upperArmy);
 
-	auto garrisonActivity = std::make_shared<GarrisonDialogActivity>(this, upperArmy, lowerArmy);
+	// The client shows the window only to the owner of the hero
+	auto garrisonActivity = std::make_shared<GarrisonDialogActivity>(this, lowerArmy->getOwner(), upperArmy, lowerArmy);
 	activities->addActivity(garrisonActivity);
 
 	GarrisonDialog gd;
