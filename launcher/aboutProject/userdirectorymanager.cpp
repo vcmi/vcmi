@@ -391,10 +391,12 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			return;
 	}
 	const QString oldLogPath = pathToQString(dirs.userLogsPath());
+	const bool sourceContainsActiveUserDirectory = containsActiveUserDirectory(dirs, directory, source);
 	bool moveExistingData = false;
 	bool downloadsPaused = false;
 	QString targetBackupPath;
 	QString displacedTargetPath;
+	QString relocatedSourcePath = source;
 	EExistingTargetAction completedTargetAction = EExistingTargetAction::MERGE;
 
 	auto cancelPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, mainWindow]()
@@ -419,7 +421,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		const QString availableSpaceText = storageSpaceKnown ? formattedDataSize(availableSpace) : tr("Unknown");
 		const QString spaceDetails = tr("Space required: %1\nSpace available: %2").arg(formattedDataSize(sourceSize), availableSpaceText);
 
-		QMessageBox copyDialog(QMessageBox::Question, tr("Copy existing data?"), tr("Do you want to copy the existing files?\n\nFrom:\n%1\n\nTo:\n%2\n\n%3").arg(QDir::toNativeSeparators(source), QDir::toNativeSeparators(selected), spaceDetails), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, parent);
+		QMessageBox copyDialog(QMessageBox::Question, tr("Copy existing data?"), tr("Do you want to copy the existing files?\n\nFrom:\n%1\n\nTo:\n%2\n\n%3\n").arg(QDir::toNativeSeparators(source), QDir::toNativeSeparators(selected), spaceDetails), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, parent);
 		copyDialog.setDefaultButton(QMessageBox::Yes);
 
 		if(storageSpaceKnown && availableSpace < sourceSize)
@@ -524,7 +526,12 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			progress.reset();
 
 			if(!installInPlace)
+			{
 				stagingDirectory.setAutoRemove(false);
+
+				if(isSameOrChildPath(source, selected))
+					relocatedSourcePath = QDir(displacedTargetPath).filePath(QDir(selected).relativeFilePath(source));
+			}
 
 			if(targetAction == EExistingTargetAction::BACK_UP)
 				targetBackupPath = displacedTargetPath;
@@ -560,12 +567,6 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		return;
 	}
 
-	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
-	{
-		logGlobal->warn("Failed to purge replaced user directory '%s'", displacedTargetPath.toStdString());
-		QMessageBox::warning(parent, tr("Cleanup failed"), tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedTargetPath));
-	}
-
 	if(downloadsPaused)
 	{
 		mainWindow->getModView()->resumeDownloads();
@@ -574,34 +575,40 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 	if(moveExistingData)
 	{
-		if(containsActiveUserDirectory(dirs, directory, source))
+		if(sourceContainsActiveUserDirectory)
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
-		else if(isSameOrChildPath(selected, source))
+		else if(isSameOrChildPath(selected, relocatedSourcePath) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, relocatedSourcePath)))
 		{
-			QDir sourceDirectory(source);
-			const QString childToKeep = sourceDirectory.relativeFilePath(selected).section('/', 0, 0);
+			QDir sourceDirectory(relocatedSourcePath);
 			bool removalFailed = false;
 			for(const auto & entry : sourceDirectory.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries))
 			{
-				if(entry.fileName() == childToKeep)
+				const QString entryPath = entry.absoluteFilePath();
+				if(isSameOrChildPath(selected, entryPath) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, entryPath)))
 					continue;
-				if(!removePath(entry.absoluteFilePath()))
+				if(!removePath(entryPath))
 				{
 					removalFailed = true;
-					logGlobal->warn("Failed to remove old user data '%s'", entry.absoluteFilePath().toStdString());
+					logGlobal->warn("Failed to remove old user data '%s'", entryPath.toStdString());
 				}
 			}
 			if(removalFailed)
 				QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but some original files could not be removed."));
 		}
-		else if(QFileInfo::exists(source) && !removePath(source))
+		else if(QFileInfo::exists(relocatedSourcePath) && !removePath(relocatedSourcePath))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
 		else
 		{
-			const QFileInfo sourceParent(QFileInfo(source).dir().absolutePath());
+			const QFileInfo sourceParent(QFileInfo(relocatedSourcePath).dir().absolutePath());
 			if(sourceParent.fileName().compare(QStringLiteral("My Games"), Qt::CaseInsensitive) == 0)
 				QDir().rmdir(sourceParent.absoluteFilePath());
 		}
+	}
+
+	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
+	{
+		logGlobal->warn("Failed to purge replaced user directory '%s'", displacedTargetPath.toStdString());
+		QMessageBox::warning(parent, tr("Cleanup failed"), tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedTargetPath));
 	}
 
 	const QString message = targetBackupPath.isEmpty() ? tr("The launcher has reloaded files from the new directory.") : tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(targetBackupPath));
