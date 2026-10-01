@@ -38,7 +38,7 @@ void LuaScriptActivity::setVisitingHero(ObjectInstanceID hero)
 	visitingHero = hero;
 }
 
-void LuaScriptActivity::onExposure(ActivityPtr topActivity)
+void LuaScriptActivity::onChildCompleted(const ActivityPtr & child)
 {
 	auto * dispatcher = gh->gameState().getMapEventDispatcher();
 

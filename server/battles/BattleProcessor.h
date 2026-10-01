@@ -71,6 +71,7 @@ public:
 	/// holds it refers to the same activity. It need not be on top, e.g. a player may have
 	/// paused the game mid-battle.
 	BattleActivity * findBattleActivity(const CBattleInfoCallback & battle) const;
+	BattleActivity & getBattleActivity(const CBattleInfoCallback & battle) const;
 
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	~BattleProcessor();
@@ -98,8 +99,6 @@ public:
 
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleID & battleID);
-	/// Applies results of a battle after potential levelup
-	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

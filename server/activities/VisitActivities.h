@@ -37,29 +37,13 @@ public:
 	std::string toString() const override;
 };
 
-/// Hero visit to a map object: starts the visit, waits for the object, then applies the
-/// level-ups postponed by a battle during the visit. One of these makes its object busy,
-/// so at most one exists per object and per hero.
+/// Hero visit to a map object: starts the visit and waits for the object. One of these makes
+/// its object busy, so at most one exists per object and per hero.
 class MapObjectVisitActivity final : public ObjectInteractionActivity, public IRoutine
 {
-	/// Position within the visit. Also tells onChildCompleted() whether a finished child
-	/// belongs to the object, or is a postponed level-up that must not be reported to it.
-	enum class Step : uint8_t
-	{
-		NotStarted,
-		StartVisit,
-		DeferredLevelUps,
-		Finished
-	};
-
-	Step activeStep = Step::NotStarted;
-
-	/// Heroes that gained experience in a battle during this visit. Their level-up dialogs
-	/// are postponed until the object has applied the battle result.
-	std::vector<ObjectInstanceID> deferredBattleLevelUps;
+	bool started = false;
 
 	void startVisit();
-	void applyDeferredLevelUps();
 
 public:
 	static constexpr ActivityType TYPE = ActivityType::MapObjectVisit;
@@ -72,8 +56,8 @@ public:
 	IRoutine * asRoutine() final { return this; }
 	StepResult advance() final;
 	void onChildCompleted(const ActivityPtr & child) final;
-	void onAdded(PlayerColor color) final;
-	void onRemoval(PlayerColor color) final;
+	void onAdded() final;
+	void onRemoval() final;
 };
 
 /// Visits a list of hero/building pairs one at a time. A building may open a dialog or

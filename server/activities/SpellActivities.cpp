@@ -37,7 +37,7 @@ bool TownSelectionActivity::acceptsAnswerWithoutValue() const
 	return true;
 }
 
-void TownSelectionActivity::onRemoval(PlayerColor color)
+void TownSelectionActivity::onRemoval()
 {
 	if(!answer)
 		return; // window was closed without choosing a town
@@ -77,11 +77,11 @@ bool ScriptDialogActivity::acceptsAnswerWithoutValue() const
 	return true;
 }
 
-void ScriptDialogActivity::onRemoval(PlayerColor color)
+void ScriptDialogActivity::onRemoval()
 {
 	// This dialog was pushed directly on top of the script that is waiting for the answer,
 	// and has already been popped by now, so that script is the current top. A type search
 	// would pick the wrong one when two map events paused at the same time.
-	if(auto * script = owner->activityAs<LuaScriptActivity>(owner->topActivity(color)))
+	if(auto * script = owner->activityAs<LuaScriptActivity>(owner->topActivity(getPlayers().front())))
 		script->setPendingAnswer(answer);
 }

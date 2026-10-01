@@ -21,116 +21,61 @@ ActivityProcessor::ActivityProcessor(CGameHandler & gameHandler)
 
 void ActivityProcessor::popActivity(PlayerColor player, ActivityPtr activity)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%s', activity='%s'", player % activity);
+	LOG_TRACE_PARAMS(logGlobal, "player='%s', activity='%s'", player % activity->toString());
 	if(topActivity(player) != activity)
-	{
-		logGlobal->trace("Cannot remove, not a top!");
-		return;
-	}
+		throw std::runtime_error("Removing activity that is not on top of player's stack: " + activity->toString());
 
-	const auto idx = static_cast<size_t>(player.getNum());
-	assert(activity);
-
-	auto & stack = activities.at(idx);
+	auto & stack = activities.at(player.getNum());
 	stack.pop_back();
 	auto nextActivity = topActivity(player);
 
 	rememberCompleted(player, activity->getActiveQuestionID());
 	markStackChanged(player);
 
-	activity->onRemoval(player);
+	// A multi-player activity is done once it has left every stack, e.g. a battle result is
+	// applied once and not once per side
+	if(countActivity(activity.get()) == 0)
+		activity->onRemoval();
 
-	//Exposure on activity below happens only if removal didn't trigger any new activity
+	// Only if removal did not add a new activity on top
 	if(nextActivity && nextActivity == topActivity(player))
-	{
-		// A routine receives onChildCompleted() and is then stepped by settle(),
-		// so it must not also receive the generic exposure hook.
-		if(auto * routine = nextActivity->asRoutine())
-			routine->onChildCompleted(activity);
-		else
-			nextActivity->onExposure(activity);
-	}
+		nextActivity->onChildCompleted(activity);
 
 	// Resolving answered activities and checking victory conditions happen in settle(),
 	// once the stacks have stopped changing.
 }
 
-void ActivityProcessor::popActivity(const Activity &activity)
-{
-	LOG_TRACE_PARAMS(logGlobal, "activity='%s'", activity);
-	MutationScope mutation(*this);
-
-	assert(activity.players.size());
-	for(auto player : activity.players)
-	{
-		auto top = topActivity(player);
-		if(top.get() == &activity)
-			popActivity(top);
-		else
-		{
-			const auto idx = static_cast<size_t>(player.getNum());
-
-			logGlobal->trace("Cannot remove activity %s", activity.toString());
-			logGlobal->trace("Activities found:");
-			for(const auto & q : activities.at(idx))
-			{
-				logGlobal->trace(q->toString());
-			}
-		}
-	}
-}
-
-void ActivityProcessor::popActivity(ActivityPtr activity)
-{
-	MutationScope mutation(*this);
-
-	for(auto player : activity->players)
-		popActivity(player, activity);
-}
-
 void ActivityProcessor::addActivity(ActivityPtr activity)
 {
+	if(!activity || activity->players.empty())
+		throw std::runtime_error("Adding an activity that affects no player");
+
 	MutationScope mutation(*this);
 
 	for(auto player : activity->players)
 		addActivity(player, activity);
+
+	activity->onAdded();
 }
 
 void ActivityProcessor::addActivity(PlayerColor player, ActivityPtr activity)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%d', activity='%s'", player.getNum() % activity);
+	LOG_TRACE_PARAMS(logGlobal, "player='%d', activity='%s'", player.getNum() % activity->toString());
 
-	const auto idx = static_cast<size_t>(player.getNum());
-	assert(activity);
-	auto & stack = activities.at(idx);
-	// Prevent adding the same activity twice in a row
-	if(!stack.empty() && stack.back() == activity)
-		return;
-	activity->onAdding(player);
-	activities.at(idx).push_back(activity);
+	auto & stack = activities.at(player.getNum());
+	if(vstd::contains(stack, activity))
+		throw std::runtime_error("Adding an activity that is already on player's stack: " + activity->toString());
+
+	stack.push_back(activity);
 	markStackChanged(player);
-	activity->onAdded(player);
 }
 
 ActivityPtr ActivityProcessor::topActivity(PlayerColor player)
 {
-	assert(player.isValidPlayer());
 	if(!player.isValidPlayer())
-		return nullptr;
+		throw std::runtime_error("Requesting activities of invalid player " + player.toString());
 
 	return vstd::backOrNull(activities[player]);
-}
-
-void ActivityProcessor::popIfTop(ActivityPtr activity)
-{
-	LOG_TRACE_PARAMS(logGlobal, "activity='%d'", activity);
-	if(!activity)
-	{
-		logGlobal->error("The activity is nullptr! Ignoring.");
-		return;
-	}
-
-	popIfTop(*activity);
 }
 
 void ActivityProcessor::popIfTop(const Activity & activity)
@@ -138,8 +83,11 @@ void ActivityProcessor::popIfTop(const Activity & activity)
 	MutationScope mutation(*this);
 
 	for(PlayerColor color : activity.players)
-		if(topActivity(color).get() == &activity)
-			popActivity(color, topActivity(color));
+	{
+		auto top = topActivity(color);
+		if(top.get() == &activity)
+			popActivity(color, top);
+	}
 }
 
 MapObjectVisitActivity * ActivityProcessor::findVisit(ObjectInstanceID object) const
@@ -151,27 +99,19 @@ MapObjectVisitActivity * ActivityProcessor::findVisit(ObjectInstanceID object) c
 void ActivityProcessor::registerVisit(MapObjectVisitActivity * visit)
 {
 	assert(visit);
-	const auto [it, inserted] = activeVisits.try_emplace(visit->visitedObject, visit);
-
-	if(!inserted)
-	{
-		// Starting a second visit of one object would make the first unreachable, and the
-		// object would then be told about the wrong one
-		logGlobal->error("Object %d is already being visited!", visit->visitedObject.getNum());
-		assert(false);
-		it->second = visit;
-	}
+	// A second visit of one object would make the first unreachable, and the object would
+	// then be told about the wrong one
+	if(!activeVisits.try_emplace(visit->visitedObject, visit).second)
+		throw std::runtime_error("Object " + std::to_string(visit->visitedObject.getNum()) + " is already being visited");
 }
 
 void ActivityProcessor::unregisterVisit(MapObjectVisitActivity * visit)
 {
-	assert(visit);
 	auto it = activeVisits.find(visit->visitedObject);
+	if(it == activeVisits.end() || it->second != visit)
+		throw std::runtime_error("Visit of object " + std::to_string(visit->visitedObject.getNum()) + " was not registered");
 
-	// Only the visit that registered may unregister, so that an erroneous second visit
-	// does not take the entry away from the one that is still running
-	if(it != activeVisits.end() && it->second == visit)
-		activeVisits.erase(it);
+	activeVisits.erase(it);
 }
 
 ActivityPtr ActivityProcessor::getActivity(QuestionID questionID)
@@ -199,6 +139,7 @@ int ActivityProcessor::countActivity(const Activity * activity) const
 
 ActivityPtr ActivityProcessor::getActivity(QuestionID questionID, PlayerColor player)
 {
+	// The player comes from a client's reply
 	if(!player.isValidPlayer())
 		return nullptr;
 
@@ -211,7 +152,8 @@ ActivityPtr ActivityProcessor::getActivity(QuestionID questionID, PlayerColor pl
 
 void ActivityProcessor::rememberCompleted(PlayerColor player, QuestionID questionID)
 {
-	if(!player.isValidPlayer() || !questionID.hasValue())
+	// Activities that never asked anything, e.g. routines, can not be replied to
+	if(!questionID.hasValue())
 		return;
 
 	auto & completed = recentlyCompleted.at(player.getNum());
@@ -223,29 +165,27 @@ void ActivityProcessor::rememberCompleted(PlayerColor player, QuestionID questio
 
 bool ActivityProcessor::wasRecentlyCompleted(PlayerColor player, QuestionID questionID) const
 {
-	if(!player.isValidPlayer())
-		return false;
-
 	return vstd::contains(recentlyCompleted.at(player.getNum()), questionID);
 }
 
 void ActivityProcessor::markStackChanged(PlayerColor player)
 {
-	if(player.isValidPlayer())
-		stackChanged.at(player.getNum()) = true;
+	stackChanged.at(player.getNum()) = true;
 }
 
 ActivityProcessor::MutationScope::MutationScope(ActivityProcessor & owner)
 	: owner(owner)
+	, uncaughtExceptions(std::uncaught_exceptions())
 {
 	owner.mutationDepth++;
 }
 
-ActivityProcessor::MutationScope::~MutationScope()
+ActivityProcessor::MutationScope::~MutationScope() noexcept(false)
 {
 	owner.mutationDepth--;
 
-	if(owner.mutationDepth == 0)
+	// Not while an exception unwinds through this scope: a second one would terminate the server
+	if(owner.mutationDepth == 0 && std::uncaught_exceptions() == uncaughtExceptions)
 		owner.settle();
 }
 
@@ -277,20 +217,15 @@ bool ActivityProcessor::advanceRoutines()
 
 			if(result == StepResult::Done)
 			{
-				// Routines affect a single player, so only one stack is unwound
-				assert(top->players.size() == 1);
+				if(top->players.size() != 1)
+					throw std::runtime_error("Routine affects more than one player: " + top->toString());
+
 				popActivity(player, top);
 				break;
 			}
 
 			if(step + 1 == MAX_ROUTINE_STEPS)
-			{
-				// Dropped: left on the stack, settle() would step it again on every round and
-				// its player would stay blocked forever
-				logGlobal->error("Routine did not finish after %d steps, dropping it: %s", MAX_ROUTINE_STEPS, top->toString());
-				assert(false);
-				popActivity(player, top);
-			}
+				throw std::runtime_error("Routine did not finish after " + std::to_string(MAX_ROUTINE_STEPS) + " steps: " + top->toString());
 		}
 	}
 
@@ -307,11 +242,8 @@ bool ActivityProcessor::resolveAnsweredActivities()
 
 		while(auto top = topActivity(player))
 		{
-			if(!top->isAnswered())
+			if(!top->isFinished())
 				break;
-
-			if(!top->endsByPlayerAnswer())
-				break; // should not happen - submitReply refuses to answer such activities
 
 			popActivity(player, top);
 			changedAnything = true;
@@ -370,7 +302,7 @@ void ActivityProcessor::settle()
 		return;
 	}
 
-	logGlobal->error("Activity stacks did not settle after %d rounds! Activities:\n%s", MAX_SETTLE_ROUNDS, describeStacks());
+	throw std::runtime_error("Activity stacks did not settle after " + std::to_string(MAX_SETTLE_ROUNDS) + " rounds! Activities:\n" + describeStacks());
 }
 
 ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply)

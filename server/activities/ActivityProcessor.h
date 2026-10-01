@@ -18,12 +18,12 @@ class Activity;
 class MapObjectVisitActivity;
 using ActivityPtr = std::shared_ptr<Activity>;
 
-/// Result of submitting a player's reply. Only the Rejected* outcomes indicate a problem,
-/// the Ignored* ones are races that happen in normal play and are not reported to the player.
+/// Result of submitting a player's reply. The Ignored* ones leave the game unchanged, the
+/// Rejected* ones mean that the client is out of sync.
 enum class ReplyOutcome : uint8_t
 {
 	Accepted, ///< Reply was recorded, activity is resolved once it is on top of every affected stack
-	IgnoredAlreadyCompleted, ///< Activity was removed by another event while the reply was in flight
+	IgnoredAlreadyCompleted, ///< Activity was already removed, e.g. its answer was sent twice
 	IgnoredAlreadyAnswered, ///< Duplicate or retried reply
 	RejectedUnknownActivity, ///< No such activity and none recently completed, client is out of sync
 	RejectedWrongPlayer, ///< Activity does not affect this player
@@ -74,7 +74,7 @@ private:
 	/// itself by pushing a child. Returns true if anything changed.
 	bool advanceRoutines();
 
-	/// Pops every already answered activity at the top of a player's stack. Returns true
+	/// Pops every finished activity at the top of a player's stack. Returns true
 	/// if anything was removed.
 	bool resolveAnsweredActivities();
 
@@ -91,19 +91,18 @@ private:
 	{
 	public:
 		explicit MutationScope(ActivityProcessor & owner);
-		~MutationScope();
+		~MutationScope() noexcept(false);
 
 	private:
 		ActivityProcessor & owner;
+		int uncaughtExceptions;
 	};
 
 public:
 	void addActivity(ActivityPtr activity);
 
-	void popActivity(const Activity &activity);
-	void popActivity(ActivityPtr activity);
-	void popIfTop(const Activity &activity); //removes this activity if it is at the top (otherwise, do nothing)
-	void popIfTop(ActivityPtr activity); //removes this activity if it is at the top (otherwise, do nothing)
+	/// Removes the activity from each of its players' stacks where it is on top
+	void popIfTop(const Activity & activity);
 
 	ActivityPtr topActivity(PlayerColor player);
 	ActivityPtr getActivity(QuestionID questionID);
@@ -153,14 +152,10 @@ public:
 	}
 
 	/// The single activity of the given type anywhere on a player's stack, or nullptr. Some
-	/// types are limited to one per player, e.g. a player can only be in one battle. Logs an
-	/// error instead of picking one if there are several.
+	/// types are limited to one per player, e.g. a player can only be in one battle.
 	template<typename T>
 	T * findSoleActivity(PlayerColor player)
 	{
-		if(!player.isValidPlayer())
-			return nullptr;
-
 		T * result = nullptr;
 
 		for(const auto & activity : activities.at(player.getNum()))
@@ -170,12 +165,7 @@ public:
 				continue;
 
 			if(result != nullptr)
-			{
-				logGlobal->error("Player %s has more than one activity of type '%s'!\nActivities:\n%s",
-					player.toString(), ::toString(T::TYPE), describeStacks());
-				assert(false);
-				break;
-			}
+				throw std::runtime_error("Player " + player.toString() + " has more than one activity of the same type!\nActivities:\n" + describeStacks());
 
 			result = typed;
 		}
@@ -188,9 +178,6 @@ public:
 	template<typename T, typename Predicate>
 	T * findActivity(PlayerColor player, Predicate predicate) const
 	{
-		if(!player.isValidPlayer())
-			return nullptr;
-
 		const auto & stack = activities.at(player.getNum());
 		for(auto it = stack.rbegin(); it != stack.rend(); ++it)
 		{

@@ -16,7 +16,7 @@
 
 #include "../../lib/networkPacks/PacksForServer.h"
 
-std::string toString(ActivityType type)
+std::string Activity::typeName() const
 {
 	switch(type)
 	{
@@ -41,16 +41,6 @@ std::string toString(ActivityType type)
 	}
 }
 
-std::ostream & operator<<(std::ostream & out, const Activity & activity)
-{
-	return out << activity.toString();
-}
-
-std::ostream & operator<<(std::ostream & out, ActivityPtr activity)
-{
-	return out << "[" << activity.get() << "] " << activity->toString();
-}
-
 Activity::Activity(CGameHandler * gameHandler, ActivityType type)
 	: owner(gameHandler->activities.get())
 	, gh(gameHandler)
@@ -67,7 +57,8 @@ Activity::~Activity()
 
 void Activity::addPlayer(PlayerColor color)
 {
-	assert(color.isValidPlayer());
+	if(!color.isValidPlayer())
+		throw std::runtime_error("Activity can not affect invalid player " + color.toString());
 
 	// prevent duplicates
 	if(vstd::contains(players, color))
@@ -93,7 +84,7 @@ std::string Activity::toString() const
 	}
 	std::string ret = boost::str(boost::format("Activity #%d of type '%s' affecting player%s %s")
 		% traceNumber
-		% ::toString(type)
+		% typeName()
 		% plural
 		% names
 	);
@@ -103,6 +94,8 @@ std::string Activity::toString() const
 
 	if(answeredBy)
 		ret += boost::str(boost::format(" [answered by %s, awaiting exposure]") % answeredBy->toString());
+	else if(finished)
+		ret += " [finished, awaiting exposure]";
 
 	return ret;
 }
@@ -128,9 +121,13 @@ bool Activity::acceptsAnswerWithoutValue() const
 	return false;
 }
 
-void Activity::onRemoval(PlayerColor color)
+void Activity::onRemoval()
 {
+}
 
+void Activity::finish()
+{
+	finished = true;
 }
 
 bool Activity::blocksPack(const CPackForServer * pack) const
@@ -143,19 +140,12 @@ void Activity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, 
 
 }
 
-void Activity::onExposure(ActivityPtr topActivity)
+void Activity::onChildCompleted(const ActivityPtr & child)
 {
-
 }
 
-void Activity::onAdding(PlayerColor color)
+void Activity::onAdded()
 {
-
-}
-
-void Activity::onAdded(PlayerColor color)
-{
-
 }
 
 void Activity::setReply(std::optional<int32_t> reply)

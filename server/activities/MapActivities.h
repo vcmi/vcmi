@@ -27,9 +27,8 @@ public:
 	TimerPauseActivity(CGameHandler * owner, PlayerColor player);
 
 	bool blocksPack(const CPackForServer *pack) const override;
-	void onExposure(ActivityPtr topActivity) override;
-	void onAdding(PlayerColor color) override;
-	void onRemoval(PlayerColor color) override;
+	void onAdded() override;
+	void onRemoval() override;
 	bool endsByPlayerAnswer() const override;
 };
 
@@ -47,21 +46,22 @@ public:
 	/// hero is removed from the map and put into the pool.
 	ObjectInstanceID hero;
 
-	void onExposure(ActivityPtr topActivity) override;
+	void onChildCompleted(const ActivityPtr & child) override;
 
 	HeroMovementActivity(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory = false);
-	void onAdding(PlayerColor color) override;
-	void onRemoval(PlayerColor color) override;
+	void onAdded() override;
+	void onRemoval() override;
 };
 
-class GarrisonDialogActivity : public DialogActivity //used also for hero exchange dialogs
+/// Garrison or hero exchange window of one player. An exchange between allies opens one for each of them.
+class GarrisonDialogActivity : public DialogActivity
 {
 public:
 	static constexpr ActivityType TYPE = ActivityType::GarrisonDialog;
 
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
-	GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
+	GarrisonDialogActivity(CGameHandler * owner, PlayerColor player, const CArmedInstance *up, const CArmedInstance *down);
 	void notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 };
@@ -88,7 +88,6 @@ public:
 	OpenWindowActivity(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
 
 	bool blocksPack(const CPackForServer *pack) const override;
-	void onExposure(ActivityPtr topActivity) override;
 };
 
 class TeleportDialogActivity : public DialogActivity
@@ -135,8 +134,8 @@ public:
 
 	HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const HeroLevelUp & rolled);
 
-	void onAdded(PlayerColor color) final;
-	void onRemoval(PlayerColor color) final;
+	void onAdded() final;
+	void onRemoval() final;
 };
 
 /// Asks a player which skill a hero's commander gains for one level, and grants it.
@@ -150,6 +149,6 @@ public:
 
 	CommanderLevelUpPrompt(CGameHandler * owner, const CGHeroInstance * hero, const CommanderLevelUp & rolled);
 
-	void onAdded(PlayerColor color) final;
-	void onRemoval(PlayerColor color) final;
+	void onAdded() final;
+	void onRemoval() final;
 };
