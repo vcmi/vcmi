@@ -264,7 +264,7 @@ CommanderLevelUp CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c
 
 	const auto * hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
 	if(!hero)
-        throw std::runtime_error("Commander is not led by hero!");
+		throw std::runtime_error("Commander is not led by hero!");
 
 	clu.heroId = hero->id;
 	clu.player = hero->tempOwner;
@@ -295,10 +295,10 @@ void CGameHandler::levelUpCommanderAutomatically(const CCommanderInstance * c)
 	{
 		auto clu = rollCommanderLevelUp(c);
 
-        sendAndApply(clu);
+		sendAndApply(clu);
 
-        if(!clu.skills.empty())
-            applyCommanderLevelUp(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
+		if(!clu.skills.empty())
+			applyCommanderLevelUp(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
 	}
 }
 
@@ -1620,11 +1620,12 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	{
 		auto exchange = std::make_shared<GarrisonDialogActivity>(this, h1->getOwner(), h1, h2);
 
-		// An AI does not trade with allies, and in hotseat both windows would share one screen.
+		// An AI does not trade with allies, nor should it make a human wait in a window that only
+		// the AI can close, and in hotseat both windows would share one screen.
 		// An ally busy with something else, e.g. their own garrison window, is left out, since
 		// an exchange above it would block it until the initiator closes the window.
 		const PlayerColor partner = h2->getOwner();
-		if(partner != h1->getOwner() && gameInfo().getPlayerState(partner)->isHuman() && !hasBothPlayersAtSameConnection(h1->getOwner(), partner) && !activities->topActivity(partner))
+		if(partner != h1->getOwner() && gameInfo().getPlayerState(h1->getOwner())->isHuman() && gameInfo().getPlayerState(partner)->isHuman() && !hasBothPlayersAtSameConnection(h1->getOwner(), partner) && !activities->topActivity(partner))
 			exchange->addPartner(partner);
 
 		activities->addActivity(exchange);
@@ -1990,11 +1991,10 @@ bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
 	return true;
 }
 
-bool CGameHandler::bulkMoveArmy(PlayerColor player, ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
 {
 	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
 		return false;
-
 
 	const auto * armySrc = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(srcArmy));
 	const auto * armyDest = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(destArmy));
@@ -2836,8 +2836,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	assert(srcArtSet);
 	assert(dstArtSet);
 
-	// Make sure exchange is even possible between the two heroes.
-
 	COMPLAIN_RET_FALSE_IF(!ArtifactUtils::checkIfSlotValid(*srcArtSet, src.slot), "moveArtifact: wrong artifact source slot");
 	const auto * srcArtifact = srcArtSet->getArt(src.slot);
 	auto dstSlot = dst.slot;
@@ -2902,8 +2900,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
-	// Make sure exchange is even possible between the two heroes.
-
 	const auto * psrcSet = gameState().getArtSet(srcId);
 	const auto * pdstSet = gameState().getArtSet(dstId);
 	if((!psrcSet) || (!pdstSet))

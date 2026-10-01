@@ -148,20 +148,14 @@ public:
 	/// Non-null for activities that the processor should drive step by step.
 	virtual IRoutine * asRoutine() { return nullptr; }
 
-	/// The question that the player was last asked and has not answered yet, if any.
+	/// The question that the player was last asked, if any.
 	/// Answers from the player identify this id, never the activity.
 	QuestionID getActiveQuestionID() const
 	{
 		return activeQuestionID;
 	}
 
-	/// Whether a question has been asked and not answered yet.
-	bool hasOutstandingQuestion() const
-	{
-		return activeQuestionID.hasValue();
-	}
-
-	/// Allocates the next question and records it as the outstanding one. Caller puts the
+	/// Allocates the next question and records it as the active one. Caller puts the
 	/// returned id into the pack that it sends to the player.
 	QuestionID askQuestion();
 
@@ -189,7 +183,7 @@ private:
 	bool finished = false;
 
 protected:
-	QuestionID activeQuestionID = QuestionID::NONE; ///< set when a question is asked, cleared when it is answered
+	QuestionID activeQuestionID = QuestionID::NONE; ///< the last question asked, kept after the answer to recognize late replies
 };
 
 class DialogActivity : public Activity

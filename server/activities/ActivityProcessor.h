@@ -104,9 +104,6 @@ private:
 public:
 	void addActivity(ActivityPtr activity);
 
-	/// Removes the activity from each of its players' stacks where it is on top
-	void popIfTop(const Activity & activity);
-
 	/// Marks the activity as done; it is removed from each stack once it is on top
 	void finishActivity(Activity & activity);
 

@@ -77,7 +77,7 @@ std::string Activity::toString() const
 	{
 		names += boost::to_upper_copy<std::string>(players[i].toString());
 
-		if(i < size - 2)
+		if(i + 2 < size)
 			names += ", ";
 		else if(size > 1 && i == size - 2)
 			names += " and ";
