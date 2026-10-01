@@ -127,7 +127,8 @@ bool Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	if (info.reward.heroExperience > 0)
 		expToGive += hero->calculateXp(info.reward.heroExperience);
 
-	// Nothing else granted here can suspend the visit, so this is the only reason to wait
+	// A skill that grants a level also suspends the visit, but its reward is complete by now
+	// and resumeAfterExperience() is then handed no state
 	if(!expToGive)
 		return false;
 
@@ -310,6 +311,10 @@ JsonNode Rewardable::Interface::toJson(const std::vector<ui32> & rewardIndices)
 
 bool Rewardable::Interface::resumeAfterExperience(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
+	// Level gained from a learned skill, e.g. HotA Learning, and not from experience of a reward
+	if(visitState.isNull())
+		return false;
+
 	if(!isRewardList(visitState) || visitState.Vector().empty())
 		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " can not resume its visit from state " + visitState.toCompactString());
 

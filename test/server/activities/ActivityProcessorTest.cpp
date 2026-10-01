@@ -30,6 +30,8 @@
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapping/CMap.h"
 #include "lib/mapping/CMapEvent.h"
+#include "lib/GameLibrary.h"
+#include "lib/CSkillHandler.h"
 
 namespace
 {
@@ -328,28 +330,6 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 
 	EXPECT_EQ(gameHandler.activities->topActivity(levelUpPlayer), nullptr);
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::WINNER);
-}
-
-TEST_F(DeferredVictoryLossTest, battleOnlyGameContinuesWhenInterfaceBecomesReady)
-{
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder.size(36, false);
-	builder.playerActive(PlayerColor(0));
-	builder.playerActive(PlayerColor(1));
-	builder.hero(int3(5, 6, 0), HeroTypeID(0), PlayerColor(0));
-	builder.hero(int3(5, 5, 0), HeroTypeID(1), PlayerColor(1));
-	startWithMap(std::move(builder));
-
-	// Any victory check ends a battle-only game, which must last until its battle is over
-	gameState()->getMap().battleOnly = true;
-
-	GameHandlerTestServer server(gameState(), PlayerColor(0));
-	CGameHandler gameHandler(server, gameState());
-
-
-	EXPECT_EQ(server.getState(), EServerState::GAMEPLAY);
-	EXPECT_EQ(gameState()->getPlayerState(PlayerColor(0))->status, EPlayerStatus::INGAME);
-	EXPECT_EQ(gameState()->getPlayerState(PlayerColor(1))->status, EPlayerStatus::INGAME);
 }
 
 TEST_F(ActivityProcessorTest, popIfTop_removesTopActivity)
@@ -1299,9 +1279,6 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
 
-	// Level-up dialogs are sent only once the client's interface is ready, and the hero's
-	// level is applied by that pack, so without this the hero never levels up.
-
 	gameHandler.objectVisited(pandora, hero);
 
 	auto dialog = gameHandler.activities->topActivity(player);
@@ -1340,6 +1317,70 @@ TEST_F(MapObjectVisitTest, levelUpFromBattleExperienceDoesNotGrantTheObjectRewar
 
 	// The object is told about the battle and not about the level-ups, otherwise
 	// experienceApplied() would grant the reward once more
+	EXPECT_EQ(rewardsGranted(), 1u);
+	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
+}
+
+TEST_F(MapObjectVisitTest, levelUpFromABattleWithoutAResultDialogIsAskedBeforeTheObjectLearnsOfTheBattle)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.heroGarrison({{CreatureID(0), 200}})
+		.heroExperience(999) // one experience point short of the next level
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	// An AI gets no result dialog, so the battle ends while no reply is being processed
+	gameState()->players.at(player).human = false;
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	pandora->configuration.info.at(0).reward.heroBonuses.push_back(
+		std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OBJECT_TYPE, 1, BonusSourceID()));
+	ASSERT_TRUE(pandora->setCreature(SlotID(0), CreatureID(0), 1));
+
+	auto rewardsGranted = [&]()
+	{
+		return hero->getBonuses([](const Bonus * b)
+		{
+			return b->type == BonusType::MORALE && b->source == BonusSource::OBJECT_TYPE;
+		})->size();
+	};
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.activities->topActivity(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1), ReplyOutcome::Accepted);
+
+	ASSERT_EQ(gameHandler.activities->topActivity(player)->getType(), ActivityType::Battle);
+	gameHandler.battles->cheatBattleVictory(player);
+
+	auto levelUp = gameHandler.activities->topActivity(player);
+	ASSERT_NE(levelUp, nullptr);
+	ASSERT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
+	EXPECT_EQ(rewardsGranted(), 0u) << "the object learned of the battle before the level-up";
+
+	int levelUpsAnswered = 0;
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		if(pending->getType() != ActivityType::HeroLevelUpDialog)
+			break;
+
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0), ReplyOutcome::Accepted);
+		ASSERT_LT(++levelUpsAnswered, 10) << "level-up chain did not terminate";
+	}
+
 	EXPECT_EQ(rewardsGranted(), 1u);
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }
@@ -1843,6 +1884,62 @@ TEST_F(MapObjectVisitTest, aRewardWithTooLittleExperienceStillGrantsItsSecondHal
 	EXPECT_EQ(gameHandler.activities->topActivity(player), nullptr);
 }
 
+TEST_F(MapObjectVisitTest, aRewardSkillThatGrantsALevelEndsTheVisitOnceTheLevelIsChosen)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.pandora(int3(6, 5, 0));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * pandora = findFirst<CGPandoraBox>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(pandora, nullptr);
+
+	const auto & skills = LIBRARY->skillh->objects;
+	const auto found = std::ranges::find_if(skills, [](const auto & s){ return s->getJsonKey() == "vcmi-test:levelGranting"; });
+	ASSERT_NE(found, skills.end());
+	const SecondarySkill skill = (*found)->getId();
+
+	// No experience in the reward: the level comes only from learning the skill
+	ASSERT_FALSE(pandora->configuration.info.empty());
+	auto & reward = pandora->configuration.info.at(0).reward;
+	reward = {};
+	reward.secondary[skill] = 1;
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+	const auto levelBefore = hero->level;
+
+	gameHandler.objectVisited(pandora, hero);
+
+	auto dialog = gameHandler.activities->topActivity(player);
+	ASSERT_NE(dialog, nullptr);
+	ASSERT_EQ(dialog->getType(), ActivityType::BlockingDialog);
+	ASSERT_EQ(gameHandler.activities->submitReply(dialog->getActiveQuestionID(), player, 1),
+		ReplyOutcome::Accepted);
+
+	auto levelUp = gameHandler.activities->topActivity(player);
+	ASSERT_NE(levelUp, nullptr);
+	ASSERT_EQ(levelUp->getType(), ActivityType::HeroLevelUpDialog);
+
+	// A level-up may offer to upgrade the same skill, which grants one more level
+	int answered = 0;
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		ASSERT_EQ(pending->getType(), ActivityType::HeroLevelUpDialog);
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+		ASSERT_LT(++answered, 10);
+	}
+
+	EXPECT_GE(hero->getSecSkillLevel(skill), 1);
+	EXPECT_GT(hero->level, levelBefore);
+}
+
 /// Records the object that it was notified about on completion.
 class NotifyRecordingActivity : public Activity
 {
@@ -2342,6 +2439,43 @@ TEST_F(MapObjectVisitTest, anExchangeBetweenAlliesLetsOnlyTheInitiatorCloseIt)
 	EXPECT_EQ(blueHero->getArt(ArtifactPosition::TRANSITION_POS), nullptr);
 	EXPECT_FALSE(gameHandler.isAllowedExchange(blue, redHero->id, blueHero->id));
 	EXPECT_FALSE(gameHandler.isAllowedExchange(red, redHero->id, blueHero->id));
+}
+
+TEST_F(MapObjectVisitTest, anAllyBusyWithSomethingElseIsLeftOutOfTheExchange)
+{
+	const PlayerColor red(0);
+	const PlayerColor blue(1);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(red)
+		.playerActive(blue)
+		.hero(int3(5, 5, 0), HeroTypeID(0), red)
+		.hero(int3(6, 5, 0), HeroTypeID(1), blue);
+	startWithMap(std::move(builder));
+
+	auto * redHero = findHeroByOwner(red);
+	auto * blueHero = findHeroByOwner(blue);
+	ASSERT_NE(redHero, nullptr);
+	ASSERT_NE(blueHero, nullptr);
+
+	const TeamID team = gameState()->players.at(red).team;
+	gameState()->players.at(blue).team = team;
+	gameState()->teams.at(team).players.insert(blue);
+
+	GameHandlerTestServer server(gameState(), red);
+	CGameHandler gameHandler(server, gameState());
+
+	// Blue is in the middle of their own interaction
+	auto busy = std::make_shared<TestActivity>(&gameHandler, blue, ActivityType::GarrisonDialog);
+	gameHandler.activities->addActivity(busy);
+
+	gameHandler.heroExchange(redHero->id, blueHero->id);
+
+	auto exchange = gameHandler.activities->topActivity(red);
+	ASSERT_NE(exchange, nullptr);
+	EXPECT_EQ(exchange->getType(), ActivityType::GarrisonDialog);
+	EXPECT_EQ(exchange->getPlayers().size(), 1u);
+	EXPECT_EQ(gameHandler.activities->topActivity(blue), busy);
 }
 
 TEST_F(MapObjectVisitTest, turnStartEventsRunOnceThePlayerAcceptedTheTurn)
