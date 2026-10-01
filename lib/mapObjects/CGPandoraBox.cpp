@@ -48,12 +48,13 @@ void CGPandoraBox::initObj(IGameRandomizer & gameRandomizer)
 	CRewardableObject::initObj(gameRandomizer);
 }
 
-bool CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const
+void CGPandoraBox::showRewardMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index) const
 {
 	auto vi = configuration.info.at(index);
 	if(!vi.message.empty())
 	{
-		return CRewardableObject::grantRewardWithMessage(gameEvents, h, index, markAsVisit);
+		CRewardableObject::showRewardMessage(gameEvents, h, index);
+		return;
 	}
 	
 	//split reward message for pandora box
@@ -162,11 +163,6 @@ bool CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 	temp.heroBonuses.clear();
 	temp.grantedArtifacts.clear();
 	sendInfoWindow(setText(true, 175, 175, h), temp);
-	
-	// grant reward afterwards. Note that it may remove object
-	if(markAsVisit)
-		markAsVisited(gameEvents, h);
-	return grantReward(gameEvents, index, h);
 }
 
 void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -315,11 +311,6 @@ void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstan
 void CGEvent::configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance *, int) const
 {
 	infoWindow.journalInfo = ScenarioEventJournalInfo{visitablePos()};
-}
-
-bool CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
-{
-	return CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
 void CGEvent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

@@ -94,12 +94,19 @@ void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CG
 	}
 }
 
-void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
+void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
+{
+	closeGarrisonDialog(gameEvents, hero, visitState);
+}
+
+bool CRewardableObject::closeGarrisonDialog(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
 {
 	// if visitor received creatures as rewards, but does not have free slots, he will leave some units
 	// inside rewardable object, which might get treated as guards later
 	while(!stacks.empty())
 		gameEvents.eraseStack(StackLocation(id, stacks.begin()->first));
+
+	return resumeAfterGarrison(gameEvents, hero, visitState);
 }
 
 void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const

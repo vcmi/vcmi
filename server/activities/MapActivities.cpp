@@ -58,7 +58,7 @@ bool TimerPauseActivity::endsByPlayerAnswer() const
 
 void GarrisonDialogActivity::notifyObjectAboutRemoval(const IObjectInterface * visitedObject, const CGHeroInstance * visitingHero, const JsonNode & visitState) const
 {
-	visitedObject->garrisonDialogClosed(*gh, visitingHero);
+	visitedObject->garrisonDialogClosed(*gh, visitingHero, visitState);
 }
 
 GarrisonDialogActivity::GarrisonDialogActivity(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
