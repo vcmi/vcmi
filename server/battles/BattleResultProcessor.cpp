@@ -639,6 +639,12 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	battleResults.erase(battleID);
 }
 
+void BattleResultProcessor::battleCancelled(const BattleID & battleID)
+{
+	finishingBattles.erase(battleID);
+	battleResults.erase(battleID);
+}
+
 void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide)
 {
 	assert(battleResults.count(battle.getBattle()->getBattleID()) == 0);

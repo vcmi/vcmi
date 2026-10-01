@@ -29,6 +29,7 @@ enum class ReplyOutcome : uint8_t
 	RejectedWrongPlayer, ///< Activity does not affect this player
 	RejectedNotAnswerable, ///< Activity can not be ended by a player reply
 	RejectedMissingAnswer, ///< Reply has no answer, but the activity requires one
+	RejectedInvalidAnswer, ///< Answer is not one of those the player was offered
 };
 
 class ActivityProcessor
@@ -86,23 +87,28 @@ private:
 	/// changes, so callers always observe a settled state.
 	void settle();
 
-	/// RAII bracket around a public mutation. The outermost one settles on exit.
+	/// Bracket around a public mutation, so that nested ones do not settle half-way
 	class MutationScope : boost::noncopyable
 	{
 	public:
 		explicit MutationScope(ActivityProcessor & owner);
-		~MutationScope() noexcept(false);
+		~MutationScope();
 
 	private:
 		ActivityProcessor & owner;
-		int uncaughtExceptions;
 	};
+
+	/// Settles unless called from within another mutation, which settles once it is done
+	void settleIfOutermost();
 
 public:
 	void addActivity(ActivityPtr activity);
 
 	/// Removes the activity from each of its players' stacks where it is on top
 	void popIfTop(const Activity & activity);
+
+	/// Marks the activity as done; it is removed from each stack once it is on top
+	void finishActivity(Activity & activity);
 
 	ActivityPtr topActivity(PlayerColor player);
 	ActivityPtr getActivity(QuestionID questionID);

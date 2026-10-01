@@ -62,12 +62,13 @@ enum class ESerializationVersion : int32_t
 	SEER_HUT_NAME_TEXT_ID, // seer name is stored as text identifier, and a quest may override it with a map-defined name
 	SIMTURNS_CONTACT_STATUS, // game state stores players that still play simultaneous turns without contact
 	BATTLE_RESTORE_ARTIFACT_CHARGES, // battle stores initial charges of artifacts to restore them if battle is cancelled
+	CREATURE_REFUSED_JOINING_REMOVED, // wandering creatures no longer store a refused offer to join, the visit tracks it
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = BATTLE_RESTORE_ARTIFACT_CHARGES,
+	CURRENT = CREATURE_REFUSED_JOINING_REMOVED,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

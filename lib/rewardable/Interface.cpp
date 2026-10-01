@@ -496,12 +496,9 @@ bool Rewardable::Interface::onBlockingDialogAnswered(IGameEventCallback & gameEv
 	if(!isRewardList(offeredRewards))
 		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " offered invalid rewards " + offeredRewards.toCompactString());
 
-	// The answer comes from the client
+	// The dialog checks the answer against what it showed, so a mismatch is ours
 	if(answer < 0 || answer > static_cast<int32_t>(offeredRewards.Vector().size()))
-	{
-		logGlobal->error("Object at %s got answer %d to a reward choice that offered %s", getObject()->visitablePos().toString(), answer, offeredRewards.toCompactString());
-		return false;
-	}
+		throw std::runtime_error("Object at " + getObject()->visitablePos().toString() + " got answer " + std::to_string(answer) + " to a reward choice that offered " + offeredRewards.toCompactString());
 
 	markAsVisited(gameEvents, hero);
 	return grantReward(gameEvents, offeredRewards.Vector().at(answer - 1).Integer(), hero);

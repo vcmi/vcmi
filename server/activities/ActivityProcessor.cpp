@@ -50,12 +50,15 @@ void ActivityProcessor::addActivity(ActivityPtr activity)
 	if(!activity || activity->players.empty())
 		throw std::runtime_error("Adding an activity that affects no player");
 
-	MutationScope mutation(*this);
+	{
+		MutationScope mutation(*this);
 
-	for(auto player : activity->players)
-		addActivity(player, activity);
+		for(auto player : activity->players)
+			addActivity(player, activity);
 
-	activity->onAdded();
+		activity->onAdded();
+	}
+	settleIfOutermost();
 }
 
 void ActivityProcessor::addActivity(PlayerColor player, ActivityPtr activity)
@@ -80,14 +83,23 @@ ActivityPtr ActivityProcessor::topActivity(PlayerColor player)
 
 void ActivityProcessor::popIfTop(const Activity & activity)
 {
-	MutationScope mutation(*this);
-
-	for(PlayerColor color : activity.players)
 	{
-		auto top = topActivity(color);
-		if(top.get() == &activity)
-			popActivity(color, top);
+		MutationScope mutation(*this);
+
+		for(PlayerColor color : activity.players)
+		{
+			auto top = topActivity(color);
+			if(top.get() == &activity)
+				popActivity(color, top);
+		}
 	}
+	settleIfOutermost();
+}
+
+void ActivityProcessor::finishActivity(Activity & activity)
+{
+	activity.finished = true;
+	settleIfOutermost();
 }
 
 MapObjectVisitActivity * ActivityProcessor::findVisit(ObjectInstanceID object) const
@@ -175,18 +187,21 @@ void ActivityProcessor::markStackChanged(PlayerColor player)
 
 ActivityProcessor::MutationScope::MutationScope(ActivityProcessor & owner)
 	: owner(owner)
-	, uncaughtExceptions(std::uncaught_exceptions())
 {
 	owner.mutationDepth++;
 }
 
-ActivityProcessor::MutationScope::~MutationScope() noexcept(false)
+ActivityProcessor::MutationScope::~MutationScope()
 {
 	owner.mutationDepth--;
+}
 
-	// Not while an exception unwinds through this scope: a second one would terminate the server
-	if(owner.mutationDepth == 0 && std::uncaught_exceptions() == uncaughtExceptions)
-		owner.settle();
+void ActivityProcessor::settleIfOutermost()
+{
+	// Called after the scope is closed and not from its destructor, so that an exception
+	// thrown while settling reaches the caller
+	if(mutationDepth == 0)
+		settle();
 }
 
 bool ActivityProcessor::advanceRoutines()
@@ -307,14 +322,10 @@ void ActivityProcessor::settle()
 
 ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply)
 {
-	MutationScope mutation(*this);
-
 	auto activity = getActivity(questionID, player);
 
 	if(!activity)
 	{
-		// The activity may have been removed while the reply was in flight, which is a
-		// normal race and not an error
 		if(wasRecentlyCompleted(player, questionID))
 			return ReplyOutcome::IgnoredAlreadyCompleted;
 
@@ -335,11 +346,15 @@ ReplyOutcome ActivityProcessor::submitReply(QuestionID questionID, PlayerColor p
 	if(!reply.has_value() && !activity->acceptsAnswerWithoutValue())
 		return ReplyOutcome::RejectedMissingAnswer;
 
+	if(reply.has_value() && !activity->acceptsAnswer(*reply))
+		return ReplyOutcome::RejectedInvalidAnswer;
+
 	activity->setReply(reply);
 	activity->answeredBy = player;
 
 	// The activity is resolved for every player that it affects, once it is at the top of
-	// each of their stacks. Done by settle() when this scope closes.
+	// each of their stacks
+	settleIfOutermost();
 	return ReplyOutcome::Accepted;
 }
 

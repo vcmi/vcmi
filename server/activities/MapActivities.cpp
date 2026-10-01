@@ -141,6 +141,13 @@ BlockingDialogActivity::BlockingDialogActivity(CGameHandler * owner, const Block
 	addPlayer(bd.player);
 }
 
+bool BlockingDialogActivity::acceptsAnswer(int32_t answer) const
+{
+	// A selection answers with the 1-based index of a component, anything else with yes or no
+	const int32_t maxAnswer = bd.selection() ? static_cast<int32_t>(bd.components.size()) : 1;
+	return answer >= 0 && answer <= maxAnswer;
+}
+
 OpenWindowActivity::OpenWindowActivity(CGameHandler * owner, const CGHeroInstance * hero, EOpenWindowMode mode)
 	: DialogActivity(owner, TYPE), mode(mode)
 {
@@ -257,6 +264,12 @@ HeroLevelUpPrompt::HeroLevelUpPrompt(CGameHandler * owner, const CGHeroInstance 
 	addPlayer(hero->tempOwner);
 }
 
+bool HeroLevelUpPrompt::acceptsAnswer(int32_t answer) const
+{
+	// With no skill to learn the window is closed with 0
+	return answer >= 0 && (levelUp.skills.empty() ? answer == 0 : answer < static_cast<int32_t>(levelUp.skills.size()));
+}
+
 void HeroLevelUpPrompt::onAdded()
 {
 	levelUp.questionID = askQuestion();
@@ -277,12 +290,6 @@ void HeroLevelUpPrompt::onRemoval()
 	if(levelUp.skills.empty())
 		return;
 
-	if(*answer >= levelUp.skills.size())
-	{
-		gh->complain("Invalid secondary skill chosen for " + levellingHero->getNameTextID() + " - granting none");
-		return;
-	}
-
 	logGlobal->trace("%s gains skill %d", levellingHero->getNameTextID(), *answer);
 	gh->applyHeroLevelUp(levellingHero, levelUp.skills.at(*answer));
 }
@@ -291,6 +298,12 @@ CommanderLevelUpPrompt::CommanderLevelUpPrompt(CGameHandler * owner, const CGHer
 	: DialogActivity(owner, TYPE), hero(hero->id), levelUp(rolled)
 {
 	addPlayer(hero->tempOwner);
+}
+
+bool CommanderLevelUpPrompt::acceptsAnswer(int32_t answer) const
+{
+	// With no skill to learn the window is closed with 0
+	return answer >= 0 && (levelUp.skills.empty() ? answer == 0 : answer < static_cast<int32_t>(levelUp.skills.size()));
 }
 
 void CommanderLevelUpPrompt::onAdded()
@@ -310,12 +323,6 @@ void CommanderLevelUpPrompt::onRemoval()
 	// A commander with every skill maxed out is offered none
 	if(levelUp.skills.empty())
 		return;
-
-	if(*answer >= levelUp.skills.size())
-	{
-		gh->complain("Invalid commander skill chosen for " + levellingHero->getNameTextID() + " - granting none");
-		return;
-	}
 
 	logGlobal->trace("Commander of %s gains skill %d", levellingHero->getNameTextID(), *answer);
 	gh->applyCommanderLevelUp(levellingHero->getCommander(), levelUp.skills.at(*answer));
@@ -341,7 +348,7 @@ void HeroMovementActivity::onChildCompleted(const ActivityPtr & child)
 		gh->visitObjectOnTile(*gh->gameInfo().getTile(movingHero->convertToVisitablePos(tmh.end)), movingHero);
 	}
 
-	owner->popIfTop(*this);
+	finish();
 }
 
 void HeroMovementActivity::onRemoval()

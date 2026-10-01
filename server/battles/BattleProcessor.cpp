@@ -99,6 +99,8 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 	assert(lastBattleActivity.belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
 	assert(lastBattleActivity.belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
 
+	resultProcessor->battleCancelled(battleID);
+
 	BattleCancelled bc;
 	bc.battleID = battleID;
 	gameHandler->sendAndApply(bc);

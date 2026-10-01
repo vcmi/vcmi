@@ -253,10 +253,10 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	const CGHeroInstance * hero = gh.gameInfo().getHero(pack.heroId);
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 
+	gh.throwIfWrongPlayer(connection, &pack);
+
 	const bool resourceTradeDuringBattle = pack.mode == EMarketMode::RESOURCE_RESOURCE
 		&& gh.activities->activityAs<BattleActivity>(gh.activities->topActivity(pack.player)) != nullptr;
-
-	gh.throwIfWrongPlayer(connection, &pack);
 	if(resourceTradeDuringBattle)
 	{
 		const bool heroHasAccess = hero && hero->getOwner() == pack.player && hero->hasBonusOfType(BonusType::SURRENDER_MARKETPLACE_ACCESS);

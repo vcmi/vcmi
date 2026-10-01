@@ -49,9 +49,6 @@ public:
 	int8_t joiningPercentage = -1;
 	bool joinOnlyForMoney = false;
 
-	/// Unused - the visit state tells which question is answered. Kept so that saves keep their layout.
-	bool refusedJoining = false;
-
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	MetaString getHoverText(PlayerColor player) const override;
 	MetaString getHoverText(const CGHeroInstance * hero) const override;
@@ -93,7 +90,11 @@ public:
 		h & neverFlees;
 		h & notGrowingTeam;
 		h & temppower;
-		h & refusedJoining;
+		if(!h.hasFeature(Handler::Version::CREATURE_REFUSED_JOINING_REMOVED))
+		{
+			bool refusedJoining = false;
+			h & refusedJoining;
+		}
 		h & formation;
 		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
 			h & stacksCount;
