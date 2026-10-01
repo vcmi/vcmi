@@ -37,10 +37,11 @@ class WindowsUserDirectoryManager : public QObject
 	qint64 directorySize(const QString & path) const;
 	QString formattedDataSize(qint64 bytes) const;
 	bool containsActiveUserDirectory(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & path) const;
-	bool copyDirectoryContents(const QString & source, const QString & destination, ProgressOverlay & progress, QString & error, bool overwrite = false) const;
+	bool copyDirectoryContents(const QString & source, const QString & destination, ProgressOverlay & progress, QString & error, bool overwrite = false, const QString & excludedPath = {}) const;
 	std::optional<EExistingTargetAction> askExistingTargetAction(const QString & target) const;
 	QString availableBackupPath(const QString & target) const;
-	bool installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & backupPath, QString & error) const;
+	bool installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & displacedPath, QString & error) const;
+	bool restoreDisplacedDirectory(const QString & target, const QString & displacedPath) const;
 
 public:
 	explicit WindowsUserDirectoryManager(AboutProjectView * parent);
