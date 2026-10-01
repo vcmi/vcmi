@@ -179,7 +179,6 @@ bool WindowsUserDirectoryManager::copyDirectoryContents(const QString & source, 
 		if(!excludedPath.isEmpty() && isSameOrChildPath(sourcePath, excludedPath))
 			continue;
 
-		counter.next();
 		if(++totalFiles % 256 == 0)
 		{
 			progress.setFileName(tr("Scanning files..."));
@@ -468,7 +467,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			const QString excludedSourcePath = targetInsideSource ? selected : QString();
 			if((!installInPlace && targetAction == EExistingTargetAction::MERGE && !copyDirectoryContents(selected, stagingDirectory.path(), *progress, error)) || !copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE, excludedSourcePath))
 			{
-				logGlobal->error("Failed to stage user directory transfer: %s", error.toStdString());{
+				logGlobal->error("Failed to stage user directory transfer: %s", error.toStdString());
 				progress.reset();
 				QMessageBox::critical(parent, tr("Copy failed"), error);
 				return;
