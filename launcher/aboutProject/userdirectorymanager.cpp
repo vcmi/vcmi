@@ -245,9 +245,9 @@ std::optional<WindowsUserDirectoryManager::EExistingTargetAction> WindowsUserDir
 	QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
 	dialog.setInformativeText(tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
 
-	auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
+	const auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
 	auto * const backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
-	auto * const replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+	const auto * const replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
 
 	dialog.addButton(QMessageBox::Cancel);
 	dialog.setDefaultButton(backupButton);

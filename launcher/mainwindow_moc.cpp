@@ -204,7 +204,7 @@ bool MainWindow::reloadDirectories()
 		progressOverlay.reset();
 		return true;
 	}
-	catch(const std::exception & e)
+	catch(const DataLoadingException & e)
 	{
 		logGlobal->error("Failed to reload launcher directories: %s", e.what());
 		progressOverlay.reset();
