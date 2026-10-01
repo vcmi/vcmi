@@ -204,15 +204,13 @@ public:
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
-	/// Starts a level-up, asking the player about every gained level, or picking skills
-	/// automatically if there is no player to ask.
 	/// Grants every pending level without asking. For heroes that have no player to ask.
 	void levelUpHeroAutomatically(const CGHeroInstance * hero);
 	void levelUpCommanderAutomatically(const CCommanderInstance * c);
 
 	/// Rolls the skills offered by one level and applies the level itself, without asking.
 	HeroLevelUp rollHeroLevelUp(const CGHeroInstance * hero);
-    CommanderLevelUp rollCommanderLevelUp(const CCommanderInstance * c);
+	CommanderLevelUp rollCommanderLevelUp(const CCommanderInstance * c);
 
 	/// Grants the skill chosen for one level, without continuing to the next level.
 	void applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill);
@@ -253,7 +251,7 @@ public:
 	bool spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
-	bool bulkMoveArmy(PlayerColor player, ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
+	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);

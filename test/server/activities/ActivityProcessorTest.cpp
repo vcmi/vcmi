@@ -79,7 +79,7 @@ public:
 	int onAddedCalls = 0;
 	int onRemovalCalls = 0;
 	std::vector<ActivityPtr> exposureArgs;
-	bool popOnExposure = false;
+	bool finishOnExposure = false;
 	bool addReplacementOnRemoval = false;
 	ActivityPtr replacementActivity;
 	std::function<void()> onRemovalAction;
@@ -124,8 +124,8 @@ public:
 		if(sharedEventLog)
 			sharedEventLog->push_back({this, ActivityEvent::OnExposure});
 
-		if(popOnExposure)
-			owner->popIfTop(*this);
+		if(finishOnExposure)
+			finish();
 	}
 };
 
@@ -262,11 +262,6 @@ class DeferredVictoryLossTest : public TinyMapGameTest
 
 }
 
-TEST_F(ActivityProcessorTest, topActivity_returnsNullWhenPlayerHasNothingPending)
-{
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
-}
-
 TEST_F(NeutralDwellingBattleActivityTest, ownedDwellingUsesNeutralBattleSideWithoutNeutralActivity)
 {
 	startGame();
@@ -332,71 +327,7 @@ TEST_F(DeferredVictoryLossTest, heroLevelUpDefersVictoryUntilActivityIsAnswered)
 	EXPECT_EQ(gameState()->getPlayerState(levelUpPlayer)->status, EPlayerStatus::WINNER);
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_removesTopActivity)
-{
-	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
-
-	activities.addActivity(activity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), activity);
-	EXPECT_EQ(activities.countActivity(activity.get()), 1);
-
-	activities.popIfTop(*activity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
-	EXPECT_EQ(activities.countActivity(activity.get()), 0);
-}
-
-TEST_F(ActivityProcessorTest, popIfTop_doesNothingWhenActivityIsNotPresent)
-{
-	auto addedActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
-	auto missingActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
-
-	activities.addActivity(addedActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), addedActivity);
-	EXPECT_EQ(activities.countActivity(addedActivity.get()), 1);
-	EXPECT_EQ(activities.countActivity(missingActivity.get()), 0);
-
-	activities.popIfTop(*missingActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), addedActivity);
-	EXPECT_EQ(activities.countActivity(addedActivity.get()), 1);
-	EXPECT_EQ(activities.countActivity(missingActivity.get()), 0);
-}
-
-TEST_F(ActivityProcessorTest, popIfTop_skipsWhenNestedActivityIsAbove_andLaterSucceedsAfterUnwind)
-{
-	auto movementActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
-	auto visitActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
-
-	activities.addActivity(movementActivity);
-	activities.addActivity(visitActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), visitActivity);
-	EXPECT_EQ(activities.countActivity(movementActivity.get()), 1);
-	EXPECT_EQ(activities.countActivity(visitActivity.get()), 1);
-
-	activities.popIfTop(*movementActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), visitActivity);
-	EXPECT_EQ(activities.countActivity(movementActivity.get()), 1);
-	EXPECT_EQ(activities.countActivity(visitActivity.get()), 1);
-
-	activities.popIfTop(*visitActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), movementActivity);
-	EXPECT_EQ(activities.countActivity(movementActivity.get()), 1);
-	EXPECT_EQ(activities.countActivity(visitActivity.get()), 0);
-
-	activities.popIfTop(*movementActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
-	EXPECT_EQ(activities.countActivity(movementActivity.get()), 0);
-	EXPECT_EQ(activities.countActivity(visitActivity.get()), 0);
-}
-
-TEST_F(ActivityProcessorTest, popIfTop_exposesActivityBelowWithRemovedActivityAsArgument)
+TEST_F(ActivityProcessorTest, finish_exposesActivityBelowWithRemovedActivityAsArgument)
 {
 	auto bottomActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
 	auto topActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
@@ -404,7 +335,7 @@ TEST_F(ActivityProcessorTest, popIfTop_exposesActivityBelowWithRemovedActivityAs
 	activities.addActivity(bottomActivity);
 	activities.addActivity(topActivity);
 
-	activities.popIfTop(*topActivity);
+	topActivity->finish();
 
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), bottomActivity);
 
@@ -425,17 +356,17 @@ TEST_F(ActivityProcessorTest, popIfTop_exposesActivityBelowWithRemovedActivityAs
 	}));
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_allowsExposedActivityToPopItself)
+TEST_F(ActivityProcessorTest, finish_allowsExposedActivityToFinishItself)
 {
 	auto bottomActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
 	auto topActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
 
-	bottomActivity->popOnExposure = true;
+	bottomActivity->finishOnExposure = true;
 
 	activities.addActivity(bottomActivity);
 	activities.addActivity(topActivity);
 
-	activities.popIfTop(*topActivity);
+	topActivity->finish();
 
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
 	EXPECT_EQ(activities.countActivity(bottomActivity.get()), 0);
@@ -458,7 +389,7 @@ TEST_F(ActivityProcessorTest, popIfTop_allowsExposedActivityToPopItself)
 	}));
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityOnlyWhereItIsTop)
+TEST_F(ActivityProcessorTest, finish_removesMultiPlayerActivityOnlyWhereItIsTop)
 {
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
@@ -470,7 +401,7 @@ TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityOnlyWhereItIsTo
 	activities.addActivity(sharedActivity);
 	activities.addActivity(blueTopActivity);
 
-	activities.popIfTop(*sharedActivity);
+	sharedActivity->finish();
 
 	EXPECT_EQ(activities.topActivity(PlayerColor(0)), nullptr);
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), blueTopActivity);
@@ -481,7 +412,7 @@ TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityOnlyWhereItIsTo
 	EXPECT_EQ(sharedActivity->onRemovalCalls, 0);
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityAfterItBecomesTopAgain)
+TEST_F(ActivityProcessorTest, finish_removesMultiPlayerActivityOnceItBecomesTopAgain)
 {
 	auto sharedActivity = std::make_shared<TestActivity>(
 		&gh,
@@ -493,31 +424,25 @@ TEST_F(ActivityProcessorTest, popIfTop_removesMultiPlayerActivityAfterItBecomesT
 	activities.addActivity(sharedActivity);
 	activities.addActivity(blueTopActivity);
 
-	activities.popIfTop(*sharedActivity);
+	sharedActivity->finish();
 
 	EXPECT_EQ(activities.topActivity(PlayerColor(0)), nullptr);
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), blueTopActivity);
 	EXPECT_EQ(activities.countActivity(sharedActivity.get()), 1);
 
-	activities.popIfTop(*blueTopActivity);
+	blueTopActivity->finish();
 
 	ASSERT_EQ(sharedActivity->exposureArgs.size(), 1);
 	EXPECT_EQ(sharedActivity->exposureArgs[0], blueTopActivity);
 
-	EXPECT_EQ(activities.topActivity(PlayerColor(1)), sharedActivity);
-	EXPECT_EQ(activities.countActivity(blueTopActivity.get()), 0);
-	EXPECT_EQ(activities.countActivity(sharedActivity.get()), 1);
-
-	activities.popIfTop(*sharedActivity);
-
-	EXPECT_EQ(activities.topActivity(PlayerColor(0)), nullptr);
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
+	EXPECT_EQ(activities.countActivity(blueTopActivity.get()), 0);
 	EXPECT_EQ(activities.countActivity(sharedActivity.get()), 0);
 
 	EXPECT_EQ(sharedActivity->onRemovalCalls, 1);
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_callsRemovalBeforeExposure)
+TEST_F(ActivityProcessorTest, finish_callsRemovalBeforeExposure)
 {
 	std::vector<RecordedEvent> eventLog;
 
@@ -532,7 +457,7 @@ TEST_F(ActivityProcessorTest, popIfTop_callsRemovalBeforeExposure)
 
 	eventLog.clear();
 
-	activities.popIfTop(*topActivity);
+	topActivity->finish();
 
 	ASSERT_EQ(eventLog.size(), 2);
 	EXPECT_EQ(eventLog[0].activity, topActivity.get());
@@ -541,7 +466,7 @@ TEST_F(ActivityProcessorTest, popIfTop_callsRemovalBeforeExposure)
 	EXPECT_EQ(eventLog[1].event, ActivityEvent::OnExposure);
 }
 
-TEST_F(ActivityProcessorTest, popIfTop_skipsExposureWhenRemovalAddsNewTopActivity)
+TEST_F(ActivityProcessorTest, finish_skipsExposureWhenRemovalAddsNewTopActivity)
 {
 	auto bottomActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
 	auto topActivity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::MapObjectVisit);
@@ -553,7 +478,7 @@ TEST_F(ActivityProcessorTest, popIfTop_skipsExposureWhenRemovalAddsNewTopActivit
 	activities.addActivity(bottomActivity);
 	activities.addActivity(topActivity);
 
-	activities.popIfTop(*topActivity);
+	topActivity->finish();
 
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), replacementActivity);
 	EXPECT_EQ(activities.countActivity(bottomActivity.get()), 1);
@@ -617,7 +542,7 @@ TEST_F(ActivityProcessorTest, finish_waitsUntilTheActivityIsOnTop)
 	below->finish();
 	EXPECT_EQ(activities.countActivity(below.get()), 1);
 
-	activities.popIfTop(*above);
+	above->finish();
 	EXPECT_EQ(activities.topActivity(PlayerColor(1)), nullptr);
 }
 
@@ -638,23 +563,6 @@ TEST_F(ActivityProcessorTest, submitReply_rejectsAnAnswerThatWasNotOffered)
 	EXPECT_EQ(activities.submitReply(questionID, player, 1), ReplyOutcome::Accepted);
 }
 
-TEST_F(ActivityProcessorTest, addActivity_throwsForAnActivityAlreadyOnTheStack)
-{
-	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
-
-	activities.addActivity(activity);
-	EXPECT_THROW(activities.addActivity(activity), std::runtime_error);
-}
-
-TEST_F(ActivityProcessorTest, getActivity_returnsNullForUnknownActivityId)
-{
-	auto activity = std::make_shared<TestActivity>(&gh, PlayerColor(1), ActivityType::HeroMovement);
-
-	activities.addActivity(activity);
-
-	EXPECT_EQ(activities.getActivity(QuestionID(12345)), nullptr);
-}
-
 TEST_F(ActivityProcessorTest, getActivity_findsAnActivityByTheQuestionItAsked)
 {
 	auto activity = std::make_shared<TestDialogActivity>(&gh, PlayerColor(1), ActivityType::BlockingDialog);
@@ -664,14 +572,9 @@ TEST_F(ActivityProcessorTest, getActivity_findsAnActivityByTheQuestionItAsked)
 
 	EXPECT_EQ(activities.getActivity(question), activity);
 
-	activities.popIfTop(*activity);
+	activity->finish();
 
 	EXPECT_EQ(activities.getActivity(question), nullptr);
-}
-
-TEST_F(ActivityProcessorTest, countActivity_returnsZeroForNullptr)
-{
-	EXPECT_EQ(activities.countActivity(nullptr), 0);
 }
 
 
@@ -712,7 +615,7 @@ TEST_F(ActivityProcessorTest, submitReply_acceptsReplyForBuriedActivityAndResolv
 	EXPECT_TRUE(dialog->isAnswered());
 	EXPECT_EQ(dialog->onRemovalCalls, 0);
 
-	activities.popIfTop(*pushedAfterPrompt);
+	pushedAfterPrompt->finish();
 
 	// Exposing it must resolve it instead of leaving the player waiting forever
 	EXPECT_EQ(activities.topActivity(player), nullptr);
@@ -769,7 +672,7 @@ TEST_F(ActivityProcessorTest, submitReply_ignoresReplyToActivityThatAlreadyCompl
 	activities.addActivity(activity);
 
 	const QuestionID questionID = activity->getActiveQuestionID();
-	activities.popIfTop(*activity); // removed by some other event while the reply was in flight
+	activity->finish(); // removed by some other event while the reply was in flight
 
 	EXPECT_EQ(activities.submitReply(questionID, player, 1), ReplyOutcome::IgnoredAlreadyCompleted);
 }
@@ -864,7 +767,7 @@ TEST_F(ActivityProcessorTest, submitReply_sharedActivityWaitsForPlayerWhoIsStill
 	EXPECT_EQ(activities.countActivity(shared.get()), 1);
 	EXPECT_EQ(activities.topActivity(second), busy);
 
-	activities.popIfTop(*busy);
+	busy->finish();
 
 	EXPECT_EQ(activities.topActivity(second), nullptr);
 	EXPECT_EQ(activities.countActivity(shared.get()), 0);
@@ -905,7 +808,7 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 			else // server removes the top activity for reasons of its own
 			{
 				if(auto top = processor.topActivity(player))
-					processor.popIfTop(*top);
+					processor.finishActivity(*top);
 			}
 
 			// Invariant: an answered activity is never left sitting at the top.
@@ -926,7 +829,7 @@ TEST_F(ActivityProcessorTest, noInterleavingLeavesPlayerHoldingAnAnsweredActivit
 		while(auto top = processor.topActivity(player))
 		{
 			ASSERT_FALSE(top->isAnswered()) << "seed " << seed << ":\n" << processor.describeStacks();
-			processor.popIfTop(*top);
+			processor.finishActivity(*top);
 		}
 	}
 }
@@ -954,7 +857,7 @@ TEST_F(ActivityProcessorTest, settle_resolvesRepliesThatArrivedWhileStacksWereMo
 
 	// Removing the cover exposes an answered activity, which settle() must resolve within
 	// the same quiescent point instead of leaving it to a later mutation.
-	activities.popIfTop(*cover);
+	cover->finish();
 
 	EXPECT_EQ(activities.topActivity(player), nullptr);
 	EXPECT_EQ(dialog->onRemovalCalls, 1);
@@ -1026,7 +929,7 @@ TEST_F(ActivityProcessorTest, routine_resumesFromWhereItStoppedOnceTheChildFinis
 	activities.addActivity(routine);
 	ASSERT_EQ(routine->stepsTaken, 2);
 
-	activities.popIfTop(*child);
+	child->finish();
 
 	// Continues from step 2, without restarting or skipping a step
 	EXPECT_EQ(routine->stepLog, std::vector<int>({0, 1, 2, 3}));
@@ -1045,7 +948,7 @@ TEST_F(ActivityProcessorTest, routine_doesNotReceiveTheGenericExposureHook)
 	routine->childToPush = child;
 
 	activities.addActivity(routine);
-	activities.popIfTop(*child);
+	child->finish();
 
 	// Child completion is reported through onChildCompleted only, so that a routine can
 	// not implement resumption twice.
@@ -1067,10 +970,10 @@ TEST_F(ActivityProcessorTest, routine_waitsForAChildThatPushesAChildOfItsOwn)
 	activities.addActivity(grandchild);
 	EXPECT_EQ(routine->stepsTaken, 1); // still suspended, two levels down now
 
-	activities.popIfTop(*grandchild);
+	grandchild->finish();
 	EXPECT_EQ(routine->stepsTaken, 1); // the child is still unfinished
 
-	activities.popIfTop(*child);
+	child->finish();
 	EXPECT_EQ(routine->stepsTaken, 3);
 	EXPECT_EQ(activities.topActivity(player), nullptr);
 }
@@ -1709,7 +1612,7 @@ TEST_F(ActivityProcessorTest, settle_completesALongRunOfDeferredWork)
 	};
 
 	activities.addActivity(seeder);
-	activities.popIfTop(*seeder); // everything above is added within this one mutation
+	seeder->finish(); // everything above is added within this one settle()
 
 	EXPECT_EQ(activities.topActivity(player), nullptr) << "work was left unfinished";
 

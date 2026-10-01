@@ -1,5 +1,5 @@
 /*
- * Activity.cpp, part of VCMI engine
+ * ActivityProcessor.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -79,21 +79,6 @@ ActivityPtr ActivityProcessor::topActivity(PlayerColor player)
 		throw std::runtime_error("Requesting activities of invalid player " + player.toString());
 
 	return vstd::backOrNull(activities[player]);
-}
-
-void ActivityProcessor::popIfTop(const Activity & activity)
-{
-	{
-		MutationScope mutation(*this);
-
-		for(PlayerColor color : activity.players)
-		{
-			auto top = topActivity(color);
-			if(top.get() == &activity)
-				popActivity(color, top);
-		}
-	}
-	settleIfOutermost();
 }
 
 void ActivityProcessor::finishActivity(Activity & activity)
