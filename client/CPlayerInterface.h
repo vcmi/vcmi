@@ -70,6 +70,7 @@ class CPlayerInterface : public CGameInterface
 		Type blockingPolicy = Type::Blocking;
 		QuestionID questionID = QuestionID::NONE;
 		State state = State::Queued;
+		bool moreLevelsFollow = false; ///< level-up only: the server will ask about the next level right after this one
 		std::function<void()> showCallback;
 
 		bool isLevelUpDialog() const
@@ -125,8 +126,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void heroCreated(const CGHeroInstance* hero) override;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID questionID) override;
-	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID) override;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, bool moreLevelsFollow, QuestionID questionID) override;
+	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
@@ -266,7 +267,7 @@ private:
 
 	void heroKilled(const CGHeroInstance* hero);
 	void closeActiveLevelUpDialog();
-	void queueDialog(PendingDialog::Type blocking, QuestionID questionID, std::function<void()> showCallback);
+	void queueLevelUpDialog(QuestionID questionID, bool moreLevelsFollow, std::function<void()> showCallback);
 	void queueDialog(PendingDialog::Type blocking, std::function<void()> showCallback);
 	std::list<PendingDialog>::iterator firstNonLevelUpDialog();
 	void tryShowNextPendingDialog();

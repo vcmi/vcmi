@@ -20,6 +20,7 @@ class CGDwelling;
 class IMarket;
 class MetaString;
 
+class CPlayerInterface;
 class CButton;
 class CControllerActionButton;
 class LRClickableArea;
@@ -150,6 +151,8 @@ class CLevelWindow : public CWindowObject
 
 	std::shared_ptr<CComponentBox> box; //skills to select
 	QuestionID questionID;
+	CPlayerInterface * owner = nullptr; ///< interface that was asked; in hotseat it may not be the current one
+	bool moreLevelsFollow = false; ///< window stays open for the next level instead of closing on selection
 
 	int skillViewOffset = 0;
 	std::shared_ptr<CButton> buttonLeft;
@@ -160,15 +163,15 @@ class CLevelWindow : public CWindowObject
 	const CGHeroInstance * hero;
 
 	void selectionChanged(unsigned to);
-	void initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, QuestionID question);
+	void initLevelUpData(CPlayerInterface * askedInterface, const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, bool moreLevels, QuestionID question);
 	void createLevelUpControls(PrimarySkill pskill);
 	void createSkillBox();
 	void submitSelection();
 	void answer(ui32 selection);
 
 public:
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID question);
-	void updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, QuestionID question);
+	CLevelWindow(CPlayerInterface * askedInterface, const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, bool moreLevels, QuestionID question);
+	void updateLevelUpData(CPlayerInterface * askedInterface, const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, bool moreLevels, QuestionID question);
 
 	void close() override;
 

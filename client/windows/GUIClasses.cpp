@@ -479,21 +479,23 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID question)
+CLevelWindow::CLevelWindow(CPlayerInterface * askedInterface, const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevels, QuestionID question)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
 	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
-	initLevelUpData(hero, skills, question);
+	initLevelUpData(askedInterface, hero, skills, moreLevels, question);
 	createLevelUpControls(pskill);
 	setRedrawParent(true);
 	redraw();
 }
 
-void CLevelWindow::initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, QuestionID question)
+void CLevelWindow::initLevelUpData(CPlayerInterface * askedInterface, const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, bool moreLevels, QuestionID question)
 {
-	GAME->interface()->showingDialog->setBusy();
+	owner = askedInterface;
+	moreLevelsFollow = moreLevels;
+	owner->showingDialog->setBusy();
 	selectionSubmitted = false;
 	hero = heroInstance;
 	questionID = question;
@@ -566,11 +568,11 @@ void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, skillValueText.toString(&GAME->translator()));
 }
 
-void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, QuestionID question)
+void CLevelWindow::updateLevelUpData(CPlayerInterface * askedInterface, const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, bool moreLevels, QuestionID question)
 {
 	OBJECT_CONSTRUCTION;
 
-	initLevelUpData(heroInstance, availableSkills, question);
+	initLevelUpData(askedInterface, heroInstance, availableSkills, moreLevels, question);
 	createLevelUpControls(pskill);
 	setRedrawParent(true);
 	redraw();
@@ -649,19 +651,19 @@ void CLevelWindow::submitSelection()
 		}
 
 		selectionSubmitted = true;
-		GAME->interface()->showingDialog->setFree();
+		owner->showingDialog->setFree();
 	}
 
-	// A server-driven level-up stays open until the server resolves its question, so that a
-	// chain of levels reuses this window instead of flickering between them.
-	if(!questionID.hasValue())
+	// Before a further level the window stays open, so that the chain reuses it instead of flickering.
+	// The last one closes at once: a window pushed above it, e.g. a conquered garrison, would block it
+	if(!questionID.hasValue() || !moreLevelsFollow)
 		close();
 }
 
 void CLevelWindow::answer(ui32 selection)
 {
 	if(questionID.hasValue())
-		GAME->interface()->cb->selectionMade(selection, questionID);
+		owner->cb->selectionMade(selection, questionID);
 }
 
 void CLevelWindow::close()

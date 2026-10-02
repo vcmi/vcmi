@@ -751,7 +751,7 @@ void ApplyClientNetPackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
 {
 	const CGHeroInstance * hero = cl.gameInfo().getHero(pack.heroId);
 	assert(hero);
-	callOnlyThatInterface(cl, pack.player, &CGameInterface::heroGotLevel, hero, pack.primskill, pack.skills, pack.questionID);
+	callOnlyThatInterface(cl, pack.player, &CGameInterface::heroGotLevel, hero, pack.primskill, pack.skills, pack.moreLevelsFollow, pack.questionID);
 }
 
 void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
@@ -761,7 +761,7 @@ void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
 	const auto & commander = hero->getCommander();
 	assert(commander);
 	assert(commander->getArmy()); //is it possible for Commander to exist beyond armed instance?
-	callOnlyThatInterface(cl, pack.player, &CGameInterface::commanderGotLevel, commander, pack.skills, pack.questionID);
+	callOnlyThatInterface(cl, pack.player, &CGameInterface::commanderGotLevel, commander, pack.skills, pack.moreLevelsFollow, pack.questionID);
 }
 
 void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
