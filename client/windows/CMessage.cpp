@@ -112,7 +112,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				std::smatch match;
 				std::regex expr("^\\{(.*?)\\|");
 				std::string tmp = text.substr(currPos);
-				if(std::regex_search(tmp, match, expr))
+				if(std::regex_search(tmp, match, expr, std::regex_constants::match_continuous))
 				{
 					std::string colorText = match[1].str();
 					if(auto c = Colors::parseColor(colorText))
