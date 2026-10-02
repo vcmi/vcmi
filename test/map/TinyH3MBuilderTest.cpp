@@ -197,6 +197,26 @@ TEST(TinyH3MBuilderTest, HeroesPlacement)
 	EXPECT_EQ(loaded.map->getObjectiveObjectFrom(fixed->anchorPos(), Obj::HERO), fixed);
 }
 
+TEST(TinyH3MBuilderTest, HotA5DefaultHeroLevelDoesNotOverrideExperience)
+{
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
+		.hotaVersion(5)
+		.size(36, /*twoLevel*/ false)
+		.name("HotA5DefaultHeroLevel")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.heroExperience(40000)
+		.buildAndDump("HotA5DefaultHeroLevelDoesNotOverrideExperience");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
+	ASSERT_NE(hero, nullptr);
+	EXPECT_EQ(hero->exp, 40000);
+	EXPECT_GT(hero->level, 1u);
+}
+
 TEST(TinyH3MBuilderTest, HotA5ExplicitHeroLevelLoadsInH3ExperienceOverflowRange)
 {
 	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
@@ -231,14 +251,10 @@ TEST(TinyH3MBuilderTest, HotA5CannotGainExperienceIsIndependentFromHeroLevel)
 	auto loaded = loadMap(std::move(bytes));
 	ASSERT_NE(loaded.map, nullptr);
 
-	auto * hero = const_cast<CGHeroInstance *>(findFirst<CGHeroInstance>(*loaded.map));
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
 	ASSERT_NE(hero, nullptr);
 	EXPECT_EQ(hero->level, 10u);
-
-	hero->exp = 0;
-	EXPECT_EQ(hero->calculateXp(10000), 0);
-	hero->setExperience(10000, ChangeValueMode::RELATIVE);
-	EXPECT_EQ(hero->exp, 0);
+	EXPECT_FALSE(hero->canGainExperience());
 }
 
 TEST(TinyH3MBuilderTest, HotA5VeryHighLevelDoesNotImplicitlyFreezeExperience)

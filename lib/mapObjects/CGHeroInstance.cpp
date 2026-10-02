@@ -804,11 +804,13 @@ ui64 CGHeroInstance::estimateHeroCombatValue() const
 	return static_cast<ui64>(getHeroStrength() * estimateCombatValue());
 }
 
+bool CGHeroInstance::canGainExperience() const
+{
+	return !cannotGainExperience;
+}
+
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	if(cannotGainExperience)
-		return 0;
-
 	return static_cast<TExpType>(exp * (valOfBonuses(BonusType::HERO_EXPERIENCE_GAIN_PERCENT)) / 100.0);
 }
 
@@ -1458,9 +1460,6 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, Chan
 
 void CGHeroInstance::setExperience(si64 value, ChangeValueMode mode)
 {
-	if(cannotGainExperience && mode == ChangeValueMode::RELATIVE && value > 0)
-		return;
-
 	if(mode == ChangeValueMode::ABSOLUTE)
 	{
 		exp = value;
@@ -1498,24 +1497,27 @@ void CGHeroInstance::attachCommanderToArmy()
 		commander->setArmy(this);
 }
 
+void CGHeroInstance::levelUpAutomaticallyOnce(IGameRandomizer & gameRandomizer)
+{
+	const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
+	const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
+
+	// level is raised before the skill is picked, as on server
+	levelUp();
+	setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
+	if(!proposedSecondarySkills.empty())
+	{
+		const auto & chosenSkill = proposedSecondarySkills.front();
+		setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
+		if(chosenSkill.toSkill()->grantsLevelUp())
+			exp += experienceToGainLevels(1);
+	}
+}
+
 void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 {
 	while(gainsLevel())
-	{
-		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
-		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
-
-		// level is raised before the skill is picked, as on server
-		levelUp();
-		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
-		if(!proposedSecondarySkills.empty())
-		{
-			const auto & chosenSkill = proposedSecondarySkills.front();
-			setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
-			if(chosenSkill.toSkill()->grantsLevelUp())
-				exp += experienceToGainLevels(1);
-		}
-	}
+		levelUpAutomaticallyOnce(gameRandomizer);
 }
 
 void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomizer)
@@ -1545,16 +1547,7 @@ void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomize
 	if(addSkills)
 	{
 		while(level < targetLevel)
-		{
-			const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
-			const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
-
-			// Keep current VCMI ordering: the new level exists before skills are applied.
-			levelUp();
-			setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
-			if(!proposedSecondarySkills.empty())
-				setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
-		}
+			levelUpAutomaticallyOnce(gameRandomizer);
 	}
 	else
 	{

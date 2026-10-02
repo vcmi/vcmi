@@ -238,6 +238,7 @@ public:
 
 	/// Combat value of this hero: value of its army, scaled by contribution of the hero itself
 	ui64 estimateHeroCombatValue() const;
+	bool canGainExperience() const;
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
 
@@ -347,6 +348,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	void levelUpAutomaticallyOnce(IGameRandomizer & gameRandomizer);
 	void levelUpAutomatically(IGameRandomizer & gameRandomizer);
 	void initializeMapSpecifiedLevel(IGameRandomizer & gameRandomizer);
 	void attachCommanderToArmy();

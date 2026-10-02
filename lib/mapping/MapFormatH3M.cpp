@@ -959,10 +959,13 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 			if(hero)
 			{
-				hero->mapSpecifiedLevel = static_cast<ui32>(level);
-				hero->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
+				if(level > 1)
+				{
+					hero->mapSpecifiedLevel = static_cast<ui32>(level);
+					hero->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
+					hero->level = static_cast<ui32>(level);
+				}
 				hero->cannotGainExperience = cannotGainXP;
-				hero->level = static_cast<ui32>(level);
 			}
 		}
 	}
@@ -2539,10 +2542,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		const int32_t level = reader->readInt32();
 		assert(level > 0);
 
-		object->mapSpecifiedLevel = static_cast<ui32>(level);
-		object->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
+		if(level > 1)
+		{
+			object->mapSpecifiedLevel = static_cast<ui32>(level);
+			object->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
+			object->level = static_cast<ui32>(level);
+		}
 		object->cannotGainExperience = cannotGainXP;
-		object->level = static_cast<ui32>(level);
 	}
 	return object;
 }

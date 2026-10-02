@@ -362,25 +362,28 @@ void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TEx
 	TExpType maxExp = getHeroExperienceLimit();
 	TExpType currHeroExp = hero->exp;
 
-	TExpType canGainHeroExp = 0;
-	if (maxExp > currHeroExp)
-		canGainHeroExp = maxExp - currHeroExp;
-
 	TExpType actualHeroExperience = 0;
 
-	if (amountToGain > canGainHeroExp)
+	if(hero->canGainExperience())
 	{
-		// set given experience to max possible, but don't decrease if hero already over top
-		actualHeroExperience = canGainHeroExp;
+		TExpType canGainHeroExp = 0;
+		if(maxExp > currHeroExp)
+			canGainHeroExp = maxExp - currHeroExp;
 
-		InfoWindow iw;
-		iw.player = hero->tempOwner;
-		iw.text.appendTextID("core.genrltxt.1"); //can gain no more XP
-		iw.text.replaceTextID(hero->getNameTextID());
-		sendAndApply(iw);
+		if(amountToGain > canGainHeroExp)
+		{
+			// set given experience to max possible, but don't decrease if hero already over top
+			actualHeroExperience = canGainHeroExp;
+
+			InfoWindow iw;
+			iw.player = hero->tempOwner;
+			iw.text.appendTextID("core.genrltxt.1"); //can gain no more XP
+			iw.text.replaceTextID(hero->getNameTextID());
+			sendAndApply(iw);
+		}
+		else
+			actualHeroExperience = amountToGain;
 	}
-	else
-		actualHeroExperience = amountToGain;
 
 	SetHeroExperience she;
 	she.id = hero->id;
