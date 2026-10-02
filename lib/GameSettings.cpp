@@ -53,6 +53,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP,           "combat",    "defensePointDamageFactorCap"          },
 		{EGameSettings::COMBAT_GOOD_MORALE_CHANCE,                        "combat",    "goodMoraleChance"                     },
 		{EGameSettings::COMBAT_BAD_MORALE_CHANCE,                         "combat",    "badMoraleChance"                      },
+		{EGameSettings::COMBAT_BAD_MORALE_HUMAN_IGNORE_CHANCE,             "combat",    "badMoraleHumanIgnoreChance"           },
 		{EGameSettings::COMBAT_MORALE_DICE_SIZE,                          "combat",    "moraleDiceSize"                       },
 		{EGameSettings::COMBAT_MORALE_BIAS,                               "combat",    "moraleBias"                           },
 		{EGameSettings::COMBAT_GOOD_LUCK_CHANCE,                          "combat",    "goodLuckChance"                       },

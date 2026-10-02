@@ -18,6 +18,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/IGameSettings.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -266,6 +269,12 @@ bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & b
 		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
 		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
+			// original H3 lets human players ignore part of triggered bad morale rolls
+			const auto * owner = gameHandler->gameInfo().getPlayerState(next->unitOwner());
+			int ignoreChance = gameHandler->gameInfo().getSettings().getInteger(EGameSettings::COMBAT_BAD_MORALE_HUMAN_IGNORE_CHANCE);
+			if (owner && owner->isHuman() && gameHandler->randomizer->rollCombatAbility(ownerArmy, ignoreChance))
+				return false;
+
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
 			ba.actionType = EActionType::BAD_MORALE;
