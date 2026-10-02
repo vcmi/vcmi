@@ -133,7 +133,7 @@
 					},
 					"number" : {
 						"gainedAmount" : { // Note: this variable name is used by engine for H3M loading
-							"min" : 1,
+							"min" : 2,
 							"max" : 5
 						}
 					},
