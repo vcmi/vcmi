@@ -26,7 +26,6 @@ std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = s
 CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
-	filesystem(std::make_unique<CFilesystemList>()),
 	prefix(std::move(prefix)),
 	extractArchives(extractArchives)
 {
@@ -72,9 +71,19 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 	}
 }
 
-std::unique_ptr<CFilesystemList> CFilesystemGenerator::acquireFilesystem()
+std::unique_ptr<ISimpleResourceLoader> CFilesystemGenerator::acquireFilesystem()
 {
-	return std::move(filesystem);
+	if (loaders.empty())
+		return nullptr;
+
+	// no need for list wrapper around single data source - avoids extra indirection on every resource lookup
+	if (loaders.size() == 1)
+		return std::move(loaders.front());
+
+	auto filesystem = std::make_unique<CFilesystemList>();
+	for (auto & loader : loaders)
+		filesystem->addLoader(std::move(loader), false);
+	return filesystem;
 }
 
 void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const JsonNode & config)
@@ -89,7 +98,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	for(auto & loader : CResourceHandler::get("initial")->getResourcesWithName(resID))
 	{
 		auto filename = loader->getResourceName(resID);
-		filesystem->addLoader(std::make_unique<CFilesystemLoader>(mountPoint, *filename, depth), false);
+		loaders.push_back(std::make_unique<CFilesystemLoader>(mountPoint, *filename, depth));
 	}
 }
 
@@ -98,7 +107,7 @@ void CFilesystemGenerator::loadZipArchive(const std::string &mountPoint, const J
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, EResType::ARCHIVE_ZIP));
 	if (filename)
-		filesystem->addLoader(std::make_unique<CZipLoader>(mountPoint, *filename), false);
+		loaders.push_back(std::make_unique<CZipLoader>(mountPoint, *filename));
 }
 
 template<EResType archiveType>
@@ -107,7 +116,7 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, archiveType));
 	if (filename)
-		filesystem->addLoader(std::make_unique<CArchiveLoader>(mountPoint, *filename, extractArchives), false);
+		loaders.push_back(std::make_unique<CArchiveLoader>(mountPoint, *filename, extractArchives));
 }
 
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
@@ -118,7 +127,7 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	{
 		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
 		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second, URI);
-		filesystem->addLoader(std::make_unique<CMappedFileLoader>(mountPoint, configInitial), false);
+		loaders.push_back(std::make_unique<CMappedFileLoader>(mountPoint, configInitial));
 	}
 }
 
@@ -182,6 +191,7 @@ void CResourceHandler::initialize()
 	auto configLoader = std::make_unique<CFilesystemLoader>("CONFIG/", VCMIDirs::get().userConfigPath());
 
 	globalResourceHandler.rootLoader = std::make_unique<CFilesystemList>();
+	globalResourceHandler.emptyLoader = std::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = savesLoader.get();
 	knownLoaders["config"] = configLoader.get();
@@ -199,6 +209,7 @@ void CResourceHandler::destroy()
 {
 	knownLoaders.clear();
 	globalResourceHandler.rootLoader.reset();
+	globalResourceHandler.emptyLoader.reset();
 }
 
 ISimpleResourceLoader * CResourceHandler::get()
@@ -232,6 +243,12 @@ void CResourceHandler::addFilesystem(const std::string & parent, const std::stri
 	if(knownLoaders.count(parent) == 0)
 	{
 		logMod->error("[CRITICAL] Parent virtual filesystem %s for %s not found!", parent, identifier);
+		return;
+	}
+
+	if (!loader)
+	{
+		knownLoaders[identifier] = globalResourceHandler.emptyLoader.get();
 		return;
 	}
 

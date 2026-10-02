@@ -65,6 +65,8 @@ enum class EResType
  */
 class DLL_LINKAGE ResourcePath
 {
+	friend struct std::hash<ResourcePath>;
+
 protected:
 	/// Constructs resource path based on JsonNode and selected type. File extension is ignored
 	ResourcePath(const JsonNode & name, EResType type);
@@ -217,7 +219,7 @@ template <> struct hash<::ResourcePath>
 	{
 		std::hash<int> intHasher;
 		std::hash<std::string> stringHasher;
-		return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+		return stringHasher(resourceIdent.name) ^ intHasher(static_cast<int>(resourceIdent.type));
 	}
 };
 }

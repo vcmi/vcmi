@@ -56,15 +56,11 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 	}
 }
 
-bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
+void ContentTypeHandler::preloadModData(const std::string & modName, JsonNode & data)
 {
-	bool result = true;
-	JsonNode data = JsonUtils::assembleFromFiles(fileList, {}, result);
-	data.setModScope(modName);
-
 	ModInfo & modInfo = modData[modName];
 
-	for(auto entry : data.Struct())
+	for(auto & entry : data.Struct())
 	{
 		size_t colon = entry.first.find(':');
 
@@ -86,7 +82,6 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonN
 			modData[remoteName].patches[objectName].push_back(entry.second);
 		}
 	}
-	return result;
 }
 
 bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
@@ -181,21 +176,28 @@ void ContentTypeHandler::afterLoadFinalization()
 					for (auto & node : objectPatches)
 						logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.getModScope(), objectName, data.first);
 			}
+		}
 
-			for(auto & otherMod : modData)
+		// comparing objects of every mod against objects of every other mod is too slow for a normal game start
+		if (settings["mods"]["validation"].String() == "full")
+		{
+			for (auto const & data : modData)
 			{
-				if (otherMod.first == data.first)
-					continue;
-
-				if (otherMod.second.modData.isNull())
-					continue;
-
-				for(auto & otherObject : otherMod.second.modData.Struct())
+				for(auto & otherMod : modData)
 				{
-					if (data.second.modData.Struct().count(otherObject.first))
+					if (otherMod.first == data.first)
+						continue;
+
+					if (otherMod.second.modData.isNull())
+						continue;
+
+					for(auto & otherObject : otherMod.second.modData.Struct())
 					{
-						logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
-						logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+						if (data.second.modData.Struct().count(otherObject.first))
+						{
+							logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
+							logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+						}
 					}
 				}
 			}
@@ -211,7 +213,8 @@ void ContentTypeHandler::afterLoadFinalization()
 
 			for (auto const & modID : conflictingMods)
 			{
-				resolvedConflicts.merge(LIBRARY->modh->getModDependencies(modID));
+				const auto & dependencies = LIBRARY->modh->getModDependencies(modID);
+				resolvedConflicts.insert(dependencies.begin(), dependencies.end());
 				resolvedConflicts.merge(LIBRARY->modh->getModEnabledSoftDependencies(modID));
 			}
 
@@ -269,17 +272,28 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
 }
 
-bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
+std::vector<std::string> CContentHandler::getContentTypeNames() const
+{
+	std::vector<std::string> result;
+	result.reserve(handlers.size());
+
+	for(const auto & handler : handlers)
+		result.push_back(handler.first);
+
+	return result;
+}
+
+bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modContent, bool validate)
 {
 	bool result = true;
 
-	if (!JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
+	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)
-	{
-		result &= handler.second.preloadModData(mod.getID(), mod.getLocalValue(handler.first), validate);
-	}
+		handler.second.preloadModData(mod.getID(), modContent[handler.first]);
+
 	return result;
 }
 

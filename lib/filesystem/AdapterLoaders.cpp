@@ -74,8 +74,49 @@ CFilesystemList::~CFilesystemList()
 {
 }
 
+/// Scanning a list with fewer children costs about as much as an index lookup
+static constexpr size_t indexThreshold = 8;
+
+void CFilesystemList::indexLoader(size_t position)
+{
+	if (loaders.size() <= indexThreshold)
+		return;
+
+	std::lock_guard lock(indexGuard);
+	// filter is used to visit the resources of the child without copying its file list
+	loaders.at(position)->getFilteredFiles([this, position](const ResourcePath & resource)
+	{
+		auto & owner = index[std::hash<ResourcePath>()(resource)];
+		owner = std::max(owner, position);
+		return false;
+	});
+}
+
+void CFilesystemList::rebuildIndex()
+{
+	{
+		std::lock_guard lock(indexGuard);
+		index.clear();
+	}
+	for(size_t i = 0; i < loaders.size(); ++i)
+		indexLoader(i);
+}
+
 const ISimpleResourceLoader * CFilesystemList::getLoader(const ResourcePath & resourceName) const
 {
+	if (loaders.size() > indexThreshold)
+	{
+		std::shared_lock lock(indexGuard);
+		auto it = index.find(std::hash<ResourcePath>()(resourceName));
+		if (it == index.end())
+			return nullptr;
+
+		const auto * loader = loaders.at(it->second).get();
+		if (loader->existsResource(resourceName))
+			return loader;
+		// resource was removed from this loader, or another resource has the same hash
+	}
+
 	// last loader that has the resource wins - it holds the last overridden version
 	for(const auto & loader : std::views::reverse(loaders))
 		if (loader->existsResource(resourceName))
@@ -126,10 +167,18 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 	return paths;
 }
 
-void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter)
+bool CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter)
 {
-	for(const auto & loader : loaders)
-		loader->updateFilteredFiles(filter);
+	bool changed = false;
+	for(size_t i = 0; i < loaders.size(); ++i)
+	{
+		if (loaders[i]->updateFilteredFiles(filter))
+		{
+			indexLoader(i);
+			changed = true;
+		}
+	}
+	return changed;
 }
 
 std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
@@ -146,11 +195,14 @@ std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function
 bool CFilesystemList::createResource(const std::string & filename, bool update)
 {
 	logGlobal->trace("Creating %s", filename);
-	for (auto & loader : std::views::reverse(loaders))
+	for (size_t position = loaders.size(); position-- > 0;)
 	{
+		const auto & loader = loaders[position];
 		if (writeableLoaders.count(loader.get()) != 0                       // writeable,
 			&& loader->createResource(filename, update))          // successfully created
 		{
+			indexLoader(position);
+
 			// Check if resource was created successfully. Possible reasons for this to fail
 			// a) loader failed to create resource (e.g. read-only FS)
 			// b) in update mode, call with filename that does not exists
@@ -193,6 +245,11 @@ void CFilesystemList::addLoader(std::unique_ptr<ISimpleResourceLoader> loader, b
 		writeableLoaders.insert(loader.get());
 
 	loaders.push_back(std::move(loader));
+
+	if (loaders.size() == indexThreshold + 1)
+		rebuildIndex();
+	else
+		indexLoader(loaders.size() - 1);
 }
 
 bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
@@ -203,6 +260,7 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 		{
 			loaders.erase(loaderIterator);
 			writeableLoaders.erase(loader);
+			rebuildIndex();
 			return true;
 		}
 	}

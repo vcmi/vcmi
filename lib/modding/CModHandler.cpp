@@ -25,6 +25,10 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_invoke.h>
+#include <zlib.h>
+
 CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
 	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
@@ -68,6 +72,66 @@ static std::string getModDirectory(const TModID & modName)
 	return "MODS/" + result;
 }
 
+static JsonPath getModDefinitionFile(const TModID & modName)
+{
+	return JsonPath::builtin(getModDirectory(modName) + "/mod");
+}
+
+/// Contents of all files that a mod lists under a single key of its mod.json
+struct ModFiles
+{
+	JsonNode data;
+	uint32_t checksum = 0;
+	bool valid = true;
+};
+
+/// Reads all files from provided list and merges them into a single node, in the order in which mod.json lists them
+static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileList)
+{
+	ModFiles result;
+
+	if (!fileList.isVector())
+	{
+		result.data = fileList; // data is embedded into mod.json instead of being stored in separate files
+		return result;
+	}
+
+	auto fileNames = fileList.convertTo<std::vector<std::string>>();
+	std::vector<std::pair<std::unique_ptr<ui8[]>, si64>> fileContents(fileNames.size());
+	uLong checksum = 0;
+
+	// all files of a mod usually come from a single archive, so reading them in sequence reuses its handle
+	for (size_t i = 0; i < fileNames.size(); ++i)
+	{
+		JsonPath path = JsonPath::builtinTODO(fileNames[i]);
+
+		if (!CResourceHandler::get(modName)->existsResource(path))
+		{
+			logMod->error("Failed to find file %s", fileNames[i]);
+			result.valid = false;
+			continue;
+		}
+
+		fileContents[i] = CResourceHandler::get(modName)->load(path)->readAll();
+		checksum = crc32(checksum, fileContents[i].first.get(), static_cast<uInt>(fileContents[i].second));
+	}
+
+	// parsing of a file does not depend on any other file, so files can be parsed in parallel
+	std::vector<JsonNode> sections(fileNames.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, fileNames.size()), [&](const tbb::blocked_range<size_t> & range)
+	{
+		for (size_t i = range.begin(); i != range.end(); ++i)
+			if (fileContents[i].first)
+				sections[i] = JsonNode(reinterpret_cast<std::byte *>(fileContents[i].first.get()), fileContents[i].second, fileNames[i]);
+	});
+
+	for (auto & section : sections)
+		JsonUtils::merge(result.data, section);
+
+	result.checksum = static_cast<uint32_t>(checksum);
+	return result;
+}
+
 static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string & modName, const JsonNode & conf)
 {
 	static const JsonNode defaultFS = genDefaultFS();
@@ -84,10 +148,17 @@ void CModHandler::loadModFilesystems()
 
 	const auto & activeMods = modManager->getActiveMods();
 
-	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
+	// mod filesystems are independent from each other, and their creation is dominated by reading of archive indexes
+	std::vector<std::unique_ptr<ISimpleResourceLoader>> loadedFilesystems(activeMods.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size()), [this, &activeMods, &loadedFilesystems](const tbb::blocked_range<size_t> & range)
+	{
+		for(size_t i = range.begin(); i != range.end(); ++i)
+			loadedFilesystems[i] = genModFilesystem(activeMods[i], getModInfo(activeMods[i]).getFilesystemConfig());
+	});
 
-	for(const TModID & modName : activeMods)
-		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
+	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
+	for(size_t i = 0; i < activeMods.size(); ++i)
+		modFilesystems[activeMods[i]] = std::move(loadedFilesystems[i]);
 
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);
@@ -103,7 +174,7 @@ void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, std::uniqu
 	{
 		for(const auto & [rightName, rightFilesystem] : modFilesystems)
 		{
-			if (leftName == rightName)
+			if (leftName == rightName || !leftFilesystem || !rightFilesystem)
 				continue;
 
 			if (getModDependencies(leftName).count(rightName) || getModDependencies(rightName).count(leftName))
@@ -195,20 +266,22 @@ std::string CModHandler::getModLanguage(const TModID& modId) const
 	return getModInfo(modId).getBaseLanguage();
 }
 
-std::set<TModID> CModHandler::getModDependencies(const TModID & modId) const
+const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId) const
 {
 	bool isModFound;
 	return getModDependencies(modId, isModFound);
 }
 
-std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
+const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId, bool & isModFound) const
 {
+	static const std::set<TModID> noDependencies;
+
 	isModFound = modManager->isModActive(modId);
 	if (isModFound)
 		return modManager->getModDescription(modId).getDependencies();
 
 	logMod->error("Mod not found: '%s'", modId);
-	return {};
+	return noDependencies;
 }
 
 std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const
@@ -235,40 +308,122 @@ void CModHandler::initializeConfig()
 	}
 }
 
-void CModHandler::loadTranslation(const TModID & modName)
+JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const
 {
 	const auto & mod = getModInfo(modName);
-	JsonParsingSettings settings;
-	settings.strict	= true; // weblate requirement
+	const JsonNode & modConfig = mod.getLocalConfig();
+	const std::string & modBaseLanguage = mod.getBaseLanguage();
 
-	std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
-	std::string modBaseLanguage = getModInfo(modName).getBaseLanguage();
+	// content of one type does not depend on content of any other type, so all types can be loaded in parallel
+	std::vector<ModFiles> contentFiles(contentTypes.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, contentTypes.size()), [&](const tbb::blocked_range<size_t> & range)
+	{
+		for (size_t i = range.begin(); i != range.end(); ++i)
+			contentFiles[i] = assembleModFiles(modName, modConfig[contentTypes[i]]);
+	});
 
-	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()["translations"], settings);
-	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()[preferredLanguage]["translations"], settings);
+	// translations are usually the largest files that a mod provides, so load all languages at once
+	ModFiles baseTranslation;
+	ModFiles extraTranslation;
+	ModFiles fallbackTranslation;
+
+	tbb::parallel_invoke(
+		[&]{ baseTranslation = assembleModFiles(modName, modConfig["translations"]); },
+		[&]{ extraTranslation = assembleModFiles(modName, modConfig[preferredLanguage]["translations"]); },
+		[&]{
+			if (preferredLanguage != modBaseLanguage)
+				fallbackTranslation = assembleModFiles(modName, modConfig[modBaseLanguage]["translations"]);
+		});
+
+	uLong modChecksum = 0;
+	// current VCMI version is part of checksum to force re-validation of all mods on VCMI update
+	const std::string_view vcmiVersion{GameConstants::VCMI_VERSION};
+	modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(vcmiVersion.data()), static_cast<uInt>(vcmiVersion.size()));
+
+	// mod.json is not a part of mod filesystem, so it has to be added into checksum separately
+	if (modName != ModScope::scopeBuiltin())
+	{
+		ui32 configChecksum = CResourceHandler::get("initial")->load(getModDefinitionFile(modName))->calculateCRC32();
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&configChecksum), sizeof(configChecksum));
+	}
+
+	JsonNode result;
+
+	for (size_t i = 0; i < contentTypes.size(); ++i)
+	{
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
+		isValid = isValid && contentFiles[i].valid;
+		contentFiles[i].data.setModScope(modName);
+		result[contentTypes[i]] = std::move(contentFiles[i].data);
+	}
+
+	for (const ModFiles * translation : { &baseTranslation, &extraTranslation, &fallbackTranslation })
+	{
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&translation->checksum), sizeof(uint32_t));
+		isValid = isValid && translation->valid;
+	}
 
 	// Per-key English fallback: for any key missing in the preferred-language
 	// translation, substitute the base-language (typically English) string so
 	// the player sees readable text instead of a raw key identifier.
 	// This handles both completely untranslated mods and partially translated ones.
-	if(preferredLanguage != modBaseLanguage)
+	if(!fallbackTranslation.data.isNull())
 	{
-		JsonNode baseLangFallback = JsonUtils::assembleFromFiles(
-			mod.getLocalConfig()[modBaseLanguage]["translations"]);
-		if(!baseLangFallback.isNull())
-		{
-			// Start with the fallback, then let the preferred-language strings
-			// overwrite any keys that have already been translated.
-			// Guard: merge(dest, null) would clear dest, so skip when there is
-			// nothing to overlay from the preferred language.
-			if(!extraTranslation.isNull())
-				JsonUtils::merge(baseLangFallback, extraTranslation);
-			extraTranslation = std::move(baseLangFallback);
-		}
+		// Start with the fallback, then let the preferred-language strings
+		// overwrite any keys that have already been translated.
+		// Guard: merge(dest, null) would clear dest, so skip when there is
+		// nothing to overlay from the preferred language.
+		if(!extraTranslation.data.isNull())
+			JsonUtils::merge(fallbackTranslation.data, extraTranslation.data);
+		extraTranslation.data = std::move(fallbackTranslation.data);
 	}
 
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);
+	result["translations"] = std::move(baseTranslation.data);
+	result[preferredLanguage]["translations"] = std::move(extraTranslation.data);
+
+	checksum = static_cast<uint32_t>(modChecksum);
+	return result;
+}
+
+void CModHandler::loadModContent()
+{
+	const auto & activeMods = getActiveMods();
+	const std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+	const std::vector<std::string> contentTypes = content->getContentTypeNames();
+
+	std::vector<JsonNode> loadedContent(activeMods.size());
+	std::vector<uint32_t> checksums(activeMods.size());
+	// std::vector<bool> can not be written to from multiple threads
+	std::vector<char> validity(activeMods.size(), 1);
+
+	// reading and parsing of files of one mod is independent from every other mod.
+	// mods vary in size by three orders of magnitude, so every mod is a separate task -
+	// a thread that took a large mod must not block the small mods that follow it
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size(), 1), [&](const tbb::blocked_range<size_t> & range)
+	{
+		for (size_t i = range.begin(); i != range.end(); ++i)
+		{
+			bool isValid = true;
+			loadedContent[i] = loadModContent(activeMods[i], contentTypes, preferredLanguage, checksums[i], isValid);
+			validity[i] = isValid ? 1 : 0;
+		}
+	}, tbb::simple_partitioner());
+
+	for (size_t i = 0; i < activeMods.size(); ++i)
+	{
+		modContent[activeMods[i]] = std::move(loadedContent[i]);
+		modChecksums[activeMods[i]] = checksums[i];
+		if (validity[i] == 0)
+			modsWithMissingFiles.insert(activeMods[i]);
+	}
+}
+
+void CModHandler::loadTranslation(const TModID & modName)
+{
+	const JsonNode & translations = modContent.at(modName);
+
+	LIBRARY->generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
+	LIBRARY->generaltexth->loadTranslationOverrides(modName, LIBRARY->generaltexth->getPreferredLanguage(), translations[LIBRARY->generaltexth->getPreferredLanguage()]["translations"]);
 }
 
 void CModHandler::load()
@@ -281,15 +436,16 @@ void CModHandler::load()
 
 	validationPassed.insert(activeMods.begin(), activeMods.end());
 
-	for(const TModID & modName : activeMods)
-	{
-		modChecksums[modName] = this->modManager->computeChecksum(modName);
-	}
+	loadModContent();
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->preloadData(modInfo, isModValidationNeeded(modInfo));
+		bool isValid = content->preloadData(modInfo, modContent.at(modName), isModValidationNeeded(modInfo));
+
+		if (modsWithMissingFiles.count(modName))
+			isValid = false;
+
 		if (isValid)
 			logGlobal->info("\t\tParsing mod: OK (%s)", modInfo.getID());
 		else
@@ -323,6 +479,8 @@ void CModHandler::load()
 	content->afterLoadFinalization();
 	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
+
+	modContent.clear();
 
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");

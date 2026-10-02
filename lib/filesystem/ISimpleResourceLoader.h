@@ -72,8 +72,9 @@ public:
 	 * Update lists of files that match filter function
 	 *
 	 * @param filter Filter that returns true if specified mount point matches filter
+	 * @return true if the list of files has changed
 	 */
-	virtual void updateFilteredFiles(std::function<bool(const std::string &)> filter) = 0;
+	virtual bool updateFilteredFiles(std::function<bool(const std::string &)> filter) = 0;
 
 	/**
 	 * Get list of files that match filter function

@@ -62,7 +62,7 @@ public:
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	const std::unordered_map<ResourcePath, ArchiveEntry> & getEntries() const;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override {}
+	bool updateFilteredFiles(std::function<bool(const std::string &)> filter) override { return false; }
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
 	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry, bool absolute = false) const;
