@@ -11,11 +11,19 @@
 #include "UpgradeInfo.h"
 #include "CCreatureHandler.h"
 
-void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier)
+void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier, bool discountGoldOnly)
 {
 	const bool upgradeAvaiable = costPercentageModifier >= 0;
 
-	ResourceSet upgradeCost = (upgradeID.toCreature()->getFullRecruitCost() - creature->getFullRecruitCost()) * costPercentageModifier / 100;
+	const ResourceSet fullUpgradeCost = upgradeID.toCreature()->getFullRecruitCost() - creature->getFullRecruitCost();
+	ResourceSet upgradeCost = fullUpgradeCost * costPercentageModifier / 100;
+
+	if(discountGoldOnly)
+	{
+		for(size_t i = 0; i < upgradeCost.size(); ++i)
+			if(i != GameResID(EGameResID::GOLD).getNum())
+				upgradeCost[i] = fullUpgradeCost[i];
+	}
 	upgradeCost.positive(); //upgrade cost can't be negative, ignore missing resources
 
 	auto idIt = std::find(upgradesIDs.begin(), upgradesIDs.end(), upgradeID);
