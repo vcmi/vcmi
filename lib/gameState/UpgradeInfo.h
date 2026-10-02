@@ -68,7 +68,8 @@ public:
 	}
 
 	// Adds a new upgrade and ensures alignment and sorted order
-	void addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier = 100);
+	// If discountGoldOnly is set, cost modifier is applied to gold only, other resources are paid in full (Hill Fort in H3)
+	void addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier = 100, bool discountGoldOnly = false);
 
 	auto size() const
 	{

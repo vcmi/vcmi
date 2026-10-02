@@ -1336,7 +1336,7 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 
 	for(const auto & nid : stack.getCreature()->upgrades)
 	{
-		info.addUpgrade(nid, stack.getType(), costModifier);
+		info.addUpgrade(nid, stack.getType(), costModifier, true); // H3: discount applies to gold only
 	}
 }
 
