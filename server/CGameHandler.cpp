@@ -4431,7 +4431,8 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	{
 		tile = tiles.begin();
 		logGlobal->trace("\tSpawning monster at %s", tile->toString());
-		auto count = cre->getRandomAmount(getRandomGenerator());
+		// H3: stacks that appear on special months are twice as large as usual
+		auto count = 2 * cre->getRandomAmount(getRandomGenerator());
 		createWanderingMonster(*tile, creatureID, count);
 		tiles.erase(tile); //not use it again
 	}
