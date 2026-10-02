@@ -213,11 +213,16 @@ int CGHeroInstance::movementPointsLimit() const
 static int getMovementSpeed(const CStackInstance & stack)
 {
 	// artifact speed bonuses (e.g. Ring of the Wayfarer) only apply in battle
+	// so do general hero specialties (e.g. Sir Mullich), only creature-specific specialties have effect on adventure map
 	static const CSelector selector = Selector::type()(BonusType::STACKS_SPEED)
 		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT).Not())
-		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not());
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not())
+		.And([](const Bonus * bonus)
+		{
+			return bonus->source != BonusSource::HERO_SPECIAL || bonus->limiter != nullptr;
+		});
 
-	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifacts");
+	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifactsNoGeneralSpecialty");
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
