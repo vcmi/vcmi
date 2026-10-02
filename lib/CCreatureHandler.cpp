@@ -391,7 +391,7 @@ std::string CCreature::nodeName() const
 int CCreature::getRandomAmount(vstd::RNG & ranGen) const
 {
 	if(ammMax > ammMin)
-		return ammMin + (ranGen.nextInt(ammMin, ammMax));
+		return ranGen.nextInt(ammMin, ammMax);
 	else
 		return ammMax;
 }
