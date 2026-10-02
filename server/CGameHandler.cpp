@@ -157,6 +157,8 @@ HeroLevelUp CGameHandler::rollHeroLevelUp(const CGHeroInstance * hero)
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
 	hlu.skills = randomizer->rollSecondarySkills(hero);
+	// level is raised only once the pack is applied
+	hlu.moreLevelsFollow = hero->level + 2 <= LIBRARY->heroh->maxSupportedLevel() && hero->exp >= LIBRARY->heroh->reqExp(hero->level + 2);
 
 	return hlu;
 }
@@ -268,6 +270,8 @@ CommanderLevelUp CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c
 
 	clu.heroId = hero->id;
 	clu.player = hero->tempOwner;
+	// level is raised only once the pack is applied
+	clu.moreLevelsFollow = c->getTotalExperience() >= LIBRARY->heroh->reqExp(c->level + 2);
 
 	//picking sec. skills for choice
 

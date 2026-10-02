@@ -31,8 +31,8 @@ public:
 	virtual void yourTurn(QuestionID questionID){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, QuestionID questionID)=0;
-	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID)=0;
+	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, bool moreLevelsFollow, QuestionID questionID)=0;
+	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID)=0;
 
 	// Show a dialog, player must take decision. If selection then he has to choose between one of given components,
 	// if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called

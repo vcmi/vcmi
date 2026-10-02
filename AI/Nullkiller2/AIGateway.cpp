@@ -572,7 +572,7 @@ void AIGateway::yourTurn(QuestionID questionID)
 	});
 }
 
-void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID questionID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevelsFollow, QuestionID questionID)
 {
 	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
 	status.addQuestion(questionID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTextID() % hero->level));
@@ -593,7 +593,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, c
 	});
 }
 
-void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID)
+void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID)
 {
 	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
 	status.addQuestion(questionID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % (int)commander->level));
@@ -753,7 +753,17 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 void AIGateway::showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
 	status.addQuestion(questionID, "Map object select question");
-	executeActionAsync("showMapObjectSelectDialog", [this, questionID](){ answerQuestion(questionID, selectedObject.getNum()); });
+	executeActionAsync("showMapObjectSelectDialog", [this, questionID, objects]()
+	{
+		// selectedObject is only set by our own Town Portal cast; a dialog opened by a map object,
+		// e.g. Toll Town Gate, is cancelled instead of answered with a town that was not offered
+		if(vstd::contains(objects, selectedObject))
+			answerQuestion(questionID, selectedObject.getNum());
+		else
+			cc->sendQuestionAnswer(std::nullopt, questionID);
+
+		selectedObject = ObjectInstanceID();
+	});
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)

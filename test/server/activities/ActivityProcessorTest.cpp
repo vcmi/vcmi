@@ -1502,6 +1502,32 @@ TEST_F(LevelUpActivityTest, everyQuestionSentToTheClientIsReportedResolved)
 	EXPECT_EQ(server.resolvedQuestionIDs, server.levelUpPromptIDs);
 }
 
+TEST_F(LevelUpActivityTest, onlyTheLastLevelOfAChainTellsTheClientToCloseItsWindow)
+{
+	const PlayerColor player(0);
+	buildHeroAboutToLevel(999);
+
+	auto * hero = findHeroByOwner(player);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	gameHandler.giveExperience(hero, 100000); // worth several levels at once
+
+	while(auto pending = gameHandler.activities->topActivity(player))
+	{
+		ASSERT_EQ(gameHandler.activities->submitReply(pending->getActiveQuestionID(), player, 0),
+			ReplyOutcome::Accepted);
+	}
+
+	// A window kept open after the last level would stay below whatever the client opens next
+	ASSERT_GT(server.levelUpMoreLevelsFollow.size(), 1u) << "expected several levels";
+	std::vector<bool> expected(server.levelUpMoreLevelsFollow.size(), true);
+	expected.back() = false;
+	EXPECT_EQ(server.levelUpMoreLevelsFollow, expected);
+}
+
 TEST_F(TwoPlayerBattleTest, battleActivityIsStillFoundWhenThePlayerPausesMidBattle)
 {
 	buildTwoPlayerMap();

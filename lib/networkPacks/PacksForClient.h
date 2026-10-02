@@ -1367,6 +1367,7 @@ struct DLL_LINKAGE HeroLevelUp : public Question
 
 	PrimarySkill primskill = PrimarySkill::ATTACK;
 	std::vector<SecondarySkill> skills;
+	bool moreLevelsFollow = false; ///< hero gains another level after this one, so its window can stay open
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1377,6 +1378,7 @@ struct DLL_LINKAGE HeroLevelUp : public Question
 		h & heroId;
 		h & primskill;
 		h & skills;
+		h & moreLevelsFollow;
 	}
 };
 
@@ -1386,6 +1388,7 @@ struct DLL_LINKAGE CommanderLevelUp : public Question
 	ObjectInstanceID heroId;
 
 	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
+	bool moreLevelsFollow = false; ///< commander gains another level after this one, so its window can stay open
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1395,6 +1398,7 @@ struct DLL_LINKAGE CommanderLevelUp : public Question
 		h & player;
 		h & heroId;
 		h & skills;
+		h & moreLevelsFollow;
 	}
 };
 

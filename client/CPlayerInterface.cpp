@@ -499,34 +499,34 @@ void CPlayerInterface::receivedResource()
 	ENGINE->windows().totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, QuestionID questionID)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevelsFollow, QuestionID questionID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	queueDialog(PendingDialog::Type::LevelUp, questionID, [this, hero, pskill, skills, questionID]()
+	queueLevelUpDialog(questionID, moreLevelsFollow, [this, hero, pskill, skills, moreLevelsFollow, questionID]()
 	{
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
 
 		// Reuse the open window of the previous level, so that a chain of them does not flicker
 		if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
 		{
-			levelWindow->updateLevelUpData(hero, pskill, skills, questionID);
+			levelWindow->updateLevelUpData(this, hero, pskill, skills, moreLevelsFollow, questionID);
 			return;
 		}
 
 		closeActiveLevelUpDialog();
-		ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, questionID);
+		ENGINE->windows().createAndPushWindow<CLevelWindow>(this, hero, pskill, skills, moreLevelsFollow, questionID);
 	});
 }
 
-void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QuestionID questionID)
+void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	queueDialog(PendingDialog::Type::LevelUp, questionID, [this, commander, skills = std::move(skills), questionID]()
+	queueLevelUpDialog(questionID, moreLevelsFollow, [this, commander, skills = std::move(skills), moreLevelsFollow, questionID]()
 	{
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
 
 		closeActiveLevelUpDialog();
-		ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, questionID);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(this, commander, skills, moreLevelsFollow, questionID);
 	});
 }
 
@@ -1346,14 +1346,18 @@ void CPlayerInterface::questionResolved(QuestionID questionID)
 
 	const bool wasFront = dialog == dialogs.begin();
 	const bool wasLevelUpDialog = dialog->isLevelUpDialog();
+	const bool moreLevelsFollow = dialog->moreLevelsFollow;
 	dialogs.erase(dialog);
 
 	if(wasFront)
 	{
 		showingDialog->setFree();
-		if(wasLevelUpDialog)
+		// Settling is checked in update(), which only the current interface receives. A hotseat player
+		// asked during another player's turn would never continue, so its window is closed right away
+		if(wasLevelUpDialog && GAME->interface() == this)
 		{
-			levelUpChainPendingContinuation = true;
+			// The window of the last level has already closed itself
+			levelUpChainPendingContinuation = moreLevelsFollow;
 			// Drain accept/click events queued by the confirmed dialog before showing the
 			// next one, otherwise the same Enter accepts the next level-up step or closes
 			// a queued info dialog.
@@ -1920,20 +1924,26 @@ void CPlayerInterface::waitForAllDialogs()
 
 void CPlayerInterface::queueDialog(PendingDialog::Type blockingPolicy, std::function<void()> showCallback)
 {
-	queueDialog(blockingPolicy, QuestionID::NONE, std::move(showCallback));
+	PendingDialog dialog;
+	dialog.blockingPolicy = blockingPolicy;
+	dialog.showCallback = std::move(showCallback);
+	dialogs.push_back(std::move(dialog));
+
+	tryShowNextPendingDialog();
 }
 
-void CPlayerInterface::queueDialog(PendingDialog::Type blockingPolicy, QuestionID questionID, std::function<void()> showCallback)
+void CPlayerInterface::queueLevelUpDialog(QuestionID questionID, bool moreLevelsFollow, std::function<void()> showCallback)
 {
 	PendingDialog dialog;
-	dialog.questionID = questionID >= 0 ? questionID : QuestionID::NONE;
-	dialog.blockingPolicy = blockingPolicy;
+	dialog.questionID = questionID;
+	dialog.blockingPolicy = PendingDialog::Type::LevelUp;
+	dialog.moreLevelsFollow = moreLevelsFollow;
 	dialog.showCallback = std::move(showCallback);
 
 	// A level-up that continues a chain goes ahead of ordinary queued dialogs, so that the
 	// chain is not interrupted. The first one of a chain does not: the reward message that
 	// granted the experience is shown before it, as in the original game.
-	if(dialog.isLevelUpDialog() && (levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog())))
+	if(levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog()))
 		dialogs.insert(firstNonLevelUpDialog(), std::move(dialog));
 	else
 		dialogs.push_back(std::move(dialog));

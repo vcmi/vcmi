@@ -19,6 +19,7 @@ class CStackInstance;
 class CStack;
 class UpgradeInfo;
 
+class CPlayerInterface;
 class UnitView;
 class CTabbedInt;
 class CButton;
@@ -200,7 +201,7 @@ class CStackWindow : public CWindowObject
 	void submitSelection();
 
 	void init();
-	void initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question);
+	void initCommanderLevelUpData(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question);
 	void answer(ui32 selection);
 	void showStackExperienceDetailsWindow();
 
@@ -219,7 +220,7 @@ public:
 
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
-	CStackWindow(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question);
+	CStackWindow(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question);
 	bool isCommanderLevelUpDialog() const;
 	void close() override;
 
@@ -228,5 +229,7 @@ public:
 
 private:
 	QuestionID questionID;
+	CPlayerInterface * owner = nullptr; ///< interface that was asked; in hotseat it may not be the current one
+	bool moreLevelsFollow = false; ///< level-up window stays open for the next level instead of closing on selection
 	bool selectionSubmitted = false;
 };

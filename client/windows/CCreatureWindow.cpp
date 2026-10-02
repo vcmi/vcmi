@@ -854,19 +854,21 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup)
 	init();
 }
 
-CStackWindow::CStackWindow(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question)
+CStackWindow::CStackWindow(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question)
 	: CWindowObject(BORDERED),
 	info(std::make_unique<UnitView>())
 {
-	initCommanderLevelUpData(commander, skills, question);
+	initCommanderLevelUpData(askedInterface, commander, skills, moreLevels, question);
 	init();
 }
 
 CStackWindow::~CStackWindow() = default;
 
-void CStackWindow::initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, QuestionID question)
+void CStackWindow::initCommanderLevelUpData(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question)
 {
-	GAME->interface()->showingDialog->setBusy();
+	owner = askedInterface;
+	moreLevelsFollow = moreLevels;
+	owner->showingDialog->setBusy();
 	selectionSubmitted = false;
 	questionID = question;
 
@@ -897,19 +899,19 @@ void CStackWindow::submitSelection()
 		}
 
 		selectionSubmitted = true;
-		GAME->interface()->showingDialog->setFree();
+		owner->showingDialog->setFree();
 	}
 
-	// A server-driven level-up stays open until the server resolves its question, so that a
-	// chain of levels reuses this window instead of flickering between them.
-	if(!questionID.hasValue())
+	// Before a further level the window stays open, so that the chain reuses it instead of flickering.
+	// The last one closes at once: a window pushed above it, e.g. a conquered garrison, would block it
+	if(!questionID.hasValue() || !moreLevelsFollow)
 		close();
 }
 
 void CStackWindow::answer(ui32 selection)
 {
 	if(questionID.hasValue())
-		GAME->interface()->cb->selectionMade(selection, questionID);
+		owner->cb->selectionMade(selection, questionID);
 }
 
 void CStackWindow::close()
