@@ -261,8 +261,8 @@ void CMap::hideObject(CGObjectInstance * obj)
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
 				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
-				curt.visitableObjects -= obj->id;
-				curt.blockingObjects -= obj->id;
+				vstd::erase(curt.visitableObjects, obj->id);
+				vstd::erase(curt.blockingObjects, obj->id);
 			}
 		}
 	}
@@ -282,14 +282,14 @@ void CMap::showObject(CGObjectInstance * obj)
 				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
 				if(obj->visitableAt(int3(xVal, yVal, zVal)))
 				{
-					assert(!vstd::contains(curt.visitableObjects, obj->id));
-					curt.visitableObjects.push_back(obj->id);
+					if(!vstd::contains(curt.visitableObjects, obj->id))
+						curt.visitableObjects.push_back(obj->id);
 				}
 
 				if(obj->blockingAt(int3(xVal, yVal, zVal)))
 				{
-					assert(!vstd::contains(curt.blockingObjects, obj->id));
-					curt.blockingObjects.push_back(obj->id);
+					if(!vstd::contains(curt.blockingObjects, obj->id))
+						curt.blockingObjects.push_back(obj->id);
 				}
 			}
 		}
