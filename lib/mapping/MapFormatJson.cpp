@@ -1498,16 +1498,14 @@ void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
 	JsonNode data;
-	int standardObjectCount = map->getObjects().size();
+	auto objects = map->getObjects();
 	bool grailExists = map->grailPos.isValid();
-	data.Vector().resize(standardObjectCount + grailExists);
+	data.Vector().resize(objects.size() + grailExists);
 
-	for (int i = 0; i < standardObjectCount; i++)
+	for (int i = 0; i < objects.size(); i++)
 	{
 		JsonNode & objNode = data.Vector()[i];
-		CGObjectInstance * obj = map->getObject(ObjectInstanceID(i));
-		if(!obj)
-			continue;
+		CGObjectInstance * obj = objects[i];
 		JsonSerializer handler(mapObjectResolver.get(), objNode);
 		obj->serializeJson(handler);
 
