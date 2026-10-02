@@ -324,7 +324,7 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 	if (queries->findQuery<CHeroLevelUpDialogQuery>([hero](const CHeroLevelUpDialogQuery & query) { return query.hero == hero; }))
 		return;
 
-	if (hero->gainsLevel())
+	if (hero->canGainExperience() && hero->gainsLevel())
 		levelUpHero(hero);
 	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
 		levelUpCommander(hero->getCommander());
