@@ -400,6 +400,17 @@
 		{
 			"type": "verticalLayout",
 			"customType": "labelDescription",
+			"position": {"x": 225, "y": 355},
+			"items":
+			[
+				{
+					"text": "vcmi.adventureOptions.overlayToggleMode.hover"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "labelDescription",
 			"position": {"x": 225, "y": 415},
 			"items":
 			[
@@ -455,6 +466,19 @@
 					"name": "smoothDraggingCheckbox",
 					"help": "vcmi.adventureOptions.smoothDragging",
 					"callback": "smoothDraggingChanged"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "checkbox",
+			"position": {"x": 190, "y": 353},
+			"items":
+			[
+				{
+					"name": "overlayToggleModeCheckbox",
+					"help": "vcmi.adventureOptions.overlayToggleMode",
+					"callback": "overlayToggleModeChanged"
 				}
 			]
 		},

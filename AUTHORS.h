@@ -25,6 +25,7 @@ const std::vector<std::vector<std::string>> contributors = {
 	{ "Developing", "Benjamin Gentner"   , "beegee"             , ""                             },
 	{ "Developing", "Dmitry Orlov"       , ""                   , "shubus.corporation@gmail.com" },
 	{ "Developing", ""                   , "Dydzio"             , "blood990@gmail.com"           },
+	{ "Developing", "Elias Khanzada"     , "enzuru"             , "enzuru@thundermail.com"       },
 	{ "Developing", "Fenghuang Rumeng"   , "kdmcser"            , "zqtndfj@gmail.com"            },
 	{ "Developing", "Frank Zago"         , "ubuntux"            , ""                             },
 	{ "Developing", "Henning Koehler"    , "henningkoehlernz"   , "henning.koehler.nz@gmail.com" },

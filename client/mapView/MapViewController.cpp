@@ -237,7 +237,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingShowInvisible = settings["session"]["showInvisible"].Bool();
 		adventureContext->settingShowAiHeroOverlay = settings["session"]["showAiHeroOverlay"].Bool();
-		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
+		adventureContext->settingTextOverlay = GAME->isOverlayActive();
 	}
 }
 

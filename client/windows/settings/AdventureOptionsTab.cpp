@@ -169,6 +169,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 			GAME->interface()->localState->erasePath(GAME->interface()->localState->getCurrentHero());
 		ENGINE->windows().totalRedraw();
 	});
+	addCallback("overlayToggleModeChanged", [](bool value)
+	{
+		return setBoolSetting("general", "overlayToggleMode", value);
+	});
 	addCallback("openShortcutMenu", [](int dummyValue)
 	{
 		ENGINE->windows().createAndPushWindow<KeyBindingsWindow>();
@@ -198,6 +202,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
 	showGridCheckbox->setSelected(settings["gameTweaks"]["showGrid"].Bool());
+
+	std::shared_ptr<CToggleButton> overlayToggleModeCheckbox = widget<CToggleButton>("overlayToggleModeCheckbox");
+	overlayToggleModeCheckbox->setSelected(settings["general"]["overlayToggleMode"].Bool());
 
 	std::shared_ptr<CToggleButton> infoBarPickCheckbox = widget<CToggleButton>("infoBarPickCheckbox");
 	infoBarPickCheckbox->setSelected(settings["gameTweaks"]["infoBarPick"].Bool());

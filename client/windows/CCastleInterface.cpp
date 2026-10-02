@@ -24,7 +24,6 @@
 
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "events/InputHandler.h"
 #include "media/IMusicPlayer.h"
 #include "media/ISoundPlayer.h"
 #include "../widgets/MiscWidgets.h"
@@ -320,7 +319,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
+	bool showTextOverlay = GAME->isOverlayActive();
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -854,7 +853,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
+	bool showTextOverlay = GAME->isOverlayActive();
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }

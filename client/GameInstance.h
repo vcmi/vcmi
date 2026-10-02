@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GameEngineUser.h"
+#include "gui/OverlayTrigger.h"
 
 #include "../lib/texts/CompositeTranslator.h"
 
@@ -41,6 +42,8 @@ class GameInstance final : boost::noncopyable, public IGameEngineUser
 	std::shared_ptr<CMainMenu> mainMenuInstance;
 	CPlayerInterface * interfaceInstance;
 
+	OverlayTrigger overlayTrigger;
+
 	void pauseAutoSave();
 
 public:
@@ -61,6 +64,9 @@ public:
 	std::unique_ptr<CMapHandler> swapMapInstance(std::unique_ptr<CMapHandler> ptr);
 
 	void setInterfaceInstance(CPlayerInterface * ptr);
+
+	/// returns true if the name overlay of map objects and town buildings should be visible
+	bool isOverlayActive();
 
 	void onGlobalLobbyInterfaceActivated() final;
 	void onUpdate() final;

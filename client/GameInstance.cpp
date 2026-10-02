@@ -111,6 +111,11 @@ void GameInstance::onUpdate()
 		interfaceInstance->update();
 }
 
+bool GameInstance::isOverlayActive()
+{
+	return overlayTrigger.isActive();
+}
+
 bool GameInstance::capturedAllEvents()
 {
 	// a replay animates constantly, which would otherwise swallow every event and make the

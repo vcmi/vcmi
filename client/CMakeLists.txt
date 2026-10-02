@@ -41,6 +41,7 @@ set(vcmiclientcommon_SRCS
 	gui/EventsReceiver.cpp
 	gui/InterfaceObjectConfigurable.cpp
 	gui/FramerateManager.cpp
+	gui/OverlayTrigger.cpp
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
@@ -248,6 +249,7 @@ set(vcmiclientcommon_HEADERS
 	gui/InterfaceObjectConfigurable.h
 	gui/FramerateManager.h
 	gui/MouseButton.h
+	gui/OverlayTrigger.h
 	gui/Shortcut.h
 	gui/ShortcutHandler.h
 	gui/TextAlignment.h

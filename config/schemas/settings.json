@@ -45,6 +45,7 @@
 				"enableUiEnhancements",
 				"audioMuteFocus",
 				"enableOverlay",
+				"overlayToggleMode",
 				"lastKindomInterface",
 				"enableSubtitle",
 				"ignoreMuteSwitch",
@@ -162,6 +163,10 @@
 				"enableOverlay" : {
 					"type": "boolean",
 					"default": true
+				},
+				"overlayToggleMode" : {
+					"type": "boolean",
+					"default": false
 				},
 				"lastKindomInterface" : {
 					"type" : "number",

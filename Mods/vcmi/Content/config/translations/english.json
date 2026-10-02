@@ -343,6 +343,8 @@
 	"vcmi.adventureOptions.minimapShowHeroes.hover": "Show Heroes On Minimap",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Show Combats In Replays}\n\nEvery combat that took place during the replayed turn is played out on screen. If disabled, such combats are skipped.",
 	"vcmi.adventureOptions.replayShowBattles.hover": "Show Combats In Replays",
+	"vcmi.adventureOptions.overlayToggleMode.help": "{Toggle Overlay}\n\nPress the ALT key or use the two finger gesture once to show the names of map objects and town buildings, then press again to hide them. If this option is off, the names only show while the key is held down. Requires the Enable Overlay option in general settings.",
+	"vcmi.adventureOptions.overlayToggleMode.hover": "Toggle Overlay",
 	"vcmi.adventureOptions.numericQuantities.help": "{Numeric Creature Quantities}\n\nShow the approximate quantities of enemy creatures in the numeric A-B format.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numeric Creature Quantities",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Right Click Drag}\n\nWhen enabled, moving mouse with right button pressed will drag adventure map view.",
