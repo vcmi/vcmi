@@ -813,12 +813,12 @@ bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGH
 
 	uint32_t leftLevel = left->level;
 	uint64_t leftExperience = left->exp;
-	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::KNOWLEDGE);
 	uint32_t leftPrimaryAndLevel = leftPrimary + leftLevel;
 
 	uint32_t rightLevel = right->level;
 	uint64_t rightExperience = right->exp;
-	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::KNOWLEDGE);
 	uint32_t rightPrimaryAndLevel = rightPrimary + rightLevel;
 
 	if (leftPrimaryAndLevel != rightPrimaryAndLevel)
