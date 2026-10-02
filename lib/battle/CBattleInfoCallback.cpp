@@ -2232,7 +2232,13 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	// H3: effect depends on creatures that started the battle, it stays even after all such creatures are dead
+	const auto armyUnits = battleGetUnitsIf([](const battle::Unit * unit)
+	{
+		return !unit->isSummoned() && !unit->isClone();
+	});
+
+	for(const auto * unit : armyUnits)
 	{
 		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
 		{
