@@ -705,8 +705,8 @@
 		{
 			// creatures on map will grow by specified percentage each week
 			"weeklyGrowthPercent" : 10,
-			// creatures on map will not grow if their quantity is greater than this value
-			"weeklyGrowthCap" : 4000,
+			// creatures on map will not grow if their quantity is greater than this value. H3 stores quantity as 64000 at most
+			"weeklyGrowthCap" : 64000,
 			// additional growth applied during special growth weeks
 			"additionalWeeklyGrowthSpecialWeek" : 5,
 			// probability (in percent) for double growth month
