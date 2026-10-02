@@ -61,7 +61,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 
 			if(r>g) //if given resource is more expensive than wanted
 			{
-				val2 = static_cast<int>(ceil(r / g));
+				val2 = static_cast<int>((r / g) + 0.5); // H3 rounds to nearest here
 				val1 = 1;
 			}
 			else //if wanted resource is more expensive
