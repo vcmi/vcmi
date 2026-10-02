@@ -28,7 +28,7 @@ ui32 CInputStream::calculateCRC32()
 	si64 originalPos = tell();
 
 	auto data = readAll();
-	ui32 checksum = static_cast<ui32>(crc32_z(0, data.first.get(), data.second));
+	ui32 checksum = static_cast<ui32>(crc32(0, data.first.get(), static_cast<uInt>(data.second)));
 
 	seek(originalPos);
 

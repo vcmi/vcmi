@@ -113,7 +113,7 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 		}
 
 		fileContents[i] = CResourceHandler::get(modName)->load(path)->readAll();
-		checksum = crc32_z(checksum, fileContents[i].first.get(), fileContents[i].second);
+		checksum = crc32(checksum, fileContents[i].first.get(), static_cast<uInt>(fileContents[i].second));
 	}
 
 	// parsing of a file does not depend on any other file, so files can be parsed in parallel
@@ -338,20 +338,20 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	uLong modChecksum = 0;
 	// current VCMI version is part of checksum to force re-validation of all mods on VCMI update
 	const std::string_view vcmiVersion{GameConstants::VCMI_VERSION};
-	modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(vcmiVersion.data()), vcmiVersion.size());
+	modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(vcmiVersion.data()), static_cast<uInt>(vcmiVersion.size()));
 
 	// mod.json is not a part of mod filesystem, so it has to be added into checksum separately
 	if (modName != ModScope::scopeBuiltin())
 	{
 		ui32 configChecksum = CResourceHandler::get("initial")->load(getModDefinitionFile(modName))->calculateCRC32();
-		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&configChecksum), sizeof(configChecksum));
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&configChecksum), sizeof(configChecksum));
 	}
 
 	JsonNode result;
 
 	for (size_t i = 0; i < contentTypes.size(); ++i)
 	{
-		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
 		isValid = isValid && contentFiles[i].valid;
 		contentFiles[i].data.setModScope(modName);
 		result[contentTypes[i]] = std::move(contentFiles[i].data);
@@ -359,7 +359,7 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 
 	for (const ModFiles * translation : { &baseTranslation, &extraTranslation, &fallbackTranslation })
 	{
-		modChecksum = crc32_z(modChecksum, reinterpret_cast<const Bytef *>(&translation->checksum), sizeof(uint32_t));
+		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&translation->checksum), sizeof(uint32_t));
 		isValid = isValid && translation->valid;
 	}
 
