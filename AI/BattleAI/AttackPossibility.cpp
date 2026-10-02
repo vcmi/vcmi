@@ -437,7 +437,7 @@ AttackPossibility AttackPossibility::evaluate(
 				//FIXME: use ranged retaliation
 				attackerDamageReduce = 0;
 
-				if (!attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliate() && !counterAttacksBlocked)
+				if(i == 0 && !attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					for(auto retaliated : retaliatedUnits)
 					{

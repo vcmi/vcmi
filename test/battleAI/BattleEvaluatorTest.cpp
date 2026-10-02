@@ -58,6 +58,17 @@ public:
 		return moveTowards(stack, primaryTargetHexes, primaryTargetHexes);
 	}
 
+	AttackPossibility evaluateMelee(const CStack * attacker, const CStack * defender, BattleHex from)
+	{
+		std::shared_ptr<Environment> environment = gameHandler;
+		auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
+		callback->onBattleStarted(battle());
+		auto hypotheticalBattle = std::make_shared<HypotheticBattle>(environment.get(), callback->getBattle(BattleID(0)));
+		DamageCache damageCache;
+		damageCache.buildDamageCache(hypotheticalBattle, BattleSide::DEFENDER);
+		return AttackPossibility::evaluate(BattleAttackInfo(attacker, defender, 0, false), from, damageCache, hypotheticalBattle);
+	}
+
 	void addObstacle()
 	{
 		const auto * obstacleInfo = LIBRARY->obstacles()->getByName("core:12");
@@ -236,5 +247,98 @@ TEST_F(BattleEvaluatorSpellTest, DeclinesMagicDefenceAgainstAnEnemyWithoutMagic)
 	auto action = decideSpell(ours);
 
 	EXPECT_FALSE(action.has_value());
+}
+
+TEST_F(BattleEvaluatorTest, EnemyOnlyAreaAttackDoesNotDamageAnAlly)
+{
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	const auto * hydra = addStack(BattleSide::DEFENDER, creatureByName("core:hydra"), BattleHex(8, 5), 10);
+	const auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+
+	auto attack = evaluateMelee(hydra, enemy, hydra->getPosition());
+	EXPECT_GT(attack.defenderDamageReduce, 0);
+	EXPECT_EQ(attack.collateralDamageReduce, 0);
+	EXPECT_FALSE(vstd::contains_if(attack.affectedUnits, [ally](const auto & unit)
+	{
+		return unit->unitId() == ally->unitId();
+	}));
+}
+
+TEST_F(BattleEvaluatorTest, DragonBreathStillDamagesAnAllyBehindTheTarget)
+{
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(6, 5), 100);
+	const auto * dragon = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(8, 5), 3);
+
+	auto attack = evaluateMelee(dragon, enemy, dragon->getPosition());
+	EXPECT_GT(attack.collateralDamageReduce, 0);
+}
+
+TEST_F(BattleEvaluatorSpellTest, PrefersRestoringManyCreaturesToDamageSpell)
+{
+	teachDefender(SpellID::RESURRECTION);
+	defenderSideHero->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 2, ChangeValueMode::ABSOLUTE);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::MAGIC_ARROW));
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(7, 5), 15);
+	const auto * active = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 40);
+	auto * wounded = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(14, 5), 300);
+	// One survivor used to cap the value of restoring the rest, making Magic Arrow look better.
+	int64_t damage = wounded->getAvailableHealth() - wounded->getMaxHealth();
+	wounded->damage(damage);
+	ASSERT_EQ(wounded->getCount(), 1);
+
+	auto action = decideSpell(active);
+
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::RESURRECTION));
+	EXPECT_EQ(targetOf(*action), wounded);
+}
+
+TEST_F(BattleEvaluatorSpellTest, DeclinesUselessSpellWhenStackCannotAct)
+{
+	teachDefender(SpellID::PROTECTION_FROM_AIR);
+
+	addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(1, 5), 30);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(15, 5), 30);
+	ours->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BIND_EFFECT, BonusSource::OTHER, 0, BonusSourceID()));
+	ASSERT_EQ(ours->getMovementRange(), 0);
+
+	auto action = decideSpell(ours);
+
+	EXPECT_FALSE(action.has_value());
+}
+
+TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
+{
+	const auto * griffins = addStack(BattleSide::ATTACKER, creatureByName("core:royalGriffin"), BattleHex(8, 5), 50);
+	const auto * crusaders = addStack(BattleSide::DEFENDER, creatureByName("core:crusader"), BattleHex(9, 5), 20);
+	ASSERT_EQ(crusaders->getTotalAttacks(false), 2);
+	ASSERT_TRUE(griffins->hasBonusOfType(BonusType::UNLIMITED_RETALIATIONS));
+
+	DamageEstimation retaliation;
+	battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
+	const int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
+	ASSERT_GT(retaliationDamage, 0);
+
+	auto attack = evaluateMelee(crusaders, griffins, crusaders->getPosition());
+
+	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
+}
+
+TEST_F(BattleEvaluatorSpellTest, PrefersCheaperSpellForAnEquivalentFinishingKill)
+{
+	teachDefender(SpellID::IMPLOSION, 18);
+	defenderSideHero->addSpellToSpellbook(SpellID(SpellID::FIREBALL));
+	defenderSideHero->setSecSkillLevel(SecondarySkill::FIRE_MAGIC, 3, ChangeValueMode::ABSOLUTE);
+	defenderSideHero->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
+	addStack(BattleSide::ATTACKER, creatureByName("core:zealot"), BattleHex(1, 2), 3);
+	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:devil"), BattleHex(6, 2), 1);
+	int64_t damage = ours->getAvailableHealth() - 39;
+	ours->damage(damage);
+
+	auto action = decideSpell(ours);
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::FIREBALL));
 }
 }

@@ -133,7 +133,7 @@ float BattleExchangeVariant::trackAttack(
 	bool isOurAttack,
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb,
-	bool evaluateOnly)
+	AttackMode mode)
 {
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
@@ -143,7 +143,7 @@ float BattleExchangeVariant::trackAttack(
 	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attackDamage, damageCache);
 	float attackerDamageReduce = 0;
 
-	if(!evaluateOnly)
+	if(mode != AttackMode::ESTIMATE)
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(
@@ -167,7 +167,7 @@ float BattleExchangeVariant::trackAttack(
 		attacker->afterAttack(shooting, false);
 	}
 
-	if(!evaluateOnly && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
+	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
 		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
@@ -764,7 +764,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						isOur,
 						damageCache,
 						hb,
-						true);
+						BattleExchangeVariant::AttackMode::ESTIMATE);
 
 #if BATTLE_TRACE_LEVEL>=2
 					logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), stackWithBonuses->getDescription(), score);
@@ -843,7 +843,8 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			{
 				for(int i = 0; i < totalAttacks; i++)
 				{
-					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle);
+					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle,
+						i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
 
 					if(!attacker->alive() || !defender->alive())
 						break;

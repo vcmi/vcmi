@@ -89,6 +89,13 @@ public:
 	BattleExchangeVariant()
 		: dpsScore() {}
 
+	enum class AttackMode
+	{
+		ESTIMATE,
+		FIRST_STRIKE,
+		FOLLOWUP_STRIKE
+	};
+
 	float trackAttack(
 		const AttackPossibility & ap,
 		std::shared_ptr<HypotheticBattle> hb,
@@ -101,7 +108,7 @@ public:
 		bool isOurAttack,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb,
-		bool evaluateOnly = false);
+		AttackMode mode);
 
 	const BattleScore & getScore() const { return dpsScore; }
 
