@@ -101,7 +101,8 @@
 				"chainLength" : { "type" : "number" },
 				"healLevel" : { "type" : "string" },
 				"healPower" : { "type" : "string" },
-				"minFullUnits" : { "type" : "number" }
+				"minFullUnits" : { "type" : "number" },
+				"randomValue" : { "type" : "boolean" }
 			},
 			"additionalProperties" : false
 		}

@@ -497,6 +497,9 @@ Spell can be used on dead units, but only if corpse is not blocked by a living u
 	/// Minimal amount of health points that this spell can restore, based on target creature health
 	"minFullUnits" : 1,
 	
+	/// If true, effect restores random amount of health points from 1 to spell effect power, instead of the full amount. Used by First Aid Tent
+	"randomValue" : true,
+	
 	/// "heal" - only heals the unit, without resurrecting any creatures
 	/// "resurrect" - heals, resurrecting any dead units from stack until running out of power
 	/// "overHeal" - similar to resurrect, however it may also increase unit stack size over its initial size

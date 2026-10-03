@@ -22,6 +22,16 @@ function Script:getMinFullUnits()
 	return self.minFullUnits or 0
 end
 
+--- Amount of health restored by the effect. With randomValue the effect heals random amount from 1 to computed value (First Aid Tent in H3).
+--- Without server access (hover tooltip) maximal value is used.
+function Script:getHealAmount(mechanics, unit, server)
+	local value = mechanics:applySpellBonus(mechanics:getEffectValue(), unit)
+	if self.randomValue and server ~= nil and value > 1 then
+		return server:rngInt(1, math.floor(value))
+	end
+	return value
+end
+
 --- Only injured units are valid; resurrect/overheal levels also accept dead units.
 function Script:isValidTarget(mechanics, unit)
 	local level = self:getHealLevel()
@@ -58,7 +68,7 @@ function Script:getHealthChange(mechanics, spellTarget)
 		local unit = dest.unit
 		if unit then
 			local copy = unit:copy()
-			local healedHP, resurrected = copy:heal(mechanics:applySpellBonus(mechanics:getEffectValue(), unit), self:getHealLevel(), self:getHealPower())
+			local healedHP, resurrected = copy:heal(self:getHealAmount(mechanics, unit, nil), self:getHealLevel(), self:getHealPower())
 			result.hpDelta   = result.hpDelta   + healedHP
 			result.unitsDelta = result.unitsDelta + resurrected
 			result.unitType  = unit:getCreature()
@@ -76,7 +86,7 @@ function Script:apply(mechanics, server, target)
 		local unit = dest.unit
 		if unit then
 			local healedHP, resurrected = server:healUnit(
-				battle, unit, mechanics:applySpellBonus(mechanics:getEffectValue(), unit), self:getHealLevel(), self:getHealPower())
+				battle, unit, self:getHealAmount(mechanics, unit, server), self:getHealLevel(), self:getHealPower())
 
 			if resurrected > 0 then
 				local textID = resurrected == 1 and "core.genrltxt.117" or "core.genrltxt.116"
