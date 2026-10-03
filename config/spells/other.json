@@ -120,6 +120,7 @@
 					"obstacle" : {
 						"type":"obstacle",
 						"hidden" : true,
+						"hideNative" : true, // H3: can not be cast if enemy has creatures on native terrain
 						"passable" : true,
 						"trap" : false,
 						"triggerAbility" : "core:landMineTrigger",
