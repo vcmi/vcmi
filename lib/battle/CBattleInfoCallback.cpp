@@ -152,7 +152,7 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 
 		if(!hero)
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		if(!hero->hasSpellbook())
+		if(!hero->hasSpellbook() && !hero->hasSpellbookFreeCombatSpell())
 			return ESpellCastProblem::NO_SPELLBOOK;
 		if(battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;

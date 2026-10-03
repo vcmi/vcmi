@@ -803,6 +803,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		b->customIconPath = ImagePath::fromJson(ability["icon"]);
 
 	b->hidden = !ability["hidden"].isNull() && ability["hidden"].Bool();
+	// For artifact-granted special combat spells that intentionally bypass the spellbook requirement.
+	b->castWithoutSpellbook = !ability["castWithoutSpellbook"].isNull() && ability["castWithoutSpellbook"].Bool();
 
 	value = &ability["effectRange"];
 	if (!value->isNull())

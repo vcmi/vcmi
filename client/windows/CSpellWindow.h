@@ -78,6 +78,7 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<CPicture> schoolTabAnyDisabled;
 	std::shared_ptr<CAnimImage> schoolPicture;
 	std::shared_ptr<CPicture> schoolPictureCustom;
+	std::shared_ptr<CAnimImage> artifactSpellsFlag;
 
 	std::array<std::shared_ptr<SpellArea>, 24> spellAreas;
 	std::shared_ptr<CLabel> mana;
@@ -110,6 +111,7 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::vector<SpellSchool> customSpellSchools;
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
+	bool artifactSpellsOnly; //if true, only charged artifact combat spells are displayed
 	SpellSchool selectedTab;
 	int currentPage; //changes when corners are clicked
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
@@ -120,6 +122,7 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	void processSpells();
 	void searchInput();
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
+	bool isChargedArtifactSpell(const CSpell * spell) const;
 
 	void setSchoolImages(SpellSchool school);
 
@@ -139,6 +142,7 @@ public:
 	void fexitb();
 	void fadvSpellsb();
 	void fbattleSpellsb();
+	void fArtifactSpellsb();
 	void toggleSearchBoxFocus();
 	void fmanaPtsb();
 

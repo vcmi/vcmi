@@ -40,6 +40,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/adventure/AdventureSpellEffect.h"
@@ -48,6 +49,8 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/artifact/CArtifactInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 
 // Ordering of spell school tabs in SpelTab.def
@@ -142,6 +145,7 @@ public:
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, const std::function<void(SpellID)> & onSpellSelect):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
+	artifactSpellsOnly(openOnBattleSpells && !_myHero->hasSpellbook()),
 	selectedTab(SpellSchool::ANY),
 	currentPage(0),
 	myHero(_myHero),
@@ -236,6 +240,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		schoolTabCustom.push_back(std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getSchoolBookmarkPath(), i == 0 ? 0 : 1, 0, isBigSpellbook ? 0 : 15, yStart + ((yEnd - yStart) * i) / denom));
 	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117 + offL, 74 + offT);
 
+	Point artifactFlagPos(278 + (isBigSpellbook ? 43 : 0), 407 + (isBigSpellbook ? 56 : 0));
+	artifactSpellsFlag = std::make_shared<CAnimImage>(AnimationPath::builtin("artifactChargedSpellbookFlag"), 0, 0, artifactFlagPos.x, artifactFlagPos.y);
+
 	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 159 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
 
 	if(isBigSpellbook)
@@ -246,6 +253,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	Rect schoolRect( 549 + pos.x + offR, 94 + pos.y, 45, 35);
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x + (isBigSpellbook ? 175 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x + (isBigSpellbook ? 43 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( artifactFlagPos.x + pos.x, artifactFlagPos.y + pos.y, 36, 48), std::bind(&CSpellWindow::fArtifactSpellsb, this), "artifactCharged.spellBook.artifactSpells", this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 355 + pos.x + (isBigSpellbook ? 110 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fadvSpellsb,    this),    452, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 418 + pos.x + (isBigSpellbook ? 142 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fmanaPtsb,      this),    459, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 0),   std::bind(&CSpellWindow::selectSchool,   this, SpellSchool::AIR), 454, this));
@@ -333,18 +341,20 @@ void CSpellWindow::processSpells()
 		if(onSpellSelect)
 		{
 			bool spellAvailable = myHero->canCastThisSpell(spell.get()) || (showAllSpells->isSelected() && !spell->isSpecial());
+			bool artifactFilterMatches = artifactSpellsOnly == isChargedArtifactSpell(spell.get());
 
 			if(spell->isCombat() == openOnBattleSpells
 				&& !spell->isCreatureAbility()
 				&& searchTextFound
-				&& spellAvailable)
+				&& spellAvailable
+				&& artifactFilterMatches)
 			{
 				mySpells.push_back(spell.get());
 			}
 			continue;
 		}
 
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()) && searchTextFound)
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()) && searchTextFound && artifactSpellsOnly == isChargedArtifactSpell(spell.get()))
 			mySpells.push_back(spell.get());
 	}
 
@@ -426,6 +436,8 @@ void CSpellWindow::fexitb()
 
 void CSpellWindow::fadvSpellsb()
 {
+	artifactSpellsOnly = false;
+	processSpells();
 	if(battleSpellsOnly == true)
 	{
 		turnPageRight();
@@ -437,6 +449,8 @@ void CSpellWindow::fadvSpellsb()
 
 void CSpellWindow::fbattleSpellsb()
 {
+	artifactSpellsOnly = false;
+	processSpells();
 	if(battleSpellsOnly == false)
 	{
 		turnPageLeft();
@@ -446,6 +460,44 @@ void CSpellWindow::fbattleSpellsb()
 	computeSpellsPerArea();
 }
 
+void CSpellWindow::fArtifactSpellsb()
+{
+	artifactSpellsOnly = !artifactSpellsOnly;
+	if(artifactSpellsOnly && !battleSpellsOnly)
+	{
+		turnPageLeft();
+		battleSpellsOnly = true;
+	}
+	processSpells();
+	setCurrentPage(0);
+	computeSpellsPerArea();
+}
+
+bool CSpellWindow::isChargedArtifactSpell(const CSpell * spell) const
+{
+	if(!spell || !spell->isCombat())
+		return false;
+
+	for(const auto & bonus : *myHero->getBonusesOfType(BonusType::SPELL, spell->getId()))
+	{
+		if(bonus->source != BonusSource::ARTIFACT)
+			continue;
+
+		const auto * artInst = myHero->getArtByInstanceId(bonus->sid.as<ArtifactInstanceID>());
+		if(!artInst)
+			continue;
+
+		const auto * artType = artInst->getType();
+		if(artType->isCharged()
+			&& artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST
+			&& artType->getChargeCost(spell->getId()).has_value())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 void CSpellWindow::toggleSearchBoxFocus()
 {
 	if(searchBox != nullptr)

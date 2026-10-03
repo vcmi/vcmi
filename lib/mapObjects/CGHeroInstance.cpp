@@ -45,6 +45,7 @@
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../spells/CSpell.h"
+#include "../spells/CSpellHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "MiscObjects.h"
@@ -980,6 +981,31 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		}
 	}
 	return !getSourcesForSpell(spell->getId()).empty();
+}
+
+bool CGHeroInstance::canCastThisSpellWithoutSpellbook(const spells::Spell * spell) const
+{
+	if(!spell || !spell->isCombat() || !spell->isSpecial() || !canCastThisSpell(spell))
+		return false;
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spell->getId()))
+	{
+		if(bonus->castWithoutSpellbook)
+			return true;
+	}
+
+	return false;
+}
+
+bool CGHeroInstance::hasSpellbookFreeCombatSpell() const
+{
+	for(const auto & spell : LIBRARY->spellh->objects)
+	{
+		if(canCastThisSpellWithoutSpellbook(spell.get()))
+			return true;
+	}
+
+	return false;
 }
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const

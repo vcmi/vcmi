@@ -193,7 +193,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 				logGlobal->debug("CSpell::canBeCast: invalid caster");
 				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 			}
-			else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+			else if(!castingHero->hasSpellbook() && !castingHero->canCastThisSpellWithoutSpellbook(owner))
 				genProblem = ESpellCastProblem::NO_SPELLBOOK;
 			else if(!castingHero->canCastThisSpell(owner))
 				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;

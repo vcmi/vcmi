@@ -136,6 +136,8 @@ JsonNode Bonus::toJsonNode() const
 		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
 	if(hidden)
 		root["hidden"].Bool() = hidden;
+	if(castWithoutSpellbook)
+		root["castWithoutSpellbook"].Bool() = castWithoutSpellbook;
 	return root;
 }
 

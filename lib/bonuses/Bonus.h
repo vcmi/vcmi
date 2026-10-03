@@ -65,6 +65,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
 
 	bool hidden = false;
+	bool castWithoutSpellbook = false;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
@@ -103,6 +104,14 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & updater;
 		h & propagationUpdater;
 		h & targetSourceType;
+		if(h.hasFeature(Handler::Version::ARTIFACT_SPELLBOOK_FREE_CASTING))
+		{
+			uint8_t castWithoutSpellbookValue = castWithoutSpellbook ? 1 : 0;
+			h & castWithoutSpellbookValue;
+			castWithoutSpellbook = castWithoutSpellbookValue != 0;
+		}
+		else if(!h.saving)
+			castWithoutSpellbook = false;
 
 		if (h.hasFeature(Handler::Version::BONUS_TARGET_SOURCE_ID))
 			h & targetSourceID;

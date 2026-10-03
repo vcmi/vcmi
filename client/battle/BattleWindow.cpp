@@ -243,7 +243,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	auto hero = owner.getBattle()->battleGetMyHero();
 
-	bool quickSpellWindowVisible = hasSpaceForQuickActions() && hero != nullptr && hero->hasSpellbook();
+	bool quickSpellWindowVisible = hasSpaceForQuickActions() && hero != nullptr && (hero->hasSpellbook() || hero->hasSpellbookFreeCombatSpell());
 	bool unitActionWindowVisible = hasSpaceForQuickActions();
 
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
