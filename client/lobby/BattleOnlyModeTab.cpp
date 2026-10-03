@@ -68,6 +68,9 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 #include "../../lib/spells/CSpellHandler.h"
 
+static constexpr int SPELL_ROWS_VISIBLE = 3;
+static constexpr int SPELLS_PER_ROW = 4;
+
 BattleOnlyModeTab::BattleOnlyModeTab()
 	: startInfo(std::make_shared<BattleOnlyModeStartInfo>())
 	, disabledColor(GAME->server().isHost() ? Colors::WHITE : Colors::ORANGE)
@@ -384,10 +387,6 @@ void BattleOnlyModeHeroSelector::manageSpells()
 	for(auto & spellId : owner.startInfo->spells[id])
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spellId, std::nullopt, CComponent::ESize::large));
 
-	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
-	for(int i = 0; i < 3; i++)
-		pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
-
 	auto allowedSet = LIBRARY->spellh->getDefaultAllowed();
 	std::vector<SpellID> allSpells(allowedSet.begin(), allowedSet.end());
 	allSpells.erase(std::remove_if(allSpells.begin(), allSpells.end(), [](const SpellID& spell) {
@@ -418,6 +417,13 @@ void BattleOnlyModeHeroSelector::manageSpells()
 		else
 			toAdd.push_back(spell);
 	}
+
+	const bool showAddButton = resComps.size() < SPELL_ROWS_VISIBLE * SPELLS_PER_ROW && !toAdd.empty();
+	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+	if(showAddButton)
+		pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
+	pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
+	pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
 
 	auto openList = [this](std::vector<SpellID> list, bool add){
 		std::vector<std::string> texts;
@@ -455,15 +461,20 @@ void BattleOnlyModeHeroSelector::manageSpells()
 	};
 
 	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(owner.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom);
-	temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
-	temp->buttons[0]->addCallback([openList, toAdd](){ openList(toAdd, true); });
-	temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellAdd")); });
-	temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/removeChannel")));
-	temp->buttons[1]->addCallback([openList, toRemove](){ openList(toRemove, false); });
-	temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellRemove")); });
-	temp->buttons[1]->setEnabled(owner.startInfo->spells[id].size());
-	temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
-	temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.600")); });
+	// TODO: replace this dialog with a spell selection window that can display an unlimited number of spells.
+	const size_t removeButtonIndex = showAddButton ? 1 : 0;
+	if(showAddButton)
+	{
+		temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
+		temp->buttons[0]->addCallback([openList, toAdd](){ openList(toAdd, true); });
+		temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellAdd")); });
+	}
+	temp->buttons[removeButtonIndex]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/removeChannel")));
+	temp->buttons[removeButtonIndex]->addCallback([openList, toRemove](){ openList(toRemove, false); });
+	temp->buttons[removeButtonIndex]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellRemove")); });
+	temp->buttons[removeButtonIndex]->setEnabled(owner.startInfo->spells[id].size());
+	temp->buttons[removeButtonIndex + 1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
+	temp->buttons[removeButtonIndex + 1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.600")); });
 
 	ENGINE->windows().pushWindow(temp);
 }
