@@ -420,7 +420,8 @@
 						"ignoreImmunity" : true,
 						"dispelNegative":true,
 						"dispelNeutral":true,
-						"dispelPositive":true
+						"dispelPositive":true,
+						"ignoreSpells" : [ "core:poison" ] // H3: only Cure removes poison
 					}
 				},
  				"range" : "0"
