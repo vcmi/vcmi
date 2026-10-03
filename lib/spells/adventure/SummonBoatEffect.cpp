@@ -89,6 +89,19 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if (useExistingBoat)
 	{
+		// H3: boat that was used by the caster the last time is always preferred
+		for(const auto & b : env->getMap()->getObjects<CGBoat>())
+		{
+			if(!b->getBoardedHero() && b->layer == EPathfindingLayer::SAIL && b->getLastHeroID() == parameters.caster->getHeroCaster()->id)
+			{
+				nearest = b;
+				break;
+			}
+		}
+	}
+
+	if (useExistingBoat && nearest == nullptr)
+	{
 		// H3: only boats that are owned by caster or not owned by anyone can be summoned
 		// distance is measured in Manhattan metric (levels of the map are ignored), if there are several equally distant boats then last one is used
 		int dist = 0;

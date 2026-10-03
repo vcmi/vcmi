@@ -1083,7 +1083,10 @@ bool CGBoat::isCoastVisitable() const
 void CGBoat::setBoardedHero(const CGHeroInstance * hero)
 {
 	if (hero)
+	{
 		boardedHeroID = hero->id;
+		lastHeroID = hero->id;
+	}
 	else
 		boardedHeroID = ObjectInstanceID();
 }
