@@ -1149,6 +1149,18 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 		auto doMovement = [&](int3 dst, bool transit, const EPathfindingLayer & layer)
 		{
+			// Mirror server-side check: interaction with objects of players that were not met yet
+			// is not allowed while simultaneous turns are active. Abort instead of sending doomed request
+			if(const TerrainTile * tile = cc->getTile(heroPtr->convertFromVisitablePos(dst), false))
+			{
+				for(const auto & objectID : tile->visitableObjects)
+				{
+					const CGObjectInstance * obj = cc->getObjInstance(objectID);
+					if(obj && !canInteractWithObject(nullkiller.get(), obj))
+						throw cannotFulfillGoalException("Objects of players that we have not met yet can not be visited during simultaneous turns!");
+				}
+			}
+
 			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit, layer);
 		};
 

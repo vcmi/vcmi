@@ -60,12 +60,13 @@ enum class ESerializationVersion : int32_t
 	BONUS_TARGET_SOURCE_ID, // bonus can restrict PERCENT_TO_TARGET_TYPE to a single source ID
 	SECONDARY_SKILL_OFFER_COOLDOWN, // hero stores level at which skills with offer cooldown were gained
 	SEER_HUT_NAME_TEXT_ID, // seer name is stored as text identifier, and a quest may override it with a map-defined name
+	SIMTURNS_CONTACT_STATUS, // game state stores players that still play simultaneous turns without contact
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SEER_HUT_NAME_TEXT_ID,
+	CURRENT = SIMTURNS_CONTACT_STATUS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

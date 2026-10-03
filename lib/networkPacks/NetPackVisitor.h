@@ -30,6 +30,7 @@ public:
 	virtual void visitQueryResolved(QueryResolved & pack) {}
 	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
+	virtual void visitSimturnsContactStatus(SimturnsContactStatus & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
 	virtual void visitPlayerStartsTurn(PlayerStartsTurn & pack) {}

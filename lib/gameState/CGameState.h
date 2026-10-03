@@ -87,6 +87,10 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
+	/// pairs of players that play their turns simultaneously and have not made contact yet.
+	/// Such players can not interact with objects owned by each other - see TurnOrderProcessor on server
+	std::set<std::pair<PlayerColor, PlayerColor>> blockedContacts;
+
 	CGameState();
 	virtual ~CGameState();
 
@@ -120,6 +124,9 @@ public:
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const;
 
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
+	/// Returns false if both players are still playing simultaneous turns without contact,
+	/// which means that interaction between them is not allowed yet
+	bool isContactAllowed(PlayerColor color1, PlayerColor color2) const;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
@@ -215,6 +222,8 @@ public:
 		h & scenarioOps;
 		h & initialOpts;
 		h & actingPlayers;
+		if (h.hasFeature(Handler::Version::SIMTURNS_CONTACT_STATUS))
+			h & blockedContacts;
 		h & day;
 		h & map;
 		h & players;
