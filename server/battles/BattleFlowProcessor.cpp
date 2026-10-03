@@ -33,6 +33,23 @@
 
 #include <vstd/RNG.h>
 
+// ENCHANTER bonus parameter is either cooldown, or [cooldown, selection weight]
+static int32_t enchanterCooldown(const Bonus & bonus)
+{
+	if(!bonus.parameters)
+		return 0;
+	if(bonus.parameters->isVector())
+		return bonus.parameters->toVector().empty() ? 0 : bonus.parameters->toVector().front();
+	return bonus.parameters->toNumber();
+}
+
+static int32_t enchanterWeight(const Bonus & bonus)
+{
+	if(bonus.parameters && bonus.parameters->isVector() && bonus.parameters->toVector().size() > 1)
+		return std::max(0, bonus.parameters->toVector().at(1));
+	return 1;
+}
+
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -858,7 +875,16 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			bool cast = false;
 			while(!bl.empty() && !cast)
 			{
-				auto bonus = *RandomGeneratorUtil::nextItem(bl, gameHandler->getRandomGenerator());
+				// H3: spell is selected randomly using weights, among spells that can be cast
+				std::vector<int> weights;
+				for(const auto & candidate : bl)
+					weights.push_back(enchanterWeight(*candidate));
+
+				int64_t selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, gameHandler->getRandomGenerator());
+				if(selectedIndex < 0)
+					break;
+
+				auto bonus = bl[selectedIndex];
 				auto spellID = bonus->subtype.as<SpellID>();
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus * b)
@@ -866,7 +892,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && enchanterCooldown(*bonus) != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -877,7 +903,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
+					int cooldown = enchanterCooldown(*bonus);
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;
