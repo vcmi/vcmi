@@ -86,3 +86,7 @@ Example:
 ```
 
 All keys are optional. Environment variables in paths are expanded, so values like `%LOCALAPPDATA%\\VCMI\\cache` can be used. Restart VCMI after changing this file and move existing data to the new location if needed.
+
+The Launcher can also change these directories from the About VCMI screen. It normally stores changes in `config\\dirs.json`. If the installation directory is read-only, such as an installation under `Program Files`, it stores them for the current user in `HKEY_CURRENT_USER\\Software\\VCMI` instead. Registry values use the same names as the JSON keys above and take precedence over `dirs.json`. A later successful update of a value in `dirs.json` removes the corresponding registry value.
+
+User data must not be stored directly in the VCMI installation directory. If the installation directory itself is selected in the Launcher, VCMI uses its `vcmi-data` subdirectory instead. If the selected location requires elevated permissions, the Launcher can restart itself through the standard Windows administrator prompt. After the restart, select the directory again. Alternatively, choose a writable directory in the user profile or on another drive.

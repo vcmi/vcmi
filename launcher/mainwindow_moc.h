@@ -13,6 +13,7 @@
 #include <QTranslator>
 
 class CConsoleHandler;
+class CBasicLogConfigurator;
 
 namespace Ui
 {
@@ -45,6 +46,7 @@ class MainWindow : public QMainWindow
 #ifndef VCMI_MOBILE
 	std::unique_ptr<CConsoleHandler> console;
 #endif
+	std::unique_ptr<CBasicLogConfigurator> logConfigurator;
 
 	bool gamepadStartAllowed = false;
 
@@ -82,6 +84,7 @@ public:
 	void switchToModsTab();
 	void switchToStartTab();
 	void moveToScreen(int screenIndex);
+	bool reloadDirectories();
 
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent *event) override;
@@ -99,4 +102,5 @@ private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();
 	void on_aboutButton_clicked();
+	void reconfigureLogDirectory(const QString & path);
 };

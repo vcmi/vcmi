@@ -7,6 +7,9 @@ endif()
 set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
+		aboutProject/dataexporter.cpp
+		aboutProject/deviceinfo.cpp
+		aboutProject/userdirectorymanager.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
@@ -20,7 +23,7 @@ set(launcher_SRCS
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
-		firstLaunch/progressoverlay.cpp
+		progressoverlay.cpp
 		demo.cpp
 		main.cpp
 		helper.cpp
@@ -48,6 +51,8 @@ endif()
 set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
+		aboutProject/deviceinfo.h
+		aboutProject/userdirectorymanager.h
 		modManager/cdownloadmanager_moc.h
 		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
@@ -61,7 +66,7 @@ set(launcher_HEADERS
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
-		firstLaunch/progressoverlay.h
+		progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
@@ -240,7 +245,7 @@ if(WIN32)
 	# - cmake_policy in all possible places
 	# - used NO_POLICY_SCOPE to make sure no other parts reset policies
 	# Still nothing worked, warning kept appearing and WinMain didn't link automatically
-	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain)
+	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain shell32)
 endif()
 
 if(APPLE)

@@ -8,7 +8,8 @@
  *
  */
 #include "progressoverlay.h"
-#include "../helper.h"
+#include "helper.h"
+
 #include <QVBoxLayout>
 #include <QPalette>
 
