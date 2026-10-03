@@ -251,7 +251,8 @@ PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * h
 	if(!heroSkillSeed.count(hero->getHeroTypeID()))
 		heroSkillSeed.try_emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
-	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
+	// hero level is not yet raised at this point, H3 selects chances table using level that hero is going to reach
+	const bool isLowLevelHero = hero->level + 1 < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? hero->getHeroClass()->primarySkillLowLevel : hero->getHeroClass()->primarySkillHighLevel;
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
 
