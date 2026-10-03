@@ -313,6 +313,7 @@ public:
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 	ObjectInstanceID boardedHeroID;
+	ObjectInstanceID lastHeroID; // hero that used this boat the last time, remains set after hero disembarks
 
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -332,6 +333,7 @@ public:
 
 	void setBoardedHero(const CGHeroInstance * hero);
 	const CGHeroInstance * getBoardedHero() const;
+	ObjectInstanceID getLastHeroID() const { return lastHeroID; }
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -339,6 +341,10 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
 		h & boardedHeroID;
+		if(h.hasFeature(Handler::Version::BOAT_LAST_HERO))
+			h & lastHeroID;
+		else
+			lastHeroID = ObjectInstanceID();
 
 		h & layer;
 		h & onboardAssaultAllowed;

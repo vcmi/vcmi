@@ -101,6 +101,7 @@
 				"abilityBias" :                   { "type" : "number" },
 				"goodMoraleChance" :              { "type" : "array" },
 				"badMoraleChance" :               { "type" : "array" },
+				"badMoraleHumanIgnoreChance" :     { "type" : "number" },
 				"moraleDiceSize" :                { "type" : "number" },
 				"moraleBias" :                    { "type" : "number" },
 				"goodLuckChance" :                { "type" : "array" },

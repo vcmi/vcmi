@@ -18,6 +18,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/IGameSettings.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -29,6 +32,23 @@
 #include "../../lib/spells/CSpell.h"
 
 #include <vstd/RNG.h>
+
+// ENCHANTER bonus parameter is either cooldown, or [cooldown, selection weight]
+static int32_t enchanterCooldown(const Bonus & bonus)
+{
+	if(!bonus.parameters)
+		return 0;
+	if(bonus.parameters->isVector())
+		return bonus.parameters->toVector().empty() ? 0 : bonus.parameters->toVector().front();
+	return bonus.parameters->toNumber();
+}
+
+static int32_t enchanterWeight(const Bonus & bonus)
+{
+	if(bonus.parameters && bonus.parameters->isVector() && bonus.parameters->toVector().size() > 1)
+		return std::max(0, bonus.parameters->toVector().at(1));
+	return 1;
+}
 
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
@@ -266,6 +286,12 @@ bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & b
 		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
 		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
+			// original H3 lets human players ignore part of triggered bad morale rolls
+			const auto * owner = gameHandler->gameInfo().getPlayerState(next->unitOwner());
+			int ignoreChance = gameHandler->gameInfo().getSettings().getInteger(EGameSettings::COMBAT_BAD_MORALE_HUMAN_IGNORE_CHANCE);
+			if (owner && owner->isHuman() && gameHandler->randomizer->rollCombatAbility(ownerArmy, ignoreChance))
+				return false;
+
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
 			ba.actionType = EActionType::BAD_MORALE;
@@ -849,7 +875,16 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			bool cast = false;
 			while(!bl.empty() && !cast)
 			{
-				auto bonus = *RandomGeneratorUtil::nextItem(bl, gameHandler->getRandomGenerator());
+				// H3: spell is selected randomly using weights, among spells that can be cast
+				std::vector<int> weights;
+				for(const auto & candidate : bl)
+					weights.push_back(enchanterWeight(*candidate));
+
+				int64_t selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, gameHandler->getRandomGenerator());
+				if(selectedIndex < 0)
+					break;
+
+				auto bonus = bl[selectedIndex];
 				auto spellID = bonus->subtype.as<SpellID>();
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus * b)
@@ -857,7 +892,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && enchanterCooldown(*bonus) != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -868,7 +903,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
+					int cooldown = enchanterCooldown(*bonus);
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;

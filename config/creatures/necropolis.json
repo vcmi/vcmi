@@ -378,7 +378,7 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "curse",
-				"val" : 20
+				"val" : 25
 			}
 		},
 		"upgrades": ["dreadKnight"],
@@ -413,7 +413,7 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "curse",
-				"val" : 20
+				"val" : 25
 			},
 			"deathStrike" :
 			{

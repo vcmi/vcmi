@@ -2232,7 +2232,13 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	// H3: effect depends on creatures that started the battle, it stays even after all such creatures are dead
+	const auto armyUnits = battleGetUnitsIf([](const battle::Unit * unit)
+	{
+		return !unit->isSummoned() && !unit->isClone();
+	});
+
+	for(const auto * unit : armyUnits)
 	{
 		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
 		{
@@ -2244,7 +2250,9 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 		}
 	}
 
-	return std::max(0, ret - manaReduction + manaIncrease);
+	// H3: reductions never make a paid spell free
+	int32_t minimalCost = ret > 0 ? 1 : 0;
+	return std::max(minimalCost, ret - manaReduction + manaIncrease);
 }
 
 bool CBattleInfoCallback::battleHasShootingPenalty(const battle::Unit * shooter, const BattleHex & destHex) const
@@ -2479,6 +2487,9 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		discount += h->valOfBonuses(BonusType::SURRENDER_DISCOUNT);
+
+	// H3: discount is capped at 90%
+	vstd::amin(discount, 90.0);
 
 	ret = static_cast<int>(ret * (100.0 - discount) / 100.0);
 	vstd::amax(ret, 0); //no negative costs for >100% discounts (impossible in original H3 mechanics, but some day...)

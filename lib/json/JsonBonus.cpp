@@ -121,7 +121,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
-		case BonusType::ENCHANTER:
 		case BonusType::SLAYER:
 		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
@@ -130,6 +129,19 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::OPENING_BATTLE_SPELL:
 			// 1 number
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
+			break;
+		case BonusType::ENCHANTER:
+			// cooldown, or cooldown and selection weight
+			if (value.isVector() && value.Vector().size() > 1)
+			{
+				std::vector<int32_t> loadedData{
+					static_cast<int32_t>(value[0].Integer()),
+					static_cast<int32_t>(value[1].Integer())
+				};
+				var = loadedData;
+			}
+			else
+				var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
 			// 1 creature ID

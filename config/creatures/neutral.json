@@ -230,7 +230,7 @@
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "magicArrow",
-				"addInfo" : 22,
+				"addInfo" : 10,
 				"val" : 2
 			},
 			"castsIceBolt" :
@@ -402,42 +402,56 @@
 				"type" : "ENCHANTER",
 				"subtype" : "haste",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 15 ] // cooldown, selection weight
 			},
 			"castsSlow" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "slow",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 10 ] // cooldown, selection weight
 			},
 			"castsStoneSkin" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "stoneSkin",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 15 ] // cooldown, selection weight
 			},
 			"castsBless" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "bless",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 15 ] // cooldown, selection weight
 			},
 			"castsWeakness" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "weakness",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 4 ] // cooldown, selection weight
 			},
 			"castsAirShield" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "airShield",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : [ 3, 10 ] // cooldown, selection weight
+			},
+			"castsBloodlust" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "bloodlust",
+				"val" : 3,
+				"addInfo" : [ 3, 5 ] // cooldown, selection weight
+			},
+			"castsCure" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "cure",
+				"val" : 3,
+				"addInfo" : [ 3, 10 ] // cooldown, selection weight
 			}
 		},
 		"graphics" :

@@ -914,7 +914,7 @@ void CUnitState::afterAttack(bool ranged, bool counter)
 	if(counter)
 		counterAttacks.use();
 
-	if(ranged)
+	if(ranged && shots.canUse()) // additional shots of the same attack may be made with no ammunition left
 		shots.use();
 }
 

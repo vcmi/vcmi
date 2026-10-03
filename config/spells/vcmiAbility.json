@@ -55,7 +55,7 @@
 		"name": "",
 		"school" : {},
 		"level": 1,
-		"power": 10,
+		"power": 25,
 		"defaultGainChance": 0,
 		"gainChance": {},
 		"animation":{
@@ -68,7 +68,7 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"power" : 10,
+				"power" : 25,
 				"cost" : 0,
 				"targetModifier":{"smart":true},
 				"battleEffects":{
@@ -76,13 +76,14 @@
 						"type":"heal",
 						"healLevel":"heal",
 						"healPower":"permanent",
+						"randomValue":true, // H3: heals random amount from 1 to maximum
 						"optional":true
 					}
 				},
 				"range" : "0"
 			},
 			"none" :{
-				"power" : 10
+				"power" : 25
 			},
 			"basic" :{
 				"power" : 50

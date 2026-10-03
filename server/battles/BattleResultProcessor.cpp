@@ -219,6 +219,9 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		r.exp[BattleSide::DEFENDER] = 0;
 		for (auto i = r.casualties[battle.otherSide(r.winner)].begin(); i!=r.casualties[battle.otherSide(r.winner)].end(); i++)
 		{
+			// war machines do not grant experience
+			if (i->first.toCreature()->hasBonusOfType(BonusType::SIEGE_WEAPON))
+				continue;
 			r.exp[r.winner] += i->first.toCreature()->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
 		}
 	};

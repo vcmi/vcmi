@@ -216,7 +216,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "swordsman"
+			"creature" : "crusader"
 		}
 	},
 	"mutareDrake":

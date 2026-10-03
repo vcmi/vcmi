@@ -89,14 +89,34 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if (useExistingBoat)
 	{
-		double dist = 0;
+		// H3: boat that was used by the caster the last time is always preferred
+		for(const auto & b : env->getMap()->getObjects<CGBoat>())
+		{
+			if(!b->getBoardedHero() && b->layer == EPathfindingLayer::SAIL && b->getLastHeroID() == parameters.caster->getHeroCaster()->id)
+			{
+				nearest = b;
+				break;
+			}
+		}
+	}
+
+	if (useExistingBoat && nearest == nullptr)
+	{
+		// H3: only boats that are owned by caster or not owned by anyone can be summoned
+		// distance is measured in Manhattan metric (levels of the map are ignored), if there are several equally distant boats then last one is used
+		int dist = 0;
+		const int3 heroPos = parameters.caster->getHeroCaster()->visitablePos();
 		for(const auto & b : env->getMap()->getObjects<CGBoat>())
 		{
 			if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
 				continue; //we're looking for unoccupied boat
 
-			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
-			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			if(b->tempOwner.isValidPlayer() && b->tempOwner != parameters.caster->getCasterOwner())
+				continue;
+
+			const int3 boatPos = b->visitablePos();
+			int nDist = std::abs(boatPos.x - heroPos.x) + std::abs(boatPos.y - heroPos.y);
+			if(!nearest || nDist <= dist) //it's first boat or not farther than previous
 			{
 				nearest = b;
 				dist = nDist;

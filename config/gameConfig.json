@@ -596,6 +596,8 @@
 			// Resulting chance is chanceValue / diceSize. If list contains 0 values, option will be disabled
 			"goodMoraleChance" : [ 1, 2, 3 ],
 			"badMoraleChance" : [ 2, 4, 6],
+			// Percentage chance that a triggered bad morale roll is ignored when unit belongs to a human player. Matches original H3 at 25, 0 disables
+			"badMoraleHumanIgnoreChance" : 25,
 			"moraleDiceSize" : 24,
 			// Bias for morale rolls. See abilityBias for detailed description
 			// Recommended value is around moraleDiceSize / 4
@@ -703,8 +705,8 @@
 		{
 			// creatures on map will grow by specified percentage each week
 			"weeklyGrowthPercent" : 10,
-			// creatures on map will not grow if their quantity is greater than this value
-			"weeklyGrowthCap" : 4000,
+			// creatures on map will not grow if their quantity is greater than this value. H3 stores quantity as 64000 at most
+			"weeklyGrowthCap" : 64000,
 			// additional growth applied during special growth weeks
 			"additionalWeeklyGrowthSpecialWeek" : 5,
 			// probability (in percent) for double growth month

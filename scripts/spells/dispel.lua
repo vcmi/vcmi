@@ -2,6 +2,16 @@ local Base = require("spells/unitEffect")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
+--- Spells listed in ignoreSpells parameter are not removed by this effect (e.g. Poison can only be removed by Cure in H3)
+function Script:isIgnoredSpell(sourceSpell)
+	if self.ignoreSpells == nil then return false end
+	local key = sourceSpell:getJsonKey()
+	for _, ignored in ipairs(self.ignoreSpells) do
+		if ignored == key then return true end
+	end
+	return false
+end
+
 function Script:getDispelableBonuses(mechanics, unit)
 	local currentSpellKey = mechanics:getSpell():getJsonKey()
 	-- no filter describes this: what makes a bonus dispelable is the spell that granted it
@@ -11,6 +21,7 @@ function Script:getDispelableBonuses(mechanics, unit)
 		local sourceSpell = LIBRARY:getSpellByName(bonus:getSourceID())
 		if not sourceSpell then return false end
 		if sourceSpell:isPersistent() then return false end
+		if self:isIgnoredSpell(sourceSpell) then return false end
 		if sourceSpell:isAdventure()  then return false end
 		if self.dispelPositive and sourceSpell:isPositive() then return true end
 		if self.dispelNegative and sourceSpell:isNegative() then return true end

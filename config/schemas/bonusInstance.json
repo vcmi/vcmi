@@ -328,7 +328,6 @@
 							"SPELLCASTER", 
 							"FEROCITY", 
 							"PRIMARY_SKILL", 
-							"ENCHANTER",
 							"SLAYER",
 							"SPELL_IMMUNITY",
 							"DARKNESS", 
@@ -346,6 +345,23 @@
 							{ "type" : "number" },
 							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
 						],
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "ENCHANTER" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{ "type" : "array", "minItems" : 1, "maxItems" : 2, "items" : { "type" : "number" } } // cooldown, optional selection weight
+						]
 					}
 				}
 			}
