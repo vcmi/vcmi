@@ -40,14 +40,14 @@ ReplayAbortOverlay::ReplayAbortOverlay(std::function<void()> onAbort, std::funct
 	abortButton = std::make_shared<CButton>(
 		Point(6, 6),
 		AnimationPath::builtin("settingsWindow/button80"),
-		std::make_pair("", MetaString::createFromTextID("vcmi.replay.abort.help").toString(&GAME->translator())),
+		CButton::tooltip(),
 		[this](){ abortReplay(); });
 	abortButton->setTextOverlay(MetaString::createFromTextID("vcmi.replay.abort").toString(&GAME->translator()), FONT_MEDIUM, Colors::YELLOW);
 
 	pauseButton = std::make_shared<CButton>(
 		Point(91, 6),
 		AnimationPath::builtin("settingsWindow/button80"),
-		std::make_pair("", MetaString::createFromTextID("vcmi.replay.pause.help").toString(&GAME->translator())),
+		CButton::tooltip(),
 		[this](){ togglePause(); });
 	updatePauseLabel();
 
