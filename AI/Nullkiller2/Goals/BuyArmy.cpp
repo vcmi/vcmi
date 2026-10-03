@@ -99,7 +99,8 @@ void BuyArmy::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
-	if(town->getVisitingHero() && !town->getGarrisonHero())
+	// a visiting hero may belong to an ally
+	if(town->getVisitingHero() && town->getVisitingHero()->tempOwner == aiGw->playerID && !town->getGarrisonHero())
 	{
 		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
 	}
