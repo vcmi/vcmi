@@ -835,22 +835,22 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Schärfungsstärke für den xBRZ + Schärfen Upscaling-Filter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + Schärfen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + Schärfen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + Schärfen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
@@ -1607,12 +1607,12 @@ Sie müssen den Offline-Installer von GOG auswählen.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation der HD Edition gefunden!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Installation von Heroes III HD Edition wurde gefunden. Soll die HD-Grafik-Mod mit dieser Installation installiert werden?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>

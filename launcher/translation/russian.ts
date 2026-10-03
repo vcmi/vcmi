@@ -89,7 +89,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translation type="unfinished">Экспорт  логов</translation>
+        <translation>Экспорт логов</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
