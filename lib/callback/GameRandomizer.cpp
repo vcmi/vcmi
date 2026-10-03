@@ -290,6 +290,25 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 	bool selectWisdom = wantsWisdom && !wisdomList.empty();
 	bool selectSchool = !selectWisdom && wantsSchool && !schoolList.empty();
 
+	// H3: in guaranteed school roll, school that hero already has counts with weight 1, other schools are weighted by raw class chance
+	// and are never picked if class can not learn them. If no school can be picked this way, usual roll is made
+	auto schoolWeight = [&](const SecondarySkill & school) -> int
+	{
+		if(hero->getSecSkillLevel(school) > 0)
+			return 1;
+		auto chance = hero->getHeroClass()->secSkillProbability.find(school);
+		return chance == hero->getHeroClass()->secSkillProbability.end() ? 0 : chance->second;
+	};
+
+	if(selectSchool)
+	{
+		bool anyPossible = false;
+		for(const auto & school : schoolList)
+			anyPossible = anyPossible || schoolWeight(school) > 0;
+
+		selectSchool = anyPossible;
+	}
+
 	std::set<SecondarySkill> actualCandidates;
 
 	if(selectWisdom)
@@ -306,6 +325,17 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 
 	for(const auto & possible : actualCandidates)
 	{
+		if(selectSchool)
+		{
+			int weight = schoolWeight(possible);
+			if(weight > 0)
+			{
+				skills.push_back(possible);
+				weights.push_back(weight);
+			}
+			continue;
+		}
+
 		skills.push_back(possible);
 		if(hero->getHeroClass()->secSkillProbability.count(possible) != 0)
 		{
