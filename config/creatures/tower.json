@@ -346,7 +346,7 @@
 			"spellsLength" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
-				"val" : 5
+				"val" : 6
 			},
 			"randomSpellcaster" :
 			{
