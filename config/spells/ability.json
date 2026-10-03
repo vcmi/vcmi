@@ -222,14 +222,6 @@
 									"N_TURNS"
 								]
 							},
-							"noRetaliation" : {
-								"val" : 0,
-								"type" : "NO_RETALIATION",
-								"duration" : [
-									"UNTIL_BEING_ATTACKED",
-									"N_TURNS"
-								]
-							},
 							"generalAttackReduction" : {
 								"val" : 75,
 								"type" : "GENERAL_ATTACK_REDUCTION",
