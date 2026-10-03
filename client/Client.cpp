@@ -247,13 +247,6 @@ void CClient::initPlayerInterfaces()
 				logNetwork->info("Player %s will be lead by human", color.toString());
 				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
-
-			if(!advInterfaceReadySent.contains(color))
-			{
-				advInterfaceReadySent.insert(color);
-				AdvInterfaceReady air;
-				sendRequest(air, color, /* waitTillRealize = */ false);
-			}
 		}
 	}
 
@@ -401,7 +394,7 @@ void CClient::giveTurnLocally(PlayerColor color)
 {
 	PlayerStartsTurn yt;
 	yt.player = color;
-	yt.queryID = QueryID::NONE;
+	yt.questionID = QuestionID::NONE;
 
 	ApplyClientNetPackVisitor visitor(*this, gameState());
 	yt.visit(visitor);
@@ -482,7 +475,7 @@ void CClient::toggleAiSolo(EAiSoloMode mode, bool ownVision)
 	session["aiSoloStopRequested"].Bool() = false;
 	session["spectate-own-vision"].Bool() = ownVision;
 	session["spectate-skip-battle"].Bool() = mode == EAiSoloMode::SKIP_BATTLES;
-	// the AI answers the battle end query, so a result window would only be in the way
+	// the AI answers the battle end question, so a result window would only be in the way
 	session["spectate-skip-battle-result"].Bool() = true;
 
 	if(mode != EAiSoloMode::HIDDEN)

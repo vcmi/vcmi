@@ -11,6 +11,7 @@
 #include "GameHandlerTestServer.h"
 
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 GameHandlerTestServer::GameHandlerTestServer(std::shared_ptr<CGameState> gameState)
 	: gameState(std::move(gameState))
@@ -51,6 +52,26 @@ bool GameHandlerTestServer::hasBothPlayersAtSameConnection(PlayerColor, PlayerCo
 
 void GameHandlerTestServer::applyPack(CPackForClient & pack)
 {
+	// Record the packs that carry the client-facing activity contract, so that tests can
+	// check what the client would receive.
+	if(const auto * heroLevelUp = dynamic_cast<const HeroLevelUp *>(&pack))
+	{
+		levelUpPromptIDs.push_back(heroLevelUp->questionID);
+		levelUpMoreLevelsFollow.push_back(heroLevelUp->moreLevelsFollow);
+	}
+
+	if(const auto * commanderLevelUp = dynamic_cast<const CommanderLevelUp *>(&pack))
+	{
+		levelUpPromptIDs.push_back(commanderLevelUp->questionID);
+		levelUpMoreLevelsFollow.push_back(commanderLevelUp->moreLevelsFollow);
+	}
+
+	if(const auto * resolved = dynamic_cast<const QuestionResolved *>(&pack))
+		resolvedQuestionIDs.push_back(resolved->questionID);
+
+	if(dynamic_cast<const BattleResultAccepted *>(&pack))
+		battlesConfirmed++;
+
 	if(gameState)
 		gameState->apply(pack);
 }

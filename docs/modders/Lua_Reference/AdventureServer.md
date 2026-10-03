@@ -223,7 +223,7 @@ Pops up a message box for one player. This call does not wait for the player to 
 
 ### spawnDialog
 
-Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and registers the query whose reply resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.
+Internal plumbing for the blocking showQuestion / showRewardsMessage helpers: shows a modal dialog and registers the question whose answer resumes the paused script. Scripts should call showQuestion / showRewardsMessage instead.
 
 - param `player`: `integer` — Player who must answer the dialog.
 - param `text`: [`MetaString`](MetaString.md) — The dialog text, built with MetaString.

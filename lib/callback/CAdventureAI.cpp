@@ -111,9 +111,9 @@ void CAdventureAI::battleSpellCast(const BattleID & battleID, const BattleSpellC
 	battleAI->battleSpellCast(battleID, sc);
 }
 
-void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
+void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QuestionID questionID)
 {
-	battleAI->battleEnd(battleID, br, queryID);
+	battleAI->battleEnd(battleID, br, questionID);
 	battleAI.reset();
 	restoreWaitTillRealize();
 }

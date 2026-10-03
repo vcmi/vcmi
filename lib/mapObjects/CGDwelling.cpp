@@ -255,7 +255,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.replaceName(*Slots().begin()->second);
-		gameEvents.showBlockingDialog(this, &bd);
+		gameEvents.showBlockingDialog(&bd);
 		return;
 	}
 
@@ -301,7 +301,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
 
-	gameEvents.showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(&bd);
 }
 
 void CGDwelling::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
@@ -534,7 +534,7 @@ void CGDwelling::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 	}
 }
 
-void CGDwelling::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGDwelling::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
 	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present

@@ -24,6 +24,7 @@ struct BattleResult;
 class UpgradeInfo;
 class BoatId;
 class CGObjectInstance;
+class JsonNode;
 class CStackInstance;
 class CGHeroInstance;
 class IGameInfoCallback;
@@ -59,12 +60,12 @@ public:
 	virtual void pickRandomObject(IGameRandomizer & gameRandomizer);
 	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
-	//Called when queries created DURING HERO VISIT are resolved
-	//First parameter is always hero that visited object and triggered the query
+	//Called when activities created DURING HERO VISIT are resolved
+	//First parameter is always hero that visited object and triggered the activity
 	virtual void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const;
-	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const;
-	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
-	virtual void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
+	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const;
+	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const;
+	virtual void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const;
 
 	//unified helper to show info dialog for object owner
 	virtual void showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;

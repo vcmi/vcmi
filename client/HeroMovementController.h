@@ -61,10 +61,10 @@ public:
 
 	// netpack handlers
 	void onMoveHeroApplied();
-	void onQueryReplyApplied();
+	void onQuestionAnswerApplied();
 	void onPlayerTurnStarted();
 	void onBattleStarted();
-	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID);
 	void onTryMoveHero(const CGHeroInstance * hero, const TryMoveHero & details);
 
 	// UI handlers

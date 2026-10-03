@@ -40,7 +40,8 @@ public:
 	/// Walk `hero` onto `obj` and trigger its visit handler.
 	void visit(CGHeroInstance * hero, CGObjectInstance * obj);
 
-	/// Answer the most recent BlockingDialog. Fails if none is pending.
+	/// Answer the most recent BlockingDialog, delivered to the last visited object as the
+	/// server does. Fails if none is pending.
 	void answerDialog(CGHeroInstance * hero, int32_t answer);
 
 	/// Advance the in-game calendar by `days`.
@@ -55,5 +56,10 @@ protected:
 	GameEventCallbackMock & gameEvents() const { return *gameEventCallback; }
 
 private:
+	/// Delivers experienceApplied() owed by experience granted in the last call, like the
+	/// server does once the level-up chain ends.
+	void finishExperienceGrants(CGHeroInstance * hero);
+
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
+	const CGObjectInstance * visitedObject = nullptr;
 };

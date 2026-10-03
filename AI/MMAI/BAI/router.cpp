@@ -215,10 +215,10 @@ void Router::battleCatapultAttacked(const BattleID & bid, const CatapultAttack &
 	bai->battleCatapultAttacked(bid, ca);
 }
 
-void Router::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
+void Router::battleEnd(const BattleID & bid, const BattleResult * br, QuestionID questionID)
 {
 	MMAI_LOG_TAG;
-	bai->battleEnd(bid, br, queryID);
+	bai->battleEnd(bid, br, questionID);
 }
 
 void Router::battleGateStateChanged(const BattleID & bid, const EGateState state)

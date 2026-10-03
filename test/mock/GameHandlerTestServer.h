@@ -11,8 +11,11 @@
 #include "../../server/IGameServer.h"
 #include "../../lib/GameConstants.h"
 
+#include "../../lib/networkPacks/PacksForClient.h"
+
 #include <memory>
 #include <optional>
+#include <vector>
 
 class CGameState;
 
@@ -29,6 +32,18 @@ public:
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
 	void applyPack(CPackForClient & pack) override;
 	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
+
+	/// Question ids of the level-up dialogs that the server sent, in order.
+	std::vector<QuestionID> levelUpPromptIDs;
+
+	/// Whether each of those dialogs announced a further level.
+	std::vector<bool> levelUpMoreLevelsFollow;
+
+	/// Question ids that the server reported as resolved, in order.
+	std::vector<QuestionID> resolvedQuestionIDs;
+
+	/// Number of battles whose result the server actually applied.
+	int battlesConfirmed = 0;
 
 private:
 	EServerState state = EServerState::LOBBY;

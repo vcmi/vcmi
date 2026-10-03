@@ -129,7 +129,7 @@ set(test_SRCS
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
-		server/queries/QueriesProcessorTest.cpp
+		server/activities/ActivityProcessorTest.cpp
 
 		texts/TextOperationsTest.cpp
 

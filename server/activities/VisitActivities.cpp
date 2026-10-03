@@ -1,0 +1,254 @@
+/*
+ * VisitActivities.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
+#include "VisitActivities.h"
+
+#include "../../lib/CPlayerState.h"
+#include "../../lib/gameState/CGameState.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/TownBuildingInstance.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../CGameHandler.h"
+#include "../processors/NewTurnProcessor.h"
+#include "ActivityProcessor.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
+
+ObjectInteractionActivity::ObjectInteractionActivity(CGameHandler * owner, const CGHeroInstance * Hero, ActivityType type)
+	: Activity(owner, type)
+	, visitingHero(Hero->id)
+{
+	addPlayer(Hero->tempOwner);
+}
+
+bool ObjectInteractionActivity::blocksPack(const CPackForServer * pack) const
+{
+	// All packs are blocked during the visit, except answers to questions, which may have
+	// been asked by an activity that was since removed or buried. Blocking those would
+	// leave client and server waiting for each other.
+	return blockAllButReply(pack);
+}
+
+std::string ObjectInteractionActivity::toString() const
+{
+	if(visitState.isNull())
+		return Activity::toString();
+
+	return Activity::toString() + " [state " + visitState.toCompactString() + "]";
+}
+
+MapObjectVisitActivity::MapObjectVisitActivity(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
+	: ObjectInteractionActivity(owner, Hero, TYPE)
+	, visitedObject(Obj->id)
+	, removeObjectAfterVisit(false)
+{
+}
+
+StepResult MapObjectVisitActivity::advance()
+{
+	if(started)
+		return StepResult::Done;
+
+	started = true;
+	startVisit();
+	return StepResult::Continue;
+}
+
+void MapObjectVisitActivity::startVisit()
+{
+	const auto * object = gh->gameInfo().getObj(visitedObject);
+	const auto * hero = gh->gameState().getHero(visitingHero);
+
+	if(!object || !hero)
+		throw std::runtime_error("Visit started without its object or hero");
+
+	HeroVisit hv;
+	hv.objId = visitedObject;
+	hv.heroId = visitingHero;
+	hv.player = hero->tempOwner;
+	hv.starting = true;
+	gh->sendAndApply(hv);
+
+	// The object continues from here. A dialog or battle that it starts is pushed on top
+	// of this routine, which resumes once that child is done.
+	std::string scriptHandler = object->getVisitScriptHandler();
+	auto * dispatcher = gh->gameState().getMapEventDispatcher();
+
+	if(!scriptHandler.empty() && dispatcher)
+	{
+		gh->runScriptedEvent(*dispatcher, hero->getOwner(), hero->id,
+			[&](scripting::MapEventDispatcher & d){ return d.onObjectVisit(*gh, scriptHandler, object, hero); });
+	}
+	else
+	{
+		object->onHeroVisit(*gh, hero);
+	}
+}
+
+void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
+{
+	const auto * object = gh->gameInfo().getObj(visitedObject);
+	const auto * hero = gh->gameState().getHero(visitingHero);
+
+	// The object may have been removed by the visit itself. A dead hero is passed on
+	// intentionally: objects such as CGCreature handle a battle won by the defender
+	// and check the battle result instead of the hero.
+	if(object)
+		child->notifyObjectAboutRemoval(object, hero, std::exchange(visitState, {}));
+}
+
+void MapObjectVisitActivity::onAdded()
+{
+	owner->registerVisit(this);
+}
+
+void MapObjectVisitActivity::onRemoval()
+{
+	owner->unregisterVisit(this);
+
+	gh->objectVisitEnded(visitingHero, getPlayers().front());
+
+	if(removeObjectAfterVisit)
+		gh->removeObject(gh->gameState().getObjInstance(visitedObject), getPlayers().front());
+}
+
+TownBuildingVisitActivity::TownBuildingVisitActivity(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
+	: ObjectInteractionActivity(owner, heroes.front(), TYPE)
+	, town(Obj->id)
+{
+	for (const auto * hero : heroes)
+		for (const auto & building : buildingToVisit)
+			visits.push_back({ hero->id, building });
+}
+
+void TownBuildingVisitActivity::onChildCompleted(const ActivityPtr & child)
+{
+	const auto * visitedTown = gh->gameInfo().getTown(town);
+	const auto * hero = gh->gameState().getHero(visitingHero);
+
+	// The town may have changed owner or the hero may have died in the meantime
+	if(!visitedTown)
+		return;
+
+	// Activities are started by the building, not by the town - except before the first
+	// building is reached, since the town queues its building visits and only then opens
+	// its own dialogs, which end up above this routine
+	const IObjectInterface * reportTo = visitedTown;
+
+	auto building = visitedTown->rewardableBuildings.find(visitedBuilding);
+	if(building != visitedTown->rewardableBuildings.end())
+		reportTo = building->second.get();
+
+	child->notifyObjectAboutRemoval(reportTo, hero, std::exchange(visitState, {}));
+}
+
+StepResult TownBuildingVisitActivity::advance()
+{
+	if(cursor >= visits.size())
+		return StepResult::Done;
+
+	const auto & visit = visits.at(cursor++);
+
+	const auto * visitedTown = gh->gameInfo().getTown(town);
+	const auto * hero = gh->gameState().getHero(visit.hero);
+
+	// Either may be gone if an earlier building started a battle. Skip this pair and
+	// continue with the remaining buildings.
+	if(!visitedTown || !hero)
+		return StepResult::Continue;
+
+	auto building = visitedTown->rewardableBuildings.find(visit.building);
+	if(building == visitedTown->rewardableBuildings.end())
+		return StepResult::Continue;
+
+	visitingHero = visit.hero;
+	visitedBuilding = visit.building;
+	building->second->onHeroVisit(*gh, hero);
+
+	return StepResult::Continue;
+}
+
+TurnStartRoutine::TurnStartRoutine(CGameHandler * owner, PlayerColor player, ActivityPtr turnPause)
+	: Activity(owner, TYPE)
+	, turnPause(std::move(turnPause))
+{
+	addPlayer(player);
+}
+
+StepResult TurnStartRoutine::advance()
+{
+	switch(activeStep)
+	{
+		case Step::Pause:
+			activeStep = Step::Events;
+			if(turnPause)
+				owner->addActivity(std::exchange(turnPause, nullptr));
+			return StepResult::Continue;
+
+		case Step::Events:
+			// The step is left before the events run: a script that opens a dialog suspends
+			// the routine, which must then continue with the visits and not run them again
+			activeStep = Step::CollectVisits;
+			gh->newTurnProcessor->handleTurnStartEvents(getPlayers().front());
+			return StepResult::Continue;
+
+		case Step::CollectVisits:
+			activeStep = Step::Visits;
+			collectVisits();
+			return StepResult::Continue;
+
+		default:
+			return visitNext();
+	}
+}
+
+void TurnStartRoutine::collectVisits()
+{
+	const auto * playerState = gh->gameInfo().getPlayerState(getPlayers().front());
+	if(!playerState)
+		return;
+
+	for(const auto * town : playerState->getTowns())
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		if(town->getGarrisonHero() != nullptr)
+			visits.push_back({town->id, town->getGarrisonHero()->id});
+
+		if(town->getVisitingHero() != nullptr)
+			visits.push_back({town->id, town->getVisitingHero()->id});
+	}
+}
+
+StepResult TurnStartRoutine::visitNext()
+{
+	if(cursor >= visits.size())
+		return StepResult::Done;
+
+	const auto & visit = visits.at(cursor++);
+
+	const auto * object = gh->gameState().getObjInstance(visit.object);
+	const auto * hero = gh->gameState().getHero(visit.hero);
+
+	// The town may have been captured, or the hero moved away or died, between collecting
+	// the visits and reaching this one.
+	if(!object || !hero)
+		return StepResult::Continue;
+
+	if(hero->visitablePos() != object->visitablePos())
+		return StepResult::Continue;
+
+	if(gh->getVisitingHero(object) != nullptr)
+		return StepResult::Continue;
+
+	gh->objectVisited(object, hero);
+
+	return StepResult::Continue;
+}

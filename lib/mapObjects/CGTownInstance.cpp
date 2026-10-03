@@ -349,12 +349,12 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 				if(resurrectionPrice[resource] > 0)
 					dialog.components.emplace_back(ComponentType::RESOURCE, resource, -resurrectionPrice[resource]);
 			}
-			gameEvents.showBlockingDialog(this, &dialog);
+			gameEvents.showBlockingDialog(&dialog);
 		}
 	}
 }
 
-void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
+void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const
 {
 	if(!answer || !hero->getCommander() || hero->getCommander()->alive)
 		return;

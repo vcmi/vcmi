@@ -37,7 +37,7 @@ namespace spells
 class Spell;
 }
 
-/// Processes incoming battle action queries and applies requested action(s)
+/// Processes incoming battle action requests and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
 	struct MovementResult

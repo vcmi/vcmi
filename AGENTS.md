@@ -214,7 +214,7 @@ See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for
 
 - **server/** - Game server (compiled as vcmiservercommon library, shared by serverapp)
   - **battles/** - Battle flow processing
-  - **queries/** - Player queries and responses
+  - **activities/** - Player-blocking activities, the questions they ask and the answers they get
   - **processors/** - Game state processors (turns, heroes, etc.)
 
 - **serverapp/** - Standalone server executable entry point

@@ -72,9 +72,9 @@ void PackageApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPackageApplied(*this);
 }
 
-void QueryResolved::visitTyped(ICPackVisitor & visitor)
+void QuestionResolved::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitQueryResolved(*this);
+	visitor.visitQuestionResolved(*this);
 }
 
 void PackageReceived::visitTyped(ICPackVisitor & visitor)
@@ -696,9 +696,9 @@ void BuildBoat::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBuildBoat(*this);
 }
 
-void QueryReply::visitTyped(ICPackVisitor & visitor)
+void QuestionAnswer::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitQueryReply(*this);
+	visitor.visitQuestionAnswer(*this);
 }
 
 void MakeAction::visitTyped(ICPackVisitor & visitor)
@@ -914,9 +914,4 @@ void TurnTimeUpdate::visitTyped(ICPackVisitor & visitor)
 void ResponseStatistic::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitResponseStatistic(*this);
-}
-
-void AdvInterfaceReady::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitAdvInterfaceReady(*this);
 }

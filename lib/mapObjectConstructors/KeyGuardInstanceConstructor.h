@@ -13,8 +13,6 @@
 #include "../mapObjects/Quest.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Builds keymaster-gated quest guards/gates (the H3 border guard / border gate):
 /// the object's colour is its subtype, so the limiter simply requires the matching key.
 /// The per-colour quest is owned here and shared by every instance and its log entry.
@@ -53,5 +51,3 @@ class KeyGuardInstanceConstructor final : public CDefaultObjectTypeHandler<Objec
 		return &typeQuest;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

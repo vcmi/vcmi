@@ -15,6 +15,7 @@
 #include "../../lib/callback/IGameEventCallback.h"
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 
 class GameEventCallbackMock : public IGameEventCallback
@@ -31,16 +32,13 @@ public:
 
 	// ---- captured dialog queue (consumed by QuestTest::answerDialog etc.) --
 	// showBlockingDialog / showInfoDialog get pushed here instead of being
-	// dispatched to a UI. Tests inspect text / components and drive the answer
-	// via the returned struct's `answer` field.
-	struct CapturedBlockingDialog
-	{
-		BlockingDialog dialog;
-		const IObjectInterface * caller = nullptr;
-	};
-	std::vector<CapturedBlockingDialog> blockingDialogs;
+	// dispatched to a UI. Tests inspect text / components and answer through
+	// QuestTest::answerDialog.
+	std::vector<BlockingDialog>         blockingDialogs;
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
+	JsonNode                            visitState; ///< last setVisitState(), handed back by QuestTest::answerDialog
+	bool                                experienceGranted = false; ///< giveExperience() owes the object experienceApplied()
 
 	// ---- captured mutations inspected by MapScriptTest -------------------
 	std::vector<std::pair<ObjectInstanceID, int>>        manaPointsSet;
@@ -56,7 +54,8 @@ public:
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
 	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
-	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
+	void showBlockingDialog(BlockingDialog * iw) override;
+	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override { visitState = state; }
 	void showScriptDialog(BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
@@ -111,7 +110,6 @@ public:
 	void changeFogOfWar(int3, ui32, PlayerColor, ETileVisibility) override {}
 	void changeFogOfWar(const FowTilesType &, PlayerColor, ETileVisibility) override {}
 	void castSpell(const spells::Caster *, SpellID, const int3 &) override {}
-	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *, const CGHeroInstance *) override { return false; }
 
 private:
 	UpperCallback *      upperCallback = nullptr;

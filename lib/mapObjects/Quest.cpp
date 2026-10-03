@@ -778,32 +778,32 @@ bool SeerHut::allowsFullArmyRemoval() const
 	return seerGivesUnits || h3BugSettingEnabled;
 }
 
-void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
 	if(answer)
 	{
 		getQuest().takeRequirements(gameEvents, hero, allowsFullArmyRemoval());
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
-	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
-	offerNextQuest(gameEvents, hero);
+	if(!answerBlockingDialog(gameEvents, hero, answer, visitState))
+		offerNextQuest(gameEvents, hero);
 }
 
-void SeerHut::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+void SeerHut::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
-	CRewardableObject::heroLevelUpDone(gameEvents, hero);
-	offerNextQuest(gameEvents, hero);
+	if(!resumeAfterExperience(gameEvents, hero, visitState))
+		offerNextQuest(gameEvents, hero);
 }
 
-void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
+void SeerHut::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const
 {
-	CRewardableObject::garrisonDialogClosed(gameEvents, hero);
-	offerNextQuest(gameEvents, hero);
+	if(!closeGarrisonDialog(gameEvents, hero, visitState))
+		offerNextQuest(gameEvents, hero);
 }
 
 // The three callers above are every point at which granting a reward can come to an end:
 // inline, after a hero / commander level-up, or after a garrison dialog for creatures the
-// hero had no room for. Whichever one finishes last offers the next quest.
+// hero had no room for. Each calls this only once nothing of the grant is left open.
 void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
 	if(!advancePending)
@@ -817,9 +817,6 @@ void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstan
 	// the reward that was just granted tears the hut down - there is nothing left to visit
 	if(getQuest().reward && getQuest().reward->reward.removeObject)
 		return;
-
-	if(gameEvents.isVisitCoveredByAnotherQuery(this, hero))
-		return; // a dialog of this grant is still open - the reward is not fully handed over yet
 
 	gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
 	onHeroVisit(gameEvents, hero); // still the same visit: the seer simply states his next quest
