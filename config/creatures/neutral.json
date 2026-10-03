@@ -230,7 +230,7 @@
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "magicArrow",
-				"addInfo" : 22,
+				"addInfo" : 10,
 				"val" : 2
 			},
 			"castsIceBolt" :
