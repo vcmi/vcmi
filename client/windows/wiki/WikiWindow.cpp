@@ -40,6 +40,7 @@
 #include "../../../lib/entities/faction/CTownHandler.h"
 #include "../../../lib/entities/faction/CTown.h"
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/entities/hero/CHeroClass.h"
 #include "../../../lib/entities/hero/CHeroClassHandler.h"
@@ -544,9 +545,10 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 
 	// Build commander creature set - commanders are special creatures, but still deserve a wiki entry
 	std::set<CreatureID> commanderCreatures;
-	for(const auto & heroClass : LIBRARY->heroclassesh->objects)
-		if(heroClass && heroClass->commander.hasValue())
-			commanderCreatures.insert(heroClass->commander);
+	if(LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+		for(const auto & heroClass : LIBRARY->heroclassesh->objects)
+			if(heroClass && heroClass->commander.hasValue())
+				commanderCreatures.insert(heroClass->commander);
 
 	// Build faction name lookup for creature subtitles
 	std::map<FactionID, std::string> factionNameById;
@@ -554,7 +556,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 		if(faction)
 			factionNameById[faction->getId()] = faction->getNameTranslated();
 
-	// Creatures – normal creatures plus war machines and commanders (those are always shown)
+	// Creatures – normal creatures plus war machines and enabled commanders
 	{
 		const int iCreature = static_cast<int>(WikiCategory::CREATURE);
 		for(const auto & creature : LIBRARY->creh->objects)
