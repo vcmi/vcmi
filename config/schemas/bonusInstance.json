@@ -386,8 +386,8 @@
 		},
 		{
 			"if" : {
-				"properties" : {
-					"type" : { "enum" : [ "SPECIAL_UPGRADE",  "TRANSMUTATION",  "DEATH_STARE" ] }
+				"properties": {
+					"type": { "enum": [ "SPECIAL_UPGRADE", "SPECIAL_UPGRADE_CHAIN", "TRANSMUTATION", "DEATH_STARE" ] }
 				}
 			},
 			"then" : {
