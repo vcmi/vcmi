@@ -449,6 +449,13 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
+	// In auto testing mode close client once game is over for all players.
+	// Checked here, since ending gameplay below destroys the game state
+	bool allPlayersEndedGame = std::none_of(gs.players.begin(), gs.players.end(), [](const auto & player)
+	{
+		return player.second.status == EPlayerStatus::INGAME;
+	});
+
 	if(lastHumanEndsGame || localHumanWinsGame || pack.silentEnd)
 	{
 		assert(adventureInt);
