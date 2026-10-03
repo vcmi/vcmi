@@ -9,7 +9,7 @@
 		{
 			"name": "lineAnimationSpeed",
 			"type": "horizontalLine",
-			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 169, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -94,12 +94,12 @@
 				}
 			]
 		},
-/////////////////////////////////////// Left section - checkboxes
+/////////////////////////////////////// Left section - Battle settings
 		{
 			"name": "generalOptionsLabels",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 55},
+			"position": {"x": 45, "y": 175},
 			"items":
 			[
 				{
@@ -107,6 +107,9 @@
 				},
 				{
 					"text": "core.genrltxt.405",
+				},
+				{
+					"text": "core.genrltxt.406",
 				},
 				{
 					"text": "vcmi.battleOptions.movementHighlightOnHover.hover",
@@ -127,9 +130,6 @@
 					"text": "vcmi.battleOptions.showQuickSpell.hover",
 				},
 				{
-					"text": "core.genrltxt.406",
-				},
-				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
 				}
 			]
@@ -137,7 +137,7 @@
 		{
 			"type" : "verticalLayout",
 			"customType" : "checkbox",
-			"position": {"x": 10, "y": 53},
+			"position": {"x": 10, "y": 173},
 			"items":
 			[
 				{
@@ -149,6 +149,11 @@
 					"name": "movementShadowCheckbox",
 					"help": "core.help.428",
 					"callback": "movementShadowChanged"
+				},
+				{
+					"name": "mouseShadowCheckbox",
+					"help": "core.help.429",
+					"callback": "mouseShadowChanged"
 				},
 				{
 					"name": "movementHighlightOnHoverCheckbox",
@@ -181,39 +186,34 @@
 					"callback": "showQuickSpellChanged"
 				},
 				{
-					"name": "mouseShadowCheckbox",
-					"help": "core.help.429",
-					"callback": "mouseShadowChanged"
-				},
-				{
 					"name": "skipBattleIntroMusicCheckbox",
 					"help": "vcmi.battleOptions.skipBattleIntroMusic",
 					"callback": "skipBattleIntroMusicChanged"
 				}
 			]
 		},
-/////////////////////////////////////// Bottom section - Animation Speed and Turn Order
+/////////////////////////////////////// Top section - Animation Speed and Turn Order
 		{
 			"name": "frameAnimationSpeed",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 350 }
+			"position": {"x": 6, "y": 50 }
 		},
 		{
 			"name": "animationSpeedLabel",
 			"type": "labelCentered",
 			"text": "core.genrltxt.393",
-			"position": {"x": 150, "y": 362}
+			"position": {"x": 150, "y": 62}
 		},
 		{
 			"name": "animationSpeedValueLabel",
 			"type": "labelCentered",
-			"position": {"x": 324, "y": 390}
+			"position": {"x": 324, "y": 90}
 		},
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 373},
+			"position": {"x": 10, "y": 73},
 			"items":
 			[
 				{
@@ -320,7 +320,7 @@
 			"name": "frameQueueSize",
 			"type": "picture",
 			"image": "settingsWindow/frameStackQueue",
-			"position": {"x": 6, "y": 410 }
+			"position": {"x": 6, "y": 110 }
 		},
 
 		{
@@ -330,13 +330,13 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.battleOptions.queueSizeLabel.hover",
-			"position": {"x": 170, "y": 422}
+			"position": {"x": 170, "y": 122}
 		},
 
 		{
 			"name": "queueSizePicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 434},
+			"position": {"x": 10, "y": 134},
 			"items":
 			[
 				{
