@@ -469,7 +469,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	{
 		if(stack->alive()
 			&& (emptyTileAreaAttack || destinationStack->alive())
-			&& stack->shots.canUse())
+			&& (i > 0 || stack->shots.canUse())) // H3: additional shots of the same attack do not need extra ammunition
 		{
 			// when the defender strikes first the opening shot above is skipped and this loop makes
 			// it instead, so the shot that abilities fire on is the first one this loop makes
