@@ -83,7 +83,8 @@
 				"chainLength" : { "type" : "number" },
 				"dispelPositive" : { "type" : "boolean" },
 				"dispelNegative" : { "type" : "boolean" },
-				"dispelNeutral" : { "type" : "boolean" }
+				"dispelNeutral" : { "type" : "boolean" },
+				"ignoreSpells" : { "type" : "array", "items" : { "type" : "string" } }
 			},
 			"additionalProperties" : false
 		}

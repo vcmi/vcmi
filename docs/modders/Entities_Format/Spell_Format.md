@@ -464,6 +464,7 @@ Dispells all bonuses provided by any other spells from this unit. Following spel
 - Acid Breath
 - any effects from adventure spells
 - any effects that comes from this spell, including effects from previous casts of the spell
+- any spells listed in `ignoreSpells` parameter
 
 Only bonuses from spells with specified positiveness(es) will be dispelled. See configuration example.
 
@@ -479,6 +480,9 @@ Only bonuses from spells with specified positiveness(es) will be dispelled. See 
 
 	/// if set, spell will dispell other spells with "indifferent" flag
 	"dispelNeutral" : false,
+
+	/// optional, list of spells that this effect can not dispel
+	"ignoreSpells" : [ "core:poison" ],
 }
 ```
 
