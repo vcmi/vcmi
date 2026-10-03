@@ -464,7 +464,11 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0)
 			secSkillsGainedAtLevel[skill.first] = level;
 
-	if(exp == UNINITIALIZED_EXPERIENCE)
+	if(mapSpecifiedLevel.has_value())
+	{
+		initializeMapSpecifiedLevel(gameRandomizer);
+	}
+	else if(exp == UNINITIALIZED_EXPERIENCE)
 	{
 		initExp(gameRandomizer.getDefault());
 	}
@@ -812,6 +816,11 @@ bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGH
 ui64 CGHeroInstance::estimateHeroCombatValue() const
 {
 	return static_cast<ui64>(getHeroStrength() * estimateCombatValue());
+}
+
+bool CGHeroInstance::canGainExperience() const
+{
+	return !cannotGainExperience;
 }
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
@@ -1517,24 +1526,68 @@ void CGHeroInstance::attachCommanderToArmy()
 		commander->setArmy(this);
 }
 
+void CGHeroInstance::levelUpAutomaticallyOnce(IGameRandomizer & gameRandomizer)
+{
+	const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
+	const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
+
+	// level is raised before the skill is picked, as on server
+	levelUp();
+	setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
+	if(!proposedSecondarySkills.empty())
+	{
+		const auto & chosenSkill = proposedSecondarySkills.front();
+		setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
+		if(chosenSkill.toSkill()->grantsLevelUp())
+			exp += experienceToGainLevels(1);
+	}
+}
+
 void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 {
 	while(gainsLevel())
-	{
-		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
-		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
+		levelUpAutomaticallyOnce(gameRandomizer);
+}
 
-		// level is raised before the skill is picked, as on server
-		levelUp();
-		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
-		if(!proposedSecondarySkills.empty())
-		{
-			const auto & chosenSkill = proposedSecondarySkills.front();
-			setSecSkillLevel(chosenSkill, 1, ChangeValueMode::RELATIVE);
-			if(chosenSkill.toSkill()->grantsLevelUp())
-				exp += experienceToGainLevels(1);
-		}
+void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomizer)
+{
+	assert(mapSpecifiedLevel.has_value());
+	assert(*mapSpecifiedLevel > 0);
+
+	const ui32 targetLevel = *mapSpecifiedLevel;
+	const bool addSkills = mapSpecifiedLevelAddsSkills;
+
+	mapSpecifiedLevel.reset();
+	mapSpecifiedLevelAddsSkills = true;
+
+	// A HotA hero with cannotGainXP is a map-authored final snapshot.
+	if(cannotGainExperience)
+	{
+		level = targetLevel;
+		nodeHasChanged();
+
+		if(exp == UNINITIALIZED_EXPERIENCE)
+			exp = 0;
+		return;
 	}
+
+	level = 1;
+
+	if(addSkills)
+	{
+		while(level < targetLevel)
+			levelUpAutomaticallyOnce(gameRandomizer);
+	}
+	else
+	{
+		level = targetLevel;
+		nodeHasChanged();
+	}
+
+	if(targetLevel <= LIBRARY->heroh->maxSupportedLevel())
+		exp = LIBRARY->heroh->reqExp(targetLevel);
+	else if(exp == UNINITIALIZED_EXPERIENCE)
+		exp = 0;
 }
 
 bool CGHeroInstance::hasVisions(const CGObjectInstance * target, BonusSubtypeID subtype) const
