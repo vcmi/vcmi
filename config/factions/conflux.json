@@ -213,7 +213,7 @@
 				"dwellingUpLvl1": { "upgrades" : "dwellingLvl1" },
 				"dwellingUpLvl2": { "upgrades" : "dwellingLvl2" },
 				"dwellingUpLvl3": { "upgrades" : "dwellingLvl3" },
-				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4", "requires" : [ "dwellingLvl2" ] },
+				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4", "requires" : [ "dwellingUpLvl2" ] },
 				"dwellingUpLvl5": { "upgrades" : "dwellingLvl5" },
 				"dwellingUpLvl6": { "upgrades" : "dwellingLvl6", "requires" : [ "mageGuild2" ] },
 				"dwellingUpLvl7": { "upgrades" : "dwellingLvl7" },
