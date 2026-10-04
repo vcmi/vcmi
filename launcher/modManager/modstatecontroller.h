@@ -25,6 +25,11 @@ class ModStateController : public QObject, public boost::noncopyable
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
+	static QString getStagingPath(const QString & modname);
+	static QString getBackupPath(const QString & modname);
+	/// Returns directory of a mod located in user Mods directory, matched case-insensitively, or empty string if none
+	static QString findModDirectory(const QString & modname);
+
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);
 	bool removeModDir(QString mod);

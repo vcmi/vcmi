@@ -14,6 +14,7 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/modding/CModHandler.h"
@@ -273,10 +274,27 @@ bool ModStateController::canDisableMod(QString modname)
 	return true;
 }
 
+QString ModStateController::getStagingPath(const QString & modname)
+{
+	return CLauncherDirs::modsPath() + "/." + modname + ".staging";
+}
+
+QString ModStateController::getBackupPath(const QString & modname)
+{
+	return CLauncherDirs::modsPath() + "/." + modname + ".backup";
+}
+
+QString ModStateController::findModDirectory(const QString & modname)
+{
+	const QDir modsDir(CLauncherDirs::modsPath());
+	for(const auto & entry : modsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+		if(entry.compare(modname, Qt::CaseInsensitive) == 0)
+			return modsDir.filePath(entry);
+	return {};
+}
+
 bool ModStateController::doInstallMod(QString modname, QString archivePath)
 {
-	const auto destDir = CLauncherDirs::modsPath() + QChar{'/'};
-
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));
 
@@ -284,12 +302,29 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
 		return addError(modname, tr("Mod archive is invalid or corrupted"));
-	
+
+	const QString stagingPath = getStagingPath(modname);
+	const QString backupPath = getBackupPath(modname);
+
+	// leftovers of an installation that was interrupted, e.g. by a crash
+	for(const auto & path : {stagingPath, backupPath})
+		if(QDir(path).exists() && !removeModDir(path))
+			return addError(modname, tr("Failed to remove directory %1").arg(path));
+
+	if(!QDir().mkpath(stagingPath))
+		return addError(modname, tr("Failed to create directory %1").arg(stagingPath));
+
+	auto removeStaging = vstd::makeScopeGuard([this, &stagingPath]()
+	{
+		if(!removeModDir(stagingPath))
+			logGlobal->error("Failed to remove directory '%s'", stagingPath.toStdString());
+	});
+
 	std::atomic<int> filesCounter = 0;
 
-	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesCounter, &filesToExtract]()
+	auto futureExtract = std::async(std::launch::async, [&archivePath, &stagingPath, &filesCounter, &filesToExtract]()
 	{
-		const auto destDirFsPath = qstringToPath(destDir);
+		const auto destDirFsPath = qstringToPath(stagingPath);
 		ZipArchive archive(qstringToPath(archivePath));
 		for(const auto & file : filesToExtract)
 		{
@@ -306,30 +341,32 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 		qApp->processEvents();
 	}
 	
-	if(!futureExtract.get())
-	{
-		removeModDir(destDir + modDirName);
+	const QDir extractedDir(stagingPath + '/' + modDirName);
+
+	if(!futureExtract.get() || (settings["launcher"]["fullModExtraction"].Bool() && !extractNestedModArchives(this, modname, extractedDir.path())))
 		return addError(modname, tr("Failed to extract mod data"));
-	}
 
-	//rename folder and fix the path
-	QDir extractedDir(destDir + modDirName);
-	auto rc = QFile::rename(destDir + modDirName, destDir + modname);
-	if (rc)
-		extractedDir.setPath(destDir + modname);
-
-	// Remove .github folder from installed mod
 	QDir githubDir(extractedDir.filePath(".github"));
 	if (githubDir.exists())
 		githubDir.removeRecursively();
-	
-	//there are possible excessive files - remove them
-	QString upperLevel = modDirName.section('/', 0, 0);
-	if(upperLevel != modDirName)
-		removeModDir(destDir + upperLevel);
 
-	if(settings["launcher"]["fullModExtraction"].Bool() && !extractNestedModArchives(this, modname, extractedDir.path()))
-		return addError(modname, tr("Failed to extract mod data"));
+	// Existing mod is renamed instead of deleted, so a locked directory fails without leaving a partially removed mod
+	const QString lockedDirectoryError = tr("Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.");
+	const QString existingDirectory = findModDirectory(modname);
+	const QString targetDirectory = CLauncherDirs::modsPath() + '/' + modname;
+
+	if(!existingDirectory.isEmpty() && !QDir().rename(existingDirectory, backupPath))
+		return addError(modname, lockedDirectoryError.arg(existingDirectory));
+
+	if(!QDir().rename(extractedDir.path(), targetDirectory))
+	{
+		if(!existingDirectory.isEmpty() && !QDir().rename(backupPath, existingDirectory))
+			logGlobal->error("Failed to restore previous version of mod '%s' from '%s'", modname.toStdString(), backupPath.toStdString());
+		return addError(modname, lockedDirectoryError.arg(targetDirectory));
+	}
+
+	if(!existingDirectory.isEmpty() && !removeModDir(backupPath))
+		logGlobal->error("Failed to remove previous version of mod '%s' from '%s'", modname.toStdString(), backupPath.toStdString());
 
 	return true;
 }
