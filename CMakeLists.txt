@@ -677,8 +677,8 @@ endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 	if(ENABLE_TEMPLATE_EDITOR)
 		find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Svg Xml)

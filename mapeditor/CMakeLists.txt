@@ -352,7 +352,7 @@ if(ENABLE_TRANSLATIONS)
 	target_compile_definitions(vcmieditor PRIVATE ENABLE_TRANSLATIONS)
 endif()
 
-target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets)
 if(ANDROID)
 	target_link_libraries(vcmieditor Qt${QT_VERSION_MAJOR}::AndroidExtras)
 endif()
