@@ -55,6 +55,11 @@ void CArtifactsOfHeroMain::keyPressed(EShortcut key)
 	}
 }
 
+void CArtifactsOfHeroMain::keyCanceled(EShortcut key)
+{
+	keyReleased(key);
+}
+
 void CArtifactsOfHeroMain::keyReleased(EShortcut key)
 {
 	if(vstd::contains(costumeSaveShortcuts, key) || vstd::contains(costumeLoadShortcuts, key))

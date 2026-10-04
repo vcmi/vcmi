@@ -13,6 +13,7 @@
 #include "GameEngine.h"
 #include "CIntObject.h"
 #include "CursorHandler.h"
+#include "EventDispatcher.h"
 
 #include "render/Canvas.h"
 #include "render/IScreenHandler.h"
@@ -23,6 +24,7 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 	if (windowsStack.back() != top)
 		throw std::runtime_error("Attempt to pop non-top window from stack!");
 
+	ENGINE->events().cancelControllerInput(false);
 	top->deactivate();
 	disposed.push_back(top);
 	windowsStack.pop_back();
@@ -40,6 +42,7 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if (vstd::contains(windowsStack, newInt))
 		throw std::runtime_error("Attempt to add already existing window to stack!");
 
+	ENGINE->events().cancelControllerInput(true);
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
@@ -62,6 +65,7 @@ void WindowHandler::popWindows(int howMany)
 		return; //senseless but who knows...
 
 	assert(windowsStack.size() >= howMany);
+	ENGINE->events().cancelControllerInput(false);
 	windowsStack.back()->deactivate();
 	for(int i = 0; i < howMany; i++)
 	{
