@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "cdownloadmanager_moc.h"
 
+#include "../helper.h"
 #include "../../vcmiqt/convpathqstring.h"
 #include "../../vcmiqt/launcherdirs.h"
 
@@ -18,7 +19,7 @@
 CDownloadManager::CDownloadManager()
 	: downloader(*this, settings["launcher"]["httpProxy"].String(), settings["launcher"]["ignoreSslErrors"].Bool())
 {
-	pollTimer.setInterval(20);
+	pollTimer.setInterval(5);
 	connect(&pollTimer, &QTimer::timeout, this, [this](){ downloader.poll(); });
 }
 
@@ -134,11 +135,31 @@ void CDownloadManager::startNextDownload()
 		if(entry.status == FileEntry::QUEUED)
 		{
 			entry.status = FileEntry::IN_PROGRESS;
-			downloader.start(entry.url.toEncoded().toStdString(), qstringToPath(entry.filePath));
-			pollTimer.start();
+			if(entry.url.isLocalFile())
+			{
+				// deferred, so callers of downloadFile receive results asynchronously, same as for network downloads
+				QTimer::singleShot(0, this, &CDownloadManager::copyLocalFile);
+			}
+			else
+			{
+				downloader.start(entry.url.toEncoded().toStdString(), qstringToPath(entry.filePath));
+				pollTimer.start();
+			}
 			break;
 		}
 	}
+}
+
+void CDownloadManager::copyLocalFile()
+{
+	const FileEntry & entry = getActiveEntry();
+	// on Android, local path may be a content:// URI that only performNativeCopy can read
+	const QString sourcePath = entry.url.toLocalFile();
+
+	if(Helper::performNativeCopy(sourcePath, entry.filePath))
+		onDownloadFinished({});
+	else
+		onDownloadFinished(tr("Failed to copy file %1").arg(Helper::getRealPath(sourcePath)).toStdString());
 }
 
 bool CDownloadManager::hasDownloadInProgress() const

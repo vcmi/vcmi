@@ -44,6 +44,7 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 	QList<FileEntry> currentDownloads;
 
 	FileEntry & getActiveEntry();
+	void copyLocalFile();
 	void startNextDownload();
 	bool hasDownloadInProgress() const;
 

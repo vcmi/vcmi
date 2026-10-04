@@ -24,11 +24,23 @@
 /// State of a single download performed by HttpDownloader
 struct HttpDownloaderTransfer
 {
-	explicit HttpDownloaderTransfer(IHttpDownloaderListener & listener)
+	HttpDownloaderTransfer(IHttpDownloaderListener & listener, void * multiHandle)
 		: listener(listener)
+		, multiHandle(multiHandle)
 	{}
 
+	~HttpDownloaderTransfer()
+	{
+		if(handle)
+		{
+			// no-op if handle was never added to multi handle
+			curl_multi_remove_handle(multiHandle, handle);
+			curl_easy_cleanup(handle);
+		}
+	}
+
 	IHttpDownloaderListener & listener;
+	void * multiHandle;
 	CURL * handle = nullptr;
 	std::ofstream file;
 	boost::filesystem::path target;
@@ -58,17 +70,6 @@ struct HttpDownloaderTransfer
 			transfer->listener.onDownloadProgress(receivedBytes, totalBytes);
 		}
 		return 0;
-	}
-
-	void release(void * multiHandle)
-	{
-		if(handle)
-		{
-			curl_multi_remove_handle(multiHandle, handle);
-			curl_easy_cleanup(handle);
-			handle = nullptr;
-		}
-		file.close();
 	}
 
 	void removeTarget() const
@@ -145,18 +146,9 @@ void HttpDownloader::start(const std::string & url, const boost::filesystem::pat
 	if(transfer)
 		throw std::runtime_error("Failed to start download of " + url + ": download of " + transfer->url + " is still in progress");
 
-	auto newTransfer = std::make_unique<HttpDownloaderTransfer>(listener);
+	auto newTransfer = std::make_unique<HttpDownloaderTransfer>(listener, multiHandle);
 	newTransfer->url = url;
 	newTransfer->target = target;
-
-	newTransfer->file.open(target.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-	if(!newTransfer->file)
-	{
-		// reported on next poll(), same as any other failure
-		newTransfer->error = "Failed to open file " + TextOperations::filesystemPathToUtf8(target);
-		transfer = std::move(newTransfer);
-		return;
-	}
 
 	newTransfer->handle = curl_easy_init();
 	if(!newTransfer->handle)
@@ -208,9 +200,22 @@ void HttpDownloader::start(const std::string & url, const boost::filesystem::pat
 	if(!caCertificatesPath.empty())
 		setOption(handle, CURLOPT_CAINFO, caCertificatesPath.c_str());
 
+	newTransfer->file.open(target.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+	if(!newTransfer->file)
+	{
+		// reported on next poll(), same as any other failure
+		newTransfer->error = "Failed to open file " + TextOperations::filesystemPathToUtf8(target);
+		transfer = std::move(newTransfer);
+		return;
+	}
+
 	CURLMcode addResult = curl_multi_add_handle(multiHandle, handle);
 	if(addResult != CURLM_OK)
+	{
+		newTransfer->file.close();
+		newTransfer->removeTarget();
 		throw std::runtime_error(std::string("Failed to start libcurl transfer: ") + curl_multi_strerror(addResult));
+	}
 
 	transfer = std::move(newTransfer);
 }
@@ -258,13 +263,14 @@ void HttpDownloader::finish(const std::string & errorMessage)
 	std::unique_ptr<HttpDownloaderTransfer> finished = std::move(transfer);
 	std::string result = errorMessage;
 
-	finished->release(multiHandle);
+	finished->file.close();
 	if(result.empty() && !finished->file)
 		result = "Failed to write file " + TextOperations::filesystemPathToUtf8(finished->target);
 
 	if(!result.empty())
 		finished->removeTarget();
 
+	finished.reset();
 	listener.onDownloadFinished(result);
 }
 
@@ -274,7 +280,7 @@ void HttpDownloader::cancel()
 		return;
 
 	std::unique_ptr<HttpDownloaderTransfer> cancelled = std::move(transfer);
-	cancelled->release(multiHandle);
+	cancelled->file.close();
 	cancelled->removeTarget();
 }
 
