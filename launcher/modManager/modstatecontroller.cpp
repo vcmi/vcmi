@@ -210,14 +210,28 @@ bool ModStateController::canUninstallMod(QString modname)
 		return addError(modname, tr("Mod is not installed"));
 
 	if(!isModManageable(modname))
-		return addError(modname, tr("Mod is not located in user data directory and can not be managed by launcher"));
+		return addError(modname, getUnmanageableReason(modname));
 
 	return true;
 }
 
+QString ModStateController::getUnmanageableReason(const QString & modname)
+{
+	const QString modDirectory = findModDirectory(modname.section('.', 0, 0));
+
+	if(modDirectory.isEmpty())
+		return tr("Mod is not located in user data directory and can not be managed by launcher");
+
+	// .git may also be a file, in case of git worktrees and submodules
+	if(QFileInfo::exists(modDirectory + "/.git"))
+		return tr("Mod directory is a git repository and can not be managed by launcher");
+
+	return {};
+}
+
 bool ModStateController::isModManageable(QString modname)
 {
-	return !findModDirectory(modname.section('.', 0, 0)).isEmpty();
+	return getUnmanageableReason(modname).isEmpty();
 }
 
 bool ModStateController::canEnableMod(QString modname)
@@ -284,7 +298,7 @@ QString ModStateController::findModDirectory(const QString & modname)
 bool ModStateController::installMod(QString modname, QString archivePath)
 {
 	if(modList->isModInstalled(modname) && !isModManageable(modname))
-		return addError(modname, tr("Mod is not located in user data directory and can not be managed by launcher"));
+		return addError(modname, getUnmanageableReason(modname));
 
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));
