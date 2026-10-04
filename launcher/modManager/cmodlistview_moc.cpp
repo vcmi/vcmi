@@ -1425,6 +1425,11 @@ void CModListView::installMods(QStringList archives)
 		if(!modStateModel->isModInstalled(mod))
 			modsToEnable.push_back(mod);
 
+	QStringList enabledRootModsBefore;
+	for(const auto & mod : modStateModel->getAllMods())
+		if(!modStateModel->isSubmod(mod) && modStateModel->isModEnabled(mod))
+			enabledRootModsBefore.push_back(mod);
+
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
@@ -1470,6 +1475,19 @@ void CModListView::installMods(QStringList archives)
 				tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
 		}
 	}
+
+	QStringList disabledRootMods;
+	for(const auto & mod : enabledRootModsBefore)
+	{
+		if(!modStateModel->isModExists(mod))
+			disabledRootMods.push_back(mod);
+		else if(!modStateModel->isModEnabled(mod))
+			disabledRootMods.push_back(modStateModel->getMod(mod).getName());
+	}
+
+	if(!disabledRootMods.isEmpty())
+		QMessageBox::warning(this, tr("Mods disabled"),
+			tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
 
 	checkManagerErrors();
 
