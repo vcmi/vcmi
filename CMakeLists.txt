@@ -387,6 +387,12 @@ if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
 endif()
 
+# libcurl is used only for downloads in launcher
+set(ENABLE_LIBCURL ${ENABLE_LAUNCHER})
+if(ENABLE_LIBCURL)
+	add_definitions(-DENABLE_LIBCURL)
+endif()
+
 if(ENABLE_EDITOR)
 	add_definitions(-DENABLE_EDITOR)
 endif()
@@ -584,6 +590,10 @@ find_package(minizip)
 if(NOT minizip_FOUND)
 	find_package(minizip-ng REQUIRED)
 	add_library(minizip::minizip ALIAS MINIZIP::minizip-ng)
+endif()
+
+if(ENABLE_LIBCURL)
+	find_package(CURL REQUIRED)
 endif()
 
 if (ENABLE_CLIENT)

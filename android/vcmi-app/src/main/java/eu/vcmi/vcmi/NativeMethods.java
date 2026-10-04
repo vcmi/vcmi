@@ -5,12 +5,19 @@ import android.os.Build;
 import android.os.Messenger;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Base64;
 
 import org.libsdl.app.SDL;
 import org.libsdl.app.SDLActivity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import eu.vcmi.vcmi.util.Log;
 import eu.vcmi.vcmi.util.Notifications;
@@ -72,6 +79,36 @@ public class NativeMethods
     public static String applicationId()
     {
         return context().getPackageName();
+    }
+
+    /// CA certificates trusted by the system, in PEM format, for TLS connections made by native code
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    public static String getSystemCACertificates()
+    {
+        final StringBuilder result = new StringBuilder();
+        try
+        {
+            final TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            factory.init((KeyStore) null);
+            for (final TrustManager manager : factory.getTrustManagers())
+            {
+                if (!(manager instanceof X509TrustManager))
+                {
+                    continue;
+                }
+                for (final X509Certificate certificate : ((X509TrustManager) manager).getAcceptedIssuers())
+                {
+                    result.append("-----BEGIN CERTIFICATE-----\n");
+                    result.append(Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT));
+                    result.append("-----END CERTIFICATE-----\n");
+                }
+            }
+        }
+        catch (final Exception e)
+        {
+            Log.e("Failed to read system CA certificates", e);
+        }
+        return result.toString();
     }
 
     /// shown when the game wants the player's attention while it is in the background
