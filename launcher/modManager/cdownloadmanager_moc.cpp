@@ -16,7 +16,7 @@
 #include "../../lib/CConfigHandler.h"
 
 CDownloadManager::CDownloadManager()
-	: downloader(*this, "", settings["launcher"]["ignoreSslErrors"].Bool())
+	: downloader(*this, settings["launcher"]["httpProxy"].String(), settings["launcher"]["ignoreSslErrors"].Bool())
 {
 	pollTimer.setInterval(20);
 	connect(&pollTimer, &QTimer::timeout, this, [this](){ downloader.poll(); });
