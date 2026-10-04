@@ -32,6 +32,7 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 		QString filename;
 		QString filePath;
 		Status status;
+		HttpDownloadID downloadID;
 		qint64 bytesReceived;
 		qint64 totalSize;
 	};
@@ -43,13 +44,14 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 
 	QList<FileEntry> currentDownloads;
 
-	FileEntry & getActiveEntry();
-	void copyLocalFile();
-	void startNextDownload();
-	bool hasDownloadInProgress() const;
+	FileEntry & getEntry(HttpDownloadID download);
+	void copyLocalFile(FileEntry & entry);
+	void finishEntry(FileEntry & entry, const std::string & errorMessage);
+	void startNextDownloads();
+	int countDownloadsInProgress() const;
 
-	void onDownloadProgress(uint64_t received, uint64_t total) override;
-	void onDownloadFinished(const std::string & errorMessage) override;
+	void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
+	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage) override;
 
 public:
 	CDownloadManager();

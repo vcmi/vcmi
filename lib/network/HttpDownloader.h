@@ -13,6 +13,8 @@
 
 struct HttpDownloaderTransfer;
 
+using HttpDownloadID = uint32_t;
+
 /// Receives results of downloads performed by HttpDownloader
 class DLL_LINKAGE IHttpDownloaderListener
 {
@@ -20,12 +22,12 @@ public:
 	virtual ~IHttpDownloaderListener() = default;
 
 	/// Receives number of downloaded bytes and total size of the file, or 0 if server did not report it
-	virtual void onDownloadProgress(uint64_t received, uint64_t total) = 0;
+	virtual void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) = 0;
 	/// Receives empty string on success, or description of the error
-	virtual void onDownloadFinished(const std::string & errorMessage) = 0;
+	virtual void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage) = 0;
 };
 
-/// Downloads files over HTTP(S) using libcurl. Performs one download at a time, driven by periodic calls to poll()
+/// Downloads files over HTTP(S) using libcurl. Downloads run in parallel, driven by periodic calls to poll()
 class DLL_LINKAGE HttpDownloader : boost::noncopyable
 {
 public:
@@ -34,22 +36,24 @@ public:
 	HttpDownloader(IHttpDownloaderListener & listener, const std::string & proxy, bool ignoreSslErrors);
 	~HttpDownloader();
 
-	/// Starts download of url into target file. Only one download can be active at a time
-	void start(const std::string & url, const boost::filesystem::path & target);
+	/// Starts download of url into target file. Returned identifier is passed to listener
+	HttpDownloadID start(const std::string & url, const boost::filesystem::path & target);
 
-	/// Advances active download without blocking. Listener is called from this method
+	/// Advances active downloads without blocking. Listener is called from this method
 	void poll();
 
-	/// Aborts active download and removes partially downloaded file. Listener is not called
+	/// Aborts all active downloads and removes partially downloaded files. Listener is not called
 	void cancel();
 
 	bool isActive() const;
 
 private:
-	void finish(const std::string & errorMessage);
+	void finish(HttpDownloadID download, const std::string & errorMessage);
 
 	IHttpDownloaderListener & listener;
-	std::unique_ptr<HttpDownloaderTransfer> transfer;
+	std::map<HttpDownloadID, std::unique_ptr<HttpDownloaderTransfer>> transfers;
+	std::vector<HttpDownloadID> failedToStart; ///< downloads that failed before reaching libcurl, reported on next poll()
+	HttpDownloadID nextDownloadID = 0;
 	void * multiHandle; ///< CURLM
 	std::string proxy;
 	std::string caCertificates; ///< PEM certificates provided by the system, on platforms where libcurl cannot find them

@@ -24,9 +24,10 @@
 /// State of a single download performed by HttpDownloader
 struct HttpDownloaderTransfer
 {
-	HttpDownloaderTransfer(IHttpDownloaderListener & listener, void * multiHandle)
+	HttpDownloaderTransfer(IHttpDownloaderListener & listener, void * multiHandle, HttpDownloadID id)
 		: listener(listener)
 		, multiHandle(multiHandle)
+		, id(id)
 	{}
 
 	~HttpDownloaderTransfer()
@@ -41,6 +42,7 @@ struct HttpDownloaderTransfer
 
 	IHttpDownloaderListener & listener;
 	void * multiHandle;
+	HttpDownloadID id;
 	CURL * handle = nullptr;
 	std::ofstream file;
 	boost::filesystem::path target;
@@ -67,7 +69,7 @@ struct HttpDownloaderTransfer
 		if(receivedBytes != transfer->reportedBytes)
 		{
 			transfer->reportedBytes = receivedBytes;
-			transfer->listener.onDownloadProgress(receivedBytes, totalBytes);
+			transfer->listener.onDownloadProgress(transfer->id, receivedBytes, totalBytes);
 		}
 		return 0;
 	}
@@ -141,12 +143,10 @@ HttpDownloader::~HttpDownloader()
 	curl_global_cleanup();
 }
 
-void HttpDownloader::start(const std::string & url, const boost::filesystem::path & target)
+HttpDownloadID HttpDownloader::start(const std::string & url, const boost::filesystem::path & target)
 {
-	if(transfer)
-		throw std::runtime_error("Failed to start download of " + url + ": download of " + transfer->url + " is still in progress");
-
-	auto newTransfer = std::make_unique<HttpDownloaderTransfer>(listener, multiHandle);
+	const HttpDownloadID id = nextDownloadID++;
+	auto newTransfer = std::make_unique<HttpDownloaderTransfer>(listener, multiHandle, id);
 	newTransfer->url = url;
 	newTransfer->target = target;
 
@@ -158,6 +158,7 @@ void HttpDownloader::start(const std::string & url, const boost::filesystem::pat
 	const std::string userAgent = std::string("VCMI/") + GameConstants::VCMI_VERSION;
 
 	setOption(handle, CURLOPT_URL, url.c_str());
+	setOption(handle, CURLOPT_PRIVATE, newTransfer.get());
 	setOption(handle, CURLOPT_USERAGENT, userAgent.c_str());
 	setOption(handle, CURLOPT_ERRORBUFFER, newTransfer->errorBuffer.data());
 	setOption(handle, CURLOPT_FAILONERROR, 1L);
@@ -205,8 +206,9 @@ void HttpDownloader::start(const std::string & url, const boost::filesystem::pat
 	{
 		// reported on next poll(), same as any other failure
 		newTransfer->error = "Failed to open file " + TextOperations::filesystemPathToUtf8(target);
-		transfer = std::move(newTransfer);
-		return;
+		transfers[id] = std::move(newTransfer);
+		failedToStart.push_back(id);
+		return id;
 	}
 
 	CURLMcode addResult = curl_multi_add_handle(multiHandle, handle);
@@ -217,50 +219,53 @@ void HttpDownloader::start(const std::string & url, const boost::filesystem::pat
 		throw std::runtime_error(std::string("Failed to start libcurl transfer: ") + curl_multi_strerror(addResult));
 	}
 
-	transfer = std::move(newTransfer);
+	transfers[id] = std::move(newTransfer);
+	return id;
 }
 
 void HttpDownloader::poll()
 {
-	if(!transfer)
-		return;
-
-	if(!transfer->error.empty())
+	// listener may start or cancel downloads, so collections are not iterated while it is called
+	for(HttpDownloadID id : std::exchange(failedToStart, {}))
 	{
-		finish(transfer->error);
-		return;
+		if(transfers.count(id))
+			finish(id, transfers.at(id)->error);
 	}
+
+	if(transfers.empty())
+		return;
 
 	int runningTransfers = 0;
 	CURLMcode performResult = curl_multi_perform(multiHandle, &runningTransfers);
 	if(performResult != CURLM_OK)
-	{
-		finish(std::string("Failed to download ") + transfer->url + ": " + curl_multi_strerror(performResult));
-		return;
-	}
+		throw std::runtime_error(std::string("Failed to perform libcurl transfers: ") + curl_multi_strerror(performResult));
 
 	int queuedMessages = 0;
+	// messages of downloads removed by listener are discarded by libcurl
 	while(CURLMsg * message = curl_multi_info_read(multiHandle, &queuedMessages))
 	{
 		if(message->msg != CURLMSG_DONE)
 			continue;
 
+		HttpDownloaderTransfer * transfer = nullptr;
+		curl_easy_getinfo(message->easy_handle, CURLINFO_PRIVATE, &transfer);
+
 		CURLcode result = message->data.result;
 		if(result == CURLE_OK)
-			finish({});
+			finish(transfer->id, {});
 		else if(!transfer->error.empty())
-			finish("Failed to download " + transfer->url + ": " + transfer->error);
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->error);
 		else if(transfer->errorBuffer.front() != '\0')
-			finish("Failed to download " + transfer->url + ": " + transfer->errorBuffer.data());
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->errorBuffer.data());
 		else
-			finish("Failed to download " + transfer->url + ": " + curl_easy_strerror(result));
-		return;
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + curl_easy_strerror(result));
 	}
 }
 
-void HttpDownloader::finish(const std::string & errorMessage)
+void HttpDownloader::finish(HttpDownloadID download, const std::string & errorMessage)
 {
-	std::unique_ptr<HttpDownloaderTransfer> finished = std::move(transfer);
+	std::unique_ptr<HttpDownloaderTransfer> finished = std::move(transfers.at(download));
+	transfers.erase(download);
 	std::string result = errorMessage;
 
 	finished->file.close();
@@ -271,22 +276,25 @@ void HttpDownloader::finish(const std::string & errorMessage)
 		finished->removeTarget();
 
 	finished.reset();
-	listener.onDownloadFinished(result);
+	listener.onDownloadFinished(download, result);
 }
 
 void HttpDownloader::cancel()
 {
-	if(!transfer)
-		return;
+	auto cancelled = std::move(transfers);
+	transfers.clear();
+	failedToStart.clear();
 
-	std::unique_ptr<HttpDownloaderTransfer> cancelled = std::move(transfer);
-	cancelled->file.close();
-	cancelled->removeTarget();
+	for(auto & [id, transfer] : cancelled)
+	{
+		transfer->file.close();
+		transfer->removeTarget();
+	}
 }
 
 bool HttpDownloader::isActive() const
 {
-	return transfer != nullptr;
+	return !transfers.empty();
 }
 
 #endif
