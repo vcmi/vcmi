@@ -95,7 +95,7 @@ void MapObjectVisitActivity::startVisit()
 
 void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	const auto * object = gh->gameInfo().getObj(visitedObject);
+	const auto * object = gh->gameInfo().getObj(visitedObject, false);
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
 	// The object may have been removed by the visit itself. A dead hero is passed on

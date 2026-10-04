@@ -65,6 +65,9 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
+		if(!aiGw->canSwapGarrisonHero(targetTown))
+			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
+
 		aiGw->cc->swapGarrisonHero(targetTown);
 
 		if(currentGarrisonHero != targetTown->getVisitingHero())

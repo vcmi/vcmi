@@ -172,6 +172,8 @@ public:
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
 	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
+	/// whether the server allows swapping garrison and visiting heroes of the town
+	bool canSwapGarrisonHero(const CGTownInstance * town) const;
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	void lostHero(const HeroPtr & heroPtr) const; //should remove all references to hero (assigned tasks and so on)

@@ -883,7 +883,8 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 
 void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
+	// the garrison may be held by an allied hero
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->getUpperArmy()->tempOwner)
 	{
 		pickBestCreatures(t->getVisitingHero(), t->getUpperArmy());
 	}
@@ -1076,6 +1077,12 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 	return ret;
 }
 
+bool AIGateway::canSwapGarrisonHero(const CGTownInstance * town) const
+{
+	// without a visiting hero to take its place, the garrison hero becomes one more wandering hero
+	return town->getVisitingHero() || cc->getHeroCount(playerID, false) < cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+}
+
 bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
 	// a reply sent earlier, e.g. to a level-up, may open another question on the server,
@@ -1087,7 +1094,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 	if(heroPtr->isGarrisoned() && heroPtr->getVisitedTown())
 	{
-		if(cc->getHeroCount(playerID, false) >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		if(!canSwapGarrisonHero(heroPtr->getVisitedTown()))
 			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
 
 		cc->swapGarrisonHero(heroPtr->getVisitedTown());
@@ -1279,6 +1286,10 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
+
+			// a visit on the way, e.g. a map event, may stop the hero or take his movement points
+			if(i > 1 && (heroPtr->visitablePos() != nextCoord || !heroPtr->movementPointsRemaining()))
+				break;
 		}
 
 		if(path.nodes[0].action == EPathNodeAction::BLOCKING_VISIT || path.nodes[0].action == EPathNodeAction::BATTLE)
@@ -1387,6 +1398,9 @@ void AIGateway::endTurn()
 	}
 
 	logAi->debug("Resources at the end of turn: %s", cc->getResourceAmount().toString());
+
+	// a battle that took the last hero may still be finishing, and the defeat is reported only after it
+	waitTillFree();
 
 	if(cc->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 	{

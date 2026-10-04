@@ -66,7 +66,11 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	}
 
 	if (hero->isGarrisoned())
+	{
+		if(!aiGw->canSwapGarrisonHero(hero->getVisitedTown()))
+			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
 		aiGw->cc->swapGarrisonHero(hero->getVisitedTown());
+	}
 
 	spells::detail::ProblemImpl problem;
 	const auto & mechanics = spell->getAdventureMechanics();
@@ -80,14 +84,15 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	const auto wait = aiGw->cc->waitTillRealize;
 	aiGw->cc->waitTillRealize = true;
 	aiGw->cc->castSpell(hero, spellID, tile);
+	// Adventure spells may trigger visits and level-up dialogs.
+	// Restore only afterwards: a battle started by the cast suspends waiting and restores it on its own end
+	aiGw->waitTillFree();
 	aiGw->cc->waitTillRealize = wait;
 
 	// the server may refuse a cast that looked possible here; reporting it as done would make
 	// the planner pick the same cast again and again
 	if(!aiGw->lastAdventureCastSucceeded)
 		throw cannotFulfillGoalException("Server refused to cast " + spell->getNameTranslated() + " at " + tile.toString());
-
-	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up dialogs.
 
 	if(town && townPortalEffect)
 	{

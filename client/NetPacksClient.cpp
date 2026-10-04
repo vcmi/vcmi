@@ -225,6 +225,7 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	const CGHeroInstance *h = cl.gameInfo().getHero(pack.hid);
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
 }
 
@@ -262,6 +263,8 @@ static void dispatchGarrisonChange(CClient & cl, ObjectInstanceID army1, ObjectI
 		return;
 	}
 
+	// army affects movement, e.g. creatures that are not native to the terrain slow the hero down
+	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
 	callInterfaceIfPresent(cl, obj1->tempOwner, &IGameEventsReceiver::garrisonsChanged, army1, army2);
 
 	if(army2 != ObjectInstanceID() && army2 != army1)
@@ -448,13 +451,6 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
-
-	// In auto testing mode close client once game is over for all players.
-	// Checked here, since ending gameplay below destroys the game state
-	bool allPlayersEndedGame = std::none_of(gs.players.begin(), gs.players.end(), [](const auto & player)
-	{
-		return player.second.status == EPlayerStatus::INGAME;
-	});
 
 	if(lastHumanEndsGame || localHumanWinsGame || pack.silentEnd)
 	{
