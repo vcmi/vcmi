@@ -209,7 +209,15 @@ bool ModStateController::canUninstallMod(QString modname)
 	if(!mod.isInstalled())
 		return addError(modname, tr("Mod is not installed"));
 
+	if(!isModManageable(modname))
+		return addError(modname, tr("Mod is not located in user data directory and can not be managed by launcher"));
+
 	return true;
+}
+
+bool ModStateController::isModManageable(QString modname)
+{
+	return !findModDirectory(modname.section('.', 0, 0)).isEmpty();
 }
 
 bool ModStateController::canEnableMod(QString modname)
@@ -275,6 +283,9 @@ QString ModStateController::findModDirectory(const QString & modname)
 
 bool ModStateController::installMod(QString modname, QString archivePath)
 {
+	if(modList->isModInstalled(modname) && !isModManageable(modname))
+		return addError(modname, tr("Mod is not located in user data directory and can not be managed by launcher"));
+
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));
 

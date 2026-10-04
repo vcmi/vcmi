@@ -521,8 +521,8 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 	res.disableEnabled = true;
 	res.enableEnabled = notInstalledDependencies.empty() && !translationMismatch;
 	res.installEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
-	res.uninstallEnabled = true;
-	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
+	res.uninstallEnabled = manager->isModManageable(mod.getID());
+	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded && manager->isModManageable(mod.getID());
 	res.directoryEnabled = true;
 	res.repositoryEnabled = true;
 
@@ -798,7 +798,7 @@ void CModListView::doUpdateMod(const QString & modName)
 	{
 		auto mod = modStateModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
-		if(mod.isUpdateAvailable() || !mod.isInstalled())
+		if((mod.isUpdateAvailable() && manager->isModManageable(name)) || !mod.isInstalled())
 			downloadMod(mod);
 	}
 }
@@ -1807,7 +1807,7 @@ QStringList CModListView::getUpdateableMods()
 	for(const auto & modName : modStateModel->getAllMods())
 	{
 		auto mod = modStateModel->getMod(modName);
-		if (!mod.isUpdateAvailable())
+		if (!mod.isUpdateAvailable() || !manager->isModManageable(modName))
 			continue;
 
 		QStringList notInstalledDependencies = getModsToInstall(mod.getID());
@@ -1855,7 +1855,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(unavailableDependencies.empty() && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
+	if(unavailableDependencies.empty() && mod.isUpdateAvailable() && manager->isModManageable(modName) && index.column() == ModFields::STATUS_UPDATE)
 	{
 		on_updateButton_clicked();
 		return;
