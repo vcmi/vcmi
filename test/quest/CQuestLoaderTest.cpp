@@ -276,13 +276,13 @@ TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
 	JsonNode written;
 	JsonSerializer saver(nullptr, written);
 	source.serializeJsonOptions(saver);
-	ASSERT_EQ(written["rewardable"]["info"].Vector().size(), 1u);
+	ASSERT_EQ(written["quests"].Vector().size(), 1u);
 
 	// load it back
 	SeerProbe loaded(gameState().get());
 	JsonDeserializer loader(nullptr, written);
 	loaded.serializeJsonOptions(loader);
-	ASSERT_EQ(loaded.configuration.info.size(), 1u);
+	ASSERT_EQ(loaded.allQuests().size(), 1u);
 	ASSERT_TRUE(loaded.getQuest().reward.has_value());
 	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 100);
 }

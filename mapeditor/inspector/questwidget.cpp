@@ -29,7 +29,9 @@
 #include <vcmi/HeroClass.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
+#include <rewardable/Reward.h>
 #include "../translator.h"
+#include "segments/rewardwidget.h"
 
 QuestWidget::QuestWidget(MapController & _controller, QuestSource & questSource, QWidget *parent) :
 	QDialog(parent),
@@ -45,6 +47,10 @@ QuestWidget::QuestWidget(MapController & _controller, QuestSource & questSource,
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
+	rewardWidget = std::make_unique<RewardWidget>(*controller.map(), questSource.id, this);
+	rewardWidget->disableRemoveObjectOption();
+	ui->rewardContainer->layout()->addWidget(rewardWidget.get());
+	disableReward(true);
 	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
@@ -144,8 +150,6 @@ QuestWidget::QuestWidget(MapController & _controller, QuestSource & questSource,
 
 	if (!questSource.allQuests().empty())
 		selectedQuest = questSource.allQuestsEditor()[0];
-
-	QObject::connect(ui->questRequirementsTab, &QTabWidget::currentChanged, this, &QuestWidget::highlightModifiedTabs);
 }
 
 QuestWidget::~QuestWidget()
@@ -157,6 +161,11 @@ void QuestWidget::loadQuestData()
 {
 	if (!selectedQuest)
 	{
+		disableReward(true);
+		rewardWidget->clearData();
+		ui->rewardButton->setDisabled(true);
+		ui->moveUpButton->setDisabled(true);
+		ui->moveDownButton->setDisabled(true);
 		ui->QuestSettings->hide();
 		ui->textsWidget->hide();
 		return;
@@ -165,6 +174,19 @@ void QuestWidget::loadQuestData()
 	{
 		ui->QuestSettings->show();
 		ui->textsWidget->show();
+		ui->rewardButton->setDisabled(false);
+		ui->moveUpButton->setDisabled(false);
+		ui->moveDownButton->setDisabled(false);
+		if (selectedQuest->reward)
+		{
+			rewardWidget->loadReward(&(selectedQuest->reward.value().reward));
+			disableReward(false);
+		}
+		else
+		{
+			disableReward(true);
+			rewardWidget->clearData();
+		}
 	}
 
 	ui->lDayOfWeek->setCurrentIndex(selectedQuest->mission.dayOfWeek);
@@ -276,8 +298,7 @@ void QuestWidget::loadQuestData()
 	ui->deadlineCheckbox->setChecked(selectedQuest->lastDay >= 0);
 	ui->deadlineSpinbox->setDisabled(selectedQuest->lastDay < 0);
 	ui->deadlineSpinbox->setValue(selectedQuest->lastDay);
-
-	highlightModifiedTabs();
+	printQuestInformation();
 }
 
 void QuestWidget::obtainData()
@@ -431,6 +452,7 @@ bool QuestWidget::commitChanges()
 
 	selectedQuest->repeatedQuest = ui->repetableCheckbox->isChecked();
 	selectedQuest->lastDay = ui->deadlineCheckbox->isChecked() ? ui->deadlineSpinbox->value() : -1;
+	rewardWidget->commit();
 	
 	//selectedQuest->mission.destroyedObjects is set directly in object picking
 	
@@ -473,55 +495,132 @@ void QuestWidget::onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidg
 	widget->setValue(spinWidget->value());
 }
 
-void QuestWidget::highlightModifiedTabs()
+void QuestWidget::shiftSelectedQuest(int shift)
 {
-	auto getColorOfListWidgetTab = [](QListWidget * list) -> QColor {
-		auto tabColor = Qt::black;
-		for (int i = 0; i < list->count(); ++i)
-		{
-			if (list->item(i)->checkState() == Qt::Checked)
-			{
-				tabColor = Qt::darkYellow;
-				break;
-			}
-		}
-		return tabColor;
-	};
-
-	auto resourceTabColor = Qt::black;
-	for(int i = 0; i < ui->lResources->rowCount(); ++i)
+	auto & quests = questSource.allQuestsEditor();
+	auto currentPosition = vstd::find_pos(quests, selectedQuest);
+	if (currentPosition != -1 && currentPosition + shift < quests.size() && currentPosition + shift >= 0)
 	{
-		if (qobject_cast<QSpinBox*>(ui->lResources->cellWidget(i, 1))->value() > 0)
-		{
-			resourceTabColor = Qt::darkYellow;
-			break;
-		}
+		auto it = quests.begin() + currentPosition;
+		if((*it)->repeatedQuest == (*(it + shift))->repeatedQuest)
+			iter_swap(it, it + shift);
 	}
-
-	auto skillsColor = Qt::black;
-	for (int i = 0; i < ui->lSkills->rowCount(); ++i)
-	{
-		if (qobject_cast<QComboBox*>(ui->lSkills->cellWidget(i, 1))->currentIndex() > 0)
-		{
-			skillsColor = Qt::darkYellow;
-			break;
-		}
-	}
-
-	ui->questRequirementsTab->tabBar()->setTabTextColor(0, resourceTabColor);
-	ui->questRequirementsTab->tabBar()->setTabTextColor(1, getColorOfListWidgetTab(ui->lArtifacts));
-	ui->questRequirementsTab->tabBar()->setTabTextColor(2, getColorOfListWidgetTab(ui->lSpells));
-	ui->questRequirementsTab->tabBar()->setTabTextColor(3, skillsColor);
-	ui->questRequirementsTab->tabBar()->setTabTextColor(4, ui->lCreatures->rowCount() > 0 ? Qt::red : Qt::black);
-	ui->questRequirementsTab->tabBar()->setTabTextColor(5, getColorOfListWidgetTab(ui->lHeroes));
-	ui->questRequirementsTab->tabBar()->setTabTextColor(6, getColorOfListWidgetTab(ui->lHeroClasses));
-	ui->questRequirementsTab->tabBar()->setTabTextColor(7, getColorOfListWidgetTab(ui->lPlayers));
-
-	for (auto & child : ui->questRequirementsTab->tabBar()->findChildren<QWidget *>())
-	{
-		child->update();
-	}
+	prepareQuestsList(selectedQuest);
 }
+
+void QuestWidget::disableReward(bool disabled)
+{
+		ui->rewardContainer->setDisabled(disabled);
+		ui->rewardButton->setText(disabled ? tr("Add reward") : tr("Remove reward"));
+}
+
+void QuestWidget::printQuestInformation()
+{
+	QStringList textList;
+	if (selectedQuest->mission.dayOfWeek)
+		textList += QObject::tr("Day of Week: %1").arg(selectedQuest->mission.dayOfWeek);
+	if (selectedQuest->mission.daysPassed)
+		textList += QObject::tr("Days Passed: %1").arg(selectedQuest->mission.daysPassed);
+	if (selectedQuest->mission.heroLevel > 0)
+		textList += QObject::tr("Hero Level: %1").arg(selectedQuest->mission.heroLevel);
+	if (selectedQuest->mission.heroExperience)
+		textList += QObject::tr("Hero Experience: %1").arg(selectedQuest->mission.heroExperience);
+	if (selectedQuest->mission.manaPoints)
+		textList += QObject::tr("Mana Points: %1").arg(selectedQuest->mission.manaPoints);
+	if (selectedQuest->mission.manaPercentage > 0)
+		textList += QObject::tr("Mana Percentage: %1").arg(selectedQuest->mission.manaPercentage);
+	if (selectedQuest->mission.primary[0] || selectedQuest->mission.primary[1] || selectedQuest->mission.primary[2] || selectedQuest->mission.primary[3])
+		textList += QObject::tr("Primary Skills: %1/%2/%3/%4").arg(selectedQuest->mission.primary[0]).arg(selectedQuest->mission.primary[1]).arg(selectedQuest->mission.primary[2]).arg(selectedQuest->mission.primary[3]);
+	QStringList resourcesList;
+	for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
+	{
+		if(selectedQuest->mission.resources[resource] == 0)
+			continue;
+		MetaString str;
+		str.appendName(resource);
+		resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString(&Translator::instance()))).arg(selectedQuest->mission.resources[resource]);
+	}
+	if (!resourcesList.empty())
+		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
+
+	if (!selectedQuest->mission.artifacts.empty())
+	{
+		QStringList artifactsList;
+		for(const auto & artifact : selectedQuest->mission.artifacts)
+		{
+			artifactsList += QString::fromStdString(LIBRARY->artifacts()->getById(artifact)->getNameTranslated());
+		}
+		textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
+	}
+
+	if (!selectedQuest->mission.spells.empty())
+	{
+		QStringList spellsList;
+		for(const auto & spell : selectedQuest->mission.spells)
+		{
+			spellsList += QString::fromStdString(LIBRARY->spells()->getById(spell)->getNameTranslated());
+		}
+		textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
+	}
+
+	if (!selectedQuest->mission.secondary.empty())
+	{
+		QStringList secondarySkillsList;
+		for(const auto & [skill, skillLevel] : selectedQuest->mission.secondary)
+		{
+			secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(LIBRARY->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
+		}
+		textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
+	}
+
+	if (!selectedQuest->mission.creatures.empty())
+	{
+		QStringList creaturesList;
+		for(const auto & creature : selectedQuest->mission.creatures)
+		{
+			creaturesList += QString("%1 %2").arg(creature.getCount()).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+		}
+		textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
+	}
+
+	if (!selectedQuest->mission.heroes.empty())
+	{
+		QStringList heroesList;
+		for(const auto & hero : selectedQuest->mission.heroes)
+		{
+			heroesList += QString::fromStdString(LIBRARY->heroTypes()->getById(hero)->getNameTranslated());
+		}
+		textList += QObject::tr("Heroes: %1").arg(heroesList.join(", "));
+	}
+
+	if (!selectedQuest->mission.heroClasses.empty())
+	{
+		QStringList heroClassesList;
+		for(const auto & heroClass : selectedQuest->mission.heroClasses)
+		{
+			heroClassesList += QString::fromStdString(LIBRARY->heroClasses()->getById(heroClass)->getNameTranslated());
+		}
+		textList += QObject::tr("Hero Classes: %1").arg(heroClassesList.join(", "));
+	}
+
+	if (!selectedQuest->mission.players.empty())
+	{
+		QStringList playersList;
+		for(const auto & player : selectedQuest->mission.players)
+		{
+			MetaString str;
+			str.appendName(player);
+			playersList += QString::fromStdString(str.toString(&Translator::instance()));
+		}
+		textList += QObject::tr("Players: %1").arg(playersList.join(", "));
+	}
+
+	if (!textList.isEmpty())
+		ui->questInfo->setText(textList.join("\n"));
+	else
+		ui->questInfo->setText(QString(QObject::tr("Empty Quest")));
+}
+
 void QuestWidget::on_lKillTargetSelect_clicked()
 {
 	auto pred = [](const CGObjectInstance * obj) -> bool
@@ -572,6 +671,35 @@ void QuestWidget::on_addQuestButton_clicked()
 	questSource.addQuest();
 	prepareQuestsList();
 	selectQuest(ui->questsList->count() - 1);
+}
+
+void QuestWidget::on_rewardButton_clicked()
+{
+	if (selectedQuest)
+	{
+		if (!selectedQuest->reward)
+		{
+			selectedQuest->reward = Rewardable::VisitInfo();
+			rewardWidget->loadReward(&(selectedQuest->reward.value().reward));
+			disableReward(false);
+		}
+		else
+		{
+			selectedQuest->reward = std::nullopt;
+			rewardWidget->clearData();
+			disableReward(true);
+		}
+	}
+}
+
+void QuestWidget::on_moveUpButton_clicked()
+{
+	shiftSelectedQuest(-1);
+}
+
+void QuestWidget::on_moveDownButton_clicked()
+{
+	shiftSelectedQuest(1);
 }
 
 void QuestWidget::on_deleteQuestButton_clicked()
@@ -668,11 +796,4 @@ bool QuestDelegate::eventFilter(QObject * object, QEvent * event)
 		}
 	}
 	return QStyledItemDelegate::eventFilter(object, event);
-}
-
-void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
-{
-	QStringList textList(QObject::tr("Quest:"));
-
-	setModelTextData(model, index, textList);
 }
