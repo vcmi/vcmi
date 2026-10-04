@@ -48,6 +48,7 @@ set(editor_SRCS
 		inspector/abilitieswidget.cpp
 		inspector/scholarwidget.cpp
 		inspector/shrinewidget.cpp
+		inspector/segments/rewardwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 		helper.cpp
 		campaigneditor/campaigneditor.cpp
@@ -127,6 +128,7 @@ set(editor_HEADERS
 		inspector/scholarwidget.h
 		inspector/shrinewidget.h
 		inspector/WidgetInitializationException.h
+		inspector/segments/rewardwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 		maplayerselectiondialog.h
@@ -190,6 +192,7 @@ set(editor_FORMS
 		inspector/abilitieswidget.ui
 		inspector/scholarwidget.ui
 		inspector/shrinewidget.ui
+		inspector/segments/rewardwidget.ui
 		campaigneditor/campaigneditor.ui
 		campaigneditor/campaignproperties.ui
 		campaigneditor/scenarioproperties.ui

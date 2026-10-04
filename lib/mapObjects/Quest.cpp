@@ -341,6 +341,19 @@ void Quest::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("timeLimit", lastDay, -1);
 	handler.serializeString("questGiverName", questGiverNameTextID);
 	handler.serializeStruct("limiter", mission);
+	if (handler.saving && reward)
+	{
+		handler.serializeStruct("reward", reward.value());
+	}
+	else if (!handler.saving)
+	{
+		reward = Rewardable::VisitInfo();
+		if (handler.getCurrent()["reward"].isStruct())
+		{
+			handler.serializeStruct("reward", reward.value());
+		}
+		reward.value().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	}
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
 	// compatibility, but stored in the limiter as mission.destroyedObjects
@@ -827,69 +840,61 @@ void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstan
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	// VCMI maps keep the reward in configuration, H3M maps only in the quest
-	if(handler.saving && configuration.info.empty() && !allQuests().empty() && getQuest().reward)
-		configuration.info.push_back(*getQuest().reward);
-
-	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
 
-	bool oldVersion = false;
-	{
-		if (!handler.saving)
-		{
-			auto s = handler.enterStruct("quest");
-			oldVersion = !handler.getCurrent().isNull();
-		}
-	}
-
-	if (oldVersion)
-	{
-		auto s = handler.enterStruct("quest");
-		addQuest().serializeJson(handler);
-		if (!configuration.info.empty())
-			allQuestsEditor()[0]->reward = configuration.info[0];
-	}
-	else
-	{
-		JsonArraySerializer questsArray = handler.enterArray("quests");
-		if(handler.saving)
-		{
-			int size = allQuests().size();
-			questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
-			for (int i = 0; i<size; i++)
-			{
-				auto questSerializer = questsArray.enterStruct(i);
-				allQuests()[i]->serializeJson(handler);
-			}
-		} else
-		{
-			int size = questsArray.size();
-			for (int i = 0; i<size; i++)
-			{
-				auto & quest = addQuest();
-				auto questSerializer = questsArray.enterStruct(i);
-				quest.serializeJson(handler);
-			}
-		}
-
-		//we copy rewards consecutively from rewardable to quests (TODO:add reward widget included within quest widget in the editor and save rewards as reward)
-		if (!handler.saving)
-		{
-			for (int i = 0; i<configuration.info.size() && i<allQuests().size(); i++)
-			{
-				allQuestsEditor()[i]->reward = configuration.info[i];
-			}
-		}
-	}
-
+	int version = 2; // versions of serialization, 0 is the oldest one
 	if(!handler.saving)
 	{
-		readLegacyReward(handler);
-
-		if(!getQuest().reward && !configuration.info.empty())
-			getQuest().reward = configuration.info.front();
+		if (handler.getCurrent()["quest"].isStruct())
+			version = 1;
+		if (handler.getCurrent()["reward"].isStruct())
+			version = 0;
 	}
+
+	switch(version)
+	{
+		case 0:
+			readLegacyReward(handler);
+			break;
+		case 1:
+			readReward17(handler);
+			break;
+		default:
+			readOrWriteReward18(handler);
+	}
+}
+
+void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
+{
+	JsonArraySerializer questsArray = handler.enterArray("quests");
+	if(handler.saving)
+	{
+		int size = allQuests().size();
+		questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
+		for (int i = 0; i<size; i++)
+		{
+			auto questSerializer = questsArray.enterStruct(i);
+			allQuests()[i]->serializeJson(handler);
+		}
+	} else
+	{
+		int size = questsArray.size();
+		for (int i = 0; i<size; i++)
+		{
+			auto & quest = addQuest();
+			auto questSerializer = questsArray.enterStruct(i);
+			quest.serializeJson(handler);
+		}
+	}
+	logGlobal->error("debug!");
+}
+
+void SeerHut::readReward17(JsonSerializeFormat & handler)
+{
+	auto s = handler.enterStruct("quest");
+	addQuest().serializeJson(handler);
+	if (!configuration.info.empty())
+		allQuestsEditor()[0]->reward = configuration.info[0];
 }
 
 void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
@@ -943,6 +948,9 @@ void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
 	
 	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	configuration.info.push_back(vinfo);
+
+	if (!configuration.info.empty())
+		allQuestsEditor()[0]->reward = configuration.info[0];
 }
 
 void QuestGuard::init(vstd::RNG & rand)

@@ -9,32 +9,61 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1532</width>
-    <height>1098</height>
+    <width>930</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mission goal</string>
+   <string>Missions</string>
   </property>
   <property name="modal">
    <bool>true</bool>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
+    <widget class="QWidget" name="rewardContainer" native="true">
+     <layout class="QVBoxLayout" name="rewardsLayout">
+      <item>
+       <widget class="QLabel" name="rewardLabel">
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Reward</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_9">
        <item>
+        <widget class="QPushButton" name="rewardButton">
+         <property name="text">
+          <string>Add Reward</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="addQuestButton">
          <property name="text">
-          <string>Add</string>
+          <string>Add Quest</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteQuestButton">
          <property name="text">
-          <string>Delete</string>
+          <string>Delete Quest</string>
          </property>
         </widget>
        </item>
@@ -55,6 +84,24 @@
         </size>
        </property>
       </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <item>
+        <widget class="QPushButton" name="moveUpButton">
+         <property name="text">
+          <string>Move up</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="moveDownButton">
+         <property name="text">
+          <string>Move down</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QTabWidget" name="textsWidget">
@@ -140,6 +187,25 @@
    <item>
     <widget class="QWidget" name="QuestSettings" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QLabel" name="questLabel">
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Quest</string>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
@@ -781,6 +847,9 @@
          </layout>
         </widget>
        </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="questInfo"/>
       </item>
      </layout>
     </widget>
