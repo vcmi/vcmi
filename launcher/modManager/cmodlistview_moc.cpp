@@ -872,14 +872,20 @@ void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 
 {
 	Q_UNUSED(currentFile);
 
-	// display progress, in megabytes
+	const auto toMegabytes = [](qint64 bytes){ return QString::number(bytes / (1024.0 * 1024.0), 'f', 1); };
+
+	// text shows megabytes, but %v and %m of progress bar would show its range, which is in kilobytes
 	const auto currentDescription = enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile);
-	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(currentDescription);
+	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished")
+		.arg(currentDescription)
+		.replace("%v", toMegabytes(current))
+		.replace("%m", toMegabytes(max));
 	ui->progressBar->setFormat(progressBarFormat);
 
+	// maximum of 0 switches progress bar to busy indicator that hides text
 	ui->progressBar->setVisible(true);
-	ui->progressBar->setMaximum(max / (1024 * 1024));
-	ui->progressBar->setValue(current / (1024 * 1024));
+	ui->progressBar->setMaximum(std::max<qint64>(1, max / 1024));
+	ui->progressBar->setValue(current / 1024);
 }
 
 void CModListView::onDownloadFileFinished(QString fileName)

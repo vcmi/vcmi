@@ -30,7 +30,7 @@ DemoInstaller::DemoInstaller(IDemoInstallerCallback * callback) :
 
 void DemoInstaller::downloadProgress(qint64 current, qint64 max)
 {
-    if(callback)
+    if(callback && max > 0)
         callback->onInstallProgress(static_cast<float>(current) / static_cast<float>(max));
 }
 
