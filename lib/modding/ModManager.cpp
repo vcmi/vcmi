@@ -482,7 +482,7 @@ ModManager::ModManager()
 {
 }
 
-ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset)
+ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, const TModList & newMods)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>(useTestPreset))
 {
@@ -493,6 +493,11 @@ ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset)
 
 	// Sync roe-demo enabled state with demo data presence
 	syncDemoModState();
+
+	// resolved together with active mods, so that mods that depend on new mods are not disabled as broken
+	for(const auto & modID : newMods)
+		if(vstd::contains(getInstalledValidMods(), modID))
+			modsPreset->setModActive(modID, true);
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 	// Force-activate the test fixtures mod regardless of any persisted preset or its

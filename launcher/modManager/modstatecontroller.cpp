@@ -176,11 +176,6 @@ QStringList ModStateController::getErrors()
 	return ret;
 }
 
-bool ModStateController::installMod(QString modname, QString archivePath)
-{
-	return canInstallMod(modname) && doInstallMod(modname, archivePath);
-}
-
 bool ModStateController::uninstallMod(QString modname)
 {
 	return canUninstallMod(modname) && doUninstallMod(modname);
@@ -201,21 +196,6 @@ bool ModStateController::disableMod(QString modname)
 	if (!canDisableMod(modname))
 		return false;
 	modList->doDisableMod(modname);
-	return true;
-}
-
-bool ModStateController::canInstallMod(QString modname)
-{
-	if (!modList->isModExists(modname))
-		return true; // for installation of unknown mods, e.g. via "Install from file" option
-
-	auto mod = modList->getMod(modname);
-
-	if(mod.isSubmod())
-		return addError(modname, tr("Can not install submod"));
-
-	if(mod.isInstalled())
-		return addError(modname, tr("Mod is already installed"));
 	return true;
 }
 
@@ -293,7 +273,7 @@ QString ModStateController::findModDirectory(const QString & modname)
 	return {};
 }
 
-bool ModStateController::doInstallMod(QString modname, QString archivePath)
+bool ModStateController::installMod(QString modname, QString archivePath)
 {
 	if(!QFile(archivePath).exists())
 		return addError(modname, tr("Mod archive is missing"));

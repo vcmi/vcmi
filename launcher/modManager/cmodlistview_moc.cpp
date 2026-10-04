@@ -177,9 +177,9 @@ void CModListView::showEvent(QShowEvent * event)
 	filterModel->reloadFilter();
 }
 
-void CModListView::reload(const QString & modToSelect)
+void CModListView::reload(const QString & modToSelect, const QStringList & newMods)
 {
-	modStateModel->reloadLocalState();
+	modStateModel->reloadLocalState(newMods);
 	modModel->reloadViewModel();
 
 	filterModel->reloadFilter();
@@ -1404,7 +1404,6 @@ void CModListView::installMods(QStringList archives)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
-	QMap<QString, QMap<QString, bool>> submodStateBeforeUpdate;
 
 	for(QString archive : archives)
 	{
@@ -1421,31 +1420,10 @@ void CModListView::installMods(QStringList archives)
 		activatingPreset.clear();
 	}
 
-	// uninstall old version of mod, if installed
-	for(QString mod : modNames)
-	{
-		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
-		{
-			// Update flow is uninstall + install. Save submod states now so we can restore
-			// user configuration after reinstall (including nested "main.sub.another" ids).
-			const auto modSettings = modStateModel->getModSettings(mod);
-			for(const auto & settingID : modSettings.keys())
-				submodStateBeforeUpdate[mod][mod + '.' + settingID] = modSettings.value(settingID);
-
-			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
-			if(modStateModel->isModEnabled(mod))
-				modsToEnable.push_back(mod);
-
-			doUninstallMod(mod, true);
-		}
-		else
-		{
-			// installation of previously not present mod -> enable it
+	// Updated mods are replaced on disk without changes to the preset, so they keep their state and state of their submods
+	for(const auto & mod : modNames)
+		if(!modStateModel->isModInstalled(mod))
 			modsToEnable.push_back(mod);
-		}
-	}
-
-	QString lastInstalled;
 
 	for(int i = 0; i < modNames.size(); i++)
 	{
@@ -1457,13 +1435,12 @@ void CModListView::installMods(QStringList archives)
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
-
-		if(i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
-			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
+	reload(modNames.back(), modsToEnable);
 
-	reload(lastInstalled);
+	// mods that were not activated on reload, e.g. due to dependencies that are installed but disabled
+	vstd::erase_if(modsToEnable, [this](const QString & mod){ return !modStateModel->isModExists(mod) || modStateModel->isModEnabled(mod); });
 
 	if(!modsToEnable.empty())
 	{
@@ -1491,26 +1468,6 @@ void CModListView::installMods(QStringList archives)
 			QString details = lines.isEmpty() ? QString::fromUtf8(e.what()) : lines.join("\n");
 			QMessageBox::warning(this, tr("Failed to enable mod"),
 				tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
-		}
-	}
-
-	for(const auto & mod : modNames)
-	{
-		if(!modStateModel->isModExists(mod) || !modStateModel->isModEnabled(mod))
-			continue;
-
-		const auto submodsForMod = submodStateBeforeUpdate.value(mod);
-		for(const auto & submod : submodsForMod.keys())
-		{
-			const bool wasEnabled = submodsForMod.value(submod);
-
-			if(!modStateModel->isModExists(submod))
-				continue;
-
-			if(wasEnabled && !modStateModel->isModEnabled(submod))
-				manager->enableMods({submod});
-			else if(!wasEnabled && modStateModel->isModEnabled(submod))
-				manager->disableMod(submod);
 		}
 	}
 
@@ -1952,7 +1909,7 @@ void CModListView::importPreset(const JsonNode & data)
 	if (modList.empty())
 	{
 		modStateModel->activatePreset(presetName);
-		modStateModel->reloadLocalState();
+		modStateModel->reloadLocalState({});
 	}
 	else
 	{
