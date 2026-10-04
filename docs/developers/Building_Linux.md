@@ -18,7 +18,8 @@ To compile, the following packages (and their development counterparts) are need
 - zlib and zlib-devel
 - `LuaJIT`, or Lua (if LuaJit is not available)
 - Boost C++ libraries: `date-time`, `iostreams`, `filesystem`, `program-options`
-- Recommended, if you want to build launcher or map editor: Qt (widget and network modules)
+- Recommended, if you want to build launcher or map editor: Qt (widgets module)
+- Required for launcher: libcurl
 - Recommended, FFmpeg libraries, if you want to watch in-game videos: `libavformat` and `libswscale`. Their name could be `libavformat-devel` and `libswscale-devel`, or `ffmpeg-libs-devel` or similar names.
 - Optional:
   - if you want to enable MMAI: `onnxruntime`
@@ -31,7 +32,7 @@ For Ubuntu and Debian you need to:
 1. Install this list of packages:
 
     ```sh
-    sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-program-options-dev libboost-date-time-dev libboost-iostreams-dev qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-svg-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev libsquish-dev libfmt-dev ninja-build ccache
+    sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-program-options-dev libboost-date-time-dev libboost-iostreams-dev qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-svg-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev libsquish-dev libfmt-dev libcurl4-openssl-dev ninja-build ccache
     ```
 
 2. Optionally, install `onnxruntime`:
@@ -65,7 +66,7 @@ sudo apt-get build-dep vcmi
 ### On RPM-based distributions (e.g. Fedora)
 
 ```sh
-sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel onnxruntime-devel libsquish-devel libfmt-devel ccache
+sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel onnxruntime-devel libsquish-devel libfmt-devel libcurl-devel ccache
 ```
 
 ### On Arch-based distributions

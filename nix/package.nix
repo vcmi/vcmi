@@ -119,6 +119,7 @@ in {
       pkg-config
       libsquish
       minizip
+      curl
     ]
     ++ [
       (

@@ -33,6 +33,7 @@ BuildRequires:		zlib-devel
 BuildRequires:		ffmpeg-devel
 BuildRequires:		ffmpeg-libs
 BuildRequires:		qt5-qtbase-devel
+BuildRequires:		libcurl-devel
 
 %description
 VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving it new and extended possibilities.
